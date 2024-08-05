@@ -3,7 +3,6 @@ import Button from '../../../components/Button';
 import { SecondaryText } from '../../../components/SecondaryText';
 import { SectionHeader } from '../../../components/SectionHeader';
 import { useTranslationContext } from '../../../context/LocalContext';
-import useBackupStatus from '../../../hooks/backups/useBackupsStatus';
 import { BackupContext } from '../../../context/BackupContext';
 
 interface SelectedFoldersSectionProps
@@ -16,8 +15,7 @@ export function SelectedFoldersSection({
   onGoToList,
 }: SelectedFoldersSectionProps) {
   const { translate } = useTranslationContext();
-  const { backupStatus } = useBackupStatus();
-  const { backups } = useContext(BackupContext);
+  const { backups, backupStatus } = useContext(BackupContext);
 
   return (
     <section className={`${className}`}>

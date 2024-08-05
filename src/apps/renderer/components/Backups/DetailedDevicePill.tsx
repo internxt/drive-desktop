@@ -2,7 +2,6 @@ import useUsage from '../../hooks/useUsage';
 import { SizePill } from './SizePill';
 import { useContext, useEffect } from 'react';
 import { useBackupProgress } from '../../hooks/backups/useBackupProgress';
-import useBackupStatus from '../../hooks/backups/useBackupsStatus';
 import { BackupsProgressBar } from './BackupsProgressBar';
 import { BackupsProgressPercentage } from './BackupsProgressPercent';
 import { ArrowCircleUp } from 'phosphor-react';
@@ -27,11 +26,10 @@ export function DetailedDevicePill({
   showIssues,
 }: DetailedDevicePillProps) {
   const { usage } = useUsage();
-  const { backupStatus } = useBackupStatus();
   const { thereIsProgress, percentualProgress, clearProgress } =
     useBackupProgress();
   const { current, selected } = useContext(DeviceContext);
-  const { lastBackupHadIssues, backups } = useContext(BackupContext);
+  const { lastBackupHadIssues, backups, backupStatus } = useContext(BackupContext);
 
   useEffect(() => {
     if (backupStatus === 'STANDBY') {
@@ -47,15 +45,15 @@ export function DetailedDevicePill({
         <div className="grow">
           {selected?.name}
           <br />
-          {thereIsProgress ? <BackingUp /> : <LastBackupMade />}
+          {selected === current && thereIsProgress ? <BackingUp /> : <LastBackupMade />}
         </div>
-        {thereIsProgress ? (
+        {selected === current && thereIsProgress ? (
           <BackupsProgressPercentage progress={percentualProgress} />
         ) : (
           <SizePill size={usage?.limitInBytes ?? 0} />
         )}
       </div>
-      {thereIsProgress && (
+      {selected === current && thereIsProgress && (
         <BackupsProgressBar progress={percentualProgress} />
       )}
       {selected === current && displayIssues && <ShowBackupsIssues show={showIssues} />}

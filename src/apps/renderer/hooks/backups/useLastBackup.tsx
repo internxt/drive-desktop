@@ -11,6 +11,7 @@ export interface LastBackupContextProps {
   lastExistReason: WorkerExitCause | undefined;
   fromNow: () => string;
   lastBackupHadIssues: boolean;
+  refreshLastBackupTimestamp: () => void;
 }
 
 export function useLastBackup(): LastBackupContextProps {
@@ -50,5 +51,6 @@ export function useLastBackup(): LastBackupContextProps {
     lastExistReason,
     fromNow,
     lastBackupHadIssues,
+    refreshLastBackupTimestamp,
   };
 }

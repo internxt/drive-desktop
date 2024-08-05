@@ -19,7 +19,8 @@ export function useBackups(): BackupContextProps {
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
 
   async function fetchBackups(): Promise<void> {
-    const backups = await window.electron.getBackupsFromDevice(selected!, selected === current);
+    if (!selected) return;
+    const backups = await window.electron.getBackupsFromDevice(selected, selected === current);
     setBackups(backups);
   }
 

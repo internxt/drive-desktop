@@ -81,7 +81,7 @@ export class BackupsProcessTracker {
     this.lastExistReason = reason;
   }
 
-  getExistReason(id: number): WorkerExitCause | undefined {
+  getExitReason(id: number): WorkerExitCause | undefined {
     Logger.debug(this.exitReasons.keys(), id);
     return this.exitReasons.get(id);
   }
@@ -110,7 +110,7 @@ export function initiateBackupsProcessTracker(): BackupsProcessTracker {
   });
 
   BackupsIPCMain.handle('backups.get-backup-issues', (_, id: number) => {
-    const reason = tracker.getExistReason(id);
+    const reason = tracker.getExitReason(id);
 
     if (reason !== undefined && isSyncError(reason)) {
       return reason;

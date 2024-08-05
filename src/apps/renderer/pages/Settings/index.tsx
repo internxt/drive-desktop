@@ -57,6 +57,7 @@ export default function Settings() {
                 <BackupsSection
                   active={activeSection === 'BACKUPS'}
                   showBackedFolders={() => setSubsection('list')}
+                  showIssues={() => window.electron.openProcessIssuesWindow()}
                 />
               </div>
             </div>

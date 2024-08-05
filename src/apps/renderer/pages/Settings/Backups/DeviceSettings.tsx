@@ -6,9 +6,10 @@ import { DeviceContext } from '../../../context/DeviceContext';
 
 interface DeviceSettingsProps extends React.HTMLAttributes<HTMLBaseElement> {
   onGoToList: () => void;
+  showIssues: () => void;
 }
 
-export function DeviceSettings({ onGoToList, className }: DeviceSettingsProps) {
+export function DeviceSettings({ onGoToList, className, showIssues }: DeviceSettingsProps) {
   const { enabled, toggleEnabled } = useBackupsEnabled();
 
   const { deviceState } = useContext(DeviceContext);
@@ -19,7 +20,7 @@ export function DeviceSettings({ onGoToList, className }: DeviceSettingsProps) {
         <EnableBackups enable={toggleEnabled} />
       ) : (
         <>
-          <DeviceBackups onGoToList={onGoToList} />
+          <DeviceBackups onGoToList={onGoToList} showIssues={showIssues} />
         </>
       )}
     </section>

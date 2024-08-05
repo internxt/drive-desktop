@@ -1,7 +1,6 @@
 import { useContext } from 'react';
 import Button from '../../../components/Button';
 import { useTranslationContext } from '../../../context/LocalContext';
-import useBackupStatus from '../../../hooks/backups/useBackupsStatus';
 import { BackupContext } from '../../../context/BackupContext';
 
 type StartBackupProps = {
@@ -9,8 +8,7 @@ type StartBackupProps = {
 };
 
 export function StartBackup({ className }: StartBackupProps) {
-  const { backupStatus } = useBackupStatus();
-  const { backups } = useContext(BackupContext);
+  const { backups, backupStatus } = useContext(BackupContext);
 
   const { translate } = useTranslationContext();
 

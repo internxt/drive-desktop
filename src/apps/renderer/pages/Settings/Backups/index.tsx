@@ -8,11 +8,13 @@ import Spinner from '../../../assets/spinner.svg';
 interface BackupsSectionProps {
   active: boolean;
   showBackedFolders: () => void;
+  showIssues: () => void;
 }
 
 export default function BackupsSection({
   active,
   showBackedFolders,
+  showIssues,
 }: BackupsSectionProps) {
   const { deviceState } = useContext(DeviceContext);
 
@@ -35,7 +37,7 @@ export default function BackupsSection({
           <DevicesList className="w-1/3" />
           <div className="mx-4 border-l border-gray-10"></div>
           <ScrollableContent className="w-2/3">
-            <DeviceSettings onGoToList={showBackedFolders} />
+            <DeviceSettings onGoToList={showBackedFolders} showIssues={showIssues} />
           </ScrollableContent>
         </section>
       )}

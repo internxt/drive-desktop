@@ -10,15 +10,16 @@ import { DownloadBackups } from './DownloadBackups';
 
 interface DeviceBackupsProps {
   onGoToList: () => void;
+  showIssues: () => void;
 }
 
-export function DeviceBackups({ onGoToList }: DeviceBackupsProps) {
+export function DeviceBackups({ onGoToList, showIssues }: DeviceBackupsProps) {
   const { current, selected } = useContext(DeviceContext);
 
   return (
     <div className="flex flex-col gap-2">
       <p className="text-neutral-500">Backup</p>
-      <DetailedDevicePill showIssues={onGoToList} />
+      <DetailedDevicePill showIssues={showIssues} />
       <div className="grid grid-cols-2 gap-2">
         { selected === current ? <>
           <StartBackup className="w-full" />
