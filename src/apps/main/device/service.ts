@@ -355,6 +355,7 @@ async function downloadDeviceBackupZip(
   const encryptionKey = user.mnemonic;
 
   await downloadFolderAsZip(
+    device.name,
     networkApiUrl,
     folder.uuid,
     path,

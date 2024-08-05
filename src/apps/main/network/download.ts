@@ -21,6 +21,7 @@ import fetch from 'electron-fetch';
 import { convertToReadableStream } from './NetworkFacade';
 
 export async function downloadFolderAsZip(
+  deviceName: string,
   networkApiUrl: string,
   folderUuid: string,
   path: PathLike,
@@ -48,6 +49,8 @@ export async function downloadFolderAsZip(
   const { abortController } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
   const { tree, folderDecryptedNames, fileDecryptedNames } = await fetchFolderTree(folderUuid);
+  tree.plainName = deviceName;
+  folderDecryptedNames[tree.id] = deviceName;
   const pendingFolders: { path: string; data: FolderTree }[] = [
     { path: '', data: tree },
   ];
