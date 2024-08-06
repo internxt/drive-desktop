@@ -48,9 +48,10 @@ class BackupConfiguration {
   async obtainBackupsInfo(): Promise<Array<BackupInfo>> {
     const device = await getOrCreateDevice();
 
-    const enabledBackupEntries = await getBackupsFromDevice();
+    const enabledBackupEntries = await getBackupsFromDevice(device, true);
 
     const backups: BackupInfo[] = enabledBackupEntries.map((backup) => ({
+      folderUuid: backup.folderUuid,
       pathname: backup.pathname,
       folderId: backup.folderId,
       tmpPath: app.getPath('temp'),

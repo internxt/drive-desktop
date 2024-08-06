@@ -1,9 +1,10 @@
+import { useContext } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
-import { useLastBackup } from '../../hooks/backups/useLastBackup';
+import { BackupContext } from '../../context/BackupContext';
 
 export function LastBackupMade() {
   const { translate } = useTranslationContext();
-  const { lastBackupTimestamp, fromNow } = useLastBackup();
+  const { lastBackupTimestamp, fromNow } = useContext(BackupContext);
 
   return (
     <>

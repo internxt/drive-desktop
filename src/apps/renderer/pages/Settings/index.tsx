@@ -6,6 +6,8 @@ import GeneralSection from './General';
 import Header, { Section } from './Header';
 import BackupsSection from './Backups';
 import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
+import { DeviceProvider } from '../../context/DeviceContext';
+import { BackupProvider } from '../../context/BackupContext';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
@@ -33,30 +35,35 @@ export default function Settings() {
   }, []);
 
   return (
-    <div
-      ref={rootRef}
-      style={{ minWidth: 600, minHeight: subsection === 'list' ? 0 : 420 }}
-    >
-      {subsection === 'list' && (
-        <BackupFolderSelector onClose={() => setSubsection('panel')} />
-      )}
-      {subsection === 'panel' && (
-        <div className="flex flex-grow flex-col">
-          <WindowTopBar
-            title="Internxt Drive"
-            className="bg-surface dark:bg-gray-5"
-          />
-          <Header active={activeSection} onClick={setActiveSection} />
-          <div className="flex bg-gray-1 p-5" style={{ minHeight: 420 }}>
-            <GeneralSection active={activeSection === 'GENERAL'} />
-            <AccountSection active={activeSection === 'ACCOUNT'} />
-            <BackupsSection
-              active={activeSection === 'BACKUPS'}
-              showBackedFolders={() => setSubsection('list')}
-            />
-          </div>
+    <DeviceProvider>
+      <BackupProvider>
+        <div
+          ref={rootRef}
+          style={{ minWidth: 600, minHeight: subsection === 'list' ? 0 : 420 }}
+        >
+          {subsection === 'list' && (
+            <BackupFolderSelector onClose={() => setSubsection('panel')} />
+          )}
+          {subsection === 'panel' && (
+            <div className="flex flex-grow flex-col">
+              <WindowTopBar
+                title="Internxt Drive"
+                className="bg-surface dark:bg-gray-5"
+              />
+              <Header active={activeSection} onClick={setActiveSection} />
+              <div className="flex bg-gray-1 p-5" style={{ minHeight: 420 }}>
+                <GeneralSection active={activeSection === 'GENERAL'} />
+                <AccountSection active={activeSection === 'ACCOUNT'} />
+                <BackupsSection
+                  active={activeSection === 'BACKUPS'}
+                  showBackedFolders={() => setSubsection('list')}
+                  showIssues={() => window.electron.openProcessIssuesWindow()}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </BackupProvider>
+    </DeviceProvider>
   );
 }

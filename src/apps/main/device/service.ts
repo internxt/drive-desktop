@@ -4,19 +4,23 @@ import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import os from 'os';
 import path from 'path';
-
-import { getHeaders } from '../auth/service';
+import { PathLike } from 'fs';
+import { getHeaders, getNewApiHeaders, getUser } from '../auth/service';
 import configStore from '../config';
 import { addAppIssue } from '../issues/app';
 import { BackupInfo } from '../../backups/BackupInfo';
+import { downloadFolderAsZip } from '../network/download';
+import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 
 export type Device = { name: string; id: number; bucket: string };
 
 type DeviceDTO = {
+  id: number;
+  uuid: string;
+  name: string;
   bucket: string;
   removed: boolean;
-  name: string;
-  id: number;
+  hasBackups: boolean;
 };
 
 export const addUnknownDeviceIssue = (error: Error) => {
@@ -48,7 +52,7 @@ export async function getDevices(): Promise<Array<Device>> {
   const devices = (await response.json()) as Array<DeviceDTO>;
 
   return devices
-    .filter(({ removed }) => !removed)
+    .filter(({ removed, hasBackups }) => !removed && hasBackups)
     .map((device) => decryptDeviceName(device));
 }
 
@@ -77,6 +81,7 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
   addUnknownDeviceIssue(error);
   throw error;
 }
+
 export async function getOrCreateDevice() {
   const savedDeviceId = configStore.get('deviceId');
 
@@ -140,29 +145,40 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
   };
 }
 
-export type Backup = { id: number; name: string };
+export type Backup = { id: number; name: string; uuid: string };
 
-export async function getBackupsFromDevice(): Promise<Array<BackupInfo>> {
-  const deviceId = getDeviceId();
-  const device = await getOrCreateDevice();
+export async function getBackupsFromDevice(
+  device: Device,
+  isCurrent?: boolean
+): Promise<Array<BackupInfo>> {
+  const folder = await fetchFolder(device.id);
 
-  const folder = await fetchFolder(deviceId);
-
+  if (isCurrent) {
   const backupsList = configStore.get('backupList');
 
   return folder.children
     .filter((backup: Backup) => {
       const pathname = findBackupPathnameFromId(backup.id);
-
       return pathname && backupsList[pathname].enabled;
     })
     .map((backup: Backup) => ({
       ...backup,
       pathname: findBackupPathnameFromId(backup.id),
       folderId: backup.id,
+        folderUuid: backup.uuid,
       tmpPath: app.getPath('temp'),
+        backupsBucket: device.bucket,
+      }));
+  } else {
+    return folder.children.map((backup: Backup) => ({
+      ...backup,
+      folderId: backup.id,
+      folderUuid: backup.uuid,
       backupsBucket: device.bucket,
+      tmpPath: '',
+      pathname: '',
     }));
+  }
 }
 
 /**
@@ -246,7 +262,124 @@ async function fetchFolder(folderId: number) {
   throw new Error('Unsuccesful request to fetch folder');
 }
 
-export async function deleteBackup(backup: BackupInfo): Promise<void> {
+export async function fetchFolderTree(folderUuid: string): Promise<{
+  tree: FolderTree;
+  folderDecryptedNames: Record<number, string>;
+  fileDecryptedNames: Record<number, string>;
+  size: number;
+}> {
+  const res = await fetch(
+    `${process.env.NEW_DRIVE_URL}/drive/folders/${folderUuid}/tree`,
+    {
+      method: 'GET',
+      headers: getNewApiHeaders(),
+    }
+  );
+
+  if (res.ok) {
+    const { tree } = (await res.json()) as unknown as { tree: FolderTree };
+
+    const size = tree.size;
+    const folderDecryptedNames: Record<number, string> = {};
+    const fileDecryptedNames: Record<number, string> = {};
+
+    // ! Decrypts folders and files names
+    const pendingFolders = [tree];
+    while (pendingFolders.length > 0) {
+      const currentTree = pendingFolders[0];
+      const { folders, files } = {
+        folders: currentTree.children,
+        files: currentTree.files,
+      };
+
+      folderDecryptedNames[currentTree.id] = currentTree.plainName;
+
+      for (const file of files) {
+        fileDecryptedNames[file.id] = aes.decrypt(
+          file.name,
+          `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`
+        );
+      }
+
+      pendingFolders.shift();
+
+      // * Adds current folder folders to pending
+      pendingFolders.push(...folders);
+    }
+
+    return { tree, folderDecryptedNames, fileDecryptedNames, size };
+  } else {
+    throw new Error('Unsuccesful request to fetch folder tree');
+  }
+}
+
+export async function downloadBackup(device: Device): Promise<void> {
+  const chosenItem = await getPathFromDialog();
+  if (!chosenItem || !chosenItem.path) {
+    return;
+  }
+
+  const chosenPath = chosenItem.path;
+  logger.info(
+    `[BACKUPS] Downloading Device: "${device.name}", ChosenPath "${chosenPath}"`
+  );
+
+  await downloadDeviceBackupZip(device, chosenPath, {
+    updateProgress: () => {},
+  });
+}
+
+async function downloadDeviceBackupZip(
+  device: Device,
+  path: PathLike,
+  {
+    updateProgress,
+    abortController,
+  }: {
+    updateProgress: (progress: number) => void;
+    abortController?: AbortController;
+  }
+): Promise<void> {
+  if (!device.id) {
+    throw new Error('This backup has not been uploaded yet');
+  }
+
+  const user = getUser();
+  if (!user) {
+    throw new Error('No saved user');
+  }
+
+  const folder = await fetchFolder(device.id);
+  if (!folder || !folder.uuid || folder.uuid.length === 0) {
+    throw new Error('No backup data found');
+  }
+
+  const networkApiUrl = process.env.BRIDGE_URL;
+  const bridgeUser = user.bridgeUser;
+  const bridgePass = user.userId;
+  const encryptionKey = user.mnemonic;
+
+  await downloadFolderAsZip(
+    device.name,
+    networkApiUrl,
+    folder.uuid,
+    path,
+    {
+      bridgeUser,
+      bridgePass,
+      encryptionKey,
+    },
+    {
+      abortController,
+      updateProgress,
+    }
+  );
+}
+
+export async function deleteBackup(
+  backup: BackupInfo,
+  isCurrent?: boolean
+): Promise<void> {
   const res = await fetch(
     `${process.env.API_URL}/storage/folder/${backup.folderId}`,
     {
@@ -258,6 +391,7 @@ export async function deleteBackup(backup: BackupInfo): Promise<void> {
     throw new Error('Request to delete backup wasnt succesful');
   }
 
+  if (isCurrent) {
   const backupsList = configStore.get('backupList');
 
   const entriesFiltered = Object.entries(backupsList).filter(
@@ -267,6 +401,19 @@ export async function deleteBackup(backup: BackupInfo): Promise<void> {
   const backupListFiltered = Object.fromEntries(entriesFiltered);
 
   configStore.set('backupList', backupListFiltered);
+  }
+}
+
+export async function deleteBackupsFromDevice(
+  device: Device,
+  isCurrent?: boolean
+): Promise<void> {
+  const backups = await getBackupsFromDevice(device, isCurrent);
+
+  const deletionPromises = backups.map((backup) =>
+    deleteBackup(backup, isCurrent)
+  );
+  await Promise.all(deletionPromises);
 }
 
 export async function disableBackup(backup: BackupInfo): Promise<void> {

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext } from 'react';
 import { DeviceContext } from '../../../context/DeviceContext';
 import { Question } from '@phosphor-icons/react';
 import { useDevices } from '../../../hooks/devices/useDevices';
@@ -8,17 +8,19 @@ import { ScrollableContent } from '../../../components/ScrollableContent';
 interface DevicePillProps {
   device: Device;
   current?: boolean;
+  selected?: boolean;
+  setSelected: (device: Device) => void;
 }
 
-function DevicePill({ device, current }: DevicePillProps) {
-  const borderStyle = current
+function DevicePill({ device, current, selected, setSelected }: DevicePillProps) {
+  const borderStyle = selected
     ? 'rounded-lg border border-gray-10 bg-surface shadow-sm dark:bg-gray-5'
     : '';
 
-  const styles = `${borderStyle} flex flex-col px-3 py-2 `;
+  const styles = `${borderStyle} flex flex-col px-3 py-2 hover:cursor-pointer`;
 
   return (
-    <div className={styles}>
+    <div className={styles} onClick={() => setSelected(device)}>
       {current && <div className="text-xs text-primary">This device</div>}
       {device.name}
     </div>
@@ -47,22 +49,11 @@ function Help() {
 type DevicesSideBarProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DevicesList({ className }: DevicesSideBarProps) {
-  const [state] = useContext(DeviceContext);
+  const { deviceState, current, selected, setSelected } = useContext(DeviceContext);
   const { devices } = useDevices();
 
-  const [current, setCurrent] = useState<Device | undefined>();
-
-  useEffect(() => {
-    if (state.status !== 'SUCCESS') {
-      setCurrent(undefined);
-      return;
-    }
-
-    setCurrent(state.device);
-  }, [state]);
-
   const devicesWithoutCurrent = devices.filter(
-    (device) => state.status === 'SUCCESS' && device.id !== state.device.id
+    (device) => deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id
   );
 
   return (
@@ -73,12 +64,12 @@ export function DevicesList({ className }: DevicesSideBarProps) {
           <ul>
             {current && (
               <li>
-                <DevicePill device={current} current />
+                <DevicePill device={current} current selected={current === selected} setSelected={setSelected} />
               </li>
             )}
             {devicesWithoutCurrent.map((device) => (
               <li className="my-1" key={device.id}>
-                {<DevicePill device={device} />}
+                {<DevicePill device={device} selected={device === selected} setSelected={setSelected} />}
               </li>
             ))}
           </ul>

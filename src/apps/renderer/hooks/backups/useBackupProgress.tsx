@@ -6,12 +6,24 @@ export function useBackupProgress() {
   const [backupProgress, setBackupProgress] = useState<null | BackupsProgress>(
     null
   );
+  const [thereIsProgress, setThereIsProgress] = useState<boolean>(false);
+  const [percentualProgress, setPercentualProgress] = useState<number>(0);
 
   useEffect(() => {
     const removeListener = window.electron.onBackupProgress(setBackupProgress);
 
     return removeListener;
   }, []);
+
+  useEffect(() => {
+    if (backupProgress) {
+      setPercentualProgress(calculatePercentualProgress(backupProgress));
+      setThereIsProgress(true);
+    } else {
+      setPercentualProgress(0);
+      setThereIsProgress(false);
+    }
+  }, [backupProgress]);
 
   function clearProgress() {
     setBackupProgress(null);
@@ -31,11 +43,7 @@ export function useBackupProgress() {
     return individualProgress.processed / individualProgress.total;
   }
 
-  function percentualProgress(): number {
-    if (!backupProgress) {
-      return 0;
-    }
-
+  function calculatePercentualProgress(backupProgress: BackupsProgress): number {
     const { currentFolder, totalFolders, partial } = backupProgress;
 
     const partialProgress = calculatePartialProgress(partial);
@@ -43,10 +51,6 @@ export function useBackupProgress() {
     const totalProgress = (currentFolder - 1 + partialProgress) / totalFolders;
 
     return totalProgress * 100;
-  }
-
-  function thereIsProgress(): boolean {
-    return backupProgress !== null;
   }
 
   return { backupProgress, thereIsProgress, percentualProgress, clearProgress };

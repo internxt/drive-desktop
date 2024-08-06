@@ -6,20 +6,22 @@ import { DeviceContext } from '../../../context/DeviceContext';
 
 interface DeviceSettingsProps extends React.HTMLAttributes<HTMLBaseElement> {
   onGoToList: () => void;
+  showIssues: () => void;
 }
 
-export function DeviceSettings({ onGoToList, className }: DeviceSettingsProps) {
+export function DeviceSettings({ onGoToList, className, showIssues }: DeviceSettingsProps) {
   const { enabled, toggleEnabled } = useBackupsEnabled();
 
-  const [state] = useContext(DeviceContext);
+  const { deviceState } = useContext(DeviceContext);
+  const { current, selected } = useContext(DeviceContext);
 
   return (
     <section className={className}>
-      {!enabled || state.status !== 'SUCCESS' ? (
+      {current === selected && (!enabled || deviceState.status !== 'SUCCESS') ? (
         <EnableBackups enable={toggleEnabled} />
       ) : (
         <>
-          <DeviceBackups device={state.device} onGoToList={onGoToList} />
+          <DeviceBackups onGoToList={onGoToList} showIssues={showIssues} />
         </>
       )}
     </section>

@@ -6,7 +6,15 @@ import { isFatalError } from '../../../../shared/issues/SyncErrorCause';
 
 dayjs.extend(relativeTime);
 
-export function useLastBackup() {
+export interface LastBackupContextProps {
+  lastBackupTimestamp: number | undefined;
+  lastExistReason: WorkerExitCause | undefined;
+  fromNow: () => string;
+  lastBackupHadIssues: boolean;
+  refreshLastBackupTimestamp: () => void;
+}
+
+export function useLastBackup(): LastBackupContextProps {
   const [lastBackupTimestamp, setLastBackupTimestamp] = useState<
     number | undefined
   >(undefined);
@@ -43,5 +51,6 @@ export function useLastBackup() {
     lastExistReason,
     fromNow,
     lastBackupHadIssues,
+    refreshLastBackupTimestamp,
   };
 }

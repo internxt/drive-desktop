@@ -2,12 +2,14 @@ import { SecondaryText } from '../../SecondaryText';
 import { SectionHeader } from '../../SectionHeader';
 import Button from '../../Button';
 import { ConfirmationModal } from './ConfirmationModal';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslationContext } from '../../../context/LocalContext';
-import { useBackups } from '../../../hooks/backups/useBackups';
+import { BackupContext } from '../../../context/BackupContext';
+import { DeviceContext } from '../../../context/DeviceContext';
 
 export function DeleteBackups() {
-  const { backups, deleteBackup } = useBackups();
+  const { backups, deleteBackups } = useContext(BackupContext);
+  const { selected, current } = useContext(DeviceContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
   const { translate } = useTranslationContext();
@@ -16,10 +18,8 @@ export function DeleteBackups() {
     setAskConfirmation(!askConfirmation);
   }
 
-  async function deleteBackups() {
-    const deletionPromises = backups.map((backup) => deleteBackup(backup));
-
-    await Promise.all(deletionPromises);
+  async function deleteBackupsFromDevice() {
+    await deleteBackups(selected!, selected === current);
     toggleConfirmation();
   }
 
@@ -41,7 +41,7 @@ export function DeleteBackups() {
       <ConfirmationModal
         show={askConfirmation}
         onCanceled={toggleConfirmation}
-        onConfirmed={deleteBackups}
+        onConfirmed={deleteBackupsFromDevice}
       />
     </section>
   );
