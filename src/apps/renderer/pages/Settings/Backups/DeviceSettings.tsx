@@ -13,10 +13,11 @@ export function DeviceSettings({ onGoToList, className, showIssues }: DeviceSett
   const { enabled, toggleEnabled } = useBackupsEnabled();
 
   const { deviceState } = useContext(DeviceContext);
+  const { current, selected } = useContext(DeviceContext);
 
   return (
     <section className={className}>
-      {!enabled || deviceState.status !== 'SUCCESS' ? (
+      {current === selected && (!enabled || deviceState.status !== 'SUCCESS') ? (
         <EnableBackups enable={toggleEnabled} />
       ) : (
         <>
