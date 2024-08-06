@@ -27,11 +27,9 @@ export class FlatFolderZip {
   private abortController?: AbortController;
 
   constructor(destination: WritableStream<Uint8Array>, opts: FlatFolderZipOpts) {
-    console.info('Using fast method for creating a zip');
     this.zip = createFolderWithFilesWritable(opts.progress);
     this.abortController = opts.abortController;
 
-    // TODO: check why opts.progress is causing zip corruption
     this.passThrough = this.zip.stream;
 
     this.finished = this.passThrough.pipeTo(

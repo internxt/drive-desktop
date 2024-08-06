@@ -15,10 +15,12 @@ import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 export type Device = { name: string; id: number; bucket: string };
 
 type DeviceDTO = {
+  id: number;
+  uuid: string;
+  name: string;
   bucket: string;
   removed: boolean;
-  name: string;
-  id: number;
+  hasBackups: boolean;
 };
 
 export const addUnknownDeviceIssue = (error: Error) => {
@@ -50,7 +52,7 @@ export async function getDevices(): Promise<Array<Device>> {
   const devices = (await response.json()) as Array<DeviceDTO>;
 
   return devices
-    .filter(({ removed }) => !removed)
+    .filter(({ removed, hasBackups }) => !removed && hasBackups)
     .map((device) => decryptDeviceName(device));
 }
 
@@ -318,7 +320,10 @@ export async function downloadBackup(device: Device): Promise<void> {
   }
 
   const chosenPath = chosenItem.path;
-  logger.info(`[!!!!!] Device: "${device.name}", ChosenPath "${chosenPath}"`);
+  logger.info(
+    `[BACKUPS] Downloading Device: "${device.name}", ChosenPath "${chosenPath}"`
+  );
+
   await downloadDeviceBackupZip(device, chosenPath, {
     updateProgress: () => {},
   });
@@ -405,7 +410,9 @@ export async function deleteBackupsFromDevice(
 ): Promise<void> {
   const backups = await getBackupsFromDevice(device, isCurrent);
 
-  const deletionPromises = backups.map((backup) => deleteBackup(backup, isCurrent));
+  const deletionPromises = backups.map((backup) =>
+    deleteBackup(backup, isCurrent)
+  );
   await Promise.all(deletionPromises);
 }
 
