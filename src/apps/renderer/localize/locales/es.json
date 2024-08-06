@@ -279,6 +279,7 @@
       }
     },
     "backups": {
+      "title": "Dispositivos",
       "add-folders": "Haz clic en + para hacer una copia de seguridad de tus carpetas",
       "selected-folder": "{{count}} carpeta",
       "selected-folders": "{{count}} carpetas",

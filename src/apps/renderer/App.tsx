@@ -10,7 +10,6 @@ import {
   useNavigate,
 } from 'react-router-dom';
 
-import { DeviceProvider } from './context/DeviceContext';
 import { TranslationProvider } from './context/LocalContext';
 import useLanguageChangedListener from './hooks/useLanguage';
 import Login from './pages/Login';
@@ -70,14 +69,7 @@ export default function App() {
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/migration" element={<Migration />} />
                 <Route path="/feedback" element={<Feedback />} />
-                <Route
-                  path="/settings"
-                  element={
-                    <DeviceProvider>
-                      <Settings />
-                    </DeviceProvider>
-                  }
-                />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="/" element={<Widget />} />
               </Routes>
             </LoggedInWrapper>

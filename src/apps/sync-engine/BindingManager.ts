@@ -381,25 +381,6 @@ export class BindingsManager {
     });
 
     Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
-
-    // find all common string in remainingItems and win32AbsolutePaths
-    // and delete them
-    // const commonItems = remainingItems.filter((item) =>
-    //   win32AbsolutePaths.includes(item)
-    // );
-    // const toDeleteFolder: string[] = [];
-    // commonItems.forEach((item) => {
-    //   try {
-    //     const stat = fs.statSync(item);
-    //     if (stat.isDirectory()) {
-    //       toDeleteFolder.push(item);
-    //     } else if (stat.isFile()) {
-    //       fs.unlinkSync(item);
-    //     }
-    //   } catch (error) {
-    //     Logger.error(error);
-    //   }
-    // });
   }
 
   async update() {

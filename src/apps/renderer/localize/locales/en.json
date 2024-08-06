@@ -279,7 +279,7 @@
       }
     },
     "backups": {
-      "title": "Backup folders",
+      "title": "Devices",
       "selected-folder": "{{count}} folder",
       "selected-folders": "{{count}} folders",
       "add-folders": "Click + to select the folders\n you want to back up",

@@ -53,6 +53,7 @@ import { reportError } from './bug-report/service';
 import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
+import { setUpBackups } from './background-processes/backups/setUpBackups';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -110,6 +111,9 @@ app
   })
   .catch(Logger.error);
 
+eventBus.on('WIDGET_IS_READY', () => {
+  setUpBackups();
+});
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
     if (!AppDataSource.isInitialized) {

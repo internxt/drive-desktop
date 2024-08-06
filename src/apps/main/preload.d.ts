@@ -25,19 +25,27 @@ declare interface Window {
       ) => void
     ) => () => void;
 
-    getProcessIssues(): Promise<import('apps/shared/types').ProcessIssue[]>;
+    getProcessIssues(): Promise<import('../shared/types').ProcessIssue[]>;
 
     onProcessIssuesChanged(
-      func: (value: import('apps/shared/types').ProcessIssue[]) => void
+      func: (value: import('../shared/types').ProcessIssue[]) => void
     ): () => void;
 
     onSyncInfoUpdate(
-      func: (
-        value: import('apps/shared/types').ProcessInfoUpdatePayload
-      ) => void
+      func: (value: import('../shared/types').ProcessInfoUpdatePayload) => void
     ): () => void;
 
     userIsUnauthorized(): void;
+
+    getBackupFatalIssue(
+      id: number
+    ): Promise<import('../shared/issues/SyncErrorCause').SyncError>;
+
+    getLastBackupExitReason: () => Promise<
+      import('../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker').WorkerExitCause
+    >;
+
+    downloadBackup: typeof import('../main/device/service').downloadBackup;
 
     userLoggedIn(
       data: import('../renderer/pages/Login/service').AccessResponse
@@ -113,6 +121,18 @@ declare interface Window {
 
     getBackups: typeof import('../main/device/service').getBackupsFromDevice;
 
+    onBackupProgress(
+      func: (
+        value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress
+      ) => void
+    ): () => void;
+
+    devices: {
+      getDevices: () => Promise<Array<import('../main/device/service').Device>>;
+    };
+
+    getBackupsFromDevice: typeof import('../main/device/service').getBackupsFromDevice;
+
     addBackup: typeof import('../main/device/service').addBackup;
 
     addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
@@ -120,6 +140,8 @@ declare interface Window {
     deleteBackup: typeof import('../main/device/service').deleteBackup;
 
     disableBackup: typeof import('../main/device/service').disableBackup;
+
+    deleteBackupsFromDevice: typeof import('../main/device/service').deleteBackupsFromDevice;
 
     getBackupsEnabled: () => Promise<boolean>;
 

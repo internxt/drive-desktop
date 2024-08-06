@@ -17,8 +17,8 @@ async function openSettingsWindow(section?: string) {
   }
 
   settingsWindow = new BrowserWindow({
-    width: 440,
-    height: 505,
+    width: 750,
+    height: 575,
     show: false,
     webPreferences: {
       preload: preloadPath,

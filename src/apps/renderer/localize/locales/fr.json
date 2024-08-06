@@ -275,6 +275,7 @@
       }
     },
     "backups": {
+      "title":"Appareil",
       "add-folders": "Cliquez sur + pour sélectionner les dossiers que vous souhaitez sauvegarder",
       "selected-folder": "{{count}} dossier",
       "selected-folders": "{{count}} dossiers",

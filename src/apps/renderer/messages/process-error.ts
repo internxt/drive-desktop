@@ -1,6 +1,6 @@
 import { ProcessErrorName } from '../../shared/types';
 
-type ProcessErrorMessages = Record<ProcessErrorName, string>;
+export type ProcessErrorMessages = Record<ProcessErrorName, string>;
 
 export const shortMessages: ProcessErrorMessages = {
   NOT_EXISTS: 'issues.short-error-messages.file-does-not-exist',
@@ -13,6 +13,14 @@ export const shortMessages: ProcessErrorMessages = {
   FILE_TOO_BIG: 'issues.short-error-messages.file-too-big',
   FILE_NON_EXTENSION: 'issues.short-error-messages.file-non-extension',
   DUPLICATED_NODE: 'issues.short-error-messages.duplicated-node',
+  FILE_ALREADY_EXISTS: 'issues.short-error-messages.file-already-exists',
+  COULD_NOT_ENCRYPT_NAME: '',
+  BAD_REQUEST: 'issues.short-error-messages.no-remote-connection',
+  BASE_DIRECTORY_DOES_NOT_EXIST:
+    'issues.short-error-messages.file-does-not-exist',
+  INSUFFICIENT_PERMISSION: 'issues.short-error-messages.no-permission',
+  NOT_ENOUGH_SPACE: 'issues.short-error-messages.not-enough-space',
+  ACTION_NOT_PERMITTED: '',
 };
 
 export const longMessages: ProcessErrorMessages = {
@@ -27,4 +35,12 @@ export const longMessages: ProcessErrorMessages = {
   FILE_TOO_BIG: 'issues.error-messages.file-too-big',
   FILE_NON_EXTENSION: 'issues.error-messages.file-non-extension',
   DUPLICATED_NODE: 'issues.error-messages.duplicated-node',
+  FILE_ALREADY_EXISTS: '',
+  COULD_NOT_ENCRYPT_NAME: '',
+  BAD_REQUEST: 'issues.error-messages.no-remote-connection',
+  BASE_DIRECTORY_DOES_NOT_EXIST: 'issues.error-messages.file-does-not-exist',
+  INSUFFICIENT_PERMISSION:
+    'issues.error-messages.insufficient-permission-accessing-base-directory',
+  NOT_ENOUGH_SPACE: 'issues.error-messages.not-enough-space',
+  ACTION_NOT_PERMITTED: 'issues.short-error-messages.action-not-permitted',
 };
