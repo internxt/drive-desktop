@@ -200,7 +200,7 @@ export async function getBackupsFromDevice(
 async function postBackup(name: string): Promise<Backup> {
   const deviceId = getDeviceId();
 
-  const res = await fetch(`${process.env.API_URL}/api/storage/folder`, {
+  const res = await fetch(`${process.env.API_URL}/storage/folder`, {
     method: 'POST',
     headers: getHeaders(true),
     body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
@@ -208,6 +208,7 @@ async function postBackup(name: string): Promise<Backup> {
   if (res.ok) {
     return res.json();
   }
+  logger.error(res);
   throw new Error('Post backup request wasnt successful');
 }
 
@@ -227,33 +228,39 @@ async function createBackup(pathname: string): Promise<void> {
 }
 
 export async function addBackup(): Promise<void> {
-  const chosenItem = await getPathFromDialog();
-  if (!chosenItem || !chosenItem.path) {
-    return;
-  }
-
-  const chosenPath = chosenItem.path;
-  const backupList = configStore.get('backupList');
-
-  const existingBackup = backupList[chosenPath];
-
-  if (!existingBackup) {
-    return createBackup(chosenPath);
-  }
-
-  let folderStillExists;
   try {
-    await fetchFolder(existingBackup.folderId);
-    folderStillExists = true;
-  } catch {
-    folderStillExists = false;
-  }
+    const chosenItem = await getPathFromDialog();
+    if (!chosenItem || !chosenItem.path) {
+      return;
+    }
 
-  if (folderStillExists) {
-    backupList[chosenPath].enabled = true;
-    configStore.set('backupList', backupList);
-  } else {
-    return createBackup(chosenPath);
+    const chosenPath = chosenItem.path;
+    logger.debug(`[BACKUPS] Chosen item: ${chosenItem.path}`);
+
+    const backupList = configStore.get('backupList');
+
+    const existingBackup = backupList[chosenPath];
+
+    if (!existingBackup) {
+      return createBackup(chosenPath);
+    }
+
+    let folderStillExists;
+    try {
+      await fetchFolder(existingBackup.folderId);
+      folderStillExists = true;
+    } catch {
+      folderStillExists = false;
+    }
+
+    if (folderStillExists) {
+      backupList[chosenPath].enabled = true;
+      configStore.set('backupList', backupList);
+    } else {
+      return createBackup(chosenPath);
+    }
+  } catch (error) {
+    logger.error(error);
   }
 }
 

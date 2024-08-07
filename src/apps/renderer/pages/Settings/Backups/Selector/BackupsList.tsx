@@ -15,8 +15,8 @@ export function BackupsList({
   return (
     <ul>
       {backups.map((backup, index) => (
-        <li
-          onClick={(e) => {
+        <li role="row" aria-rowindex={index + 1} key={backup.folderId}
+          onClick={(e: React.MouseEvent<HTMLLIElement>) => {
             e.stopPropagation();
             setSelected(backup);
           }}
@@ -28,10 +28,14 @@ export function BackupsList({
             selected?.folderId === backup.folderId
               ? 'bg-primary text-white'
               : index % 2 !== 0
-              ? 'text-neutral-700 bg-white'
-              : 'bg-l-neutral-10 text-neutral-700'
+              ? 'text-neutral-700 bg-white  dark:bg-black'
+              : 'bg-l-neutral-10 text-neutral-700  dark:bg-black'
           }`}
-        >
+        onClick={(e: React.MouseEvent<HTMLLIElement>) => {
+          e.stopPropagation();
+          setSelected(backup);
+        }}
+      >
           <BackupListItem
             backup={backup}
             selected={selected?.folderId === backup.folderId}

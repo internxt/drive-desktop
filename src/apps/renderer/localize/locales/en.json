@@ -285,6 +285,7 @@
       "add-folders": "Click + to select the folders\n you want to back up",
       "activate": "Back up your folders and files",
       "view-backups": "View your backups",
+      "selected-folders-title": "Selected folders",
       "select-folders": "Select folders to back up",
       "last-backup-had-issues": "Last backup had some issues",
       "see-issues": "See issues",
@@ -307,6 +308,8 @@
         "explanation": "Folders you want to add to the next backup",
         "no-folders": "No backups yet",
         "done": "Done",
+        "cancel": "Cancel",
+        "save": "Save",
         "stop-baking-up": {
           "title": "Stop backing up ",
           "explanation": "New files added to this folder will no longer backup in your Internxt Drive. Original files will remain on your computer",

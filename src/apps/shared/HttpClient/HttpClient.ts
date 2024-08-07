@@ -35,6 +35,7 @@ export class AuthorizedHttpClient {
     private headersProvider: HeadersProvider,
     private unauthorizedNotifier: UnauthorizedNotifier
   ) {
+    this.unauthorizedNotifier = unauthorizedNotifier;
     this.client = axios.create();
 
     this.client.interceptors.request.use(this.addApplicationHeaders.bind(this));

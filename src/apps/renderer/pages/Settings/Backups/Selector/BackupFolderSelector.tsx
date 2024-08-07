@@ -35,7 +35,7 @@ export default function BackupFolderSelector({
         </div>
       </div>
       <div
-        className="border-l-neutral-30  h-44 overflow-y-auto rounded-lg border border-gray-20 bg-white"
+        className="border-l-neutral-30  h-44 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black"
         onClick={() => setSelectedBackup(null)}
         role="none"
       >
