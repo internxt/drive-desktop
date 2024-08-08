@@ -154,19 +154,19 @@ export async function getBackupsFromDevice(
   const folder = await fetchFolder(device.id);
 
   if (isCurrent) {
-  const backupsList = configStore.get('backupList');
+    const backupsList = configStore.get('backupList');
 
-  return folder.children
-    .filter((backup: Backup) => {
-      const pathname = findBackupPathnameFromId(backup.id);
-      return pathname && backupsList[pathname].enabled;
-    })
-    .map((backup: Backup) => ({
-      ...backup,
-      pathname: findBackupPathnameFromId(backup.id),
-      folderId: backup.id,
+    return folder.children
+      .filter((backup: Backup) => {
+        const pathname = findBackupPathnameFromId(backup.id);
+        return pathname && backupsList[pathname].enabled;
+      })
+      .map((backup: Backup) => ({
+        ...backup,
+        pathname: findBackupPathnameFromId(backup.id),
+        folderId: backup.id,
         folderUuid: backup.uuid,
-      tmpPath: app.getPath('temp'),
+        tmpPath: app.getPath('temp'),
         backupsBucket: device.bucket,
       }));
   } else {
@@ -326,7 +326,9 @@ export async function downloadBackup(device: Device): Promise<void> {
   );
 
   await downloadDeviceBackupZip(device, chosenPath, {
-    updateProgress: () => {},
+    updateProgress: (progress: number) => {
+      logger.info({ progress });
+    },
   });
 }
 
@@ -393,15 +395,15 @@ export async function deleteBackup(
   }
 
   if (isCurrent) {
-  const backupsList = configStore.get('backupList');
+    const backupsList = configStore.get('backupList');
 
-  const entriesFiltered = Object.entries(backupsList).filter(
-    ([, b]) => b.folderId !== backup.folderId
-  );
+    const entriesFiltered = Object.entries(backupsList).filter(
+      ([, b]) => b.folderId !== backup.folderId
+    );
 
-  const backupListFiltered = Object.fromEntries(entriesFiltered);
+    const backupListFiltered = Object.fromEntries(entriesFiltered);
 
-  configStore.set('backupList', backupListFiltered);
+    configStore.set('backupList', backupListFiltered);
   }
 }
 

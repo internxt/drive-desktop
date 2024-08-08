@@ -7,14 +7,10 @@ type ViewBackupsProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DownloadBackups({ className }: ViewBackupsProps) {
   const { selected } = useContext(DeviceContext);
-  const { backups } = useContext(BackupContext);
+  const { backups, downloadBackups } = useContext(BackupContext);
 
-  const handleDownloadBackup = async () => {
-    try {
-      await window.electron.downloadBackup(selected!);
-    } catch (error) {
-      reportError(error);
-    }
+  const handleDownloadBackup = () => {
+    downloadBackups(selected!);
   };
 
   return (

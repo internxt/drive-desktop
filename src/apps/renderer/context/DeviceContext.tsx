@@ -1,4 +1,11 @@
-import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { Device } from '../../main/device/service';
 
 type DeviceState =
@@ -53,16 +60,16 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <DeviceContext.Provider value={
-      {
+    <DeviceContext.Provider
+      value={{
         deviceState,
         deviceRename,
         current,
         setCurrent,
         selected,
-        setSelected
-      }
-    }>
+        setSelected,
+      }}
+    >
       {children}
     </DeviceContext.Provider>
   );
