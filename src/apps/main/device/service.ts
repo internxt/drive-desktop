@@ -279,7 +279,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
   if (res.ok) {
     const { tree } = (await res.json()) as unknown as { tree: FolderTree };
 
-    const size = tree.size;
+    let size = 0;
     const folderDecryptedNames: Record<number, string> = {};
     const fileDecryptedNames: Record<number, string> = {};
 
@@ -299,6 +299,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
           file.name,
           `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`
         );
+        size += Number(file.size);
       }
 
       pendingFolders.shift();

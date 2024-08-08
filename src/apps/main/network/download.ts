@@ -48,7 +48,7 @@ export async function downloadFolderAsZip(
 
   const { abortController } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
-  const { tree, folderDecryptedNames, fileDecryptedNames } = await fetchFolderTree(folderUuid);
+  const { tree, folderDecryptedNames, fileDecryptedNames, size } = await fetchFolderTree(folderUuid);
   tree.plainName = deviceName;
   folderDecryptedNames[tree.id] = deviceName;
   const pendingFolders: { path: string; data: FolderTree }[] = [
