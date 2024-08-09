@@ -51,10 +51,6 @@ export class FileCreator {
 
       Logger.debug('[DEBUG IN FILECREATOR STEEP 3]' + filePath.value);
 
-      const existingPersistedFile = await this.remote.checkStatusFile(contents.id);
-
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 3.1]' + existingPersistedFile);
-
       const persistedAttributes = await this.remote.persist(offline);
 
       Logger.debug('[DEBUG IN FILECREATOR STEEP 4]' + filePath.value);

@@ -4,13 +4,15 @@ import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedErro
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 import { FolderRepository } from '../domain/FolderRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { Service } from 'diod';
 
+@Service()
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly remote: RemoteFileSystem,
+    private readonly remote: HttpRemoteFileSystem,
     private readonly local: LocalFileSystem,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists
   ) {}
@@ -45,7 +47,7 @@ export class FolderDeleter {
       await this.repository.update(folder);
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
-      Sentry.captureException(error);
+      // Sentry.captureException(error);
       this.local.createPlaceHolder(folder);
     }
   }

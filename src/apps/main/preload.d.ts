@@ -105,6 +105,16 @@ declare interface Window {
 
     setBackupsInterval(value: number): Promise<void>;
 
+    getBackupsStatus(): Promise<
+      import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
+    >;
+
+    onBackupsStatusChanged(
+      func: (
+        value: import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
+      ) => void
+    ): () => void;
+
     startBackupsProcess(): void;
 
     stopBackupsProcess(): void;

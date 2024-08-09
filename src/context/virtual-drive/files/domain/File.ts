@@ -9,12 +9,16 @@ import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDi
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
 import { FileDeletedDomainEvent } from './events/FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
-import { ContentsId } from '../../contents/domain/ContentsId';
+import { FileOverriddenDomainEvent } from './events/FileOverriddenDomainEvent';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
+import { FileContentsId } from './FileContentsId';
+import { FileFolderId } from './FileFolderId';
+import { FileUuid } from './FileUuid';
 
 export type FileAttributes = {
+  id: number;
   uuid?: string;
   contentsId: string;
   folderId: number;
@@ -28,9 +32,10 @@ export type FileAttributes = {
 
 export class File extends AggregateRoot {
   private constructor(
-    private _uuid: string,
-    private _contentsId: ContentsId,
-    private _folderId: number,
+    private _id: number,
+    private _uuid: FileUuid,
+    private _contentsId: FileContentsId,
+    private _folderId: FileFolderId,
     private _path: FilePath,
     private _size: FileSize,
     public createdAt: Date,
@@ -40,8 +45,8 @@ export class File extends AggregateRoot {
     super();
   }
 
-  public get uuid(): string {
-    return this._uuid;
+  public get uuid(): string | FileUuid {
+    return this._uuid.toString();
   }
 
   public get contentsId() {
@@ -86,9 +91,10 @@ export class File extends AggregateRoot {
 
   static from(attributes: FileAttributes): File {
     return new File(
-      attributes.uuid ?? '',
-      new ContentsId(attributes.contentsId),
-      attributes.folderId,
+      attributes.id ?? 0,
+      new FileUuid(attributes.uuid ?? ''),
+      new FileContentsId(attributes.contentsId),
+      new FileFolderId(attributes.folderId),
       new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
@@ -104,9 +110,10 @@ export class File extends AggregateRoot {
     path: FilePath
   ): File {
     const file = new File(
-      '', // we should generate a uuid here
-      new ContentsId(contentsId),
-      folder.id,
+      0,
+      new FileUuid(''),
+      new FileContentsId(contentsId),
+      new FileFolderId(folder.id),
       path,
       size,
       new Date(),
@@ -119,10 +126,54 @@ export class File extends AggregateRoot {
         aggregateId: contentsId,
         size: file.size,
         type: path.extension(),
+        path: path.value,
       })
     );
 
     return file;
+  }
+
+  static createv2(attributes: Omit<FileAttributes, 'status'>): File {
+    const file = new File(
+      attributes.id,
+      new FileUuid(attributes.uuid || ''),
+      new FileContentsId(attributes.contentsId),
+      new FileFolderId(attributes.folderId),
+      new FilePath(attributes.path),
+      new FileSize(attributes.size),
+      new Date(attributes.createdAt),
+      new Date(attributes.updatedAt),
+      FileStatus.Exists
+    );
+
+    file.record(
+      new FileCreatedDomainEvent({
+        aggregateId: file.uuid.toString(),
+        size: file.size,
+        type: file.type,
+        path: file.path,
+      })
+    );
+
+    return file;
+  }
+
+  changeContents(contentsId: FileContentsId, contentsSize: FileSize) {
+    const previousContentsId = this.contentsId;
+    const previousSize = this.size;
+
+    this._contentsId = contentsId;
+    this._size = contentsSize;
+
+    this.record(
+      new FileOverriddenDomainEvent({
+        aggregateId: this.uuid.toString(),
+        previousContentsId,
+        previousSize,
+        currentContentsId: contentsId.value,
+        currentSize: contentsSize.value,
+      })
+    );
   }
 
   trash() {
@@ -138,11 +189,11 @@ export class File extends AggregateRoot {
   }
 
   moveTo(folder: Folder, trackerId: string): void {
-    if (this.folderId === folder.id) {
+    if (Number(this.folderId) === Number(folder.id)) {
       throw new FileCannotBeMovedToTheOriginalFolderError(this.path);
     }
 
-    this._folderId = folder.id;
+    this._folderId = new FileFolderId(folder.id);
     this._path = this._path.changeFolder(folder.path);
 
     this.record(
@@ -176,7 +227,7 @@ export class File extends AggregateRoot {
   }
 
   hasParent(id: number): boolean {
-    return this.folderId === id;
+    return this.folderId === new FileFolderId(id);
   }
 
   isFolder(): this is Folder {
@@ -192,7 +243,7 @@ export class File extends AggregateRoot {
   }
 
   replaceContestsAndSize(contentsId: string, size: number) {
-    this._contentsId = new ContentsId(contentsId);
+    this._contentsId = new FileContentsId(contentsId);
     this._size = new FileSize(size);
     this.updatedAt = new Date();
 
@@ -201,9 +252,10 @@ export class File extends AggregateRoot {
 
   attributes(): FileAttributes {
     return {
-      uuid: this._uuid,
+      id: this._id,
+      uuid: this._uuid.toString(),
       contentsId: this.contentsId,
-      folderId: this.folderId,
+      folderId: Number(this.folderId),
       createdAt: this.createdAt.toISOString(),
       path: this.path,
       size: this.size,

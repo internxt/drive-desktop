@@ -1,7 +1,9 @@
+import { Service } from 'diod';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { FolderStatuses } from '../domain/FolderStatus';
 
+@Service()
 export class AllParentFoldersStatusIsExists {
   constructor(private readonly repository: FolderRepository) {}
 

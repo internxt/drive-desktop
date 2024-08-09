@@ -218,11 +218,18 @@ async function postBackup(name: string): Promise<Backup> {
  */
 async function createBackup(pathname: string): Promise<void> {
   const { base } = path.parse(pathname);
+
+  logger.debug(`[BACKUPS] Creating backup for ${base}`);
+
   const newBackup = await postBackup(base);
+
+  logger.debug(`[BACKUPS] Created backup with id ${newBackup.id}`);
 
   const backupList = configStore.get('backupList');
 
   backupList[pathname] = { enabled: true, folderId: newBackup.id };
+
+  logger.debug(`[BACKUPS] Backup list: ${JSON.stringify(backupList)}`);
 
   configStore.set('backupList', backupList);
 }
@@ -240,6 +247,8 @@ export async function addBackup(): Promise<void> {
     const backupList = configStore.get('backupList');
 
     const existingBackup = backupList[chosenPath];
+
+    logger.debug(`[BACKUPS] Existing backup: ${existingBackup}`);
 
     if (!existingBackup) {
       return createBackup(chosenPath);
@@ -276,6 +285,7 @@ async function fetchFolder(folderId: number) {
   if (res.ok) {
     return res.json();
   }
+  logger.error(res);
   throw new Error('Unsuccesful request to fetch folder');
 }
 

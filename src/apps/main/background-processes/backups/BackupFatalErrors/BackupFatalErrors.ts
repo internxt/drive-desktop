@@ -1,4 +1,4 @@
-import { SyncError } from '../../../../../shared/issues/SyncErrorCause';
+import { SyncError } from '../../../../shared/issues/SyncErrorCause';
 
 export type ProcessFatalErrorName = SyncError;
 

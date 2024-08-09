@@ -4,3 +4,8 @@ export type Usage = {
   isInfinite: boolean;
   offerUpgrade: boolean;
 };
+export type RawUsage = {
+  driveUsage: number;
+  photosUsage: number;
+  limitInBytes: number;
+};

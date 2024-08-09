@@ -6,7 +6,9 @@ import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { Service } from 'diod';
 
+@Service()
 export class FileDeleter {
   constructor(
     private readonly remote: RemoteFileSystem,
@@ -29,7 +31,7 @@ export class FileDeleter {
     }
 
     const allParentsExists = this.allParentFoldersStatusIsExists.run(
-      file.folderId
+      file.folderId.value
     );
 
     if (!allParentsExists) {

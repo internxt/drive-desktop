@@ -31,6 +31,10 @@ export async function launchBackupProcesses(
 
   const backups = await backupsConfig.obtainBackupsInfo();
 
+  Logger.debug(`[BACKUPS] Launching ${backups?.length} backups`);
+  Logger.debug(`[BACKUPS] Scheduled: ${scheduled}`);
+  Logger.debug(backups);
+
   // clearBackupsIssues();
   errors.clear();
 

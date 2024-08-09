@@ -26,6 +26,7 @@ ipcMain.handle('get-backups-from-device', (_, d, c?) =>
 );
 
 ipcMain.handle('add-backup', addBackup);
+
 ipcMain.handle('add-multiple-backups', (_, folderPaths) =>
   createBackupsFromLocalPaths(folderPaths)
 );

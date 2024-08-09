@@ -1,6 +1,6 @@
 import { Axios } from 'axios';
 
-export type AuthorizedClients = {
-  drive: Axios;
-  newDrive: Axios;
-};
+export abstract class AuthorizedClients {
+  abstract drive: Axios;
+  abstract newDrive: Axios;
+}
