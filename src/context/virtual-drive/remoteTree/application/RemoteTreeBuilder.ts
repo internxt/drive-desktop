@@ -2,6 +2,7 @@ import { Service } from 'diod';
 import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 import { RemoteTree } from '../domain/RemoteTree';
 import { Traverser } from './Traverser';
+import Logger from 'electron-log';
 
 @Service()
 export class RemoteTreeBuilder {
@@ -16,6 +17,14 @@ export class RemoteTreeBuilder {
     }
 
     const items = await this.remoteItemsGenerator.getAll();
+
+    Logger.debug('[REMOTE TREE BUILDER] Items', items.files.length);
+
+    Logger.debug('[REMOTE TREE BUILDER] Items', items.files);
+
+    Logger.debug('[REMOTE TREE BUILDER] Items', items.folders.length);
+
+    Logger.debug('[REMOTE TREE BUILDER] Items', items.folders);
 
     return this.traverser.run(rootFolderId, items);
   }

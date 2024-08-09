@@ -53,9 +53,10 @@ export class DiffFilesCalculator {
       unmodified.push(local);
     });
 
-    const deleted = remote.files.filter(
-      (file) => !local.has(path.join(rootPath, file.path) as AbsolutePath)
-    );
+    const deleted = remote.files.filter((file) => {
+      Logger.debug('Checking if file is deleted', file.path);
+      return !local.has(path.join(rootPath, file.path) as AbsolutePath);
+    });
 
     const total =
       added.length + modified.size + deleted.length + unmodified.length;

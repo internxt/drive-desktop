@@ -5,11 +5,13 @@ import { FileNode } from './FileNode';
 import { FolderNode } from './FolderNode';
 import { Node } from './Node';
 import Logger from 'electron-log';
+
 export class RemoteTree {
   private tree = new Map<string, Node>();
 
   constructor(rootFolder: Folder) {
     const node = FolderNode.createRoot(rootFolder);
+    Logger.debug('[REMOTE TREE] Creating root node', rootFolder);
     this.tree.set('/', node);
   }
 
@@ -92,7 +94,6 @@ export class RemoteTree {
   }
 
   public get(id: string): File | Folder {
-    Logger.info(`Getting node for id: ${id}`);
     const node = this.tree.get(id);
 
     if (!node) {
@@ -113,10 +114,11 @@ export class RemoteTree {
   }
 
   public getParent(id: string): Folder {
-    Logger.info(`Getting parent for id: ${id}`);
     const dirname = path.dirname(id);
+    Logger.debug('[REMOTE TREE] Getting parent for', id, 'dirname', dirname);
     const parentId = dirname === '.' ? path.sep : dirname;
 
+    Logger.debug('[REMOTE TREE] Getting parent for', id, 'parentId', parentId);
     const element = this.get(parentId);
 
     if (element.isFile()) {

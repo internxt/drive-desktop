@@ -17,7 +17,7 @@ import {
   FoldersDiff,
   FoldersDiffCalculator,
 } from './diff/FoldersDiffCalculator';
-import { relative } from './utils/relative';
+import { getParentDirectory, relative, relativeV2 } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { UserAvaliableSpaceValidator } from '../../context/user/usage/application/UserAvaliableSpaceValidator';
 import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
@@ -49,18 +49,31 @@ export class Backup {
       info.pathname as AbsolutePath
     );
 
+    Logger.debug('[BACKUPS] Local tree either', localTreeEither);
+
     if (localTreeEither.isLeft()) {
+      Logger.error('[BACKUPS] local tree is left', localTreeEither);
       return localTreeEither.getLeft();
     }
 
     const local = localTreeEither.getRight();
 
-    Logger.info('[BACKUPS] Generating remote tree');
+    Logger.info('[BACKUPS] Generating remote tree', info.folderId);
     const remote = await this.remoteTreeBuilder.run(info.folderId);
+
+    Logger.debug('[BACKUPS] Remote tree', remote);
+
+    Logger.debug('[BACKUPS] Remote tree file', remote.files);
+
+    Logger.debug('[BACKUPS] Remote tree folder', remote.folders);
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
 
+    Logger.debug('[BACKUPS] Folders diff', foldersDiff);
+
     const filesDiff = DiffFilesCalculator.calculate(local, remote);
+
+    Logger.debug('[BACKUPS] Files diff', filesDiff);
 
     await this.isThereEnoughSpace(filesDiff);
 
@@ -118,41 +131,44 @@ export class Backup {
     remote: RemoteTree
   ) {
     Logger.info('[BACKUPS] Backing folders');
-
-    Logger.info('[BACKUPS] Folders added', diff.added.length);
     Logger.info('[BACKUPS] Folders added', diff.added.length);
 
-    for (const localFolder of diff.added) {
-      Logger.debug('[backupFolders] Remote parent path', localFolder);
+    await Promise.all(
+      diff.added.map(async (localFolder) => {
+        const relativePath = relativeV2(local.root.path, localFolder.path);
 
-      const remoteParentPath = relative(local.root.path, localFolder.basedir());
+        if (relativePath === '/') {
+          return; // Ignorar la carpeta raíz
+        }
 
-      Logger.debug('[backupFolders] Remote parent path', remoteParentPath);
-      const parentExists = remote.has(remoteParentPath);
+        const remoteParentPath = getParentDirectory(
+          local.root.path,
+          localFolder.path
+        );
+        const parentExists = remote.has(remoteParentPath);
 
-      if (!parentExists) {
-        continue;
-      }
+        if (!parentExists) {
+          return;
+        }
 
-      Logger.debug(
-        '[backupFolders] get Parent',
-        relative(local.root.path, localFolder.path)
-      );
-      const parent = remote.getParent(
-        relative(local.root.path, localFolder.path)
-      );
+        const parent = remote.getParent(remoteParentPath);
+        const existingItems = remote.has(relativePath);
 
-      // eslint-disable-next-line no-await-in-loop
-      const folder = await this.simpleFolderCreator.run(
-        relative(local.root.path, localFolder.path),
-        parent.id
-      );
+        if (existingItems) {
+          return;
+        }
 
-      remote.addFolder(parent, folder);
+        const folder = await this.simpleFolderCreator.run(
+          relativePath,
+          parent.id
+        );
 
-      this.backed++;
-      BackupsIPCRenderer.send('backups.progress-update', this.backed);
-    }
+        remote.addFolder(parent, folder);
+
+        this.backed++;
+        BackupsIPCRenderer.send('backups.progress-update', this.backed);
+      })
+    );
   }
 
   private async backupFiles(
@@ -196,6 +212,8 @@ export class Backup {
       );
 
       this.backed += batch.length;
+
+      Logger.debug('[Backed]', this.backed);
       BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }

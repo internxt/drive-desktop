@@ -146,6 +146,8 @@ export class Traverser {
   public run(rootFolderId: number, items: Items): RemoteTree {
     const rootFolder = this.createRootFolder(rootFolderId);
 
+    Logger.debug('[Traverser] Root folder', rootFolder);
+
     const tree = new RemoteTree(rootFolder);
 
     this.traverse(tree, items, rootFolder);

@@ -13,10 +13,14 @@ export class SimpleFolderCreator {
   constructor(private readonly rfs: RemoteFileSystem) {}
 
   async run(path: string, parentId: number): Promise<Folder> {
+    Logger.debug('Creating folder', path, 'with parent', parentId);
     const folderPath = new FolderPath(path);
+    Logger.debug('Creating folder', folderPath);
     const folderParentId = new FolderId(parentId);
 
     const response = await this.rfs.persistv2(folderPath, folderParentId);
+
+    Logger.debug('Creating folder', folderPath, 'with parent', folderParentId);
 
     const folder = await response.fold<Promise<Folder | undefined>>(
       async (error): Promise<Folder | undefined> => {

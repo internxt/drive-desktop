@@ -6,6 +6,7 @@ import { LocalTree } from '../domain/LocalTree';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { Either, left, right } from '../../../shared/domain/Either';
+import Logger from 'electron-log';
 
 @Service()
 export default class LocalTreeBuilder {
@@ -38,6 +39,7 @@ export default class LocalTreeBuilder {
     folder: AbsolutePath
   ): Promise<Either<DriveDesktopError, LocalTree>> {
     const rootEither = await this.generator.root(folder);
+
 
     if (rootEither.isLeft()) {
       return left(rootEither.getLeft());

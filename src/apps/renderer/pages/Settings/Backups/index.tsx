@@ -16,7 +16,7 @@ export default function BackupsSection({
   showBackedFolders,
   showIssues,
 }: BackupsSectionProps) {
-  const { deviceState } = useContext(DeviceContext);
+  const { deviceState, current } = useContext(DeviceContext);
 
   return (
     <div className={`${active ? 'block' : 'hidden'} w-full`}>

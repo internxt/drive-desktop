@@ -33,7 +33,9 @@ export abstract class Path extends ValueObject<string> {
   }
 
   private ensurePathIsPosix(value: string) {
-    const isPosix = value.indexOf('/') !== -1;
+    const posixPath = path.posix.normalize(value);
+
+    const isPosix = posixPath.indexOf('/') !== -1;
 
     if (!isPosix) {
       throw new InvalidArgumentError(`Paths have to be posix, path: ${value}`);

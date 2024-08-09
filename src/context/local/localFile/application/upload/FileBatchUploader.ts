@@ -3,7 +3,10 @@ import { LocalFile } from '../../domain/LocalFile';
 import { LocalFileHandler } from '../../domain/LocalFileUploader';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
 import { RemoteTree } from '../../../../virtual-drive/remoteTree/domain/RemoteTree';
-import { relative } from '../../../../../apps/backups/utils/relative';
+import {
+  relative,
+  relativeV2,
+} from '../../../../../apps/backups/utils/relative';
 import { LocalFileMessenger } from '../../domain/LocalFileMessenger';
 import { isFatalError } from '../../../../../apps/shared/issues/SyncErrorCause';
 import Logger from 'electron-log';
@@ -44,7 +47,18 @@ export class FileBatchUploader {
 
       const contentsId = uploadEither.getRight();
 
-      const remotePath = relative(localRootPath, localFile.path);
+      Logger.info('[Local File Uploader] Uploading file', localRootPath);
+
+      Logger.info(
+        '[Local File Uploader] Uploading file',
+        localFile.path,
+        'to',
+        contentsId
+      );
+
+      const remotePath = relativeV2(localRootPath, localFile.path);
+
+      Logger.info('Uploading file', localFile.path, 'to', remotePath);
 
       const parent = remoteTree.getParent(remotePath);
 
@@ -53,7 +67,7 @@ export class FileBatchUploader {
       // eslint-disable-next-line no-await-in-loop
       const either = await this.creator.run(
         contentsId,
-        localFile.path,
+        remotePath,
         localFile.size,
         parent.id
       );
