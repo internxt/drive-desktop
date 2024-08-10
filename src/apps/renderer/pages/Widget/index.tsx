@@ -6,6 +6,7 @@ import useSyncStatus from '../../hooks/useSyncStatus';
 import { SyncFailed } from './SyncFailed';
 import ModalLogout from './Logout';
 import { useState } from 'react';
+import { InfoBanners } from './InfoBanners/InfoBanners';
 
 export default function Widget() {
   const { syncStatus } = useSyncStatus();
@@ -29,6 +30,7 @@ export default function Widget() {
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <Header setIsLogoutModalOpen={setIsLogoutModalOpen} />
+      <InfoBanners />
       <SyncErrorBanner />
       {displayErrorInWidget ? renderWidgetError() : <SyncInfo />}
       <SyncAction syncStatus={syncStatus} />

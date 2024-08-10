@@ -326,6 +326,14 @@ contextBridge.exposeInMainWorld('electron', {
     const FIVE_SECONDS = 5000;
     return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
   },
+  user: {
+    hasDiscoveredBackups() {
+      return ipcRenderer.invoke('user.get-has-discovered-backups');
+    },
+    discoveredBackups() {
+      ipcRenderer.send('user.set-has-discovered-backups');
+    },
+  },
 
   path,
 });

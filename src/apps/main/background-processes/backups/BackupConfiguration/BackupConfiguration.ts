@@ -5,6 +5,7 @@ import {
   getOrCreateDevice,
   getBackupsFromDevice,
 } from '../../../device/service';
+import Logger from 'electron-log';
 
 type OnIntervalChangedListener = (interval: number) => void;
 
@@ -65,6 +66,7 @@ class BackupConfiguration {
   hasDiscoveredBackups(): boolean {
     const discoveredBackup = configStore.get('discoveredBackup') as number;
 
+    Logger.debug('Discovered backup', discoveredBackup);
     return discoveredBackup > 0;
   }
 

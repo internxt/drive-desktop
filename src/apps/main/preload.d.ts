@@ -203,5 +203,9 @@ declare interface Window {
     getRecentlywasSyncing: () => Promise<boolean>;
     getUnsycFileInSyncEngine: () => Promise<string[]>;
     updateUnsycFileInSyncEngine: () => Promise<void>;
+    user: {
+      hasDiscoveredBackups: () => Promise<boolean>;
+      discoveredBackups: () => Promise<void>;
+    };
   };
 }

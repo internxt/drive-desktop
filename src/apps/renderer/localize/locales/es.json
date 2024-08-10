@@ -209,6 +209,13 @@
       "message": "Estamos teniendo problemas para montar tu Internxt Drive, por favor inténtalo de nuevo",
       "mounting": "Montando..",
       "button": "Reintentar"
+    },
+    "banners": {
+      "discover-backups": {
+        "title": " COPIAS DE SEGURIDAD DE INTERNXT",
+        "body": "Mantén una copia de seguridad de tus carpetas y archivos más importantes.",
+        "action": "Hacer copia"
+      }
     }
   },
   "settings": {
@@ -279,15 +286,16 @@
       }
     },
     "backups": {
-      "title": "Dispositivos",
       "add-folders": "Haz clic en + para hacer una copia de seguridad de tus carpetas",
-      "selected-folder": "{{count}} carpeta",
-      "selected-folders": "{{count}} carpetas",
+      "selected-folder_one": "{{count}} carpeta",
+      "selected-folder_other": "{{count}} carpetas",
       "activate": "Hacer copia de seguridad de tus carpetas",
-      "view-backups": "Ver copias de seguridad",
-      "select-folders": "Seleccionar carpetas",
+      "view-backups": "Explorar archivos",
+      "selected-folders-title": "Carpetas seleccionadas",
+      "select-folders": "Cambiar carpetas",
       "last-backup-had-issues": "La última copia de seguridad tuvo algunos problemas",
       "see-issues": "Ver problemas",
+      "backing-up": "Haciendo la copia",
       "action": {
         "start": "Hacer copia",
         "stop": "Stop backup",
@@ -297,22 +305,27 @@
       "frequency": {
         "title": "Frecuencia de subida",
         "options": {
-          "6h": "Cada 6 h",
-          "12h": "Cada 12 h",
+          "6h": "Cada 6 horas",
+          "12h": "Cada 12 horas",
           "24h": "Cada día",
-          "manually": "Manualmente"
+          "manually": "Manual"
         }
       },
       "folders": {
-        "explanation": "Carpetas a añadir en la siguiente copia de seguridad",
         "no-folders": "No hay carpetas seleccionadas",
-        "done": "Hecho",
-        "stop-baking-up": {
-          "title": "¿Detener la copia de seguridad de ",
-          "explanation": "Los archivos nuevos que se añadan a esta carpeta ya no se copiarán en Internxt Drive. Los archivos originales permanecerán en tu ordenador",
-          "confirm": "Detener copia de seguridad",
-          "cancel": "Continuar copia de seguridad",
-          "dont-ask-again": "No volver a preguntar"
+        "save": "Guardar",
+        "cancel": "Cancelar"
+      },
+      "delete": {
+        "title": "Eliminar copia de seguridad",
+        "explanation": "Esta copia de seguridad se eliminará de la nube, todas las carpetas y archivos permanecerán en este ordenador",
+        "action": "Eliminar copia de seguridad",
+        "deletion-modal": {
+          "title": "Borrar copia de seguridad?",
+          "explanation": "Esta copia de seguridad se eliminará permanentemente de la nube, todas las carpetas y archivos permanecerán en este ordenador.",
+          "explanation-2": "Esta acción no se puede deshacer.",
+          "confirm": "Sí, eliminar",
+          "cancel": "Cancelar"
         }
       }
     }
