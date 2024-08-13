@@ -11,8 +11,15 @@ import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { PathLike } from 'fs';
 import { downloadFolderAsZip } from '../network/download';
+import Logger from 'electron-log';
 
-export type Device = { name: string; id: number; bucket: string };
+export type Device = {
+  name: string;
+  id: number;
+  bucket: string;
+  removed: boolean;
+  hasBackups: boolean;
+};
 
 type DeviceDTO = {
   id: number;
@@ -95,7 +102,11 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
 export async function getOrCreateDevice() {
   const savedDeviceId = configStore.get('deviceId');
 
+  Logger.info(`[DEVICE] Saved device id: ${savedDeviceId}`);
+
   const deviceIsDefined = savedDeviceId !== -1;
+
+  Logger.info(`[DEVICE] Device is defined: ${deviceIsDefined}`);
 
   let newDevice: Device | null = null;
 
@@ -109,7 +120,12 @@ export async function getOrCreateDevice() {
     );
 
     if (res.ok) {
-      return decryptDeviceName(await res.json());
+      const device = decryptDeviceName(await res.json());
+      Logger.info(`[DEVICE] Found device with name "${device}"`);
+      Logger.info(device);
+
+      if (!device.removed) return device;
+      newDevice = await tryToCreateDeviceWithDifferentNames();
     }
     if (res.status === 404) {
       newDevice = await tryToCreateDeviceWithDifferentNames();
@@ -124,6 +140,7 @@ export async function getOrCreateDevice() {
     const device = decryptDeviceName(newDevice);
     logger.info(`[DEVICE] Created device with name "${device.name}"`);
 
+    Logger.info(device);
     return device;
   }
   const error = new Error('Could not get or create device');
@@ -246,6 +263,7 @@ export async function addBackup(): Promise<void> {
 
     const backupList = configStore.get('backupList');
 
+    Logger.debug(`[BACKUPS] Backup list: ${JSON.stringify(backupList)}`);
     const existingBackup = backupList[chosenPath];
 
     logger.debug(`[BACKUPS] Existing backup: ${existingBackup}`);

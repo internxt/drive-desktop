@@ -29,7 +29,6 @@ async function backupFolder() {
     const container = await BackupsDependencyContainerFactory.build();
 
     const abortController = new AbortController();
-    Logger.info('[BACKUPS] STEP 1');
 
     window.addEventListener('offline', () => {
       Logger.log('[BACKUPS] Internet connection lost');

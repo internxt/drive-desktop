@@ -323,6 +323,15 @@
           "confirm": "Oui, supprimer",
           "cancel": "Annuler"
         }
+      },
+      "stop": {
+        "modal": {
+          "title": "Arrêter la sauvegarde en cours",
+          "explanation": "Il reste encore des fichiers qui n'ont pas été téléchargés. Arrêter la sauvegarde quand même?",
+          "explanation-2": "",
+          "confirm": "Arrêter la sauvegarde",
+          "cancel": "Annuler"
+        }
       }
     }
   },

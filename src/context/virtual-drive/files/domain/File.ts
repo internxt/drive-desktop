@@ -16,6 +16,7 @@ import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
 import { FileUuid } from './FileUuid';
+import Logger from 'electron-log';
 
 export type FileAttributes = {
   id: number;
@@ -90,6 +91,7 @@ export class File extends AggregateRoot {
   }
 
   static from(attributes: FileAttributes): File {
+  
     return new File(
       attributes.id ?? 0,
       new FileUuid(attributes.uuid ?? ''),

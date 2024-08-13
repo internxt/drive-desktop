@@ -18,13 +18,13 @@ export class RemoteTreeBuilder {
 
     const items = await this.remoteItemsGenerator.getAll();
 
-    Logger.debug('[REMOTE TREE BUILDER] Items', items.files.length);
+    // Logger.debug('[REMOTE TREE BUILDER] Items', items.files.length);
 
-    Logger.debug('[REMOTE TREE BUILDER] Items', items.files);
+    // Logger.debug('[REMOTE TREE BUILDER] Items', items.files);
 
-    Logger.debug('[REMOTE TREE BUILDER] Items', items.folders.length);
+    // Logger.debug('[REMOTE TREE BUILDER] Items', items.folders.length);
 
-    Logger.debug('[REMOTE TREE BUILDER] Items', items.folders);
+    // Logger.debug('[REMOTE TREE BUILDER] Items', items.folders);
 
     return this.traverser.run(rootFolderId, items);
   }

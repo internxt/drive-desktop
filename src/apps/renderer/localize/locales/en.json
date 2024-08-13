@@ -328,6 +328,15 @@
           "confirm": "Yes, delete",
           "cancel": "Cancel"
         }
+      },
+      "stop": {
+        "modal": {
+          "title": "Stop ongoing backup",
+          "explanation": "There are still files that have not yet been uploaded. Stop backup anyway?",
+          "explanation-2": "",
+          "confirm": "Stop backup",
+          "cancel": "Cancel"
+        }
       }
     }
   },

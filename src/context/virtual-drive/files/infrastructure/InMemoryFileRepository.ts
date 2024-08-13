@@ -52,14 +52,13 @@ export class InMemoryFileRepository implements FileRepository {
   searchByPartial(partial: Partial<FileAttributes>): File | undefined {
     const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
-    const file = this.values.find((attributes) => {
+    const file: FileAttributes | undefined = this.values.find((attributes) => {
       return keys.every((key: keyof FileAttributes) => {
         if (key === 'contentsId') {
           return (
             attributes[key].normalize() == (partial[key] as string).normalize()
           );
         }
-
         return attributes[key] == partial[key];
       });
     });

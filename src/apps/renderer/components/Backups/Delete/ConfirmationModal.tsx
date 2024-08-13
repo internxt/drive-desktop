@@ -7,12 +7,24 @@ interface ConfirmationModalProps {
   show: boolean;
   onCanceled: () => void;
   onConfirmed: () => void;
+  title?: string;
+  explanation?: string;
+  explanation2?: string;
+  confirmText?: string;
+  cancelText?: string;
+  variantButton?: 'primary' | 'secondary' | 'danger';
 }
 
 export function ConfirmationModal({
   show,
   onConfirmed,
   onCanceled,
+  title,
+  explanation,
+  explanation2,
+  confirmText,
+  cancelText,
+  variantButton,
 }: ConfirmationModalProps) {
   const { translate } = useTranslationContext();
 
@@ -54,25 +66,18 @@ export function ConfirmationModal({
           >
             <div
               style={{ width: '400px' }}
-              className="my-8 inline-block transform overflow-hidden rounded-2xl bg-white p-4 text-left align-middle shadow-xl transition-all"
+              className="my-8 inline-block transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-xl transition-all dark:bg-black"
             >
               <Dialog.Title
                 as="h3"
                 className="text-neutral-900 mb-4 text-2xl font-medium leading-6"
               >
-                {translate('settings.backups.delete.deletion-modal.title')}
+                {title ||
+                  translate('settings.backups.delete.deletion-modal.title')}
               </Dialog.Title>
               <div>
-                <p className="text-xl text-gray-60">
-                  {translate(
-                    'settings.backups.delete.deletion-modal.explanation'
-                  )}
-                </p>
-                <p className="mt-2 text-xl text-gray-60">
-                  {translate(
-                    'settings.backups.delete.deletion-modal.explanation-2'
-                  )}
-                </p>
+                <p className="text-xl text-gray-60">{explanation}</p>
+                <p className="mt-2 text-xl text-gray-60">{explanation2}</p>
               </div>
 
               <div className="mt-6 grid grid-cols-2 gap-2">
@@ -82,15 +87,15 @@ export function ConfirmationModal({
                   onClick={onCanceled}
                   variant="secondary"
                 >
-                  {translate('settings.backups.delete.deletion-modal.cancel')}
+                  {cancelText}
                 </Button>
                 <Button
                   className="bold basis-1/2 p-2 text-xl font-medium"
                   size="lg"
-                  variant="danger"
+                  variant={variantButton || 'danger'}
                   onClick={() => onConfirmed()}
                 >
-                  {translate('settings.backups.delete.deletion-modal.confirm')}
+                  {confirmText}
                 </Button>
               </div>
             </div>

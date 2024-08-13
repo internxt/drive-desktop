@@ -327,6 +327,15 @@
           "confirm": "Sí, eliminar",
           "cancel": "Cancelar"
         }
+      },
+      "stop": {
+        "modal": {
+          "title": "Detener copia de seguridad en curso",
+          "explanation": "Todavía hay archivos que no se han subido. ¿Detener la copia de seguridad de todos modos?",
+          "explanation-2": "",
+          "confirm": "Detener copia de seguridad",
+          "cancel": "Cancelar"
+        }
       }
     }
   },

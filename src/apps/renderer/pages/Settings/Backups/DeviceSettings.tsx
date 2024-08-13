@@ -9,7 +9,11 @@ interface DeviceSettingsProps extends React.HTMLAttributes<HTMLBaseElement> {
   showIssues: () => void;
 }
 
-export function DeviceSettings({ onGoToList, className, showIssues }: DeviceSettingsProps) {
+export function DeviceSettings({
+  onGoToList,
+  className,
+  showIssues,
+}: DeviceSettingsProps) {
   const { enabled, toggleEnabled } = useBackupsEnabled();
 
   const { deviceState } = useContext(DeviceContext);
@@ -17,10 +21,12 @@ export function DeviceSettings({ onGoToList, className, showIssues }: DeviceSett
 
   return (
     <section className={className}>
-      {current === selected && (!enabled || deviceState.status !== 'SUCCESS') ? (
+      {current === selected &&
+      (!enabled || deviceState.status !== 'SUCCESS') ? (
         <EnableBackups enable={toggleEnabled} />
       ) : (
         <>
+          {/* <EnableBackups enable={toggleEnabled} /> */}
           <DeviceBackups onGoToList={onGoToList} showIssues={showIssues} />
         </>
       )}
