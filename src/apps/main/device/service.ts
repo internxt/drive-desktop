@@ -327,7 +327,10 @@ export async function downloadBackup(device: Device): Promise<void> {
 
   await downloadDeviceBackupZip(device, chosenPath, {
     updateProgress: (progress: number) => {
-      logger.info({ progress });
+        broadcastToWindows('backup-download-progress', {
+          id: device.uuid,
+          progress,
+        });
     },
   });
 }

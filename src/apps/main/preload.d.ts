@@ -123,6 +123,10 @@ declare interface Window {
       ) => void
     ): () => void;
 
+    onBackupDownloadProgress(
+      func: (value: { id: string; progress: number }) => void
+    ): () => void;
+
     getBackupFatalErrors(): Promise<
       import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
     >;

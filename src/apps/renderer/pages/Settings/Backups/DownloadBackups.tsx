@@ -7,10 +7,20 @@ type ViewBackupsProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DownloadBackups({ className }: ViewBackupsProps) {
   const { selected } = useContext(DeviceContext);
-  const { backups, downloadBackups } = useContext(BackupContext);
+  const {
+    backups,
+    downloadBackups,
+    thereIsDownloadProgress,
+    clearBackupDownloadProgress,
+  } = useContext(BackupContext);
 
-  const handleDownloadBackup = () => {
-    downloadBackups(selected!);
+  const handleDownloadBackup = async () => {
+    if (!thereIsDownloadProgress) {
+      await downloadBackups(selected!);
+    } else {
+      //await abortDownloadBackups(selected!);
+      clearBackupDownloadProgress(selected!.uuid);
+    }
   };
 
   return (
@@ -21,7 +31,7 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
         onClick={handleDownloadBackup}
         disabled={backups.length === 0}
       >
-        Download
+        {thereIsDownloadProgress ? 'Stop download' : 'Download'}
       </Button>
     </>
   );
