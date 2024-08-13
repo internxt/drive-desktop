@@ -27,15 +27,15 @@ export class FolderPlaceholderDeleter {
 
     sleep(500);
     const folderStatus = await this.remoteFileSystem.checkStatusFolder(
-      remote['uuid']
+      remote.uuid
     );
 
     // temporal condition to avoid deleting folders that are not in the trash
     // https://github.com/internxt/drive-desktop/blob/60f2ee9a28eab37438b3e8365f4bd519e748a047/src/context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem.ts#L70
     if (
       folderStatus === FolderStatuses.DELETED &&
-      !remote.status.is(FolderStatuses.DELETED) &&
-      !remote.status.is(FolderStatuses.TRASHED)
+      !(remote.status === FolderStatuses.DELETED) &&
+      !(remote.status === FolderStatuses.TRASHED)
     ) {
       Logger.info(
         `Folder ${remote.path} with undefined status, skipping deletion`

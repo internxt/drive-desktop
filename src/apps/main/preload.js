@@ -274,9 +274,6 @@ contextBridge.exposeInMainWorld('electron', {
   sendFeedback(feedback) {
     return ipcRenderer.invoke('send-feedback', feedback);
   },
-  openFeedbackWindow() {
-    return ipcRenderer.invoke('open-feedback-window');
-  },
   onRemoteSyncStatusChange(callback) {
     const eventName = 'remote-sync-status-change';
     const callbackWrapper = (_, v) => {

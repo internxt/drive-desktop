@@ -45,8 +45,8 @@ export class File extends AggregateRoot {
     super();
   }
 
-  public get uuid(): string | FileUuid {
-    return this._uuid.toString();
+  public get uuid(): string {
+    return this._uuid.value;
   }
 
   public get contentsId() {

@@ -9,7 +9,7 @@ import {
   RemoteFileSystem,
 } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
-import * as uuid from 'uuid';
+import * as uuidv4 from 'uuid';
 import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
 import Logger from 'electron-log';
 import { Either, left, right } from '../../../shared/domain/Either';
@@ -17,6 +17,8 @@ import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopErr
 import { isAxiosError } from 'axios';
 import { CreateFileDTO } from './dtos/CreateFileDTO';
 import { Service } from 'diod';
+import { Folder } from '../../folders/domain/Folder';
+import { FolderStatuses } from '../../folders/domain/FolderStatus';
 
 @Service()
 export class SDKRemoteFileSystem implements RemoteFileSystem {
@@ -150,6 +152,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
   }
 
   async checkStatusFile(uuid: File['uuid']): Promise<FileStatuses> {
+    Logger.info(`Checking status for file ${uuid}`);
     const response = await this.clients.newDrive.get(
       `${process.env.NEW_DRIVE_URL}/drive/files/${uuid}/meta`
     );
@@ -168,6 +171,29 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     }
 
     return response.data.status as FileStatuses;
+  }
+
+  async checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses> {
+    Logger.info(`Checking status for folder 2 ${uuid}`);
+
+    const response = await this.clients.newDrive.get(
+      `${process.env.NEW_DRIVE_URL}/drive/folders/${uuid}/meta`
+    );
+
+    if (response.status === 404) {
+      return FolderStatuses.DELETED;
+    }
+
+    if (response.status !== 200) {
+      Logger.error(
+        '[FOLDER FILE SYSTEM] Error checking folder status',
+        response.status,
+        response.statusText
+      );
+      throw new Error('Error checking folder status');
+    }
+
+    return response.data.status as FolderStatuses;
   }
 
   async trash(contentsId: string): Promise<void> {
@@ -197,7 +223,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     await this.sdk.updateFile({
       fileId: file.contentsId,
       bucketId: this.bucket,
-      destinationPath: uuid.v4(),
+      destinationPath: uuidv4.v4(),
       metadata: {
         itemName: file.name,
       },
@@ -208,7 +234,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     await this.sdk.moveFile({
       fileId: file.contentsId,
       destination: Number(file.folderId),
-      destinationPath: uuid.v4(),
+      destinationPath: uuidv4.v4(),
       bucketId: this.bucket,
     });
   }

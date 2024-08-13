@@ -34,5 +34,23 @@
   },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "autoBarrel.language.defaultLanguage": "TypeScript",
+  "autoBarrel.files.disableRecursiveBarrelling": false,
+  "autoBarrel.files.includeExtensionOnExport": [
+    "ts",
+    "tsx",
+    "vue"
+  ],
+  "autoBarrel.files.ignoreFilePathPatternOnExport": [
+    "**/*.spec.*",
+    "**/*.test.*"
+  ],
+  "autoBarrel.files.keepExtensionOnExport": false,
+  "autoBarrel.files.detectExportsInFiles": false,
+  "autoBarrel.files.exportDefaultFilename": "filename",
+  "autoBarrel.formatting.excludeSemiColonAtEndOfLine": false,
+  "autoBarrel.formatting.useSingleQuotes": true,
+  "autoBarrel.formatting.endOfLine": "lf",
+  "autoBarrel.formatting.insertFinalNewline": true,
 }

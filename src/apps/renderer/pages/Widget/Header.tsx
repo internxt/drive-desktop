@@ -71,8 +71,8 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   };
 
   const handleLogoutModalOpen = () => {
-  setIsLogoutModalOpen(true);
-};
+    setIsLogoutModalOpen(true);
+  };
 
   const AccountSection = () => {
     const { translate } = useTranslationContext();
@@ -228,20 +228,6 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                       </div>
                     );
                   }}
-                </Menu.Item>
-                <Menu.Item>
-                  {({ active }) => (
-                    <div>
-                      <DropdownItem
-                        active={active}
-                        onClick={() => window.electron.openFeedbackWindow()}
-                      >
-                        <span>
-                          {translate('widget.header.dropdown.send-feedback')}
-                        </span>
-                      </DropdownItem>
-                    </div>
-                  )}
                 </Menu.Item>
                 <Menu.Item>
                   {({ active }) => (

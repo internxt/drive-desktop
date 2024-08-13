@@ -39,7 +39,7 @@ export class Folder extends AggregateRoot {
   }
 
   public get uuid(): string {
-    return this._uuid.value;
+    return this._uuid.value.toString();
   }
 
   public get path(): string {
@@ -58,7 +58,7 @@ export class Folder extends AggregateRoot {
     return this._parentId?.value;
   }
 
-  public get status(): string {
+  public get status(): FolderStatuses {
     return this._status.value;
   }
 

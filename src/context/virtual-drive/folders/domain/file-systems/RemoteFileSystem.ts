@@ -1,7 +1,10 @@
 import { Either } from '../../../../shared/domain/Either';
+import { File } from '../../../files/domain/File';
+import { FileStatuses } from '../../../files/domain/FileStatus';
 import { Folder, FolderAttributes } from '../Folder';
 import { FolderId } from '../FolderId';
 import { FolderPath } from '../FolderPath';
+import { FolderStatuses } from '../FolderStatus';
 import { FolderUuid } from '../FolderUuid';
 import { OfflineFolder } from '../OfflineFolder';
 
@@ -32,6 +35,10 @@ export abstract class RemoteFileSystem {
   abstract move(folder: Folder): Promise<void>;
 
   abstract rename(folder: Folder): Promise<void>;
+
+  abstract checkStatusFile(uuid: File['uuid']): Promise<FileStatuses>;
+
+  abstract checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses>;
 
   abstract searchWith(
     parentId: FolderId,

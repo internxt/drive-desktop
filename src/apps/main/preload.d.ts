@@ -178,7 +178,6 @@ declare interface Window {
     startMigration: () => Promise<void>;
     openMigrationFailedFolder: () => Promise<void>;
     sendFeedback: (feedback: string) => Promise<void>;
-    openFeedbackWindow(): void;
     onRemoteSyncStatusChange(
       callback: (
         status: import('./remote-sync/helpers').RemoteSyncStatus

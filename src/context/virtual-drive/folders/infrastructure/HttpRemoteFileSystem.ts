@@ -1,7 +1,7 @@
 import axios, { Axios } from 'axios';
 import { Service } from 'diod';
 import Logger from 'electron-log';
-import * as uuid from 'uuid';
+import * as uuidv4 from 'uuid';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { Folder, FolderAttributes } from '../domain/Folder';
@@ -197,7 +197,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
 
     const body: UpdateFolderNameDTO = {
       metadata: { itemName: folder.name },
-      relativePath: uuid.v4(),
+      relativePath: uuidv4.v4(),
     };
 
     const res = await this.driveClient.post(url, body);
@@ -222,6 +222,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   }
 
   async checkStatusFile(uuid: File['uuid']): Promise<FileStatuses> {
+    Logger.info(`Checking status for file 1 ${uuid}`);
     const response = await this.driveClient.get(
       `${process.env.NEW_DRIVE_URL}/drive/files/${uuid}/meta`
     );
@@ -240,5 +241,31 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     }
 
     return response.data.status as FileStatuses;
+  }
+
+  async checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses> {
+    Logger.info(`Checking status for folder 1 ${uuid}`);
+    let response;
+    try {
+      response = await this.trashClient.get(
+        `${process.env.NEW_DRIVE_URL}/drive/folders/${uuid.toString()}/meta`
+      );
+    } catch (error) {
+      return FolderStatuses.DELETED;
+    }
+    if (response.status === 404 || response.status === 400) {
+      return FolderStatuses.DELETED;
+    }
+
+    if (response.status > 400) {
+      Logger.error(
+        '[FOLDER FILE SYSTEM] Error getting folder metadata',
+        response.status,
+        response.statusText
+      );
+      throw new Error('Error getting folder metadata');
+    }
+
+    return response.data.status as FolderStatuses;
   }
 }
