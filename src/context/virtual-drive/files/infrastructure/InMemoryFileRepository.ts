@@ -1,7 +1,7 @@
 import { Service } from 'diod';
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
-
+import Logger from 'electron-log';
 @Service()
 export class InMemoryFileRepository implements FileRepository {
   private files: Map<string, FileAttributes>;
@@ -117,7 +117,18 @@ export class InMemoryFileRepository implements FileRepository {
   }
 
   async add(file: File): Promise<void> {
-    this.files.set(file.contentsId, file.attributes());
+    this.files.set(file.contentsId, {
+      id: file.id,
+      uuid: file.uuid,
+      contentsId: file.contentsId,
+      folderId: file.folderId.value,
+      path: file.path,
+      createdAt: file.createdAt.toISOString(),
+      updatedAt: file.updatedAt.toDateString(),
+      size: file.size,
+      status: file.status.value,
+      modificationTime: file.updatedAt.toISOString(),
+    });
   }
 
   async update(file: File): Promise<void> {
@@ -140,7 +151,7 @@ export class InMemoryFileRepository implements FileRepository {
     const updatedFile = file.replaceContestsAndSize(newContentsId, newSize);
     // first delete the old file to be able to add the new one
     this.files.delete(oldContentsId);
-    this.files.set(updatedFile.contentsId, updatedFile.attributes());
+    this.add(updatedFile);
     return updatedFile;
   }
 }

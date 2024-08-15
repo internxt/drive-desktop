@@ -46,6 +46,10 @@ export class File extends AggregateRoot {
     super();
   }
 
+  public get id(): number {
+    return this._id;
+  }
+
   public get uuid(): string {
     return this._uuid.value;
   }
@@ -91,7 +95,6 @@ export class File extends AggregateRoot {
   }
 
   static from(attributes: FileAttributes): File {
-  
     return new File(
       attributes.id ?? 0,
       new FileUuid(attributes.uuid ?? ''),
