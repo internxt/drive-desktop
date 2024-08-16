@@ -59,9 +59,9 @@ export class Backup {
     const local = localTreeEither.getRight();
 
     Logger.info('[BACKUPS] Generating remote tree', info.folderId);
-    const remote = await this.remoteTreeBuilder.run(info.folderId);
+    const remote = await this.remoteTreeBuilder.run(info.folderId, true);
 
-    Logger.debug('[BACKUPS] Remote tree', remote);
+    Logger.debug('[BACKUPS] Remote tree', JSON.stringify(remote));
 
     Logger.debug('[BACKUPS] Remote tree file', remote.files);
 

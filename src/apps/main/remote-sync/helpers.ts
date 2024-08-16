@@ -1,6 +1,6 @@
 export const WAITING_AFTER_SYNCING = 1000 * 60 * 3; // 5 minutes
 export const SIX_HOURS_IN_MILLISECONDS = 6 * 60 * 60 * 1000;
-export const FIVETEEN_MINUTES_IN_MILLISECONDS = 15 * 60 * 1000;
+export const FIVETEEN_MINUTES_IN_MILLISECONDS = 30 * 60 * 1000;
 
 export type RemoteSyncedFile = {
   id: number;
@@ -62,4 +62,29 @@ export function rewind(original: Date, milliseconds: number): Date {
   shallowCopy.setTime(shallowCopy.getTime() - milliseconds);
 
   return shallowCopy;
+}
+
+export interface ItemContententAttributes {
+  type: string;
+  id: number;
+  parentId: number | null;
+  parentUuid: string | null;
+  name: string;
+  parent: ItemContententAttributes | null;
+  bucket: string | null;
+  userId: number;
+  encryptVersion: string | null;
+  deleted: boolean;
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  uuid: string;
+  plainName: string;
+  size: number;
+  removed: boolean;
+  removedAt: string | null;
+  status: string;
+  children: ItemContententAttributes[];
+  files: any[];
+  sharings?: any[]; // Esta propiedad es opcional porque no aparece en el objeto principal
 }

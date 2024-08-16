@@ -38,6 +38,24 @@ export class DriveFoldersCollection
       };
     }
   }
+  async getAllByFolder(parentId: number) {
+    try {
+      const result = await this.repository.find({
+        where: {
+          parentId,
+        },
+      });
+      return {
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: [],
+      };
+    }
+  }
 
   async update(uuid: DriveFolder['uuid'], updatePayload: Partial<DriveFolder>) {
     const match = await this.repository.update(

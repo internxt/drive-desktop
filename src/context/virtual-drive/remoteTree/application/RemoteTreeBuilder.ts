@@ -13,18 +13,13 @@ export class RemoteTreeBuilder {
 
   async run(rootFolderId: number, refresh = false): Promise<RemoteTree> {
     if (refresh) {
+      Logger.debug('[REMOTE TREE BUILDER] Force refresh');
       await this.remoteItemsGenerator.forceRefresh();
     }
 
-    const items = await this.remoteItemsGenerator.getAll();
-
-    // Logger.debug('[REMOTE TREE BUILDER] Items', items.files.length);
-
-    // Logger.debug('[REMOTE TREE BUILDER] Items', items.files);
-
-    // Logger.debug('[REMOTE TREE BUILDER] Items', items.folders.length);
-
-    // Logger.debug('[REMOTE TREE BUILDER] Items', items.folders);
+    const items = await this.remoteItemsGenerator.getAllItemsByFolderId(
+      rootFolderId
+    );
 
     return this.traverser.run(rootFolderId, items);
   }

@@ -16,6 +16,7 @@ import Logger from 'electron-log';
 export type Device = {
   name: string;
   id: number;
+  uuid: string;
   bucket: string;
   removed: boolean;
   hasBackups: boolean;
@@ -121,7 +122,9 @@ export async function getOrCreateDevice() {
 
     if (res.ok) {
       const device = decryptDeviceName(await res.json());
-      Logger.info(`[DEVICE] Found device with name "${device}"`);
+      Logger.info(`[DEVICE] Found device with name "${device.name}"`);
+      configStore.set('deviceUuid', device.uuid);
+
       Logger.info(device);
 
       if (!device.removed) return device;
@@ -136,6 +139,7 @@ export async function getOrCreateDevice() {
 
   if (newDevice) {
     configStore.set('deviceId', newDevice.id);
+    configStore.set('deviceUuid', newDevice.uuid);
     configStore.set('backupList', {});
     const device = decryptDeviceName(newDevice);
     logger.info(`[DEVICE] Created device with name "${device.name}"`);
