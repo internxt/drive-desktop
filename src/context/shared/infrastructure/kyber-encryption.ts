@@ -57,14 +57,14 @@ class KyberCrypto {
   }
 
   async generateKeyPair(): Promise<KyberKeys> {
-    if (!this.kem) {
-      throw new Error(
-        'Kyber instance not initialized. Call `initialize()` first.'
-      );
+    try {
+      this.ensureInitialized();
+      const { publicKey, privateKey } = await this.kem!.keypair();
+      return { publicKey, privateKey } as KyberKeys;
+    } catch (error) {
+      console.error('Keypair generation error:', error);
+      throw new Error('Failed to generate keypair.');
     }
-
-    const { publicKey, privateKey } = await this.kem.keypair();
-    return { publicKey, privateKey } as KyberKeys;
   }
 
   /**
