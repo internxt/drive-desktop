@@ -87,9 +87,6 @@ export class OfflineFolder extends AggregateRoot {
 
   rename(destination: FolderPath) {
     const oldPath = this._path;
-    if (this._path.hasSameName(destination)) {
-      throw new Error('Cannot rename a folder to the same name');
-    }
 
     this._path = this._path.updateName(destination.name());
     this.updatedAt = new Date();

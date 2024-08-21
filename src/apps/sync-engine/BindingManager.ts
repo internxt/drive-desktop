@@ -18,6 +18,7 @@ import * as Sentry from '@sentry/electron/renderer';
 import { runner } from '../utils/runner';
 import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
+import configStore from '../main/config';
 
 export type CallbackDownload = (
   success: boolean,
@@ -33,6 +34,8 @@ export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
   private controllers: IControllers;
+
+  private lastHydrated = '';
 
   constructor(
     private readonly container: DependencyContainer,
@@ -110,13 +113,7 @@ export class BindingsManager {
             ),
           });
           fn(absolutePath, contentsId, callback);
-          const isFolder = fs.lstatSync(absolutePath).isDirectory();
-
-          this.container.virtualDrive.updateSyncStatus(
-            absolutePath,
-            isFolder,
-            true
-          );
+          Logger.debug('Finish Rename', absolutePath);
         } catch (error) {
           Logger.error('Error during rename or move operation', error);
         }
@@ -151,6 +148,9 @@ export class BindingsManager {
               .split(':')[1]
           );
           Logger.debug('[Fetch Data Callback] Preparing begins', path);
+          Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
+          this.lastHydrated = file.path;
+
           let finished = false;
           try {
             while (!finished) {
@@ -301,19 +301,26 @@ export class BindingsManager {
       },
       handleHydrate: async (task: QueueItem) => {
         try {
+          const syncRoot = configStore.get('syncRoot');
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
+          const normalizePath = (path: string) => path.replace(/\\/g, '/');
 
-          const atributtes =
-            await this.container.virtualDrive.getPlaceholderAttribute(
-              task.path
-            );
-          Logger.debug('atributtes', atributtes);
-
-          const status = await this.container.virtualDrive.getPlaceholderState(
-            task.path
+          const normalizedLastHydrated = normalizePath(this.lastHydrated);
+          let normalizedTaskPath = normalizePath(
+            task.path.replace(syncRoot, '')
           );
 
-          Logger.debug('status', status);
+          if (!normalizedTaskPath.startsWith('/')) {
+            normalizedTaskPath = '/' + normalizedTaskPath;
+          }
+
+          if (normalizedLastHydrated === normalizedTaskPath) {
+            Logger.debug('Same file hidrated');
+            this.lastHydrated = '';
+            return;
+          }
+
+          this.lastHydrated = normalizedTaskPath;
 
           await this.container.virtualDrive.hydrateFile(task.path);
           ipcRenderer.send('CHECK_SYNC');
