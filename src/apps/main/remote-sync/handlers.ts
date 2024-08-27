@@ -18,7 +18,7 @@ import { debounce } from 'lodash';
 import configStore from '../config';
 import { setTrayStatus } from '../tray/tray';
 
-const SYNC_DEBOUNCE_DELAY = 3_000;
+const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -128,12 +128,10 @@ remoteSyncManager.onStatusChange((newStatus) => {
 });
 
 remoteSyncManager.onStatusChange((newStatus) => {
-  if (newStatus === 'SYNCING') {
-    setTrayStatus('SYNCING');
-  }
   if (newStatus === 'SYNCED') {
-    setTrayStatus('IDLE');
+    return setTrayStatus('IDLE');
   }
+  setTrayStatus('SYNCING');
 });
 
 ipcMain.handle('get-remote-sync-status', () =>
@@ -145,7 +143,7 @@ export async function updateRemoteSync(): Promise<void> {
   // that we received the notification, but if we check
   // for new data we don't receive it
   Logger.info('Updating remote sync');
-  const isSyncing = await checkSyncEngineInProcess(5_000);
+  const isSyncing = await checkSyncEngineInProcess(2_000);
   if (isSyncing) {
     Logger.info('Remote sync is already running');
     return;
@@ -158,7 +156,6 @@ export async function updateRemoteSync(): Promise<void> {
   updateSyncEngine();
 }
 export async function fallbackRemoteSync(): Promise<void> {
-  await sleep(2_000);
   Logger.info('Fallback remote sync');
   fallbackSyncEngine();
 }
@@ -184,7 +181,7 @@ ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
 
 ipcMain.on(
   'UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE',
-  async (_, filesPath: string[]) => {
+  async (_: unknown, filesPath: string[]) => {
     Logger.info('[SYNC ENGINE] update unSync files', filesPath);
     remoteSyncManager.setUnsyncFiles(filesPath);
   }
@@ -195,15 +192,7 @@ const debouncedSynchronization = debounce(async () => {
 }, SYNC_DEBOUNCE_DELAY);
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
-  // Wait before checking for updates, could be possible
-  // that we received the notification, but if we check
-  // for new data we don't receive it
   Logger.info('Received remote changes event');
-  const isSyncing = await checkSyncEngineInProcess(5_000);
-  if (isSyncing) {
-    Logger.info('Remote sync is already running');
-    return;
-  }
   debouncedSynchronization();
 });
 
@@ -216,7 +205,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
     Logger.info('Last files sync at', lastFilesSyncAt);
     const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
     await startRemoteSync(folderId);
-    remoteSyncManager.isProcessRunning = false;
+    eventBus.emit('INITIAL_SYNC_READY');
   } catch (error) {
     Logger.error('Error starting remote sync manager', error);
     if (error instanceof Error) reportError(error);

@@ -72,9 +72,9 @@ ipcMainDrive.on('FILE_UPLOADING', () => {
   setTrayStatus('SYNCING');
 });
 
-ipcMainDrive.on('FILE_UPLOADED', () => {
-  setTrayStatus('IDLE');
-});
+// ipcMainDrive.on('FILE_UPLOADED', () => {
+//   setTrayStatus('IDLE');
+// });
 
 ipcMainDrive.on('FILE_UPLOAD_ERROR', () => {
   setTrayStatus('ALERT');

@@ -19,6 +19,7 @@ import { runner } from '../utils/runner';
 import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
+import { FilePath } from '../../context/virtual-drive/files/domain/FilePath';
 
 export type CallbackDownload = (
   success: boolean,
@@ -191,11 +192,35 @@ export class BindingsManager {
             // await callback(false, '');
             fs.unlinkSync(path);
 
-            Logger.debug('[Fetch Data Callback] Finish...', path);
+            Logger.debug('[Fetch Data Error] Finish...', path);
             return;
           }
 
           fs.unlinkSync(path);
+          try {
+            await this.container.fileSyncStatusUpdater.run(file);
+
+            const folderPath = file.path
+              .substring(0, file.path.lastIndexOf('/'))
+              .replace(/\\/g, '/');
+
+            const folderParentPath = new FilePath(folderPath);
+
+            const folderParent =
+              await this.container.folderFinder.findFromFilePath(
+                folderParentPath
+              );
+
+            Logger.debug(
+              '[Fetch Data Callback] Preparing finish',
+              folderParent
+            );
+
+            await this.container.folderSyncStatusUpdater.run(folderParent);
+          } catch (error) {
+            Logger.error('Error updating sync status', error);
+          }
+
           Logger.debug('[Fetch Data Callback] Finish...', path);
         } catch (error) {
           Logger.error(error);
@@ -274,10 +299,22 @@ export class BindingsManager {
   }
 
   async watch() {
-    const queueManager = new QueueManager({
+    const callbacks = {
       handleAdd: async (task: QueueItem) => {
         try {
-          Logger.debug('Path received from callback', task.path);
+          Logger.debug(
+            'Path received from callback',
+            task.path.replace(/\\/g, '/')
+          );
+
+          const filePath = new FilePath(task.path.replace(/\\/g, '/'));
+
+          const file = await this.container.fileFinder.findFromFilePath(
+            filePath
+          );
+
+          Logger.debug('File found', file);
+
           const itemId = await this.controllers.addFile.execute(task.path);
           if (!itemId) {
             Logger.error('Error adding file' + task.path);
@@ -292,7 +329,6 @@ export class BindingsManager {
             task.isFolder,
             true
           );
-          ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(`error adding file ${task.path}`);
           Logger.error(error);
@@ -352,7 +388,14 @@ export class BindingsManager {
           Sentry.captureException(error);
         }
       },
-    });
+    };
+
+    const notify = {
+      onTaskSuccess: async () => ipcRendererSyncEngine.send('SYNCED'),
+      onTaskProcessing: async () => ipcRendererSyncEngine.send('SYNCING'),
+    };
+
+    const queueManager = new QueueManager(callbacks, notify);
     const logWatcherPath = DependencyInjectionLogWatcherPath.get();
     this.container.virtualDrive.watchAndWait(
       this.paths.root,
@@ -416,17 +459,15 @@ export class BindingsManager {
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
 
-      // Delete all the placeholders that are not in the tree
-      await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
-      await this.container?.folderPlaceholderDeleter?.run(
-        tree.trashedFoldersList
-      );
-
-      // Create all the placeholders that are in the tree
-      await this.container.folderPlaceholderUpdater.run(tree.folders);
-      await this.container.filesPlaceholderUpdater.run(tree.files);
+      await Promise.all([
+        // Delete all the placeholders that are not in the tree
+        this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList),
+        this.container?.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
+        // Create all the placeholders that are in the tree
+        this.container.folderPlaceholderUpdater.run(tree.folders),
+        this.container.filesPlaceholderUpdater.run(tree.files),
+      ]);
       ipcRendererSyncEngine.send('SYNCED');
-      ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
       Sentry.captureException(error);
@@ -441,14 +482,11 @@ export class BindingsManager {
   async polling(): Promise<void> {
     try {
       Logger.info('[SYNC ENGINE] Monitoring polling...');
-      ipcRendererSyncEngine.send('SYNCING');
       const fileInPendingPaths =
         (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
-      ipcRendererSyncEngine.send('SYNCED');
-      ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);

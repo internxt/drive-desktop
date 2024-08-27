@@ -45,7 +45,6 @@ export class FolderDeleter {
       await this.repository.update(folder);
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
-      Sentry.captureException(error);
       this.local.createPlaceHolder(folder);
     }
   }

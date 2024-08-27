@@ -1,3 +1,4 @@
+import { FileFinder } from './../../../../context/virtual-drive/files/application/FileFinder';
 import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionEventBus } from '../common/eventBus';
@@ -92,6 +93,8 @@ export async function buildFilesContainer(
     eventBus
   );
 
+  const fileFinder = new FileFinder(repository);
+
   const fileCreator = new FileCreator(
     remoteFileSystem,
     repository,
@@ -163,6 +166,7 @@ export async function buildFilesContainer(
 
   const container: FilesContainer = {
     fileFinderByContentsId,
+    fileFinder,
     fileDeleter,
     filePathUpdater,
     fileCreator,

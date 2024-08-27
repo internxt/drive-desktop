@@ -3,7 +3,6 @@ import { FileCreationOrchestrator } from '../../../../context/virtual-drive/boun
 import { createFilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
-import { createFolderPlaceholderId } from '../../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { OfflineFolder } from '../../../../context/virtual-drive/folders/domain/OfflineFolder';
 import { AbsolutePathToRelativeConverter } from '../../../../context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
 import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/application/PlatformPathConverter';
@@ -11,10 +10,7 @@ import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { CallbackController } from './CallbackController';
 import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
-import { ipcRenderer } from 'electron';
-import { FileAddedCallback } from '../../BindingManager';
 import * as Sentry from '@sentry/electron/renderer';
-
 export class AddController extends CallbackController {
   // Gets called when:
   //  - a file has been added

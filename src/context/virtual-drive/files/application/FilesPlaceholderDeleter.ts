@@ -49,8 +49,10 @@ export class FilesPlaceholderDeleter {
   }
 
   async run(remotes: File[]): Promise<void> {
-    for (const remote of remotes) {
-      await this.delete(remote);
-    }
+    await Promise.all(
+      remotes.map(async (remote) => {
+        await this.delete(remote);
+      })
+    );
   }
 }

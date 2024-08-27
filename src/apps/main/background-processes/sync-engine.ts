@@ -60,7 +60,6 @@ function scheduleHeathCheck() {
       .catch(() => {
         const warning = 'Health check failed, relaunching the worker';
         Logger.warn(warning);
-        Sentry.captureMessage(warning);
         workerIsRunning = false;
         worker?.destroy();
         if (attemptsAlreadyStarting >= 3) {
@@ -72,7 +71,7 @@ function scheduleHeathCheck() {
       });
 
   healthCheckSchedule = nodeSchedule.scheduleJob('*/20 * * * * *', async () => {
-    const workerIsPending = checkSyncEngineInProcess(15_000);
+    const workerIsPending = checkSyncEngineInProcess(5_000);
     Logger.debug(
       'Health check',
       workerIsPending ? 'Worker is pending' : 'Worker is running'

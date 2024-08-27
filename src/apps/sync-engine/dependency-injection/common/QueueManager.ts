@@ -5,7 +5,6 @@ import {
   HandleActions,
 } from 'virtual-drive/dist';
 import Logger from 'electron-log';
-import { sleep } from '../../../main/util';
 
 export type QueueHandler = {
   handleAdd: HandleAction;
@@ -13,6 +12,11 @@ export type QueueHandler = {
   handleDehydrate: HandleAction;
   handleChange?: HandleAction;
   handleChangeSize: HandleAction;
+};
+
+export type QueueManagerCallback = {
+  onTaskSuccess: () => Promise<void>;
+  onTaskProcessing: () => Promise<void>;
 };
 
 export class QueueManager implements IQueueManager {
@@ -32,9 +36,11 @@ export class QueueManager implements IQueueManager {
     changeSize: false,
   };
 
+  private notify: QueueManagerCallback;
+
   actions: HandleActions;
 
-  constructor(handlers: QueueHandler) {
+  constructor(handlers: QueueHandler, notify: QueueManagerCallback) {
     this.actions = {
       add: handlers.handleAdd,
       hydrate: handlers.handleHydrate,
@@ -42,6 +48,7 @@ export class QueueManager implements IQueueManager {
       changeSize: handlers.handleChangeSize,
       change: handlers.handleChange || (() => Promise.resolve()),
     };
+    this.notify = notify;
   }
 
   public enqueue(task: QueueItem): void {
@@ -85,6 +92,7 @@ export class QueueManager implements IQueueManager {
       const task = this.queues[type].shift();
       if (task) {
         Logger.debug(`Processing ${type} task: ${JSON.stringify(task)}`);
+        Logger.debug(`Tasks length: ${this.queues[type].length}`);
         try {
           await this.actions[task.type](task);
         } catch (error) {
@@ -97,6 +105,8 @@ export class QueueManager implements IQueueManager {
 
   public async processAll(): Promise<void> {
     const taskTypes = Object.keys(this.queues);
+    await this.notify.onTaskProcessing();
     await Promise.all(taskTypes.map((type) => this.processQueue(type)));
+    await this.notify.onTaskSuccess();
   }
 }
