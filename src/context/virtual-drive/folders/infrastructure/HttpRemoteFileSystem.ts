@@ -52,7 +52,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
         path: offline.path.value,
         status: FolderStatuses.EXISTS,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       Logger.error('[FOLDER FILE SYSTEM] Error creating folder', error);
       Sentry.captureException(error);
       if (axios.isAxiosError(error)) {

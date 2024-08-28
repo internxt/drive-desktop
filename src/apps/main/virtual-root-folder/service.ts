@@ -54,9 +54,16 @@ function setSyncRoot(pathname: string): void {
     'watcher-win.txt'
   );
 
+  const persistQueueManager = path.join(
+    app.getPath('appData'),
+    'internxt-drive',
+    'queue-manager.json'
+  );
+
   configStore.set('logEnginePath', logEnginePath);
   configStore.set('logWatcherPath', logWatcherPath);
   configStore.set('syncRoot', pathNameWithSepInTheEnd);
+  configStore.set('persistQueueManagerPath', persistQueueManager);
   configStore.set('lastSavedListing', '');
 }
 

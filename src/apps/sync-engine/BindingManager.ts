@@ -359,7 +359,6 @@ export class BindingsManager {
           this.lastHydrated = normalizedTaskPath;
 
           await this.container.virtualDrive.hydrateFile(task.path);
-          ipcRenderer.send('CHECK_SYNC');
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
         } catch (error) {
@@ -395,7 +394,17 @@ export class BindingsManager {
       onTaskProcessing: async () => ipcRendererSyncEngine.send('SYNCING'),
     };
 
-    const queueManager = new QueueManager(callbacks, notify);
+    const persistQueueManager: string = configStore.get(
+      'persistQueueManagerPath'
+    );
+
+    Logger.debug('persistQueueManager', persistQueueManager);
+
+    const queueManager = new QueueManager(
+      callbacks,
+      notify,
+      persistQueueManager
+    );
     const logWatcherPath = DependencyInjectionLogWatcherPath.get();
     this.container.virtualDrive.watchAndWait(
       this.paths.root,
@@ -481,6 +490,7 @@ export class BindingsManager {
 
   async polling(): Promise<void> {
     try {
+      ipcRendererSyncEngine.send('SYNCING');
       Logger.info('[SYNC ENGINE] Monitoring polling...');
       const fileInPendingPaths =
         (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
@@ -491,6 +501,7 @@ export class BindingsManager {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);
     }
+    ipcRendererSyncEngine.send('SYNCED');
   }
   async getFileInSyncPending(): Promise<string[]> {
     try {

@@ -5,6 +5,8 @@ import {
   HandleActions,
 } from 'virtual-drive/dist';
 import Logger from 'electron-log';
+import fs from 'fs';
+import path from 'path';
 
 export type QueueHandler = {
   handleAdd: HandleAction;
@@ -38,9 +40,15 @@ export class QueueManager implements IQueueManager {
 
   private notify: QueueManagerCallback;
 
+  private persistPath: string;
+
   actions: HandleActions;
 
-  constructor(handlers: QueueHandler, notify: QueueManagerCallback) {
+  constructor(
+    handlers: QueueHandler,
+    notify: QueueManagerCallback,
+    persistPath: string
+  ) {
     this.actions = {
       add: handlers.handleAdd,
       hydrate: handlers.handleHydrate,
@@ -49,6 +57,45 @@ export class QueueManager implements IQueueManager {
       change: handlers.handleChange || (() => Promise.resolve()),
     };
     this.notify = notify;
+    this.persistPath = persistPath;
+    // creamos el archivo de persistencia si no existe
+    if (!fs.existsSync(this.persistPath)) {
+      fs.writeFileSync(this.persistPath, JSON.stringify(this.queues));
+    } else {
+      this.loadQueueStateFromFile();
+    }
+  }
+  private saveQueueStateToFile(): void {
+    if (!this.persistPath) return;
+
+    fs.writeFileSync(
+      this.persistPath,
+      JSON.stringify(
+        {
+          add: [],
+          hydrate: this.queues.hydrate,
+          dehydrate: this.queues.dehydrate,
+          change: [],
+          changeSize: [],
+        },
+        null,
+        2
+      )
+    );
+  }
+
+  private loadQueueStateFromFile(): void {
+    Logger.debug('Loading queue state from file:' + this.persistPath);
+    if (this.persistPath) {
+      // Si el archivo no existe, se crea y se guarda el estado inicial de las colas.
+      if (!fs.existsSync(this.persistPath)) {
+        this.saveQueueStateToFile(); // Guarda el estado inicial en el archivo
+      }
+
+      // Si el archivo existe, carga los datos desde él.
+      const data = fs.readFileSync(this.persistPath, 'utf-8');
+      this.queues = JSON.parse(data);
+    }
   }
 
   public enqueue(task: QueueItem): void {
@@ -62,6 +109,7 @@ export class QueueManager implements IQueueManager {
     }
     this.queues[task.type].push(task);
     this.sortQueue(task.type);
+    this.saveQueueStateToFile();
     if (!this.isProcessing[task.type]) {
       this.processQueue(task.type);
     }
@@ -90,6 +138,7 @@ export class QueueManager implements IQueueManager {
     this.isProcessing[type] = true;
     while (this.queues[type].length > 0) {
       const task = this.queues[type].shift();
+      this.saveQueueStateToFile();
       if (task) {
         Logger.debug(`Processing ${type} task: ${JSON.stringify(task)}`);
         Logger.debug(`Tasks length: ${this.queues[type].length}`);
