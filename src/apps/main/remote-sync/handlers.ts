@@ -128,10 +128,13 @@ remoteSyncManager.onStatusChange((newStatus) => {
 });
 
 remoteSyncManager.onStatusChange((newStatus) => {
-  if (newStatus === 'SYNCED') {
-    return setTrayStatus('IDLE');
+  if (newStatus === 'SYNCING') {
+    return setTrayStatus('SYNCING');
   }
-  setTrayStatus('SYNCING');
+  if (newStatus === 'SYNC_FAILED') {
+    return setTrayStatus('ALERT');
+  }
+  setTrayStatus('IDLE');
 });
 
 ipcMain.handle('get-remote-sync-status', () =>

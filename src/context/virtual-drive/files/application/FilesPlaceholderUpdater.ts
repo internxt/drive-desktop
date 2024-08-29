@@ -77,6 +77,8 @@ export class FilesPlaceholderUpdater {
       );
       await fs.unlink(win32AbsolutePath);
     }
+
+    await this.localFileSystem.updateSyncStatus(remote, false);
   }
 
   async run(remotes: Array<File>): Promise<void> {

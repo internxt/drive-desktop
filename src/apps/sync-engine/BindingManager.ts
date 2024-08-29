@@ -36,6 +36,7 @@ export class BindingsManager {
   private progressBuffer = 0;
   private controllers: IControllers;
 
+  private queueManager: QueueManager | null = null;
   private lastHydrated = '';
 
   constructor(
@@ -405,6 +406,7 @@ export class BindingsManager {
       notify,
       persistQueueManager
     );
+    this.queueManager = queueManager;
     const logWatcherPath = DependencyInjectionLogWatcherPath.get();
     this.container.virtualDrive.watchAndWait(
       this.paths.root,
@@ -459,6 +461,12 @@ export class BindingsManager {
     //     Logger.error(error);
     //   }
     // });
+  }
+
+  async cleanQueue() {
+    if (this.queueManager) {
+      await this.queueManager.clearQueue();
+    }
   }
 
   async update() {

@@ -1,10 +1,10 @@
 import { VirtualDrive } from 'virtual-drive/dist';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 
-export class NodeWinLocalFileSystem implements LocalFileSystem {
+export class NodeWinLocalFileSystem implements LocalFolderSystem {
   constructor(
     private readonly virtualDrive: VirtualDrive,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
@@ -26,12 +26,12 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
     );
   }
 
-  async updateSyncStatus(folder: Folder): Promise<void> {
+  async updateSyncStatus(folder: Folder, status = true): Promise<void> {
     const folderPath = `${folder.path}/`;
     const win32AbsolutePath =
       this.relativePathToAbsoluteConverter.run(folderPath);
 
-    return this.virtualDrive.updateSyncStatus(win32AbsolutePath, true);
+    return this.virtualDrive.updateSyncStatus(win32AbsolutePath, true, status);
   }
 
   async getFileIdentity(path: File['path']): Promise<string> {
