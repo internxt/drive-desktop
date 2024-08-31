@@ -74,18 +74,10 @@ class KyberCrypto {
    * @returns {Object} Contiene `encryptedData` y `secret`.
    */
   async encrypt(publicKey: Uint8Array) {
-    if (!this.kem) {
-      throw new Error(
-        'Kyber instance not initialized. Call `initialize()` first.'
-      );
-    }
-
-    const isCorrectPublicKey = this.verifyKey(publicKey);
-
-    if (!isCorrectPublicKey) return;
-
+    this.ensureInitialized();
     const { ciphertext: encryptedData, sharedSecret: secret } =
-      await this.kem.encapsulate(publicKey);
+      await this.kem!.encapsulate(publicKey);
+    console.info('Encryption completed successfully.');
     return { encryptedData, secret };
   }
 
