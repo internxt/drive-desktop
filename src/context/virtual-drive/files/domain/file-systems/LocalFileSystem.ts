@@ -8,7 +8,7 @@ export interface LocalFileSystem {
 
   getLocalFileId(file: File): Promise<`${string}-${string}`>;
 
-  updateSyncStatus(file: File, status: boolean): Promise<void>;
+  updateSyncStatus(file: File): Promise<void>;
 
   getFileIdentity(path: File['path']): Promise<string>;
 

@@ -303,18 +303,7 @@ export class BindingsManager {
     const callbacks = {
       handleAdd: async (task: QueueItem) => {
         try {
-          Logger.debug(
-            'Path received from callback',
-            task.path.replace(/\\/g, '/')
-          );
-
-          const filePath = new FilePath(task.path.replace(/\\/g, '/'));
-
-          const file = await this.container.fileFinder.findFromFilePath(
-            filePath
-          );
-
-          Logger.debug('File found', file);
+          Logger.debug('Path received from handle add', task.path);
 
           const itemId = await this.controllers.addFile.execute(task.path);
           if (!itemId) {

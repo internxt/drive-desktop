@@ -91,6 +91,9 @@ export class QueueManager implements IQueueManager {
       }
 
       const data = fs.readFileSync(this.persistPath, 'utf-8');
+      if (!data) {
+        return;
+      }
       this.queues = JSON.parse(data);
     }
   }

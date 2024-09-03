@@ -135,8 +135,6 @@ export class FolderPlaceholderUpdater {
       await fs.rm(win32AbsolutePath, { recursive: true });
       return;
     }
-
-    await this.local.updateSyncStatus(remote, false);
   }
 
   async run(remotes: Array<Folder>): Promise<void> {
