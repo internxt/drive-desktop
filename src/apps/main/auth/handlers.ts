@@ -6,7 +6,7 @@ import { applicationOpened } from '../analytics/service';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
-import { createTokenSchedule } from './refresh-token';
+import { checkUserData, createTokenSchedule } from './refresh-token';
 import {
   canHisConfigBeRestored,
   encryptToken,
@@ -79,7 +79,7 @@ eventBus.on('APP_IS_READY', async () => {
   if (!isLoggedIn) {
     return;
   }
-
+  await checkUserData();
   encryptToken();
   applicationOpened();
   await createTokenSchedule();

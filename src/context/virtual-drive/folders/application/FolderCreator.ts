@@ -3,13 +3,13 @@ import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { OfflineFolder } from '../domain/OfflineFolder';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { RemoteFolderSystem } from '../domain/file-systems/RemoteFolderSystem';
 import { FolderPlaceholderConverter } from './FolderPlaceholderConverter';
 
 export class FolderCreator {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly remote: RemoteFileSystem,
+    private readonly remote: RemoteFolderSystem,
     private readonly ipc: SyncEngineIpc,
     private readonly eventBus: EventBus,
     private readonly folderPlaceholderConverter: FolderPlaceholderConverter

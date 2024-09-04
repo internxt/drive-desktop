@@ -1,14 +1,21 @@
 import Logger from 'electron-log';
 
-import { getClient } from '../../shared/HttpClient/main-process-client';
+import {
+  getClient,
+  getNewTokenClient,
+} from '../../shared/HttpClient/main-process-client';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { onUserUnauthorized } from './handlers';
 import {
+  getUser,
   obtainTokens as obtainStoredTokens,
+  setUser,
   updateCredentials,
 } from './service';
+import axios from 'axios';
 
 const authorizedClient = getClient();
+const newAuthorizedClient = getNewTokenClient();
 
 async function obtainTokens() {
   try {
@@ -46,5 +53,35 @@ export async function createTokenSchedule(refreshedTokens?: Array<string>) {
   if (!schedule && !refreshedTokens) {
     Logger.debug('[TOKEN] Refreshing tokens');
     createTokenSchedule(await refreshToken());
+  }
+}
+
+async function getRootFolderMetadata(rootFolderid: number) {
+  try {
+    const res = await newAuthorizedClient.get(
+      `${process.env.NEW_DRIVE_URL}/drive/folders/${rootFolderid}/metadata`
+    );
+
+    Logger.info('[AUTH] Got root folder metadata', res.data);
+    return res.data;
+  } catch (err) {
+    Logger.error('[AUTH] Could not get root folder metadata', err);
+    if (axios.isAxiosError(err)) {
+      Logger.error('[Is Axios Error]', err.response?.data);
+    }
+    return null;
+  }
+}
+
+export async function checkUserData(): Promise<void> {
+  const user = getUser();
+  if (user?.root_folder_id && !user?.rootFolderId) {
+    const rootFolderMetadata = await getRootFolderMetadata(user.root_folder_id);
+    if (rootFolderMetadata) {
+      setUser({
+        ...user,
+        rootFolderId: rootFolderMetadata.uuid,
+      });
+    }
   }
 }

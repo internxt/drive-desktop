@@ -20,12 +20,14 @@ export function buildItemsContainer(): ItemsContainer {
   const existingItemsTraverser = Traverser.existingItems(
     nameDecryptor,
     ipcRendererSyncEngine,
-    user.root_folder_id
+    user.root_folder_id,
+    user.rootFolderId
   );
   const allStatusesTraverser = Traverser.allItems(
     nameDecryptor,
     ipcRendererSyncEngine,
-    user.root_folder_id
+    user.root_folder_id,
+    user.rootFolderId
   );
   const treeBuilder = new TreeBuilder(
     remoteItemsGenerator,

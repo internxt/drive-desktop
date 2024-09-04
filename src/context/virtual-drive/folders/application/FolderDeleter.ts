@@ -4,7 +4,7 @@ import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedErro
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 import { FolderRepository } from '../domain/FolderRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFolderSystem';
 import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 
 export class FolderDeleter {

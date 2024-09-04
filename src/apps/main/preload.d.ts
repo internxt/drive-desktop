@@ -11,6 +11,13 @@ declare interface Window {
 
     pathChanged(path: string): void;
 
+    logger: {
+      info: (...message: unknown[]) => void;
+      error: (...message: unknown[]) => void;
+      warn: (...message: unknown[]) => void;
+      debug: (...message: unknown[]) => void;
+    };
+
     getGeneralIssues: () => Promise<
       import('../../apps/shared/types').GeneralIssue[]
     >;
