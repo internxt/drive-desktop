@@ -136,6 +136,7 @@ export class BindingsManager {
       ) => {
         try {
           Logger.debug('[Fetch Data Callback] Donwloading begins');
+          const startTime = Date.now();
           const path = await this.controllers.downloadFile.execute(
             contentsId,
             callback
@@ -184,9 +185,19 @@ export class BindingsManager {
               });
             }
             this.progressBuffer = 0;
-            await this.controllers.notifyPlaceholderHydrationFinished.execute(
-              contentsId
-            );
+            // await this.controllers.notifyPlaceholderHydrationFinished.execute(
+            //   contentsId
+            // );
+
+            const finishTime = Date.now();
+
+            ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
+              name: file.name,
+              extension: file.type,
+              nameWithExtension: file.nameWithExtension,
+              size: file.size,
+              processInfo: { elapsedTime: finishTime - startTime },
+            });
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);

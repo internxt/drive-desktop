@@ -1,9 +1,6 @@
 import Logger from 'electron-log';
 
-import {
-  getClient,
-  getNewTokenClient,
-} from '../../shared/HttpClient/main-process-client';
+import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { onUserUnauthorized } from './handlers';
 import {
@@ -14,14 +11,13 @@ import {
 } from './service';
 import axios from 'axios';
 
-const authorizedClient = getClient();
 const newAuthorizedClient = getNewTokenClient();
 
 async function obtainTokens() {
   try {
     Logger.debug('[TOKEN] Obtaining new tokens');
-    const res = await authorizedClient.get(
-      `${process.env.API_URL}/user/refresh`
+    const res = await newAuthorizedClient.get(
+      `${process.env.NEW_DRIVE_URL}/drive/users/refresh`
     );
 
     return res.data;
@@ -41,6 +37,7 @@ async function refreshToken() {
 
   updateCredentials(token, newToken);
 
+  Logger.debug('[TOKEN] Refreshed tokens', token, newToken);
   return [token, newToken];
 }
 
@@ -83,5 +80,6 @@ export async function checkUserData(): Promise<void> {
         rootFolderId: rootFolderMetadata.uuid,
       });
     }
+    refreshToken();
   }
 }

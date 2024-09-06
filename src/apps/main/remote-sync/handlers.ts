@@ -203,6 +203,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
   Logger.info('Received user logged in event');
   try {
     remoteSyncManager.isProcessRunning = true;
+    setTrayStatus('SYNCING');
     const userData = configStore.get('userData');
     const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
     Logger.info('Last files sync at', lastFilesSyncAt);

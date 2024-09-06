@@ -49,6 +49,7 @@ ipcMain.handle('get-token', () => {
 
 export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
+  eventBus.emit('USER_LOGGED_OUT');
 
   logout();
   Logger.info('[AUTH] User has been logged out because it was unauthorized');

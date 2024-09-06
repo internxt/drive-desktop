@@ -1,9 +1,11 @@
 import { Axios } from 'axios';
 
-import { onUserUnauthorized } from '../../main/auth/handlers';
 import { getHeaders, getNewApiHeaders } from '../../main/auth/service';
 import { AuthorizedClients } from './Clients';
 import { AuthorizedHttpClient } from './HttpClient';
+import { ipcMain } from 'electron';
+
+const onUserUnauthorized = () => ipcMain.emit('user-is-unauthorized');
 
 const headersProvider = () => Promise.resolve(getHeaders(false));
 const newHeadersProvider = () => Promise.resolve(getNewApiHeaders());
