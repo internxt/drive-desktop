@@ -4,7 +4,10 @@ import Logger from 'electron-log';
 import { AccessResponse } from '../../renderer/pages/Login/service';
 import { applicationOpened } from '../analytics/service';
 import eventBus from '../event-bus';
-import { setupRootFolder } from '../virtual-root-folder/service';
+import {
+  clearRootVirtualDrive,
+  setupRootFolder,
+} from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
 import { checkUserData, createTokenSchedule } from './refresh-token';
 import {
@@ -63,6 +66,7 @@ ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
   if (!canHisConfigBeRestored(data.user.uuid)) {
     await setupRootFolder();
   }
+  await await clearRootVirtualDrive();
 
   setIsLoggedIn(true);
   eventBus.emit('USER_LOGGED_IN');

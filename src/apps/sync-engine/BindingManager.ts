@@ -424,24 +424,24 @@ export class BindingsManager {
   async cleanUp() {
     await VirtualDrive.unregisterSyncRoot(this.paths.root);
 
-    const files = await this.container.retrieveAllFiles.run();
-    const folders = await this.container.retrieveAllFolders.run();
+    // const files = await this.container.retrieveAllFiles.run();
+    // const folders = await this.container.retrieveAllFolders.run();
 
-    const items = [...files, ...folders];
+    // const items = [...files, ...folders];
 
-    const win32AbsolutePaths = items.map((item) => {
-      const posixRelativePath = item.path;
-      // este path es relativo al root y en formato posix
+    // const win32AbsolutePaths = items.map((item) => {
+    //   const posixRelativePath = item.path;
+    //   // este path es relativo al root y en formato posix
 
-      const win32RelativePaths =
-        PlatformPathConverter.posixToWin(posixRelativePath);
+    //   const win32RelativePaths =
+    //     PlatformPathConverter.posixToWin(posixRelativePath);
 
-      return this.container.relativePathToAbsoluteConverter.run(
-        win32RelativePaths
-      );
-    });
+    //   return this.container.relativePathToAbsoluteConverter.run(
+    //     win32RelativePaths
+    //   );
+    // });
 
-    Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
+    // Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
 
     // find all common string in remainingItems and win32AbsolutePaths
     // and delete them

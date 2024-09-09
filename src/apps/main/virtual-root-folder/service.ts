@@ -79,7 +79,7 @@ export function getRootVirtualDrive(): string {
 
 export async function clearRootVirtualDrive(): Promise<void> {
   try {
-    const syncFolderPath = getRootVirtualDrive();
+    const syncFolderPath = configStore.get('syncRoot');
 
     const queue = path.join(
       app.getPath('appData'),

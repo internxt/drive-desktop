@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.1.2-qa",
+  "version": "2.1.2",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
