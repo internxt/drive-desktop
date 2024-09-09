@@ -15,9 +15,12 @@ export class AuthorizedHttpClient {
   private handleUnauthorizedResponse(error: AxiosError) {
     if (error?.response?.status === 401) {
       Logger.warn('[AUTH] Request unauthorized');
-      // this.unauthorizedNotifier();
+      try {
+        this.unauthorizedNotifier();
+      } catch (error) {
+        Logger.error('[AUTH] Unauthorized notifier failed', error);
+      }
     }
-
     // Prevent the token from being displayed in the logs
     if (error.config.headers?.Authorization) {
       error.config.headers['Authorization'] = 'Bearer ****************';

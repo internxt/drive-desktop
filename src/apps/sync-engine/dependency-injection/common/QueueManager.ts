@@ -58,7 +58,6 @@ export class QueueManager implements IQueueManager {
     };
     this.notify = notify;
     this.persistPath = persistPath;
-    // creamos el archivo de persistencia si no existe
     if (!fs.existsSync(this.persistPath)) {
       fs.writeFileSync(this.persistPath, JSON.stringify(this.queues));
     } else {
@@ -87,15 +86,26 @@ export class QueueManager implements IQueueManager {
   private loadQueueStateFromFile(): void {
     Logger.debug('Loading queue state from file:' + this.persistPath);
     if (this.persistPath) {
-      // Si el archivo no existe, se crea y se guarda el estado inicial de las colas.
       if (!fs.existsSync(this.persistPath)) {
-        this.saveQueueStateToFile(); // Guarda el estado inicial en el archivo
+        this.saveQueueStateToFile();
       }
 
-      // Si el archivo existe, carga los datos desde él.
       const data = fs.readFileSync(this.persistPath, 'utf-8');
+      if (!data) {
+        return;
+      }
       this.queues = JSON.parse(data);
     }
+  }
+  public clearQueue(): void {
+    this.queues = {
+      add: [],
+      hydrate: [],
+      dehydrate: [],
+      change: [],
+      changeSize: [],
+    };
+    this.saveQueueStateToFile();
   }
 
   public enqueue(task: QueueItem): void {

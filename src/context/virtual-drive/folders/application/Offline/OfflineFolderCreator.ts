@@ -1,3 +1,4 @@
+import Logger from 'electron-log';
 import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
@@ -26,7 +27,11 @@ export class OfflineFolderCreator {
 
     const parent = this.folderFinder.run(folderPath.dirname());
 
-    const folder = OfflineFolder.create(folderPath, parent.id);
+    Logger.debug('[DEBUG IN OFFLINEFOLDERCREATOR STEEP 1]');
+
+    Logger.debug(parent);
+
+    const folder = OfflineFolder.create(folderPath, parent.id, parent.uuid);
 
     this.offlineRepository.update(folder);
 

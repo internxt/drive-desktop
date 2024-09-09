@@ -112,14 +112,6 @@ export class ContentsDownloader {
     const events = localContents.pullDomainEvents();
     await this.eventBus.publish(events);
 
-    // this.ipc.send('FILE_DOWNLOADED', {
-    //   name: file.name,
-    //   extension: file.type,
-    //   nameWithExtension: file.nameWithExtension,
-    //   size: file.size,
-    //   processInfo: { elapsedTime: downloader.elapsedTime() },
-    // });
-
     return write;
   }
 

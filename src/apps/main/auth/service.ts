@@ -86,6 +86,10 @@ export function setCredentials(
   ConfigStore.set('newTokenEncrypted', isSafeStorageAvailable);
 }
 
+export function setUser(userData: User) {
+  ConfigStore.set('userData', userData);
+}
+
 export function updateCredentials(
   bearerToken: string,
   newBearerToken?: string
@@ -145,7 +149,6 @@ export function getUser(): User | null {
 
   return user && Object.keys(user).length ? user : null;
 }
-
 
 export function obtainTokens(): Array<string> {
   return tokensKeys.map(obtainToken);
@@ -220,5 +223,3 @@ export function logout() {
   resetCredentials();
   Logger.info('[AUTH] User logged out');
 }
-
-

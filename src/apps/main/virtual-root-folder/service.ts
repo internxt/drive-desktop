@@ -1,3 +1,4 @@
+import Logger from 'electron-log';
 import { app, dialog, shell } from 'electron';
 import fs from 'fs/promises';
 import path from 'path';
@@ -76,24 +77,29 @@ export function getRootVirtualDrive(): string {
   return configStore.get('syncRoot');
 }
 
+export async function clearRootVirtualDrive(): Promise<void> {
+  try {
+    const syncFolderPath = configStore.get('syncRoot');
+
+    const queue = path.join(
+      app.getPath('appData'),
+      'internxt-drive',
+      'queue-manager.json'
+    );
+
+    await fs.rm(queue, { recursive: true, force: true });
+
+    await fs.rm(syncFolderPath, { recursive: true, force: true });
+
+    Logger.info(`Directory contents cleared: ${syncFolderPath}`);
+  } catch (err) {
+    Logger.error('Error clearing root virtual drive', err);
+  }
+}
+
 export async function setupRootFolder(n = 0): Promise<void> {
   setSyncRoot(VIRTUAL_DRIVE_FOLDER);
   return;
-  const folderName = ROOT_FOLDER_NAME;
-
-  const rootFolderName = folderName + (n ? ` (${n})` : '');
-  const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName);
-
-  const notExistsOrIsEmpty =
-    !(await existsFolder(rootFolderPath)) ||
-    (await isEmptyFolder(rootFolderPath));
-
-  if (notExistsOrIsEmpty) {
-    await fs.mkdir(rootFolderPath, { recursive: true });
-    setSyncRoot(rootFolderPath);
-  } else {
-    return setupRootFolder(n + 1);
-  }
 }
 
 export async function chooseSyncRootWithDialog(): Promise<string | null> {

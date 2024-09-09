@@ -4,13 +4,13 @@ import * as uuid from 'uuid';
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { RemoteFolderSystem } from '../domain/file-systems/RemoteFolderSystem';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { CreateFolderDTO } from './dtos/CreateFolderDTO';
 import * as Sentry from '@sentry/electron/renderer';
 
-export class HttpRemoteFileSystem implements RemoteFileSystem {
+export class HttpRemoteFolderSystem implements RemoteFolderSystem {
   public folders: Record<string, Folder> = {};
 
   constructor(
@@ -57,7 +57,47 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
       Sentry.captureException(error);
       if (axios.isAxiosError(error)) {
         Logger.error('[Is Axios Error]', error.response?.data);
+        const existing = await this.existFolder(offline);
+        return existing.status !== FolderStatuses.EXISTS
+          ? Promise.reject(error)
+          : existing;
       }
+
+      throw error;
+    }
+  }
+
+  private async existFolder(offline: OfflineFolder): Promise<FolderAttributes> {
+    try {
+      const response = await this.trashClient.get(
+        `${process.env.NEW_DRIVE_URL}/drive/folders/content/${offline.parentUuid}/folders/existence?plainName=${offline.basename}`
+      );
+      Logger.debug('[FOLDER FILE SYSTEM] Folder already exists', response.data);
+
+      const serverFolder = response.data
+        .existentFolders[0] as ServerFolder | null;
+
+      if (!serverFolder) {
+        throw new Error('Folder creation failed, no data returned');
+      }
+      return {
+        id: serverFolder.id,
+        uuid: serverFolder.uuid,
+        parentId: serverFolder.parentId,
+        updatedAt: serverFolder.updatedAt,
+        createdAt: serverFolder.createdAt,
+        path: offline.path.value,
+        status: serverFolder.removed
+          ? FolderStatuses.TRASHED
+          : FolderStatuses.EXISTS,
+      };
+    } catch (error) {
+      Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
+      Sentry.captureException(error);
+      if (axios.isAxiosError(error)) {
+        Logger.error('[Is Axios Error]', error.response?.data);
+      }
+
       throw error;
     }
   }

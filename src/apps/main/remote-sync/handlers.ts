@@ -128,10 +128,13 @@ remoteSyncManager.onStatusChange((newStatus) => {
 });
 
 remoteSyncManager.onStatusChange((newStatus) => {
-  if (newStatus === 'SYNCED') {
-    return setTrayStatus('IDLE');
+  if (newStatus === 'SYNCING') {
+    return setTrayStatus('SYNCING');
   }
-  setTrayStatus('SYNCING');
+  if (newStatus === 'SYNC_FAILED') {
+    return setTrayStatus('ALERT');
+  }
+  setTrayStatus('IDLE');
 });
 
 ipcMain.handle('get-remote-sync-status', () =>
@@ -200,6 +203,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
   Logger.info('Received user logged in event');
   try {
     remoteSyncManager.isProcessRunning = true;
+    setTrayStatus('SYNCING');
     const userData = configStore.get('userData');
     const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
     Logger.info('Last files sync at', lastFilesSyncAt);

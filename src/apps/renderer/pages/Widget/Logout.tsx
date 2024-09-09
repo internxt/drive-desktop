@@ -35,10 +35,8 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({
       return syncPending || wasSyncing || existFileUnsync.length > 0;
     };
 
-    window.electron.updateUnsycFileInSyncEngine().then(() => {
-      checkSyncPending().then((value) => {
-        setIsSyncPending(value);
-      });
+    checkSyncPending().then((value) => {
+      setIsSyncPending(value);
     });
   }, [syncStatus]);
 

@@ -676,7 +676,7 @@ export class RemoteSyncManager {
     );
     Logger.info(
       `Fetching item ${type} response: ${JSON.stringify(
-        response.data[0],
+        response.data?.length,
         null,
         2
       )}`
@@ -700,7 +700,7 @@ export class RemoteSyncManager {
     );
     Logger.info(
       `Fetching by folder ${type} by folder response: ${JSON.stringify(
-        response.data.result[0],
+        response.data.result?.length,
         null,
         2
       )}`

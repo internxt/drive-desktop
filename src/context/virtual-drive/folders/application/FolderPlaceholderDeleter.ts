@@ -1,8 +1,8 @@
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFolderSystem';
+import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 import Logger from 'electron-log';
 import { sleep } from '../../../../apps/main/util';
 
@@ -10,7 +10,7 @@ export class FolderPlaceholderDeleter {
   constructor(
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly remoteFileSystem: RemoteFileSystem,
-    private readonly local: LocalFileSystem
+    private readonly local: LocalFolderSystem
   ) {}
 
   private async hasToBeDeleted(remote: Folder): Promise<boolean> {

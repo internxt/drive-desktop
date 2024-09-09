@@ -36,6 +36,7 @@ export class BindingsManager {
   private progressBuffer = 0;
   private controllers: IControllers;
 
+  private queueManager: QueueManager | null = null;
   private lastHydrated = '';
 
   constructor(
@@ -135,6 +136,7 @@ export class BindingsManager {
       ) => {
         try {
           Logger.debug('[Fetch Data Callback] Donwloading begins');
+          const startTime = Date.now();
           const path = await this.controllers.downloadFile.execute(
             contentsId,
             callback
@@ -183,9 +185,19 @@ export class BindingsManager {
               });
             }
             this.progressBuffer = 0;
-            await this.controllers.notifyPlaceholderHydrationFinished.execute(
-              contentsId
-            );
+            // await this.controllers.notifyPlaceholderHydrationFinished.execute(
+            //   contentsId
+            // );
+
+            const finishTime = Date.now();
+
+            ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
+              name: file.name,
+              extension: file.type,
+              nameWithExtension: file.nameWithExtension,
+              size: file.size,
+              processInfo: { elapsedTime: finishTime - startTime },
+            });
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);
@@ -302,18 +314,7 @@ export class BindingsManager {
     const callbacks = {
       handleAdd: async (task: QueueItem) => {
         try {
-          Logger.debug(
-            'Path received from callback',
-            task.path.replace(/\\/g, '/')
-          );
-
-          const filePath = new FilePath(task.path.replace(/\\/g, '/'));
-
-          const file = await this.container.fileFinder.findFromFilePath(
-            filePath
-          );
-
-          Logger.debug('File found', file);
+          Logger.debug('Path received from handle add', task.path);
 
           const itemId = await this.controllers.addFile.execute(task.path);
           if (!itemId) {
@@ -405,6 +406,7 @@ export class BindingsManager {
       notify,
       persistQueueManager
     );
+    this.queueManager = queueManager;
     const logWatcherPath = DependencyInjectionLogWatcherPath.get();
     this.container.virtualDrive.watchAndWait(
       this.paths.root,
@@ -422,24 +424,24 @@ export class BindingsManager {
   async cleanUp() {
     await VirtualDrive.unregisterSyncRoot(this.paths.root);
 
-    const files = await this.container.retrieveAllFiles.run();
-    const folders = await this.container.retrieveAllFolders.run();
+    // const files = await this.container.retrieveAllFiles.run();
+    // const folders = await this.container.retrieveAllFolders.run();
 
-    const items = [...files, ...folders];
+    // const items = [...files, ...folders];
 
-    const win32AbsolutePaths = items.map((item) => {
-      const posixRelativePath = item.path;
-      // este path es relativo al root y en formato posix
+    // const win32AbsolutePaths = items.map((item) => {
+    //   const posixRelativePath = item.path;
+    //   // este path es relativo al root y en formato posix
 
-      const win32RelativePaths =
-        PlatformPathConverter.posixToWin(posixRelativePath);
+    //   const win32RelativePaths =
+    //     PlatformPathConverter.posixToWin(posixRelativePath);
 
-      return this.container.relativePathToAbsoluteConverter.run(
-        win32RelativePaths
-      );
-    });
+    //   return this.container.relativePathToAbsoluteConverter.run(
+    //     win32RelativePaths
+    //   );
+    // });
 
-    Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
+    // Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
 
     // find all common string in remainingItems and win32AbsolutePaths
     // and delete them
@@ -459,6 +461,12 @@ export class BindingsManager {
     //     Logger.error(error);
     //   }
     // });
+  }
+
+  async cleanQueue() {
+    if (this.queueManager) {
+      await this.queueManager.clearQueue();
+    }
   }
 
   async update() {

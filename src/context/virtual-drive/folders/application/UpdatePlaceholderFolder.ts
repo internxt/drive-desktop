@@ -5,12 +5,12 @@ import Logger from 'electron-log';
 import path from 'path';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { FolderRepository } from '../domain/FolderRepository';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import * as Sentry from '@sentry/electron/renderer';
+import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 export class FolderPlaceholderUpdater {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly local: LocalFileSystem,
+    private readonly local: LocalFolderSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
 

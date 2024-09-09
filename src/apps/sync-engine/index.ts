@@ -43,6 +43,14 @@ async function setUp() {
     icon: iconPath,
   });
 
+  ipcRenderer.on('USER_LOGGED_OUT', async () => {
+    bindings.cleanQueue();
+  });
+
+  ipcRenderer.on('CLEAR_QUEUE', async () => {
+    bindings.cleanQueue();
+  });
+
   ipcRenderer.on('CHECK_SYNC_ENGINE_RESPONSE', async (event) => {
     Logger.info('[SYNC ENGINE] Checking sync engine response');
     const placeholderStatuses = await container.filesCheckerStatusInRoot.run();

@@ -5,6 +5,7 @@ import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
 import * as Sentry from '@sentry/electron/main';
 import { checkSyncEngineInProcess } from '../remote-sync/handlers';
+import { clearRootVirtualDrive } from '../virtual-root-folder/service';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
@@ -188,6 +189,8 @@ async function stopAndClearSyncEngineWatcher() {
     Logger.info('[MAIN] WORKER WAS NOT RUNNING');
     worker?.destroy();
     worker = null;
+    await clearRootVirtualDrive();
+
     return;
   }
 
@@ -229,6 +232,7 @@ async function stopAndClearSyncEngineWatcher() {
     worker?.destroy();
     workerIsRunning = false;
     worker = null;
+    await clearRootVirtualDrive();
   }
 }
 
