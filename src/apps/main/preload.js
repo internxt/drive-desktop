@@ -232,6 +232,9 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  abortDownloadBackups(deviceUuid) {
+    return ipcRenderer.send('abort-download-backups-' + deviceUuid, deviceUuid);
+  },
   getBackupFatalErrors() {
     return ipcRenderer.invoke('get-backup-fatal-errors');
   },

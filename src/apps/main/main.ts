@@ -177,3 +177,11 @@ eventBus.on('USER_LOGGED_OUT', async () => {
 
   await uninstallNautilusExtension();
 });
+
+process.on('uncaughtException', (error) => {
+  if (error.name === 'AbortError') {
+    Logger.log('Fetch request was aborted');
+  } else {
+    Logger.error('Uncaught exception in main process: ', error);
+  }
+});

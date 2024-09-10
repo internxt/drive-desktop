@@ -12,6 +12,7 @@ export interface BackupContextProps {
   addBackup: () => Promise<void>;
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
   downloadBackups: (device: Device) => Promise<void>;
+  abortDownloadBackups: (device: Device) => void;
 }
 
 export function useBackups(): BackupContextProps {
@@ -83,6 +84,10 @@ export function useBackups(): BackupContextProps {
     }
   }
 
+  function abortDownloadBackups(device: Device) {
+    return window.electron.abortDownloadBackups(device.uuid);
+  }
+
   return {
     backupsState,
     backups,
@@ -90,5 +95,6 @@ export function useBackups(): BackupContextProps {
     addBackup,
     deleteBackups,
     downloadBackups,
+    abortDownloadBackups,
   };
 }

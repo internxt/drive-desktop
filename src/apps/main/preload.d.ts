@@ -151,6 +151,8 @@ declare interface Window {
 
     downloadBackup: typeof import('../main/device/service').downloadBackup;
 
+    abortDownloadBackups: (deviceId: string) => void;
+
     addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
 
     deleteBackup: typeof import('../main/device/service').deleteBackup;

@@ -26,18 +26,18 @@ export class FlatFolderZip {
   private passThrough: ReadableStream<Uint8Array>;
   private abortController?: AbortController;
 
-  constructor(destination: WritableStream<Uint8Array>, opts: FlatFolderZipOpts) {
+  constructor(
+    destination: WritableStream<Uint8Array>,
+    opts: FlatFolderZipOpts
+  ) {
     this.zip = createFolderWithFilesWritable(opts.progress);
     this.abortController = opts.abortController;
 
     this.passThrough = this.zip.stream;
 
-    this.finished = this.passThrough.pipeTo(
-      destination,
-      {
-        signal: opts.abortController?.signal,
-      }
-    );
+    this.finished = this.passThrough.pipeTo(destination, {
+      signal: opts.abortController?.signal,
+    });
   }
 
   addFile(name: string, source: ReadableStream<Uint8Array>): void {
@@ -78,7 +78,11 @@ export function createFolderWithFilesWritable(
     },
     cancel() {
       if (passthroughController) {
-        passthroughController.close();
+        try {
+          passthroughController.close();
+        } catch (err) {
+          /* noop */
+        }
         passthroughController = null;
       }
     },

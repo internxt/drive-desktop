@@ -10,6 +10,7 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
   const {
     backups,
     downloadBackups,
+    abortDownloadBackups,
     thereIsDownloadProgress,
     clearBackupDownloadProgress,
   } = useContext(BackupContext);
@@ -18,8 +19,15 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
     if (!thereIsDownloadProgress) {
       await downloadBackups(selected!);
     } else {
-      //await abortDownloadBackups(selected!);
-      clearBackupDownloadProgress(selected!.uuid);
+      try {
+        abortDownloadBackups(selected!);
+      } catch (err) {
+        // error while aborting (aborting also throws an exception itself)
+      } finally {
+        setTimeout(() => {
+          clearBackupDownloadProgress(selected!.uuid);
+        }, 600);
+      }
     }
   };
 
