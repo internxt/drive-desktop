@@ -32,6 +32,12 @@ class KyberCrypto {
     }
   }
 
+  async isKeyExpired(keyCreationDate: Date): Promise<boolean> {
+    const expirationDate = new Date(keyCreationDate);
+    expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+    return new Date() > expirationDate;
+  }
+
   /**
    * Configures the Kyber instance with advanced options.
    * @param {Object} options - Advanced options for Kyber.
