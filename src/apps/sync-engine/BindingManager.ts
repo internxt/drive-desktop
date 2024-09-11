@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import * as fs from 'fs';
 import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
-import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
 import {
   IControllers,
   buildControllers,
@@ -20,6 +19,7 @@ import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
 import { FilePath } from '../../context/virtual-drive/files/domain/FilePath';
+import { isTemporaryFile } from '../utils/isTemporalFile';
 
 export type CallbackDownload = (
   success: boolean,
@@ -93,18 +93,28 @@ export class BindingsManager {
             Sentry.captureException(error);
             callback(false);
           });
-        ipcRenderer.send('CHECK_SYNC');
+        ipcRenderer.send('SYNCED');
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: (
+      notifyRenameCallback: async (
         absolutePath: string,
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
+
+          const isTempFile = await isTemporaryFile(absolutePath);
+
+          Logger.debug('[isTemporaryFile]', isTempFile);
+
+          if (isTempFile) {
+            Logger.debug('File is temporary, skipping');
+            callback(true);
+            return;
+          }
 
           const fn = executeControllerWithFallback({
             handler: this.controllers.renameOrMove.execute.bind(
@@ -315,6 +325,15 @@ export class BindingsManager {
       handleAdd: async (task: QueueItem) => {
         try {
           Logger.debug('Path received from handle add', task.path);
+
+          const tempFile = await isTemporaryFile(task.path);
+
+          Logger.debug('[isTemporaryFile]', tempFile);
+
+          if (tempFile) {
+            Logger.debug('File is temporary, skipping');
+            return;
+          }
 
           const itemId = await this.controllers.addFile.execute(task.path);
           if (!itemId) {
