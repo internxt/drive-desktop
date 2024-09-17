@@ -17,7 +17,7 @@ export class FolderPath extends Path {
       return 'Internxt Drive';
     }
 
-    return super.name();
+    return super.basename();
   }
 
   basename(): string {
