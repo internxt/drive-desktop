@@ -146,16 +146,17 @@ export async function updateRemoteSync(): Promise<void> {
   // that we received the notification, but if we check
   // for new data we don't receive it
   Logger.info('Updating remote sync');
-  const isSyncing = await checkSyncEngineInProcess(2_000);
-  if (isSyncing) {
-    Logger.info('Remote sync is already running');
-    return;
-  }
+
   const userData = configStore.get('userData');
   const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
   Logger.info('Last files sync at', lastFilesSyncAt);
   const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
   await startRemoteSync(folderId);
+  const isSyncing = await checkSyncEngineInProcess(2_000);
+  if (isSyncing) {
+    Logger.info('Remote sync is already running');
+    return;
+  }
   updateSyncEngine();
 }
 export async function fallbackRemoteSync(): Promise<void> {

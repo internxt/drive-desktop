@@ -330,10 +330,11 @@ export class BindingsManager {
 
           Logger.debug('[isTemporaryFile]', tempFile);
 
-          if (tempFile) {
+          if (tempFile && !task.isFolder) {
             Logger.debug('File is temporary, skipping');
             return;
           }
+          ipcRenderer.send('RECEIVED_REMOTE_CHANGES');
 
           const itemId = await this.controllers.addFile.execute(task.path);
           if (!itemId) {
@@ -359,6 +360,8 @@ export class BindingsManager {
         try {
           const syncRoot = configStore.get('syncRoot');
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
+          const start = Date.now();
+
           const normalizePath = (path: string) => path.replace(/\\/g, '/');
 
           const normalizedLastHydrated = normalizePath(this.lastHydrated);
@@ -379,6 +382,12 @@ export class BindingsManager {
           this.lastHydrated = normalizedTaskPath;
 
           await this.container.virtualDrive.hydrateFile(task.path);
+
+          const finish = Date.now();
+
+          if (finish - start < 1500) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
         } catch (error) {

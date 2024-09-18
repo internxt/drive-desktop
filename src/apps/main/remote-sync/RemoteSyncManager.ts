@@ -128,7 +128,6 @@ export class RemoteSyncManager {
     await this.db.folders.connect();
 
     Logger.info('Starting RemoteSyncManager');
-    this.changeStatus('SYNCING');
     try {
       const syncOptions = {
         retry: 1,
