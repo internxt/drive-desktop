@@ -1,20 +1,20 @@
 import { aes } from '@internxt/lib';
-import { app, dialog } from 'electron';
+import { app, dialog, IpcMainEvent } from 'electron';
 import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import os from 'os';
 import path from 'path';
-import { PathLike } from 'fs';
+import fs, { PathLike } from 'fs';
 import { getHeaders, getNewApiHeaders, getUser } from '../auth/service';
 import configStore from '../config';
 import { addAppIssue } from '../issues/app';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { downloadFolderAsZip } from '../network/download';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
+import { broadcastToWindows } from '../windows';
+import { ipcMain } from 'electron';
 
-export type Device = { name: string; id: number; bucket: string };
-
-type DeviceDTO = {
+export type Device = {
   id: number;
   uuid: string;
   name: string;
@@ -49,7 +49,7 @@ export async function getDevices(): Promise<Array<Device>> {
     headers: getHeaders(true),
   });
 
-  const devices = (await response.json()) as Array<DeviceDTO>;
+  const devices = (await response.json()) as Array<Device>;
 
   return devices
     .filter(({ removed, hasBackups }) => !removed && hasBackups)
@@ -154,19 +154,19 @@ export async function getBackupsFromDevice(
   const folder = await fetchFolder(device.id);
 
   if (isCurrent) {
-  const backupsList = configStore.get('backupList');
+    const backupsList = configStore.get('backupList');
 
-  return folder.children
-    .filter((backup: Backup) => {
-      const pathname = findBackupPathnameFromId(backup.id);
-      return pathname && backupsList[pathname].enabled;
-    })
-    .map((backup: Backup) => ({
-      ...backup,
-      pathname: findBackupPathnameFromId(backup.id),
-      folderId: backup.id,
+    return folder.children
+      .filter((backup: Backup) => {
+        const pathname = findBackupPathnameFromId(backup.id);
+        return pathname && backupsList[pathname].enabled;
+      })
+      .map((backup: Backup) => ({
+        ...backup,
+        pathname: findBackupPathnameFromId(backup.id),
+        folderId: backup.id,
         folderUuid: backup.uuid,
-      tmpPath: app.getPath('temp'),
+        tmpPath: app.getPath('temp'),
         backupsBucket: device.bucket,
       }));
   } else {
@@ -279,7 +279,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
   if (res.ok) {
     const { tree } = (await res.json()) as unknown as { tree: FolderTree };
 
-    const size = tree.size;
+    let size = 0;
     const folderDecryptedNames: Record<number, string> = {};
     const fileDecryptedNames: Record<number, string> = {};
 
@@ -299,6 +299,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
           file.name,
           `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`
         );
+        size += Number(file.size);
       }
 
       pendingFolders.shift();
@@ -324,9 +325,49 @@ export async function downloadBackup(device: Device): Promise<void> {
     `[BACKUPS] Downloading Device: "${device.name}", ChosenPath "${chosenPath}"`
   );
 
-  await downloadDeviceBackupZip(device, chosenPath, {
-    updateProgress: () => {},
-  });
+  const date = new Date();
+  const now =
+    String(date.getFullYear()) +
+    String(date.getMonth() + 1) +
+    String(date.getDay()) +
+    String(date.getHours()) +
+    String(date.getMinutes()) +
+    String(date.getSeconds());
+  const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
+
+  const abortController = new AbortController();
+
+  const abortListener = (_: IpcMainEvent, abortDeviceUuid: string) => {
+    if (abortDeviceUuid === device.uuid) {
+      abortController.abort();
+    }
+  };
+
+  const listenerName = 'abort-download-backups-' + device.uuid;
+
+  const removeListenerIpc = ipcMain.on(listenerName, abortListener);
+
+  try {
+    await downloadDeviceBackupZip(device, zipFilePath, {
+      updateProgress: (progress: number) => {
+        if (abortController?.signal.aborted) return;
+        broadcastToWindows('backup-download-progress', {
+          id: device.uuid,
+          progress,
+        });
+      },
+      abortController,
+    });
+  } catch (_) {
+    // Try to delete zip if download backup has failed
+    try {
+      fs.unlinkSync(zipFilePath);
+    } catch (_) {
+      /* noop */
+    }
+  }
+
+  removeListenerIpc.removeListener(listenerName, abortListener);
 }
 
 async function downloadDeviceBackupZip(
@@ -392,15 +433,15 @@ export async function deleteBackup(
   }
 
   if (isCurrent) {
-  const backupsList = configStore.get('backupList');
+    const backupsList = configStore.get('backupList');
 
-  const entriesFiltered = Object.entries(backupsList).filter(
-    ([, b]) => b.folderId !== backup.folderId
-  );
+    const entriesFiltered = Object.entries(backupsList).filter(
+      ([, b]) => b.folderId !== backup.folderId
+    );
 
-  const backupListFiltered = Object.fromEntries(entriesFiltered);
+    const backupListFiltered = Object.fromEntries(entriesFiltered);
 
-  configStore.set('backupList', backupListFiltered);
+    configStore.set('backupList', backupListFiltered);
   }
 }
 

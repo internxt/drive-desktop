@@ -191,7 +191,7 @@ export default function Header() {
                     </div>
                   )}
                 </Menu.Item>
-                <Menu.Item>
+                {/*<Menu.Item>
                   {({ active }) => (
                     <div>
                       <DropdownItem
@@ -204,7 +204,7 @@ export default function Header() {
                       </DropdownItem>
                     </div>
                   )}
-                </Menu.Item>
+                </Menu.Item>*/}
                 <Menu.Item>
                   {({ active }) => (
                     <div>

@@ -6,33 +6,38 @@ import { Device } from '../../../main/device/service';
 export type BackupsState = 'LOADING' | 'ERROR' | 'SUCCESS';
 
 export interface BackupContextProps {
-  state: BackupsState;
+  backupsState: BackupsState;
   backups: BackupInfo[];
   disableBackup: (backup: BackupInfo) => Promise<void>;
   addBackup: () => Promise<void>;
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
+  downloadBackups: (device: Device) => Promise<void>;
+  abortDownloadBackups: (device: Device) => void;
 }
 
 export function useBackups(): BackupContextProps {
   const { selected, current } = useContext(DeviceContext);
-  const [state, setState] = useState<BackupsState>('LOADING');
+  const [backupsState, setBackupsState] = useState<BackupsState>('LOADING');
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
 
   async function fetchBackups(): Promise<void> {
     if (!selected) return;
-    const backups = await window.electron.getBackupsFromDevice(selected, selected === current);
+    const backups = await window.electron.getBackupsFromDevice(
+      selected,
+      selected === current
+    );
     setBackups(backups);
   }
 
   async function loadBackups() {
-    setState('LOADING');
+    setBackupsState('LOADING');
     setBackups([]);
 
     try {
       await fetchBackups();
-      setState('SUCCESS');
+      setBackupsState('SUCCESS');
     } catch {
-      setState('ERROR');
+      setBackupsState('ERROR');
       setBackups([]);
     }
   }
@@ -50,7 +55,7 @@ export function useBackups(): BackupContextProps {
       await window.electron.addBackup();
       await loadBackups();
     } catch {
-      setState('ERROR');
+      setBackupsState('ERROR');
     }
   }
 
@@ -60,15 +65,36 @@ export function useBackups(): BackupContextProps {
   }
 
   async function deleteBackups(device: Device, isCurrent?: boolean) {
-    setState('LOADING');
+    setBackupsState('LOADING');
     try {
       await window.electron.deleteBackupsFromDevice(device, isCurrent);
       await fetchBackups();
+      setBackupsState('SUCCESS');
     } catch (err) {
       console.log(err);
-      setState('ERROR');
+      setBackupsState('ERROR');
     }
   }
 
-  return { state, backups, disableBackup, addBackup, deleteBackups };
+  async function downloadBackups(device: Device) {
+    try {
+      await window.electron.downloadBackup(device);
+    } catch (error) {
+      reportError(error);
+    }
+  }
+
+  function abortDownloadBackups(device: Device) {
+    return window.electron.abortDownloadBackups(device.uuid);
+  }
+
+  return {
+    backupsState,
+    backups,
+    disableBackup,
+    addBackup,
+    deleteBackups,
+    downloadBackups,
+    abortDownloadBackups,
+  };
 }

@@ -24,7 +24,7 @@ export async function downloadFolderAsZip(
   deviceName: string,
   networkApiUrl: string,
   folderUuid: string,
-  path: PathLike,
+  fullPath: PathLike,
   environment: {
     bridgeUser: string;
     bridgePass: string;
@@ -35,20 +35,13 @@ export async function downloadFolderAsZip(
     updateProgress?: (progress: number) => void;
   }
 ) {
-  const date = new Date();
-  const now =
-    String(date.getFullYear()) +
-    String((date.getMonth() + 1)) +
-    String(date.getDay()) +
-    String(date.getHours()) +
-    String(date.getMinutes()) +
-    String(date.getSeconds());
-  const writeStream = fs.createWriteStream(path + 'Backup_' + now + '.zip');
+  const writeStream = fs.createWriteStream(fullPath);
   const destination = convertToWritableStream(writeStream);
 
-  const { abortController } = opts;
+  const { abortController, updateProgress } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
-  const { tree, folderDecryptedNames, fileDecryptedNames } = await fetchFolderTree(folderUuid);
+  const { tree, folderDecryptedNames, fileDecryptedNames, size } =
+    await fetchFolderTree(folderUuid);
   tree.plainName = deviceName;
   folderDecryptedNames[tree.id] = deviceName;
   const pendingFolders: { path: string; data: FolderTree }[] = [
@@ -57,8 +50,8 @@ export async function downloadFolderAsZip(
 
   const zip = new FlatFolderZip(destination, {
     abortController: opts.abortController,
-    // TODO: check why progress is causing zip corruption
-    // progress: (loadedBytes) => updateProgress?.(loadedBytes / size),
+    // possible zip corruption caused by progress ??
+    progress: (loadedBytes) => updateProgress?.(loadedBytes / size),
   });
 
   while (pendingFolders.length > 0 && !abortController?.signal.aborted) {
@@ -289,17 +282,18 @@ async function getFileDownloadStream(
   const encryptedContentParts: ReadableStream<Uint8Array>[] = [];
 
   for (const downloadUrl of downloadUrls) {
-    const encryptedStream = (await fetch(downloadUrl, {
+    if (abortController?.signal.aborted) {
+      throw new Error('Download aborted');
+    }
+    const encryptedStream = await fetch(downloadUrl, {
       signal: abortController?.signal,
-    }).then((res) => {
-      if (!res.body) {
-        throw new Error('No content received');
-      }
-
-      return convertToReadableStream(res.body as Readable);
-    }));
-
-    encryptedContentParts.push(encryptedStream);
+    });
+    if (!encryptedStream.body) {
+      throw new Error('No content received');
+    }
+    encryptedContentParts.push(
+      convertToReadableStream(encryptedStream.body as Readable)
+    );
   }
 
   return getDecryptedStream(encryptedContentParts, decipher);

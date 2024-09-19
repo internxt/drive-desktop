@@ -16,7 +16,7 @@ export default function BackupFolderSelector({
 }: BackupFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const { backups, state, addBackup, disableBackup } = useContext(BackupContext);
+  const { backups, backupsState, addBackup, disableBackup } = useContext(BackupContext);
 
   const [selectedBackup, setSelectedBackup] = useState<BackupInfo | null>(null);
 
@@ -27,7 +27,7 @@ export default function BackupFolderSelector({
           {translate('settings.backups.title')}
         </h1>
         <div className="ml-auto text-gray-50">
-          {state === 'SUCCESS' &&
+          {backupsState === 'SUCCESS' &&
             translate('settings.backups.selected-folder', {
               count: backups.length,
             })}{' '}
@@ -38,21 +38,21 @@ export default function BackupFolderSelector({
         onClick={() => setSelectedBackup(null)}
         role="none"
       >
-        {state === 'SUCCESS' && backups.length > 0 ? (
+        {backupsState === 'SUCCESS' && backups.length > 0 ? (
           <BackupsList
             backups={backups}
             selected={selectedBackup}
             setSelected={setSelectedBackup}
           />
         ) : (
-          <LoadingFolders state={state} />
+          <LoadingFolders state={backupsState} />
         )}
       </div>
       <div className=" flex items-center justify-between">
         <div className="flex">
           <Button
             onClick={addBackup}
-            disabled={state === 'LOADING'}
+            disabled={backupsState === 'LOADING'}
             variant="secondary"
           >
             <UilPlus size="17" />

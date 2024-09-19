@@ -3,12 +3,14 @@ import { Network as NetworkModule } from '@internxt/sdk';
 import { createDecipheriv, randomBytes } from 'crypto';
 import { validateMnemonic } from 'bip39';
 import { downloadFile } from '@internxt/sdk/dist/network/download';
-import { buildProgressStream, DownloadProgressCallback, getDecryptedStream } from './download';
+import {
+  buildProgressStream,
+  DownloadProgressCallback,
+  getDecryptedStream,
+} from './download';
 import fetch from 'electron-fetch';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
-
-
 
 interface DownloadOptions {
   key?: Buffer;
@@ -30,7 +32,11 @@ export class NetworkFacade {
         return validateMnemonic(mnemonic);
       },
       generateFileKey: (mnemonic, bucketId, index) => {
-        return Environment.utils.generateFileKey(mnemonic, bucketId, index as Buffer);
+        return Environment.utils.generateFileKey(
+          mnemonic,
+          bucketId,
+          index as Buffer
+        );
       },
       randomBytes,
     };
@@ -40,7 +46,7 @@ export class NetworkFacade {
     bucketId: string,
     fileId: string,
     mnemonic: string,
-    options?: DownloadOptions,
+    options?: DownloadOptions
   ): Promise<ReadableStream<Uint8Array>> {
     const encryptedContentStreams: ReadableStream<Uint8Array>[] = [];
     let fileStream: ReadableStream<Uint8Array>;
@@ -61,28 +67,32 @@ export class NetworkFacade {
 
           const encryptedContentStream = await fetch(downloadable.url, {
             signal: options?.abortController?.signal,
-          }).then((res) => {
-            if (!res.body) {
-              throw new Error('No content received');
-            }
-
-            return convertToReadableStream(res.body as Readable);
           });
-
-          encryptedContentStreams.push(encryptedContentStream);
+          if (!encryptedContentStream.body) {
+            throw new Error('No content received');
+          }
+          encryptedContentStreams.push(
+            convertToReadableStream(encryptedContentStream.body as Readable)
+          );
         }
       },
       async (_, key, iv, fileSize) => {
         const decryptedStream = getDecryptedStream(
           encryptedContentStreams,
-          createDecipheriv('aes-256-ctr', options?.key || (key as Buffer), iv as Buffer),
+          createDecipheriv(
+            'aes-256-ctr',
+            options?.key || (key as Buffer),
+            iv as Buffer
+          )
         );
 
         fileStream = buildProgressStream(decryptedStream, (readBytes) => {
-          options && options.downloadingCallback && options.downloadingCallback(fileSize, readBytes);
+          options &&
+            options.downloadingCallback &&
+            options.downloadingCallback(fileSize, readBytes);
         });
       },
-      (options?.token && { token: options.token }) || undefined,
+      (options?.token && { token: options.token }) || undefined
     );
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -90,28 +100,29 @@ export class NetworkFacade {
   }
 }
 
+export function convertToReadableStream(
+  readStream: Readable
+): ReadableStream<Uint8Array> {
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      readStream.on('data', (chunk) => {
+        // Convertir el chunk a Uint8Array y pasarlo al controller
+        controller.enqueue(new Uint8Array(chunk));
+      });
 
-export function convertToReadableStream(readStream: Readable): ReadableStream<Uint8Array> {
-    return new ReadableStream<Uint8Array>({
-        start(controller) {
-            readStream.on('data', (chunk) => {
-                // Convertir el chunk a Uint8Array y pasarlo al controller
-                controller.enqueue(new Uint8Array(chunk));
-            });
+      readStream.on('end', () => {
+        // Señalar que la transmisión ha finalizado
+        controller.close();
+      });
 
-            readStream.on('end', () => {
-                // Señalar que la transmisión ha finalizado
-                controller.close();
-            });
-
-            readStream.on('error', (err) => {
-                // Señalar un error al controller
-                controller.error(err);
-            });
-        },
-        cancel() {
-            // Abortar la lectura del ReadStream de fs
-            readStream.destroy();
-        }
-    });
+      readStream.on('error', (err) => {
+        // Señalar un error al controller
+        controller.error(err);
+      });
+    },
+    cancel() {
+      // Abortar la lectura del ReadStream de fs
+      readStream.destroy();
+    },
+  });
 }

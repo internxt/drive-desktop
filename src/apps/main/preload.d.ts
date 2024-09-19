@@ -123,6 +123,10 @@ declare interface Window {
       ) => void
     ): () => void;
 
+    onBackupDownloadProgress(
+      func: (value: { id: string; progress: number }) => void
+    ): () => void;
+
     getBackupFatalErrors(): Promise<
       import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
     >;
@@ -146,6 +150,8 @@ declare interface Window {
     addBackup: typeof import('../main/device/service').addBackup;
 
     downloadBackup: typeof import('../main/device/service').downloadBackup;
+
+    abortDownloadBackups: (deviceId: string) => void;
 
     addBackupsFromLocalPaths: typeof import('../main/device/service').createBackupsFromLocalPaths;
 
