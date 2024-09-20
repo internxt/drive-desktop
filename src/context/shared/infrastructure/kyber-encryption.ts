@@ -46,11 +46,14 @@ class KyberCrypto {
 
   async configure(options: { level: string }) {
     this.ensureInitialized();
-    const supportedLevels = ['low', 'medium', 'high'];
-    if (!supportedLevels.includes(options.level)) {
-      throw new Error(`Unsupported encryption level: ${options.level}`);
+    const validLevels = ['low', 'medium', 'high'];
+    if (!validLevels.includes(options.level)) {
+      console.error(`Invalid encryption level: ${options.level}`);
+      throw new Error('Configuration failed due to invalid level.');
     }
-    console.log('Configuration applied:', options);
+    console.log(
+      `Configuration applied successfully with level: ${options.level}`
+    );
   }
 
   async verifyKey(publicKey: Uint8Array): Promise<boolean> {
