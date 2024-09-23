@@ -66,7 +66,7 @@ ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
   if (!canHisConfigBeRestored(data.user.uuid)) {
     await setupRootFolder();
   }
-  await await clearRootVirtualDrive();
+  await clearRootVirtualDrive();
 
   setIsLoggedIn(true);
   eventBus.emit('USER_LOGGED_IN');

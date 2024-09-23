@@ -189,7 +189,6 @@ async function stopAndClearSyncEngineWatcher() {
     Logger.info('[MAIN] WORKER WAS NOT RUNNING');
     worker?.destroy();
     worker = null;
-    await clearRootVirtualDrive();
 
     return;
   }
@@ -232,7 +231,6 @@ async function stopAndClearSyncEngineWatcher() {
     worker?.destroy();
     workerIsRunning = false;
     worker = null;
-    await clearRootVirtualDrive();
   }
 }
 
