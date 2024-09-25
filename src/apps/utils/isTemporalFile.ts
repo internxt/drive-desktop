@@ -22,6 +22,12 @@ export const isTemporaryFile = async (filePath: string): Promise<boolean> => {
       return true;
     }
 
+    // if start with $Recycle.Bin
+    if (filePath.includes('$Recycle.Bin')) {
+      Logger.debug(`File ${filePath} is in Recycle Bin`);
+      return true;
+    }
+
     // Check if the file has the "TEMPORARY" attribute (Windows-specific)
     // const stats = await fs.promises.stat(filePath);
     // if (stats.isFile()) {

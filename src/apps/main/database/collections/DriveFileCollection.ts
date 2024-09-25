@@ -94,4 +94,26 @@ export class DriveFilesCollection
       };
     }
   }
+
+  async searchPartialBy(
+    partialData: Partial<DriveFile>
+  ): Promise<{ success: boolean; result: DriveFile[] }> {
+    try {
+      Logger.info('Searching partial by', partialData);
+      const result = await this.repository.find({
+        where: partialData,
+      });
+      return {
+        success: true,
+        result,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error fetching drive folders:', error);
+      return {
+        success: false,
+        result: [],
+      };
+    }
+  }
 }

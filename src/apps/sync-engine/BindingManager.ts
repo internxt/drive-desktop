@@ -83,10 +83,12 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
+        Logger.debug('Path received from delete callback', contentsId);
         this.controllers.delete
           .execute(contentsId)
           .then(() => {
             callback(true);
+            ipcRenderer.invoke('DELETE_ITEM_DRIVE', contentsId);
           })
           .catch((error: Error) => {
             Logger.error(error);
@@ -334,7 +336,6 @@ export class BindingsManager {
             Logger.debug('File is temporary, skipping');
             return;
           }
-          ipcRenderer.send('RECEIVED_REMOTE_CHANGES');
 
           const itemId = await this.controllers.addFile.execute(task.path);
           if (!itemId) {

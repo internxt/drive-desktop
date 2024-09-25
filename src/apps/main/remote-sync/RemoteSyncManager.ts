@@ -142,11 +142,11 @@ export class RemoteSyncManager {
         ? this.syncRemoteFoldersByFolder(syncOptions, folderId)
         : this.syncRemoteFolders(syncOptions);
 
-      const [_files, folders] = await Promise.all([
+      const [files, folders] = await Promise.all([
         await syncFilesPromise,
         await syncFoldersPromise,
       ]);
-      return { files: _files, folders };
+      return { files, folders };
     } catch (error) {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);

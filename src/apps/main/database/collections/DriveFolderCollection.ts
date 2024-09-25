@@ -93,4 +93,25 @@ export class DriveFoldersCollection
       };
     }
   }
+
+  async searchPartialBy(
+    partialData: Partial<DriveFolder>
+  ): Promise<{ success: boolean; result: DriveFolder[] }> {
+    try {
+      const result = await this.repository.find({
+        where: partialData,
+      });
+      return {
+        success: true,
+        result,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error fetching drive folders:', error);
+      return {
+        success: false,
+        result: [],
+      };
+    }
+  }
 }
