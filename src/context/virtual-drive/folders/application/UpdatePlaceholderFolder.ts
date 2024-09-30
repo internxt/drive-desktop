@@ -73,6 +73,18 @@ export class FolderPlaceholderUpdater {
     return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
+  private async hasToBeCreated(remote: Folder): Promise<boolean> {
+    const remoteExists = remote.status.is(FolderStatuses.EXISTS);
+
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+      remote.path
+    );
+
+    const existsFolder = await this.folderExists(win32AbsolutePath);
+
+    return remoteExists && !existsFolder;
+  }
+
   private async update(remote: Folder): Promise<void> {
     if (remote.path === path.posix.sep) {
       return;
@@ -134,6 +146,11 @@ export class FolderPlaceholderUpdater {
       );
       await fs.rm(win32AbsolutePath, { recursive: true });
       return;
+    }
+
+    if (await this.hasToBeCreated(remote)) {
+      await this.local.createPlaceHolder(remote);
+      await this.repository.update(remote);
     }
   }
 

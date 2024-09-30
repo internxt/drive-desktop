@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import * as fs from 'fs';
 import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
-import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
 import {
   IControllers,
   buildControllers,
@@ -20,6 +19,7 @@ import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
 import { FilePath } from '../../context/virtual-drive/files/domain/FilePath';
+import { isTemporaryFile } from '../utils/isTemporalFile';
 
 export type CallbackDownload = (
   success: boolean,
@@ -83,28 +83,40 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
+        Logger.debug('Path received from delete callback', contentsId);
         this.controllers.delete
           .execute(contentsId)
           .then(() => {
             callback(true);
+            ipcRenderer.invoke('DELETE_ITEM_DRIVE', contentsId);
           })
           .catch((error: Error) => {
             Logger.error(error);
             Sentry.captureException(error);
             callback(false);
           });
-        ipcRenderer.send('CHECK_SYNC');
+        ipcRenderer.send('SYNCED');
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: (
+      notifyRenameCallback: async (
         absolutePath: string,
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
+
+          const isTempFile = await isTemporaryFile(absolutePath);
+
+          Logger.debug('[isTemporaryFile]', isTempFile);
+
+          if (isTempFile) {
+            Logger.debug('File is temporary, skipping');
+            callback(true);
+            return;
+          }
 
           const fn = executeControllerWithFallback({
             handler: this.controllers.renameOrMove.execute.bind(
@@ -316,6 +328,15 @@ export class BindingsManager {
         try {
           Logger.debug('Path received from handle add', task.path);
 
+          const tempFile = await isTemporaryFile(task.path);
+
+          Logger.debug('[isTemporaryFile]', tempFile);
+
+          if (tempFile && !task.isFolder) {
+            Logger.debug('File is temporary, skipping');
+            return;
+          }
+
           const itemId = await this.controllers.addFile.execute(task.path);
           if (!itemId) {
             Logger.error('Error adding file' + task.path);
@@ -340,6 +361,8 @@ export class BindingsManager {
         try {
           const syncRoot = configStore.get('syncRoot');
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
+          const start = Date.now();
+
           const normalizePath = (path: string) => path.replace(/\\/g, '/');
 
           const normalizedLastHydrated = normalizePath(this.lastHydrated);
@@ -360,6 +383,12 @@ export class BindingsManager {
           this.lastHydrated = normalizedTaskPath;
 
           await this.container.virtualDrive.hydrateFile(task.path);
+
+          const finish = Date.now();
+
+          if (finish - start < 1500) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
         } catch (error) {

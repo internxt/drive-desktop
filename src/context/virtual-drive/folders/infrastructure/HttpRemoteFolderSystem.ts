@@ -146,19 +146,28 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
   }
 
   async rename(folder: Folder): Promise<void> {
-    const url = `${process.env.API_URL}/storage/folder/${folder.id}/meta`;
+    try {
+      const url = `${process.env.API_URL}/storage/folder/${folder.id}/meta`;
 
-    const body: UpdateFolderNameDTO = {
-      metadata: { itemName: folder.name },
-      relativePath: uuid.v4(),
-    };
+      const body: UpdateFolderNameDTO = {
+        metadata: { itemName: folder.name },
+        relativePath: uuid.v4(),
+      };
 
-    const res = await this.driveClient.post(url, body);
+      const res = await this.driveClient.post(url, body);
 
-    if (res.status !== 200) {
-      throw new Error(
-        `[FOLDER FILE SYSTEM] Error updating item metadata: ${res.status}`
-      );
+      if (res.status !== 200) {
+        throw new Error(
+          `[FOLDER FILE SYSTEM] Error updating item metadata: ${res.status}`
+        );
+      }
+    } catch (error) {
+      Logger.error('[FOLDER FILE SYSTEM] Error renaming folder');
+      if (axios.isAxiosError(error)) {
+        Logger.error('[Is Axios Error]', error.response?.data);
+      }
+      Sentry.captureException(error);
+      throw error;
     }
   }
 

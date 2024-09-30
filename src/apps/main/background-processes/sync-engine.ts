@@ -5,12 +5,12 @@ import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
 import * as Sentry from '@sentry/electron/main';
 import { checkSyncEngineInProcess } from '../remote-sync/handlers';
-import { clearRootVirtualDrive } from '../virtual-root-folder/service';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
 let startingWorker = false;
 let healthCheckSchedule: nodeSchedule.Job | null = null;
+let syncSchedule: nodeSchedule.Job | null = null;
 let attemptsAlreadyStarting = 0;
 
 ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
@@ -82,6 +82,15 @@ function scheduleHeathCheck() {
     }
   });
 }
+function scheduleSync() {
+  if (syncSchedule) {
+    syncSchedule.cancel(false);
+  }
+
+  syncSchedule = nodeSchedule.scheduleJob('0 0 */2 * * *', async () => {
+    eventBus.emit('RECEIVED_REMOTE_CHANGES');
+  });
+}
 
 function spawnSyncEngineWorker() {
   if (startingWorker) {
@@ -113,6 +122,7 @@ function spawnSyncEngineWorker() {
     .then(() => {
       Logger.info('[MAIN] Sync engine worker loaded');
       scheduleHeathCheck();
+      scheduleSync();
     })
     .catch((err) => {
       Logger.error('[MAIN] Error loading sync engine worker', err);
@@ -189,7 +199,6 @@ async function stopAndClearSyncEngineWatcher() {
     Logger.info('[MAIN] WORKER WAS NOT RUNNING');
     worker?.destroy();
     worker = null;
-    await clearRootVirtualDrive();
 
     return;
   }
@@ -232,7 +241,6 @@ async function stopAndClearSyncEngineWatcher() {
     worker?.destroy();
     workerIsRunning = false;
     worker = null;
-    await clearRootVirtualDrive();
   }
 }
 
