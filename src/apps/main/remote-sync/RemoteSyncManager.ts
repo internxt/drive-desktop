@@ -6,7 +6,7 @@ import {
   SyncConfig,
   rewind,
   WAITING_AFTER_SYNCING_DEFAULT,
-  SIX_HOURS_IN_MILLISECONDS,
+  FIVETEEN_MINUTES_IN_MILLISECONDS,
 } from './helpers';
 import { reportError } from '../bug-report/service';
 
@@ -251,7 +251,7 @@ export class RemoteSyncManager {
 
     const updatedAt = new Date(result.updatedAt);
 
-    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+    return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
   }
 
   /**
@@ -406,7 +406,7 @@ export class RemoteSyncManager {
 
     const updatedAt = new Date(result.updatedAt);
 
-    return rewind(updatedAt, SIX_HOURS_IN_MILLISECONDS);
+    return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
   }
 
   private async syncRemoteFolders(
