@@ -5,12 +5,12 @@ import Logger from 'electron-log';
 import path from 'path';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { FolderRepository } from '../domain/FolderRepository';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import * as Sentry from '@sentry/electron/renderer';
+import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 export class FolderPlaceholderUpdater {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly local: LocalFileSystem,
+    private readonly local: LocalFolderSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
 
@@ -71,6 +71,18 @@ export class FolderPlaceholderUpdater {
     const remoteIsTrashed = remote.status === FolderStatuses.TRASHED;
     const remoteIsDeleted = remote.status === FolderStatuses.DELETED;
     return localExists && (remoteIsTrashed || remoteIsDeleted);
+  }
+
+  private async hasToBeCreated(remote: Folder): Promise<boolean> {
+    const remoteExists = remote.status.is(FolderStatuses.EXISTS);
+
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+      remote.path
+    );
+
+    const existsFolder = await this.folderExists(win32AbsolutePath);
+
+    return remoteExists && !existsFolder;
   }
 
   private async update(remote: Folder): Promise<void> {
@@ -134,6 +146,11 @@ export class FolderPlaceholderUpdater {
       );
       await fs.rm(win32AbsolutePath, { recursive: true });
       return;
+    }
+
+    if (await this.hasToBeCreated(remote)) {
+      await this.local.createPlaceHolder(remote);
+      await this.repository.update(remote);
     }
   }
 

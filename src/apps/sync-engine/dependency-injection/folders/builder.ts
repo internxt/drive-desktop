@@ -17,7 +17,7 @@ import { RetrieveAllFolders } from '../../../../context/virtual-drive/folders/ap
 import { SynchronizeOfflineModifications } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/folders/application/UpdatePlaceholderFolder';
-import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
+import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
@@ -48,7 +48,7 @@ export async function buildFoldersContainer(
     virtualDrive,
     shredContainer.relativePathToAbsoluteConverter
   );
-  const remoteFileSystem = new HttpRemoteFileSystem(
+  const remoteFolderSystem = new HttpRemoteFolderSystem(
     clients.drive,
     clients.newDrive
   );
@@ -67,7 +67,7 @@ export async function buildFoldersContainer(
 
   const folderDeleter = new FolderDeleter(
     repository,
-    remoteFileSystem,
+    remoteFolderSystem,
     localFileSystem,
     allParentFoldersStatusIsExists
   );
@@ -76,7 +76,7 @@ export async function buildFoldersContainer(
 
   const folderCreator = new FolderCreator(
     repository,
-    remoteFileSystem,
+    remoteFolderSystem,
     ipcRendererSyncEngine,
     eventBus,
     folderPlaceholderConverter
@@ -84,12 +84,12 @@ export async function buildFoldersContainer(
 
   const folderMover = new FolderMover(
     repository,
-    remoteFileSystem,
+    remoteFolderSystem,
     folderFinder
   );
   const folderRenamer = new FolderRenamer(
     repository,
-    remoteFileSystem,
+    remoteFolderSystem,
     ipcRendererSyncEngine
   );
 
@@ -144,7 +144,7 @@ export async function buildFoldersContainer(
 
   const folderPlaceholderDeleter = new FolderPlaceholderDeleter(
     shredContainer.relativePathToAbsoluteConverter,
-    remoteFileSystem,
+    remoteFolderSystem,
     localFileSystem
   );
 

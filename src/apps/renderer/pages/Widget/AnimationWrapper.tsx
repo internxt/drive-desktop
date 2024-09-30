@@ -12,8 +12,8 @@ export function AnimationWrapper({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: { delay: i * 0.03 } }}
-      transition={{ duration: 0.25, ease: 'easeInOut' }}
+      exit={{ opacity: 0, transition: { delay: i * 0.5 } }}
+      transition={{ duration: 1, ease: 'easeInOut' }}
     >
       {children}
     </motion.div>

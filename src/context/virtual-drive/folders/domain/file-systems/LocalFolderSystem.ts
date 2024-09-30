@@ -1,9 +1,9 @@
 import { Folder } from '../Folder';
 
-export interface LocalFileSystem {
+export interface LocalFolderSystem {
   createPlaceHolder(folder: Folder): Promise<void>;
 
-  updateSyncStatus(folder: Folder): Promise<void>;
+  updateSyncStatus(folder: Folder, status: boolean): Promise<void>;
 
   convertToPlaceholder(folder: Folder): Promise<void>;
 

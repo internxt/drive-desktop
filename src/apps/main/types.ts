@@ -14,6 +14,7 @@ export type User = {
   registerCompleted: boolean;
   revocateKey: string;
   root_folder_id: number;
+  rootFolderId: string;
   sharedWorkspace: boolean;
   teams: boolean;
   userId: string;

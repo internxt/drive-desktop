@@ -26,6 +26,24 @@ export class FilesPlaceholderUpdater {
     return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
+  private async hasToBeCreated(remote: File): Promise<boolean> {
+    const remoteExists = remote.status.is(FileStatuses.EXISTS);
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
+      remote.path
+    );
+    const existsFile = await this.fileExists(win32AbsolutePath);
+    return remoteExists && !existsFile;
+  }
+
+  private async fileExists(win32AbsolutePath: string): Promise<boolean> {
+    try {
+      await fs.stat(win32AbsolutePath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   private async update(remote: File): Promise<void> {
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
@@ -76,6 +94,11 @@ export class FilesPlaceholderUpdater {
         local.path
       );
       await fs.unlink(win32AbsolutePath);
+    }
+
+    if (await this.hasToBeCreated(remote)) {
+      await this.localFileSystem.createPlaceHolder(remote);
+      await this.repository.update(remote);
     }
   }
 

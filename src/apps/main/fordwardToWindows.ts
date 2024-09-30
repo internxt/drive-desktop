@@ -106,7 +106,6 @@ ipcMainDrive.on('FILE_CLONNED', (_, payload) => {
 
 ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
-  setIsProcessing(true);
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADING',
     name: nameWithExtension,
@@ -116,7 +115,7 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
 
 ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
   const { nameWithExtension } = payload;
-  setIsProcessing(false);
+  // setIsProcessing(false);
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADED',
     name: nameWithExtension,
@@ -125,7 +124,7 @@ ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
 
 ipcMainDrive.on('FILE_CREATED', (_, payload) => {
   const { nameWithExtension } = payload;
-  setIsProcessing(false);
+  // setIsProcessing(false);
 
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADED',

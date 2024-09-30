@@ -170,9 +170,6 @@ export class Folder extends AggregateRoot {
 
   rename(newPath: FolderPath) {
     const oldPath = this._path;
-    if (this._path.hasSameName(newPath)) {
-      throw new Error('Cannot rename a folder to the same name');
-    }
     this._path = this._path.updateName(newPath.name());
     this._updatedAt = FolderUpdatedAt.now();
 

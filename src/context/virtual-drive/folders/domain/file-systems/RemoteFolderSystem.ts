@@ -21,7 +21,7 @@ export type RemoteFileSystemErrors =
   | 'WRONG_DATA'
   | 'UNHANDLED';
 
-export abstract class RemoteFileSystem {
+export abstract class RemoteFolderSystem {
   abstract persistv2(
     path: FolderPath,
     parentId: FolderId,
@@ -45,19 +45,3 @@ export abstract class RemoteFileSystem {
     folderPath: FolderPath
   ): Promise<Folder | undefined>;
 }
-
-// import { Folder, FolderAttributes } from '../Folder';
-// import { FolderStatuses } from '../FolderStatus';
-// import { OfflineFolder } from '../OfflineFolder';
-
-// export interface RemoteFileSystem {
-//   persist(offline: OfflineFolder): Promise<FolderAttributes>;
-
-//   trash(id: Folder['id']): Promise<void>;
-
-//   move(folder: Folder): Promise<void>;
-
-//   rename(folder: Folder): Promise<void>;
-
-//   checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses>;
-// }

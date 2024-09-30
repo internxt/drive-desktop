@@ -125,7 +125,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     nativeTheme.themeSource = (configStore.get('preferedTheme') ||
       'system') as Theme;
 
-    setTrayStatus('IDLE');
     const widget = await getOrCreateWidged();
     const tray = getTray();
     if (widget && tray) {

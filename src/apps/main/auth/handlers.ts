@@ -4,9 +4,12 @@ import Logger from 'electron-log';
 import { AccessResponse } from '../../renderer/pages/Login/service';
 import { applicationOpened } from '../analytics/service';
 import eventBus from '../event-bus';
-import { setupRootFolder } from '../virtual-root-folder/service';
+import {
+  clearRootVirtualDrive,
+  setupRootFolder,
+} from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
-import { createTokenSchedule } from './refresh-token';
+import { checkUserData, createTokenSchedule } from './refresh-token';
 import {
   canHisConfigBeRestored,
   encryptToken,
@@ -49,6 +52,7 @@ ipcMain.handle('get-token', () => {
 
 export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
+  eventBus.emit('USER_LOGGED_OUT');
 
   logout();
   Logger.info('[AUTH] User has been logged out because it was unauthorized');
@@ -62,6 +66,7 @@ ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
   if (!canHisConfigBeRestored(data.user.uuid)) {
     await setupRootFolder();
   }
+  await clearRootVirtualDrive();
 
   setIsLoggedIn(true);
   eventBus.emit('USER_LOGGED_IN');
@@ -79,7 +84,7 @@ eventBus.on('APP_IS_READY', async () => {
   if (!isLoggedIn) {
     return;
   }
-
+  await checkUserData();
   encryptToken();
   applicationOpened();
   await createTokenSchedule();

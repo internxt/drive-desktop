@@ -5,7 +5,8 @@ import {
   HandleActions,
 } from 'virtual-drive/dist';
 import Logger from 'electron-log';
-import { sleep } from '../../../main/util';
+import fs from 'fs';
+import path from 'path';
 
 export type QueueHandler = {
   handleAdd: HandleAction;
@@ -13,6 +14,11 @@ export type QueueHandler = {
   handleDehydrate: HandleAction;
   handleChange?: HandleAction;
   handleChangeSize: HandleAction;
+};
+
+export type QueueManagerCallback = {
+  onTaskSuccess: () => Promise<void>;
+  onTaskProcessing: () => Promise<void>;
 };
 
 export class QueueManager implements IQueueManager {
@@ -32,9 +38,17 @@ export class QueueManager implements IQueueManager {
     changeSize: false,
   };
 
+  private notify: QueueManagerCallback;
+
+  private persistPath: string;
+
   actions: HandleActions;
 
-  constructor(handlers: QueueHandler) {
+  constructor(
+    handlers: QueueHandler,
+    notify: QueueManagerCallback,
+    persistPath: string
+  ) {
     this.actions = {
       add: handlers.handleAdd,
       hydrate: handlers.handleHydrate,
@@ -42,6 +56,56 @@ export class QueueManager implements IQueueManager {
       changeSize: handlers.handleChangeSize,
       change: handlers.handleChange || (() => Promise.resolve()),
     };
+    this.notify = notify;
+    this.persistPath = persistPath;
+    if (!fs.existsSync(this.persistPath)) {
+      fs.writeFileSync(this.persistPath, JSON.stringify(this.queues));
+    } else {
+      this.loadQueueStateFromFile();
+    }
+  }
+  private saveQueueStateToFile(): void {
+    if (!this.persistPath) return;
+
+    fs.writeFileSync(
+      this.persistPath,
+      JSON.stringify(
+        {
+          add: [],
+          hydrate: this.queues.hydrate,
+          dehydrate: this.queues.dehydrate,
+          change: [],
+          changeSize: [],
+        },
+        null,
+        2
+      )
+    );
+  }
+
+  private loadQueueStateFromFile(): void {
+    Logger.debug('Loading queue state from file:' + this.persistPath);
+    if (this.persistPath) {
+      if (!fs.existsSync(this.persistPath)) {
+        this.saveQueueStateToFile();
+      }
+
+      const data = fs.readFileSync(this.persistPath, 'utf-8');
+      if (!data) {
+        return;
+      }
+      this.queues = JSON.parse(data);
+    }
+  }
+  public clearQueue(): void {
+    this.queues = {
+      add: [],
+      hydrate: [],
+      dehydrate: [],
+      change: [],
+      changeSize: [],
+    };
+    this.saveQueueStateToFile();
   }
 
   public enqueue(task: QueueItem): void {
@@ -55,6 +119,7 @@ export class QueueManager implements IQueueManager {
     }
     this.queues[task.type].push(task);
     this.sortQueue(task.type);
+    this.saveQueueStateToFile();
     if (!this.isProcessing[task.type]) {
       this.processQueue(task.type);
     }
@@ -83,8 +148,10 @@ export class QueueManager implements IQueueManager {
     this.isProcessing[type] = true;
     while (this.queues[type].length > 0) {
       const task = this.queues[type].shift();
+      this.saveQueueStateToFile();
       if (task) {
         Logger.debug(`Processing ${type} task: ${JSON.stringify(task)}`);
+        Logger.debug(`Tasks length: ${this.queues[type].length}`);
         try {
           await this.actions[task.type](task);
         } catch (error) {
@@ -97,6 +164,8 @@ export class QueueManager implements IQueueManager {
 
   public async processAll(): Promise<void> {
     const taskTypes = Object.keys(this.queues);
+    await this.notify.onTaskProcessing();
     await Promise.all(taskTypes.map((type) => this.processQueue(type)));
+    await this.notify.onTaskSuccess();
   }
 }

@@ -19,8 +19,10 @@ import configStore from '../config';
 import { setTrayStatus } from '../tray/tray';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
+import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
+import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 
-const SYNC_DEBOUNCE_DELAY = 3_000;
+const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
@@ -222,11 +224,12 @@ remoteSyncManager.onStatusChange((newStatus) => {
 
 remoteSyncManager.onStatusChange((newStatus) => {
   if (newStatus === 'SYNCING') {
-    setTrayStatus('SYNCING');
+    return setTrayStatus('SYNCING');
   }
-  if (newStatus === 'SYNCED') {
-    setTrayStatus('IDLE');
+  if (newStatus === 'SYNC_FAILED') {
+    return setTrayStatus('ALERT');
   }
+  setTrayStatus('IDLE');
 });
 
 ipcMain.handle('get-remote-sync-status', () =>
@@ -238,20 +241,20 @@ export async function updateRemoteSync(): Promise<void> {
   // that we received the notification, but if we check
   // for new data we don't receive it
   Logger.info('Updating remote sync');
-  const isSyncing = await checkSyncEngineInProcess(5_000);
-  if (isSyncing) {
-    Logger.info('Remote sync is already running');
-    return;
-  }
+
   const userData = configStore.get('userData');
   const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
   Logger.info('Last files sync at', lastFilesSyncAt);
   const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
   await startRemoteSync(folderId);
+  const isSyncing = await checkSyncEngineInProcess(2_000);
+  if (isSyncing) {
+    Logger.info('Remote sync is already running');
+    return;
+  }
   updateSyncEngine();
 }
 export async function fallbackRemoteSync(): Promise<void> {
-  await sleep(2_000);
   Logger.info('Fallback remote sync');
   fallbackSyncEngine();
 }
@@ -277,7 +280,7 @@ ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
 
 ipcMain.on(
   'UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE',
-  async (_, filesPath: string[]) => {
+  async (_: unknown, filesPath: string[]) => {
     Logger.info('[SYNC ENGINE] update unSync files', filesPath);
     remoteSyncManager.setUnsyncFiles(filesPath);
   }
@@ -288,15 +291,7 @@ const debouncedSynchronization = debounce(async () => {
 }, SYNC_DEBOUNCE_DELAY);
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
-  // Wait before checking for updates, could be possible
-  // that we received the notification, but if we check
-  // for new data we don't receive it
   Logger.info('Received remote changes event');
-  const isSyncing = await checkSyncEngineInProcess(5_000);
-  if (isSyncing) {
-    Logger.info('Remote sync is already running');
-    return;
-  }
   debouncedSynchronization();
 });
 
@@ -304,12 +299,13 @@ eventBus.on('USER_LOGGED_IN', async () => {
   Logger.info('Received user logged in event');
   try {
     remoteSyncManager.isProcessRunning = true;
+    setTrayStatus('SYNCING');
     const userData = configStore.get('userData');
     const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
     Logger.info('Last files sync at', lastFilesSyncAt);
     const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
     await startRemoteSync(folderId);
-    remoteSyncManager.isProcessRunning = false;
+    eventBus.emit('INITIAL_SYNC_READY');
   } catch (error) {
     Logger.error('Error starting remote sync manager', error);
     if (error instanceof Error) reportError(error);
@@ -342,3 +338,107 @@ export async function checkSyncInProgress(milliSeconds: number) {
 ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
   return await checkSyncInProgress(milliSeconds);
 });
+// ipcMain.handle(
+//   'DELETE_ITEM_DRIVE',
+//   async (_, itemId: FilePlaceholderId | FolderPlaceholderId) => {
+//     try {
+//       const [type, id] = itemId
+//         .replace(
+//           // eslint-disable-next-line no-control-regex
+//           /[\x00-\x1F\x7F-\x9F]/g,
+//           ''
+//         )
+//         .normalize()
+//         .split(':');
+
+//       Logger.info('Deleting item in handler', itemId);
+//       Logger.info('Type and id', type, id);
+
+//       const isFolder = type === 'FOLDER';
+//       let result;
+//       if (isFolder) {
+//         result = await driveFoldersCollection.update(id, { status: 'TRASHED' });
+//       } else {
+//         const item = await driveFilesCollection.searchPartialBy({
+//           fileId: id,
+//         });
+//         Logger.info('Item to delete', item);
+//         if (!item.result.length) return false;
+//         result = await driveFilesCollection.update(item.result[0].uuid, {
+//           status: 'TRASHED',
+//         });
+//       }
+
+//       Logger.info('Result deleting item in handler', result);
+//       return true;
+//     } catch (error) {
+//       Logger.error('Error deleting item in handler', error);
+//       return false;
+//     }
+//   }
+// );
+
+function parseItemId(itemId: string) {
+  const [type, id] = itemId
+    .replace(
+      // eslint-disable-next-line no-control-regex
+      /[\x00-\x1F\x7F-\x9F]/g,
+      ''
+    )
+    .normalize()
+    .split(':');
+  if (!type || !id) {
+    throw new Error(`Invalid itemId format: ${itemId}`);
+  }
+  return { type, id };
+}
+
+async function deleteFolder(folderId: string): Promise<boolean> {
+  try {
+    const result = await driveFoldersCollection.update(folderId, {
+      status: 'TRASHED',
+    });
+    return result.success;
+  } catch (error) {
+    Logger.error('Error deleting folder', { folderId, error });
+    throw error;
+  }
+}
+
+async function deleteFile(fileId: string): Promise<boolean> {
+  try {
+    const item = await driveFilesCollection.searchPartialBy({ fileId });
+    if (!item.result.length) {
+      Logger.warn('File not found', { fileId });
+      return false;
+    }
+    const result = await driveFilesCollection.update(item.result[0].uuid, {
+      status: 'TRASHED',
+    });
+    return result.success;
+  } catch (error) {
+    Logger.error('Error deleting file', { fileId, error });
+    throw error;
+  }
+}
+
+ipcMain.handle(
+  'DELETE_ITEM_DRIVE',
+  async (
+    _,
+    itemId: FilePlaceholderId | FolderPlaceholderId
+  ): Promise<boolean> => {
+    try {
+      const { type, id } = parseItemId(itemId);
+      Logger.info('Deleting item in handler', { type, id });
+
+      const isFolder = type === 'FOLDER';
+      const result = isFolder ? await deleteFolder(id) : await deleteFile(id);
+
+      return result;
+    } catch (error) {
+      Logger.error('Error deleting item in handler', { error });
+      return false;
+    }
+  }
+);

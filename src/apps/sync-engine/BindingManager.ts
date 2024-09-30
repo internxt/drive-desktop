@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import * as fs from 'fs';
 import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
-import { PlatformPathConverter } from '../../context/virtual-drive/shared/application/PlatformPathConverter';
 import {
   IControllers,
   buildControllers,
@@ -18,6 +17,9 @@ import * as Sentry from '@sentry/electron/renderer';
 import { runner } from '../utils/runner';
 import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
+import configStore from '../main/config';
+import { FilePath } from '../../context/virtual-drive/files/domain/FilePath';
+import { isTemporaryFile } from '../utils/isTemporalFile';
 
 export type CallbackDownload = (
   success: boolean,
@@ -33,6 +35,9 @@ export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
   private progressBuffer = 0;
   private controllers: IControllers;
+
+  private queueManager: QueueManager | null = null;
+  private lastHydrated = '';
 
   constructor(
     private readonly container: DependencyContainer,
@@ -78,28 +83,40 @@ export class BindingsManager {
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
+        Logger.debug('Path received from delete callback', contentsId);
         this.controllers.delete
           .execute(contentsId)
           .then(() => {
             callback(true);
+            ipcRenderer.invoke('DELETE_ITEM_DRIVE', contentsId);
           })
           .catch((error: Error) => {
             Logger.error(error);
             Sentry.captureException(error);
             callback(false);
           });
-        ipcRenderer.send('CHECK_SYNC');
+        ipcRenderer.send('SYNCED');
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: (
+      notifyRenameCallback: async (
         absolutePath: string,
         contentsId: string,
         callback: (response: boolean) => void
       ) => {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
+
+          const isTempFile = await isTemporaryFile(absolutePath);
+
+          Logger.debug('[isTemporaryFile]', isTempFile);
+
+          if (isTempFile) {
+            Logger.debug('File is temporary, skipping');
+            callback(true);
+            return;
+          }
 
           const fn = executeControllerWithFallback({
             handler: this.controllers.renameOrMove.execute.bind(
@@ -110,13 +127,7 @@ export class BindingsManager {
             ),
           });
           fn(absolutePath, contentsId, callback);
-          const isFolder = fs.lstatSync(absolutePath).isDirectory();
-
-          this.container.virtualDrive.updateSyncStatus(
-            absolutePath,
-            isFolder,
-            true
-          );
+          Logger.debug('Finish Rename', absolutePath);
         } catch (error) {
           Logger.error('Error during rename or move operation', error);
         }
@@ -137,6 +148,7 @@ export class BindingsManager {
       ) => {
         try {
           Logger.debug('[Fetch Data Callback] Donwloading begins');
+          const startTime = Date.now();
           const path = await this.controllers.downloadFile.execute(
             contentsId,
             callback
@@ -151,6 +163,9 @@ export class BindingsManager {
               .split(':')[1]
           );
           Logger.debug('[Fetch Data Callback] Preparing begins', path);
+          Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
+          this.lastHydrated = file.path;
+
           let finished = false;
           try {
             while (!finished) {
@@ -182,20 +197,54 @@ export class BindingsManager {
               });
             }
             this.progressBuffer = 0;
-            await this.controllers.notifyPlaceholderHydrationFinished.execute(
-              contentsId
-            );
+            // await this.controllers.notifyPlaceholderHydrationFinished.execute(
+            //   contentsId
+            // );
+
+            const finishTime = Date.now();
+
+            ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
+              name: file.name,
+              extension: file.type,
+              nameWithExtension: file.nameWithExtension,
+              size: file.size,
+              processInfo: { elapsedTime: finishTime - startTime },
+            });
           } catch (error) {
             Logger.error('notify: ', error);
             Sentry.captureException(error);
             // await callback(false, '');
             fs.unlinkSync(path);
 
-            Logger.debug('[Fetch Data Callback] Finish...', path);
+            Logger.debug('[Fetch Data Error] Finish...', path);
             return;
           }
 
           fs.unlinkSync(path);
+          try {
+            await this.container.fileSyncStatusUpdater.run(file);
+
+            const folderPath = file.path
+              .substring(0, file.path.lastIndexOf('/'))
+              .replace(/\\/g, '/');
+
+            const folderParentPath = new FilePath(folderPath);
+
+            const folderParent =
+              await this.container.folderFinder.findFromFilePath(
+                folderParentPath
+              );
+
+            Logger.debug(
+              '[Fetch Data Callback] Preparing finish',
+              folderParent
+            );
+
+            await this.container.folderSyncStatusUpdater.run(folderParent);
+          } catch (error) {
+            Logger.error('Error updating sync status', error);
+          }
+
           Logger.debug('[Fetch Data Callback] Finish...', path);
         } catch (error) {
           Logger.error(error);
@@ -274,10 +323,20 @@ export class BindingsManager {
   }
 
   async watch() {
-    const queueManager = new QueueManager({
+    const callbacks = {
       handleAdd: async (task: QueueItem) => {
         try {
-          Logger.debug('Path received from callback', task.path);
+          Logger.debug('Path received from handle add', task.path);
+
+          const tempFile = await isTemporaryFile(task.path);
+
+          Logger.debug('[isTemporaryFile]', tempFile);
+
+          if (tempFile && !task.isFolder) {
+            Logger.debug('File is temporary, skipping');
+            return;
+          }
+
           const itemId = await this.controllers.addFile.execute(task.path);
           if (!itemId) {
             Logger.error('Error adding file' + task.path);
@@ -292,7 +351,6 @@ export class BindingsManager {
             task.isFolder,
             true
           );
-          ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(`error adding file ${task.path}`);
           Logger.error(error);
@@ -301,22 +359,36 @@ export class BindingsManager {
       },
       handleHydrate: async (task: QueueItem) => {
         try {
+          const syncRoot = configStore.get('syncRoot');
           Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
+          const start = Date.now();
 
-          const atributtes =
-            await this.container.virtualDrive.getPlaceholderAttribute(
-              task.path
-            );
-          Logger.debug('atributtes', atributtes);
+          const normalizePath = (path: string) => path.replace(/\\/g, '/');
 
-          const status = await this.container.virtualDrive.getPlaceholderState(
-            task.path
+          const normalizedLastHydrated = normalizePath(this.lastHydrated);
+          let normalizedTaskPath = normalizePath(
+            task.path.replace(syncRoot, '')
           );
 
-          Logger.debug('status', status);
+          if (!normalizedTaskPath.startsWith('/')) {
+            normalizedTaskPath = '/' + normalizedTaskPath;
+          }
+
+          if (normalizedLastHydrated === normalizedTaskPath) {
+            Logger.debug('Same file hidrated');
+            this.lastHydrated = '';
+            return;
+          }
+
+          this.lastHydrated = normalizedTaskPath;
 
           await this.container.virtualDrive.hydrateFile(task.path);
-          ipcRenderer.send('CHECK_SYNC');
+
+          const finish = Date.now();
+
+          if (finish - start < 1500) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
 
           Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
         } catch (error) {
@@ -345,7 +417,25 @@ export class BindingsManager {
           Sentry.captureException(error);
         }
       },
-    });
+    };
+
+    const notify = {
+      onTaskSuccess: async () => ipcRendererSyncEngine.send('SYNCED'),
+      onTaskProcessing: async () => ipcRendererSyncEngine.send('SYNCING'),
+    };
+
+    const persistQueueManager: string = configStore.get(
+      'persistQueueManagerPath'
+    );
+
+    Logger.debug('persistQueueManager', persistQueueManager);
+
+    const queueManager = new QueueManager(
+      callbacks,
+      notify,
+      persistQueueManager
+    );
+    this.queueManager = queueManager;
     const logWatcherPath = DependencyInjectionLogWatcherPath.get();
     this.container.virtualDrive.watchAndWait(
       this.paths.root,
@@ -362,25 +452,12 @@ export class BindingsManager {
 
   async cleanUp() {
     await VirtualDrive.unregisterSyncRoot(this.paths.root);
+  }
 
-    const files = await this.container.retrieveAllFiles.run();
-    const folders = await this.container.retrieveAllFolders.run();
-
-    const items = [...files, ...folders];
-
-    const win32AbsolutePaths = items.map((item) => {
-      const posixRelativePath = item.path;
-      // este path es relativo al root y en formato posix
-
-      const win32RelativePaths =
-        PlatformPathConverter.posixToWin(posixRelativePath);
-
-      return this.container.relativePathToAbsoluteConverter.run(
-        win32RelativePaths
-      );
-    });
-
-    Logger.debug('win32AbsolutePaths', win32AbsolutePaths);
+  async cleanQueue() {
+    if (this.queueManager) {
+      await this.queueManager.clearQueue();
+    }
   }
 
   async update() {
@@ -390,17 +467,15 @@ export class BindingsManager {
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
 
-      // Delete all the placeholders that are not in the tree
-      await this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList);
-      await this.container?.folderPlaceholderDeleter?.run(
-        tree.trashedFoldersList
-      );
-
-      // Create all the placeholders that are in the tree
-      await this.container.folderPlaceholderUpdater.run(tree.folders);
-      await this.container.filesPlaceholderUpdater.run(tree.files);
+      await Promise.all([
+        // Delete all the placeholders that are not in the tree
+        this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList),
+        this.container?.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
+        // Create all the placeholders that are in the tree
+        this.container.folderPlaceholderUpdater.run(tree.folders),
+        this.container.filesPlaceholderUpdater.run(tree.files),
+      ]);
       ipcRendererSyncEngine.send('SYNCED');
-      ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
       Sentry.captureException(error);
@@ -414,19 +489,18 @@ export class BindingsManager {
 
   async polling(): Promise<void> {
     try {
-      Logger.info('[SYNC ENGINE] Monitoring polling...');
       ipcRendererSyncEngine.send('SYNCING');
+      Logger.info('[SYNC ENGINE] Monitoring polling...');
       const fileInPendingPaths =
         (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
-      ipcRendererSyncEngine.send('SYNCED');
-      ipcRenderer.send('CHECK_SYNC');
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);
     }
+    ipcRendererSyncEngine.send('SYNCED');
   }
   async getFileInSyncPending(): Promise<string[]> {
     try {

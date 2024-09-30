@@ -1,12 +1,12 @@
 import { ContainerBuilder } from 'diod';
 import { SimpleFolderCreator } from '../../../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
-import { RemoteFileSystem } from '../../../../context/virtual-drive/folders/domain/file-systems/RemoteFileSystem';
-import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem';
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
+import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
+import { RemoteFolderSystem } from '../../../../context/virtual-drive/folders/domain/file-systems/RemoteFolderSystem';
 
 export async function registerFolderServices(builder: ContainerBuilder) {
   builder
-    .register(RemoteFileSystem)
+    .register(RemoteFolderSystem)
     .useFactory((c) => {
       const clients = c.get(AuthorizedClients);
       return new HttpRemoteFileSystem(

@@ -8,6 +8,7 @@ import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
 export type OfflineFolderAttributes = {
   uuid: string;
   parentId: number;
+  parentUuid: string;
   path: string;
   updatedAt: string;
   createdAt: string;
@@ -19,6 +20,7 @@ export class OfflineFolder extends AggregateRoot {
     private _uuid: FolderUuid,
     private _path: FolderPath,
     private _parentId: number,
+    private _parentUuid: FolderUuid,
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FolderStatus
@@ -50,6 +52,10 @@ export class OfflineFolder extends AggregateRoot {
     return this._parentId;
   }
 
+  public get parentUuid() {
+    return this._parentUuid.value;
+  }
+
   public get status() {
     return this._status;
   }
@@ -64,18 +70,27 @@ export class OfflineFolder extends AggregateRoot {
       new FolderUuid(attributes.uuid),
       new FolderPath(attributes.path),
       attributes.parentId,
+      attributes.parentUuid
+        ? new FolderUuid(attributes.parentUuid)
+        : FolderUuid.random(),
       new Date(attributes.updatedAt),
       new Date(attributes.createdAt),
       FolderStatus.fromValue(attributes.status)
     );
   }
 
-  static create(path: FolderPath, parentId: number): OfflineFolder {
+  static create(
+    path: FolderPath,
+    parentId: number,
+    parentUuid: string
+  ): OfflineFolder {
     return new OfflineFolder(
       FolderUuid.random(),
       path,
       parentId,
+      new FolderUuid(parentUuid),
       new Date(),
+
       new Date(),
       FolderStatus.Exists
     );
@@ -83,13 +98,11 @@ export class OfflineFolder extends AggregateRoot {
 
   moveTo(destinationFolder: Folder) {
     this._parentId = destinationFolder.id;
+    this._parentUuid = new FolderUuid(destinationFolder.uuid);
   }
 
   rename(destination: FolderPath) {
     const oldPath = this._path;
-    if (this._path.hasSameName(destination)) {
-      throw new Error('Cannot rename a folder to the same name');
-    }
 
     this._path = this._path.updateName(destination.name());
     this.updatedAt = new Date();
@@ -119,6 +132,7 @@ export class OfflineFolder extends AggregateRoot {
     const attributes: OfflineFolderAttributes = {
       uuid: this.uuid,
       parentId: this._parentId,
+      parentUuid: this._parentUuid.value,
       path: this._path.value,
       updatedAt: this.updatedAt.toISOString(),
       createdAt: this.createdAt.toISOString(),
