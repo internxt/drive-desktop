@@ -15,7 +15,7 @@ type Section = 'SYNC' | 'GENERAL' | 'BACKUPS';
 export default function ProcessIssues() {
   const { translate } = useTranslationContext();
   const processIssues = useProcessIssues();
-  const generalIssues = useGeneralIssues();
+  const { generalIssues } = useGeneralIssues();
   const { backupErrors } = useBackupErrors();
   const [reportData, setReportData] = useState<Pick<
     ProcessIssue,
