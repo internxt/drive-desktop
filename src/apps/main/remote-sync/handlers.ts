@@ -338,45 +338,6 @@ export async function checkSyncInProgress(milliSeconds: number) {
 ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
   return await checkSyncInProgress(milliSeconds);
 });
-// ipcMain.handle(
-//   'DELETE_ITEM_DRIVE',
-//   async (_, itemId: FilePlaceholderId | FolderPlaceholderId) => {
-//     try {
-//       const [type, id] = itemId
-//         .replace(
-//           // eslint-disable-next-line no-control-regex
-//           /[\x00-\x1F\x7F-\x9F]/g,
-//           ''
-//         )
-//         .normalize()
-//         .split(':');
-
-//       Logger.info('Deleting item in handler', itemId);
-//       Logger.info('Type and id', type, id);
-
-//       const isFolder = type === 'FOLDER';
-//       let result;
-//       if (isFolder) {
-//         result = await driveFoldersCollection.update(id, { status: 'TRASHED' });
-//       } else {
-//         const item = await driveFilesCollection.searchPartialBy({
-//           fileId: id,
-//         });
-//         Logger.info('Item to delete', item);
-//         if (!item.result.length) return false;
-//         result = await driveFilesCollection.update(item.result[0].uuid, {
-//           status: 'TRASHED',
-//         });
-//       }
-
-//       Logger.info('Result deleting item in handler', result);
-//       return true;
-//     } catch (error) {
-//       Logger.error('Error deleting item in handler', error);
-//       return false;
-//     }
-//   }
-// );
 
 function parseItemId(itemId: string) {
   const [type, id] = itemId

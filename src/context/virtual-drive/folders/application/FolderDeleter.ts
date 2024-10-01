@@ -6,13 +6,13 @@ import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists
 import { FolderRepository } from '../domain/FolderRepository';
 import { Service } from 'diod';
 import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
-import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFolderSystem';
+import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
 
 @Service()
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly remote: HttpRemoteFileSystem,
+    private readonly remote: HttpRemoteFolderSystem,
     private readonly local: LocalFolderSystem,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists
   ) {}

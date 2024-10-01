@@ -74,7 +74,7 @@ export class FolderPlaceholderUpdater {
   }
 
   private async hasToBeCreated(remote: Folder): Promise<boolean> {
-    const remoteExists = remote.status.is(FolderStatuses.EXISTS);
+    const remoteExists = remote.status === FolderStatuses.EXISTS;
 
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
       remote.path

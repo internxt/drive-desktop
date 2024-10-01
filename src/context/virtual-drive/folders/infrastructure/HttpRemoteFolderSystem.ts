@@ -20,12 +20,11 @@ import {
   RemoteFileSystemErrors,
   RemoteFolderSystem,
 } from '../domain/file-systems/RemoteFolderSystem';
-import * as Sentry from '@sentry/electron';
 
 type NewServerFolder = Omit<ServerFolder, 'plain_name'> & { plainName: string };
 
 @Service()
-export class HttpRemoteFileSystem implements RemoteFolderSystem {
+export class HttpRemoteFolderSystem implements RemoteFolderSystem {
   private static PAGE_SIZE = 50;
   public folders: Record<string, Folder> = {};
 
@@ -44,11 +43,11 @@ export class HttpRemoteFileSystem implements RemoteFolderSystem {
     let lastNumberOfFolders = 0;
 
     do {
-      const offset = page * HttpRemoteFileSystem.PAGE_SIZE;
+      const offset = page * HttpRemoteFolderSystem.PAGE_SIZE;
 
       // eslint-disable-next-line no-await-in-loop
       const result = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${HttpRemoteFileSystem.PAGE_SIZE}`
+        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${HttpRemoteFolderSystem.PAGE_SIZE}`
       );
 
       const founded = result.data.result as Array<NewServerFolder>;
@@ -57,7 +56,7 @@ export class HttpRemoteFileSystem implements RemoteFolderSystem {
 
       page++;
     } while (
-      folders.length % HttpRemoteFileSystem.PAGE_SIZE === 0 &&
+      folders.length % HttpRemoteFolderSystem.PAGE_SIZE === 0 &&
       lastNumberOfFolders > 0
     );
 
@@ -206,7 +205,6 @@ export class HttpRemoteFileSystem implements RemoteFolderSystem {
       };
     } catch (error) {
       Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
-      Sentry.captureException(error);
       if (axios.isAxiosError(error)) {
         Logger.error('[Is Axios Error]', error.response?.data);
       }
@@ -255,7 +253,6 @@ export class HttpRemoteFileSystem implements RemoteFolderSystem {
       if (axios.isAxiosError(error)) {
         Logger.error('[Is Axios Error]', error.response?.data);
       }
-      Sentry.captureException(error);
       throw error;
     }
   }

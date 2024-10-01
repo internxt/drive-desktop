@@ -7,6 +7,8 @@ import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
 
+Logger.log(`Running sync engine ${packageJson.version}`);
+
 function initSentry() {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,

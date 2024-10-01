@@ -48,6 +48,16 @@ declare interface Window {
       id: number
     ): Promise<import('../shared/issues/SyncErrorCause').SyncError>;
 
+    getBackupFatalErrors(): Promise<
+      import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
+    >;
+
+    onBackupFatalErrorsChanged(
+      fn: (
+        value: import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
+      ) => void
+    ): () => void;
+
     getLastBackupExitReason: () => Promise<
       import('../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker').WorkerExitCause
     >;
