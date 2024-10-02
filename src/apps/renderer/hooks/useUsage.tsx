@@ -18,7 +18,6 @@ export default function useUsage() {
       setUsage(usage);
       setStatus('ready');
     } catch (err) {
-      console.error(err);
       setStatus('error');
     }
   }

@@ -11,8 +11,8 @@ export class UserUsageService {
   ) {}
 
   private async getPhotosUsage(): Promise<number> {
-    const { usage } = await this.photos.getUsage();
-    return usage;
+    // const { usage } = await this.photos.getUsage();
+    return 0;
   }
 
   private async getDriveUsage(): Promise<number> {
@@ -28,7 +28,7 @@ export class UserUsageService {
   }
 
   async calculateUsage(): Promise<Usage> {
-    const [driveUsage, photosUsage, limitInBytes] =  await Promise.all([
+    const [driveUsage, photosUsage, limitInBytes] = await Promise.all([
       this.getDriveUsage(),
       this.getPhotosUsage(),
       this.getLimit(),
