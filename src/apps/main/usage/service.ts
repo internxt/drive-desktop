@@ -11,8 +11,8 @@ export class UserUsageService {
   ) {}
 
   private async getPhotosUsage(): Promise<number> {
-    const { usage } = await this.photos.getUsage();
-    return usage;
+    // const { usage } = await this.photos.getUsage();
+    return 0;
   }
 
   private async getDriveUsage(): Promise<number> {

@@ -7,6 +7,7 @@ import { AbsolutePath } from '../../context/local/localFile/infrastructure/Absol
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { LocalTree } from '../../context/local/localTree/domain/LocalTree';
 import { File } from '../../context/virtual-drive/files/domain/File';
+import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
 import { BackupInfo } from './BackupInfo';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
@@ -32,6 +33,7 @@ export class Backup {
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
     private readonly remoteFileDeleter: FileDeleter,
+    // private readonly remoteFolderDeleter: FileDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
     private readonly userAvaliableSpaceValidator: UserAvaliableSpaceValidator
   ) {}
@@ -132,6 +134,8 @@ export class Backup {
   ) {
     Logger.info('[BACKUPS] Backing folders');
     Logger.info('[BACKUPS] Folders added', diff.added.length);
+
+    // const { added, modified, deleted } = diff;
 
     await Promise.all(
       diff.added.map(async (localFolder) => {
@@ -260,4 +264,21 @@ export class Backup {
     this.backed += deleted.length;
     BackupsIPCRenderer.send('backups.progress-update', this.backed);
   }
+
+  // private async deleteRemoteFolders(
+  //   deleted: Array<Folder>,
+  //   abortController: AbortController
+  // ) {
+  //   for (const folder of deleted) {
+  //     if (abortController.signal.aborted) {
+  //       return;
+  //     }
+
+  //     // eslint-disable-next-line no-await-in-loop
+  //     await this.remoteFileDeleter.run(folder);
+  //   }
+
+  //   this.backed += deleted.length;
+  //   BackupsIPCRenderer.send('backups.progress-update', this.backed);
+  // }
 }

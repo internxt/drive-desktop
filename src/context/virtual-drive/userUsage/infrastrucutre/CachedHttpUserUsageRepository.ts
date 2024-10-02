@@ -13,9 +13,7 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
   ) {}
 
   private async getDriveUsage(): Promise<number> {
-    const response = await this.driveClient.get(
-      `${process.env.API_URL}/usage`
-    );
+    const response = await this.driveClient.get(`${process.env.API_URL}/usage`);
 
     if (response.status !== 200) {
       throw new Error('Error retriving drive usage');
@@ -40,12 +38,12 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
     if (this.cahdedUserUsage) return this.cahdedUserUsage;
 
     const drive = await this.getDriveUsage();
-    const { usage: photos } = await this.photosSubmodule.getUsage();
+    // const { usage: photos } = await this.photosSubmodule.getUsage();
     const limit = await this.getLimit();
 
     const usage = UserUsage.from({
       drive,
-      photos,
+      photos: 0,
       limit,
     });
 

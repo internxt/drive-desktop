@@ -40,12 +40,12 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
     if (this.cachedUserUsage) return this.cachedUserUsage;
 
     const drive = await this.getDriveUsage();
-    const { usage: photos } = await this.photosSubmodule.getUsage();
+    // const { usage: photos } = await this.photosSubmodule.getUsage();
     const limit = await this.getLimit();
 
     const usage = UserUsage.from({
       drive,
-      photos,
+      photos: 0,
       limit,
     });
 
