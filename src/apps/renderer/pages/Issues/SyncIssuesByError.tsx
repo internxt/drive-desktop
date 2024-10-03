@@ -10,6 +10,12 @@ import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
 import { SyncError } from '../../../shared/issues/SyncErrorCause';
 import { shortMessages } from '../../messages/process-error';
 
+type VirtualDriveIssueProps = {
+  readonly errorName: SyncError;
+  readonly issues: Array<VirtualDriveIssue>;
+  readonly extend: boolean;
+};
+
 function groupAppIssuesByErrorName(issues: VirtualDriveIssue[]) {
   const appIssuesGroupedByErrorName = issues.reduce((acc, current) => {
     const key = current.cause;
@@ -32,11 +38,7 @@ function VirtualDriveIssue({
   errorName,
   issues,
   extend,
-}: {
-  errorName: SyncError;
-  issues: VirtualDriveIssue[];
-  extend: boolean;
-}) {
+}: VirtualDriveIssueProps) {
   const { translate } = useTranslationContext();
 
   return (
@@ -99,7 +101,7 @@ function VirtualDriveIssue({
 }
 
 type VirtualDriveIssuesByErrorAccordionProps = {
-  issues: Array<VirtualDriveIssue>;
+  readonly issues: Array<VirtualDriveIssue>;
 };
 
 export function SyncIssuesByError({
@@ -130,6 +132,7 @@ export function SyncIssuesByError({
           className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
           onClick={toggleOrSelectCause(cause)}
           key={cause}
+          role="button"
         >
           <Accordion
             title={translate(shortMessages[cause])}

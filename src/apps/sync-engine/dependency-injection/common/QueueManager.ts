@@ -6,7 +6,6 @@ import {
 } from 'virtual-drive/dist';
 import Logger from 'electron-log';
 import fs from 'fs';
-import path from 'path';
 
 export type QueueHandler = {
   handleAdd: HandleAction;
@@ -38,9 +37,9 @@ export class QueueManager implements IQueueManager {
     changeSize: false,
   };
 
-  private notify: QueueManagerCallback;
+  private readonly notify: QueueManagerCallback;
 
-  private persistPath: string;
+  private readonly persistPath: string;
 
   actions: HandleActions;
 

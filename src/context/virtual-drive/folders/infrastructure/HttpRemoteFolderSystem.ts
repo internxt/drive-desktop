@@ -25,7 +25,7 @@ type NewServerFolder = Omit<ServerFolder, 'plain_name'> & { plainName: string };
 
 @Service()
 export class HttpRemoteFolderSystem implements RemoteFolderSystem {
-  private static PAGE_SIZE = 50;
+  private readonly PAGE_SIZE = 50;
   public folders: Record<string, Folder> = {};
 
   constructor(
@@ -43,11 +43,11 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
     let lastNumberOfFolders = 0;
 
     do {
-      const offset = page * HttpRemoteFolderSystem.PAGE_SIZE;
+      const offset = page * this.PAGE_SIZE;
 
       // eslint-disable-next-line no-await-in-loop
       const result = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${HttpRemoteFolderSystem.PAGE_SIZE}`
+        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${this.PAGE_SIZE}`
       );
 
       const founded = result.data.result as Array<NewServerFolder>;
@@ -55,10 +55,7 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
       lastNumberOfFolders = founded.length;
 
       page++;
-    } while (
-      folders.length % HttpRemoteFolderSystem.PAGE_SIZE === 0 &&
-      lastNumberOfFolders > 0
-    );
+    } while (folders.length % this.PAGE_SIZE === 0 && lastNumberOfFolders > 0);
 
     const name = folderPath.name();
 

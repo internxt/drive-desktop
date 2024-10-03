@@ -6,7 +6,7 @@ import { shortMessages } from '../../messages/process-error';
 import { SyncError } from '../../../shared/issues/SyncErrorCause';
 
 interface BackupsErrorsProps {
-  errors: BackupErrorsCollection;
+  readonly errors: BackupErrorsCollection;
 }
 
 export function BackupsIssues({ errors }: BackupsErrorsProps) {
@@ -33,6 +33,7 @@ export function BackupsIssues({ errors }: BackupsErrorsProps) {
           className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
           key={name}
           onClick={toggleOrSelectCause(error)}
+          role="button"
         >
           <Accordion
             title={translate(shortMessages[error])}

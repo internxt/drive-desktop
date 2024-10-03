@@ -231,9 +231,7 @@ export class BindingsManager {
             const folderParentPath = new FilePath(folderPath);
 
             const folderParent =
-              await this.container.folderFinder.findFromFilePath(
-                folderParentPath
-              );
+              this.container.folderFinder.findFromFilePath(folderParentPath);
 
             Logger.debug(
               '[Fetch Data Callback] Preparing finish',
@@ -456,7 +454,7 @@ export class BindingsManager {
 
   async cleanQueue() {
     if (this.queueManager) {
-      await this.queueManager.clearQueue();
+      this.queueManager.clearQueue();
     }
   }
 
