@@ -3,6 +3,7 @@ import { SimpleFolderCreator } from '../../../../context/virtual-drive/folders/a
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { RemoteFolderSystem } from '../../../../context/virtual-drive/folders/domain/file-systems/RemoteFolderSystem';
+import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/delete/FolderDeleter';
 
 export async function registerFolderServices(builder: ContainerBuilder) {
   builder
@@ -18,4 +19,5 @@ export async function registerFolderServices(builder: ContainerBuilder) {
     .private();
 
   builder.registerAndUse(SimpleFolderCreator);
+  builder.registerAndUse(FolderDeleter);
 }
