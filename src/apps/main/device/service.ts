@@ -4,6 +4,8 @@ import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import os from 'os';
 import path from 'path';
+import { IpcMainEvent, ipcMain } from 'electron';
+import fs from 'fs';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { getHeaders, getNewApiHeaders, getUser } from '../auth/service';
 import { addGeneralIssue } from '../background-processes/process-issues';
@@ -12,6 +14,7 @@ import { BackupInfo } from '../../backups/BackupInfo';
 import { PathLike } from 'fs';
 import { downloadFolderAsZip } from '../network/download';
 import Logger from 'electron-log';
+import { broadcastToWindows } from '../windows';
 
 export type Device = {
   name: string;
@@ -220,17 +223,17 @@ export async function getBackupsFromDevice(
  */
 async function postBackup(name: string): Promise<Backup> {
   const deviceId = getDeviceId();
-
-  const res = await fetch(`${process.env.API_URL}/storage/folder`, {
-    method: 'POST',
-    headers: getHeaders(true),
-    body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
-  });
-  if (res.ok) {
+  try {
+    const res = await fetch(`${process.env.API_URL}/storage/folder`, {
+      method: 'POST',
+      headers: getHeaders(true),
+      body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
+    });
     return res.json();
+  } catch (error) {
+    logger.error(error);
+    throw new Error('Post backup request wasnt successful');
   }
-  logger.error(res);
-  throw new Error('Post backup request wasnt successful');
 }
 
 /**
@@ -278,8 +281,8 @@ export async function addBackup(): Promise<void> {
 
     let folderStillExists;
     try {
-      await fetchFolder(existingBackup.folderId);
-      folderStillExists = true;
+      const existFolder = await fetchFolder(existingBackup.folderId);
+      folderStillExists = !existFolder.removed;
     } catch {
       folderStillExists = false;
     }
@@ -307,7 +310,6 @@ async function fetchFolder(folderId: number) {
   if (res.ok) {
     return res.json();
   }
-  logger.error(res);
   throw new Error('Unsuccesful request to fetch folder');
 }
 
@@ -328,7 +330,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
   if (res.ok) {
     const { tree } = (await res.json()) as unknown as { tree: FolderTree };
 
-    const size = tree.size;
+    let size = 0;
     const folderDecryptedNames: Record<number, string> = {};
     const fileDecryptedNames: Record<number, string> = {};
 
@@ -348,6 +350,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
           file.name,
           `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`
         );
+        size += Number(file.size);
       }
 
       pendingFolders.shift();
@@ -481,9 +484,11 @@ async function downloadDeviceBackupZip(
   if (!user) {
     throw new Error('No saved user');
   }
+  Logger.info(`[BACKUPS] Downloading backup for device ${device.name}`);
 
   const folder = await fetchFolder(device.id);
   if (!folder || !folder.uuid || folder.uuid.length === 0) {
+    Logger.info(`[BACKUPS] No backup data found for device ${device.name}`);
     throw new Error('No backup data found');
   }
 
@@ -491,6 +496,8 @@ async function downloadDeviceBackupZip(
   const bridgeUser = user.bridgeUser;
   const bridgePass = user.userId;
   const encryptionKey = user.mnemonic;
+
+  Logger.info('[BACKUPS] llegamos aca');
 
   await downloadFolderAsZip(
     device.name,
@@ -520,11 +527,52 @@ export async function downloadBackup(device: Device): Promise<void> {
     `[BACKUPS] Downloading Device: "${device.name}", ChosenPath "${chosenPath}"`
   );
 
-  await downloadDeviceBackupZip(device, chosenPath, {
-    updateProgress: () => {
-      return;
-    },
-  });
+  const date = new Date();
+  const now =
+    String(date.getFullYear()) +
+    String(date.getMonth() + 1) +
+    String(date.getDay()) +
+    String(date.getHours()) +
+    String(date.getMinutes()) +
+    String(date.getSeconds());
+  const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
+
+  Logger.info(`[BACKUPS] Downloading backup to ${zipFilePath}`);
+
+  const abortController = new AbortController();
+
+  const abortListener = (_: IpcMainEvent, abortDeviceUuid: string) => {
+    if (abortDeviceUuid === device.uuid) {
+      abortController.abort();
+    }
+  };
+
+  const listenerName = 'abort-download-backups-' + device.uuid;
+
+  const removeListenerIpc = ipcMain.on(listenerName, abortListener);
+
+  try {
+    await downloadDeviceBackupZip(device, zipFilePath, {
+      updateProgress: (progress: number) => {
+        if (abortController?.signal.aborted) return;
+        Logger.info(`[BACKUPS] Download progress: ${Math.round(progress)}`);
+        broadcastToWindows('backup-download-progress', {
+          id: device.uuid,
+          progress: Math.round(progress),
+        });
+      },
+      abortController,
+    });
+  } catch (_) {
+    // Try to delete zip if download backup has failed
+    try {
+      fs.unlinkSync(zipFilePath);
+    } catch (_) {
+      /* noop */
+    }
+  }
+
+  removeListenerIpc.removeListener(listenerName, abortListener);
 }
 
 function getDeviceId(): number {

@@ -232,6 +232,16 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  onBackupDownloadProgress(func) {
+    const eventName = 'backup-download-progress';
+    const callback = (_, v) => func(v);
+    ipcRenderer.on(eventName, callback);
+
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
+  abortDownloadBackups(deviceUuid) {
+    return ipcRenderer.send('abort-download-backups-' + deviceUuid, deviceUuid);
+  },
   getBackupFatalErrors() {
     return ipcRenderer.invoke('get-backup-fatal-errors');
   },

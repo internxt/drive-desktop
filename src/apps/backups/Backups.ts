@@ -272,6 +272,9 @@ export class Backup {
         localRootPath,
         localFolder.path
       );
+
+      Logger.debug('[BACKUPS] Remote parent path', remoteParentPath);
+
       const parentExists = tree.has(remoteParentPath);
 
       if (!parentExists) {
@@ -279,7 +282,7 @@ export class Backup {
         continue;
       }
 
-      const parent = tree.getParent(remoteParentPath);
+      const parent = tree.getParent(relativePath);
       const existingItems = tree.has(relativePath);
 
       if (existingItems) {

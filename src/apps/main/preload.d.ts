@@ -126,6 +126,18 @@ declare interface Window {
       import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
     >;
 
+    onBackupProgress(
+      func: (
+        value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress
+      ) => void
+    ): () => void;
+
+    onBackupDownloadProgress(
+      func: (value: { id: string; progress: number }) => void
+    ): () => void;
+
+    abortDownloadBackups: (deviceId: string) => void;
+
     onBackupsStatusChanged(
       func: (
         value: import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
@@ -147,12 +159,6 @@ declare interface Window {
     renameDevice: typeof import('../main/device/service').renameDevice;
 
     getBackups: typeof import('../main/device/service').getBackupsFromDevice;
-
-    onBackupProgress(
-      func: (
-        value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress
-      ) => void
-    ): () => void;
 
     devices: {
       getDevices: () => Promise<Array<import('../main/device/service').Device>>;

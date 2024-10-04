@@ -7,13 +7,27 @@ type ViewBackupsProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DownloadBackups({ className }: ViewBackupsProps) {
   const { selected } = useContext(DeviceContext);
-  const { backups } = useContext(BackupContext);
+  const {
+    backups,
+    downloadBackups,
+    abortDownloadBackups,
+    thereIsDownloadProgress,
+    clearBackupDownloadProgress,
+  } = useContext(BackupContext);
 
   const handleDownloadBackup = async () => {
-    try {
-      await window.electron.downloadBackup(selected!);
-    } catch (error) {
-      reportError(error);
+    if (!thereIsDownloadProgress) {
+      await downloadBackups(selected!);
+    } else {
+      try {
+        abortDownloadBackups(selected!);
+      } catch (err) {
+        // error while aborting (aborting also throws an exception itself)
+      } finally {
+        setTimeout(() => {
+          clearBackupDownloadProgress(selected!.uuid);
+        }, 600);
+      }
     }
   };
 
@@ -21,11 +35,11 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
     <>
       <Button
         className={`${className} hover:cursor-pointer`}
-        variant="secondary"
+        variant={thereIsDownloadProgress ? 'danger' : 'secondary'}
         onClick={handleDownloadBackup}
         disabled={backups.length === 0}
       >
-        Download
+        {thereIsDownloadProgress ? 'Stop download' : 'Download'}
       </Button>
     </>
   );
