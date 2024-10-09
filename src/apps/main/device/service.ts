@@ -543,7 +543,14 @@ export async function downloadBackup(device: Device): Promise<void> {
 
   const abortListener = (_: IpcMainEvent, abortDeviceUuid: string) => {
     if (abortDeviceUuid === device.uuid) {
-      abortController.abort();
+      try {
+        Logger.info(`[BACKUPS] Aborting download for device ${device.name}`);
+        if (abortController && !abortController.signal.aborted) {
+          abortController.abort();
+        }
+      } catch (error) {
+        Logger.error(`[BACKUPS] Error while aborting download: ${error}`);
+      }
     }
   };
 
@@ -555,7 +562,6 @@ export async function downloadBackup(device: Device): Promise<void> {
     await downloadDeviceBackupZip(device, zipFilePath, {
       updateProgress: (progress: number) => {
         if (abortController?.signal.aborted) return;
-        Logger.info(`[BACKUPS] Download progress: ${Math.round(progress)}`);
         broadcastToWindows('backup-download-progress', {
           id: device.uuid,
           progress: Math.round(progress),

@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { FileVersionOneError } from '@internxt/sdk/dist/network/download';
 import { FlatFolderZip } from './zip.service';
 import { items } from '@internxt/lib';
@@ -47,8 +46,6 @@ export async function downloadFolderAsZip(
   const writeStream = fs.createWriteStream(path + 'Backup_' + now + '.zip');
   const destination = convertToWritableStream(writeStream);
 
-  Logger.info('Downloading folder as zip');
-
   const { abortController, updateProgress } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
   const { tree, folderDecryptedNames, fileDecryptedNames, size } =
@@ -59,21 +56,14 @@ export async function downloadFolderAsZip(
     { path: '', data: tree },
   ];
 
-  Logger.info('Creating zip file');
-
   const zip = new FlatFolderZip(destination, {
     abortController: opts.abortController,
     progress: (loadedBytes) => {
-      Logger.info('Download progress', loadedBytes, size);
       if (updateProgress) {
         updateProgress((loadedBytes / size) * 100);
       }
     },
   });
-
-  Logger.info('Adding files to zip');
-
-  Logger.info(!abortController?.signal.aborted);
 
   while (pendingFolders.length > 0 && !abortController?.signal.aborted) {
     const currentFolder = pendingFolders.shift() as {
@@ -126,7 +116,6 @@ export async function downloadFolderAsZip(
     throw new Error('Download cancelled');
   }
 
-  Logger.info('Closing zip file');
   return zip.close();
 }
 

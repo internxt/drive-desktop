@@ -102,18 +102,17 @@ app
 
     eventBus.emit('APP_IS_READY');
     const isLoggedIn = getIsLoggedIn();
+    setUpBackups();
 
     if (!isLoggedIn) {
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
+
     checkForUpdates();
   })
   .catch(Logger.error);
 
-eventBus.on('WIDGET_IS_READY', () => {
-  setUpBackups();
-});
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
     if (!AppDataSource.isInitialized) {

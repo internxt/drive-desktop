@@ -19,12 +19,10 @@ export function useBackupDownloadProgress(): BackupDownloadContextProps {
 
   useEffect(() => {
     const removeListener = window.electron.onBackupDownloadProgress(
-      ({ id, progress }: { id: string; progress: number }) => {
-        window.electron.logger.info(`Llego: ${progress}`);
+      ({ id, progress }: { id: string; progress: number }) =>
         setBackupDownloadProgress((prevState) => {
           return { ...prevState, [id]: Math.round(progress) };
-        });
-      }
+        })
     );
     return removeListener;
   }, []);
