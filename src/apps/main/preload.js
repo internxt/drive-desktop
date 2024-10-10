@@ -190,6 +190,17 @@ contextBridge.exposeInMainWorld('electron', {
   getBackups() {
     return ipcRenderer.invoke('get-backups');
   },
+  getBackupFatalIssue(id) {
+    return ipcRenderer.invoke('backups.get-backup-issues', id);
+  },
+  devices: {
+    getDevices: () => {
+      return ipcRenderer.invoke('devices.get-all');
+    },
+  },
+  getBackupsFromDevice(device, isCurrent) {
+    return ipcRenderer.invoke('get-backups-from-device', device, isCurrent);
+  },
   addBackup() {
     return ipcRenderer.invoke('add-backup');
   },
@@ -198,6 +209,9 @@ contextBridge.exposeInMainWorld('electron', {
   },
   deleteBackup(backup) {
     return ipcRenderer.invoke('delete-backup', backup);
+  },
+  deleteBackupsFromDevice(device, isCurrent) {
+    return ipcRenderer.invoke('delete-backups-from-device', device, isCurrent);
   },
   disableBackup(backup) {
     return ipcRenderer.invoke('disable-backup', backup);
@@ -218,6 +232,16 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callback);
   },
+  onBackupDownloadProgress(func) {
+    const eventName = 'backup-download-progress';
+    const callback = (_, v) => func(v);
+    ipcRenderer.on(eventName, callback);
+
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
+  abortDownloadBackups(deviceUuid) {
+    return ipcRenderer.send('abort-download-backups-' + deviceUuid, deviceUuid);
+  },
   getBackupFatalErrors() {
     return ipcRenderer.invoke('get-backup-fatal-errors');
   },
@@ -232,6 +256,9 @@ contextBridge.exposeInMainWorld('electron', {
   },
   getLastBackupExitReason() {
     return ipcRenderer.invoke('get-last-backup-exit-reason');
+  },
+  downloadBackup(backup) {
+    return ipcRenderer.invoke('download-backup', backup);
   },
   changeBackupPath(currentPath) {
     return ipcRenderer.invoke('change-backup-path', currentPath);
@@ -263,9 +290,6 @@ contextBridge.exposeInMainWorld('electron', {
   },
   sendFeedback(feedback) {
     return ipcRenderer.invoke('send-feedback', feedback);
-  },
-  openFeedbackWindow() {
-    return ipcRenderer.invoke('open-feedback-window');
   },
   onRemoteSyncStatusChange(callback) {
     const eventName = 'remote-sync-status-change';
@@ -315,6 +339,14 @@ contextBridge.exposeInMainWorld('electron', {
   getRecentlywasSyncing() {
     const FIVE_SECONDS = 5000;
     return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
+  },
+  user: {
+    hasDiscoveredBackups() {
+      return ipcRenderer.invoke('user.get-has-discovered-backups');
+    },
+    discoveredBackups() {
+      ipcRenderer.send('user.set-has-discovered-backups');
+    },
   },
 
   path,

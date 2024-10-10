@@ -20,9 +20,7 @@ export class FilesPlaceholderDeleter {
     }
 
     sleep(500);
-    const fileStatus = await this.remoteFileSystem.checkStatusFile(
-      remote['uuid']
-    );
+    const fileStatus = await this.remoteFileSystem.checkStatusFile(remote.uuid);
 
     Logger.info(
       `

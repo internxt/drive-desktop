@@ -3,10 +3,15 @@ import { useEffect, useRef, useState } from 'react';
 import WindowTopBar from '../../components/WindowTopBar';
 import AccountSection from './Account';
 import GeneralSection from './General';
+import BackupsSection from './Backups';
 import Header, { Section } from './Header';
+import { DeviceProvider } from '../../context/DeviceContext';
+import { BackupProvider } from '../../context/BackupContext';
+import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
+  const [subsection, setSubsection] = useState<'panel' | 'list'>('panel');
 
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -30,16 +35,35 @@ export default function Settings() {
   }, []);
 
   return (
-    <div ref={rootRef}>
-      <WindowTopBar
-        title="Internxt Drive"
-        className="bg-surface dark:bg-gray-5"
-      />
-      <Header active={activeSection} onClick={setActiveSection} />
-      <div className="bg-gray-1 p-5">
-        <GeneralSection active={activeSection === 'GENERAL'} />
-        <AccountSection active={activeSection === 'ACCOUNT'} />
-      </div>
-    </div>
+    <DeviceProvider>
+      <BackupProvider>
+        <div
+          ref={rootRef}
+          style={{ minWidth: 400, minHeight: subsection === 'list' ? 0 : 420 }}
+        >
+          {subsection === 'list' && (
+            <BackupFolderSelector onClose={() => setSubsection('panel')} />
+          )}
+          {subsection === 'panel' && (
+            <>
+              <WindowTopBar
+                title="Internxt Drive"
+                className="bg-surface dark:bg-gray-5"
+              />
+              <Header active={activeSection} onClick={setActiveSection} />
+              <div className={'bg-gray-1 p-5'}>
+                <GeneralSection active={activeSection === 'GENERAL'} />
+                <AccountSection active={activeSection === 'ACCOUNT'} />
+                <BackupsSection
+                  active={activeSection === 'BACKUPS'}
+                  showBackedFolders={() => setSubsection('list')}
+                  showIssues={() => window.electron.openProcessIssuesWindow()}
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </BackupProvider>
+    </DeviceProvider>
   );
 }

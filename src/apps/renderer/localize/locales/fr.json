@@ -206,6 +206,13 @@
       "title": "Impossible de créer le lecteur",
       "message": "Nous avons des problèmes pour créer votre Internxt Drive, ",
       "button": "Veuillez réessayer"
+    },
+    "banners": {
+      "discover-backups": {
+        "title": "INTERNXT SAUVEGARDES",
+        "body": "Gardez une copie de secours de vos dossiers et fichiers les plus importants.",
+        "action": "Sauvegarder"
+      }
     }
   },
   "settings": {
@@ -276,13 +283,15 @@
     },
     "backups": {
       "add-folders": "Cliquez sur + pour sélectionner les dossiers que vous souhaitez sauvegarder",
-      "selected-folder": "{{count}} dossier",
-      "selected-folders": "{{count}} dossiers",
+      "selected-folder_one": "{{count}} dossier",
+      "selected-folder_other": "{{count}} dossiers",
       "activate": "Sauvegarder vos dossiers",
-      "view-backups": "Voir les sauvegardes",
-      "select-folders": "Sélectionner des dossiers",
+      "view-backups": "Parcourir les fichiers",
+      "selected-folders-title": "Dossiers sélectionnés",
+      "select-folders": "Changer les dossiers",
       "last-backup-had-issues": "La dernière sauvegarde a rencontré quelques problèmes",
       "see-issues": "Voir des problèmes",
+      "backing-up": "Sauvegarde...",
       "action": {
         "start": "Faire une copie ",
         "stop": "Arrêter la sauvegarde",
@@ -299,15 +308,29 @@
         }
       },
       "folders": {
-        "explanation": "Dossiers à ajouter lors de la prochaine sauvegarde",
         "no-folders": "Pas encore de sauvegardes",
-        "done": "Finaliser",
-        "stop-baking-up": {
+        "save": "Sauvegarder",
+        "cancel": "Annuler"
+      },
+      "delete": {
+        "title": "Supprimer la sauvegarde",
+        "explanation": "Cette sauvegarde sera supprimée du cloud, tous les dossiers et fichiers resteront sur cet ordinateur",
+        "action": "Supprimer la sauvegarde",
+        "deletion-modal": {
           "title": "Arrêter la sauvegarde de ",
-          "explanation": "Les nouveaux fichiers ajoutés à ce dossier ne seront plus copiés sur Internxt Drive. Les fichiers originaux resteront sur votre ordinateur",
+          "explanation": "Cette sauvegarde sera supprimée définitivement du cloud, tous les dossiers et fichiers resteront sur cet ordinateur.",
+          "explanation-2": "Cette action est irréversible.",
+          "confirm": "Oui, supprimer",
+          "cancel": "Annuler"
+        }
+      },
+      "stop": {
+        "modal": {
+          "title": "Arrêter la sauvegarde en cours",
+          "explanation": "Il reste encore des fichiers qui n'ont pas été téléchargés. Arrêter la sauvegarde quand même?",
+          "explanation-2": "",
           "confirm": "Arrêter la sauvegarde",
-          "cancel": "Continuer la sauvegarde",
-          "dont-ask-again": "Ne demandez plus"
+          "cancel": "Annuler"
         }
       }
     }

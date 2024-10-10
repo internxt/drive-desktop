@@ -39,6 +39,24 @@ export class DriveFilesCollection
       };
     }
   }
+  async getAllByFolder(folderId: number) {
+    try {
+      const result = await this.repository.find({
+        where: {
+          folderId,
+        },
+      });
+      return {
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: [],
+      };
+    }
+  }
 
   async update(uuid: DriveFile['uuid'], updatePayload: Partial<DriveFile>) {
     const match = await this.repository.update(

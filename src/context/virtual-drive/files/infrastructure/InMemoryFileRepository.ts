@@ -1,8 +1,13 @@
+import { Service } from 'diod';
 import { File, FileAttributes } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
-
+import Logger from 'electron-log';
+@Service()
 export class InMemoryFileRepository implements FileRepository {
   private files: Map<string, FileAttributes>;
+
+  private filesByUuid: Map<File['uuid'], FileAttributes>;
+  private filesByContentsId: Map<File['contentsId'], FileAttributes>;
 
   private get values(): Array<FileAttributes> {
     return Array.from(this.files.values());
@@ -10,6 +15,8 @@ export class InMemoryFileRepository implements FileRepository {
 
   constructor() {
     this.files = new Map();
+    this.filesByUuid = new Map();
+    this.filesByContentsId = new Map();
   }
 
   public all(): Promise<Array<File>> {
@@ -45,7 +52,27 @@ export class InMemoryFileRepository implements FileRepository {
   searchByPartial(partial: Partial<FileAttributes>): File | undefined {
     const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
-    const file = this.values.find((attributes) => {
+    const file: FileAttributes | undefined = this.values.find((attributes) => {
+      return keys.every((key: keyof FileAttributes) => {
+        if (key === 'contentsId') {
+          return (
+            attributes[key].normalize() == (partial[key] as string).normalize()
+          );
+        }
+        return attributes[key] == partial[key];
+      });
+    });
+
+    if (file) {
+      return File.from(file);
+    }
+
+    return undefined;
+  }
+  matchingPartial(partial: Partial<FileAttributes>): Array<File> {
+    const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
+
+    const filesAttributes = this.values.filter((attributes) => {
       return keys.every((key: keyof FileAttributes) => {
         if (key === 'contentsId') {
           return (
@@ -57,13 +84,30 @@ export class InMemoryFileRepository implements FileRepository {
       });
     });
 
-    if (file) {
-      return File.from(file);
+    if (!filesAttributes) {
+      return [];
     }
 
-    return undefined;
+    return filesAttributes.map((attributes) => File.from(attributes));
   }
 
+  async upsert(file: File): Promise<boolean> {
+    const attributes = file.attributes();
+
+    const isAlreadyStored =
+      this.filesByUuid.has(file.uuid) ||
+      this.filesByContentsId.has(file.contentsId);
+
+    if (isAlreadyStored) {
+      this.filesByUuid.delete(file.uuid);
+      this.filesByContentsId.delete(file.contentsId);
+    }
+
+    this.filesByUuid.set(file.uuid, attributes);
+    this.filesByContentsId.set(file.contentsId, attributes);
+
+    return isAlreadyStored;
+  }
   async delete(id: File['contentsId']): Promise<void> {
     const deleted = this.files.delete(id);
 
@@ -73,7 +117,18 @@ export class InMemoryFileRepository implements FileRepository {
   }
 
   async add(file: File): Promise<void> {
-    this.files.set(file.contentsId, file.attributes());
+    this.files.set(file.contentsId, {
+      id: file.id,
+      uuid: file.uuid,
+      contentsId: file.contentsId,
+      folderId: file.folderId.value,
+      path: file.path,
+      createdAt: file.createdAt.toISOString(),
+      updatedAt: file.updatedAt.toDateString(),
+      size: file.size,
+      status: file.status.value,
+      modificationTime: file.updatedAt.toISOString(),
+    });
   }
 
   async update(file: File): Promise<void> {
@@ -96,9 +151,7 @@ export class InMemoryFileRepository implements FileRepository {
     const updatedFile = file.replaceContestsAndSize(newContentsId, newSize);
     // first delete the old file to be able to add the new one
     this.files.delete(oldContentsId);
-    this.files.set(updatedFile.contentsId, updatedFile.attributes());
+    this.add(updatedFile);
     return updatedFile;
   }
-
-
 }

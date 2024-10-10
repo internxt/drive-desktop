@@ -1,5 +1,11 @@
-import { createContext, ReactNode, useEffect, useState } from 'react';
-
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react';
 import { Device } from '../../main/device/service';
 
 type DeviceState =
@@ -8,38 +14,61 @@ type DeviceState =
 
 const defaultState = { status: 'LOADING' } as const;
 
-export const DeviceContext = createContext<
-  [DeviceState, (deviceName: string) => void]
->([defaultState, () => undefined]);
+interface DeviceContextProps {
+  deviceState: DeviceState;
+  deviceRename: (deviceName: string) => Promise<void>;
+  selected: Device | undefined;
+  setSelected: Dispatch<SetStateAction<Device | undefined>>;
+  current: Device | undefined;
+  setCurrent: Dispatch<SetStateAction<Device | undefined>>;
+}
+
+export const DeviceContext = createContext<DeviceContextProps>(
+  {} as DeviceContextProps
+);
 
 export function DeviceProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<DeviceState>(defaultState);
+  const [deviceState, setDeviceState] = useState<DeviceState>(defaultState);
+  const [current, setCurrent] = useState<Device>();
+  const [selected, setSelected] = useState<Device>();
 
   useEffect(() => {
     window.electron
       .getOrCreateDevice()
       .then((device) => {
-        setState({ status: 'SUCCESS', device });
+        setDeviceState({ status: 'SUCCESS', device });
+        setCurrent(device);
+        setSelected(device);
       })
       .catch(() => {
-        setState({ status: 'ERROR' });
+        setDeviceState({ status: 'ERROR' });
       });
   }, []);
 
-  async function handleRename(deviceName: string) {
-    setState({ status: 'LOADING' });
+  const deviceRename = async (deviceName: string) => {
+    setDeviceState({ status: 'LOADING' });
 
     try {
       const updatedDevice = await window.electron.renameDevice(deviceName);
-      setState({ status: 'SUCCESS', device: updatedDevice });
+      setDeviceState({ status: 'SUCCESS', device: updatedDevice });
+      setCurrent(updatedDevice);
+      setSelected(updatedDevice);
     } catch (err) {
-      console.log(err);
-      setState({ status: 'ERROR' });
+      setDeviceState({ status: 'ERROR' });
     }
-  }
+  };
 
   return (
-    <DeviceContext.Provider value={[state, handleRename]}>
+    <DeviceContext.Provider
+      value={{
+        deviceState,
+        deviceRename,
+        current,
+        setCurrent,
+        selected,
+        setSelected,
+      }}
+    >
       {children}
     </DeviceContext.Provider>
   );

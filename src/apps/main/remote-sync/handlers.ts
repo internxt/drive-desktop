@@ -2,7 +2,7 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
-import { RemoteSyncStatus } from './helpers';
+import { RemoteSyncedFolder, RemoteSyncStatus } from './helpers';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
@@ -17,6 +17,8 @@ import {
 import { debounce } from 'lodash';
 import configStore from '../config';
 import { setTrayStatus } from '../tray/tray';
+import { DriveFile } from '../database/entities/DriveFile';
+import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 
@@ -74,11 +76,86 @@ export async function getUpdatedRemoteItems() {
     throw error;
   }
 }
+export async function getUpdatedRemoteItemsByFolder(folderId: number) {
+  if (!folderId) {
+    throw new Error('Invalid folderId provided');
+  }
+
+  try {
+    const result: {
+      files: DriveFile[];
+      folders: DriveFolder[];
+    } = {
+      files: [],
+      folders: [],
+    };
+
+    const [allDriveFiles, allDriveFolders] = await Promise.all([
+      driveFilesCollection.getAllByFolder(folderId),
+      driveFoldersCollection.getAllByFolder(folderId),
+    ]);
+
+    if (!allDriveFiles.success) {
+      throw new Error(
+        `Failed to retrieve all the drive files from local db for folderId: ${folderId}`
+      );
+    }
+
+    if (!allDriveFolders.success) {
+      throw new Error(
+        `Failed to retrieve all the drive folders from local db for folderId: ${folderId}`
+      );
+    }
+
+    result.files.push(...allDriveFiles.result);
+    result.folders.push(...allDriveFolders.result);
+
+    if (allDriveFolders.result.length === 0) {
+      return result;
+    }
+
+    const folderChildrenPromises = allDriveFolders.result.map(
+      async (folder) => {
+        if (folder.id) {
+          return getUpdatedRemoteItemsByFolder(folder.id);
+        }
+      }
+    );
+
+    const folderChildrenResults = await Promise.all(folderChildrenPromises);
+
+    for (const folderChildren of folderChildrenResults) {
+      if (folderChildren) {
+        result.files.push(...folderChildren.files);
+        result.folders.push(...folderChildren.folders);
+      }
+    }
+
+    return result;
+  } catch (error) {
+    if (error instanceof Error) {
+      reportError(error, {
+        description:
+          'Something failed when updating the local db pulling the new changes from remote',
+      });
+      throw error;
+    } else {
+      throw new Error('An unknown error occurred');
+    }
+  }
+}
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   Logger.debug('[MAIN] Getting updated remote items');
   return getUpdatedRemoteItems();
 });
+ipcMain.handle(
+  'GET_UPDATED_REMOTE_ITEMS_BY_FOLDER',
+  async (_, folderId: number) => {
+    Logger.debug('[MAIN] Getting updated remote items');
+    return getUpdatedRemoteItemsByFolder(folderId);
+  }
+);
 
 export async function startRemoteSync(folderId?: number): Promise<void> {
   try {
@@ -118,6 +195,22 @@ ipcMain.handle('START_REMOTE_SYNC', async () => {
   }
   setIsProcessing(true);
   await startRemoteSync();
+  setIsProcessing(false);
+});
+
+ipcMain.handle('FORCE_REFRESH_BACKUPS', async () => {
+  Logger.info('Received start remote sync event');
+  const deviceUuid = configStore.get('deviceUuid');
+  const backupsFolder: RemoteSyncedFolder[] =
+    await remoteSyncManager.getFolderChildren(deviceUuid);
+  setIsProcessing(true);
+  await Promise.all(
+    backupsFolder.map(async (folder) => {
+      if (!folder.id) return;
+      await sleep(200);
+      await startRemoteSync(folder.id);
+    })
+  );
   setIsProcessing(false);
 });
 
@@ -245,45 +338,6 @@ export async function checkSyncInProgress(milliSeconds: number) {
 ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number) => {
   return await checkSyncInProgress(milliSeconds);
 });
-// ipcMain.handle(
-//   'DELETE_ITEM_DRIVE',
-//   async (_, itemId: FilePlaceholderId | FolderPlaceholderId) => {
-//     try {
-//       const [type, id] = itemId
-//         .replace(
-//           // eslint-disable-next-line no-control-regex
-//           /[\x00-\x1F\x7F-\x9F]/g,
-//           ''
-//         )
-//         .normalize()
-//         .split(':');
-
-//       Logger.info('Deleting item in handler', itemId);
-//       Logger.info('Type and id', type, id);
-
-//       const isFolder = type === 'FOLDER';
-//       let result;
-//       if (isFolder) {
-//         result = await driveFoldersCollection.update(id, { status: 'TRASHED' });
-//       } else {
-//         const item = await driveFilesCollection.searchPartialBy({
-//           fileId: id,
-//         });
-//         Logger.info('Item to delete', item);
-//         if (!item.result.length) return false;
-//         result = await driveFilesCollection.update(item.result[0].uuid, {
-//           status: 'TRASHED',
-//         });
-//       }
-
-//       Logger.info('Result deleting item in handler', result);
-//       return true;
-//     } catch (error) {
-//       Logger.error('Error deleting item in handler', error);
-//       return false;
-//     }
-//   }
-// );
 
 function parseItemId(itemId: string) {
   const [type, id] = itemId

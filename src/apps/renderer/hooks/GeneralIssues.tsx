@@ -12,5 +12,5 @@ export default function useGeneralIssues() {
     return removeListener;
   }, []);
 
-  return generalIssues;
+  return { generalIssues };
 }

@@ -12,6 +12,7 @@ export const fieldsToSave = [
   'lastSavedListing',
   'lastSync',
   'deviceId',
+  'deviceUuid',
   'backupList',
 ] as const;
 
@@ -32,6 +33,7 @@ export interface AppStore {
   savedConfigs: Record<string, Pick<AppStore, (typeof fieldsToSave)[number]>>;
   lastOnboardingShown: string;
   deviceId: number;
+  deviceUuid: string;
   backupList: Record<string, { enabled: boolean; folderId: number }>;
   clientId: string;
   preferedLanguage?: string;
@@ -89,6 +91,9 @@ const schema: Schema<AppStore> = {
   deviceId: {
     type: 'number',
   },
+  deviceUuid: {
+    type: 'string',
+  },
   backupList: {
     type: 'object',
   },
@@ -126,6 +131,7 @@ export const defaults: AppStore = {
   savedConfigs: {},
   lastOnboardingShown: '',
   deviceId: -1,
+  deviceUuid: '',
   backupList: {},
   clientId: uuid.v4(),
   preferedLanguage: '',

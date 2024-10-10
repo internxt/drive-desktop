@@ -103,6 +103,7 @@ function spawnSyncEngineWorker() {
     return;
   }
 
+  Logger.info('[MAIN] SPAWNING SYNC ENGINE WORKER...');
   startingWorker = true;
 
   worker = new BrowserWindow({

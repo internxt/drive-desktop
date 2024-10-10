@@ -53,6 +53,7 @@ import { reportError } from './bug-report/service';
 import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
+import { setUpBackups } from './background-processes/backups/setUpBackups';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -101,11 +102,13 @@ app
 
     eventBus.emit('APP_IS_READY');
     const isLoggedIn = getIsLoggedIn();
+    setUpBackups();
 
     if (!isLoggedIn) {
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
+
     checkForUpdates();
   })
   .catch(Logger.error);

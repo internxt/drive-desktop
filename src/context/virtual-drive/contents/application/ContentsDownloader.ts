@@ -53,8 +53,6 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', async () => {
-      Logger.debug('[Server] Download progress', filePath);
-
       const stats = fs.statSync(filePath);
       const fileSizeInBytes = stats.size;
       const progress = fileSizeInBytes / file.size;

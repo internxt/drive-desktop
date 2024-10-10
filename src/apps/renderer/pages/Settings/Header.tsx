@@ -2,8 +2,9 @@ import { At, Gear, Icon } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 
 import { useTranslationContext } from '../../context/LocalContext';
+import { UilHistory } from '@iconscout/react-unicons';
 
-const sectionValues = ['GENERAL', 'ACCOUNT'] as const;
+const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS'] as const;
 export type Section = (typeof sectionValues)[number];
 
 function Item({
@@ -47,6 +48,7 @@ export default function Header({
   }[] = [
     { label: 'GENERAL', icon: Gear },
     { label: 'ACCOUNT', icon: At },
+    { label: 'BACKUPS', icon: UilHistory },
   ];
 
   const animationVariants: Record<Section, { left: string }> =
