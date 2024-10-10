@@ -98,11 +98,13 @@ class KyberCrypto {
    */
   async decrypt(encryptedData: Uint8Array, privateKey: Uint8Array) {
     this.ensureInitialized();
+    console.time('Decryption');
     try {
       const decryptedData = await this.kem!.decapsulate(
         encryptedData,
         privateKey
       );
+      console.timeEnd('Decryption');
       return new TextDecoder().decode(decryptedData.sharedSecret);
     } catch (error) {
       console.error('Decryption error:', error);
