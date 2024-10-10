@@ -91,7 +91,6 @@ export class FileSyncronizer {
     attemps = 3
   ) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
       const fileContents = await upload(posixRelativePath);
       const createdFile = await this.fileCreator.run(filePath, fileContents);
       await this.convertAndUpdateSyncStatus(createdFile);
@@ -101,7 +100,6 @@ export class FileSyncronizer {
         await this.createFolderFather(posixRelativePath);
       }
       if (attemps > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
         await this.retryCreation(
           posixRelativePath,
           filePath,
@@ -123,7 +121,6 @@ export class FileSyncronizer {
     const posixDir =
       PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 4000));
       await this.runFolderCreator(posixDir);
     } catch (error) {
       Logger.error('Error creating folder father creation:', error);
@@ -159,7 +156,6 @@ export class FileSyncronizer {
 
   private retryFolderCreation = async (posixDir: string, attemps = 3) => {
     try {
-      await new Promise((resolve) => setTimeout(resolve, 4000));
       await this.runFolderCreator(posixDir);
     } catch (error) {
       Logger.error('Error creating folder father creation:', error);

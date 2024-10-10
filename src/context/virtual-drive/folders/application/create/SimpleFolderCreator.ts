@@ -1,5 +1,4 @@
 import { Service } from 'diod';
-import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { FolderPath } from '../../domain/FolderPath';
 import { FolderId } from '../../domain/FolderId';
 import { Folder } from '../../domain/Folder';
@@ -7,10 +6,11 @@ import { FolderUuid } from '../../domain/FolderUuid';
 import { FolderCreatedAt } from '../../domain/FolderCreatedAt';
 import { FolderUpdatedAt } from '../../domain/FolderUpdatedAt';
 import Logger from 'electron-log';
+import { RemoteFolderSystem } from '../../domain/file-systems/RemoteFolderSystem';
 
 @Service()
 export class SimpleFolderCreator {
-  constructor(private readonly rfs: RemoteFileSystem) {}
+  constructor(private readonly rfs: RemoteFolderSystem) {}
 
   async run(path: string, parentId: number): Promise<Folder> {
     Logger.debug('Creating folder', path, 'with parent', parentId);

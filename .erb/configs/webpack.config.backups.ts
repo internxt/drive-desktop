@@ -16,6 +16,10 @@ const configuration: webpack.Configuration = {
 
   target: 'electron-renderer',
 
+  module: {
+    rules: [{ test: /\.node$/, loader: 'node-loader' }],
+  },
+
   entry: [
     'core-js',
     'regenerator-runtime/runtime',

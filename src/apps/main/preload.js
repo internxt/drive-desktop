@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
+const Logger = require('electron-log');
 
 contextBridge.exposeInMainWorld('electron', {
   getConfigKey(key) {
@@ -14,6 +15,12 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, (_, v) => fn(v));
 
     return () => ipcRenderer.removeListener(eventName, callback);
+  },
+
+  logger: {
+    info: (...message) => Logger.info(message),
+    error: (...message) => Logger.error(message),
+    warn: (...message) => Logger.warn(message),
   },
 
   pathChanged(pathname) {
@@ -224,6 +231,16 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
 
     return () => ipcRenderer.removeListener(eventName, callback);
+  },
+  onBackupDownloadProgress(func) {
+    const eventName = 'backup-download-progress';
+    const callback = (_, v) => func(v);
+    ipcRenderer.on(eventName, callback);
+
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
+  abortDownloadBackups(deviceUuid) {
+    return ipcRenderer.send('abort-download-backups-' + deviceUuid, deviceUuid);
   },
   getBackupFatalErrors() {
     return ipcRenderer.invoke('get-backup-fatal-errors');

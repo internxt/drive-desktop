@@ -40,18 +40,29 @@ export default class LocalTreeBuilder {
   ): Promise<Either<DriveDesktopError, LocalTree>> {
     const rootEither = await this.generator.root(folder);
 
+    Logger.debug('[LOCAL TREE BUILDER] Root either', rootEither);
 
     if (rootEither.isLeft()) {
       return left(rootEither.getLeft());
     }
 
+    Logger.debug('[LOCAL TREE BUILDER] Root either 2');
+
     const root = rootEither.getRight();
+
+    Logger.debug('[LOCAL TREE BUILDER] Root', root);
 
     const rootFolder = LocalFolder.from(root);
 
+    Logger.debug('[LOCAL TREE BUILDER] Root folder', rootFolder);
+
     const tree = new LocalTree(rootFolder);
 
+    Logger.debug('[LOCAL TREE BUILDER] Tree', tree);
+
     await this.traverse(tree, rootFolder);
+
+    Logger.debug('[LOCAL TREE BUILDER] Tree 2');
 
     return right(tree);
   }

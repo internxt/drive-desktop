@@ -33,7 +33,7 @@ export class LocalFileContents extends AggregateRoot {
   }
 
   public get nameWithExtension(): string {
-    return this.name + (this.extension.length >= 0 ? '.' + this.extension : '');
+    return this.name + (this.extension?.length ? '.' + this.extension : '');
   }
 
   public get size(): number {

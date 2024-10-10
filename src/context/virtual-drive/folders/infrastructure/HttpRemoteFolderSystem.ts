@@ -8,23 +8,24 @@ import { Folder, FolderAttributes } from '../domain/Folder';
 import { FolderId } from '../domain/FolderId';
 import { FolderPath } from '../domain/FolderPath';
 import { FolderUuid } from '../domain/FolderUuid';
-import {
-  FolderPersistedDto,
-  RemoteFileSystem,
-  RemoteFileSystemErrors,
-} from '../domain/file-systems/RemoteFileSystem';
+
 import { CreateFolderDTO } from './dtos/CreateFolderDTO';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { FileStatuses } from '../../files/domain/FileStatus';
 import { File } from '../../files/domain/File';
+import {
+  FolderPersistedDto,
+  RemoteFileSystemErrors,
+  RemoteFolderSystem,
+} from '../domain/file-systems/RemoteFolderSystem';
 
 type NewServerFolder = Omit<ServerFolder, 'plain_name'> & { plainName: string };
 
 @Service()
-export class HttpRemoteFileSystem implements RemoteFileSystem {
-  private static PAGE_SIZE = 50;
+export class HttpRemoteFolderSystem implements RemoteFolderSystem {
+  private readonly PAGE_SIZE = 50;
   public folders: Record<string, Folder> = {};
 
   constructor(
@@ -42,11 +43,11 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     let lastNumberOfFolders = 0;
 
     do {
-      const offset = page * HttpRemoteFileSystem.PAGE_SIZE;
+      const offset = page * this.PAGE_SIZE;
 
       // eslint-disable-next-line no-await-in-loop
       const result = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${HttpRemoteFileSystem.PAGE_SIZE}`
+        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${this.PAGE_SIZE}`
       );
 
       const founded = result.data.result as Array<NewServerFolder>;
@@ -54,10 +55,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
       lastNumberOfFolders = founded.length;
 
       page++;
-    } while (
-      folders.length % HttpRemoteFileSystem.PAGE_SIZE === 0 &&
-      lastNumberOfFolders > 0
-    );
+    } while (folders.length % this.PAGE_SIZE === 0 && lastNumberOfFolders > 0);
 
     const name = folderPath.name();
 
@@ -164,11 +162,50 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
         path: offline.path.value,
         status: FolderStatuses.EXISTS,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       Logger.error('[FOLDER FILE SYSTEM] Error creating folder', error);
       if (axios.isAxiosError(error)) {
         Logger.error('[Is Axios Error]', error.response?.data);
+        const existing = await this.existFolder(offline);
+        return existing.status !== FolderStatuses.EXISTS
+          ? Promise.reject(error)
+          : existing;
       }
+
+      throw error;
+    }
+  }
+
+  private async existFolder(offline: OfflineFolder): Promise<FolderAttributes> {
+    try {
+      const response = await this.trashClient.get(
+        `${process.env.NEW_DRIVE_URL}/drive/folders/content/${offline.parentUuid}/folders/existence?plainName=${offline.basename}`
+      );
+      Logger.debug('[FOLDER FILE SYSTEM] Folder already exists', response.data);
+
+      const serverFolder = response.data
+        .existentFolders[0] as ServerFolder | null;
+
+      if (!serverFolder) {
+        throw new Error('Folder creation failed, no data returned');
+      }
+      return {
+        id: serverFolder.id,
+        uuid: serverFolder.uuid,
+        parentId: serverFolder.parentId,
+        updatedAt: serverFolder.updatedAt,
+        createdAt: serverFolder.createdAt,
+        path: offline.path.value,
+        status: serverFolder.removed
+          ? FolderStatuses.TRASHED
+          : FolderStatuses.EXISTS,
+      };
+    } catch (error) {
+      Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
+      if (axios.isAxiosError(error)) {
+        Logger.error('[Is Axios Error]', error.response?.data);
+      }
+
       throw error;
     }
   }
@@ -193,19 +230,27 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   }
 
   async rename(folder: Folder): Promise<void> {
-    const url = `${process.env.API_URL}/storage/folder/${folder.id}/meta`;
+    try {
+      const url = `${process.env.API_URL}/storage/folder/${folder.id}/meta`;
 
-    const body: UpdateFolderNameDTO = {
-      metadata: { itemName: folder.name },
-      relativePath: uuidv4.v4(),
-    };
+      const body: UpdateFolderNameDTO = {
+        metadata: { itemName: folder.name },
+        relativePath: uuidv4.v4(),
+      };
 
-    const res = await this.driveClient.post(url, body);
+      const res = await this.driveClient.post(url, body);
 
-    if (res.status !== 200) {
-      throw new Error(
-        `[FOLDER FILE SYSTEM] Error updating item metadata: ${res.status}`
-      );
+      if (res.status !== 200) {
+        throw new Error(
+          `[FOLDER FILE SYSTEM] Error updating item metadata: ${res.status}`
+        );
+      }
+    } catch (error) {
+      Logger.error('[FOLDER FILE SYSTEM] Error renaming folder');
+      if (axios.isAxiosError(error)) {
+        Logger.error('[Is Axios Error]', error.response?.data);
+      }
+      throw error;
     }
   }
 

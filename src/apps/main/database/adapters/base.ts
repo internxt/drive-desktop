@@ -41,4 +41,12 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
     success: boolean;
     result: DatabaseItemType | null;
   }>;
+
+  /**
+   * Gets items from partial data
+   */
+
+  searchPartialBy(
+    partialData: Partial<DatabaseItemType>
+  ): Promise<{ success: boolean; result: DatabaseItemType[] }>;
 }

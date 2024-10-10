@@ -5,12 +5,13 @@ import bytes from 'bytes';
 
 import { User } from '../../../main/types';
 import { useTranslationContext } from '../../context/LocalContext';
-import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
+// import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/sentry';
+import useBackupErrors from '../../hooks/backups/useBackupErrors';
 
 interface HeadersProps {
   setIsLogoutModalOpen: (isOpen: boolean) => void;
@@ -22,10 +23,10 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
 
   const processIssues = useProcessIssues();
   const generalIssues = useGeneralIssues();
-  const { backupFatalErrors } = useBackupFatalErrors();
+  const { backupErrors } = useBackupErrors();
 
   const numberOfIssues: number =
-    processIssues.length + backupFatalErrors.length + generalIssues.length;
+    processIssues.length + backupErrors.length + generalIssues.length;
 
   const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
 

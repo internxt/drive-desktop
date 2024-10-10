@@ -15,4 +15,5 @@ export type ServerFolder = {
   plain_name: string | null;
   status: ServerFolderStatus;
   uuid: string;
+  removed: boolean;
 };

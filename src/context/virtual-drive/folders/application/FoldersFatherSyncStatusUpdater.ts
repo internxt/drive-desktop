@@ -2,12 +2,12 @@ import { File } from '../../files/domain/File';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 import Logger from 'electron-log';
 
 export class FoldersFatherSyncStatusUpdater {
   constructor(
-    private readonly localFileSystem: LocalFileSystem,
+    private readonly localFileSystem: LocalFolderSystem,
     private readonly repository: FolderRepository
   ) {}
 
@@ -23,7 +23,7 @@ export class FoldersFatherSyncStatusUpdater {
     const folder = await this.repository.searchByPartial({ path: posixDir });
     if (folder) {
       Logger.debug(`Updating sync status for ${folder.path}`);
-      await this.localFileSystem.updateSyncStatus(folder);
+      await this.localFileSystem.updateSyncStatus(folder, true);
     }
     this.update(posixDir);
   }

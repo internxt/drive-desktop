@@ -4,7 +4,7 @@ import { useContext, useEffect } from 'react';
 import { useBackupProgress } from '../../hooks/backups/useBackupProgress';
 import { BackupsProgressBar } from './BackupsProgressBar';
 import { BackupsProgressPercentage } from './BackupsProgressPercent';
-import { ArrowCircleUp } from 'phosphor-react';
+import { ArrowCircleDown, ArrowCircleUp } from 'phosphor-react';
 import { LastBackupMade } from './LastBackupMade';
 import { ShowBackupsIssues } from './ShowBackupsIssues';
 import { DeviceContext } from '../../context/DeviceContext';
@@ -22,14 +22,26 @@ function BackingUp() {
   );
 }
 
-export function DetailedDevicePill({
-  showIssues,
-}: DetailedDevicePillProps) {
+function DownloadingBackup() {
+  return (
+    <span className="flex flex-row items-center text-primary">
+      <ArrowCircleDown className="mr-2 text-primary" /> Downloading Backup...
+    </span>
+  );
+}
+
+export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const { usage } = useUsage();
   const { thereIsProgress, percentualProgress, clearProgress } =
     useBackupProgress();
   const { current, selected } = useContext(DeviceContext);
-  const { lastBackupHadIssues, backups, backupStatus } = useContext(BackupContext);
+  const {
+    lastBackupHadIssues,
+    backups,
+    backupStatus,
+    downloadProgress,
+    thereIsDownloadProgress,
+  } = useContext(BackupContext);
 
   useEffect(() => {
     if (backupStatus === 'STANDBY') {
@@ -45,7 +57,11 @@ export function DetailedDevicePill({
         <div className="grow">
           {selected?.name}
           <br />
-          {selected === current && thereIsProgress ? <BackingUp /> : <LastBackupMade />}
+          {selected === current && thereIsProgress ? (
+            <BackingUp />
+          ) : (
+            <LastBackupMade />
+          )}
         </div>
         {selected === current && thereIsProgress ? (
           <BackupsProgressPercentage progress={percentualProgress} />
@@ -56,7 +72,21 @@ export function DetailedDevicePill({
       {selected === current && thereIsProgress && (
         <BackupsProgressBar progress={percentualProgress} />
       )}
-      {selected === current && displayIssues && <ShowBackupsIssues show={showIssues} />}
+      {selected === current && displayIssues && (
+        <ShowBackupsIssues show={showIssues} />
+      )}
+
+      {thereIsDownloadProgress && (
+        <>
+          <div className="flex w-full items-center">
+            <div className="grow">
+              <DownloadingBackup />
+            </div>
+            <BackupsProgressPercentage progress={downloadProgress} />
+          </div>
+          <BackupsProgressBar progress={downloadProgress} />
+        </>
+      )}
     </div>
   );
 }

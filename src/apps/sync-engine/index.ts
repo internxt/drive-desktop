@@ -7,6 +7,8 @@ import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
 
+Logger.log(`Running sync engine ${packageJson.version}`);
+
 function initSentry() {
   Sentry.init({
     dsn: process.env.SENTRY_DSN,
@@ -41,6 +43,14 @@ async function setUp() {
   const bindings = new BindingsManager(container, {
     root: virtualDrivePath,
     icon: iconPath,
+  });
+
+  ipcRenderer.on('USER_LOGGED_OUT', async () => {
+    bindings.cleanQueue();
+  });
+
+  ipcRenderer.on('CLEAR_QUEUE', async () => {
+    bindings.cleanQueue();
   });
 
   ipcRenderer.on('CHECK_SYNC_ENGINE_RESPONSE', async (event) => {

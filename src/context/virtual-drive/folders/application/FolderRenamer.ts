@@ -1,7 +1,7 @@
 import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFolderSystem';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 
 export class FolderRenamer {

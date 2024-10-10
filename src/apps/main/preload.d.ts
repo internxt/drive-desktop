@@ -11,6 +11,13 @@ declare interface Window {
 
     pathChanged(path: string): void;
 
+    logger: {
+      info: (...message: unknown[]) => void;
+      error: (...message: unknown[]) => void;
+      warn: (...message: unknown[]) => void;
+      debug: (...message: unknown[]) => void;
+    };
+
     getGeneralIssues: () => Promise<
       import('../../apps/shared/types').GeneralIssue[]
     >;
@@ -40,6 +47,16 @@ declare interface Window {
     getBackupFatalIssue(
       id: number
     ): Promise<import('../shared/issues/SyncErrorCause').SyncError>;
+
+    getBackupFatalErrors(): Promise<
+      import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
+    >;
+
+    onBackupFatalErrorsChanged(
+      fn: (
+        value: import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
+      ) => void
+    ): () => void;
 
     getLastBackupExitReason: () => Promise<
       import('../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker').WorkerExitCause
@@ -109,6 +126,18 @@ declare interface Window {
       import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
     >;
 
+    onBackupProgress(
+      func: (
+        value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress
+      ) => void
+    ): () => void;
+
+    onBackupDownloadProgress(
+      func: (value: { id: string; progress: number }) => void
+    ): () => void;
+
+    abortDownloadBackups: (deviceId: string) => void;
+
     onBackupsStatusChanged(
       func: (
         value: import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
@@ -130,12 +159,6 @@ declare interface Window {
     renameDevice: typeof import('../main/device/service').renameDevice;
 
     getBackups: typeof import('../main/device/service').getBackupsFromDevice;
-
-    onBackupProgress(
-      func: (
-        value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress
-      ) => void
-    ): () => void;
 
     devices: {
       getDevices: () => Promise<Array<import('../main/device/service').Device>>;

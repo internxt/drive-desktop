@@ -37,12 +37,6 @@ export class FolderPathUpdater {
       return await this.folderMover.run(folder, desiredPath);
     }
 
-    if (nameChanged) {
-      Logger.debug('about to rename');
-      return await this.folderRenamer.run(folder, desiredPath);
-    }
-
-    // throw new Error('No path change detected for folder path update');
-    Logger.warn('No path change detected for folder path update');
+    return await this.folderRenamer.run(folder, desiredPath);
   }
 }

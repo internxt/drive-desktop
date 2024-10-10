@@ -13,9 +13,9 @@ export default function Widget() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
 
   const handleRetrySync = () => {
-    // window.electron.startRemoteSync().catch((err) => {
-    //   reportError(err);
-    // });
+    window.electron.startRemoteSync().catch((err) => {
+      reportError(err);
+    });
   };
 
   const displayErrorInWidget = syncStatus && syncStatus === 'FAILED';

@@ -46,9 +46,9 @@ export async function downloadFolderAsZip(
   const writeStream = fs.createWriteStream(path + 'Backup_' + now + '.zip');
   const destination = convertToWritableStream(writeStream);
 
-  const { abortController } = opts;
+  const { abortController, updateProgress } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
-  const { tree, folderDecryptedNames, fileDecryptedNames } =
+  const { tree, folderDecryptedNames, fileDecryptedNames, size } =
     await fetchFolderTree(folderUuid);
   tree.plainName = deviceName;
   folderDecryptedNames[tree.id] = deviceName;
@@ -58,8 +58,11 @@ export async function downloadFolderAsZip(
 
   const zip = new FlatFolderZip(destination, {
     abortController: opts.abortController,
-    // TODO: check why progress is causing zip corruption
-    // progress: (loadedBytes) => updateProgress?.(loadedBytes / size),
+    progress: (loadedBytes) => {
+      if (updateProgress) {
+        updateProgress((loadedBytes / size) * 100);
+      }
+    },
   });
 
   while (pendingFolders.length > 0 && !abortController?.signal.aborted) {

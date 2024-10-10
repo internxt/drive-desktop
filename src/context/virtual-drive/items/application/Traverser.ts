@@ -29,6 +29,7 @@ export class Traverser {
     private readonly decrypt: NameDecrypt,
     private readonly ipc: SyncEngineIpc,
     private readonly baseFolderId: number,
+    private readonly baseFolderUuid: string,
     private fileStatusesToFilter: Array<ServerFileStatus>,
     private folderStatusesToFilter: Array<ServerFolderStatus>
   ) {}
@@ -36,12 +37,14 @@ export class Traverser {
   static existingItems(
     decrypt: NameDecrypt,
     ipc: SyncEngineIpc,
-    baseFolderId: number
+    baseFolderId: number,
+    baseFolderUuid: string
   ): Traverser {
     return new Traverser(
       decrypt,
       ipc,
       baseFolderId,
+      baseFolderUuid,
       [ServerFileStatus.EXISTS],
       [ServerFolderStatus.EXISTS]
     );
@@ -50,9 +53,10 @@ export class Traverser {
   static allItems(
     decrypt: NameDecrypt,
     ipc: SyncEngineIpc,
-    baseFolderId: number
+    baseFolderId: number,
+    baseFolderUuid: string
   ): Traverser {
-    return new Traverser(decrypt, ipc, baseFolderId, [], []);
+    return new Traverser(decrypt, ipc, baseFolderId, baseFolderUuid, [], []);
   }
 
   public setFileStatusesToFilter(statuses: Array<ServerFileStatus>): void {
@@ -64,11 +68,9 @@ export class Traverser {
   }
 
   private createRootFolder(): Folder {
-    const rootFolderUuid = '43711926-15c2-5ebf-8c24-5099fa9af3c3';
-
     return Folder.from({
       id: this.baseFolderId,
-      uuid: rootFolderUuid,
+      uuid: this.baseFolderUuid,
       parentId: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),

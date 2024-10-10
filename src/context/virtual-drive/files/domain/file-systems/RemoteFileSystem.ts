@@ -42,4 +42,10 @@ export abstract class RemoteFileSystem {
   abstract override(file: File): Promise<void>;
 
   abstract delete(file: File): Promise<void>;
+
+  abstract replace(
+    file: File,
+    newContentsId: File['contentsId'],
+    newSize: File['size']
+  ): Promise<void>;
 }

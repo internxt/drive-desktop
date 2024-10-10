@@ -80,50 +80,56 @@ export class FSLocalFileProvider implements LocalContentsProvider {
   }
 
   async provide(absoluteFilePath: string) {
-    const { readable, controller } = await this.createAbortableStream(
-      absoluteFilePath
-    );
-
-    const { size, mtimeMs, birthtimeMs } = await fs.stat(absoluteFilePath);
-
-    const absoluteFolderPath = path.dirname(absoluteFilePath);
-    const nameWithExtension = path.basename(absoluteFilePath);
-
-    const watcher = watch(absoluteFolderPath, (_, filename) => {
-      if (filename !== nameWithExtension) {
-        return;
-      }
-      Logger.warn(
-        filename,
-        ' has been changed during read, it will be aborted'
+    try {
+      // Creación del stream con posibilidad de aborto
+      const { readable, controller } = await this.createAbortableStream(
+        absoluteFilePath
       );
 
-      controller.abort();
-    });
+      const { size, mtimeMs, birthtimeMs } = await fs.stat(absoluteFilePath);
 
-    readable.on('end', () => {
-      watcher.close();
-      this.reading.delete(absoluteFilePath);
-    });
+      const absoluteFolderPath = path.dirname(absoluteFilePath);
+      const nameWithExtension = path.basename(absoluteFilePath);
 
-    readable.on('close', () => {
-      this.reading.delete(absoluteFilePath);
-    });
+      const watcher = watch(absoluteFolderPath, (_, filename) => {
+        if (filename !== nameWithExtension) {
+          return;
+        }
+        Logger.warn(
+          filename,
+          ' has been changed during read, it will be aborted'
+        );
 
-    const [name, extension] = extractNameAndExtension(nameWithExtension);
+        controller.abort();
+      });
 
-    const contents = LocalFileContents.from({
-      name,
-      extension,
-      size,
-      modifiedTime: mtimeMs,
-      birthTime: birthtimeMs,
-      contents: readable,
-    });
+      readable.on('end', () => {
+        watcher.close();
+        this.reading.delete(absoluteFilePath);
+      });
 
-    return {
-      contents,
-      abortSignal: controller.signal,
-    };
+      readable.on('close', () => {
+        this.reading.delete(absoluteFilePath);
+      });
+
+      const [name, extension] = extractNameAndExtension(nameWithExtension);
+
+      const contents = LocalFileContents.from({
+        name,
+        extension,
+        size,
+        modifiedTime: mtimeMs,
+        birthTime: birthtimeMs,
+        contents: readable,
+      });
+
+      return {
+        contents,
+        abortSignal: controller.signal,
+      };
+    } catch (error) {
+      Logger.error(`Error providing file: ${error}`);
+      throw error;
+    }
   }
 }

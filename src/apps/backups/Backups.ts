@@ -7,6 +7,7 @@ import { AbsolutePath } from '../../context/local/localFile/infrastructure/Absol
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { LocalTree } from '../../context/local/localTree/domain/LocalTree';
 import { File } from '../../context/virtual-drive/files/domain/File';
+import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
 import { BackupInfo } from './BackupInfo';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
@@ -17,12 +18,14 @@ import {
   FoldersDiff,
   FoldersDiffCalculator,
 } from './diff/FoldersDiffCalculator';
-import { getParentDirectory, relative, relativeV2 } from './utils/relative';
+import { getParentDirectory, relativeV2 } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { UserAvaliableSpaceValidator } from '../../context/user/usage/application/UserAvaliableSpaceValidator';
 import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
 import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/RemoteTree';
+import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
+import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 
 @Service()
 export class Backup {
@@ -32,6 +35,7 @@ export class Backup {
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
     private readonly remoteFileDeleter: FileDeleter,
+    private readonly remoteFolderDeleter: FolderDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
     private readonly userAvaliableSpaceValidator: UserAvaliableSpaceValidator
   ) {}
@@ -44,12 +48,9 @@ export class Backup {
   ): Promise<DriveDesktopError | undefined> {
     Logger.info('[BACKUPS] Backing:', info);
 
-    Logger.info('[BACKUPS] Generating local tree');
     const localTreeEither = await this.localTreeBuilder.run(
       info.pathname as AbsolutePath
     );
-
-    Logger.debug('[BACKUPS] Local tree either', localTreeEither);
 
     if (localTreeEither.isLeft()) {
       Logger.error('[BACKUPS] local tree is left', localTreeEither);
@@ -58,22 +59,11 @@ export class Backup {
 
     const local = localTreeEither.getRight();
 
-    Logger.info('[BACKUPS] Generating remote tree', info.folderId);
     const remote = await this.remoteTreeBuilder.run(info.folderId, true);
-
-    Logger.debug('[BACKUPS] Remote tree', JSON.stringify(remote));
-
-    Logger.debug('[BACKUPS] Remote tree file', remote.files);
-
-    Logger.debug('[BACKUPS] Remote tree folder', remote.folders);
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
 
-    Logger.debug('[BACKUPS] Folders diff', foldersDiff);
-
     const filesDiff = DiffFilesCalculator.calculate(local, remote);
-
-    Logger.debug('[BACKUPS] Files diff', filesDiff);
 
     await this.isThereEnoughSpace(filesDiff);
 
@@ -88,7 +78,7 @@ export class Backup {
       alreadyBacked
     );
 
-    await this.backupFolders(foldersDiff, local, remote);
+    await this.backupFolders(foldersDiff, local, remote, abortController);
 
     await this.backupFiles(filesDiff, local, remote, abortController);
 
@@ -128,47 +118,27 @@ export class Backup {
   private async backupFolders(
     diff: FoldersDiff,
     local: LocalTree,
-    remote: RemoteTree
+    remote: RemoteTree,
+    abortController: AbortController
   ) {
     Logger.info('[BACKUPS] Backing folders');
     Logger.info('[BACKUPS] Folders added', diff.added.length);
 
-    await Promise.all(
-      diff.added.map(async (localFolder) => {
-        const relativePath = relativeV2(local.root.path, localFolder.path);
+    const { added, deleted } = diff;
 
-        if (relativePath === '/') {
-          return; // Ignorar la carpeta raíz
-        }
-
-        const remoteParentPath = getParentDirectory(
-          local.root.path,
-          localFolder.path
-        );
-        const parentExists = remote.has(remoteParentPath);
-
-        if (!parentExists) {
-          return;
-        }
-
-        const parent = remote.getParent(remoteParentPath);
-        const existingItems = remote.has(relativePath);
-
-        if (existingItems) {
-          return;
-        }
-
-        const folder = await this.simpleFolderCreator.run(
-          relativePath,
-          parent.id
-        );
-
-        remote.addFolder(parent, folder);
-
-        this.backed++;
-        BackupsIPCRenderer.send('backups.progress-update', this.backed);
-      })
+    const deleteFolder = await this.deleteRemoteFolders(
+      deleted,
+      abortController
     );
+
+    Logger.debug('[BACKUPS] start upload', deleted.length);
+    const uploadFolder = await this.uploadAndCreateFolder(
+      local.root.path,
+      added,
+      remote
+    );
+
+    return await Promise.all([deleteFolder, uploadFolder]);
   }
 
   private async backupFiles(
@@ -182,7 +152,12 @@ export class Backup {
     const { added, modified, deleted } = filesDiff;
 
     Logger.info('[BACKUPS] Files added', added.length);
-    await this.uploadAndCreate(local.root.path, added, remote, abortController);
+    await this.uploadAndCreateFile(
+      local.root.path,
+      added,
+      remote,
+      abortController
+    );
 
     Logger.info('[BACKUPS] Files modified', modified.size);
     await this.uploadAndUpdate(modified, local, remote, abortController);
@@ -191,7 +166,7 @@ export class Backup {
     await this.deleteRemoteFiles(deleted, abortController);
   }
 
-  private async uploadAndCreate(
+  private async uploadAndCreateFile(
     localRootPath: string,
     added: Array<LocalFile>,
     tree: RemoteTree,
@@ -259,5 +234,71 @@ export class Backup {
 
     this.backed += deleted.length;
     BackupsIPCRenderer.send('backups.progress-update', this.backed);
+  }
+
+  private async deleteRemoteFolders(
+    deleted: Array<Folder>,
+    abortController: AbortController
+  ) {
+    for (const folder of deleted) {
+      if (abortController.signal.aborted) {
+        return;
+      }
+
+      // eslint-disable-next-line no-await-in-loop
+      await this.remoteFolderDeleter.run(folder);
+    }
+
+    this.backed += deleted.length;
+    BackupsIPCRenderer.send('backups.progress-update', this.backed);
+  }
+
+  private async uploadAndCreateFolder(
+    localRootPath: string,
+    added: Array<LocalFolder>,
+    tree: RemoteTree
+  ): Promise<void> {
+    for (const localFolder of added) {
+      const relativePath = relativeV2(localRootPath, localFolder.path);
+
+      Logger.debug('[BACKUPS] Relative path of folder', relativePath);
+
+      if (relativePath === '/') {
+        Logger.debug('[BACKUPS] Ignoring root folder');
+        continue; // Ignorar la carpeta raíz
+      }
+
+      const remoteParentPath = getParentDirectory(
+        localRootPath,
+        localFolder.path
+      );
+
+      Logger.debug('[BACKUPS] Remote parent path', remoteParentPath);
+
+      const parentExists = tree.has(remoteParentPath);
+
+      if (!parentExists) {
+        Logger.debug('[BACKUPS] Parent folder does not exist');
+        continue;
+      }
+
+      const parent = tree.getParent(relativePath);
+      const existingItems = tree.has(relativePath);
+
+      if (existingItems) {
+        Logger.debug('[BACKUPS] Folder already exists');
+        continue;
+      }
+
+      const folder = await this.simpleFolderCreator.run(
+        relativePath,
+        parent.id
+      );
+
+      tree.addFolder(parent, folder);
+
+      this.backed++;
+      BackupsIPCRenderer.send('backups.progress-update', this.backed);
+    }
   }
 }

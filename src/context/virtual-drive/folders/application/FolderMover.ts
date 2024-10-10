@@ -3,7 +3,7 @@ import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderFinder } from './FolderFinder';
 import { FolderRepository } from '../domain/FolderRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
+import { RemoteFileSystem } from '../domain/file-systems/RemoteFolderSystem';
 
 export class FolderMover {
   constructor(

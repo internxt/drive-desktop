@@ -10,6 +10,7 @@ let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
 let startingWorker = false;
 let healthCheckSchedule: nodeSchedule.Job | null = null;
+let syncSchedule: nodeSchedule.Job | null = null;
 let attemptsAlreadyStarting = 0;
 
 ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
@@ -31,7 +32,7 @@ async function healthCheck() {
       resolve();
     });
 
-    const millisecondsToWait = 5_000;
+    const millisecondsToWait = 10_000;
 
     setTimeout(() => {
       reject(
@@ -60,7 +61,6 @@ function scheduleHeathCheck() {
       .catch(() => {
         const warning = 'Health check failed, relaunching the worker';
         Logger.warn(warning);
-        Sentry.captureMessage(warning);
         workerIsRunning = false;
         worker?.destroy();
         if (attemptsAlreadyStarting >= 3) {
@@ -71,8 +71,8 @@ function scheduleHeathCheck() {
         spawnSyncEngineWorker();
       });
 
-  healthCheckSchedule = nodeSchedule.scheduleJob('*/20 * * * * *', async () => {
-    const workerIsPending = checkSyncEngineInProcess(15_000);
+  healthCheckSchedule = nodeSchedule.scheduleJob('*/40 * * * * *', async () => {
+    const workerIsPending = checkSyncEngineInProcess(5_000);
     Logger.debug(
       'Health check',
       workerIsPending ? 'Worker is pending' : 'Worker is running'
@@ -80,6 +80,15 @@ function scheduleHeathCheck() {
     if (!workerIsPending) {
       await relaunchOnFail();
     }
+  });
+}
+function scheduleSync() {
+  if (syncSchedule) {
+    syncSchedule.cancel(false);
+  }
+
+  syncSchedule = nodeSchedule.scheduleJob('0 0 */2 * * *', async () => {
+    eventBus.emit('RECEIVED_REMOTE_CHANGES');
   });
 }
 
@@ -94,6 +103,7 @@ function spawnSyncEngineWorker() {
     return;
   }
 
+  Logger.info('[MAIN] SPAWNING SYNC ENGINE WORKER...');
   startingWorker = true;
 
   worker = new BrowserWindow({
@@ -113,6 +123,7 @@ function spawnSyncEngineWorker() {
     .then(() => {
       Logger.info('[MAIN] Sync engine worker loaded');
       scheduleHeathCheck();
+      scheduleSync();
     })
     .catch((err) => {
       Logger.error('[MAIN] Error loading sync engine worker', err);
@@ -189,6 +200,7 @@ async function stopAndClearSyncEngineWatcher() {
     Logger.info('[MAIN] WORKER WAS NOT RUNNING');
     worker?.destroy();
     worker = null;
+
     return;
   }
 

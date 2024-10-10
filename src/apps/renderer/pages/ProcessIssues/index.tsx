@@ -2,20 +2,21 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import WindowTopBar from '../../components/WindowTopBar';
 import { useTranslationContext } from '../../context/LocalContext';
-import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
+// import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import useProcessIssues from '../../hooks/ProcessIssues';
 import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
 import { ProcessIssue } from '../../../shared/types';
+import useBackupErrors from '../../hooks/backups/useBackupErrors';
 
-type Section = 'SYNC' | 'GENERAL';
+type Section = 'SYNC' | 'GENERAL' | 'BACKUPS';
 
 export default function ProcessIssues() {
   const { translate } = useTranslationContext();
   const processIssues = useProcessIssues();
-  const generalIssues = useGeneralIssues();
-  const { backupFatalErrors } = useBackupFatalErrors();
+  const { generalIssues } = useGeneralIssues();
+  const { backupErrors } = useBackupErrors();
   const [reportData, setReportData] = useState<Pick<
     ProcessIssue,
     'errorName'
@@ -36,12 +37,12 @@ export default function ProcessIssues() {
       setActiveSection('GENERAL');
     } else if (
       processIssuesFilteredByActiveSection.length === 0 &&
-      backupFatalErrors.length === 0 &&
+      backupErrors.length === 0 &&
       processIssues.length
     ) {
       setActiveSection('SYNC');
     }
-  }, [processIssues, backupFatalErrors, generalIssues]);
+  }, [processIssues, backupErrors, generalIssues]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
