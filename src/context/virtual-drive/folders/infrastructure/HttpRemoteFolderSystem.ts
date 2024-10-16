@@ -178,8 +178,11 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
 
   private async existFolder(offline: OfflineFolder): Promise<FolderAttributes> {
     try {
-      const response = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/content/${offline.parentUuid}/folders/existence?plainName=${offline.basename}`
+      const response = await this.trashClient.post(
+        `${process.env.NEW_DRIVE_URL}/drive/folders/content/${offline.parentUuid}/folders/existence`,
+        {
+          plainNames: [offline.basename],
+        }
       );
       Logger.debug('[FOLDER FILE SYSTEM] Folder already exists', response.data);
 

@@ -38,6 +38,7 @@ export class BindingsManager {
 
   private queueManager: QueueManager | null = null;
   private lastHydrated = '';
+  private lastMoved = '';
 
   constructor(
     private readonly container: DependencyContainer,
@@ -108,11 +109,18 @@ export class BindingsManager {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
 
+          if (this.lastMoved === absolutePath) {
+            Logger.debug('Same file moved');
+            this.lastMoved = '';
+            callback(true);
+            return;
+          }
+
           const isTempFile = await isTemporaryFile(absolutePath);
 
           Logger.debug('[isTemporaryFile]', isTempFile);
 
-          if (isTempFile) {
+          if (isTempFile && !contentsId.startsWith('FOLDER')) {
             Logger.debug('File is temporary, skipping');
             callback(true);
             return;
@@ -128,6 +136,7 @@ export class BindingsManager {
           });
           fn(absolutePath, contentsId, callback);
           Logger.debug('Finish Rename', absolutePath);
+          this.lastMoved = absolutePath;
         } catch (error) {
           Logger.error('Error during rename or move operation', error);
         }

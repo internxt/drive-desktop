@@ -233,7 +233,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
   async move(file: File): Promise<void> {
     await this.sdk.moveFile({
       fileId: file.contentsId,
-      destination: Number(file.folderId),
+      destination: Number(file.folderId.value),
       destinationPath: uuidv4.v4(),
       bucketId: this.bucket,
     });

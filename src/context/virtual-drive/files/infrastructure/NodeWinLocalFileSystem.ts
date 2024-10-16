@@ -89,7 +89,6 @@ export class NodeWinLocalFileSystem implements LocalFileSystem {
     path: string,
     newIdentity: `${string}-${string}`
   ): Promise<void> {
-    Logger.info('[updateFileIdentity]: ', path, newIdentity);
     const isNotDirectory = true;
     return this.virtualDrive.updateFileIdentity(
       path,

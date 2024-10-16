@@ -1,7 +1,10 @@
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
+import { FolderId } from '../domain/FolderId';
+import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
+import { FolderUuid } from '../domain/FolderUuid';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { RemoteFolderSystem } from '../domain/file-systems/RemoteFolderSystem';
 import { FolderPlaceholderConverter } from './FolderPlaceholderConverter';
@@ -22,7 +25,7 @@ export class FolderCreator {
 
     const attributes = await this.remote.persist(offlineFolder);
 
-    const folder = Folder.create(attributes);
+    const folder = Folder.from(attributes);
 
     await this.repository.add(folder);
 
