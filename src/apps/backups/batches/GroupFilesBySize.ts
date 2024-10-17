@@ -2,7 +2,7 @@ import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
 
 export class GroupFilesBySize {
   static small(files: Array<LocalFile>) {
-    return files.filter((file) => file.isSmall());
+    return files.filter((file) => file.isSmall() && file);
   }
 
   static medium(files: Array<LocalFile>) {
