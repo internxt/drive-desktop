@@ -363,7 +363,8 @@
       "file-does-not-exist": "File doesn't exist",
       "file-too-big": "Max upload size is 20GB. Please try smaller files.",
       "file-non-extension": "Files without extensions are not supported.",
-      "duplicated-node": "It appears that there are duplicate file or folder names in this directory. Please rename one of them to ensure synchronization"
+      "duplicated-node": "It appears that there are duplicate file or folder names in this directory. Please rename one of them to ensure synchronization",
+      "not-enough-space": "You have not enough space to complete the operation"
     },
     "error-messages": {
       "no-internet": "Looks like you are not connected to the internet, we'll try again later",
@@ -379,7 +380,8 @@
       "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but disappeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts.",
       "file-too-big": "Max upload size is 20GB. Please try smaller files.",
       "file-non-extension": "Files without extensions are not supported. Not synchronized.",
-      "duplicated-node": "There are two elements (file or folder) with the same name on a folder. Rename one of them to sync them both"
+      "duplicated-node": "There are two elements (file or folder) with the same name on a folder. Rename one of them to sync them both",
+      "not-enough-space": "You have not enough space to complete the operation"
     },
     "report-modal": {
       "actions": {

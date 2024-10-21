@@ -14,7 +14,7 @@ export class RemoteTreeBuilder {
   async run(rootFolderId: number, refresh = false): Promise<RemoteTree> {
     if (refresh) {
       Logger.debug('[REMOTE TREE BUILDER] Force refresh');
-      await this.remoteItemsGenerator.forceRefresh();
+      await this.remoteItemsGenerator.forceRefresh(rootFolderId);
     }
 
     const items = await this.remoteItemsGenerator.getAllItemsByFolderId(

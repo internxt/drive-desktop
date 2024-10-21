@@ -198,20 +198,8 @@ ipcMain.handle('START_REMOTE_SYNC', async () => {
   setIsProcessing(false);
 });
 
-ipcMain.handle('FORCE_REFRESH_BACKUPS', async () => {
-  Logger.info('Received start remote sync event');
-  const deviceUuid = configStore.get('deviceUuid');
-  const backupsFolder: RemoteSyncedFolder[] =
-    await remoteSyncManager.getFolderChildren(deviceUuid);
-  setIsProcessing(true);
-  await Promise.all(
-    backupsFolder.map(async (folder) => {
-      if (!folder.id) return;
-      await sleep(200);
-      await startRemoteSync(folder.id);
-    })
-  );
-  setIsProcessing(false);
+ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderId: number) => {
+  await startRemoteSync(folderId);
 });
 
 remoteSyncManager.onStatusChange((newStatus) => {
