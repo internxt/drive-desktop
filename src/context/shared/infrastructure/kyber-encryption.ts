@@ -33,9 +33,14 @@ class KyberCrypto {
   }
 
   async isKeyExpired(keyCreationDate: Date): Promise<boolean> {
-    const expirationDate = new Date(keyCreationDate);
-    expirationDate.setFullYear(expirationDate.getFullYear() + 1);
-    return new Date() > expirationDate;
+    try {
+      const expirationDate = new Date(keyCreationDate);
+      expirationDate.setFullYear(expirationDate.getFullYear() + 1);
+      return new Date() > expirationDate;
+    } catch (error) {
+      console.error('Error checking key expiration:', error);
+      return false;
+    }
   }
 
   /**
