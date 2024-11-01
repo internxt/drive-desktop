@@ -1,11 +1,14 @@
+/* eslint-disable no-await-in-loop */
 import {
   HandleAction,
   IQueueManager,
   QueueItem,
   HandleActions,
+  typeQueue,
 } from 'virtual-drive/dist';
 import Logger from 'electron-log';
 import fs from 'fs';
+import _ from 'lodash';
 
 export type QueueHandler = {
   handleAdd: HandleAction;
@@ -37,8 +40,10 @@ export class QueueManager implements IQueueManager {
     changeSize: false,
   };
 
-  private readonly notify: QueueManagerCallback;
+  private enqueueTimeout: NodeJS.Timeout | null = null;
+  private enqueueDelay = 2000;
 
+  private readonly notify: QueueManagerCallback;
   private readonly persistPath: string;
 
   actions: HandleActions;
@@ -96,6 +101,7 @@ export class QueueManager implements IQueueManager {
       this.queues = JSON.parse(data);
     }
   }
+
   public clearQueue(): void {
     this.queues = {
       add: [],
@@ -116,15 +122,26 @@ export class QueueManager implements IQueueManager {
       Logger.debug('Task already exists in queue. Skipping.');
       return;
     }
+
     this.queues[task.type].push(task);
     this.sortQueue(task.type);
     this.saveQueueStateToFile();
-    if (!this.isProcessing[task.type]) {
-      this.processQueue(task.type);
-    }
+    this.resetEnqueueTimeout();
   }
 
-  private sortQueue(type: string): void {
+  private resetEnqueueTimeout(): void {
+    if (this.enqueueTimeout) {
+      clearTimeout(this.enqueueTimeout);
+    }
+
+    // Inicia el temporizador de espera
+    this.enqueueTimeout = setTimeout(() => {
+      Logger.debug('Processing all tasks');
+      this.processAll();
+    }, this.enqueueDelay);
+  }
+
+  private sortQueue(type: typeQueue): void {
     this.queues[type].sort((a, b) => {
       if (a.isFolder && b.isFolder) {
         return 0;
@@ -139,32 +156,61 @@ export class QueueManager implements IQueueManager {
     });
   }
 
-  private async processQueue(type: string): Promise<void> {
-    if (this.isProcessing[type]) {
-      return;
-    }
+  private async processQueue(type: typeQueue): Promise<void> {
+    if (this.isProcessing[type]) return;
 
     this.isProcessing[type] = true;
+    const start = Date.now();
+    Logger.debug(`[TIME] Processing ${type} tasks started at ${start}`);
+
+    if (type === typeQueue.add) {
+      await this.processInChunks(type, 5);
+    } else {
+      await this.processSequentially(type);
+    }
+
+    this.isProcessing[type] = false;
+    const end = Date.now();
+    Logger.debug(`[TIME] Processing ${type} tasks ended at ${end}`);
+    Logger.debug(`[TIME] Processing ${type} tasks took ${end - start}ms`);
+  }
+
+  private async processInChunks(
+    type: typeQueue,
+    chunkSize: number
+  ): Promise<void> {
+    const chunks = _.chunk(this.queues[type], chunkSize);
+
+    for (const chunk of chunks) {
+      await Promise.all(chunk.map((task) => this.processTask(type, task)));
+      this.queues[type] = this.queues[type].slice(chunk.length);
+    }
+  }
+
+  private async processSequentially(type: typeQueue): Promise<void> {
     while (this.queues[type].length > 0) {
       const task = this.queues[type].shift();
       this.saveQueueStateToFile();
-      if (task) {
-        Logger.debug(`Processing ${type} task: ${JSON.stringify(task)}`);
-        Logger.debug(`Tasks length: ${this.queues[type].length}`);
-        try {
-          await this.actions[task.type](task);
-        } catch (error) {
-          Logger.error(`Failed to process ${type} task:`, task, error);
-        }
-      }
+
+      if (task) await this.processTask(type, task);
     }
-    this.isProcessing[type] = false;
+  }
+
+  private async processTask(type: typeQueue, task: QueueItem): Promise<void> {
+    Logger.debug(`Processing ${type} task: ${JSON.stringify(task)}`);
+    try {
+      await this.actions[task.type](task);
+    } catch (error) {
+      Logger.error(`Failed to process ${type} task:`, task, error);
+    }
   }
 
   public async processAll(): Promise<void> {
-    const taskTypes = Object.keys(this.queues);
+    const taskTypes = Object.keys(this.queues) as typeQueue[];
     await this.notify.onTaskProcessing();
-    await Promise.all(taskTypes.map((type) => this.processQueue(type)));
+    await Promise.all(
+      taskTypes.map((type: typeQueue) => this.processQueue(type))
+    );
     await this.notify.onTaskSuccess();
   }
 }

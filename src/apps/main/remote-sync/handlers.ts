@@ -235,7 +235,8 @@ export async function updateRemoteSync(): Promise<void> {
   Logger.info('Last files sync at', lastFilesSyncAt);
   const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
   await startRemoteSync(folderId);
-  const isSyncing = await checkSyncEngineInProcess(2_000);
+  const isSyncing = await checkSyncEngineInProcess(5000);
+  Logger.info('Is syncing', isSyncing);
   if (isSyncing) {
     Logger.info('Remote sync is already running');
     return;
@@ -249,7 +250,7 @@ export async function fallbackRemoteSync(): Promise<void> {
 
 ipcMain.handle('SYNC_MANUALLY', async () => {
   Logger.info('[Manual Sync] Received manual sync event');
-  const isSyncing = await checkSyncEngineInProcess(5_000);
+  const isSyncing = await checkSyncEngineInProcess(5000);
   if (isSyncing) return;
   await updateRemoteSync();
   await fallbackRemoteSync();

@@ -230,7 +230,6 @@ export class RemoteSyncManager {
   }
 
   private addLastSyncingFinishedTimestamp() {
-    if (this.status !== 'SYNCING') return;
     Logger.info('Adding last syncing finished timestamp');
     this.lastSyncingFinishedTimestamp = new Date();
   }
