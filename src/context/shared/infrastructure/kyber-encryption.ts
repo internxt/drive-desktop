@@ -17,7 +17,7 @@ class KyberCrypto {
   }
 
   /**
-   * Inicializa la instancia de Kyber.
+   * Initializes the Kyber instance.
    * @returns {Promise<void>}
    */
   async initialize() {
@@ -82,10 +82,10 @@ class KyberCrypto {
   }
 
   /**
-   * Encripta un mensaje usando una clave pública.
-   * @param {string} message - El mensaje que se desea encriptar.
-   * @param {Buffer} publicKey - La clave pública usada para encriptar.
-   * @returns {Object} Contiene `encryptedData` y `secret`.
+   * Encrypts a message using a public key.
+   * @param {string} message - The message to be encrypted.
+   * @param {Buffer} publicKey - The public key used for encryption.
+   * @returns {Object} Contains `encryptedData` and `secret`.
    */
   async encrypt(publicKey: Uint8Array) {
     this.ensureInitialized();
@@ -96,10 +96,10 @@ class KyberCrypto {
   }
 
   /**
-   * Desencripta un mensaje usando una clave privada.
-   * @param {Buffer} encryptedData - Los datos encriptados.
-   * @param {Buffer} privateKey - La clave privada usada para desencriptar.
-   * @returns {string} El mensaje desencriptado.
+   * Decrypts a message using a private key.
+   * @param {Buffer} encryptedData - The encrypted data.
+   * @param {Buffer} privateKey - The private key used for decryption.
+   * @returns {string} The decrypted message.
    */
   async decrypt(encryptedData: Uint8Array, privateKey: Uint8Array) {
     this.ensureInitialized();
