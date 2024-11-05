@@ -163,9 +163,9 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
         status: FolderStatuses.EXISTS,
       };
     } catch (error: unknown) {
-      Logger.error('[FOLDER FILE SYSTEM] Error creating folder', error);
+      Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
       if (axios.isAxiosError(error)) {
-        Logger.error('[Is Axios Error]', error.response?.data);
+        Logger.error('[Is Axios Error]', error.response);
         const existing = await this.existFolder(offline);
         return existing.status !== FolderStatuses.EXISTS
           ? Promise.reject(error)
