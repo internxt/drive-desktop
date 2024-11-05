@@ -35,7 +35,7 @@ export class Folder extends AggregateRoot {
   }
 
   public get id(): number {
-    return this._id.value;
+    return this._id?.value;
   }
 
   public get uuid(): string {

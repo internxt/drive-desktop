@@ -19,6 +19,9 @@ export default class LocalTreeBuilder {
     const { files, folders } = await this.generator.getAll(currentFolder.path);
 
     files.forEach((fileAttributes) => {
+      if (fileAttributes.size === 0) {
+        return;
+      }
       const file = LocalFile.from(fileAttributes);
       tree.addFile(currentFolder, file);
     });

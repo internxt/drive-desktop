@@ -4,7 +4,7 @@ import { LocalFileHandler } from '../../domain/LocalFileUploader';
 import { RemoteTree } from '../../../../virtual-drive/remoteTree/domain/RemoteTree';
 import { SimpleFileOverrider } from '../../../../virtual-drive/files/application/override/SimpleFileOverrider';
 import { LocalFolder } from '../../../localFolder/domain/LocalFolder';
-import { relative } from '../../../../../apps/backups/utils/relative';
+import { relativeV2 } from '../../../../../apps/backups/utils/relative';
 
 @Service()
 export class FileBatchUpdater {
@@ -33,7 +33,7 @@ export class FileBatchUpdater {
 
       const contentsId = upload.getRight();
 
-      const remotePath = relative(localRoot.path, localFile.path);
+      const remotePath = relativeV2(localRoot.path, localFile.path);
 
       const file = remoteTree.get(remotePath);
 

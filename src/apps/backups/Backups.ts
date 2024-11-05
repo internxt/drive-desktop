@@ -46,14 +46,11 @@ export class Backup {
     info: BackupInfo,
     abortController: AbortController
   ): Promise<DriveDesktopError | undefined> {
-    Logger.info('[BACKUPS] Backing:', info);
-
     const localTreeEither = await this.localTreeBuilder.run(
       info.pathname as AbsolutePath
     );
 
     if (localTreeEither.isLeft()) {
-      Logger.error('[BACKUPS] local tree is left', localTreeEither);
       return localTreeEither.getLeft();
     }
 
@@ -175,17 +172,20 @@ export class Backup {
     const batches = AddedFilesBatchCreator.run(added);
 
     for (const batch of batches) {
-      if (abortController.signal.aborted) {
-        return;
+      try {
+        if (abortController.signal.aborted) {
+          return;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await this.fileBatchUploader.run(
+          localRootPath,
+          tree,
+          batch,
+          abortController.signal
+        );
+      } catch (error) {
+        Logger.error('Error uploading files', error);
       }
-      // eslint-disable-next-line no-await-in-loop
-      await this.fileBatchUploader.run(
-        localRootPath,
-        tree,
-        batch,
-        abortController.signal
-      );
-
       this.backed += batch.length;
 
       Logger.debug('[Backed]', this.backed);

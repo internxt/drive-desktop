@@ -163,9 +163,9 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
         status: FolderStatuses.EXISTS,
       };
     } catch (error: unknown) {
-      Logger.error('[FOLDER FILE SYSTEM] Error creating folder', error);
+      Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
       if (axios.isAxiosError(error)) {
-        Logger.error('[Is Axios Error]', error.response?.data);
+        Logger.error('[Is Axios Error]', error.response);
         const existing = await this.existFolder(offline);
         return existing.status !== FolderStatuses.EXISTS
           ? Promise.reject(error)
@@ -178,8 +178,11 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
 
   private async existFolder(offline: OfflineFolder): Promise<FolderAttributes> {
     try {
-      const response = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/content/${offline.parentUuid}/folders/existence?plainName=${offline.basename}`
+      const response = await this.trashClient.post(
+        `${process.env.NEW_DRIVE_URL}/drive/folders/content/${offline.parentUuid}/folders/existence`,
+        {
+          plainNames: [offline.basename],
+        }
       );
       Logger.debug('[FOLDER FILE SYSTEM] Folder already exists', response.data);
 

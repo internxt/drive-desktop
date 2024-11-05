@@ -8,5 +8,5 @@ export abstract class RemoteItemsGenerator {
     folderId: number
   ): Promise<{ files: ServerFile[]; folders: ServerFolder[] }>;
 
-  abstract forceRefresh(): Promise<void>;
+  abstract forceRefresh(folderId: number): Promise<void>;
 }

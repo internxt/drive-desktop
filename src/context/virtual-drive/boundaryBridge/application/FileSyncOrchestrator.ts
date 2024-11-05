@@ -13,8 +13,6 @@ export class FileSyncOrchestrator {
     for (const absolutePath of absolutePaths) {
       const tempFile = await isTemporaryFile(absolutePath);
 
-      Logger.debug('[isTemporaryFile]', tempFile);
-
       if (tempFile) {
         Logger.debug(`Skipping temporary file: ${absolutePath}`);
         continue;

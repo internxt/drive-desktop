@@ -129,7 +129,7 @@ export type SyncEngineInvocableFunctions = {
     folders: DriveFolder[];
   }>;
   START_REMOTE_SYNC: () => Promise<void>;
-  FORCE_REFRESH_BACKUPS: () => Promise<void>;
+  FORCE_REFRESH_BACKUPS: (folderId: number) => Promise<void>;
 };
 
 // TODO: change how errors are reported to the ui

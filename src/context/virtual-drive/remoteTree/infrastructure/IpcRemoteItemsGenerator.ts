@@ -104,7 +104,7 @@ export class IpcRemoteItemsGenerator implements RemoteItemsGenerator {
     return { files, folders };
   }
 
-  async forceRefresh(): Promise<void> {
-    await this.ipc.invoke('FORCE_REFRESH_BACKUPS');
+  async forceRefresh(folderId: number): Promise<void> {
+    await this.ipc.invoke('FORCE_REFRESH_BACKUPS', folderId);
   }
 }

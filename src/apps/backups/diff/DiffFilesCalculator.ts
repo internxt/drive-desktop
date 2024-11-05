@@ -4,7 +4,7 @@ import { AbsolutePath } from '../../../context/local/localFile/infrastructure/Ab
 import { LocalTree } from '../../../context/local/localTree/domain/LocalTree';
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { RemoteTree } from '../../../context/virtual-drive/remoteTree/domain/RemoteTree';
-import { relative } from '../utils/relative';
+import { relativeV2 } from '../utils/relative';
 import Logger from 'electron-log';
 
 export type FilesDiff = {
@@ -24,7 +24,7 @@ export class DiffFilesCalculator {
     const rootPath = local.root.path;
 
     local.files.forEach((local) => {
-      const remotePath = relative(rootPath, local.path);
+      const remotePath = relativeV2(rootPath, local.path);
 
       const remoteExists = remote.has(remotePath);
 
