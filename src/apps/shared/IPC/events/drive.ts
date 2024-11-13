@@ -38,7 +38,7 @@ type DownloadEvents = {
   FILE_PREPARING: (payload: FileProgressInfo) => void;
   FILE_DOWNLOADED: (payload: FileProgressInfo) => void;
   FILE_DOWNLOAD_CANCEL: (payload: Partial<FileProgressInfo>) => void;
-  FILE_DOWNLOAD_ERROR: (payload: FileErrorInfo) => void;
+  FILE_DOWNLOAD_ERROR: (payload: Partial<FileErrorInfo>) => void;
 };
 
 type TrashEvents = {

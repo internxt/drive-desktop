@@ -177,6 +177,8 @@ export class QueueManager implements IQueueManager {
     const chunks = _.chunk(this.queues[type], chunkSize);
 
     for (const chunk of chunks) {
+      await this.notify.onTaskProcessing();
+
       await Promise.all(chunk.map((task) => this.processTask(type, task)));
       this.queues[type] = this.queues[type].slice(chunk.length);
     }
@@ -184,6 +186,8 @@ export class QueueManager implements IQueueManager {
 
   private async processSequentially(type: typeQueue): Promise<void> {
     while (this.queues[type].length > 0) {
+      await this.notify.onTaskProcessing();
+
       const task = this.queues[type].shift();
       this.saveQueueStateToFile();
 

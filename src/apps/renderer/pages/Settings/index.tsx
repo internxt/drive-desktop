@@ -11,7 +11,9 @@ import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
-  const [subsection, setSubsection] = useState<'panel' | 'list'>('panel');
+  const [subsection, setSubsection] = useState<
+    'panel' | 'list' | 'download_list'
+  >('panel');
 
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +44,9 @@ export default function Settings() {
           style={{ minWidth: 400, minHeight: subsection === 'list' ? 0 : 420 }}
         >
           {subsection === 'list' && (
+            <BackupFolderSelector onClose={() => setSubsection('panel')} />
+          )}
+          {subsection === 'download_list' && (
             <BackupFolderSelector onClose={() => setSubsection('panel')} />
           )}
           {subsection === 'panel' && (

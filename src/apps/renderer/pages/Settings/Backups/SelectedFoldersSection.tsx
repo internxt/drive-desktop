@@ -4,6 +4,8 @@ import { SecondaryText } from '../../../components/SecondaryText';
 import { SectionHeader } from '../../../components/SectionHeader';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { BackupContext } from '../../../context/BackupContext';
+import { WarningCircle } from 'phosphor-react';
+import { WorkerExitCause } from '../../../../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 
 interface SelectedFoldersSectionProps
   extends React.HTMLAttributes<HTMLBaseElement> {
@@ -15,7 +17,18 @@ export function SelectedFoldersSection({
   onGoToList,
 }: SelectedFoldersSectionProps) {
   const { translate } = useTranslationContext();
-  const { backups, backupStatus } = useContext(BackupContext);
+  const { backups, backupStatus, lastExistReason, lastBackupHadIssues } =
+    useContext(BackupContext);
+
+  const errorDictionary: Partial<Record<WorkerExitCause, string>> = {
+    INSUFFICIENT_PERMISSION: 'issue.short-error-messages.errors.no-permission',
+    BASE_DIRECTORY_DOES_NOT_EXIST:
+      'issues.short-error-messages.file-does-not-exist',
+    NOT_EXISTS: 'issues.short-error-messages.file-does-not-exist',
+    EMPTY_FILE: 'issue.short-error-messages.errors.empty-file',
+    FILE_TOO_BIG: 'issue.short-error-messages.file-too-big',
+    FILE_NON_EXTENSION: '"file-non-extension',
+  };
 
   return (
     <section className={`${className}`}>
@@ -35,6 +48,14 @@ export function SelectedFoldersSection({
           count: backups.length,
         })}
       </SecondaryText>
+      {lastBackupHadIssues &&
+        lastExistReason &&
+        errorDictionary[lastExistReason] && (
+          <SecondaryText className="ml-2 inline  text-red">
+            <WarningCircle size={18} weight="fill" className="mr-1 inline" />
+            {translate(errorDictionary[lastExistReason])}
+          </SecondaryText>
+        )}
     </section>
   );
 }

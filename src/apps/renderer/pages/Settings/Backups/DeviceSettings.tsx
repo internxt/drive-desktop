@@ -26,7 +26,6 @@ export function DeviceSettings({
         <EnableBackups enable={toggleEnabled} />
       ) : (
         <>
-          {/* <EnableBackups enable={toggleEnabled} /> */}
           <DeviceBackups onGoToList={onGoToList} showIssues={showIssues} />
         </>
       )}
