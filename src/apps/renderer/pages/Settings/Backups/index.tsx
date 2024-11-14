@@ -9,14 +9,16 @@ interface BackupsSectionProps {
   active: boolean;
   showBackedFolders: () => void;
   showIssues: () => void;
+  showDownloadFolers: () => void;
 }
 
 export default function BackupsSection({
   active,
   showBackedFolders,
+  showDownloadFolers,
   showIssues,
 }: BackupsSectionProps) {
-  const { deviceState, current } = useContext(DeviceContext);
+  const { deviceState } = useContext(DeviceContext);
 
   return (
     <div className={`${active ? 'block' : 'hidden'} w-full`}>
@@ -40,6 +42,7 @@ export default function BackupsSection({
             <DeviceSettings
               onGoToList={showBackedFolders}
               showIssues={showIssues}
+              showDownloadFolers={showDownloadFolers}
             />
           </ScrollableContent>
         </section>

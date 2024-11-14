@@ -42,6 +42,10 @@ declare interface Window {
       func: (value: import('../shared/types').ProcessInfoUpdatePayload) => void
     ): () => void;
 
+    getItemByFolderId(
+      folderId: number
+    ): Promise<import('../shared/types/items').ItemBackup[]>;
+
     userIsUnauthorized(): void;
 
     getBackupFatalIssue(

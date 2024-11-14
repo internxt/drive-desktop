@@ -8,6 +8,7 @@ import Header, { Section } from './Header';
 import { DeviceProvider } from '../../context/DeviceContext';
 import { BackupProvider } from '../../context/BackupContext';
 import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
+import DownloadFolderSelector from './Backups/Selector/DownloadSelector';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
@@ -25,6 +26,7 @@ export default function Settings() {
       })
     );
 
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     resizeObserver.observe(rootRef.current!);
   }, []);
 
@@ -47,7 +49,7 @@ export default function Settings() {
             <BackupFolderSelector onClose={() => setSubsection('panel')} />
           )}
           {subsection === 'download_list' && (
-            <BackupFolderSelector onClose={() => setSubsection('panel')} />
+            <DownloadFolderSelector onClose={() => setSubsection('panel')} />
           )}
           {subsection === 'panel' && (
             <>
@@ -62,6 +64,7 @@ export default function Settings() {
                 <BackupsSection
                   active={activeSection === 'BACKUPS'}
                   showBackedFolders={() => setSubsection('list')}
+                  showDownloadFolers={() => setSubsection('download_list')}
                   showIssues={() => window.electron.openProcessIssuesWindow()}
                 />
               </div>

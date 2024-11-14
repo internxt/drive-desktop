@@ -21,6 +21,7 @@ import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { ItemBackup } from '../../shared/types/items';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
@@ -390,5 +391,40 @@ ipcMain.handle(
       Logger.error('Error deleting item in handler', { error });
       return false;
     }
+  }
+);
+
+ipcMain.handle(
+  'get-item-by-folder-id',
+  async (_, folderId): Promise<ItemBackup[]> => {
+    Logger.info('Getting items by folder id', folderId);
+
+    let offset = 0;
+    let hasMore = true;
+    const folders = [];
+
+    do {
+      const response = await remoteSyncManager.fetchFoldersByFolderFromRemote(
+        folderId,
+        new Date(),
+        offset,
+        'EXISTS'
+      );
+
+      hasMore = response.hasMore;
+      offset += response.result.length;
+      folders.push(...response.result);
+
+      Logger.info('Folder', response);
+    } while (hasMore);
+
+    return folders.map((folder) => ({
+      id: folder.id,
+      uuid: folder.uuid,
+      name: folder.plainName,
+      tmpPath: '',
+      pathname: '',
+      backupsBucket: folder.bucket || '',
+    }));
   }
 );

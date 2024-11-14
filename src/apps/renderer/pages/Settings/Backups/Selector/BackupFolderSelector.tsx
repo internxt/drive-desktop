@@ -3,9 +3,9 @@ import { useContext, useState } from 'react';
 import Button from '../../../../components/Button';
 import { useTranslationContext } from '../../../../context/LocalContext';
 import { LoadingFolders } from './LoadingFolders';
-import { BackupsList } from './BackupsList';
-import { BackupInfo } from '../../../../../backups/BackupInfo';
 import { BackupContext } from '../../../../context/BackupContext';
+import { ItemBackup } from '../../../../../shared/types/items';
+import { BackupsList } from './BackupsList';
 
 interface BackupFolderSelectorProps {
   onClose: () => void;
@@ -19,7 +19,11 @@ export default function BackupFolderSelector({
   const { backups, backupsState, addBackup, disableBackup } =
     useContext(BackupContext);
 
-  const [selectedBackup, setSelectedBackup] = useState<BackupInfo | null>(null);
+  const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
+
+  const selectItem = (backup: ItemBackup) => {
+    setSelectedBackup([backup]);
+  };
 
   return (
     <div className="flex flex-col gap-3 p-4">
@@ -36,14 +40,21 @@ export default function BackupFolderSelector({
       </div>
       <div
         className="border-l-neutral-30  h-44 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black"
-        onClick={() => setSelectedBackup(null)}
+        onClick={() => setSelectedBackup([])}
         role="none"
       >
         {backupsState === 'SUCCESS' && backups.length > 0 ? (
           <BackupsList
-            backups={backups}
+            items={backups.map((backup) => ({
+              id: backup.folderId,
+              uuid: backup.folderUuid,
+              name: backup.name,
+              tmpPath: backup.tmpPath,
+              backupsBucket: backup.backupsBucket,
+              pathname: backup.pathname,
+            }))}
             selected={selectedBackup}
-            setSelected={setSelectedBackup}
+            setSelected={selectItem}
           />
         ) : (
           <LoadingFolders state={backupsState} />
@@ -61,7 +72,16 @@ export default function BackupFolderSelector({
           <Button
             className="ml-1"
             disabled={selectedBackup === null}
-            onClick={() => disableBackup(selectedBackup as BackupInfo)}
+            onClick={() =>
+              disableBackup({
+                folderId: selectedBackup[0].id,
+                name: selectedBackup[0].name,
+                pathname: selectedBackup[0].pathname,
+                tmpPath: selectedBackup[0].tmpPath,
+                backupsBucket: selectedBackup[0].backupsBucket,
+                folderUuid: selectedBackup[0].uuid,
+              })
+            }
             variant="secondary"
           >
             <UilMinus size="17" />

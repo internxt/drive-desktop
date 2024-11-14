@@ -18,7 +18,7 @@ contextBridge.exposeInMainWorld('electron', {
   },
 
   logger: {
-    info: (...message) => Logger.info(message),
+    info: (...message) => Logger.info(String(message)),
     error: (...message) => Logger.error(message),
     warn: (...message) => Logger.warn(message),
   },
@@ -245,6 +245,10 @@ contextBridge.exposeInMainWorld('electron', {
   getBackupFatalErrors() {
     return ipcRenderer.invoke('get-backup-fatal-errors');
   },
+  getItemByFolderId(folderId) {
+    return ipcRenderer.invoke('get-item-by-folder-id', folderId);
+  },
+
   deleteBackupError(folderId) {
     return ipcRenderer.invoke('delete-backup-error', folderId);
   },
