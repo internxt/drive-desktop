@@ -32,7 +32,6 @@ describe('KyberCrypto', () => {
     const privateKey = keys.privateKey;
 
     const message = 'Hello, Kyber!';
-    const encodedMessage = new TextEncoder().encode(message);
 
     const { encryptedData, secret } = await kyber.encrypt(publicKey);
     expect(encryptedData).toBeDefined();
