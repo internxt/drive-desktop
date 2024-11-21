@@ -414,8 +414,6 @@ ipcMain.handle(
       hasMore = response.hasMore;
       offset += response.result.length;
       folders.push(...response.result);
-
-      Logger.info('Folder', response);
     } while (hasMore);
 
     return folders.map((folder) => ({

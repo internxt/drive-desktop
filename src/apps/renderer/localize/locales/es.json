@@ -314,7 +314,8 @@
       "folders": {
         "no-folders": "No hay carpetas seleccionadas",
         "save": "Guardar",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "error": "No pudimos encontrar la carpeta seleccionada"
       },
       "delete": {
         "title": "Eliminar copia de seguridad",

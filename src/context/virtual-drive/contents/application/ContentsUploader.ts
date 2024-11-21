@@ -36,6 +36,7 @@ export class ContentsUploader {
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
         size: localFileContents.size,
+        fileCreated: localFileContents.birthTime,
         processInfo: { elapsedTime: uploader.elapsedTime(), progress },
       });
     });
@@ -56,6 +57,7 @@ export class ContentsUploader {
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
         size: localFileContents.size,
+        fileCreated: localFileContents.birthTime,
         processInfo: { elapsedTime: uploader.elapsedTime() },
       });
       ipcRenderer.send('CHECK_SYNC');

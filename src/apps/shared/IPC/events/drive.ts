@@ -9,6 +9,7 @@ export type FileInfo = {
   name: string;
   extension: string;
   nameWithExtension: string;
+  fileCreated?: number;
   size: number;
 };
 

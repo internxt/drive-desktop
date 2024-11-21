@@ -11,7 +11,7 @@ export interface BackupContextProps {
   disableBackup: (backup: BackupInfo) => Promise<void>;
   addBackup: () => Promise<void>;
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
-  downloadBackups: (device: Device) => Promise<void>;
+  downloadBackups: (device: Device, foldersId?: number[]) => Promise<void>;
   abortDownloadBackups: (device: Device) => void;
 }
 
@@ -75,9 +75,9 @@ export function useBackups(): BackupContextProps {
     }
   }
 
-  async function downloadBackups(device: Device) {
+  async function downloadBackups(device: Device, foldersId?: number[]) {
     try {
-      await window.electron.downloadBackup(device);
+      await window.electron.downloadBackup(device, foldersId);
     } catch (error) {
       reportError(error);
     }

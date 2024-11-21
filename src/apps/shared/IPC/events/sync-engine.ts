@@ -39,6 +39,7 @@ type FileUpdatePayload = {
   extension: string;
   nameWithExtension: string;
   size: number;
+  fileCreated?: number;
   processInfo: ProcessInfo;
 };
 

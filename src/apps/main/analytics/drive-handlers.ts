@@ -98,7 +98,7 @@ ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   trackError('Download Error', new Error(error), {
     itemType: 'File',
     root: '',
-    from: name,
+    from: name || 'Unknown',
     action: 'Download',
   });
 });

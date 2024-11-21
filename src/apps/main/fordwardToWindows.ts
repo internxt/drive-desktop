@@ -1,8 +1,10 @@
+import Logger from 'electron-log';
 import { broadcastToWindows } from './windows';
 import { ipcMainDrive } from './ipcs/mainDrive';
 import { ipcMainSyncEngine } from './ipcs/ipcMainSyncEngine';
 import { FileErrorInfo } from '../shared/IPC/events/drive';
 import { setIsProcessing } from './remote-sync/handlers';
+import { createAndUploadThumbnail } from './thumbnails/application/create-and-upload-thumbnail';
 
 ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;
@@ -113,9 +115,14 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_UPLOADED', (_, payload) => {
-  const { nameWithExtension } = payload;
+ipcMainDrive.on('FILE_UPLOADED', async (_, payload) => {
+  const { nameWithExtension, fileCreated } = payload;
   // setIsProcessing(false);
+  Logger.info('FILE_UPLOADED', nameWithExtension, fileCreated);
+
+  const id = fileCreated || Date.now();
+
+  await createAndUploadThumbnail(id, nameWithExtension);
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADED',
     name: nameWithExtension,

@@ -310,7 +310,8 @@
       "folders": {
         "no-folders": "Pas encore de sauvegardes",
         "save": "Sauvegarder",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "error": "Nous n’avons pas trouvé le dossier sélectionné"
       },
       "delete": {
         "title": "Supprimer la sauvegarde",

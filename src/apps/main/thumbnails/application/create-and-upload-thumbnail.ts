@@ -6,18 +6,29 @@ import { reziseImage } from './resize-image';
 import * as Sentry from '@sentry/electron/main';
 
 export async function createAndUploadThumbnail(id: number, name: string) {
-  const uploader = ThumbnailUploaderFactory.build();
+  Logger.info(`[THUMBNAIL] Creating thumbnail for ${name}`);
 
-  const image = await obtainImageToThumbnailIt(name);
+  try {
+    const uploader = ThumbnailUploaderFactory.build();
 
-  if (!image) {
-    return;
-  }
+    const image = await obtainImageToThumbnailIt(name);
+    if (!image) {
+      Logger.warn(
+        `[THUMBNAIL] No image found to create a thumbnail for ${name}`
+      );
+      return;
+    }
 
-  const thumbnail = await reziseImage(image);
+    Logger.info(`[THUMBNAIL] Resizing thumbnail for ${name}`);
+    const thumbnail = await reziseImage(image);
 
-  await uploader.upload(id, thumbnail).catch((err) => {
-    Logger.error('[THUMBNAIL] Error uploading thumbnail: ', err);
+    Logger.info(`[THUMBNAIL] Uploading thumbnail for ${name}`);
+    await uploader.upload(id, thumbnail).catch((err) => {
+      Logger.error('[THUMBNAIL] Error uploading thumbnail: ', err);
+      Sentry.captureException(err);
+    });
+  } catch (err) {
+    Logger.error('[THUMBNAIL] Error processing thumbnail: ', err);
     Sentry.captureException(err);
-  });
+  }
 }

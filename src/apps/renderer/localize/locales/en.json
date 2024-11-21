@@ -313,9 +313,10 @@
         }
       },
       "folders": {
-        "no-folders": "No backups yet",
+        "no-folders": "empty folder, no folder available",
         "save": "Save",
-        "cancel": "Cancel"
+        "cancel": "Cancel",
+        "error": "We could not load your backups"
       },
       "delete": {
         "title": "Delete backup",

@@ -1,4 +1,4 @@
-import { UilMinus, UilPlus } from '@iconscout/react-unicons';
+import { UilArrowLeft } from '@iconscout/react-unicons';
 import { useContext, useState } from 'react';
 import Button from '../../../../components/Button';
 import { useTranslationContext } from '../../../../context/LocalContext';
@@ -13,24 +13,43 @@ interface DownloadFolderSelectorProps {
   onClose: () => void;
 }
 
+function truncateText(text: string, maxLength: number) {
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, maxLength)}...`;
+}
+
 export default function DownloadFolderSelector({
   onClose,
 }: DownloadFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const { backups, backupsState } = useContext(BackupContext);
+  const {
+    backups,
+    backupsState,
+    downloadBackups,
+    abortDownloadBackups,
+    thereIsDownloadProgress,
+    clearBackupDownloadProgress,
+  } = useContext(BackupContext);
+
   const { selected } = useContext(DeviceContext);
 
-  const [folderId, setFolderId] = useState<number>(selected?.id || 0);
+  const [folderHistory, setFolderHistory] = useState<ItemBackup[]>([]);
+  const [folder, setFolder] = useState<ItemBackup>({
+    id: selected?.id || 0,
+    uuid: selected?.uuid || '',
+    name: selected?.name || '',
+    pathname: '',
+    backupsBucket: '',
+    tmpPath: '',
+  });
 
-  const items = useGetItems(folderId);
+  const items = useGetItems(folder.id);
 
   window.electron.logger.info(backups);
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
-  // obtener los items de la lista de backups segundo el id del folder
 
   const addOrDeleteItem = (backup: ItemBackup) => {
-    //add or delete item from selectedBackup
     if (selectedBackup.find((item) => item.id === backup.id)) {
       setSelectedBackup(selectedBackup.filter((item) => item.id !== backup.id));
     } else {
@@ -38,10 +57,50 @@ export default function DownloadFolderSelector({
     }
   };
 
+  const handleBack = () => {
+    if (folderHistory.length > 0) {
+      const previousFolderId = folderHistory[folderHistory.length - 1];
+      setFolderHistory(folderHistory.slice(0, -1));
+      setFolder(previousFolderId);
+    }
+  };
+
+  const handleNavigateToFolder = (newFolder: ItemBackup) => {
+    setFolderHistory([...folderHistory, folder]);
+    setFolder(newFolder);
+  };
+
+  const handleDownloadBackup = async () => {
+    if (!thereIsDownloadProgress) {
+      const folderIds = selectedBackup.map((item) => item.id);
+      await downloadBackups(selected!, folderIds);
+      onClose();
+    } else {
+      try {
+        abortDownloadBackups(selected!);
+        onClose();
+      } catch (err) {
+        // error while aborting (aborting also throws an exception itself)
+      } finally {
+        setTimeout(() => {
+          clearBackupDownloadProgress(selected!.uuid);
+        }, 600);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3 p-4">
       <div className="flex">
-        <h1 className="text-lg font-normal">{selected?.name}</h1>
+        {folderHistory.length > 0 && (
+          <button onClick={handleBack} className="mr-2">
+            <UilArrowLeft size={24} />
+          </button>
+        )}
+        <h1 className="text-lg font-normal">
+          {truncateText(selected?.name || '', 50)}{' '}
+          {folderHistory.length > 0 && ` > ${truncateText(folder.name, 50)}`}
+        </h1>
         <div className="ml-auto text-gray-50">
           {backupsState === 'SUCCESS' &&
             translate('settings.backups.selected-folder', {
@@ -49,20 +108,16 @@ export default function DownloadFolderSelector({
             })}{' '}
         </div>
       </div>
-      <div
-        className="border-l-neutral-30 h-72 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black"
-        // onClick={() => setSelectedBackup(null)}
-        // role="none"
-      >
+      <div className="border-l-neutral-30 h-72 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black">
         {selected && items.length > 0 ? (
           <BackupsList
             items={items}
             selected={selectedBackup}
             setSelected={addOrDeleteItem}
-            onDobleClick={(b) => setFolderId(b.id)}
+            onDobleClick={handleNavigateToFolder}
           />
         ) : (
-          <LoadingFolders state="LOADING" />
+          <LoadingFolders state={backupsState} />
         )}
       </div>
       <div className=" flex items-center justify-end">
@@ -70,8 +125,12 @@ export default function DownloadFolderSelector({
           <Button onClick={onClose} variant="secondary">
             {translate('settings.backups.folders.cancel')}
           </Button>
-          <Button onClick={onClose}>
-            {translate('settings.backups.folders.save')}
+          <Button
+            onClick={handleDownloadBackup}
+            className={'hover:cursor-pointer'}
+            variant={thereIsDownloadProgress ? 'danger' : 'primary'}
+          >
+            {thereIsDownloadProgress ? 'Stop download' : 'Download'}
           </Button>
         </span>
       </div>
