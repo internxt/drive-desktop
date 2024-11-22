@@ -7,7 +7,12 @@ import path from 'path';
 import { IpcMainEvent, ipcMain } from 'electron';
 import fs from 'fs';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
-import { getHeaders, getNewApiHeaders, getUser } from '../auth/service';
+import {
+  getHeaders,
+  getNewApiHeaders,
+  getUser,
+  setUser,
+} from '../auth/service';
 import { addGeneralIssue } from '../background-processes/process-issues';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
@@ -197,6 +202,13 @@ export async function getBackupsFromDevice(
 
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
+
+    const user = getUser();
+
+    if (user && !user?.backupsBucket) {
+      user.backupsBucket = device.bucket;
+      setUser(user);
+    }
 
     return folder.children
       .filter((backup: Backup) => {

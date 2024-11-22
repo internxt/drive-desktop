@@ -5,6 +5,9 @@ import { ipcMainSyncEngine } from './ipcs/ipcMainSyncEngine';
 import { FileErrorInfo } from '../shared/IPC/events/drive';
 import { setIsProcessing } from './remote-sync/handlers';
 import { createAndUploadThumbnail } from './thumbnails/application/create-and-upload-thumbnail';
+import configStore from './config';
+import path from 'path';
+import { isAbsolutePath } from './util';
 
 ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;
@@ -116,22 +119,29 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
 });
 
 ipcMainDrive.on('FILE_UPLOADED', async (_, payload) => {
-  const { nameWithExtension, fileCreated } = payload;
-  // setIsProcessing(false);
-  Logger.info('FILE_UPLOADED', nameWithExtension, fileCreated);
+  const { nameWithExtension } = payload;
 
-  const id = fileCreated || Date.now();
-
-  await createAndUploadThumbnail(id, nameWithExtension);
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADED',
     name: nameWithExtension,
   });
 });
 
-ipcMainDrive.on('FILE_CREATED', (_, payload) => {
-  const { nameWithExtension } = payload;
-  // setIsProcessing(false);
+ipcMainDrive.on('FILE_CREATED', async (_, payload) => {
+  Logger.info('FILE_CREATED');
+  const { nameWithExtension, fileId } = payload;
+
+  let fullPath = payload.path;
+
+  Logger.info('FILE_CREATED', fullPath);
+  Logger.info('FILE_CREATED', isAbsolutePath(fullPath));
+
+  if (!path.isAbsolute(fullPath)) {
+    const root = configStore.get('syncRoot');
+    fullPath = path.join(root, fullPath);
+  }
+
+  await createAndUploadThumbnail(fileId, nameWithExtension, fullPath);
 
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADED',

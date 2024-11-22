@@ -1,20 +1,58 @@
 import Logger from 'electron-log';
-import { createReadStream } from 'fs';
 import path from 'path';
-import { Readable } from 'stream';
-
-import configStore from '../../config';
 import {
   isImageThumbnailable,
   isPdfThumbnailable,
 } from '../domain/ThumbnableExtension';
-import { extractFirstPageAsReadablePNG } from './extract-pdf-page';
+import sharp from 'sharp';
+import { PDFDocument } from 'pdf-lib';
+import fs from 'fs';
 
-interface ThumbnailGenerated {
-  file: File | null;
-  max_width: number;
-  max_height: number;
-  type: string;
+export const ThumbnailConfig = {
+  MaxWidth: 300,
+  MaxHeight: 300,
+  Quality: 100,
+  Type: 'png',
+};
+
+async function generatePDFThumbnail(filePath: string): Promise<Buffer> {
+  const fileBuffer = fs.readFileSync(filePath);
+  const pdfDoc = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
+
+  const [page] = pdfDoc.getPages();
+  const { width, height } = page.getSize();
+
+  const scale = Math.min(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight);
+  const thumbnailWidth = width * scale;
+  const thumbnailHeight = height * scale;
+
+  const thumbnailDoc = await PDFDocument.create();
+  const copiedPage = await thumbnailDoc.copyPages(pdfDoc, [0]);
+  const thumbnailPage = copiedPage[0];
+
+  thumbnailPage.setSize(thumbnailWidth, thumbnailHeight);
+  thumbnailDoc.addPage(thumbnailPage);
+
+  const thumbnailUint8Array = await thumbnailDoc.save();
+
+  // Usar sharp para convertir la página a PNG
+  const pngBuffer = await sharp(thumbnailUint8Array)
+    .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight, {
+      fit: 'inside', // Ajustar dentro de las dimensiones
+    })
+    .toFormat('png')
+    .toBuffer();
+
+  return pngBuffer;
+}
+
+async function generateImageThumbnail(filePath: string): Promise<Buffer> {
+  return await sharp(filePath)
+    .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight, {
+      fit: 'inside',
+    })
+    .toFormat('png')
+    .toBuffer();
 }
 
 function getExtension(pathLike: string) {
@@ -24,73 +62,19 @@ function getExtension(pathLike: string) {
 }
 
 export async function obtainImageToThumbnailIt(
-  name: string
-): Promise<Readable | undefined> {
-  const ext = getExtension(name);
-
-  const root = configStore.get('syncRoot');
-  const filePath = path.join(root, name);
-
-  Logger.info(`[THUMBNAIL] Obtaining image to thumbnail: ${filePath}`);
+  filePath: string
+): Promise<Buffer | undefined> {
+  const ext = getExtension(filePath);
 
   Logger.info(`[THUMBNAIL] Extension: ${ext}`);
 
-  if (isPdfThumbnailable(ext)) {
-    return extractFirstPageAsReadablePNG(filePath);
+  if (isImageThumbnailable(ext)) {
+    return await generateImageThumbnail(filePath);
   }
 
-  if (isImageThumbnailable(ext)) {
-    return createReadStream(filePath);
+  if (isPdfThumbnailable(ext)) {
+    return await generatePDFThumbnail(filePath);
   }
 
   return undefined;
 }
-
-// const getImageThumbnail = (file: File): Promise<ThumbnailGenerated['file']> => {
-//   return new Promise((resolve) => {
-//     Resizer.imageFileResizer(
-//       file,
-//       ThumbnailConfig.MaxWidth,
-//       ThumbnailConfig.MaxHeight,
-//       ThumbnailConfig.Type,
-//       ThumbnailConfig.Quality,
-//       0,
-//       (uri) => {
-//         if (uri && uri instanceof File) resolve(uri);
-//         else resolve(null);
-//       },
-//       'file'
-//     );
-//   });
-// };
-
-// const getPDFThumbnail = async (
-//   file: File
-// ): Promise<ThumbnailGenerated['file']> => {
-//   const loadingTask = pdfjs.getDocument(await file.arrayBuffer());
-//   const pdfDocument = await loadingTask.promise;
-//   const page = await pdfDocument.getPage(1);
-//   const viewport = page.getViewport({ scale: 1.0 });
-
-//   const canvas = document.createElement('canvas');
-//   canvas.width = viewport.width;
-//   canvas.height = viewport.height;
-//   const canvasContext = canvas.getContext('2d', { alpha: false });
-
-//   if (canvasContext) {
-//     const renderTask = page.render({ canvasContext, viewport });
-//     await renderTask.promise;
-//     await loadingTask.destroy();
-//     return new Promise((resolve) => {
-//       // Convert the canvas to an image buffer.
-//       canvas.toBlob((blob: Blob | null) => {
-//         if (blob) {
-//           resolve(new File([blob], ''));
-//         } else {
-//           resolve(null);
-//         }
-//       });
-//     });
-//   }
-//   return null;
-// };

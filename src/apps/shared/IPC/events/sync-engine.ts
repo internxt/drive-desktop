@@ -39,7 +39,6 @@ type FileUpdatePayload = {
   extension: string;
   nameWithExtension: string;
   size: number;
-  fileCreated?: number;
   processInfo: ProcessInfo;
 };
 
@@ -58,7 +57,10 @@ export type FilesEvents = {
     name: string;
     extension: string;
     nameWithExtension: string;
+    fileId: number;
+    path: string;
   }) => void;
+
   FILE_DOWNLOAD_ERROR: (payload: {
     name: string;
     extension: string;

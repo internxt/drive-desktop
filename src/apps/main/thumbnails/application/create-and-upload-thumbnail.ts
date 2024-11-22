@@ -2,16 +2,28 @@ import Logger from 'electron-log';
 
 import { ThumbnailUploaderFactory } from '../infrastructure/ThumbnailUploaderFactory';
 import { obtainImageToThumbnailIt } from './obtain-image-to-thumbnail-it';
-import { reziseImage } from './resize-image';
 import * as Sentry from '@sentry/electron/main';
 
-export async function createAndUploadThumbnail(id: number, name: string) {
-  Logger.info(`[THUMBNAIL] Creating thumbnail for ${name}`);
+export interface ThumbnailToUpload {
+  fileId: number;
+  size: number;
+  max_width: number;
+  max_height: number;
+  type: string;
+  content: Buffer;
+}
+
+export async function createAndUploadThumbnail(
+  fileId: number,
+  name: string,
+  path: string
+) {
+  Logger.info(`[THUMBNAIL] Uploading thumbnail for ${path}`);
 
   try {
     const uploader = ThumbnailUploaderFactory.build();
 
-    const image = await obtainImageToThumbnailIt(name);
+    const image = await obtainImageToThumbnailIt(path);
     if (!image) {
       Logger.warn(
         `[THUMBNAIL] No image found to create a thumbnail for ${name}`
@@ -19,14 +31,9 @@ export async function createAndUploadThumbnail(id: number, name: string) {
       return;
     }
 
-    Logger.info(`[THUMBNAIL] Resizing thumbnail for ${name}`);
-    const thumbnail = await reziseImage(image);
-
     Logger.info(`[THUMBNAIL] Uploading thumbnail for ${name}`);
-    await uploader.upload(id, thumbnail).catch((err) => {
-      Logger.error('[THUMBNAIL] Error uploading thumbnail: ', err);
-      Sentry.captureException(err);
-    });
+
+    await uploader.upload(fileId, image);
   } catch (err) {
     Logger.error('[THUMBNAIL] Error processing thumbnail: ', err);
     Sentry.captureException(err);
