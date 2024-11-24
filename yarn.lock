@@ -2437,6 +2437,13 @@
   resolved "https://registry.npmjs.org/@types/chance/-/chance-1.1.3.tgz"
   integrity sha512-X6c6ghhe4/sQh4XzcZWSFaTAUOda38GQHmq9BUanYkOE/EO7ZrkazwKmtsj3xzTjkLWmwULE++23g3d3CCWaWw==
 
+"@types/clamscan@^2.4.0":
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/@types/clamscan/-/clamscan-2.4.0.tgz#704f6e8c192040d70e6e04a0c22a474c5c28ac78"
+  integrity sha512-wqYy+klgBWqCFAMNZsJrb5Q4d0VIjMPk2lfGsq5jHMPyq8E61YLOV+3VNrvoJdbNmzVIXGIc9npb0Tjw+MXEfw==
+  dependencies:
+    "@types/node" "*"
+
 "@types/connect-history-api-fallback@^1.3.5":
   version "1.5.0"
   resolved "https://registry.npmjs.org/@types/connect-history-api-fallback/-/connect-history-api-fallback-1.5.0.tgz"
@@ -4104,6 +4111,11 @@ cjs-module-lexer@^1.0.0:
   version "1.2.3"
   resolved "https://registry.npmjs.org/cjs-module-lexer/-/cjs-module-lexer-1.2.3.tgz"
   integrity sha512-0TNiGstbQmCFwt4akjjBg5pLRTSyj/PkWQ1ZoO2zntmg9yLqSRxwEa4iCfQLGjqhiqBfOJa7W/E8wfGrTDmlZQ==
+
+clamscan@^2.4.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/clamscan/-/clamscan-2.4.0.tgz#0abca6e5a96628151dbacc1152233d2d388ab82a"
+  integrity sha512-XBOxUiGOcQGuKmCn5qaM5rIK153fGCwsvJMbjVtcnNJ+j/YHrSj2gKNjyP65yr/E8JsKTTDtKYFG++p7Lzigyw==
 
 clean-css@^5.2.2:
   version "5.3.2"
