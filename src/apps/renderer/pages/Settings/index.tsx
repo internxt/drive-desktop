@@ -8,6 +8,7 @@ import Header, { Section } from './Header';
 import { DeviceProvider } from '../../context/DeviceContext';
 import { BackupProvider } from '../../context/BackupContext';
 import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
+import AntivirusSection from './Antivirus';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
@@ -59,6 +60,7 @@ export default function Settings() {
                   showBackedFolders={() => setSubsection('list')}
                   showIssues={() => window.electron.openProcessIssuesWindow()}
                 />
+                <AntivirusSection active={activeSection === 'ANTIVIRUS'} />
               </div>
             </>
           )}
