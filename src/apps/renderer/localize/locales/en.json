@@ -223,7 +223,8 @@
       "section": {
         "GENERAL": "general",
         "ACCOUNT": "account",
-        "BACKUPS": "backups"
+        "BACKUPS": "backups",
+        "ANTIVIRUS": "Antivirus"
       }
     },
     "general": {
@@ -345,6 +346,7 @@
     "tabs": {
       "sync": "Sync",
       "backups": "Backups",
+      "antivirus": "Antivirus",
       "general": "General"
     },
     "no-issues": "No issues found",

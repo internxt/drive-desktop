@@ -223,7 +223,8 @@
       "section": {
         "GENERAL": "General",
         "ACCOUNT": "Cuenta",
-        "BACKUPS": "Backups"
+        "BACKUPS": "Backups",
+        "ANTIVIRUS": "Antivirus"
       }
     },
     "general": {

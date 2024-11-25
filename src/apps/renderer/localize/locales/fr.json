@@ -220,7 +220,8 @@
       "section": {
         "GENERAL": "Général",
         "ACCOUNT": "Compte",
-        "BACKUPS": "Sauvegardes"
+        "BACKUPS": "Sauvegardes",
+        "ANTIVIRUS": "Antivirus"
       }
     },
     "general": {
