@@ -7,6 +7,5 @@ export type Usage = {
 
 export type RawUsage = {
   driveUsage: number;
-  photosUsage: number;
   limitInBytes: number;
 };
