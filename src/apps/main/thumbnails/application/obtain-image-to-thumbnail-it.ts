@@ -5,7 +5,6 @@ import {
   isPdfThumbnailable,
 } from '../domain/ThumbnableExtension';
 import sharp from 'sharp';
-import { PDFDocument } from 'pdf-lib';
 import fs from 'fs';
 
 export const ThumbnailConfig = {
@@ -15,35 +14,31 @@ export const ThumbnailConfig = {
   Type: 'png',
 };
 
-async function generatePDFThumbnail(filePath: string): Promise<Buffer> {
-  const fileBuffer = fs.readFileSync(filePath);
-  const pdfDoc = await PDFDocument.load(fileBuffer, { ignoreEncryption: true });
+const PAGE_TO_PDF_THUMBNAIL = 1;
 
-  const [page] = pdfDoc.getPages();
-  const { width, height } = page.getSize();
+async function generatePDFThumbnail(pdfPath: string): Promise<Buffer> {
+  return new Promise<Buffer>((resolve, reject) => {
+    const pdfThumbnailPath = `${pdfPath}_thumbnail.png`;
 
-  const scale = Math.min(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight);
-  const thumbnailWidth = width * scale;
-  const thumbnailHeight = height * scale;
-
-  const thumbnailDoc = await PDFDocument.create();
-  const copiedPage = await thumbnailDoc.copyPages(pdfDoc, [0]);
-  const thumbnailPage = copiedPage[0];
-
-  thumbnailPage.setSize(thumbnailWidth, thumbnailHeight);
-  thumbnailDoc.addPage(thumbnailPage);
-
-  const thumbnailUint8Array = await thumbnailDoc.save();
-
-  // Usar sharp para convertir la página a PNG
-  const pngBuffer = await sharp(thumbnailUint8Array)
-    .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight, {
-      fit: 'inside', // Ajustar dentro de las dimensiones
+    const pdfThumbnailStream = sharp(pdfPath, {
+      density: 300,
+      page: PAGE_TO_PDF_THUMBNAIL,
     })
-    .toFormat('png')
-    .toBuffer();
+      .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight, {
+        fit: 'inside',
+      })
+      .toFormat('png');
 
-  return pngBuffer;
+    pdfThumbnailStream.toFile(pdfThumbnailPath, (err) => {
+      if (err) {
+        reject(err);
+      }
+
+      const pdfThumbnail = fs.readFileSync(pdfThumbnailPath);
+
+      resolve(pdfThumbnail);
+    });
+  });
 }
 
 async function generateImageThumbnail(filePath: string): Promise<Buffer> {
@@ -72,9 +67,9 @@ export async function obtainImageToThumbnailIt(
     return await generateImageThumbnail(filePath);
   }
 
-  if (isPdfThumbnailable(ext)) {
-    return await generatePDFThumbnail(filePath);
-  }
+  // if (isPdfThumbnailable(ext)) {
+  //   return await generatePDFThumbnail(filePath);
+  // }
 
   return undefined;
 }

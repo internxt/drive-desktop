@@ -13,7 +13,7 @@ export class DownloadFileController extends CallbackController {
     super();
   }
 
-  private MAX_RETRY = 0;
+  private MAX_RETRY = 3;
   private RETRY_DELAY = 100;
 
   private async action(

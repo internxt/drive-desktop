@@ -294,7 +294,6 @@
     "lottie-react": "^2.4.0",
     "multipipe": "^4.0.0",
     "node-schedule": "^2.1.0",
-    "pdf-lib": "^1.17.1",
     "phosphor-react": "^1.4.1",
     "react": "^17.0.2",
     "react-auth-code-input": "^3.2.0",
