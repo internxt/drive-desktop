@@ -306,11 +306,13 @@
       "frequency": {
         "title": "Upload frequency",
         "options": {
+          "1h": "Every hour",
           "6h": "Every 6 hours",
           "12h": "Every 12 hours",
           "24h": "Every day",
           "manually": "Backup manually"
-        }
+        },
+        "warning":"Folders won't automatically backup until you click 'Backup now'. This mode is not recommended."
       },
       "folders": {
         "no-folders": "empty folder, no folder available",

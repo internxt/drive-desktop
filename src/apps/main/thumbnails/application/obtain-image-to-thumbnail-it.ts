@@ -4,7 +4,7 @@ import {
   isImageThumbnailable,
   isPdfThumbnailable,
 } from '../domain/ThumbnableExtension';
-import sharp from 'sharp';
+// import sharp from 'sharp';
 import fs from 'fs';
 
 export const ThumbnailConfig = {
@@ -16,39 +16,39 @@ export const ThumbnailConfig = {
 
 const PAGE_TO_PDF_THUMBNAIL = 1;
 
-async function generatePDFThumbnail(pdfPath: string): Promise<Buffer> {
-  return new Promise<Buffer>((resolve, reject) => {
-    const pdfThumbnailPath = `${pdfPath}_thumbnail.png`;
+// async function generatePDFThumbnail(pdfPath: string): Promise<Buffer> {
+//   return new Promise<Buffer>((resolve, reject) => {
+//     const pdfThumbnailPath = `${pdfPath}_thumbnail.png`;
 
-    const pdfThumbnailStream = sharp(pdfPath, {
-      density: 300,
-      page: PAGE_TO_PDF_THUMBNAIL,
-    })
-      .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight, {
-        fit: 'inside',
-      })
-      .toFormat('png');
+//     const pdfThumbnailStream = sharp(pdfPath, {
+//       density: 300,
+//       page: PAGE_TO_PDF_THUMBNAIL,
+//     })
+//       .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight, {
+//         fit: 'inside',
+//       })
+//       .toFormat('png');
 
-    pdfThumbnailStream.toFile(pdfThumbnailPath, (err) => {
-      if (err) {
-        reject(err);
-      }
+//     pdfThumbnailStream.toFile(pdfThumbnailPath, (err) => {
+//       if (err) {
+//         reject(err);
+//       }
 
-      const pdfThumbnail = fs.readFileSync(pdfThumbnailPath);
+//       const pdfThumbnail = fs.readFileSync(pdfThumbnailPath);
 
-      resolve(pdfThumbnail);
-    });
-  });
-}
+//       resolve(pdfThumbnail);
+//     });
+//   });
+// }
 
-async function generateImageThumbnail(filePath: string): Promise<Buffer> {
-  return await sharp(filePath)
-    .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight, {
-      fit: 'inside',
-    })
-    .toFormat('png')
-    .toBuffer();
-}
+// async function generateImageThumbnail(filePath: string): Promise<Buffer> {
+//   return await sharp(filePath)
+//     .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight, {
+//       fit: 'inside',
+//     })
+//     .toFormat('png')
+//     .toBuffer();
+// }
 
 function getExtension(pathLike: string) {
   const { ext } = path.parse(pathLike);
@@ -63,9 +63,9 @@ export async function obtainImageToThumbnailIt(
 
   Logger.info(`[THUMBNAIL] Extension: ${ext}`);
 
-  if (isImageThumbnailable(ext)) {
-    return await generateImageThumbnail(filePath);
-  }
+  // if (isImageThumbnailable(ext)) {
+  //   return await generateImageThumbnail(filePath);
+  // }
 
   // if (isPdfThumbnailable(ext)) {
   //   return await generatePDFThumbnail(filePath);
