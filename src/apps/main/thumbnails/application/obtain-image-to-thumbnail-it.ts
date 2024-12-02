@@ -4,8 +4,7 @@ import {
   isImageThumbnailable,
   isPdfThumbnailable,
 } from '../domain/ThumbnableExtension';
-// import sharp from 'sharp';
-import fs from 'fs';
+import { nativeImage } from 'electron';
 
 export const ThumbnailConfig = {
   MaxWidth: 300,
@@ -50,6 +49,22 @@ const PAGE_TO_PDF_THUMBNAIL = 1;
 //     .toBuffer();
 // }
 
+async function generateImageThumbnail(filePath: string): Promise<Buffer> {
+  const image = nativeImage.createFromPath(filePath);
+
+  if (!image.isEmpty()) {
+    // Redimensionar la imagen manteniendo el aspecto
+    const resizedImage = image.resize({ width: ThumbnailConfig.MaxHeight });
+
+    // Obtener el buffer como PNG
+    const buffer = resizedImage.toPNG();
+
+    return buffer; // Devolver el buffer
+  } else {
+    throw new Error('No se pudo cargar la imagen.');
+  }
+}
+
 function getExtension(pathLike: string) {
   const { ext } = path.parse(pathLike);
 
@@ -63,9 +78,9 @@ export async function obtainImageToThumbnailIt(
 
   Logger.info(`[THUMBNAIL] Extension: ${ext}`);
 
-  // if (isImageThumbnailable(ext)) {
-  //   return await generateImageThumbnail(filePath);
-  // }
+  if (isImageThumbnailable(ext)) {
+    return await generateImageThumbnail(filePath);
+  }
 
   // if (isPdfThumbnailable(ext)) {
   //   return await generatePDFThumbnail(filePath);

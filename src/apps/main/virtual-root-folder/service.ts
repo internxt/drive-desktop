@@ -11,15 +11,6 @@ const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
-async function existsFolder(pathname: string): Promise<boolean> {
-  try {
-    await fs.access(pathname);
-
-    return true;
-  } catch {
-    return false;
-  }
-}
 
 export async function clearDirectory(pathname: string): Promise<boolean> {
   try {
@@ -32,11 +23,6 @@ export async function clearDirectory(pathname: string): Promise<boolean> {
   }
 }
 
-async function isEmptyFolder(pathname: string): Promise<boolean> {
-  const filesInFolder = await fs.readdir(pathname);
-
-  return filesInFolder.length === 0;
-}
 
 function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd =

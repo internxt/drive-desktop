@@ -136,10 +136,13 @@ ipcMainDrive.on('FILE_CREATED', async (_, payload) => {
   Logger.info('FILE_CREATED', fullPath);
   Logger.info('FILE_CREATED', isAbsolutePath(fullPath));
 
-  if (!path.isAbsolute(fullPath)) {
+  if (!isAbsolutePath(fullPath)) {
     const root = configStore.get('syncRoot');
+    Logger.info('FILE_CREATED', root);
     fullPath = path.join(root, fullPath);
   }
+
+  Logger.info('FILE_CREATED', fullPath);
 
   await createAndUploadThumbnail(fileId, nameWithExtension, fullPath);
 
