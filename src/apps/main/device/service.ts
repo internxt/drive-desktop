@@ -13,6 +13,8 @@ import { downloadFolderAsZip } from '../network/download';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { broadcastToWindows } from '../windows';
 import { ipcMain } from 'electron';
+import { DependencyInjectionUserProvider } from '../../shared/dependency-injection/DependencyInjectionUserProvider';
+import { BackupsDependencyContainerFactory } from '../../backups/dependency-injection/BackupsDependencyContainerFactory';
 
 export type Device = {
   id: number;
@@ -112,6 +114,12 @@ export async function getOrCreateDevice() {
     configStore.set('deviceId', newDevice.id);
     configStore.set('backupList', {});
     const device = decryptDeviceName(newDevice);
+    const user = DependencyInjectionUserProvider.get();
+    user.backupsBucket = newDevice.bucket;
+    DependencyInjectionUserProvider.updateUser(user);
+
+    await BackupsDependencyContainerFactory.reinitialize();
+
     logger.info(`[DEVICE] Created device with name "${device.name}"`);
 
     return device;

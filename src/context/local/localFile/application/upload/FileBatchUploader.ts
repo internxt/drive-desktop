@@ -6,6 +6,7 @@ import { RemoteTree } from '../../../../virtual-drive/remoteTree/domain/RemoteTr
 import { relative } from '../../../../../apps/backups/utils/relative';
 import { LocalFileMessenger } from '../../domain/LocalFileMessenger';
 import { isFatalError } from '../../../../../shared/issues/SyncErrorCause';
+import Logger from 'electron-log';
 
 @Service()
 export class FileBatchUploader {
@@ -31,6 +32,7 @@ export class FileBatchUploader {
 
       if (uploadEither.isLeft()) {
         const error = uploadEither.getLeft();
+        Logger.error('[FILE UPLOAD FAILED]', error);
 
         if (isFatalError(error.cause)) {
           throw error;
@@ -56,6 +58,7 @@ export class FileBatchUploader {
       );
 
       if (either.isLeft()) {
+        Logger.debug('[FILE CREATION FAILED]');
         // eslint-disable-next-line no-await-in-loop
         await this.localHandler.delete(contentsId);
         const error = either.getLeft();

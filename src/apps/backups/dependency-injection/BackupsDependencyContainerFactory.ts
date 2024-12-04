@@ -9,7 +9,13 @@ import { registerRemoteTreeServices } from './virtual-drive/registerRemoteTreeSe
 import { registerUserUsageServices } from './user/registerUsageServices';
 
 export class BackupsDependencyContainerFactory {
+  private static container: Container | null = null;
+
   static async build(): Promise<Container> {
+    if (this.container) {
+      return this.container;
+    }
+
     const builder = await backgroundProcessSharedInfraBuilder();
 
     await registerFilesServices(builder);
@@ -23,8 +29,13 @@ export class BackupsDependencyContainerFactory {
 
     builder.registerAndUse(Backup);
 
-    const container = builder.build();
+    this.container = builder.build();
 
-    return container;
+    return this.container;
+  }
+
+  static async reinitialize(): Promise<Container> {
+    this.container = null;
+    return this.build();
   }
 }

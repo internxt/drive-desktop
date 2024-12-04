@@ -24,7 +24,7 @@ export function buildUsageService() {
     }
   );
 
-  return new UserUsageService(
-    storage,
-  );
+  console.log('STORAGE CLIENT', storage);
+
+  return new UserUsageService(storage);
 }
