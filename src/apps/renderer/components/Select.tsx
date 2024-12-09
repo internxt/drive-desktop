@@ -15,33 +15,24 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export default function Select(props: SelectProps) {
-  const SelectItem = ({
-    value,
-    name,
-    ...props
-  }: {
-    value: string;
-    name: string;
-  }) => (
+  const SelectItem = ({ value, name }: { value: string; name: string }) => (
     <RadixSelect.Item
       value={value}
       className="flex h-7 items-center justify-start space-x-1 rounded-md pl-1.5 pr-4 outline-none data-[highlighted]:bg-primary data-[highlighted]:text-white"
-      {...props}
     >
       <div className="flex w-4 items-center">
         <RadixSelect.ItemIndicator>
           <Check size={14} weight="bold" />
         </RadixSelect.ItemIndicator>
       </div>
-
       <RadixSelect.ItemText className="truncate">{name}</RadixSelect.ItemText>
     </RadixSelect.Item>
   );
 
   return (
     <RadixSelect.Root
+      value={props.value}
       onValueChange={props.onValueChange}
-      defaultValue={props.value}
       disabled={props.disabled}
     >
       <RadixSelect.Trigger

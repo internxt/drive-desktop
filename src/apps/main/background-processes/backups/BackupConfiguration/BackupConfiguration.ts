@@ -79,6 +79,7 @@ export const backupsConfig = new BackupConfiguration();
 
 export function setupBackupConfig(): BackupConfiguration {
   ipcMain.handle('get-backups-interval', () => {
+    Logger.debug('Getting backup interval', backupsConfig.backupInterval);
     return backupsConfig.backupInterval;
   });
 

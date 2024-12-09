@@ -26,7 +26,7 @@ export class FolderPathUpdater {
     Logger.debug('desired path', desiredPath);
     Logger.debug('folder', folder.attributes());
 
-    const dirnameChanged = folder.dirname !== desiredPath.dirname();
+    const dirnameChanged = folder.dirname.dirname() !== desiredPath.dirname();
     const nameChanged = folder.name !== desiredPath.name();
 
     if (dirnameChanged && nameChanged) {

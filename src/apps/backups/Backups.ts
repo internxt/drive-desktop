@@ -123,13 +123,10 @@ export class Backup {
 
     const { added, deleted } = diff;
 
-    const deleteFolder = await this.deleteRemoteFolders(
-      deleted,
-      abortController
-    );
+    const deleteFolder = this.deleteRemoteFolders(deleted, abortController);
 
     Logger.debug('[BACKUPS] start upload', deleted.length);
-    const uploadFolder = await this.uploadAndCreateFolder(
+    const uploadFolder = this.uploadAndCreateFolder(
       local.root.path,
       added,
       remote
@@ -290,12 +287,22 @@ export class Backup {
         continue;
       }
 
-      const folder = await this.simpleFolderCreator.run(
-        relativePath,
-        parent.id
-      );
+      try {
+        const folder = await this.simpleFolderCreator.run(
+          relativePath,
+          parent.id
+        );
 
-      tree.addFolder(parent, folder);
+        tree.addFolder(parent, folder);
+      } catch (error) {
+        Logger.error('[BACKUPS] Error creating folder', error);
+        if (error instanceof DriveDesktopError) {
+          Logger.error('[BACKUPS] Error creating folder', {
+            cause: error.cause,
+          });
+          throw error;
+        }
+      }
 
       this.backed++;
       BackupsIPCRenderer.send('backups.progress-update', this.backed);

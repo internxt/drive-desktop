@@ -671,14 +671,6 @@ export class RemoteSyncManager {
         `Received ${allFilesResponse.data.result.length} fetched files`
       );
     } else {
-      // Logger.info(
-      //   `Expected to receive an array of files, but instead received ${JSON.stringify(
-      //     allFilesResponse,
-      //     null,
-      //     2
-      //   )}`
-      // );
-
       throw new Error('Did not receive an array of files');
     }
 
@@ -719,7 +711,7 @@ export class RemoteSyncManager {
     return response;
   };
 
-  private fetchItemsByFolder = async (
+  fetchItemsByFolder = async (
     params: {
       limit: number;
       offset: number;
@@ -801,10 +793,11 @@ export class RemoteSyncManager {
           : [],
     };
   }
-  private async fetchFoldersByFolderFromRemote(
+  public async fetchFoldersByFolderFromRemote(
     folderId: number,
     updatedAtCheckpoint?: Date,
-    offset = 0
+    offset = 0,
+    status?: string
   ): Promise<{
     hasMore: boolean;
     result: RemoteSyncedFolder[];
@@ -812,7 +805,7 @@ export class RemoteSyncManager {
     const params = {
       limit: this.config.fetchFilesLimitPerRequest,
       offset,
-      status: 'ALL',
+      status: status ?? 'ALL',
       updatedAt: undefined,
     };
 

@@ -1,3 +1,4 @@
+import Logger from 'electron-log';
 import { Environment } from '@internxt/inxt-js';
 import { Storage, StorageTypes } from '@internxt/sdk/dist/drive';
 import { Readable } from 'stream';
@@ -14,7 +15,7 @@ export class EnvironmentAndStorageThumbnailUploader
     private readonly bucket: string
   ) {}
 
-  private uploadThumbnail(thumbnail: Buffer) {
+  private async uploadThumbnail(thumbnail: Buffer) {
     const thumbnailStream = new Readable({
       read() {
         this.push(thumbnail);
@@ -53,6 +54,9 @@ export class EnvironmentAndStorageThumbnailUploader
       bucket_file: fileIdOnEnvironment,
       encrypt_version: StorageTypes.EncryptionVersion.Aes03,
     };
+
+    Logger.info('[THUMBNAIL] Uploading thumbnail:');
+    Logger.info(thumbnail);
 
     await this.storage.createThumbnailEntry(thumbnail);
   }

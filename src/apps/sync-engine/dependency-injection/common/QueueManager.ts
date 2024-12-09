@@ -160,8 +160,6 @@ export class QueueManager implements IQueueManager {
     if (this.isProcessing[type]) return;
 
     this.isProcessing[type] = true;
-    const start = Date.now();
-    Logger.debug(`[TIME] Processing ${type} tasks started at ${start}`);
 
     if (type === typeQueue.add) {
       await this.processInChunks(type, 5);
@@ -170,9 +168,6 @@ export class QueueManager implements IQueueManager {
     }
 
     this.isProcessing[type] = false;
-    const end = Date.now();
-    Logger.debug(`[TIME] Processing ${type} tasks ended at ${end}`);
-    Logger.debug(`[TIME] Processing ${type} tasks took ${end - start}ms`);
   }
 
   private async processInChunks(
@@ -182,6 +177,8 @@ export class QueueManager implements IQueueManager {
     const chunks = _.chunk(this.queues[type], chunkSize);
 
     for (const chunk of chunks) {
+      await this.notify.onTaskProcessing();
+
       await Promise.all(chunk.map((task) => this.processTask(type, task)));
       this.queues[type] = this.queues[type].slice(chunk.length);
     }
@@ -189,6 +186,8 @@ export class QueueManager implements IQueueManager {
 
   private async processSequentially(type: typeQueue): Promise<void> {
     while (this.queues[type].length > 0) {
+      await this.notify.onTaskProcessing();
+
       const task = this.queues[type].shift();
       this.saveQueueStateToFile();
 

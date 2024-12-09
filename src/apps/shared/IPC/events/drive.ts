@@ -9,6 +9,7 @@ export type FileInfo = {
   name: string;
   extension: string;
   nameWithExtension: string;
+  fileCreated?: number;
   size: number;
 };
 
@@ -29,7 +30,14 @@ export type FileErrorInfo = {
 type UploadEvents = {
   FILE_UPLOADING: (payload: FileProgressInfo) => void;
   FILE_UPLOADED: (payload: FileProgressInfo) => void;
-  FILE_CREATED: (payload: { nameWithExtension: string }) => void;
+  FILE_CREATED: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    fileId: number;
+    path: string;
+  }) => void;
+
   FILE_UPLOAD_ERROR: (payload: FileErrorInfo) => void;
 };
 
@@ -38,7 +46,7 @@ type DownloadEvents = {
   FILE_PREPARING: (payload: FileProgressInfo) => void;
   FILE_DOWNLOADED: (payload: FileProgressInfo) => void;
   FILE_DOWNLOAD_CANCEL: (payload: Partial<FileProgressInfo>) => void;
-  FILE_DOWNLOAD_ERROR: (payload: FileErrorInfo) => void;
+  FILE_DOWNLOAD_ERROR: (payload: Partial<FileErrorInfo>) => void;
 };
 
 type TrashEvents = {

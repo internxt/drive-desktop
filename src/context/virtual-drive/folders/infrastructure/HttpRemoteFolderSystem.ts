@@ -107,6 +107,8 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
     } catch (err: any) {
       const { status } = err.response;
 
+      Logger.error('[FOLDER FILE SYSTEM] Error creating folder', err);
+
       if (status === 400 && attempt < this.maxRetries) {
         Logger.debug('Folder Creation failed with code 400');
         await new Promise((resolve) => {

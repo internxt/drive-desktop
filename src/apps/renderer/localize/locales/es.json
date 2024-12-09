@@ -305,16 +305,19 @@
       "frequency": {
         "title": "Frecuencia de subida",
         "options": {
+          "1h": "Cada hora",
           "6h": "Cada 6 horas",
           "12h": "Cada 12 horas",
           "24h": "Cada día",
           "manually": "Manual"
-        }
+        },
+        "warning":"Las carpetas no se respaldarán automáticamente hasta que haga clic en 'Copia de seguridad ahora'. Este modo no se recomienda."
       },
       "folders": {
         "no-folders": "No hay carpetas seleccionadas",
         "save": "Guardar",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "error": "No pudimos encontrar la carpeta seleccionada"
       },
       "delete": {
         "title": "Eliminar copia de seguridad",
@@ -333,7 +336,7 @@
           "title": "Detener copia de seguridad en curso",
           "explanation": "Todavía hay archivos que no se han subido. ¿Detener la copia de seguridad de todos modos?",
           "explanation-2": "",
-          "confirm": "Detener copia de seguridad",
+          "confirm": "Detener",
           "cancel": "Cancelar"
         }
       }

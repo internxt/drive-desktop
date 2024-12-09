@@ -14,7 +14,7 @@ export class ThumbnailUploaderFactory {
     const { name: clientName, version: clientVersion } = appInfo;
 
     return Storage.client(
-      process.env.DRIVE_API_URL,
+      process.env.API_URL,
       { clientName, clientVersion },
       {
         token: obtainToken('bearerToken'),
@@ -43,12 +43,12 @@ export class ThumbnailUploaderFactory {
       encryptionKey: user.mnemonic,
     });
 
-    const storgae = ThumbnailUploaderFactory.createStorageClient();
+    const storage = ThumbnailUploaderFactory.createStorageClient();
 
     ThumbnailUploaderFactory.instance =
       new EnvironmentAndStorageThumbnailUploader(
         environment,
-        storgae,
+        storage,
         user.bucket
       );
 

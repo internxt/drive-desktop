@@ -37,6 +37,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
     stopwatch.start();
 
     return new Promise<Either<DriveDesktopError, string>>((resolve) => {
+      Logger.info(`Uploading file ${path} to the bucket ${this.bucket}`);
       const state = fn(this.bucket, {
         source: readable,
         fileSize: size,
@@ -44,6 +45,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
           stopwatch.finish();
 
           if (err) {
+            Logger.error(err);
             if (err.message === 'Max space used') {
               return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
             }

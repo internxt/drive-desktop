@@ -11,9 +11,14 @@ import { DownloadBackups } from './DownloadBackups';
 interface DeviceBackupsProps {
   onGoToList: () => void;
   showIssues: () => void;
+  showDownloadFolers: () => void;
 }
 
-export function DeviceBackups({ onGoToList, showIssues }: DeviceBackupsProps) {
+export function DeviceBackups({
+  onGoToList,
+  showIssues,
+  showDownloadFolers,
+}: DeviceBackupsProps) {
   const { current, selected } = useContext(DeviceContext);
 
   return (
@@ -21,16 +26,25 @@ export function DeviceBackups({ onGoToList, showIssues }: DeviceBackupsProps) {
       <p className="text-neutral-500">Backup</p>
       <DetailedDevicePill showIssues={showIssues} />
       <div className="grid grid-cols-2 gap-2">
-        { selected === current ? <>
-          <StartBackup className="w-full" />
-          <DownloadBackups className="w-full" />
-        </> : <>
-          <DownloadBackups className="w-full" />
-          <ViewBackups className="w-full" />
-        </>}
+        {selected === current ? (
+          <>
+            <StartBackup className="w-full" />
+            <DownloadBackups className="w-full" />
+          </>
+        ) : (
+          <>
+            <DownloadBackups className="w-full" />
+            <ViewBackups
+              className="w-full"
+              showDownloadFolers={showDownloadFolers}
+            />
+          </>
+        )}
       </div>
-      { selected === current && <SelectedFoldersSection className="mt-2" onGoToList={onGoToList} />}
-      { selected === current && <Frequency /> }
+      {selected === current && (
+        <SelectedFoldersSection className="mt-2" onGoToList={onGoToList} />
+      )}
+      {selected === current && <Frequency />}
       <DeleteBackups />
     </div>
   );

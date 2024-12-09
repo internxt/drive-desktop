@@ -13,17 +13,18 @@ import {
 import { GenerateFileKey } from '@internxt/inxt-js/build/lib/utils/crypto';
 import { createDecipheriv, Decipher } from 'crypto';
 import downloadFileV2 from './downloadv2';
-import { fetchFolderTree } from '../device/service';
+import { fetchArrayFolderTree } from '../device/service';
 import { ReadableStream, WritableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
 import fetch from 'electron-fetch';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { convertToReadableStream } from './NetworkFacade';
+import Logger from 'electron-log';
 
 export async function downloadFolderAsZip(
   deviceName: string,
   networkApiUrl: string,
-  folderUuid: string,
+  foldersUuid: string[],
   path: PathLike,
   environment: {
     bridgeUser: string;
@@ -46,10 +47,12 @@ export async function downloadFolderAsZip(
   const writeStream = fs.createWriteStream(path + 'Backup_' + now + '.zip');
   const destination = convertToWritableStream(writeStream);
 
+  Logger.info('Downloading folder as zip');
+
   const { abortController, updateProgress } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
   const { tree, folderDecryptedNames, fileDecryptedNames, size } =
-    await fetchFolderTree(folderUuid);
+    await fetchArrayFolderTree(foldersUuid);
   tree.plainName = deviceName;
   folderDecryptedNames[tree.id] = deviceName;
   const pendingFolders: { path: string; data: FolderTree }[] = [
@@ -75,11 +78,14 @@ export async function downloadFolderAsZip(
       (currentFolder.path === '' ? '' : '/') +
       folderDecryptedNames[currentFolder.data.id];
 
+    Logger.info('Downloading folder', folderPath);
+
     zip.addFolder(folderPath);
 
     const { files, children: folders } = currentFolder.data;
 
     for (const file of files) {
+      Logger.info('Downloading file', file.id);
       if (abortController?.signal.aborted) {
         throw new Error('Download cancelled');
       }

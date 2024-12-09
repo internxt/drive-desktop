@@ -257,6 +257,7 @@ export class BindingsManager {
           Logger.error(error);
           Sentry.captureException(error);
           await callback(false, '');
+          await ipcRendererSyncEngine.send('SYNCED');
           await this.container.virtualDrive.closeDownloadMutex();
         }
       },

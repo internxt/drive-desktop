@@ -301,16 +301,19 @@
       "frequency": {
         "title": "Fréquence de téléchargement",
         "options": {
+          "1h": "Toutes les heures",
           "6h": "Toutes les 6 heures",
           "12h": "Toutes les 12 heures",
           "24h": "Tous les jours",
           "manually": "Manuellement"
-        }
+        },
+        "warning":"Les dossiers ne seront pas automatiquement sauvegardés tant que vous n’aurez pas cliqué sur « Sauvegarder maintenant ». Ce mode n’est pas recommandé."
       },
       "folders": {
         "no-folders": "Pas encore de sauvegardes",
         "save": "Sauvegarder",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "error": "Nous n’avons pas trouvé le dossier sélectionné"
       },
       "delete": {
         "title": "Supprimer la sauvegarde",
