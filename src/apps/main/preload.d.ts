@@ -229,5 +229,31 @@ declare interface Window {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
     };
+    antivirus: {
+      scanItems: (
+        folderPaths: { path: string; itemName: string; isDirectory: boolean }[]
+      ) => Promise<void>;
+
+      onScanProgress: (
+        callback: (progress: {
+          file: string;
+          isInfected: boolean;
+          viruses: string[];
+          countScannedItems: number;
+        }) => void
+      ) => Promise<void>;
+
+      removeScanProgressListener: () => void;
+
+      addItemsToScan: (getFiles?: boolean) => Promise<
+        | {
+            id: number;
+            path: string;
+            itemName: string;
+            isDirectory: boolean;
+          }[]
+        | undefined
+      >;
+    };
   };
 }

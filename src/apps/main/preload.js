@@ -348,6 +348,35 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.send('user.set-has-discovered-backups');
     },
   },
+  antivirus: {
+    scanItems: async (folderPath) => {
+      try {
+        return await ipcRenderer.invoke('antivirus:scan-items', folderPath);
+      } catch (error) {
+        Logger.error('Error in scanItems:', error);
+        throw error;
+      }
+    },
+    onScanProgress: (callback) => {
+      ipcRenderer.on('antivirus:scan-progress', (_, progress) =>
+        callback(progress)
+      );
+    },
+    removeScanProgressListener: () => {
+      ipcRenderer.removeAllListeners('antivirus:scan-progress');
+    },
+    addItemsToScan: async (getFiles) => {
+      try {
+        return await ipcRenderer.invoke(
+          'antivirus:add-items-to-scan',
+          getFiles
+        );
+      } catch (error) {
+        Logger.error('Error in addItemsToScan:', error);
+        throw error;
+      }
+    },
+  },
 
   path,
 });

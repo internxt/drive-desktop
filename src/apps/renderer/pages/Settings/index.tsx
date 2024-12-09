@@ -9,6 +9,7 @@ import { DeviceProvider } from '../../context/DeviceContext';
 import { BackupProvider } from '../../context/BackupContext';
 import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
 import AntivirusSection from './Antivirus';
+import ItemsToScanSelector from './Antivirus/Selector/ItemsToScanSelector';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
@@ -30,7 +31,10 @@ export default function Settings() {
   useEffect(() => {
     const url = new URL(window.location.href);
     const section = url.searchParams.get('section');
-    if (section && ['BACKUPS', 'GENERAL', 'ACCOUNT'].includes(section)) {
+    if (
+      section &&
+      ['BACKUPS', 'GENERAL', 'ACCOUNT', 'ANTIVIRUS'].includes(section)
+    ) {
       setActiveSection(section as Section);
     }
   }, []);
@@ -42,8 +46,11 @@ export default function Settings() {
           ref={rootRef}
           style={{ minWidth: 400, minHeight: subsection === 'list' ? 0 : 420 }}
         >
-          {subsection === 'list' && (
+          {subsection === 'list' && activeSection === 'BACKUPS' && (
             <BackupFolderSelector onClose={() => setSubsection('panel')} />
+          )}
+          {subsection === 'list' && activeSection === 'ANTIVIRUS' && (
+            <ItemsToScanSelector onClose={() => setSubsection('panel')} />
           )}
           {subsection === 'panel' && (
             <>
@@ -60,7 +67,10 @@ export default function Settings() {
                   showBackedFolders={() => setSubsection('list')}
                   showIssues={() => window.electron.openProcessIssuesWindow()}
                 />
-                <AntivirusSection active={activeSection === 'ANTIVIRUS'} />
+                <AntivirusSection
+                  active={activeSection === 'ANTIVIRUS'}
+                  showSelectedItemsToScan={() => setSubsection('list')}
+                />
               </div>
             </>
           )}
