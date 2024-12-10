@@ -1,5 +1,5 @@
 import { aes } from '@internxt/lib';
-import { app, dialog, IpcMainEvent } from 'electron';
+import { app, BrowserWindow, dialog, IpcMainEvent } from 'electron';
 import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import os from 'os';
@@ -14,7 +14,6 @@ import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { broadcastToWindows } from '../windows';
 import { ipcMain } from 'electron';
 import { DependencyInjectionUserProvider } from '../../shared/dependency-injection/DependencyInjectionUserProvider';
-import { BackupsDependencyContainerFactory } from '../../backups/dependency-injection/BackupsDependencyContainerFactory';
 
 export type Device = {
   id: number;
@@ -118,7 +117,10 @@ export async function getOrCreateDevice() {
     user.backupsBucket = newDevice.bucket;
     DependencyInjectionUserProvider.updateUser(user);
 
-    await BackupsDependencyContainerFactory.reinitialize();
+    const mainWindow = BrowserWindow.getAllWindows()[0];
+    if (mainWindow) {
+      mainWindow.webContents.send('reinitialize-backups');
+    }
 
     logger.info(`[DEVICE] Created device with name "${device.name}"`);
 

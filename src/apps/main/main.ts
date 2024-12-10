@@ -32,7 +32,7 @@ import './app-info/handlers';
 import './remote-sync/handlers';
 import './virtual-drive';
 
-import { app, nativeTheme } from 'electron';
+import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
@@ -56,6 +56,8 @@ import { Theme } from '../shared/types/Theme';
 import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
+
+let mainWindow: Electron.BrowserWindow;
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -184,4 +186,11 @@ process.on('uncaughtException', (error) => {
   } else {
     Logger.error('Uncaught exception in main process: ', error);
   }
+});
+
+ipcMain.handle('request-reinitialize-backups', async () => {
+  if (mainWindow) {
+    mainWindow.webContents.send('reinitialize-backups');
+  }
+  return 'Reinitialization requested';
 });
