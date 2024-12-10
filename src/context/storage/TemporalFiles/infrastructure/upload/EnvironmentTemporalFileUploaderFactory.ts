@@ -52,7 +52,7 @@ export class EnvironmentTemporalFileUploaderFactory
 
     uploader.on('error', (error: Error) => {
       // TODO: use error to determine the cause
-      Logger.debug('UPLOADER ERROR', error);
+      Logger.error('[ETFUF ERROR]', error);
       this.progressTracker.uploadError(name, extension, 'UNKNOWN');
     });
 

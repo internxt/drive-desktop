@@ -74,6 +74,8 @@ if (process.env.SENTRY_DSN) {
     enabled: app.isPackaged,
     dsn: process.env.SENTRY_DSN,
     release: packageJson.version,
+    debug: !app.isPackaged && process.env.SENTRY_DEBUG === 'true',
+    environment: process.env.NODE_ENV,
   });
   Logger.log('Sentry is ready for main process');
 } else {
