@@ -16,17 +16,18 @@ export default function BackupFolderSelector({
 }: BackupFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const { backups, backupsState, addBackup, disableBackup } = useContext(BackupContext);
+  const { backups, backupsState, addBackup, disableBackup } =
+    useContext(BackupContext);
 
   const [selectedBackup, setSelectedBackup] = useState<BackupInfo | null>(null);
 
   return (
-    <div className="flex flex-col gap-3 p-4">
+    <div className="flex flex-col gap-3 bg-surface p-4 text-highlight dark:bg-gray-1 dark:text-gray-100">
       <div className="flex">
         <h1 className="text-lg font-normal">
           {translate('settings.backups.title')}
         </h1>
-        <div className="ml-auto text-gray-50">
+        <div className="ml-auto text-gray-50 dark:text-gray-80">
           {backupsState === 'SUCCESS' &&
             translate('settings.backups.selected-folder', {
               count: backups.length,
@@ -34,7 +35,7 @@ export default function BackupFolderSelector({
         </div>
       </div>
       <div
-        className="border-l-neutral-30  h-44 overflow-y-auto rounded-lg border border-gray-20 bg-white"
+        className="border-l-neutral-30 h-44 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-gray-10"
         onClick={() => setSelectedBackup(null)}
         role="none"
       >
@@ -48,7 +49,7 @@ export default function BackupFolderSelector({
           <LoadingFolders state={backupsState} />
         )}
       </div>
-      <div className=" flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex">
           <Button
             onClick={addBackup}
