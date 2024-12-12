@@ -1,4 +1,3 @@
-import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 import { Axios } from 'axios';
 import { UserUsage } from '../domain/UserUsage';
 import { UserUsageRepository } from '../domain/UserUsageRepository';
@@ -11,7 +10,6 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
 
   constructor(
     private readonly driveClient: Axios,
-    private readonly photosSubmodule: PhotosSubmodule
   ) {}
 
   private async getDriveUsage(): Promise<number> {
@@ -40,12 +38,10 @@ export class CachedHttpUserUsageRepository implements UserUsageRepository {
     if (this.cachedUserUsage) return this.cachedUserUsage;
 
     const drive = await this.getDriveUsage();
-    const { usage: photos } = await this.photosSubmodule.getUsage();
     const limit = await this.getLimit();
 
     const usage = UserUsage.from({
       drive,
-      photos,
       limit,
     });
 

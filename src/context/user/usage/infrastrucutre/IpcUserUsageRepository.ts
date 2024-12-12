@@ -10,7 +10,6 @@ export class IpcUserUsageRepository implements UserUsageRepository {
 
     return UserUsage.from({
       drive: usage.driveUsage,
-      photos: usage.photosUsage,
       limit: usage.limitInBytes,
     });
   }

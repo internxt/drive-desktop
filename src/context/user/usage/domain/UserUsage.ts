@@ -3,7 +3,6 @@ export class UserUsage {
 
   private constructor(
     private _drive: number,
-    public readonly photos: number,
     public readonly limit: number
   ) {}
 
@@ -13,10 +12,9 @@ export class UserUsage {
 
   static from(atributes: {
     drive: number;
-    photos: number;
     limit: number;
   }): UserUsage {
-    return new UserUsage(atributes.drive, atributes.photos, atributes.limit);
+    return new UserUsage(atributes.drive, atributes.limit);
   }
 
   incrementDriveUsage(usage: number) {
@@ -24,7 +22,7 @@ export class UserUsage {
   }
 
   totalInUse(): number {
-    return this._drive + this.photos;
+    return this._drive;
   }
 
   free(): number {
