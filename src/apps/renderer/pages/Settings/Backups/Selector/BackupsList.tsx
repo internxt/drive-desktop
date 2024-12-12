@@ -28,8 +28,8 @@ export function BackupsList({
             selected?.folderId === backup.folderId
               ? 'bg-primary text-white'
               : index % 2 !== 0
-              ? 'text-neutral-700 bg-white'
-              : 'bg-l-neutral-10 text-neutral-700'
+              ? 'bg-alternate-1 dark:bg-alternate-1 text-highlight dark:text-gray-100'
+              : 'bg-alternate-2 dark:bg-alternate-2 text-highlight dark:text-gray-100'
           }`}
         >
           <BackupListItem
