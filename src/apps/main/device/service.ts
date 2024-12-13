@@ -267,7 +267,7 @@ async function createBackup(pathname: string): Promise<void> {
 
   const newBackup = await postBackup(base);
 
-  logger.debug(`[BACKUPS] Created backup with id ${newBackup.id}`);
+  logger.debug(`[BACKUPS] Created backup with id ${newBackup.uuid}`);
 
   const backupList = configStore.get('backupList');
 
@@ -638,6 +638,7 @@ export async function downloadBackup(
         Logger.info(`[BACKUPS] Aborting download for device ${device.name}`);
         if (abortController && !abortController.signal.aborted) {
           abortController.abort();
+          fs.unlinkSync(zipFilePath);
         }
       } catch (error) {
         Logger.error(`[BACKUPS] Error while aborting download: ${error}`);

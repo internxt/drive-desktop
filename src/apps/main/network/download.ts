@@ -44,7 +44,7 @@ export async function downloadFolderAsZip(
     String(date.getHours()) +
     String(date.getMinutes()) +
     String(date.getSeconds());
-  const writeStream = fs.createWriteStream(path + 'Backup_' + now + '.zip');
+  const writeStream = fs.createWriteStream(path);
   const destination = convertToWritableStream(writeStream);
 
   Logger.info('Downloading folder as zip');
