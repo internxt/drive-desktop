@@ -19,7 +19,7 @@ export function DeleteBackups() {
   }
 
   async function deleteBackupsFromDevice() {
-    await deleteBackups(selected!, selected === current);
+    deleteBackups(selected!, selected === current);
     toggleConfirmation();
   }
 
@@ -43,10 +43,16 @@ export function DeleteBackups() {
         onCanceled={toggleConfirmation}
         onConfirmed={deleteBackupsFromDevice}
         title={translate('settings.backups.delete.deletion-modal.title')}
-        explanation={translate('settings.backups.delete.deletion-modal.explanation')}
-        explanation2={translate('settings.backups.delete.deletion-modal.explanation-2')}
+        explanation={translate(
+          'settings.backups.delete.deletion-modal.explanation'
+        )}
+        explanation2={translate(
+          'settings.backups.delete.deletion-modal.explanation-2'
+        )}
         cancelText={translate('settings.backups.delete.deletion-modal.cancel')}
-        confirmText={translate('settings.backups.delete.deletion-modal.confirm')}
+        confirmText={translate(
+          'settings.backups.delete.deletion-modal.confirm'
+        )}
       />
     </section>
   );
