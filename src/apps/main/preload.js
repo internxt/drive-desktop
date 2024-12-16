@@ -352,6 +352,13 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.send('user.set-has-discovered-backups');
     },
   },
+  listenersRefreshBackups(callback, eventName = 'refresh-backup') {
+    const callbackWrapper = (_, data) => {
+      Logger.info('Refresh backups');
+      callback(data);
+    };
 
+    return ipcRenderer.on(eventName, callbackWrapper);
+  },
   path,
 });

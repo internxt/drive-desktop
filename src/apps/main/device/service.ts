@@ -17,7 +17,7 @@ import { addGeneralIssue } from '../background-processes/process-issues';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { PathLike } from 'fs';
-import { downloadFolderAsZip } from '../network/download';
+import { downloadFolder } from '../network/download';
 import Logger from 'electron-log';
 import { broadcastToWindows } from '../windows';
 import { randomUUID } from 'crypto';
@@ -586,7 +586,7 @@ async function downloadDeviceBackupZip(
   const bridgePass = user.userId;
   const encryptionKey = user.mnemonic;
 
-  await downloadFolderAsZip(
+  await downloadFolder(
     device.name,
     networkApiUrl,
     folders.map((folder) => folder.uuid),
@@ -626,7 +626,8 @@ export async function downloadBackup(
     String(date.getHours()) +
     String(date.getMinutes()) +
     String(date.getSeconds());
-  const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
+  const zipFilePath = chosenPath + 'Backup_' + now + '';
+  // const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
 
   Logger.info(`[BACKUPS] Downloading backup to ${zipFilePath}`);
 

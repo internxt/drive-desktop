@@ -21,11 +21,13 @@ export function useBackups(): BackupContextProps {
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
 
   async function fetchBackups(): Promise<void> {
+    window.electron.logger.info('Fetching backups');
     if (!selected) return;
     const backups = await window.electron.getBackupsFromDevice(
       selected,
       selected === current
     );
+    window.electron.logger.info('Backups fetched', backups.length);
     setBackups(backups);
   }
 
@@ -44,11 +46,11 @@ export function useBackups(): BackupContextProps {
 
   useEffect(() => {
     loadBackups();
-  }, []);
+  }, [selected]);
 
   useEffect(() => {
-    loadBackups();
-  }, [selected]);
+    window.electron.listenersRefreshBackups(fetchBackups, 'refresh-backup');
+  }, []);
 
   async function addBackup(): Promise<void> {
     try {
