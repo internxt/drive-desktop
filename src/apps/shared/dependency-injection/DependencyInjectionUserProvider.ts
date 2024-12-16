@@ -23,4 +23,9 @@ export class DependencyInjectionUserProvider {
 
     throw new Error('Could not get user in dependency injection');
   }
+
+  static updateUser(user: User) {
+    DependencyInjectionUserProvider._user = user;
+    ConfigStore.set('userData', user);
+  }
 }

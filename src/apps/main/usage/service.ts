@@ -4,9 +4,7 @@ const INFINITE_SPACE_TRHESHOLD = 108851651149824 as const;
 const OFFER_UPGRADE_TRHESHOLD = 2199023255552 as const;
 
 export class UserUsageService {
-  constructor(
-    private readonly storage: Storage,
-  ) {}
+  constructor(private readonly storage: Storage) {}
 
   public async getDriveUsage(): Promise<number> {
     const usage = await this.storage.spaceUsage();

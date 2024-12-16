@@ -44,6 +44,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
           stopwatch.finish();
 
           if (err) {
+            Logger.error('[ENVLFU UPLOAD ERROR]', err);
             if (err.message === 'Max space used') {
               return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
             }
@@ -53,7 +54,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
           resolve(right(contentsId));
         },
         progressCallback: (progress: number) => {
-          Logger.debug(progress);
+          Logger.debug('[UPLOAD PROGRESS]', progress);
         },
       });
 

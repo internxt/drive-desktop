@@ -24,7 +24,5 @@ export function buildUsageService() {
     }
   );
 
-  return new UserUsageService(
-    storage,
-  );
+  return new UserUsageService(storage);
 }
