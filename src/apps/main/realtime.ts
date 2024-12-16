@@ -68,8 +68,31 @@ function cleanAndStartRemoteNotifications() {
       user = getUser();
     }
 
+    const payloadLog: {
+      id?: string;
+      uuid?: string;
+      bucket?: string;
+    } = {};
+
+    if (data.payload.id) {
+      payloadLog.id = data.payload.id;
+    }
+
+    if (data.payload.uuid) {
+      payloadLog.uuid = data.payload.uuid;
+    }
+
+    if (data.payload.bucket) {
+      payloadLog.bucket = data.payload.bucket;
+    }
+
     if (data.payload.bucket !== user?.backupsBucket) {
-      logger.log('Notification received: ', data);
+      // create an object with properties if present in the payload
+
+      logger.log('Notification received: ', {
+        event: data.event,
+        payload: payloadLog,
+      });
       eventBus.emit('RECEIVED_REMOTE_CHANGES');
       return;
     }
