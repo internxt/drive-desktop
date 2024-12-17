@@ -62,7 +62,7 @@ export class Backup {
 
     const filesDiff = DiffFilesCalculator.calculate(local, remote);
 
-    await this.isThereEnoughSpace(filesDiff);
+    // await this.isThereEnoughSpace(filesDiff);
 
     const alreadyBacked =
       filesDiff.unmodified.length + foldersDiff.unmodified.length;

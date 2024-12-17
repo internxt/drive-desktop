@@ -577,10 +577,6 @@ async function downloadDeviceBackupZip(
 
   const folders = await fetchFolders(foldersIdToDownload);
 
-  Logger.info(`[BACKUPS] Folders to download: ${folders}`);
-
-  Logger.info(folders);
-
   const networkApiUrl = process.env.BRIDGE_URL;
   const bridgeUser = user.bridgeUser;
   const bridgePass = user.userId;
@@ -658,6 +654,7 @@ export async function downloadBackup(
     await downloadDeviceBackupZip(device, foldersIdToDownload, zipFilePath, {
       updateProgress: (progress: number) => {
         if (abortController?.signal.aborted) return;
+        Logger.info(`[BACKUPS] Download progress: ${progress}`);
         broadcastToWindows('backup-download-progress', {
           id: device.uuid,
           progress: Math.round(progress),

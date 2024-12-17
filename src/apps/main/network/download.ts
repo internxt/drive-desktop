@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { FileVersionOneError } from '@internxt/sdk/dist/network/download';
 import { FlatFolderZip } from './zip.service';
 import { items } from '@internxt/lib';
@@ -79,6 +80,8 @@ export async function downloadFolder(
   const { bridgeUser, bridgePass, encryptionKey } = environment;
 
   // Obtener información del árbol de carpetas y archivos
+  updateProgress && updateProgress(1);
+
   const { tree, folderDecryptedNames, fileDecryptedNames, size } =
     await fetchArrayFolderTree(foldersUuid);
 
@@ -133,10 +136,16 @@ export async function downloadFolder(
         },
         mnemonic: encryptionKey,
         options: {
-          notifyProgress: (progress) => {
-            downloadedBytes += progress;
+          notifyProgress: (_progress, downloadedByte) => {
+            Logger.debug('Download progress notify:', downloadedByte);
+            downloadedBytes += downloadedByte;
+            Logger.debug('Download progress downloadedBytes:', downloadedBytes);
+
+            Logger.debug('Download progress size:', size);
+
             if (updateProgress) {
-              updateProgress((downloadedBytes / size) * 100);
+              const progress = Math.max(1, (downloadedBytes / size) * 10);
+              updateProgress(progress);
             }
           },
           abortController: opts.abortController,
@@ -157,6 +166,7 @@ export async function downloadFolder(
   }
 
   Logger.info('Download complete:', targetPath);
+  updateProgress && updateProgress(100);
 }
 
 export type DownloadProgressCallback = (

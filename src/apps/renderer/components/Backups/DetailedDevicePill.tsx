@@ -63,10 +63,8 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
             <LastBackupMade />
           )}
         </div>
-        {selected === current && thereIsProgress ? (
+        {selected === current && thereIsProgress && (
           <BackupsProgressPercentage progress={percentualProgress} />
-        ) : (
-          <SizePill size={usage?.limitInBytes ?? 0} />
         )}
       </div>
       {selected === current && thereIsProgress && (
