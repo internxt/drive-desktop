@@ -162,7 +162,7 @@ export class QueueManager implements IQueueManager {
     this.isProcessing[type] = true;
 
     if (type === typeQueue.add) {
-      await this.processInChunks(type, 5);
+      await this.processInChunks(type, 7);
     } else {
       await this.processSequentially(type);
     }

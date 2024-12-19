@@ -7,7 +7,7 @@ import Logger from 'electron-log';
 export class RetryContentsUploader {
   private static NUMBER_OF_RETRIES = 2;
   private static MILLISECOND_BETWEEN_TRIES = 1_000;
-  private static INITIAL_DELAY = 100;
+  private static INITIAL_DELAY = 50;
 
   constructor(private readonly uploader: ContentsUploader) {}
 

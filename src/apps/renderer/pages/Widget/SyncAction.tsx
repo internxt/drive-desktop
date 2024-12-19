@@ -8,11 +8,12 @@ import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useUsage from '../../hooks/useUsage';
 import { WarningCircle } from 'phosphor-react';
+import { useNetworkRetry } from '../../hooks/useNetworkRetry';
 
 export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();
 
-  const [isOnLine, setIsOnLine] = useState(true);
+  const { isOnline } = useNetworkRetry(3000, 5);
   const { usage, status } = useUsage();
   const { virtualDriveStatus } = useVirtualDriveStatus();
   const { syncStatus } = useSyncStatus();
@@ -30,19 +31,15 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
     }
   };
 
-  useEffect(() => {
-    setIsOnLine(navigator.onLine);
-  });
-
   return (
     <div className="flex h-11 shrink-0 items-center space-x-2.5 border-t border-gray-10 px-2.5 text-sm font-medium text-gray-100 dark:border-gray-5">
       <div className="flex flex-1 items-center space-x-2.5 truncate px-1.5">
-        {isOnLine ? (
+        {isOnline ? (
           isSyncStopped ? (
             <>{/* SYNC IS STOPPED */}</>
           ) : (
             <>
-              {isOnLine && props.syncStatus === 'FAILED' && (
+              {isOnline && props.syncStatus === 'FAILED' && (
                 <>
                   {/* SYNC FAILED */}
                   <div className="relative z-0 flex w-5 items-center justify-center text-red before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
@@ -53,7 +50,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   </span>
                 </>
               )}
-              {isOnLine && props.syncStatus === 'RUNNING' && (
+              {isOnline && props.syncStatus === 'RUNNING' && (
                 <>
                   {/* SYNCING */}
                   <div className="flex w-5 justify-center text-primary">
@@ -64,7 +61,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   </span>
                 </>
               )}
-              {isOnLine && props.syncStatus === 'STANDBY' && (
+              {isOnline && props.syncStatus === 'STANDBY' && (
                 <>
                   {/* UP TO DATE */}
                   <div className="relative z-0 flex w-5 items-center justify-center text-primary before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
@@ -75,7 +72,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   </span>
                 </>
               )}
-              {isOnLine && props.syncStatus === 'SYNC PENDING' && (
+              {isOnline && props.syncStatus === 'SYNC PENDING' && (
                 <>
                   {/* UP TO DATE */}
                   <div className="relative z-0 flex w-5 items-center justify-center text-primary before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
