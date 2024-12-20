@@ -89,6 +89,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
         bucket: this.bucket,
         folder_id: dataToPersists.folderId.value,
         encrypt_version: EncryptionVersion.Aes03,
+        modificationTime: new Date(),
       },
     };
 

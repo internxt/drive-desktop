@@ -55,7 +55,9 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
           resolve(right(contentsId));
         },
         progressCallback: (progress: number) => {
-          Logger.debug(progress);
+          Logger.info(
+            `Uploading file ${path} to the bucket ${this.bucket} ${progress}%`
+          );
         },
       });
 

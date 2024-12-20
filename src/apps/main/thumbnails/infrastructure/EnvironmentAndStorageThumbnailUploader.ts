@@ -55,9 +55,6 @@ export class EnvironmentAndStorageThumbnailUploader
       encrypt_version: StorageTypes.EncryptionVersion.Aes03,
     };
 
-    Logger.info('[THUMBNAIL] Uploading thumbnail:');
-    Logger.info(thumbnail);
-
     await this.storage.createThumbnailEntry(thumbnail);
   }
 }

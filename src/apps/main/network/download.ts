@@ -82,7 +82,7 @@ export async function downloadFolder(
   // Obtener información del árbol de carpetas y archivos
   updateProgress && updateProgress(1);
 
-  const { tree, folderDecryptedNames, fileDecryptedNames, size } =
+  const { tree, folderDecryptedNames, fileDecryptedNames, size, totalItems } =
     await fetchArrayFolderTree(foldersUuid);
 
   tree.plainName = deviceName;
@@ -92,7 +92,8 @@ export async function downloadFolder(
     { path: '', data: tree },
   ];
 
-  let downloadedBytes = 0;
+  // let downloadedBytes = 0;
+  let downloadedItems = 0;
 
   while (pendingFolders.length > 0 && !abortController?.signal.aborted) {
     const currentFolder = pendingFolders.shift() as {
@@ -136,24 +137,15 @@ export async function downloadFolder(
         },
         mnemonic: encryptionKey,
         options: {
-          notifyProgress: (_progress, downloadedByte) => {
-            Logger.debug('Download progress notify:', downloadedByte);
-            downloadedBytes += downloadedByte;
-            Logger.debug('Download progress downloadedBytes:', downloadedBytes);
-
-            Logger.debug('Download progress size:', size);
-
-            if (updateProgress) {
-              const progress = Math.max(1, (downloadedBytes / size) * 10);
-              updateProgress(progress);
-            }
-          },
           abortController: opts.abortController,
         },
       });
 
       // Leer el stream y escribirlo en el archivo
       await writeReadableStreamToFile(fileStream, targetPath + '/' + filePath);
+      Logger.info(`total files: ${totalItems}, downloaded: ${downloadedItems}`);
+      downloadedItems += 1;
+      updateProgress && updateProgress((downloadedItems / totalItems) * 100);
     }
 
     pendingFolders.push(
@@ -182,7 +174,7 @@ export interface IDownloadParams {
   encryptionKey?: Buffer;
   token?: string;
   options?: {
-    notifyProgress: DownloadProgressCallback;
+    notifyProgress?: DownloadProgressCallback;
     abortController?: AbortController;
   };
 }

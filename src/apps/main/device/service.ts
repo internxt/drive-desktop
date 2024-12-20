@@ -45,6 +45,7 @@ export interface FolderTreeResponse {
   folderDecryptedNames: Record<number, string>;
   fileDecryptedNames: Record<number, string>;
   size: number;
+  totalItems: number;
 }
 
 export const addUnknownDeviceIssue = (error: Error) => {
@@ -186,8 +187,22 @@ export async function renameDevice(deviceName: string): Promise<Device> {
 }
 
 function decryptDeviceName({ name, ...rest }: Device): Device {
+  let nameDevice;
+  let key;
+  try {
+    key = `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`;
+    Logger.info(`[DEVICE] Decrypting device name with key: ${key}`);
+    nameDevice = aes.decrypt(name, key);
+  } catch (error) {
+    key = `${process.env.NEW_CRYPTO_KEY}-${null}`;
+    Logger.info(`[DEVICE] Error decrypting device name: ${key}`);
+    nameDevice = aes.decrypt(name, key);
+  }
+
+  Logger.info(`[DEVICE] Decrypted device name "${nameDevice}"`);
+
   return {
-    name: aes.decrypt(name, `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`),
+    name: nameDevice,
     ...rest,
   };
 }
@@ -365,6 +380,7 @@ function processFolderTree(tree: FolderTree) {
   const folderDecryptedNames: Record<number, string> = {};
   const fileDecryptedNames: Record<number, string> = {};
   const pendingFolders = [tree];
+  let totalItems = 0;
 
   while (pendingFolders.length > 0) {
     const currentTree = pendingFolders.shift()!;
@@ -381,22 +397,23 @@ function processFolderTree(tree: FolderTree) {
         `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`
       );
       size += Number(file.size);
+      totalItems++;
     }
 
     pendingFolders.push(...folders);
   }
 
-  return { size, folderDecryptedNames, fileDecryptedNames };
+  return { size, folderDecryptedNames, fileDecryptedNames, totalItems };
 }
 
 export async function fetchFolderTree(
   folderUuid: string
 ): Promise<FolderTreeResponse> {
   const tree = await fetchTreeFromApi(folderUuid);
-  const { size, folderDecryptedNames, fileDecryptedNames } =
+  const { size, folderDecryptedNames, fileDecryptedNames, totalItems } =
     processFolderTree(tree);
 
-  return { tree, folderDecryptedNames, fileDecryptedNames, size };
+  return { tree, folderDecryptedNames, fileDecryptedNames, size, totalItems };
 }
 
 export async function fetchArrayFolderTree(
@@ -406,6 +423,7 @@ export async function fetchArrayFolderTree(
   const folderDecryptedNames: Record<number, string> = {};
   const fileDecryptedNames: Record<number, string> = {};
   let totalSize = 0;
+  let totalItemsInTree = 0;
 
   for (const folderUuid of folderUuids) {
     const tree = await fetchTreeFromApi(folderUuid);
@@ -415,9 +433,11 @@ export async function fetchArrayFolderTree(
       size,
       folderDecryptedNames: folderNames,
       fileDecryptedNames: fileNames,
+      totalItems,
     } = processFolderTree(tree);
 
     totalSize += size;
+    totalItemsInTree += totalItems;
     Object.assign(folderDecryptedNames, folderNames);
     Object.assign(fileDecryptedNames, fileNames);
   }
@@ -450,6 +470,7 @@ export async function fetchArrayFolderTree(
     folderDecryptedNames,
     fileDecryptedNames,
     size: totalSize,
+    totalItems: totalItemsInTree,
   };
 }
 

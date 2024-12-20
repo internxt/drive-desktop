@@ -1,5 +1,4 @@
 import { CheckCircle, XCircle } from '@phosphor-icons/react';
-import { useEffect, useState } from 'react';
 import { SyncStatus } from '../../../../context/desktop/sync/domain/SyncStatus';
 import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
