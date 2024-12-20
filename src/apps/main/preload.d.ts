@@ -234,6 +234,15 @@ declare interface Window {
         folderPaths: { path: string; itemName: string; isDirectory: boolean }[]
       ) => Promise<void>;
 
+      scanSystem: () => Promise<
+        | {
+            path: string;
+            itemName: string;
+            isDirectory: boolean;
+          }
+        | undefined
+      >;
+
       onScanProgress: (
         callback: (progress: {
           file: string;
@@ -247,7 +256,6 @@ declare interface Window {
 
       addItemsToScan: (getFiles?: boolean) => Promise<
         | {
-            id: number;
             path: string;
             itemName: string;
             isDirectory: boolean;

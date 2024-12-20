@@ -365,6 +365,9 @@ contextBridge.exposeInMainWorld('electron', {
     removeScanProgressListener: () => {
       ipcRenderer.removeAllListeners('antivirus:scan-progress');
     },
+    scanSystem: () => {
+      ipcRenderer.invoke('antivirus:scan-system');
+    },
     addItemsToScan: async (getFiles) => {
       try {
         return await ipcRenderer.invoke(

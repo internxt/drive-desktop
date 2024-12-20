@@ -339,6 +339,50 @@
           "cancel": "Cancel"
         }
       }
+    },
+    "antivirus": {
+      "featureLocked": {
+        "title": "Feature locked",
+        "subtitle": "Please upgrade your plan to use this feature.",
+        "action": "Upgrade"
+      },
+      "scanOptions": {
+        "systemScan": {
+          "text": "Antivirus system scan",
+          "action": "Start scan"
+        },
+        "customScan": {
+          "text": "Antivirus custom scan",
+          "action": "Choose",
+          "scanOptions": {
+            "files": "Files",
+            "folders": "Folders"
+          }
+        }
+      },
+      "scanProcess": {
+        "scanning": "Scanning...",
+        "scannedFiles": "Scanned files",
+        "detectedFiles": "Detected files",
+        "noFilesFound": {
+          "title": "No threats were found",
+          "subtitle": "No further actions are necessary"
+        },
+        "malwareFound": {
+          "title": "Malware detected",
+          "subtitle": "Please review and remove threats.",
+          "action": "Remove malware"
+        }
+      },
+      "filesContainingMalwareModal": {
+        "title": "Files containing malware",
+        "selectedItems": "Selected {{selectedFiles}} out of {{totalFiles}}",
+        "selectAll": "Select all",
+        "actions": {
+          "cancel": "Cancel",
+          "remove": "Remove"
+        }
+      }
     }
   },
   "issues": {

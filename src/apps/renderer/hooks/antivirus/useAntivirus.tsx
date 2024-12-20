@@ -12,7 +12,7 @@ export const useAntivirus = () => {
       viruses: string[];
     }[]
   >([]);
-  const [scanningCurrentItem, setScanningCurrentItem] = useState<string>();
+  const [currentScanPath, setCurrentScanPath] = useState<string>();
   const [countScannedFiles, setCountScannedFiles] = useState<number>(0);
   const [isScanning, setIsScanning] = useState(false);
 
@@ -33,7 +33,7 @@ export const useAntivirus = () => {
     let scannedCount = 0;
     scannedCount += 1;
 
-    setScanningCurrentItem(progress.file);
+    setCurrentScanPath(progress.file);
     setCountScannedFiles(progress.countScannedItems);
   };
 
@@ -51,12 +51,16 @@ export const useAntivirus = () => {
     setSelectedItems((prevItems) => [...prevItems, ...items]);
   };
 
-  const onScanItemsButtonClicked = async () => {
-    setIsScanning(true);
-    setScannedItems([]);
-    if (!selectedItems) return;
+  const getUserSystemPath = () => {
+    console.log('GET USER SYSTEM PATH');
+    return window.electron.antivirus.scanSystem();
+  };
+
+  const onScanUserSystemButtonClicked = async () => {
     try {
-      await window.electron.antivirus.scanItems(selectedItems);
+      setIsScanning(true);
+      setScannedItems([]);
+      await getUserSystemPath();
       setIsScanning(false);
     } catch (error) {
       console.log('ERROR WHILE SCANNING ITEMS: ', error);
@@ -64,23 +68,38 @@ export const useAntivirus = () => {
     }
   };
 
-  const onRemoveItemFromList = (item: SelectedItemToScanProps) => {
-    const filteredItemsWithoutSelectedItem = selectedItems.filter(
-      (selectedItem) => selectedItem !== item
-    );
+  const onScanItemsButtonClicked = async (
+    items:
+      | {
+          path: string;
+          itemName: string;
+          isDirectory: boolean;
+        }[]
+      | undefined
+  ) => {
+    try {
+      console.log('ITEMS', { items });
 
-    setSelectedItems(filteredItemsWithoutSelectedItem);
+      setIsScanning(true);
+      setScannedItems([]);
+      if (!items) return;
+      await window.electron.antivirus.scanItems(items);
+      setIsScanning(false);
+    } catch (error) {
+      console.log('ERROR WHILE SCANNING ITEMS: ', error);
+      // setIsScanning(false);
+    }
   };
 
   return {
     selectedItems,
     scannedItems,
-    scanningCurrentItem,
+    currentScanPath,
     countScannedFiles,
     isScanning,
     onSelectFoldersButtonClicked,
     onSelectFilesButtonClicked,
+    onScanUserSystemButtonClicked,
     onScanItemsButtonClicked,
-    onRemoveItemFromList,
   };
 };

@@ -9,7 +9,6 @@ import { DeviceProvider } from '../../context/DeviceContext';
 import { BackupProvider } from '../../context/BackupContext';
 import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
 import AntivirusSection from './Antivirus';
-import ItemsToScanSelector from './Antivirus/Selector/ItemsToScanSelector';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
@@ -49,9 +48,6 @@ export default function Settings() {
           {subsection === 'list' && activeSection === 'BACKUPS' && (
             <BackupFolderSelector onClose={() => setSubsection('panel')} />
           )}
-          {subsection === 'list' && activeSection === 'ANTIVIRUS' && (
-            <ItemsToScanSelector onClose={() => setSubsection('panel')} />
-          )}
           {subsection === 'panel' && (
             <>
               <WindowTopBar
@@ -67,10 +63,7 @@ export default function Settings() {
                   showBackedFolders={() => setSubsection('list')}
                   showIssues={() => window.electron.openProcessIssuesWindow()}
                 />
-                <AntivirusSection
-                  active={activeSection === 'ANTIVIRUS'}
-                  showSelectedItemsToScan={() => setSubsection('list')}
-                />
+                <AntivirusSection active={activeSection === 'ANTIVIRUS'} />
               </div>
             </>
           )}

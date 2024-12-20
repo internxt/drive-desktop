@@ -3,16 +3,12 @@ import NodeClam, { NodeClamError } from 'clamscan';
 import clamAVServer from './ClamAVServer';
 
 export interface SelectedItemToScanProps {
-  id: number;
   path: string;
   itemName: string;
   isDirectory: boolean;
 }
 
-const directoryInstallWindows = path.join(
-  process.env['ProgramFiles'] || 'C:\\Program Files',
-  'ClamAV'
-);
+const directoryInstallWindows = path.join(__dirname, 'clamAV');
 
 const directoryQuarantine = path.join(process.cwd(), 'quarantine');
 
@@ -172,6 +168,7 @@ export class Antivirus {
       viruses?: string[]
     ) => void;
   }) {
+    console.log('ITEMS TO SCAN IN SCAN ITEMS FUNCTION: ', { items });
     const filePaths = items
       .filter((item) => !item.isDirectory)
       .map((file) => file.path);

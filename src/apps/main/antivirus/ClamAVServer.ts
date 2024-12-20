@@ -6,10 +6,7 @@ const SERVER_HOST = '127.0.0.1';
 const SERVER_PORT = 3310;
 
 let clamdProcess: ChildProcessWithoutNullStreams | null = null;
-const directoryInstallWindows = path.join(
-  process.env['ProgramFiles'] || 'C:\\Program Files',
-  'ClamAV'
-);
+const directoryInstallWindows = path.join(__dirname, 'clamAV');
 
 const startClamdServer = (): Promise<void> => {
   return new Promise((resolve, reject) => {

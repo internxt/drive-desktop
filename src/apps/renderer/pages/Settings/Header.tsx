@@ -1,4 +1,4 @@
-import { At, FileMagnifyingGlass, Gear, Icon } from '@phosphor-icons/react';
+import { At, Gear, Icon, Shield } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 
 import { useTranslationContext } from '../../context/LocalContext';
@@ -49,7 +49,7 @@ export default function Header({
     { label: 'GENERAL', icon: Gear },
     { label: 'ACCOUNT', icon: At },
     { label: 'BACKUPS', icon: UilHistory },
-    { label: 'ANTIVIRUS', icon: FileMagnifyingGlass },
+    { label: 'ANTIVIRUS', icon: Shield },
   ];
 
   const animationVariants: Record<Section, { left: string }> =

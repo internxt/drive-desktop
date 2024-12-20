@@ -16,7 +16,6 @@ import { downloadFolderAsZip } from '../network/download';
 import Logger from 'electron-log';
 import { broadcastToWindows } from '../windows';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
-import { randomUUID } from 'crypto';
 
 export type Device = {
   name: string;
@@ -603,6 +602,27 @@ export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   await Promise.all(operations);
 }
 
+export async function getUserSystemPath(): Promise<
+  | {
+      path: string;
+      itemName: string;
+      isDirectory: boolean;
+    }
+  | undefined
+> {
+  const filePath = os.homedir();
+  if (!filePath) return;
+
+  const isFolder = await PathTypeChecker.isFolder(filePath);
+  const itemName = path.basename(filePath);
+
+  return {
+    path: filePath,
+    itemName,
+    isDirectory: isFolder,
+  };
+}
+
 export async function getPathFromDialog(
   dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']
 ): Promise<{
@@ -670,7 +690,6 @@ export async function getMultiplePathsFromDialog(getFiles?: boolean): Promise<
       const isFolder = await PathTypeChecker.isFolder(filePath);
       const itemName = path.basename(filePath);
       return {
-        id: randomUUID(),
         path: filePath,
         itemName,
         isDirectory: isFolder,
