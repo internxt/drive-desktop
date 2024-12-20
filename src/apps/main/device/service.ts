@@ -191,11 +191,9 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
   let key;
   try {
     key = `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`;
-    Logger.info(`[DEVICE] Decrypting device name with key: ${key}`);
     nameDevice = aes.decrypt(name, key);
   } catch (error) {
     key = `${process.env.NEW_CRYPTO_KEY}-${null}`;
-    Logger.info(`[DEVICE] Error decrypting device name: ${key}`);
     nameDevice = aes.decrypt(name, key);
   }
 
@@ -516,6 +514,8 @@ export async function deleteBackupsFromDevice(
 export async function disableBackup(backup: BackupInfo): Promise<void> {
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.folderId)!;
+
+  await deleteBackup(backup);
 
   backupsList[pathname].enabled = false;
 
