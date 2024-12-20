@@ -17,7 +17,7 @@ import { addGeneralIssue } from '../background-processes/process-issues';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { PathLike } from 'fs';
-import { downloadFolderAsZip } from '../network/download';
+import { downloadFolder } from '../network/download';
 import Logger from 'electron-log';
 import { broadcastToWindows } from '../windows';
 import { randomUUID } from 'crypto';
@@ -45,6 +45,7 @@ export interface FolderTreeResponse {
   folderDecryptedNames: Record<number, string>;
   fileDecryptedNames: Record<number, string>;
   size: number;
+  totalItems: number;
 }
 
 export const addUnknownDeviceIssue = (error: Error) => {
@@ -84,7 +85,7 @@ export async function getDevices(): Promise<Array<Device>> {
     headers: getHeaders(true),
   });
 
-  const devices = (await response.json()) as Array<DeviceDTO>;
+  const devices = ((await response.json()) as Array<DeviceDTO>) || [];
 
   return devices
     .filter(({ removed, hasBackups }) => !removed && hasBackups)
@@ -186,8 +187,20 @@ export async function renameDevice(deviceName: string): Promise<Device> {
 }
 
 function decryptDeviceName({ name, ...rest }: Device): Device {
+  let nameDevice;
+  let key;
+  try {
+    key = `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`;
+    nameDevice = aes.decrypt(name, key);
+  } catch (error) {
+    key = `${process.env.NEW_CRYPTO_KEY}-${null}`;
+    nameDevice = aes.decrypt(name, key);
+  }
+
+  Logger.info(`[DEVICE] Decrypted device name "${nameDevice}"`);
+
   return {
-    name: aes.decrypt(name, `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`),
+    name: nameDevice,
     ...rest,
   };
 }
@@ -267,7 +280,7 @@ async function createBackup(pathname: string): Promise<void> {
 
   const newBackup = await postBackup(base);
 
-  logger.debug(`[BACKUPS] Created backup with id ${newBackup.id}`);
+  logger.debug(`[BACKUPS] Created backup with id ${newBackup.uuid}`);
 
   const backupList = configStore.get('backupList');
 
@@ -365,6 +378,7 @@ function processFolderTree(tree: FolderTree) {
   const folderDecryptedNames: Record<number, string> = {};
   const fileDecryptedNames: Record<number, string> = {};
   const pendingFolders = [tree];
+  let totalItems = 0;
 
   while (pendingFolders.length > 0) {
     const currentTree = pendingFolders.shift()!;
@@ -381,22 +395,23 @@ function processFolderTree(tree: FolderTree) {
         `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`
       );
       size += Number(file.size);
+      totalItems++;
     }
 
     pendingFolders.push(...folders);
   }
 
-  return { size, folderDecryptedNames, fileDecryptedNames };
+  return { size, folderDecryptedNames, fileDecryptedNames, totalItems };
 }
 
 export async function fetchFolderTree(
   folderUuid: string
 ): Promise<FolderTreeResponse> {
   const tree = await fetchTreeFromApi(folderUuid);
-  const { size, folderDecryptedNames, fileDecryptedNames } =
+  const { size, folderDecryptedNames, fileDecryptedNames, totalItems } =
     processFolderTree(tree);
 
-  return { tree, folderDecryptedNames, fileDecryptedNames, size };
+  return { tree, folderDecryptedNames, fileDecryptedNames, size, totalItems };
 }
 
 export async function fetchArrayFolderTree(
@@ -406,6 +421,7 @@ export async function fetchArrayFolderTree(
   const folderDecryptedNames: Record<number, string> = {};
   const fileDecryptedNames: Record<number, string> = {};
   let totalSize = 0;
+  let totalItemsInTree = 0;
 
   for (const folderUuid of folderUuids) {
     const tree = await fetchTreeFromApi(folderUuid);
@@ -415,9 +431,11 @@ export async function fetchArrayFolderTree(
       size,
       folderDecryptedNames: folderNames,
       fileDecryptedNames: fileNames,
+      totalItems,
     } = processFolderTree(tree);
 
     totalSize += size;
+    totalItemsInTree += totalItems;
     Object.assign(folderDecryptedNames, folderNames);
     Object.assign(fileDecryptedNames, fileNames);
   }
@@ -450,6 +468,7 @@ export async function fetchArrayFolderTree(
     folderDecryptedNames,
     fileDecryptedNames,
     size: totalSize,
+    totalItems: totalItemsInTree,
   };
 }
 
@@ -495,6 +514,8 @@ export async function deleteBackupsFromDevice(
 export async function disableBackup(backup: BackupInfo): Promise<void> {
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.folderId)!;
+
+  await deleteBackup(backup);
 
   backupsList[pathname].enabled = false;
 
@@ -577,16 +598,12 @@ async function downloadDeviceBackupZip(
 
   const folders = await fetchFolders(foldersIdToDownload);
 
-  Logger.info(`[BACKUPS] Folders to download: ${folders}`);
-
-  Logger.info(folders);
-
   const networkApiUrl = process.env.BRIDGE_URL;
   const bridgeUser = user.bridgeUser;
   const bridgePass = user.userId;
   const encryptionKey = user.mnemonic;
 
-  await downloadFolderAsZip(
+  await downloadFolder(
     device.name,
     networkApiUrl,
     folders.map((folder) => folder.uuid),
@@ -626,7 +643,8 @@ export async function downloadBackup(
     String(date.getHours()) +
     String(date.getMinutes()) +
     String(date.getSeconds());
-  const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
+  const zipFilePath = chosenPath + 'Backup_' + now + '';
+  // const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
 
   Logger.info(`[BACKUPS] Downloading backup to ${zipFilePath}`);
 
@@ -638,6 +656,7 @@ export async function downloadBackup(
         Logger.info(`[BACKUPS] Aborting download for device ${device.name}`);
         if (abortController && !abortController.signal.aborted) {
           abortController.abort();
+          fs.unlinkSync(zipFilePath);
         }
       } catch (error) {
         Logger.error(`[BACKUPS] Error while aborting download: ${error}`);
@@ -656,6 +675,7 @@ export async function downloadBackup(
     await downloadDeviceBackupZip(device, foldersIdToDownload, zipFilePath, {
       updateProgress: (progress: number) => {
         if (abortController?.signal.aborted) return;
+        Logger.info(`[BACKUPS] Download progress: ${progress}`);
         broadcastToWindows('backup-download-progress', {
           id: device.uuid,
           progress: Math.round(progress),

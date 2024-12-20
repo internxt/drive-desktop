@@ -1,3 +1,4 @@
+/* eslint-disable no-await-in-loop */
 import { FileVersionOneError } from '@internxt/sdk/dist/network/download';
 import { FlatFolderZip } from './zip.service';
 import { items } from '@internxt/lib';
@@ -20,12 +21,49 @@ import fetch from 'electron-fetch';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { convertToReadableStream } from './NetworkFacade';
 import Logger from 'electron-log';
+import path from 'path';
 
-export async function downloadFolderAsZip(
+async function writeReadableStreamToFile(
+  readableStream: ReadableStream<Uint8Array>,
+  filePath: string
+): Promise<void> {
+  const writer = fs.createWriteStream(filePath);
+
+  const reader = readableStream.getReader();
+
+  return new Promise((resolve, reject) => {
+    function processChunk({
+      done,
+      value,
+    }: ReadableStreamReadResult<Uint8Array>) {
+      if (done) {
+        writer.end(); // Finalizar escritura del archivo
+        resolve();
+        return;
+      }
+
+      writer.write(Buffer.from(value), (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          reader.read().then(processChunk).catch(reject);
+        }
+      });
+    }
+
+    reader.read().then(processChunk).catch(reject);
+
+    writer.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+export async function downloadFolder(
   deviceName: string,
   networkApiUrl: string,
   foldersUuid: string[],
-  path: PathLike,
+  targetPath: PathLike,
   environment: {
     bridgeUser: string;
     bridgePass: string;
@@ -36,56 +74,46 @@ export async function downloadFolderAsZip(
     updateProgress?: (progress: number) => void;
   }
 ) {
-  const date = new Date();
-  const now =
-    String(date.getFullYear()) +
-    String(date.getMonth() + 1) +
-    String(date.getDay()) +
-    String(date.getHours()) +
-    String(date.getMinutes()) +
-    String(date.getSeconds());
-  const writeStream = fs.createWriteStream(path + 'Backup_' + now + '.zip');
-  const destination = convertToWritableStream(writeStream);
-
-  Logger.info('Downloading folder as zip');
+  Logger.info('Downloading folder to directory');
 
   const { abortController, updateProgress } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
-  const { tree, folderDecryptedNames, fileDecryptedNames, size } =
+
+  // Obtener información del árbol de carpetas y archivos
+  updateProgress && updateProgress(1);
+
+  const { tree, folderDecryptedNames, fileDecryptedNames, size, totalItems } =
     await fetchArrayFolderTree(foldersUuid);
+
   tree.plainName = deviceName;
   folderDecryptedNames[tree.id] = deviceName;
+
   const pendingFolders: { path: string; data: FolderTree }[] = [
     { path: '', data: tree },
   ];
 
-  const zip = new FlatFolderZip(destination, {
-    abortController: opts.abortController,
-    progress: (loadedBytes) => {
-      if (updateProgress) {
-        updateProgress((loadedBytes / size) * 100);
-      }
-    },
-  });
+  // let downloadedBytes = 0;
+  let downloadedItems = 0;
 
   while (pendingFolders.length > 0 && !abortController?.signal.aborted) {
     const currentFolder = pendingFolders.shift() as {
       path: string;
       data: FolderTree;
     };
+
     const folderPath =
       currentFolder.path +
       (currentFolder.path === '' ? '' : '/') +
       folderDecryptedNames[currentFolder.data.id];
 
-    Logger.info('Downloading folder', folderPath);
+    Logger.info('Creating folder:', folderPath);
 
-    zip.addFolder(folderPath);
+    // Crear el directorio si no existe
+    await fs.promises.mkdir(targetPath + '/' + folderPath, { recursive: true });
 
     const { files, children: folders } = currentFolder.data;
 
     for (const file of files) {
-      Logger.info('Downloading file', file.id);
       if (abortController?.signal.aborted) {
         throw new Error('Download cancelled');
       }
@@ -95,7 +123,11 @@ export async function downloadFolderAsZip(
         type: file.type,
       });
 
-      const fileStreamPromise = downloadFile({
+      const filePath = path.join(folderPath, displayFilename);
+
+      Logger.info('Downloading file:', filePath);
+
+      const fileStream = await downloadFile({
         networkApiUrl,
         bucketId: file.bucket,
         fileId: file.fileId,
@@ -105,12 +137,15 @@ export async function downloadFolderAsZip(
         },
         mnemonic: encryptionKey,
         options: {
-          notifyProgress: () => null,
           abortController: opts.abortController,
         },
       });
 
-      zip.addFile(folderPath + '/' + displayFilename, await fileStreamPromise);
+      // Leer el stream y escribirlo en el archivo
+      await writeReadableStreamToFile(fileStream, targetPath + '/' + filePath);
+      Logger.info(`total files: ${totalItems}, downloaded: ${downloadedItems}`);
+      downloadedItems += 1;
+      updateProgress && updateProgress((downloadedItems / totalItems) * 100);
     }
 
     pendingFolders.push(
@@ -122,40 +157,8 @@ export async function downloadFolderAsZip(
     throw new Error('Download cancelled');
   }
 
-  return zip.close();
-}
-
-function convertToWritableStream(
-  writeStream: fs.WriteStream
-): WritableStream<Uint8Array> {
-  return new WritableStream<Uint8Array>({
-    async write(chunk) {
-      const buffer = Buffer.from(chunk);
-      return new Promise<void>((resolve, reject) => {
-        writeStream.write(buffer, (err) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
-    },
-    async close() {
-      return new Promise<void>((resolve, reject) => {
-        writeStream.end((err: Error) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        });
-      });
-    },
-    async abort(reason) {
-      writeStream.destroy(reason);
-    },
-  });
+  Logger.info('Download complete:', targetPath);
+  updateProgress && updateProgress(100);
 }
 
 export type DownloadProgressCallback = (
@@ -171,7 +174,7 @@ export interface IDownloadParams {
   encryptionKey?: Buffer;
   token?: string;
   options?: {
-    notifyProgress: DownloadProgressCallback;
+    notifyProgress?: DownloadProgressCallback;
     abortController?: AbortController;
   };
 }

@@ -9,5 +9,6 @@ export interface CreateFileDTO {
     plain_name: string;
     size: number;
     type: string;
+    modificationTime?: Date;
   };
 }

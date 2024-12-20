@@ -62,7 +62,7 @@ export class Backup {
 
     const filesDiff = DiffFilesCalculator.calculate(local, remote);
 
-    await this.isThereEnoughSpace(filesDiff);
+    // await this.isThereEnoughSpace(filesDiff);
 
     const alreadyBacked =
       filesDiff.unmodified.length + foldersDiff.unmodified.length;
@@ -182,11 +182,17 @@ export class Backup {
         );
       } catch (error) {
         Logger.error('Error uploading files', error);
-      }
-      this.backed += batch.length;
+        if (error instanceof DriveDesktopError) {
+          Logger.error('Error uploading files', {
+            cause: error.cause,
+          });
+          throw error;
+        }
+        this.backed += batch.length;
 
-      Logger.debug('[Backed]', this.backed);
-      BackupsIPCRenderer.send('backups.progress-update', this.backed);
+        Logger.debug('[Backed]', this.backed);
+        BackupsIPCRenderer.send('backups.progress-update', this.backed);
+      }
     }
   }
 

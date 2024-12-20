@@ -25,7 +25,6 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
   });
 
   Logger.info('Registering local file services');
-  Logger.info('User', user);
 
   builder.register(Environment).useInstance(environment).private();
 
