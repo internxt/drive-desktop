@@ -13,6 +13,7 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
     abortDownloadBackups,
     thereIsDownloadProgress,
     clearBackupDownloadProgress,
+    backupStatus,
   } = useContext(BackupContext);
 
   const handleDownloadBackup = async () => {
@@ -37,7 +38,7 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
         className={`${className} hover:cursor-pointer`}
         variant={thereIsDownloadProgress ? 'danger' : 'secondary'}
         onClick={handleDownloadBackup}
-        disabled={backups.length === 0}
+        disabled={backups.length === 0 || backupStatus !== 'STANDBY'}
       >
         {thereIsDownloadProgress ? 'Stop download' : 'Download'}
       </Button>

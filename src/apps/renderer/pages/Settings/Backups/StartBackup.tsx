@@ -9,7 +9,8 @@ type StartBackupProps = {
 };
 
 export function StartBackup({ className }: StartBackupProps) {
-  const { backups, backupStatus } = useContext(BackupContext);
+  const { backups, backupStatus, thereIsDownloadProgress } =
+    useContext(BackupContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
   function toggleConfirmation() {
@@ -34,7 +35,7 @@ export function StartBackup({ className }: StartBackupProps) {
             ? window.electron.startBackupsProcess()
             : toggleConfirmation();
         }}
-        disabled={backups.length === 0}
+        disabled={backups.length === 0 || thereIsDownloadProgress}
       >
         {translate(
           `settings.backups.action.${

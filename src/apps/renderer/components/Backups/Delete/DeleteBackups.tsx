@@ -2,21 +2,38 @@ import { SecondaryText } from '../../SecondaryText';
 import { SectionHeader } from '../../SectionHeader';
 import Button from '../../Button';
 import { ConfirmationModal } from './ConfirmationModal';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { BackupContext } from '../../../context/BackupContext';
 import { DeviceContext } from '../../../context/DeviceContext';
+import { useBackupProgress } from '../../../hooks/backups/useBackupProgress';
 
 export function DeleteBackups() {
-  const { backups, deleteBackups } = useContext(BackupContext);
+  const { backups, deleteBackups, backupStatus } = useContext(BackupContext);
   const { selected, current } = useContext(DeviceContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
+
+  const { thereIsProgress } = useBackupProgress();
+  const { thereIsDownloadProgress } = useContext(BackupContext);
 
   const { translate } = useTranslationContext();
 
   function toggleConfirmation() {
     setAskConfirmation(!askConfirmation);
   }
+
+  useEffect(() => {
+    window.electron.logger.info('thereIsProgress', thereIsProgress);
+    window.electron.logger.info(
+      'thereIsDownloadProgress',
+      thereIsDownloadProgress
+    );
+    window.electron.logger.info('askConfirmation', backupStatus);
+
+    // if (thereIsProgress || thereIsDownloadProgress) {
+    //   setAskConfirmation(false);
+    // }
+  }, [thereIsProgress, thereIsDownloadProgress]);
 
   async function deleteBackupsFromDevice() {
     deleteBackups(selected!, selected === current);
@@ -34,7 +51,11 @@ export function DeleteBackups() {
       <Button
         variant="secondary"
         onClick={toggleConfirmation}
-        disabled={backups.length === 0}
+        disabled={
+          backups.length === 0 ||
+          backupStatus !== 'STANDBY' ||
+          thereIsDownloadProgress
+        }
       >
         {translate('settings.backups.delete.action')}
       </Button>

@@ -1,5 +1,5 @@
 import { UilMinus, UilPlus } from '@iconscout/react-unicons';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Button from '../../../../components/Button';
 import { useTranslationContext } from '../../../../context/LocalContext';
 import { LoadingFolders } from './LoadingFolders';
@@ -16,10 +16,14 @@ export default function BackupFolderSelector({
 }: BackupFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const { backups, backupsState, addBackup, disableBackup } =
+  const { backups, backupsState, addBackup, disableBackup, refreshBackups } =
     useContext(BackupContext);
 
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
+
+  useEffect(() => {
+    refreshBackups();
+  }, []);
 
   const selectItem = (backup: ItemBackup) => {
     setSelectedBackup([backup]);

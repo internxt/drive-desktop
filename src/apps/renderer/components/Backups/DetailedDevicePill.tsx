@@ -1,5 +1,3 @@
-import useUsage from '../../hooks/useUsage';
-import { SizePill } from './SizePill';
 import { useContext, useEffect } from 'react';
 import { useBackupProgress } from '../../hooks/backups/useBackupProgress';
 import { BackupsProgressBar } from './BackupsProgressBar';
@@ -31,7 +29,6 @@ function DownloadingBackup() {
 }
 
 export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
-  const { usage } = useUsage();
   const { thereIsProgress, percentualProgress, clearProgress } =
     useBackupProgress();
   const { current, selected } = useContext(DeviceContext);

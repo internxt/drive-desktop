@@ -85,7 +85,7 @@ export async function getDevices(): Promise<Array<Device>> {
     headers: getHeaders(true),
   });
 
-  const devices = (await response.json()) as Array<DeviceDTO>;
+  const devices = ((await response.json()) as Array<DeviceDTO>) || [];
 
   return devices
     .filter(({ removed, hasBackups }) => !removed && hasBackups)

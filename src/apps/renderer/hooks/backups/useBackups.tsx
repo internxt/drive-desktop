@@ -13,6 +13,7 @@ export interface BackupContextProps {
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
   downloadBackups: (device: Device, foldersId?: number[]) => Promise<void>;
   abortDownloadBackups: (device: Device) => void;
+  refreshBackups: () => Promise<void>;
 }
 
 export function useBackups(): BackupContextProps {
@@ -92,6 +93,7 @@ export function useBackups(): BackupContextProps {
   return {
     backupsState,
     backups,
+    refreshBackups: fetchBackups,
     disableBackup,
     addBackup,
     deleteBackups,
