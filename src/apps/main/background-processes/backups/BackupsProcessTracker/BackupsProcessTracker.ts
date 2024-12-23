@@ -39,6 +39,10 @@ export class BackupsProcessTracker {
     };
   }
 
+  notifyLastProgress() {
+    this.notify(this.progress());
+  }
+
   track(backups: Array<BackupInfo>): void {
     this.total = backups.length;
   }
@@ -121,6 +125,13 @@ export function initiateBackupsProcessTracker(): BackupsProcessTracker {
       return undefined;
     }
   );
+
+  BackupsIPCMain.on('backups.get-last-progress', () => {
+    // si hat un backup en progreso entonces notificar el progreso
+    if (tracker.currentIndex() > 0) {
+      tracker.notifyLastProgress();
+    }
+  });
 
   BackupsIPCMain.on(
     'backups.total-items-calculated',

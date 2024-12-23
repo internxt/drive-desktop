@@ -225,6 +225,9 @@ contextBridge.exposeInMainWorld('electron', {
   getLastBackupTimestamp() {
     return ipcRenderer.invoke('get-last-backup-timestamp');
   },
+  getLastBackupProgress() {
+    return ipcRenderer.send('backups.get-last-progress');
+  },
   onBackupProgress(func) {
     const eventName = 'backup-progress';
     const callback = (_, v) => func(v);

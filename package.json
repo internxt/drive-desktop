@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.3.2",
+  "version": "2.3.3-qa",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -24,7 +24,7 @@
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "start:sync": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
     "start:sync-engine": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync-engine.ts",
-    "start:backups": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
+    "start:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
     "test": "jest && playwright test --config=src/test",
     "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=src/test",

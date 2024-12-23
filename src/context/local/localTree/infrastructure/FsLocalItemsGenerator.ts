@@ -7,6 +7,7 @@ import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalItemsGenerator } from '../domain/LocalItemsGenerator';
 import { LocalFileDTO } from './LocalFileDTO';
 import { LocalFolderDTO } from './LocalFolderDTO';
+import Logger from 'electron-log';
 
 @Service()
 export class CLSFsLocalItemsGenerator implements LocalItemsGenerator {
@@ -59,32 +60,70 @@ export class CLSFsLocalItemsGenerator implements LocalItemsGenerator {
       folders: [] as LocalFolderDTO[],
     });
 
-    const dirents = await fs.readdir(dir, {
-      withFileTypes: true,
-    });
+    try {
+      const dirents = await fs.readdir(dir, {
+        withFileTypes: true,
+      });
 
-    return dirents.reduce(async (promise, dirent) => {
-      const acc = await promise;
+      return dirents.reduce(async (promise, dirent) => {
+        const acc = await promise;
 
-      const absolutePath = path.join(dir, dirent.name) as AbsolutePath;
-      const stat = await fs.stat(absolutePath);
+        const absolutePath = path.join(dir, dirent.name) as AbsolutePath;
 
-      if (dirent.isFile()) {
-        acc.files.push({
-          path: absolutePath,
-          modificationTime: stat.mtime.getTime(),
-          size: stat.size,
-        });
+        try {
+          const stat = await fs.stat(absolutePath);
+
+          if (dirent.isFile()) {
+            acc.files.push({
+              path: absolutePath,
+              modificationTime: stat.mtime.getTime(),
+              size: stat.size,
+            });
+          }
+
+          if (dirent.isDirectory()) {
+            acc.folders.push({
+              path: absolutePath,
+              modificationTime: stat.mtime.getTime(),
+            });
+          }
+        } catch (error: any) {
+          // Capturar error relacionado con permisos (EPERM) o cualquier otro error
+
+          Logger.error(error.message);
+          Logger.error(error.message.includes('EPERM'));
+          if (error.message.includes('EPERM')) {
+            throw new DriveDesktopError(
+              'INSUFFICIENT_PERMISSION',
+              `Cannot read stats of ${absolutePath}`
+            );
+          } else {
+            throw new DriveDesktopError(
+              'UNKNOWN',
+              `Unexpected error while accessing ${absolutePath}: ${error.message}`
+            );
+          }
+        }
+
+        return acc;
+      }, accumulator);
+    } catch (error: any) {
+      // Capturar errores relacionados con la lectura del directorio base
+      if (error instanceof DriveDesktopError) {
+        throw error;
       }
 
-      if (dirent.isDirectory()) {
-        acc.folders.push({
-          path: absolutePath,
-          modificationTime: stat.mtime.getTime(),
-        });
+      if (error.message.includes('EPERM')) {
+        throw new DriveDesktopError(
+          'INSUFFICIENT_PERMISSION',
+          `Cannot read directory ${dir}`
+        );
+      } else {
+        throw new DriveDesktopError(
+          'UNKNOWN',
+          `Unexpected error while accessing directory ${dir}: ${error.message}`
+        );
       }
-
-      return acc;
-    }, accumulator);
+    }
   }
 }

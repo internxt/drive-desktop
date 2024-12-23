@@ -130,6 +130,10 @@ declare interface Window {
       import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
     >;
 
+    getLastBackupProgress(): Promise<
+      import('./background-processes/backups/types/BackupsProgress').BackupsProgress
+    >;
+
     onBackupProgress(
       func: (
         value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress

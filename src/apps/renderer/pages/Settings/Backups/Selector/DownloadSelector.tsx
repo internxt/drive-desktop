@@ -91,7 +91,7 @@ export default function DownloadFolderSelector({
 
   return (
     <div className="flex flex-col gap-3 p-4">
-      <div className="flex">
+      <div className="draggable flex">
         {folderHistory.length > 0 && (
           <button onClick={handleBack} className="mr-2">
             <UilArrowLeft size={24} />

@@ -46,13 +46,21 @@ export class Backup {
     info: BackupInfo,
     abortController: AbortController
   ): Promise<DriveDesktopError | undefined> {
+    Logger.info('[BACKUPS] Local tree built 1');
+
     const localTreeEither = await this.localTreeBuilder.run(
       info.pathname as AbsolutePath
     );
 
+    Logger.info('[BACKUPS] Local tree built 2');
+
     if (localTreeEither.isLeft()) {
+      Logger.error('[BACKUPS] Error building local tree');
+      Logger.error(localTreeEither.getLeft());
       return localTreeEither.getLeft();
     }
+
+    Logger.info('[BACKUPS] Local tree built 3');
 
     const local = localTreeEither.getRight();
 
@@ -80,36 +88,6 @@ export class Backup {
     await this.backupFiles(filesDiff, local, remote, abortController);
 
     return undefined;
-  }
-
-  private async isThereEnoughSpace(filesDiff: FilesDiff): Promise<void> {
-    const bytesToUpload = filesDiff.added.reduce((acc, file) => {
-      acc += file.size;
-
-      return acc;
-    }, 0);
-
-    const bytesToUpdate = Array.from(filesDiff.modified.entries()).reduce(
-      (acc, [local, remote]) => {
-        acc += local.size - remote.size;
-
-        return acc;
-      },
-      0
-    );
-
-    const total = bytesToUpdate + bytesToUpload;
-
-    const thereIsEnoughSpace = await this.userAvaliableSpaceValidator.run(
-      total
-    );
-
-    if (!thereIsEnoughSpace) {
-      throw new DriveDesktopError(
-        'NOT_ENOUGH_SPACE',
-        'The size of the files to upload is greater than the avaliable space'
-      );
-    }
   }
 
   private async backupFolders(
@@ -188,11 +166,10 @@ export class Backup {
           });
           throw error;
         }
-        this.backed += batch.length;
-
-        Logger.debug('[Backed]', this.backed);
-        BackupsIPCRenderer.send('backups.progress-update', this.backed);
       }
+
+      this.backed += batch.length;
+      BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }
 
@@ -209,14 +186,23 @@ export class Backup {
       if (abortController.signal.aborted) {
         return;
       }
-      // eslint-disable-next-line no-await-in-loop
-      await this.fileBatchUpdater.run(
-        localTree.root,
-        remoteTree,
-        Array.from(batch.keys()),
-        abortController.signal
-      );
-
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await this.fileBatchUpdater.run(
+          localTree.root,
+          remoteTree,
+          Array.from(batch.keys()),
+          abortController.signal
+        );
+      } catch (error) {
+        Logger.error('[BACKUPS] Error updating files', error);
+        if (error instanceof DriveDesktopError) {
+          Logger.error('[BACKUPS] Error updating files', {
+            cause: error.cause,
+          });
+          throw error;
+        }
+      }
       this.backed += batch.size;
       BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
@@ -230,9 +216,18 @@ export class Backup {
       if (abortController.signal.aborted) {
         return;
       }
-
-      // eslint-disable-next-line no-await-in-loop
-      await this.remoteFileDeleter.run(file);
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await this.remoteFileDeleter.run(file);
+      } catch (error) {
+        Logger.error('[BACKUPS] Error deleting file', error);
+        if (error instanceof DriveDesktopError) {
+          Logger.error('[BACKUPS] Error deleting file', {
+            cause: error.cause,
+          });
+          throw error;
+        }
+      }
     }
 
     this.backed += deleted.length;
@@ -248,14 +243,23 @@ export class Backup {
         return;
       }
 
-      // eslint-disable-next-line no-await-in-loop
-      await this.remoteFolderDeleter.run(folder);
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        await this.remoteFolderDeleter.run(folder);
+      } catch (error) {
+        Logger.error('[BACKUPS] Error deleting folder', error);
+        if (error instanceof DriveDesktopError) {
+          Logger.error('[BACKUPS] Error deleting folder', {
+            cause: error.cause,
+          });
+          throw error;
+        }
+      }
+
+      this.backed += deleted.length;
+      BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
-
-    this.backed += deleted.length;
-    BackupsIPCRenderer.send('backups.progress-update', this.backed);
   }
-
   private async uploadAndCreateFolder(
     localRootPath: string,
     added: Array<LocalFolder>,

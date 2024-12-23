@@ -6,6 +6,7 @@ import { LoadingFolders } from './LoadingFolders';
 import { BackupContext } from '../../../../context/BackupContext';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { BackupsList } from './BackupsList';
+import WindowTopBar from '../../../../components/WindowTopBar';
 
 interface BackupFolderSelectorProps {
   onClose: () => void;
@@ -30,8 +31,8 @@ export default function BackupFolderSelector({
   };
 
   return (
-    <div className="flex flex-col gap-3 p-4">
-      <div className="flex">
+    <div className="flex flex-col gap-3 p-4 ">
+      <div className="draggable flex">
         <h1 className="text-lg font-normal">
           {translate('settings.backups.title')}
         </h1>
@@ -64,7 +65,7 @@ export default function BackupFolderSelector({
           <LoadingFolders state={backupsState} />
         )}
       </div>
-      <div className=" flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="flex">
           <Button
             onClick={addBackup}
