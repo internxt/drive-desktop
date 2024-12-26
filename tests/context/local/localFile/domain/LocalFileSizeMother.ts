@@ -1,6 +1,9 @@
 import { LocalFileSize } from '../../../../../src/context/local/localFile/domain/LocalFileSize';
 
 export class LocalFileSizeMother {
+  static empty(): LocalFileSize {
+    return new LocalFileSize(0);
+  }
   static small(): LocalFileSize {
     return new LocalFileSize(LocalFileSize.MAX_SMALL_FILE_SIZE);
   }

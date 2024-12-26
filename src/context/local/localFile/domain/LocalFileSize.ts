@@ -11,9 +11,13 @@ export class LocalFileSize extends ValueObject<number> {
   }
 
   private validate(value: number) {
-    if (value <= 0) {
+    if (value < 0) {
       throw new Error(`A remote file size cannot have value ${value}`);
     }
+  }
+
+  isEmpty(): boolean {
+    return this.value === 0;
   }
 
   isSmall(): boolean {

@@ -34,6 +34,10 @@ export class LocalFile extends AggregateRoot {
     return this._path.endsWith(otherPath);
   }
 
+  isEmpty(): boolean {
+    return this._size.isEmpty();
+  }
+
   isSmall(): boolean {
     return this._size.isSmall();
   }
