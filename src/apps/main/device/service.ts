@@ -279,7 +279,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
   size: number;
 }> {
   const res = await fetch(
-    `${process.env.NEW_DRIVE_URL}/drive/folders/${folderUuid}/tree`,
+    `${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/tree`,
     {
       method: 'GET',
       headers: getNewApiHeaders(),
