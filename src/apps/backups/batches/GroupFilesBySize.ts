@@ -1,6 +1,10 @@
 import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
 
 export class GroupFilesBySize {
+  static empty(files: Array<LocalFile>) {
+    return files.filter((file) => file.isEmpty());
+  }
+
   static small(files: Array<LocalFile>) {
     return files.filter((file) => file.isSmall());
   }
