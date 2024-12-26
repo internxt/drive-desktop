@@ -6,7 +6,6 @@ import { LoadingFolders } from './LoadingFolders';
 import { BackupContext } from '../../../../context/BackupContext';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { BackupsList } from './BackupsList';
-import WindowTopBar from '../../../../components/WindowTopBar';
 
 interface BackupFolderSelectorProps {
   onClose: () => void;

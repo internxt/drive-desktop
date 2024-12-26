@@ -522,7 +522,9 @@ export async function disableBackup(backup: BackupInfo): Promise<void> {
   configStore.set('backupList', backupsList);
 }
 
-export async function changeBackupPath(currentPath: string): Promise<boolean> {
+export async function changeBackupPath(
+  currentPath: string
+): Promise<string | null> {
   const backupsList = configStore.get('backupList');
   const existingBackup = backupsList[currentPath];
 
@@ -533,7 +535,7 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
   const chosen = await getPathFromDialog();
 
   if (!chosen || !chosen.path) {
-    return false;
+    return null;
   }
 
   const chosenPath = chosen.path;
@@ -562,7 +564,7 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
 
   configStore.set('backupList', backupsList);
 
-  return true;
+  return chosen.itemName;
 }
 
 function findBackupPathnameFromId(id: number): string | undefined {

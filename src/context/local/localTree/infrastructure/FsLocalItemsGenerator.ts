@@ -23,10 +23,10 @@ export class CLSFsLocalItemsGenerator implements LocalItemsGenerator {
         path: dir as AbsolutePath,
         modificationTime: stat.mtime.getTime(),
       });
-    } catch (err) {
+    } catch (err: any) {
       const { code } = err as { code?: string };
 
-      if (code === 'ENOENT') {
+      if (err?.message?.includes('ENOENT')) {
         return left(
           new DriveDesktopError(
             'BASE_DIRECTORY_DOES_NOT_EXIST',
@@ -34,7 +34,7 @@ export class CLSFsLocalItemsGenerator implements LocalItemsGenerator {
           )
         );
       }
-      if (code === 'EACCES') {
+      if (err?.message?.includes('EACCES')) {
         return left(
           new DriveDesktopError(
             'INSUFFICIENT_PERMISSION',
@@ -90,19 +90,23 @@ export class CLSFsLocalItemsGenerator implements LocalItemsGenerator {
         } catch (error: any) {
           // Capturar error relacionado con permisos (EPERM) o cualquier otro error
 
-          Logger.error(error.message);
-          Logger.error(error.message.includes('EPERM'));
+          if (error?.message?.includes('ENOENT')) {
+            throw new DriveDesktopError(
+              'BASE_DIRECTORY_DOES_NOT_EXIST',
+              `${dir} does not exist`
+            );
+          }
+
           if (error.message.includes('EPERM')) {
             throw new DriveDesktopError(
               'INSUFFICIENT_PERMISSION',
               `Cannot read stats of ${absolutePath}`
             );
-          } else {
-            throw new DriveDesktopError(
-              'UNKNOWN',
-              `Unexpected error while accessing ${absolutePath}: ${error.message}`
-            );
           }
+          throw new DriveDesktopError(
+            'UNKNOWN',
+            `Unexpected error while accessing ${absolutePath}: ${error.message}`
+          );
         }
 
         return acc;

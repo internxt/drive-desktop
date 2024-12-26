@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-await-in-loop */
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
@@ -22,7 +23,8 @@ export class FileBatchUploader {
     localRootPath: string,
     remoteTree: RemoteTree,
     batch: Array<LocalFile>,
-    signal: AbortSignal
+    signal: AbortSignal,
+    updateProgress: () => void
   ): Promise<void> {
     for (const localFile of batch) {
       try {
@@ -125,6 +127,8 @@ export class FileBatchUploader {
         await this.messenger.creationFailed(localFile, error);
         continue;
       }
+
+      await updateProgress();
     }
   }
 }

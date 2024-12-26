@@ -70,8 +70,6 @@ export class Backup {
 
     const filesDiff = DiffFilesCalculator.calculate(local, remote);
 
-    // await this.isThereEnoughSpace(filesDiff);
-
     const alreadyBacked =
       filesDiff.unmodified.length + foldersDiff.unmodified.length;
 
@@ -156,7 +154,14 @@ export class Backup {
           localRootPath,
           tree,
           batch,
-          abortController.signal
+          abortController.signal,
+          async () => {
+            this.backed += 1;
+            await BackupsIPCRenderer.send(
+              'backups.progress-update',
+              this.backed
+            );
+          }
         );
       } catch (error) {
         Logger.error('Error uploading files', error);
@@ -168,8 +173,8 @@ export class Backup {
         }
       }
 
-      this.backed += batch.length;
-      BackupsIPCRenderer.send('backups.progress-update', this.backed);
+      // this.backed += batch.length;
+      // BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }
 

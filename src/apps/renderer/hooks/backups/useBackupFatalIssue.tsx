@@ -9,10 +9,51 @@ type FixAction = {
   fn: () => Promise<void>;
 };
 
+type Action = {
+  name: string;
+  fn: undefined | ((backup: BackupInfo) => Promise<void>);
+};
+
+type BackupErrorActionMap = Record<SyncError, Action | undefined>;
+
 export function useBackupFatalIssue(backup: BackupInfo) {
   const [issue, setIssue] = useState<SyncError | undefined>(undefined);
   const [message, setMessage] = useState<string>('');
   const [action, setAction] = useState<FixAction | undefined>(undefined);
+  const [name, setName] = useState(backup.name);
+
+  async function findBackupFolder(backup: BackupInfo) {
+    const result = await window.electron.changeBackupPath(backup.pathname);
+    if (result) {
+      setName(result);
+      setIssue(undefined);
+      setMessage('');
+      setAction(undefined);
+      window.electron.startBackupsProcess();
+    }
+  }
+
+  const backupsErrorActions: BackupErrorActionMap = {
+    BASE_DIRECTORY_DOES_NOT_EXIST: {
+      name: 'issues.actions.find-folder',
+      fn: findBackupFolder,
+    },
+    NOT_EXISTS: undefined,
+    NO_INTERNET: undefined,
+    NO_REMOTE_CONNECTION: undefined,
+    BAD_RESPONSE: undefined,
+    EMPTY_FILE: undefined,
+    FILE_TOO_BIG: undefined,
+    FILE_NON_EXTENSION: undefined,
+    UNKNOWN: undefined,
+    DUPLICATED_NODE: undefined,
+    ACTION_NOT_PERMITTED: undefined,
+    FILE_ALREADY_EXISTS: undefined,
+    COULD_NOT_ENCRYPT_NAME: undefined,
+    BAD_REQUEST: undefined,
+    INSUFFICIENT_PERMISSION: undefined,
+    NOT_ENOUGH_SPACE: undefined,
+  };
 
   const { translate } = useTranslationContext();
 
@@ -44,39 +85,5 @@ export function useBackupFatalIssue(backup: BackupInfo) {
     }
   }, [issue]);
 
-  return { issue, message, action };
+  return { issue, message, action, name };
 }
-
-async function findBackupFolder(backup: BackupInfo) {
-  const result = await window.electron.changeBackupPath(backup.pathname);
-  if (result) window.electron.startBackupsProcess();
-}
-
-type Action = {
-  name: string;
-  fn: undefined | ((backup: BackupInfo) => Promise<void>);
-};
-
-type BackupErrorActionMap = Record<SyncError, Action | undefined>;
-
-export const backupsErrorActions: BackupErrorActionMap = {
-  BASE_DIRECTORY_DOES_NOT_EXIST: {
-    name: 'issues.actions.find-folder',
-    fn: findBackupFolder,
-  },
-  NOT_EXISTS: undefined,
-  NO_INTERNET: undefined,
-  NO_REMOTE_CONNECTION: undefined,
-  BAD_RESPONSE: undefined,
-  EMPTY_FILE: undefined,
-  FILE_TOO_BIG: undefined,
-  FILE_NON_EXTENSION: undefined,
-  UNKNOWN: undefined,
-  DUPLICATED_NODE: undefined,
-  ACTION_NOT_PERMITTED: undefined,
-  FILE_ALREADY_EXISTS: undefined,
-  COULD_NOT_ENCRYPT_NAME: undefined,
-  BAD_REQUEST: undefined,
-  INSUFFICIENT_PERMISSION: undefined,
-  NOT_ENOUGH_SPACE: undefined,
-};
