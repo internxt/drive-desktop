@@ -82,7 +82,7 @@ export async function downloadFolder(
   // Obtener información del árbol de carpetas y archivos
   updateProgress && updateProgress(1);
 
-  const { tree, folderDecryptedNames, fileDecryptedNames, size, totalItems } =
+  const { tree, folderDecryptedNames, fileDecryptedNames, totalItems } =
     await fetchArrayFolderTree(foldersUuid);
 
   tree.plainName = deviceName;
@@ -92,7 +92,6 @@ export async function downloadFolder(
     { path: '', data: tree },
   ];
 
-  // let downloadedBytes = 0;
   let downloadedItems = 0;
 
   while (pendingFolders.length > 0 && !abortController?.signal.aborted) {
@@ -113,39 +112,71 @@ export async function downloadFolder(
 
     const { files, children: folders } = currentFolder.data;
 
-    for (const file of files) {
-      if (abortController?.signal.aborted) {
-        throw new Error('Download cancelled');
-      }
+    const CHUCK_SIZE = 10;
 
-      const displayFilename = items.getItemDisplayName({
-        name: fileDecryptedNames[file.id],
-        type: file.type,
-      });
+    // Fragmentar los archivos en grupos de 10
+    const chunks = Array.from(
+      { length: Math.ceil(files.length / CHUCK_SIZE) },
+      (_, i) => files.slice(i * CHUCK_SIZE, (i + 1) * CHUCK_SIZE)
+    );
 
-      const filePath = path.join(folderPath, displayFilename);
+    for (const chunk of chunks) {
+      await Promise.all(
+        chunk.map(async (file) => {
+          if (abortController?.signal.aborted) {
+            throw new Error('Download cancelled');
+          }
 
-      Logger.info('Downloading file:', filePath);
+          try {
+            const displayFilename = items.getItemDisplayName({
+              name: fileDecryptedNames[file.id],
+              type: file.type,
+            });
 
-      const fileStream = await downloadFile({
-        networkApiUrl,
-        bucketId: file.bucket,
-        fileId: file.fileId,
-        creds: {
-          pass: bridgePass,
-          user: bridgeUser,
-        },
-        mnemonic: encryptionKey,
-        options: {
-          abortController: opts.abortController,
-        },
-      });
+            const filePath = path.join(folderPath, displayFilename);
 
-      // Leer el stream y escribirlo en el archivo
-      await writeReadableStreamToFile(fileStream, targetPath + '/' + filePath);
-      Logger.info(`total files: ${totalItems}, downloaded: ${downloadedItems}`);
-      downloadedItems += 1;
-      updateProgress && updateProgress((downloadedItems / totalItems) * 100);
+            Logger.info('Downloading file:', filePath);
+
+            const fileStream = await downloadFile({
+              networkApiUrl,
+              bucketId: file.bucket,
+              fileId: file.fileId,
+              creds: {
+                pass: bridgePass,
+                user: bridgeUser,
+              },
+              mnemonic: encryptionKey,
+              options: {
+                abortController: opts.abortController,
+              },
+            });
+
+            // Leer el stream y escribirlo en el archivo
+            await writeReadableStreamToFile(
+              fileStream,
+              targetPath + '/' + filePath
+            );
+
+            downloadedItems += 1;
+            const progress = (downloadedItems / totalItems) * 100;
+            Logger.info(
+              'totalItems:',
+              totalItems,
+              'downloadedItems:',
+              downloadedItems
+            );
+            Logger.info('Download progress:', progress);
+            updateProgress && updateProgress(Math.max(progress, 1));
+          } catch (error: any) {
+            Logger.error(
+              '[Downloader] Error downloading file:',
+              file,
+              error.message
+            );
+            throw error;
+          }
+        })
+      );
     }
 
     pendingFolders.push(

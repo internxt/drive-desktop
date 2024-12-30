@@ -1,5 +1,5 @@
 import { UilArrowLeft } from '@iconscout/react-unicons';
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Button from '../../../../components/Button';
 import { useTranslationContext } from '../../../../context/LocalContext';
 import { LoadingFolders } from './LoadingFolders';
@@ -13,9 +13,17 @@ interface DownloadFolderSelectorProps {
   onClose: () => void;
 }
 
-function truncateText(text: string, maxLength: number) {
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, maxLength)}...`;
+function truncateText(text: string, prev: string[], maxLength: number) {
+  const truncate = (str: string, maxLen: number) => {
+    return str.length > maxLen ? `${str.substring(0, maxLen - 3)}...` : str;
+  };
+
+  // Concatenar los textos, truncando si es necesario y agregando ">"
+  const truncatedTexts = [text, ...prev].map((str) =>
+    truncate(str, Math.floor(maxLength / prev.length))
+  );
+
+  return truncatedTexts.reverse().join(' > ');
 }
 
 export default function DownloadFolderSelector({
@@ -49,6 +57,20 @@ export default function DownloadFolderSelector({
   window.electron.logger.info(backups);
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
 
+  const [showText, setShowText] = useState(false);
+
+  useEffect(() => {
+    if (backupsState === 'SUCCESS' && selectedBackup.length !== 0) {
+      const timer = setTimeout(() => {
+        setShowText(true);
+      }, 200);
+
+      return () => clearTimeout(timer);
+    } else {
+      setShowText(false); // Oculta el texto si no se cumplen las condiciones
+    }
+  }, [backupsState, selectedBackup]);
+
   const addOrDeleteItem = (backup: ItemBackup) => {
     if (selectedBackup.find((item) => item.id === backup.id)) {
       setSelectedBackup(selectedBackup.filter((item) => item.id !== backup.id));
@@ -58,11 +80,9 @@ export default function DownloadFolderSelector({
   };
 
   const handleBack = () => {
-    if (folderHistory.length > 0) {
-      const previousFolderId = folderHistory[folderHistory.length - 1];
-      setFolderHistory(folderHistory.slice(0, -1));
-      setFolder(previousFolderId);
-    }
+    const previousFolderId = folderHistory[folderHistory.length - 1];
+    setFolderHistory(folderHistory.slice(0, -1));
+    setFolder(previousFolderId);
   };
 
   const handleNavigateToFolder = (newFolder: ItemBackup) => {
@@ -93,19 +113,25 @@ export default function DownloadFolderSelector({
     <div className="flex flex-col gap-3 p-4">
       <div className="draggable flex">
         {folderHistory.length > 0 && (
-          <button onClick={handleBack} className="mr-2">
+          <button
+            onClick={handleBack}
+            className="non-draggable mr-2 cursor-pointer"
+          >
             <UilArrowLeft size={24} />
           </button>
         )}
         <h1 className="text-lg font-normal">
-          {truncateText(selected?.name || '', 50)}{' '}
-          {folderHistory.length > 0 && ` > ${truncateText(folder.name, 50)}`}
+          {truncateText(
+            folder?.name || '',
+            folderHistory.map((i) => i.name).reverse(),
+            50
+          )}
         </h1>
         <div className="ml-auto text-gray-50">
-          {backupsState === 'SUCCESS' &&
+          {showText &&
             translate('settings.backups.selected-folder', {
               count: selectedBackup.length,
-            })}{' '}
+            })}
         </div>
       </div>
       <div className="border-l-neutral-30 h-72 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black">

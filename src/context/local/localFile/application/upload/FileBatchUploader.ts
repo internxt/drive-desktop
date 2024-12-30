@@ -26,109 +26,101 @@ export class FileBatchUploader {
     signal: AbortSignal,
     updateProgress: () => void
   ): Promise<void> {
-    for (const localFile of batch) {
-      try {
-        // eslint-disable-next-line no-await-in-loop
-        const uploadEither = await this.localHandler.upload(
-          localFile.path,
-          localFile.size,
-          signal
-        );
-        Logger.info(localFile.path);
+    const MAX_CONCURRENT_TASKS = 5;
 
-        if (uploadEither.isLeft()) {
-          const error = uploadEither.getLeft();
+    const chunks = Array.from(
+      { length: Math.ceil(batch.length / MAX_CONCURRENT_TASKS) },
+      (_, i) =>
+        batch.slice(i * MAX_CONCURRENT_TASKS, (i + 1) * MAX_CONCURRENT_TASKS)
+    );
 
-          Logger.error(
-            '[Local File Uploader] Error uploading file',
-            localFile.path,
-            error
-          );
+    for (const chunk of chunks) {
+      await Promise.all(
+        chunk.map(async (localFile) => {
+          try {
+            const uploadEither = await this.localHandler.upload(
+              localFile.path,
+              localFile.size,
+              signal
+            );
+            Logger.info(localFile.path);
 
-          if (isFatalError(error.cause)) {
-            throw error;
-          }
+            if (uploadEither.isLeft()) {
+              const error = uploadEither.getLeft();
+              Logger.error(
+                '[Local File Uploader] Error uploading file',
+                localFile.path,
+                error
+              );
 
-          // eslint-disable-next-line no-await-in-loop
-          await this.messenger.creationFailed(localFile, error);
-          continue;
-        }
+              if (isFatalError(error.cause)) {
+                throw error;
+              }
 
-        const contentsId = uploadEither.getRight();
+              await this.messenger.creationFailed(localFile, error);
+              return; // Continuar con el siguiente archivo en paralelo
+            }
 
-        Logger.info('[Local File Uploader] Uploading file', localRootPath);
+            const contentsId = uploadEither.getRight();
 
-        Logger.info(
-          '[Local File Uploader] Uploading file',
-          localFile.path,
-          'to',
-          contentsId
-        );
+            Logger.info('[Local File Uploader] Uploading file', localRootPath);
 
-        const remotePath = relativeV2(localRootPath, localFile.path);
+            const remotePath = relativeV2(localRootPath, localFile.path);
+            const parent = remoteTree.getParent(remotePath);
 
-        Logger.info('Uploading file', localFile.path, 'to', remotePath);
+            const either = await this.creator.run(
+              contentsId,
+              remotePath,
+              localFile.size,
+              parent.id
+            );
 
-        const parent = remoteTree.getParent(remotePath);
+            if (either.isLeft()) {
+              await this.localHandler.delete(contentsId);
+              const error = either.getLeft();
 
-        Logger.info('Uploading file', localFile.path, 'to', parent.path);
+              if (error.cause === 'FILE_ALREADY_EXISTS') {
+                return; // Continuar con el siguiente archivo en paralelo
+              }
 
-        // eslint-disable-next-line no-await-in-loop
-        const either = await this.creator.run(
-          contentsId,
-          remotePath,
-          localFile.size,
-          parent.id
-        );
+              if (error.cause === 'BAD_RESPONSE') {
+                await this.messenger.creationFailed(localFile, error);
+                return; // Continuar con el siguiente archivo en paralelo
+              }
 
-        if (either.isLeft()) {
-          // eslint-disable-next-line no-await-in-loop
-          await this.localHandler.delete(contentsId);
-          const error = either.getLeft();
+              throw error;
+            }
 
-          if (error.cause === 'FILE_ALREADY_EXISTS') {
-            continue;
-          }
+            const file = either.getRight();
 
-          if (error.cause === 'BAD_RESPONSE') {
-            // eslint-disable-next-line no-await-in-loop
+            Logger.info('[File created]', file);
+
+            await ipcRenderer.send('FILE_CREATED', {
+              name: file.name,
+              extension: file.type,
+              nameWithExtension: file.nameWithExtension,
+              fileId: file.id,
+              path: localFile.path,
+            });
+
+            remoteTree.addFile(parent, file);
+          } catch (error: any) {
+            Logger.error(
+              '[Local File Uploader] Error uploading file',
+              localFile.path,
+              error
+            );
+
+            if (isFatalError(error.cause)) {
+              throw error;
+            }
+
             await this.messenger.creationFailed(localFile, error);
-            continue;
+          } finally {
+            await updateProgress();
           }
-
-          throw error;
-        }
-
-        const file = either.getRight();
-
-        Logger.info('[File created]', file);
-
-        await ipcRenderer.send('FILE_CREATED', {
-          name: file.name,
-          extension: file.type,
-          nameWithExtension: file.nameWithExtension,
-          fileId: file.id,
-          path: localFile.path,
-        });
-
-        remoteTree.addFile(parent, file);
-      } catch (error: any) {
-        Logger.error(
-          '[Local File Uploader] Error uploading file',
-          localFile.path,
-          error
-        );
-
-        if (isFatalError(error.cause)) {
-          throw error;
-        }
-
-        // eslint-disable-next-line no-await-in-loop
-        await this.messenger.creationFailed(localFile, error);
-        continue;
-      }
-
-      await updateProgress();
+        })
+      );
     }
   }
 }

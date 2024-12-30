@@ -29,6 +29,7 @@ export type Device = {
   bucket: string;
   removed: boolean;
   hasBackups: boolean;
+  lastBackupAt: string;
 };
 
 type DeviceDTO = {
@@ -38,6 +39,7 @@ type DeviceDTO = {
   bucket: string;
   removed: boolean;
   hasBackups: boolean;
+  lastBackupAt: string;
 };
 
 export interface FolderTreeResponse {
@@ -680,7 +682,7 @@ export async function downloadBackup(
         Logger.info(`[BACKUPS] Download progress: ${progress}`);
         broadcastToWindows('backup-download-progress', {
           id: device.uuid,
-          progress: Math.round(progress),
+          progress: Math.trunc(progress),
         });
       },
       abortController,

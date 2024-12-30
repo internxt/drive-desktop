@@ -54,7 +54,7 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
         <div className="grow">
           {selected?.name}
           <br />
-          {selected === current && thereIsProgress ? (
+          {selected?.id === current?.id && thereIsProgress ? (
             <BackingUp />
           ) : (
             <LastBackupMade />

@@ -172,9 +172,6 @@ export class Backup {
           throw error;
         }
       }
-
-      // this.backed += batch.length;
-      // BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }
 

@@ -133,9 +133,6 @@ ipcMainDrive.on('FILE_CREATED', async (_, payload) => {
 
   let fullPath = payload.path;
 
-  Logger.info('FILE_CREATED', fullPath);
-  Logger.info('FILE_CREATED', isAbsolutePath(fullPath));
-
   if (!isAbsolutePath(fullPath)) {
     const root = configStore.get('syncRoot');
     Logger.info('FILE_CREATED', root);

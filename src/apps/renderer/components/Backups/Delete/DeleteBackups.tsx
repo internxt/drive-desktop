@@ -23,16 +23,9 @@ export function DeleteBackups() {
   }
 
   useEffect(() => {
-    window.electron.logger.info('thereIsProgress', thereIsProgress);
-    window.electron.logger.info(
-      'thereIsDownloadProgress',
-      thereIsDownloadProgress
-    );
-    window.electron.logger.info('askConfirmation', backupStatus);
-
-    // if (thereIsProgress || thereIsDownloadProgress) {
-    //   setAskConfirmation(false);
-    // }
+    if (thereIsProgress || thereIsDownloadProgress) {
+      setAskConfirmation(false);
+    }
   }, [thereIsProgress, thereIsDownloadProgress]);
 
   async function deleteBackupsFromDevice() {
