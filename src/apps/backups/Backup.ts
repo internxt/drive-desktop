@@ -42,44 +42,67 @@ export class Backup {
     info: BackupInfo,
     abortController: AbortController
   ): Promise<DriveDesktopError | undefined> {
-    Logger.info('[BACKUPS] Backing:', info.pathname);
+    Logger.info('[BACKUPS] Starting backup for:', info.pathname);
 
-    Logger.info('[BACKUPS] Generating local tree');
-    const localTreeEither = await this.localTreeBuilder.run(
-      info.pathname as AbsolutePath
-    );
+    try {
+      Logger.info('[BACKUPS] Generating local tree');
+      const localTreeEither = await this.localTreeBuilder.run(
+        info.pathname as AbsolutePath
+      );
 
-    if (localTreeEither.isLeft()) {
-      return localTreeEither.getLeft();
+      if (localTreeEither.isLeft()) {
+        const error = localTreeEither.getLeft();
+        Logger.error('[BACKUPS] Error generating local tree:', error);
+        return error;
+      }
+
+      const local = localTreeEither.getRight();
+      Logger.info('[BACKUPS] Local tree generated successfully');
+
+      Logger.info('[BACKUPS] Generating remote tree');
+      const remote = await this.remoteTreeBuilder.run(info.folderId);
+      Logger.info('[BACKUPS] Remote tree generated successfully');
+
+      Logger.info('[BACKUPS] Calculating folder differences');
+      const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
+      Logger.info('[BACKUPS] Folder differences calculated');
+
+      Logger.info('[BACKUPS] Calculating file differences');
+      const filesDiff = DiffFilesCalculator.calculate(local, remote);
+      Logger.info('[BACKUPS] File differences calculated');
+
+      Logger.info('[BACKUPS] Checking available space');
+      await this.isThereEnoughSpace(filesDiff);
+      Logger.info('[BACKUPS] Space check completed');
+
+      const alreadyBacked =
+        filesDiff.unmodified.length + foldersDiff.unmodified.length;
+      this.backed = alreadyBacked;
+
+      BackupsIPCRenderer.send(
+        'backups.total-items-calculated',
+        filesDiff.total + foldersDiff.total,
+        alreadyBacked
+      );
+
+      Logger.info('[BACKUPS] Starting folder backup');
+      await this.backupFolders(foldersDiff, local, remote);
+      Logger.info('[BACKUPS] Folder backup completed');
+
+      Logger.info('[BACKUPS] Starting file backup');
+      await this.backupFiles(filesDiff, local, remote, abortController);
+      Logger.info('[BACKUPS] File backup completed');
+
+      Logger.info('[BACKUPS] Backup process completed successfully');
+      return undefined;
+    } catch (error) {
+      Logger.error('[BACKUPS] Backup process failed with error:', error);
+      if (error instanceof DriveDesktopError) {
+        Logger.error('[BACKUPS] DriveDesktopError cause:', error.cause);
+        return error;
+      }
+      return new DriveDesktopError('UNKNOWN', 'An unknown error occurred');
     }
-
-    const local = localTreeEither.getRight();
-
-    Logger.info('[BACKUPS] Generating remote tree');
-    const remote = await this.remoteTreeBuilder.run(info.folderId);
-
-    const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
-
-    const filesDiff = DiffFilesCalculator.calculate(local, remote);
-
-    await this.isThereEnoughSpace(filesDiff);
-
-    const alreadyBacked =
-      filesDiff.unmodified.length + foldersDiff.unmodified.length;
-
-    this.backed = alreadyBacked;
-
-    BackupsIPCRenderer.send(
-      'backups.total-items-calculated',
-      filesDiff.total + foldersDiff.total,
-      alreadyBacked
-    );
-
-    await this.backupFolders(foldersDiff, local, remote);
-
-    await this.backupFiles(filesDiff, local, remote, abortController);
-
-    return undefined;
   }
 
   private async isThereEnoughSpace(filesDiff: FilesDiff): Promise<void> {
