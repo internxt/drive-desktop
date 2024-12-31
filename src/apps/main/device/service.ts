@@ -471,9 +471,18 @@ export async function disableBackup(backup: BackupInfo): Promise<void> {
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.folderId)!;
 
-  backupsList[pathname].enabled = false;
+  try {
+    backupsList[pathname].enabled = false;
+    configStore.set('backupList', backupsList);
 
-  configStore.set('backupList', backupsList);
+    const { size } = await fetchFolderTree(backup.folderUuid);
+
+    if (size === 0) {
+      await deleteBackup(backup, true);
+    }
+  } catch (error) {
+    logger.error('Error disabling backup folder', error);
+  }
 }
 
 export async function changeBackupPath(currentPath: string): Promise<boolean> {
