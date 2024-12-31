@@ -427,17 +427,18 @@ async function downloadDeviceBackupZip(
   );
 }
 
+function deleteFolder(folderId: number) {
+  return fetch(`${process.env.API_URL}/storage/folder/${folderId}`, {
+    method: 'DELETE',
+    headers: getHeaders(true),
+  });
+}
+
 export async function deleteBackup(
   backup: BackupInfo,
   isCurrent?: boolean
 ): Promise<void> {
-  const res = await fetch(
-    `${process.env.API_URL}/storage/folder/${backup.folderId}`,
-    {
-      method: 'DELETE',
-      headers: getHeaders(true),
-    }
-  );
+  const res = await deleteFolder(backup.folderId);
   if (!res.ok) {
     throw new Error('Request to delete backup wasnt succesful');
   }
@@ -460,10 +461,20 @@ export async function deleteBackupsFromDevice(
   isCurrent?: boolean
 ): Promise<void> {
   const backups = await getBackupsFromDevice(device, isCurrent);
+  logger.info(`[BACKUPS] Deleting ${backups.length} backups from device`);
+  logger.debug(`[BACKUPS] Backups: ${JSON.stringify(backups)}`);
 
-  const deletionPromises = backups.map((backup) =>
+  let deletionPromises: Promise<any>[] = backups.map((backup) =>
     deleteBackup(backup, isCurrent)
   );
+  await Promise.all(deletionPromises);
+
+  // delete backups that are not in the backup list
+  const { tree } = await fetchFolderTree(device.uuid);
+  const foldersToDelete = tree.children.filter(
+    (folder) => !backups.some((backup) => backup.folderId === folder.id)
+  );
+  deletionPromises = foldersToDelete.map((folder) => deleteFolder(folder.id));
   await Promise.all(deletionPromises);
 }
 
