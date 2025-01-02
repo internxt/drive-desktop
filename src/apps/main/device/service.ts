@@ -205,6 +205,7 @@ async function postBackup(name: string): Promise<Backup> {
     headers: getHeaders(true),
     body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
   });
+
   if (res.ok) {
     return res.json();
   }
@@ -218,7 +219,6 @@ async function postBackup(name: string): Promise<Backup> {
 async function createBackup(pathname: string): Promise<void> {
   const { base } = path.parse(pathname);
   const newBackup = await postBackup(base);
-
   const backupList = configStore.get('backupList');
 
   backupList[pathname] = { enabled: true, folderId: newBackup.id };
@@ -266,8 +266,13 @@ async function fetchFolder(folderId: number) {
     }
   );
 
+  const responseBody = await res.json().catch(() => null);
+
   if (res.ok) {
-    return res.json();
+    if (responseBody?.deleted || responseBody?.removed) {
+      throw new Error('Folder does not exist');
+    }
+    return responseBody;
   }
   throw new Error('Unsuccesful request to fetch folder');
 }
@@ -587,6 +592,7 @@ export async function getPathFromDialog(): Promise<{
     (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep);
 
   const itemName = path.basename(itemPath);
+
   return {
     path: itemPath,
     itemName,
