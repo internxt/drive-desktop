@@ -54,7 +54,6 @@ export default function DownloadFolderSelector({
 
   const items = useGetItems(folder.id);
 
-  window.electron.logger.info(backups);
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
 
   const [showText, setShowText] = useState(false);
