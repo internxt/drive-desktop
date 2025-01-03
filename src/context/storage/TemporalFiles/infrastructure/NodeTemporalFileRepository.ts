@@ -42,6 +42,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
   }
 
   create(documentPath: TemporalFilePath): Promise<void> {
+    Logger.debug('Creating file', documentPath.value);
     const id = uuid.v4();
 
     const pathToWrite = path.join(this.folder, id);
@@ -165,6 +166,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
   }
 
   async find(documentPath: TemporalFilePath): Promise<Optional<TemporalFile>> {
+    Logger.debug('Finding file', documentPath.value);
     const pathToSearch = this.map.get(documentPath.value);
 
     if (!pathToSearch) {
@@ -185,6 +187,8 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
 
   watchFile(documentPath: TemporalFilePath, callback: () => void): () => void {
     const pathToWatch = this.map.get(documentPath.value);
+
+    Logger.debug('Watching file', documentPath.value);
 
     if (!pathToWatch) {
       throw new Error(`Document with path ${documentPath.value} not found`);
