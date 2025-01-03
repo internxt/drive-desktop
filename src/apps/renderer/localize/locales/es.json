@@ -311,10 +311,11 @@
           "24h": "Cada día",
           "manually": "Manual"
         },
-        "warning":"Las carpetas no se respaldarán automáticamente hasta que haga clic en 'Copia de seguridad ahora'. Este modo no se recomienda."
+        "warning": "Las carpetas no se respaldarán automáticamente hasta que haga clic en 'Copia de seguridad ahora'. Este modo no se recomienda."
       },
       "folders": {
         "no-folders": "No hay carpetas seleccionadas",
+        "no-folders-to-download": "No hay carpetas para descargar",
         "save": "Guardar",
         "cancel": "Cancelar",
         "error": "No pudimos encontrar la carpeta seleccionada"
@@ -363,6 +364,7 @@
       "no-internet-connection": "No hay conexión a Internet",
       "no-permission": "Permisos insuficientes",
       "file-does-not-exist": "El archivo no existe",
+      "folder-does-not-exist": "La carpeta no existe",
       "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
       "file-non-extension": "Archivos sin extensión no son soportados",
       "duplicated-node": "Hay un conflicto con el elemento",
@@ -380,6 +382,7 @@
       "empty-file": "No admitimos archivos con un tamaño de 0 bytes debido a nuestros procesos de cifrado",
       "bad-response": "Error de servidor al procesar este archivo. Por favor, intente iniciar de nuevo el proceso de sincronización",
       "file-does-not-exist": "Este archivo estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a él. Si has eliminado este archivo, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
+      "folder-does-not-exist": "Esta carpeta estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a ella. Si has eliminado esta carpeta, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
       "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
       "file-non-extension": "Los archivos sin extensiones no son soportados. No sincronizado",
       "duplicated-node": "Hay dos elementos (archivo o carpeta) con el mismo nombre en una carpeta. Cambia el nombre de uno de ellos para sincronizar ambos.",

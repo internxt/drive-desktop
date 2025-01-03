@@ -12,6 +12,7 @@ export interface LastBackupContextProps {
   fromNow: (date?: string) => string;
   lastBackupHadIssues: boolean;
   refreshLastBackupTimestamp: () => void;
+  clearLastBackupExitReason: () => void;
 }
 
 export function useLastBackup(): LastBackupContextProps {
@@ -34,6 +35,11 @@ export function useLastBackup(): LastBackupContextProps {
     });
   }
 
+  function clearLastBackupExitReason() {
+    setLastExistReason(undefined);
+    setLastBackupHadIssues(false);
+  }
+
   useEffect(() => {
     refreshLastBackupTimestamp();
   }, []);
@@ -52,5 +58,6 @@ export function useLastBackup(): LastBackupContextProps {
     fromNow,
     lastBackupHadIssues,
     refreshLastBackupTimestamp,
+    clearLastBackupExitReason,
   };
 }

@@ -142,7 +142,10 @@ export default function DownloadFolderSelector({
             onDobleClick={handleNavigateToFolder}
           />
         ) : (
-          <LoadingFolders state={backupsState} />
+          <LoadingFolders
+            state={backupsState}
+            messageText="settings.backups.folders.no-folders-to-download"
+          />
         )}
       </div>
       <div className=" flex items-center justify-end">

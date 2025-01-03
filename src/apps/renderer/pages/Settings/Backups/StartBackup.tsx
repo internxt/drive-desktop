@@ -9,8 +9,12 @@ type StartBackupProps = {
 };
 
 export function StartBackup({ className }: StartBackupProps) {
-  const { backups, backupStatus, thereIsDownloadProgress } =
-    useContext(BackupContext);
+  const {
+    backups,
+    backupStatus,
+    thereIsDownloadProgress,
+    clearLastBackupExitReason,
+  } = useContext(BackupContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
   function toggleConfirmation() {
@@ -20,6 +24,11 @@ export function StartBackup({ className }: StartBackupProps) {
   async function stopBackupsProcess() {
     window.electron.stopBackupsProcess();
     toggleConfirmation();
+  }
+
+  async function startBackupsProcess() {
+    clearLastBackupExitReason();
+    window.electron.startBackupsProcess();
   }
 
   const { translate } = useTranslationContext();
@@ -32,7 +41,7 @@ export function StartBackup({ className }: StartBackupProps) {
         size="md"
         onClick={() => {
           backupStatus === 'STANDBY'
-            ? window.electron.startBackupsProcess()
+            ? startBackupsProcess()
             : toggleConfirmation();
         }}
         disabled={backups.length === 0 || thereIsDownloadProgress}

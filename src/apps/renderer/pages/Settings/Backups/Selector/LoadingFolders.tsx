@@ -5,9 +5,10 @@ import { BackupsState } from '../../../../hooks/backups/useBackups';
 
 interface LoadingFoldersProps {
   state: BackupsState;
+  messageText?: string;
 }
 
-export function LoadingFolders({ state }: LoadingFoldersProps) {
+export function LoadingFolders({ state, messageText }: LoadingFoldersProps) {
   const [isLoading, setIsLoading] = useState(true);
   const { translate } = useTranslationContext();
 
@@ -32,7 +33,7 @@ export function LoadingFolders({ state }: LoadingFoldersProps) {
         <p className="text-red-50 text-sm">{translate(message[state])}</p>
       ) : (
         <p className="text-l-neutral-50 text-sm">
-          {translate('settings.backups.folders.no-folders')}
+          {translate(messageText ?? 'settings.backups.folders.no-folders')}
         </p>
       )}
     </div>

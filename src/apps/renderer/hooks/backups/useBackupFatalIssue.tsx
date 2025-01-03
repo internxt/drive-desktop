@@ -29,7 +29,7 @@ export function useBackupFatalIssue(backup: BackupInfo) {
       setIssue(undefined);
       setMessage('');
       setAction(undefined);
-      window.electron.startBackupsProcess();
+      // window.electron.startBackupsProcess();
     }
   }
 

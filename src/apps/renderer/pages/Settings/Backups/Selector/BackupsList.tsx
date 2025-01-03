@@ -1,5 +1,7 @@
 import { ItemBackup } from '../../../../../shared/types/items';
 import { BackupListItem } from './BackupItem';
+import React, { useState } from 'react';
+
 interface BackupsListProps {
   items: Array<ItemBackup>;
   selected: Array<ItemBackup>;
@@ -13,6 +15,20 @@ export function BackupsList({
   setSelected,
   onDobleClick,
 }: BackupsListProps) {
+  const handleClick = (
+    e: React.MouseEvent<HTMLLIElement>,
+    backup: ItemBackup
+  ) => {
+    e.stopPropagation();
+
+    // Ignorar si Shift está presionado
+    if (e.shiftKey) {
+      return;
+    }
+
+    setSelected(backup);
+  };
+
   return (
     <ul>
       {items.map((backup, index) => (
@@ -26,11 +42,12 @@ export function BackupsList({
               onDobleClick(backup);
             }
           }}
-          onClick={(e: React.MouseEvent<HTMLLIElement>) => {
-            e.stopPropagation();
-            setSelected(backup);
+          onClick={(e) => handleClick(e, backup)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setSelected(backup);
+            }
           }}
-          onKeyDown={() => setSelected(backup)}
           tabIndex={0}
           className={`flex w-full items-center overflow-hidden p-2 transition-colors duration-75 ${
             selected.find((item) => item.id === backup.id)

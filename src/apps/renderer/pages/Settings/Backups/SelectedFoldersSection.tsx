@@ -23,7 +23,7 @@ export function SelectedFoldersSection({
   const errorDictionary: Partial<Record<WorkerExitCause, string>> = {
     INSUFFICIENT_PERMISSION: 'issues.short-error-messages.no-permission',
     BASE_DIRECTORY_DOES_NOT_EXIST:
-      'issues.short-error-messages.file-does-not-exist',
+      'issues.short-error-messages.folder-does-not-exist',
     NOT_EXISTS: 'issues.short-error-messages.file-does-not-exist',
     EMPTY_FILE: 'issue.short-error-messages.errors.empty-file',
     FILE_TOO_BIG: 'issue.short-error-messages.file-too-big',

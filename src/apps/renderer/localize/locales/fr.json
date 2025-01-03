@@ -307,10 +307,11 @@
           "24h": "Tous les jours",
           "manually": "Manuellement"
         },
-        "warning":"Les dossiers ne seront pas automatiquement sauvegardés tant que vous n’aurez pas cliqué sur « Sauvegarder maintenant ». Ce mode n’est pas recommandé."
+        "warning": "Les dossiers ne seront pas automatiquement sauvegardés tant que vous n’aurez pas cliqué sur « Sauvegarder maintenant ». Ce mode n’est pas recommandé."
       },
       "folders": {
         "no-folders": "Pas encore de sauvegardes",
+        "no-folders-to-download": "Pas de dossiers à télécharger",
         "save": "Sauvegarder",
         "cancel": "Annuler",
         "error": "Nous n’avons pas trouvé le dossier sélectionné"
@@ -359,6 +360,7 @@
       "no-internet-connection": "Pas de connexion internet",
       "no-permission": "Permissions insuffisantes",
       "file-does-not-exist": "Le fichier n'existe pas",
+      "folder-does-not-exist": "Le dossier n'existe pas",
       "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
       "duplicated-node": "Il y a un conflit avec l'élément.",
       "not-enough-space": "Vous n'avez pas assez d'espace pour compléter l'opération."
@@ -375,6 +377,7 @@
       "empty-file": "Nous ne prenons pas en charge les fichiers d'une taille de 0 octet en raison de nos processus de  chiffrement",
       "bad-response": "Nous avons reçu une mauvaise réponse de nos serveurs lors du traitement de ce fichier. Veuillez essayer de relancer le processus de synchronisation.",
       "file-does-not-exist": "Ce fichier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce fichier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation.",
+      "folder-does-not-exist": "Ce dossier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce dossier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation.",
       "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
       "file-non-extension": "Les archives sans extensions ne sont pas supportées. Non synchronisées",
       "duplicated-node": "Il y a deux éléments (fichier ou dossier) avec le même nom dans un dossier. Renommez l'un d'eux pour les synchroniser tous les deux.",
