@@ -14,9 +14,12 @@ export class TemporalFileByFolderFinder {
       paths.map((path) => this.repository.find(path))
     );
 
-    const documents = result
-      .filter((opt) => opt.isPresent())
-      .map((opt) => opt.get());
+    const documents = result.reduce((acc, opt) => {
+      if (opt.isPresent()) {
+        acc.push(opt.get());
+      }
+      return acc;
+    }, [] as Array<TemporalFile>);
 
     return documents;
   }

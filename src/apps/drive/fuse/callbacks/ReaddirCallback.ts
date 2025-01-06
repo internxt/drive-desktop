@@ -3,6 +3,8 @@ import { FuseCallback } from './FuseCallback';
 import { FilesByFolderPathSearcher } from '../../../../context/virtual-drive/files/application/search/FilesByFolderPathSearcher';
 import { FoldersByParentPathLister } from '../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
 import { TemporalFileByFolderFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByFolderFinder';
+import { FuseIOError } from './FuseErrors';
+import Logger from 'electron-log';
 
 export class ReaddirCallback extends FuseCallback<Array<string>> {
   constructor(private readonly container: Container) {
@@ -10,33 +12,44 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
   }
 
   async execute(path: string) {
-    const filesNamesPromise = this.container
-      .get(FilesByFolderPathSearcher)
-      .run(path);
+    try {
+      const start = performance.now();
+      const [filesNames, foldersNames, temporalFiles] = await Promise.all([
+        this.container.get(FilesByFolderPathSearcher).run(path),
+        this.container.get(FoldersByParentPathLister).run(path),
+        this.container.get(TemporalFileByFolderFinder).run(path),
+      ]);
 
-    const folderNamesPromise = this.container
-      .get(FoldersByParentPathLister)
-      .run(path);
+      const endPromises = performance.now();
+      Logger.debug(
+        `[ReaddirCallback] Time taken on Promises: ${endPromises - start}ms`
+      );
 
-    const temporalFiles = await this.container
-      .get(TemporalFileByFolderFinder)
-      .run(path);
+      const auxiliaryFileName = temporalFiles.reduce((acc, file) => {
+        if (file.isAuxiliary()) {
+          acc.push(file.name);
+        }
+        return acc;
+      }, [] as string[]);
 
-    const auxiliaryFileName = temporalFiles
-      .filter((file) => file.isAuxiliary())
-      .map((file) => file.name);
+      const endReduce = performance.now();
+      Logger.debug(
+        `[ReaddirCallback] Time taken on Reduce: ${endReduce - endPromises}ms`
+      );
 
-    const [filesNames, foldersNames] = await Promise.all([
-      filesNamesPromise,
-      folderNamesPromise,
-    ]);
+      const end = performance.now();
+      Logger.debug(`[ReaddirCallback] Time taken on Total: ${end - start}ms`);
 
-    return this.right([
-      '.',
-      '..',
-      ...filesNames,
-      ...foldersNames,
-      ...auxiliaryFileName,
-    ]);
+      return this.right([
+        '.',
+        '..',
+        ...filesNames,
+        ...foldersNames,
+        ...auxiliaryFileName,
+      ]);
+    } catch (error) {
+      Logger.error('[ReaddirCallback] Error reading directory:', error);
+      return this.left(new FuseIOError());
+    }
   }
 }
