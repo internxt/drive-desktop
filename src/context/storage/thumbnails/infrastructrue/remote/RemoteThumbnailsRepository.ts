@@ -38,7 +38,7 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
   private async obtainThumbnails(file: File): Promise<Array<Thumbnail>> {
     try {
       const response = await this.axios.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/${file.folderId}/file`,
+        `${process.env.NEW_DRIVE_URL}/folders/${file.folderId}/file`,
         {
           params: { name: file.name, type: file.type },
         }

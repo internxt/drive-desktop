@@ -1,4 +1,5 @@
 import Logger from 'electron-log';
+import { ipcRenderer } from 'electron';
 import { Backup } from './Backup';
 import { BackupInfo } from './BackupInfo';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
@@ -65,16 +66,29 @@ async function backupFolder() {
   } catch (error) {
     Logger.error('[BACKUPS] ', error);
     if (error instanceof DriveDesktopError) {
-      Logger.error('[BACKUPS] ', {cause: error.cause});
+      Logger.error('[BACKUPS] ', { cause: error.cause });
       BackupsIPCRenderer.send(
         'backups.backup-failed',
         data.folderId,
         error.cause
       );
     } else {
-      BackupsIPCRenderer.send('backups.backup-failed', data.folderId, 'UNKNOWN');
+      BackupsIPCRenderer.send(
+        'backups.backup-failed',
+        data.folderId,
+        'UNKNOWN'
+      );
     }
   }
 }
+
+async function reinitializeBackups() {
+  await BackupsDependencyContainerFactory.reinitialize();
+  Logger.info('[BACKUPS] Reinitialized');
+}
+
+ipcRenderer.on('reinitialize-backups', async () => {
+  await reinitializeBackups();
+});
 
 backupFolder();

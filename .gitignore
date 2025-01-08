@@ -30,6 +30,7 @@ npm-debug.log.*
 
 .npmrc
 .env
+.env.development
 
 src/test/screenshots
 

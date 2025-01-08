@@ -339,7 +339,7 @@ export class RemoteSyncManager {
     };
 
     const response = await this.config.httpClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/files`,
+      `${process.env.NEW_DRIVE_URL}/files`,
       {
         params,
       }
@@ -399,7 +399,7 @@ export class RemoteSyncManager {
         : undefined,
     };
     const response = await this.config.httpClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/folders`,
+      `${process.env.NEW_DRIVE_URL}/folders`,
       {
         params,
       }

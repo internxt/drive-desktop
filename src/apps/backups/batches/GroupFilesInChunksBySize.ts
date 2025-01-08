@@ -31,6 +31,10 @@ export class GroupFilesInChunksBySize {
     );
   }
 
+  static empty(all: Array<LocalFile>): Chucks {
+    return GroupFilesInChunksBySize.chunk(all, 1);
+  }
+
   private static chunk(files: Array<LocalFile>, size: number) {
     return _.chunk(files, size);
   }

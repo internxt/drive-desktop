@@ -16,6 +16,7 @@ export class FoldersByParentPathLister {
     const folders = this.repository.matchingPartial({
       parentId: folder.id,
     });
+
     return folders.map((folder) => folder.name);
   }
 }

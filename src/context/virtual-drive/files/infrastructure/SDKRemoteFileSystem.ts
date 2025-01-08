@@ -119,7 +119,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
 
   async trash(contentsId: string): Promise<void> {
     const result = await this.clients.newDrive.post(
-      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+      `${process.env.NEW_DRIVE_URL}/storage/trash/add`,
       {
         items: [{ type: 'file', id: contentsId }],
       }
@@ -162,7 +162,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
 
   async override(file: File): Promise<void> {
     await this.clients.newDrive.put(
-      `${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`,
+      `${process.env.NEW_DRIVE_URL}/files/${file.uuid}`,
       {
         fileId: file.contentsId,
         size: file.size,

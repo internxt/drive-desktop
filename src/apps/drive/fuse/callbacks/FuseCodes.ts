@@ -19,4 +19,7 @@ export enum FuseCodes {
 
   // Permission denied
   EACCES = fuse.EACCES,
+
+  // Network is down
+  ENETDOWN = fuse.ENETDOWN,
 }

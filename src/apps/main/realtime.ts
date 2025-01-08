@@ -11,6 +11,13 @@ type XHRRequest = {
 
 let socket: Socket | undefined;
 
+export type EventPayload = {
+  eventName?: string;
+  id?: number;
+  uuid?: string;
+  bucket?: string;
+};
+
 let user = getUser();
 
 function cleanAndStartRemoteNotifications() {
@@ -57,19 +64,40 @@ function cleanAndStartRemoteNotifications() {
     logger.log('❌ Remote notifications disconnected, reason: ', reason);
   });
 
-  socket.on('connect_error', (error) => {
-    logger.error('❌ Remote notifications connect error: ', error);
+  socket.on('connect_error', () => {
+    logger.error('❌ Remote notifications connect error');
   });
 
   socket.on('event', (data) => {
-    broadcastToWindows('remote-changes', undefined);
+    const eventPayload: EventPayload = {};
+
+    if (data.event) {
+      eventPayload.eventName = data.event;
+    }
+
+    if (data.payload.id) {
+      eventPayload.id = data.payload.id;
+    }
+
+    if (data.payload.uuid) {
+      eventPayload.uuid = data.payload.uuid;
+    }
+
+    if (data.payload.bucket) {
+      eventPayload.bucket = data.payload.bucket;
+    }
+
+    broadcastToWindows('remote-changes', eventPayload);
+
 
     if (!user) {
       user = getUser();
     }
 
     if (data.payload.bucket !== user?.backupsBucket) {
-      logger.log('Notification received: ', data);
+      // create an object with properties if present in the payload
+
+      logger.log('Notification received: ', { eventPayload });
       eventBus.emit('RECEIVED_REMOTE_CHANGES');
       return;
     }

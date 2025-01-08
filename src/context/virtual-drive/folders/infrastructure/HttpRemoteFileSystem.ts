@@ -42,7 +42,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
 
       // eslint-disable-next-line no-await-in-loop
       const result = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${HttpRemoteFileSystem.PAGE_SIZE}`
+        `${process.env.NEW_DRIVE_URL}/folders/${parentId.value}/folders?offset=${offset}&limit=${HttpRemoteFileSystem.PAGE_SIZE}`
       );
 
       const founded = result.data.result as Array<NewServerFolder>;
@@ -128,7 +128,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
 
   async trash(id: Folder['id']): Promise<void> {
     const result = await this.trashClient.post(
-      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
+      `${process.env.NEW_DRIVE_URL}/storage/trash/add`,
       {
         items: [{ type: 'folder', id }],
       }

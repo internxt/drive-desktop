@@ -8,7 +8,6 @@ import { ipcRenderer } from 'electron';
 
 export async function backgroundProcessSharedInfraBuilder(): Promise<ContainerBuilder> {
   const builder = new ContainerBuilder();
-
   const token = await ipcRenderer.invoke('get-token');
 
   builder
@@ -32,7 +31,6 @@ export async function backgroundProcessSharedInfraBuilder(): Promise<ContainerBu
           unauthorizedCallback: onUserUnauthorized,
         }
       );
-
       return storage;
     })
     .asSingleton()

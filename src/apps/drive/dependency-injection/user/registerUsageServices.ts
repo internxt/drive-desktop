@@ -1,4 +1,3 @@
-import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
 import { ContainerBuilder } from 'diod';
 import { BytesInBinaryToInternationalSystem } from '../../../../context/user/usage/application/BytesInBinaryToInternationalSystem';
 import { DecrementDriveUsageOnFileDeleted } from '../../../../context/user/usage/application/DecrementDriveUsageOnFileDeleted';
@@ -19,8 +18,7 @@ export function registerUsageServices(builder: ContainerBuilder): void {
       (c) =>
         new CachedHttpUserUsageRepository(
           //@ts-ignore
-          c.get(AuthorizedClients).newDrive,
-          c.get(PhotosSubmodule)
+          c.get(AuthorizedClients).newDrive
         )
     )
     .private();

@@ -50,7 +50,7 @@ export class TemporalFileDownloaderFactory
 
     uploader.on('error', (error: Error) => {
       // TODO: use error to determine the cause
-      Logger.debug('UPLOADER ERROR', error);
+      Logger.error('[TFDF ERROR]', error);
       this.progressTracker.uploadError(name, extension, 'UNKNOWN');
     });
 

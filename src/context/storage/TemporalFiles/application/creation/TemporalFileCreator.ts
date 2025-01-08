@@ -9,6 +9,6 @@ export class TemporalFileCreator {
   async run(path: string): Promise<void> {
     const documentPath = new TemporalFilePath(path);
 
-    this.repository.create(documentPath);
+    await this.repository.create(documentPath);
   }
 }

@@ -32,7 +32,7 @@ import './app-info/handlers';
 import './remote-sync/handlers';
 import './virtual-drive';
 
-import { app, nativeTheme } from 'electron';
+import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
@@ -57,6 +57,8 @@ import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 
+let mainWindow: Electron.BrowserWindow;
+
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
@@ -72,6 +74,8 @@ if (process.env.SENTRY_DSN) {
     enabled: app.isPackaged,
     dsn: process.env.SENTRY_DSN,
     release: packageJson.version,
+    debug: !app.isPackaged && process.env.SENTRY_DEBUG === 'true',
+    environment: process.env.NODE_ENV,
   });
   Logger.log('Sentry is ready for main process');
 } else {
@@ -184,4 +188,11 @@ process.on('uncaughtException', (error) => {
   } else {
     Logger.error('Uncaught exception in main process: ', error);
   }
+});
+
+ipcMain.handle('request-reinitialize-backups', async () => {
+  if (mainWindow) {
+    mainWindow.webContents.send('reinitialize-backups');
+  }
+  return 'Reinitialization requested';
 });
