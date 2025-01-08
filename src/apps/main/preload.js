@@ -188,6 +188,13 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.invoke('devices.get-all');
     },
   },
+  onDeviceCreated(func) {
+    const eventName = 'device-created';
+    const callback = (_, v) => func(v);
+    ipcRenderer.on(eventName, callback);
+
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
   getBackupsFromDevice(device, isCurrent) {
     return ipcRenderer.invoke('get-backups-from-device', device, isCurrent);
   },

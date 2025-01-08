@@ -11,6 +11,13 @@ type XHRRequest = {
 
 let socket: Socket | undefined;
 
+export type EventPayload = {
+  eventName?: string;
+  id?: number;
+  uuid?: string;
+  bucket?: string;
+};
+
 let user = getUser();
 
 function cleanAndStartRemoteNotifications() {
@@ -62,37 +69,35 @@ function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('event', (data) => {
-    broadcastToWindows('remote-changes', undefined);
+    const eventPayload: EventPayload = {};
+
+    if (data.event) {
+      eventPayload.eventName = data.event;
+    }
+
+    if (data.payload.id) {
+      eventPayload.id = data.payload.id;
+    }
+
+    if (data.payload.uuid) {
+      eventPayload.uuid = data.payload.uuid;
+    }
+
+    if (data.payload.bucket) {
+      eventPayload.bucket = data.payload.bucket;
+    }
+
+    broadcastToWindows('remote-changes', eventPayload);
+
 
     if (!user) {
       user = getUser();
     }
 
-    const payloadLog: {
-      id?: string;
-      uuid?: string;
-      bucket?: string;
-    } = {};
-
-    if (data.payload.id) {
-      payloadLog.id = data.payload.id;
-    }
-
-    if (data.payload.uuid) {
-      payloadLog.uuid = data.payload.uuid;
-    }
-
-    if (data.payload.bucket) {
-      payloadLog.bucket = data.payload.bucket;
-    }
-
     if (data.payload.bucket !== user?.backupsBucket) {
       // create an object with properties if present in the payload
 
-      logger.log('Notification received: ', {
-        event: data.event,
-        payload: payloadLog,
-      });
+      logger.log('Notification received: ', { eventPayload });
       eventBus.emit('RECEIVED_REMOTE_CHANGES');
       return;
     }

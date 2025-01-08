@@ -33,17 +33,33 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   const [selected, setSelected] = useState<Device>();
 
   useEffect(() => {
-    window.electron
-      .getOrCreateDevice()
-      .then((device) => {
-        setDeviceState({ status: 'SUCCESS', device });
-        setCurrent(device);
-        setSelected(device);
-      })
-      .catch(() => {
-        setDeviceState({ status: 'ERROR' });
-      });
+    refreshDevice();
+
+    const removeDeviceCreatedListener = window.electron.onDeviceCreated(setCurrentDevice);
+    return () => {
+      removeDeviceCreatedListener();
+    };
   }, []);
+
+  const refreshDevice = () => {
+    setDeviceState({ status: 'LOADING' });
+    window.electron.getOrCreateDevice().then((device) => {
+      setCurrentDevice(device);
+    })
+    .catch(() => {
+      setDeviceState({ status: 'ERROR' });
+    });;
+  }
+
+  const setCurrentDevice = (newDevice: Device) => {
+    try {
+      setDeviceState({ status: 'SUCCESS', device: newDevice });
+      setCurrent(newDevice);
+      setSelected(newDevice);
+    } catch {
+      setDeviceState({ status: 'ERROR' });
+    }
+  }
 
   const deviceRename = async (deviceName: string) => {
     setDeviceState({ status: 'LOADING' });

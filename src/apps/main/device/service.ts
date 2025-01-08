@@ -88,8 +88,6 @@ export async function getOrCreateDevice() {
 
   const deviceIsDefined = savedDeviceId !== -1;
 
-  let newDevice: Device | null = null;
-
   if (deviceIsDefined) {
     const res = await fetch(
       `${process.env.API_URL}/backup/deviceAsFolder/${savedDeviceId}`,
@@ -100,39 +98,36 @@ export async function getOrCreateDevice() {
     );
 
     if (res.ok) {
-      return decryptDeviceName(await res.json());
+      const device = await res.json() as Device;
+      if (!device.removed) {
+        return decryptDeviceName(device);
+      }
     }
-    if (res.status === 404) {
-      newDevice = await tryToCreateDeviceWithDifferentNames();
-    }
-  } else {
-    newDevice = await tryToCreateDeviceWithDifferentNames();
   }
 
-  if (newDevice) {
-    configStore.set('deviceId', newDevice.id);
-    configStore.set('backupList', {});
-    const device = decryptDeviceName(newDevice);
-    const user = DependencyInjectionUserProvider.get();
-    user.backupsBucket = newDevice.bucket;
-    DependencyInjectionUserProvider.updateUser(user);
+  const newDevice = await tryToCreateDeviceWithDifferentNames();
 
-    const mainWindow = BrowserWindow.getAllWindows()[0];
-    if (mainWindow) {
-      mainWindow.webContents.send('reinitialize-backups');
-    }
+  configStore.set('deviceId', newDevice.id);
+  configStore.set('backupList', {});
+  const device = decryptDeviceName(newDevice);
+  const user = DependencyInjectionUserProvider.get();
+  user.backupsBucket = newDevice.bucket;
+  DependencyInjectionUserProvider.updateUser(user);
 
-    logger.info(`[DEVICE] Created device with name "${device.name}"`);
-
-    return device;
+  const mainWindow = BrowserWindow.getAllWindows()[0];
+  if (mainWindow) {
+    mainWindow.webContents.send('reinitialize-backups');
   }
-  const error = new Error('Could not get or create device');
-  addUnknownDeviceIssue(error);
-  throw error;
+
+  broadcastToWindows('device-created', device);
+
+  logger.info(`[DEVICE] Created device with name "${device.name}"`);
+
+  return device;
 }
 
 export async function renameDevice(deviceName: string): Promise<Device> {
-  const deviceId = getDeviceId();
+  const deviceId = (await getOrCreateDevice()).id;
 
   const res = await fetch(
     `${process.env.API_URL}/backup/deviceAsFolder/${deviceId}`,
@@ -161,10 +156,10 @@ export async function getBackupsFromDevice(
   device: Device,
   isCurrent?: boolean
 ): Promise<Array<BackupInfo>> {
-  const folder = await fetchFolder(device.id);
-
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
+    const device = await getOrCreateDevice();
+    const folder = await fetchFolder(device.id);
 
     return folder.children
       .filter((backup: Backup) => {
@@ -180,6 +175,7 @@ export async function getBackupsFromDevice(
         backupsBucket: device.bucket,
       }));
   } else {
+    const folder = await fetchFolder(device.id);
     return folder.children.map((backup: Backup) => ({
       ...backup,
       folderId: backup.id,
@@ -198,7 +194,7 @@ export async function getBackupsFromDevice(
  * @returns
  */
 async function postBackup(name: string): Promise<Backup> {
-  const deviceId = getDeviceId();
+  const deviceId = (await getOrCreateDevice()).id;
 
   const res = await fetch(`${process.env.API_URL}/storage/folder`, {
     method: 'POST',
@@ -551,16 +547,6 @@ function findBackupPathnameFromId(id: number): string | undefined {
   );
 
   return entryfound?.[0];
-}
-
-function getDeviceId(): number {
-  const deviceId = configStore.get('deviceId');
-
-  if (deviceId === -1) {
-    throw new Error('deviceId is not defined');
-  }
-
-  return deviceId;
 }
 
 export async function createBackupsFromLocalPaths(folderPaths: string[]) {
