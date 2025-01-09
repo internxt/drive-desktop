@@ -1,63 +1,63 @@
-<img src=".erb/img/erb-banner.svg" width="100%" />
+# Windows Application Setup
 
-<br>
+This guide explains how to set up and build the Windows application, including both the `node-win` and `drive-desktop` projects.
 
-<p>
-  Electron React Boilerplate uses <a href="https://electron.atom.io/">Electron</a>, <a href="https://facebook.github.io/react/">React</a>, <a href="https://github.com/reactjs/react-router">React Router</a>, <a href="https://webpack.js.org/">Webpack</a> and <a href="https://www.npmjs.com/package/react-refresh">React Fast Refresh</a>.
-</p>
+---
 
-<br>
+## Prerequisites
 
-<div align="center">
+Before proceeding, ensure you have the following tools installed:
 
-[![Build Status][github-actions-status]][github-actions-url]
-[![Github Tag][github-tag-image]][github-tag-url]
-
-[![OpenCollective](https://opencollective.com/electron-react-boilerplate/backers/badge.svg)](#backers)
-[![OpenCollective](https://opencollective.com/electron-react-boilerplate/sponsors/badge.svg)](#sponsors)
-[![StackOverflow][stackoverflow-img]][stackoverflow-url]
-
-</div>
-
-## Install
-
-Clone the repo and install dependencies:
-
-```bash
-git clone --depth 1 --branch main https://github.com/electron-react-boilerplate/electron-react-boilerplate.git your-project-name
-cd your-project-name
-npm install
+```markdown
+- Python (configured correctly).
+- Node.js and yarn.
+- node-gyp (global installation):
+  npm install -g node-gyp
 ```
 
-**Having issues installing? See our [debugging guide](https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/400)**
+- **Visual Studio** (not VS Code) for building native dependencies.
 
-## Starting Development
+---
 
-Start the app in the `dev` environment:
+## Directory Structure
 
-```bash
-npm start
+Clone the repositories into the following directory structure:
+
+```
+internxt
+   | - node-win
+   | - drive-desktop
 ```
 
-## Packaging for Production
+---
 
-To package apps for the local platform:
+## Build Steps
 
-```bash
-npm run package
-```
+### **1. Build the `node-win` Project**
 
-## License
+1. Open a terminal and navigate to the `node-win` directory.
+2. Run the following command to build the project:
+   ```bash
+   yarn build
+   ```
+   This step compiles the necessary native bindings for `node-win`.
 
-AGPL3
+---
 
-## Credits
+### **2. Build the `drive-desktop` Project**
 
-This project relies on Electron Boilerplate, which can be found [here](https://electron-react-boilerplate.js.org).
+1. Open a terminal and navigate to the `drive-desktop` directory.
+2. Run the following command to build and start the project:
+   ```bash
+   yarn start:reload-bindings
+   ```
+   This will start the desktop application with the updated bindings.
 
-[github-actions-status]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/workflows/Test/badge.svg
-[github-actions-url]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/actions
-[github-tag-image]: https://img.shields.io/github/tag/electron-react-boilerplate/electron-react-boilerplate.svg?label=version
-[github-tag-url]: https://github.com/electron-react-boilerplate/electron-react-boilerplate/releases/latest
-[stackoverflow-img]: https://img.shields.io/badge/stackoverflow-electron_react_boilerplate-blue.svg
-[stackoverflow-url]: https://stackoverflow.com/questions/tagged/electron-react-boilerplate
+---
+
+## Notes
+
+- Ensure all dependencies are installed before running the build commands.
+- If you encounter any issues, verify that your environment matches the prerequisites above.
+
+With these steps, your Windows application setup will be complete and ready to use.

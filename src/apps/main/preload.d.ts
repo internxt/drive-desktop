@@ -52,6 +52,8 @@ declare interface Window {
       id: number
     ): Promise<import('../shared/issues/SyncErrorCause').SyncError>;
 
+    clearBackupFatalIssue(id: number): Promise<void>;
+
     getBackupFatalErrors(): Promise<
       import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
     >;

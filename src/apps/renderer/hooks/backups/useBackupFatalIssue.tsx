@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { SyncError } from '../../../shared/issues/SyncErrorCause';
 import { BackupInfo } from '../../../backups/BackupInfo';
 import { useTranslationContext } from '../../context/LocalContext';
 import { shortMessages } from '../../messages/process-error';
+import { BackupContext } from '../../context/BackupContext';
 
 type FixAction = {
   name: string;
@@ -22,6 +23,8 @@ export function useBackupFatalIssue(backup: BackupInfo) {
   const [action, setAction] = useState<FixAction | undefined>(undefined);
   const [name, setName] = useState(backup.name);
 
+  const { refreshBackups } = useContext(BackupContext);
+
   async function findBackupFolder(backup: BackupInfo) {
     const result = await window.electron.changeBackupPath(backup.pathname);
     if (result) {
@@ -30,6 +33,8 @@ export function useBackupFatalIssue(backup: BackupInfo) {
       setMessage('');
       setAction(undefined);
       // window.electron.startBackupsProcess();
+      window.electron.clearBackupFatalIssue(backup.folderId);
+      refreshBackups();
     }
   }
 

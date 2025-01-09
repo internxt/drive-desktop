@@ -112,9 +112,8 @@ export async function downloadFolder(
 
     const { files, children: folders } = currentFolder.data;
 
-    const CHUCK_SIZE = 10;
+    const CHUCK_SIZE = 5;
 
-    // Fragmentar los archivos en grupos de 10
     const chunks = Array.from(
       { length: Math.ceil(files.length / CHUCK_SIZE) },
       (_, i) => files.slice(i * CHUCK_SIZE, (i + 1) * CHUCK_SIZE)
