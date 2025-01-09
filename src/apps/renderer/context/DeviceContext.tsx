@@ -35,7 +35,8 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refreshDevice();
 
-    const removeDeviceCreatedListener = window.electron.onDeviceCreated(setCurrentDevice);
+    const removeDeviceCreatedListener =
+      window.electron.onDeviceCreated(setCurrentDevice);
     return () => {
       removeDeviceCreatedListener();
     };
@@ -43,13 +44,15 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
 
   const refreshDevice = () => {
     setDeviceState({ status: 'LOADING' });
-    window.electron.getOrCreateDevice().then((device) => {
-      setCurrentDevice(device);
-    })
-    .catch(() => {
-      setDeviceState({ status: 'ERROR' });
-    });;
-  }
+    window.electron
+      .getOrCreateDevice()
+      .then((device) => {
+        setCurrentDevice(device);
+      })
+      .catch(() => {
+        setDeviceState({ status: 'ERROR' });
+      });
+  };
 
   const setCurrentDevice = (newDevice: Device) => {
     try {
@@ -59,7 +62,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     } catch {
       setDeviceState({ status: 'ERROR' });
     }
-  }
+  };
 
   const deviceRename = async (deviceName: string) => {
     setDeviceState({ status: 'LOADING' });
