@@ -31,7 +31,7 @@ function logMemoryUsage(context: string) {
   const heapUsed = (used.heapUsed / 1024 / 1024).toFixed(2);
   const external = (used.external / 1024 / 1024).toFixed(2);
 
-  console.log(`
+  Logger.info(`
 [${context}] Memory Usage:
   RSS       : ${rss} MB
   HeapTotal : ${heapTotal} MB
