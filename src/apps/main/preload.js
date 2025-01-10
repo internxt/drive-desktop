@@ -193,6 +193,9 @@ contextBridge.exposeInMainWorld('electron', {
   getBackupFatalIssue(id) {
     return ipcRenderer.invoke('backups.get-backup-issues', id);
   },
+  clearBackupFatalIssue(id) {
+    return ipcRenderer.send('backups.clear-backup-issues', id);
+  },
   devices: {
     getDevices: () => {
       return ipcRenderer.invoke('devices.get-all');

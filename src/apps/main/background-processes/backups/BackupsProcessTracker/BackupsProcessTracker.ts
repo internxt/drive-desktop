@@ -86,8 +86,12 @@ export class BackupsProcessTracker {
   }
 
   getExitReason(id: number): WorkerExitCause | undefined {
-    Logger.debug(this.exitReasons.keys(), id);
     return this.exitReasons.get(id);
+  }
+
+  clearExistReason(id: number) {
+    this.lastExistReason = undefined;
+    this.exitReasons.delete(id);
   }
 
   reset() {
@@ -125,7 +129,13 @@ export function initiateBackupsProcessTracker(): BackupsProcessTracker {
       return undefined;
     }
   );
+  BackupsIPCMain.on('backups.clear-backup-issues', (_: unknown, id: number) => {
+    const reason = tracker.getExitReason(id);
 
+    if (reason !== undefined && isSyncError(reason)) {
+      tracker.clearExistReason(id);
+    }
+  });
   BackupsIPCMain.on('backups.get-last-progress', () => {
     // si hat un backup en progreso entonces notificar el progreso
     if (tracker.currentIndex() > 0) {
