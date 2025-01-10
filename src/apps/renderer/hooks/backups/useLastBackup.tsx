@@ -13,6 +13,7 @@ export interface LastBackupContextProps {
   lastBackupHadIssues: boolean;
   refreshLastBackupTimestamp: () => void;
   clearLastBackupExitReason: () => void;
+  refreshLastExitReason: () => void;
 }
 
 export function useLastBackup(): LastBackupContextProps {
@@ -59,5 +60,6 @@ export function useLastBackup(): LastBackupContextProps {
     lastBackupHadIssues,
     refreshLastBackupTimestamp,
     clearLastBackupExitReason,
+    refreshLastExitReason,
   };
 }

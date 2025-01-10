@@ -16,8 +16,14 @@ export default function BackupFolderSelector({
 }: BackupFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const { backups, backupsState, addBackup, disableBackup, refreshBackups } =
-    useContext(BackupContext);
+  const {
+    backups,
+    backupsState,
+    addBackup,
+    disableBackup,
+    refreshBackups,
+    refreshLastExitReason,
+  } = useContext(BackupContext);
 
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
 
@@ -76,7 +82,12 @@ export default function BackupFolderSelector({
           <Button
             className="ml-1"
             disabled={selectedBackup === null}
-            onClick={() =>
+            onClick={async () => {
+              if (selectedBackup.length === 0) {
+                return;
+              }
+              await window.electron.clearBackupFatalIssue(selectedBackup[0].id);
+              refreshLastExitReason();
               disableBackup({
                 folderId: selectedBackup[0].id,
                 name: selectedBackup[0].name,
@@ -84,8 +95,8 @@ export default function BackupFolderSelector({
                 tmpPath: selectedBackup[0].tmpPath,
                 backupsBucket: selectedBackup[0].backupsBucket,
                 folderUuid: selectedBackup[0].uuid,
-              })
-            }
+              });
+            }}
             variant="secondary"
           >
             <UilMinus size="17" />
