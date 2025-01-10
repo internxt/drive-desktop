@@ -23,6 +23,23 @@ import { convertToReadableStream } from './NetworkFacade';
 import Logger from 'electron-log';
 import path from 'path';
 
+function logMemoryUsage(context: string) {
+  const used = process.memoryUsage();
+  // Por defecto, memoryUsage() nos da bytes, así que convertimos a MB
+  const rss = (used.rss / 1024 / 1024).toFixed(2);
+  const heapTotal = (used.heapTotal / 1024 / 1024).toFixed(2);
+  const heapUsed = (used.heapUsed / 1024 / 1024).toFixed(2);
+  const external = (used.external / 1024 / 1024).toFixed(2);
+
+  console.log(`
+[${context}] Memory Usage:
+  RSS       : ${rss} MB
+  HeapTotal : ${heapTotal} MB
+  HeapUsed  : ${heapUsed} MB
+  External  : ${external} MB
+`);
+}
+
 async function writeReadableStreamToFile(
   readableStream: ReadableStream<Uint8Array>,
   filePath: string
@@ -82,8 +99,12 @@ export async function downloadFolder(
   // Obtener información del árbol de carpetas y archivos
   updateProgress && updateProgress(1);
 
+  logMemoryUsage('Antes de construir el árbol');
+
   const { tree, folderDecryptedNames, fileDecryptedNames, totalItems } =
     await fetchArrayFolderTree(foldersUuid);
+
+  logMemoryUsage('Después de construir el árbol');
 
   tree.plainName = deviceName;
   folderDecryptedNames[tree.id] = deviceName;
