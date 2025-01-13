@@ -540,24 +540,31 @@ export async function changeBackupPath(
     return null;
   }
 
+  Logger.info(
+    `[BACKUPS] Changing backup path from ${currentPath} to ${chosen.path}`
+  );
   const chosenPath = chosen.path;
   if (backupsList[chosenPath]) {
     throw new Error('A backup with this path already exists');
   }
 
-  const res = await fetch(
-    `${process.env.API_URL}/storage/folder/${existingBackup.folderId}/meta`,
-    {
-      method: 'POST',
-      headers: getHeaders(true),
-      body: JSON.stringify({
-        metadata: { itemName: path.basename(chosenPath) },
-      }),
-    }
-  );
+  const oldFolderName = path.basename(currentPath);
+  const newFolderName = path.basename(chosenPath);
 
-  if (!res.ok) {
-    throw new Error('Error in the request to rename a backup');
+  if (oldFolderName !== newFolderName) {
+    const res = await fetch(
+      `${process.env.API_URL}/storage/folder/${existingBackup.folderId}/meta`,
+      {
+        method: 'POST',
+        headers: getHeaders(true),
+        body: JSON.stringify({
+          metadata: { itemName: newFolderName },
+        }),
+      }
+    );
+    if (!res.ok) {
+      throw new Error('Error in the request to rename a backup');
+    }
   }
 
   delete backupsList[currentPath];
