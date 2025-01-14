@@ -354,7 +354,7 @@
         "customScan": {
           "text": "Antivirus custom scan",
           "action": "Choose",
-          "scanOptions": {
+          "selector": {
             "files": "Files",
             "folders": "Folders"
           }
@@ -372,7 +372,8 @@
           "title": "Malware detected",
           "subtitle": "Please review and remove threats.",
           "action": "Remove malware"
-        }
+        },
+        "scanAgain": "Scan again"
       },
       "filesContainingMalwareModal": {
         "title": "Files containing malware",

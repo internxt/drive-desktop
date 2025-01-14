@@ -1,6 +1,8 @@
 import path from 'path';
 import NodeClam, { NodeClamError } from 'clamscan';
 import clamAVServer from './ClamAVServer';
+import { app } from 'electron';
+import { exec, execFile } from 'child_process';
 
 export interface SelectedItemToScanProps {
   path: string;
@@ -8,9 +10,9 @@ export interface SelectedItemToScanProps {
   isDirectory: boolean;
 }
 
-const directoryInstallWindows = path.join(__dirname, 'clamAV');
-
-const directoryQuarantine = path.join(process.cwd(), 'quarantine');
+const RESOURCES_PATH = app.isPackaged
+  ? path.join(process.resourcesPath, 'clamAV')
+  : path.join(__dirname, '../../../../clamAV');
 
 export class Antivirus {
   private static instance: Antivirus;
@@ -34,21 +36,67 @@ export class Antivirus {
     return Antivirus.instance;
   }
 
+  private async requestAdminPermissions(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const appPath = process.argv[0];
+      const appArgs = process.argv.slice(1);
+
+      execFile(
+        'powershell',
+        [
+          '-Command',
+          `Start-Process "${appPath}" "${appArgs.join(' ')}" -Verb runAs`,
+        ],
+        (error) => {
+          if (error) {
+            console.error('Error requesting admin permissions:', error);
+            reject(error);
+          } else {
+            console.log('Application restarted with admin privileges.');
+            app.quit();
+            resolve();
+          }
+        }
+      );
+    });
+  }
+
+  private async isRunningAsAdmin(): Promise<boolean> {
+    return new Promise((resolve) => {
+      exec('net session', (error) => {
+        resolve(!error);
+      });
+    });
+  }
+
+  private async startScanWithPermissions() {
+    try {
+      const isAdmin = await this.isRunningAsAdmin();
+      if (!isAdmin) {
+        console.log('Requesting admin permissions...');
+        await this.requestAdminPermissions();
+      }
+    } catch (err) {
+      console.error('Permission error:', err);
+    }
+  }
+
   private async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
     try {
+      // await this.startScanWithPermissions();
+
       await clamAVServer.startClamdServer();
 
       await clamAVServer.waitForClamd();
 
       this.clamAv = await new NodeClam().init({
         removeInfected: false,
-        quarantineInfected: directoryQuarantine,
         debugMode: true,
         scanRecursively: true,
         clamdscan: {
-          path: path.join(directoryInstallWindows, 'clamdscan.exe'),
+          path: path.join(RESOURCES_PATH, 'clamdscan.exe'),
           socket: false,
           host: '127.0.0.1',
           localFallback: false,
@@ -144,7 +192,10 @@ export class Antivirus {
             onAllFilesScanned(err, goodFiles, badFiles, viruses);
           resolve();
         },
-        onFileScanned
+        (err, file, isInfected, viruses) => {
+          console.log('SCANNING FILE: ', file, isInfected, viruses);
+          onFileScanned && onFileScanned(err, file, isInfected, viruses);
+        }
       );
     });
   }
@@ -168,7 +219,6 @@ export class Antivirus {
       viruses?: string[]
     ) => void;
   }) {
-    console.log('ITEMS TO SCAN IN SCAN ITEMS FUNCTION: ', { items });
     const filePaths = items
       .filter((item) => !item.isDirectory)
       .map((file) => file.path);

@@ -8,7 +8,6 @@ import {
 ipcMain.handle(
   'antivirus:scan-items',
   async (event, items: SelectedItemToScanProps[]) => {
-    console.log('ITEMS IN MAIN: ', { items });
     let countScannedItems = 0;
     try {
       const antivirus = await Antivirus.getInstance();
@@ -35,7 +34,6 @@ ipcMain.handle(
 
 ipcMain.handle('antivirus:scan-system', async (event) => {
   const result = await getUserSystemPath();
-  console.log('RESULT', { result });
   if (!result) return;
   let countScannedItems = 0;
   try {
@@ -44,6 +42,7 @@ ipcMain.handle('antivirus:scan-system', async (event) => {
       items: [result],
       onFileScanned: (err, file, isInfected, viruses) => {
         countScannedItems += 1;
+        console.log('IS INFECTED');
         event.sender.send('antivirus:scan-progress', {
           err,
           file,
@@ -56,15 +55,13 @@ ipcMain.handle('antivirus:scan-system', async (event) => {
     return true;
   } catch (error) {
     console.error('Error in antivirus:scan-items:', error);
-    throw error;
   }
-  return result;
 });
 
 ipcMain.handle('antivirus:add-items-to-scan', async (_, getFiles?: boolean) => {
   try {
     const result = await getMultiplePathsFromDialog(getFiles);
-    console.log('SELECTED FOLDERS: ', { result });
+
     return result;
   } catch (error) {
     console.error('Error in antivirus:add-items-to-scan:', error);

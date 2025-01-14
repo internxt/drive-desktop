@@ -4,9 +4,16 @@ import Button from '../../../../components/Button';
 
 interface ScanStateProps {
   isScanning: boolean;
+  isScanCompleted: boolean;
   scannedFilesCount: number;
+  selectedItems: number;
   currentScanPath?: string;
-  corruptedFiles: [];
+  corruptedFiles: {
+    file: string;
+    isInfected: boolean | null;
+    viruses: string[];
+  }[];
+  onScanAgainButtonClicked: () => void;
 }
 
 const ScanSuccessful = ({
@@ -61,7 +68,8 @@ const CorruptedItemsFound = ({
 };
 
 const ScanResult = ({
-  corruptedFiles,
+  thereAreCorruptedFiles,
+  onScanAgainButtonClicked,
   translate,
   onRemoveMalwareButtonClicked,
 }: {
@@ -69,31 +77,50 @@ const ScanResult = ({
     key: string,
     keysToReplace?: Record<string, string | number>
   ) => string;
+  onScanAgainButtonClicked: () => void;
   onRemoveMalwareButtonClicked: () => void;
-  corruptedFiles: [];
+  thereAreCorruptedFiles: boolean;
 }) => {
-  if (corruptedFiles.length > 0) {
-    return (
+  const view = thereAreCorruptedFiles ? 'corrupted' : 'successful';
+
+  const views: Record<string, JSX.Element> = {
+    successful: <ScanSuccessful translate={translate} />,
+    corrupted: (
       <CorruptedItemsFound
         translate={translate}
         onRemoveMalwareButtonClicked={onRemoveMalwareButtonClicked}
       />
-    );
-  }
+    ),
+  };
 
-  return <ScanSuccessful translate={translate} />;
+  return (
+    <div className="flex flex-col items-center gap-5">
+      {views[view]}
+      <Button onClick={onScanAgainButtonClicked}>
+        {translate('settings.antivirus.scanProcess.scanAgain')}
+      </Button>
+    </div>
+  );
 };
 
 const ScanProcess = ({
   currentScanPath,
+  scannedFilesCount,
+  selectedItems,
   translate,
 }: {
   currentScanPath?: string;
+  scannedFilesCount: number;
+  selectedItems: number;
   translate: (
     key: string,
     keysToReplace?: Record<string, string | number>
   ) => string;
 }) => {
+  const progressPercentage = Math.min(
+    Math.round((scannedFilesCount / selectedItems) * 100),
+    100
+  );
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <div className="line-clamp-2 flex w-full max-w-[450px] flex-col text-center">
@@ -105,38 +132,52 @@ const ScanProcess = ({
           <div
             className="flex h-full rounded-full bg-primary"
             style={{
-              width: '30%',
+              width: `${progressPercentage}%`,
             }}
           />
         </div>
-        <p>30%</p>
+        <p>{progressPercentage}%</p>
       </div>
     </div>
   );
 };
 
-export const ScanningState = ({
+export const ScanState = ({
   isScanning,
+  isScanCompleted,
   corruptedFiles,
   currentScanPath,
+  selectedItems,
   scannedFilesCount,
+  onScanAgainButtonClicked,
 }: ScanStateProps) => {
   const { translate } = useTranslationContext();
+  const thereAreCorruptedFiles = corruptedFiles.some(
+    (file) => file.isInfected || file.viruses.length > 0
+  );
+
+  const countedCorruptedFiles = corruptedFiles.filter(
+    (file) => file.isInfected || file.viruses.length > 0
+  );
+
   return (
     <section className="flex w-full flex-col items-center justify-center">
       <div className="flex h-full max-h-[320px] w-full max-w-[590px] flex-col items-center justify-center gap-10 p-5">
         {isScanning ? (
           <ScanProcess
             currentScanPath={currentScanPath}
+            scannedFilesCount={scannedFilesCount}
+            selectedItems={selectedItems}
             translate={translate}
           />
         ) : (
           <></>
         )}
-        {!isScanning && (
+        {!isScanning && isScanCompleted && (
           <ScanResult
-            corruptedFiles={corruptedFiles}
+            thereAreCorruptedFiles={thereAreCorruptedFiles}
             translate={translate}
+            onScanAgainButtonClicked={onScanAgainButtonClicked}
             onRemoveMalwareButtonClicked={() => {
               //
             }}
@@ -150,7 +191,7 @@ export const ScanningState = ({
             </div>
             <div className="flex flex-col border  border-gray-10" />
             <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
-              <p>{corruptedFiles.length}</p>
+              <p>{countedCorruptedFiles.length}</p>
               <p>{translate('settings.antivirus.scanProcess.detectedFiles')}</p>
             </div>
           </div>
