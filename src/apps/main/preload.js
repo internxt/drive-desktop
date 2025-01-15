@@ -379,6 +379,17 @@ contextBridge.exposeInMainWorld('electron', {
         throw error;
       }
     },
+    removeInfectedFiles: async (infectedFiles) => {
+      try {
+        return await ipcRenderer.invoke(
+          'antivirus:remove-infected-files',
+          infectedFiles
+        );
+      } catch (error) {
+        Logger.error('Error in addItemsToScan:', error);
+        throw error;
+      }
+    },
   },
 
   path,

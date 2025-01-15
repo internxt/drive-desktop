@@ -14,6 +14,7 @@ interface ScanStateProps {
     viruses: string[];
   }[];
   onScanAgainButtonClicked: () => void;
+  showItemsWithMalware: () => void;
 }
 
 const ScanSuccessful = ({
@@ -81,21 +82,18 @@ const ScanResult = ({
   onRemoveMalwareButtonClicked: () => void;
   thereAreCorruptedFiles: boolean;
 }) => {
-  const view = thereAreCorruptedFiles ? 'corrupted' : 'successful';
-
-  const views: Record<string, JSX.Element> = {
-    successful: <ScanSuccessful translate={translate} />,
-    corrupted: (
+  if (thereAreCorruptedFiles) {
+    return (
       <CorruptedItemsFound
         translate={translate}
         onRemoveMalwareButtonClicked={onRemoveMalwareButtonClicked}
       />
-    ),
-  };
+    );
+  }
 
   return (
     <div className="flex flex-col items-center gap-5">
-      {views[view]}
+      <ScanSuccessful translate={translate} />
       <Button onClick={onScanAgainButtonClicked}>
         {translate('settings.antivirus.scanProcess.scanAgain')}
       </Button>
@@ -150,6 +148,7 @@ export const ScanState = ({
   selectedItems,
   scannedFilesCount,
   onScanAgainButtonClicked,
+  showItemsWithMalware,
 }: ScanStateProps) => {
   const { translate } = useTranslationContext();
   const thereAreCorruptedFiles = corruptedFiles.some(
@@ -178,9 +177,7 @@ export const ScanState = ({
             thereAreCorruptedFiles={thereAreCorruptedFiles}
             translate={translate}
             onScanAgainButtonClicked={onScanAgainButtonClicked}
-            onRemoveMalwareButtonClicked={() => {
-              //
-            }}
+            onRemoveMalwareButtonClicked={showItemsWithMalware}
           />
         )}
         <div className="flex h-full w-full items-stretch  gap-5 rounded-xl bg-surface py-4">

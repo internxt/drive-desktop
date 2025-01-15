@@ -91,6 +91,8 @@ export class Antivirus {
 
       await clamAVServer.waitForClamd();
 
+      console.log('EXECUTING CLAMAV');
+
       this.clamAv = await new NodeClam().init({
         removeInfected: false,
         debugMode: true,

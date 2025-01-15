@@ -9,7 +9,21 @@ export interface ScannedItemsProps {
 }
 export type Views = 'locked' | 'chooseItems' | 'scan';
 
-export const useAntivirus = () => {
+export interface UseAntivirusReturn {
+  scannedItems: ScannedItemsProps[];
+  currentScanPath?: string;
+  countScannedFiles: number;
+  view: Views;
+  isScanning: boolean;
+  selectedItems: SelectedItemToScanProps[];
+  isScanCompleted: boolean;
+  onScanUserSystemButtonClicked: () => Promise<void>;
+  onScanAgainButtonClicked: () => void;
+  onCustomScanButtonClicked: (scanType: ScanType) => Promise<void>;
+  onRemoveInfectedItems: (infectedFiles: string[]) => void;
+}
+
+export const useAntivirus = (): UseAntivirusReturn => {
   const isFreeUserPlan = false;
 
   const [selectedItems, setSelectedItems] = useState<SelectedItemToScanProps[]>(
@@ -24,21 +38,36 @@ export const useAntivirus = () => {
 
   useEffect(() => {
     window.electron.antivirus.onScanProgress(handleProgress);
-
     return () => {
       window.electron.antivirus.removeScanProgressListener();
     };
   }, []);
 
-  //TODO: Implement the call to payments API to check if user is elegible to use the Antivirus
-  //TODO: Also implement a loading state while the API call is being made
   useEffect(() => {
     if (isFreeUserPlan) {
       setView('locked');
     } else {
       setView('chooseItems');
     }
-  }, []);
+  }, [isFreeUserPlan]);
+
+  const handleProgress = (progress: {
+    file: string;
+    isInfected: boolean;
+    viruses: string[];
+    countScannedItems: number;
+  }) => {
+    setCurrentScanPath(progress.file);
+    setCountScannedFiles(progress.countScannedItems);
+    setScannedItems((prevItems) => [
+      ...prevItems,
+      {
+        file: progress.file,
+        isInfected: progress.isInfected,
+        viruses: progress.viruses,
+      },
+    ]);
+  };
 
   const resetStates = () => {
     setSelectedItems([]);
@@ -54,29 +83,10 @@ export const useAntivirus = () => {
     resetStates();
   };
 
-  const handleProgress = (progress: {
-    file: string;
-    isInfected: boolean;
-    viruses: string[];
-    countScannedItems: number;
-  }) => {
-    console.log('HANDLE PROGRESS: ', progress);
-    setCurrentScanPath(progress.file);
-    setCountScannedFiles(progress.countScannedItems);
-    setScannedItems((prevItems) => [
-      ...prevItems,
-      {
-        file: progress.file,
-        isInfected: progress.isInfected,
-        viruses: progress.viruses,
-      },
-    ]);
-  };
-
   const onSelectItemsButtonClicked = async (scanType: ScanType) => {
     const getFiles = scanType === 'files';
     const items = await window.electron.antivirus.addItemsToScan(getFiles);
-    if (!items) return;
+    if (!items || items.length === 0) return;
     setSelectedItems(items);
     return items;
   };
@@ -90,7 +100,7 @@ export const useAntivirus = () => {
       await window.electron.antivirus.scanItems(items);
       setIsScanCompleted(true);
     } catch (error) {
-      console.log('ERROR WHILE SCANNING ITEMS: ', error);
+      console.error('ERROR WHILE SCANNING ITEMS: ', error);
     } finally {
       setIsScanning(false);
     }
@@ -98,6 +108,7 @@ export const useAntivirus = () => {
 
   const onCustomScanButtonClicked = async (scanType: ScanType) => {
     const items = await onSelectItemsButtonClicked(scanType);
+    if (!items || items.length === 0) return;
     setView('scan');
     await onScanItemsButtonClicked(items);
   };
@@ -108,22 +119,33 @@ export const useAntivirus = () => {
       await window.electron.antivirus.scanSystem();
       setIsScanCompleted(true);
     } catch (error) {
-      console.log('ERROR WHILE SCANNING ITEMS: ', error);
+      console.error('ERROR WHILE SCANNING SYSTEM: ', error);
     } finally {
       setIsScanning(false);
     }
   };
 
+  const onRemoveInfectedItems = async (infectedFiles: string[]) => {
+    if (infectedFiles.length === 0) return;
+
+    try {
+      window.electron.antivirus.removeInfectedFiles(infectedFiles);
+    } catch (error) {
+      console.log('ERROR WHILE REMOVING INFECTED ITEMS:', error);
+    }
+  };
+
   return {
-    selectedItems,
     scannedItems,
     currentScanPath,
     countScannedFiles,
     view,
+    selectedItems,
     isScanning,
     isScanCompleted,
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
+    onRemoveInfectedItems,
   };
 };

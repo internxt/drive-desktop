@@ -262,6 +262,7 @@ declare interface Window {
           }[]
         | undefined
       >;
+      removeInfectedFiles: (infectedFiles: string[]) => void;
     };
   };
 }

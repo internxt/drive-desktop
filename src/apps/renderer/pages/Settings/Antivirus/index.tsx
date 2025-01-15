@@ -1,13 +1,18 @@
 import { LockedState } from './views/LockedState';
 import { ChooseItemsState } from './views/ChooseItemsState';
 import { ScanState } from './views/ScanState';
-import { useAntivirus, Views } from '../../../hooks/antivirus/useAntivirus';
+import { Views } from '../../../hooks/antivirus/useAntivirus';
+import { useAntivirusContext } from '../../../context/AntivirusContext';
 
 interface AntivirusSectionProps {
   active: boolean;
+  showItemsWithMalware: () => void;
 }
 
-export default function AntivirusSection({ active }: AntivirusSectionProps) {
+export default function AntivirusSection({
+  active,
+  showItemsWithMalware,
+}: AntivirusSectionProps) {
   const isFreeUserPlan = false;
   const {
     isScanning,
@@ -20,7 +25,7 @@ export default function AntivirusSection({ active }: AntivirusSectionProps) {
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
-  } = useAntivirus();
+  } = useAntivirusContext();
 
   const viewStates: Record<Views, JSX.Element> = {
     locked: <LockedState />,
@@ -40,6 +45,7 @@ export default function AntivirusSection({ active }: AntivirusSectionProps) {
         onScanAgainButtonClicked={onScanAgainButtonClicked}
         currentScanPath={currentScanPath}
         corruptedFiles={scannedItems}
+        showItemsWithMalware={showItemsWithMalware}
       />
     ),
   };

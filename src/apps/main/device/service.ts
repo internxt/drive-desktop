@@ -655,7 +655,7 @@ export async function getPathFromDialog(
 
 export async function openFileSystemAndGetPaths(
   dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']
-): Promise<string[] | null> {
+): Promise<string[] | undefined> {
   const dialogProperties = dialogPropertiesOptions ?? ['openDirectory'];
 
   const result = await dialog.showOpenDialog({
@@ -663,7 +663,7 @@ export async function openFileSystemAndGetPaths(
   });
 
   if (result.canceled) {
-    return null;
+    return undefined;
   }
 
   return result.filePaths;

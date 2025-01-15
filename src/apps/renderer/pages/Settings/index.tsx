@@ -9,6 +9,8 @@ import { DeviceProvider } from '../../context/DeviceContext';
 import { BackupProvider } from '../../context/BackupContext';
 import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
 import AntivirusSection from './Antivirus';
+import { RemoveMalwareState } from './Antivirus/views/RemoveMalwareState';
+import { AntivirusProvider } from '../../context/AntivirusContext';
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
@@ -25,6 +27,10 @@ export default function Settings() {
     );
 
     resizeObserver.observe(rootRef.current!);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -41,33 +47,44 @@ export default function Settings() {
   return (
     <DeviceProvider>
       <BackupProvider>
-        <div
-          ref={rootRef}
-          style={{ minWidth: 400, minHeight: subsection === 'list' ? 0 : 420 }}
-        >
-          {subsection === 'list' && activeSection === 'BACKUPS' && (
-            <BackupFolderSelector onClose={() => setSubsection('panel')} />
-          )}
-          {subsection === 'panel' && (
-            <>
-              <WindowTopBar
-                title="Internxt Drive"
-                className="bg-surface dark:bg-gray-5"
-              />
-              <Header active={activeSection} onClick={setActiveSection} />
-              <div className={'bg-gray-1 p-5'}>
-                <GeneralSection active={activeSection === 'GENERAL'} />
-                <AccountSection active={activeSection === 'ACCOUNT'} />
-                <BackupsSection
-                  active={activeSection === 'BACKUPS'}
-                  showBackedFolders={() => setSubsection('list')}
-                  showIssues={() => window.electron.openProcessIssuesWindow()}
+        <AntivirusProvider>
+          <div
+            ref={rootRef}
+            style={{
+              minWidth: subsection === 'list' ? 'auto' : 400,
+              minHeight: subsection === 'list' ? 'auto' : 420,
+            }}
+          >
+            {subsection === 'list' && activeSection === 'BACKUPS' && (
+              <BackupFolderSelector onClose={() => setSubsection('panel')} />
+            )}
+            {subsection === 'list' && activeSection === 'ANTIVIRUS' && (
+              <RemoveMalwareState onCancel={() => setSubsection('panel')} />
+            )}
+            {subsection === 'panel' && (
+              <>
+                <WindowTopBar
+                  title="Internxt Drive"
+                  className="bg-surface dark:bg-gray-5"
                 />
-                <AntivirusSection active={activeSection === 'ANTIVIRUS'} />
-              </div>
-            </>
-          )}
-        </div>
+                <Header active={activeSection} onClick={setActiveSection} />
+                <div className={'bg-gray-1 p-5'}>
+                  <GeneralSection active={activeSection === 'GENERAL'} />
+                  <AccountSection active={activeSection === 'ACCOUNT'} />
+                  <BackupsSection
+                    active={activeSection === 'BACKUPS'}
+                    showBackedFolders={() => setSubsection('list')}
+                    showIssues={() => window.electron.openProcessIssuesWindow()}
+                  />
+                  <AntivirusSection
+                    active={activeSection === 'ANTIVIRUS'}
+                    showItemsWithMalware={() => setSubsection('list')}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+        </AntivirusProvider>
       </BackupProvider>
     </DeviceProvider>
   );

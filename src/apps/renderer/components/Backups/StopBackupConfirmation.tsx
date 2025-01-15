@@ -1,5 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react/jsx-runtime';
+import { Fragment } from 'react';
+
 import { useTranslationContext } from '../../context/LocalContext';
 import Button from '../Button';
 
