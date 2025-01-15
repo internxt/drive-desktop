@@ -13,7 +13,7 @@ const RESOURCES_PATH = app.isPackaged
 
 const startClamdServer = (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const clamdPath = path.join(RESOURCES_PATH, 'clamd.exe');
+    const clamdPath = path.join(RESOURCES_PATH, 'clamd-inxt.exe');
     const clamdConfigPath = path.join(RESOURCES_PATH, 'clamd.conf');
     const freshclamPath = path.join(RESOURCES_PATH, 'freshclam.exe');
 
