@@ -5,6 +5,8 @@ import { DateMother } from '../../../context/shared/domain/DateMother';
 import { LocalFileMother } from '../../../context/local/localFile/domain/LocalFileMother';
 import path from 'path';
 import { AbsolutePath } from '../../../../src/context/local/localFile/infrastructure/AbsolutePath';
+import { LocalTree } from '../../../../src/context/local/localTree/domain/LocalTree';
+import { AbsolutePathMother } from '../../../context/shared/infrastructure/AbsolutePathMother';
 
 describe('DiffFilesCalculator', () => {
   it('groups the remote files as deleted when there are not in the local tree', () => {
@@ -50,7 +52,60 @@ describe('DiffFilesCalculator', () => {
     const { modified } = DiffFilesCalculator.calculate(local, remote);
 
     expect(modified.size).toBe(expectedNumberOfFilesToModify);
-    expect(Array.from(modified.keys())).toStrictEqual(local.files);
-    expect(Array.from(modified.values())).toStrictEqual(remote.files);
+    remote.files.forEach((file) => {
+      const localFile = local.files.find((f) => f.path === file.path);
+      expect(localFile).toBeDefined();
+      if (localFile) {
+        expect(modified.has(localFile)).toBe(true);
+        expect(modified.get(localFile)).toBe(file);
+      }
+    });
+  });
+
+  it('identifies unmodified files correctly', () => {
+    const local = LocalTreeMother.oneLevel(10);
+    const remote = RemoteTreeMother.oneLevel(10);
+
+    // Create a new LocalTree with the updated files
+    const updatedLocal = new LocalTree(local.root);
+
+    const { unmodified, added, deleted, modified } =
+      DiffFilesCalculator.calculate(updatedLocal, remote);
+
+    expect(unmodified.length).toBe(10);
+    expect(added.length).toBe(0);
+    expect(deleted.length).toBe(0);
+    expect(modified.size).toBe(0);
+  });
+
+  it('handles mixed additions, deletions, modifications, and unmodified files', () => {
+    const local = LocalTreeMother.oneLevel(15);
+    const remote = RemoteTreeMother.oneLevel(10);
+
+    // Add 5 new files to local
+    for (let i = 11; i <= 15; i++) {
+      local.addFile(
+        local.root,
+        LocalFileMother.fromPartial({
+          path: AbsolutePathMother.anyFile(),
+          modificationTime: DateMother.today().getTime(),
+        })
+      );
+    }
+
+    const updatedLocal = new LocalTree(local.root);
+
+    // Modify some files in remote
+    for (let i = 0; i < 3; i++) {
+      remote.files[i].updatedAt = DateMother.nextDay(new Date());
+    }
+
+    const { added, deleted, modified, unmodified } =
+      DiffFilesCalculator.calculate(updatedLocal, remote);
+
+    expect(added.length).toBe(5);
+    expect(deleted.length).toBe(0); // Since remote only has 10 and local has 15
+    expect(modified.size).toBe(3);
+    expect(unmodified.length).toBe(7);
   });
 });
