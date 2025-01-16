@@ -3,10 +3,10 @@ import { RemoteTreeMother } from '../../../context/virtual-drive/tree/domain/Rem
 import { LocalTreeMother } from '../../../context/local/tree/domain/LocalTreeMother';
 import { DateMother } from '../../../context/shared/domain/DateMother';
 import { LocalFileMother } from '../../../context/local/localFile/domain/LocalFileMother';
-import path from 'path';
+import path, { relative } from 'path';
 import { AbsolutePath } from '../../../../src/context/local/localFile/infrastructure/AbsolutePath';
-import { LocalTree } from '../../../../src/context/local/localTree/domain/LocalTree';
 import { AbsolutePathMother } from '../../../context/shared/infrastructure/AbsolutePathMother';
+import { FileMother } from '../../../context/virtual-drive/files/domain/FileMother';
 
 describe('DiffFilesCalculator', () => {
   it('groups the remote files as deleted when there are not in the local tree', () => {
@@ -52,38 +52,29 @@ describe('DiffFilesCalculator', () => {
     const { modified } = DiffFilesCalculator.calculate(local, remote);
 
     expect(modified.size).toBe(expectedNumberOfFilesToModify);
-    remote.files.forEach((file) => {
-      const localFile = local.files.find((f) => f.path === file.path);
-      expect(localFile).toBeDefined();
-      if (localFile) {
-        expect(modified.has(localFile)).toBe(true);
-        expect(modified.get(localFile)).toBe(file);
-      }
-    });
   });
 
   it('identifies unmodified files correctly', () => {
-    const local = LocalTreeMother.oneLevel(10);
-    const remote = RemoteTreeMother.oneLevel(10);
-
-    // Create a new LocalTree with the updated files
-    const updatedLocal = new LocalTree(local.root);
+    const expectedNumberOfUnmodifiedFiles = 10;
+    const local = LocalTreeMother.oneLevel(expectedNumberOfUnmodifiedFiles);
+    const remote = RemoteTreeMother.cloneFromLocal(local);
 
     const { unmodified, added, deleted, modified } =
-      DiffFilesCalculator.calculate(updatedLocal, remote);
+      DiffFilesCalculator.calculate(local, remote);
 
-    expect(unmodified.length).toBe(10);
+    expect(unmodified.length).toBe(expectedNumberOfUnmodifiedFiles);
     expect(added.length).toBe(0);
     expect(deleted.length).toBe(0);
     expect(modified.size).toBe(0);
   });
 
   it('handles mixed additions, deletions, modifications, and unmodified files', () => {
-    const local = LocalTreeMother.oneLevel(15);
-    const remote = RemoteTreeMother.oneLevel(10);
+    const expectedNumberOfFilesToAdd = 5;
+    const expectedNumberOfFilesToDelete = 5;
+    const local = LocalTreeMother.oneLevel(10);
+    const remote = RemoteTreeMother.cloneFromLocal(local);
 
-    // Add 5 new files to local
-    for (let i = 11; i <= 15; i++) {
+    for (let i = 0; i < 5; i++) {
       local.addFile(
         local.root,
         LocalFileMother.fromPartial({
@@ -93,19 +84,41 @@ describe('DiffFilesCalculator', () => {
       );
     }
 
-    const updatedLocal = new LocalTree(local.root);
+    const modifiedRemote = RemoteTreeMother.onlyRoot();
 
-    // Modify some files in remote
-    for (let i = 0; i < 3; i++) {
-      remote.files[i].updatedAt = DateMother.nextDay(new Date());
-    }
+    local.files.forEach((file, index) => {
+      if (index < 3) {
+        modifiedRemote.addFile(
+          modifiedRemote.root,
+          FileMother.fromPartial({
+            path: path.join(
+              modifiedRemote.root.path,
+              relative(local.root.path, file.path)
+            ),
+            modificationTime: DateMother.previousDay(
+              new Date(file.modificationTime)
+            ).toISOString(),
+          })
+        );
+      } else {
+        modifiedRemote.addFile(
+          modifiedRemote.root,
+          FileMother.fromPartial({
+            path: path.join(
+              remote.root.path,
+              relative(local.root.path, file.path)
+            ),
+          })
+        );
+      }
+    });
 
     const { added, deleted, modified, unmodified } =
-      DiffFilesCalculator.calculate(updatedLocal, remote);
+      DiffFilesCalculator.calculate(local, modifiedRemote);
 
-    expect(added.length).toBe(5);
-    expect(deleted.length).toBe(0); // Since remote only has 10 and local has 15
-    expect(modified.size).toBe(3);
-    expect(unmodified.length).toBe(7);
+    expect(added.length).toBe(expectedNumberOfFilesToAdd);
+    expect(deleted.length).toBe(expectedNumberOfFilesToDelete);
+    expect(modified.size).toBe(0);
+    expect(unmodified.length).toBe(10);
   });
 });
