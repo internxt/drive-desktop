@@ -1,5 +1,5 @@
 import path from 'path';
-import NodeClam, { NodeClamError } from 'clamscan';
+import NodeClam, { NodeClamError } from '@internxt/scan';
 import clamAVServer from './ClamAVServer';
 import { app } from 'electron';
 import { exec, execFile } from 'child_process';
@@ -103,7 +103,7 @@ export class Antivirus {
           host: '127.0.0.1',
           localFallback: false,
           port: 3310,
-          timeout: 60000,
+          timeout: 180000,
           multiscan: true,
           active: true,
         },

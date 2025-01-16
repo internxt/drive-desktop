@@ -1284,6 +1284,11 @@
   resolved "https://npm.pkg.github.com/download/@internxt/lib/1.2.0/172d7929abb3dc34fda044ad9977875791f7a471"
   integrity sha512-14byNxSU0S0KSc3g+BWiJb7/fcHUfqxkHQRz9fwJhAHNmgOo+Bhx13xXk07KKUzeNX1JymSGEZkVCk0AOQiM+Q==
 
+"@internxt/scan@^1.0.0":
+  version "1.0.0"
+  resolved "https://npm.pkg.github.com/download/@internxt/scan/1.0.0/6ffc1f467ec18e31ac1e9ea54011b2950493b712#6ffc1f467ec18e31ac1e9ea54011b2950493b712"
+  integrity sha512-oiy0pOBxi3Go1+sicemCVR3/4UHdAWReNbnLAslud1B8bal3ZBCXqBnmDFZ7DyFN2X3jwKfPXIFLkfXLTvttpw==
+
 "@internxt/sdk@^1.4.27":
   version "1.4.76"
   resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.4.76/5565887c37a8bf084f6a1e089edd7cb2858da294#5565887c37a8bf084f6a1e089edd7cb2858da294"
@@ -2436,13 +2441,6 @@
   version "1.1.3"
   resolved "https://registry.npmjs.org/@types/chance/-/chance-1.1.3.tgz"
   integrity sha512-X6c6ghhe4/sQh4XzcZWSFaTAUOda38GQHmq9BUanYkOE/EO7ZrkazwKmtsj3xzTjkLWmwULE++23g3d3CCWaWw==
-
-"@types/clamscan@^2.4.0":
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/@types/clamscan/-/clamscan-2.4.0.tgz#704f6e8c192040d70e6e04a0c22a474c5c28ac78"
-  integrity sha512-wqYy+klgBWqCFAMNZsJrb5Q4d0VIjMPk2lfGsq5jHMPyq8E61YLOV+3VNrvoJdbNmzVIXGIc9npb0Tjw+MXEfw==
-  dependencies:
-    "@types/node" "*"
 
 "@types/connect-history-api-fallback@^1.3.5":
   version "1.5.0"
@@ -4111,11 +4109,6 @@ cjs-module-lexer@^1.0.0:
   version "1.2.3"
   resolved "https://registry.npmjs.org/cjs-module-lexer/-/cjs-module-lexer-1.2.3.tgz"
   integrity sha512-0TNiGstbQmCFwt4akjjBg5pLRTSyj/PkWQ1ZoO2zntmg9yLqSRxwEa4iCfQLGjqhiqBfOJa7W/E8wfGrTDmlZQ==
-
-clamscan@^2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/clamscan/-/clamscan-2.4.0.tgz#0abca6e5a96628151dbacc1152233d2d388ab82a"
-  integrity sha512-XBOxUiGOcQGuKmCn5qaM5rIK153fGCwsvJMbjVtcnNJ+j/YHrSj2gKNjyP65yr/E8JsKTTDtKYFG++p7Lzigyw==
 
 clean-css@^5.2.2:
   version "5.3.2"

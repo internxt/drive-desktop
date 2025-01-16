@@ -99,7 +99,7 @@ const checkClamdAvailability = (
 };
 
 const waitForClamd = async (
-  timeout = 60000,
+  timeout = 180000,
   interval = 5000
 ): Promise<void> => {
   const startTime = Date.now();
