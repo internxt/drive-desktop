@@ -2,7 +2,6 @@ import path from 'path';
 import NodeClam, { NodeClamError } from '@internxt/scan';
 import clamAVServer from './ClamAVServer';
 import { app } from 'electron';
-import { exec, execFile } from 'child_process';
 
 export interface SelectedItemToScanProps {
   path: string;
@@ -36,57 +35,10 @@ export class Antivirus {
     return Antivirus.instance;
   }
 
-  private async requestAdminPermissions(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const appPath = process.argv[0];
-      const appArgs = process.argv.slice(1);
-
-      execFile(
-        'powershell',
-        [
-          '-Command',
-          `Start-Process "${appPath}" "${appArgs.join(' ')}" -Verb runAs`,
-        ],
-        (error) => {
-          if (error) {
-            console.error('Error requesting admin permissions:', error);
-            reject(error);
-          } else {
-            console.log('Application restarted with admin privileges.');
-            app.quit();
-            resolve();
-          }
-        }
-      );
-    });
-  }
-
-  private async isRunningAsAdmin(): Promise<boolean> {
-    return new Promise((resolve) => {
-      exec('net session', (error) => {
-        resolve(!error);
-      });
-    });
-  }
-
-  private async startScanWithPermissions() {
-    try {
-      const isAdmin = await this.isRunningAsAdmin();
-      if (!isAdmin) {
-        console.log('Requesting admin permissions...');
-        await this.requestAdminPermissions();
-      }
-    } catch (err) {
-      console.error('Permission error:', err);
-    }
-  }
-
   private async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
     try {
-      // await this.startScanWithPermissions();
-
       await clamAVServer.startClamdServer();
 
       await clamAVServer.waitForClamd();
