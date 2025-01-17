@@ -143,7 +143,7 @@ export class Antivirus {
     return new Promise<void>((resolve, reject) => {
       this.clamAv!.scanDir(
         folderPath,
-        (err, goodFiles, badFiles, viruses) => {
+        (err: NodeClamError, goodFiles: [], badFiles: [], viruses: []) => {
           if (err) {
             reject(err);
             return;
@@ -184,7 +184,7 @@ export class Antivirus {
     return new Promise<void>((resolve, reject) => {
       this.clamAv!.scanFiles(
         filePaths,
-        (err, goodFiles, badFiles, viruses) => {
+        (err: NodeClam, goodFiles: [], badFiles: [], viruses: []) => {
           if (err) {
             reject(err);
             return;
@@ -194,10 +194,7 @@ export class Antivirus {
             onAllFilesScanned(err, goodFiles, badFiles, viruses);
           resolve();
         },
-        (err, file, isInfected, viruses) => {
-          console.log('SCANNING FILE: ', file, isInfected, viruses);
-          onFileScanned && onFileScanned(err, file, isInfected, viruses);
-        }
+        onFileScanned
       );
     });
   }
