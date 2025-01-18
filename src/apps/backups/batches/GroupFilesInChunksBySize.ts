@@ -32,7 +32,7 @@ export class GroupFilesInChunksBySize {
   }
 
   static empty(all: Array<LocalFile>): Chucks {
-    return GroupFilesInChunksBySize.chunk(all, 1);
+    return GroupFilesInChunksBySize.chunk(all, all.length);
   }
 
   private static chunk(files: Array<LocalFile>, size: number) {
