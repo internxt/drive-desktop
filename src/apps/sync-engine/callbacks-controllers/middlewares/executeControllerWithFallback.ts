@@ -27,7 +27,7 @@ export const executeControllerWithFallback =
         callback(true);
       });
     } catch (error: unknown) {
-      Logger.error(error);
+      Logger.error('[ERROR 2]', error);
       Sentry.captureException(error);
       callback(false);
     }

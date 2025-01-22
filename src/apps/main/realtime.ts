@@ -75,7 +75,9 @@ function cleanAndStartRemoteNotifications() {
 
     if (data.payload.bucket !== user?.backupsBucket) {
       logger.log('Notification received: ', data);
-      eventBus.emit('RECEIVED_REMOTE_CHANGES');
+      setTimeout(() => {
+        eventBus.emit('RECEIVED_REMOTE_CHANGES');
+      }, 2000);
       return;
     }
 

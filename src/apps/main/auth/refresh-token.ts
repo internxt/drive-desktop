@@ -23,6 +23,8 @@ async function obtainTokens() {
     return res.data;
   } catch (err) {
     Logger.debug('[TOKEN] Could not obtain tokens: ', err);
+    await onUserUnauthorized();
+    return err;
   }
 }
 
