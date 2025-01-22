@@ -233,9 +233,37 @@ export class HttpRemoteFolderSystem implements RemoteFolderSystem {
     }
   }
 
+  async getFolderMetadata(folder: Folder): Promise<any> {
+    try {
+      const url = `${process.env.NEW_DRIVE_URL}/drive/folders/${folder.uuid}/meta`;
+
+      const res = await this.trashClient.get(url);
+
+      if (res.status !== 200) {
+        throw new Error(
+          `[FOLDER FILE SYSTEM] Error getting folder metadata: ${res.status}`
+        );
+      }
+
+      const serverFolder = res.data as ServerFolder;
+      Logger.debug('[FOLDER FILE SYSTEM] Folder metadata', serverFolder);
+      return serverFolder;
+    } catch (error) {
+      Logger.error('[FOLDER FILE SYSTEM] Error getting folder metadata');
+      if (axios.isAxiosError(error)) {
+        Logger.error('[Is Axios Error]', error.response?.data);
+      }
+      throw error;
+    }
+  }
+
   async rename(folder: Folder): Promise<void> {
     try {
       const url = `${process.env.API_URL}/storage/folder/${folder.id}/meta`;
+
+      const metadata = await this.getFolderMetadata(folder);
+
+      if (metadata.plainName === folder.name) return;
 
       const body: UpdateFolderNameDTO = {
         metadata: { itemName: folder.name },
