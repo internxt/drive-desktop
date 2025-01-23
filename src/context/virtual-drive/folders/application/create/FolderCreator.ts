@@ -47,8 +47,6 @@ export class FolderCreator {
 
     const response = await this.remote.persist(folderPath, parentId);
 
-    console.log('response', response);
-
     if (response.isLeft()) {
       Logger.error(response.getLeft());
       return;
