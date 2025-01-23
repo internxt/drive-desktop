@@ -50,19 +50,34 @@ describe('FoldersDiffCalculator', () => {
   it('handles mixed additions, deletions, and unmodified folders', () => {
     const expectedNumberOfUnmodifiedFolders = 10;
     const expectedNumberOfAddedFolders = 5;
+
     const local = LocalTreeMother.oneLevel(expectedNumberOfUnmodifiedFolders);
     const originalRemote = RemoteTreeMother.cloneFromLocal(local);
 
-    // Add 5 new folders to local using LocalFolderMother
-    for (let i = 11; i <= 15; i++) {
-      local.addFolder(
-        local.root,
-        LocalFolderMother.fromPartial({
-          path: AbsolutePathMother.anyFile(),
-          modificationTime: DateMother.today().getTime(),
-        })
-      );
-    }
+    const newFolders = [
+      LocalFolderMother.fromPartial({
+        path: AbsolutePathMother.anyFile(),
+        modificationTime: DateMother.today().getTime(),
+      }),
+      LocalFolderMother.fromPartial({
+        path: AbsolutePathMother.anyFile(),
+        modificationTime: DateMother.today().getTime(),
+      }),
+      LocalFolderMother.fromPartial({
+        path: AbsolutePathMother.anyFile(),
+        modificationTime: DateMother.today().getTime(),
+      }),
+      LocalFolderMother.fromPartial({
+        path: AbsolutePathMother.anyFile(),
+        modificationTime: DateMother.today().getTime(),
+      }),
+      LocalFolderMother.fromPartial({
+        path: AbsolutePathMother.anyFile(),
+        modificationTime: DateMother.today().getTime(),
+      }),
+    ];
+
+    newFolders.forEach((folder) => local.addFolder(local.root, folder));
 
     const { added, deleted, unmodified } = FoldersDiffCalculator.calculate(
       local,

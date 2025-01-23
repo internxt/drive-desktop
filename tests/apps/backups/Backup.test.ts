@@ -12,6 +12,17 @@ import { LocalTreeMother } from '../../context/local/tree/domain/LocalTreeMother
 import { RemoteTreeMother } from '../../context/virtual-drive/tree/domain/RemoteTreeMother';
 import { left, right } from '../../../src/context/shared/domain/Either';
 import { RemoteTree } from '../../../src/context/virtual-drive/remoteTree/domain/RemoteTree';
+import { jest } from '@jest/globals';
+import { BackupsIPCRenderer } from '../../../src/apps/backups/BackupsIPCRenderer';
+import { FolderMother } from '../../context/virtual-drive/folders/domain/FolderMother';
+import { Folder } from '../../../src/context/virtual-drive/folders/domain/Folder';
+
+// Mock the BackupsIPCRenderer module
+jest.mock('../../../src/apps/backups/BackupsIPCRenderer', () => ({
+  BackupsIPCRenderer: {
+    send: jest.fn(), // Mock the send method
+  },
+}));
 
 describe('Backup', () => {
   let backup: Backup;
@@ -48,13 +59,19 @@ describe('Backup', () => {
     remoteFileDeleter = {
       run: jest.fn(),
     } as unknown as jest.Mocked<FileDeleter>;
-    simpleFolderCreator = {
-      run: jest.fn(),
-    } as unknown as jest.Mocked<SimpleFolderCreator>;
+
     userAvaliableSpaceValidator = {
       run: jest.fn(),
       repository: {},
     } as unknown as jest.Mocked<UserAvaliableSpaceValidator>;
+
+    simpleFolderCreator = {
+      run: jest
+        .fn<Promise<Folder>, [string, number]>()
+        .mockImplementation((_path: string, _parentId: number) => {
+          return Promise.resolve(FolderMother.any() as Folder);
+        }),
+    } as unknown as jest.Mocked<SimpleFolderCreator>;
 
     backup = new Backup(
       localTreeBuilder,
@@ -65,6 +82,9 @@ describe('Backup', () => {
       simpleFolderCreator,
       userAvaliableSpaceValidator
     );
+
+    // Clear the mock before each test
+    (BackupsIPCRenderer.send as jest.Mock).mockClear();
   });
 
   it('should successfully run the backup process', async () => {
@@ -89,6 +109,7 @@ describe('Backup', () => {
     expect(result).toBeUndefined();
     expect(localTreeBuilder.run).toHaveBeenCalledWith(info.pathname);
     expect(remoteTreeBuilder.run).toHaveBeenCalledWith(info.folderId);
+    expect(BackupsIPCRenderer.send).toHaveBeenCalled(); // Check if send was called
   });
 
   it('should return an error if local tree generation fails', async () => {
