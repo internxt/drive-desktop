@@ -97,7 +97,9 @@
     "win": {
       "target": [
         "nsis"
-      ]
+      ],     
+      "certificateSubjectName": "Internxt Universal Technologies SL",
+      "verifyUpdateCodeSignature": false
     },
     "linux": {
       "target": [
