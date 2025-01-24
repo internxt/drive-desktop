@@ -8,6 +8,15 @@ import { AbsolutePath } from '../../../../src/context/local/localFile/infrastruc
 import { AbsolutePathMother } from '../../../context/shared/infrastructure/AbsolutePathMother';
 import { FileMother } from '../../../context/virtual-drive/files/domain/FileMother';
 
+function generateLocalFiles(count: number) {
+  return Array.from({ length: count }, () =>
+    LocalFileMother.fromPartial({
+      path: AbsolutePathMother.anyFile(),
+      modificationTime: DateMother.today().getTime(),
+    })
+  );
+}
+
 describe('DiffFilesCalculator', () => {
   it('groups the remote files as deleted when there are not in the local tree', () => {
     const local = LocalTreeMother.onlyRoot();
@@ -74,15 +83,9 @@ describe('DiffFilesCalculator', () => {
     const local = LocalTreeMother.oneLevel(10);
     const remote = RemoteTreeMother.cloneFromLocal(local);
 
-    for (let i = 0; i < 5; i++) {
-      local.addFile(
-        local.root,
-        LocalFileMother.fromPartial({
-          path: AbsolutePathMother.anyFile(),
-          modificationTime: DateMother.today().getTime(),
-        })
-      );
-    }
+    const newFiles = generateLocalFiles(expectedNumberOfFilesToAdd);
+    local.files.push(...newFiles);
+    newFiles.forEach((file) => local.addFile(local.root, file));
 
     const modifiedRemote = RemoteTreeMother.onlyRoot();
 
