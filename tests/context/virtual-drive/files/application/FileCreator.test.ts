@@ -11,6 +11,7 @@ import { FileSyncNotifierMock } from '../__mocks__/FileSyncNotifierMock';
 import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
 import { FileMother } from '../domain/FileMother';
 import { FileSizeMother } from '../domain/FileSizeMother';
+import { right } from '../../../../../src/context/shared/domain/Either';
 
 describe('File Creator', () => {
   let remoteFileSystemMock: RemoteFileSystemMock;
@@ -49,11 +50,11 @@ describe('File Creator', () => {
       contentsId: contentsId.value,
     }).attributes();
 
-    fileRepository.addMock.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
+    fileRepository.addMock.mockImplementationOnce(() => Promise.resolve());
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(
+      right(fileAttributes)
+    );
 
     await SUT.run(path.value, contentsId.value, size.value);
 
@@ -73,11 +74,11 @@ describe('File Creator', () => {
       contentsId: contentsId.value,
     }).attributes();
 
-    fileRepository.addMock.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
+    fileRepository.addMock.mockImplementationOnce(() => Promise.resolve());
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(
+      right(fileAttributes)
+    );
 
     await SUT.run(path.value, contentsId.value, size.value);
 
@@ -107,11 +108,11 @@ describe('File Creator', () => {
       .spyOn(fileDeleter, 'run')
       .mockResolvedValueOnce(Promise.resolve());
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(
+      right(fileAttributes)
+    );
 
-    fileRepository.addMock.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
+    fileRepository.addMock.mockImplementationOnce(() => Promise.resolve());
 
     await SUT.run(path.value, contentsId.value, size.value);
 
