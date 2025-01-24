@@ -27,16 +27,18 @@ const DropdownItem = ({
 };
 
 const CustomScanItemsSelectorDropdown = ({
+  disabled,
   translate,
   onScanItemsButtonClicked,
 }: {
+  disabled: boolean;
   translate: (key: string) => string;
   onScanItemsButtonClicked: (scanType: ScanType) => void;
 }) => {
   return (
     <Menu as="div" className="relative flex h-8 items-end">
       <Menu.Button className="outline-none focus-visible:outline-none">
-        <Button>
+        <Button disabled={disabled}>
           {translate('settings.antivirus.scanOptions.customScan.action')}
         </Button>
       </Menu.Button>
@@ -90,13 +92,13 @@ const CustomScanItemsSelectorDropdown = ({
 };
 
 interface ChooseItemsStateProps {
-  areFeaturesLocked: boolean;
+  isUserElegible: boolean;
   onScanButtonClicked: (scanType: ScanType) => void;
   onScanUserSystemButtonClicked: () => void;
 }
 
 export const ChooseItemsState = ({
-  areFeaturesLocked,
+  isUserElegible,
   onScanButtonClicked,
   onScanUserSystemButtonClicked,
 }: ChooseItemsStateProps) => {
@@ -110,7 +112,7 @@ export const ChooseItemsState = ({
         </p>
         <Button
           onClick={onScanUserSystemButtonClicked}
-          disabled={areFeaturesLocked}
+          disabled={!isUserElegible}
         >
           {translate('settings.antivirus.scanOptions.systemScan.action')}
         </Button>
@@ -122,6 +124,7 @@ export const ChooseItemsState = ({
         </p>
         <CustomScanItemsSelectorDropdown
           translate={translate}
+          disabled={!isUserElegible}
           onScanItemsButtonClicked={onScanButtonClicked}
         />
       </div>

@@ -11,6 +11,8 @@ const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'clamAV')
   : path.join(__dirname, '../../../../clamAV');
 
+let timer: NodeJS.Timeout | null = null;
+
 const startClamdServer = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     const clamdPath = path.join(RESOURCES_PATH, 'clamd-inxt.exe');
@@ -18,11 +20,29 @@ const startClamdServer = (): Promise<void> => {
     const freshclamPath = path.join(RESOURCES_PATH, 'freshclam.exe');
 
     console.log('Updating virus database using freshclam...', freshclamPath);
+    // TODO: Ejecutar freshclam para actualizar la base de datos.
 
     clamdProcess = spawn(clamdPath, ['-c', clamdConfigPath]);
 
+    const resetTimer = () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+
+      timer = setTimeout(() => {
+        console.log(
+          'NO data fetched in 60 secs. Shutting down the clam av service'
+        );
+        stopClamdServer();
+      }, 120000);
+    };
+
+    resetTimer();
+
     clamdProcess.stdout.on('data', (data) => {
       console.log(`[clamd stdout]: ${data}`);
+
+      resetTimer();
     });
 
     clamdProcess.stderr.on('data', (data) => {
@@ -40,33 +60,6 @@ const startClamdServer = (): Promise<void> => {
       reject();
     });
 
-    // const freshclamProcess = spawn(freshclamPath);
-
-    // freshclamProcess.stdout.on('data', (data) => {
-    //   console.log(`[freshclam stdout]: ${data}`);
-    // });
-
-    // freshclamProcess.stderr.on('data', (data) => {
-    //   console.error(`[freshclam stderr]: ${data}`);
-    // });
-
-    // freshclamProcess.on('error', (error) => {
-    //   console.log('Failed to start freshclam:', error);
-    //   reject();
-    // });
-
-    // freshclamProcess.on('close', (code) => {
-    //   if (code === 0) {
-    //     console.log(
-    //       'Virus database updated successfully...\n Starting clamd server...'
-    //     );
-
-    //     resolve();
-    //   } else {
-    //     console.error(`freshclam exited with code ${code}`);
-    //     reject(new Error('Failed to update virus database.'));
-    //   }
-    // });
     resolve();
   });
 };
@@ -76,6 +69,11 @@ const stopClamdServer = (): void => {
     console.log('Stopping clamd server...');
     clamdProcess.kill();
     clamdProcess = null;
+  }
+
+  if (timer) {
+    clearTimeout(timer);
+    timer = null;
   }
 };
 

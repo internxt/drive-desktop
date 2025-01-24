@@ -24,7 +24,7 @@ import './realtime';
 import './tray/tray';
 import './tray/handlers';
 import './fordwardToWindows';
-import './antivirus/ipcMainAntivirus';
+import './ipcs/ipcMainAntivirus';
 import './analytics/handlers';
 import './platform/handlers';
 import './thumbnails/handlers';

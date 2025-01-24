@@ -68,7 +68,7 @@ export default function Settings() {
                   className="bg-surface dark:bg-gray-5"
                 />
                 <Header active={activeSection} onClick={setActiveSection} />
-                <div className={'bg-gray-1 p-5'}>
+                <div className={'relative bg-gray-1 p-5'}>
                   <GeneralSection active={activeSection === 'GENERAL'} />
                   <AccountSection active={activeSection === 'ACCOUNT'} />
                   <BackupsSection
@@ -77,6 +77,9 @@ export default function Settings() {
                     showIssues={() => window.electron.openProcessIssuesWindow()}
                   />
                   <AntivirusSection
+                    onCancelDeactivateWinDefender={() =>
+                      setActiveSection('GENERAL')
+                    }
                     active={activeSection === 'ANTIVIRUS'}
                     showItemsWithMalware={() => setSubsection('list')}
                   />

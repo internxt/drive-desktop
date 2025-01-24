@@ -6,16 +6,40 @@ interface ScanStateProps {
   isScanning: boolean;
   isScanCompleted: boolean;
   scannedFilesCount: number;
-  selectedItems: number;
+  progressRatio: number;
   currentScanPath?: string;
   corruptedFiles: {
     file: string;
     isInfected: boolean | null;
     viruses: string[];
   }[];
+  errorWhileScanning: boolean;
   onScanAgainButtonClicked: () => void;
   showItemsWithMalware: () => void;
 }
+
+const ErrorScan = ({
+  onScanAgainButtonClicked,
+  translate,
+}: {
+  onScanAgainButtonClicked: () => void;
+  translate: (
+    key: string,
+    keysToReplace?: Record<string, string | number>
+  ) => string;
+}) => (
+  <div className="flex flex-col items-center gap-4">
+    <ShieldWarning size={64} className="text-red" weight="fill" />
+    <div className="flex flex-col gap-1 text-center">
+      <p className="font-medium text-gray-100">
+        {translate('settings.antivirus.scanProcess.errorWhileScanning')}
+      </p>
+    </div>
+    <Button onClick={onScanAgainButtonClicked}>
+      {translate('settings.antivirus.scanProcess.malwareFound.action')}
+    </Button>
+  </div>
+);
 
 const ScanSuccessful = ({
   translate,
@@ -24,21 +48,19 @@ const ScanSuccessful = ({
     key: string,
     keysToReplace?: Record<string, string | number>
   ) => string;
-}) => {
-  return (
-    <div className="flex flex-col items-center gap-4">
-      <ShieldCheck size={64} className="text-green" weight="fill" />
-      <div className="flex flex-col gap-1 text-center">
-        <p className="font-medium text-gray-100">
-          {translate('settings.antivirus.scanProcess.noFilesFound.title')}
-        </p>
-        <p className="text-sm text-gray-80">
-          {translate('settings.antivirus.scanProcess.noFilesFound.subtitle')}
-        </p>
-      </div>
+}) => (
+  <div className="flex flex-col items-center gap-4">
+    <ShieldCheck size={64} className="text-green" weight="fill" />
+    <div className="flex flex-col gap-1 text-center">
+      <p className="font-medium text-gray-100">
+        {translate('settings.antivirus.scanProcess.noFilesFound.title')}
+      </p>
+      <p className="text-sm text-gray-80">
+        {translate('settings.antivirus.scanProcess.noFilesFound.subtitle')}
+      </p>
     </div>
-  );
-};
+  </div>
+);
 
 const CorruptedItemsFound = ({
   translate,
@@ -49,24 +71,22 @@ const CorruptedItemsFound = ({
     keysToReplace?: Record<string, string | number>
   ) => string;
   onRemoveMalwareButtonClicked: () => void;
-}) => {
-  return (
-    <div className="flex flex-col items-center gap-4">
-      <ShieldWarning size={64} className="text-red" weight="fill" />
-      <div className="flex flex-col gap-1 text-center">
-        <p className="font-medium text-gray-100">
-          {translate('settings.antivirus.scanProcess.malwareFound.title')}
-        </p>
-        <p className="text-sm text-gray-80">
-          {translate('settings.antivirus.scanProcess.malwareFound.subtitle')}
-        </p>
-      </div>
-      <Button onClick={onRemoveMalwareButtonClicked}>
-        {translate('settings.antivirus.scanProcess.malwareFound.action')}
-      </Button>
+}) => (
+  <div className="flex flex-col items-center gap-4">
+    <ShieldWarning size={64} className="text-red" weight="fill" />
+    <div className="flex flex-col gap-1 text-center">
+      <p className="font-medium text-gray-100">
+        {translate('settings.antivirus.scanProcess.malwareFound.title')}
+      </p>
+      <p className="text-sm text-gray-80">
+        {translate('settings.antivirus.scanProcess.malwareFound.subtitle')}
+      </p>
     </div>
-  );
-};
+    <Button onClick={onRemoveMalwareButtonClicked}>
+      {translate('settings.antivirus.scanProcess.malwareFound.action')}
+    </Button>
+  </div>
+);
 
 const ScanResult = ({
   thereAreCorruptedFiles,
@@ -103,61 +123,52 @@ const ScanResult = ({
 
 const ScanProcess = ({
   currentScanPath,
-  scannedFilesCount,
-  selectedItems,
+  scannedProcess,
   translate,
 }: {
   currentScanPath?: string;
-  scannedFilesCount: number;
-  selectedItems: number;
+  scannedProcess: number;
   translate: (
     key: string,
     keysToReplace?: Record<string, string | number>
   ) => string;
-}) => {
-  const progressPercentage = Math.min(
-    Math.round((scannedFilesCount / selectedItems) * 100),
-    100
-  );
-  return (
-    <div className="flex w-full flex-col items-center gap-4">
-      <div className="line-clamp-2 flex w-full max-w-[450px] flex-col text-center">
-        <p>{translate('settings.antivirus.scanProcess.scanning')}</p>
-        <p>{currentScanPath}</p>
-      </div>
-      <div className="flex w-full flex-col items-center gap-1">
-        <div className="flex h-1.5 w-full flex-col rounded-full bg-primary/10">
-          <div
-            className="flex h-full rounded-full bg-primary"
-            style={{
-              width: `${progressPercentage}%`,
-            }}
-          />
-        </div>
-        <p>{progressPercentage}%</p>
-      </div>
+}) => (
+  <div className="flex w-full flex-col items-center gap-4">
+    <div className="line-clamp-2 flex h-full w-full max-w-[450px] flex-col text-center">
+      <p>{translate('settings.antivirus.scanProcess.scanning')}</p>
+      <p>{currentScanPath}</p>
     </div>
-  );
-};
+    <div className="flex w-full flex-col items-center gap-1">
+      <div className="flex h-1.5 w-full flex-col rounded-full bg-primary/10">
+        <div
+          className="flex h-full rounded-full bg-primary"
+          style={{
+            width: `${scannedProcess}%`,
+          }}
+        />
+      </div>
+      <p>{scannedProcess}%</p>
+    </div>
+  </div>
+);
 
 export const ScanState = ({
   isScanning,
   isScanCompleted,
   corruptedFiles,
   currentScanPath,
-  selectedItems,
+  progressRatio,
   scannedFilesCount,
+  errorWhileScanning,
   onScanAgainButtonClicked,
   showItemsWithMalware,
 }: ScanStateProps) => {
   const { translate } = useTranslationContext();
-  const thereAreCorruptedFiles = corruptedFiles.some(
-    (file) => file.isInfected || file.viruses.length > 0
-  );
 
   const countedCorruptedFiles = corruptedFiles.filter(
     (file) => file.isInfected || file.viruses.length > 0
   );
+  const thereAreCorruptedFiles = countedCorruptedFiles.length > 0;
 
   return (
     <section className="flex w-full flex-col items-center justify-center">
@@ -165,12 +176,17 @@ export const ScanState = ({
         {isScanning ? (
           <ScanProcess
             currentScanPath={currentScanPath}
-            scannedFilesCount={scannedFilesCount}
-            selectedItems={selectedItems}
+            scannedProcess={progressRatio}
             translate={translate}
           />
         ) : (
           <></>
+        )}
+        {!isScanning && errorWhileScanning && (
+          <ErrorScan
+            onScanAgainButtonClicked={onScanAgainButtonClicked}
+            translate={translate}
+          />
         )}
         {!isScanning && isScanCompleted && (
           <ScanResult

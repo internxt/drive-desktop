@@ -83,20 +83,22 @@ export class Antivirus {
       err: NodeClamError | null,
       file: string,
       isInfected: boolean,
-      viruses?: string[]
+      viruses: string[],
+      totalScannedFiles: [],
+      progressRatio: number
     ) => void;
   }): Promise<void> {
     if (!this.clamAv) {
       throw new Error('ClamAV is not initialized');
     }
 
-    return new Promise<void>((resolve, reject) => {
-      this.clamAv!.scanDir(
+    return new Promise<void>(async (resolve, reject) => {
+      await this.clamAv!.scanDir(
         folderPath,
         (err: NodeClamError, goodFiles: [], badFiles: [], viruses: []) => {
           if (err) {
+            console.log('ERROR SCANNING DIR: ', err);
             reject(err);
-            return;
           }
 
           onFolderScanned && onFolderScanned(err, goodFiles, badFiles, viruses);
@@ -124,7 +126,9 @@ export class Antivirus {
       err: NodeClamError | null,
       file: string,
       isInfected: boolean,
-      viruses: string[]
+      viruses: string[],
+      totalScannedFiles: [],
+      progressRatio: number
     ) => void;
   }): Promise<void> {
     if (!this.clamAv) {
@@ -136,8 +140,8 @@ export class Antivirus {
         filePaths,
         (err: NodeClam, goodFiles: [], badFiles: [], viruses: []) => {
           if (err) {
+            console.log('ERROR SCANNING FILES: ', err);
             reject(err);
-            return;
           }
 
           onAllFilesScanned &&
@@ -165,7 +169,9 @@ export class Antivirus {
       err: NodeClamError | null,
       file: string,
       isInfected: boolean,
-      viruses?: string[]
+      viruses: string[],
+      totalScannedFiles: [],
+      progressRatio: number
     ) => void;
   }) {
     const filePaths = items
@@ -183,7 +189,6 @@ export class Antivirus {
           onFileScanned,
         });
       }
-
       if (folderPaths.length > 0) {
         for (const folderPath of folderPaths) {
           await this.scanFolder({
@@ -194,7 +199,8 @@ export class Antivirus {
         }
       }
     } catch (error) {
-      console.log('ERROR WHILE SCAN ITEMS: ', error);
+      console.log('ERROR WHILE SCANNING ITEMS: ', error);
+      throw error;
     } finally {
       clamAVServer.stopClamdServer();
       this.isInitialized = false;

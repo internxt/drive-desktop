@@ -364,6 +364,7 @@
         "scanning": "Scanning...",
         "scannedFiles": "Scanned files",
         "detectedFiles": "Detected files",
+        "errorWhileScanning": "An error occurred while scanning the items. Please try again.",
         "noFilesFound": {
           "title": "No threats were found",
           "subtitle": "No further actions are necessary"

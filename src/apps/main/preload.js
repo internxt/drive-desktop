@@ -340,6 +340,9 @@ contextBridge.exposeInMainWorld('electron', {
     const FIVE_SECONDS = 5000;
     return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
   },
+  getUserSystemPath() {
+    return ipcRenderer.invoke('antivirus:get-user-system-path');
+  },
   user: {
     hasDiscoveredBackups() {
       return ipcRenderer.invoke('user.get-has-discovered-backups');
@@ -349,13 +352,14 @@ contextBridge.exposeInMainWorld('electron', {
     },
   },
   antivirus: {
-    scanItems: async (folderPath) => {
-      try {
-        return await ipcRenderer.invoke('antivirus:scan-items', folderPath);
-      } catch (error) {
-        Logger.error('Error in scanItems:', error);
-        throw error;
-      }
+    isAvailable: async () => {
+      return await ipcRenderer.invoke('antivirus:is-available');
+    },
+    isDefenderActive: async () => {
+      return await ipcRenderer.invoke('antivirus:is-Defender-active');
+    },
+    scanItems: async (paths) => {
+      return await ipcRenderer.invoke('antivirus:scan-items', paths);
     },
     onScanProgress: (callback) => {
       ipcRenderer.on('antivirus:scan-progress', (_, progress) =>
@@ -365,30 +369,17 @@ contextBridge.exposeInMainWorld('electron', {
     removeScanProgressListener: () => {
       ipcRenderer.removeAllListeners('antivirus:scan-progress');
     },
-    scanSystem: () => {
-      ipcRenderer.invoke('antivirus:scan-system');
+    scanSystem: async (systemPath) => {
+      return await ipcRenderer.invoke('antivirus:scan-system', systemPath);
     },
     addItemsToScan: async (getFiles) => {
-      try {
-        return await ipcRenderer.invoke(
-          'antivirus:add-items-to-scan',
-          getFiles
-        );
-      } catch (error) {
-        Logger.error('Error in addItemsToScan:', error);
-        throw error;
-      }
+      return await ipcRenderer.invoke('antivirus:add-items-to-scan', getFiles);
     },
     removeInfectedFiles: async (infectedFiles) => {
-      try {
-        return await ipcRenderer.invoke(
-          'antivirus:remove-infected-files',
-          infectedFiles
-        );
-      } catch (error) {
-        Logger.error('Error in addItemsToScan:', error);
-        throw error;
-      }
+      return await ipcRenderer.invoke(
+        'antivirus:remove-infected-files',
+        infectedFiles
+      );
     },
   },
 
