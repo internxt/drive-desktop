@@ -121,6 +121,37 @@ This will sign the application.
 
 **IMPORTANT:** Signing the application will modify its SHA512 hash.
 
+### Why Updating the Hash in `latest.yml` is Important?
+
+The `latest.yml` file is critical for the auto-updater to function properly. It contains metadata about the latest release, including the SHA512 hash of the installer file. This hash ensures the integrity and authenticity of the application during the update process.
+
+When the auto-updater checks for updates, it compares the file's hash with the one provided in `latest.yml`. If they don't match, the update will fail or could raise security concerns, as it may indicate that the file has been tampered with.
+
+**Key Points:**
+
+1. **Integrity Verification:** The SHA512 hash guarantees the installer hasn't been altered after signing.
+2. **Update Success:** Without an updated hash, the auto-updater cannot validate or complete the update process.
+3. **Security Assurance:** Prevents unauthorized or corrupted files from being installed on user systems.
+
+---
+
+## How the Auto-Updater Works
+
+The auto-updater in the application operates as follows:
+
+1. **Checks for Updates:**
+   - The application queries the server to fetch the `latest.yml` file, which contains metadata about the latest version.
+2. **Compares Versions:**
+   - The current version installed on the user’s system is compared with the version specified in `latest.yml`.
+3. **Validates File Integrity:**
+   - The installer file's SHA512 hash is validated against the hash in `latest.yml` to ensure the file is authentic and unaltered.
+4. **Downloads and Updates:**
+   - If an update is available, the application downloads the new installer file and begins the update process seamlessly.
+5. **Installs Update:**
+   - The update is applied, and the application restarts with the new version.
+
+---
+
 To validate the new hash, use the following command:
 
 ```bash
