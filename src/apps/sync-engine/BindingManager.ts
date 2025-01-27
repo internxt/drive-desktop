@@ -1,5 +1,4 @@
 import Logger from 'electron-log';
-import * as fs from 'fs';
 import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import {
@@ -18,7 +17,6 @@ import { runner } from '../utils/runner';
 import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
-import { FilePath } from '../../context/virtual-drive/files/domain/FilePath';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/FetchData.service';
 
