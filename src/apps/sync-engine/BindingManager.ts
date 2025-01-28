@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
+import { VirtualDrive, QueueItem } from '@/node-win';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import {
   IControllers,
@@ -151,7 +151,7 @@ export class BindingsManager {
         await this.controllers.addFile.execute(absolutePath);
         ipcRenderer.send('CHECK_SYNC');
       },
-      fetchDataCallback: async (
+      fetchDataCallback: (
         contentsId: FilePlaceholderId,
         callback: CallbackDownload
       ) =>
