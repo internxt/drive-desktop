@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { VirtualDrive, QueueItem } from '@/node-win';
+import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import {
   IControllers,

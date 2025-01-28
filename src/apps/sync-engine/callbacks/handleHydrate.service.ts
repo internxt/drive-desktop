@@ -1,6 +1,6 @@
 import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
-import { QueueItem } from '@/node-win';
+import { QueueItem } from 'virtual-drive/dist';
 import { BindingsManager } from '../BindingManager';
 
 type TProps = {

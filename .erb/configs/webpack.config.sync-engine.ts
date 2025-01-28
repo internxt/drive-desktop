@@ -10,7 +10,6 @@ import TerserPlugin from 'terser-webpack-plugin';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import Dotenv from 'dotenv-webpack';
-import { cwd } from 'process';
 
 const configuration: webpack.Configuration = {
   mode: process.env.NODE_ENV,
@@ -43,12 +42,6 @@ const configuration: webpack.Configuration = {
         parallel: true,
       }),
     ],
-  },
-
-  resolve: {
-    alias: {
-      '@/node-win': path.resolve(cwd(), '../node-win/dist'),
-    }
   },
 
   plugins: [

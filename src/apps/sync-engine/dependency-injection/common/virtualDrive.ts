@@ -1,4 +1,4 @@
-import { VirtualDrive } from '@/node-win';
+import { VirtualDrive } from 'virtual-drive/dist';
 import { DependencyInjectionLocalRootFolderPath } from './localRootFolderPath';
 import { DependencyInjectionLogEnginePath } from './logEnginePath';
 

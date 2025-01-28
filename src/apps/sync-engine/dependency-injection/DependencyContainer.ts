@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { VirtualDrive } from '@/node-win';
+import { VirtualDrive } from 'virtual-drive/dist';
 import { ContentsContainer } from './contents/ContentsContainer';
 import { FilesContainer } from './files/FilesContainer';
 import { FoldersContainer } from './folders/FoldersContainer';
