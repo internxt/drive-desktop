@@ -28,7 +28,8 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "outDir": "release/app/dist"
+    "outDir": "release/app/dist",
+    "types": ["vitest/globals"]
   },
   "exclude": [
     "release/build",

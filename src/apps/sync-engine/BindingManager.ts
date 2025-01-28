@@ -1,5 +1,4 @@
 import Logger from 'electron-log';
-import * as fs from 'fs';
 import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import {
@@ -18,8 +17,8 @@ import { runner } from '../utils/runner';
 import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
-import { FilePath } from '../../context/virtual-drive/files/domain/FilePath';
 import { isTemporaryFile } from '../utils/isTemporalFile';
+import { FetchDataService } from './callbacks/FetchData.service';
 
 export type CallbackDownload = (
   success: boolean,
@@ -33,19 +32,20 @@ export type FileAddedCallback = (
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
-  private progressBuffer = 0;
-  private controllers: IControllers;
+  progressBuffer = 0;
+  controllers: IControllers;
 
   private queueManager: QueueManager | null = null;
-  private lastHydrated = '';
+  lastHydrated = '';
   private lastMoved = '';
 
   constructor(
-    private readonly container: DependencyContainer,
+    public readonly container: DependencyContainer,
     private readonly paths: {
       root: string;
       icon: string;
-    }
+    },
+    private readonly fetchData = new FetchDataService()
   ) {
     this.controllers = buildControllers(this.container);
   }
@@ -154,113 +154,13 @@ export class BindingsManager {
       fetchDataCallback: async (
         contentsId: FilePlaceholderId,
         callback: CallbackDownload
-      ) => {
-        try {
-          Logger.debug('[Fetch Data Callback] Donwloading begins');
-          const startTime = Date.now();
-          const path = await this.controllers.downloadFile.execute(
-            contentsId,
-            callback
-          );
-          const file = this.controllers.downloadFile.fileFinderByContentsId(
-            contentsId
-              .replace(
-                // eslint-disable-next-line no-control-regex
-                /[\x00-\x1F\x7F-\x9F]/g,
-                ''
-              )
-              .split(':')[1]
-          );
-          Logger.debug('[Fetch Data Callback] Preparing begins', path);
-          Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
-          this.lastHydrated = file.path;
-
-          let finished = false;
-          try {
-            while (!finished) {
-              const result = await callback(true, path);
-              finished = result.finished;
-              Logger.debug('callback result', result);
-
-              if (result.progress > 1 || result.progress < 0) {
-                throw new Error('Result progress is not between 0 and 1');
-              }
-
-              if (finished && result.progress === 0) {
-                throw new Error('Result progress is 0');
-              } else if (this.progressBuffer == result.progress) {
-                break;
-              } else {
-                this.progressBuffer = result.progress;
-              }
-              Logger.debug('condition', finished);
-              ipcRendererSyncEngine.send('FILE_PREPARING', {
-                name: file.name,
-                extension: file.type,
-                nameWithExtension: file.nameWithExtension,
-                size: file.size,
-                processInfo: {
-                  elapsedTime: 0,
-                  progress: result.progress,
-                },
-              });
-            }
-            this.progressBuffer = 0;
-            // await this.controllers.notifyPlaceholderHydrationFinished.execute(
-            //   contentsId
-            // );
-
-            const finishTime = Date.now();
-
-            ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
-              name: file.name,
-              extension: file.type,
-              nameWithExtension: file.nameWithExtension,
-              size: file.size,
-              processInfo: { elapsedTime: finishTime - startTime },
-            });
-          } catch (error) {
-            Logger.error('notify: ', error);
-            Sentry.captureException(error);
-            // await callback(false, '');
-            fs.unlinkSync(path);
-
-            Logger.debug('[Fetch Data Error] Finish...', path);
-            return;
-          }
-
-          fs.unlinkSync(path);
-          try {
-            await this.container.fileSyncStatusUpdater.run(file);
-
-            const folderPath = file.path
-              .substring(0, file.path.lastIndexOf('/'))
-              .replace(/\\/g, '/');
-
-            const folderParentPath = new FilePath(folderPath);
-
-            const folderParent =
-              this.container.folderFinder.findFromFilePath(folderParentPath);
-
-            Logger.debug(
-              '[Fetch Data Callback] Preparing finish',
-              folderParent
-            );
-
-            await this.container.folderSyncStatusUpdater.run(folderParent);
-          } catch (error) {
-            Logger.error('Error updating sync status', error);
-          }
-
-          Logger.debug('[Fetch Data Callback] Finish...', path);
-        } catch (error) {
-          Logger.error(error);
-          Sentry.captureException(error);
-          await callback(false, '');
-          await ipcRendererSyncEngine.send('SYNCED');
-          await this.container.virtualDrive.closeDownloadMutex();
-        }
-      },
+      ) =>
+        this.fetchData.run({
+          self: this,
+          contentsId,
+          callback,
+          ipcRendererSyncEngine,
+        }),
       notifyMessageCallback: (
         message: string,
         action: ProcessIssue['action'],

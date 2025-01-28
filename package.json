@@ -25,9 +25,13 @@
     "start:sync": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
     "start:sync-engine": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync-engine.ts",
     "start:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
-    "test": "jest && playwright test --config=src/test",
+    "========== Testing ==========": "",
+    "test": "jest && yarn test:e2e",
+    "vitest": "vitest",
+    "vitest:once": "yarn vitest --run",
+    "vitest:one": "yarn vitest related x",
     "test:unit": "jest --silent",
-    "test:e2e": "playwright test --config=src/test",
+    "test:e2e": "playwright test --config=tests",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install",
     "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && yarn",
@@ -97,7 +101,7 @@
     "win": {
       "target": [
         "nsis"
-      ],     
+      ],
       "certificateSubjectName": "Internxt Universal Technologies SL",
       "verifyUpdateCodeSignature": false
     },
@@ -250,11 +254,15 @@
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.3.3",
     "terser-webpack-plugin": "^5.3.0",
+    "ts-essentials": "^10.0.4",
     "ts-jest": "^27.1.2",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4",
     "url-loader": "^4.1.1",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.2",
+    "vitest-mock-extended": "^2.0.2",
     "webpack": "^5.73.0",
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.1",
@@ -325,6 +333,7 @@
         }
       }
     ],
-    "singleQuote": true
+    "singleQuote": true,
+    "printWidth": 140
   }
 }
