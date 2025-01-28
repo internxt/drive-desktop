@@ -27,8 +27,8 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
   ): Promise<Either<DriveDesktopError, string>> {
     const fn: UploadStrategyFunction =
       size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD
-        ? this.environment.uploadMultipartFile
-        : this.environment.upload;
+        ? this.environment.uploadMultipartFile.bind(this.environment)
+        : this.environment.upload.bind(this.environment);
 
     const readable = createReadStream(path);
 
@@ -37,26 +37,40 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
     stopwatch.start();
 
     return new Promise<Either<DriveDesktopError, string>>((resolve) => {
-      const state = fn(this.bucket, {
-        source: readable,
-        fileSize: size,
-        finishedCallback: (err: Error | null, contentsId: string) => {
-          stopwatch.finish();
+      Logger.info('[ENVLFU UPLOAD]', fn);
+      Logger.info('[ENVLFU Environment]', this.environment);
+      Logger.info(
+        '[ENVLFU Environment uploadMultipartFile]',
+        this.environment.uploadMultipartFile
+      );
+      Logger.info(
+        '[ENVLFU Environment isMultipartUpload]',
+        fn === this.environment.uploadMultipartFile
+      );
+      const state = fn(
+        this.bucket,
+        {
+          source: readable,
+          fileSize: size,
+          finishedCallback: (err: Error | null, contentsId: string) => {
+            stopwatch.finish();
 
-          if (err) {
-            Logger.error('[ENVLFU UPLOAD ERROR]', err);
-            if (err.message === 'Max space used') {
-              return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
+            if (err) {
+              Logger.error('[ENVLFU UPLOAD ERROR]', err);
+              if (err.message === 'Max space used') {
+                return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
+              }
+              return resolve(left(new DriveDesktopError('UNKNOWN')));
             }
-            return resolve(left(new DriveDesktopError('UNKNOWN')));
-          }
 
-          resolve(right(contentsId));
+            resolve(right(contentsId));
+          },
+          progressCallback: (progress: number) => {
+            Logger.debug('[UPLOAD PROGRESS]', progress);
+          },
         },
-        progressCallback: (progress: number) => {
-          Logger.debug('[UPLOAD PROGRESS]', progress);
-        },
-      });
+        Logger
+      );
 
       abortSignal.addEventListener('abort', () => {
         state.stop();

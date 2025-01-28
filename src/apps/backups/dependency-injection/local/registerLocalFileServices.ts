@@ -9,11 +9,11 @@ import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { LocalFileMessenger } from '../../../../context/local/localFile/domain/LocalFileMessenger';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
+import Logger from 'electron-log';
 
 export function registerLocalFileServices(builder: ContainerBuilder) {
   //Infra
   const user = DependencyInjectionUserProvider.get();
-
   const mnemonic = DependencyInjectionMnemonicProvider.get();
 
   const environment = new Environment({
@@ -23,19 +23,30 @@ export function registerLocalFileServices(builder: ContainerBuilder) {
     encryptionKey: mnemonic,
   });
 
+  // Log the environment configuration
+  Logger.info('Environment configuration:', {
+    bridgeUrl: environment.config.bridgeUrl,
+    bridgeUser: environment.config.bridgeUser,
+    bridgePass: environment.config.bridgePass,
+    encryptionKey: environment.config.encryptionKey,
+  });
+
   builder.register(Environment).useInstance(environment).private();
 
   builder
     .register(LocalFileHandler)
-    .useFactory(
-      (c) =>
-        new EnvironmentLocalFileUploader(
-          c.get(Environment),
-          user.backupsBucket,
-          //@ts-ignore
-          c.get(AuthorizedClients).drive
-        )
-    )
+    .useFactory((c) => {
+      const env = c.get(Environment);
+      // Log the environment retrieved from the container
+      Logger.debug('Environment:', env);
+
+      return new EnvironmentLocalFileUploader(
+        env,
+        user.backupsBucket,
+        //@ts-ignore
+        c.get(AuthorizedClients).drive
+      );
+    })
     .private();
 
   builder
