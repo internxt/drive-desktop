@@ -19,6 +19,7 @@ import { DependencyInjectionLogWatcherPath } from './dependency-injection/common
 import configStore from '../main/config';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/FetchData.service';
+import { HandleHydrate } from './callbacks/handleHydrate.service';
 
 export type CallbackDownload = (
   success: boolean,
@@ -45,7 +46,8 @@ export class BindingsManager {
       root: string;
       icon: string;
     },
-    private readonly fetchData = new FetchDataService()
+    private readonly fetchData = new FetchDataService(),
+    private readonly handleHydrate = new HandleHydrate(),
   ) {
     this.controllers = buildControllers(this.container);
   }
@@ -265,46 +267,7 @@ export class BindingsManager {
           Sentry.captureException(error);
         }
       },
-      handleHydrate: async (task: QueueItem) => {
-        try {
-          const syncRoot = configStore.get('syncRoot');
-          Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
-          const start = Date.now();
-
-          const normalizePath = (path: string) => path.replace(/\\/g, '/');
-
-          const normalizedLastHydrated = normalizePath(this.lastHydrated);
-          let normalizedTaskPath = normalizePath(
-            task.path.replace(syncRoot, '')
-          );
-
-          if (!normalizedTaskPath.startsWith('/')) {
-            normalizedTaskPath = '/' + normalizedTaskPath;
-          }
-
-          if (normalizedLastHydrated === normalizedTaskPath) {
-            Logger.debug('Same file hidrated');
-            this.lastHydrated = '';
-            return;
-          }
-
-          this.lastHydrated = normalizedTaskPath;
-
-          await this.container.virtualDrive.hydrateFile(task.path);
-
-          const finish = Date.now();
-
-          if (finish - start < 1500) {
-            await new Promise((resolve) => setTimeout(resolve, 2000));
-          }
-
-          Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
-        } catch (error) {
-          Logger.error(`error hydrating file ${task.path}`);
-          Logger.error(error);
-          Sentry.captureException(error);
-        }
-      },
+      handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task }),
       handleDehydrate: async (task: QueueItem) => {
         try {
           Logger.debug('Dehydrate', task);
