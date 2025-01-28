@@ -24,25 +24,25 @@ const startClamdServer = (): Promise<void> => {
 
     clamdProcess = spawn(clamdPath, ['-c', clamdConfigPath]);
 
-    const resetTimer = () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
+    // const resetTimer = () => {
+    //   if (timer) {
+    //     clearTimeout(timer);
+    //   }
 
-      timer = setTimeout(() => {
-        console.log(
-          'NO data fetched in 60 secs. Shutting down the clam av service'
-        );
-        stopClamdServer();
-      }, 120000);
-    };
+    //   timer = setTimeout(() => {
+    //     console.log(
+    //       'NO data fetched in 6000 secs. Shutting down the clam av service'
+    //     );
+    //     stopClamdServer();
+    //   }, 600000);
+    // };
 
-    resetTimer();
+    // resetTimer();
 
     clamdProcess.stdout.on('data', (data) => {
       console.log(`[clamd stdout]: ${data}`);
 
-      resetTimer();
+      // resetTimer();
     });
 
     clamdProcess.stderr.on('data', (data) => {

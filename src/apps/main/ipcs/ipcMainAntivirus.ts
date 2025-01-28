@@ -8,6 +8,7 @@ import {
 import { exec } from 'node:child_process';
 import { PaymentsService } from '../payments/service';
 import { buildPaymentsService } from '../payments/builder';
+import { reject } from 'lodash';
 
 let paymentService: PaymentsService | null = null;
 
@@ -67,14 +68,22 @@ ipcMain.handle(
           totalScannedFiles,
           progressRatio
         ) => {
-          event.sender.send('antivirus:scan-progress', {
-            err,
-            file,
-            isInfected,
-            viruses,
-            countScannedItems: totalScannedFiles,
-            progressRatio,
-          });
+          if (err) {
+            console.log('ERROR IN ANTIVIRUS:SCAN-ITEMS: ', err);
+            reject(err);
+          }
+          try {
+            event.sender.send('antivirus:scan-progress', {
+              err,
+              file,
+              isInfected,
+              viruses,
+              countScannedItems: totalScannedFiles,
+              progressRatio,
+            });
+          } catch (error) {
+            console.log('ERROR IN SCAN ITEMS: ', error);
+          }
         },
       });
     } catch (error) {

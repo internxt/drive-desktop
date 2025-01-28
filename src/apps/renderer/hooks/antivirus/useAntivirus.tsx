@@ -57,7 +57,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
       const isAntivirusAvailable =
         await window.electron.antivirus.isAvailable();
 
-      console.log('IS ANT AVAILABLE: ', isAntivirusAvailable);
       if (!isAntivirusAvailable) {
         setView('locked');
         return;
@@ -81,17 +80,19 @@ export const useAntivirus = (): UseAntivirusReturn => {
       return isWinDefenderActive;
     } catch (error) {
       setIsDefenderActive(false);
-      throw error;
+      return false;
     }
   };
 
   const handleProgress = (progress: {
+    err: string;
     file: string;
     isInfected: boolean;
     viruses: string[];
     countScannedItems: number;
     progressRatio: number;
   }) => {
+    if (progress.err) setIsError(true);
     setCurrentScanPath(progress.file);
     setCountScannedFiles(progress.countScannedItems);
     setProgressRatio(progress.progressRatio);
@@ -188,7 +189,8 @@ export const useAntivirus = (): UseAntivirusReturn => {
     if (infectedFiles.length === 0) return;
 
     try {
-      window.electron.antivirus.removeInfectedFiles(infectedFiles);
+      await window.electron.antivirus.removeInfectedFiles(infectedFiles);
+      setView('chooseItems');
     } catch (error) {
       console.log('ERROR WHILE REMOVING INFECTED ITEMS:', error);
     }

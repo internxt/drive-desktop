@@ -53,7 +53,7 @@ export class Antivirus {
           host: '127.0.0.1',
           localFallback: false,
           port: 3310,
-          timeout: 180000,
+          timeout: 3600000,
           multiscan: true,
           active: true,
         },
@@ -105,7 +105,30 @@ export class Antivirus {
 
           resolve();
         },
-        onFileScanned
+        (err, file, isInfected, viruses, totalScannedFiles, progressRatio) => {
+          if (err) {
+            console.log('ERROR IN SCAN DIR ON THE CLIENT SIDE: ', err);
+            reject(err);
+          }
+
+          console.log('ITEMS IN SCAN FOLDER: ', {
+            err,
+            file,
+            isInfected,
+            viruses,
+            totalScannedFiles,
+            progressRatio,
+          });
+
+          onFileScanned?.(
+            err,
+            file,
+            isInfected,
+            viruses,
+            totalScannedFiles,
+            progressRatio
+          );
+        }
       );
     });
   }
@@ -174,6 +197,7 @@ export class Antivirus {
       progressRatio: number
     ) => void;
   }) {
+    console.time('scan');
     const filePaths = items
       .filter((item) => !item.isDirectory)
       .map((file) => file.path);
@@ -204,6 +228,7 @@ export class Antivirus {
     } finally {
       clamAVServer.stopClamdServer();
       this.isInitialized = false;
+      console.timeEnd('scan');
     }
   }
 }

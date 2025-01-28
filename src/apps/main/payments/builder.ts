@@ -24,7 +24,5 @@ export function buildPaymentsService() {
     }
   );
 
-  console.log('PAYMENTS: ', payments, { newToken });
-
   return new PaymentsService(payments);
 }

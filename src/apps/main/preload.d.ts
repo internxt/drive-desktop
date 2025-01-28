@@ -253,6 +253,7 @@ declare interface Window {
 
       onScanProgress: (
         callback: (progress: {
+          err: string;
           file: string;
           isInfected: boolean;
           viruses: string[];
@@ -271,7 +272,7 @@ declare interface Window {
           }[]
         | undefined
       >;
-      removeInfectedFiles: (infectedFiles: string[]) => void;
+      removeInfectedFiles: (infectedFiles: string[]) => Promise<void>;
     };
   };
 }
