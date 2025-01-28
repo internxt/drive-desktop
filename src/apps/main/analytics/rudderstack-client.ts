@@ -11,6 +11,6 @@ if (!DATA_PLANE_URL) {
   throw Error('[CONFIG] Missing ANALYTICS URL');
 }
 
-const client = new Analytics(WRITE_KEY, DATA_PLANE_URL, { enable: process.env.NODE_ENV === 'production' });
+const client = new Analytics(WRITE_KEY, DATA_PLANE_URL);
 
 export { client };
