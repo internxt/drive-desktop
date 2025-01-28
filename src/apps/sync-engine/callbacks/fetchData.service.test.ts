@@ -30,7 +30,7 @@ describe('Fetch Data', () => {
     self.controllers.downloadFile.fileFinderByContentsId.mockReturnValue(file as File);
   });
 
-  describe('When call getParentPath', () => {
+  describe('When call normalizePath', () => {
     it('When using slash, then return the parent path', () => {
       // Act
       const result = fetchData.normalizePath('C:/windows/system32');
