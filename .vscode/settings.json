@@ -1,37 +1,56 @@
 {
-  "[env]": {
-    "editor.defaultFormatter": "IronGeek.vscode-env"
-  },
-  "[xml]": {
-    "editor.defaultFormatter": "redhat.vscode-xml"
-  },
-  "codeium.enableCodeLens": false,
-  "css.customData": [".vscode/tailwind.json"],
-  "editor.codeLens": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": false,
-  "editor.guides.indentation": false,
-  "editor.insertSpaces": true,
-  "editor.linkedEditing": true,
-  "editor.tabSize": 2,
-  "editor.wordWrap": "off",
-  "explorer.compactFolders": false,
-  "explorer.sortOrder": "filesFirst",
   "files.associations": {
-    "*.env*": "env",
-    "pre-commit": "shellscript"
+    ".eslintrc": "jsonc",
+    ".prettierrc": "jsonc",
+    ".eslintignore": "ignore"
   },
-  "files.eol": "\r\n",
-  "files.exclude": {
-    "**/node_modules": true
-  },
+  "javascript.validate.enable": false,
+  "javascript.format.enable": false,
+  "typescript.format.enable": false,
   "search.exclude": {
-    "**/dist": true,
-    "**/package-lock.json": true,
-    "**/yarn.lock": true,
-    "**/renderer.dev.dll.js": true,
-    "**/renderer.json": true
+    ".git": true,
+    ".eslintcache": true,
+    ".erb/dll": true,
+    "release/{build,app/dist}": true,
+    "node_modules": true,
+    "npm-debug.log.*": true,
+    "test/**/__snapshots__": true,
+    "package-lock.json": true,
+    "*.{css,sass,scss}.d.ts": true
   },
-  "typescript.referencesCodeLens.enabled": true,
-  "workbench.editor.enablePreview": true
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "eslint.options": {
+    "overrideConfigFile": ".eslintrc.js"
+  },
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.format": "explicit"
+  },
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "autoBarrel.language.defaultLanguage": "TypeScript",
+  "autoBarrel.files.disableRecursiveBarrelling": false,
+  "autoBarrel.files.includeExtensionOnExport": [
+    "ts",
+    "tsx",
+    "vue"
+  ],
+  "autoBarrel.files.ignoreFilePathPatternOnExport": [
+    "**/*.spec.*",
+    "**/*.test.*"
+  ],
+  "autoBarrel.files.keepExtensionOnExport": false,
+  "autoBarrel.files.detectExportsInFiles": false,
+  "autoBarrel.files.exportDefaultFilename": "filename",
+  "autoBarrel.formatting.excludeSemiColonAtEndOfLine": false,
+  "autoBarrel.formatting.useSingleQuotes": true,
+  "autoBarrel.formatting.endOfLine": "lf",
+  "autoBarrel.formatting.insertFinalNewline": true,
 }
