@@ -101,7 +101,7 @@
     "win": {
       "target": [
         "nsis"
-      ],     
+      ],
       "certificateSubjectName": "Internxt Universal Technologies SL",
       "verifyUpdateCodeSignature": false
     },
@@ -235,7 +235,6 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.4.5",
     "jest-extended": "^3.2.3",
-    "jest-mock-extended": "^4.0.0-beta1",
     "jsonwebtoken": "^8.5.1",
     "lint-staged": "^12.1.4",
     "mini-css-extract-plugin": "^2.4.5",
