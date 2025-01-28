@@ -1,4 +1,4 @@
-import { VirtualDrive } from 'virtual-drive/dist';
+import { VirtualDrive } from '@/node-win';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
