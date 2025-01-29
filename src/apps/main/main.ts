@@ -55,6 +55,8 @@ import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
+import { FileSystemMonitor } from './antivirus/fileSystemMonitor';
+import { HashedSystemTreeCollection } from './database/collections/HashedSystemTreeCollection';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -94,6 +96,18 @@ if (process.env.NODE_ENV === 'development') {
   require('electron-debug')({ showDevTools: false });
 }
 
+async function initializeFileSystemMonitor() {
+  const hashedFilesAdapter = new HashedSystemTreeCollection();
+
+  const fileSystemMonitor = new FileSystemMonitor({
+    hashedFiles: hashedFilesAdapter,
+  });
+
+  return fileSystemMonitor;
+}
+
+let fileSystemMonitorInstance: FileSystemMonitor;
+
 app
   .whenReady()
   .then(async () => {
@@ -118,6 +132,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
   try {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
+      await AppDataSource.dropDatabase();
     }
 
     getAuthWindow()?.hide();
@@ -142,6 +157,13 @@ eventBus.on('USER_LOGGED_IN', async () => {
     }
 
     setCleanUpFunction(stopSyncEngineWatcher);
+
+    if (!fileSystemMonitorInstance) {
+      fileSystemMonitorInstance = await initializeFileSystemMonitor();
+    }
+
+    console.log('STARTING USER SYSTEM SCAN...');
+    await fileSystemMonitorInstance.scanUserDir();
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);

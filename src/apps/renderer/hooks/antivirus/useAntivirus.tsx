@@ -165,6 +165,13 @@ export const useAntivirus = (): UseAntivirusReturn => {
     const isDefenderActive = await isWinDefenderActive();
     if (isDefenderActive) return;
 
+    // const isSystemScanning = window.electron.antivirus.isSystemScanning();
+    // if (isSystemScanning) {
+    //   setView('scan');
+    //   window.electron.antivirus.onProgressUpdate(handleProgress);
+    //   return;
+    // }
+
     const userSystemPath = await getUserSystemPath();
     if (!userSystemPath) return;
 

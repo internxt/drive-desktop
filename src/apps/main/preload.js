@@ -361,6 +361,15 @@ contextBridge.exposeInMainWorld('electron', {
     scanItems: async (paths) => {
       return await ipcRenderer.invoke('antivirus:scan-items', paths);
     },
+    // onScanSystemProgressUpdate: (callback) => {
+    //   ipcRenderer.on('scan-progress', (event, data) => callback(data));
+    // },
+    // isSystemScanning: () => {
+    //   ipcRenderer.invoke('is-system-scan-in-progress');
+    // },
+    // onPingBackgroundSystem: () => {
+    //   ipcRenderer.on('ping-background-scan');
+    // },
     onScanProgress: (callback) => {
       ipcRenderer.on('antivirus:scan-progress', (_, progress) =>
         callback(progress)

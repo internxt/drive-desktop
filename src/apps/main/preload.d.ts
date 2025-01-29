@@ -239,6 +239,8 @@ declare interface Window {
     };
 
     antivirus: {
+      // onProgressUpdate: (callback: (data: any) => void) => void;
+      // isSystemScanning: () => boolean;
       isAvailable: () => Promise<boolean>;
       isDefenderActive: () => Promise<boolean>;
       scanItems: (

@@ -1,5 +1,6 @@
 import path from 'path';
-import NodeClam, { NodeClamError } from '@internxt/scan';
+import NodeClam from '@internxt/scan';
+import NodeClamError from '@internxt/scan/lib/NodeClamError';
 import clamAVServer from './ClamAVServer';
 import { app } from 'electron';
 
@@ -65,6 +66,20 @@ export class Antivirus {
       console.error('Error initializing ClamAV:', error);
       throw error;
     }
+  }
+
+  async scanFile(
+    filePath: string
+  ): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
+    if (!this.clamAv || !this.isInitialized) {
+      throw new Error('ClamAV is not initialized');
+    }
+
+    return (await this.clamAv.isInfected(filePath)) as {
+      file: string;
+      isInfected: boolean;
+      viruses: [];
+    };
   }
 
   async scanFolder({
