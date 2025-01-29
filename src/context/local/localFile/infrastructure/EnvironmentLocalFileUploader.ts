@@ -37,40 +37,26 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
     stopwatch.start();
 
     return new Promise<Either<DriveDesktopError, string>>((resolve) => {
-      Logger.info('[ENVLFU UPLOAD]', fn);
-      Logger.info('[ENVLFU Environment]', this.environment);
-      Logger.info(
-        '[ENVLFU Environment uploadMultipartFile]',
-        this.environment.uploadMultipartFile
-      );
-      Logger.info(
-        '[ENVLFU Environment isMultipartUpload]',
-        fn === this.environment.uploadMultipartFile
-      );
-      const state = fn(
-        this.bucket,
-        {
-          source: readable,
-          fileSize: size,
-          finishedCallback: (err: Error | null, contentsId: string) => {
-            stopwatch.finish();
+      const state = fn(this.bucket, {
+        source: readable,
+        fileSize: size,
+        finishedCallback: (err: Error | null, contentsId: string) => {
+          stopwatch.finish();
 
-            if (err) {
-              Logger.error('[ENVLFU UPLOAD ERROR]', err);
-              if (err.message === 'Max space used') {
-                return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
-              }
-              return resolve(left(new DriveDesktopError('UNKNOWN')));
+          if (err) {
+            Logger.error('[ENVLFU UPLOAD ERROR]', err);
+            if (err.message === 'Max space used') {
+              return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
             }
+            return resolve(left(new DriveDesktopError('UNKNOWN')));
+          }
 
-            resolve(right(contentsId));
-          },
-          progressCallback: (progress: number) => {
-            Logger.debug('[UPLOAD PROGRESS]', progress);
-          },
+          resolve(right(contentsId));
         },
-        Logger
-      );
+        progressCallback: (progress: number) => {
+          Logger.debug('[UPLOAD PROGRESS]', progress);
+        },
+      });
 
       abortSignal.addEventListener('abort', () => {
         state.stop();

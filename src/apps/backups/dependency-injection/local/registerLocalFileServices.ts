@@ -9,7 +9,6 @@ import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { LocalFileMessenger } from '../../../../context/local/localFile/domain/LocalFileMessenger';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
-import Logger from 'electron-log';
 
 export function registerLocalFileServices(builder: ContainerBuilder) {
   //Infra
@@ -23,23 +22,12 @@ export function registerLocalFileServices(builder: ContainerBuilder) {
     encryptionKey: mnemonic,
   });
 
-  // Log the environment configuration
-  Logger.info('Environment configuration:', {
-    bridgeUrl: environment.config.bridgeUrl,
-    bridgeUser: environment.config.bridgeUser,
-    bridgePass: environment.config.bridgePass,
-    encryptionKey: environment.config.encryptionKey,
-  });
-
   builder.register(Environment).useInstance(environment).private();
 
   builder
     .register(LocalFileHandler)
     .useFactory((c) => {
       const env = c.get(Environment);
-      // Log the environment retrieved from the container
-      Logger.debug('Environment:', env);
-
       return new EnvironmentLocalFileUploader(
         env,
         user.backupsBucket,
