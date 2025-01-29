@@ -29,7 +29,11 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "outDir": "release/app/dist",
-    "types": ["vitest/globals"]
+    "types": ["vitest/globals"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "virtual-drive/dist": ["../node-win/dist"],
+    }
   },
   "exclude": [
     "release/build",

@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { VirtualDrive, QueueItem } from 'virtual-drive/dist';
+import { VirtualDrive, QueueItem, QueueManager } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import {
   IControllers,
@@ -14,11 +14,10 @@ import { ServerFileStatus } from '../../context/shared/domain/ServerFile';
 import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
 import * as Sentry from '@sentry/electron/renderer';
 import { runner } from '../utils/runner';
-import { QueueManager } from './dependency-injection/common/QueueManager';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
 import { isTemporaryFile } from '../utils/isTemporalFile';
-import { FetchDataService } from './callbacks/FetchData.service';
+import { FetchDataService } from './callbacks/fetchData.service';
 import { HandleHydrate } from './callbacks/handleHydrate.service';
 
 export type CallbackDownload = (
