@@ -2,7 +2,7 @@
   "name": "internxt-drive",
   "version": "2.3.4",
   "author": "Internxt <hello@internxt.com>",
-  "description": "Internxt Drive client UI",
+  "description": "Internxt client UI",
   "license": "AGPL-3.0",
   "repository": {
     "url": "https://github.com/internxt/drive-desktop"
@@ -48,7 +48,7 @@
     ]
   },
   "build": {
-    "productName": "Internxt Drive",
+    "productName": "Internxt",
     "beforeBuild": "./beforeBuild.js",
     "appId": "com.internxt.drive",
     "asar": true,
@@ -97,8 +97,7 @@
     "win": {
       "target": [
         "nsis"
-      ],     
-      "certificateSubjectName": "Internxt Universal Technologies SL",
+      ],
       "verifyUpdateCodeSignature": false
     },
     "linux": {

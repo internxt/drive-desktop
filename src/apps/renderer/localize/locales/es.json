@@ -31,7 +31,7 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "¡Bienvenido a Internxt Drive!",
+        "title": "¡Bienvenido a Internxt!",
         "description": "Empieza haciendo una copia de seguridad de todos tus archivos y carpetas importantes en la barra lateral del buscador.",
         "take-tour": "Hacer recorrido"
       },
@@ -68,7 +68,7 @@
           "description": "Añade más carpetas y programa copias de seguridad automáticas en Configuración"
         },
         "desktop-ready": {
-          "title": "Internxt Drive está listo",
+          "title": "Internxt está listo",
           "description": "Accede a tus archivos almacenados desde la barra lateral de tu {{platform_phrase}}."
         }
       }
@@ -76,7 +76,7 @@
     "common": {
       "onboarding-progress": "{{current_slide}} de {{total_slides}}",
       "continue": "Continuar",
-      "open-drive": "Abrir Internxt Drive",
+      "open-drive": "Abrir Internxt",
       "skip": "Saltar",
       "platform-phrase": {
         "windows": "explorador de archivos",
@@ -107,7 +107,7 @@
         "show-files": "Mostrar archivos"
       },
       "delete-old-drive-folder": {
-        "title": "Tu Internxt Drive de siempre, en una nueva ubicación",
+        "title": "Tu Internxt de siempre, en una nueva ubicación",
         "message": "Tu carpeta personal de Internxt Drive se encuentra en la barra lateral {{platform_app}}."
       },
       "new-widget": {
@@ -119,7 +119,7 @@
     "common": {
       "continue": "Continuar",
       "cancel": "Cancelar",
-      "open-drive": "Abrir Internxt Drive"
+      "open-drive": "Abrir Internxt"
     }
   },
   "widget": {
@@ -139,7 +139,7 @@
         "logout-confirmation": {
           "no-sync-pending": {
             "title": "¿Cerrar sesión en este dispositivo?",
-            "message": "Internxt Drive no se mostrará sin una cuenta iniciada.",
+            "message": "Internxt no se mostrará sin una cuenta iniciada.",
             "confirm": "Cerrar sesión",
             "cancel": "Cancelar"
           },
@@ -235,7 +235,7 @@
           "save": "Guardar"
         }
       },
-      "auto-startup": "Iniciar Internxt Drive al arrancar el sistema",
+      "auto-startup": "Iniciar Internxt al arrancar el sistema",
       "language": {
         "label": "Idioma",
         "options": {
@@ -253,13 +253,13 @@
         }
       },
       "sync": {
-        "folder": "Carpeta Internxt Drive",
+        "folder": "Carpeta Internxt",
         "change-folder": "Cambiar carpeta"
       },
       "app-info": {
         "open-logs": "Abrir registros",
         "open-migration": "Empezar migración",
-        "more": "Más información sobre Internxt Drive"
+        "more": "Más información sobre Internxt"
       }
     },
     "account": {

@@ -45,7 +45,7 @@ export default function Login() {
       const { message } = err as Error;
 
       const phaseToSet =
-      message === TOWFA_ERROR_MESSAGE ? '2fa' : 'credentials';
+        message === TOWFA_ERROR_MESSAGE ? '2fa' : 'credentials';
 
       setState('error');
       setPhase(phaseToSet);
@@ -229,13 +229,10 @@ export default function Login() {
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-surface dark:bg-gray-1">
-      <WindowTopBar
-        title="Internxt Drive"
-        className="bg-surface dark:bg-gray-5"
-      />
+      <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" />
 
       <div className="flex h-32 flex-col items-center justify-center">
-        <h1 className="text-xl font-semibold text-gray-100">Internxt Drive</h1>
+        <h1 className="text-xl font-semibold text-gray-100">Internxt</h1>
         <h2 className="text-supporting-1 font-semibold text-gray-60">
           v{packageJson.version}
         </h2>

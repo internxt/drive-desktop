@@ -54,7 +54,7 @@ export default function Settings() {
           {subsection === 'panel' && (
             <>
               <WindowTopBar
-                title="Internxt Drive"
+                title="Internxt"
                 className="bg-surface dark:bg-gray-5"
               />
               <Header active={activeSection} onClick={setActiveSection} />
