@@ -75,6 +75,13 @@ export class Backup {
 
     this.backed = alreadyBacked;
 
+    Logger.info(
+      '[BACKUPS] Total items to backup',
+      filesDiff.total + foldersDiff.total
+    );
+
+    Logger.info('[BACKUPS] Already backed', alreadyBacked);
+
     BackupsIPCRenderer.send(
       'backups.total-items-calculated',
       filesDiff.total + foldersDiff.total,
@@ -96,7 +103,6 @@ export class Backup {
   ) {
     Logger.info('[BACKUPS] Backing folders');
     Logger.info('[BACKUPS] Folders added', diff.added.length);
-    Logger.info('[BACKUPS] Folders deleted', diff.deleted.length);
 
     const { added, deleted } = diff;
 
@@ -207,6 +213,7 @@ export class Backup {
         }
       }
       this.backed += batch.size;
+      Logger.debug('Backed in uploadAndUpdate', this.backed);
       BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }
@@ -233,8 +240,9 @@ export class Backup {
       }
     }
 
-    this.backed += deleted.length;
-    BackupsIPCRenderer.send('backups.progress-update', this.backed);
+    // this.backed += deleted.length;
+    Logger.debug('Backed in deleteRemoteFiles', this.backed);
+    // BackupsIPCRenderer.send('backups.progress-update', this.backed);
   }
 
   private async deleteRemoteFolders(
@@ -259,8 +267,9 @@ export class Backup {
         }
       }
 
-      this.backed += deleted.length;
-      BackupsIPCRenderer.send('backups.progress-update', this.backed);
+      // this.backed += deleted.length;
+      Logger.debug('Backed in deleteRemoteFolders', this.backed);
+      // BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }
   private async uploadAndCreateFolder(
@@ -318,6 +327,7 @@ export class Backup {
       }
 
       this.backed++;
+      Logger.debug('Backed in uploadAndCreateFolder', this.backed);
       BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }
