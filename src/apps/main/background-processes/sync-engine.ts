@@ -129,6 +129,10 @@ function spawnSyncEngineWorker() {
       Logger.error('[MAIN] Error loading sync engine worker', err);
       Sentry.captureException(err);
     });
+  
+  worker.webContents.on('console-message', (event, level, message) => {
+    console.log(`[WORKER CONSOLE ${level}] ${message}`);
+  });
 
   worker.on('close', () => {
     worker?.destroy();
