@@ -109,7 +109,6 @@ export class FetchDataService {
       Sentry.captureException(error);
       await callback(false, '');
       ipcRendererSyncEngine.send('SYNCED');
-      self.container.virtualDrive.closeDownloadMutex();
     }
   }
 
