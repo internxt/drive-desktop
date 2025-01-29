@@ -96,6 +96,7 @@ export class Backup {
   ) {
     Logger.info('[BACKUPS] Backing folders');
     Logger.info('[BACKUPS] Folders added', diff.added.length);
+    Logger.info('[BACKUPS] Folders deleted', diff.deleted.length);
 
     const { added, deleted } = diff;
 
