@@ -517,7 +517,7 @@ export async function disableBackup(backup: BackupInfo): Promise<void> {
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.folderId)!;
 
-  await deleteBackup(backup);
+  // await deleteBackup(backup);
 
   backupsList[pathname].enabled = false;
 
