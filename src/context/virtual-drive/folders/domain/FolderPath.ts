@@ -14,7 +14,7 @@ export class FolderPath extends Path {
 
   name(): string {
     if (this.value === path.posix.sep) {
-      return 'Internxt Drive';
+      return 'Internxt';
     }
 
     return super.basename();
