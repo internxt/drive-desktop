@@ -6,7 +6,7 @@ import eventBus from '../event-bus';
 import { exec } from 'child_process';
 import { ensureFolderExists } from '../../shared/fs/ensure-folder-exists';
 
-const ROOT_FOLDER_NAME = 'Internxt Drive';
+const ROOT_FOLDER_NAME = 'Internxt';
 const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
