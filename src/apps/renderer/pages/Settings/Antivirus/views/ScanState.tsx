@@ -8,11 +8,7 @@ interface ScanStateProps {
   scannedFilesCount: number;
   progressRatio: number;
   currentScanPath?: string;
-  corruptedFiles: {
-    file: string;
-    isInfected: boolean | null;
-    viruses: string[];
-  }[];
+  corruptedFiles: string[];
   errorWhileScanning: boolean;
   onScanAgainButtonClicked: () => void;
   showItemsWithMalware: () => void;
@@ -165,10 +161,7 @@ export const ScanState = ({
 }: ScanStateProps) => {
   const { translate } = useTranslationContext();
 
-  const countedCorruptedFiles = corruptedFiles.filter(
-    (file) => file.isInfected || file.viruses.length > 0
-  );
-  const thereAreCorruptedFiles = countedCorruptedFiles.length > 0;
+  const thereAreCorruptedFiles = corruptedFiles.length > 0;
 
   return (
     <section className="flex w-full flex-col items-center justify-center">
@@ -204,7 +197,7 @@ export const ScanState = ({
             </div>
             <div className="flex flex-col border  border-gray-10" />
             <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
-              <p>{countedCorruptedFiles.length}</p>
+              <p>{corruptedFiles.length}</p>
               <p>{translate('settings.antivirus.scanProcess.detectedFiles')}</p>
             </div>
           </div>

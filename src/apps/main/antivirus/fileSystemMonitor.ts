@@ -4,17 +4,14 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { FileSystemHashed } from '../database/entities/FileSystemHashed';
 import { createHash, randomUUID } from 'crypto';
 import { getUserSystemPath } from '../device/service';
-import clamAVServer from './ClamAVServer';
 import { extname, resolve } from 'path';
 import NodeClamError from '@internxt/scan/lib/NodeClamError';
 import { BrowserWindow } from 'electron';
 import { pipeline } from 'stream/promises';
 import { queue } from 'async';
 import { Antivirus } from './Antivirus';
-
-interface PermissionError extends Error {
-  code?: string;
-}
+import { HashedSystemTreeCollection } from '../database/collections/HashedSystemTreeCollection';
+import eventBus from '../event-bus';
 
 export interface FileInfo {
   path: FileSystemHashed['pathName'];
@@ -40,6 +37,7 @@ export interface ProgressData {
   infectedFiles: string[];
   currentScanPath: string;
   progress: number;
+  done?: boolean;
 }
 
 const PERMISSION_ERROR_CODES = [
@@ -62,6 +60,29 @@ const EMPTY_RESULT = {
   result: null,
 };
 
+let fileSystemMonitorInstance: FileSystemMonitor | null = null;
+
+/**
+ * Retorna siempre la misma instancia de FileSystemMonitor.
+ * Si no existe, la crea y la devuelve.
+ */
+export async function getFileSystemMonitorInstance() {
+  if (!fileSystemMonitorInstance) {
+    // Aquí creas la instancia con todo lo que necesites
+    const hashedFilesAdapter = new HashedSystemTreeCollection();
+    const antivirus = await Antivirus.getInstance();
+
+    fileSystemMonitorInstance = new FileSystemMonitor(
+      {
+        hashedFiles: hashedFilesAdapter,
+      },
+      { scanner: antivirus }
+    );
+  }
+
+  return fileSystemMonitorInstance;
+}
+
 export class FileSystemMonitor {
   private mainWindow = new BrowserWindow({
     webPreferences: {
@@ -71,38 +92,78 @@ export class FileSystemMonitor {
     },
     show: false,
   });
+
   private isScanning = false;
-  private progressEvents = [];
+  private progressEvents: ProgressData[] = [];
+  private totalScannedFiles = 0;
+  private totalInfectedFiles = 0;
+  private infectedFiles: string[] = [];
+  private progress = 0;
 
   constructor(
     private db: {
       hashedFiles: DatabaseCollectionAdapter<FileSystemHashed>;
+    },
+    private antivirus: {
+      scanner: Antivirus;
     }
-  ) {}
+  ) {
+    this.db;
+  }
 
   private addItemToDatabase = async (
-    item: FileInfo
-  ): Promise<{
-    success: boolean;
-    result: FileSystemHashed | null;
-  }> => {
-    const { path: pathName, size, type } = item;
+    item: FileInfo & { isInfected: FileSystemHashed['isInfected'] }
+  ): Promise<boolean> => {
+    const { path: pathName, size, type, isInfected } = item;
     const hashedFile = await this.hashItem(pathName);
     const currentTime = new Date().toISOString();
 
     const itemToAdd: FileSystemHashed = {
       createdAt: currentTime,
       updatedAt: currentTime,
-      pathName: pathName,
-      size: size,
+      pathName,
+      size,
       status: 'scanned',
       id: randomUUID(),
-      type: type,
+      type,
       hash: hashedFile,
+      isInfected,
     };
 
     try {
       const createdItem = await this.db.hashedFiles.create(itemToAdd);
+
+      return createdItem.success;
+    } catch (error) {
+      return EMPTY_RESULT.success;
+    }
+  };
+
+  private updateItemToDatabase = async (
+    itemId: FileSystemHashed['id'],
+    item: FileInfo & { isInfected: FileSystemHashed['isInfected'] }
+  ): Promise<{
+    success: boolean;
+    result: FileSystemHashed | null;
+  }> => {
+    const { path: pathName, size, type, isInfected } = item;
+    const hashedFile = await this.hashItem(pathName);
+    const currentTime = new Date().toISOString();
+
+    const itemToUpdate: Partial<FileSystemHashed> = {
+      updatedAt: currentTime,
+      pathName,
+      size,
+      type,
+      hash: hashedFile,
+      isInfected,
+    };
+
+    try {
+      const createdItem = await this.db.hashedFiles.update(
+        itemId,
+        itemToUpdate
+      );
 
       return createdItem;
     } catch (error) {
@@ -178,7 +239,7 @@ export class FileSystemMonitor {
       ) {
         error = (err as any).data.err;
       }
-      if (this.isPermissionError(err)) {
+      if (this.isPermissionError(error)) {
         console.warn(`Skipping directory "${dir}" due to permission error.`);
         return null;
       }
@@ -228,9 +289,9 @@ export class FileSystemMonitor {
     viruses: [];
   } | null> => {
     console.time('scan-file');
-    const antivirus = await Antivirus.getInstance();
+
     try {
-      const scannedFile = await antivirus.scanFile(filePath);
+      const scannedFile = await this.antivirus.scanner.scanFile(filePath);
 
       return scannedFile;
     } catch (fileErr) {
@@ -247,8 +308,24 @@ export class FileSystemMonitor {
     }
   };
 
-  trackProgress = (data: ProgressData) => {
-    this.progressEvents.push(data);
+  trackProgress = (data: { file: string; isInfected: boolean }) => {
+    const { file, isInfected } = data;
+    if (isInfected) {
+      this.infectedFiles.push(file);
+      this.totalInfectedFiles++;
+    }
+
+    this.totalScannedFiles++;
+
+    const progressEvent: ProgressData = {
+      currentScanPath: file,
+      infectedFiles: this.infectedFiles,
+      progress: 0,
+      totalInfectedFiles: this.totalInfectedFiles,
+      totalScannedFiles: this.totalScannedFiles,
+    };
+
+    this.progressEvents.push(progressEvent);
   };
 
   isSystemScanning = () => {
@@ -259,32 +336,71 @@ export class FileSystemMonitor {
   };
 
   public scanUserDir = async (): Promise<void> => {
-    console.time('scan-system');
+    this.totalScannedFiles = 0;
+    this.totalInfectedFiles = 0;
+    this.infectedFiles = [];
+    this.progressEvents = [];
+
+    if (this.isScanning) {
+      if (this.progressEvents.length > 0) {
+        eventBus.emit(
+          'ANTIVIRUS_SCAN_PROGRESS',
+          this.progressEvents[this.progressEvents.length - 1]
+        );
+      }
+      return;
+    }
+
+    this.isScanning = true;
 
     const reportProgressInterval = setInterval(() => {
-      this.mainWindow.webContents.send(
-        'scan-progress',
-        this.progressEvents.pop()
+      eventBus.emit(
+        'ANTIVIRUS_SCAN_PROGRESS',
+        this.progressEvents.pop() as ProgressData
       );
 
       this.progressEvents = [];
     }, 1000);
 
+    console.time('scan-system');
+
     const MAX_CONCURRENCY = 10;
 
     const scan = async (file: FileInfo) => {
       const previousScannedItem = await this.getItemFromDatabase(file.path);
-      if (previousScannedItem && file.hash === previousScannedItem.hash) {
-        console.log('ITEM IN DATABASE:', previousScannedItem);
-        return;
+      if (previousScannedItem) {
+        this.trackProgress({
+          file: previousScannedItem.pathName,
+          isInfected: previousScannedItem.isInfected,
+        });
+
+        if (file.hash === previousScannedItem.hash) {
+          return;
+        } else {
+          const currentScannedFile = await this.scanFile(file.path);
+          if (!currentScannedFile) {
+            return;
+          }
+          console.log('SCANNED ITEM: ', currentScannedFile);
+          await this.updateItemToDatabase(previousScannedItem.id, {
+            ...file,
+            isInfected: currentScannedFile.isInfected,
+          });
+        }
       }
       const currentScannedFile = await this.scanFile(file.path);
       if (!currentScannedFile) {
         return;
       }
       console.log('SCANNED ITEM: ', currentScannedFile);
-      await this.addItemToDatabase(file);
-      // this.trackProgress(currentScannedFile);
+      await this.addItemToDatabase({
+        ...file,
+        isInfected: currentScannedFile.isInfected,
+      });
+      this.trackProgress({
+        file: currentScannedFile.file,
+        isInfected: currentScannedFile.isInfected,
+      });
     };
 
     const asyncQueue = queue(scan, MAX_CONCURRENCY);
@@ -304,9 +420,15 @@ export class FileSystemMonitor {
         throw error;
       }
     } finally {
-      clamAVServer.stopClamdServer();
-      clearInterval(reportProgressInterval);
       console.timeEnd('scan-system');
+      this.antivirus.scanner.stopClamAv();
+      eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
+        ...(this.progressEvents.pop() as ProgressData),
+        done: true,
+      });
+      clearInterval(reportProgressInterval);
+      this.progressEvents = [];
+      this.isScanning = false;
     }
   };
 }

@@ -55,8 +55,8 @@ import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { FileSystemMonitor } from './antivirus/fileSystemMonitor';
-import { HashedSystemTreeCollection } from './database/collections/HashedSystemTreeCollection';
+import { getFileSystemMonitorInstance } from './antivirus/fileSystemMonitor';
+import { isWindowsDefenderRealTimeProtectionActive } from './ipcs/ipcMainAntivirus';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -95,18 +95,6 @@ if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('electron-debug')({ showDevTools: false });
 }
-
-async function initializeFileSystemMonitor() {
-  const hashedFilesAdapter = new HashedSystemTreeCollection();
-
-  const fileSystemMonitor = new FileSystemMonitor({
-    hashedFiles: hashedFilesAdapter,
-  });
-
-  return fileSystemMonitor;
-}
-
-let fileSystemMonitorInstance: FileSystemMonitor;
 
 app
   .whenReady()
@@ -158,12 +146,14 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     setCleanUpFunction(stopSyncEngineWatcher);
 
-    if (!fileSystemMonitorInstance) {
-      fileSystemMonitorInstance = await initializeFileSystemMonitor();
-    }
+    const isDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
 
-    console.log('STARTING USER SYSTEM SCAN...');
-    await fileSystemMonitorInstance.scanUserDir();
+    if (!isDefenderActive) {
+      const fileSystemMonitor = await getFileSystemMonitorInstance();
+
+      console.log('STARTING USER SYSTEM SCAN...');
+      await fileSystemMonitor.scanUserDir();
+    }
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);

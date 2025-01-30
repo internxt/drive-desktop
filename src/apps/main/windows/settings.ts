@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
 
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
+import { setupAntivirusIPC } from '../ipcs/ipcMainAntivirus';
 
 let settingsWindow: BrowserWindow | null = null;
 export const getSettingsWindow = () =>
@@ -34,6 +35,7 @@ async function openSettingsWindow(section?: string) {
 
   settingsWindow.on('ready-to-show', () => {
     settingsWindow?.show();
+    if (settingsWindow) setupAntivirusIPC(settingsWindow);
   });
 
   settingsWindow.on('closed', () => {

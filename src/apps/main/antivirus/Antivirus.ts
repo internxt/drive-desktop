@@ -82,6 +82,18 @@ export class Antivirus {
     };
   }
 
+  async stopClamAv() {
+    if (!this.clamAv) {
+      throw new Error('ClamAv instance is not initialized');
+    }
+
+    const isClamAVAlive = await this.clamAv.ping();
+
+    if (isClamAVAlive) {
+      clamAVServer.stopClamdServer();
+    }
+  }
+
   async scanFolder({
     folderPath,
     onFolderScanned,
@@ -189,18 +201,6 @@ export class Antivirus {
         onFileScanned
       );
     });
-  }
-
-  async cancelScan() {
-    if (!this.clamAv) {
-      throw new Error('ClamAv instance is not initialized');
-    }
-
-    const isClamAVAlive = await this.clamAv.ping();
-
-    if (isClamAVAlive) {
-      clamAVServer.startClamdServer();
-    }
   }
 
   async scanItems({

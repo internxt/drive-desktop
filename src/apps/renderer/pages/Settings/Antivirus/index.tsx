@@ -20,7 +20,7 @@ export default function AntivirusSection({
     isScanning,
     isScanCompleted,
     countScannedFiles,
-    scannedItems,
+    countCorruptedFiles,
     currentScanPath,
     view,
     progressRatio,
@@ -50,7 +50,7 @@ export default function AntivirusSection({
         progressRatio={progressRatio}
         errorWhileScanning={isError}
         currentScanPath={currentScanPath}
-        corruptedFiles={scannedItems}
+        corruptedFiles={countCorruptedFiles}
         onScanAgainButtonClicked={onScanAgainButtonClicked}
         showItemsWithMalware={showItemsWithMalware}
       />

@@ -25,4 +25,7 @@ export class FileSystemHashed {
 
   @Column({ nullable: false })
   status!: 'scanned' | 'pending';
+
+  @Column({ nullable: false })
+  isInfected!: boolean;
 }

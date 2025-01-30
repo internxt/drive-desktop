@@ -239,8 +239,7 @@ declare interface Window {
     };
 
     antivirus: {
-      // onProgressUpdate: (callback: (data: any) => void) => void;
-      // isSystemScanning: () => boolean;
+      isSystemScanning: () => boolean;
       isAvailable: () => Promise<boolean>;
       isDefenderActive: () => Promise<boolean>;
       scanItems: (
@@ -255,12 +254,12 @@ declare interface Window {
 
       onScanProgress: (
         callback: (progress: {
-          err: string;
-          file: string;
-          isInfected: boolean;
-          viruses: string[];
-          countScannedItems: number;
-          progressRatio: number;
+          currentScanPath: string;
+          infectedFiles: string[];
+          progress: number;
+          totalInfectedFiles: number;
+          totalScannedFiles: number;
+          done?: boolean;
         }) => void
       ) => Promise<void>;
 

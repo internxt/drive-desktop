@@ -110,7 +110,6 @@ export class HashedSystemTreeCollection
     partialData: Partial<FileSystemHashed>
   ): Promise<{ success: boolean; result: FileSystemHashed[] }> {
     try {
-      Logger.info('Searching partial by', partialData);
       const result = await this.repository.find({
         where: partialData,
       });

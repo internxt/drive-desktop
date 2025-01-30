@@ -10,7 +10,7 @@ export interface ScannedItemsProps {
 export type Views = 'locked' | 'chooseItems' | 'scan';
 
 export interface UseAntivirusReturn {
-  scannedItems: ScannedItemsProps[];
+  countCorruptedFiles: string[];
   currentScanPath?: string;
   countScannedFiles: number;
   view: Views;
@@ -28,7 +28,7 @@ export interface UseAntivirusReturn {
 }
 
 export const useAntivirus = (): UseAntivirusReturn => {
-  const [scannedItems, setScannedItems] = useState<ScannedItemsProps[]>([]);
+  const [countCorruptedFiles, setCountCorruptedFiles] = useState<string[]>([]);
   const [currentScanPath, setCurrentScanPath] = useState<string>();
   const [countScannedFiles, setCountScannedFiles] = useState<number>(0);
   const [progressRatio, setProgressRatio] = useState<number>(0);
@@ -50,6 +50,10 @@ export const useAntivirus = (): UseAntivirusReturn => {
   useEffect(() => {
     isUserElegible();
     isWinDefenderActive();
+    if (window.electron.antivirus.isSystemScanning()) {
+      setIsScanning(true);
+      setView('scan');
+    }
   }, []);
 
   const isUserElegible = async () => {
@@ -85,30 +89,33 @@ export const useAntivirus = (): UseAntivirusReturn => {
   };
 
   const handleProgress = (progress: {
-    err: string;
-    file: string;
-    isInfected: boolean;
-    viruses: string[];
-    countScannedItems: number;
-    progressRatio: number;
+    currentScanPath: string;
+    infectedFiles: string[];
+    progress: number;
+    totalInfectedFiles: number;
+    totalScannedFiles: number;
+    done?: boolean;
   }) => {
-    if (progress.err) setIsError(true);
-    setCurrentScanPath(progress.file);
-    setCountScannedFiles(progress.countScannedItems);
-    setProgressRatio(progress.progressRatio);
-    setScannedItems((prevItems) => [
-      ...prevItems,
-      {
-        file: progress.file,
-        isInfected: progress.isInfected,
-        viruses: progress.viruses,
-      },
-    ]);
+    return new Promise((resolve) => {
+      console.log('PROGRESS: ', progress);
+      if (!progress) return;
+
+      setCurrentScanPath(progress.currentScanPath);
+      setCountScannedFiles(progress.totalInfectedFiles);
+      setProgressRatio(progress.progress);
+      setCountCorruptedFiles(progress.infectedFiles);
+
+      if (progress.done === true) {
+        setIsScanning(false);
+        setIsScanCompleted(true);
+        resolve('');
+        // return;
+      }
+    });
   };
 
   const resetStates = () => {
     setView('chooseItems');
-    setScannedItems([]);
     setCurrentScanPath('');
     setCountScannedFiles(0);
     setProgressRatio(0);
@@ -165,13 +172,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
     const isDefenderActive = await isWinDefenderActive();
     if (isDefenderActive) return;
 
-    // const isSystemScanning = window.electron.antivirus.isSystemScanning();
-    // if (isSystemScanning) {
-    //   setView('scan');
-    //   window.electron.antivirus.onProgressUpdate(handleProgress);
-    //   return;
-    // }
-
     const userSystemPath = await getUserSystemPath();
     if (!userSystemPath) return;
 
@@ -183,7 +183,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     setIsScanning(true);
     try {
       await window.electron.antivirus.scanSystem(userSystemPath);
-      setIsScanCompleted(true);
+      // setIsScanCompleted(true);
     } catch (error) {
       console.error('ERROR WHILE SCANNING SYSTEM: ', error);
       setIsError(true);
@@ -204,7 +204,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
   };
 
   return {
-    scannedItems,
+    countCorruptedFiles,
     currentScanPath,
     countScannedFiles,
     view,

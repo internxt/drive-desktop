@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { ipcMain, shell } from 'electron';
+import { BrowserWindow, ipcMain, shell } from 'electron';
 import { Antivirus, SelectedItemToScanProps } from '../antivirus/Antivirus';
 import {
   getMultiplePathsFromDialog,
@@ -9,10 +9,12 @@ import { exec } from 'node:child_process';
 import { PaymentsService } from '../payments/service';
 import { buildPaymentsService } from '../payments/builder';
 import { reject } from 'lodash';
+import { getFileSystemMonitorInstance } from '../antivirus/fileSystemMonitor';
+import eventBus from '../event-bus';
 
 let paymentService: PaymentsService | null = null;
 
-function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
+export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
   return new Promise((resolve, reject) => {
     const command =
       'powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"';
@@ -52,6 +54,15 @@ ipcMain.handle('antivirus:is-Defender-active', async () => {
     return false;
   }
 });
+
+export function setupAntivirusIPC(mainWindow: BrowserWindow) {
+  eventBus.on('ANTIVIRUS_SCAN_PROGRESS', (progressData) => {
+    console.log('PROGRESS DATA: ', progressData);
+    if (!mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('antivirus:scan-progress', progressData);
+    }
+  });
+}
 
 ipcMain.handle(
   'antivirus:scan-items',
@@ -99,38 +110,15 @@ ipcMain.handle('antivirus:get-user-system-path', async () => {
   return result;
 });
 
-ipcMain.handle(
-  'antivirus:scan-system',
-  async (event, systemPathToScan: SelectedItemToScanProps) => {
-    const antivirus = await Antivirus.getInstance();
-    console.log('scan-system:', systemPathToScan);
-    try {
-      await antivirus.scanItems({
-        items: [systemPathToScan],
-        onFileScanned: (
-          err,
-          file,
-          isInfected,
-          viruses,
-          totalScannedFiles,
-          progressRatio
-        ) => {
-          event.sender.send('antivirus:scan-progress', {
-            err,
-            file,
-            isInfected,
-            viruses,
-            countScannedItems: totalScannedFiles,
-            progressRatio,
-          });
-        },
-      });
-    } catch (error) {
-      Logger.error('ERROR SCANNING ITEMS: ', error);
-      throw error;
-    }
-  }
-);
+ipcMain.handle('antivirus:is-system-scanning', async () => {
+  const fileSystemMonitor = await getFileSystemMonitorInstance();
+  return fileSystemMonitor.isSystemScanning();
+});
+
+ipcMain.handle('antivirus:scan-system', async () => {
+  const fileSystemMonitor = await getFileSystemMonitorInstance();
+  return fileSystemMonitor.scanUserDir();
+});
 
 ipcMain.handle('antivirus:add-items-to-scan', async (_, getFiles?: boolean) => {
   const result = await getMultiplePathsFromDialog(getFiles);
