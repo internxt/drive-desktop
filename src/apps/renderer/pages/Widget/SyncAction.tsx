@@ -30,8 +30,28 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
   };
 
   useEffect(() => {
-    setIsOnLine(navigator.onLine);
-  });
+    const updateOnlineStatus = () => {
+      setIsOnLine(navigator.onLine);
+    };
+
+    updateOnlineStatus();
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    return () => {
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOnLine) {
+      new Notification('Network connection lost', {
+        body: 'Your network connection has been lost. Please check your internet connection and try again.',
+      });
+    }
+  }, [isOnLine]);
 
   return (
     <div className="flex h-11 shrink-0 items-center space-x-2.5 border-t border-gray-10 px-2.5 text-sm font-medium text-gray-100 dark:border-gray-5">
