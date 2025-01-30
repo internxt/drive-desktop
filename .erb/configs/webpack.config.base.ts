@@ -52,7 +52,7 @@ const configuration: webpack.Configuration = {
   resolve: {
     alias: {
       ...aliases,
-      '@/': path.join(__dirname, '../../src'),
+      '@': path.resolve(__dirname, '../../src'),
     },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     modules: [webpackPaths.srcPath, 'node_modules'],
