@@ -23,12 +23,18 @@ export class FileBatchUploader {
     signal: AbortSignal
   ): Promise<void> {
     for (const localFile of batch) {
-      // eslint-disable-next-line no-await-in-loop
-      const uploadEither = await this.localHandler.upload(
-        localFile.path,
-        localFile.size,
-        signal
-      );
+      let uploadEither;
+      try {
+        // eslint-disable-next-line no-await-in-loop
+        uploadEither = await this.localHandler.upload(
+          localFile.path,
+          localFile.size,
+          signal
+        );
+      } catch (error) {
+        Logger.error('[UPLOAD ERROR]', error);
+        continue;
+      }
 
       if (uploadEither.isLeft()) {
         const error = uploadEither.getLeft();
