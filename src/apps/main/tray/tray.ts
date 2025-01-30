@@ -93,9 +93,9 @@ export class TrayMenu {
   setTooltip(state: TrayMenuState) {
     const messages: Record<TrayMenuState, string> = {
       SYNCING: 'Sync in process',
-      IDLE: `Internxt Drive ${PackageJson.version}`,
+      IDLE: `Internxt ${PackageJson.version}`,
       ALERT: 'There are some issues with your sync',
-      LOADING: 'Loading Internxt Drive...',
+      LOADING: 'Loading Internxt...',
     };
 
     const message = messages[state];
