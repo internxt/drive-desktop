@@ -55,11 +55,13 @@
         "list-1": "Label files available offline to access them anytime, with or without internet",
         "list-2": "Label files online only to save physical hard drive space"
       },
+      "antivirus": {
+        "title": "Keep your computer safe from virus",
+        "description": "Internxt's Desktop app now also features the brand new Internxt Antivirus, with which you can scan and remove any potential malware from your device."
+      },
       "backups": {
-        "title": "Back up and secure your files with couple clicks",
-        "description": "Back up your files by simply selecting the folders you want to protect.",
-        "description-2": "Schedule backups and keep your files safe and up-to-date across your devices.",
-        "setup-backups": "Set up backups"
+        "title": "Backup your device on the cloud",
+        "description": "With Internxt's upgraded backup feature, you can now safely backup folders on the cloud in order to free up space locally."
       },
       "onboarding-completed": {
         "title": "You're all set, enjoy your privacy!",
@@ -346,7 +348,14 @@
         "subtitle": "Please upgrade your plan to use this feature.",
         "action": "Upgrade"
       },
+      "deactivateAntivirus": {
+        "title": "Windows Defender is active",
+        "description": "Please disable Windows Defender to be able to use Internxt Antivirus. To do this, open Windows Security > Virus and Threat Protection > Manage settings > disable Real-time protection.",
+        "confirm": "Retry",
+        "cancel": "Cancel"
+      },
       "scanOptions": {
+        "stopScan": "Stop scan",
         "systemScan": {
           "text": "Antivirus system scan",
           "action": "Start scan"
@@ -357,6 +366,22 @@
           "selector": {
             "files": "Files",
             "folders": "Folders"
+          }
+        },
+        "removeMalware": {
+          "actions": {
+            "cancel": "Cancel",
+            "remove": "Remove"
+          },
+          "actionRequired": {
+            "title": "Action required",
+            "description": " Removing the malware will also permanently delete the folder from your storage to protect your device. This action cannot be undone.",
+            "confirmToContinue": "Please confirm to continue."
+          },
+          "securityWarning": {
+            "title": "Security warning",
+            "description": "Malware is still present, and your device is at risk.",
+            "confirmToCancel": "Are you sure you want to cancel?"
           }
         }
       },

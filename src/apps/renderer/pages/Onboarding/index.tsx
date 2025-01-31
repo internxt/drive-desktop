@@ -71,12 +71,12 @@ export default function Onboarding() {
     }, 300);
   };
 
-  if (!desktopPlatform) return <></>;
+  // if (!desktopPlatform) return <></>;
   return (
     <div className="relative flex h-screen w-full select-none flex-row">
       <div className="flex w-1/2 flex-col px-6 pb-6 pt-16">
         <SlideContent
-          platform={desktopPlatform}
+          platform={desktopPlatform!}
           onFinish={finish}
           backupFolders={backupFolders}
           onSetupBackups={setupBackups}
@@ -87,7 +87,7 @@ export default function Onboarding() {
         />
         <div className="mt-auto">
           <SlideContentFooter
-            platform={desktopPlatform}
+            platform={desktopPlatform!}
             onFinish={finish}
             backupFolders={backupFolders}
             onSetupBackups={setupBackups}
@@ -101,7 +101,7 @@ export default function Onboarding() {
 
       <div className="flex w-1/2 border-l border-gray-10 bg-gray-5">
         <SlideImage
-          platform={desktopPlatform}
+          platform={desktopPlatform!}
           onFinish={finish}
           backupFolders={backupFolders}
           onSetupBackups={setupBackups}

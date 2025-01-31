@@ -55,11 +55,13 @@
         "list-1": "Etiqueta los archivos disponibles sin conexión para acceder a ellos en cualquier momento, con o sin internet",
         "list-2": "Etiqueta los archivos sólo en línea para ahorrar espacio físico en el disco duro"
       },
+      "antivirus": {
+        "title": "Mantén tu computadora protegida contra virus",
+        "description": "La aplicación de escritorio de Internxt ahora también cuenta con el nuevo Internxt Antivirus, con el que puedes escanear y eliminar cualquier posible malware de tu dispositivo."
+      },
       "backups": {
-        "title": "Haz copias de seguridad y protege tus archivos con un par de clics",
-        "description": "Realiza copias de seguridad de tus archivos con solo seleccionar las carpetas que desea proteger.",
-        "description-2": "Programa tus copias de seguridad y mantén tus archivos seguros y actualizados en todos tus dispositivos.",
-        "setup-backups": "Configurar"
+        "title": "Haz copias de seguridad de tu dispositivo en la nube",
+        "description": "Con la función mejorada de copias de seguridad de Internxt, ahora puedes hacer copias de seguridad de tus carpetas en la nube de manera segura para liberar espacio localmente."
       },
       "onboarding-completed": {
         "title": "Ya está todo listo, ¡disfruta de tu privacidad!",
@@ -338,6 +340,59 @@
           "cancel": "Cancelar"
         }
       }
+    },
+    "antivirus": {
+      "featureLocked": {
+        "title": "Función bloqueada",
+        "subtitle": "Por favor, actualiza tu plan para usar esta función.",
+        "action": "Actualizar"
+      },
+      "deactivateAntivirus": {
+        "title": "Windows Defender está activo",
+        "description": "Por favor, desactiva Windows Defender para poder usar Internxt Antivirus. Para hacerlo, abre Seguridad de Windows > Protección contra virus y amenazas > Administrar configuración > desactiva la Protección en tiempo real.",
+        "confirm": "Reintentar",
+        "cancel": "Cancelar"
+      },
+      "scanOptions": {
+        "stopScan": "Detener escaneo",
+        "systemScan": {
+          "text": "Escaneo del sistema antivirus",
+          "action": "Iniciar escaneo"
+        },
+        "customScan": {
+          "text": "Escaneo personalizado del antivirus",
+          "action": "Elegir",
+          "selector": {
+            "files": "Archivos",
+            "folders": "Carpetas"
+          }
+        }
+      },
+      "scanProcess": {
+        "scanning": "Escaneando...",
+        "scannedFiles": "Archivos escaneados",
+        "detectedFiles": "Archivos detectados",
+        "errorWhileScanning": "Ocurrió un error al escanear los elementos. Por favor, intenta nuevamente.",
+        "noFilesFound": {
+          "title": "No se encontraron amenazas",
+          "subtitle": "No es necesario realizar más acciones"
+        },
+        "malwareFound": {
+          "title": "Malware detectado",
+          "subtitle": "Por favor, revisa y elimina las amenazas.",
+          "action": "Eliminar malware"
+        },
+        "scanAgain": "Escanear nuevamente"
+      },
+      "filesContainingMalwareModal": {
+        "title": "Archivos que contienen malware",
+        "selectedItems": "Seleccionados {{selectedFiles}} de {{totalFiles}}",
+        "selectAll": "Seleccionar todo",
+        "actions": {
+          "cancel": "Cancelar",
+          "remove": "Eliminar"
+        }
+      }
     }
   },
   "issues": {
@@ -345,7 +400,8 @@
     "tabs": {
       "sync": "Sincronización",
       "backups": "Copias de seguridad",
-      "general": "General"
+      "general": "General",
+      "antivirus": "Antivirus"
     },
     "no-issues": "No se han encontrado errores",
     "actions": {

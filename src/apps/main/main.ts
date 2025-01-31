@@ -55,8 +55,8 @@ import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { getFileSystemMonitorInstance } from './antivirus/fileSystemMonitor';
-import { isWindowsDefenderRealTimeProtectionActive } from './ipcs/ipcMainAntivirus';
+import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
+import clamAVServer from './antivirus/ClamAVServer';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -113,6 +113,13 @@ app
     }
 
     checkForUpdates();
+
+    await clamAVServer.startClamdServer();
+    await clamAVServer.waitForClamd();
+
+    if (process.env.NODE_ENV === 'production') {
+      scheduleDailyScan();
+    }
   })
   .catch(Logger.error);
 
@@ -120,7 +127,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
   try {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
-      await AppDataSource.dropDatabase();
     }
 
     getAuthWindow()?.hide();
@@ -145,15 +151,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     }
 
     setCleanUpFunction(stopSyncEngineWatcher);
-
-    const isDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
-
-    if (!isDefenderActive) {
-      const fileSystemMonitor = await getFileSystemMonitorInstance();
-
-      console.log('STARTING USER SYSTEM SCAN...');
-      await fileSystemMonitor.scanUserDir();
-    }
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
@@ -166,6 +163,11 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   if (widget) {
     widget.hide();
     widget.destroy();
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    clearDailyScan();
+    clamAVServer.stopClamdServer();
   }
 
   await createAuthWindow();

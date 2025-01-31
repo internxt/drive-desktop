@@ -9,33 +9,10 @@ interface ScanStateProps {
   progressRatio: number;
   currentScanPath?: string;
   corruptedFiles: string[];
-  errorWhileScanning: boolean;
+  onStopProgressScanButtonClicked: () => void;
   onScanAgainButtonClicked: () => void;
   showItemsWithMalware: () => void;
 }
-
-const ErrorScan = ({
-  onScanAgainButtonClicked,
-  translate,
-}: {
-  onScanAgainButtonClicked: () => void;
-  translate: (
-    key: string,
-    keysToReplace?: Record<string, string | number>
-  ) => string;
-}) => (
-  <div className="flex flex-col items-center gap-4">
-    <ShieldWarning size={64} className="text-red" weight="fill" />
-    <div className="flex flex-col gap-1 text-center">
-      <p className="font-medium text-gray-100">
-        {translate('settings.antivirus.scanProcess.errorWhileScanning')}
-      </p>
-    </div>
-    <Button onClick={onScanAgainButtonClicked}>
-      {translate('settings.antivirus.scanProcess.malwareFound.action')}
-    </Button>
-  </div>
-);
 
 const ScanSuccessful = ({
   translate,
@@ -120,9 +97,11 @@ const ScanResult = ({
 const ScanProcess = ({
   currentScanPath,
   scannedProcess,
+  stopScanProcess,
   translate,
 }: {
   currentScanPath?: string;
+  stopScanProcess: () => void;
   scannedProcess: number;
   translate: (
     key: string,
@@ -130,9 +109,9 @@ const ScanProcess = ({
   ) => string;
 }) => (
   <div className="flex w-full flex-col items-center gap-4">
-    <div className="line-clamp-2 flex h-full w-full max-w-[450px] flex-col text-center">
+    <div className="flex h-full w-full max-w-[450px] flex-col text-center">
       <p>{translate('settings.antivirus.scanProcess.scanning')}</p>
-      <p>{currentScanPath}</p>
+      <p className="line-clamp-2">{currentScanPath}</p>
     </div>
     <div className="flex w-full flex-col items-center gap-1">
       <div className="flex h-1.5 w-full flex-col rounded-full bg-primary/10">
@@ -145,6 +124,9 @@ const ScanProcess = ({
       </div>
       <p>{scannedProcess}%</p>
     </div>
+    <Button variant="danger" onClick={stopScanProcess}>
+      {translate('settings.antivirus.scanOptions.stopScan')}
+    </Button>
   </div>
 );
 
@@ -155,7 +137,7 @@ export const ScanState = ({
   currentScanPath,
   progressRatio,
   scannedFilesCount,
-  errorWhileScanning,
+  onStopProgressScanButtonClicked,
   onScanAgainButtonClicked,
   showItemsWithMalware,
 }: ScanStateProps) => {
@@ -170,17 +152,13 @@ export const ScanState = ({
           <ScanProcess
             currentScanPath={currentScanPath}
             scannedProcess={progressRatio}
+            stopScanProcess={onStopProgressScanButtonClicked}
             translate={translate}
           />
         ) : (
           <></>
         )}
-        {!isScanning && errorWhileScanning && (
-          <ErrorScan
-            onScanAgainButtonClicked={onScanAgainButtonClicked}
-            translate={translate}
-          />
-        )}
+
         {!isScanning && isScanCompleted && (
           <ScanResult
             thereAreCorruptedFiles={thereAreCorruptedFiles}

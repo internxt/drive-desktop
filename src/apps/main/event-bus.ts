@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ProgressData } from './antivirus/fileSystemMonitor';
+import { ProgressData } from './antivirus/FileSystemMonitor';
 
 class EventBus extends EventEmitter {}
 
@@ -29,7 +29,9 @@ interface Events {
   INITIAL_SYNC_READY: () => void;
 
   // Get the scan progress
-  ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData) => void;
+  ANTIVIRUS_SCAN_PROGRESS: (
+    progress: ProgressData & { done?: boolean }
+  ) => void;
 }
 
 declare interface EventBus {

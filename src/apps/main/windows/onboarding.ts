@@ -20,7 +20,7 @@ export const openOnboardingWindow = () => {
   onboardingWindow = new BrowserWindow({
     width: 800,
     height: 470,
-    show: false,
+    show: true,
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,

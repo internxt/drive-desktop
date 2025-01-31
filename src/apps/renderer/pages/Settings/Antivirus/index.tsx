@@ -4,6 +4,7 @@ import { ScanState } from './views/ScanState';
 import { Views } from '../../../hooks/antivirus/useAntivirus';
 import { useAntivirusContext } from '../../../context/AntivirusContext';
 import { ActionDialog } from './components/ActionDialog';
+import { useTranslationContext } from '../../../context/LocalContext';
 
 interface AntivirusSectionProps {
   active: boolean;
@@ -16,20 +17,21 @@ export default function AntivirusSection({
   onCancelDeactivateWinDefender,
   showItemsWithMalware,
 }: AntivirusSectionProps): JSX.Element {
+  const { translate } = useTranslationContext();
   const {
     isScanning,
     isScanCompleted,
     countScannedFiles,
-    countCorruptedFiles,
+    infectedFiles,
     currentScanPath,
     view,
     progressRatio,
-    isError,
     isAntivirusAvailable,
     isDefenderActive,
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
+    onCancelScan,
     isWinDefenderActive,
   } = useAntivirusContext();
 
@@ -48,9 +50,9 @@ export default function AntivirusSection({
         isScanCompleted={isScanCompleted}
         scannedFilesCount={countScannedFiles}
         progressRatio={progressRatio}
-        errorWhileScanning={isError}
         currentScanPath={currentScanPath}
-        corruptedFiles={countCorruptedFiles}
+        corruptedFiles={infectedFiles}
+        onStopProgressScanButtonClicked={onCancelScan}
         onScanAgainButtonClicked={onScanAgainButtonClicked}
         showItemsWithMalware={showItemsWithMalware}
       />
@@ -65,17 +67,18 @@ export default function AntivirusSection({
       {isDefenderActive && active && (
         <ActionDialog
           showDialog={isDefenderActive && active}
-          title="Windows Defender is active"
+          title={translate('settings.antivirus.deactivateAntivirus.title')}
           children={
             <p>
-              Please disable Windows Defender to be able to use Internxt
-              Antivirus. To do this, open Windows Security {'>'} Virus and
-              Threat Protection {'>'} Manage settings {'>'} disable Real-time
-              protection.
+              {translate('settings.antivirus.deactivateAntivirus.description')}
             </p>
           }
-          confirmText="Retry"
-          cancelText="Cancel"
+          confirmText={translate(
+            'settings.antivirus.deactivateAntivirus.retry'
+          )}
+          cancelText={translate(
+            'settings.antivirus.deactivateAntivirus.cancel'
+          )}
           confirmButtonVariant="primary"
           onCancel={onCancelDeactivateWinDefender}
           onConfirm={async () => await isWinDefenderActive()}

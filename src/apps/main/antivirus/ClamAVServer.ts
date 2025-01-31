@@ -97,6 +97,7 @@ const waitForClamd = async (
 
 const clamAVServer = {
   startClamdServer,
+  checkClamdAvailability,
   stopClamdServer,
   waitForClamd,
 };

@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity('hashed_files')
-export class FileSystemHashed {
+export class ScannedItem {
   @PrimaryColumn({ nullable: false, unique: true })
   id!: string;
 
@@ -19,6 +19,12 @@ export class FileSystemHashed {
 
   @Column({ nullable: false })
   updatedAt!: string;
+
+  @Column({ nullable: false })
+  creationTimeW!: string;
+
+  @Column({ nullable: false })
+  updatedAtW!: string;
 
   @Column({ nullable: false })
   pathName!: string;

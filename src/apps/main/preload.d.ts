@@ -225,35 +225,23 @@ declare interface Window {
     getRecentlywasSyncing: () => Promise<boolean>;
     getUnsycFileInSyncEngine: () => Promise<string[]>;
     updateUnsycFileInSyncEngine: () => Promise<void>;
-    getUserSystemPath: () => Promise<
-      | {
-          path: string;
-          itemName: string;
-          isDirectory: boolean;
-        }
-      | undefined
-    >;
     user: {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
     };
 
     antivirus: {
-      isSystemScanning: () => boolean;
       isAvailable: () => Promise<boolean>;
       isDefenderActive: () => Promise<boolean>;
       scanItems: (
         folderPaths: { path: string; itemName: string; isDirectory: boolean }[]
       ) => Promise<void>;
 
-      scanSystem: (item: {
-        path: string;
-        itemName: string;
-        isDirectory: boolean;
-      }) => Promise<void>;
+      scanSystem: () => Promise<void>;
 
       onScanProgress: (
         callback: (progress: {
+          scanId: string;
           currentScanPath: string;
           infectedFiles: string[];
           progress: number;
@@ -274,6 +262,7 @@ declare interface Window {
         | undefined
       >;
       removeInfectedFiles: (infectedFiles: string[]) => Promise<void>;
+      cancelScan: () => Promise<void>;
     };
   };
 }

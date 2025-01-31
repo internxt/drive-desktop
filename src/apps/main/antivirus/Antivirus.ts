@@ -1,6 +1,5 @@
 import path from 'path';
 import NodeClam from '@internxt/scan';
-import NodeClamError from '@internxt/scan/lib/NodeClamError';
 import clamAVServer from './ClamAVServer';
 import { app } from 'electron';
 
@@ -26,23 +25,16 @@ export class Antivirus {
   static async getInstance(): Promise<Antivirus> {
     if (!Antivirus.instance) {
       Antivirus.instance = new Antivirus();
-      await Antivirus.instance.initialize();
-    }
-
-    if (!Antivirus.instance.isInitialized) {
-      await Antivirus.instance.initialize();
     }
 
     return Antivirus.instance;
   }
 
-  private async initialize(): Promise<void> {
+  async initialize(): Promise<void> {
     if (this.isInitialized) return;
 
     try {
-      await clamAVServer.startClamdServer();
-
-      await clamAVServer.waitForClamd();
+      await clamAVServer.checkClamdAvailability();
 
       this.clamAv = await new NodeClam().init({
         removeInfected: false,
@@ -90,172 +82,12 @@ export class Antivirus {
     const isClamAVAlive = await this.clamAv.ping();
 
     if (isClamAVAlive) {
-      clamAVServer.stopClamdServer();
-    }
-  }
-
-  async scanFolder({
-    folderPath,
-    onFolderScanned,
-    onFileScanned,
-  }: {
-    folderPath: string;
-    onFolderScanned?: (
-      err: NodeClamError | null,
-      goodFiles: string[],
-      badFiles: string[],
-      viruses: string[]
-    ) => void;
-    onFileScanned?: (
-      err: NodeClamError | null,
-      file: string,
-      isInfected: boolean,
-      viruses: string[],
-      totalScannedFiles: [],
-      progressRatio: number
-    ) => void;
-  }): Promise<void> {
-    if (!this.clamAv) {
-      throw new Error('ClamAV is not initialized');
-    }
-
-    return new Promise<void>(async (resolve, reject) => {
-      await this.clamAv!.scanDir(
-        folderPath,
-        (err: NodeClamError, goodFiles: [], badFiles: [], viruses: []) => {
-          if (err) {
-            console.log('ERROR SCANNING DIR: ', err);
-            reject(err);
-          }
-
-          onFolderScanned && onFolderScanned(err, goodFiles, badFiles, viruses);
-
-          resolve();
-        },
-        (err, file, isInfected, viruses, totalScannedFiles, progressRatio) => {
-          if (err) {
-            console.log('ERROR IN SCAN DIR ON THE CLIENT SIDE: ', err);
-            reject(err);
-          }
-
-          console.log('ITEMS IN SCAN FOLDER: ', {
-            err,
-            file,
-            isInfected,
-            viruses,
-            totalScannedFiles,
-            progressRatio,
-          });
-
-          onFileScanned?.(
-            err,
-            file,
-            isInfected,
-            viruses,
-            totalScannedFiles,
-            progressRatio
-          );
-        }
-      );
-    });
-  }
-
-  async scanFiles({
-    filePaths,
-    onAllFilesScanned,
-    onFileScanned,
-  }: {
-    filePaths: string[];
-    onAllFilesScanned?: (
-      err: NodeClamError | null,
-      goodFiles: string[],
-      badFiles: string[],
-      viruses: string[]
-    ) => void;
-    onFileScanned?: (
-      err: NodeClamError | null,
-      file: string,
-      isInfected: boolean,
-      viruses: string[],
-      totalScannedFiles: [],
-      progressRatio: number
-    ) => void;
-  }): Promise<void> {
-    if (!this.clamAv) {
-      throw new Error('ClamAv instance is not initialized');
-    }
-
-    return new Promise<void>((resolve, reject) => {
-      this.clamAv!.scanFiles(
-        filePaths,
-        (err: NodeClam, goodFiles: [], badFiles: [], viruses: []) => {
-          if (err) {
-            console.log('ERROR SCANNING FILES: ', err);
-            reject(err);
-          }
-
-          onAllFilesScanned &&
-            onAllFilesScanned(err, goodFiles, badFiles, viruses);
-          resolve();
-        },
-        onFileScanned
-      );
-    });
-  }
-
-  async scanItems({
-    items,
-    onAllItemsScanned,
-    onFileScanned,
-  }: {
-    items: SelectedItemToScanProps[];
-    onAllItemsScanned?: (
-      err: NodeClamError | null,
-      goodFiles: string[],
-      badFiles: string[],
-      viruses: string[]
-    ) => void;
-    onFileScanned?: (
-      err: NodeClamError | null,
-      file: string,
-      isInfected: boolean,
-      viruses: string[],
-      totalScannedFiles: [],
-      progressRatio: number
-    ) => void;
-  }) {
-    console.time('scan');
-    const filePaths = items
-      .filter((item) => !item.isDirectory)
-      .map((file) => file.path);
-    const folderPaths = items
-      .filter((item) => item.isDirectory)
-      .map((folder) => folder.path);
-
-    try {
-      if (filePaths.length > 0) {
-        await this.scanFiles({
-          filePaths,
-          onAllFilesScanned: onAllItemsScanned,
-          onFileScanned,
-        });
-      }
-      if (folderPaths.length > 0) {
-        for (const folderPath of folderPaths) {
-          await this.scanFolder({
-            folderPath,
-            onFolderScanned: onAllItemsScanned,
-            onFileScanned,
-          });
-        }
-      }
-    } catch (error) {
-      console.log('ERROR WHILE SCANNING ITEMS: ', error);
-      throw error;
-    } finally {
-      clamAVServer.stopClamdServer();
       this.isInitialized = false;
-      console.timeEnd('scan');
+      await this.clamAv.closeAllSockets();
     }
+  }
+
+  async stopServer() {
+    clamAVServer.stopClamdServer();
   }
 }

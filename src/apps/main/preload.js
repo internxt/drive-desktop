@@ -340,9 +340,7 @@ contextBridge.exposeInMainWorld('electron', {
     const FIVE_SECONDS = 5000;
     return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
   },
-  getUserSystemPath() {
-    return ipcRenderer.invoke('antivirus:get-user-system-path');
-  },
+
   user: {
     hasDiscoveredBackups() {
       return ipcRenderer.invoke('user.get-has-discovered-backups');
@@ -367,7 +365,6 @@ contextBridge.exposeInMainWorld('electron', {
         callback(progress)
       );
     },
-    isSystemScanning: () => ipcRenderer.invoke('antivirus:is-system-scanning'),
     removeScanProgressListener: () => {
       ipcRenderer.removeAllListeners('antivirus:scan-progress');
     },
@@ -382,6 +379,9 @@ contextBridge.exposeInMainWorld('electron', {
         'antivirus:remove-infected-files',
         infectedFiles
       );
+    },
+    cancelScan: async () => {
+      return await ipcRenderer.invoke('antivirus:cancel-scan');
     },
   },
 
