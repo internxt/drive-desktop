@@ -39,6 +39,14 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       throw new Error('Failed to encrypt name');
     }
 
+    Logger.info(`Creating file ${offline.name} in folder ${offline.folderId}`);
+    Logger.info(`Encrypted name: ${offline.path}`);
+    const existingFile = await this.getFileByPath(offline.path);
+
+    Logger.info('Existing file', existingFile);
+
+    if (existingFile) return existingFile;
+
     const data = await this.sdk.createFileEntry({
       id: offline.contentsId,
       type: offline.type,
@@ -89,6 +97,7 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
         bucket: this.bucket,
         folder_id: dataToPersists.folderId.value,
         encrypt_version: EncryptionVersion.Aes03,
+        modificationTime: new Date(),
       },
     };
 
@@ -263,5 +272,41 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     );
 
     Logger.info(`File ${file.path} overridden`);
+  }
+
+  async getFileByPath(filePath: string): Promise<null | FileAttributes> {
+    try {
+      const response = await this.clients.newDrive.get(
+        `${process.env.NEW_DRIVE_URL}/drive/files/meta?path=${filePath}`
+      );
+
+      Logger.info('Response from getFileByPath', response.data);
+
+      if (response.data.status !== FileStatuses.EXISTS) return null;
+
+      const attibutes: FileAttributes = {
+        id: response.data.id,
+        uuid: response.data.uuid,
+        contentsId: response.data.fileId,
+        folderId: response.data.folderId,
+        createdAt: response.data.createdAt,
+        modificationTime: response.data.modificationTime,
+        path: filePath,
+        size: response.data.size,
+        status: FileStatuses.EXISTS,
+        updatedAt: response.data.updatedAt,
+      };
+
+      return attibutes;
+    } catch (error) {
+      if (isAxiosError(error)) {
+        Logger.error(
+          'Error getting file by folder and name',
+          error.response?.status,
+          error.response?.data
+        );
+      }
+      return null;
+    }
   }
 }

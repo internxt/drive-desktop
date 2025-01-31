@@ -26,10 +26,9 @@ export class BackupScheduler {
       return;
     }
 
-    BackupScheduler.schedule = setTimeout(
-      () => this.runAndScheduleNext(),
-      millisecondsToNextBackup
-    );
+    BackupScheduler.schedule = setTimeout(() => {
+      this.runAndScheduleNext();
+    }, millisecondsToNextBackup);
   }
 
   private millisecondsToNextBackup(): number {
@@ -54,7 +53,10 @@ export class BackupScheduler {
       return;
     }
 
-    BackupScheduler.schedule = setTimeout(() => this.task(), this.interval());
+    BackupScheduler.schedule = setTimeout(
+      () => this.runAndScheduleNext(),
+      this.interval()
+    );
   }
 
   private lastBackupIsSet(): boolean {

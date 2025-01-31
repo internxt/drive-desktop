@@ -12,7 +12,12 @@ interface DevicePillProps {
   setSelected: (device: Device) => void;
 }
 
-function DevicePill({ device, current, selected, setSelected }: DevicePillProps) {
+function DevicePill({
+  device,
+  current,
+  selected,
+  setSelected,
+}: DevicePillProps) {
   const borderStyle = selected
     ? 'rounded-lg border border-gray-10 bg-surface shadow-sm dark:bg-gray-5'
     : '';
@@ -41,7 +46,7 @@ function Help() {
   return (
     <div className="mt-auto hover:cursor-pointer" onClick={handleOpenURL}>
       <Question className="mr-1 inline" />
-      <span className="text-gray-100">Backups help</span>
+      <span className="text-gray-100">Help</span>
     </div>
   );
 }
@@ -49,11 +54,13 @@ function Help() {
 type DevicesSideBarProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DevicesList({ className }: DevicesSideBarProps) {
-  const { deviceState, current, selected, setSelected } = useContext(DeviceContext);
+  const { deviceState, current, selected, setSelected } =
+    useContext(DeviceContext);
   const { devices } = useDevices();
 
   const devicesWithoutCurrent = devices.filter(
-    (device) => deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id
+    (device) =>
+      deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id
   );
 
   return (
@@ -64,12 +71,23 @@ export function DevicesList({ className }: DevicesSideBarProps) {
           <ul>
             {current && (
               <li>
-                <DevicePill device={current} current selected={current === selected} setSelected={setSelected} />
+                <DevicePill
+                  device={current}
+                  current
+                  selected={current === selected}
+                  setSelected={setSelected}
+                />
               </li>
             )}
             {devicesWithoutCurrent.map((device) => (
               <li className="my-1" key={device.id}>
-                {<DevicePill device={device} selected={device === selected} setSelected={setSelected} />}
+                {
+                  <DevicePill
+                    device={device}
+                    selected={device === selected}
+                    setSelected={setSelected}
+                  />
+                }
               </li>
             ))}
           </ul>

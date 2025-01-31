@@ -11,8 +11,9 @@ export interface BackupContextProps {
   disableBackup: (backup: BackupInfo) => Promise<void>;
   addBackup: () => Promise<void>;
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
-  downloadBackups: (device: Device) => Promise<void>;
+  downloadBackups: (device: Device, foldersId?: number[]) => Promise<void>;
   abortDownloadBackups: (device: Device) => void;
+  refreshBackups: () => Promise<void>;
 }
 
 export function useBackups(): BackupContextProps {
@@ -21,11 +22,20 @@ export function useBackups(): BackupContextProps {
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
 
   async function fetchBackups(): Promise<void> {
-    if (!selected) return;
-    const backups = await window.electron.getBackupsFromDevice(
-      selected,
-      selected === current
-    );
+    window.electron.logger.info('Fetching backups');
+    let backups: BackupInfo[];
+
+    if (!selected) {
+      if (!current) return;
+
+      backups = await window.electron.getBackupsFromDevice(current, true);
+    } else {
+      backups = await window.electron.getBackupsFromDevice(
+        selected,
+        selected.id === current?.id
+      );
+    }
+    window.electron.logger.info('Backups fetched', backups.length);
     setBackups(backups);
   }
 
@@ -44,11 +54,16 @@ export function useBackups(): BackupContextProps {
 
   useEffect(() => {
     loadBackups();
-  }, []);
+  }, [selected]);
 
   useEffect(() => {
-    loadBackups();
-  }, [selected]);
+    const removeListener = window.electron.listenersRefreshBackups(
+      fetchBackups,
+      'refresh-backup'
+    );
+
+    return removeListener;
+  }, []);
 
   async function addBackup(): Promise<void> {
     try {
@@ -75,9 +90,9 @@ export function useBackups(): BackupContextProps {
     }
   }
 
-  async function downloadBackups(device: Device) {
+  async function downloadBackups(device: Device, foldersId?: number[]) {
     try {
-      await window.electron.downloadBackup(device);
+      await window.electron.downloadBackup(device, foldersId);
     } catch (error) {
       reportError(error);
     }
@@ -90,6 +105,7 @@ export function useBackups(): BackupContextProps {
   return {
     backupsState,
     backups,
+    refreshBackups: fetchBackups,
     disableBackup,
     addBackup,
     deleteBackups,

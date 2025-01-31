@@ -57,7 +57,10 @@ export type FilesEvents = {
     name: string;
     extension: string;
     nameWithExtension: string;
+    fileId: number;
+    path: string;
   }) => void;
+
   FILE_DOWNLOAD_ERROR: (payload: {
     name: string;
     extension: string;
@@ -70,8 +73,8 @@ export type FilesEvents = {
   FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOAD_CANCEL: (payload: Partial<FileUpdatePayload>) => void;
   FILE_UPLOAD_ERROR: (payload: {
-    name: string;
-    extension: string;
+    name?: string;
+    extension?: string;
     nameWithExtension: string;
     error: string;
   }) => void;

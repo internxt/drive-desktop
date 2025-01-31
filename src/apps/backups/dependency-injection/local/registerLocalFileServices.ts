@@ -1,3 +1,4 @@
+import Logger from 'electron-log';
 import { ContainerBuilder } from 'diod';
 import { FileBatchUpdater } from '../../../../context/local/localFile/application/update/FileBatchUpdater';
 import { LocalFileHandler } from '../../../../context/local/localFile/domain/LocalFileUploader';
@@ -22,6 +23,8 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
     bridgePass: user.userId,
     encryptionKey: mnemonic,
   });
+
+  Logger.info('Registering local file services');
 
   builder.register(Environment).useInstance(environment).private();
 

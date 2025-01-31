@@ -65,10 +65,12 @@ export class FileCreator {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
+        fileId: file.id,
+        path: file.path,
       });
+
       ipcRenderer.send('CHECK_SYNC');
 
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 7]' + filePath.value);
       return file;
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'unknown error';

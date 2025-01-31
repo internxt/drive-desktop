@@ -31,7 +31,7 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "¡Bienvenido a Internxt Drive!",
+        "title": "¡Bienvenido a Internxt!",
         "description": "Empieza haciendo una copia de seguridad de todos tus archivos y carpetas importantes en la barra lateral del buscador.",
         "take-tour": "Hacer recorrido"
       },
@@ -70,7 +70,7 @@
           "description": "Añade más carpetas y programa copias de seguridad automáticas en Configuración"
         },
         "desktop-ready": {
-          "title": "Internxt Drive está listo",
+          "title": "Internxt está listo",
           "description": "Accede a tus archivos almacenados desde la barra lateral de tu {{platform_phrase}}."
         }
       }
@@ -78,7 +78,7 @@
     "common": {
       "onboarding-progress": "{{current_slide}} de {{total_slides}}",
       "continue": "Continuar",
-      "open-drive": "Abrir Internxt Drive",
+      "open-drive": "Abrir Internxt",
       "skip": "Saltar",
       "platform-phrase": {
         "windows": "explorador de archivos",
@@ -109,7 +109,7 @@
         "show-files": "Mostrar archivos"
       },
       "delete-old-drive-folder": {
-        "title": "Tu Internxt Drive de siempre, en una nueva ubicación",
+        "title": "Tu Internxt de siempre, en una nueva ubicación",
         "message": "Tu carpeta personal de Internxt Drive se encuentra en la barra lateral {{platform_app}}."
       },
       "new-widget": {
@@ -121,7 +121,7 @@
     "common": {
       "continue": "Continuar",
       "cancel": "Cancelar",
-      "open-drive": "Abrir Internxt Drive"
+      "open-drive": "Abrir Internxt"
     }
   },
   "widget": {
@@ -141,7 +141,7 @@
         "logout-confirmation": {
           "no-sync-pending": {
             "title": "¿Cerrar sesión en este dispositivo?",
-            "message": "Internxt Drive no se mostrará sin una cuenta iniciada.",
+            "message": "Internxt no se mostrará sin una cuenta iniciada.",
             "confirm": "Cerrar sesión",
             "cancel": "Cancelar"
           },
@@ -238,7 +238,7 @@
           "save": "Guardar"
         }
       },
-      "auto-startup": "Iniciar Internxt Drive al arrancar el sistema",
+      "auto-startup": "Iniciar Internxt al arrancar el sistema",
       "language": {
         "label": "Idioma",
         "options": {
@@ -256,13 +256,13 @@
         }
       },
       "sync": {
-        "folder": "Carpeta Internxt Drive",
+        "folder": "Carpeta Internxt",
         "change-folder": "Cambiar carpeta"
       },
       "app-info": {
         "open-logs": "Abrir registros",
         "open-migration": "Empezar migración",
-        "more": "Más información sobre Internxt Drive"
+        "more": "Más información sobre Internxt"
       }
     },
     "account": {
@@ -308,16 +308,20 @@
       "frequency": {
         "title": "Frecuencia de subida",
         "options": {
+          "1h": "Cada hora",
           "6h": "Cada 6 horas",
           "12h": "Cada 12 horas",
           "24h": "Cada día",
           "manually": "Manual"
-        }
+        },
+        "warning": "Las carpetas no se respaldarán automáticamente hasta que haga clic en 'Copia de seguridad ahora'. Este modo no se recomienda."
       },
       "folders": {
         "no-folders": "No hay carpetas seleccionadas",
+        "no-folders-to-download": "No hay carpetas para descargar",
         "save": "Guardar",
-        "cancel": "Cancelar"
+        "cancel": "Cancelar",
+        "error": "No pudimos encontrar la carpeta seleccionada"
       },
       "delete": {
         "title": "Eliminar copia de seguridad",
@@ -336,7 +340,7 @@
           "title": "Detener copia de seguridad en curso",
           "explanation": "Todavía hay archivos que no se han subido. ¿Detener la copia de seguridad de todos modos?",
           "explanation-2": "",
-          "confirm": "Detener copia de seguridad",
+          "confirm": "Detener",
           "cancel": "Cancelar"
         }
       }
@@ -417,6 +421,7 @@
       "no-internet-connection": "No hay conexión a Internet",
       "no-permission": "Permisos insuficientes",
       "file-does-not-exist": "El archivo no existe",
+      "folder-does-not-exist": "La carpeta no existe",
       "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
       "file-non-extension": "Archivos sin extensión no son soportados",
       "duplicated-node": "Hay un conflicto con el elemento",
@@ -434,6 +439,7 @@
       "empty-file": "No admitimos archivos con un tamaño de 0 bytes debido a nuestros procesos de cifrado",
       "bad-response": "Error de servidor al procesar este archivo. Por favor, intente iniciar de nuevo el proceso de sincronización",
       "file-does-not-exist": "Este archivo estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a él. Si has eliminado este archivo, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
+      "folder-does-not-exist": "Esta carpeta estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a ella. Si has eliminado esta carpeta, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
       "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
       "file-non-extension": "Los archivos sin extensiones no son soportados. No sincronizado",
       "duplicated-node": "Hay dos elementos (archivo o carpeta) con el mismo nombre en una carpeta. Cambia el nombre de uno de ellos para sincronizar ambos.",

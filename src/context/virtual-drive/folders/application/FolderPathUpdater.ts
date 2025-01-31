@@ -26,7 +26,13 @@ export class FolderPathUpdater {
     Logger.debug('desired path', desiredPath);
     Logger.debug('folder', folder.attributes());
 
-    const dirnameChanged = folder.dirname !== desiredPath.dirname();
+    Logger.debug('desired path dirname', desiredPath.dirname());
+    Logger.debug('folder dirname', folder.dirname.value);
+
+    Logger.debug('desired path name', desiredPath.name());
+    Logger.debug('folder name', folder.name);
+
+    const dirnameChanged = folder.dirname.value !== desiredPath.dirname();
     const nameChanged = folder.name !== desiredPath.name();
 
     if (dirnameChanged && nameChanged) {
@@ -37,6 +43,10 @@ export class FolderPathUpdater {
       return await this.folderMover.run(folder, desiredPath);
     }
 
-    return await this.folderRenamer.run(folder, desiredPath);
+    if (nameChanged) {
+      return await this.folderRenamer.run(folder, desiredPath);
+    }
+
+    return;
   }
 }

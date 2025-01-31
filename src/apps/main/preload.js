@@ -18,7 +18,7 @@ contextBridge.exposeInMainWorld('electron', {
   },
 
   logger: {
-    info: (...message) => Logger.info(message),
+    info: (...message) => Logger.info(String(message)),
     error: (...message) => Logger.error(message),
     warn: (...message) => Logger.warn(message),
   },
@@ -193,6 +193,9 @@ contextBridge.exposeInMainWorld('electron', {
   getBackupFatalIssue(id) {
     return ipcRenderer.invoke('backups.get-backup-issues', id);
   },
+  clearBackupFatalIssue(id) {
+    return ipcRenderer.send('backups.clear-backup-issues', id);
+  },
   devices: {
     getDevices: () => {
       return ipcRenderer.invoke('devices.get-all');
@@ -225,6 +228,9 @@ contextBridge.exposeInMainWorld('electron', {
   getLastBackupTimestamp() {
     return ipcRenderer.invoke('get-last-backup-timestamp');
   },
+  getLastBackupProgress() {
+    return ipcRenderer.send('backups.get-last-progress');
+  },
   onBackupProgress(func) {
     const eventName = 'backup-progress';
     const callback = (_, v) => func(v);
@@ -245,6 +251,10 @@ contextBridge.exposeInMainWorld('electron', {
   getBackupFatalErrors() {
     return ipcRenderer.invoke('get-backup-fatal-errors');
   },
+  getItemByFolderId(folderId) {
+    return ipcRenderer.invoke('get-item-by-folder-id', folderId);
+  },
+
   deleteBackupError(folderId) {
     return ipcRenderer.invoke('delete-backup-error', folderId);
   },
@@ -257,8 +267,8 @@ contextBridge.exposeInMainWorld('electron', {
   getLastBackupExitReason() {
     return ipcRenderer.invoke('get-last-backup-exit-reason');
   },
-  downloadBackup(backup) {
-    return ipcRenderer.invoke('download-backup', backup);
+  downloadBackup(backup, listToFolder) {
+    return ipcRenderer.invoke('download-backup', backup, listToFolder);
   },
   changeBackupPath(currentPath) {
     return ipcRenderer.invoke('change-backup-path', currentPath);
@@ -349,6 +359,16 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.send('user.set-has-discovered-backups');
     },
   },
+  listenersRefreshBackups(callback, eventName = 'refresh-backup') {
+    const callbackWrapper = (_, data) => {
+      Logger.info('Refresh backups');
+      callback(data);
+    };
+
+    ipcRenderer.on(eventName, callbackWrapper);
+
+    return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+  },
   antivirus: {
     isAvailable: async () => {
       return await ipcRenderer.invoke('antivirus:is-available');
@@ -361,9 +381,7 @@ contextBridge.exposeInMainWorld('electron', {
     },
 
     onScanProgress: (callback) => {
-      ipcRenderer.on('antivirus:scan-progress', (_, progress) =>
-        callback(progress)
-      );
+      ipcRenderer.on('antivirus:scan-progress', (_, progress) => callback(progress));
     },
     removeScanProgressListener: () => {
       ipcRenderer.removeAllListeners('antivirus:scan-progress');
@@ -375,10 +393,7 @@ contextBridge.exposeInMainWorld('electron', {
       return await ipcRenderer.invoke('antivirus:add-items-to-scan', getFiles);
     },
     removeInfectedFiles: async (infectedFiles) => {
-      return await ipcRenderer.invoke(
-        'antivirus:remove-infected-files',
-        infectedFiles
-      );
+      return await ipcRenderer.invoke('antivirus:remove-infected-files', infectedFiles);
     },
     cancelScan: async () => {
       return await ipcRenderer.invoke('antivirus:cancel-scan');

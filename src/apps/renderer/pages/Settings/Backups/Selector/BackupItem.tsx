@@ -2,15 +2,22 @@ import { WarningCircle } from '@phosphor-icons/react';
 import FolderIcon from '../../../../assets/folder.svg';
 import { useBackupFatalIssue } from '../../../../hooks/backups/useBackupFatalIssue';
 import Button from '../../../../components/Button';
-import { BackupInfo } from '../../../../../backups/BackupInfo';
+import { ItemBackup } from '../../../../../shared/types/items';
 
 interface BackupListItemProps {
-  backup: BackupInfo;
+  backup: ItemBackup;
   selected: boolean;
 }
 
 export function BackupListItem({ backup, selected }: BackupListItemProps) {
-  const { issue, message, action } = useBackupFatalIssue(backup);
+  const { issue, message, action, name } = useBackupFatalIssue({
+    folderId: backup.id,
+    folderUuid: backup.uuid,
+    tmpPath: backup.tmpPath,
+    pathname: backup.pathname,
+    backupsBucket: backup.backupsBucket,
+    name: backup.name,
+  });
 
   return (
     <div className="flex w-full justify-between">
@@ -20,7 +27,7 @@ export function BackupListItem({ backup, selected }: BackupListItemProps) {
           className="relative ml-1 inline select-none truncate leading-none"
           style={{ top: '1px' }}
         >
-          {backup.name}
+          {name}
         </p>
       </span>
       {issue && (

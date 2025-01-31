@@ -16,26 +16,36 @@ export default class LocalTreeBuilder {
     tree: LocalTree,
     currentFolder: LocalFolder
   ): Promise<LocalTree> {
-    const { files, folders } = await this.generator.getAll(currentFolder.path);
+    try {
+      const { files, folders } = await this.generator.getAll(
+        currentFolder.path
+      );
 
-    files.forEach((fileAttributes) => {
-      if (fileAttributes.size === 0) {
-        return;
+      files.forEach((fileAttributes) => {
+        if (fileAttributes.size === 0) {
+          return;
+        }
+        const file = LocalFile.from(fileAttributes);
+        tree.addFile(currentFolder, file);
+      });
+
+      for (const folderAttributes of folders) {
+        const folder = LocalFolder.from(folderAttributes);
+
+        tree.addFolder(currentFolder, folder);
+
+        // eslint-disable-next-line no-await-in-loop
+        await this.traverse(tree, folder);
       }
-      const file = LocalFile.from(fileAttributes);
-      tree.addFile(currentFolder, file);
-    });
 
-    for (const folderAttributes of folders) {
-      const folder = LocalFolder.from(folderAttributes);
-
-      tree.addFolder(currentFolder, folder);
-
-      // eslint-disable-next-line no-await-in-loop
-      await this.traverse(tree, folder);
+      return tree;
+    } catch (error) {
+      if (error instanceof DriveDesktopError) {
+        throw error;
+      }
+      Logger.error('Error while adding file to tree', error);
+      throw new DriveDesktopError('UNKNOWN');
     }
-
-    return tree;
   }
 
   async run(
@@ -43,29 +53,17 @@ export default class LocalTreeBuilder {
   ): Promise<Either<DriveDesktopError, LocalTree>> {
     const rootEither = await this.generator.root(folder);
 
-    Logger.debug('[LOCAL TREE BUILDER] Root either', rootEither);
-
     if (rootEither.isLeft()) {
       return left(rootEither.getLeft());
     }
 
-    Logger.debug('[LOCAL TREE BUILDER] Root either 2');
-
     const root = rootEither.getRight();
-
-    Logger.debug('[LOCAL TREE BUILDER] Root', root);
 
     const rootFolder = LocalFolder.from(root);
 
-    Logger.debug('[LOCAL TREE BUILDER] Root folder', rootFolder);
-
     const tree = new LocalTree(rootFolder);
 
-    Logger.debug('[LOCAL TREE BUILDER] Tree', tree);
-
     await this.traverse(tree, rootFolder);
-
-    Logger.debug('[LOCAL TREE BUILDER] Tree 2');
 
     return right(tree);
   }

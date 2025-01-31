@@ -31,7 +31,7 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "Bienvenue dans Internxt Drive !",
+        "title": "Bienvenue dans Internxt!",
         "description": "Commençons par sauvegarder tous vos fichiers et dossiers importants dans la barre latérale de votre finder.",
         "take-tour": "Visite guidée"
       },
@@ -70,14 +70,14 @@
           "description": "Ajoutez d'autres dossiers et planifiez des sauvegardes automatiques dans les Paramètres"
         },
         "desktop-ready": {
-          "title": "Internxt Drive est prêt",
+          "title": "Internxt est prêt",
           "description": "Accédez à vos fichiers stockés depuis la barre latérale de votre {{platform_phrase}}."
         }
       }
     },
     "common": {
       "onboarding-progress": "{{current_slide}} de {{total_slides}}",
-      "open-drive": "Ouvrir Internxt Drive",
+      "open-drive": "Ouvrir Internxt",
       "continue": "Continuer",
       "skip": "Sauter",
       "platform-phrase": {
@@ -109,8 +109,8 @@
         "show-files": "Afficher les fichiers"
       },
       "delete-old-drive-folder": {
-        "title": "Même Internxt Drive, nouvel emplacement",
-        "message": "Votre dossier personnel Internxt Drive est situé dans le barre latérale {{platform_app}}."
+        "title": "Même Internxt, nouvel emplacement",
+        "message": "Votre dossier personnel Internxt est situé dans le barre latérale {{platform_app}}."
       },
       "new-widget": {
         "title": "Soyez plus productif grâce à notre widget redessiné",
@@ -121,7 +121,7 @@
     "common": {
       "continue": "Continuer",
       "cancel": "Annuler",
-      "open-drive": "Ouvrir Internxt Drive"
+      "open-drive": "Ouvrir Internxt"
     }
   },
   "widget": {
@@ -141,7 +141,7 @@
         "logout-confirmation": {
           "no-sync-pending": {
             "title": "Se déconnecter de cet appareil?",
-            "message": "Internxt Drive ne s'affichera pas sans un compte connecté.",
+            "message": "Internxt ne s'affichera pas sans un compte connecté.",
             "confirm": "Se déconnecter",
             "cancel": "Annuler"
           },
@@ -173,7 +173,7 @@
       },
       "no-activity": {
         "title": "Aucune activité récente",
-        "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt Drive"
+        "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt"
       },
       "upToDate": {
         "title": "Vos fichiers sont à jour",
@@ -206,7 +206,7 @@
     },
     "virtual-drive-error": {
       "title": "Impossible de créer le lecteur",
-      "message": "Nous avons des problèmes pour créer votre Internxt Drive, ",
+      "message": "Nous avons des problèmes pour créer votre Internxt, ",
       "button": "Veuillez réessayer"
     },
     "banners": {
@@ -235,7 +235,7 @@
           "save": "Enregistrer"
         }
       },
-      "auto-startup": "Démarrer Internxt Drive au démarrage du système",
+      "auto-startup": "Démarrer Internxt au démarrage du système",
       "language": {
         "label": "Langue",
         "options": {
@@ -253,12 +253,12 @@
         }
       },
       "sync": {
-        "folder": "Dossier Internxt Drive",
+        "folder": "Dossier Internxt",
         "change-folder": "Changer de dossier"
       },
       "app-info": {
         "open-logs": "Ouvrir les registres",
-        "more": "Plus d'informations sur Internxt Drive"
+        "more": "Plus d'informations sur Internxt"
       }
     },
     "account": {
@@ -304,16 +304,20 @@
       "frequency": {
         "title": "Fréquence de téléchargement",
         "options": {
+          "1h": "Toutes les heures",
           "6h": "Toutes les 6 heures",
           "12h": "Toutes les 12 heures",
           "24h": "Tous les jours",
           "manually": "Manuellement"
-        }
+        },
+        "warning": "Les dossiers ne seront pas automatiquement sauvegardés tant que vous n’aurez pas cliqué sur « Sauvegarder maintenant ». Ce mode n’est pas recommandé."
       },
       "folders": {
         "no-folders": "Pas encore de sauvegardes",
+        "no-folders-to-download": "Pas de dossiers à télécharger",
         "save": "Sauvegarder",
-        "cancel": "Annuler"
+        "cancel": "Annuler",
+        "error": "Nous n’avons pas trouvé le dossier sélectionné"
       },
       "delete": {
         "title": "Supprimer la sauvegarde",
@@ -413,6 +417,7 @@
       "no-internet-connection": "Pas de connexion internet",
       "no-permission": "Permissions insuffisantes",
       "file-does-not-exist": "Le fichier n'existe pas",
+      "folder-does-not-exist": "Le dossier n'existe pas",
       "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
       "duplicated-node": "Il y a un conflit avec l'élément.",
       "not-enough-space": "Vous n'avez pas assez d'espace pour compléter l'opération."
@@ -429,6 +434,7 @@
       "empty-file": "Nous ne prenons pas en charge les fichiers d'une taille de 0 octet en raison de nos processus de  chiffrement",
       "bad-response": "Nous avons reçu une mauvaise réponse de nos serveurs lors du traitement de ce fichier. Veuillez essayer de relancer le processus de synchronisation.",
       "file-does-not-exist": "Ce fichier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce fichier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation.",
+      "folder-does-not-exist": "Ce dossier était présent lorsque nous avons comparé votre dossier local avec votre disque interne, mais il a disparu lorsque nous avons essayé d'y accéder. Si vous avez supprimé ce dossier, ne vous inquiétez pas, cette erreur devrait disparaître au prochain démarrage du processus de synchronisation.",
       "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
       "file-non-extension": "Les archives sans extensions ne sont pas supportées. Non synchronisées",
       "duplicated-node": "Il y a deux éléments (fichier ou dossier) avec le même nom dans un dossier. Renommez l'un d'eux pour les synchroniser tous les deux.",

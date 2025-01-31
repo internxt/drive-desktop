@@ -13,6 +13,9 @@ export class DownloadFileController extends CallbackController {
     super();
   }
 
+  private MAX_RETRY = 3;
+  private RETRY_DELAY = 100;
+
   private async action(
     id: string,
     callback: CallbackDownload
@@ -31,28 +34,36 @@ export class DownloadFileController extends CallbackController {
     callback: CallbackDownload
   ): Promise<string> {
     const trimmedId = this.trim(filePlaceholderId);
+    const [_, contentsId] = trimmedId.split(':');
 
-    try {
-      const [_, contentsId] = trimmedId.split(':');
-      return await this.action(contentsId, callback);
-    } catch (error: unknown) {
-      Logger.error(
-        'Error downloading a file, going to refresh and retry: ',
-        error
-      );
-
-      return await new Promise((resolve, reject) => {
-        setTimeout(async () => {
-          try {
-            const [_, contentsId] = trimmedId.split(':');
-            const result = await this.action(contentsId, callback);
-            resolve(result);
-          } catch (error) {
-            reject(error);
-          }
-        }, 100);
-      });
+    return await this.withRetries(
+      () => this.action(contentsId, callback),
+      this.MAX_RETRY,
+      this.RETRY_DELAY
+    );
+  }
+  private async withRetries<T>(
+    action: () => Promise<T>,
+    maxRetries: number,
+    delayMs: number
+  ): Promise<T> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await action();
+      } catch (error) {
+        Logger.error(`Attempt ${attempt} failed:`, error);
+        if (attempt === maxRetries) {
+          Logger.error('Max retries reached. Throwing error.');
+          throw error;
+        }
+        await this.delay(delayMs);
+      }
     }
+    throw new Error('Unexpected end of retry loop');
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   async cancel() {

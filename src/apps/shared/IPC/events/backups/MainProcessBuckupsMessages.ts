@@ -18,9 +18,13 @@ export type MainProcessBackupsMessages = {
 
   'backups.total-items-calculated': (total: number, processed: number) => void;
 
+  'backups.get-last-progress': () => void;
+
   'backups.progress-update': (processed: number) => void;
 
   'backups.get-backup-issues': (id: number) => WorkerExitCause;
+
+  'backups.clear-backup-issues': (id: number) => void;
 
   'backups.file-issue': (name: string, issue: ProcessFatalErrorName) => void;
 };

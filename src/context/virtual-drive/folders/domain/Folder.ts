@@ -51,7 +51,7 @@ export class Folder extends AggregateRoot {
   }
 
   public get dirname(): FolderPath {
-    return new FolderPath('/' + this._path.dirname());
+    return new FolderPath(this._path.dirname());
   }
 
   public get parentId(): number | undefined {

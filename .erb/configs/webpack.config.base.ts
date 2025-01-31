@@ -2,9 +2,15 @@
  * Base webpack config used across other specific configs
  */
 
+import path from 'path';
 import webpack from 'webpack';
 import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
+
+const aliases = {}
+if (process.env.NODE_ENV === 'development') {
+  aliases['virtual-drive/dist'] = path.resolve(__dirname, '../../../node-win/dist');
+}
 
 const configuration: webpack.Configuration = {
   externals: [...Object.keys(externals || {})],
@@ -44,6 +50,10 @@ const configuration: webpack.Configuration = {
    * Determine the array of extensions that should be used to resolve modules.
    */
   resolve: {
+    alias: {
+      ...aliases,
+      '@/': path.join(__dirname, '../../src'),
+    },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     modules: [webpackPaths.srcPath, 'node_modules'],
   },

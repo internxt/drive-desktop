@@ -7,7 +7,7 @@ import {
 } from './linux-desktop-entry';
 
 const appFolder = Path.dirname(process.execPath);
-const appExe = Path.resolve(appFolder, 'Internxt Drive.exe');
+const appExe = Path.resolve(appFolder, 'Internxt.exe');
 const exeName = Path.basename(process.execPath);
 
 const path = process.platform === 'win32' ? appExe : undefined;

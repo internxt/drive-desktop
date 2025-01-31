@@ -12,6 +12,8 @@ export function useBackupProgress() {
   useEffect(() => {
     const removeListener = window.electron.onBackupProgress(setBackupProgress);
 
+    window.electron.getLastBackupProgress();
+
     return removeListener;
   }, []);
 

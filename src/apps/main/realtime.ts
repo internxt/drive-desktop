@@ -3,6 +3,7 @@ import { io, Socket } from 'socket.io-client';
 import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
+import { ipcMain } from 'electron';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -64,19 +65,25 @@ function cleanAndStartRemoteNotifications() {
   socket.on('event', (data) => {
     broadcastToWindows('remote-changes', undefined);
 
+    if (data.event === 'FOLDER_DELETED') {
+      broadcastToWindows('refresh-backup', undefined);
+    }
+
     if (!user) {
       user = getUser();
     }
 
     if (data.payload.bucket !== user?.backupsBucket) {
       logger.log('Notification received: ', data);
-      eventBus.emit('RECEIVED_REMOTE_CHANGES');
+      setTimeout(() => {
+        eventBus.emit('RECEIVED_REMOTE_CHANGES');
+      }, 2000);
       return;
     }
 
     const { event, payload } = data;
 
-    logger.log('Notification received: ', event, payload.plain_name);
+    logger.log('Notification received 2: ', event, payload);
   });
 }
 

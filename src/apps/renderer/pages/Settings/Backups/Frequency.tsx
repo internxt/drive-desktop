@@ -10,6 +10,10 @@ export function Frequency() {
 
   const intervals = [
     {
+      value: 1 * 3600 * 1000,
+      name: translate('settings.backups.frequency.options.1h'),
+    },
+    {
       value: 6 * 3600 * 1000,
       name: translate('settings.backups.frequency.options.6h'),
     },
@@ -43,8 +47,7 @@ export function Frequency() {
       />
       {backupsInterval < 0 && (
         <p className="mt-1 text-xs text-gray-50">
-          Folders won't automatically backup until you click “Backup now”. This
-          mode is not recommended.
+          {translate('settings.backups.frequency.warning')}
         </p>
       )}
     </section>

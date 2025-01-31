@@ -5,6 +5,7 @@ import { LocalTree } from '../../../context/local/localTree/domain/LocalTree';
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
 import { RemoteTree } from '../../../context/virtual-drive/remoteTree/domain/RemoteTree';
 import { relative } from '../utils/relative';
+import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
 
 export type FoldersDiff = {
   added: Array<LocalFolder>;
@@ -31,9 +32,13 @@ export class FoldersDiffCalculator {
       added.push(folder);
     });
 
-    const deleted = remote.foldersWithOutRoot.filter(
-      (folder) => !local.has(path.join(rootPath, folder.path) as AbsolutePath)
-    );
+    const deleted = remote.foldersWithOutRoot.filter((folder) => {
+      if (folder.status !== FolderStatuses.EXISTS) {
+        return false;
+      }
+
+      return !local.has(path.join(rootPath, folder.path) as AbsolutePath);
+    });
 
     const total = added.length + unmodified.length;
 

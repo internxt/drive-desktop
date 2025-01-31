@@ -9,9 +9,11 @@ dayjs.extend(relativeTime);
 export interface LastBackupContextProps {
   lastBackupTimestamp: number | undefined;
   lastExistReason: WorkerExitCause | undefined;
-  fromNow: () => string;
+  fromNow: (date?: string) => string;
   lastBackupHadIssues: boolean;
   refreshLastBackupTimestamp: () => void;
+  clearLastBackupExitReason: () => void;
+  refreshLastExitReason: () => void;
 }
 
 export function useLastBackup(): LastBackupContextProps {
@@ -34,6 +36,11 @@ export function useLastBackup(): LastBackupContextProps {
     });
   }
 
+  function clearLastBackupExitReason() {
+    setLastExistReason(undefined);
+    setLastBackupHadIssues(false);
+  }
+
   useEffect(() => {
     refreshLastBackupTimestamp();
   }, []);
@@ -42,8 +49,8 @@ export function useLastBackup(): LastBackupContextProps {
     refreshLastExitReason();
   }, [lastBackupTimestamp]);
 
-  function fromNow(): string {
-    return dayjs(lastBackupTimestamp).fromNow();
+  function fromNow(date?: string): string {
+    return dayjs(date || lastBackupTimestamp).fromNow();
   }
 
   return {
@@ -52,5 +59,7 @@ export function useLastBackup(): LastBackupContextProps {
     fromNow,
     lastBackupHadIssues,
     refreshLastBackupTimestamp,
+    clearLastBackupExitReason,
+    refreshLastExitReason,
   };
 }

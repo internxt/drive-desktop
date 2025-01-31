@@ -17,7 +17,7 @@ export const shortMessages: ProcessErrorMessages = {
   COULD_NOT_ENCRYPT_NAME: '',
   BAD_REQUEST: 'issues.short-error-messages.no-remote-connection',
   BASE_DIRECTORY_DOES_NOT_EXIST:
-    'issues.short-error-messages.file-does-not-exist',
+    'issues.short-error-messages.folder-does-not-exist',
   INSUFFICIENT_PERMISSION: 'issues.short-error-messages.no-permission',
   NOT_ENOUGH_SPACE: 'issues.short-error-messages.not-enough-space',
   ACTION_NOT_PERMITTED: '',
@@ -38,7 +38,7 @@ export const longMessages: ProcessErrorMessages = {
   FILE_ALREADY_EXISTS: '',
   COULD_NOT_ENCRYPT_NAME: '',
   BAD_REQUEST: 'issues.error-messages.no-remote-connection',
-  BASE_DIRECTORY_DOES_NOT_EXIST: 'issues.error-messages.file-does-not-exist',
+  BASE_DIRECTORY_DOES_NOT_EXIST: 'issues.error-messages.folder-does-not-exist',
   INSUFFICIENT_PERMISSION:
     'issues.error-messages.insufficient-permission-accessing-base-directory',
   NOT_ENOUGH_SPACE: 'issues.error-messages.not-enough-space',

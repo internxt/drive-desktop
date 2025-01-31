@@ -5,9 +5,9 @@ import Logger from 'electron-log';
 // TODO: the retry logic should be on the infrastructure layer
 // change the uploader factory method to revive a function that returns the needed data
 export class RetryContentsUploader {
-  private static NUMBER_OF_RETRIES = 2;
+  private static NUMBER_OF_RETRIES = 1;
   private static MILLISECOND_BETWEEN_TRIES = 1_000;
-  private static INITIAL_DELAY = 100;
+  private static INITIAL_DELAY = 50;
 
   constructor(private readonly uploader: ContentsUploader) {}
 

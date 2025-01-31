@@ -15,7 +15,7 @@ export default function AppInfo() {
   return (
     <div className="flex flex-col space-y-4">
       <p className="text-sm leading-4 text-gray-100">
-        Internxt Drive v{packageJson.version}
+        Internxt v{packageJson.version}
       </p>
 
       <div className="flex flex-col items-start space-y-1 text-base leading-5">
