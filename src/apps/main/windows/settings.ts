@@ -5,8 +5,7 @@ import { setUpCommonWindowHandlers } from '.';
 import eventBus from '../event-bus';
 
 let settingsWindow: BrowserWindow | null = null;
-export const getSettingsWindow = () =>
-  settingsWindow?.isDestroyed() ? null : settingsWindow;
+export const getSettingsWindow = () => (settingsWindow?.isDestroyed() ? null : settingsWindow);
 
 ipcMain.on('open-settings-window', (_, section) => openSettingsWindow(section));
 
@@ -34,7 +33,6 @@ async function openSettingsWindow(section?: string) {
   settingsWindow.loadURL(resolveHtmlPath('settings', `section=${section}`));
 
   function handleScanProgress(progressData: any) {
-    console.log('PROGRESS DATA: ', progressData);
     if (settingsWindow && !settingsWindow.isDestroyed()) {
       settingsWindow.webContents.send('antivirus:scan-progress', progressData);
     }
@@ -55,21 +53,18 @@ async function openSettingsWindow(section?: string) {
   setUpCommonWindowHandlers(settingsWindow);
 }
 
-ipcMain.on(
-  'settings-window-resized',
-  (_, { height }: { width: number; height: number }) => {
-    if (settingsWindow) {
-      // Not truncating the height makes this function throw
-      // in windows
-      settingsWindow.setBounds(
-        {
-          height: Math.trunc(height),
-        },
-        true
-      );
-    }
+ipcMain.on('settings-window-resized', (_, { height }: { width: number; height: number }) => {
+  if (settingsWindow) {
+    // Not truncating the height makes this function throw
+    // in windows
+    settingsWindow.setBounds(
+      {
+        height: Math.trunc(height),
+      },
+      true
+    );
   }
-);
+});
 
 ipcMain.handle('dark-mode:light', () => {
   nativeTheme.themeSource = 'light';
