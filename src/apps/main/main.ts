@@ -41,11 +41,7 @@ import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
-import {
-  getOrCreateWidged,
-  getWidget,
-  setBoundsOfWidgetByPath,
-} from './windows/widget';
+import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus } from './tray/tray';
@@ -56,7 +52,7 @@ import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
-import clamAVServer from './antivirus/ClamAVServer';
+import clamAVServer from './antivirus/ClamAVDaemon';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -113,13 +109,6 @@ app
     }
 
     checkForUpdates();
-
-    await clamAVServer.startClamdServer();
-    await clamAVServer.waitForClamd();
-
-    if (process.env.NODE_ENV === 'production') {
-      scheduleDailyScan();
-    }
   })
   .catch(Logger.error);
 
@@ -131,8 +120,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.hide();
 
-    nativeTheme.themeSource = (configStore.get('preferedTheme') ||
-      'system') as Theme;
+    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
 
     const widget = await getOrCreateWidged();
     const tray = getTray();
@@ -150,6 +138,11 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
+    await clamAVServer.startClamdServer();
+    await clamAVServer.waitForClamd();
+
+    scheduleDailyScan();
+
     setCleanUpFunction(stopSyncEngineWatcher);
   } catch (error) {
     Logger.error(error);
@@ -165,10 +158,8 @@ eventBus.on('USER_LOGGED_OUT', async () => {
     widget.destroy();
   }
 
-  if (process.env.NODE_ENV === 'production') {
-    clearDailyScan();
-    clamAVServer.stopClamdServer();
-  }
+  clearDailyScan();
+  clamAVServer.stopClamdServer();
 
   await createAuthWindow();
   if (AppDataSource.isInitialized) {

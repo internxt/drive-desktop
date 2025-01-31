@@ -350,7 +350,7 @@
       "deactivateAntivirus": {
         "title": "Windows Defender est actif",
         "description": "Veuillez désactiver Windows Defender afin de pouvoir utiliser Internxt Antivirus. Pour ce faire, ouvrez Sécurité Windows > Protection contre les virus et menaces > Gérer les paramètres > désactivez la protection en temps réel.",
-        "confirm": "Réessayer",
+        "retry": "Réessayer",
         "cancel": "Annuler"
       },
       "scanOptions": {

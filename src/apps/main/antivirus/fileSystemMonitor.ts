@@ -1,9 +1,10 @@
+/* eslint-disable max-len */
 import { ScannedItem } from '../database/entities/FileSystemHashed';
 import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { Antivirus } from './Antivirus';
-import { getFilesFromDirectory } from './getFilesFromDirectory';
+import { countFilesInDirectory, getFilesFromDirectory } from './getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 
 import { isPermissionError } from './utils/isPermissionError';
@@ -70,10 +71,7 @@ export class FileSystemMonitor {
     }
     this.totalScannedFiles++;
 
-    const progressValue =
-      this.totalItemsToScan > 0
-        ? Math.round((this.totalScannedFiles / this.totalItemsToScan) * 100)
-        : 0;
+    const progressValue = this.totalItemsToScan > 0 ? Math.round((this.totalScannedFiles / this.totalItemsToScan) * 100) : 0;
 
     const progressEvent: ProgressData = {
       currentScanPath: file,
@@ -118,15 +116,8 @@ export class FileSystemMonitor {
     this.manualQueue = null;
   }
 
-  private handlePreviousScannedItem = async (
-    scannedItem: ScannedItem,
-    previousScannedItem: ScannedItem,
-    antivirus: Antivirus
-  ) => {
-    if (
-      scannedItem.updatedAtW === previousScannedItem.updatedAtW ||
-      scannedItem.hash === previousScannedItem.hash
-    ) {
+  private handlePreviousScannedItem = async (scannedItem: ScannedItem, previousScannedItem: ScannedItem, antivirus: Antivirus) => {
+    if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
       this.trackProgress({
         file: previousScannedItem.pathName,
         isInfected: previousScannedItem.isInfected,
@@ -162,9 +153,9 @@ export class FileSystemMonitor {
       pathsToScan = [`${userSystemPath.path}`];
     }
 
-    // for (const p of pathsToScan) {
-    //   this.totalItemsToScan += await countFilesInDirectory(p);
-    // }
+    for (const p of pathsToScan) {
+      this.totalItemsToScan += await countFilesInDirectory(p);
+    }
 
     let reportProgressInterval: NodeJS.Timeout | null = null;
 
@@ -183,22 +174,14 @@ export class FileSystemMonitor {
       console.log('SCAN ITEM: ', filePath);
       try {
         const scannedItem = await transformItem(filePath);
-        const previousScannedItem = await this.dbConnection.getItemFromDatabase(
-          scannedItem.pathName
-        );
+        const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
         if (previousScannedItem) {
-          this.handlePreviousScannedItem(
-            scannedItem,
-            previousScannedItem,
-            this.antivirus!
-          );
+          this.handlePreviousScannedItem(scannedItem, previousScannedItem, this.antivirus!);
 
           return;
         }
 
-        const currentScannedFile = await this.antivirus!.scanFile(
-          scannedItem.pathName
-        );
+        const currentScannedFile = await this.antivirus!.scanFile(scannedItem.pathName);
 
         if (currentScannedFile) {
           await this.dbConnection.addItemToDatabase({
@@ -221,9 +204,7 @@ export class FileSystemMonitor {
     try {
       this.manualQueue = queue(scan, 10);
       for (const p of pathsToScan) {
-        await getFilesFromDirectory(p, (filePath: string) =>
-          this.manualQueue!.pushAsync(filePath)
-        );
+        await getFilesFromDirectory(p, (filePath: string) => this.manualQueue!.pushAsync(filePath));
       }
 
       await this.manualQueue.drain();
