@@ -51,7 +51,7 @@ import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
+import { clearDailyScan } from './antivirus/scanCronJob';
 import clamAVServer from './antivirus/ClamAVDaemon';
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -146,7 +146,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     await clamAVServer.waitForClamd();
 
-    scheduleDailyScan();
+    // scheduleDailyScan();
 
     setCleanUpFunction(stopSyncEngineWatcher);
   } catch (error) {

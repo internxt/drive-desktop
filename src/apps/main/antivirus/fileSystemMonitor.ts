@@ -47,7 +47,6 @@ export class FileSystemMonitor {
   private totalInfectedFiles: number;
   private infectedFiles: string[];
   private totalItemsToScan: number;
-  private antivirus: Antivirus | null;
 
   constructor() {
     this.progressEvents = [];
@@ -57,7 +56,6 @@ export class FileSystemMonitor {
     this.totalInfectedFiles = 0;
     this.infectedFiles = [];
     this.totalItemsToScan = 0;
-    antivirus = null;
 
     const hashedFilesAdapter = new HashedSystemTreeCollection();
     this.dbConnection = new DBScannerConnection(hashedFilesAdapter);
