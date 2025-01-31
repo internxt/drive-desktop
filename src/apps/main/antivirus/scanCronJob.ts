@@ -1,6 +1,5 @@
 import isPermissionError from '@internxt/scan/lib/isPermissionError';
 import { getUserSystemPath } from '../device/service';
-import { isWindowsDefenderRealTimeProtectionActive } from '../ipcs/ipcMainAntivirus';
 import { Antivirus } from './Antivirus';
 import { getFilesFromDirectory } from './getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
@@ -15,13 +14,8 @@ let dailyScanInterval: NodeJS.Timeout | null = null;
 
 export function scheduleDailyScan() {
   async function startBackgroundScan() {
-    const isDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
-    if (!isDefenderActive) {
-      console.log('STARTING USER SYSTEM SCAN (BACKGROUND)...');
-      await scanInBackground();
-    } else {
-      console.log('SKIPPING BACKGROUND SCAN: Defender is active.');
-    }
+    console.log('STARTING USER SYSTEM SCAN (BACKGROUND)...');
+    await scanInBackground();
   }
 
   startBackgroundScan().catch((err) => {
@@ -57,9 +51,7 @@ const scanInBackground = async (): Promise<void> => {
     console.log('SCAN ITEM IN BACKGROUND: ', filePath);
     try {
       const scannedItem = await transformItem(filePath);
-      const previousScannedItem = await database.getItemFromDatabase(
-        scannedItem.pathName
-      );
+      const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);
       if (previousScannedItem) {
         if (scannedItem.updatedAtW === previousScannedItem.updatedAtW) {
           return;
@@ -69,9 +61,7 @@ const scanInBackground = async (): Promise<void> => {
           return;
         }
 
-        const currentScannedFile = await antivirus.scanFile(
-          scannedItem.pathName
-        );
+        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
         if (currentScannedFile) {
           await database.updateItemToDatabase(previousScannedItem.id, {
             ...scannedItem,
@@ -97,14 +87,9 @@ const scanInBackground = async (): Promise<void> => {
   };
 
   try {
-    let backgroundQueue: QueueObject<string> | null = queue(
-      scan,
-      BACKGROUND_MAX_CONCURRENCY
-    );
+    let backgroundQueue: QueueObject<string> | null = queue(scan, BACKGROUND_MAX_CONCURRENCY);
 
-    await getFilesFromDirectory(userSystemPath.path, (file: string) =>
-      backgroundQueue!.pushAsync(file)
-    );
+    await getFilesFromDirectory(userSystemPath.path, (file: string) => backgroundQueue!.pushAsync(file));
 
     await backgroundQueue.drain();
 

@@ -60,25 +60,15 @@ export default function AntivirusSection({
   };
 
   return (
-    <section
-      className={`${active ? 'block' : 'hidden'} relative h-full w-full`}
-    >
+    <section className={`${active ? 'block' : 'hidden'} relative h-full w-full`}>
       <div className="flex h-full w-full flex-col">{viewStates[view]}</div>
       {isDefenderActive && active && (
         <ActionDialog
           showDialog={isDefenderActive && active}
           title={translate('settings.antivirus.deactivateAntivirus.title')}
-          children={
-            <p>
-              {translate('settings.antivirus.deactivateAntivirus.description')}
-            </p>
-          }
-          confirmText={translate(
-            'settings.antivirus.deactivateAntivirus.retry'
-          )}
-          cancelText={translate(
-            'settings.antivirus.deactivateAntivirus.cancel'
-          )}
+          children={<p>{translate('settings.antivirus.deactivateAntivirus.description')}</p>}
+          confirmText={translate('settings.antivirus.deactivateAntivirus.retry')}
+          cancelText={translate('settings.antivirus.deactivateAntivirus.cancel')}
           confirmButtonVariant="primary"
           onCancel={onCancelDeactivateWinDefender}
           onConfirm={async () => await isWinDefenderActive()}

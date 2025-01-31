@@ -34,8 +34,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
   const [progressRatio, setProgressRatio] = useState<number>(0);
   const [isScanCompleted, setIsScanCompleted] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [isAntivirusAvailable, setIsAntivirusAvailable] =
-    useState<boolean>(false);
+  const [isAntivirusAvailable, setIsAntivirusAvailable] = useState<boolean>(false);
   const [isDefenderActive, setIsDefenderActive] = useState<boolean>(false);
   const [view, setView] = useState<Views>('locked');
 
@@ -53,8 +52,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const isUserElegible = async () => {
     try {
-      const isAntivirusAvailable =
-        await window.electron.antivirus.isAvailable();
+      const isAntivirusAvailable = await window.electron.antivirus.isAvailable();
 
       if (!isAntivirusAvailable) {
         setView('locked');
@@ -72,8 +70,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const isWinDefenderActive = async () => {
     try {
-      const isWinDefenderActive =
-        await window.electron.antivirus.isDefenderActive();
+      const isWinDefenderActive = await window.electron.antivirus.isDefenderActive();
 
       setIsDefenderActive(isWinDefenderActive);
       return isWinDefenderActive;
@@ -127,9 +124,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     return items;
   };
 
-  const onScanItemsButtonClicked = async (
-    items?: SelectedItemToScanProps[]
-  ) => {
+  const onScanItemsButtonClicked = async (items?: SelectedItemToScanProps[]) => {
     if (!items) return;
     setIsScanning(true);
     try {
