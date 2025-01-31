@@ -57,7 +57,7 @@ export class FileSystemMonitor {
     this.totalInfectedFiles = 0;
     this.infectedFiles = [];
     this.totalItemsToScan = 0;
-    this.antivirus = null;
+    antivirus = null;
 
     const hashedFilesAdapter = new HashedSystemTreeCollection();
     this.dbConnection = new DBScannerConnection(hashedFilesAdapter);
@@ -87,11 +87,8 @@ export class FileSystemMonitor {
       this.manualQueue.kill();
     }
 
-    if (!this.antivirus) {
-      console.warn('⚠️ ClamAV no estaba inicializado antes de detenerlo.');
-      return;
-    }
-    await this.antivirus.stopClamAv();
+    const antivirus = await Antivirus.getInstance();
+    await antivirus.stopClamAv();
 
     this.resetCounters();
   };
@@ -107,7 +104,6 @@ export class FileSystemMonitor {
   }
 
   private resetCounters() {
-    fileSystemMonitorInstanceManual = null;
     this.totalInfectedFiles = 0;
     this.totalScannedFiles = 0;
     this.infectedFiles = [];
@@ -116,7 +112,7 @@ export class FileSystemMonitor {
     this.manualQueue = null;
   }
 
-  private handlePreviousScannedItem = async (scannedItem: ScannedItem, previousScannedItem: ScannedItem, antivirus: Antivirus) => {
+  private handlePreviousScannedItem = async (scannedItem: ScannedItem, previousScannedItem: ScannedItem) => {
     if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
       this.trackProgress({
         file: previousScannedItem.pathName,
@@ -124,33 +120,19 @@ export class FileSystemMonitor {
       });
       return;
     }
-
-    const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
-    if (currentScannedFile) {
-      await this.dbConnection.updateItemToDatabase(previousScannedItem.id, {
-        ...scannedItem,
-        isInfected: currentScannedFile.isInfected,
-      });
-
-      this.trackProgress({
-        file: currentScannedFile.file,
-        isInfected: currentScannedFile.isInfected,
-      });
-    }
   };
 
   public async scanItems(pathNames?: string[]): Promise<void> {
-    this.antivirus = await Antivirus.getInstance();
-    await this.antivirus.initialize();
+    const antivirus = await Antivirus.getInstance();
+    await antivirus.initialize();
 
     let pathsToScan: string[] = [];
     if (pathNames && pathNames.length > 0) {
-      console.log('PATHNAMES:', pathNames);
       pathsToScan = pathNames;
     } else {
       const userSystemPath = await getUserSystemPath();
       if (!userSystemPath) return;
-      pathsToScan = [`${userSystemPath.path}`];
+      pathsToScan = [userSystemPath.path];
     }
 
     for (const p of pathsToScan) {
@@ -176,12 +158,12 @@ export class FileSystemMonitor {
         const scannedItem = await transformItem(filePath);
         const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
         if (previousScannedItem) {
-          this.handlePreviousScannedItem(scannedItem, previousScannedItem, this.antivirus!);
+          this.handlePreviousScannedItem(scannedItem, previousScannedItem);
 
           return;
         }
 
-        const currentScannedFile = await this.antivirus!.scanFile(scannedItem.pathName);
+        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
 
         if (currentScannedFile) {
           await this.dbConnection.addItemToDatabase({

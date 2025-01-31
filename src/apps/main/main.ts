@@ -112,6 +112,8 @@ app
       return nativeTheme.shouldUseDarkColors;
     });
 
+    await clamAVServer.startClamdServer();
+
     checkForUpdates();
   })
   .catch(Logger.error);
@@ -142,7 +144,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
-    await clamAVServer.startClamdServer();
     await clamAVServer.waitForClamd();
 
     scheduleDailyScan();
@@ -160,10 +161,9 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   if (widget) {
     widget.hide();
     widget.destroy();
+    await clearDailyScan();
+    await clamAVServer.stopClamdServer();
   }
-
-  clearDailyScan();
-  clamAVServer.stopClamdServer();
 
   await createAuthWindow();
   if (AppDataSource.isInitialized) {

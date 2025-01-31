@@ -4,15 +4,14 @@ import { SelectedItemToScanProps } from '../antivirus/Antivirus';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { exec } from 'node:child_process';
 import { PaymentsService } from '../payments/service';
-import { buildPaymentsService } from '../payments/builder';
 import { getManualScanMonitorInstance } from '../antivirus/FileSystemMonitor';
+import { buildPaymentsService } from '../payments/builder';
 
 let paymentService: PaymentsService | null = null;
 
 export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
   return new Promise((resolve, reject) => {
-    const command =
-      'powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"';
+    const command = 'powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"';
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
@@ -42,8 +41,7 @@ ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
 
 ipcMain.handle('antivirus:is-Defender-active', async () => {
   try {
-    const isWinDefenderActive =
-      await isWindowsDefenderRealTimeProtectionActive();
+    const isWinDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
     return isWinDefenderActive;
   } catch (error) {
     return false;
@@ -55,19 +53,10 @@ ipcMain.handle('antivirus:cancel-scan', async () => {
   await fileSystemMonitor.stopScan();
   return { success: true };
 });
-ipcMain.handle(
-  'antivirus:scan-items',
-  async (_, items: SelectedItemToScanProps[]) => {
-    const pathNames = items.map((item) => item.path);
-    const fileSystemMonitor = await getManualScanMonitorInstance();
-    return fileSystemMonitor.scanItems(pathNames);
-  }
-);
-
-ipcMain.handle('antivirus:scan-system', async (_) => {
+ipcMain.handle('antivirus:scan-items', async (_, items?: SelectedItemToScanProps[]) => {
+  const pathNames = items?.map((item) => item.path);
   const fileSystemMonitor = await getManualScanMonitorInstance();
-
-  return fileSystemMonitor.scanItems();
+  return fileSystemMonitor.scanItems(pathNames);
 });
 
 ipcMain.handle('antivirus:add-items-to-scan', async (_, getFiles?: boolean) => {
@@ -76,13 +65,12 @@ ipcMain.handle('antivirus:add-items-to-scan', async (_, getFiles?: boolean) => {
   return result;
 });
 
-ipcMain.handle(
-  'antivirus:remove-infected-files',
-  async (_, infectedFiles: string[]) => {
-    if (infectedFiles.length > 0) {
-      infectedFiles.forEach(async (infectedFile) => {
+ipcMain.handle('antivirus:remove-infected-files', async (_, infectedFiles: string[]) => {
+  if (infectedFiles.length > 0) {
+    await Promise.all(
+      infectedFiles.map(async (infectedFile) => {
         await shell.trashItem(infectedFile);
-      });
-    }
+      })
+    );
   }
-);
+});

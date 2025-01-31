@@ -195,7 +195,7 @@ declare interface Window {
     antivirus: {
       isAvailable: () => Promise<boolean>;
       isDefenderActive: () => Promise<boolean>;
-      scanItems: (folderPaths: { path: string; itemName: string; isDirectory: boolean }[]) => Promise<void>;
+      scanItems: (folderPaths?: { path: string; itemName: string; isDirectory: boolean }[]) => Promise<void>;
 
       scanSystem: () => Promise<void>;
 
