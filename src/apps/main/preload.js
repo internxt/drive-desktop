@@ -17,6 +17,10 @@ contextBridge.exposeInMainWorld('electron', {
     return () => ipcRenderer.removeListener(eventName, callback);
   },
 
+  isDarkModeActive() {
+    return ipcRenderer.invoke('is-dark-mode-active');
+  },
+
   logger: {
     info: (...message) => Logger.info(String(message)),
     error: (...message) => Logger.error(message),

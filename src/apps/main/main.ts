@@ -33,7 +33,7 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
-import { app, nativeTheme } from 'electron';
+import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
@@ -107,6 +107,10 @@ app
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
+
+    ipcMain.handle('is-dark-mode-active', () => {
+      return nativeTheme.shouldUseDarkColors;
+    });
 
     checkForUpdates();
   })

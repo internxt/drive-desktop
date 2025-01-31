@@ -8,6 +8,8 @@ declare interface Window {
 
     pathChanged(path: string): void;
 
+    isDarkModeActive(): boolean;
+
     logger: {
       info: (...message: unknown[]) => void;
       error: (...message: unknown[]) => void;

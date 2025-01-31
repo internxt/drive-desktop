@@ -18,12 +18,16 @@ import {
 
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
 import AntivirusSvg from '../../assets/onboarding/scanner.svg';
+import AntivirusDarkSvg from '../../assets/onboarding/scanner-dark.svg';
 import BackupsSvg from '../../assets/onboarding/backups.svg';
+import BackupsDarkSvg from '../../assets/onboarding/backups-dark.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
 import { BackupsSlide } from './slides/BackupsSlide';
 import { AntivirusSlide } from './slides/AntivirusSlide';
+import useConfig from '../../hooks/useConfig';
+import { Theme } from '@/apps/shared/types/Theme';
 export const SLIDES: OnboardingSlide[] = [
   {
     name: 'Welcome Slide',
@@ -43,11 +47,7 @@ export const SLIDES: OnboardingSlide[] = [
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.slides.welcome.take-tour')}
           </Button>
-          <Button
-            onClick={props.onSkipOnboarding}
-            variant="secondary"
-            size="lg"
-          >
+          <Button onClick={props.onSkipOnboarding} variant="secondary" size="lg">
             {translate('onboarding.common.skip')}
           </Button>
         </div>
@@ -241,9 +241,18 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
+      const isDarkTheme = window.electron.isDarkModeActive();
+
+      const AntivirusImage = () => {
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? (isDarkTheme ? 'dark' : 'light') : preferredTheme;
+
+        return theme === 'dark' ? <AntivirusDarkSvg /> : <AntivirusSvg />;
+      };
+
       return (
         <div className="flex h-full w-full items-center justify-center">
-          <AntivirusSvg />
+          <AntivirusImage />
         </div>
       );
     },
@@ -276,9 +285,18 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
+      const isDarkTheme = window.electron.isDarkModeActive();
+
+      const BackupsImage = () => {
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? (isDarkTheme ? 'dark' : 'light') : preferredTheme;
+
+        return theme === 'dark' ? <BackupsDarkSvg /> : <BackupsSvg />;
+      };
+
       return (
-        <div className="flex h-full w-full items-center justify-center pt-14">
-          <BackupsSvg />
+        <div className="flex h-full w-full items-center justify-center">
+          <BackupsImage />
         </div>
       );
     },
