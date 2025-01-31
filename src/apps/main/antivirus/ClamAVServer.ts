@@ -7,9 +7,7 @@ const SERVER_HOST = '127.0.0.1';
 const SERVER_PORT = 3310;
 
 let clamdProcess: ChildProcessWithoutNullStreams | null = null;
-const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'clamAV')
-  : path.join(__dirname, '../../../../clamAV');
+const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(__dirname, '../../../../clamAV');
 
 let timer: NodeJS.Timeout | null = null;
 
@@ -20,7 +18,6 @@ const startClamdServer = (): Promise<void> => {
     const freshclamPath = path.join(RESOURCES_PATH, 'freshclam.exe');
 
     console.log('Updating virus database using freshclam...', freshclamPath);
-    // TODO: Ejecutar freshclam para actualizar la base de datos.
 
     clamdProcess = spawn(clamdPath, ['-c', clamdConfigPath]);
 
@@ -60,10 +57,7 @@ const stopClamdServer = (): void => {
   }
 };
 
-const checkClamdAvailability = (
-  host = SERVER_HOST,
-  port = SERVER_PORT
-): Promise<boolean> => {
+const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT): Promise<boolean> => {
   return new Promise((resolve) => {
     const client = new net.Socket();
 
@@ -79,10 +73,7 @@ const checkClamdAvailability = (
   });
 };
 
-const waitForClamd = async (
-  timeout = 180000,
-  interval = 5000
-): Promise<void> => {
+const waitForClamd = async (timeout = 180000, interval = 5000): Promise<void> => {
   const startTime = Date.now();
   while (Date.now() - startTime < timeout) {
     const isAvailable = await checkClamdAvailability();
