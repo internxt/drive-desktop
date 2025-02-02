@@ -14,23 +14,12 @@ interface ScanStateProps {
   showItemsWithMalware: () => void;
 }
 
-const ScanSuccessful = ({
-  translate,
-}: {
-  translate: (
-    key: string,
-    keysToReplace?: Record<string, string | number>
-  ) => string;
-}) => (
+const ScanSuccessful = ({ translate }: { translate: (key: string, keysToReplace?: Record<string, string | number>) => string }) => (
   <div className="flex flex-col items-center gap-4">
     <ShieldCheck size={64} className="text-green" weight="fill" />
     <div className="flex flex-col gap-1 text-center">
-      <p className="font-medium text-gray-100">
-        {translate('settings.antivirus.scanProcess.noFilesFound.title')}
-      </p>
-      <p className="text-sm text-gray-80">
-        {translate('settings.antivirus.scanProcess.noFilesFound.subtitle')}
-      </p>
+      <p className="font-medium text-gray-100">{translate('settings.antivirus.scanProcess.noFilesFound.title')}</p>
+      <p className="text-sm text-gray-80">{translate('settings.antivirus.scanProcess.noFilesFound.subtitle')}</p>
     </div>
   </div>
 );
@@ -39,25 +28,16 @@ const CorruptedItemsFound = ({
   translate,
   onRemoveMalwareButtonClicked,
 }: {
-  translate: (
-    key: string,
-    keysToReplace?: Record<string, string | number>
-  ) => string;
+  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
   onRemoveMalwareButtonClicked: () => void;
 }) => (
   <div className="flex flex-col items-center gap-4">
     <ShieldWarning size={64} className="text-red" weight="fill" />
     <div className="flex flex-col gap-1 text-center">
-      <p className="font-medium text-gray-100">
-        {translate('settings.antivirus.scanProcess.malwareFound.title')}
-      </p>
-      <p className="text-sm text-gray-80">
-        {translate('settings.antivirus.scanProcess.malwareFound.subtitle')}
-      </p>
+      <p className="font-medium text-gray-100">{translate('settings.antivirus.scanProcess.malwareFound.title')}</p>
+      <p className="text-sm text-gray-80">{translate('settings.antivirus.scanProcess.malwareFound.subtitle')}</p>
     </div>
-    <Button onClick={onRemoveMalwareButtonClicked}>
-      {translate('settings.antivirus.scanProcess.malwareFound.action')}
-    </Button>
+    <Button onClick={onRemoveMalwareButtonClicked}>{translate('settings.antivirus.scanProcess.malwareFound.action')}</Button>
   </div>
 );
 
@@ -67,29 +47,19 @@ const ScanResult = ({
   translate,
   onRemoveMalwareButtonClicked,
 }: {
-  translate: (
-    key: string,
-    keysToReplace?: Record<string, string | number>
-  ) => string;
+  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
   onScanAgainButtonClicked: () => void;
   onRemoveMalwareButtonClicked: () => void;
   thereAreCorruptedFiles: boolean;
 }) => {
   if (thereAreCorruptedFiles) {
-    return (
-      <CorruptedItemsFound
-        translate={translate}
-        onRemoveMalwareButtonClicked={onRemoveMalwareButtonClicked}
-      />
-    );
+    return <CorruptedItemsFound translate={translate} onRemoveMalwareButtonClicked={onRemoveMalwareButtonClicked} />;
   }
 
   return (
     <div className="flex flex-col items-center gap-5">
       <ScanSuccessful translate={translate} />
-      <Button onClick={onScanAgainButtonClicked}>
-        {translate('settings.antivirus.scanProcess.scanAgain')}
-      </Button>
+      <Button onClick={onScanAgainButtonClicked}>{translate('settings.antivirus.scanProcess.scanAgain')}</Button>
     </div>
   );
 };
@@ -103,13 +73,10 @@ const ScanProcess = ({
   currentScanPath?: string;
   stopScanProcess: () => void;
   scannedProcess: number;
-  translate: (
-    key: string,
-    keysToReplace?: Record<string, string | number>
-  ) => string;
+  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
 }) => (
   <div className="flex w-full flex-col items-center gap-4">
-    <div className="flex h-full w-full max-w-[450px] flex-col text-center">
+    <div className="flex h-20 w-full max-w-[450px] flex-col text-center">
       <p>{translate('settings.antivirus.scanProcess.scanning')}</p>
       <p className="line-clamp-2">{currentScanPath}</p>
     </div>

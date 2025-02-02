@@ -39,8 +39,7 @@ export function clearDailyScan() {
 const scanInBackground = async (): Promise<void> => {
   const hashedFilesAdapter = new HashedSystemTreeCollection();
   const database = new DBScannerConnection(hashedFilesAdapter);
-  const antivirus = await Antivirus.getInstance();
-  await antivirus.initialize();
+  const antivirus = await Antivirus.createInstance();
 
   const userSystemPath = await getUserSystemPath();
   if (!userSystemPath) return;
@@ -48,16 +47,12 @@ const scanInBackground = async (): Promise<void> => {
   console.time('scan-background');
 
   const scan = async (filePath: string) => {
-    console.log('SCAN ITEM IN BACKGROUND: ', filePath);
+    // console.log('SCAN ITEM IN BACKGROUND: ', filePath);
     try {
       const scannedItem = await transformItem(filePath);
       const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);
       if (previousScannedItem) {
-        if (scannedItem.updatedAtW === previousScannedItem.updatedAtW) {
-          return;
-        }
-
-        if (scannedItem.hash === previousScannedItem.hash) {
+        if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
           return;
         }
 
@@ -67,8 +62,8 @@ const scanInBackground = async (): Promise<void> => {
             ...scannedItem,
             isInfected: currentScannedFile.isInfected,
           });
-          return;
         }
+        return;
       }
 
       const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);

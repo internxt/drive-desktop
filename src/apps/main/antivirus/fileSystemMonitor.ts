@@ -4,23 +4,11 @@ import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { Antivirus } from './Antivirus';
-import { countFilesInDirectory, getFilesFromDirectory } from './getFilesFromDirectory';
+import { countFilesUsingWindowsCommand, getFilesFromDirectory } from './getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
-
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './utils/dbConections';
 import { HashedSystemTreeCollection } from '../database/collections/HashedSystemTreeCollection';
-
-export interface ScannedFileData {
-  file: string;
-  isInfected: boolean;
-  viruses: [];
-}
-
-export interface FolderContent {
-  files: ScannedItem[];
-  folders: string[];
-}
 
 export interface ProgressData {
   totalScannedFiles: number;
@@ -48,14 +36,16 @@ export class FileSystemMonitor {
   private infectedFiles: string[];
   private totalItemsToScan: number;
 
+  private antivirus: Antivirus | null;
+
   constructor() {
     this.progressEvents = [];
     this.manualQueue = null;
-    this.progressEvents = [];
     this.totalScannedFiles = 0;
     this.totalInfectedFiles = 0;
     this.infectedFiles = [];
     this.totalItemsToScan = 0;
+    this.antivirus = null;
 
     const hashedFilesAdapter = new HashedSystemTreeCollection();
     this.dbConnection = new DBScannerConnection(hashedFilesAdapter);
@@ -82,11 +72,13 @@ export class FileSystemMonitor {
 
   public stopScan = async () => {
     if (this.manualQueue) {
+      console.log('KILLING PROCESSES');
       this.manualQueue.kill();
     }
 
-    const antivirus = await Antivirus.getInstance();
-    await antivirus.stopClamAv();
+    if (this.antivirus) {
+      await this.antivirus.stopClamAv();
+    }
 
     this.resetCounters();
   };
@@ -108,6 +100,7 @@ export class FileSystemMonitor {
     this.progressEvents = [];
     this.totalItemsToScan = 0;
     this.manualQueue = null;
+    this.antivirus = null;
   }
 
   private handlePreviousScannedItem = async (scannedItem: ScannedItem, previousScannedItem: ScannedItem) => {
@@ -121,21 +114,10 @@ export class FileSystemMonitor {
   };
 
   public async scanItems(pathNames?: string[]): Promise<void> {
-    const antivirus = await Antivirus.getInstance();
-    await antivirus.initialize();
-
-    let pathsToScan: string[] = [];
-    if (pathNames && pathNames.length > 0) {
-      pathsToScan = pathNames;
-    } else {
-      const userSystemPath = await getUserSystemPath();
-      if (!userSystemPath) return;
-      pathsToScan = [userSystemPath.path];
+    if (!this.antivirus) {
+      this.antivirus = await Antivirus.createInstance();
     }
-
-    for (const p of pathsToScan) {
-      this.totalItemsToScan += await countFilesInDirectory(p);
-    }
+    const antivirus = this.antivirus;
 
     let reportProgressInterval: NodeJS.Timeout | null = null;
 
@@ -156,8 +138,7 @@ export class FileSystemMonitor {
         const scannedItem = await transformItem(filePath);
         const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
         if (previousScannedItem) {
-          this.handlePreviousScannedItem(scannedItem, previousScannedItem);
-
+          await this.handlePreviousScannedItem(scannedItem, previousScannedItem);
           return;
         }
 
@@ -182,9 +163,36 @@ export class FileSystemMonitor {
     };
 
     try {
-      this.manualQueue = queue(scan, 10);
-      for (const p of pathsToScan) {
-        await getFilesFromDirectory(p, (filePath: string) => this.manualQueue!.pushAsync(filePath));
+      if (!pathNames) {
+        const userSystemPath = await getUserSystemPath();
+        if (!userSystemPath) return;
+
+        this.totalItemsToScan = await countFilesUsingWindowsCommand(userSystemPath.path);
+
+        this.manualQueue = queue(scan, 10);
+
+        await getFilesFromDirectory(userSystemPath.path, (filePath: string) => this.manualQueue!.pushAsync(filePath));
+      } else {
+        let pathsToScan: string[] = [];
+        if (pathNames && pathNames.length > 0) {
+          pathsToScan = pathNames;
+        } else {
+          const userSystemPath = await getUserSystemPath();
+          if (!userSystemPath) return;
+          pathsToScan = [userSystemPath.path];
+        }
+        this.manualQueue = queue(scan, 10);
+
+        let total = 0;
+        for (const p of pathNames) {
+          total += await countFilesUsingWindowsCommand(p);
+        }
+
+        this.totalItemsToScan = total;
+
+        for (const p of pathsToScan) {
+          await getFilesFromDirectory(p, (filePath: string) => this.manualQueue!.pushAsync(filePath));
+        }
       }
 
       await this.manualQueue.drain();

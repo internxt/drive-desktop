@@ -3,6 +3,10 @@ import { readdir } from 'fs/promises';
 import { resolve } from 'path';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
 import { isPermissionError } from './utils/isPermissionError';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 export const getFilesFromDirectory = async (dir: string, cb: (file: string) => Promise<void>): Promise<void | null> => {
   let items: Dirent[];
@@ -15,6 +19,7 @@ export const getFilesFromDirectory = async (dir: string, cb: (file: string) => P
 
   try {
     items = await readdir(dir, { withFileTypes: true });
+    // console.log('ITEMS: ', items);
   } catch (err) {
     const error = err;
 
@@ -51,45 +56,16 @@ export const getFilesFromDirectory = async (dir: string, cb: (file: string) => P
   }
 };
 
-export const countFilesInDirectory = async (dir: string): Promise<number> => {
-  let count = 0;
-  const stack: string[] = [dir];
-
-  const isFile = await PathTypeChecker.isFile(dir);
-
-  if (isFile) {
-    return 1;
-  }
-
-  while (stack.length > 0) {
-    const currentDir = stack.pop()!;
-
-    let items: Dirent[];
-    try {
-      items = await readdir(currentDir, { withFileTypes: true });
-    } catch (err) {
-      if (isPermissionError(err)) {
-        console.warn(`Skipping directory "${currentDir}" due to permission error.`);
-        continue;
-      }
-      throw err;
+export async function countFilesUsingWindowsCommand(folder: string): Promise<number> {
+  const command = `powershell -command "Get-ChildItem -Path '${folder}' -File -Recurse | Measure-Object | Select -ExpandProperty Count"`;
+  try {
+    const { stdout, stderr } = await execAsync(command);
+    if (stderr) {
+      console.error('Error de PowerShell:', stderr);
     }
-
-    const nonTempItems = items.filter((item) => {
-      const fullPath = resolve(currentDir, item.name);
-      const isTemp = fullPath.toLowerCase().includes('temp') || fullPath.toLowerCase().includes('tmp');
-      return !isTemp;
-    });
-
-    for (const item of nonTempItems) {
-      const fullPath = resolve(currentDir, item.name);
-      if (item.isDirectory()) {
-        stack.push(fullPath);
-      } else {
-        count++;
-      }
-    }
+    return parseInt(stdout.trim(), 10);
+  } catch (err) {
+    console.error('Error al contar archivos con PowerShell:', err);
+    return 0;
   }
-
-  return count;
-};
+}

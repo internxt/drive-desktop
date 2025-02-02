@@ -12,7 +12,6 @@ export interface SelectedItemToScanProps {
 const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(__dirname, '../../../../clamAV');
 
 export class Antivirus {
-  private static instance: Antivirus;
   private clamAv: NodeClam | null = null;
   private isInitialized = false;
 
@@ -20,17 +19,13 @@ export class Antivirus {
     //
   }
 
-  static async getInstance(): Promise<Antivirus> {
-    if (!Antivirus.instance) {
-      Antivirus.instance = new Antivirus();
-    }
-
-    return Antivirus.instance;
+  static async createInstance(): Promise<Antivirus> {
+    const instance = new Antivirus();
+    await instance.initialize();
+    return instance;
   }
 
   async initialize(): Promise<void> {
-    if (this.isInitialized) return;
-
     try {
       await clamAVServer.checkClamdAvailability();
 
@@ -53,7 +48,7 @@ export class Antivirus {
 
       this.isInitialized = true;
     } catch (error) {
-      console.error('Error initializing ClamAV:', error);
+      console.error('Error Initializing ClamAV:', error);
       throw error;
     }
   }
