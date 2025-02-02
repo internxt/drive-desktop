@@ -2,7 +2,7 @@ import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
 import { QueueItem, VirtualDrive } from 'virtual-drive/dist';
 import { BindingsManager } from '../BindingManager';
-import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
+import { isTemporaryFile } from '../../../apps/utils/isTemporalFile';
 
 type TProps = {
   self: BindingsManager;
