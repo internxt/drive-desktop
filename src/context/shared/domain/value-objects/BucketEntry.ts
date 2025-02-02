@@ -1,7 +1,7 @@
 import { ValueObject } from './ValueObject';
 
 export class BucketEntry extends ValueObject<number> {
-  public static MAX_SIZE = 20 * 1024 * 1024 * 1024;
+  public static MAX_SIZE = 40 * 1024 * 1024 * 1024;
 
   constructor(value: number) {
     super(value);

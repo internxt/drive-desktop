@@ -27,8 +27,8 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
   ): Promise<Either<DriveDesktopError, string>> {
     const fn: UploadStrategyFunction =
       size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD
-        ? this.environment.uploadMultipartFile
-        : this.environment.upload;
+        ? this.environment.uploadMultipartFile.bind(this.environment)
+        : this.environment.upload.bind(this.environment);
 
     const readable = createReadStream(path);
 

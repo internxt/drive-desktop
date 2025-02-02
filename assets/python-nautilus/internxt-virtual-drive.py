@@ -11,7 +11,7 @@ SYNC_STATUS_ATTRIBUTE ="SYNC_STATUS"
 SYNC_STATUS_ATTRIBUTE_NAME ="Sync Status"
 SYNC_STATUS_ONLY_ONLINE="Only online"
 
-VIRTUAL_DRIVE_ROOT_FOLDER_NAME = "Internxt%20Drive"
+VIRTUAL_DRIVE_ROOT_FOLDER_NAME = "Internxt"
 
 status_to_column_status_map = {
   "on_local": "Offline Available",

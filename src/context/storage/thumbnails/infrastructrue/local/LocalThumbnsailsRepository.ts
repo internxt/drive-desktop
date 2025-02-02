@@ -165,7 +165,7 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
 
     try {
       const thumbnail = fs.readFileSync(iconPath);
-      where.forEach((p) => fs.writeFileSync(p, thumbnail));
+      where.forEach((p) => fs.writeFileSync(p, new Uint8Array(thumbnail)));
       Logger.debug(file.nameWithExtension, 'thumbnail created');
     } catch (err) {
       Logger.error(file.nameWithExtension, err);

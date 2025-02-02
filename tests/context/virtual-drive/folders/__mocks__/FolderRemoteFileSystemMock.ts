@@ -1,4 +1,4 @@
-import { Either } from '../../../../../src/context/shared/domain/Either';
+import { Either, right } from '../../../../../src/context/shared/domain/Either';
 import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
 import { FolderId } from '../../../../../src/context/virtual-drive/folders/domain/FolderId';
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
@@ -66,13 +66,15 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
       includeUuid ? new FolderUuid(folder.uuid) : undefined
     );
 
-    this.persistMock.mockResolvedValueOnce({
-      id: folder.id,
-      uuid: folder.uuid,
-      createdAt: folder.createdAt.toISOString(),
-      updatedAt: folder.updatedAt.toISOString(),
-      parentId: folder.parentId as number,
-    } satisfies FolderPersistedDto);
+    this.persistMock.mockResolvedValueOnce(
+      right({
+        id: folder.id,
+        uuid: folder.uuid,
+        createdAt: folder.createdAt.toISOString(),
+        updatedAt: folder.updatedAt.toISOString(),
+        parentId: folder.parentId as number,
+      } satisfies FolderPersistedDto)
+    );
   }
 
   shouldTrash(folder: Folder, error?: Error) {

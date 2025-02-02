@@ -5,8 +5,8 @@ import { SystemThumbnailNameCalculator } from '../../../../../../src/context/sto
 import { RelativePathToAbsoluteConverterTestClass } from '../../../../shared/__test-class__/RelativePathToAbsoluteConverterTestClass';
 import { FileMother } from '../../../../virtual-drive/files/domain/FileMother';
 import { WriteReadableToFile } from '../../../../../../src/apps/shared/fs/write-readable-to-file';
-import { ReadableMother } from '../../../../shared/domain/ReadableMother';
 import { ThumbnailMother } from '../../domain/ThumbnailMother';
+import { Readable } from 'stream';
 
 jest.mock('fs');
 
@@ -93,13 +93,24 @@ describe('Local Thumbnail Repository', () => {
       const absolutePath = '/home/jens/photos/me.png';
 
       const writeSpy = jest.spyOn(WriteReadableToFile, 'write');
-      writeSpy.mockReturnValueOnce(Promise.resolve());
+
+      writeSpy.mockImplementation((readable: Readable) => {
+        return new Promise((resolve) => {
+          readable.on('data', () => {
+            /* Intentionally empty - just consuming the stream */
+          });
+          readable.on('end', resolve);
+        });
+      });
+
+      const readableStream = Readable.from('thumbnail data');
+
       pathConverter.convertTo(absolutePath);
 
-      await SUT.push(file, ReadableMother.any());
+      await SUT.push(file, readableStream);
 
       expect(writeSpy).toBeCalledWith(
-        expect.any(Object),
+        expect.any(Readable),
         path.join(
           thumbnailFolder,
           'normal',
