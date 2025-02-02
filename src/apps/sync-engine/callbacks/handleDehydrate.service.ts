@@ -7,12 +7,12 @@ type TProps = {
   task: QueueItem;
 };
 
-export class HandleHydrateService {
+export class HandleDehydrateService {
   async run({ drive, task }: TProps) {
     try {
-      await drive.hydrateFile(task.path);
+      await drive.dehydrateFile(task.path);
     } catch (error) {
-      Logger.error(`Error hydrating file ${task.path}`);
+      Logger.error(`Error dehydrating file ${task.path}`);
       Logger.error(error);
       Sentry.captureException(error);
     }
