@@ -72,7 +72,7 @@ export class ManualSystemScan {
     const progressValue =
       this.totalItemsToScan > 0
         ? Math.min(
-            90,
+            95,
             Math.round((this.totalScannedFiles / this.totalItemsToScan) * 100)
           )
         : 0;
