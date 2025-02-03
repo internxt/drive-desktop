@@ -347,6 +347,10 @@
         "subtitle": "Veuillez mettre à niveau votre plan pour utiliser cette fonctionnalité.",
         "action": "Mettre à niveau"
       },
+      "errorState": {
+        "title": "Une erreur s'est produite lors de l'analyse du répertoire",
+        "button": "Réessayer"
+      },
       "deactivateAntivirus": {
         "title": "Windows Defender est actif",
         "description": "Veuillez désactiver Windows Defender afin de pouvoir utiliser Internxt Antivirus. Pour ce faire, ouvrez Sécurité Windows > Protection contre les virus et menaces > Gérer les paramètres > désactivez la protection en temps réel.",

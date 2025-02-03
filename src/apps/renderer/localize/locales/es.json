@@ -351,6 +351,10 @@
         "subtitle": "Por favor, actualiza tu plan para usar esta función.",
         "action": "Actualizar"
       },
+      "errorState": {
+        "title": "Algo salió mal al escanear el directorio",
+        "button": "Intentar de nuevo"
+      },
       "deactivateAntivirus": {
         "title": "Windows Defender está activo",
         "description": "Por favor, desactiva Windows Defender para poder usar Internxt Antivirus. Para hacerlo, abre Seguridad de Windows > Protección contra virus y amenazas > Administrar configuración > desactiva la Protección en tiempo real.",

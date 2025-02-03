@@ -52,10 +52,9 @@ const ErrorWhileScanningItems = ({
   <div className="flex flex-col items-center gap-4">
     <ShieldWarning size={64} className="text-red" weight="fill" />
     <div className="flex flex-col gap-1 text-center">
-      <p className="font-medium text-gray-100">{translate('settings.antivirus.scanProcess.malwareFound.title')}</p>
-      <p className="text-sm text-gray-80">{translate('settings.antivirus.scanProcess.malwareFound.subtitle')}</p>
+      <p className="font-medium text-gray-100">{translate('settings.antivirus.errorState.title')}</p>
     </div>
-    <Button onClick={onScanAgainButtonClicked}>{translate('settings.antivirus.scanProcess.scanAgain')}</Button>
+    <Button onClick={onScanAgainButtonClicked}>{translate('settings.antivirus.errorState.button')}</Button>
   </div>
 );
 
