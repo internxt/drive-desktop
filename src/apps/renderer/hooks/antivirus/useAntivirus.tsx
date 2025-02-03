@@ -130,18 +130,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
     return items;
   };
 
-  const onScanItemsButtonClicked = async (items?: SelectedItemToScanProps[]) => {
-    if (!items) return;
-    setIsScanning(true);
-    try {
-      await window.electron.antivirus.scanItems(items);
-      setIsScanCompleted(true);
-      setIsScanning(false);
-    } catch (error) {
-      setShowErrorState(true);
-    }
-  };
-
   const onCustomScanButtonClicked = async (scanType: ScanType) => {
     const isDefenderActive = await isWinDefenderActive();
     if (isDefenderActive) return;
@@ -149,7 +137,15 @@ export const useAntivirus = (): UseAntivirusReturn => {
     const items = await onSelectItemsButtonClicked(scanType);
     if (!items || items.length === 0) return;
     setView('scan');
-    await onScanItemsButtonClicked(items);
+    setIsScanning(true);
+    try {
+      await window.electron.antivirus.scanItems(items);
+      setIsScanCompleted(true);
+    } catch (error) {
+      setShowErrorState(true);
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   const onScanUserSystemButtonClicked = async () => {
@@ -157,17 +153,15 @@ export const useAntivirus = (): UseAntivirusReturn => {
     if (isDefenderActive) return;
 
     setView('scan');
-    await scanUserSystem();
-  };
 
-  const scanUserSystem = async () => {
-    setView('scan');
     setIsScanning(true);
     try {
       await window.electron.antivirus.scanItems();
+      setIsScanCompleted(true);
     } catch (error) {
-      console.error('ERROR WHILE SCANNING SYSTEM: ', error);
       setShowErrorState(true);
+    } finally {
+      setIsScanning(false);
     }
   };
 
