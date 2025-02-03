@@ -153,7 +153,9 @@ export const ScanState = ({
           />
         )}
 
-        {showErrorState && <ErrorWhileScanningItems translate={translate} onScanAgainButtonClicked={onScanAgainButtonClicked} />}
+        {!isScanning && showErrorState && (
+          <ErrorWhileScanningItems translate={translate} onScanAgainButtonClicked={onScanAgainButtonClicked} />
+        )}
 
         {!showErrorState && (
           <div className="flex h-full w-full items-stretch  gap-5 rounded-xl bg-surface py-4">
