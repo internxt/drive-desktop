@@ -55,11 +55,13 @@
         "list-1": "Identifiez les fichiers disponibles hors ligne pour y accéder à tout moment, avec ou sans internet",
         "list-2": "Étiqueter les fichiers uniquement en ligne pour économiser de l'espace sur le disque dur"
       },
+      "antivirus": {
+        "title": "Protégez votre ordinateur contre les virus",
+        "description": "L'application de bureau d'Internxt intègre désormais le tout nouveau Internxt Antivirus, qui vous permet d'analyser et de supprimer tout malware potentiel de votre appareil."
+      },
       "backups": {
-        "title": "Sauvegardez et sécurisez vos fichiers en quelques clics",
-        "description": "Sauvegardez vos fichiers en sélectionnant simplement les dossiers que vous souhaitez protéger.",
-        "description-2": "Planifiez des sauvegardes et gardez vos fichiers en sécurité et à jour sur tous vos appareils.",
-        "setup-backups": "Configurer les sauvegardes"
+        "title": "Sauvegardez votre appareil sur le cloud",
+        "description": "Avec la fonction de sauvegarde améliorée d'Internxt, vous pouvez désormais sauvegarder vos dossiers en toute sécurité sur le cloud afin de libérer de l'espace localement."
       },
       "onboarding-completed": {
         "title": "Vous êtes prêt, profitez de votre vie privée !",
@@ -220,7 +222,8 @@
       "section": {
         "GENERAL": "Général",
         "ACCOUNT": "Compte",
-        "BACKUPS": "Sauvegardes"
+        "BACKUPS": "Sauvegardes",
+        "ANTIVIRUS": "Antivirus"
       }
     },
     "general": {
@@ -337,6 +340,63 @@
           "cancel": "Annuler"
         }
       }
+    },
+    "antivirus": {
+      "featureLocked": {
+        "title": "Fonction verrouillée",
+        "subtitle": "Veuillez mettre à niveau votre plan pour utiliser cette fonctionnalité.",
+        "action": "Mettre à niveau"
+      },
+      "errorState": {
+        "title": "Une erreur s'est produite lors de l'analyse du répertoire",
+        "button": "Réessayer"
+      },
+      "deactivateAntivirus": {
+        "title": "Windows Defender est actif",
+        "description": "Veuillez désactiver Windows Defender afin de pouvoir utiliser Internxt Antivirus. Pour ce faire, ouvrez Sécurité Windows > Protection contre les virus et menaces > Gérer les paramètres > désactivez la protection en temps réel.",
+        "retry": "Réessayer",
+        "cancel": "Annuler"
+      },
+      "scanOptions": {
+        "stopScan": "Arrêter l'analyse",
+        "systemScan": {
+          "text": "Analyse du système antivirus",
+          "action": "Démarrer l'analyse"
+        },
+        "customScan": {
+          "text": "Analyse personnalisée de l'antivirus",
+          "action": "Choisir",
+          "selector": {
+            "files": "Fichiers",
+            "folders": "Dossiers"
+          }
+        }
+      },
+      "scanProcess": {
+        "scanning": "Analyse en cours...",
+        "scannedFiles": "Fichiers analysés",
+        "detectedFiles": "Fichiers détectés",
+        "errorWhileScanning": "Une erreur s'est produite lors de l'analyse des éléments. Veuillez réessayer.",
+        "noFilesFound": {
+          "title": "Aucune menace détectée",
+          "subtitle": "Aucune action supplémentaire requise"
+        },
+        "malwareFound": {
+          "title": "Malware détecté",
+          "subtitle": "Veuillez examiner et supprimer les menaces.",
+          "action": "Supprimer le malware"
+        },
+        "scanAgain": "Analyser à nouveau"
+      },
+      "filesContainingMalwareModal": {
+        "title": "Fichiers contenant des malwares",
+        "selectedItems": "Sélectionné {{selectedFiles}} sur {{totalFiles}}",
+        "selectAll": "Tout sélectionner",
+        "actions": {
+          "cancel": "Annuler",
+          "remove": "Supprimer"
+        }
+      }
     }
   },
   "issues": {
@@ -344,7 +404,8 @@
     "tabs": {
       "sync": "Synchronisation",
       "backups": "Sauvegardes",
-      "general": "Général"
+      "general": "Général",
+      "antivirus": "Antivirus"
     },
     "no-issues": "Aucune erreur trouvée",
     "actions": {
