@@ -1,8 +1,8 @@
 import { Dirent } from 'fs';
 import { readdir } from 'fs/promises';
 import { resolve } from 'path';
-import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
-import { isPermissionError } from './utils/isPermissionError';
+import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
+import { isPermissionError } from '../utils/isPermissionError';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 

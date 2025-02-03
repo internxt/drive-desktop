@@ -4,7 +4,7 @@ import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { Antivirus } from './Antivirus';
-import { countFilesUsingWindowsCommand, getFilesFromDirectory } from './getFilesFromDirectory';
+import { countFilesUsingWindowsCommand, getFilesFromDirectory } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './utils/dbConections';
@@ -18,16 +18,16 @@ export interface ProgressData {
   done?: boolean;
 }
 
-let fileSystemMonitorInstanceManual: FileSystemMonitor | null = null;
+let fileSystemMonitorInstanceManual: ManualSystemScan | null = null;
 
 export async function getManualScanMonitorInstance() {
   if (!fileSystemMonitorInstanceManual) {
-    fileSystemMonitorInstanceManual = new FileSystemMonitor();
+    fileSystemMonitorInstanceManual = new ManualSystemScan();
   }
   return fileSystemMonitorInstanceManual;
 }
 
-export class FileSystemMonitor {
+export class ManualSystemScan {
   private dbConnection: DBScannerConnection;
   private manualQueue: QueueObject<string> | null;
   private progressEvents: ProgressData[];
@@ -35,6 +35,8 @@ export class FileSystemMonitor {
   private totalInfectedFiles: number;
   private infectedFiles: string[];
   private totalItemsToScan: number;
+  private cancelled = false;
+  private scanSessionId = 0;
 
   private antivirus: Antivirus | null;
 
@@ -46,12 +48,15 @@ export class FileSystemMonitor {
     this.infectedFiles = [];
     this.totalItemsToScan = 0;
     this.antivirus = null;
+    this.cancelled = false;
+    this.scanSessionId = 0;
 
     const hashedFilesAdapter = new HashedSystemTreeCollection();
     this.dbConnection = new DBScannerConnection(hashedFilesAdapter);
   }
 
-  trackProgress = (data: { file: string; isInfected: boolean }) => {
+  trackProgress = (currentSession: number, data: { file: string; isInfected: boolean }) => {
+    if (currentSession !== this.scanSessionId) return;
     const { file, isInfected } = data;
     if (isInfected) {
       this.infectedFiles.push(file);
@@ -71,6 +76,8 @@ export class FileSystemMonitor {
   };
 
   public stopScan = async () => {
+    this.cancelled = true;
+    this.scanSessionId++;
     if (this.manualQueue) {
       console.log('KILLING PROCESSES');
       this.manualQueue.kill();
@@ -83,7 +90,10 @@ export class FileSystemMonitor {
     this.resetCounters();
   };
 
-  private finishScan() {
+  private finishScan(currentSession: number) {
+    this.cancelled = true;
+    if (currentSession !== this.scanSessionId) return;
+
     if (this.progressEvents.length > 0) {
       eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
         ...(this.progressEvents.pop() as ProgressData),
@@ -103,9 +113,11 @@ export class FileSystemMonitor {
     this.antivirus = null;
   }
 
-  private handlePreviousScannedItem = async (scannedItem: ScannedItem, previousScannedItem: ScannedItem) => {
+  private handlePreviousScannedItem = async (currentSession: number, scannedItem: ScannedItem, previousScannedItem: ScannedItem) => {
+    if (currentSession !== this.scanSessionId) return;
+
     if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
-      this.trackProgress({
+      this.trackProgress(currentSession, {
         file: previousScannedItem.pathName,
         isInfected: previousScannedItem.isInfected,
       });
@@ -114,6 +126,10 @@ export class FileSystemMonitor {
   };
 
   public async scanItems(pathNames?: string[]): Promise<void> {
+    this.cancelled = false;
+    this.scanSessionId++;
+    const currentSession = this.scanSessionId;
+
     if (!this.antivirus) {
       this.antivirus = await Antivirus.createInstance();
     }
@@ -130,15 +146,16 @@ export class FileSystemMonitor {
       }
     }, 1000);
 
-    console.time('scan-timer');
+    console.time('manual-scan');
 
     const scan = async (filePath: string) => {
+      if (this.cancelled) return;
       console.log('SCAN ITEM: ', filePath);
       try {
         const scannedItem = await transformItem(filePath);
         const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
         if (previousScannedItem) {
-          await this.handlePreviousScannedItem(scannedItem, previousScannedItem);
+          await this.handlePreviousScannedItem(currentSession, scannedItem, previousScannedItem);
           return;
         }
 
@@ -150,7 +167,7 @@ export class FileSystemMonitor {
             isInfected: currentScannedFile.isInfected,
           });
 
-          this.trackProgress({
+          this.trackProgress(currentSession, {
             file: currentScannedFile.file,
             isInfected: currentScannedFile.isInfected,
           });
@@ -197,13 +214,13 @@ export class FileSystemMonitor {
 
       await this.manualQueue.drain();
 
-      this.finishScan();
+      this.finishScan(currentSession);
     } catch (error) {
       if (!isPermissionError(error)) {
         throw error;
       }
     } finally {
-      console.timeEnd('scan-timer');
+      console.timeEnd('manual-scan');
       if (reportProgressInterval) {
         clearInterval(reportProgressInterval);
       }

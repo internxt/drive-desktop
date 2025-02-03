@@ -1,11 +1,11 @@
-import isPermissionError from '@internxt/scan/lib/isPermissionError';
 import { getUserSystemPath } from '../device/service';
 import { Antivirus } from './Antivirus';
-import { getFilesFromDirectory } from './getFilesFromDirectory';
+import { getFilesFromDirectory } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 import { queue, QueueObject } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { HashedSystemTreeCollection } from '../database/collections/HashedSystemTreeCollection';
+import { isPermissionError } from './utils/isPermissionError';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const BACKGROUND_MAX_CONCURRENCY = 5;
@@ -87,8 +87,6 @@ const scanInBackground = async (): Promise<void> => {
     await getFilesFromDirectory(userSystemPath.path, (file: string) => backgroundQueue!.pushAsync(file));
 
     await backgroundQueue.drain();
-
-    console.log('LAST ITEM IN THE CALL');
 
     backgroundQueue = null;
   } catch (error) {

@@ -4,7 +4,7 @@ import { SelectedItemToScanProps } from '../antivirus/Antivirus';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { exec } from 'node:child_process';
 import { PaymentsService } from '../payments/service';
-import { getManualScanMonitorInstance } from '../antivirus/FileSystemMonitor';
+import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
 import { buildPaymentsService } from '../payments/builder';
 
 let paymentService: PaymentsService | null = null;

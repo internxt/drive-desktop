@@ -169,7 +169,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     setView('chooseItems');
     resetStates();
     try {
-      await window.electron.antivirus.removeInfectedFiles([...infectedFiles]);
+      await window.electron.antivirus.removeInfectedFiles(infectedFiles);
     } catch (error) {
       console.log('ERROR WHILE REMOVING INFECTED ITEMS:', error);
     }
