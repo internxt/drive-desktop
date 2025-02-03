@@ -17,6 +17,10 @@ contextBridge.exposeInMainWorld('electron', {
     return () => ipcRenderer.removeListener(eventName, callback);
   },
 
+  isDarkModeActive() {
+    return ipcRenderer.invoke('is-dark-mode-active');
+  },
+
   logger: {
     info: (...message) => Logger.info(String(message)),
     error: (...message) => Logger.error(message),
@@ -350,6 +354,7 @@ contextBridge.exposeInMainWorld('electron', {
     const FIVE_SECONDS = 5000;
     return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
   },
+
   user: {
     hasDiscoveredBackups() {
       return ipcRenderer.invoke('user.get-has-discovered-backups');
@@ -368,5 +373,36 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
+  antivirus: {
+    isAvailable: async () => {
+      return await ipcRenderer.invoke('antivirus:is-available');
+    },
+    isDefenderActive: async () => {
+      return await ipcRenderer.invoke('antivirus:is-Defender-active');
+    },
+    scanItems: async (paths) => {
+      return await ipcRenderer.invoke('antivirus:scan-items', paths);
+    },
+
+    onScanProgress: (callback) => {
+      ipcRenderer.on('antivirus:scan-progress', (_, progress) => callback(progress));
+    },
+    removeScanProgressListener: () => {
+      ipcRenderer.removeAllListeners('antivirus:scan-progress');
+    },
+    scanSystem: async (systemPath) => {
+      return await ipcRenderer.invoke('antivirus:scan-system', systemPath);
+    },
+    addItemsToScan: async (getFiles) => {
+      return await ipcRenderer.invoke('antivirus:add-items-to-scan', getFiles);
+    },
+    removeInfectedFiles: async (infectedFiles) => {
+      return await ipcRenderer.invoke('antivirus:remove-infected-files', infectedFiles);
+    },
+    cancelScan: async () => {
+      return await ipcRenderer.invoke('antivirus:cancel-scan');
+    },
+  },
+
   path,
 });
