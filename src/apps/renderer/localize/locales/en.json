@@ -349,6 +349,12 @@
       }
     },
     "antivirus": {
+      "stopScan": {
+        "title": "Cancel scan",
+        "description": "Are you sure you want to cancel the current scan?",
+        "cancel": "Cancel scan",
+        "continue": "Continue scanning"
+      },
       "featureLocked": {
         "title": "Feature locked",
         "subtitle": "Please upgrade your plan to use this feature.",

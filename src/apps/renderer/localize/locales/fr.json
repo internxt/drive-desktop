@@ -344,6 +344,12 @@
       }
     },
     "antivirus": {
+      "stopScan": {
+        "title": "Annuler l'analyse",
+        "description": "Êtes-vous sûr de vouloir annuler l'analyse en cours ?",
+        "cancel": "Annuler l'analyse",
+        "continue": "Continuer l'analyse"
+      },
       "featureLocked": {
         "title": "Fonction verrouillée",
         "subtitle": "Veuillez mettre à niveau votre plan pour utiliser cette fonctionnalité.",
@@ -371,6 +377,22 @@
           "selector": {
             "files": "Fichiers",
             "folders": "Dossiers"
+          }
+        },
+        "removeMalware": {
+          "actions": {
+            "cancel": "Annuler",
+            "remove": "Supprimer"
+          },
+          "actionRequired": {
+            "title": "Action requise",
+            "description": "La suppression du malware supprimera également définitivement le dossier de votre stockage pour protéger votre appareil. Cette action est irréversible.",
+            "confirmToContinue": "Veuillez confirmer pour continuer."
+          },
+          "securityWarning": {
+            "title": "Avertissement de sécurité",
+            "description": "Le malware est toujours présent et votre appareil est en danger.",
+            "confirmToCancel": "Êtes-vous sûr de vouloir annuler ?"
           }
         }
       },

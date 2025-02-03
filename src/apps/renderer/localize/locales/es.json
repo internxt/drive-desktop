@@ -348,6 +348,12 @@
       }
     },
     "antivirus": {
+      "stopScan": {
+        "title": "Cancelar escaneo",
+        "description": "¿Estás seguro de que quieres cancelar el escaneo actual?",
+        "cancel": "Cancelar el escaneo",
+        "continue": "Continuar escaneando"
+      },
       "featureLocked": {
         "title": "Función bloqueada",
         "subtitle": "Por favor, actualiza tu plan para usar esta función.",
@@ -364,7 +370,7 @@
         "cancel": "Cancelar"
       },
       "scanOptions": {
-        "stopScan": "Detener escaneo",
+        "stopScan": "Cancelar escaneo",
         "systemScan": {
           "text": "Escaneo del sistema antivirus",
           "action": "Iniciar escaneo"
@@ -375,6 +381,22 @@
           "selector": {
             "files": "Archivos",
             "folders": "Carpetas"
+          }
+        },
+        "removeMalware": {
+          "actions": {
+            "cancel": "Cancelar",
+            "remove": "Eliminar"
+          },
+          "actionRequired": {
+            "title": "Acción requerida",
+            "description": "Eliminar el malware también eliminará permanentemente la carpeta de tu almacenamiento para proteger tu dispositivo. Esta acción no se puede deshacer.",
+            "confirmToContinue": "Por favor, confirma para continuar."
+          },
+          "securityWarning": {
+            "title": "Advertencia de seguridad",
+            "description": "El malware sigue presente y tu dispositivo está en riesgo.",
+            "confirmToCancel": "¿Estás seguro de que deseas cancelar?"
           }
         }
       },

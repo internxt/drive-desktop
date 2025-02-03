@@ -19,12 +19,15 @@ export interface UseAntivirusReturn {
   isAntivirusAvailable: boolean;
   isDefenderActive: boolean;
   showErrorState: boolean;
+  showCancelScan: boolean;
   onScanUserSystemButtonClicked: () => Promise<void>;
   onScanAgainButtonClicked: () => void;
   onCancelScan: () => void;
   onCustomScanButtonClicked: (scanType: ScanType) => Promise<void>;
   onRemoveInfectedItems: (infectedFiles: string[]) => Promise<void>;
   isWinDefenderActive: () => Promise<boolean>;
+  onCancelScanButtonClicked: () => void;
+  onContinueWithScan: () => void;
 }
 
 export const useAntivirus = (): UseAntivirusReturn => {
@@ -34,9 +37,11 @@ export const useAntivirus = (): UseAntivirusReturn => {
   const [progressRatio, setProgressRatio] = useState<number>(0);
   const [isScanCompleted, setIsScanCompleted] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [isAntivirusAvailable, setIsAntivirusAvailable] = useState<boolean>(false);
+  const [isAntivirusAvailable, setIsAntivirusAvailable] =
+    useState<boolean>(false);
   const [isDefenderActive, setIsDefenderActive] = useState<boolean>(false);
   const [showErrorState, setShowErrorState] = useState<boolean>(false);
+  const [showCancelScan, setShowCancelScan] = useState<boolean>(false);
   const [view, setView] = useState<Views>('locked');
 
   useEffect(() => {
@@ -53,7 +58,8 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const isUserElegible = async () => {
     try {
-      const isAntivirusAvailable = await window.electron.antivirus.isAvailable();
+      const isAntivirusAvailable =
+        await window.electron.antivirus.isAvailable();
 
       if (!isAntivirusAvailable) {
         setView('locked');
@@ -70,7 +76,8 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const isWinDefenderActive = async () => {
     try {
-      const isWinDefenderActive = await window.electron.antivirus.isDefenderActive();
+      const isWinDefenderActive =
+        await window.electron.antivirus.isDefenderActive();
 
       setIsDefenderActive(isWinDefenderActive);
       return isWinDefenderActive;
@@ -110,6 +117,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     setIsScanning(false);
     setIsScanCompleted(false);
     setShowErrorState(false);
+    setShowCancelScan(false);
   };
 
   const onScanAgainButtonClicked = () => {
@@ -172,6 +180,14 @@ export const useAntivirus = (): UseAntivirusReturn => {
     }
   };
 
+  const onCancelScanButtonClicked = () => {
+    setShowCancelScan(true);
+  };
+
+  const onContinueWithScan = () => {
+    setShowCancelScan(false);
+  };
+
   const onCancelScan = async () => {
     try {
       resetStates();
@@ -193,11 +209,14 @@ export const useAntivirus = (): UseAntivirusReturn => {
     isAntivirusAvailable,
     isDefenderActive,
     showErrorState,
+    showCancelScan,
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
     onRemoveInfectedItems,
     onCancelScan,
     isWinDefenderActive,
+    onCancelScanButtonClicked,
+    onContinueWithScan,
   };
 };

@@ -1,6 +1,7 @@
 import { ShieldCheck, ShieldWarning } from 'phosphor-react';
 import { useTranslationContext } from '../../../../context/LocalContext';
 import Button from '../../../../components/Button';
+import { ActionDialog } from '../components/ActionDialog';
 
 interface ScanStateProps {
   isScanning: boolean;
@@ -10,17 +11,31 @@ interface ScanStateProps {
   currentScanPath?: string;
   corruptedFiles: string[];
   showErrorState: boolean;
+  showCancelScan: boolean;
+  onCancelScanButtonClicked: () => void;
   onStopProgressScanButtonClicked: () => void;
   onScanAgainButtonClicked: () => void;
+  onCancelStopScan: () => void;
   showItemsWithMalware: () => void;
 }
 
-const ScanSuccessful = ({ translate }: { translate: (key: string, keysToReplace?: Record<string, string | number>) => string }) => (
+const ScanSuccessful = ({
+  translate,
+}: {
+  translate: (
+    key: string,
+    keysToReplace?: Record<string, string | number>
+  ) => string;
+}) => (
   <div className="flex flex-col items-center gap-4">
     <ShieldCheck size={64} className="text-green" weight="fill" />
     <div className="flex flex-col gap-1 text-center">
-      <p className="font-medium text-gray-100">{translate('settings.antivirus.scanProcess.noFilesFound.title')}</p>
-      <p className="text-sm text-gray-80">{translate('settings.antivirus.scanProcess.noFilesFound.subtitle')}</p>
+      <p className="font-medium text-gray-100">
+        {translate('settings.antivirus.scanProcess.noFilesFound.title')}
+      </p>
+      <p className="text-sm text-gray-80">
+        {translate('settings.antivirus.scanProcess.noFilesFound.subtitle')}
+      </p>
     </div>
   </div>
 );
@@ -29,16 +44,25 @@ const CorruptedItemsFound = ({
   translate,
   onRemoveMalwareButtonClicked,
 }: {
-  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  translate: (
+    key: string,
+    keysToReplace?: Record<string, string | number>
+  ) => string;
   onRemoveMalwareButtonClicked: () => void;
 }) => (
   <div className="flex flex-col items-center gap-4">
     <ShieldWarning size={64} className="text-red" weight="fill" />
     <div className="flex flex-col gap-1 text-center">
-      <p className="font-medium text-gray-100">{translate('settings.antivirus.scanProcess.malwareFound.title')}</p>
-      <p className="text-sm text-gray-80">{translate('settings.antivirus.scanProcess.malwareFound.subtitle')}</p>
+      <p className="font-medium text-gray-100">
+        {translate('settings.antivirus.scanProcess.malwareFound.title')}
+      </p>
+      <p className="text-sm text-gray-80">
+        {translate('settings.antivirus.scanProcess.malwareFound.subtitle')}
+      </p>
     </div>
-    <Button onClick={onRemoveMalwareButtonClicked}>{translate('settings.antivirus.scanProcess.malwareFound.action')}</Button>
+    <Button onClick={onRemoveMalwareButtonClicked}>
+      {translate('settings.antivirus.scanProcess.malwareFound.action')}
+    </Button>
   </div>
 );
 
@@ -46,15 +70,22 @@ const ErrorWhileScanningItems = ({
   translate,
   onScanAgainButtonClicked,
 }: {
-  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  translate: (
+    key: string,
+    keysToReplace?: Record<string, string | number>
+  ) => string;
   onScanAgainButtonClicked: () => void;
 }) => (
   <div className="flex flex-col items-center gap-4">
     <ShieldWarning size={64} className="text-red" weight="fill" />
     <div className="flex flex-col gap-1 text-center">
-      <p className="font-medium text-gray-100">{translate('settings.antivirus.errorState.title')}</p>
+      <p className="font-medium text-gray-100">
+        {translate('settings.antivirus.errorState.title')}
+      </p>
     </div>
-    <Button onClick={onScanAgainButtonClicked}>{translate('settings.antivirus.errorState.button')}</Button>
+    <Button onClick={onScanAgainButtonClicked}>
+      {translate('settings.antivirus.errorState.button')}
+    </Button>
   </div>
 );
 
@@ -64,19 +95,29 @@ const ScanResult = ({
   translate,
   onRemoveMalwareButtonClicked,
 }: {
-  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  translate: (
+    key: string,
+    keysToReplace?: Record<string, string | number>
+  ) => string;
   onScanAgainButtonClicked: () => void;
   onRemoveMalwareButtonClicked: () => void;
   thereAreCorruptedFiles: boolean;
 }) => {
   if (thereAreCorruptedFiles) {
-    return <CorruptedItemsFound translate={translate} onRemoveMalwareButtonClicked={onRemoveMalwareButtonClicked} />;
+    return (
+      <CorruptedItemsFound
+        translate={translate}
+        onRemoveMalwareButtonClicked={onRemoveMalwareButtonClicked}
+      />
+    );
   }
 
   return (
     <div className="flex flex-col items-center gap-5">
       <ScanSuccessful translate={translate} />
-      <Button onClick={onScanAgainButtonClicked}>{translate('settings.antivirus.scanProcess.scanAgain')}</Button>
+      <Button onClick={onScanAgainButtonClicked}>
+        {translate('settings.antivirus.scanProcess.scanAgain')}
+      </Button>
     </div>
   );
 };
@@ -90,7 +131,10 @@ const ScanProcess = ({
   currentScanPath?: string;
   stopScanProcess: () => void;
   scannedProcess: number;
-  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  translate: (
+    key: string,
+    keysToReplace?: Record<string, string | number>
+  ) => string;
 }) => (
   <div className="flex w-full flex-col items-center gap-4">
     <div className="flex h-20 w-full max-w-[450px] flex-col text-center">
@@ -108,7 +152,7 @@ const ScanProcess = ({
       </div>
       <p>{scannedProcess}%</p>
     </div>
-    <Button variant="danger" onClick={stopScanProcess}>
+    <Button variant="primary" onClick={stopScanProcess}>
       {translate('settings.antivirus.scanOptions.stopScan')}
     </Button>
   </div>
@@ -122,8 +166,11 @@ export const ScanState = ({
   progressRatio,
   scannedFilesCount,
   showErrorState,
+  showCancelScan,
+  onCancelScanButtonClicked,
   onStopProgressScanButtonClicked,
   onScanAgainButtonClicked,
+  onCancelStopScan,
   showItemsWithMalware,
 }: ScanStateProps) => {
   const { translate } = useTranslationContext();
@@ -137,7 +184,7 @@ export const ScanState = ({
           <ScanProcess
             currentScanPath={currentScanPath}
             scannedProcess={progressRatio}
-            stopScanProcess={onStopProgressScanButtonClicked}
+            stopScanProcess={onCancelScanButtonClicked}
             translate={translate}
           />
         ) : (
@@ -154,7 +201,10 @@ export const ScanState = ({
         )}
 
         {!isScanning && !isScanCompleted && showErrorState && (
-          <ErrorWhileScanningItems translate={translate} onScanAgainButtonClicked={onScanAgainButtonClicked} />
+          <ErrorWhileScanningItems
+            translate={translate}
+            onScanAgainButtonClicked={onScanAgainButtonClicked}
+          />
         )}
 
         {!showErrorState && (
@@ -162,15 +212,37 @@ export const ScanState = ({
             <div className="flex w-full flex-row justify-center gap-5">
               <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
                 <p>{scannedFilesCount}</p>
-                <p>{translate('settings.antivirus.scanProcess.scannedFiles')}</p>
+                <p>
+                  {translate('settings.antivirus.scanProcess.scannedFiles')}
+                </p>
               </div>
               <div className="flex flex-col border  border-gray-10" />
               <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
                 <p>{corruptedFiles.length}</p>
-                <p>{translate('settings.antivirus.scanProcess.detectedFiles')}</p>
+                <p>
+                  {translate('settings.antivirus.scanProcess.detectedFiles')}
+                </p>
               </div>
             </div>
           </div>
+        )}
+
+        {showCancelScan && (
+          <ActionDialog
+            title={translate('settings.antivirus.stopScan.title')}
+            children={
+              <div className="flex w-full flex-col gap-1">
+                <p className="text-gray-60">
+                  {translate('settings.antivirus.stopScan.description')}
+                </p>
+              </div>
+            }
+            cancelText={translate('settings.antivirus.stopScan.continue')}
+            confirmText={translate('settings.antivirus.stopScan.cancel')}
+            onCancel={onCancelStopScan}
+            onConfirm={onStopProgressScanButtonClicked}
+            showDialog={showCancelScan}
+          />
         )}
       </div>
     </section>
