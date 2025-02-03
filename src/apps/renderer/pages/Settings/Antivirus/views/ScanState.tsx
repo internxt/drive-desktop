@@ -237,10 +237,12 @@ export const ScanState = ({
                 </p>
               </div>
             }
-            cancelText={translate('settings.antivirus.stopScan.continue')}
-            confirmText={translate('settings.antivirus.stopScan.cancel')}
-            onCancel={onCancelStopScan}
-            onConfirm={onStopProgressScanButtonClicked}
+            confirmText={translate('settings.antivirus.stopScan.continue')}
+            cancelText={translate('settings.antivirus.stopScan.cancel')}
+            onCancel={onStopProgressScanButtonClicked}
+            onConfirm={onCancelStopScan}
+            confirmButtonVariant="secondary"
+            cancelButtonVariant="danger"
             showDialog={showCancelScan}
             buttonsDirection="flex-col"
             centerText={true}

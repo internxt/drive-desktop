@@ -9,6 +9,7 @@ export const ActionDialog = ({
   cancelText,
   confirmText,
   confirmButtonVariant,
+  cancelButtonVariant,
   buttonsDirection = 'flex-row',
   centerText,
   onCancel,
@@ -20,6 +21,7 @@ export const ActionDialog = ({
   cancelText: string;
   confirmText: string;
   centerText?: boolean;
+  cancelButtonVariant?: 'danger' | 'primary' | 'secondary' | undefined;
   buttonsDirection?: 'flex-row' | 'flex-col';
   confirmButtonVariant?: 'danger' | 'primary' | 'secondary' | undefined;
   onCancel: () => void;
@@ -75,7 +77,7 @@ export const ActionDialog = ({
               <div className={`flex ${buttonsDirection} items-center gap-4`}>
                 <Button
                   className="w-full"
-                  variant="secondary"
+                  variant={cancelButtonVariant ?? 'secondary'}
                   onClick={onCancel}
                 >
                   {cancelText}
