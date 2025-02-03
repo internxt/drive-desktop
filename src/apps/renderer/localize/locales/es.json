@@ -131,11 +131,13 @@
         "upgrade": "Comprar espacio"
       },
       "dropdown": {
+        "new": "New",
         "preferences": "Preferencias",
         "sync": "Sincronizar",
         "issues": "Lista de errores",
         "send-feedback": "Enviar feedback",
         "support": "Ayuda",
+        "antivirus": "Antivirus",
         "logout": "Cerrar sesión",
         "quit": "Salir",
         "logout-confirmation": {
