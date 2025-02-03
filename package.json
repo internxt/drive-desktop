@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.3.4",
+  "version": "2.4.0",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -114,7 +114,8 @@
       "output": "release/build"
     },
     "extraResources": [
-      "./assets/**"
+      "./assets/**",
+      "./clamAV/**"
     ],
     "publish": {
       "provider": "github"
@@ -266,7 +267,8 @@
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/inxt-js": "^2.0.8",
     "@internxt/lib": "^1.1.6",
-    "@internxt/sdk": "^1.5.3",
+    "@internxt/scan": "1.0.2",
+    "@internxt/sdk": "1.9.7",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@sentry/electron": "^4.5.0",

@@ -20,6 +20,7 @@ declare global {
       RUDDERSTACK_DATA_PLANE_URL: string;
       DRIVE_API_URL: string;
       SENTRY_DSN: string;
+      PAYMENTS_URL: string;
     }
   }
 }

@@ -1,20 +1,29 @@
 import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
-import { DriveFolder } from '../entities/DriveFolder';
 import { Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
+import { SCANNED_ITEMS_DB_ENTITY, ScannedItem } from '../entities/ScannedItem';
 
-export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFolder> {
-  private repository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
+export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedItem> {
+  private repository: Repository<ScannedItem> = AppDataSource.getRepository(SCANNED_ITEMS_DB_ENTITY);
+
   async connect(): Promise<{ success: boolean }> {
     return {
       success: true,
     };
   }
 
-  async get(uuid: DriveFolder['uuid']) {
-    const match = await this.repository.findOneBy({ uuid });
+  async get(id: ScannedItem['id']) {
+    const match = await this.repository.findOneBy({ id });
+    return {
+      success: true,
+      result: match,
+    };
+  }
+
+  async getByPathName(pathName: ScannedItem['pathName']) {
+    const match = await this.repository.findOneBy({ pathName });
     return {
       success: true,
       result: match,
@@ -29,24 +38,8 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         result: result,
       };
     } catch (error) {
-      return {
-        success: false,
-        result: [],
-      };
-    }
-  }
-  async getAllByFolder(parentId: number) {
-    try {
-      const result = await this.repository.find({
-        where: {
-          parentId,
-        },
-      });
-      return {
-        success: true,
-        result: result,
-      };
-    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error getting all DB items:', error);
       return {
         success: false,
         result: [],
@@ -54,21 +47,21 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
     }
   }
 
-  async update(uuid: DriveFolder['uuid'], updatePayload: Partial<DriveFolder>) {
+  async update(id: ScannedItem['id'], updatePayload: Partial<ScannedItem>) {
     const match = await this.repository.update(
       {
-        uuid,
+        id,
       },
       updatePayload
     );
 
     return {
       success: match.affected ? true : false,
-      result: (await this.get(uuid)).result,
+      result: (await this.get(id)).result,
     };
   }
 
-  async create(creationPayload: DriveFolder) {
+  async create(creationPayload: ScannedItem) {
     const createResult = await this.repository.save(creationPayload);
 
     return {
@@ -77,8 +70,8 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
     };
   }
 
-  async remove(uuid: DriveFolder['uuid']) {
-    const result = await this.repository.delete({ uuid });
+  async remove(id: ScannedItem['id']) {
+    const result = await this.repository.delete({ id });
 
     return {
       success: result.affected ? true : false,
@@ -87,12 +80,12 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
 
   async getLastUpdated(): Promise<{
     success: boolean;
-    result: DriveFolder | null;
+    result: ScannedItem | null;
   }> {
     try {
       const queryResult = await this.repository
-        .createQueryBuilder('drive_folder')
-        .orderBy('datetime(drive_folder.updatedAt)', 'DESC')
+        .createQueryBuilder(SCANNED_ITEMS_DB_ENTITY)
+        .orderBy(`datetime(${SCANNED_ITEMS_DB_ENTITY}.updatedAt)`, 'DESC')
         .getOne();
 
       return {
@@ -101,7 +94,7 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
       };
     } catch (error) {
       Sentry.captureException(error);
-      Logger.error('Error fetching newest drive folder:', error);
+      Logger.error('Error fetching newest drive file:', error);
       return {
         success: false,
         result: null,
@@ -109,7 +102,7 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
     }
   }
 
-  async searchPartialBy(partialData: Partial<DriveFolder>): Promise<{ success: boolean; result: DriveFolder[] }> {
+  async searchPartialBy(partialData: Partial<ScannedItem>): Promise<{ success: boolean; result: ScannedItem[] }> {
     try {
       const result = await this.repository.find({
         where: partialData,

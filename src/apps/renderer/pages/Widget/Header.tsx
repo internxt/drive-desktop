@@ -25,8 +25,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   const generalIssues = useGeneralIssues();
   const { backupErrors } = useBackupErrors();
 
-  const numberOfIssues: number =
-    processIssues.length + backupErrors.length + generalIssues.length;
+  const numberOfIssues: number = processIssues.length + backupErrors.length + generalIssues.length;
 
   const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
 
@@ -92,9 +91,9 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     } else if (status === 'error') {
       displayUsage = '';
     } else if (usage) {
-      displayUsage = `${bytes.format(usage.usageInBytes)} ${translate(
-        'widget.header.usage.of'
-      )} ${usage.isInfinite ? '∞' : bytes.format(usage.limitInBytes)}`;
+      displayUsage = `${bytes.format(usage.usageInBytes)} ${translate('widget.header.usage.of')} ${
+        usage.isInfinite ? '∞' : bytes.format(usage.limitInBytes)
+      }`;
     } else {
       displayUsage = '';
     }
@@ -106,10 +105,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         </div>
 
         <div className="flex flex-1 flex-col truncate">
-          <p
-            className="truncate text-sm font-medium text-gray-100"
-            title={user?.email}
-          >
+          <p className="truncate text-sm font-medium text-gray-100" title={user?.email}>
             {user?.email}
           </p>
           <p className="text-xs text-gray-50">{displayUsage}</p>
@@ -132,9 +128,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     return (
       <div
         className={`relative flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg before:absolute before:-inset-px hover:bg-surface hover:shadow hover:ring-1 hover:ring-gray-20 dark:hover:bg-gray-10 ${
-          active
-            ? 'bg-surface shadow ring-1 ring-gray-20 dark:bg-gray-10'
-            : undefined
+          active ? 'bg-surface shadow ring-1 ring-gray-20 dark:bg-gray-10' : undefined
         } ${disabled ? 'pointer-events-none text-gray-40' : undefined}`}
         onClick={onClick}
       >
@@ -143,15 +137,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     );
   };
 
-  const DropdownItem = ({
-    children,
-    active,
-    onClick,
-  }: {
-    children: JSX.Element;
-    active?: boolean;
-    onClick?: () => void;
-  }) => {
+  const DropdownItem = ({ children, active, onClick }: { children: JSX.Element; active?: boolean; onClick?: () => void }) => {
     return (
       <button
         className={`w-full cursor-pointer px-4 py-1.5 text-left text-sm text-gray-80 active:bg-gray-10 ${
@@ -168,19 +154,12 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
 
   const ItemsSection = () => (
     <div className="flex shrink-0 items-center space-x-0.5 text-gray-80">
-      {process.env.platform === 'darwin' && (
-        <div className="h-0 w-0" tabIndex={0} ref={dummyRef} />
-      )}
-      <HeaderItemWrapper
-        onClick={() => handleOpenURL('https://drive.internxt.com')}
-      >
+      {process.env.platform === 'darwin' && <div className="h-0 w-0" tabIndex={0} ref={dummyRef} />}
+      <HeaderItemWrapper onClick={() => handleOpenURL('https://drive.internxt.com')}>
         <Globe size={22} />
       </HeaderItemWrapper>
 
-      <HeaderItemWrapper
-        disabled={!virtualDriveCanBeOpened()}
-        onClick={window.electron.openVirtualDriveFolder}
-      >
+      <HeaderItemWrapper disabled={!virtualDriveCanBeOpened()} onClick={window.electron.openVirtualDriveFolder}>
         <FolderSimple size={22} />
       </HeaderItemWrapper>
 
@@ -202,17 +181,12 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
               leaveTo="transform scale-95 opacity-0"
               className="relative z-10"
             >
-              <Menu.Items className="absolute right-0 top-1 max-w-[288px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
+              <Menu.Items className="absolute right-0 top-1 w-screen max-w-[270px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem
-                        active={active}
-                        onClick={() => window.electron.openSettingsWindow()}
-                      >
-                        <span>
-                          {translate('widget.header.dropdown.preferences')}
-                        </span>
+                      <DropdownItem active={active} onClick={() => window.electron.openSettingsWindow()}>
+                        <span>{translate('widget.header.dropdown.preferences')}</span>
                       </DropdownItem>
                     </div>
                   )}
@@ -222,9 +196,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                     return (
                       <div>
                         <DropdownItem active={active} onClick={onSyncClick}>
-                          <span>
-                            {translate('widget.header.dropdown.sync')}
-                          </span>
+                          <span>{translate('widget.header.dropdown.sync')}</span>
                         </DropdownItem>
                       </div>
                     );
@@ -233,17 +205,10 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem
-                        active={active}
-                        onClick={window.electron.openProcessIssuesWindow}
-                      >
+                      <DropdownItem active={active} onClick={window.electron.openProcessIssuesWindow}>
                         <div className="flex items-center justify-between">
                           <p>{translate('widget.header.dropdown.issues')}</p>
-                          {numberOfIssues > 0 && (
-                            <p className="text-sm font-medium text-red">
-                              {numberOfIssuesDisplay}
-                            </p>
-                          )}
+                          {numberOfIssues > 0 && <p className="text-sm font-medium text-red">{numberOfIssuesDisplay}</p>}
                         </div>
                       </DropdownItem>
                     </div>
@@ -252,15 +217,8 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem
-                        active={active}
-                        onClick={() =>
-                          handleOpenURL('https://help.internxt.com')
-                        }
-                      >
-                        <span>
-                          {translate('widget.header.dropdown.support')}
-                        </span>
+                      <DropdownItem active={active} onClick={() => handleOpenURL('https://help.internxt.com')}>
+                        <span>{translate('widget.header.dropdown.support')}</span>
                       </DropdownItem>
                     </div>
                   )}
@@ -268,13 +226,22 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem
-                        active={active}
-                        onClick={handleLogoutModalOpen}
-                      >
-                        <span>
-                          {translate('widget.header.dropdown.logout')}
-                        </span>
+                      <DropdownItem active={active} onClick={() => window.electron.openSettingsWindow('ANTIVIRUS')}>
+                        <div className="flex flex-row items-center justify-between">
+                          <span>{translate('widget.header.dropdown.antivirus')}</span>
+                          <div className="flex rounded-full border border-primary bg-primary/5 px-2 py-1 text-primary">
+                            {translate('widget.header.dropdown.new')}
+                          </div>
+                        </div>
+                      </DropdownItem>
+                    </div>
+                  )}
+                </Menu.Item>
+                <Menu.Item>
+                  {({ active }) => (
+                    <div>
+                      <DropdownItem active={active} onClick={handleLogoutModalOpen}>
+                        <span>{translate('widget.header.dropdown.logout')}</span>
                       </DropdownItem>
                     </div>
                   )}

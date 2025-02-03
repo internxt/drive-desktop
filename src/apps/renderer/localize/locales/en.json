@@ -131,11 +131,13 @@
         "upgrade": "Upgrade"
       },
       "dropdown": {
+        "new": "Nuevo",
         "preferences": "Preferences",
         "sync": "Sync",
         "issues": "Issues",
         "send-feedback": "Send feedback",
         "support": "Support",
+        "antivirus": "Antivirus",
         "logout": "Log out",
         "quit": "Quit",
         "logout-confirmation": {
