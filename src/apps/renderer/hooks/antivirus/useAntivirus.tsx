@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
 
-export interface SelectedItemToScanProps {
-  path: string;
-  itemName: string;
-  isDirectory: boolean;
-}
-
 export type ScanType = 'files' | 'folders';
 export interface ScannedItemsProps {
   file: string;
