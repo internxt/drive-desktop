@@ -20,7 +20,7 @@ const hashItem = async (filePath: string): Promise<string> => {
 
 export const transformItem = async (fullPath: string): Promise<ScannedItem> => {
   const stats = await stat(fullPath);
-  const hashedFile = await hashItem(fullPath);
+  const fileHash = await hashItem(fullPath);
 
   const currentTime = new Date().toISOString();
 
@@ -28,7 +28,7 @@ export const transformItem = async (fullPath: string): Promise<ScannedItem> => {
     id: randomUUID(),
     type: extname(fullPath).toLowerCase(),
     size: stats.size,
-    hash: hashedFile,
+    hash: fileHash,
     createdAt: currentTime,
     updatedAt: currentTime,
     creationTimeW: stats.ctime.toISOString(),
