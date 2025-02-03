@@ -126,6 +126,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
   };
 
   const onCustomScanButtonClicked = async (scanType: ScanType) => {
+    resetStates();
     const isDefenderActive = await isWinDefenderActive();
     if (isDefenderActive) return;
 
@@ -144,6 +145,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
   };
 
   const onScanUserSystemButtonClicked = async () => {
+    resetStates();
     const isDefenderActive = await isWinDefenderActive();
     if (isDefenderActive) return;
 
@@ -172,9 +174,9 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const onCancelScan = async () => {
     try {
+      resetStates();
       await window.electron.antivirus.cancelScan();
       setView('chooseItems');
-      resetStates();
     } catch (error) {
       console.log('ERROR CANCELING SCAN: ', error);
     }
