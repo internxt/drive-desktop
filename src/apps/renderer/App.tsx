@@ -14,7 +14,6 @@ import { TranslationProvider } from './context/LocalContext';
 import useLanguageChangedListener from './hooks/useLanguage';
 import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
-import ProcessIssues from './pages/ProcessIssues';
 import Settings from './pages/Settings';
 import Widget from './pages/Widget';
 import Migration from './pages/Migration';

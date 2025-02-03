@@ -12,6 +12,18 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
   ): Promise<{ success: boolean; result: DatabaseItemType | null }>;
 
   /**
+   * Gets an item by path name from the database
+   */
+  getByPathName(
+    itemId: string
+  ): Promise<{ success: boolean; result: DatabaseItemType | null }>;
+
+  /**
+   * Gets all items in database
+   */
+  getAll(): Promise<{ success: boolean; result: DatabaseItemType[] | null }>;
+
+  /**
    * Updates an item in the database
    */
   update(

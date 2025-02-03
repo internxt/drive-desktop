@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import { ProgressData } from './antivirus/ManualSystemScan';
 
 class EventBus extends EventEmitter {}
 
@@ -26,15 +27,15 @@ interface Events {
 
   // Used when we have at least one full remote-local sync so we can display content
   INITIAL_SYNC_READY: () => void;
+
+  // Get the scan progress
+  ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
 }
 
 declare interface EventBus {
   on<U extends keyof Events>(event: U, listener: Events[U]): this;
 
-  emit<U extends keyof Events>(
-    event: U,
-    ...args: Parameters<Events[U]>
-  ): boolean;
+  emit<U extends keyof Events>(event: U, ...args: Parameters<Events[U]>): boolean;
 }
 
 const eventBus = new EventBus();

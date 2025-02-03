@@ -22,7 +22,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   const { virtualDriveCanBeOpened } = useVirtualDriveStatus();
 
   const processIssues = useProcessIssues();
-  const generalIssues = useGeneralIssues();
+  const { generalIssues } = useGeneralIssues();
   const { backupErrors } = useBackupErrors();
 
   const numberOfIssues: number =
