@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
-import { DriveOperationInfo } from '../../shared/types';
+import { useState } from 'react';
 import throttle from 'lodash/throttle';
+import { DriveOperationInfo } from '../../../../shared/types';
 
-export function useDriveInfoHistory() {
+export function useDriveInfoHistoryLogic(MAX_ITEMS = 50) {
   const [driveHistory, setDriveHistory] = useState<DriveOperationInfo[]>([]);
 
-  const addItemToHistoryDebounced = throttle((item: DriveOperationInfo) => {
-    const MAX_ITEMS = 50;
+  function addItemToHistory(item: DriveOperationInfo) {
+
 
     setDriveHistory((prevList) => {
       const prevListWithoutItem = prevList.filter(
@@ -15,15 +15,13 @@ export function useDriveInfoHistory() {
 
       const newList = [item, ...prevListWithoutItem.slice(0, MAX_ITEMS - 1)];
 
-      const result = newList.length <= MAX_ITEMS ? newList : newList.slice(1);
-
-      return result;
+      return newList.length <= MAX_ITEMS ? newList : newList.slice(1);
     });
-  }, 1000);
-
-  function addItemToHistory(item: DriveOperationInfo) {
-    addItemToHistoryDebounced(item);
   }
+
+  const addItemToHistoryDebounced = throttle((item: DriveOperationInfo) => {
+    addItemToHistory(item);
+  }, 1000);
 
   function clearHistory() {
     setDriveHistory([]);
@@ -41,14 +39,10 @@ export function useDriveInfoHistory() {
     });
   }
 
-  useEffect(() => {
-    const removeListener = window.electron.onSyncInfoUpdate(addItemToHistory);
-
-    return removeListener;
-  }, []);
-
   return {
     driveHistory,
+    addItemToHistory,
+    addItemToHistoryDebounced,
     clearHistory,
     removeDriveOperationsInProgress,
   };

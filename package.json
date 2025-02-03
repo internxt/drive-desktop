@@ -172,6 +172,7 @@
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/async": "^3.2.16",
     "@types/better-sqlite3": "^7.6.4",
     "@types/bytes": "^3.1.1",
