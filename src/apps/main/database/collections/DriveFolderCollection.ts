@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
-export class DriveFoldersCollection implements Pick<DatabaseCollectionAdapter<DriveFolder>, 'connect' | 'get' | 'getAll' | ''> {
+export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFolder> {
   private repository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
   async connect(): Promise<{ success: boolean }> {
     return {
