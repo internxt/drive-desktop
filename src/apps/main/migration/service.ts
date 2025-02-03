@@ -4,7 +4,7 @@ import { app, shell } from 'electron';
 import fsExtra from 'fs-extra';
 import configStore from '../config';
 import Logger from 'electron-log';
-const DESKTOP_FOLDER_NAME = 'Moved files (Internxt)';
+const DESKTOP_FOLDER_NAME = 'Moved files (Internxt Drive)';
 
 export const openMigrationFailedFolder = async () => {
   const desktopFolderPath = path.join(
