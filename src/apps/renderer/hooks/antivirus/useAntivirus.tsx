@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { SelectedItemToScanProps } from '../../../main/antivirus/Antivirus';
+
+export interface SelectedItemToScanProps {
+  path: string;
+  itemName: string;
+  isDirectory: boolean;
+}
 
 export type ScanType = 'files' | 'folders';
 export interface ScannedItemsProps {
