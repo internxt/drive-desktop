@@ -19,7 +19,6 @@ export const getFilesFromDirectory = async (dir: string, cb: (file: string) => P
 
   try {
     items = await readdir(dir, { withFileTypes: true });
-    // console.log('ITEMS: ', items);
   } catch (err) {
     const error = err;
 

@@ -4,7 +4,7 @@ import { getFilesFromDirectory } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 import { queue, QueueObject } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
-import { HashedSystemTreeCollection } from '../database/collections/HashedSystemTreeCollection';
+import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { isPermissionError } from './utils/isPermissionError';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
@@ -14,7 +14,7 @@ let dailyScanInterval: NodeJS.Timeout | null = null;
 
 export function scheduleDailyScan() {
   async function startBackgroundScan() {
-    console.log('STARTING USER SYSTEM SCAN (BACKGROUND)...');
+    console.log('Starting user system scan (BACKGROUND)...');
     await scanInBackground();
   }
 
@@ -37,7 +37,7 @@ export function clearDailyScan() {
 }
 
 const scanInBackground = async (): Promise<void> => {
-  const hashedFilesAdapter = new HashedSystemTreeCollection();
+  const hashedFilesAdapter = new ScannedItemCollection();
   const database = new DBScannerConnection(hashedFilesAdapter);
   const antivirus = await Antivirus.createInstance();
 
@@ -47,7 +47,6 @@ const scanInBackground = async (): Promise<void> => {
   console.time('scan-background');
 
   const scan = async (filePath: string) => {
-    // console.log('SCAN ITEM IN BACKGROUND: ', filePath);
     try {
       const scannedItem = await transformItem(filePath);
       const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);

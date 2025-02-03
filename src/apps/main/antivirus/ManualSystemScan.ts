@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { ScannedItem } from '../database/entities/FileSystemHashed';
+import { ScannedItem } from '../database/entities/ScannedItem';
 import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
@@ -8,7 +8,7 @@ import { countFilesUsingWindowsCommand, getFilesFromDirectory } from './utils/ge
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './utils/dbConections';
-import { HashedSystemTreeCollection } from '../database/collections/HashedSystemTreeCollection';
+import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 
 export interface ProgressData {
   totalScannedFiles: number;
@@ -51,8 +51,8 @@ export class ManualSystemScan {
     this.cancelled = false;
     this.scanSessionId = 0;
 
-    const hashedFilesAdapter = new HashedSystemTreeCollection();
-    this.dbConnection = new DBScannerConnection(hashedFilesAdapter);
+    const scannedItemsAdapter = new ScannedItemCollection();
+    this.dbConnection = new DBScannerConnection(scannedItemsAdapter);
   }
 
   trackProgress = (currentSession: number, data: { file: string; isInfected: boolean }) => {
@@ -121,7 +121,6 @@ export class ManualSystemScan {
         file: previousScannedItem.pathName,
         isInfected: previousScannedItem.isInfected,
       });
-      return;
     }
   };
 
@@ -155,8 +154,7 @@ export class ManualSystemScan {
         const scannedItem = await transformItem(filePath);
         const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
         if (previousScannedItem) {
-          await this.handlePreviousScannedItem(currentSession, scannedItem, previousScannedItem);
-          return;
+          return this.handlePreviousScannedItem(currentSession, scannedItem, previousScannedItem);
         }
 
         const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);

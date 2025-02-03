@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'crypto';
 import { createReadStream } from 'fs';
 import { stat } from 'fs/promises';
 import { extname } from 'path';
-import { ScannedItem } from '../../database/entities/FileSystemHashed';
+import { ScannedItem } from '../../database/entities/ScannedItem';
 import { pipeline } from 'stream/promises';
 
 const hashItem = async (filePath: string): Promise<string> => {
@@ -10,7 +10,6 @@ const hashItem = async (filePath: string): Promise<string> => {
     const hasher = createHash('sha256');
     const stream = createReadStream(filePath);
 
-    stream.pipe(hasher);
     await pipeline(stream, hasher);
     return hasher.digest('hex');
   } catch (error) {

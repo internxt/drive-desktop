@@ -1,8 +1,8 @@
-import { DatabaseCollectionAdapter } from '../../database/adapters/base';
-import { ScannedItem } from '../../database/entities/FileSystemHashed';
+import { ScannedItemCollection } from '../../database/collections/ScannedItemCollection';
+import { ScannedItem } from '../../database/entities/ScannedItem';
 
 export class DBScannerConnection {
-  constructor(private db: DatabaseCollectionAdapter<ScannedItem>) {}
+  constructor(private db: ScannedItemCollection) {}
 
   addItemToDatabase = async (item: ScannedItem): Promise<boolean> => {
     const currentTime = new Date().toISOString();

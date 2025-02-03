@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
 import Logger from 'electron-log';
-import { ScannedItem } from './entities/FileSystemHashed';
+import { ScannedItem } from './entities/ScannedItem';
 const dbPath = app.getPath('appData') + '/internxt-drive/internxt_desktop.db';
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',

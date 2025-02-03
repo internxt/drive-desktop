@@ -3,10 +3,10 @@ import { AppDataSource } from '../data-source';
 import { Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
-import { ScannedItem } from '../entities/FileSystemHashed';
+import { SCANNED_ITEMS_DB_ENTITY, ScannedItem } from '../entities/ScannedItem';
 
-export class HashedSystemTreeCollection implements DatabaseCollectionAdapter<ScannedItem> {
-  private repository: Repository<ScannedItem> = AppDataSource.getRepository('hashed_files');
+export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedItem> {
+  private repository: Repository<ScannedItem> = AppDataSource.getRepository(SCANNED_ITEMS_DB_ENTITY);
 
   async connect(): Promise<{ success: boolean }> {
     return {
@@ -82,8 +82,8 @@ export class HashedSystemTreeCollection implements DatabaseCollectionAdapter<Sca
   }> {
     try {
       const queryResult = await this.repository
-        .createQueryBuilder('hashed_files')
-        .orderBy('datetime(hashed_files.updatedAt)', 'DESC')
+        .createQueryBuilder(SCANNED_ITEMS_DB_ENTITY)
+        .orderBy(`datetime(${SCANNED_ITEMS_DB_ENTITY}.updatedAt)`, 'DESC')
         .getOne();
 
       return {

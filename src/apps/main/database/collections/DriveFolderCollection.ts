@@ -5,11 +5,8 @@ import { Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
-export class DriveFoldersCollection
-  implements DatabaseCollectionAdapter<DriveFolder>
-{
-  private repository: Repository<DriveFolder> =
-    AppDataSource.getRepository('drive_folder');
+export class DriveFoldersCollection implements Pick<DatabaseCollectionAdapter<DriveFolder>, 'connect' | 'get' | 'getAll' | ''> {
+  private repository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
   async connect(): Promise<{ success: boolean }> {
     return {
       success: true,
@@ -112,9 +109,7 @@ export class DriveFoldersCollection
     }
   }
 
-  async searchPartialBy(
-    partialData: Partial<DriveFolder>
-  ): Promise<{ success: boolean; result: DriveFolder[] }> {
+  async searchPartialBy(partialData: Partial<DriveFolder>): Promise<{ success: boolean; result: DriveFolder[] }> {
     try {
       const result = await this.repository.find({
         where: partialData,

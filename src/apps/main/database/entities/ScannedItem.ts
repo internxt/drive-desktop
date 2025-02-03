@@ -1,6 +1,8 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity('hashed_files')
+export const SCANNED_ITEMS_DB_ENTITY = 'scanned_files';
+
+@Entity(SCANNED_ITEMS_DB_ENTITY)
 export class ScannedItem {
   @PrimaryColumn({ nullable: false, unique: true })
   id!: string;
