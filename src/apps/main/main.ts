@@ -32,7 +32,7 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
-import { app, nativeTheme } from 'electron';
+import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
@@ -40,11 +40,7 @@ import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
-import {
-  getOrCreateWidged,
-  getWidget,
-  setBoundsOfWidgetByPath,
-} from './windows/widget';
+import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus } from './tray/tray';
@@ -109,6 +105,10 @@ app
       setTrayStatus('IDLE');
     }
 
+    ipcMain.handle('is-dark-mode-active', () => {
+      return nativeTheme.shouldUseDarkColors;
+    });
+
     checkForUpdates();
   })
   .catch(Logger.error);
@@ -121,8 +121,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.hide();
 
-    nativeTheme.themeSource = (configStore.get('preferedTheme') ||
-      'system') as Theme;
+    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
 
     const widget = await getOrCreateWidged();
     const tray = getTray();
