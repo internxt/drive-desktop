@@ -24,6 +24,7 @@ export interface UseAntivirusReturn {
   progressRatio: number;
   isAntivirusAvailable: boolean;
   isDefenderActive: boolean;
+  showErrorState: boolean;
   onScanUserSystemButtonClicked: () => Promise<void>;
   onScanAgainButtonClicked: () => void;
   onCancelScan: () => void;
@@ -41,6 +42,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
   const [isScanning, setIsScanning] = useState(false);
   const [isAntivirusAvailable, setIsAntivirusAvailable] = useState<boolean>(false);
   const [isDefenderActive, setIsDefenderActive] = useState<boolean>(false);
+  const [showErrorState, setShowErrorState] = useState<boolean>(false);
   const [view, setView] = useState<Views>('locked');
 
   useEffect(() => {
@@ -67,7 +69,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
       setIsAntivirusAvailable(true);
       setView('chooseItems');
     } catch (error) {
-      //
       setIsAntivirusAvailable(false);
       setView('locked');
     }
@@ -135,10 +136,9 @@ export const useAntivirus = (): UseAntivirusReturn => {
     try {
       await window.electron.antivirus.scanItems(items);
       setIsScanCompleted(true);
-    } catch (error) {
-      console.error('ERROR WHILE SCANNING ITEMS: ', error);
-    } finally {
       setIsScanning(false);
+    } catch (error) {
+      setShowErrorState(true);
     }
   };
 
@@ -167,6 +167,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
       await window.electron.antivirus.scanItems();
     } catch (error) {
       console.error('ERROR WHILE SCANNING SYSTEM: ', error);
+      setShowErrorState(true);
     }
   };
 
@@ -200,6 +201,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     progressRatio,
     isAntivirusAvailable,
     isDefenderActive,
+    showErrorState,
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,

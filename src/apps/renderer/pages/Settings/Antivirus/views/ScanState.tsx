@@ -9,6 +9,7 @@ interface ScanStateProps {
   progressRatio: number;
   currentScanPath?: string;
   corruptedFiles: string[];
+  showErrorState: boolean;
   onStopProgressScanButtonClicked: () => void;
   onScanAgainButtonClicked: () => void;
   showItemsWithMalware: () => void;
@@ -38,6 +39,23 @@ const CorruptedItemsFound = ({
       <p className="text-sm text-gray-80">{translate('settings.antivirus.scanProcess.malwareFound.subtitle')}</p>
     </div>
     <Button onClick={onRemoveMalwareButtonClicked}>{translate('settings.antivirus.scanProcess.malwareFound.action')}</Button>
+  </div>
+);
+
+const ErrorWhileScanningItems = ({
+  translate,
+  onScanAgainButtonClicked,
+}: {
+  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  onScanAgainButtonClicked: () => void;
+}) => (
+  <div className="flex flex-col items-center gap-4">
+    <ShieldWarning size={64} className="text-red" weight="fill" />
+    <div className="flex flex-col gap-1 text-center">
+      <p className="font-medium text-gray-100">{translate('settings.antivirus.scanProcess.malwareFound.title')}</p>
+      <p className="text-sm text-gray-80">{translate('settings.antivirus.scanProcess.malwareFound.subtitle')}</p>
+    </div>
+    <Button onClick={onScanAgainButtonClicked}>{translate('settings.antivirus.scanProcess.scanAgain')}</Button>
   </div>
 );
 
@@ -104,6 +122,7 @@ export const ScanState = ({
   currentScanPath,
   progressRatio,
   scannedFilesCount,
+  showErrorState,
   onStopProgressScanButtonClicked,
   onScanAgainButtonClicked,
   showItemsWithMalware,
@@ -134,19 +153,24 @@ export const ScanState = ({
             onRemoveMalwareButtonClicked={showItemsWithMalware}
           />
         )}
-        <div className="flex h-full w-full items-stretch  gap-5 rounded-xl bg-surface py-4">
-          <div className="flex w-full flex-row justify-center gap-5">
-            <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
-              <p>{scannedFilesCount}</p>
-              <p>{translate('settings.antivirus.scanProcess.scannedFiles')}</p>
-            </div>
-            <div className="flex flex-col border  border-gray-10" />
-            <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
-              <p>{corruptedFiles.length}</p>
-              <p>{translate('settings.antivirus.scanProcess.detectedFiles')}</p>
+
+        {showErrorState && <ErrorWhileScanningItems translate={translate} onScanAgainButtonClicked={onScanAgainButtonClicked} />}
+
+        {!showErrorState && (
+          <div className="flex h-full w-full items-stretch  gap-5 rounded-xl bg-surface py-4">
+            <div className="flex w-full flex-row justify-center gap-5">
+              <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
+                <p>{scannedFilesCount}</p>
+                <p>{translate('settings.antivirus.scanProcess.scannedFiles')}</p>
+              </div>
+              <div className="flex flex-col border  border-gray-10" />
+              <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
+                <p>{corruptedFiles.length}</p>
+                <p>{translate('settings.antivirus.scanProcess.detectedFiles')}</p>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

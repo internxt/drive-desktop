@@ -28,6 +28,7 @@ export default function AntivirusSection({
     progressRatio,
     isAntivirusAvailable,
     isDefenderActive,
+    showErrorState,
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
@@ -52,6 +53,7 @@ export default function AntivirusSection({
         progressRatio={progressRatio}
         currentScanPath={currentScanPath}
         corruptedFiles={infectedFiles}
+        showErrorState={showErrorState}
         onStopProgressScanButtonClicked={onCancelScan}
         onScanAgainButtonClicked={onScanAgainButtonClicked}
         showItemsWithMalware={showItemsWithMalware}

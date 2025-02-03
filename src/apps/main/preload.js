@@ -374,14 +374,14 @@ contextBridge.exposeInMainWorld('electron', {
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
   antivirus: {
-    isAvailable: async () => {
-      return await ipcRenderer.invoke('antivirus:is-available');
+    isAvailable: () => {
+      return ipcRenderer.invoke('antivirus:is-available');
     },
-    isDefenderActive: async () => {
-      return await ipcRenderer.invoke('antivirus:is-Defender-active');
+    isDefenderActive: () => {
+      return ipcRenderer.invoke('antivirus:is-Defender-active');
     },
-    scanItems: async (paths) => {
-      return await ipcRenderer.invoke('antivirus:scan-items', paths);
+    scanItems: (paths) => {
+      return ipcRenderer.invoke('antivirus:scan-items', paths);
     },
 
     onScanProgress: (callback) => {
@@ -390,17 +390,17 @@ contextBridge.exposeInMainWorld('electron', {
     removeScanProgressListener: () => {
       ipcRenderer.removeAllListeners('antivirus:scan-progress');
     },
-    scanSystem: async (systemPath) => {
-      return await ipcRenderer.invoke('antivirus:scan-system', systemPath);
+    scanSystem: (systemPath) => {
+      return ipcRenderer.invoke('antivirus:scan-system', systemPath);
     },
-    addItemsToScan: async (getFiles) => {
-      return await ipcRenderer.invoke('antivirus:add-items-to-scan', getFiles);
+    addItemsToScan: (getFiles) => {
+      return ipcRenderer.invoke('antivirus:add-items-to-scan', getFiles);
     },
-    removeInfectedFiles: async (infectedFiles) => {
-      return await ipcRenderer.invoke('antivirus:remove-infected-files', infectedFiles);
+    removeInfectedFiles: (infectedFiles) => {
+      return ipcRenderer.invoke('antivirus:remove-infected-files', infectedFiles);
     },
-    cancelScan: async () => {
-      return await ipcRenderer.invoke('antivirus:cancel-scan');
+    cancelScan: () => {
+      return ipcRenderer.invoke('antivirus:cancel-scan');
     },
   },
 
