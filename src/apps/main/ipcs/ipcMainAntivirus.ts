@@ -15,7 +15,7 @@ export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
 
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        return reject(`Error ejecutando el comando: ${stderr}`);
+        return reject(`ERROR DETECTING IF DEFENDER IS ACTIVATED: ${stderr}`);
       }
 
       const isDisabled = stdout.trim().toLowerCase() === 'true';
