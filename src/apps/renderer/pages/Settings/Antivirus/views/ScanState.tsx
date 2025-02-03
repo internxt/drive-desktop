@@ -242,6 +242,8 @@ export const ScanState = ({
             onCancel={onCancelStopScan}
             onConfirm={onStopProgressScanButtonClicked}
             showDialog={showCancelScan}
+            buttonsDirection="flex-col"
+            centerText={true}
           />
         )}
       </div>

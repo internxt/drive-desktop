@@ -9,6 +9,8 @@ export const ActionDialog = ({
   cancelText,
   confirmText,
   confirmButtonVariant,
+  buttonsDirection = 'flex-row',
+  centerText,
   onCancel,
   onConfirm,
 }: {
@@ -17,6 +19,8 @@ export const ActionDialog = ({
   children: ReactNode;
   cancelText: string;
   confirmText: string;
+  centerText?: boolean;
+  buttonsDirection?: 'flex-row' | 'flex-col';
   confirmButtonVariant?: 'danger' | 'primary' | 'secondary' | undefined;
   onCancel: () => void;
   onConfirm: () => void;
@@ -29,7 +33,7 @@ export const ActionDialog = ({
         //
       }}
     >
-      <div className="min-h-screen px-4 text-center ">
+      <div className={'min-h-screen px-4 text-center '}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-200"
@@ -56,19 +60,31 @@ export const ActionDialog = ({
           leaveTo="opacity-0 scale-95"
         >
           <div
-            style={{ width: '340px' }}
-            className="my-8 inline-block transform overflow-hidden rounded-2xl bg-surface p-4 text-left align-middle shadow transition-all"
+            className={`my-8 ${
+              centerText && 'text-center'
+            } inline-block max-w-[380px] transform overflow-hidden rounded-2xl bg-surface p-4 text-left align-middle shadow transition-all`}
           >
-            <Dialog.Title as="h3" className="text-neutral-700 mb-3 text-lg font-medium leading-6">
+            <Dialog.Title
+              as="h3"
+              className="text-neutral-700 mb-3 text-lg font-medium leading-6"
+            >
               {title}
             </Dialog.Title>
             <div className="flex w-full flex-col gap-3">
               <div className="">{children}</div>
-              <div className="flex flex-row items-center gap-4">
-                <Button className="w-full" variant="secondary" onClick={onCancel}>
+              <div className={`flex ${buttonsDirection} items-center gap-4`}>
+                <Button
+                  className="w-full"
+                  variant="secondary"
+                  onClick={onCancel}
+                >
                   {cancelText}
                 </Button>
-                <Button className="w-full" variant={confirmButtonVariant ?? 'danger'} onClick={onConfirm}>
+                <Button
+                  className="w-full"
+                  variant={confirmButtonVariant ?? 'danger'}
+                  onClick={onConfirm}
+                >
                   {confirmText}
                 </Button>
               </div>
