@@ -68,12 +68,11 @@ export class ManualSystemScan {
       this.infectedFiles.push(file);
       this.totalInfectedFiles++;
     }
-    this.totalScannedFiles++;
 
     const progressValue =
       this.totalItemsToScan > 0
         ? Math.min(
-            85,
+            90,
             Math.round((this.totalScannedFiles / this.totalItemsToScan) * 100)
           )
         : 0;
@@ -169,7 +168,7 @@ export class ManualSystemScan {
 
     const scan = async (filePath: string) => {
       if (this.cancelled) return;
-
+      this.totalScannedFiles++;
       try {
         const scannedItem = await transformItem(filePath);
         const previousScannedItem = await this.dbConnection.getItemFromDatabase(
