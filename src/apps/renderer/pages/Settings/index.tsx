@@ -11,7 +11,8 @@ import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
 import DownloadFolderSelector from './Backups/Selector/DownloadSelector';
 import AntivirusSection from './Antivirus';
 import { RemoveMalwareState } from './Antivirus/views/RemoveMalwareState';
-import { AntivirusProvider } from '../../context/AntivirusContext';
+
+const SHOW_ANTIVIRUS_TOOL = false;
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
@@ -46,40 +47,45 @@ export default function Settings() {
   return (
     <DeviceProvider>
       <BackupProvider>
-        <AntivirusProvider>
-          <div
-            ref={rootRef}
-            style={{
-              minWidth: subsection === 'list' ? 'auto' : 400,
-              minHeight: subsection === 'list' ? 'auto' : 420,
-            }}
-          >
-            {subsection === 'list' && activeSection === 'BACKUPS' && <BackupFolderSelector onClose={() => setSubsection('panel')} />}
-            {subsection === 'download_list' && <DownloadFolderSelector onClose={() => setSubsection('panel')} />}
-            {subsection === 'list' && activeSection === 'ANTIVIRUS' && <RemoveMalwareState onCancel={() => setSubsection('panel')} />}
-            {subsection === 'panel' && (
-              <>
-                <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" />
-                <Header active={activeSection} onClick={setActiveSection} />
-                <div className={'relative bg-gray-1 p-5'}>
-                  <GeneralSection active={activeSection === 'GENERAL'} />
-                  <AccountSection active={activeSection === 'ACCOUNT'} />
-                  <BackupsSection
-                    active={activeSection === 'BACKUPS'}
-                    showBackedFolders={() => setSubsection('list')}
-                    showDownloadFolers={() => setSubsection('download_list')}
-                    showIssues={() => window.electron.openProcessIssuesWindow()}
-                  />
+        {/* !TODO: Undo comment for this provider once all Antivirus logic is added  */}
+        {/* <AntivirusProvider> */}
+        <div
+          ref={rootRef}
+          style={{
+            minWidth: subsection === 'list' ? 'auto' : 400,
+            minHeight: subsection === 'list' ? 'auto' : 420,
+          }}
+        >
+          {subsection === 'list' && activeSection === 'BACKUPS' && <BackupFolderSelector onClose={() => setSubsection('panel')} />}
+          {subsection === 'download_list' && <DownloadFolderSelector onClose={() => setSubsection('panel')} />}
+          {SHOW_ANTIVIRUS_TOOL && subsection === 'list' && activeSection === 'ANTIVIRUS' && (
+            <RemoveMalwareState onCancel={() => setSubsection('panel')} />
+          )}
+          {subsection === 'panel' && (
+            <>
+              <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" />
+              <Header active={activeSection} onClick={setActiveSection} />
+              <div className={'relative bg-gray-1 p-5'}>
+                <GeneralSection active={activeSection === 'GENERAL'} />
+                <AccountSection active={activeSection === 'ACCOUNT'} />
+                <BackupsSection
+                  active={activeSection === 'BACKUPS'}
+                  showBackedFolders={() => setSubsection('list')}
+                  showDownloadFolers={() => setSubsection('download_list')}
+                  showIssues={() => window.electron.openProcessIssuesWindow()}
+                />
+                {SHOW_ANTIVIRUS_TOOL && (
                   <AntivirusSection
                     onCancelDeactivateWinDefender={() => setActiveSection('GENERAL')}
                     active={activeSection === 'ANTIVIRUS'}
                     showItemsWithMalware={() => setSubsection('list')}
                   />
-                </div>
-              </>
-            )}
-          </div>
-        </AntivirusProvider>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+        {/* </AntivirusProvider> */}
       </BackupProvider>
     </DeviceProvider>
   );
