@@ -44,6 +44,8 @@ ipcMain.handle('antivirus:is-Defender-active', async () => {
     const isWinDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
     return isWinDefenderActive;
   } catch (error) {
+    const err = error as Error;
+    console.log(`Error while getting the Win Defender status: ${err.stack ?? err.message}`);
     return false;
   }
 });

@@ -18,6 +18,7 @@ export class DBScannerConnection {
       const createdItem = await this.db.create(itemToAdd);
       return createdItem.success;
     } catch (error) {
+      Logger.error('Error adding an item to the DB:', error);
       return false;
     }
   };
