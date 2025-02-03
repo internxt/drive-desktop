@@ -14,6 +14,7 @@ import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { broadcastToWindows } from '../windows';
 import { ipcMain } from 'electron';
 import { DependencyInjectionUserProvider } from '../../shared/dependency-injection/DependencyInjectionUserProvider';
+import { BackupError } from '../../backups/BackupError';
 
 export type Device = {
   id: number;
@@ -98,7 +99,7 @@ export async function getOrCreateDevice() {
     );
 
     if (res.ok) {
-      const device = await res.json() as Device;
+      const device = (await res.json()) as Device;
       if (!device.removed) {
         return decryptDeviceName(device);
       }
@@ -205,7 +206,13 @@ async function postBackup(name: string): Promise<Backup> {
   if (res.ok) {
     return res.json();
   }
-  throw new Error('Post backup request wasnt successful');
+  if (res.status === 409) {
+    throw new BackupError('FOLDER_ALREADY_EXISTS');
+  }
+  if (res.status >= 500) {
+    throw new BackupError('BAD_RESPONSE');
+  }
+  throw new BackupError('UNKNOWN');
 }
 
 /**

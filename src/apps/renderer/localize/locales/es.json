@@ -385,5 +385,27 @@
   },
   "common": {
     "cancel": "Cancelar"
+  },
+  "backupErrors": {
+    "noInternet": {
+      "title": "Error en la Copia de Seguridad",
+      "message": "Conexión de red perdida. Por favor, verifica tu internet e inténtalo de nuevo."
+    },
+    "serverError": {
+      "title": "Error en la Copia de Seguridad",
+      "message": "Se produjo un error en el servidor durante la copia de seguridad. Por favor, inténtalo de nuevo más tarde."
+    },
+    "clientError": {
+      "title": "Error en la Copia de Seguridad",
+      "message": "Se produjo un error en tu dispositivo durante el proceso de copia de seguridad."
+    },
+    "generic": {
+      "title": "Error en la Copia de Seguridad",
+      "message": "Ocurrió un error inesperado durante el proceso de copia de seguridad."
+    }
+  },
+  "networkConnectionLost": {
+    "title": "Conexión de red perdida",
+    "message": "Se ha perdido la conexión de red. Por favor, verifica tu conexión a internet e inténtalo de nuevo."
   }
 }

@@ -47,11 +47,11 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
 
   useEffect(() => {
     if (!isOnLine) {
-      new Notification('Network connection lost', {
-        body: 'Your network connection has been lost. Please check your internet connection and try again.',
+      new Notification(translate('networkConnectionLost.title'), {
+        body: translate('networkConnectionLost.message'),
       });
     }
-  }, [isOnLine]);
+  }, [isOnLine, translate]);
 
   return (
     <div className="flex h-11 shrink-0 items-center space-x-2.5 border-t border-gray-10 px-2.5 text-sm font-medium text-gray-100 dark:border-gray-5">

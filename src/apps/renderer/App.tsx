@@ -17,7 +17,7 @@ import Settings from './pages/Settings';
 import Widget from './pages/Widget';
 import Migration from './pages/Migration';
 import Feedback from './pages/Feedback';
-
+import { useBackupNotifications } from './hooks/useBackupNotifications';
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -55,6 +55,7 @@ function Loader() {
 
 export default function App() {
   useLanguageChangedListener();
+  useBackupNotifications();
 
   return (
     <Router>
