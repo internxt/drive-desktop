@@ -1,11 +1,5 @@
 import { useEffect, useState } from 'react';
 
-export interface SelectedItemToScanProps {
-  path: string;
-  itemName: string;
-  isDirectory: boolean;
-}
-
 export type ScanType = 'files' | 'folders';
 export interface ScannedItemsProps {
   file: string;
@@ -115,6 +109,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     setInfectedFiles([]);
     setIsScanning(false);
     setIsScanCompleted(false);
+    setShowErrorState(false);
   };
 
   const onScanAgainButtonClicked = () => {
@@ -131,6 +126,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
   };
 
   const onCustomScanButtonClicked = async (scanType: ScanType) => {
+    resetStates();
     const isDefenderActive = await isWinDefenderActive();
     if (isDefenderActive) return;
 
@@ -149,6 +145,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
   };
 
   const onScanUserSystemButtonClicked = async () => {
+    resetStates();
     const isDefenderActive = await isWinDefenderActive();
     if (isDefenderActive) return;
 
@@ -177,9 +174,9 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const onCancelScan = async () => {
     try {
+      resetStates();
       await window.electron.antivirus.cancelScan();
       setView('chooseItems');
-      resetStates();
     } catch (error) {
       console.log('ERROR CANCELING SCAN: ', error);
     }

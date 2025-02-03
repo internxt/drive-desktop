@@ -131,11 +131,13 @@
         "upgrade": "Acheter maintenant"
       },
       "dropdown": {
+        "new": "Nouveau",
         "preferences": "Préférences",
         "sync": "Synchroniser",
         "issues": "Liste d'erreurs",
         "send-feedback": "Envoyer des commentaires",
         "support": "Aide",
+        "antivirus": "Antivirus",
         "logout": "Déconnecter",
         "quit": "Fermer",
         "logout-confirmation": {

@@ -153,7 +153,7 @@ export const ScanState = ({
           />
         )}
 
-        {!isScanning && showErrorState && (
+        {!isScanning && !isScanCompleted && showErrorState && (
           <ErrorWhileScanningItems translate={translate} onScanAgainButtonClicked={onScanAgainButtonClicked} />
         )}
 
