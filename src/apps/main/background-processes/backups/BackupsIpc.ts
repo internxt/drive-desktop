@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import { TypedIPC } from '../../../shared/IPC/TypedIPC';
-import { BackgroundProcessBackupsMessages } from '../../../shared/IPC/events/backups/BackgroundProcessBackupsMessages';
 import { MainProcessBackupsMessages } from '../../../shared/IPC/events/backups/MainProcessBackupsMessages';
+import { BackgroundProcessBackupsMessages } from '../../../shared/IPC/events/backups/BackgroundProcessBackupsMessages';
 
 type BackupsIPCMain = TypedIPC<
   BackgroundProcessBackupsMessages,

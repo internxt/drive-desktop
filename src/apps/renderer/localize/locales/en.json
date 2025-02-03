@@ -386,5 +386,27 @@
   },
   "common": {
     "cancel": "Cancel"
+  },
+  "backupErrors": {
+    "noInternet": {
+      "title": "Backup Failed",
+      "message": "Network connection lost. Please check your internet and try again."
+    },
+    "serverError": {
+      "title": "Backup Failed",
+      "message": "Server error occurred while performing the backup. Please try again later."
+    },
+    "clientError": {
+      "title": "Backup Failed",
+      "message": "An error occurred on your device during the backup process."
+    },
+    "generic": {
+      "title": "Backup Failed",
+      "message": "An unexpected error occurred during the backup process."
+    }
+  },
+  "networkConnectionLost": {
+    "title": "Network connection lost",
+    "message": "Your network connection has been lost. Please check your internet connection and try again."
   }
 }
