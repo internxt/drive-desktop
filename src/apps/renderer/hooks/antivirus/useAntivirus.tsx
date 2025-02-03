@@ -109,6 +109,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     setInfectedFiles([]);
     setIsScanning(false);
     setIsScanCompleted(false);
+    setShowErrorState(false);
   };
 
   const onScanAgainButtonClicked = () => {
