@@ -1,5 +1,6 @@
 import { ScannedItemCollection } from '../../database/collections/ScannedItemCollection';
 import { ScannedItem } from '../../database/entities/ScannedItem';
+import Logger from 'electron-log';
 
 export class DBScannerConnection {
   constructor(private db: ScannedItemCollection) {}
@@ -33,6 +34,7 @@ export class DBScannerConnection {
       const createdItem = await this.db.update(itemId, itemToUpdate);
       return createdItem;
     } catch (error) {
+      Logger.error('Error updating the item in the DB:', error);
       return false;
     }
   };

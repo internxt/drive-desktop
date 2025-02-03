@@ -38,6 +38,8 @@ export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedI
         result: result,
       };
     } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error getting all DB items:', error);
       return {
         success: false,
         result: [],
