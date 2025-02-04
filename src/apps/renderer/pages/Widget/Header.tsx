@@ -12,6 +12,7 @@ import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/sentry';
 import useBackupErrors from '../../hooks/backups/useBackupErrors';
+import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
 
 interface HeadersProps {
   setIsLogoutModalOpen: (isOpen: boolean) => void;
@@ -202,7 +203,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
               leaveTo="transform scale-95 opacity-0"
               className="relative z-10"
             >
-              <Menu.Items className="absolute right-0 top-1 max-w-[288px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
+              <Menu.Items className="absolute right-0 top-1 w-screen max-w-[270px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
                 <Menu.Item>
                   {({ active }) => (
                     <div>
@@ -265,6 +266,29 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                     </div>
                   )}
                 </Menu.Item>
+                {SHOW_ANTIVIRUS_TOOL && (
+                  <Menu.Item>
+                    {({ active }) => (
+                      <div>
+                        <DropdownItem
+                          active={active}
+                          onClick={() =>
+                            window.electron.openSettingsWindow('ANTIVIRUS')
+                          }
+                        >
+                          <div className="flex flex-row items-center justify-between">
+                            <span>
+                              {translate('widget.header.dropdown.antivirus')}
+                            </span>
+                            <div className="flex rounded-full border border-primary bg-primary/5 px-2 py-1 text-primary">
+                              {translate('widget.header.dropdown.new')}
+                            </div>
+                          </div>
+                        </DropdownItem>
+                      </div>
+                    )}
+                  </Menu.Item>
+                )}
                 <Menu.Item>
                   {({ active }) => (
                     <div>

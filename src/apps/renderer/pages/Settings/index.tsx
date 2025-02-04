@@ -9,6 +9,11 @@ import { DeviceProvider } from '../../context/DeviceContext';
 import { BackupProvider } from '../../context/BackupContext';
 import BackupFolderSelector from './Backups/Selector/BackupFolderSelector';
 import DownloadFolderSelector from './Backups/Selector/DownloadSelector';
+import AntivirusSection from './Antivirus';
+import { RemoveMalwareState } from './Antivirus/views/RemoveMalwareState';
+import { AntivirusProvider } from '../../context/AntivirusContext';
+
+export const SHOW_ANTIVIRUS_TOOL = false;
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
@@ -28,12 +33,19 @@ export default function Settings() {
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     resizeObserver.observe(rootRef.current!);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
   }, []);
 
   useEffect(() => {
     const url = new URL(window.location.href);
     const section = url.searchParams.get('section');
-    if (section && ['BACKUPS', 'GENERAL', 'ACCOUNT'].includes(section)) {
+    if (
+      section &&
+      ['BACKUPS', 'GENERAL', 'ACCOUNT', 'ANTIVIRUS'].includes(section)
+    ) {
       setActiveSection(section as Section);
     }
   }, []);
@@ -41,36 +53,57 @@ export default function Settings() {
   return (
     <DeviceProvider>
       <BackupProvider>
-        <div
-          ref={rootRef}
-          style={{ minWidth: 400, minHeight: subsection === 'list' ? 0 : 420 }}
-        >
-          {subsection === 'list' && (
-            <BackupFolderSelector onClose={() => setSubsection('panel')} />
-          )}
-          {subsection === 'download_list' && (
-            <DownloadFolderSelector onClose={() => setSubsection('panel')} />
-          )}
-          {subsection === 'panel' && (
-            <>
-              <WindowTopBar
-                title="Internxt"
-                className="bg-surface dark:bg-gray-5"
-              />
-              <Header active={activeSection} onClick={setActiveSection} />
-              <div className={'bg-gray-1 p-5'}>
-                <GeneralSection active={activeSection === 'GENERAL'} />
-                <AccountSection active={activeSection === 'ACCOUNT'} />
-                <BackupsSection
-                  active={activeSection === 'BACKUPS'}
-                  showBackedFolders={() => setSubsection('list')}
-                  showDownloadFolers={() => setSubsection('download_list')}
-                  showIssues={() => window.electron.openProcessIssuesWindow()}
+        <AntivirusProvider>
+          <div
+            ref={rootRef}
+            style={{
+              minWidth: subsection === 'list' ? 'auto' : 400,
+              minHeight: subsection === 'list' ? 'auto' : 420,
+            }}
+          >
+            {subsection === 'list' && activeSection === 'BACKUPS' && (
+              <BackupFolderSelector onClose={() => setSubsection('panel')} />
+            )}
+            {subsection === 'download_list' && (
+              <DownloadFolderSelector onClose={() => setSubsection('panel')} />
+            )}
+            {SHOW_ANTIVIRUS_TOOL &&
+              subsection === 'list' &&
+              activeSection === 'ANTIVIRUS' && (
+                <RemoveMalwareState onCancel={() => setSubsection('panel')} />
+              )}
+            {subsection === 'panel' && (
+              <>
+                <WindowTopBar
+                  title="Internxt"
+                  className="bg-surface dark:bg-gray-5"
                 />
-              </div>
-            </>
-          )}
-        </div>
+                <Header active={activeSection} onClick={setActiveSection} />
+                <div className={'relative bg-gray-1 p-5'}>
+                  <GeneralSection active={activeSection === 'GENERAL'} />
+                  <AccountSection active={activeSection === 'ACCOUNT'} />
+                  <BackupsSection
+                    active={activeSection === 'BACKUPS'}
+                    showBackedFolders={() => setSubsection('list')}
+                    showDownloadFolers={() => setSubsection('download_list')}
+                    showIssues={() => window.electron.openProcessIssuesWindow()}
+                  />
+                  {SHOW_ANTIVIRUS_TOOL && (
+                    <AntivirusSection
+                      onCancelDeactivateWinDefender={() =>
+                        setActiveSection('GENERAL')
+                      }
+                      active={
+                        SHOW_ANTIVIRUS_TOOL && activeSection === 'ANTIVIRUS'
+                      }
+                      showItemsWithMalware={() => setSubsection('list')}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </AntivirusProvider>
       </BackupProvider>
     </DeviceProvider>
   );

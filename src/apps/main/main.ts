@@ -24,6 +24,7 @@ import './realtime';
 import './tray/tray';
 import './tray/handlers';
 import './fordwardToWindows';
+import './ipcs/ipcMainAntivirus';
 import './analytics/handlers';
 import './platform/handlers';
 import './thumbnails/handlers';
@@ -32,7 +33,7 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
-import { app, nativeTheme } from 'electron';
+import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
@@ -40,11 +41,7 @@ import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
-import {
-  getOrCreateWidged,
-  getWidget,
-  setBoundsOfWidgetByPath,
-} from './windows/widget';
+import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus } from './tray/tray';
@@ -54,6 +51,8 @@ import { setCleanUpFunction } from './quit';
 import { stopSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
+import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
+import clamAVServer from './antivirus/ClamAVDaemon';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -109,6 +108,12 @@ app
       setTrayStatus('IDLE');
     }
 
+    ipcMain.handle('is-dark-mode-active', () => {
+      return nativeTheme.shouldUseDarkColors;
+    });
+
+    await clamAVServer.startClamdServer();
+
     checkForUpdates();
   })
   .catch(Logger.error);
@@ -121,8 +126,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.hide();
 
-    nativeTheme.themeSource = (configStore.get('preferedTheme') ||
-      'system') as Theme;
+    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
 
     const widget = await getOrCreateWidged();
     const tray = getTray();
@@ -140,6 +144,10 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
+    await clamAVServer.waitForClamd();
+
+    scheduleDailyScan();
+
     setCleanUpFunction(stopSyncEngineWatcher);
   } catch (error) {
     Logger.error(error);
@@ -153,6 +161,8 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   if (widget) {
     widget.hide();
     widget.destroy();
+    clearDailyScan();
+    clamAVServer.stopClamdServer();
   }
 
   await createAuthWindow();

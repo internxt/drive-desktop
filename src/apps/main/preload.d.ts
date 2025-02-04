@@ -11,6 +11,8 @@ declare interface Window {
 
     pathChanged(path: string): void;
 
+    isDarkModeActive(): boolean;
+
     logger: {
       info: (...message: unknown[]) => void;
       error: (...message: unknown[]) => void;
@@ -114,7 +116,9 @@ declare interface Window {
 
     sendReport: typeof import('./bug-report/service').sendReport;
 
-    openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT'): void;
+    openSettingsWindow(
+      section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS'
+    ): void;
 
     settingsWindowResized(payload: { width: number; height: number }): void;
 
@@ -243,5 +247,40 @@ declare interface Window {
       callback: (data: any) => void,
       eventName?: string
     ): () => void;
+
+    antivirus: {
+      isAvailable: () => Promise<boolean>;
+      isDefenderActive: () => Promise<boolean>;
+      scanItems: (
+        folderPaths?: { path: string; itemName: string; isDirectory: boolean }[]
+      ) => Promise<void>;
+
+      scanSystem: () => Promise<void>;
+
+      onScanProgress: (
+        callback: (progress: {
+          scanId: string;
+          currentScanPath: string;
+          infectedFiles: string[];
+          progress: number;
+          totalInfectedFiles: number;
+          totalScannedFiles: number;
+          done?: boolean;
+        }) => void
+      ) => Promise<void>;
+
+      removeScanProgressListener: () => void;
+
+      addItemsToScan: (getFiles?: boolean) => Promise<
+        | {
+            path: string;
+            itemName: string;
+            isDirectory: boolean;
+          }[]
+        | undefined
+      >;
+      removeInfectedFiles: (infectedFiles: string[]) => Promise<void>;
+      cancelScan: () => Promise<void>;
+    };
   };
 }
