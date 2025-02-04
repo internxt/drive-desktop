@@ -12,15 +12,15 @@ import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 
 describe('File path updater', () => {
-  let repository = mockDeep<FileRepository>();
-  let fileFinderByContentsId = new FileFinderByContentsId(repository);
-  let folderFinder = mockDeep<FolderFinder>();
-  let ipcRenderer = mockDeep<SyncEngineIpc>();
-  let localFileSystem = mockDeep<LocalFileSystem>();
-  let eventBus = mockDeep<EventBus>();
-  let remoteFileSystem = mockDeep<RemoteFileSystem>();
+  const repository = mockDeep<FileRepository>();
+  const fileFinderByContentsId = new FileFinderByContentsId(repository);
+  const folderFinder = mockDeep<FolderFinder>();
+  const ipcRenderer = mockDeep<SyncEngineIpc>();
+  const localFileSystem = mockDeep<LocalFileSystem>();
+  const eventBus = mockDeep<EventBus>();
+  const remoteFileSystem = mockDeep<RemoteFileSystem>();
 
-  let SUT = new FilePathUpdater(
+  const SUT = new FilePathUpdater(
     remoteFileSystem,
     localFileSystem,
     repository,

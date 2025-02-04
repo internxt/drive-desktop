@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/electron/renderer';
 import { mockDeep } from 'vitest-mock-extended';
-import { FetchDataService } from './FetchData.service';
+import { FetchDataService } from './fetchData.service';
 import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { SyncEngineIpc } from '../ipcRendererSyncEngine';

@@ -78,7 +78,6 @@ describe('File Creator', () => {
 
     fileRepository.searchByPartial.mockReturnValueOnce(existingFile).mockReturnValueOnce(existingFile);
 
-    const deleterSpy = vi.spyOn(fileDeleter, 'run').mockResolvedValueOnce(Promise.resolve());
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
@@ -88,7 +87,7 @@ describe('File Creator', () => {
 
     await SUT.run(path, contents);
 
-    expect(deleterSpy).toBeCalledWith(existingFile.contentsId);
+    expect(fileDeleter.run).toBeCalledWith(existingFile.contentsId);
 
     expect(remoteFileSystemMock.persist).toBeCalledWith(
       expect.objectContaining({
