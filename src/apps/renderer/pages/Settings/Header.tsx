@@ -1,19 +1,31 @@
-import { At, Gear, Icon, Shield } from '@phosphor-icons/react';
+import { At, Gear, Icon } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 
 import { useTranslationContext } from '../../context/LocalContext';
 import { UilHistory } from '@iconscout/react-unicons';
 
-const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS', 'ANTIVIRUS'] as const;
+const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS'] as const;
 export type Section = (typeof sectionValues)[number];
 
-function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; onClick: () => void; isActive: boolean }) {
+function Item({
+  Icon,
+  title,
+  onClick,
+  isActive,
+}: {
+  Icon: Icon;
+  title: string;
+  onClick: () => void;
+  isActive: boolean;
+}) {
   return (
     <button
       onClick={onClick}
       type="button"
       className={`relative flex w-20 cursor-pointer flex-col items-center rounded-lg px-4 py-1.5 outline-none transition-colors duration-100 ease-in-out ${
-        isActive ? 'text-gray-100' : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
+        isActive
+          ? 'text-gray-100'
+          : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
       }`}
     >
       <Icon size={28} />
@@ -22,7 +34,13 @@ function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; o
   );
 }
 
-export default function Header({ onClick, active }: { onClick: (active: Section) => void; active: Section }) {
+export default function Header({
+  onClick,
+  active,
+}: {
+  onClick: (active: Section) => void;
+  active: Section;
+}) {
   const { translate } = useTranslationContext();
   const sections: {
     label: Section;
@@ -31,18 +49,19 @@ export default function Header({ onClick, active }: { onClick: (active: Section)
     { label: 'GENERAL', icon: Gear },
     { label: 'ACCOUNT', icon: At },
     { label: 'BACKUPS', icon: UilHistory },
-    { label: 'ANTIVIRUS', icon: Shield },
+    // { label: 'ANTIVIRUS', icon: Shield },
   ];
 
-  const animationVariants: Record<Section, { left: string }> = sectionValues.reduce(
-    (prev, current, i) => ({
-      ...prev,
-      [current]: {
-        left: `${(i / sectionValues.length) * 100}%`,
-      },
-    }),
-    {} as Record<Section, { left: string }>
-  );
+  const animationVariants: Record<Section, { left: string }> =
+    sectionValues.reduce(
+      (prev, current, i) => ({
+        ...prev,
+        [current]: {
+          left: `${(i / sectionValues.length) * 100}%`,
+        },
+      }),
+      {} as Record<Section, { left: string }>
+    );
 
   return (
     <div className="draggable border-b border-gray-10 bg-surface pb-1.5 dark:bg-gray-5">
