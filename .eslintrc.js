@@ -6,9 +6,6 @@ module.exports = {
       parserOptions: {
         project: ['./tsconfig.json'],
       },
-      env: {
-        jest: true,
-      },
     },
   ],
   rules: {
