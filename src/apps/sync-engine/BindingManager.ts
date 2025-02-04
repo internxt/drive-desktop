@@ -240,7 +240,7 @@ export class BindingsManager {
   async watch() {
     const callbacks = {
       handleAdd: (task: QueueItem) => this.handleAdd.run({ self: this, task, drive: this.container.virtualDrive }),
-      handleHydrate: (task: QueueItem) => this.handleHydrate.run({ task, drive: this.container.virtualDrive }),
+      handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task, drive: this.container.virtualDrive }),
       handleDehydrate: (task: QueueItem) => this.handleDehydrate.run({ task, drive: this.container.virtualDrive }),
       handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
     };
