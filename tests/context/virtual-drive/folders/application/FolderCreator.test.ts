@@ -1,95 +1,64 @@
-import { FolderCreator } from '../../../../../src/context/virtual-drive/folders/application/FolderCreator';
-import { Folder } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
-import { EventBusMock } from '../../shared/__mock__/EventBusMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
-import { FolderPlaceholderConverterMock } from '../__mocks__/FolderPlaceholderConverterMock';
-import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
-import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
+import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
-import { FolderLocalFileSystemMock } from '../__mocks__/FolderLocalFileSystemMock';
+import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
+import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
+import { FolderPlaceholderConverter } from '@/context/virtual-drive/folders/application/FolderPlaceholderConverter';
+import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
+import { mockDeep } from 'vitest-mock-extended';
 
 describe('Folder Creator', () => {
-  let SUT: FolderCreator;
+  const repository = mockDeep<FolderRepository>();
+  const remote = mockDeep<HttpRemoteFolderSystem>();
+  const syncEngineIpc = mockDeep<SyncEngineIpc>();
+  const eventBus = mockDeep<EventBus>();
+  const folderPlaceholderConverter = mockDeep<FolderPlaceholderConverter>();
 
-  let repository: FolderRepositoryMock;
-  let remote: FolderRemoteFileSystemMock;
-  let syncEngineIpc: IpcRendererSyncEngineMock;
-  let eventBus: EventBusMock;
-  let folderPlaceholderConverter: FolderPlaceholderConverterMock;
-  let folderLocalFileSystemMock: FolderLocalFileSystemMock;
+  const SUT = new FolderCreator(repository, remote, syncEngineIpc, eventBus, folderPlaceholderConverter);
 
   beforeEach(() => {
-    repository = new FolderRepositoryMock();
-    syncEngineIpc = new IpcRendererSyncEngineMock();
-    remote = new FolderRemoteFileSystemMock();
-
-    eventBus = new EventBusMock();
-    folderPlaceholderConverter = new FolderPlaceholderConverterMock(
-      folderLocalFileSystemMock
-    );
-
-    SUT = new FolderCreator(
-      repository,
-      remote,
-      syncEngineIpc,
-      eventBus,
-      folderPlaceholderConverter
-    );
+    vi.resetAllMocks();
   });
 
   it('creates on a folder from a offline folder', async () => {
+    // Arrange
     const offlineFolder = OfflineFolderMother.random();
     const folder = FolderMother.fromPartial(offlineFolder.attributes());
+    remote.persist.mockResolvedValueOnce(folder.attributes());
 
-    remote.persistMock.mockResolvedValueOnce(folder.attributes());
-
-    repository.addMock.mockResolvedValueOnce(Promise.resolve());
-
+    // Act
     await SUT.run(offlineFolder);
 
-    expect(repository.addMock).toBeCalledWith(folder);
+    // Assert
+    expect(repository.add).toBeCalledWith(folder);
   });
 
   describe('Synchronization messages', () => {
     it('sends the message FOLDER_CREATING', async () => {
+      // Arrange
       const offlineFolder = OfflineFolderMother.random();
+      const folder = FolderMother.fromPartial(offlineFolder.attributes());
+      remote.persist.mockResolvedValueOnce(folder.attributes());
 
-      const resultFolderAttributes = FolderMother.fromPartial(
-        offlineFolder.attributes()
-      ).attributes();
-
-      remote.persistMock.mockResolvedValueOnce(resultFolderAttributes);
-
-      repository.addMock.mockResolvedValueOnce(
-        Folder.create(resultFolderAttributes)
-      );
-
+      // Act
       await SUT.run(offlineFolder);
 
-      expect(syncEngineIpc.sendMock).toBeCalledWith('FOLDER_CREATING', {
-        name: offlineFolder.name,
-      });
+      // Assert
+      expect(syncEngineIpc.send).toBeCalledWith('FOLDER_CREATING', { name: offlineFolder.name });
     });
 
     it('sends the message FOLDER_CREATED', async () => {
+      // Arrange
       const offlineFolder = OfflineFolderMother.random();
+      const folder = FolderMother.fromPartial(offlineFolder.attributes());
+      remote.persist.mockResolvedValueOnce(folder.attributes());
 
-      const resultFolderAttributes = FolderMother.fromPartial(
-        offlineFolder.attributes()
-      ).attributes();
-
-      repository.addMock.mockResolvedValueOnce(
-        Folder.create(resultFolderAttributes)
-      );
-
-      remote.persistMock.mockResolvedValueOnce(resultFolderAttributes);
-
+      // Act
       await SUT.run(offlineFolder);
 
-      expect(syncEngineIpc.sendMock).toBeCalledWith('FOLDER_CREATED', {
-        name: offlineFolder.name,
-      });
+      // Arrange
+      expect(syncEngineIpc.send).toBeCalledWith('FOLDER_CREATED', { name: offlineFolder.name });
     });
   });
 });

@@ -15,7 +15,7 @@ describe('Environment Content File Downloader', () => {
 
       const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
-      const handler = jest.fn();
+      const handler = vi.fn();
 
       downloader.on('start', handler);
 
@@ -31,7 +31,7 @@ describe('Environment Content File Downloader', () => {
 
       const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
-      const handler = jest.fn();
+      const handler = vi.fn();
 
       downloader.on('finish', handler);
 
@@ -50,7 +50,7 @@ describe('Environment Content File Downloader', () => {
 
       const downloader = new EnvironmentContentFileDownloader(strategy, bucket);
 
-      const handler = jest.fn();
+      const handler = vi.fn();
 
       downloader.on('progress', handler);
 
