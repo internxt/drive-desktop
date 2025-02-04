@@ -208,7 +208,6 @@ export class ManualSystemScan {
       if (!pathNames) {
         const userSystemPath = await getUserSystemPath();
         if (!userSystemPath) return;
-
         this.totalItemsToScan = await countFilesUsingWindowsCommand(
           userSystemPath.path
         );

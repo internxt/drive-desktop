@@ -28,7 +28,12 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "outDir": "release/app/dist"
+    "outDir": "release/app/dist",
+    "types": ["vitest/globals"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "virtual-drive/dist": ["../node-win/dist"],
+    }
   },
   "exclude": [
     "release/build",

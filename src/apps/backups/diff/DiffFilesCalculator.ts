@@ -6,6 +6,7 @@ import { File } from '../../../context/virtual-drive/files/domain/File';
 import { RemoteTree } from '../../../context/virtual-drive/remoteTree/domain/RemoteTree';
 import { relativeV2 } from '../utils/relative';
 import Logger from 'electron-log';
+import { FileStatus } from '../../../context/virtual-drive/files/domain/FileStatus';
 
 export type FilesDiff = {
   added: Array<LocalFile>;
@@ -53,7 +54,12 @@ export class DiffFilesCalculator {
       unmodified.push(local);
     });
 
+    // si el archivo no existe en local, se marca como eliminado,
+    // pero si tiene un status de deleted, no se marca como eliminado
     const deleted = remote.files.filter((file) => {
+      if (file.status !== FileStatus.Exists) {
+        return false;
+      }
       Logger.debug('Checking if file is deleted', file.path);
       return !local.has(path.join(rootPath, file.path) as AbsolutePath);
     });

@@ -3,6 +3,7 @@ import { useTranslationContext } from '../../../../context/LocalContext';
 import Button from '../../../../components/Button';
 import { ActionDialog } from '../components/ActionDialog';
 
+
 interface ScanStateProps {
   isScanning: boolean;
   isScanCompleted: boolean;

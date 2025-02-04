@@ -2,7 +2,7 @@
   "name": "internxt-drive",
   "version": "2.4.0",
   "author": "Internxt <hello@internxt.com>",
-  "description": "Internxt Drive client UI",
+  "description": "Internxt client UI",
   "license": "AGPL-3.0",
   "repository": {
     "url": "https://github.com/internxt/drive-desktop"
@@ -19,15 +19,21 @@
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts && opencollective-postinstall",
+    "========== Start ==========": "",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:sync-engine && npm run start:renderer && npm run start:backups",
     "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/apps/main/main.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "start:sync": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync.ts",
     "start:sync-engine": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.sync-engine.ts",
     "start:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
-    "test": "jest && playwright test --config=src/test",
+    "start:node-win": "cd ../node-win && yarn build:ts && cd ../drive-desktop && yarn start",
+    "========== Testing ==========": "",
+    "test": "jest && yarn test:e2e",
+    "vitest": "vitest",
+    "vitest:once": "yarn vitest --run",
+    "vitest:one": "yarn vitest related x",
     "test:unit": "jest --silent",
-    "test:e2e": "playwright test --config=src/test",
+    "test:e2e": "playwright test --config=tests",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install",
     "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && yarn",
@@ -48,7 +54,7 @@
     ]
   },
   "build": {
-    "productName": "Internxt Drive",
+    "productName": "Internxt",
     "beforeBuild": "./beforeBuild.js",
     "appId": "com.internxt.drive",
     "asar": true,
@@ -97,8 +103,7 @@
     "win": {
       "target": [
         "nsis"
-      ],     
-      "certificateSubjectName": "Internxt Universal Technologies SL",
+      ],
       "verifyUpdateCodeSignature": false
     },
     "linux": {
@@ -251,11 +256,15 @@
     "style-loader": "^3.3.1",
     "tailwindcss": "^3.3.3",
     "terser-webpack-plugin": "^5.3.0",
+    "ts-essentials": "^10.0.4",
     "ts-jest": "^27.1.2",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4",
     "url-loader": "^4.1.1",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.0.2",
+    "vitest-mock-extended": "^2.0.2",
     "webpack": "^5.73.0",
     "webpack-bundle-analyzer": "^4.5.0",
     "webpack-cli": "^4.9.1",
@@ -327,6 +336,7 @@
         }
       }
     ],
-    "singleQuote": true
+    "singleQuote": true,
+    "printWidth": 140
   }
 }

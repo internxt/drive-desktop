@@ -31,7 +31,7 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "Bienvenue dans Internxt Drive !",
+        "title": "Bienvenue dans Internxt!",
         "description": "Commençons par sauvegarder tous vos fichiers et dossiers importants dans la barre latérale de votre finder.",
         "take-tour": "Visite guidée"
       },
@@ -70,14 +70,14 @@
           "description": "Ajoutez d'autres dossiers et planifiez des sauvegardes automatiques dans les Paramètres"
         },
         "desktop-ready": {
-          "title": "Internxt Drive est prêt",
+          "title": "Internxt est prêt",
           "description": "Accédez à vos fichiers stockés depuis la barre latérale de votre {{platform_phrase}}."
         }
       }
     },
     "common": {
       "onboarding-progress": "{{current_slide}} de {{total_slides}}",
-      "open-drive": "Ouvrir Internxt Drive",
+      "open-drive": "Ouvrir Internxt",
       "continue": "Continuer",
       "skip": "Sauter",
       "platform-phrase": {
@@ -109,8 +109,8 @@
         "show-files": "Afficher les fichiers"
       },
       "delete-old-drive-folder": {
-        "title": "Même Internxt Drive, nouvel emplacement",
-        "message": "Votre dossier personnel Internxt Drive est situé dans le barre latérale {{platform_app}}."
+        "title": "Même Internxt, nouvel emplacement",
+        "message": "Votre dossier personnel Internxt est situé dans le barre latérale {{platform_app}}."
       },
       "new-widget": {
         "title": "Soyez plus productif grâce à notre widget redessiné",
@@ -121,7 +121,7 @@
     "common": {
       "continue": "Continuer",
       "cancel": "Annuler",
-      "open-drive": "Ouvrir Internxt Drive"
+      "open-drive": "Ouvrir Internxt"
     }
   },
   "widget": {
@@ -143,7 +143,7 @@
         "logout-confirmation": {
           "no-sync-pending": {
             "title": "Se déconnecter de cet appareil?",
-            "message": "Internxt Drive ne s'affichera pas sans un compte connecté.",
+            "message": "Internxt ne s'affichera pas sans un compte connecté.",
             "confirm": "Se déconnecter",
             "cancel": "Annuler"
           },
@@ -175,7 +175,7 @@
       },
       "no-activity": {
         "title": "Aucune activité récente",
-        "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt Drive"
+        "description": "Les informations apparaîtront ici lorsque vous effectuerez des modifications, pour synchroniser votre dossier local avec Internxt"
       },
       "upToDate": {
         "title": "Vos fichiers sont à jour",
@@ -208,7 +208,7 @@
     },
     "virtual-drive-error": {
       "title": "Impossible de créer le lecteur",
-      "message": "Nous avons des problèmes pour créer votre Internxt Drive, ",
+      "message": "Nous avons des problèmes pour créer votre Internxt, ",
       "button": "Veuillez réessayer"
     },
     "banners": {
@@ -237,7 +237,7 @@
           "save": "Enregistrer"
         }
       },
-      "auto-startup": "Démarrer Internxt Drive au démarrage du système",
+      "auto-startup": "Démarrer Internxt au démarrage du système",
       "language": {
         "label": "Langue",
         "options": {
@@ -255,12 +255,12 @@
         }
       },
       "sync": {
-        "folder": "Dossier Internxt Drive",
+        "folder": "Dossier Internxt",
         "change-folder": "Changer de dossier"
       },
       "app-info": {
         "open-logs": "Ouvrir les registres",
-        "more": "Plus d'informations sur Internxt Drive"
+        "more": "Plus d'informations sur Internxt"
       }
     },
     "account": {
