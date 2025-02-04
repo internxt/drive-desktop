@@ -7,9 +7,12 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
   /**
    * Gets an item from the database
    */
-  get(
-    itemId: string
-  ): Promise<{ success: boolean; result: DatabaseItemType | null }>;
+  get(itemId: string): Promise<{ success: boolean; result: DatabaseItemType | null }>;
+
+  /**
+   * Gets all items in database
+   */
+  getAll(): Promise<{ success: boolean; result: DatabaseItemType[] | null }>;
 
   /**
    * Updates an item in the database
@@ -46,7 +49,5 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
    * Gets items from partial data
    */
 
-  searchPartialBy(
-    partialData: Partial<DatabaseItemType>
-  ): Promise<{ success: boolean; result: DatabaseItemType[] }>;
+  searchPartialBy(partialData: Partial<DatabaseItemType>): Promise<{ success: boolean; result: DatabaseItemType[] }>;
 }

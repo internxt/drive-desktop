@@ -49,6 +49,7 @@ export default function Header({
     { label: 'GENERAL', icon: Gear },
     { label: 'ACCOUNT', icon: At },
     { label: 'BACKUPS', icon: UilHistory },
+    // { label: 'ANTIVIRUS', icon: Shield },
   ];
 
   const animationVariants: Record<Section, { left: string }> =
