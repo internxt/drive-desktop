@@ -10,6 +10,7 @@ type TProps = {
 export class HandleDehydrateService {
   async run({ drive, task }: TProps) {
     try {
+      Logger.debug('Dehydrate', task);
       await drive.dehydrateFile(task.path);
     } catch (error) {
       Logger.error(`Error dehydrating file ${task.path}`);
