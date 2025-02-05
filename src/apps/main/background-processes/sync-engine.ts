@@ -35,7 +35,7 @@ function scheduleSync() {
   });
 }
 
-export function spawnSyncEngineWorker() {
+export async function spawnSyncEngineWorker() {
   if (startingWorker) {
     Logger.info('[MAIN] Worker is already starting');
     attemptsAlreadyStarting++;
@@ -57,29 +57,30 @@ export function spawnSyncEngineWorker() {
     },
     show: false,
   });
-  worker
-    .loadFile(
+
+  try {
+    await worker.loadFile(
       process.env.NODE_ENV === 'development'
         ? '../../../release/app/dist/sync-engine/index.html'
         : `${path.join(__dirname, '..', 'sync-engine')}/index.html`
-    )
-    .then(() => {
-      Logger.info('[MAIN] Sync engine worker loaded');
-      scheduleSync();
-    })
-    .catch((err) => {
-      Logger.error('[MAIN] Error loading sync engine worker', err);
-      Sentry.captureException(err);
-    });
-  
-  worker.webContents.on('console-message', (event, level, message) => {
-    console.log(`[WORKER CONSOLE ${level}] ${message}`);
-  });
+    );
+    
+    Logger.info('[MAIN] Sync engine worker loaded');
 
-  monitorHealth({ worker, stopAndSpawn: async () => {
-    await stopAndClearSyncEngineWatcher();
-    spawnSyncEngineWorker();
-  }});
+    monitorHealth({ worker, stopAndSpawn: async () => {
+      await stopAndClearSyncEngineWatcher();
+      await spawnSyncEngineWorker();
+    }});
+
+    scheduleSync();
+
+    worker.webContents.on('console-message', (event, level, message) => {
+      console.log(`[WORKER CONSOLE ${level}] ${message}`);
+    });
+  } catch (err) {
+    Logger.error('[MAIN] Error loading sync engine worker', err);
+    Sentry.captureException(err);    
+  }
 }
 
 export async function stopAndClearSyncEngineWatcher() {
