@@ -60,16 +60,6 @@ async function setUp() {
     event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates);
   });
 
-  ipcRenderer.on('STOP_SYNC_ENGINE_PROCESS', async (event) => {
-    Logger.info('[SYNC ENGINE] Stopping sync engine');
-
-    await bindings.stop();
-
-    Logger.info('[SYNC ENGINE] sync engine stopped successfully');
-
-    event.sender.send('SYNC_ENGINE_STOP_SUCCESS');
-  });
-
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     Logger.info('[SYNC ENGINE] Updating sync engine');
     await bindings.update();
@@ -107,11 +97,6 @@ async function setUp() {
       Sentry.captureException(error);
       event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
     }
-  });
-
-  ipcRenderer.on('SYNC_ENGINE:PING', (event) => {
-    Logger.info('[SYNC ENGINE] Sending Pong');
-    event.sender.send('SYNC_ENGINE:PONG');
   });
 
   await bindings.start(
