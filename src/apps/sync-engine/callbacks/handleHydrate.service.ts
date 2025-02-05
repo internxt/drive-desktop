@@ -1,16 +1,17 @@
 import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
-import { QueueItem } from 'virtual-drive/dist';
+import { QueueItem, VirtualDrive } from 'virtual-drive/dist';
 import { BindingsManager } from '../BindingManager';
 import configStore from '../../../apps/main/config';
 
 type TProps = {
-  self: BindingsManager;
+  self: BindingsManager,
+  drive: VirtualDrive;
   task: QueueItem;
 };
 
-export class HandleHydrate {
-  async run({ self, task }: TProps) {
+export class HandleHydrateService {
+  async run({ self, drive, task }: TProps) {
     try {
       const syncRoot = configStore.get('syncRoot');
       Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
@@ -33,7 +34,7 @@ export class HandleHydrate {
 
       self.lastHydrated = normalizedTaskPath;
 
-      await self.container.virtualDrive.hydrateFile(task.path);
+      await drive.hydrateFile(task.path);
 
       const finish = Date.now();
 

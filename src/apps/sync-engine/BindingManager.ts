@@ -18,7 +18,10 @@ import { DependencyInjectionLogWatcherPath } from './dependency-injection/common
 import configStore from '../main/config';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
-import { HandleHydrate } from './callbacks/handleHydrate.service';
+import { HandleHydrateService } from './callbacks/handleHydrate.service';
+import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
+import { HandleAddService } from './callbacks/handleAdd.service';
+import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 
 export type CallbackDownload = (
   success: boolean,
@@ -46,7 +49,10 @@ export class BindingsManager {
       icon: string;
     },
     private readonly fetchData = new FetchDataService(),
-    private readonly handleHydrate = new HandleHydrate(),
+    private readonly handleHydrate = new HandleHydrateService(),
+    private readonly handleDehydrate = new HandleDehydrateService(),
+    private readonly handleAdd = new HandleAddService(),
+    private readonly handleChangeSize = new HandleChangeSizeService(),
   ) {
     this.controllers = buildControllers(this.container);
   }
@@ -233,60 +239,10 @@ export class BindingsManager {
 
   async watch() {
     const callbacks = {
-      handleAdd: async (task: QueueItem) => {
-        try {
-          Logger.debug('Path received from handle add', task.path);
-
-          const tempFile = await isTemporaryFile(task.path);
-
-          Logger.debug('[isTemporaryFile]', tempFile);
-
-          if (tempFile && !task.isFolder) {
-            Logger.debug('File is temporary, skipping');
-            return;
-          }
-
-          const itemId = await this.controllers.addFile.execute(task.path);
-          if (!itemId) {
-            Logger.error('Error adding file' + task.path);
-            return;
-          }
-          await this.container.virtualDrive.convertToPlaceholder(
-            task.path,
-            itemId
-          );
-          await this.container.virtualDrive.updateSyncStatus(
-            task.path,
-            task.isFolder,
-            true
-          );
-        } catch (error) {
-          Logger.error(`error adding file ${task.path}`);
-          Logger.error(error);
-          Sentry.captureException(error);
-        }
-      },
-      handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task }),
-      handleDehydrate: async (task: QueueItem) => {
-        try {
-          Logger.debug('Dehydrate', task);
-          await this.container.virtualDrive.dehydrateFile(task.path);
-        } catch (error) {
-          Logger.error(`error dehydrating file ${task.path}`);
-          Logger.error(error);
-          Sentry.captureException(error);
-        }
-      },
-      handleChangeSize: async (task: QueueItem) => {
-        try {
-          Logger.debug('Change size', task);
-          await this.container.fileSyncOrchestrator.run([task.path]);
-        } catch (error) {
-          Logger.error(`error changing size ${task.path}`);
-          Logger.error(error);
-          Sentry.captureException(error);
-        }
-      },
+      handleAdd: (task: QueueItem) => this.handleAdd.run({ self: this, task, drive: this.container.virtualDrive }),
+      handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task, drive: this.container.virtualDrive }),
+      handleDehydrate: (task: QueueItem) => this.handleDehydrate.run({ task, drive: this.container.virtualDrive }),
+      handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
     };
 
     const notify = {
