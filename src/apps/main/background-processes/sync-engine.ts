@@ -4,7 +4,7 @@ import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
 import * as Sentry from '@sentry/electron/main';
-import { checkSyncEngineInProcess } from '../remote-sync/handlers';
+import { monitorHealth } from './sync-engine/monitor-health';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
@@ -13,7 +13,7 @@ let healthCheckSchedule: nodeSchedule.Job | null = null;
 let syncSchedule: nodeSchedule.Job | null = null;
 let attemptsAlreadyStarting = 0;
 
-ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
+ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
   Logger.debug('[MAIN] SYNC ENGINE RUNNING');
   workerIsRunning = true;
   startingWorker = false;
@@ -25,63 +25,6 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
   startingWorker = false;
 });
 
-async function healthCheck() {
-  const responsePromise = new Promise<void>((resolve, reject) => {
-    ipcMain.once('SYNC_ENGINE:PONG', () => {
-      Logger.debug('Health check PONG resolved');
-      resolve();
-    });
-
-    const millisecondsToWait = 10_000;
-
-    setTimeout(() => {
-      reject(
-        new Error(
-          `Health check failed after ${millisecondsToWait} milliseconds`
-        )
-      );
-    }, millisecondsToWait);
-  });
-
-  worker?.webContents.send('SYNC_ENGINE:PING');
-
-  await responsePromise;
-}
-
-function scheduleHeathCheck() {
-  if (healthCheckSchedule) {
-    healthCheckSchedule.cancel(false);
-  }
-
-  const relaunchOnFail = () =>
-    healthCheck()
-      .then(() => {
-        Logger.debug('Health check succeeded');
-      })
-      .catch(() => {
-        const warning = 'Health check failed, relaunching the worker';
-        Logger.warn(warning);
-        workerIsRunning = false;
-        worker?.destroy();
-        if (attemptsAlreadyStarting >= 3) {
-          attemptsAlreadyStarting = 0;
-          startingWorker = false;
-          return;
-        }
-        spawnSyncEngineWorker();
-      });
-
-  healthCheckSchedule = nodeSchedule.scheduleJob('*/40 * * * * *', async () => {
-    const workerIsPending = checkSyncEngineInProcess(5_000);
-    Logger.debug(
-      'Health check',
-      workerIsPending ? 'Worker is pending' : 'Worker is running'
-    );
-    if (!workerIsPending) {
-      await relaunchOnFail();
-    }
-  });
-}
 function scheduleSync() {
   if (syncSchedule) {
     syncSchedule.cancel(false);
@@ -92,7 +35,7 @@ function scheduleSync() {
   });
 }
 
-function spawnSyncEngineWorker() {
+export function spawnSyncEngineWorker() {
   if (startingWorker) {
     Logger.info('[MAIN] Worker is already starting');
     attemptsAlreadyStarting++;
@@ -122,7 +65,6 @@ function spawnSyncEngineWorker() {
     )
     .then(() => {
       Logger.info('[MAIN] Sync engine worker loaded');
-      scheduleHeathCheck();
       scheduleSync();
     })
     .catch((err) => {
@@ -134,68 +76,13 @@ function spawnSyncEngineWorker() {
     console.log(`[WORKER CONSOLE ${level}] ${message}`);
   });
 
-  worker.on('close', () => {
-    worker?.destroy();
-
-    if (workerIsRunning) {
-      Logger.warn('The sync engine process ended unexpectedly, relaunching');
-      workerIsRunning = false;
-      spawnSyncEngineWorker();
-    }
-  });
+  monitorHealth({ worker, stopAndSpawn: async () => {
+    await stopAndClearSyncEngineWatcher();
+    spawnSyncEngineWorker();
+  }});
 }
 
-export async function stopSyncEngineWatcher() {
-  Logger.info('[MAIN] STOPPING SYNC ENGINE WORKER...');
-
-  healthCheckSchedule?.cancel(false);
-
-  if (!workerIsRunning) {
-    Logger.info('[MAIN] WORKER WAS NOT RUNNING');
-    worker?.destroy();
-    worker = null;
-    return;
-  }
-
-  const stopPromise = new Promise<void>((resolve, reject) => {
-    ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, error: Error) => {
-      Logger.error('[MAIN] Error stopping sync engine worker', error);
-      Sentry.captureException(error);
-      reject(error);
-    });
-
-    ipcMain.once('SYNC_ENGINE_STOP_SUCCESS', () => {
-      resolve();
-      Logger.info('[MAIN] Sync engine stopped');
-    });
-
-    const millisecondsToWait = 10_000;
-
-    setTimeout(() => {
-      reject(
-        new Error(
-          `Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`
-        )
-      );
-    }, millisecondsToWait);
-  });
-
-  try {
-    worker?.webContents?.send('STOP_SYNC_ENGINE_PROCESS');
-
-    await stopPromise;
-  } catch (err) {
-    // TODO: handle error
-    Logger.error(err);
-    Sentry.captureException(err);
-  } finally {
-    worker?.destroy();
-    workerIsRunning = false;
-    worker = null;
-  }
-}
-
-async function stopAndClearSyncEngineWatcher() {
+export async function stopAndClearSyncEngineWatcher() {
   Logger.info('[MAIN] STOPPING AND CLEAR SYNC ENGINE WORKER...');
 
   healthCheckSchedule?.cancel(false);
@@ -209,7 +96,7 @@ async function stopAndClearSyncEngineWatcher() {
   }
 
   const response = new Promise<void>((resolve, reject) => {
-    ipcMain.once(
+    ipcMain.on(
       'ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS',
       (_, error: Error) => {
         Logger.error('[MAIN] Error stopping sync engine worker', error);
@@ -218,7 +105,7 @@ async function stopAndClearSyncEngineWatcher() {
       }
     );
 
-    ipcMain.once('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS', () => {
+    ipcMain.on('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS', () => {
       resolve();
       Logger.info('[MAIN] Sync engine stopped and cleared');
     });
