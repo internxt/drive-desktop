@@ -1,5 +1,4 @@
 import { renderHook, act } from '@testing-library/react-hooks';
-
 import { DriveOperationInfo } from '../../../../shared/types';
 import { useDriveInfoHistoryLogic } from './useDriveInfoHistoryLogic';
 
@@ -28,27 +27,6 @@ describe('useDriveInfoHistoryLogic', () => {
     act(() => {
       result.current.addItemToHistory(mockItem);
       result.current.addItemToHistory(mockItem2);
-    });
-
-    expect(result.current.driveHistory).toEqual([mockItem2, mockItem]);
-  });
-
-  it('should add a new item to the history with a debounce', () => {
-    const { result } = renderHook(() => useDriveInfoHistoryLogic());
-
-    act(() => {
-      result.current.addItemToHistoryDebounced(mockItem);
-    });
-
-    expect(result.current.driveHistory).toEqual([mockItem]);
-  });
-
-  it('should add multiple new items to the history with a debounce', () => {
-    const { result } = renderHook(() => useDriveInfoHistoryLogic());
-
-    act(() => {
-      result.current.addItemToHistoryDebounced(mockItem);
-      result.current.addItemToHistoryDebounced(mockItem2);
     });
 
     expect(result.current.driveHistory).toEqual([mockItem2, mockItem]);

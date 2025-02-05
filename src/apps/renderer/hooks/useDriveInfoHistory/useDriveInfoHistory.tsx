@@ -4,13 +4,13 @@ import { useDriveInfoHistoryLogic } from './useDriveInfoHistoryLogic/useDriveInf
 export function useDriveInfoHistory() {
   const {
     driveHistory,
-    addItemToHistoryDebounced,
+    addItemToHistory,
     clearHistory,
     removeDriveOperationsInProgress,
   } = useDriveInfoHistoryLogic();
 
   useEffect(() => {
-    const removeListener = window.electron.onSyncInfoUpdate(addItemToHistoryDebounced);
+    const removeListener = window.electron.onSyncInfoUpdate(addItemToHistory);
 
     return removeListener;
   }, []);
