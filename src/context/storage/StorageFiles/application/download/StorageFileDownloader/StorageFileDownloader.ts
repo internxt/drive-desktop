@@ -1,10 +1,10 @@
 import { Service } from 'diod';
 import Logger from 'electron-log';
 import { Readable } from 'stream';
-import { DownloadProgressTracker } from '../../../../shared/domain/DownloadProgressTracker';
-import { DownloaderHandlerFactory } from '../../domain/download/DownloaderHandlerFactory';
-import { DownloaderHandler } from '../../domain/download/DownloaderHandler';
-import { StorageFile } from '../../domain/StorageFile';
+import { DownloadProgressTracker } from '../../../../../shared/domain/DownloadProgressTracker';
+import { DownloaderHandlerFactory } from '../../../domain/download/DownloaderHandlerFactory';
+import { DownloaderHandler } from '../../../domain/download/DownloaderHandler';
+import { StorageFile } from '../../../domain/StorageFile';
 
 @Service()
 export class StorageFileDownloader {
@@ -31,7 +31,13 @@ export class StorageFileDownloader {
     handler.on('error', () => {
       this.tracker.error(name, type);
     });
-  }
+
+    handler.on('finish', () => {
+      this.tracker.downloadFinished(name, type, size, {
+        elapsedTime: handler.elapsedTime(),
+      });
+    });
+}
 
   async run(
     file: StorageFile,
@@ -43,7 +49,7 @@ export class StorageFileDownloader {
   ): Promise<Readable> {
     const downloader = this.managerFactory.downloader();
 
-    this.registerEvents(downloader, metadata);
+    await this.registerEvents(downloader, metadata);
 
     const stream = await downloader.download(file);
 
