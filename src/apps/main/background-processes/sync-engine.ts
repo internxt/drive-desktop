@@ -11,7 +11,6 @@ let workerIsRunning = false;
 let startingWorker = false;
 let healthCheckSchedule: nodeSchedule.Job | null = null;
 let syncSchedule: nodeSchedule.Job | null = null;
-let attemptsAlreadyStarting = 0;
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
   Logger.debug('[MAIN] SYNC ENGINE RUNNING');
@@ -38,9 +37,9 @@ function scheduleSync() {
 export async function spawnSyncEngineWorker() {
   if (startingWorker) {
     Logger.info('[MAIN] Worker is already starting');
-    attemptsAlreadyStarting++;
     return;
   }
+
   if (workerIsRunning) {
     Logger.info('[MAIN] Worker is already running');
     return;
@@ -64,8 +63,6 @@ export async function spawnSyncEngineWorker() {
         ? '../../../release/app/dist/sync-engine/index.html'
         : `${path.join(__dirname, '..', 'sync-engine')}/index.html`
     );
-    
-    Logger.info('[MAIN] Sync engine worker loaded');
 
     monitorHealth({ worker, stopAndSpawn: async () => {
       await stopAndClearSyncEngineWatcher();
