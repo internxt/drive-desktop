@@ -379,5 +379,27 @@
   },
   "common": {
     "cancel": "Annuler"
+  },
+  "backupErrors": {
+    "noInternet": {
+      "title": "Erreur de Copie de Sécurité",
+      "message": "La connexion internet a été perdue. Veuillez vérifier votre connexion Internet et réessayer."
+    },
+    "serverError": {
+      "title": "Erreur de Copie de Sécurité",
+      "message": "Une erreur est survenue sur le serveur lors de la copie de sécurité. Veuillez réessayer plus tard."
+    },
+    "clientError": {
+      "title": "Erreur de Copie de Sécurité",
+      "message": "Une erreur est survenue sur votre appareil lors de la copie de sécurité."
+    },
+    "generic": {
+      "title": "Erreur de Copie de Sécurité",
+      "message": "Une erreur inattendue est survenue lors de la copie de sécurité."
+    }
+  },
+  "networkConnectionLost": {
+    "title": "Connexion réseau perdue",
+    "message": "Votre connexion réseau a été perdue. Veuillez vérifier votre connexion Internet et réessayer."
   }
 }

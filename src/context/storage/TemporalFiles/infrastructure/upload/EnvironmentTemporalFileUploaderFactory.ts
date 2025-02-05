@@ -102,8 +102,8 @@ export class EnvironmentTemporalFileUploaderFactory
     const fn =
       document.size.value >
       EnvironmentTemporalFileUploaderFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
-        ? this.environment.uploadMultipartFile
-        : this.environment.upload;
+        ? this.environment.uploadMultipartFile.bind(this.environment)
+        : this.environment.upload.bind(this.environment);
 
     const uploader = new EnvironmentTemporalFileUploader(
       fn,

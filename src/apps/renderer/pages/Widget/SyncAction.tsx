@@ -7,6 +7,7 @@ import { useTranslationContext } from '../../context/LocalContext';
 import useVirtualDriveStatus from '../../hooks/useVirtualDriveStatus';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useUsage from '../../hooks/useUsage';
+import isOnline from '../../../utils/is-online';
 
 export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();
@@ -30,8 +31,32 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
   };
 
   useEffect(() => {
-    setIsOnLine(navigator.onLine);
-  });
+    const updateOnlineStatus = async () => {
+      const online = await isOnline();
+      setIsOnLine(online);
+    };
+
+    updateOnlineStatus();
+
+    const intervalId = setInterval(updateOnlineStatus, 60000 * 5);
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOnLine) {
+      new Notification(translate('networkConnectionLost.title'), {
+        body: translate('networkConnectionLost.message'),
+      });
+    }
+  }, [isOnLine, translate]);
 
   return (
     <div className="flex h-11 shrink-0 items-center space-x-2.5 border-t border-gray-10 px-2.5 text-sm font-medium text-gray-100 dark:border-gray-5">

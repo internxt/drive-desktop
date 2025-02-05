@@ -26,7 +26,7 @@ test.describe('onboarding', () => {
       ipcMainEmit(electronApp, 'open-onboarding-window');
       const newPage = await electronApp.firstWindow();
       expect(newPage).toBeTruthy();
-      expect(await newPage.title()).toBe('Internxt Drive');
+      expect(await newPage.title()).toBe('Internxt');
       page = newPage;
     });
   });

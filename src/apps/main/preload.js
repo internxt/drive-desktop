@@ -336,4 +336,8 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.send('user.set-has-discovered-backups');
     },
   },
+  onBackupFailed(callback) {
+    ipcRenderer.on('backup-failed', (_, error) => callback(error));
+    return () => ipcRenderer.removeListener('backup-failed', callback);
+  },
 });

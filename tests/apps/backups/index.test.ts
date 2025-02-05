@@ -4,7 +4,7 @@ import { BackupsIPCRenderer } from '../../../src/apps/backups/BackupsIPCRenderer
 import { BackupsDependencyContainerFactory } from '../../../src/apps/backups/dependency-injection/BackupsDependencyContainerFactory';
 import { DriveDesktopError } from '../../../src/context/shared/domain/errors/DriveDesktopError';
 import { backupFolder } from '../../../src/apps/backups/index'; // Ensure this is imported
-import { BackUpErrorCause } from '../../../src/apps/backups/BackupError';
+import { BackUpErrorCauseEnum } from '../../../src/apps/backups/BackupError';
 
 interface BackupInfo {
   folderId: number;
@@ -132,7 +132,7 @@ describe('Backup Functionality', () => {
     expect(BackupsIPCRenderer.send).toHaveBeenCalledWith(
       'backups.backup-failed',
       123,
-      BackUpErrorCause.NO_INTERNET
+      BackUpErrorCauseEnum.NO_INTERNET
     );
   });
 
