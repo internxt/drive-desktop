@@ -1,5 +1,5 @@
 import { FuseCallback } from './FuseCallback';
-import { VirtualDrive } from '../../VirtualDrive';
+import { VirtualDrive } from '../../virtual-drive/VirtualDrive';
 import { FuseError, FuseNoSuchFileOrDirectoryError } from './FuseErrors';
 import { FuseCodes } from './FuseCodes';
 
