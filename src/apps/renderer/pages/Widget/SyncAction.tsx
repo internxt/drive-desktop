@@ -7,6 +7,7 @@ import { useTranslationContext } from '../../context/LocalContext';
 import useVirtualDriveStatus from '../../hooks/useVirtualDriveStatus';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useUsage from '../../hooks/useUsage';
+import isOnline from '../../../utils/is-online';
 
 export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();
@@ -30,16 +31,20 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
   };
 
   useEffect(() => {
-    const updateOnlineStatus = () => {
-      setIsOnLine(navigator.onLine);
+    const updateOnlineStatus = async () => {
+      const online = await isOnline();
+      setIsOnLine(online);
     };
 
     updateOnlineStatus();
+
+    const intervalId = setInterval(updateOnlineStatus, 60000 * 5);
 
     window.addEventListener('online', updateOnlineStatus);
     window.addEventListener('offline', updateOnlineStatus);
 
     return () => {
+      clearInterval(intervalId);
       window.removeEventListener('online', updateOnlineStatus);
       window.removeEventListener('offline', updateOnlineStatus);
     };
