@@ -213,7 +213,7 @@
           "save": "Enregistrer"
         }
       },
-      "auto-startup": "Démarrer Internxt Drive au démarrage du système",
+      "auto-startup": "Démarrer Internxt au démarrage du système",
       "language": {
         "label": "Langue",
         "options": {
@@ -236,7 +236,7 @@
       },
       "app-info": {
         "open-logs": "Ouvrir les registres",
-        "more": "Plus d'informations sur Internxt Drive"
+        "more": "Plus d'informations sur Internxt"
       }
     },
     "account": {

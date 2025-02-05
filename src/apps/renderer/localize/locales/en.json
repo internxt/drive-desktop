@@ -217,7 +217,7 @@
           "save": "Save"
         }
       },
-      "auto-startup": "Start Internxt Drive on system startup",
+      "auto-startup": "Start Internxt on system startup",
       "language": {
         "label": "Language",
         "options": {
@@ -241,7 +241,7 @@
       "app-info": {
         "open-logs": "Open logs",
         "open-migration": "Start migration",
-        "more": "Learn more about Internxt Drive"
+        "more": "Learn more about Internxt"
       }
     },
     "account": {
