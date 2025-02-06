@@ -1,6 +1,5 @@
 import { ContainerBuilder } from 'diod';
 import { SimpleFileOverrider } from '../../../../context/virtual-drive/files/application/override/SimpleFileOverrider';
-import { RemoteFileSystem } from '../../../../context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 import crypt from '../../../../context/shared/infrastructure/crypt';
 import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
@@ -14,7 +13,7 @@ export async function registerFilesServices(builder: ContainerBuilder) {
   const user = DependencyInjectionUserProvider.get();
 
   builder
-    .register(RemoteFileSystem)
+    .register(SDKRemoteFileSystem)
     .useFactory(
       (c) =>
         new SDKRemoteFileSystem(

@@ -10,15 +10,15 @@ import { FolderStatuses } from '../../domain/FolderStatus';
 import { FolderUpdatedAt } from '../../domain/FolderUpdatedAt';
 import { FolderUuid } from '../../domain/FolderUuid';
 import { FolderInPathAlreadyExistsError } from '../../domain/errors/FolderInPathAlreadyExistsError';
-import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { ParentFolderFinder } from '../ParentFolderFinder';
+import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 
 @Service()
 export class FolderCreator {
   constructor(
     private readonly repository: FolderRepository,
     private readonly parentFolderFinder: ParentFolderFinder,
-    private readonly remote: RemoteFileSystem,
+    private readonly remote: SDKRemoteFileSystem,
     private readonly eventBus: EventBus
   ) {}
 

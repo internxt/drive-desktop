@@ -1,12 +1,12 @@
 import { File } from '../domain/File';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 
 export class FileContentsUpdater {
   constructor(
     private readonly repository: InMemoryFileRepository,
-    private readonly remote: RemoteFileSystem
+    private readonly remote: SDKRemoteFileSystem
   ) {}
 
   async run(

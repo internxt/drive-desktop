@@ -5,17 +5,17 @@ import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtu
 import { FileStatus } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
 import { mockDeep } from 'vitest-mock-extended';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
-import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 
 describe('File Deleter', () => {
   const repository = mockDeep<InMemoryFileRepository>();
   const folderRepository = mockDeep<FolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(folderRepository);
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
-  const remoteFileSystem = mockDeep<RemoteFileSystem>();
+  const remoteFileSystem = mockDeep<SDKRemoteFileSystem>();
   const ipc = mockDeep<SyncEngineIpc>();
 
   const SUT = new FileDeleter(remoteFileSystem, localFileSystem, repository, allParentFoldersStatusIsExists, ipc);

@@ -1,13 +1,13 @@
 import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import Logger from 'electron-log';
 import { sleep } from '../../../../apps/main/util';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 export class FilesPlaceholderDeleter {
   constructor(
-    private remoteFileSystem: RemoteFileSystem,
+    private remoteFileSystem: SDKRemoteFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly local: NodeWinLocalFileSystem
   ) {}

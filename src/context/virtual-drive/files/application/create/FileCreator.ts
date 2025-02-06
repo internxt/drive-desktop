@@ -10,16 +10,16 @@ import { FilePath } from '../../domain/FilePath';
 import { FileSize } from '../../domain/FileSize';
 import { FileStatuses } from '../../domain/FileStatus';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
-import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { FileTrasher } from '../trash/FileTrasher';
 import { FileContentsId } from '../../domain/FileContentsId';
 import { FileFolderId } from '../../domain/FileFolderId';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '../../infrastructure/SDKRemoteFileSystem';
 
 @Service()
 export class FileCreator {
   constructor(
-    private readonly remote: RemoteFileSystem,
+    private readonly remote: SDKRemoteFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly parentFolderFinder: ParentFolderFinder,
     private readonly fileDeleter: FileTrasher,

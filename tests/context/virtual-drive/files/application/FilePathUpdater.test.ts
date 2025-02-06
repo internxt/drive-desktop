@@ -7,9 +7,9 @@ import { FolderMother } from '../../folders/domain/FolderMother';
 import { FileMother } from '../domain/FileMother';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
-import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 
 describe('File path updater', () => {
   const repository = mockDeep<InMemoryFileRepository>();
@@ -18,7 +18,7 @@ describe('File path updater', () => {
   const ipcRenderer = mockDeep<SyncEngineIpc>();
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
   const eventBus = mockDeep<EventBus>();
-  const remoteFileSystem = mockDeep<RemoteFileSystem>();
+  const remoteFileSystem = mockDeep<SDKRemoteFileSystem>();
 
   const SUT = new FilePathUpdater(
     remoteFileSystem,

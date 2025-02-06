@@ -1,5 +1,4 @@
 import { Service } from 'diod';
-import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { FilePath } from '../../domain/FilePath';
 import { FileSize } from '../../domain/FileSize';
 import { FileContentsId } from '../../domain/FileContentsId';
@@ -7,10 +6,11 @@ import { FileFolderId } from '../../domain/FileFolderId';
 import { File } from '../../domain/File';
 import { Either, left, right } from '../../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
+import { SDKRemoteFileSystem } from '../../infrastructure/SDKRemoteFileSystem';
 
 @Service()
 export class SimpleFileCreator {
-  constructor(private readonly remote: RemoteFileSystem) {}
+  constructor(private readonly remote: SDKRemoteFileSystem) {}
 
   async run(
     contentsId: string,
