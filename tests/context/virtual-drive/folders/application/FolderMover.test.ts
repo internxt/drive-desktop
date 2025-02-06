@@ -1,31 +1,26 @@
+import { mockDeep } from 'vitest-mock-extended';
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
 import { FolderMover } from '../../../../../src/context/virtual-drive/folders/application/FolderMover';
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
-import { FolderRemoteFileSystemMock } from '../__mocks__/FolderRemoteFileSystemMock';
-import { FolderRepositoryMock } from '../__mocks__/FolderRepositoryMock';
 import { FolderMother } from '../domain/FolderMother';
+import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
+import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 
 describe('Folder Mover', () => {
-  let repository: FolderRepositoryMock;
-  let folderFinder: FolderFinder;
-  let remoteFileSystem: FolderRemoteFileSystemMock;
-  let SUT: FolderMover;
+  const repository = mockDeep<FolderRepository>();
+  const folderFinder = new FolderFinder(repository);
+  const remoteFileSystem = mockDeep<RemoteFileSystem>();
+  const SUT = new FolderMover(repository, remoteFileSystem, folderFinder);
 
   beforeEach(() => {
-    repository = new FolderRepositoryMock();
-    folderFinder = new FolderFinder(repository);
-    remoteFileSystem = new FolderRemoteFileSystemMock();
-
-    SUT = new FolderMover(repository, remoteFileSystem, folderFinder);
+    vi.resetAllMocks();
   });
 
   it('Folders cannot be overwrite', async () => {
     const folder = FolderMother.in(1, '/folderA/folderB');
     const destination = new FolderPath('/folderC/folderB');
 
-    repository.searchByPartialMock.mockImplementation(() =>
-      FolderMother.in(2, destination.value)
-    );
+    repository.searchByPartial.mockImplementation(() => FolderMother.in(2, destination.value));
 
     try {
       const hasBeenOverwritten = await SUT.run(folder, destination);
@@ -34,7 +29,7 @@ describe('Folder Mover', () => {
       expect(err).toBeDefined();
     }
 
-    expect(repository.updateMock).not.toBeCalled();
+    expect(repository.update).not.toBeCalled();
   });
 
   describe('Move', () => {
@@ -43,13 +38,11 @@ describe('Folder Mover', () => {
       const destination = new FolderPath('/folderC/folderB');
       const folderC = FolderMother.in(2, '/folderC');
 
-      repository.searchByPartialMock
-        .mockReturnValueOnce(undefined)
-        .mockReturnValueOnce(folderC);
+      repository.searchByPartial.mockReturnValueOnce(undefined).mockReturnValueOnce(folderC);
 
       await SUT.run(folder, destination);
 
-      expect(repository.updateMock).toHaveBeenCalled();
+      expect(repository.update).toHaveBeenCalled();
     });
   });
 });
