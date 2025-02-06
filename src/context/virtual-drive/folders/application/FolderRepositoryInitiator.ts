@@ -1,14 +1,11 @@
 import { Folder } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 
 export class FolderRepositoryInitiator {
-  constructor(private readonly repository: FolderRepository) {}
+  constructor(private readonly repository: InMemoryFolderRepository) {}
 
-  async run(folders: Array<Folder>): Promise<void> {
-    const addPromises = folders.map((folder: Folder) =>
-      this.repository.add(folder)
-    );
-
+  async run(folders: Array<Folder>) {
+    const addPromises = folders.map((folder: Folder) => this.repository.add(folder));
     await Promise.all(addPromises);
   }
 }

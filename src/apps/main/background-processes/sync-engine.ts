@@ -9,7 +9,6 @@ import { monitorHealth } from './sync-engine/monitor-health';
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
 let startingWorker = false;
-let healthCheckSchedule: nodeSchedule.Job | null = null;
 let syncSchedule: nodeSchedule.Job | null = null;
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
@@ -71,9 +70,9 @@ export async function spawnSyncEngineWorker() {
 
     scheduleSync();
 
-    worker.webContents.on('console-message', (event, level, message) => {
-      console.log(`[WORKER CONSOLE ${level}] ${message}`);
-    });
+    // worker.webContents.on('console-message', (event, level, message) => {
+    //   console.log(`[WORKER CONSOLE ${level}] ${message}`);
+    // });
   } catch (err) {
     Logger.error('[MAIN] Error loading sync engine worker', err);
     Sentry.captureException(err);    
@@ -82,8 +81,6 @@ export async function spawnSyncEngineWorker() {
 
 export async function stopAndClearSyncEngineWatcher() {
   Logger.info('[MAIN] STOPPING AND CLEAR SYNC ENGINE WORKER...');
-
-  healthCheckSchedule?.cancel(false);
 
   if (!workerIsRunning) {
     Logger.info('[MAIN] WORKER WAS NOT RUNNING');

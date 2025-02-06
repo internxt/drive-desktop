@@ -1,14 +1,11 @@
 import { Folder } from '../domain/Folder';
-import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 
 export class FoldersPlaceholderCreator {
-  constructor(private readonly local: LocalFolderSystem) {}
+  constructor(private readonly local: NodeWinLocalFileSystem) {}
 
-  async run(folders: Array<Folder>): Promise<void> {
-    const createPromises = folders.map((folder) =>
-      this.local.createPlaceHolder(folder)
-    );
-
+  async run(folders: Array<Folder>) {
+    const createPromises = folders.map((folder) => this.local.createPlaceHolder(folder));
     await Promise.all(createPromises);
   }
 }
