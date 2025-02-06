@@ -1,18 +1,15 @@
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
-import { FolderId } from '../domain/FolderId';
-import { FolderPath } from '../domain/FolderPath';
-import { FolderRepository } from '../domain/FolderRepository';
-import { FolderUuid } from '../domain/FolderUuid';
 import { OfflineFolder } from '../domain/OfflineFolder';
-import { RemoteFolderSystem } from '../domain/file-systems/RemoteFolderSystem';
+import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 import { FolderPlaceholderConverter } from './FolderPlaceholderConverter';
 
 export class FolderCreator {
   constructor(
-    private readonly repository: FolderRepository,
-    private readonly remote: RemoteFolderSystem,
+    private readonly repository: InMemoryFolderRepository,
+    private readonly remote: HttpRemoteFolderSystem,
     private readonly ipc: SyncEngineIpc,
     private readonly eventBus: EventBus,
     private readonly folderPlaceholderConverter: FolderPlaceholderConverter

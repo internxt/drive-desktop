@@ -13,7 +13,6 @@ import { ipcRenderer } from 'electron';
 import { ServerFileStatus } from '../../context/shared/domain/ServerFile';
 import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
 import * as Sentry from '@sentry/electron/renderer';
-import { runner } from '../utils/runner';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
 import { isTemporaryFile } from '../utils/isTemporalFile';
@@ -76,8 +75,8 @@ export class BindingsManager {
       this.container.foldersPlaceholderCreator.run(tree.folders),
       this.container.repositoryPopulator.run(tree.files),
       this.container.filesPlaceholderCreator.run(tree.files),
-      this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList),
-      this.container?.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
+      this.container.filesPlaceholderDeleter?.run(tree.trashedFilesList),
+      this.container.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
     ]);
   }
 
@@ -233,7 +232,8 @@ export class BindingsManager {
 
     await this.container.virtualDrive.connectSyncRoot();
 
-    await runner([this.load.bind(this), this.polling.bind(this)]);
+    await this.load();
+    await this.polling();
     ipcRendererSyncEngine.send('SYNCED');
   }
 
