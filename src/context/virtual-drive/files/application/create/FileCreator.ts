@@ -7,7 +7,6 @@ import { PlatformPathConverter } from '../../../shared/application/PlatformPathC
 import { EventBus } from '../../../shared/domain/EventBus';
 import { File } from '../../domain/File';
 import { FilePath } from '../../domain/FilePath';
-import { FileRepository } from '../../domain/FileRepository';
 import { FileSize } from '../../domain/FileSize';
 import { FileStatuses } from '../../domain/FileStatus';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
@@ -15,12 +14,13 @@ import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { FileTrasher } from '../trash/FileTrasher';
 import { FileContentsId } from '../../domain/FileContentsId';
 import { FileFolderId } from '../../domain/FileFolderId';
+import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 
 @Service()
 export class FileCreator {
   constructor(
     private readonly remote: RemoteFileSystem,
-    private readonly repository: FileRepository,
+    private readonly repository: InMemoryFileRepository,
     private readonly parentFolderFinder: ParentFolderFinder,
     private readonly fileDeleter: FileTrasher,
     private readonly eventBus: EventBus,

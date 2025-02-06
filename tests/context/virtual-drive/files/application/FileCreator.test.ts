@@ -4,17 +4,17 @@ import { File } from '../../../../../src/context/virtual-drive/files/domain/File
 import { FileContentsMother } from '../../contents/domain/FileContentsMother';
 import { mockDeep } from 'vitest-mock-extended';
 import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
-import { FileRepository } from '@/context/virtual-drive/files/domain/FileRepository';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { FileMother } from '../domain/FileMother';
 import { FolderFinder } from '@/context/virtual-drive/folders/application/FolderFinder';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
+import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 
 describe('File Creator', () => {
   const remoteFileSystemMock = mockDeep<RemoteFileSystem>();
-  const fileRepository = mockDeep<FileRepository>();
+  const fileRepository = mockDeep<InMemoryFileRepository>();
   const fileDeleter = mockDeep<FileDeleter>();
   const folderRepository = mockDeep<FolderRepository>();
   const folderFinder = new FolderFinder(folderRepository);
@@ -77,7 +77,6 @@ describe('File Creator', () => {
     }).attributes();
 
     fileRepository.searchByPartial.mockReturnValueOnce(existingFile).mockReturnValueOnce(existingFile);
-
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 

@@ -1,15 +1,15 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
-import { LocalFileHandler } from '../../domain/LocalFileUploader';
 import { RemoteTree } from '../../../../virtual-drive/remoteTree/domain/RemoteTree';
 import { SimpleFileOverrider } from '../../../../virtual-drive/files/application/override/SimpleFileOverrider';
 import { LocalFolder } from '../../../localFolder/domain/LocalFolder';
 import { relativeV2 } from '../../../../../apps/backups/utils/relative';
+import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 
 @Service()
 export class FileBatchUpdater {
   constructor(
-    private readonly uploader: LocalFileHandler,
+    private readonly uploader: EnvironmentLocalFileUploader,
     private readonly simpleFileOverrider: SimpleFileOverrider
   ) {}
 

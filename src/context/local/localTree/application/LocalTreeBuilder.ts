@@ -1,16 +1,16 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../localFile/domain/LocalFile';
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
-import { LocalItemsGenerator } from '../domain/LocalItemsGenerator';
 import { LocalTree } from '../domain/LocalTree';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { Either, left, right } from '../../../shared/domain/Either';
 import Logger from 'electron-log';
+import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 
 @Service()
 export default class LocalTreeBuilder {
-  constructor(private readonly generator: LocalItemsGenerator) {}
+  constructor(private readonly generator: CLSFsLocalItemsGenerator) {}
 
   private async traverse(
     tree: LocalTree,

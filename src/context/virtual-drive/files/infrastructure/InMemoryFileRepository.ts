@@ -1,9 +1,7 @@
 import { Service } from 'diod';
 import { File, FileAttributes } from '../domain/File';
-import { FileRepository } from '../domain/FileRepository';
-import Logger from 'electron-log';
 @Service()
-export class InMemoryFileRepository implements FileRepository {
+export class InMemoryFileRepository {
   private files: Map<string, FileAttributes>;
 
   private filesByUuid: Map<File['uuid'], FileAttributes>;

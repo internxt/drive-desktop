@@ -1,17 +1,17 @@
 import { Service } from 'diod';
 import { EventBus } from '../../../shared/domain/EventBus';
 import { File } from '../../domain/File';
-import { FileRepository } from '../../domain/FileRepository';
 import { FileSize } from '../../domain/FileSize';
 import { FileNotFoundError } from '../../domain/errors/FileNotFoundError';
 import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { FileContentsId } from '../../domain/FileContentsId';
+import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 
 @Service()
 export class FileOverrider {
   constructor(
     private readonly rfs: RemoteFileSystem,
-    private readonly repository: FileRepository,
+    private readonly repository: InMemoryFileRepository,
     private readonly eventBus: EventBus
   ) {}
 
