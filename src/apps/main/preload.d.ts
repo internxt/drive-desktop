@@ -146,9 +146,7 @@ declare interface Window {
     };
 
     onDeviceCreated(
-      func: (
-        value: import('../main/device/service').Device
-      ) => void
+      func: (value: import('../main/device/service').Device) => void
     ): () => void;
 
     getBackupsFromDevice: typeof import('../main/device/service').getBackupsFromDevice;
@@ -189,9 +187,9 @@ declare interface Window {
 
     getFolderPath: typeof import('../main/device/service').getPathFromDialog;
 
-    onRemoteChanges(func: (
-      value: import('../main/realtime').EventPayload
-    ) => void): () => void;
+    onRemoteChanges(
+      func: (value: import('../main/realtime').EventPayload) => void
+    ): () => void;
 
     getUsage: () => Promise<import('./usage/Usage').Usage>;
 
@@ -229,5 +227,8 @@ declare interface Window {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
     };
+    onBackupFailed: (
+      callback: (error: { message: string; cause: string }) => void
+    ) => () => void;
   };
 }

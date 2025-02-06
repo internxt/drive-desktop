@@ -1,6 +1,6 @@
 {
-  "name": "internxt-drive",
-  "version": "2.4.1",
+  "name": "internxt",
+  "version": "2.4.2",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -45,7 +45,7 @@
     ]
   },
   "build": {
-    "productName": "Internxt Drive",
+    "productName": "Internxt",
     "beforeBuild": "./beforeBuild.js",
     "appId": "com.internxt.drive",
     "asar": true,

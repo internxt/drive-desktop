@@ -13,7 +13,6 @@ import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFi
 export function registerLocalFileServices(builder: ContainerBuilder) {
   //Infra
   const user = DependencyInjectionUserProvider.get();
-
   const mnemonic = DependencyInjectionMnemonicProvider.get();
 
   const environment = new Environment({
@@ -27,15 +26,15 @@ export function registerLocalFileServices(builder: ContainerBuilder) {
 
   builder
     .register(LocalFileHandler)
-    .useFactory(
-      (c) =>
-        new EnvironmentLocalFileUploader(
-          c.get(Environment),
-          user.backupsBucket,
-          //@ts-ignore
-          c.get(AuthorizedClients).drive
-        )
-    )
+    .useFactory((c) => {
+      const env = c.get(Environment);
+      return new EnvironmentLocalFileUploader(
+        env,
+        user.backupsBucket,
+        //@ts-ignore
+        c.get(AuthorizedClients).drive
+      );
+    })
     .private();
 
   builder

@@ -3,8 +3,19 @@ import { RemoteTreeMother } from '../../../context/virtual-drive/tree/domain/Rem
 import { LocalTreeMother } from '../../../context/local/tree/domain/LocalTreeMother';
 import { DateMother } from '../../../context/shared/domain/DateMother';
 import { LocalFileMother } from '../../../context/local/localFile/domain/LocalFileMother';
-import path from 'path';
+import path, { relative } from 'path';
 import { AbsolutePath } from '../../../../src/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePathMother } from '../../../context/shared/infrastructure/AbsolutePathMother';
+import { FileMother } from '../../../context/virtual-drive/files/domain/FileMother';
+
+function generateLocalFiles(count: number) {
+  return Array.from({ length: count }, () =>
+    LocalFileMother.fromPartial({
+      path: AbsolutePathMother.anyFile(),
+      modificationTime: DateMother.today().getTime(),
+    })
+  );
+}
 
 describe('DiffFilesCalculator', () => {
   it('groups the remote files as deleted when there are not in the local tree', () => {
@@ -50,7 +61,67 @@ describe('DiffFilesCalculator', () => {
     const { modified } = DiffFilesCalculator.calculate(local, remote);
 
     expect(modified.size).toBe(expectedNumberOfFilesToModify);
-    expect(Array.from(modified.keys())).toStrictEqual(local.files);
-    expect(Array.from(modified.values())).toStrictEqual(remote.files);
+  });
+
+  it('identifies unmodified files correctly', () => {
+    const expectedNumberOfUnmodifiedFiles = 10;
+    const local = LocalTreeMother.oneLevel(expectedNumberOfUnmodifiedFiles);
+    const remote = RemoteTreeMother.cloneFromLocal(local);
+
+    const { unmodified, added, deleted, modified } =
+      DiffFilesCalculator.calculate(local, remote);
+
+    expect(unmodified.length).toBe(expectedNumberOfUnmodifiedFiles);
+    expect(added.length).toBe(0);
+    expect(deleted.length).toBe(0);
+    expect(modified.size).toBe(0);
+  });
+
+  it('handles mixed additions, deletions, modifications, and unmodified files', () => {
+    const expectedNumberOfFilesToAdd = 5;
+    const expectedNumberOfFilesToDelete = 5;
+    const local = LocalTreeMother.oneLevel(10);
+    const remote = RemoteTreeMother.cloneFromLocal(local);
+
+    const newFiles = generateLocalFiles(expectedNumberOfFilesToAdd);
+    local.files.push(...newFiles);
+    newFiles.forEach((file) => local.addFile(local.root, file));
+
+    const modifiedRemote = RemoteTreeMother.onlyRoot();
+
+    local.files.forEach((file, index) => {
+      if (index < 3) {
+        modifiedRemote.addFile(
+          modifiedRemote.root,
+          FileMother.fromPartial({
+            path: path.join(
+              modifiedRemote.root.path,
+              relative(local.root.path, file.path)
+            ),
+            modificationTime: DateMother.previousDay(
+              new Date(file.modificationTime)
+            ).toISOString(),
+          })
+        );
+      } else {
+        modifiedRemote.addFile(
+          modifiedRemote.root,
+          FileMother.fromPartial({
+            path: path.join(
+              remote.root.path,
+              relative(local.root.path, file.path)
+            ),
+          })
+        );
+      }
+    });
+
+    const { added, deleted, modified, unmodified } =
+      DiffFilesCalculator.calculate(local, modifiedRemote);
+
+    expect(added.length).toBe(expectedNumberOfFilesToAdd);
+    expect(deleted.length).toBe(expectedNumberOfFilesToDelete);
+    expect(modified.size).toBe(0);
+    expect(unmodified.length).toBe(10);
   });
 });

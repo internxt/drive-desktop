@@ -22,7 +22,7 @@ async function obtainBackup(): Promise<BackupInfo> {
   }
 }
 
-async function backupFolder() {
+export async function backupFolder() {
   const data = await obtainBackup();
 
   try {

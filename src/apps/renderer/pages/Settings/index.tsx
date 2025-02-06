@@ -47,7 +47,7 @@ export default function Settings() {
           {subsection === 'panel' && (
             <div className="flex flex-grow flex-col">
               <WindowTopBar
-                title="Internxt Drive"
+                title="Internxt"
                 className="bg-surface dark:bg-gray-5"
               />
               <Header active={activeSection} onClick={setActiveSection} />
