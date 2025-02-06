@@ -1,11 +1,11 @@
 import { File } from '../domain/File';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 
 export class FilePlaceholderCreatorFromContentsId {
   constructor(
     private readonly finder: FileFinderByContentsId,
-    private readonly local: LocalFileSystem
+    private readonly local: NodeWinLocalFileSystem
   ) {}
 
   run(contentsId: File['contentsId']) {
