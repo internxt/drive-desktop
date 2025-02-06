@@ -6,17 +6,17 @@ import { EventBus } from '../../shared/domain/EventBus';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { FileStatuses } from '../domain/FileStatus';
 import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 
 export class FileCreator {
   constructor(
-    private readonly remote: RemoteFileSystem,
+    private readonly remote: SDKRemoteFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,

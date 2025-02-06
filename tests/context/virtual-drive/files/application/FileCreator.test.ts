@@ -3,7 +3,6 @@ import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileContentsMother } from '../../contents/domain/FileContentsMother';
 import { mockDeep } from 'vitest-mock-extended';
-import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { FileMother } from '../domain/FileMother';
@@ -11,9 +10,10 @@ import { FolderFinder } from '@/context/virtual-drive/folders/application/Folder
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 
 describe('File Creator', () => {
-  const remoteFileSystemMock = mockDeep<RemoteFileSystem>();
+  const remoteFileSystemMock = mockDeep<SDKRemoteFileSystem>();
   const fileRepository = mockDeep<InMemoryFileRepository>();
   const fileDeleter = mockDeep<FileDeleter>();
   const folderRepository = mockDeep<FolderRepository>();

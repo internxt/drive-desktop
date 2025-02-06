@@ -3,14 +3,14 @@ import { EventBus } from '../../../shared/domain/EventBus';
 import { File } from '../../domain/File';
 import { FileSize } from '../../domain/FileSize';
 import { FileNotFoundError } from '../../domain/errors/FileNotFoundError';
-import { RemoteFileSystem } from '../../domain/file-systems/RemoteFileSystem';
 import { FileContentsId } from '../../domain/FileContentsId';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '../../infrastructure/SDKRemoteFileSystem';
 
 @Service()
 export class FileOverrider {
   constructor(
-    private readonly rfs: RemoteFileSystem,
+    private readonly rfs: SDKRemoteFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly eventBus: EventBus
   ) {}

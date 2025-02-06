@@ -4,12 +4,12 @@ import { FolderMover } from '../../../../../src/context/virtual-drive/folders/ap
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
-import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
+import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 
 describe('Folder Mover', () => {
   const repository = mockDeep<FolderRepository>();
   const folderFinder = new FolderFinder(repository);
-  const remoteFileSystem = mockDeep<RemoteFileSystem>();
+  const remoteFileSystem = mockDeep<SDKRemoteFileSystem>();
   const SUT = new FolderMover(repository, remoteFileSystem, folderFinder);
 
   beforeEach(() => {

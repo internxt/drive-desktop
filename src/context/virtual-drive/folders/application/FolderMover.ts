@@ -3,12 +3,12 @@ import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
 import { FolderFinder } from './FolderFinder';
 import { FolderRepository } from '../domain/FolderRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFolderSystem';
+import { SDKRemoteFileSystem } from '../../files/infrastructure/SDKRemoteFileSystem';
 
 export class FolderMover {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly remote: RemoteFileSystem,
+    private readonly remote: SDKRemoteFileSystem,
     private readonly folderFinder: FolderFinder
   ) {}
 
