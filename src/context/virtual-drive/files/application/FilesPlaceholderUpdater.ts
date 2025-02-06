@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import fs from 'fs/promises';
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
@@ -8,12 +7,12 @@ import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from '../domain/events/FileRenamedDomainEvent';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 
 export class FilesPlaceholderUpdater {
   constructor(
     private readonly repository: FileRepository,
-    private readonly localFileSystem: LocalFileSystem,
+    private readonly localFileSystem: NodeWinLocalFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,
     private readonly eventHistory: EventRepository

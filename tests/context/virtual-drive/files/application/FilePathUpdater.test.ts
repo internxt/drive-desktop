@@ -7,16 +7,16 @@ import { FolderMother } from '../../folders/domain/FolderMother';
 import { FileMother } from '../domain/FileMother';
 import { FileRepository } from '@/context/virtual-drive/files/domain/FileRepository';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { LocalFileSystem } from '@/context/virtual-drive/files/domain/file-systems/LocalFileSystem';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
+import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 
 describe('File path updater', () => {
   const repository = mockDeep<FileRepository>();
   const fileFinderByContentsId = new FileFinderByContentsId(repository);
   const folderFinder = mockDeep<FolderFinder>();
   const ipcRenderer = mockDeep<SyncEngineIpc>();
-  const localFileSystem = mockDeep<LocalFileSystem>();
+  const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
   const eventBus = mockDeep<EventBus>();
   const remoteFileSystem = mockDeep<RemoteFileSystem>();
 

@@ -6,15 +6,15 @@ import { FileStatus } from '../../../../../src/context/virtual-drive/files/domai
 import { mockDeep } from 'vitest-mock-extended';
 import { FileRepository } from '@/context/virtual-drive/files/domain/FileRepository';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
-import { LocalFileSystem } from '@/context/virtual-drive/files/domain/file-systems/LocalFileSystem';
 import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 
 describe('File Deleter', () => {
   const repository = mockDeep<FileRepository>();
   const folderRepository = mockDeep<FolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(folderRepository);
-  const localFileSystem = mockDeep<LocalFileSystem>();
+  const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
   const remoteFileSystem = mockDeep<RemoteFileSystem>();
   const ipc = mockDeep<SyncEngineIpc>();
 

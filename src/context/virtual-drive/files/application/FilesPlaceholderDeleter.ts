@@ -2,14 +2,14 @@ import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import Logger from 'electron-log';
 import { sleep } from '../../../../apps/main/util';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 export class FilesPlaceholderDeleter {
   constructor(
     private remoteFileSystem: RemoteFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-    private readonly local: LocalFileSystem
+    private readonly local: NodeWinLocalFileSystem
   ) {}
 
   private async hasToBeDeleted(remote: File): Promise<boolean> {
