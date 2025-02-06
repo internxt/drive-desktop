@@ -3,7 +3,6 @@ import { Service } from 'diod';
 import { createReadStream } from 'fs';
 import { Stopwatch } from '../../../../apps/shared/types/Stopwatch';
 import { AbsolutePath } from './AbsolutePath';
-import { LocalFileHandler } from '../domain/LocalFileUploader';
 import { Environment } from '@internxt/inxt-js';
 import { Axios } from 'axios';
 import Logger from 'electron-log';
@@ -11,7 +10,7 @@ import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 
 @Service()
-export class EnvironmentLocalFileUploader implements LocalFileHandler {
+export class EnvironmentLocalFileUploader {
   private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
 
   constructor(

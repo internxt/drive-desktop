@@ -1,14 +1,12 @@
 import Logger from 'electron-log';
 import { ContainerBuilder } from 'diod';
 import { FileBatchUpdater } from '../../../../context/local/localFile/application/update/FileBatchUpdater';
-import { LocalFileHandler } from '../../../../context/local/localFile/domain/LocalFileUploader';
 import { FileBatchUploader } from '../../../../context/local/localFile/application/upload/FileBatchUploader';
 import { EnvironmentLocalFileUploader } from '../../../../context/local/localFile/infrastructure/EnvironmentLocalFileUploader';
 import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { Environment } from '@internxt/inxt-js';
 import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-injection/DependencyInjectionMnemonicProvider';
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
-import { LocalFileMessenger } from '../../../../context/local/localFile/domain/LocalFileMessenger';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 
 export async function registerLocalFileServices(builder: ContainerBuilder) {
@@ -29,7 +27,7 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
   builder.register(Environment).useInstance(environment).private();
 
   builder
-    .register(LocalFileHandler)
+    .register(EnvironmentLocalFileUploader)
     .useFactory(
       (c) =>
         new EnvironmentLocalFileUploader(
@@ -42,7 +40,7 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
     .private();
 
   builder
-    .register(LocalFileMessenger)
+    .register(RendererIpcLocalFileMessenger)
     .useClass(RendererIpcLocalFileMessenger)
     .private()
     .asSingleton();

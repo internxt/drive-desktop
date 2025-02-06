@@ -4,13 +4,11 @@ import path from 'path';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
-import { LocalItemsGenerator } from '../domain/LocalItemsGenerator';
 import { LocalFileDTO } from './LocalFileDTO';
 import { LocalFolderDTO } from './LocalFolderDTO';
-import Logger from 'electron-log';
 
 @Service()
-export class CLSFsLocalItemsGenerator implements LocalItemsGenerator {
+export class CLSFsLocalItemsGenerator {
   async root(dir: string): Promise<Either<DriveDesktopError, LocalFolderDTO>> {
     try {
       const stat = await fs.stat(dir);

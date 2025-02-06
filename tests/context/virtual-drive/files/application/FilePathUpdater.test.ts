@@ -5,14 +5,14 @@ import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { FileMother } from '../domain/FileMother';
-import { FileRepository } from '@/context/virtual-drive/files/domain/FileRepository';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { RemoteFileSystem } from '@/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
+import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 
 describe('File path updater', () => {
-  const repository = mockDeep<FileRepository>();
+  const repository = mockDeep<InMemoryFileRepository>();
   const fileFinderByContentsId = new FileFinderByContentsId(repository);
   const folderFinder = mockDeep<FolderFinder>();
   const ipcRenderer = mockDeep<SyncEngineIpc>();

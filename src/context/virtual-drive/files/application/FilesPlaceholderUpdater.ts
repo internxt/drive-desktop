@@ -3,15 +3,15 @@ import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvide
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { EventRepository } from '../../shared/domain/EventRepository';
 import { File } from '../domain/File';
-import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from '../domain/events/FileRenamedDomainEvent';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 
 export class FilesPlaceholderUpdater {
   constructor(
-    private readonly repository: FileRepository,
+    private readonly repository: InMemoryFileRepository,
     private readonly localFileSystem: NodeWinLocalFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,

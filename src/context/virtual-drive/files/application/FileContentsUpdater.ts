@@ -1,11 +1,11 @@
 import { File } from '../domain/File';
-import { FileRepository } from '../domain/FileRepository';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
 import Logger from 'electron-log';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 
 export class FileContentsUpdater {
   constructor(
-    private readonly repository: FileRepository,
+    private readonly repository: InMemoryFileRepository,
     private readonly remote: RemoteFileSystem
   ) {}
 

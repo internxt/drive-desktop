@@ -1,7 +1,6 @@
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { FilePath } from '../domain/FilePath';
-import { FileRepository } from '../domain/FileRepository';
 import { FileStatuses } from '../domain/FileStatus';
 import Logger from 'electron-log';
 import { FileCreator } from './FileCreator';
@@ -16,12 +15,13 @@ import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
 import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
 import { FileContentsUpdater } from './FileContentsUpdater';
 import { FileIdentityUpdater } from './FileIndetityUpdater';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
   private foldersPathQueue: string[] = [];
   constructor(
-    private readonly repository: FileRepository,
+    private readonly repository: InMemoryFileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
     private readonly filePlaceholderConverter: FilePlaceholderConverter,
     private readonly fileIdentityUpdater: FileIdentityUpdater,

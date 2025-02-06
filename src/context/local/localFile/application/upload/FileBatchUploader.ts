@@ -2,21 +2,21 @@
 /* eslint-disable no-await-in-loop */
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
-import { LocalFileHandler } from '../../domain/LocalFileUploader';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
 import { RemoteTree } from '../../../../virtual-drive/remoteTree/domain/RemoteTree';
 import { relativeV2 } from '../../../../../apps/backups/utils/relative';
-import { LocalFileMessenger } from '../../domain/LocalFileMessenger';
 import { isFatalError } from '../../../../../apps/shared/issues/SyncErrorCause';
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
+import { RendererIpcLocalFileMessenger } from '../../infrastructure/RendererIpcLocalFileMessenger';
+import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 
 @Service()
 export class FileBatchUploader {
   constructor(
-    private readonly localHandler: LocalFileHandler,
+    private readonly localHandler: EnvironmentLocalFileUploader,
     private readonly creator: SimpleFileCreator,
-    protected readonly messenger: LocalFileMessenger
+    protected readonly messenger: RendererIpcLocalFileMessenger
   ) {}
 
   async run(
