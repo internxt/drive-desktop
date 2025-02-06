@@ -18,13 +18,12 @@ import { File } from '../../files/domain/File';
 import {
   FolderPersistedDto,
   RemoteFileSystemErrors,
-  RemoteFolderSystem,
 } from '../domain/file-systems/RemoteFolderSystem';
 
 type NewServerFolder = Omit<ServerFolder, 'plain_name'> & { plainName: string };
 
 @Service()
-export class HttpRemoteFolderSystem implements RemoteFolderSystem {
+export class HttpRemoteFolderSystem {
   private readonly PAGE_SIZE = 50;
   public folders: Record<string, Folder> = {};
 

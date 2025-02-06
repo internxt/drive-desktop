@@ -6,11 +6,11 @@ import { FolderUuid } from '../../domain/FolderUuid';
 import { FolderCreatedAt } from '../../domain/FolderCreatedAt';
 import { FolderUpdatedAt } from '../../domain/FolderUpdatedAt';
 import Logger from 'electron-log';
-import { RemoteFolderSystem } from '../../domain/file-systems/RemoteFolderSystem';
+import { HttpRemoteFolderSystem } from '../../infrastructure/HttpRemoteFolderSystem';
 
 @Service()
 export class SimpleFolderCreator {
-  constructor(private readonly rfs: RemoteFolderSystem) {}
+  constructor(private readonly rfs: HttpRemoteFolderSystem) {}
 
   async run(path: string, parentId: number): Promise<Folder> {
     Logger.debug('Creating folder', path, 'with parent', parentId);
