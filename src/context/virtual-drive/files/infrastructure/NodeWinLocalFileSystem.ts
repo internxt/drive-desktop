@@ -11,15 +11,6 @@ export class NodeWinLocalFileSystem {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
 
-  async fileExists(filePath: string): Promise<boolean> {
-    try {
-      await fs.access(filePath);
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
   async getLocalFileId(file: File): Promise<`${string}-${string}`> {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
       file.path

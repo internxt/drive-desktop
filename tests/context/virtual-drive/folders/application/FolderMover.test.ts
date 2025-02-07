@@ -4,13 +4,13 @@ import { FolderMover } from '../../../../../src/context/virtual-drive/folders/ap
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
-import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 
 describe('Folder Mover', () => {
   const repository = mockDeep<FolderRepository>();
   const folderFinder = new FolderFinder(repository);
-  const remoteFileSystem = mockDeep<SDKRemoteFileSystem>();
-  const SUT = new FolderMover(repository, remoteFileSystem, folderFinder);
+  const remoteFolderSystem = mockDeep<HttpRemoteFolderSystem>();
+  const SUT = new FolderMover(repository, remoteFolderSystem, folderFinder);
 
   beforeEach(() => {
     vi.resetAllMocks();

@@ -1,4 +1,3 @@
-import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/folders/infrastructure/NodeWinLocalFileSystem';
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
@@ -33,6 +32,7 @@ import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/fo
 import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
 import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FoldersFatherSyncStatusUpdater';
 import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
+import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 
 export async function buildFoldersContainer(
   shredContainer: SharedContainer
@@ -44,7 +44,7 @@ export async function buildFoldersContainer(
 
   const repository = new InMemoryFolderRepository();
 
-  const localFileSystem = new NodeWinLocalFileSystem(
+  const localFolderSystem = new NodeWinLocalFolderSystem(
     virtualDrive,
     shredContainer.relativePathToAbsoluteConverter
   );
@@ -54,10 +54,10 @@ export async function buildFoldersContainer(
   );
 
   const folderPlaceholderConverter = new FolderPlaceholderConverter(
-    localFileSystem
+    localFolderSystem
   );
 
-  const folderSyncStatusUpdater = new FolderSyncStatusUpdater(localFileSystem);
+  const folderSyncStatusUpdater = new FolderSyncStatusUpdater(localFolderSystem);
 
   const folderFinder = new FolderFinder(repository);
 
@@ -68,7 +68,7 @@ export async function buildFoldersContainer(
   const folderDeleter = new FolderDeleter(
     repository,
     remoteFolderSystem,
-    localFileSystem,
+    localFolderSystem,
     allParentFoldersStatusIsExists
   );
 
@@ -133,24 +133,24 @@ export async function buildFoldersContainer(
   const folderRepositoryInitiator = new FolderRepositoryInitiator(repository);
 
   const foldersPlaceholderCreator = new FoldersPlaceholderCreator(
-    localFileSystem
+    localFolderSystem
   );
 
   const folderPlaceholderUpdater = new FolderPlaceholderUpdater(
     repository,
-    localFileSystem,
+    localFolderSystem,
     shredContainer.relativePathToAbsoluteConverter
   );
 
   const folderPlaceholderDeleter = new FolderPlaceholderDeleter(
     shredContainer.relativePathToAbsoluteConverter,
     remoteFolderSystem,
-    localFileSystem
+    localFolderSystem
   );
 
   const folderContainerDetector = new FolderContainerDetector(repository);
   const foldersFatherSyncStatusUpdater = new FoldersFatherSyncStatusUpdater(
-    localFileSystem,
+    localFolderSystem,
     repository
   );
 

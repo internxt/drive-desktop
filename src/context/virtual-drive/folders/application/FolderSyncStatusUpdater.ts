@@ -1,8 +1,8 @@
 import { Folder } from '../domain/Folder';
-import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
+import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 
 export class FolderSyncStatusUpdater {
-  constructor(private readonly localFileSystem: LocalFolderSystem) {}
+  constructor(private readonly localFileSystem: NodeWinLocalFolderSystem) {}
 
   async run(folder: Folder) {
     await this.localFileSystem.updateSyncStatus(folder, true);

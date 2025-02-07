@@ -1,8 +1,8 @@
 import { Folder } from '../domain/Folder';
-import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 
 export class FolderPlaceholderConverter {
-  constructor(private readonly localFileSystem: NodeWinLocalFileSystem) {}
+  constructor(private readonly localFileSystem: NodeWinLocalFolderSystem) {}
 
   async run(folder: Folder) {
     await this.localFileSystem.convertToPlaceholder(folder);

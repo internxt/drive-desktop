@@ -2,12 +2,12 @@ import { File } from '../../files/domain/File';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
-import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 import Logger from 'electron-log';
+import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 
 export class FoldersFatherSyncStatusUpdater {
   constructor(
-    private readonly localFileSystem: LocalFolderSystem,
+    private readonly localFileSystem: NodeWinLocalFolderSystem,
     private readonly repository: FolderRepository
   ) {}
 

@@ -3,14 +3,14 @@ import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtu
 import { FolderDeleter } from '../../../../../src/context/virtual-drive/folders/application/FolderDeleter';
 import { FolderMother } from '../domain/FolderMother';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
-import { LocalFolderSystem } from '@/context/virtual-drive/folders/domain/file-systems/LocalFolderSystem';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
+import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 
 describe('Folder deleter', () => {
   const repository = mockDeep<FolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
   const remote = mockDeep<HttpRemoteFolderSystem>();
-  const local = mockDeep<LocalFolderSystem>();
+  const local = mockDeep<NodeWinLocalFolderSystem>();
   const SUT = new FolderDeleter(repository, remote, local, allParentFoldersStatusIsExists);
 
   beforeEach(() => {

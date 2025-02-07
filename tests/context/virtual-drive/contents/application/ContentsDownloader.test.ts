@@ -10,12 +10,12 @@ import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 
 describe.skip('Contents Downloader', () => {
-  let localWriter = mockDeep<LocalFileWriter>();
-  let factory = mockDeep<ContentsManagersFactory>();
-  let ipc = mockDeep<SyncEngineIpc>();
-  let eventBus = mockDeep<EventBus>();
+  const localWriter = mockDeep<LocalFileWriter>();
+  const factory = mockDeep<ContentsManagersFactory>();
+  const ipc = mockDeep<SyncEngineIpc>();
+  const eventBus = mockDeep<EventBus>();
 
-  let SUT = new ContentsDownloader(factory, localWriter, ipc, temporalFolderProvider, eventBus);
+  const SUT = new ContentsDownloader(factory, localWriter, ipc, temporalFolderProvider, eventBus);
 
   beforeEach(() => {
     vi.resetAllMocks();

@@ -6,11 +6,11 @@ import path from 'path';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { FolderRepository } from '../domain/FolderRepository';
 import * as Sentry from '@sentry/electron/renderer';
-import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
+import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 export class FolderPlaceholderUpdater {
   constructor(
     private readonly repository: FolderRepository,
-    private readonly local: LocalFolderSystem,
+    private readonly local: NodeWinLocalFolderSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
   ) {}
 
