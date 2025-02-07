@@ -71,10 +71,6 @@ export class NodeWinLocalFileSystem {
     );
   }
 
-  getPlaceholderState(file: File) {
-    return this.virtualDrive.getPlaceholderState(file.path);
-  }
-
   getPlaceholderStateByRelativePath(
     relativePath: string
   ) {

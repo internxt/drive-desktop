@@ -1,12 +1,11 @@
 import { ContainerBuilder } from 'diod';
 import { UserAvaliableSpaceValidator } from '../../../../context/user/usage/application/UserAvaliableSpaceValidator';
 import { IpcUserUsageRepository } from '../../../../context/user/usage/infrastrucutre/IpcUserUsageRepository';
-import { UserUsageRepository } from '../../../../context/user/usage/domain/UserUsageRepository';
 
 export async function registerUserUsageServices(builder: ContainerBuilder) {
   // Infra
   builder
-    .register(UserUsageRepository)
+    .register(IpcUserUsageRepository)
     .useClass(IpcUserUsageRepository)
     .private();
 

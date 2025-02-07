@@ -1,15 +1,15 @@
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
-import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { FolderPlaceholderConverter } from '@/context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { mockDeep } from 'vitest-mock-extended';
+import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 
 describe('Folder Creator', () => {
-  const repository = mockDeep<FolderRepository>();
+  const repository = mockDeep<InMemoryFolderRepository>();
   const remote = mockDeep<HttpRemoteFolderSystem>();
   const syncEngineIpc = mockDeep<SyncEngineIpc>();
   const eventBus = mockDeep<EventBus>();

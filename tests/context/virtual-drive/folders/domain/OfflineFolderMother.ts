@@ -19,12 +19,4 @@ export class OfflineFolderMother {
       status: FolderStatuses.EXISTS,
     });
   }
-
-  static fromPartial(partial: Partial<OfflineFolderAttributes>): OfflineFolder {
-    const random = OfflineFolderMother.random();
-    return OfflineFolder.from({
-      ...random.attributes(),
-      ...partial,
-    });
-  }
 }

@@ -1,10 +1,9 @@
 import { Service } from 'diod';
-import { UserUsageRepository } from '../domain/UserUsageRepository';
 import { UserUsage } from '../domain/UserUsage';
 import { AccountIpcRenderer } from '../../../../apps/shared/IPC/events/account/AccountIpcRenderer';
 
 @Service()
-export class IpcUserUsageRepository implements UserUsageRepository {
+export class IpcUserUsageRepository {
   async getUsage(): Promise<UserUsage> {
     const usage = await AccountIpcRenderer.invoke('account.get-usage');
 
