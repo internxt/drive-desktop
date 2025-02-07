@@ -40,6 +40,7 @@ describe('Folder deleter', () => {
       .mockResolvedValueOnce(true);
 
     await SUT.run(folder.uuid);
+    expect(repository.deleteMock).toBeCalledWith(folder.id);
   });
 
   it('throws an error when trashing a folder already trashed', async () => {
