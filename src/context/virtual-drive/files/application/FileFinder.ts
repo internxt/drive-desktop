@@ -1,10 +1,10 @@
 import { FilePath } from '../../files/domain/FilePath';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
 import { File } from '../domain/File';
-import { FileRepository } from '../domain/FileRepository';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 
 export class FileFinder {
-  constructor(private readonly repository: FileRepository) {}
+  constructor(private readonly repository: InMemoryFileRepository) {}
 
   run(path: string): File {
     const file = this.repository.searchByPartial({ path });

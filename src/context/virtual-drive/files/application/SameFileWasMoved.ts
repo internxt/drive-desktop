@@ -1,17 +1,17 @@
 import { EventRepository } from '../../shared/domain/EventRepository';
 import { FilePath } from '../domain/FilePath';
-import { FileRepository } from '../domain/FileRepository';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import Logger from 'electron-log';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 
 // TODO: find a better name
 type WasMovedResult = { result: false } | { result: true; contentsId: string };
 
 export class SameFileWasMoved {
   constructor(
-    private readonly repository: FileRepository,
-    private readonly localFileSystem: LocalFileSystem,
+    private readonly repository: InMemoryFileRepository,
+    private readonly localFileSystem: NodeWinLocalFileSystem,
     private readonly eventHistory: EventRepository
   ) {}
 

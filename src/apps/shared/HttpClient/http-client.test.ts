@@ -6,8 +6,8 @@ import { AuthorizedHttpClient } from './HttpClient';
 const URL = 'http://jibuwsik.ie/ugco';
 
 describe.skip('Authorized Http Client', () => {
-  const headerProvider = jest.fn();
-  const unauthorizedNotifier = jest.fn();
+  const headerProvider = vi.fn();
+  const unauthorizedNotifier = vi.fn();
 
   let client: AxiosInstance;
   let mock: MockAdapter;

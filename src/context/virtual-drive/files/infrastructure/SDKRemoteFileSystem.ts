@@ -6,7 +6,6 @@ import { FileStatuses } from '../domain/FileStatus';
 import {
   FileDataToPersist,
   PersistedFileData,
-  RemoteFileSystem,
 } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
 import * as uuidv4 from 'uuid';
@@ -21,7 +20,7 @@ import { Folder } from '../../folders/domain/Folder';
 import { FolderStatuses } from '../../folders/domain/FolderStatus';
 
 @Service()
-export class SDKRemoteFileSystem implements RemoteFileSystem {
+export class SDKRemoteFileSystem {
   constructor(
     private readonly sdk: Storage,
     private readonly clients: AuthorizedClients,

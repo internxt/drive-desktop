@@ -1,12 +1,12 @@
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
-import { FileRepository } from '../domain/FileRepository';
 import { FileNotFoundError } from '../domain/errors/FileNotFoundError';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 
 export class FileFolderContainerDetector {
   constructor(
-    private readonly repository: FileRepository,
+    private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder
   ) {}
 

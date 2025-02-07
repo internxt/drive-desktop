@@ -5,17 +5,17 @@ import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { EventBus } from '../../shared/domain/EventBus';
-import { FileRepository } from '../domain/FileRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 
 export class FilePathUpdater {
   constructor(
-    private readonly remote: RemoteFileSystem,
-    private readonly local: LocalFileSystem,
-    private readonly repository: FileRepository,
+    private readonly remote: SDKRemoteFileSystem,
+    private readonly local: NodeWinLocalFileSystem,
+    private readonly repository: InMemoryFileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,

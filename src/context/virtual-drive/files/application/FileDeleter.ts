@@ -2,18 +2,18 @@ import Logger from 'electron-log';
 import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
 import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
-import { FileRepository } from '../domain/FileRepository';
-import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { Service } from 'diod';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 
 @Service()
 export class FileDeleter {
   constructor(
-    private readonly remote: RemoteFileSystem,
-    private readonly local: LocalFileSystem,
-    private readonly repository: FileRepository,
+    private readonly remote: SDKRemoteFileSystem,
+    private readonly local: NodeWinLocalFileSystem,
+    private readonly repository: InMemoryFileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
     private readonly ipc: SyncEngineIpc
   ) {}

@@ -1,10 +1,10 @@
 import { Service } from 'diod';
 import { Folder } from '../../domain/Folder';
-import { RemoteFolderSystem } from '../../domain/file-systems/RemoteFolderSystem';
+import { HttpRemoteFolderSystem } from '../../infrastructure/HttpRemoteFolderSystem';
 
 @Service()
 export class FolderDeleter {
-  constructor(private readonly fs: RemoteFolderSystem) {}
+  constructor(private readonly fs: HttpRemoteFolderSystem) {}
 
   async run(folder: Folder) {
     await this.fs.trash(folder.id);

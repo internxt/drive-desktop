@@ -5,15 +5,15 @@ import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 import { FolderRepository } from '../domain/FolderRepository';
 import { Service } from 'diod';
-import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
+import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 
 @Service()
 export class FolderDeleter {
   constructor(
     private readonly repository: FolderRepository,
     private readonly remote: HttpRemoteFolderSystem,
-    private readonly local: LocalFolderSystem,
+    private readonly local: NodeWinLocalFolderSystem,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists
   ) {}
 

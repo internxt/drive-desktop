@@ -1,41 +1,30 @@
 import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/FileCreator';
-import { FileDeleter } from '../../../../../src/context/virtual-drive/files/application/FileDeleter';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileContentsMother } from '../../contents/domain/FileContentsMother';
-import { EventBusMock } from '../../shared/__mock__/EventBusMock';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
-import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
-import { RemoteFileSystemMock } from '../__mocks__/RemoteFileSystemMock';
+import { mockDeep } from 'vitest-mock-extended';
+import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
+import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { FileMother } from '../domain/FileMother';
-import { FolderFinderFactory } from '../../folders/__mocks__/FolderFinderFactory';
-import { FileDeleterFactory } from '../__mocks__/FileDeleterFactory';
+import { FolderFinder } from '@/context/virtual-drive/folders/application/FolderFinder';
+import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
+import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
+import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 
 describe('File Creator', () => {
-  let remoteFileSystemMock: RemoteFileSystemMock;
-  let fileRepository: FileRepositoryMock;
-  let fileDeleter: FileDeleter;
-  let eventBus: EventBusMock;
+  const remoteFileSystemMock = mockDeep<SDKRemoteFileSystem>();
+  const fileRepository = mockDeep<InMemoryFileRepository>();
+  const fileDeleter = mockDeep<FileDeleter>();
+  const folderRepository = mockDeep<FolderRepository>();
+  const folderFinder = new FolderFinder(folderRepository);
+  const eventBus = mockDeep<EventBus>();
+  const ipc = mockDeep<SyncEngineIpc>();
 
-  let SUT: FileCreator;
-
-  const ipc = new IpcRendererSyncEngineMock();
+  const SUT = new FileCreator(remoteFileSystemMock, fileRepository, folderFinder, fileDeleter, eventBus, ipc);
 
   beforeEach(() => {
-    remoteFileSystemMock = new RemoteFileSystemMock();
-    fileRepository = new FileRepositoryMock();
-    fileDeleter = FileDeleterFactory.deletionSucces();
-    const folderFinder = FolderFinderFactory.existingFolder();
-    eventBus = new EventBusMock();
-
-    SUT = new FileCreator(
-      remoteFileSystemMock,
-      fileRepository,
-      folderFinder,
-      fileDeleter,
-      eventBus,
-      ipc
-    );
+    vi.resetAllMocks();
   });
 
   it('creates the file on the drive server', async () => {
@@ -47,17 +36,15 @@ describe('File Creator', () => {
       contentsId: contents.id,
     }).attributes();
 
-    fileRepository.addMock.mockImplementationOnce(() => {
+    fileRepository.add.mockImplementationOnce(() => {
       // returns Promise<void>
     });
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
+    remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
     await SUT.run(path, contents);
 
-    expect(fileRepository.addMock).toBeCalledWith(
-      expect.objectContaining(File.from(fileAttributes))
-    );
+    expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(fileAttributes)));
   });
 
   it('once the file entry is created the creation event should have been emitted', async () => {
@@ -68,20 +55,16 @@ describe('File Creator', () => {
       contentsId: contents.id,
     }).attributes();
 
-    fileRepository.addMock.mockImplementationOnce(() => {
+    fileRepository.add.mockImplementationOnce(() => {
       // returns Promise<void>
     });
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
+    remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
     await SUT.run(path, contents);
 
-    expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe(
-      'file.created'
-    );
-    expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(
-      contents.id
-    );
+    expect(eventBus.publish.mock.calls[0][0][0].eventName).toBe('file.created');
+    expect(eventBus.publish.mock.calls[0][0][0].aggregateId).toBe(contents.id);
   });
 
   it('deletes the file on remote if it already exists on the path', async () => {
@@ -93,31 +76,23 @@ describe('File Creator', () => {
       contentsId: contents.id,
     }).attributes();
 
-    fileRepository.searchByPartialMock
-      .mockReturnValueOnce(existingFile)
-      .mockReturnValueOnce(existingFile);
+    fileRepository.searchByPartial.mockReturnValueOnce(existingFile).mockReturnValueOnce(existingFile);
 
-    const deleterSpy = jest
-      .spyOn(fileDeleter, 'run')
-      .mockResolvedValueOnce(Promise.resolve());
+    remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(fileAttributes);
-
-    fileRepository.addMock.mockImplementationOnce(() => {
+    fileRepository.add.mockImplementationOnce(() => {
       // returns Promise<void>
     });
 
     await SUT.run(path, contents);
 
-    expect(deleterSpy).toBeCalledWith(existingFile.contentsId);
+    expect(fileDeleter.run).toBeCalledWith(existingFile.contentsId);
 
-    expect(remoteFileSystemMock.persistMock).toBeCalledWith(
+    expect(remoteFileSystemMock.persist).toBeCalledWith(
       expect.objectContaining({
         contentsId: contents.id,
       })
     );
-    expect(fileRepository.addMock).toBeCalledWith(
-      expect.objectContaining(File.from(fileAttributes))
-    );
+    expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(fileAttributes)));
   });
 });

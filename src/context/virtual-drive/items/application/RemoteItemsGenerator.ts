@@ -60,21 +60,4 @@ export class RemoteItemsGenerator {
 
     return { files, folders };
   }
-
-  async getFolderItems(
-    folderId: number
-  ): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await this.ipc.invoke(
-      'GET_UPDATED_REMOTE_ITEMS_BY_FOLDER',
-      folderId
-    );
-
-    const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
-
-    const folders = updatedRemoteItems.folders.map<ServerFolder>(
-      this.mapFolder
-    );
-
-    return { files, folders };
-  }
 }

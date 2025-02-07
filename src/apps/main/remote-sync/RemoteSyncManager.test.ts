@@ -1,12 +1,3 @@
-jest.mock('@sentry/electron/main', () => ({
-  init: () => jest.fn(),
-  captureException: () => jest.fn(),
-}));
-
-jest.mock('electron');
-jest.mock('electron-store');
-jest.mock('axios');
-
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { RemoteSyncedFile, RemoteSyncedFolder } from './helpers';
 import * as uuid from 'uuid';
@@ -14,31 +5,24 @@ import axios from 'axios';
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
+import { Mocked } from 'vitest';
+import { mockDeep } from 'vitest-mock-extended';
 
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+vi.mock('@sentry/electron/main', () => ({
+  init: () => vi.fn(),
+  captureException: () => vi.fn(),
+}));
 
-const inMemorySyncedFilesCollection: DatabaseCollectionAdapter<DriveFile> = {
-  get: jest.fn(),
-  connect: jest.fn(),
-  update: jest.fn(),
-  create: jest.fn(),
-  remove: jest.fn(),
-  getLastUpdated: jest.fn(),
-};
+vi.mock('electron');
+vi.mock('electron-store');
+vi.mock('axios');
 
-const inMemorySyncedFoldersCollection: DatabaseCollectionAdapter<DriveFolder> =
-  {
-    get: jest.fn(),
-    connect: jest.fn(),
-    update: jest.fn(),
-    create: jest.fn(),
-    remove: jest.fn(),
-    getLastUpdated: jest.fn(),
-  };
+const mockedAxios = axios as Mocked<typeof axios>;
 
-const createRemoteSyncedFileFixture = (
-  payload: Partial<RemoteSyncedFile>
-): RemoteSyncedFile => {
+const inMemorySyncedFilesCollection = mockDeep<DatabaseCollectionAdapter<DriveFile>>();
+const inMemorySyncedFoldersCollection = mockDeep<DatabaseCollectionAdapter<DriveFolder>>();
+
+const createRemoteSyncedFileFixture = (payload: Partial<RemoteSyncedFile>): RemoteSyncedFile => {
   const result: RemoteSyncedFile = {
     status: 'EXISTS',
     name: `name_${uuid.v4()}`,
@@ -61,9 +45,7 @@ const createRemoteSyncedFileFixture = (
   return result;
 };
 
-const createRemoteSyncedFolderFixture = (
-  payload: Partial<RemoteSyncedFolder>
-): RemoteSyncedFolder => {
+const createRemoteSyncedFolderFixture = (payload: Partial<RemoteSyncedFolder>): RemoteSyncedFolder => {
   const result: RemoteSyncedFolder = {
     name: `name_${uuid.v4()}`,
     plainName: `folder_${Date.now()}`,
@@ -97,10 +79,8 @@ describe('RemoteSyncManager', () => {
     }
   );
 
-  inMemorySyncedFilesCollection.getLastUpdated = () =>
-    Promise.resolve({ success: false, result: null });
-  inMemorySyncedFoldersCollection.getLastUpdated = () =>
-    Promise.resolve({ success: false, result: null });
+  inMemorySyncedFilesCollection.getLastUpdated.mockImplementation(() => Promise.resolve({ success: false, result: null }));
+  inMemorySyncedFoldersCollection.getLastUpdated.mockImplementation(() => Promise.resolve({ success: false, result: null }));
 
   beforeEach(() => {
     sut = new RemoteSyncManager(
@@ -246,9 +226,7 @@ describe('RemoteSyncManager', () => {
 
   describe('When something fails during the sync', () => {
     it('Should retry N times and then stop if sync does not succeed', async () => {
-      mockedAxios.get.mockImplementation(() =>
-        Promise.reject('Fail on purpose')
-      );
+      mockedAxios.get.mockImplementation(() => Promise.reject('Fail on purpose'));
 
       await sut.startRemoteSync();
 
@@ -257,10 +235,8 @@ describe('RemoteSyncManager', () => {
     });
 
     it('Should fail the sync if some files or folders cannot be retrieved', async () => {
-      inMemorySyncedFilesCollection.getLastUpdated = () =>
-        Promise.resolve({ success: false, result: null });
-      inMemorySyncedFoldersCollection.getLastUpdated = () =>
-        Promise.resolve({ success: false, result: null });
+      inMemorySyncedFilesCollection.getLastUpdated.mockImplementation(() => Promise.resolve({ success: false, result: null }));
+      inMemorySyncedFoldersCollection.getLastUpdated.mockImplementation(() => Promise.resolve({ success: false, result: null }));
 
       const sut = new RemoteSyncManager(
         {

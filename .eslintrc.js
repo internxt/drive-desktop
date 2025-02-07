@@ -7,9 +7,6 @@ module.exports = {
         tsconfigRootDir: __dirname,
         project: ['tsconfig.json'],
       },
-      env: {
-        jest: true,
-      },
     },
   ],
   rules: {
@@ -19,7 +16,7 @@ module.exports = {
     'max-len': [
       'error',
       {
-        code: 120,
+        code: 140,
         ignorePattern: '^it',
         ignoreUrls: true,
         ignoreStrings: true,

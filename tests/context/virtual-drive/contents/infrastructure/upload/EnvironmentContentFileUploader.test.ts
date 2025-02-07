@@ -15,7 +15,7 @@ describe('Environment Content File Uploader', () => {
 
       const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
-      const handler = jest.fn();
+      const handler = vi.fn();
 
       uploader.on('start', handler);
 
@@ -49,7 +49,7 @@ describe('Environment Content File Uploader', () => {
 
       const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
-      const handler = jest.fn();
+      const handler = vi.fn();
 
       uploader.on('progress', handler);
 
@@ -66,8 +66,8 @@ describe('Environment Content File Uploader', () => {
 
       const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
-      const progressHandler = jest.fn();
-      const finishHandler = jest.fn();
+      const progressHandler = vi.fn();
+      const finishHandler = vi.fn();
 
       uploader.on('progress', progressHandler);
 
@@ -101,10 +101,7 @@ describe('Environment Content File Uploader', () => {
     it('starts the timer when the file is uploaded', async () => {
       const strategy = createUploadStrategy((opts) => {
         setTimeout(() => opts.progressCallback(50, 1, 4), 20);
-        setTimeout(
-          () => opts.finishedCallback(null, ContentsIdMother.raw()),
-          100
-        );
+        setTimeout(() => opts.finishedCallback(null, ContentsIdMother.raw()), 100);
       });
 
       const uploader = new EnvironmentContentFileUploader(strategy, bucket);
@@ -121,10 +118,7 @@ describe('Environment Content File Uploader', () => {
     it('stops the timer when the file is uploaded', async () => {
       const delay = 1000;
       const strategy = createUploadStrategy((opts) => {
-        setTimeout(
-          () => opts.finishedCallback(null, ContentsIdMother.raw()),
-          delay
-        );
+        setTimeout(() => opts.finishedCallback(null, ContentsIdMother.raw()), delay);
       });
 
       const uploader = new EnvironmentContentFileUploader(strategy, bucket);

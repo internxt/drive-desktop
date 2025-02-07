@@ -1,14 +1,11 @@
 import { File } from '../domain/File';
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 
 export class FilesPlaceholderCreator {
-  constructor(private readonly local: LocalFileSystem) {}
+  constructor(private readonly local: NodeWinLocalFileSystem) {}
 
-  async run(files: Array<File>): Promise<void> {
-    const creationPromises = files.map((file) =>
-      this.local.createPlaceHolder(file)
-    );
-
+  async run(files: Array<File>) {
+    const creationPromises = files.map((file) => this.local.createPlaceHolder(file));
     await Promise.all(creationPromises);
   }
 }

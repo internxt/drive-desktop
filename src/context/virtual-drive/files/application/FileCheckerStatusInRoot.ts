@@ -1,15 +1,11 @@
-import { LocalFileSystem } from '../domain/file-systems/LocalFileSystem';
 import Logger from 'electron-log';
-import { PlaceholderState } from '../domain/PlaceholderState';
-import {
-  PinState,
-  SyncState,
-} from '../../../../apps/shared/types/PlaceholderStates';
 import fs from 'fs';
 import { DependencyInjectionLocalRootFolderPath } from '../../../../apps/sync-engine/dependency-injection/common/localRootFolderPath';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { PinState, SyncState } from 'virtual-drive/dist';
 
 export class FileCheckerStatusInRoot {
-  constructor(private readonly localFileSystem: LocalFileSystem) {}
+  constructor(private readonly localFileSystem: NodeWinLocalFileSystem) {}
   async run() {
     const rootFolderPath = DependencyInjectionLocalRootFolderPath.get();
     const itemsOfRoot = await this.getItemsRoot(rootFolderPath);
@@ -20,10 +16,7 @@ export class FileCheckerStatusInRoot {
   private async checkSync(itemsOfRoot: string[]) {
     let finalStatus = 'SYNCED';
     for (const path of itemsOfRoot) {
-      const placeholderStatus =
-        (await this.localFileSystem.getPlaceholderStateByRelativePath(
-          path
-        )) as PlaceholderState;
+      const placeholderStatus = this.localFileSystem.getPlaceholderStateByRelativePath(path);
 
       const ps = placeholderStatus.pinState;
       const ss = placeholderStatus.syncState;

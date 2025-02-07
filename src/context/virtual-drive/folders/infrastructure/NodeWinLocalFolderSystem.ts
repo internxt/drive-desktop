@@ -1,10 +1,9 @@
 import { VirtualDrive } from 'virtual-drive/dist';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { LocalFolderSystem } from '../domain/file-systems/LocalFolderSystem';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 
-export class NodeWinLocalFileSystem implements LocalFolderSystem {
+export class NodeWinLocalFolderSystem {
   constructor(
     private readonly virtualDrive: VirtualDrive,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
@@ -26,7 +25,7 @@ export class NodeWinLocalFileSystem implements LocalFolderSystem {
     );
   }
 
-  async updateSyncStatus(folder: Folder, status = true): Promise<void> {
+  async updateSyncStatus(folder: Folder, status = true) {
     const folderPath = `${folder.path}/`;
     const win32AbsolutePath =
       this.relativePathToAbsoluteConverter.run(folderPath);
@@ -34,14 +33,14 @@ export class NodeWinLocalFileSystem implements LocalFolderSystem {
     return this.virtualDrive.updateSyncStatus(win32AbsolutePath, true, status);
   }
 
-  async getFileIdentity(path: File['path']): Promise<string> {
+  async getFileIdentity(path: Folder['path']) {
     return this.virtualDrive.getFileIdentity(path);
   }
-  async deleteFileSyncRoot(path: File['path']): Promise<void> {
+  async deleteFileSyncRoot(path: Folder['path']) {
     await this.virtualDrive.deleteFileSyncRoot(path);
   }
 
-  async convertToPlaceholder(folder: Folder): Promise<void> {
+  async convertToPlaceholder(folder: Folder) {
     const folderPath = `${folder.path}/`;
 
     const win32AbsolutePath =
@@ -53,7 +52,7 @@ export class NodeWinLocalFileSystem implements LocalFolderSystem {
     );
   }
 
-  getPlaceholderState(folder: Folder): Promise<void> {
+  getPlaceholderState(folder: Folder) {
     const folderPath = `${folder.path}/`;
 
     return this.virtualDrive.getPlaceholderState(folderPath);

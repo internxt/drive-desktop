@@ -1,19 +1,15 @@
-import {
-  ServerFile,
-  ServerFileStatus,
-} from '../../../../../src/context/shared/domain/ServerFile';
-import {
-  ServerFolderStatus,
-  ServerFolder,
-} from '../../../../../src/context/shared/domain/ServerFolder';
+import { mockDeep } from 'vitest-mock-extended';
+import { ServerFile, ServerFileStatus } from '../../../../../src/context/shared/domain/ServerFile';
+import { ServerFolderStatus, ServerFolder } from '../../../../../src/context/shared/domain/ServerFolder';
 import { Traverser } from '../../../../../src/context/virtual-drive/items/application/Traverser';
 import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
-import { IpcRendererSyncEngineMock } from '../../shared/__mock__/IpcRendererSyncEngineMock';
 import { FakeNameDecrypt } from '../infrastructure/FakeNameDecrypt';
+import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { v4 } from 'uuid';
 
 describe('Traverser', () => {
   const nameDecrypt = new FakeNameDecrypt();
-  const ipc = new IpcRendererSyncEngineMock();
+  const ipc = mockDeep<SyncEngineIpc>();
 
   it('first level files starts with /', () => {
     const baseFolderId = 6;
@@ -33,6 +29,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
@@ -69,6 +66,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
@@ -97,6 +95,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
@@ -131,6 +130,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
@@ -165,6 +165,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
@@ -206,6 +207,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
@@ -234,6 +236,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
@@ -270,6 +273,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );
@@ -306,6 +310,7 @@ describe('Traverser', () => {
       nameDecrypt,
       ipc,
       baseFolderId,
+      v4(),
       [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED],
       [ServerFolderStatus.EXISTS]
     );

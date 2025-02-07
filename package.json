@@ -28,11 +28,10 @@
     "start:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
     "start:node-win": "cd ../node-win && yarn build:ts && cd ../drive-desktop && yarn start",
     "========== Testing ==========": "",
-    "test": "jest && yarn test:e2e",
+    "test": "yarn vitest:once && yarn test:e2e",
     "vitest": "vitest",
     "vitest:once": "yarn vitest --run",
     "vitest:one": "yarn vitest related x",
-    "test:unit": "jest --silent",
     "test:e2e": "playwright test --config=tests",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install",
@@ -126,45 +125,6 @@
       "provider": "github"
     }
   },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "jest-extended/all"
-    ],
-    "globals": {
-      "ts-jest": {
-        "tsconfig": "tsconfig.test.json"
-      }
-    },
-    "testURL": "http://localhost/",
-    "transformIgnorePatterns": [
-      "node_modules/(?!axios)"
-    ],
-    "testEnvironment": "node",
-    "transform": {
-      "\\.(ts|tsx|js|jsx)$": "ts-jest"
-    },
-    "moduleNameMapper": {
-      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/.erb/mocks/fileMock.js",
-      "\\.(css|less|sass|scss)$": "identity-obj-proxy"
-    },
-    "moduleFileExtensions": [
-      "js",
-      "jsx",
-      "ts",
-      "tsx",
-      "json"
-    ],
-    "moduleDirectories": [
-      "node_modules",
-      "release/app/node_modules"
-    ],
-    "testPathIgnorePatterns": [
-      "release/app/dist"
-    ],
-    "setupFiles": [
-      "./.erb/scripts/check-build-exists.ts"
-    ]
-  },
   "devDependencies": {
     "@babel/eslint-parser": "^7.21.3",
     "@internxt/eslint-config-internxt": "^1.0.9",
@@ -173,7 +133,6 @@
     "@sentry/webpack-plugin": "^1.20.1",
     "@svgr/webpack": "^6.1.2",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
-    "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@types/async": "^3.2.16",
     "@types/better-sqlite3": "^7.6.4",
@@ -182,7 +141,6 @@
     "@types/crypto-js": "^4.1.0",
     "@types/dotenv-webpack": "^7.0.3",
     "@types/gm": "^1.25.0",
-    "@types/jest": "^27.0.3",
     "@types/jsonwebtoken": "^8.5.9",
     "@types/lodash": "^4.14.178",
     "@types/multipipe": "^3.0.1",
@@ -224,7 +182,6 @@
     "eslint-import-resolver-webpack": "^0.13.2",
     "eslint-plugin-compat": "^4.0.0",
     "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jest": "^25.3.2",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-promise": "^6.0.0",
     "eslint-plugin-react": "^7.28.0",
@@ -235,8 +192,6 @@
     "html-webpack-plugin": "^5.5.0",
     "husky": "^7.0.4",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^27.4.5",
-    "jest-extended": "^3.2.3",
     "jsonwebtoken": "^8.5.1",
     "lint-staged": "^12.1.4",
     "mini-css-extract-plugin": "^2.4.5",
@@ -257,7 +212,6 @@
     "tailwindcss": "^3.3.3",
     "terser-webpack-plugin": "^5.3.0",
     "ts-essentials": "^10.0.4",
-    "ts-jest": "^27.1.2",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4",

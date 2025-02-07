@@ -1,12 +1,11 @@
 import { Service } from 'diod';
-import { LocalFileRepository } from '../domain/LocalFileRepository';
 import { LocalFile } from '../domain/LocalFile';
 import { AbsolutePath } from './AbsolutePath';
 import fs from 'fs/promises';
 import path from 'path';
 
 @Service()
-export class FsLocalFileRepository implements LocalFileRepository {
+export class FsLocalFileRepository {
   async files(absolutePath: AbsolutePath): Promise<LocalFile[]> {
     const dirents = await fs.readdir(absolutePath, {
       withFileTypes: true,
