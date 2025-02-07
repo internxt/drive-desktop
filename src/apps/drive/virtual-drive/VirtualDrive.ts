@@ -1,7 +1,6 @@
 import { Container } from 'diod';
 import { extname } from 'path';
 import { Either, right } from '../../../context/shared/domain/Either';
-import { StorageFileDeleter } from '../../../context/storage/StorageFiles/application/delete/StorageFileDeleter';
 import { AllFilesInFolderAreAvailableOffline } from '../../../context/storage/StorageFolders/application/offline/AllFilesInFolderAreAvailableOffline';
 import { StorageFileIsAvailableOffline } from '../../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
 import { TemporalFileByPathFinder } from '../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
@@ -57,10 +56,6 @@ export class VirtualDrive {
 
   async makeFileLocallyAvailable(path: string): Promise<void> {
     await this.container.get(CacheStorageFile).run(path);
-  }
-
-  async makeFileRemoteOnly(path: string): Promise<void> {
-    await this.container.get(StorageFileDeleter).run(path);
   }
 
   async temporalFileExists(
