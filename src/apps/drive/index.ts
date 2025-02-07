@@ -1,7 +1,7 @@
 import { getRootVirtualDrive } from '../main/virtual-root-folder/service';
 import { broadcastToWindows } from '../main/windows';
 import { DependencyInjectionUserProvider } from '../shared/dependency-injection/DependencyInjectionUserProvider';
-import { VirtualDrive } from './VirtualDrive';
+import { VirtualDrive } from './virtual-drive/VirtualDrive';
 import { DriveDependencyContainerFactory } from './dependency-injection/DriveDependencyContainerFactory';
 import { FuseApp } from './fuse/FuseApp';
 import { HydrationApi } from './hydration-api/HydrationApi';

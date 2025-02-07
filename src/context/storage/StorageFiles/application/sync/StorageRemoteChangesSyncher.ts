@@ -3,7 +3,7 @@ import { SingleFileMatchingSearcher } from '../../../../virtual-drive/files/appl
 import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFile } from '../../domain/StorageFile';
 import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
-import { StorageFileDownloader } from '../download/StorageFileDownloader';
+import { StorageFileDownloader } from '../download/StorageFileDownloader/StorageFileDownloader';
 import Logger from 'electron-log';
 
 @Service()

@@ -1,7 +1,7 @@
 import { AnimatePresence } from 'framer-motion';
 import { useOnSyncRunning } from '../../hooks/useOnSyncRunning';
 import { useOnSyncStopped } from '../../hooks/useOnSyncStopped';
-import { useDriveInfoHistory } from '../../hooks/useDriveInfoHistory';
+import { useDriveInfoHistory } from '../../hooks/useDriveInfoHistory/useDriveInfoHistory';
 import { AnimationWrapper } from './AnimationWrapper';
 import { Item } from './Item';
 import { NoInfoToShow } from './NoInfoToShow';

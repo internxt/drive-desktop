@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { VirtualDrive } from '../../VirtualDrive';
+import { VirtualDrive } from '../../virtual-drive/VirtualDrive';
 import { FuseCallback } from './FuseCallback';
 import {
   FuseFileOrDirectoryAlreadyExistsError,
