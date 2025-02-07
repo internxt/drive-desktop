@@ -2,15 +2,13 @@ import { VirtualDrive } from './VirtualDrive';
 
 import { ContainerMock } from '../__mocks__/ContainerMock';
 import {
-  MakeStorageFileAvaliableOffline
-} from '../../../context/storage/StorageFiles/application/offline/MakeStorageFileAvaliableOffline';
-import {
   StorageFileIsAvailableOffline
 } from '../../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
 import {
   AllFilesInFolderAreAvailableOffline
 } from '../../../context/storage/StorageFolders/application/offline/AllFilesInFolderAreAvailableOffline';
 import { TemporalFileByPathFinder } from '../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
+import { CacheStorageFile } from '../../../context/storage/StorageFiles/application/offline/CacheStorageFile';
 
 describe('VirtualDrive', () => {
   let container: ContainerMock;
@@ -27,14 +25,14 @@ describe('VirtualDrive', () => {
   });
 
   it('should make a file locally available given a path', async () => {
-    const makeStorageFileAvailableOfflineMock = { run: jest.fn() };
+    const cacheStorageFileMock = { run: jest.fn() };
 
-    container.set(MakeStorageFileAvaliableOffline, makeStorageFileAvailableOfflineMock);
+    container.set(CacheStorageFile, cacheStorageFileMock);
 
     await virtualDrive.makeFileLocallyAvailable(path);
 
-    expect(container.get).toHaveBeenCalledWith(MakeStorageFileAvaliableOffline);
-    expect(makeStorageFileAvailableOfflineMock.run).toHaveBeenCalledWith(path);
+    expect(container.get).toHaveBeenCalledWith(CacheStorageFile);
+    expect(cacheStorageFileMock.run).toHaveBeenCalledWith(path);
   });
 
   describe('isLocallyAvailable', () => {

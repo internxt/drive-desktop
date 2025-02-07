@@ -7,9 +7,7 @@ import { StorageFileIsAvailableOffline } from '../../../context/storage/StorageF
 import { TemporalFileByPathFinder } from '../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
 import { VirtualDriveError } from '../errors/VirtualDriveError';
 import Logger from 'electron-log';
-import {
-  MakeStorageFileAvaliableOffline
-} from '../../../context/storage/StorageFiles/application/offline/MakeStorageFileAvaliableOffline';
+import { CacheStorageFile } from '../../../context/storage/StorageFiles/application/offline/CacheStorageFile';
 
 export class VirtualDrive {
   constructor(private readonly container: Container) {}
@@ -58,7 +56,7 @@ export class VirtualDrive {
   }
 
   async makeFileLocallyAvailable(path: string): Promise<void> {
-    await this.container.get(MakeStorageFileAvaliableOffline).run(path);
+    await this.container.get(CacheStorageFile).run(path);
   }
 
   async makeFileRemoteOnly(path: string): Promise<void> {
