@@ -1,10 +1,10 @@
 import Logger from 'electron-log';
 import { Service } from 'diod';
-import { UserUsageRepository } from '../domain/UserUsageRepository';
+import { IpcUserUsageRepository } from '../infrastrucutre/IpcUserUsageRepository';
 
 @Service()
 export class UserAvaliableSpaceValidator {
-  constructor(private readonly repository: UserUsageRepository) {}
+  constructor(private readonly repository: IpcUserUsageRepository) {}
 
   async run(desiredSpaceToUse: number): Promise<boolean> {
     const usage = await this.repository.getUsage();
