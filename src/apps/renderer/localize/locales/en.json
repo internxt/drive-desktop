@@ -61,6 +61,10 @@
         "description-2": "Schedule backups and keep your files safe and up-to-date across your devices.",
         "setup-backups": "Set up backups"
       },
+      "antivirus": {
+        "title": "Keep your computer safe from virus",
+        "description": "Internxt's Desktop app now also features the brand new Internxt Antivirus, with which you can scan and remove any potential malware from your device."
+      },
       "onboarding-completed": {
         "title": "You're all set, enjoy your privacy!",
         "backups-completed": {

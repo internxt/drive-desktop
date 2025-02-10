@@ -61,6 +61,11 @@
         "description-2": "Planifiez des sauvegardes et gardez vos fichiers en sécurité et à jour sur tous vos appareils.",
         "setup-backups": "Configurer les sauvegardes"
       },
+      "antivirus": {
+        "title": "Protégez vos fichiers avec un antivirus",
+        "description": "Protégez vos fichiers avec un antivirus pour éviter toute menace de virus ou de malware.",
+        "description-2": "L'antivirus d'Internxt Drive vous permet de protéger vos fichiers et dossiers contre toute menace de virus ou de malware."
+      },
       "onboarding-completed": {
         "title": "Vous êtes prêt, profitez de votre vie privée !",
         "backups-completed": {

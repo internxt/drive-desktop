@@ -61,6 +61,11 @@
         "description-2": "Programa tus copias de seguridad y mantén tus archivos seguros y actualizados en todos tus dispositivos.",
         "setup-backups": "Configurar"
       },
+      "antivirus": {
+        "title": "Protege tus archivos con un antivirus",
+        "description": "Protege tus archivos con un antivirus para evitar cualquier amenaza de virus o malware.",
+        "description-2": "El antivirus de Internxt Drive te permite proteger tus archivos y carpetas contra cualquier amenaza de virus o malware."
+      },
       "onboarding-completed": {
         "title": "Ya está todo listo, ¡disfruta de tu privacidad!",
         "backups-completed": {
