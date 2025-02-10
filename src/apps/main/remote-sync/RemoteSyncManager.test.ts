@@ -74,8 +74,6 @@ describe('RemoteSyncManager', () => {
       httpClient: mockedAxios,
       fetchFilesLimitPerRequest: 2,
       fetchFoldersLimitPerRequest: 2,
-      syncFiles: true,
-      syncFolders: true,
     }
   );
 
@@ -92,8 +90,6 @@ describe('RemoteSyncManager', () => {
         httpClient: mockedAxios,
         fetchFilesLimitPerRequest: 2,
         fetchFoldersLimitPerRequest: 2,
-        syncFiles: true,
-        syncFolders: true,
       }
     );
     mockedAxios.get.mockClear();
@@ -110,8 +106,6 @@ describe('RemoteSyncManager', () => {
           httpClient: mockedAxios,
           fetchFilesLimitPerRequest: 2,
           fetchFoldersLimitPerRequest: 2,
-          syncFiles: true,
-          syncFolders: false,
         }
       );
 
@@ -149,8 +143,6 @@ describe('RemoteSyncManager', () => {
           httpClient: mockedAxios,
           fetchFilesLimitPerRequest: 2,
           fetchFoldersLimitPerRequest: 2,
-          syncFiles: false,
-          syncFolders: true,
         }
       );
 
@@ -199,8 +191,6 @@ describe('RemoteSyncManager', () => {
           httpClient: mockedAxios,
           fetchFilesLimitPerRequest: 2,
           fetchFoldersLimitPerRequest: 2,
-          syncFiles: true,
-          syncFolders: false,
         }
       );
       const file1 = createRemoteSyncedFileFixture({
@@ -247,8 +237,6 @@ describe('RemoteSyncManager', () => {
           httpClient: mockedAxios,
           fetchFilesLimitPerRequest: 2,
           fetchFoldersLimitPerRequest: 2,
-          syncFiles: true,
-          syncFolders: true,
         }
       );
 

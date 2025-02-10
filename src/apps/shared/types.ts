@@ -1,4 +1,3 @@
-
 export type FileSystemKind = 'LOCAL' | 'REMOTE';
 
 export type ProcessFatalErrorName =
@@ -10,7 +9,6 @@ export type ProcessFatalErrorName =
   | 'CANNOT_ACCESS_TMP_DIRECTORY'
   | 'CANNOT_GET_CURRENT_LISTINGS'
   | 'UNKNOWN';
-
 
 export type GeneralErrorName = 'UNKNOWN_DEVICE_NAME';
 export type ProcessErrorName =
@@ -31,7 +29,6 @@ export type ProcessErrorName =
   | 'COULD_NOT_ENCRYPT_NAME'
   | 'NOT_ENOUGH_SPACE'
   | 'ACTION_NOT_PERMITTED';
-
 
 /**
  * Only for error reporting purposes, should not be used

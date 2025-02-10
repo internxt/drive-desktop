@@ -13,8 +13,6 @@ describe('RemoteSyncManager.startRemoteSync', () => {
     httpClient: Axios;
     fetchFilesLimitPerRequest: number;
     fetchFoldersLimitPerRequest: number;
-    syncFiles: boolean;
-    syncFolders: boolean;
   }>();
   const remoteSyncManager = new RemoteSyncManager(db, config);
 

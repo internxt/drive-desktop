@@ -38,8 +38,6 @@ export class RemoteSyncManager {
       httpClient: Axios;
       fetchFilesLimitPerRequest: number;
       fetchFoldersLimitPerRequest: number;
-      syncFiles: boolean;
-      syncFolders: boolean;
     },
     private readonly syncRemoteFiles = new SyncRemoteFilesService(),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(),
@@ -68,10 +66,6 @@ export class RemoteSyncManager {
     this.totalFilesUnsynced = files;
   }
 
-  private getLastSyncingFinishedTimestamp() {
-    return this.lastSyncingFinishedTimestamp;
-  }
-
   /**
    * Consult if recently the RemoteSyncManager was syncing
    * @returns True if the RemoteSyncManager was syncing recently
@@ -81,7 +75,7 @@ export class RemoteSyncManager {
   recentlyWasSyncing(milliseconds: number) {
     const passedTime =
       Date.now() -
-      (this.getLastSyncingFinishedTimestamp()?.getTime() ?? Date.now());
+      (this.lastSyncingFinishedTimestamp?.getTime() ?? Date.now());
     return passedTime < (milliseconds ?? WAITING_AFTER_SYNCING_DEFAULT);
   }
 
@@ -102,18 +96,8 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync(folderId?: number) {
-    // const start = Date.now();
-
     logger.info({ msg: 'Starting remote to local sync', folderId });
 
-    const testPassed = this.smokeTest();
-
-    if (!testPassed && !folderId) {
-      return {
-        files: [],
-        folders: [],
-      };
-    }
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
     this.totalFoldersSynced = 0;
@@ -156,26 +140,22 @@ export class RemoteSyncManager {
     };
   }
 
-  /**
-   * Run smoke tests before starting the RemoteSyncManager, otherwise fail
-   */
-  private smokeTest() {
-    if (this.status === 'SYNCING') {
-      logger.warn({ msg: 'RemoteSyncManager should not be in SYNCING status to start, not starting again' });
-      return false;
-    }
-
-    return true;
-  }
-
   set isProcessRunning(value: boolean) {
     this.changeStatus(value ? 'SYNCING' : 'SYNCED');
   }
 
   private changeStatus(newStatus: RemoteSyncStatus) {
-    this.addLastSyncingFinishedTimestamp();
+    this.lastSyncingFinishedTimestamp = new Date();
+
     if (newStatus === this.status) return;
-    logger.info({ msg: 'RemoteSyncManager change status', current: this.status, newStatus });
+    
+    logger.info({ 
+      msg: 'RemoteSyncManager change status', 
+      current: this.status, 
+      newStatus, 
+      lastSyncingFinishedTimestamp: this.lastSyncingFinishedTimestamp
+    });
+
     this.status = newStatus;
     this.onStatusChangeCallbacks.forEach((callback) => {
       if (typeof callback !== 'function') return;
@@ -183,50 +163,18 @@ export class RemoteSyncManager {
     });
   }
 
-  private addLastSyncingFinishedTimestamp() {
-    this.lastSyncingFinishedTimestamp = new Date();
-    logger.info({ msg: 'Adding last syncing finished timestamp', lastSyncingFinishedTimestamp: this.lastSyncingFinishedTimestamp });
-  }
-
   checkRemoteSyncStatus() {
-    // placeholders are still sync-pending
     if (this._placeholdersStatus === 'SYNC_PENDING') {
       this.changeStatus('SYNC_PENDING');
       return;
     }
-    // We only syncing files
-    if (
-      this.config.syncFiles &&
-      !this.config.syncFolders &&
-      this.filesSyncStatus === 'SYNCED'
-    ) {
+
+    if (this.foldersSyncStatus === 'SYNCED' && this.filesSyncStatus === 'SYNCED') {
       this.changeStatus('SYNCED');
       return;
     }
 
-    // We only syncing folders
-    if (
-      !this.config.syncFiles &&
-      this.config.syncFolders &&
-      this.foldersSyncStatus === 'SYNCED'
-    ) {
-      this.changeStatus('SYNCED');
-      return;
-    }
-    // Files and folders are synced, RemoteSync is Synced
-    if (
-      this.foldersSyncStatus === 'SYNCED' &&
-      this.filesSyncStatus === 'SYNCED'
-    ) {
-      this.changeStatus('SYNCED');
-      return;
-    }
-
-    // Files OR Folders sync failed, RemoteSync Failed
-    if (
-      this.foldersSyncStatus === 'SYNC_FAILED' ||
-      this.filesSyncStatus === 'SYNC_FAILED'
-    ) {
+    if (this.foldersSyncStatus === 'SYNC_FAILED' || this.filesSyncStatus === 'SYNC_FAILED') {
       this.changeStatus('SYNC_FAILED');
       return;
     }
