@@ -3,7 +3,6 @@ import { io, Socket } from 'socket.io-client';
 import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
-import { ipcMain } from 'electron';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;

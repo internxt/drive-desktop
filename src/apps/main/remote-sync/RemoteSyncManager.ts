@@ -6,7 +6,6 @@ import {
   SyncConfig,
   rewind,
   WAITING_AFTER_SYNCING_DEFAULT,
-  ItemContententAttributes,
   FIVETEEN_MINUTES_IN_MILLISECONDS,
 } from './helpers';
 import { reportError } from '../bug-report/service';
@@ -162,41 +161,6 @@ export class RemoteSyncManager {
     };
   }
 
-  async getFolderChildren(FolderUuid: string): Promise<RemoteSyncedFolder[]> {
-    try {
-      const response: {
-        data: ItemContententAttributes;
-      } = await this.config.httpClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/content/${FolderUuid}`
-      );
-      Logger.info(
-        `Fetching item response: ${JSON.stringify(response.data, null, 2)}`
-      );
-      const result: RemoteSyncedFolder[] = [];
-      for (const item of response.data.children) {
-        if (item.type === 'folder') {
-          const remoteFolder = {
-            type: item.type,
-            id: item.id,
-            parentId: item.parentId,
-            bucket: item.bucket,
-            userId: item.userId,
-            createdAt: item.createdAt,
-            updatedAt: item.updatedAt,
-            uuid: item.uuid,
-            plainName: item.plainName,
-            name: item.name,
-            status: item.status,
-          };
-          await this.createOrUpdateSyncedFolderEntry(remoteFolder);
-          result.push(remoteFolder);
-        }
-      }
-      return result;
-    } catch (error) {
-      return [];
-    }
-  }
 
   /**
    * Run smoke tests before starting the RemoteSyncManager, otherwise fail
