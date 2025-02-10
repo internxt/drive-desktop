@@ -45,16 +45,7 @@ export type SyncConfig = {
   maxRetries: number;
 };
 
-export const SYNC_OFFSET_MS = 0;
 export const WAITING_AFTER_SYNCING_DEFAULT = 1000 * 60 * 3;
-
-export const lastSyncedAtIsNewer = (
-  itemUpdatedAt: Date,
-  lastItemsSyncAt: Date,
-  offset: number
-) => {
-  return itemUpdatedAt.getTime() - offset > lastItemsSyncAt.getTime();
-};
 
 export function rewind(original: Date, milliseconds: number): Date {
   const shallowCopy = new Date(original.getTime());
@@ -62,29 +53,4 @@ export function rewind(original: Date, milliseconds: number): Date {
   shallowCopy.setTime(shallowCopy.getTime() - milliseconds);
 
   return shallowCopy;
-}
-
-export interface ItemContententAttributes {
-  type: string;
-  id: number;
-  parentId: number | null;
-  parentUuid: string | null;
-  name: string;
-  parent: ItemContententAttributes | null;
-  bucket: string | null;
-  userId: number;
-  encryptVersion: string | null;
-  deleted: boolean;
-  deletedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-  uuid: string;
-  plainName: string;
-  size: number;
-  removed: boolean;
-  removedAt: string | null;
-  status: string;
-  children: ItemContententAttributes[];
-  files: any[];
-  sharings?: any[]; // Esta propiedad es opcional porque no aparece en el objeto principal
 }

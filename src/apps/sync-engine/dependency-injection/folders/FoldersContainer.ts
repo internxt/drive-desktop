@@ -1,5 +1,4 @@
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
-import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
 import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
@@ -9,7 +8,6 @@ import { FolderRepositoryInitiator } from '../../../../context/virtual-drive/fol
 import { FoldersPlaceholderCreator } from '../../../../context/virtual-drive/folders/application/FoldersPlaceholderCreator';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolderPathUpdater } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderPathUpdater';
-import { RetrieveAllFolders } from '../../../../context/virtual-drive/folders/application/RetrieveAllFolders';
 import { RetryFolderDeleter } from '../../../../context/virtual-drive/folders/application/RetryFolderDeleter';
 import { SynchronizeOfflineModifications } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
@@ -27,14 +25,12 @@ export interface FoldersContainer {
   retryFolderDeleter: RetryFolderDeleter;
   allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   folderPathUpdater: FolderPathUpdater;
-  folderByPartialSearcher: FolderByPartialSearcher;
   synchronizeOfflineModificationsOnFolderCreated: SynchronizeOfflineModificationsOnFolderCreated;
   offline: {
     folderCreator: OfflineFolderCreator;
     folderPathUpdater: OfflineFolderPathUpdater;
     synchronizeOfflineModifications: SynchronizeOfflineModifications;
   };
-  retrieveAllFolders: RetrieveAllFolders;
   folderRepositoryInitiator: FolderRepositoryInitiator;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
   folderPlaceholderDeleter?: FolderPlaceholderDeleter;
