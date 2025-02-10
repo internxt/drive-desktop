@@ -16,7 +16,6 @@ import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
 import { FileUuid } from './FileUuid';
-import Logger from 'electron-log';
 
 export type FileAttributes = {
   id: number;

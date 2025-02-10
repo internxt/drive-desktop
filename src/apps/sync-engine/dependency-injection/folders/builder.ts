@@ -1,5 +1,4 @@
 import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
-import { FolderByPartialSearcher } from '../../../../context/virtual-drive/folders/application/FolderByPartialSearcher';
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
@@ -12,7 +11,6 @@ import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/
 import { OfflineFolderMover } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderMover';
 import { OfflineFolderPathUpdater } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderPathUpdater';
 import { OfflineFolderRenamer } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderRenamer';
-import { RetrieveAllFolders } from '../../../../context/virtual-drive/folders/application/RetrieveAllFolders';
 import { SynchronizeOfflineModifications } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModifications';
 import { SynchronizeOfflineModificationsOnFolderCreated } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
 import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/folders/application/UpdatePlaceholderFolder';
@@ -93,8 +91,6 @@ export async function buildFoldersContainer(
     ipcRendererSyncEngine
   );
 
-  const folderByPartialSearcher = new FolderByPartialSearcher(repository);
-
   const folderPathUpdater = new FolderPathUpdater(
     repository,
     folderMover,
@@ -162,14 +158,12 @@ export async function buildFoldersContainer(
     allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
     folderPathUpdater,
     folderContainerDetector,
-    folderByPartialSearcher,
     synchronizeOfflineModificationsOnFolderCreated,
     offline: {
       folderCreator: offlineFolderCreator,
       folderPathUpdater: offlineFolderPathUpdater,
       synchronizeOfflineModifications,
     },
-    retrieveAllFolders: new RetrieveAllFolders(repository),
     folderPlaceholderDeleter,
     folderRepositoryInitiator,
     foldersPlaceholderCreator,

@@ -54,4 +54,3 @@ export function rewind(original: Date, milliseconds: number): Date {
 
   return shallowCopy;
 }
-

@@ -1,11 +1,5 @@
 import { DomainEvent } from '../../../../shared/domain/DomainEvent';
 
-export type CreatedWebdavFileDomainEventAttributes = {
-  readonly size: number;
-  readonly type: string;
-  readonly path: string;
-};
-
 export class FileUpdateContentDomainEvent extends DomainEvent {
   static readonly EVENT_NAME = 'file.update.content';
 
