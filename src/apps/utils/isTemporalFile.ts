@@ -14,12 +14,6 @@ export const isTemporaryFile = async (filePath: string): Promise<boolean> => {
       return true;
     }
 
-    // check if havent extension
-    if (!path.extname(filePath)) {
-      Logger.debug(`File ${filePath} has no extension`);
-      return true;
-    }
-
     // if start with $Recycle.Bin
     if (filePath.includes('$Recycle.Bin')) {
       Logger.debug(`File ${filePath} is in Recycle Bin`);
