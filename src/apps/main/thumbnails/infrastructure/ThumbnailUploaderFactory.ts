@@ -4,11 +4,10 @@ import { Storage } from '@internxt/sdk/dist/drive';
 import { appInfo } from '../../app-info/app-info';
 import { onUserUnauthorized } from '../../auth/handlers';
 import { getUser, obtainToken } from '../../auth/service';
-import { ThumbnailUploader } from '../domain/ThumbnailUploader';
 import { EnvironmentAndStorageThumbnailUploader } from './EnvironmentAndStorageThumbnailUploader';
 
 export class ThumbnailUploaderFactory {
-  private static instance: ThumbnailUploader | null;
+  private static instance: EnvironmentAndStorageThumbnailUploader | null;
 
   private static createStorageClient() {
     const { name: clientName, version: clientVersion } = appInfo;
@@ -23,7 +22,7 @@ export class ThumbnailUploaderFactory {
     );
   }
 
-  static build(): ThumbnailUploader {
+  static build() {
     if (ThumbnailUploaderFactory.instance) {
       return ThumbnailUploaderFactory.instance;
     }

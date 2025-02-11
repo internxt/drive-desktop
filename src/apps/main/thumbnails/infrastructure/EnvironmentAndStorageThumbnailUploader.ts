@@ -1,14 +1,10 @@
-import Logger from 'electron-log';
 import { Environment } from '@internxt/inxt-js';
 import { Storage, StorageTypes } from '@internxt/sdk/dist/drive';
 import { Readable } from 'stream';
 
 import { ThumbnailProperties } from '../domain/ThumbnailProperties';
-import { ThumbnailUploader } from '../domain/ThumbnailUploader';
 
-export class EnvironmentAndStorageThumbnailUploader
-  implements ThumbnailUploader
-{
+export class EnvironmentAndStorageThumbnailUploader {
   constructor(
     private readonly environment: Environment,
     private readonly storage: Storage,
