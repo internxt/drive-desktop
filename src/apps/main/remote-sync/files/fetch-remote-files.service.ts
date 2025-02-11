@@ -1,15 +1,9 @@
-import { FetchRemoteItemsByFolderService } from '../fetch-remote-items-by-folder.service';
-import { FetchRemoteItemsService } from '../fetch-remote-items.service';
+import { client } from '../../../shared/network/client';
 import { RemoteSyncedFile } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import Logger from 'electron-log';
+import { paths } from '@/apps/shared/network/schema';
 
 export class FetchRemoteFilesService {
-  constructor(
-    private readonly fetchRemoteItems = new FetchRemoteItemsService(),
-    private readonly fetchRemoteItemsByFolder = new FetchRemoteItemsByFolderService()
-  ) {}
-
   async run({
     self,
     updatedAtCheckpoint,
@@ -26,43 +20,36 @@ export class FetchRemoteFilesService {
     hasMore: boolean;
     result: RemoteSyncedFile[];
   }> {
-    const params = {
+    const query = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,
       status,
       updatedAt: updatedAtCheckpoint?.toISOString(),
     };
 
-    const promise = folderId
-      ? this.fetchRemoteItemsByFolder.run({ self, folderId, type: 'files', params })
-      : this.fetchRemoteItems.run({ self, type: 'files', params });
+    const promise = folderId ? this.getFilesByFolder({ folderId, query }) : this.getFiles({ query });
+    const result = await promise;
 
-    const allFilesResponse = await promise;
-
-    if (allFilesResponse.status > 299) {
-      throw new Error(
-        `Fetch files response not ok with body ${JSON.stringify(allFilesResponse.data, null, 2)} and status ${allFilesResponse.status}`
-      );
+    if (result.data) {
+      const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
+      return { hasMore, result: result.data };
     }
 
-    if (!Array.isArray(allFilesResponse.data)) {
-      Logger.info(`Expected to receive an array of files, but instead received ${JSON.stringify(allFilesResponse, null, 2)}`);
-      throw new Error('Did not receive an array of files');
-    }
-
-    const hasMore = allFilesResponse.data.length === self.config.fetchFilesLimitPerRequest;
-
-    return {
-      hasMore,
-      result:
-        allFilesResponse.data && Array.isArray(allFilesResponse.data) ? allFilesResponse.data.map(this.patchDriveFileResponseItem) : [],
-    };
+    throw new Error(`Fetch files response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
   }
 
-  private patchDriveFileResponseItem = (payload: any): RemoteSyncedFile => {
-    return {
-      ...payload,
-      size: typeof payload.size === 'string' ? parseInt(payload.size) : payload.size,
-    };
-  };
+  private getFiles({ query }: { query: paths['/files']['get']['parameters']['query'] }) {
+    return client.GET('/files', { params: { query } });
+  }
+
+  private async getFilesByFolder({
+    folderId,
+    query,
+  }: {
+    folderId: number;
+    query: paths['/folders/{id}/files']['get']['parameters']['query'];
+  }) {
+    const result = await client.GET('/folders/{id}/files', { params: { path: { id: folderId }, query } });
+    return { ...result, data: result.data?.result };
+  }
 }

@@ -3,8 +3,8 @@ import { io, Socket } from 'socket.io-client';
 import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
-import { debouncedSynchronization } from './remote-sync/handlers';
 import { logger } from '../shared/logger/logger';
+import { updateRemoteSync } from './remote-sync/handlers';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -63,7 +63,7 @@ function cleanAndStartRemoteNotifications() {
     Logger.error('❌ Remote notifications connect error: ', error);
   });
 
-  socket.on('event', (data) => {
+  socket.on('event', async (data) => {
     broadcastToWindows('remote-changes', undefined);
 
     if (data.event === 'FOLDER_DELETED') {
@@ -75,10 +75,8 @@ function cleanAndStartRemoteNotifications() {
     }
 
     if (data.payload.bucket !== user?.backupsBucket) {
-      Logger.log('Notification received: ', data);
-      setTimeout(() => {
-        debouncedSynchronization();
-      }, 2000);
+      logger.info({ msg: 'Notification received', data });
+      await updateRemoteSync();
       return;
     }
 

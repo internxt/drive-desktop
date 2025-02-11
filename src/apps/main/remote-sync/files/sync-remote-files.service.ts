@@ -4,15 +4,11 @@ import { RemoteSyncManager } from '../RemoteSyncManager';
 import { reportError } from '../../bug-report/service';
 import Logger from 'electron-log';
 import { FetchRemoteFilesService } from './fetch-remote-files.service';
-import { CreateOrUpdateLocalFileService } from './create-or-update-local-file.service';
 
 const MAX_RETRIES = 3;
 
 export class SyncRemoteFilesService {
-  constructor(
-    private readonly fetchRemoteFiles = new FetchRemoteFilesService(),
-    private readonly createOrUpdateLocalFile = new CreateOrUpdateLocalFileService()
-  ) {}
+  constructor(private readonly fetchRemoteFiles = new FetchRemoteFilesService()) {}
 
   async run({
     self,
@@ -46,7 +42,7 @@ export class SyncRemoteFilesService {
 
         await Promise.all(
           result.map(async (remoteFile) => {
-            await this.createOrUpdateLocalFile.run({ self, remoteFile });
+            self.db.files.create(remoteFile);
             self.totalFilesSynced++;
           })
         );

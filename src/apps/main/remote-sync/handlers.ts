@@ -270,7 +270,7 @@ ipcMain.on(
   }
 );
 
-export const debouncedSynchronization = debounce(async () => {
+const debouncedSynchronization = debounce(async () => {
   await updateRemoteSync();
 }, SYNC_DEBOUNCE_DELAY);
 

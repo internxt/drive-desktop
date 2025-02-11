@@ -1,15 +1,9 @@
-import { FetchRemoteItemsByFolderService } from '../fetch-remote-items-by-folder.service';
-import { FetchRemoteItemsService } from '../fetch-remote-items.service';
+import { paths } from '@/apps/shared/network/schema';
 import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import Logger from 'electron-log';
+import { client } from '../../../shared/network/client';
 
 export class FetchRemoteFoldersService {
-  constructor(
-    private readonly fetchRemoteItems = new FetchRemoteItemsService(),
-    private readonly fetchRemoteItemsByFolder = new FetchRemoteItemsByFolderService()
-  ) {}
-
   async run({
     self,
     updatedAtCheckpoint,
@@ -26,59 +20,36 @@ export class FetchRemoteFoldersService {
     hasMore: boolean;
     result: RemoteSyncedFolder[];
   }> {
-    const params = {
-      limit: self.config.fetchFoldersLimitPerRequest,
+    const query = {
+      limit: self.config.fetchFilesLimitPerRequest,
       offset,
       status,
       updatedAt: updatedAtCheckpoint?.toISOString(),
     };
 
-    const promise = folderId
-      ? this.fetchRemoteItemsByFolder.run({ self, folderId, type: 'folders', params })
-      : this.fetchRemoteItems.run({ self, type: 'folders', params });
-
-    const allFoldersResponse = await promise;
-
-    if (allFoldersResponse.status > 299) {
-      throw new Error(
-        `Fetch folders response not ok with body ${JSON.stringify(allFoldersResponse.data, null, 2)} and status ${allFoldersResponse.status}`
-      );
+    const promise = folderId ? this.getFoldersByFolder({ folderId, query }) : this.getFolders({ query });
+    const result = await promise;
+    
+    if (result.data) {
+      const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
+      return { hasMore, result: result.data };
     }
 
-    if (!Array.isArray(allFoldersResponse.data)) {
-      Logger.info(`Expected to receive an array of folders, but instead received ${JSON.stringify(allFoldersResponse, null, 2)}`);
-      throw new Error('Did not receive an array of folders');
-    }
-
-    const hasMore = allFoldersResponse.data.length === self.config.fetchFoldersLimitPerRequest;
-
-    return {
-      hasMore,
-      result:
-        allFoldersResponse.data && Array.isArray(allFoldersResponse.data)
-          ? allFoldersResponse.data.map(this.patchDriveFolderResponseItem)
-          : [],
-    };
+    throw new Error(`Fetch folders response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
   }
 
-  private patchDriveFolderResponseItem = (payload: any): RemoteSyncedFolder => {
-    let status: RemoteSyncedFolder['status'] = payload.status;
+  private getFolders({ query }: { query: paths['/folders']['get']['parameters']['query'] }) {
+    return client.GET('/folders', { params: { query } });
+  }
 
-    if (!status && !payload.removed) {
-      status = 'EXISTS';
-    }
-
-    if (!status && payload.removed) {
-      status = 'REMOVED';
-    }
-
-    if (!status && payload.deleted) {
-      status = 'DELETED';
-    }
-
-    return {
-      ...payload,
-      status,
-    };
-  };
+  private async getFoldersByFolder({
+    folderId,
+    query,
+  }: {
+    folderId: number;
+    query: paths['/folders/{id}/folders']['get']['parameters']['query'];
+  }) {
+    const result = await client.GET('/folders/{id}/folders', { params: { path: { id: folderId }, query } });
+    return { ...result, data: result.data?.result };
+  }
 }
