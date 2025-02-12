@@ -10,6 +10,7 @@ const chance = new Chance();
 export class OfflineFolderMother {
   static random(): OfflineFolder {
     return OfflineFolder.from({
+      parentUuid: FolderUuid.random().value,
       uuid: FolderUuid.random().value,
       parentId: chance.integer({ min: 1 }),
       path: `/${chance.name()}`,

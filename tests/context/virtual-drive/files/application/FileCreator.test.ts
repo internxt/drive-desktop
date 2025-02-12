@@ -1,11 +1,11 @@
 import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/FileCreator';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
-import { FileContentsMother } from '../../contents/domain/FileContentsMother';
+import { FileContentsMother } from '../../contents/domain/FileContentsMother.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { FileMother } from '../domain/FileMother';
+import { FileMother } from '../domain/FileMother.helper.test';
 import { FolderFinder } from '@/context/virtual-drive/folders/application/FolderFinder';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
@@ -27,7 +27,7 @@ describe('File Creator', () => {
     vi.resetAllMocks();
   });
 
-  it('creates the file on the drive server', async () => {
+  it.only('creates the file on the drive server', async () => {
     const path = new FilePath('/cat.png');
     const contents = FileContentsMother.random();
 

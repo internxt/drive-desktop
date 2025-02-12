@@ -1,7 +1,7 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderDeleter } from '../../../../../src/context/virtual-drive/folders/application/FolderDeleter';
-import { FolderMother } from '../domain/FolderMother';
+import { FolderMother } from '../domain/FolderMother.helper.test';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
