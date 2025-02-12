@@ -2,7 +2,7 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
-import { RemoteSyncedFolder, RemoteSyncStatus } from './helpers';
+import { RemoteSyncStatus } from './helpers';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
@@ -22,6 +22,7 @@ import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { ItemBackup } from '../../shared/types/items';
+import { logger } from '../../shared/logger/logger';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
@@ -37,8 +38,6 @@ const remoteSyncManager = new RemoteSyncManager(
     httpClient: getNewTokenClient(),
     fetchFilesLimitPerRequest: 50,
     fetchFoldersLimitPerRequest: 50,
-    syncFiles: true,
-    syncFolders: true,
   }
 );
 
@@ -160,16 +159,11 @@ ipcMain.handle(
 
 export async function startRemoteSync(folderId?: number): Promise<void> {
   try {
-    Logger.info('Starting remote sync function');
-    Logger.info('Folder id', folderId);
+    const { files, folders } = await remoteSyncManager.startRemoteSync(folderId);
 
-    const { files, folders } = await remoteSyncManager.startRemoteSync(
-      folderId
-    );
-    Logger.info('Remote sync started', folders?.length, 'folders');
-    Logger.info('Remote sync started', files?.length, 'files');
+    logger.info({ fn: 'startRemoteSync', folderId, 'folders': folders.length, 'files': files.length });
 
-    if (folderId && folders && folders.length > 0) {
+    if (folderId && folders.length > 0) {
       await Promise.all(
         folders.map(async (folder) => {
           if (!folder.id) return;
@@ -233,7 +227,7 @@ export async function updateRemoteSync(): Promise<void> {
 
   const userData = configStore.get('userData');
   const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
-  Logger.info('Last files sync at', lastFilesSyncAt);
+  logger.info({ msg: 'Last files sync at', lastFilesSyncAt });
   const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
   await startRemoteSync(folderId);
   const isSyncing = await checkSyncEngineInProcess(5000);
@@ -286,13 +280,12 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
-  Logger.info('Received user logged in event');
   try {
     remoteSyncManager.isProcessRunning = true;
     setTrayStatus('SYNCING');
     const userData = configStore.get('userData');
     const lastFilesSyncAt = await remoteSyncManager.getFileCheckpoint();
-    Logger.info('Last files sync at', lastFilesSyncAt);
+    logger.info({ msg: 'Received user logged in event', lastFilesSyncAt });
     const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
     await startRemoteSync(folderId);
     eventBus.emit('INITIAL_SYNC_READY');
@@ -404,12 +397,12 @@ ipcMain.handle(
     const folders = [];
 
     do {
-      const response = await remoteSyncManager.fetchFoldersByFolderFromRemote(
-        folderId,
-        new Date(),
+      const response = await remoteSyncManager.fetchFoldersByFolderFromRemote({
         offset,
-        'EXISTS'
-      );
+        folderId,
+        updatedAtCheckpoint: new Date(),
+        status: 'EXISTS'
+      });
 
       hasMore = response.hasMore;
       offset += response.result.length;
