@@ -5,6 +5,8 @@ import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
 import * as Sentry from '@sentry/electron/main';
 import { monitorHealth } from './sync-engine/monitor-health';
+import { Config } from '../../sync-engine/config';
+import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
@@ -57,16 +59,31 @@ export async function spawnSyncEngineWorker() {
   });
 
   try {
+    const rootPath = getRootVirtualDrive();
+    const loggersPath = getLoggersPaths();
+
+    const values: Config = {
+      providerId: '{E9D7EB38-B229-5DC5-9396-017C449D59CD}',
+      rootPath,
+      providerName: 'Internxt',
+      loggerPath: loggersPath.logEnginePath,
+    };
+
     await worker.loadFile(
       process.env.NODE_ENV === 'development'
         ? '../../../release/app/dist/sync-engine/index.html'
-        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`
+        : `${path.join(__dirname, '..', 'sync-engine')}/index.html?`
     );
 
-    monitorHealth({ worker, stopAndSpawn: async () => {
-      await stopAndClearSyncEngineWatcher();
-      await spawnSyncEngineWorker();
-    }});
+    worker.webContents.send('SET_CONFIG', values);
+
+    monitorHealth({
+      worker,
+      stopAndSpawn: async () => {
+        await stopAndClearSyncEngineWatcher();
+        await spawnSyncEngineWorker();
+      },
+    });
 
     scheduleSync();
 
@@ -75,7 +92,7 @@ export async function spawnSyncEngineWorker() {
     // });
   } catch (err) {
     Logger.error('[MAIN] Error loading sync engine worker', err);
-    Sentry.captureException(err);    
+    Sentry.captureException(err);
   }
 }
 
@@ -91,14 +108,11 @@ export async function stopAndClearSyncEngineWatcher() {
   }
 
   const response = new Promise<void>((resolve, reject) => {
-    ipcMain.on(
-      'ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS',
-      (_, error: Error) => {
-        Logger.error('[MAIN] Error stopping sync engine worker', error);
-        Sentry.captureException(error);
-        reject(error);
-      }
-    );
+    ipcMain.on('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (_, error: Error) => {
+      Logger.error('[MAIN] Error stopping sync engine worker', error);
+      Sentry.captureException(error);
+      reject(error);
+    });
 
     ipcMain.on('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS', () => {
       resolve();
@@ -108,11 +122,7 @@ export async function stopAndClearSyncEngineWatcher() {
     const millisecondsToWait = 10_000;
 
     setTimeout(() => {
-      reject(
-        new Error(
-          `Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`
-        )
-      );
+      reject(new Error(`Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`));
     }, millisecondsToWait);
   });
 
@@ -133,12 +143,7 @@ export async function stopAndClearSyncEngineWatcher() {
 
 export function updateSyncEngine() {
   try {
-    if (
-      worker &&
-      !worker.isDestroyed() &&
-      worker.webContents &&
-      !worker.webContents.isDestroyed()
-    ) {
+    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
       worker.webContents?.send('UPDATE_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
@@ -150,12 +155,7 @@ export function updateSyncEngine() {
 
 export function fallbackSyncEngine() {
   try {
-    if (
-      worker &&
-      !worker.isDestroyed() &&
-      worker.webContents &&
-      !worker.webContents.isDestroyed()
-    ) {
+    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
       worker?.webContents?.send('FALLBACK_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
@@ -164,12 +164,7 @@ export function fallbackSyncEngine() {
 }
 export async function sendUpdateFilesInSyncPending(): Promise<string[]> {
   try {
-    if (
-      worker &&
-      !worker.isDestroyed() &&
-      worker.webContents &&
-      !worker.webContents.isDestroyed()
-    ) {
+    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
       worker?.webContents?.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
     }
     return [];

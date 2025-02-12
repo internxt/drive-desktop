@@ -19,6 +19,7 @@
     "*.{css,sass,scss}.d.ts": true
   },
   "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.referencesCodeLens.enabled": true,
   "eslint.options": {
     "overrideConfigFile": ".eslintrc.js"
   },
@@ -26,8 +27,8 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.fixAll.format": "explicit"
+    "source.fixAll.eslint": "always",
+    "source.fixAll.format": "always"
   },
   "[jsonc]": {
     "editor.defaultFormatter": "vscode.json-language-features"
