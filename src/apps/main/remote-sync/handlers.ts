@@ -161,7 +161,7 @@ export async function startRemoteSync(folderId?: number): Promise<void> {
   try {
     const { files, folders } = await remoteSyncManager.startRemoteSync(folderId);
 
-    logger.info({ fn: 'startRemoteSync', folderId, 'folders': folders.length, 'files': files?.length });
+    logger.info({ fn: 'startRemoteSync', folderId, 'folders': folders.length, 'files': files.length });
 
     if (folderId && folders.length > 0) {
       await Promise.all(
