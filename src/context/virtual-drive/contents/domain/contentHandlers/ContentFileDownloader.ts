@@ -13,10 +13,7 @@ export interface ContentFileDownloader {
 
   forceStop(): void;
 
-  on(
-    event: keyof FileDownloadEvents,
-    handler: FileDownloadEvents[keyof FileDownloadEvents]
-  ): void;
+  on(event: keyof FileDownloadEvents, handler: FileDownloadEvents[keyof FileDownloadEvents]): void;
 
   elapsedTime(): number;
 

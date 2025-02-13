@@ -61,7 +61,7 @@ ipcMain.on('settings-window-resized', (_, { height }: { width: number; height: n
       {
         height: Math.trunc(height),
       },
-      true
+      true,
     );
   }
 });

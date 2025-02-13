@@ -8,7 +8,7 @@ export class FileCreationOrchestrator {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
     private readonly fileCreator: FileCreator,
-    private readonly sameFileWasMoved: SameFileWasMoved
+    private readonly sameFileWasMoved: SameFileWasMoved,
   ) {}
 
   async run(posixRelativePath: string): Promise<File['contentsId']> {

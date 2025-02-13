@@ -20,13 +20,9 @@ export class RetryContentsUploader {
         return result;
       } catch (error: unknown) {
         if (error instanceof Error) {
-          Logger.warn(
-            `Upload attempt ${retryCount + 1} failed: ${error.message}`
-          );
+          Logger.warn(`Upload attempt ${retryCount + 1} failed: ${error.message}`);
         } else {
-          Logger.warn(
-            `Upload attempt ${retryCount + 1} failed with an unknown error.`
-          );
+          Logger.warn(`Upload attempt ${retryCount + 1} failed with an unknown error.`);
         }
 
         await new Promise((resolve) => {
@@ -36,9 +32,7 @@ export class RetryContentsUploader {
         retryCount++;
       }
     }
-    throw new Error(
-      `Max retries (${RetryContentsUploader.NUMBER_OF_RETRIES}) reached. Upload still failed.`
-    );
+    throw new Error(`Max retries (${RetryContentsUploader.NUMBER_OF_RETRIES}) reached. Upload still failed.`);
   }
 
   async run(posixRelativePath: string): Promise<RemoteFileContents> {

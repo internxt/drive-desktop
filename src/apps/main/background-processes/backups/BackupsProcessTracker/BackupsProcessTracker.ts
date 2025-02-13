@@ -3,19 +3,13 @@ import Logger from 'electron-log';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
 import { BackupsIPCMain } from '../BackupsIpc';
-import {
-  BackupCompleted,
-  ForcedByUser,
-} from '../BackupsStopController/BackupsStopController';
+import { BackupCompleted, ForcedByUser } from '../BackupsStopController/BackupsStopController';
 import { BackupsProgress } from '../types/BackupsProgress';
 import { IndividualBackupProgress } from '../types/IndividualBackupProgress';
 import { ProcessFatalErrorName } from '../BackupFatalErrors/BackupFatalErrors';
 import { isSyncError } from '../../../../shared/issues/SyncErrorCause';
 
-export type WorkerExitCause =
-  | ForcedByUser
-  | BackupCompleted
-  | ProcessFatalErrorName;
+export type WorkerExitCause = ForcedByUser | BackupCompleted | ProcessFatalErrorName;
 
 export class BackupsProcessTracker {
   private processed = 0;
@@ -117,18 +111,15 @@ export function initiateBackupsProcessTracker(): BackupsProcessTracker {
     return tracker.getLastExistReason();
   });
 
-  BackupsIPCMain.handle(
-    'backups.get-backup-issues',
-    (_: unknown, id: number) => {
-      const reason = tracker.getExitReason(id);
+  BackupsIPCMain.handle('backups.get-backup-issues', (_: unknown, id: number) => {
+    const reason = tracker.getExitReason(id);
 
-      if (reason !== undefined && isSyncError(reason)) {
-        return reason;
-      }
-
-      return undefined;
+    if (reason !== undefined && isSyncError(reason)) {
+      return reason;
     }
-  );
+
+    return undefined;
+  });
   BackupsIPCMain.on('backups.clear-backup-issues', (_: unknown, id: number) => {
     const reason = tracker.getExitReason(id);
 
@@ -143,20 +134,14 @@ export function initiateBackupsProcessTracker(): BackupsProcessTracker {
     }
   });
 
-  BackupsIPCMain.on(
-    'backups.total-items-calculated',
-    (_: unknown, total: number, processed: number) => {
-      tracker.currentTotal(total);
-      tracker.currentProcessed(processed);
-    }
-  );
+  BackupsIPCMain.on('backups.total-items-calculated', (_: unknown, total: number, processed: number) => {
+    tracker.currentTotal(total);
+    tracker.currentProcessed(processed);
+  });
 
-  BackupsIPCMain.on(
-    'backups.progress-update',
-    (_: unknown, processed: number) => {
-      tracker.currentProcessed(processed);
-    }
-  );
+  BackupsIPCMain.on('backups.progress-update', (_: unknown, processed: number) => {
+    tracker.currentProcessed(processed);
+  });
 
   return tracker;
 }

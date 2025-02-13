@@ -29,9 +29,7 @@ export default function AccountSection({ active }: { active: boolean }) {
           <Spinner className="my-[57px] h-5 w-5 animate-spin" />
         ) : status === 'error' ? (
           <div className="my-4 flex flex-col items-center space-y-2.5">
-            <p className="font-medium">
-              {translate('settings.account.usage.loadError.title')}
-            </p>
+            <p className="font-medium">{translate('settings.account.usage.loadError.title')}</p>
 
             <Button variant="secondary" onClick={() => refreshUsage()}>
               {translate('settings.account.usage.loadError.action')}

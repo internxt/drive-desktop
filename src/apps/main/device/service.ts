@@ -537,7 +537,7 @@ async function downloadDeviceBackupZip(
   }: {
     updateProgress: (progress: number) => void;
     abortController?: AbortController;
-  }
+  },
 ): Promise<void> {
   if (!device.id) {
     throw new Error('This backup has not been uploaded yet');
@@ -569,7 +569,7 @@ async function downloadDeviceBackupZip(
     {
       abortController,
       updateProgress,
-    }
+    },
   );
 }
 
@@ -711,7 +711,7 @@ export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenD
 }
 
 export async function openFileSystemAndGetPaths(
-  dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']
+  dialogPropertiesOptions?: Electron.OpenDialogOptions['properties'],
 ): Promise<string[] | undefined> {
   const dialogProperties = dialogPropertiesOptions ?? ['openDirectory'];
 
@@ -748,7 +748,7 @@ export async function getMultiplePathsFromDialog(getFiles?: boolean): Promise<
         itemName,
         isDirectory: isFolder,
       };
-    })
+    }),
   );
 
   return paths;

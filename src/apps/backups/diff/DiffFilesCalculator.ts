@@ -41,9 +41,7 @@ export class DiffFilesCalculator {
         return;
       }
 
-      const remoteModificationTime = Math.trunc(
-        remoteNode.updatedAt.getTime() / 1000
-      );
+      const remoteModificationTime = Math.trunc(remoteNode.updatedAt.getTime() / 1000);
       const localModificationTime = Math.trunc(local.modificationTime / 1000);
 
       if (remoteModificationTime < localModificationTime) {
@@ -64,8 +62,7 @@ export class DiffFilesCalculator {
       return !local.has(path.join(rootPath, file.path) as AbsolutePath);
     });
 
-    const total =
-      added.length + modified.size + deleted.length + unmodified.length;
+    const total = added.length + modified.size + deleted.length + unmodified.length;
 
     return {
       added,

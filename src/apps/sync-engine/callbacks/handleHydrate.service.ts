@@ -5,7 +5,7 @@ import { BindingsManager } from '../BindingManager';
 import configStore from '../../../apps/main/config';
 
 type TProps = {
-  self: BindingsManager,
+  self: BindingsManager;
   drive: VirtualDrive;
   task: QueueItem;
 };

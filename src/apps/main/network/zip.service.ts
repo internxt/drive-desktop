@@ -7,10 +7,7 @@ type FlatFolderZipOpts = {
   progress?: (loadedBytes: number) => void;
 };
 
-type AddFileToZipFunction = (
-  name: string,
-  source: ReadableStream<Uint8Array>
-) => void;
+type AddFileToZipFunction = (name: string, source: ReadableStream<Uint8Array>) => void;
 
 type AddFolderToZipFunction = (name: string) => void;
 
@@ -27,10 +24,7 @@ export class FlatFolderZip {
   private passThrough: ReadableStream<Uint8Array>;
   private abortController?: AbortController;
 
-  constructor(
-    destination: WritableStream<Uint8Array>,
-    opts: FlatFolderZipOpts
-  ) {
+  constructor(destination: WritableStream<Uint8Array>, opts: FlatFolderZipOpts) {
     this.zip = createFolderWithFilesWritable(opts.progress);
     this.abortController = opts.abortController;
 
@@ -66,12 +60,9 @@ export class FlatFolderZip {
   }
 }
 
-export function createFolderWithFilesWritable(
-  progress?: FlatFolderZipOpts['progress']
-): ZipStream {
+export function createFolderWithFilesWritable(progress?: FlatFolderZipOpts['progress']): ZipStream {
   const zip = new Zip();
-  let passthroughController: ReadableStreamDefaultController<Uint8Array> | null =
-    null;
+  let passthroughController: ReadableStreamDefaultController<Uint8Array> | null = null;
 
   const passthrough = new ReadableStream<Uint8Array>({
     start(controller) {
@@ -128,7 +119,7 @@ export function createFolderWithFilesWritable(
           close() {
             writer.push(new Uint8Array(0), true);
           },
-        })
+        }),
       );
     },
     addFolder: (name: string): void => {

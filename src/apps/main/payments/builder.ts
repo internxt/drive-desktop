@@ -21,7 +21,7 @@ export function buildPaymentsService() {
     {
       unauthorizedCallback: onUserUnauthorized,
       token: newToken,
-    }
+    },
   );
 
   return new PaymentsService(payments);

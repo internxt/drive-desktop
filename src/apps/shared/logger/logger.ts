@@ -19,7 +19,7 @@ export const createLogger = (path: string) => {
             const object: { level: string; message: unknown; stack?: unknown } = { level, message };
             if (stack) object.stack = stack;
             return inspect(object, { colors: true, depth: Infinity, breakLength: Infinity });
-          })
+          }),
         ),
       }),
     ],

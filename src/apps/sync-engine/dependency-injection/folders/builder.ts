@@ -32,9 +32,7 @@ import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-driv
 import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 
-export async function buildFoldersContainer(
-  shredContainer: SharedContainer
-): Promise<FoldersContainer> {
+export async function buildFoldersContainer(shredContainer: SharedContainer): Promise<FoldersContainer> {
   const clients = DependencyInjectionHttpClientsProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
   const { virtualDrive } = DependencyInjectionVirtualDrive;
@@ -42,113 +40,63 @@ export async function buildFoldersContainer(
 
   const repository = new InMemoryFolderRepository();
 
-  const localFolderSystem = new NodeWinLocalFolderSystem(
-    virtualDrive,
-    shredContainer.relativePathToAbsoluteConverter
-  );
-  const remoteFolderSystem = new HttpRemoteFolderSystem(
-    clients.drive,
-    clients.newDrive
-  );
+  const localFolderSystem = new NodeWinLocalFolderSystem(virtualDrive, shredContainer.relativePathToAbsoluteConverter);
+  const remoteFolderSystem = new HttpRemoteFolderSystem(clients.drive, clients.newDrive);
 
-  const folderPlaceholderConverter = new FolderPlaceholderConverter(
-    localFolderSystem
-  );
+  const folderPlaceholderConverter = new FolderPlaceholderConverter(localFolderSystem);
 
   const folderSyncStatusUpdater = new FolderSyncStatusUpdater(localFolderSystem);
 
   const folderFinder = new FolderFinder(repository);
 
-  const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
-    repository
-  );
+  const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
 
-  const folderDeleter = new FolderDeleter(
-    repository,
-    remoteFolderSystem,
-    localFolderSystem,
-    allParentFoldersStatusIsExists
-  );
+  const folderDeleter = new FolderDeleter(repository, remoteFolderSystem, localFolderSystem, allParentFoldersStatusIsExists);
 
   const retryFolderDeleter = new RetryFolderDeleter(folderDeleter);
 
-  const folderCreator = new FolderCreator(
-    repository,
-    remoteFolderSystem,
-    ipcRendererSyncEngine,
-    eventBus,
-    folderPlaceholderConverter
-  );
+  const folderCreator = new FolderCreator(repository, remoteFolderSystem, ipcRendererSyncEngine, eventBus, folderPlaceholderConverter);
 
-  const folderMover = new FolderMover(
-    repository,
-    remoteFolderSystem,
-    folderFinder
-  );
-  const folderRenamer = new FolderRenamer(
-    repository,
-    remoteFolderSystem,
-    ipcRendererSyncEngine
-  );
+  const folderMover = new FolderMover(repository, remoteFolderSystem, folderFinder);
+  const folderRenamer = new FolderRenamer(repository, remoteFolderSystem, ipcRendererSyncEngine);
 
-  const folderPathUpdater = new FolderPathUpdater(
-    repository,
-    folderMover,
-    folderRenamer
-  );
+  const folderPathUpdater = new FolderPathUpdater(repository, folderMover, folderRenamer);
 
   const offlineRepository = new InMemoryOfflineFolderRepository();
-  const offlineFolderCreator = new OfflineFolderCreator(
-    folderFinder,
-    offlineRepository,
-    repository
-  );
+  const offlineFolderCreator = new OfflineFolderCreator(folderFinder, offlineRepository, repository);
 
-  const offlineFolderMover = new OfflineFolderMover(
-    offlineRepository,
-    folderFinder
-  );
+  const offlineFolderMover = new OfflineFolderMover(offlineRepository, folderFinder);
   const offlineFolderRenamer = new OfflineFolderRenamer(offlineRepository);
-  const offlineFolderPathUpdater = new OfflineFolderPathUpdater(
-    offlineRepository,
-    offlineFolderMover,
-    offlineFolderRenamer
-  );
+  const offlineFolderPathUpdater = new OfflineFolderPathUpdater(offlineRepository, offlineFolderMover, offlineFolderRenamer);
   const synchronizeOfflineModifications = new SynchronizeOfflineModifications(
     offlineRepository,
     repository,
     folderRenamer,
-    eventRepository
+    eventRepository,
   );
 
-  const synchronizeOfflineModificationsOnFolderCreated =
-    new SynchronizeOfflineModificationsOnFolderCreated(
-      synchronizeOfflineModifications
-    );
+  const synchronizeOfflineModificationsOnFolderCreated = new SynchronizeOfflineModificationsOnFolderCreated(
+    synchronizeOfflineModifications,
+  );
 
   const folderRepositoryInitiator = new FolderRepositoryInitiator(repository);
 
-  const foldersPlaceholderCreator = new FoldersPlaceholderCreator(
-    localFolderSystem
-  );
+  const foldersPlaceholderCreator = new FoldersPlaceholderCreator(localFolderSystem);
 
   const folderPlaceholderUpdater = new FolderPlaceholderUpdater(
     repository,
     localFolderSystem,
-    shredContainer.relativePathToAbsoluteConverter
+    shredContainer.relativePathToAbsoluteConverter,
   );
 
   const folderPlaceholderDeleter = new FolderPlaceholderDeleter(
     shredContainer.relativePathToAbsoluteConverter,
     remoteFolderSystem,
-    localFolderSystem
+    localFolderSystem,
   );
 
   const folderContainerDetector = new FolderContainerDetector(repository);
-  const foldersFatherSyncStatusUpdater = new FoldersFatherSyncStatusUpdater(
-    localFolderSystem,
-    repository
-  );
+  const foldersFatherSyncStatusUpdater = new FoldersFatherSyncStatusUpdater(localFolderSystem, repository);
 
   return {
     folderCreator,

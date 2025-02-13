@@ -22,21 +22,15 @@ ipcMain.handle('rename-device', (_, v) => renameDevice(v));
 
 ipcMain.handle('devices.get-all', () => getDevices());
 
-ipcMain.handle('get-backups-from-device', (_, d, c?) =>
-  getBackupsFromDevice(d, c)
-);
+ipcMain.handle('get-backups-from-device', (_, d, c?) => getBackupsFromDevice(d, c));
 
 ipcMain.handle('add-backup', addBackup);
 
-ipcMain.handle('add-multiple-backups', (_, folderPaths) =>
-  createBackupsFromLocalPaths(folderPaths)
-);
+ipcMain.handle('add-multiple-backups', (_, folderPaths) => createBackupsFromLocalPaths(folderPaths));
 
 ipcMain.handle('delete-backup', (_, v) => deleteBackup(v));
 
-ipcMain.handle('delete-backups-from-device', (_, v, c?) =>
-  deleteBackupsFromDevice(v, c)
-);
+ipcMain.handle('delete-backups-from-device', (_, v, c?) => deleteBackupsFromDevice(v, c));
 
 ipcMain.handle('disable-backup', (_, v) => disableBackup(v));
 

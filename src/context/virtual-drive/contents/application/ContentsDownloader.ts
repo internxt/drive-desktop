@@ -22,7 +22,7 @@ export class ContentsDownloader {
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
   ) {
     this.readableDownloader = null;
   }
@@ -31,11 +31,7 @@ export class ContentsDownloader {
   private downloaderIntanceCB: CallbackDownload | null = null;
   private downloaderFile: File | null = null;
 
-  private async registerEvents(
-    downloader: ContentFileDownloader,
-    file: File,
-    callback: CallbackDownload
-  ) {
+  private async registerEvents(downloader: ContentFileDownloader, file: File, callback: CallbackDownload) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
@@ -99,11 +95,7 @@ export class ContentsDownloader {
     const readable = await downloader.download(file);
     this.readableDownloader = readable;
 
-    const localContents = LocalFileContents.downloadedFrom(
-      file,
-      readable,
-      downloader.elapsedTime()
-    );
+    const localContents = LocalFileContents.downloadedFrom(file, readable, downloader.elapsedTime());
 
     const write = await this.localWriter.write(localContents);
 
@@ -115,12 +107,7 @@ export class ContentsDownloader {
 
   async stop() {
     Logger.info('[Server] Stopping download 1');
-    if (
-      !this.downloaderIntance ||
-      !this.downloaderIntanceCB ||
-      !this.downloaderFile
-    )
-      return;
+    if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 
     Logger.info('[Server] Stopping download 2');
     this.downloaderIntance.forceStop();

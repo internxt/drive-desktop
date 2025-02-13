@@ -45,11 +45,7 @@ export const SLIDES: OnboardingSlide[] = [
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.slides.welcome.take-tour')}
           </Button>
-          <Button
-            onClick={props.onSkipOnboarding}
-            variant="secondary"
-            size="lg"
-          >
+          <Button onClick={props.onSkipOnboarding} variant="secondary" size="lg">
             {translate('onboarding.common.skip')}
           </Button>
         </div>
@@ -296,12 +292,7 @@ export const SLIDES: OnboardingSlide[] = [
 
       const BackupsImage = () => {
         const preferredTheme = useConfig('preferedTheme') as Theme;
-        const theme =
-          preferredTheme === 'system'
-            ? isDarkTheme
-              ? 'dark'
-              : 'light'
-            : preferredTheme;
+        const theme = preferredTheme === 'system' ? (isDarkTheme ? 'dark' : 'light') : preferredTheme;
 
         return theme === 'dark' ? <BackupsDarkSvg /> : <BackupsSvg />;
       };

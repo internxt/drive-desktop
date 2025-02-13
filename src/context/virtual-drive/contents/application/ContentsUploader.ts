@@ -13,13 +13,10 @@ export class ContentsUploader {
     private readonly remoteContentsManagersFactory: ContentsManagersFactory,
     private readonly contentProvider: LocalContentsProvider,
     private readonly ipc: SyncEngineIpc,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
+    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  private registerEvents(
-    uploader: ContentFileUploader,
-    localFileContents: LocalFileContents
-  ) {
+  private registerEvents(uploader: ContentFileUploader, localFileContents: LocalFileContents) {
     uploader.on('start', () => {
       this.ipc.send('FILE_UPLOADING', {
         name: localFileContents.name,
@@ -64,23 +61,16 @@ export class ContentsUploader {
 
   async run(posixRelativePath: string): Promise<RemoteFileContents> {
     try {
-      const win32RelativePath =
-        PlatformPathConverter.posixToWin(posixRelativePath);
+      const win32RelativePath = PlatformPathConverter.posixToWin(posixRelativePath);
 
-      const absolutePath =
-        this.relativePathToAbsoluteConverter.run(win32RelativePath);
+      const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath);
 
       Logger.debug('[DEBUG UPLOAD]:', posixRelativePath, absolutePath);
 
-      const { contents, abortSignal } = await this.contentProvider.provide(
-        absolutePath
-      );
+      const { contents, abortSignal } = await this.contentProvider.provide(absolutePath);
       Logger.debug('[DEBUG UPLOAD STEEP 1]: ');
 
-      const uploader = this.remoteContentsManagersFactory.uploader(
-        contents,
-        abortSignal
-      );
+      const uploader = this.remoteContentsManagersFactory.uploader(contents, abortSignal);
 
       this.registerEvents(uploader, contents);
 

@@ -17,7 +17,7 @@ export class OfflineFile extends AggregateRoot {
     private _contentsId: ContentsId,
     private _folderId: number,
     private _path: FilePath,
-    private readonly _size: FileSize
+    private readonly _size: FileSize,
   ) {
     super();
   }
@@ -59,29 +59,19 @@ export class OfflineFile extends AggregateRoot {
       new ContentsId(attributes.contentsId),
       attributes.folderId,
       new FilePath(attributes.path),
-      new FileSize(attributes.size)
+      new FileSize(attributes.size),
     );
   }
 
-  static create(
-    contentsId: string,
-    folder: Folder,
-    size: FileSize,
-    path: FilePath
-  ): OfflineFile {
-    const file = new OfflineFile(
-      new ContentsId(contentsId),
-      folder.id,
-      path,
-      size
-    );
+  static create(contentsId: string, folder: Folder, size: FileSize, path: FilePath): OfflineFile {
+    const file = new OfflineFile(new ContentsId(contentsId), folder.id, path, size);
 
     file.record(
       new FileCreatedDomainEvent({
         aggregateId: contentsId,
         size: file.size,
         type: path.extension(),
-      })
+      }),
     );
 
     return file;

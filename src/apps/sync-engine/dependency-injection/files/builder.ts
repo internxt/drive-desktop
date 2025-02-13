@@ -36,7 +36,7 @@ import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/app
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
-  sharedContainer: SharedContainer
+  sharedContainer: SharedContainer,
 ): Promise<{
   container: FilesContainer;
   subscribers: any;
@@ -49,16 +49,8 @@ export async function buildFilesContainer(
 
   const clients = DependencyInjectionHttpClientsProvider.get();
 
-  const remoteFileSystem = new SDKRemoteFileSystem(
-    sdk,
-    clients,
-    crypt,
-    user.bucket
-  );
-  const localFileSystem = new NodeWinLocalFileSystem(
-    virtualDrive,
-    sharedContainer.relativePathToAbsoluteConverter
-  );
+  const remoteFileSystem = new SDKRemoteFileSystem(sdk, clients, crypt, user.bucket);
+  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
   const repository = new InMemoryFileRepository();
 
@@ -69,19 +61,12 @@ export async function buildFilesContainer(
     localFileSystem,
     repository,
     folderContainer.allParentFoldersStatusIsExists,
-    ipcRendererSyncEngine
+    ipcRendererSyncEngine,
   );
 
-  const fileFolderContainerDetector = new FileFolderContainerDetector(
-    repository,
-    folderContainer.folderFinder
-  );
+  const fileFolderContainerDetector = new FileFolderContainerDetector(repository, folderContainer.folderFinder);
 
-  const sameFileWasMoved = new SameFileWasMoved(
-    repository,
-    localFileSystem,
-    eventHistory
-  );
+  const sameFileWasMoved = new SameFileWasMoved(repository, localFileSystem, eventHistory);
 
   const filePathUpdater = new FilePathUpdater(
     remoteFileSystem,
@@ -90,7 +75,7 @@ export async function buildFilesContainer(
     fileFinderByContentsId,
     folderContainer.folderFinder,
     ipcRendererSyncEngine,
-    eventBus
+    eventBus,
   );
 
   const fileFinder = new FileFinder(repository);
@@ -101,52 +86,38 @@ export async function buildFilesContainer(
     folderContainer.folderFinder,
     fileDeleter,
     eventBus,
-    ipcRendererSyncEngine
+    ipcRendererSyncEngine,
   );
 
-  const filePlaceholderCreatorFromContentsId =
-    new FilePlaceholderCreatorFromContentsId(
-      fileFinderByContentsId,
-      localFileSystem
-    );
+  const filePlaceholderCreatorFromContentsId = new FilePlaceholderCreatorFromContentsId(fileFinderByContentsId, localFileSystem);
 
-  const createFilePlaceholderOnDeletionFailed =
-    new CreateFilePlaceholderOnDeletionFailed(
-      filePlaceholderCreatorFromContentsId
-    );
+  const createFilePlaceholderOnDeletionFailed = new CreateFilePlaceholderOnDeletionFailed(filePlaceholderCreatorFromContentsId);
 
   const repositoryPopulator = new RepositoryPopulator(repository);
 
   const filesPlaceholderCreator = new FilesPlaceholderCreator(localFileSystem);
 
-  const localFileIdProvider = new LocalFileIdProvider(
-    sharedContainer.relativePathToAbsoluteConverter
-  );
+  const localFileIdProvider = new LocalFileIdProvider(sharedContainer.relativePathToAbsoluteConverter);
 
   const filesPlaceholderUpdater = new FilesPlaceholderUpdater(
     repository,
     localFileSystem,
     sharedContainer.relativePathToAbsoluteConverter,
     localFileIdProvider,
-    eventHistory
+    eventHistory,
   );
 
   const filesPlaceholderDeleter = new FilesPlaceholderDeleter(
     remoteFileSystem,
     sharedContainer.relativePathToAbsoluteConverter,
-    localFileSystem
+    localFileSystem,
   );
 
-  const filePlaceholderConverter = new FilePlaceholderConverter(
-    localFileSystem
-  );
+  const filePlaceholderConverter = new FilePlaceholderConverter(localFileSystem);
 
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
-  const fileContentsUpdater = new FileContentsUpdater(
-    repository,
-    remoteFileSystem
-  );
+  const fileContentsUpdater = new FileContentsUpdater(repository, remoteFileSystem);
 
   const fileIdentityUpdater = new FileIdentityUpdater(localFileSystem);
 
@@ -159,7 +130,7 @@ export async function buildFilesContainer(
     sharedContainer.absolutePathToRelativeConverter,
     folderContainer.folderCreator,
     folderContainer.offline.folderCreator,
-    fileContentsUpdater
+    fileContentsUpdater,
   );
 
   const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
@@ -173,8 +144,7 @@ export async function buildFilesContainer(
     fileFolderContainerDetector,
     fileSyncronizer,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
-    createFilePlaceholderOnDeletionFailed:
-      createFilePlaceholderOnDeletionFailed,
+    createFilePlaceholderOnDeletionFailed: createFilePlaceholderOnDeletionFailed,
     sameFileWasMoved,
     retrieveAllFiles: new RetrieveAllFiles(repository),
     repositoryPopulator: repositoryPopulator,

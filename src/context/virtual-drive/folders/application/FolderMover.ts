@@ -9,7 +9,7 @@ export class FolderMover {
   constructor(
     private readonly repository: FolderRepository,
     private readonly remote: HttpRemoteFolderSystem,
-    private readonly folderFinder: FolderFinder
+    private readonly folderFinder: FolderFinder,
   ) {}
 
   private async move(folder: Folder, parentFolder: Folder) {

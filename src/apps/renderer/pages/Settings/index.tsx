@@ -17,9 +17,7 @@ export const SHOW_ANTIVIRUS_TOOL = false;
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
-  const [subsection, setSubsection] = useState<
-    'panel' | 'list' | 'download_list'
-  >('panel');
+  const [subsection, setSubsection] = useState<'panel' | 'list' | 'download_list'>('panel');
 
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -28,7 +26,7 @@ export default function Settings() {
       window.electron.settingsWindowResized({
         width: rootElement.borderBoxSize[0].inlineSize,
         height: rootElement.borderBoxSize[0].blockSize,
-      })
+      }),
     );
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -42,10 +40,7 @@ export default function Settings() {
   useEffect(() => {
     const url = new URL(window.location.href);
     const section = url.searchParams.get('section');
-    if (
-      section &&
-      ['BACKUPS', 'GENERAL', 'ACCOUNT', 'ANTIVIRUS'].includes(section)
-    ) {
+    if (section && ['BACKUPS', 'GENERAL', 'ACCOUNT', 'ANTIVIRUS'].includes(section)) {
       setActiveSection(section as Section);
     }
   }, []);
@@ -59,25 +54,15 @@ export default function Settings() {
             style={{
               minWidth: subsection === 'list' ? 'auto' : 400,
               minHeight: subsection === 'list' ? 'auto' : 420,
-            }}
-          >
-            {subsection === 'list' && activeSection === 'BACKUPS' && (
-              <BackupFolderSelector onClose={() => setSubsection('panel')} />
+            }}>
+            {subsection === 'list' && activeSection === 'BACKUPS' && <BackupFolderSelector onClose={() => setSubsection('panel')} />}
+            {subsection === 'download_list' && <DownloadFolderSelector onClose={() => setSubsection('panel')} />}
+            {SHOW_ANTIVIRUS_TOOL && subsection === 'list' && activeSection === 'ANTIVIRUS' && (
+              <RemoveMalwareState onCancel={() => setSubsection('panel')} />
             )}
-            {subsection === 'download_list' && (
-              <DownloadFolderSelector onClose={() => setSubsection('panel')} />
-            )}
-            {SHOW_ANTIVIRUS_TOOL &&
-              subsection === 'list' &&
-              activeSection === 'ANTIVIRUS' && (
-                <RemoveMalwareState onCancel={() => setSubsection('panel')} />
-              )}
             {subsection === 'panel' && (
               <>
-                <WindowTopBar
-                  title="Internxt"
-                  className="bg-surface dark:bg-gray-5"
-                />
+                <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" />
                 <Header active={activeSection} onClick={setActiveSection} />
                 <div className={'relative bg-gray-1 p-5'}>
                   <GeneralSection active={activeSection === 'GENERAL'} />
@@ -90,12 +75,8 @@ export default function Settings() {
                   />
                   {SHOW_ANTIVIRUS_TOOL && (
                     <AntivirusSection
-                      onCancelDeactivateWinDefender={() =>
-                        setActiveSection('GENERAL')
-                      }
-                      active={
-                        SHOW_ANTIVIRUS_TOOL && activeSection === 'ANTIVIRUS'
-                      }
+                      onCancelDeactivateWinDefender={() => setActiveSection('GENERAL')}
+                      active={SHOW_ANTIVIRUS_TOOL && activeSection === 'ANTIVIRUS'}
                       showItemsWithMalware={() => setSubsection('list')}
                     />
                   )}

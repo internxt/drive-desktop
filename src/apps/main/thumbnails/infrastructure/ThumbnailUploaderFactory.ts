@@ -18,7 +18,7 @@ export class ThumbnailUploaderFactory {
       {
         token: obtainToken('bearerToken'),
         unauthorizedCallback: onUserUnauthorized,
-      }
+      },
     );
   }
 
@@ -30,9 +30,7 @@ export class ThumbnailUploaderFactory {
     const user = getUser();
 
     if (!user) {
-      throw new Error(
-        '[THUMBNAIL] Thumbnail uploader could not be created: user missing'
-      );
+      throw new Error('[THUMBNAIL] Thumbnail uploader could not be created: user missing');
     }
 
     const environment = new Environment({
@@ -44,12 +42,7 @@ export class ThumbnailUploaderFactory {
 
     const storage = ThumbnailUploaderFactory.createStorageClient();
 
-    ThumbnailUploaderFactory.instance =
-      new EnvironmentAndStorageThumbnailUploader(
-        environment,
-        storage,
-        user.bucket
-      );
+    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, storage, user.bucket);
 
     return ThumbnailUploaderFactory.instance;
   }

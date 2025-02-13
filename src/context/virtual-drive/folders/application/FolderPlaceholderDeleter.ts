@@ -10,7 +10,7 @@ export class FolderPlaceholderDeleter {
   constructor(
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly remoteFileSystem: HttpRemoteFolderSystem,
-    private readonly local: NodeWinLocalFolderSystem
+    private readonly local: NodeWinLocalFolderSystem,
   ) {}
 
   private async hasToBeDeleted(remote: Folder): Promise<boolean> {
@@ -26,9 +26,7 @@ export class FolderPlaceholderDeleter {
     }
 
     sleep(500);
-    const folderStatus = await this.remoteFileSystem.checkStatusFolder(
-      remote.uuid
-    );
+    const folderStatus = await this.remoteFileSystem.checkStatusFolder(remote.uuid);
 
     // temporal condition to avoid deleting folders that are not in the trash
     // https://github.com/internxt/drive-desktop/blob/60f2ee9a28eab37438b3e8365f4bd519e748a047/src/context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem.ts#L70
@@ -37,9 +35,7 @@ export class FolderPlaceholderDeleter {
       !(remote.status === FolderStatuses.DELETED) &&
       !(remote.status === FolderStatuses.TRASHED)
     ) {
-      Logger.info(
-        `Folder ${remote.path} with undefined status, skipping deletion`
-      );
+      Logger.info(`Folder ${remote.path} with undefined status, skipping deletion`);
       return false;
     }
 
@@ -47,16 +43,12 @@ export class FolderPlaceholderDeleter {
       `
       Localdb path: ${remote.path}\n
       ___________\n
-      Condition Status: ${
-        folderStatus === FolderStatuses.TRASHED ||
-        folderStatus === FolderStatuses.DELETED
-      }\n
-      Condition ID: ${localUUID.split(':')[1] === remote['uuid']}\n`
+      Condition Status: ${folderStatus === FolderStatuses.TRASHED || folderStatus === FolderStatuses.DELETED}\n
+      Condition ID: ${localUUID.split(':')[1] === remote['uuid']}\n`,
     );
 
     return (
-      (folderStatus === FolderStatuses.TRASHED ||
-        folderStatus === FolderStatuses.DELETED) &&
+      (folderStatus === FolderStatuses.TRASHED || folderStatus === FolderStatuses.DELETED) &&
       localUUID.split(':')[1]?.trim() === remote['uuid']?.trim()
     );
   }
@@ -73,7 +65,7 @@ export class FolderPlaceholderDeleter {
     await Promise.all(
       remotes.map(async (remote) => {
         await this.delete(remote);
-      })
+      }),
     );
   }
 }

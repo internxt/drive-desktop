@@ -4,12 +4,7 @@ import Button from '../../../components/Button';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { WarningCircle } from '@phosphor-icons/react';
 
-export default function Usage({
-  isInfinite,
-  offerUpgrade,
-  usageInBytes,
-  limitInBytes,
-}: UsageType) {
+export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInBytes }: UsageType) {
   const { translate } = useTranslationContext();
   const percentageUsed = (usageInBytes / limitInBytes) * 100;
   const percentageDisplay = `${percentageUsed.toFixed(0)}%`;
@@ -26,9 +21,7 @@ export default function Usage({
 
   const handleOpenUpgrade = async () => {
     try {
-      await window.electron.openUrl(
-        'https://drive.internxt.com/preferences?tab=plans'
-      );
+      await window.electron.openUrl('https://drive.internxt.com/preferences?tab=plans');
     } catch (error) {
       reportError(error);
     }
@@ -39,9 +32,7 @@ export default function Usage({
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="flex items-baseline space-x-px">
-            <p className="text-3xl font-medium leading-8">
-              {displaySpaceUsed().amount}
-            </p>
+            <p className="text-3xl font-medium leading-8">{displaySpaceUsed().amount}</p>
             <p className="text-2xl font-medium">{displaySpaceUsed().unit}</p>
           </div>
 
@@ -52,13 +43,8 @@ export default function Usage({
           )}
         </div>
 
-        <Button
-          variant={offerUpgrade ? 'primary' : 'secondary'}
-          onClick={handleOpenUpgrade}
-        >
-          {offerUpgrade
-            ? translate('settings.account.usage.upgrade')
-            : translate('settings.account.usage.change')}
+        <Button variant={offerUpgrade ? 'primary' : 'secondary'} onClick={handleOpenUpgrade}>
+          {offerUpgrade ? translate('settings.account.usage.upgrade') : translate('settings.account.usage.change')}
         </Button>
       </div>
 
@@ -71,18 +57,13 @@ export default function Usage({
             })}
           </p>
 
-          {!isInfinite && (
-            <p className="text-sm text-gray-50">{percentageDisplay}</p>
-          )}
+          {!isInfinite && <p className="text-sm text-gray-50">{percentageDisplay}</p>}
         </div>
 
         {!isInfinite && (
           <>
             <div className="flex h-6 items-stretch overflow-hidden rounded-md bg-gray-1">
-              <div
-                className="bg-primary"
-                style={{ width: percentageDisplay }}
-              />
+              <div className="bg-primary" style={{ width: percentageDisplay }} />
             </div>
 
             <div className="flex flex-wrap items-center space-x-4">
@@ -102,12 +83,8 @@ export default function Usage({
           </div>
 
           <div className="flex flex-1 flex-col space-y-0.5 leading-5">
-            <p className="font-medium leading-5">
-              {translate('settings.account.usage.full.title')}
-            </p>
-            <p className="text-sm">
-              {translate('settings.account.usage.full.subtitle')}
-            </p>
+            <p className="font-medium leading-5">{translate('settings.account.usage.full.title')}</p>
+            <p className="text-sm">{translate('settings.account.usage.full.subtitle')}</p>
           </div>
         </div>
       )}

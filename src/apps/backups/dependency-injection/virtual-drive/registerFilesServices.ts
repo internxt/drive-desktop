@@ -14,15 +14,7 @@ export async function registerFilesServices(builder: ContainerBuilder) {
 
   builder
     .register(SDKRemoteFileSystem)
-    .useFactory(
-      (c) =>
-        new SDKRemoteFileSystem(
-          c.get(Storage),
-          c.get(AuthorizedClients),
-          crypt,
-          user.backupsBucket
-        )
-    )
+    .useFactory((c) => new SDKRemoteFileSystem(c.get(Storage), c.get(AuthorizedClients), crypt, user.backupsBucket))
     .private();
 
   // Services

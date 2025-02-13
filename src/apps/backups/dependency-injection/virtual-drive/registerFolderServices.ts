@@ -12,7 +12,7 @@ export async function registerFolderServices(builder: ContainerBuilder) {
       return new HttpRemoteFolderSystem(
         // @ts-ignore
         clients.drive,
-        clients.newDrive
+        clients.newDrive,
       );
     })
     .private();

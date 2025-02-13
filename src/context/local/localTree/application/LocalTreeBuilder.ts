@@ -12,14 +12,9 @@ import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerato
 export default class LocalTreeBuilder {
   constructor(private readonly generator: CLSFsLocalItemsGenerator) {}
 
-  private async traverse(
-    tree: LocalTree,
-    currentFolder: LocalFolder
-  ): Promise<LocalTree> {
+  private async traverse(tree: LocalTree, currentFolder: LocalFolder): Promise<LocalTree> {
     try {
-      const { files, folders } = await this.generator.getAll(
-        currentFolder.path
-      );
+      const { files, folders } = await this.generator.getAll(currentFolder.path);
 
       files.forEach((fileAttributes) => {
         if (fileAttributes.size === 0) {
@@ -48,9 +43,7 @@ export default class LocalTreeBuilder {
     }
   }
 
-  async run(
-    folder: AbsolutePath
-  ): Promise<Either<DriveDesktopError, LocalTree>> {
+  async run(folder: AbsolutePath): Promise<Either<DriveDesktopError, LocalTree>> {
     const rootEither = await this.generator.root(folder);
 
     if (rootEither.isLeft()) {

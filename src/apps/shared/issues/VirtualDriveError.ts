@@ -7,11 +7,7 @@ const virtualDriveFileErrors = [
   'GENERATE_TREE',
 ] as const;
 
-const virtualDriveFolderErrors = [
-  'FOLDER_RENAME_ERROR',
-  'FOLDER_CREATE_ERROR',
-  'FOLDER_TRASH_ERROR',
-] as const;
+const virtualDriveFolderErrors = ['FOLDER_RENAME_ERROR', 'FOLDER_CREATE_ERROR', 'FOLDER_TRASH_ERROR'] as const;
 
 export type VirtualDriveFileError = (typeof virtualDriveFileErrors)[number];
 export type VirtualDriveFolderError = (typeof virtualDriveFolderErrors)[number];

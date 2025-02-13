@@ -72,7 +72,7 @@ export async function spawnSyncEngineWorker() {
     await worker.loadFile(
       process.env.NODE_ENV === 'development'
         ? '../../../release/app/dist/sync-engine/index.html'
-        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`
+        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`,
     );
 
     worker.webContents.send('SET_CONFIG', values);

@@ -3,9 +3,7 @@ import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscri
 import { OptimisticFileDeletionFailed } from '../domain/events/OptimisticFileDeletionFailed';
 import { FilePlaceholderCreatorFromContentsId } from './FilePlaceholderCreatorFromContentsId';
 
-export class CreateFilePlaceholderOnDeletionFailed
-  implements DomainEventSubscriber<OptimisticFileDeletionFailed>
-{
+export class CreateFilePlaceholderOnDeletionFailed implements DomainEventSubscriber<OptimisticFileDeletionFailed> {
   constructor(private readonly creator: FilePlaceholderCreatorFromContentsId) {}
 
   subscribedTo(): DomainEventClass[] {

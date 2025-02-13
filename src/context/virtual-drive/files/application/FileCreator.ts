@@ -21,14 +21,10 @@ export class FileCreator {
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
     private readonly eventBus: EventBus,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
   ) {}
 
-  async run(
-    filePath: FilePath,
-    contents: RemoteFileContents,
-    existingFileAlreadyEvaluated = false
-  ): Promise<File> {
+  async run(filePath: FilePath, contents: RemoteFileContents, existingFileAlreadyEvaluated = false): Promise<File> {
     try {
       if (!existingFileAlreadyEvaluated) {
         const existingFile = this.repository.searchByPartial({

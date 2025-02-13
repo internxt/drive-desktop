@@ -7,10 +7,7 @@ export const getConfigKey = <T extends StoredValues>(key: T): AppStore[T] => {
   return store.get(key);
 };
 
-export const setConfigKey = <T extends StoredValues>(
-  key: T,
-  value: AppStore[T]
-): void => {
+export const setConfigKey = <T extends StoredValues>(key: T, value: AppStore[T]): void => {
   store.set(key, value);
   broadcastToWindows(`${key}-updated`, value);
 };

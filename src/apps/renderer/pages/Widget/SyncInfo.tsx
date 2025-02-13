@@ -8,8 +8,7 @@ import { NoInfoToShow } from './NoInfoToShow';
 import { useInterval } from '../../hooks/useInterval';
 
 export default function SyncInfo() {
-  const { processInfoUpdatedPayload, clearItems, removeOnProgressItems } =
-    useSyncInfoSubscriber();
+  const { processInfoUpdatedPayload, clearItems, removeOnProgressItems } = useSyncInfoSubscriber();
 
   useOnSyncStopped(removeOnProgressItems);
   useOnSyncRunning(clearItems);

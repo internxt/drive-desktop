@@ -18,25 +18,18 @@ export class InMemoryFileRepository {
   }
 
   public all(): Promise<Array<File>> {
-    const files = [...this.files.values()].map((attributes) =>
-      File.from(attributes)
-    );
+    const files = [...this.files.values()].map((attributes) => File.from(attributes));
     return Promise.resolve(files);
   }
 
-  async allSearchByPartial(
-    partial: Partial<FileAttributes>
-  ): Promise<Array<File>> {
+  async allSearchByPartial(partial: Partial<FileAttributes>): Promise<Array<File>> {
     const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
     const files = this.values
       .filter((attributes) => {
         return keys.every((key: keyof FileAttributes) => {
           if (key === 'contentsId') {
-            return (
-              attributes[key].normalize() ==
-              (partial[key] as string).normalize()
-            );
+            return attributes[key].normalize() == (partial[key] as string).normalize();
           }
 
           return attributes[key] == partial[key];
@@ -53,9 +46,7 @@ export class InMemoryFileRepository {
     const file: FileAttributes | undefined = this.values.find((attributes) => {
       return keys.every((key: keyof FileAttributes) => {
         if (key === 'contentsId') {
-          return (
-            attributes[key].normalize() == (partial[key] as string).normalize()
-          );
+          return attributes[key].normalize() == (partial[key] as string).normalize();
         }
         return attributes[key] == partial[key];
       });
@@ -73,9 +64,7 @@ export class InMemoryFileRepository {
     const filesAttributes = this.values.filter((attributes) => {
       return keys.every((key: keyof FileAttributes) => {
         if (key === 'contentsId') {
-          return (
-            attributes[key].normalize() == (partial[key] as string).normalize()
-          );
+          return attributes[key].normalize() == (partial[key] as string).normalize();
         }
 
         return attributes[key] == partial[key];
@@ -92,9 +81,7 @@ export class InMemoryFileRepository {
   async upsert(file: File): Promise<boolean> {
     const attributes = file.attributes();
 
-    const isAlreadyStored =
-      this.filesByUuid.has(file.uuid) ||
-      this.filesByContentsId.has(file.contentsId);
+    const isAlreadyStored = this.filesByUuid.has(file.uuid) || this.filesByContentsId.has(file.contentsId);
 
     if (isAlreadyStored) {
       this.filesByUuid.delete(file.uuid);
@@ -137,11 +124,7 @@ export class InMemoryFileRepository {
     return this.add(file);
   }
 
-  async updateContentsAndSize(
-    file: File,
-    newContentsId: File['contentsId'],
-    newSize: File['size']
-  ): Promise<File> {
+  async updateContentsAndSize(file: File, newContentsId: File['contentsId'], newSize: File['size']): Promise<File> {
     if (!this.files.has(file.contentsId)) {
       throw new Error('File not found');
     }

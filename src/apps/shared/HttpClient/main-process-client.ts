@@ -12,10 +12,7 @@ let newClient: AuthorizedHttpClient | null = null;
 
 export function getNewTokenClient(): Axios {
   if (!newClient) {
-    newClient = new AuthorizedHttpClient(
-      newHeadersProvider,
-      onUserUnauthorized
-    );
+    newClient = new AuthorizedHttpClient(newHeadersProvider, onUserUnauthorized);
   }
 
   return newClient.client;

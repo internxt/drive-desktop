@@ -71,7 +71,7 @@ ipcMain.handle('antivirus:remove-infected-files', async (_, infectedFiles: strin
     await Promise.all(
       infectedFiles.map(async (infectedFile) => {
         await shell.trashItem(infectedFile);
-      })
+      }),
     );
   }
 });

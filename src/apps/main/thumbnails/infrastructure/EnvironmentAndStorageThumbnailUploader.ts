@@ -8,7 +8,7 @@ export class EnvironmentAndStorageThumbnailUploader {
   constructor(
     private readonly environment: Environment,
     private readonly storage: Storage,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {}
 
   private async uploadThumbnail(thumbnail: Buffer) {

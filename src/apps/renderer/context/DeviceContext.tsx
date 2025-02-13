@@ -1,16 +1,7 @@
-import {
-  createContext,
-  Dispatch,
-  ReactNode,
-  SetStateAction,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, Dispatch, ReactNode, SetStateAction, useEffect, useState } from 'react';
 import { Device } from '../../main/device/service';
 
-type DeviceState =
-  | { status: 'LOADING' | 'ERROR' }
-  | { status: 'SUCCESS'; device: Device };
+type DeviceState = { status: 'LOADING' | 'ERROR' } | { status: 'SUCCESS'; device: Device };
 
 const defaultState = { status: 'LOADING' } as const;
 
@@ -23,9 +14,7 @@ interface DeviceContextProps {
   setCurrent: Dispatch<SetStateAction<Device | undefined>>;
 }
 
-export const DeviceContext = createContext<DeviceContextProps>(
-  {} as DeviceContextProps
-);
+export const DeviceContext = createContext<DeviceContextProps>({} as DeviceContextProps);
 
 export function DeviceProvider({ children }: { children: ReactNode }) {
   const [deviceState, setDeviceState] = useState<DeviceState>(defaultState);
@@ -67,8 +56,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
         setCurrent,
         selected,
         setSelected,
-      }}
-    >
+      }}>
       {children}
     </DeviceContext.Provider>
   );

@@ -40,7 +40,7 @@ export class File extends AggregateRoot {
     private _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
-    private _status: FileStatus
+    private _status: FileStatus,
   ) {
     super();
   }
@@ -103,16 +103,11 @@ export class File extends AggregateRoot {
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
-      FileStatus.fromValue(attributes.status)
+      FileStatus.fromValue(attributes.status),
     );
   }
 
-  static create(
-    contentsId: string,
-    folder: Folder,
-    size: FileSize,
-    path: FilePath
-  ): File {
+  static create(contentsId: string, folder: Folder, size: FileSize, path: FilePath): File {
     const file = new File(
       0,
       new FileUuid(''),
@@ -122,7 +117,7 @@ export class File extends AggregateRoot {
       size,
       new Date(),
       new Date(),
-      FileStatus.Exists
+      FileStatus.Exists,
     );
 
     file.record(
@@ -131,7 +126,7 @@ export class File extends AggregateRoot {
         size: file.size,
         type: path.extension(),
         path: path.value,
-      })
+      }),
     );
 
     return file;
@@ -147,7 +142,7 @@ export class File extends AggregateRoot {
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
-      FileStatus.Exists
+      FileStatus.Exists,
     );
 
     file.record(
@@ -156,7 +151,7 @@ export class File extends AggregateRoot {
         size: file.size,
         type: file.type,
         path: file.path,
-      })
+      }),
     );
 
     return file;
@@ -176,7 +171,7 @@ export class File extends AggregateRoot {
         previousSize,
         currentContentsId: contentsId.value,
         currentSize: contentsSize.value,
-      })
+      }),
     );
   }
 
@@ -188,7 +183,7 @@ export class File extends AggregateRoot {
       new FileDeletedDomainEvent({
         aggregateId: this.contentsId,
         size: this._size.value,
-      })
+      }),
     );
   }
 
@@ -204,7 +199,7 @@ export class File extends AggregateRoot {
       new FileMovedDomainEvent({
         aggregateId: this._contentsId.value,
         trackerId,
-      })
+      }),
     );
   }
 
@@ -226,7 +221,7 @@ export class File extends AggregateRoot {
     this.record(
       new FileRenamedDomainEvent({
         aggregateId: this.contentsId,
-      })
+      }),
     );
   }
 

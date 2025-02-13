@@ -11,11 +11,7 @@ export async function backgroundProcessSharedInfraBuilder(): Promise<ContainerBu
 
   const token = await ipcRenderer.invoke('get-token');
 
-  builder
-    .register(AuthorizedClients)
-    .useClass(BackgroundProcessAuthorizedClients)
-    .asSingleton()
-    .private();
+  builder.register(AuthorizedClients).useClass(BackgroundProcessAuthorizedClients).asSingleton().private();
 
   builder
     .register(Storage)
@@ -30,7 +26,7 @@ export async function backgroundProcessSharedInfraBuilder(): Promise<ContainerBu
         {
           token,
           unauthorizedCallback: onUserUnauthorized,
-        }
+        },
       );
 
       return storage;

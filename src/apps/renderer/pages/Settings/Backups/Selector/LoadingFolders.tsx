@@ -32,9 +32,7 @@ export function LoadingFolders({ state, messageText }: LoadingFoldersProps) {
       ) : state === 'ERROR' ? (
         <p className="text-red-50 text-sm">{translate(message[state])}</p>
       ) : (
-        <p className="text-l-neutral-50 text-sm">
-          {translate(messageText ?? 'settings.backups.folders.no-folders')}
-        </p>
+        <p className="text-l-neutral-50 text-sm">{translate(messageText ?? 'settings.backups.folders.no-folders')}</p>
       )}
     </div>
   );
