@@ -75,7 +75,7 @@ export class BindingsManager {
 
   async start(version: string) {
     ipcRendererSyncEngine.send('SYNCING');
-    // await this.stop();
+    await this.stop();
     await this.pollingStart();
 
     const callbacks: Callbacks = {
