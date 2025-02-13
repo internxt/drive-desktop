@@ -10,7 +10,7 @@ export type RemoteFileContentsAttributes = {
 export class RemoteFileContents extends AggregateRoot {
   private constructor(
     private readonly _id: ContentsId,
-    private readonly _size: ContentsSize
+    private readonly _size: ContentsSize,
   ) {
     super();
   }
@@ -28,10 +28,7 @@ export class RemoteFileContents extends AggregateRoot {
   }
 
   static from(attributes: RemoteFileContentsAttributes): RemoteFileContents {
-    return new RemoteFileContents(
-      new ContentsId(attributes.id),
-      new ContentsSize(attributes.size)
-    );
+    return new RemoteFileContents(new ContentsId(attributes.id), new ContentsSize(attributes.size));
   }
 
   attributes() {

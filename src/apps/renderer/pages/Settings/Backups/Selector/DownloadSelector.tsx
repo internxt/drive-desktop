@@ -19,26 +19,16 @@ function truncateText(text: string, prev: string[], maxLength: number) {
   };
 
   // Concatenar los textos, truncando si es necesario y agregando ">"
-  const truncatedTexts = [text, ...prev].map((str) =>
-    truncate(str, Math.floor(maxLength / prev.length))
-  );
+  const truncatedTexts = [text, ...prev].map((str) => truncate(str, Math.floor(maxLength / prev.length)));
 
   return truncatedTexts.reverse().join(' > ');
 }
 
-export default function DownloadFolderSelector({
-  onClose,
-}: DownloadFolderSelectorProps) {
+export default function DownloadFolderSelector({ onClose }: DownloadFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const {
-    backups,
-    backupsState,
-    downloadBackups,
-    abortDownloadBackups,
-    thereIsDownloadProgress,
-    clearBackupDownloadProgress,
-  } = useContext(BackupContext);
+  const { backups, backupsState, downloadBackups, abortDownloadBackups, thereIsDownloadProgress, clearBackupDownloadProgress } =
+    useContext(BackupContext);
 
   const { selected } = useContext(DeviceContext);
 
@@ -112,20 +102,11 @@ export default function DownloadFolderSelector({
     <div className="flex flex-col gap-3 p-4">
       <div className="draggable flex">
         {folderHistory.length > 0 && (
-          <button
-            onClick={handleBack}
-            className="non-draggable mr-2 cursor-pointer"
-          >
+          <button onClick={handleBack} className="non-draggable mr-2 cursor-pointer">
             <UilArrowLeft size={24} />
           </button>
         )}
-        <h1 className="text-lg font-normal">
-          {truncateText(
-            folder?.name || '',
-            folderHistory.map((i) => i.name).reverse(),
-            50
-          )}
-        </h1>
+        <h1 className="text-lg font-normal">{truncateText(folder?.name || '', folderHistory.map((i) => i.name).reverse(), 50)}</h1>
         <div className="ml-auto text-gray-50">
           {showText &&
             translate('settings.backups.selected-folder', {
@@ -135,17 +116,9 @@ export default function DownloadFolderSelector({
       </div>
       <div className="border-l-neutral-30 h-72 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black">
         {selected && items.length > 0 ? (
-          <BackupsList
-            items={items}
-            selected={selectedBackup}
-            setSelected={addOrDeleteItem}
-            onDobleClick={handleNavigateToFolder}
-          />
+          <BackupsList items={items} selected={selectedBackup} setSelected={addOrDeleteItem} onDobleClick={handleNavigateToFolder} />
         ) : (
-          <LoadingFolders
-            state={backupsState}
-            messageText="settings.backups.folders.no-folders-to-download"
-          />
+          <LoadingFolders state={backupsState} messageText="settings.backups.folders.no-folders-to-download" />
         )}
       </div>
       <div className=" flex items-center justify-end">
@@ -156,8 +129,7 @@ export default function DownloadFolderSelector({
           <Button
             onClick={handleDownloadBackup}
             className={'hover:cursor-pointer'}
-            variant={thereIsDownloadProgress ? 'danger' : 'primary'}
-          >
+            variant={thereIsDownloadProgress ? 'danger' : 'primary'}>
             {thereIsDownloadProgress ? 'Stop download' : 'Download'}
           </Button>
         </span>

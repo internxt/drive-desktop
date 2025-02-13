@@ -7,10 +7,7 @@ import Logger from 'electron-log';
 const DESKTOP_FOLDER_NAME = 'Moved files (Internxt)';
 
 export const openMigrationFailedFolder = async () => {
-  const desktopFolderPath = path.join(
-    app.getPath('desktop'),
-    DESKTOP_FOLDER_NAME
-  );
+  const desktopFolderPath = path.join(app.getPath('desktop'), DESKTOP_FOLDER_NAME);
   return shell.openPath(desktopFolderPath);
 };
 const checkExistsDesktopFolder = async () => {
@@ -22,10 +19,7 @@ const checkExistsDesktopFolder = async () => {
   }
 };
 export const moveSyncFolderToDesktop = async () => {
-  const desktopFolderPath = path.join(
-    app.getPath('desktop'),
-    DESKTOP_FOLDER_NAME
-  );
+  const desktopFolderPath = path.join(app.getPath('desktop'), DESKTOP_FOLDER_NAME);
 
   const syncRootFolder = configStore.get('syncRoot');
 

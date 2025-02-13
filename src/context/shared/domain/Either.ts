@@ -1,5 +1,8 @@
 class Right<L, R> {
-  constructor(_: L, private _value: R) {}
+  constructor(
+    _: L,
+    private _value: R,
+  ) {}
 
   getRight = (): R => this._value;
 
@@ -19,7 +22,10 @@ class Right<L, R> {
 }
 
 class Left<L, R> {
-  constructor(private _value: L, _: R) {}
+  constructor(
+    private _value: L,
+    _: R,
+  ) {}
 
   getLeft = (): L => this._value;
 
@@ -40,8 +46,6 @@ class Left<L, R> {
 
 export type Either<L, R> = Left<L, R> | Right<L, R>;
 
-export const right = <L, R>(value: R) =>
-  new Right<L, R>(null as unknown as L, value);
+export const right = <L, R>(value: R) => new Right<L, R>(null as unknown as L, value);
 
-export const left = <L, R>(value: L) =>
-  new Left<L, R>(value, null as unknown as R);
+export const left = <L, R>(value: L) => new Left<L, R>(value, null as unknown as R);

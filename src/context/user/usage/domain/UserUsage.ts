@@ -4,18 +4,14 @@ export class UserUsage {
   private constructor(
     private _drive: number,
     public readonly photos: number,
-    public readonly limit: number
+    public readonly limit: number,
   ) {}
 
   public get drive(): number {
     return this._drive;
   }
 
-  static from(atributes: {
-    drive: number;
-    photos: number;
-    limit: number;
-  }): UserUsage {
+  static from(atributes: { drive: number; photos: number; limit: number }): UserUsage {
     return new UserUsage(atributes.drive, atributes.photos, atributes.limit);
   }
 

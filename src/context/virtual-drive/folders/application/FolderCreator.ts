@@ -12,7 +12,7 @@ export class FolderCreator {
     private readonly remote: HttpRemoteFolderSystem,
     private readonly ipc: SyncEngineIpc,
     private readonly eventBus: EventBus,
-    private readonly folderPlaceholderConverter: FolderPlaceholderConverter
+    private readonly folderPlaceholderConverter: FolderPlaceholderConverter,
   ) {}
 
   async run(offlineFolder: OfflineFolder): Promise<Folder> {

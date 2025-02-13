@@ -10,15 +10,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export default function Button(props: ButtonProps) {
   const variants = {
-    primary: props.disabled
-      ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
-      : 'bg-primary active:bg-primary-dark text-white',
+    primary: props.disabled ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30' : 'bg-primary active:bg-primary-dark text-white',
     secondary: props.disabled
       ? 'bg-surface text-gray-40 border border-gray-5 dark:bg-gray-5 dark:text-gray-40'
       : 'bg-surface active:bg-gray-1 text-highlight border border-gray-20 dark:bg-gray-5 dark:active:bg-gray-10 dark:active:border-gray-30',
-    danger: props.disabled
-      ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
-      : 'bg-red active:bg-red-dark text-white',
+    danger: props.disabled ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30' : 'bg-red active:bg-red-dark text-white',
   };
 
   const sizes = {
@@ -36,12 +32,7 @@ export default function Button(props: ButtonProps) {
   } ${sizes[props.size ?? 'md']} ${props.customClassName ?? ''} ${className}`;
 
   return (
-    <button
-      type={props.type ?? 'button'}
-      disabled={props.disabled ?? false}
-      className={styles}
-      {...propsWithOutClassName}
-    >
+    <button type={props.type ?? 'button'} disabled={props.disabled ?? false} className={styles} {...propsWithOutClassName}>
       {props.children}
     </button>
   );

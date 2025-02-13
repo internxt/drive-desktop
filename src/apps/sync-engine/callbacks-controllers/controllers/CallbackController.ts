@@ -1,11 +1,5 @@
-import {
-  FilePlaceholderId,
-  isFilePlaceholderId,
-} from '../../../../context/virtual-drive/files/domain/PlaceholderId';
-import {
-  FolderPlaceholderId,
-  isFolderPlaceholderId,
-} from '../../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { FilePlaceholderId, isFilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
+import { FolderPlaceholderId, isFolderPlaceholderId } from '../../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 
 export abstract class CallbackController {
   protected trim(id: string): string {
@@ -13,7 +7,7 @@ export abstract class CallbackController {
       .replace(
         // eslint-disable-next-line no-control-regex
         /[\x00-\x1F\x7F-\x9F]/g,
-        ''
+        '',
       )
       .normalize();
   }

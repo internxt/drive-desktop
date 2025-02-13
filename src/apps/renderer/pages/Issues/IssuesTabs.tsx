@@ -3,37 +3,20 @@ import { useState, useEffect } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import { Section } from './Section';
 
-function TabPill({
-  value,
-  name,
-  active,
-  setAsActive,
-}: {
-  value: Section;
-  name: string;
-  active: boolean;
-  setAsActive: () => void;
-}) {
+function TabPill({ value, name, active, setAsActive }: { value: Section; name: string; active: boolean; setAsActive: () => void }) {
   return (
     <li
       id={`tab-${value}`}
       onClick={setAsActive}
       className={`relative flex cursor-pointer items-center px-4 transition-colors duration-200 ease-out ${
         active ? 'text-gray-100' : 'text-gray-60'
-      }`}
-    >
+      }`}>
       {name}
     </li>
   );
 }
 
-export function IssuesTabs({
-  active,
-  onChangeTab,
-}: {
-  active: Section;
-  onChangeTab: (section: Section) => void;
-}) {
+export function IssuesTabs({ active, onChangeTab }: { active: Section; onChangeTab: (section: Section) => void }) {
   const { translate, language } = useTranslationContext();
   const [tabsWidth, setTabsWidth] = useState<[number, number]>([0, 0]);
 

@@ -6,15 +6,7 @@ export class FolderMovedDomainEvent extends DomainEvent {
   from: string;
   to: string;
 
-  constructor({
-    aggregateId,
-    from,
-    to,
-  }: {
-    aggregateId: string;
-    from: string;
-    to: string;
-  }) {
+  constructor({ aggregateId, from, to }: { aggregateId: string; from: string; to: string }) {
     super({
       eventName: FolderMovedDomainEvent.EVENT_NAME,
       aggregateId,

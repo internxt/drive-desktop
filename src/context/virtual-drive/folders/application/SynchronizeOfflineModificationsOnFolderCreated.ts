@@ -3,12 +3,8 @@ import { DomainEventSubscriber } from '../../../shared/domain/DomainEventSubscri
 import { FolderCreatedDomainEvent } from '../domain/events/FolderCreatedDomainEvent';
 import { SynchronizeOfflineModifications } from './SynchronizeOfflineModifications';
 
-export class SynchronizeOfflineModificationsOnFolderCreated
-  implements DomainEventSubscriber<FolderCreatedDomainEvent>
-{
-  constructor(
-    private readonly synchronizeOfflineModifications: SynchronizeOfflineModifications
-  ) {}
+export class SynchronizeOfflineModificationsOnFolderCreated implements DomainEventSubscriber<FolderCreatedDomainEvent> {
+  constructor(private readonly synchronizeOfflineModifications: SynchronizeOfflineModifications) {}
 
   subscribedTo(): DomainEventClass[] {
     return [FolderCreatedDomainEvent];

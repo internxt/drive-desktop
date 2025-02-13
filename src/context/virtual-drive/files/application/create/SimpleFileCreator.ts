@@ -12,12 +12,7 @@ import { SDKRemoteFileSystem } from '../../infrastructure/SDKRemoteFileSystem';
 export class SimpleFileCreator {
   constructor(private readonly remote: SDKRemoteFileSystem) {}
 
-  async run(
-    contentsId: string,
-    path: string,
-    size: number,
-    folderId: number
-  ): Promise<Either<DriveDesktopError, File>> {
+  async run(contentsId: string, path: string, size: number, folderId: number): Promise<Either<DriveDesktopError, File>> {
     const fileSize = new FileSize(size);
     const fileContentsId = new FileContentsId(contentsId);
     const filePath = new FilePath(path);

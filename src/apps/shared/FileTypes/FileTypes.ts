@@ -191,22 +191,21 @@ const fileExtensionGroups: FileExtensionsDictionary = {
   [FileExtensionGroup.Default]: defaultExtensions,
 };
 
-export const fileExtensionPreviewableGroups: FileExtensionsPreviewableDictionary =
-  {
-    [FileExtensionGroup.Audio]: [],
-    [FileExtensionGroup.Code]: [],
-    [FileExtensionGroup.Figma]: [],
-    [FileExtensionGroup.Image]: previewableImageExtensionGroups,
-    [FileExtensionGroup.Pdf]: previewablePdfExtensionGroups,
-    [FileExtensionGroup.Ppt]: [],
-    [FileExtensionGroup.Txt]: [],
-    [FileExtensionGroup.Video]: [],
-    [FileExtensionGroup.Word]: [],
-    [FileExtensionGroup.Xls]: [],
-    [FileExtensionGroup.Xml]: [],
-    [FileExtensionGroup.Csv]: [],
-    [FileExtensionGroup.Zip]: [],
-    [FileExtensionGroup.Default]: [],
-  };
+export const fileExtensionPreviewableGroups: FileExtensionsPreviewableDictionary = {
+  [FileExtensionGroup.Audio]: [],
+  [FileExtensionGroup.Code]: [],
+  [FileExtensionGroup.Figma]: [],
+  [FileExtensionGroup.Image]: previewableImageExtensionGroups,
+  [FileExtensionGroup.Pdf]: previewablePdfExtensionGroups,
+  [FileExtensionGroup.Ppt]: [],
+  [FileExtensionGroup.Txt]: [],
+  [FileExtensionGroup.Video]: [],
+  [FileExtensionGroup.Word]: [],
+  [FileExtensionGroup.Xls]: [],
+  [FileExtensionGroup.Xml]: [],
+  [FileExtensionGroup.Csv]: [],
+  [FileExtensionGroup.Zip]: [],
+  [FileExtensionGroup.Default]: [],
+};
 
 export default fileExtensionGroups;

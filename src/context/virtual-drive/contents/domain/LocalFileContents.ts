@@ -20,7 +20,7 @@ export class LocalFileContents extends AggregateRoot {
     private readonly _size: ContentsSize,
     private readonly _birthTime: number,
     private readonly _modifiedTime: number,
-    public readonly stream: Readable
+    public readonly stream: Readable,
   ) {
     super();
   }
@@ -55,7 +55,7 @@ export class LocalFileContents extends AggregateRoot {
       new ContentsSize(attributes.size),
       attributes.birthTime,
       attributes.modifiedTime,
-      attributes.contents
+      attributes.contents,
     );
 
     return remoteContents;
@@ -68,7 +68,7 @@ export class LocalFileContents extends AggregateRoot {
       new ContentsSize(file.size),
       file.createdAt.getUTCMilliseconds(),
       file.updatedAt.getUTCMilliseconds(),
-      contents
+      contents,
     );
 
     const contentsDownloadedEvent = new ContentsDownloadedDomainEvent({

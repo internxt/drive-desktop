@@ -15,10 +15,7 @@ import { FolderStatuses } from '../domain/FolderStatus';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { FileStatuses } from '../../files/domain/FileStatus';
 import { File } from '../../files/domain/File';
-import {
-  FolderPersistedDto,
-  RemoteFileSystemErrors,
-} from '../domain/file-systems/RemoteFolderSystem';
+import { FolderPersistedDto, RemoteFileSystemErrors } from '../domain/file-systems/RemoteFolderSystem';
 
 type NewServerFolder = Omit<ServerFolder, 'plain_name'> & { plainName: string };
 
@@ -30,13 +27,10 @@ export class HttpRemoteFolderSystem {
   constructor(
     private readonly driveClient: Axios,
     private readonly trashClient: Axios,
-    private readonly maxRetries: number = 3
+    private readonly maxRetries: number = 3,
   ) {}
 
-  async searchWith(
-    parentId: FolderId,
-    folderPath: FolderPath
-  ): Promise<Folder | undefined> {
+  async searchWith(parentId: FolderId, folderPath: FolderPath): Promise<Folder | undefined> {
     let page = 0;
     const folders: Array<NewServerFolder> = [];
     let lastNumberOfFolders = 0;
@@ -46,7 +40,7 @@ export class HttpRemoteFolderSystem {
 
       // eslint-disable-next-line no-await-in-loop
       const result = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${this.PAGE_SIZE}`
+        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${this.PAGE_SIZE}`,
       );
 
       const founded = result.data.result as Array<NewServerFolder>;
@@ -72,7 +66,7 @@ export class HttpRemoteFolderSystem {
     path: FolderPath,
     parentId: FolderId,
     uuid?: FolderUuid,
-    attempt = 0
+    attempt = 0,
   ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
     const body: CreateFolderDTO = {
       folderName: path.name(),
@@ -81,10 +75,7 @@ export class HttpRemoteFolderSystem {
     };
 
     try {
-      const response = await this.driveClient.post(
-        `${process.env.API_URL}/storage/folder`,
-        body
-      );
+      const response = await this.driveClient.post(`${process.env.API_URL}/storage/folder`, body);
 
       if (response.status !== 201) {
         throw new Error('Folder creation failed');
@@ -140,10 +131,7 @@ export class HttpRemoteFolderSystem {
     };
 
     try {
-      const response = await this.driveClient.post(
-        `${process.env.API_URL}/storage/folder`,
-        body
-      );
+      const response = await this.driveClient.post(`${process.env.API_URL}/storage/folder`, body);
       if (response.status !== 201) {
         throw new Error('Folder creation failed');
       }
@@ -167,9 +155,7 @@ export class HttpRemoteFolderSystem {
       if (axios.isAxiosError(error)) {
         Logger.error('[Is Axios Error]', error.response);
         const existing = await this.existFolder(offline);
-        return existing.status !== FolderStatuses.EXISTS
-          ? Promise.reject(error)
-          : existing;
+        return existing.status !== FolderStatuses.EXISTS ? Promise.reject(error) : existing;
       }
 
       throw error;
@@ -182,12 +168,11 @@ export class HttpRemoteFolderSystem {
         `${process.env.NEW_DRIVE_URL}/drive/folders/content/${offline.parentUuid}/folders/existence`,
         {
           plainNames: [offline.basename],
-        }
+        },
       );
       Logger.debug('[FOLDER FILE SYSTEM] Folder already exists', response.data);
 
-      const serverFolder = response.data
-        .existentFolders[0] as ServerFolder | null;
+      const serverFolder = response.data.existentFolders[0] as ServerFolder | null;
 
       if (!serverFolder) {
         throw new Error('Folder creation failed, no data returned');
@@ -199,9 +184,7 @@ export class HttpRemoteFolderSystem {
         updatedAt: serverFolder.updatedAt,
         createdAt: serverFolder.createdAt,
         path: offline.path.value,
-        status: serverFolder.removed
-          ? FolderStatuses.TRASHED
-          : FolderStatuses.EXISTS,
+        status: serverFolder.removed ? FolderStatuses.TRASHED : FolderStatuses.EXISTS,
       };
     } catch (error) {
       Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
@@ -214,19 +197,12 @@ export class HttpRemoteFolderSystem {
   }
 
   async trash(id: Folder['id']): Promise<void> {
-    const result = await this.trashClient.post(
-      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
-      {
-        items: [{ type: 'folder', id }],
-      }
-    );
+    const result = await this.trashClient.post(`${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`, {
+      items: [{ type: 'folder', id }],
+    });
 
     if (result.status !== 200) {
-      Logger.error(
-        '[FOLDER FILE SYSTEM] Folder deletion failed with status: ',
-        result.status,
-        result.statusText
-      );
+      Logger.error('[FOLDER FILE SYSTEM] Folder deletion failed with status: ', result.status, result.statusText);
 
       throw new Error('Error when deleting folder');
     }
@@ -239,9 +215,7 @@ export class HttpRemoteFolderSystem {
       const res = await this.trashClient.get(url);
 
       if (res.status !== 200) {
-        throw new Error(
-          `[FOLDER FILE SYSTEM] Error getting folder metadata: ${res.status}`
-        );
+        throw new Error(`[FOLDER FILE SYSTEM] Error getting folder metadata: ${res.status}`);
       }
 
       const serverFolder = res.data as ServerFolder;
@@ -272,9 +246,7 @@ export class HttpRemoteFolderSystem {
       const res = await this.driveClient.post(url, body);
 
       if (res.status !== 200) {
-        throw new Error(
-          `[FOLDER FILE SYSTEM] Error updating item metadata: ${res.status}`
-        );
+        throw new Error(`[FOLDER FILE SYSTEM] Error updating item metadata: ${res.status}`);
       }
     } catch (error) {
       Logger.error('[FOLDER FILE SYSTEM] Error renaming folder');
@@ -299,20 +271,14 @@ export class HttpRemoteFolderSystem {
 
   async checkStatusFile(uuid: File['uuid']): Promise<FileStatuses> {
     Logger.info(`Checking status for file 1 ${uuid}`);
-    const response = await this.driveClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/files/${uuid}/meta`
-    );
+    const response = await this.driveClient.get(`${process.env.NEW_DRIVE_URL}/drive/files/${uuid}/meta`);
 
     if (response.status === 404) {
       return FileStatuses.DELETED;
     }
 
     if (response.status !== 200) {
-      Logger.error(
-        '[FILE FILE SYSTEM] Error checking file status',
-        response.status,
-        response.statusText
-      );
+      Logger.error('[FILE FILE SYSTEM] Error checking file status', response.status, response.statusText);
       throw new Error('Error checking file status');
     }
 
@@ -323,9 +289,7 @@ export class HttpRemoteFolderSystem {
     Logger.info(`Checking status for folder 1 ${uuid}`);
     let response;
     try {
-      response = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/${uuid.toString()}/meta`
-      );
+      response = await this.trashClient.get(`${process.env.NEW_DRIVE_URL}/drive/folders/${uuid.toString()}/meta`);
     } catch (error) {
       return FolderStatuses.DELETED;
     }
@@ -334,11 +298,7 @@ export class HttpRemoteFolderSystem {
     }
 
     if (response.status > 400) {
-      Logger.error(
-        '[FOLDER FILE SYSTEM] Error getting folder metadata',
-        response.status,
-        response.statusText
-      );
+      Logger.error('[FOLDER FILE SYSTEM] Error getting folder metadata', response.status, response.statusText);
       throw new Error('Error getting folder metadata');
     }
 

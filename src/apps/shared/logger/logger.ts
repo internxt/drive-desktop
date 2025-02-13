@@ -1,4 +1,5 @@
-import { resolve } from 'path';
+import { app } from 'electron';
+import { join, resolve } from 'path';
 import { inspect } from 'util';
 import winston from 'winston';
 
@@ -18,11 +19,12 @@ export const createLogger = (path: string) => {
             const object: { level: string; message: unknown; stack?: unknown } = { level, message };
             if (stack) object.stack = stack;
             return inspect(object, { colors: true, depth: Infinity, breakLength: Infinity });
-          })
+          }),
         ),
       }),
     ],
   });
 };
 
-export const logger = createLogger('drive-desktop.log');
+export const loggerPath = join(app.getPath('appData'), 'internxt-drive', 'logs', 'watcher-win.txt');
+export const logger = createLogger(loggerPath);

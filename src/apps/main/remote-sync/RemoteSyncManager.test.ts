@@ -74,7 +74,7 @@ describe('RemoteSyncManager', () => {
       httpClient: mockedAxios,
       fetchFilesLimitPerRequest: 2,
       fetchFoldersLimitPerRequest: 2,
-    }
+    },
   );
 
   inMemorySyncedFilesCollection.getLastUpdated.mockImplementation(() => Promise.resolve({ success: false, result: null }));
@@ -90,7 +90,7 @@ describe('RemoteSyncManager', () => {
         httpClient: mockedAxios,
         fetchFilesLimitPerRequest: 2,
         fetchFoldersLimitPerRequest: 2,
-      }
+      },
     );
     mockedAxios.get.mockClear();
   });
@@ -106,7 +106,7 @@ describe('RemoteSyncManager', () => {
           httpClient: mockedAxios,
           fetchFilesLimitPerRequest: 2,
           fetchFoldersLimitPerRequest: 2,
-        }
+        },
       );
 
       mockedAxios.get
@@ -143,7 +143,7 @@ describe('RemoteSyncManager', () => {
           httpClient: mockedAxios,
           fetchFilesLimitPerRequest: 2,
           fetchFoldersLimitPerRequest: 2,
-        }
+        },
       );
 
       mockedAxios.get
@@ -191,7 +191,7 @@ describe('RemoteSyncManager', () => {
           httpClient: mockedAxios,
           fetchFilesLimitPerRequest: 2,
           fetchFoldersLimitPerRequest: 2,
-        }
+        },
       );
       const file1 = createRemoteSyncedFileFixture({
         plainName: 'file_1',
@@ -237,7 +237,7 @@ describe('RemoteSyncManager', () => {
           httpClient: mockedAxios,
           fetchFilesLimitPerRequest: 2,
           fetchFoldersLimitPerRequest: 2,
-        }
+        },
       );
 
       mockedAxios.get.mockRejectedValueOnce('Fail on purpose');

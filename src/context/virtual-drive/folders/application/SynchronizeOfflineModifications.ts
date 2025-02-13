@@ -12,7 +12,7 @@ export class SynchronizeOfflineModifications {
     private readonly offlineRepository: OfflineFolderRepository,
     private readonly repository: FolderRepository,
     private readonly renamer: FolderRenamer,
-    private readonly eventsRepository: EventRepository
+    private readonly eventsRepository: EventRepository,
   ) {}
 
   async run(uuid: Folder['uuid']) {

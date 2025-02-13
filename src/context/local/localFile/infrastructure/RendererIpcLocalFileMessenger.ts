@@ -5,14 +5,7 @@ import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopErr
 
 @Service()
 export class RendererIpcLocalFileMessenger {
-  async creationFailed(
-    file: LocalFile,
-    error: DriveDesktopError
-  ): Promise<void> {
-    BackupsIPCRenderer.send(
-      'backups.file-issue',
-      file.nameWithExtension(),
-      error.cause
-    );
+  async creationFailed(file: LocalFile, error: DriveDesktopError): Promise<void> {
+    BackupsIPCRenderer.send('backups.file-issue', file.nameWithExtension(), error.cause);
   }
 }

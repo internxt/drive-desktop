@@ -7,7 +7,7 @@ import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository
 export class FileFolderContainerDetector {
   constructor(
     private readonly repository: InMemoryFileRepository,
-    private readonly folderFinder: FolderFinder
+    private readonly folderFinder: FolderFinder,
   ) {}
 
   run(contentId: File['contentsId'], folderContentId: Folder['uuid']): boolean {

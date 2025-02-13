@@ -1,9 +1,4 @@
-import {
-  RemoteSyncStatus,
-  rewind,
-  WAITING_AFTER_SYNCING_DEFAULT,
-  FIVETEEN_MINUTES_IN_MILLISECONDS,
-} from './helpers';
+import { RemoteSyncStatus, rewind, WAITING_AFTER_SYNCING_DEFAULT, FIVETEEN_MINUTES_IN_MILLISECONDS } from './helpers';
 import { reportError } from '../bug-report/service';
 
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
@@ -21,9 +16,7 @@ export class RemoteSyncManager {
   filesSyncStatus: RemoteSyncStatus = 'IDLE';
   private _placeholdersStatus: RemoteSyncStatus = 'IDLE';
   status: RemoteSyncStatus = 'IDLE';
-  private onStatusChangeCallbacks: Array<
-    (newStatus: RemoteSyncStatus) => void
-  > = [];
+  private onStatusChangeCallbacks: Array<(newStatus: RemoteSyncStatus) => void> = [];
   totalFilesSynced = 0;
   private totalFilesUnsynced: string[] = [];
   totalFoldersSynced = 0;
@@ -41,7 +34,7 @@ export class RemoteSyncManager {
     },
     private readonly syncRemoteFiles = new SyncRemoteFilesService(),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(),
-    private readonly fetchRemoteFolders = new FetchRemoteFoldersService()
+    private readonly fetchRemoteFolders = new FetchRemoteFoldersService(),
   ) {}
 
   set placeholderStatus(status: RemoteSyncStatus) {
@@ -73,9 +66,7 @@ export class RemoteSyncManager {
    * @param milliseconds Time in milliseconds to check if the RemoteSyncManager was syncing
    */
   recentlyWasSyncing(milliseconds: number) {
-    const passedTime =
-      Date.now() -
-      (this.lastSyncingFinishedTimestamp?.getTime() ?? Date.now());
+    const passedTime = Date.now() - (this.lastSyncingFinishedTimestamp?.getTime() ?? Date.now());
     return passedTime < (milliseconds ?? WAITING_AFTER_SYNCING_DEFAULT);
   }
 
@@ -112,17 +103,14 @@ export class RemoteSyncManager {
         from: await this.getFileCheckpoint(),
       });
 
-      const syncFoldersPromise = this.syncRemoteFolders.run({ 
+      const syncFoldersPromise = this.syncRemoteFolders.run({
         self: this,
         retry: 1,
         folderId,
         from: await this.getLastFolderSyncAt(),
       });
 
-      const [files, folders] = await Promise.all([
-        await syncFilesPromise,
-        await syncFoldersPromise,
-      ]);
+      const [files, folders] = await Promise.all([await syncFilesPromise, await syncFoldersPromise]);
       return { files, folders };
     } catch (error) {
       this.changeStatus('SYNC_FAILED');
@@ -148,12 +136,12 @@ export class RemoteSyncManager {
     this.lastSyncingFinishedTimestamp = new Date();
 
     if (newStatus === this.status) return;
-    
-    logger.info({ 
-      msg: 'RemoteSyncManager change status', 
-      current: this.status, 
-      newStatus, 
-      lastSyncingFinishedTimestamp: this.lastSyncingFinishedTimestamp
+
+    logger.info({
+      msg: 'RemoteSyncManager change status',
+      current: this.status,
+      newStatus,
+      lastSyncingFinishedTimestamp: this.lastSyncingFinishedTimestamp,
     });
 
     this.status = newStatus;
@@ -208,7 +196,7 @@ export class RemoteSyncManager {
     folderId,
     offset,
     updatedAtCheckpoint,
-    status
+    status,
   }: {
     folderId: number;
     offset: number;

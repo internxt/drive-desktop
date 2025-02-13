@@ -7,12 +7,7 @@ import WarnIcon from '../../assets/warn.svg';
 import { generalErrors } from '../../messages/general-error';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName } from '../../utils/path';
-import {
-  GeneralIssue,
-  ProcessIssue,
-  ProcessErrorName,
-  GeneralErrorName,
-} from '../../../shared/types';
+import { GeneralIssue, ProcessIssue, ProcessErrorName, GeneralErrorName } from '../../../shared/types';
 import { useTranslationContext } from '../../context/LocalContext';
 
 export default function ProcessIssuesList({
@@ -26,9 +21,7 @@ export default function ProcessIssuesList({
   selectedTab: 'SYNC' | 'BACKUPS' | 'GENERAL';
   onClickOnErrorInfo: (errorClicked: Pick<ProcessIssue, 'errorName'>) => void;
 }) {
-  const [selectedErrorName, setSelectedErrorName] = useState<
-    ProcessErrorName | GeneralErrorName | null
-  >(null);
+  const [selectedErrorName, setSelectedErrorName] = useState<ProcessErrorName | GeneralErrorName | null>(null);
 
   const errors = [...new Set(processIssues.map((issue) => issue.errorName))];
 
@@ -45,11 +38,7 @@ export default function ProcessIssuesList({
 
         return (
           <GeneralIssueItem
-            onClick={() =>
-              selectedErrorName === error
-                ? setSelectedErrorName(null)
-                : setSelectedErrorName(error)
-            }
+            onClick={() => (selectedErrorName === error ? setSelectedErrorName(null) : setSelectedErrorName(error))}
             key={error}
             errorName={error}
             isSelected={selectedErrorName === error}
@@ -62,11 +51,7 @@ export default function ProcessIssuesList({
     return errors.map((error) => (
       <Item
         key={error}
-        onClick={() =>
-          selectedErrorName === error
-            ? setSelectedErrorName(null)
-            : setSelectedErrorName(error)
-        }
+        onClick={() => (selectedErrorName === error ? setSelectedErrorName(null) : setSelectedErrorName(error))}
         onInfoClick={() => onInfoClick(error)}
         errorName={error}
         issues={processIssues.filter((i) => i.errorName === error)}
@@ -105,9 +90,7 @@ function Empty() {
 
   return (
     <div className="flex flex-1 items-center justify-center">
-      <p className="text-sm font-medium text-gray-100">
-        {translate('issues.no-issues')}
-      </p>
+      <p className="text-sm font-medium text-gray-100">{translate('issues.no-issues')}</p>
     </div>
   );
 }
@@ -126,26 +109,15 @@ function GeneralIssueItem({
   const { translate } = useTranslationContext();
 
   return (
-    <li
-      className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
-      onClick={onClick}
-    >
+    <li className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5" onClick={onClick}>
       <div className="flex space-x-2.5">
         <WarnIcon className="h-5 w-5" />
 
-        <h1
-          className="flex flex-1 flex-col truncate text-base font-medium leading-5 text-gray-100"
-          data-test="sync-issue-name"
-        >
+        <h1 className="flex flex-1 flex-col truncate text-base font-medium leading-5 text-gray-100" data-test="sync-issue-name">
           {translate(generalErrors.shortMessages[errorName])}
         </h1>
 
-        <CaretDown
-          className={`transform transition-all duration-200 ${
-            isSelected ? 'rotate-180' : 'rotate-0'
-          }`}
-          size={20}
-        />
+        <CaretDown className={`transform transition-all duration-200 ${isSelected ? 'rotate-180' : 'rotate-0'}`} size={20} />
       </div>
 
       <AnimatePresence>
@@ -159,17 +131,11 @@ function GeneralIssueItem({
               collapsed: { height: 0 },
             }}
             transition={{ ease: 'easeInOut' }}
-            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3"
-          >
+            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3">
             {issues.map((issue) => (
-              <div
-                className="flex min-w-0 items-center space-x-2.5 overflow-hidden"
-                key={issue.errorDetails.name}
-              >
+              <div className="flex min-w-0 items-center space-x-2.5 overflow-hidden" key={issue.errorDetails.name}>
                 <FileIcon className="h-5 w-5 shrink-0" />
-                <p className="flex flex-1 text-gray-60">
-                  {translate(generalErrors.longMessages[issue.errorName])}
-                </p>
+                <p className="flex flex-1 text-gray-60">{translate(generalErrors.longMessages[issue.errorName])}</p>
               </div>
             ))}
           </motion.div>
@@ -193,18 +159,12 @@ function Item({
   const { translate } = useTranslationContext();
 
   return (
-    <li
-      onClick={onClick}
-      className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
-    >
+    <li onClick={onClick} className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5">
       <div className="flex space-x-2.5">
         <WarnIcon className="h-5 w-5" />
 
         <div className="flex flex-col space-y-1">
-          <h1
-            className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100"
-            data-test="sync-issue-name"
-          >
+          <h1 className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100" data-test="sync-issue-name">
             {translate(shortMessages[errorName])}
           </h1>
 
@@ -218,12 +178,7 @@ function Item({
             Report
           </Button> */}
 
-          <CaretDown
-            className={`transform transition-all duration-200 ${
-              isSelected ? 'rotate-180' : 'rotate-0'
-            }`}
-            size={20}
-          />
+          <CaretDown className={`transform transition-all duration-200 ${isSelected ? 'rotate-180' : 'rotate-0'}`} size={20} />
         </div>
       </div>
 
@@ -238,17 +193,11 @@ function Item({
               collapsed: { height: 0 },
             }}
             transition={{ ease: 'easeInOut' }}
-            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3"
-          >
+            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3">
             {issues.map((issue) => (
-              <div
-                className="flex min-w-0 items-center space-x-2.5 overflow-hidden"
-                key={issue.name}
-              >
+              <div className="flex min-w-0 items-center space-x-2.5 overflow-hidden" key={issue.name}>
                 <FileIcon className="h-5 w-5 shrink-0" />
-                <p className="flex flex-1 text-gray-60">
-                  {getBaseName(issue.name)}
-                </p>
+                <p className="flex flex-1 text-gray-60">{getBaseName(issue.name)}</p>
               </div>
             ))}
           </motion.div>

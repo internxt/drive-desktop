@@ -6,21 +6,17 @@ import Logger from 'electron-log';
 export class NotifyMainProcessHydrationFinished {
   constructor(
     private readonly eventRepository: EventRepository,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
   ) {}
 
   async run(contentsId: string) {
     try {
       const events = await this.eventRepository.search(contentsId);
 
-      const downloadCompletionEvent = events.find(
-        (event) => event.eventName === 'contents.downloaded'
-      );
+      const downloadCompletionEvent = events.find((event) => event.eventName === 'contents.downloaded');
 
       if (!downloadCompletionEvent) {
-        Logger.debug(
-          `Download completion event not found for content ID: ${contentsId}`
-        );
+        Logger.debug(`Download completion event not found for content ID: ${contentsId}`);
         return;
       }
 
@@ -40,10 +36,7 @@ export class NotifyMainProcessHydrationFinished {
         Logger.warn('IPC connection is not active or process is not available');
       }
     } catch (error) {
-      Logger.error(
-        'Error notifying main process about hydration completion',
-        error
-      );
+      Logger.error('Error notifying main process about hydration completion', error);
     }
   }
 }

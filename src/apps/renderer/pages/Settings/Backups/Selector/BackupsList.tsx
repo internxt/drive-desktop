@@ -9,16 +9,8 @@ interface BackupsListProps {
   onDobleClick?: (backup: ItemBackup) => void;
 }
 
-export function BackupsList({
-  items,
-  selected,
-  setSelected,
-  onDobleClick,
-}: BackupsListProps) {
-  const handleClick = (
-    e: React.MouseEvent<HTMLLIElement>,
-    backup: ItemBackup
-  ) => {
+export function BackupsList({ items, selected, setSelected, onDobleClick }: BackupsListProps) {
+  const handleClick = (e: React.MouseEvent<HTMLLIElement>, backup: ItemBackup) => {
     e.stopPropagation();
 
     // Ignorar si Shift está presionado
@@ -53,16 +45,10 @@ export function BackupsList({
             selected.find((item) => item.id === backup.id)
               ? 'bg-primary text-white'
               : index % 2 !== 0
-              ? 'text-neutral-700 bg-white  dark:bg-black'
-              : 'bg-l-neutral-10 text-neutral-700  dark:bg-black'
-          }`}
-        >
-          <BackupListItem
-            backup={backup}
-            selected={
-              selected.find((item) => item.id === backup.id) !== undefined
-            }
-          />
+                ? 'text-neutral-700 bg-white  dark:bg-black'
+                : 'bg-l-neutral-10 text-neutral-700  dark:bg-black'
+          }`}>
+          <BackupListItem backup={backup} selected={selected.find((item) => item.id === backup.id) !== undefined} />
         </li>
       ))}
     </ul>

@@ -25,7 +25,7 @@ export class DependencyInjectionStorageSdk {
       {
         token,
         unauthorizedCallback: onUserUnauthorized,
-      }
+      },
     );
 
     DependencyInjectionStorageSdk.sdk = sdk;

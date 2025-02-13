@@ -59,7 +59,7 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
       {
         uuid,
       },
-      updatePayload
+      updatePayload,
     );
 
     return {

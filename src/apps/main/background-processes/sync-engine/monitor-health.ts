@@ -1,7 +1,7 @@
 import { BrowserWindow } from 'electron';
 import Logger from 'electron-log';
 
-export const monitorHealth = async ({ worker, stopAndSpawn }: { worker: BrowserWindow, stopAndSpawn: () => Promise<void> }) => {
+export const monitorHealth = async ({ worker, stopAndSpawn }: { worker: BrowserWindow; stopAndSpawn: () => Promise<void> }) => {
   // If we keep this event, then when the process is closed, stopAndSpawn is called two times
   // We need to make more stable the variables of startingWorker and workerIsRunning before activating this event
   // worker.on('closed', async () => {

@@ -12,7 +12,7 @@ export class SameFileWasMoved {
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly localFileSystem: NodeWinLocalFileSystem,
-    private readonly eventHistory: EventRepository
+    private readonly eventHistory: EventRepository,
   ) {}
 
   async run(path: FilePath): Promise<WasMovedResult> {
@@ -30,9 +30,7 @@ export class SameFileWasMoved {
       return { result: false };
     }
 
-    const movedEvent = events.find(
-      (event) => event instanceof FileMovedDomainEvent
-    );
+    const movedEvent = events.find((event) => event instanceof FileMovedDomainEvent);
 
     if (!movedEvent) {
       return { result: false };

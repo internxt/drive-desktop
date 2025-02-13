@@ -21,9 +21,7 @@ export abstract class Path extends ValueObject<string> {
   }
 
   private ensurePathIsNotMalicious(value: string) {
-    const isMalicious = Path.maliciousPathValidations.some((validation) =>
-      validation(value)
-    );
+    const isMalicious = Path.maliciousPathValidations.some((validation) => validation(value));
 
     if (isMalicious) {
       throw new InvalidArgumentError(`Path ${value} might be malicious.`);

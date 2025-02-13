@@ -2,11 +2,7 @@ import { ipcMain } from 'electron';
 
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
-import {
-  ProcessIssue,
-  GeneralIssue,
-  ProcessInfoUpdatePayload,
-} from '../../shared/types';
+import { ProcessIssue, GeneralIssue, ProcessInfoUpdatePayload } from '../../shared/types';
 
 let processIssues: ProcessIssue[] = [];
 let generalIssues: GeneralIssue[] = [];
@@ -58,15 +54,7 @@ export function addGeneralIssue(issue: GeneralIssue) {
 }
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
-  if (
-    [
-      'PULL_ERROR',
-      'RENAME_ERROR',
-      'DELETE_ERROR',
-      'METADATA_READ_ERROR',
-      'UPLOAD_ERROR',
-    ].includes(payload.action)
-  ) {
+  if (['PULL_ERROR', 'RENAME_ERROR', 'DELETE_ERROR', 'METADATA_READ_ERROR', 'UPLOAD_ERROR'].includes(payload.action)) {
     addProcessIssue(payload as ProcessIssue);
   }
 });

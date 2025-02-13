@@ -77,13 +77,7 @@ export type GeneralIssue = {
   };
 };
 export type ProcessIssue = ProcessInfoBase & {
-  action:
-    | 'UPLOAD_ERROR'
-    | 'DOWNLOAD_ERROR'
-    | 'RENAME_ERROR'
-    | 'DELETE_ERROR'
-    | 'METADATA_READ_ERROR'
-    | 'GENERATE_TREE';
+  action: 'UPLOAD_ERROR' | 'DOWNLOAD_ERROR' | 'RENAME_ERROR' | 'DELETE_ERROR' | 'METADATA_READ_ERROR' | 'GENERATE_TREE';
 
   errorName: ProcessErrorName;
   process: 'SYNC' | 'BACKUPS';
@@ -93,21 +87,11 @@ export type ProcessInfoUpdatePayload =
   | (ProcessInfoBase &
       (
         | {
-            action:
-              | 'UPLOADING'
-              | 'DOWNLOADING'
-              | 'PREPARING'
-              | 'RENAMING'
-              | 'DELETING';
+            action: 'UPLOADING' | 'DOWNLOADING' | 'PREPARING' | 'RENAMING' | 'DELETING';
             progress: number;
           }
         | {
-            action:
-              | 'UPLOADED'
-              | 'DOWNLOADED'
-              | 'RENAMED'
-              | 'DELETED'
-              | 'DOWNLOAD_CANCEL';
+            action: 'UPLOADED' | 'DOWNLOADED' | 'RENAMED' | 'DELETED' | 'DOWNLOAD_CANCEL';
           }
       ))
   | ProcessIssue;

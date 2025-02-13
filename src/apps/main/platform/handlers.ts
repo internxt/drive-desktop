@@ -6,7 +6,6 @@ ipcMain.handle('get-platform', () => {
 });
 
 ipcMain.handle('open-url', (_, url: string) => {
-
   if (process.platform === 'linux') {
     // shell.openExternal is not working as intended on the current verions of electron
     // this is only a workaround to fix it
@@ -17,9 +16,7 @@ ipcMain.handle('open-url', (_, url: string) => {
         resolve();
       });
     });
-    
   }
-
 
   return shell.openExternal(url);
 });

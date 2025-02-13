@@ -68,9 +68,7 @@ function getExtension(pathLike: string) {
   return ext.replace('.', '');
 }
 
-export async function obtainImageToThumbnailIt(
-  filePath: string
-): Promise<Buffer | undefined> {
+export async function obtainImageToThumbnailIt(filePath: string): Promise<Buffer | undefined> {
   const ext = getExtension(filePath);
 
   Logger.info(`[THUMBNAIL] Extension: ${ext}`);

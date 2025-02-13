@@ -34,16 +34,12 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
           c.get(Environment),
           user.backupsBucket,
           //@ts-ignore
-          c.get(AuthorizedClients).drive
-        )
+          c.get(AuthorizedClients).drive,
+        ),
     )
     .private();
 
-  builder
-    .register(RendererIpcLocalFileMessenger)
-    .useClass(RendererIpcLocalFileMessenger)
-    .private()
-    .asSingleton();
+  builder.register(RendererIpcLocalFileMessenger).useClass(RendererIpcLocalFileMessenger).private().asSingleton();
 
   // Services
   builder.registerAndUse(FileBatchUpdater);

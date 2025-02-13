@@ -1,10 +1,6 @@
 import { ipcMain } from 'electron';
 
-import {
-  chooseSyncRootWithDialog,
-  getRootVirtualDrive,
-  openVirtualDriveRootFolder,
-} from './service';
+import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from './service';
 
 ipcMain.handle('get-virtual-drive-root', getRootVirtualDrive);
 

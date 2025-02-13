@@ -5,8 +5,7 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 
 let onboardingWindow: BrowserWindow | null = null;
-export const getOnboardingWindow = () =>
-  onboardingWindow?.isDestroyed() ? null : onboardingWindow;
+export const getOnboardingWindow = () => (onboardingWindow?.isDestroyed() ? null : onboardingWindow);
 
 ipcMain.on('open-onboarding-window', () => openOnboardingWindow());
 

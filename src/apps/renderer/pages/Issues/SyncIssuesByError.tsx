@@ -17,28 +17,25 @@ type VirtualDriveIssueProps = {
 };
 
 function groupAppIssuesByErrorName(issues: VirtualDriveIssue[]) {
-  const appIssuesGroupedByErrorName = issues.reduce((acc, current) => {
-    const key = current.cause;
+  const appIssuesGroupedByErrorName = issues.reduce(
+    (acc, current) => {
+      const key = current.cause;
 
-    if (!acc[key]) {
-      acc[key] = [];
-    }
+      if (!acc[key]) {
+        acc[key] = [];
+      }
 
-    acc[key].push(current);
+      acc[key].push(current);
 
-    return acc;
-  }, {} as Record<SyncError, VirtualDriveIssue[]>);
+      return acc;
+    },
+    {} as Record<SyncError, VirtualDriveIssue[]>,
+  );
 
-  return Object.entries(appIssuesGroupedByErrorName) as Array<
-    [SyncError, Array<VirtualDriveIssue>]
-  >;
+  return Object.entries(appIssuesGroupedByErrorName) as Array<[SyncError, Array<VirtualDriveIssue>]>;
 }
 
-function VirtualDriveIssue({
-  errorName,
-  issues,
-  extend,
-}: VirtualDriveIssueProps) {
+function VirtualDriveIssue({ errorName, issues, extend }: VirtualDriveIssueProps) {
   const { translate } = useTranslationContext();
 
   return (
@@ -47,10 +44,7 @@ function VirtualDriveIssue({
         <WarnIcon className="h-5 w-5" />
 
         <div className="flex flex-col space-y-1">
-          <h1
-            className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100"
-            data-test="sync-issue-name"
-          >
+          <h1 className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100" data-test="sync-issue-name">
             {translate(shortMessages[errorName])}
           </h1>
 
@@ -60,12 +54,7 @@ function VirtualDriveIssue({
         </div>
 
         <div className="flex items-center space-x-2">
-          <CaretDown
-            className={`transform transition-all duration-200 ${
-              extend ? 'rotate-180' : 'rotate-0'
-            }`}
-            size={20}
-          />
+          <CaretDown className={`transform transition-all duration-200 ${extend ? 'rotate-180' : 'rotate-0'}`} size={20} />
         </div>
       </div>
 
@@ -80,17 +69,11 @@ function VirtualDriveIssue({
               collapsed: { height: 0 },
             }}
             transition={{ ease: 'easeInOut' }}
-            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3"
-          >
+            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3">
             {issues.map((issue) => (
-              <div
-                className="flex min-w-0 items-center space-x-2.5 overflow-hidden"
-                key={issue.name}
-              >
+              <div className="flex min-w-0 items-center space-x-2.5 overflow-hidden" key={issue.name}>
                 <FileIcon className="h-5 w-5 shrink-0" />
-                <p className="flex flex-1 text-gray-60">
-                  {getBaseName(issue.name)}
-                </p>
+                <p className="flex flex-1 text-gray-60">{getBaseName(issue.name)}</p>
               </div>
             ))}
           </motion.div>
@@ -104,9 +87,7 @@ type VirtualDriveIssuesByErrorAccordionProps = {
   readonly issues: Array<VirtualDriveIssue>;
 };
 
-export function SyncIssuesByError({
-  issues,
-}: VirtualDriveIssuesByErrorAccordionProps) {
+export function SyncIssuesByError({ issues }: VirtualDriveIssuesByErrorAccordionProps) {
   const { translate } = useTranslationContext();
   const [selected, setSelected] = useState<SyncError | null>(null);
 
@@ -128,12 +109,7 @@ export function SyncIssuesByError({
   return (
     <ul>
       {issuesByCauseArray.map(([cause, issues]) => (
-        <li
-          className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
-          onClick={toggleOrSelectCause(cause)}
-          key={cause}
-          role="button"
-        >
+        <li className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5" onClick={toggleOrSelectCause(cause)} key={cause} role="button">
           <Accordion
             title={translate(shortMessages[cause])}
             collapsed={!isSelected(cause)}

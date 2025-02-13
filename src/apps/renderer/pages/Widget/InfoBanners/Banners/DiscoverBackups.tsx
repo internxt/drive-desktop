@@ -11,8 +11,7 @@ export function DiscoverBackups() {
     return <></>;
   }
 
-  const openBackupsSettings = () =>
-    window.electron.openSettingsWindow('BACKUPS');
+  const openBackupsSettings = () => window.electron.openSettingsWindow('BACKUPS');
 
   const { translate } = useTranslationContext();
 
@@ -24,23 +23,13 @@ export function DiscoverBackups() {
       <div className="flex flex-col">
         <div className="flex flex-row">
           <div>
-            <div className="text-neutral-500 text-sm  font-semibold">
-              {translate('widget.banners.discover-backups.title')}
-            </div>
-            <div className="mb-4 mt-1 text-xs">
-              {translate('widget.banners.discover-backups.body')}
-            </div>
+            <div className="text-neutral-500 text-sm  font-semibold">{translate('widget.banners.discover-backups.title')}</div>
+            <div className="mb-4 mt-1 text-xs">{translate('widget.banners.discover-backups.body')}</div>
           </div>
-          <X
-            size={50}
-            className="-mt-3  hover:cursor-pointer"
-            onClick={discover}
-          />
+          <X size={50} className="-mt-3  hover:cursor-pointer" onClick={discover} />
         </div>
         <Button size="sm" className="mt-auto" onClick={openBackupsSettings}>
-          <span className="text-xs">
-            {translate('widget.banners.discover-backups.action')}
-          </span>
+          <span className="text-xs">{translate('widget.banners.discover-backups.action')}</span>
         </Button>
       </div>
     </div>

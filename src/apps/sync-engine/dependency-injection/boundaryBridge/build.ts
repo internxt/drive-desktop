@@ -6,18 +6,15 @@ import { FileSyncOrchestrator } from '../../../../context/virtual-drive/boundary
 
 export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
-  filesContainer: FilesContainer
+  filesContainer: FilesContainer,
 ): BoundaryBridgeContainer {
   const fileCreationOrchestrator = new FileCreationOrchestrator(
     contentsContainer.contentsUploader,
     filesContainer.fileCreator,
-    filesContainer.sameFileWasMoved
+    filesContainer.sameFileWasMoved,
   );
 
-  const fileSyncOrchestrator = new FileSyncOrchestrator(
-    contentsContainer.contentsUploader,
-    filesContainer.fileSyncronizer
-  );
+  const fileSyncOrchestrator = new FileSyncOrchestrator(contentsContainer.contentsUploader, filesContainer.fileSyncronizer);
 
   return {
     fileCreationOrchestrator,

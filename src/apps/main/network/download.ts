@@ -3,14 +3,7 @@ import { FileVersionOneError } from '@internxt/sdk/dist/network/download';
 import { FlatFolderZip } from './zip.service';
 import { items } from '@internxt/lib';
 import fs, { PathLike } from 'fs';
-import {
-  FileInfo,
-  getFileInfoWithAuth,
-  getFileInfoWithToken,
-  getMirrors,
-  Mirror,
-  NetworkCredentials,
-} from './requests';
+import { FileInfo, getFileInfoWithAuth, getFileInfoWithToken, getMirrors, Mirror, NetworkCredentials } from './requests';
 import { GenerateFileKey } from '@internxt/inxt-js/build/lib/utils/crypto';
 import { createDecipheriv, Decipher } from 'crypto';
 import downloadFileV2 from './downloadv2';
@@ -23,19 +16,13 @@ import { convertToReadableStream } from './NetworkFacade';
 import Logger from 'electron-log';
 import path from 'path';
 
-async function writeReadableStreamToFile(
-  readableStream: ReadableStream<Uint8Array>,
-  filePath: string
-): Promise<void> {
+async function writeReadableStreamToFile(readableStream: ReadableStream<Uint8Array>, filePath: string): Promise<void> {
   const writer = fs.createWriteStream(filePath);
 
   const reader = readableStream.getReader();
 
   return new Promise((resolve, reject) => {
-    function processChunk({
-      done,
-      value,
-    }: ReadableStreamReadResult<Uint8Array>) {
+    function processChunk({ done, value }: ReadableStreamReadResult<Uint8Array>) {
       if (done) {
         writer.end(); // Finalizar escritura del archivo
         resolve();
@@ -72,7 +59,7 @@ export async function downloadFolder(
   opts: {
     abortController?: AbortController;
     updateProgress?: (progress: number) => void;
-  }
+  },
 ) {
   Logger.info('Downloading folder to directory');
 
@@ -82,15 +69,12 @@ export async function downloadFolder(
   // Obtener información del árbol de carpetas y archivos
   updateProgress && updateProgress(1);
 
-  const { tree, folderDecryptedNames, fileDecryptedNames, totalItems } =
-    await fetchArrayFolderTree(foldersUuid);
+  const { tree, folderDecryptedNames, fileDecryptedNames, totalItems } = await fetchArrayFolderTree(foldersUuid);
 
   tree.plainName = deviceName;
   folderDecryptedNames[tree.id] = deviceName;
 
-  const pendingFolders: { path: string; data: FolderTree }[] = [
-    { path: '', data: tree },
-  ];
+  const pendingFolders: { path: string; data: FolderTree }[] = [{ path: '', data: tree }];
 
   let downloadedItems = 0;
 
@@ -100,10 +84,7 @@ export async function downloadFolder(
       data: FolderTree;
     };
 
-    const folderPath =
-      currentFolder.path +
-      (currentFolder.path === '' ? '' : '/') +
-      folderDecryptedNames[currentFolder.data.id];
+    const folderPath = currentFolder.path + (currentFolder.path === '' ? '' : '/') + folderDecryptedNames[currentFolder.data.id];
 
     Logger.info('Creating folder:', folderPath);
 
@@ -114,9 +95,8 @@ export async function downloadFolder(
 
     const CHUCK_SIZE = 5;
 
-    const chunks = Array.from(
-      { length: Math.ceil(files.length / CHUCK_SIZE) },
-      (_, i) => files.slice(i * CHUCK_SIZE, (i + 1) * CHUCK_SIZE)
+    const chunks = Array.from({ length: Math.ceil(files.length / CHUCK_SIZE) }, (_, i) =>
+      files.slice(i * CHUCK_SIZE, (i + 1) * CHUCK_SIZE),
     );
 
     for (const chunk of chunks) {
@@ -151,36 +131,22 @@ export async function downloadFolder(
             });
 
             // Leer el stream y escribirlo en el archivo
-            await writeReadableStreamToFile(
-              fileStream,
-              targetPath + '/' + filePath
-            );
+            await writeReadableStreamToFile(fileStream, targetPath + '/' + filePath);
 
             downloadedItems += 1;
             const progress = (downloadedItems / totalItems) * 100;
-            Logger.info(
-              'totalItems:',
-              totalItems,
-              'downloadedItems:',
-              downloadedItems
-            );
+            Logger.info('totalItems:', totalItems, 'downloadedItems:', downloadedItems);
             Logger.info('Download progress:', progress);
             updateProgress && updateProgress(Math.max(progress, 1));
           } catch (error: any) {
-            Logger.error(
-              '[Downloader] Error downloading file:',
-              file,
-              error.message
-            );
+            Logger.error('[Downloader] Error downloading file:', file, error.message);
             throw error;
           }
-        })
+        }),
       );
     }
 
-    pendingFolders.push(
-      ...folders.map((tree) => ({ path: folderPath, data: tree }))
-    );
+    pendingFolders.push(...folders.map((tree) => ({ path: folderPath, data: tree })));
   }
 
   if (abortController?.signal.aborted) {
@@ -191,10 +157,7 @@ export async function downloadFolder(
   updateProgress && updateProgress(100);
 }
 
-export type DownloadProgressCallback = (
-  totalBytes: number,
-  downloadedBytes: number
-) => void;
+export type DownloadProgressCallback = (totalBytes: number, downloadedBytes: number) => void;
 export interface IDownloadParams {
   networkApiUrl: string;
   bucketId: string;
@@ -218,21 +181,10 @@ async function getRequiredFileMetadataWithToken(
   networkApiUrl: string,
   bucketId: string,
   fileId: string,
-  token: string
+  token: string,
 ): Promise<MetadataRequiredForDownload> {
-  const fileMeta: FileInfo = await getFileInfoWithToken(
-    networkApiUrl,
-    bucketId,
-    fileId,
-    token
-  );
-  const mirrors: Mirror[] = await getMirrors(
-    networkApiUrl,
-    bucketId,
-    fileId,
-    null,
-    token
-  );
+  const fileMeta: FileInfo = await getFileInfoWithToken(networkApiUrl, bucketId, fileId, token);
+  const mirrors: Mirror[] = await getMirrors(networkApiUrl, bucketId, fileId, null, token);
 
   return { fileMeta, mirrors };
 }
@@ -241,27 +193,15 @@ async function getRequiredFileMetadataWithAuth(
   networkApiUrl: string,
   bucketId: string,
   fileId: string,
-  creds: NetworkCredentials
+  creds: NetworkCredentials,
 ): Promise<MetadataRequiredForDownload> {
-  const fileMeta: FileInfo = await getFileInfoWithAuth(
-    networkApiUrl,
-    bucketId,
-    fileId,
-    creds
-  );
-  const mirrors: Mirror[] = await getMirrors(
-    networkApiUrl,
-    bucketId,
-    fileId,
-    creds
-  );
+  const fileMeta: FileInfo = await getFileInfoWithAuth(networkApiUrl, bucketId, fileId, creds);
+  const mirrors: Mirror[] = await getMirrors(networkApiUrl, bucketId, fileId, creds);
 
   return { fileMeta, mirrors };
 }
 
-async function downloadFile(
-  params: IDownloadParams
-): Promise<ReadableStream<Uint8Array>> {
+async function downloadFile(params: IDownloadParams): Promise<ReadableStream<Uint8Array>> {
   const downloadFileV2Promise = downloadFileV2(params as any);
 
   return downloadFileV2Promise.catch((err: Error) => {
@@ -273,27 +213,15 @@ async function downloadFile(
   });
 }
 
-async function _downloadFile(
-  params: IDownloadParams
-): Promise<ReadableStream<Uint8Array>> {
+async function _downloadFile(params: IDownloadParams): Promise<ReadableStream<Uint8Array>> {
   const { networkApiUrl, bucketId, fileId, token, creds } = params;
 
   let metadata: MetadataRequiredForDownload;
 
   if (creds) {
-    metadata = await getRequiredFileMetadataWithAuth(
-      networkApiUrl,
-      bucketId,
-      fileId,
-      creds
-    );
+    metadata = await getRequiredFileMetadataWithAuth(networkApiUrl, bucketId, fileId, creds);
   } else if (token) {
-    metadata = await getRequiredFileMetadataWithToken(
-      networkApiUrl,
-      bucketId,
-      fileId,
-      token
-    );
+    metadata = await getRequiredFileMetadataWithToken(networkApiUrl, bucketId, fileId, token);
   } else {
     throw new Error('Download error 1');
   }
@@ -316,7 +244,7 @@ async function _downloadFile(
   const downloadStream = await getFileDownloadStream(
     downloadUrls,
     createDecipheriv('aes-256-ctr', key, iv),
-    params.options?.abortController
+    params.options?.abortController,
   );
 
   return buildProgressStream(downloadStream, (readBytes) => {
@@ -327,7 +255,7 @@ async function _downloadFile(
 async function getFileDownloadStream(
   downloadUrls: string[],
   decipher: Decipher,
-  abortController?: AbortController
+  abortController?: AbortController,
 ): Promise<ReadableStream> {
   const encryptedContentParts: ReadableStream<Uint8Array>[] = [];
 
@@ -348,10 +276,7 @@ async function getFileDownloadStream(
   return getDecryptedStream(encryptedContentParts, decipher);
 }
 
-export function buildProgressStream(
-  source: ReadableStream<Uint8Array>,
-  onRead: (readBytes: number) => void
-): ReadableStream<Uint8Array> {
+export function buildProgressStream(source: ReadableStream<Uint8Array>, onRead: (readBytes: number) => void): ReadableStream<Uint8Array> {
   const reader = source.getReader();
   let readBytes = 0;
 
@@ -374,9 +299,7 @@ export function buildProgressStream(
   });
 }
 
-function joinReadableBinaryStreams(
-  streams: ReadableStream<Uint8Array>[]
-): ReadableStream {
+function joinReadableBinaryStreams(streams: ReadableStream<Uint8Array>[]): ReadableStream {
   const streamsCopy = streams.map((s) => s);
   let keepReading = true;
 
@@ -415,10 +338,7 @@ function joinReadableBinaryStreams(
   return stream;
 }
 
-export function getDecryptedStream(
-  encryptedContentSlices: ReadableStream<Uint8Array>[],
-  decipher: Decipher
-): ReadableStream<Uint8Array> {
+export function getDecryptedStream(encryptedContentSlices: ReadableStream<Uint8Array>[], decipher: Decipher): ReadableStream<Uint8Array> {
   const encryptedStream = joinReadableBinaryStreams(encryptedContentSlices);
 
   let keepReading = true;

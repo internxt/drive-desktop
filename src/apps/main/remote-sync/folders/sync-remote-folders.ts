@@ -44,7 +44,7 @@ export class SyncRemoteFoldersService {
           result.map(async (remoteFolder) => {
             await self.db.folders.create(remoteFolder);
             self.totalFoldersSynced++;
-          })
+          }),
         );
 
         allResults.push(...result);

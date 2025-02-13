@@ -4,10 +4,7 @@ import Logger from 'electron-log';
 import { AccessResponse } from '../../renderer/pages/Login/service';
 import { applicationOpened } from '../analytics/service';
 import eventBus from '../event-bus';
-import {
-  clearRootVirtualDrive,
-  setupRootFolder,
-} from '../virtual-root-folder/service';
+import { clearRootVirtualDrive, setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
 import { checkUserData, createTokenSchedule } from './refresh-token';
 import {
@@ -38,9 +35,7 @@ ipcMain.handle('is-user-logged-in', getIsLoggedIn);
 
 ipcMain.handle('get-user', getUser);
 
-ipcMain.handle('get-headers', (_, includeMnemonic) =>
-  getHeaders(includeMnemonic)
-);
+ipcMain.handle('get-headers', (_, includeMnemonic) => getHeaders(includeMnemonic));
 
 ipcMain.handle('get-headers-for-new-api', () => getNewApiHeaders());
 

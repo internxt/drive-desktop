@@ -7,7 +7,7 @@ import { Traverser } from './Traverser';
 export class TreeBuilder {
   constructor(
     private readonly remoteItemsGenerator: RemoteItemsGenerator,
-    private readonly traverser: Traverser
+    private readonly traverser: Traverser,
   ) {}
 
   public setFilterStatusesToFilter(statuses: Array<ServerFileStatus>): void {

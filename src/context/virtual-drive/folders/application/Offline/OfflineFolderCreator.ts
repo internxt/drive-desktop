@@ -10,7 +10,7 @@ export class OfflineFolderCreator {
   constructor(
     private readonly folderFinder: FolderFinder,
     private readonly offlineRepository: OfflineFolderRepository,
-    private readonly repository: FolderRepository
+    private readonly repository: FolderRepository,
   ) {}
 
   run(posixRelativePath: string): OfflineFolder {

@@ -37,19 +37,9 @@ export function Frequency() {
 
   return (
     <section>
-      <SectionHeader>
-        {translate('settings.backups.frequency.title')}
-      </SectionHeader>
-      <Select
-        options={intervals}
-        value={backupsInterval.toString()}
-        onValueChange={onStringValueChange}
-      />
-      {backupsInterval < 0 && (
-        <p className="mt-1 text-xs text-gray-50">
-          {translate('settings.backups.frequency.warning')}
-        </p>
-      )}
+      <SectionHeader>{translate('settings.backups.frequency.title')}</SectionHeader>
+      <Select options={intervals} value={backupsInterval.toString()} onValueChange={onStringValueChange} />
+      {backupsInterval < 0 && <p className="mt-1 text-xs text-gray-50">{translate('settings.backups.frequency.warning')}</p>}
     </section>
   );
 }

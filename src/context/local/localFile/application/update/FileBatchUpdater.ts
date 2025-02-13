@@ -10,22 +10,13 @@ import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLo
 export class FileBatchUpdater {
   constructor(
     private readonly uploader: EnvironmentLocalFileUploader,
-    private readonly simpleFileOverrider: SimpleFileOverrider
+    private readonly simpleFileOverrider: SimpleFileOverrider,
   ) {}
 
-  async run(
-    localRoot: LocalFolder,
-    remoteTree: RemoteTree,
-    batch: Array<LocalFile>,
-    signal: AbortSignal
-  ): Promise<void> {
+  async run(localRoot: LocalFolder, remoteTree: RemoteTree, batch: Array<LocalFile>, signal: AbortSignal): Promise<void> {
     for (const localFile of batch) {
       // eslint-disable-next-line no-await-in-loop
-      const upload = await this.uploader.upload(
-        localFile.path,
-        localFile.size,
-        signal
-      );
+      const upload = await this.uploader.upload(localFile.path, localFile.size, signal);
 
       if (upload.isLeft()) {
         throw upload.getLeft();

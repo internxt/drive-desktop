@@ -1,7 +1,7 @@
-import { paths } from '@/apps/shared/network/schema';
+import { paths } from '@/apps/shared/HttpClient/schema';
 import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { client } from '../../../shared/network/client';
+import { client } from '../../../shared/HttpClient/client';
 
 export class FetchRemoteFoldersService {
   async run({
@@ -29,7 +29,7 @@ export class FetchRemoteFoldersService {
 
     const promise = folderId ? this.getFoldersByFolder({ folderId, query }) : this.getFolders({ query });
     const result = await promise;
-    
+
     if (result.data) {
       const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
       return { hasMore, result: result.data };

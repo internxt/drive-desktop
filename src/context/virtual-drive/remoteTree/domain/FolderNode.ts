@@ -6,7 +6,7 @@ export class FolderNode {
   private constructor(
     public readonly folder: Folder,
     private children: Map<string, Node>,
-    public readonly isRoot: boolean
+    public readonly isRoot: boolean,
   ) {}
 
   static from(folder: Folder): FolderNode {
