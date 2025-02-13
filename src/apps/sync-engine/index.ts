@@ -6,6 +6,8 @@ import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
+import { VirtualDrive } from 'virtual-drive/dist';
+import { setConfig, Config, getConfig } from './config';
 
 Logger.log(`Running sync engine ${packageJson.version}`);
 
@@ -31,19 +33,24 @@ async function ensureTheFolderExist(path: string) {
 async function setUp() {
   Logger.info('[SYNC ENGINE] Starting sync engine process');
 
-  const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
+  const { rootPath, providerName } = getConfig();
 
-  Logger.info('[SYNC ENGINE] Going to use root folder: ', virtualDrivePath);
+  Logger.info('[SYNC ENGINE] Going to use root folder: ', rootPath);
 
-  await ensureTheFolderExist(virtualDrivePath);
+  await ensureTheFolderExist(rootPath);
 
   const factory = new DependencyContainerFactory();
+
   const container = await factory.build();
 
-  const bindings = new BindingsManager(container, {
-    root: virtualDrivePath,
-    icon: iconPath,
-  });
+  const bindings = new BindingsManager(
+    container,
+    {
+      root: rootPath,
+      icon: iconPath,
+    },
+    providerName
+  );
 
   ipcRenderer.on('USER_LOGGED_OUT', async () => {
     bindings.cleanQueue();
@@ -95,27 +102,29 @@ async function setUp() {
     }
   });
 
-  await bindings.start(
-    packageJson.version,
-    '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
-  );
+  await bindings.start(packageJson.version);
 
   await bindings.watch();
 
+  Logger.info('[SYNC ENGINE] Second sync engine started');
+
   ipcRenderer.send('CHECK_SYNC');
 }
-
-setUp()
-  .then(() => {
-    Logger.info('[SYNC ENGINE] Sync engine has successfully started');
-    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL');
-  })
-  .catch((error) => {
-    Logger.error('[SYNC ENGINE] Error setting up', error);
-    Sentry.captureException(error);
-    if (error.toString().includes('Error: ConnectSyncRoot failed')) {
-      Logger.info('[SYNC ENGINE] We neeed to restart the app virtual drive');
-      Sentry.captureMessage('Restarting sync engine virtual drive is required');
-    }
-    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED');
-  });
+ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
+  Logger.info('[SYNC ENGINE] Setting config:', config);
+  setConfig(config);
+  setUp()
+    .then(() => {
+      Logger.info('[SYNC ENGINE] Sync engine has successfully started');
+      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL');
+    })
+    .catch((error) => {
+      Logger.error('[SYNC ENGINE] Error setting up', error);
+      Sentry.captureException(error);
+      if (error.toString().includes('Error: ConnectSyncRoot failed')) {
+        Logger.info('[SYNC ENGINE] We neeed to restart the app virtual drive');
+        Sentry.captureMessage('Restarting sync engine virtual drive is required');
+      }
+      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED');
+    });
+});

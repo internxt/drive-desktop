@@ -11,7 +11,6 @@ const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
-
 export async function clearDirectory(pathname: string): Promise<boolean> {
   try {
     await fs.rm(pathname, { recursive: true });
@@ -23,29 +22,13 @@ export async function clearDirectory(pathname: string): Promise<boolean> {
   }
 }
 
-
 function setSyncRoot(pathname: string): void {
-  const pathNameWithSepInTheEnd =
-    pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
-  const logEnginePath = path.join(
-    app.getPath('appData'),
-    'internxt-drive',
-    'logs',
-    'node-win.txt'
-  );
+  const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
+  const logEnginePath = path.join(app.getPath('appData'), 'internxt-drive', 'logs', 'node-win.txt');
 
-  const logWatcherPath = path.join(
-    app.getPath('appData'),
-    'internxt-drive',
-    'logs',
-    'watcher-win.txt'
-  );
+  const logWatcherPath = path.join(app.getPath('appData'), 'internxt-drive', 'logs', 'watcher-win.txt');
 
-  const persistQueueManager = path.join(
-    app.getPath('appData'),
-    'internxt-drive',
-    'queue-manager.json'
-  );
+  const persistQueueManager = path.join(app.getPath('appData'), 'internxt-drive', 'queue-manager.json');
 
   configStore.set('logEnginePath', logEnginePath);
   configStore.set('logWatcherPath', logWatcherPath);
@@ -63,15 +46,29 @@ export function getRootVirtualDrive(): string {
   return configStore.get('syncRoot');
 }
 
+export interface LoggersPaths {
+  logEnginePath: string;
+  logWatcherPath: string;
+  persistQueueManagerPath: string;
+  syncRoot: string;
+  lastSavedListing: string;
+}
+
+export function getLoggersPaths(): LoggersPaths {
+  return {
+    logEnginePath: configStore.get('logEnginePath'),
+    logWatcherPath: configStore.get('logWatcherPath'),
+    persistQueueManagerPath: configStore.get('persistQueueManagerPath'),
+    syncRoot: configStore.get('syncRoot'),
+    lastSavedListing: configStore.get('lastSavedListing'),
+  };
+}
+
 export async function clearRootVirtualDrive(): Promise<void> {
   try {
     const syncFolderPath = configStore.get('syncRoot');
 
-    const queue = path.join(
-      app.getPath('appData'),
-      'internxt-drive',
-      'queue-manager.json'
-    );
+    const queue = path.join(app.getPath('appData'), 'internxt-drive', 'queue-manager.json');
 
     await fs.rm(queue, { recursive: true, force: true });
 

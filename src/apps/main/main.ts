@@ -144,9 +144,9 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
-    await clamAVServer.waitForClamd();
+    // await clamAVServer.waitForClamd();
 
-    scheduleDailyScan();
+    // scheduleDailyScan();
 
     setCleanUpFunction(stopAndClearSyncEngineWatcher);
   } catch (error) {
