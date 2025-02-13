@@ -40,9 +40,9 @@ export class RetryContentsUploader {
         return result;
       } catch (error_: unknown ) {
         if (error_ instanceof Error) {
-          const error = error_ as Error & { status?: string; fileName?: string; context?: { fileSize?: number } };
+          const error = error_ as Error & { fileName?: string; context?: { fileSize?: number } };
 
-          if (error?.status == '420') {
+          if (error?.message == 'Max space used') {
             const errorMensage = `The storage limit for your account has been reached. The file '${error?.fileName} ${getFormattedFileSize(error)}' cannot be uploaded. Consider upgrading your plan for additional space.`;
             rejectionReason = '\n Reason: Max space used';
             ipcRendererSyncEngine.send('SYNC_INFO_UPDATE', {
