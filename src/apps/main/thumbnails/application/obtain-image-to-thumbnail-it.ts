@@ -1,9 +1,6 @@
 import Logger from 'electron-log';
 import path from 'path';
-import {
-  isImageThumbnailable,
-  isPdfThumbnailable,
-} from '../domain/ThumbnableExtension';
+import { isImageThumbnailable } from '../domain/ThumbnableExtension';
 import { nativeImage } from 'electron';
 
 export const ThumbnailConfig = {
