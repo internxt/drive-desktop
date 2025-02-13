@@ -1,7 +1,7 @@
-import { client } from '../../../shared/network/client';
+import { paths } from '@/apps/shared/HttpClient/schema';
 import { RemoteSyncedFile } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { paths } from '@/apps/shared/network/schema';
+import { client } from '../../../shared/HttpClient/client';
 
 export class FetchRemoteFilesService {
   async run({

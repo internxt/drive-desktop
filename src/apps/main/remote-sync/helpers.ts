@@ -1,4 +1,4 @@
-import { paths } from '@/apps/shared/network/schema';
+import { paths } from '@/apps/shared/HttpClient/schema';
 
 export const FIVETEEN_MINUTES_IN_MILLISECONDS = 30 * 60 * 1000;
 

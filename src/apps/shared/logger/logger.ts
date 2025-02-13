@@ -1,4 +1,5 @@
-import { resolve } from 'path';
+import { app } from 'electron';
+import { join, resolve } from 'path';
 import { inspect } from 'util';
 import winston from 'winston';
 
@@ -25,4 +26,5 @@ export const createLogger = (path: string) => {
   });
 };
 
-export const logger = createLogger('drive-desktop.log');
+export const loggerPath = join(app.getPath('appData'), 'internxt-drive', 'logs', 'watcher-win.txt');
+export const logger = createLogger(loggerPath);
