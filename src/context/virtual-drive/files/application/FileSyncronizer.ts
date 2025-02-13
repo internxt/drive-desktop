@@ -99,6 +99,11 @@ export class FileSyncronizer {
       if (error instanceof FolderNotFoundError) {
         await this.createFolderFather(posixRelativePath);
       }
+      
+      if (error instanceof Error && error.message.includes('Max space used')) {
+        return;
+      }
+
       if (attemps > 0) {
         await this.retryCreation(
           posixRelativePath,
