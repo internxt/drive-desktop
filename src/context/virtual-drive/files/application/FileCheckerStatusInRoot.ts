@@ -2,7 +2,7 @@ import Logger from 'electron-log';
 import fs from 'fs';
 import { DependencyInjectionLocalRootFolderPath } from '../../../../apps/sync-engine/dependency-injection/common/localRootFolderPath';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
-import { PinState, SyncState } from 'virtual-drive/dist';
+import { PinState, SyncState } from './PlaceholderTypes';
 
 export class FileCheckerStatusInRoot {
   constructor(private readonly localFileSystem: NodeWinLocalFileSystem) {}
