@@ -264,8 +264,7 @@
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
     "tiny-glob": "^0.2.9",
-    "uuid": "^8.3.2",
-    "winston": "^3.17.0"
+    "uuid": "^8.3.2"
   },
   "devEngines": {
     "node": ">=14.x",

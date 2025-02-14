@@ -117,6 +117,7 @@ export class RemoteSyncManager {
       reportError(error as Error);
     } finally {
       logger.info({
+        msg: 'Remote sync finished',
         totalFilesSynced: this.totalFilesSynced,
         totalFoldersSynced: this.totalFoldersSynced,
         totalFilesUnsynced: this.totalFilesUnsynced,
