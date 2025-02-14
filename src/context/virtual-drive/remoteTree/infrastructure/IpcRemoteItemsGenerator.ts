@@ -1,11 +1,10 @@
 import { Service } from 'diod';
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
-import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 
 @Service()
-export class IpcRemoteItemsGenerator implements RemoteItemsGenerator {
+export class IpcRemoteItemsGenerator {
   constructor(private readonly ipc: SyncEngineIpc) {}
 
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {

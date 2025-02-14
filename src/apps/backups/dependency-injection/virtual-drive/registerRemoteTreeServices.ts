@@ -1,7 +1,6 @@
 import { ContainerBuilder } from 'diod';
 import { RemoteTreeBuilder } from '../../../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { Traverser } from '../../../../context/virtual-drive/remoteTree/application/Traverser';
-import { RemoteItemsGenerator } from '../../../../context/virtual-drive/remoteTree/domain/RemoteItemsGenerator';
 import { IpcRemoteItemsGenerator } from '../../../../context/virtual-drive/remoteTree/infrastructure/IpcRemoteItemsGenerator';
 import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../../sync-engine/ipcRendererSyncEngine';
@@ -9,7 +8,7 @@ import { ipcRendererSyncEngine } from '../../../sync-engine/ipcRendererSyncEngin
 export async function registerRemoteTreeServices(builder: ContainerBuilder) {
   // Infra
   builder
-    .register(RemoteItemsGenerator)
+    .register(IpcRemoteItemsGenerator)
     .useFactory(() => new IpcRemoteItemsGenerator(ipcRendererSyncEngine))
     .private();
 

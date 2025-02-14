@@ -27,7 +27,7 @@ describe('File Creator', () => {
     vi.resetAllMocks();
   });
 
-  it.only('creates the file on the drive server', async () => {
+  it('creates the file on the drive server', async () => {
     const path = new FilePath('/cat.png');
     const contents = FileContentsMother.random();
 
@@ -35,10 +35,6 @@ describe('File Creator', () => {
       path: path.value,
       contentsId: contents.id,
     }).attributes();
-
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
@@ -54,10 +50,6 @@ describe('File Creator', () => {
       path: path.value,
       contentsId: contents.id,
     }).attributes();
-
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
@@ -80,10 +72,6 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
-
     await SUT.run(path, contents);
 
     expect(fileDeleter.run).toBeCalledWith(existingFile.contentsId);
@@ -91,7 +79,7 @@ describe('File Creator', () => {
     expect(remoteFileSystemMock.persist).toBeCalledWith(
       expect.objectContaining({
         contentsId: contents.id,
-      })
+      }),
     );
     expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(fileAttributes)));
   });

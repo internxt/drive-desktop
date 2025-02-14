@@ -243,12 +243,13 @@ async function _downloadFile(params: IDownloadParams): Promise<ReadableStream<Ui
 
   const downloadStream = await getFileDownloadStream(
     downloadUrls,
+    // @ts-expect-error no overload matches
     createDecipheriv('aes-256-ctr', key, iv),
     params.options?.abortController,
   );
 
   return buildProgressStream(downloadStream, (readBytes) => {
-    params.options?.notifyProgress(metadata.fileMeta.size, readBytes);
+    params.options?.notifyProgress?.(metadata.fileMeta.size, readBytes);
   });
 }
 
