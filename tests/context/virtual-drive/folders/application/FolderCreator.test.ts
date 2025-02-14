@@ -1,6 +1,6 @@
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
-import { FolderMother } from '../domain/FolderMother';
-import { OfflineFolderMother } from '../domain/OfflineFolderMother';
+import { FolderMother } from '../domain/FolderMother.helper.test';
+import { OfflineFolderMother } from '../domain/OfflineFolderMother.helper.test';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { FolderPlaceholderConverter } from '@/context/virtual-drive/folders/application/FolderPlaceholderConverter';

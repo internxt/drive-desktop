@@ -5,8 +5,8 @@ import { FolderPath } from '../../../../../src/context/virtual-drive/folders/dom
 import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
 import { FolderRenamedDomainEvent } from '../../../../../src/context/virtual-drive/folders/domain/events/FolderRenamedDomainEvent';
 import { InMemoryOfflineFolderRepository } from '../../../../../src/context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
-import { FolderMother } from '../domain/FolderMother';
-import { OfflineFolderMother } from '../domain/OfflineFolderMother';
+import { FolderMother } from '../domain/FolderMother.helper.test';
+import { OfflineFolderMother } from '../domain/OfflineFolderMother.helper.test';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventRepository } from '@/context/virtual-drive/shared/domain/EventRepository';

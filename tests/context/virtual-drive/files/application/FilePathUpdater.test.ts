@@ -3,8 +3,8 @@ import { FileFinderByContentsId } from '../../../../../src/context/virtual-drive
 import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/FilePathUpdater';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
-import { FolderMother } from '../../folders/domain/FolderMother';
-import { FileMother } from '../domain/FileMother';
+import { FolderMother } from '../../folders/domain/FolderMother.helper.test';
+import { FileMother } from '../domain/FileMother.helper.test';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
@@ -73,7 +73,7 @@ describe('File path updater', () => {
     const destination = new FilePath(`${fileToMove.dirname}_/${fileToMove.nameWithExtension}`);
 
     const destinationFolder = FolderMother.fromPartial({
-      id: fileToMove.folderId + 1,
+      id: fileToMove.folderId.value + 1,
       path: destination.dirname(),
     });
 
@@ -83,13 +83,17 @@ describe('File path updater', () => {
 
     expect(repository.update).toBeCalledWith(
       expect.objectContaining({
-        folderId: destinationFolder.id,
+        _folderId: {
+          value: destinationFolder.id,
+        },
         path: destination.value,
       })
     );
     expect(remoteFileSystem.move).toBeCalledWith(
       expect.objectContaining({
-        folderId: destinationFolder.id,
+        _folderId: {
+          value: destinationFolder.id,
+        },
         path: destination.value,
       })
     );

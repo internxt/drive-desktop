@@ -1,5 +1,5 @@
 import { Readable } from 'stream';
-import { FileMother } from '../../../files/domain/FileMother';
+import { FileMother } from '../../../files/domain/FileMother.helper.test';
 import { createDownloadStrategy } from '../../__mocks__/environment/DownloadStrategyFunctionMock';
 import { EnvironmentContentFileDownloader } from '../../../../../../src/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
 

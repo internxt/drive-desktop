@@ -1,11 +1,11 @@
 import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/FileCreator';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
-import { FileContentsMother } from '../../contents/domain/FileContentsMother';
+import { FileContentsMother } from '../../contents/domain/FileContentsMother.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { FileMother } from '../domain/FileMother';
+import { FileMother } from '../domain/FileMother.helper.test';
 import { FolderFinder } from '@/context/virtual-drive/folders/application/FolderFinder';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
@@ -36,10 +36,6 @@ describe('File Creator', () => {
       contentsId: contents.id,
     }).attributes();
 
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
-
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
     await SUT.run(path, contents);
@@ -54,10 +50,6 @@ describe('File Creator', () => {
       path: path.value,
       contentsId: contents.id,
     }).attributes();
-
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
@@ -80,10 +72,6 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
-
     await SUT.run(path, contents);
 
     expect(fileDeleter.run).toBeCalledWith(existingFile.contentsId);
@@ -91,7 +79,7 @@ describe('File Creator', () => {
     expect(remoteFileSystemMock.persist).toBeCalledWith(
       expect.objectContaining({
         contentsId: contents.id,
-      })
+      }),
     );
     expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(fileAttributes)));
   });

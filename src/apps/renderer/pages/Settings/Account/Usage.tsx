@@ -13,8 +13,8 @@ export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInB
     if (isInfinite) {
       return { amount: '∞', unit: '' };
     } else {
-      const amount = bytes.format(limitInBytes).match(/\d+/g)?.[0] ?? '';
-      const unit = bytes.format(limitInBytes).match(/[a-zA-Z]+/g)?.[0] ?? '';
+      const amount = bytes.format(limitInBytes)?.match(/\d+/g)?.[0] ?? '';
+      const unit = bytes.format(limitInBytes)?.match(/[a-zA-Z]+/g)?.[0] ?? '';
       return { amount: amount, unit: unit };
     }
   };
@@ -52,8 +52,8 @@ export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInB
         <div className="flex items-center justify-between">
           <p className="flex-1 text-sm text-gray-100">
             {translate('settings.account.usage.display', {
-              used: bytes.format(usageInBytes),
-              total: bytes.format(limitInBytes),
+              used: bytes.format(usageInBytes) ?? '?',
+              total: bytes.format(limitInBytes) ?? '?',
             })}
           </p>
 

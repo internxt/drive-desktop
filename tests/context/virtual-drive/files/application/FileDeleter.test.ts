@@ -1,6 +1,6 @@
-import { FileMother } from '../domain/FileMother';
+import { FileMother } from '../domain/FileMother.helper.test';
 import { FileDeleter } from '../../../../../src/context/virtual-drive/files/application/FileDeleter';
-import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
+import { ContentsIdMother } from '../../contents/domain/ContentsIdMother.helper.test';
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FileStatus } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
 import { mockDeep } from 'vitest-mock-extended';

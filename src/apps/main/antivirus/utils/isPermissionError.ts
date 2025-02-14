@@ -1,3 +1,4 @@
+// @ts-expect-error could not find declaration
 import NodeClamError from '@internxt/scan/lib/NodeClamError';
 
 const PERMISSION_ERROR_CODES = ['EACCES', 'EPERM', 'EBUSY', 'ENOENT', 'ENOFILE', 'EISDIR'];

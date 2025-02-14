@@ -2,7 +2,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
 import { FolderMover } from '../../../../../src/context/virtual-drive/folders/application/FolderMover';
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
-import { FolderMother } from '../domain/FolderMother';
+import { FolderMother } from '../domain/FolderMother.helper.test';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 

@@ -1,4 +1,5 @@
 import path from 'path';
+// @ts-expect-error could not find declaration
 import NodeClam from '@internxt/scan';
 import clamAVServer from './ClamAVDaemon';
 import { app } from 'electron';

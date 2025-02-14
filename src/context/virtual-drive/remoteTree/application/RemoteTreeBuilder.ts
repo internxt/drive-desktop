@@ -1,13 +1,13 @@
 import { Service } from 'diod';
-import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 import { RemoteTree } from '../domain/RemoteTree';
 import { Traverser } from './Traverser';
 import Logger from 'electron-log';
+import { IpcRemoteItemsGenerator } from '../infrastructure/IpcRemoteItemsGenerator';
 
 @Service()
 export class RemoteTreeBuilder {
   constructor(
-    private readonly remoteItemsGenerator: RemoteItemsGenerator,
+    private readonly remoteItemsGenerator: IpcRemoteItemsGenerator,
     private readonly traverser: Traverser,
   ) {}
 

@@ -2,7 +2,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
 import { temporalFolderProvider } from '../../../../../src/context/virtual-drive/contents/application/temporalFolderProvider';
 import { FileDownloadEvents } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
-import { FileMother } from '../../files/domain/FileMother';
+import { FileMother } from '../../files/domain/FileMother.helper.test';
 import { ReadableHelloWorld } from '../__mocks__/ReadableHelloWorld';
 import { LocalFileWriter } from '@/context/virtual-drive/contents/domain/LocalFileWriter';
 import { ContentsManagersFactory } from '@/context/virtual-drive/contents/domain/ContentsManagersFactory';
