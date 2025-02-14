@@ -34,11 +34,7 @@ async function backupFolder() {
       Logger.log('[BACKUPS] Internet connection lost');
       abortController.abort('CONNECTION_LOST');
 
-      BackupsIPCRenderer.send(
-        'backups.backup-failed',
-        data.folderId,
-        'NO_INTERNET'
-      );
+      BackupsIPCRenderer.send('backups.backup-failed', data.folderId, 'NO_INTERNET');
     });
 
     BackupsIPCRenderer.on('backups.abort', () => {
@@ -54,11 +50,7 @@ async function backupFolder() {
 
     if (error) {
       Logger.info('[BACKUPS] failed');
-      BackupsIPCRenderer.send(
-        'backups.backup-failed',
-        data.folderId,
-        error.cause
-      );
+      BackupsIPCRenderer.send('backups.backup-failed', data.folderId, error.cause);
     } else {
       Logger.info('[BACKUPS] done');
       BackupsIPCRenderer.send('backups.backup-completed', data.folderId);
@@ -67,17 +59,9 @@ async function backupFolder() {
     Logger.error('[BACKUPS] ', error);
     if (error instanceof DriveDesktopError) {
       Logger.error('[BACKUPS] ', { cause: error.cause });
-      BackupsIPCRenderer.send(
-        'backups.backup-failed',
-        data.folderId,
-        error.cause
-      );
+      BackupsIPCRenderer.send('backups.backup-failed', data.folderId, error.cause);
     } else {
-      BackupsIPCRenderer.send(
-        'backups.backup-failed',
-        data.folderId,
-        'UNKNOWN'
-      );
+      BackupsIPCRenderer.send('backups.backup-failed', data.folderId, 'UNKNOWN');
     }
   }
 }

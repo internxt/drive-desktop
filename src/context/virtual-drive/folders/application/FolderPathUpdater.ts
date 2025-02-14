@@ -11,7 +11,7 @@ export class FolderPathUpdater {
   constructor(
     private readonly repository: FolderRepository,
     private readonly folderMover: FolderMover,
-    private readonly folderRenamer: FolderRenamer
+    private readonly folderRenamer: FolderRenamer,
   ) {}
 
   async run(uuid: Folder['uuid'], posixRelativePath: string) {

@@ -1,9 +1,6 @@
 import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core/download/strategy';
 import { EventEmitter, Readable } from 'stream';
-import {
-  ContentFileDownloader,
-  FileDownloadEvents,
-} from '../../domain/contentHandlers/ContentFileDownloader';
+import { ContentFileDownloader, FileDownloadEvents } from '../../domain/contentHandlers/ContentFileDownloader';
 import { File } from '../../../files/domain/File';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
 import { ActionState } from '@internxt/inxt-js/build/api';
@@ -18,7 +15,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
 
   constructor(
     private readonly fn: DownloadStrategyFunction<DownloadOneShardStrategy>,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
@@ -72,15 +69,12 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
             useProxy: false,
             chunkSize: 4096 * 1024,
           },
-        }
+        },
       );
     });
   }
 
-  on(
-    event: keyof FileDownloadEvents,
-    handler: FileDownloadEvents[keyof FileDownloadEvents]
-  ): void {
+  on(event: keyof FileDownloadEvents, handler: FileDownloadEvents[keyof FileDownloadEvents]): void {
     this.eventEmitter.on(event, handler);
   }
 

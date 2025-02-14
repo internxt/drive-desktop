@@ -7,40 +7,21 @@ import { UilHistory } from '@iconscout/react-unicons';
 const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS'] as const;
 export type Section = (typeof sectionValues)[number];
 
-function Item({
-  Icon,
-  title,
-  onClick,
-  isActive,
-}: {
-  Icon: Icon;
-  title: string;
-  onClick: () => void;
-  isActive: boolean;
-}) {
+function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; onClick: () => void; isActive: boolean }) {
   return (
     <button
       onClick={onClick}
       type="button"
       className={`relative flex w-20 cursor-pointer flex-col items-center rounded-lg px-4 py-1.5 outline-none transition-colors duration-100 ease-in-out ${
-        isActive
-          ? 'text-gray-100'
-          : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
-      }`}
-    >
+        isActive ? 'text-gray-100' : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
+      }`}>
       <Icon size={28} />
       <p className="text-xs font-medium capitalize">{title.toLowerCase()}</p>
     </button>
   );
 }
 
-export default function Header({
-  onClick,
-  active,
-}: {
-  onClick: (active: Section) => void;
-  active: Section;
-}) {
+export default function Header({ onClick, active }: { onClick: (active: Section) => void; active: Section }) {
   const { translate } = useTranslationContext();
   const sections: {
     label: Section;
@@ -52,16 +33,15 @@ export default function Header({
     // { label: 'ANTIVIRUS', icon: Shield },
   ];
 
-  const animationVariants: Record<Section, { left: string }> =
-    sectionValues.reduce(
-      (prev, current, i) => ({
-        ...prev,
-        [current]: {
-          left: `${(i / sectionValues.length) * 100}%`,
-        },
-      }),
-      {} as Record<Section, { left: string }>
-    );
+  const animationVariants: Record<Section, { left: string }> = sectionValues.reduce(
+    (prev, current, i) => ({
+      ...prev,
+      [current]: {
+        left: `${(i / sectionValues.length) * 100}%`,
+      },
+    }),
+    {} as Record<Section, { left: string }>,
+  );
 
   return (
     <div className="draggable border-b border-gray-10 bg-surface pb-1.5 dark:bg-gray-5">

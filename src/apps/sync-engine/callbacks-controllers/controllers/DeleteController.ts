@@ -15,7 +15,7 @@ export class DeleteController extends CallbackController {
     private readonly fileDeleter: FileDeleter,
     private readonly retryFolderDeleter: RetryFolderDeleter,
     private readonly fileFolderContainerDetector: FileFolderContainerDetector,
-    private readonly folderContainerDetector: FolderContainerDetector
+    private readonly folderContainerDetector: FolderContainerDetector,
   ) {
     super();
 
@@ -38,11 +38,7 @@ export class DeleteController extends CallbackController {
       return true;
     };
 
-    this.foldersQueue = new DelayQueue(
-      'folders',
-      deleteFolder,
-      canDeleteFolders
-    );
+    this.foldersQueue = new DelayQueue('folders', deleteFolder, canDeleteFolders);
 
     const canDeleteFiles = () => {
       return this.foldersQueue.isEmpty;
@@ -81,9 +77,7 @@ export class DeleteController extends CallbackController {
 
   private CleanQueueFile(folderUuid: Folder['uuid']) {
     const files = this.filesQueue.values;
-    const filesToDelete = files.filter((file) =>
-      this.fileFolderContainerDetector.run(file, folderUuid)
-    );
+    const filesToDelete = files.filter((file) => this.fileFolderContainerDetector.run(file, folderUuid));
     filesToDelete.forEach((file) => {
       this.filesQueue.removeOne(file);
     });
@@ -92,10 +86,7 @@ export class DeleteController extends CallbackController {
   private CleanQueueFolder(folderUuid: Folder['uuid']) {
     const reversedFolders = this.foldersQueue.reversedValues;
     reversedFolders.forEach((folder) => {
-      const isParentFolder = this.folderContainerDetector.run(
-        folder,
-        folderUuid
-      );
+      const isParentFolder = this.folderContainerDetector.run(folder, folderUuid);
       if (isParentFolder) {
         this.foldersQueue.removeOne(folder);
       }

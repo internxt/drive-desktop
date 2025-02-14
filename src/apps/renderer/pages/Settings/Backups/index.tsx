@@ -12,12 +12,7 @@ interface BackupsSectionProps {
   showDownloadFolers: () => void;
 }
 
-export default function BackupsSection({
-  active,
-  showBackedFolders,
-  showDownloadFolers,
-  showIssues,
-}: BackupsSectionProps) {
+export default function BackupsSection({ active, showBackedFolders, showDownloadFolers, showIssues }: BackupsSectionProps) {
   const { deviceState } = useContext(DeviceContext);
 
   return (
@@ -29,9 +24,7 @@ export default function BackupsSection({
       )}
       {deviceState.status === 'ERROR' && (
         <div className="flex h-32 items-center justify-center">
-          <p className="text-red-60 text-sm">
-            There was an error loading your backups
-          </p>
+          <p className="text-red-60 text-sm">There was an error loading your backups</p>
         </div>
       )}
       {deviceState.status === 'SUCCESS' && (
@@ -39,11 +32,7 @@ export default function BackupsSection({
           <DevicesList className="w-1/3" />
           <div className="mx-4 border-l border-gray-10"></div>
           <ScrollableContent className="w-2/3">
-            <DeviceSettings
-              onGoToList={showBackedFolders}
-              showIssues={showIssues}
-              showDownloadFolers={showDownloadFolers}
-            />
+            <DeviceSettings onGoToList={showBackedFolders} showIssues={showIssues} showDownloadFolers={showDownloadFolers} />
           </ScrollableContent>
         </section>
       )}

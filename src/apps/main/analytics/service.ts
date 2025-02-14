@@ -3,10 +3,7 @@ import ConfigStore from '../config';
 import { client } from './rudderstack-client';
 import os from 'os';
 import Logger from 'electron-log';
-import {
-  TrackedActions,
-  ErrorContext,
-} from '../../shared/IPC/events/sync-engine';
+import { TrackedActions, ErrorContext } from '../../shared/IPC/events/sync-engine';
 
 function platformShortName(platform: string) {
   switch (platform) {
@@ -47,7 +44,7 @@ export function applicationOpened() {
         event: 'Application Opened',
         context: deviceContext,
       });
-    }
+    },
   );
 }
 
@@ -69,7 +66,7 @@ export function userSignin() {
         properties: { email },
         context: deviceContext,
       });
-    }
+    },
   );
 }
 
@@ -90,7 +87,7 @@ export function userSigninFailed(email?: string) {
         properties: { email },
         context: deviceContext,
       });
-    }
+    },
   );
 }
 
@@ -103,10 +100,7 @@ export function userLogout() {
   });
 }
 
-export function trackEvent(
-  event: TrackedActions,
-  properties: Record<string, any>
-) {
+export function trackEvent(event: TrackedActions, properties: Record<string, any>) {
   const userData = ConfigStore.get('userData');
   const clientId = ConfigStore.get('clientId');
 
@@ -122,11 +116,7 @@ export function trackEvent(
   client.track(payload);
 }
 
-export function trackError(
-  event: TrackedActions,
-  error: Error,
-  context?: ErrorContext
-) {
+export function trackError(event: TrackedActions, error: Error, context?: ErrorContext) {
   const userData = ConfigStore.get('userData');
   const clientId = ConfigStore.get('clientId');
 

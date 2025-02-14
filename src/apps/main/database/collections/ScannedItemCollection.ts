@@ -52,7 +52,7 @@ export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedI
       {
         id,
       },
-      updatePayload
+      updatePayload,
     );
 
     return {

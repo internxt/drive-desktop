@@ -2,22 +2,10 @@ import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { ProcessInfoUpdatePayload } from '../../types';
 
-const trackedEvents = [
-  'delete',
-  'upload',
-  'download',
-  'preview',
-  'move',
-  'rename',
-] as const;
+const trackedEvents = ['delete', 'upload', 'download', 'preview', 'move', 'rename'] as const;
 export type TrackedEvents = Capitalize<(typeof trackedEvents)[number]>;
 
-const trackedEventsActions = [
-  'started',
-  'completed',
-  'aborted',
-  'error',
-] as const;
+const trackedEventsActions = ['started', 'completed', 'aborted', 'error'] as const;
 type TrackedProviderActions = Capitalize<(typeof trackedEventsActions)[number]>;
 
 export type TrackedActions = `${TrackedEvents} ${TrackedProviderActions}`;
@@ -53,69 +41,24 @@ export type FolderEvents = {
 export type FilesEvents = {
   FILE_UPLOADING: (payload: FileUpdatePayload) => void;
   FILE_UPLOADED: (payload: FileUpdatePayload) => void;
-  FILE_CREATED: (payload: {
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    fileId: number;
-    path: string;
-  }) => void;
+  FILE_CREATED: (payload: { name: string; extension: string; nameWithExtension: string; fileId: number; path: string }) => void;
 
-  FILE_DOWNLOAD_ERROR: (payload: {
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    error: string;
-  }) => void;
+  FILE_DOWNLOAD_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; error: string }) => void;
 
   FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
   FILE_PREPARING: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOAD_CANCEL: (payload: Partial<FileUpdatePayload>) => void;
-  FILE_UPLOAD_ERROR: (payload: {
-    name?: string;
-    extension?: string;
-    nameWithExtension: string;
-    error: string;
-  }) => void;
+  FILE_UPLOAD_ERROR: (payload: { name?: string; extension?: string; nameWithExtension: string; error: string }) => void;
 
-  FILE_DELETING: (payload: {
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    size: number;
-  }) => void;
-  FILE_DELETED: (payload: {
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    size: number;
-  }) => void;
-  FILE_DELETION_ERROR: (payload: {
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    error: string;
-  }) => void;
+  FILE_DELETING: (payload: { name: string; extension: string; nameWithExtension: string; size: number }) => void;
+  FILE_DELETED: (payload: { name: string; extension: string; nameWithExtension: string; size: number }) => void;
+  FILE_DELETION_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; error: string }) => void;
 
-  FILE_RENAMING: (payload: {
-    nameWithExtension: string;
-    oldName: string;
-  }) => void;
-  FILE_RENAMED: (payload: {
-    nameWithExtension: string;
-    oldName: string;
-  }) => void;
-  FILE_MOVED: (payload: {
-    nameWithExtension: string;
-    folderName: string;
-  }) => void;
-  FILE_RENAME_ERROR: (payload: {
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    error: string;
-  }) => void;
+  FILE_RENAMING: (payload: { nameWithExtension: string; oldName: string }) => void;
+  FILE_RENAMED: (payload: { nameWithExtension: string; oldName: string }) => void;
+  FILE_MOVED: (payload: { nameWithExtension: string; folderName: string }) => void;
+  FILE_RENAME_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; error: string }) => void;
 
   FILE_OVERWRITTEN: (payload: { nameWithExtension: string }) => void;
 
@@ -138,18 +81,12 @@ export type SyncEngineInvocableFunctions = {
 // TODO: change how errors are reported to the ui
 export type ProcessInfoUpdate = {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
-  SYNC_PROBLEM: (payload: {
-    key: string;
-    additionalData: Record<string, any>;
-  }) => void;
+  SYNC_PROBLEM: (payload: { key: string; additionalData: Record<string, any> }) => void;
   SYNCING: () => void;
   SYNCED: () => void;
 };
 
-export type FromProcess = FilesEvents &
-  FolderEvents &
-  SyncEngineInvocableFunctions &
-  ProcessInfoUpdate;
+export type FromProcess = FilesEvents & FolderEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
 
 export type FromMain = {
   [key: string]: (...args: Array<any>) => any;

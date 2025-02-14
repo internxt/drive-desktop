@@ -7,7 +7,7 @@ const OFFER_UPGRADE_TRHESHOLD = 2199023255552 as const;
 export class UserUsageService {
   constructor(
     private readonly storage: Storage,
-    private readonly photos: PhotosSubmodule
+    private readonly photos: PhotosSubmodule,
   ) {}
 
   private async getPhotosUsage(): Promise<number> {
@@ -28,11 +28,7 @@ export class UserUsageService {
   }
 
   async calculateUsage(): Promise<Usage> {
-    const [driveUsage, photosUsage, limitInBytes] = await Promise.all([
-      this.getDriveUsage(),
-      this.getPhotosUsage(),
-      this.getLimit(),
-    ]);
+    const [driveUsage, photosUsage, limitInBytes] = await Promise.all([this.getDriveUsage(), this.getPhotosUsage(), this.getLimit()]);
 
     return {
       usageInBytes: driveUsage + photosUsage,
@@ -42,11 +38,7 @@ export class UserUsageService {
     };
   }
   async raw(): Promise<RawUsage> {
-    const [driveUsage, photosUsage, limitInBytes] = await Promise.all([
-      this.getDriveUsage(),
-      this.getPhotosUsage(),
-      this.getLimit(),
-    ]);
+    const [driveUsage, photosUsage, limitInBytes] = await Promise.all([this.getDriveUsage(), this.getPhotosUsage(), this.getLimit()]);
 
     return {
       driveUsage,

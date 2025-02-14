@@ -5,7 +5,7 @@ import { Node } from './Node';
 export class LocalFolderNode {
   private constructor(
     public readonly folder: LocalFolder,
-    private children: Map<string, Node>
+    private children: Map<string, Node>,
   ) {}
 
   static from(folder: LocalFolder): LocalFolderNode {

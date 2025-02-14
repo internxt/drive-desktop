@@ -2,13 +2,7 @@ import './App.css';
 import './localize/i18n.service';
 
 import { Suspense, useEffect, useRef } from 'react';
-import {
-  HashRouter as Router,
-  Route,
-  Routes,
-  useLocation,
-  useNavigate,
-} from 'react-router-dom';
+import { HashRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import { TranslationProvider } from './context/LocalContext';
 import useLanguageChangedListener from './hooks/useLanguage';

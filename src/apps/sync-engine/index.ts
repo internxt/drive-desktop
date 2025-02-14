@@ -49,7 +49,7 @@ async function setUp() {
       root: rootPath,
       icon: iconPath,
     },
-    providerName
+    providerName,
   );
 
   ipcRenderer.on('USER_LOGGED_OUT', async () => {

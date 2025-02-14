@@ -122,9 +122,7 @@ export class RemoteTree {
     const element = this.get(parentId);
 
     if (element.isFile()) {
-      throw new Error(
-        `Expected a folder but found a file at path: ${parentId}`
-      );
+      throw new Error(`Expected a folder but found a file at path: ${parentId}`);
     }
 
     return element;

@@ -1,17 +1,13 @@
 import { app, ipcMain } from 'electron';
 import configStore from '../../../config';
 import { BackupInfo } from '../../../../backups/BackupInfo';
-import {
-  getOrCreateDevice,
-  getBackupsFromDevice,
-} from '../../../device/service';
+import { getOrCreateDevice, getBackupsFromDevice } from '../../../device/service';
 import Logger from 'electron-log';
 
 type OnIntervalChangedListener = (interval: number) => void;
 
 class BackupConfiguration {
-  public onBackupIntervalChanged: OnIntervalChangedListener | undefined =
-    undefined;
+  public onBackupIntervalChanged: OnIntervalChangedListener | undefined = undefined;
 
   get backupInterval(): number {
     return configStore.get('backupInterval');

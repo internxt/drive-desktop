@@ -17,12 +17,7 @@ export abstract class DomainEvent {
   readonly eventName: string;
   readonly occurredOn?: Date;
 
-  constructor(params: {
-    eventName: string;
-    aggregateId: string;
-    eventId?: string;
-    occurredOn?: Date;
-  }) {
+  constructor(params: { eventName: string; aggregateId: string; eventId?: string; occurredOn?: Date }) {
     const { aggregateId, eventName, eventId, occurredOn } = params;
     this.aggregateId = aggregateId;
     this.eventId = eventId || uuid.v4();
@@ -35,10 +30,5 @@ export abstract class DomainEvent {
 
 export type DomainEventClass = {
   EVENT_NAME: string;
-  fromPrimitives(params: {
-    aggregateId: string;
-    eventId: string;
-    occurredOn: Date;
-    attributes: DomainEventAttributes;
-  }): DomainEvent;
+  fromPrimitives(params: { aggregateId: string; eventId: string; occurredOn: Date; attributes: DomainEventAttributes }): DomainEvent;
 };

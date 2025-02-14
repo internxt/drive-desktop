@@ -20,11 +20,5 @@ export default function StartAutomatically() {
     refreshValue();
   };
 
-  return (
-    <Checkbox
-      label={translate('settings.general.auto-startup')}
-      checked={checked}
-      onClick={setAutoLaunch}
-    />
-  );
+  return <Checkbox label={translate('settings.general.auto-startup')} checked={checked} onClick={setAutoLaunch} />;
 }

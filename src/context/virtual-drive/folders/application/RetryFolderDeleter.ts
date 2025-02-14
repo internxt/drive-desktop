@@ -16,15 +16,9 @@ export class RetryFolderDeleter {
         return result;
       } catch (error: unknown) {
         if (error instanceof Error) {
-          Logger.warn(
-            `Folder deleter attempt ${retryCount + 1} failed: ${error.message}`
-          );
+          Logger.warn(`Folder deleter attempt ${retryCount + 1} failed: ${error.message}`);
         } else {
-          Logger.warn(
-            `Folder deleter attempt ${
-              retryCount + 1
-            } failed with an unknown error.`
-          );
+          Logger.warn(`Folder deleter attempt ${retryCount + 1} failed with an unknown error.`);
         }
 
         await new Promise((resolve) => {
@@ -34,9 +28,7 @@ export class RetryFolderDeleter {
         retryCount++;
       }
     }
-    throw new MaxRetriesDeletingFolderError(
-      RetryFolderDeleter.NUMBER_OF_RETRIES
-    );
+    throw new MaxRetriesDeletingFolderError(RetryFolderDeleter.NUMBER_OF_RETRIES);
   }
 
   async run(folder: string): Promise<any> {

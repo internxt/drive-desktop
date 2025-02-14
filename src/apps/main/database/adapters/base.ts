@@ -19,7 +19,7 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
    */
   update(
     itemId: string,
-    updatePayload: Partial<DatabaseItemType>
+    updatePayload: Partial<DatabaseItemType>,
   ): Promise<{
     success: boolean;
     result: DatabaseItemType | null;

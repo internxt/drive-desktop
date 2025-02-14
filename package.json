@@ -16,6 +16,7 @@
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "lint": "cross-env NODE_ENV=development eslint . --ext .ts,.tsx",
     "lint:fix": "yarn run lint --fix",
+    "format": "prettier src --write",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts && opencollective-postinstall",
@@ -38,20 +39,6 @@
     "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && yarn",
     "start:reload-bindings": "npm run reload-virtual-drive && npm run start",
     "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/network/schema.d.ts"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "cross-env NODE_ENV=development eslint --cache"
-    ],
-    "*.json,.{eslintrc,prettierrc}": [
-      "prettier --ignore-path .eslintignore --parser json --write"
-    ],
-    "*.{css,scss}": [
-      "prettier --ignore-path .eslintignore --single-quote --write"
-    ],
-    "*.{html,md,yml}": [
-      "prettier --ignore-path .eslintignore --single-quote --write"
-    ]
   },
   "build": {
     "productName": "Internxt",
@@ -135,6 +122,7 @@
     "@svgr/webpack": "^6.1.2",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
     "@testing-library/react": "^12.1.2",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/async": "^3.2.16",
     "@types/better-sqlite3": "^7.6.4",
     "@types/bytes": "^3.1.1",
@@ -194,7 +182,6 @@
     "husky": "^7.0.4",
     "identity-obj-proxy": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
-    "lint-staged": "^12.1.4",
     "mini-css-extract-plugin": "^2.4.5",
     "ms": "^2.1.3",
     "node-loader": "^2.0.0",
@@ -203,8 +190,8 @@
     "playwright": "1.26.1",
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
-    "prettier": "^2.5.1",
-    "prettier-plugin-tailwindcss": "^0.1.4",
+    "prettier": "^3.5.1",
+    "prettier-plugin-tailwindcss": "^0.6.11",
     "react-refresh": "^0.11.0",
     "react-refresh-typescript": "^2.0.3",
     "react-test-renderer": "^17.0.2",
@@ -281,20 +268,5 @@
     "node": ">=14.x",
     "npm": ">=7.x"
   },
-  "browserslist": [],
-  "prettier": {
-    "overrides": [
-      {
-        "files": [
-          ".prettierrc",
-          ".eslintrc"
-        ],
-        "options": {
-          "parser": "json"
-        }
-      }
-    ],
-    "singleQuote": true,
-    "printWidth": 140
-  }
+  "browserslist": []
 }

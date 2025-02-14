@@ -24,11 +24,8 @@ export function buildUsageService() {
     {
       unauthorizedCallback: onUserUnauthorized,
       token: driveToken,
-    }
+    },
   );
 
-  return new UserUsageService(
-    storage,
-    new PhotosSubmodule({ baseUrl: photosUrl, accessToken: newToken })
-  );
+  return new UserUsageService(storage, new PhotosSubmodule({ baseUrl: photosUrl, accessToken: newToken }));
 }

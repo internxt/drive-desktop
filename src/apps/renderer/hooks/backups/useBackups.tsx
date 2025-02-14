@@ -30,10 +30,7 @@ export function useBackups(): BackupContextProps {
 
       backups = await window.electron.getBackupsFromDevice(current, true);
     } else {
-      backups = await window.electron.getBackupsFromDevice(
-        selected,
-        selected.id === current?.id
-      );
+      backups = await window.electron.getBackupsFromDevice(selected, selected.id === current?.id);
     }
     window.electron.logger.info('Backups fetched', backups.length);
     setBackups(backups);
@@ -57,10 +54,7 @@ export function useBackups(): BackupContextProps {
   }, [selected]);
 
   useEffect(() => {
-    const removeListener = window.electron.listenersRefreshBackups(
-      fetchBackups,
-      'refresh-backup'
-    );
+    const removeListener = window.electron.listenersRefreshBackups(fetchBackups, 'refresh-backup');
 
     return removeListener;
   }, []);

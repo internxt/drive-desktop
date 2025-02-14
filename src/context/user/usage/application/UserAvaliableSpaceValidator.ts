@@ -9,9 +9,7 @@ export class UserAvaliableSpaceValidator {
   async run(desiredSpaceToUse: number): Promise<boolean> {
     const usage = await this.repository.getUsage();
 
-    Logger.info(
-      `Checking if user has enough space to use ${desiredSpaceToUse} bytes. User has ${usage.free()} bytes available.`
-    );
+    Logger.info(`Checking if user has enough space to use ${desiredSpaceToUse} bytes. User has ${usage.free()} bytes available.`);
 
     return desiredSpaceToUse < usage.free();
   }

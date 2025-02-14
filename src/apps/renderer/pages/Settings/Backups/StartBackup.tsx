@@ -9,12 +9,7 @@ type StartBackupProps = {
 };
 
 export function StartBackup({ className }: StartBackupProps) {
-  const {
-    backups,
-    backupStatus,
-    thereIsDownloadProgress,
-    clearLastBackupExitReason,
-  } = useContext(BackupContext);
+  const { backups, backupStatus, thereIsDownloadProgress, clearLastBackupExitReason } = useContext(BackupContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
   function toggleConfirmation() {
@@ -40,17 +35,10 @@ export function StartBackup({ className }: StartBackupProps) {
         variant={backupStatus === 'STANDBY' ? 'primary' : 'danger'}
         size="md"
         onClick={() => {
-          backupStatus === 'STANDBY'
-            ? startBackupsProcess()
-            : toggleConfirmation();
+          backupStatus === 'STANDBY' ? startBackupsProcess() : toggleConfirmation();
         }}
-        disabled={backups.length === 0 || thereIsDownloadProgress}
-      >
-        {translate(
-          `settings.backups.action.${
-            backupStatus === 'STANDBY' ? 'start' : 'stop'
-          }`
-        )}
+        disabled={backups.length === 0 || thereIsDownloadProgress}>
+        {translate(`settings.backups.action.${backupStatus === 'STANDBY' ? 'start' : 'stop'}`)}
       </Button>
       <ConfirmationModal
         show={askConfirmation}

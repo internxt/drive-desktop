@@ -3,10 +3,7 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { useTranslationContext } from '../../context/LocalContext';
 import { shortMessages } from '../../messages/process-error';
 import { getBaseName, getExtension } from '../../utils/path';
-import {
-  ProcessInfoUpdatePayload,
-  ProcessErrorName,
-} from '../../../shared/types';
+import { ProcessInfoUpdatePayload, ProcessErrorName } from '../../../shared/types';
 import { fileIcon } from '../../assets/icons/getIcon';
 
 export function Item({
@@ -30,9 +27,7 @@ export function Item({
   } else if (action === 'PREPARING') {
     description = translate('widget.body.activity.operation.preparing');
   } else if (action === 'UPLOADING') {
-    description = progress
-      ? translate('widget.body.activity.operation.uploading')
-      : translate('widget.body.activity.operation.encrypting');
+    description = progress ? translate('widget.body.activity.operation.uploading') : translate('widget.body.activity.operation.encrypting');
   } else if (action === 'DOWNLOADED') {
     description = translate('widget.body.activity.operation.downloaded');
   } else if (action === 'DOWNLOAD_CANCEL') {
@@ -54,15 +49,10 @@ export function Item({
   return (
     <div className="flex h-14 w-full px-3">
       <div className="flex h-full flex-1 items-center space-x-3 truncate border-b border-gray-5">
-        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">
-          {fileIcon(getExtension(name))}
-        </div>
+        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">{fileIcon(getExtension(name))}</div>
 
         <div className="flex flex-1 flex-col justify-center space-y-px truncate pr-[14px]">
-          <p
-            className="truncate text-sm text-gray-100"
-            title={getBaseName(name)}
-          >
+          <p className="truncate text-sm text-gray-100" title={getBaseName(name)}>
             {getBaseName(name)}
           </p>
           <p
@@ -87,8 +77,7 @@ export function Item({
                 action === 'GENERATE_TREE')
                 ? description
                 : undefined
-            }
-          >
+            }>
             {`${description} ${progressDisplay}`}
           </p>
         </div>
@@ -121,9 +110,7 @@ export function Item({
               action === 'DOWNLOADED' ||
               action === 'DOWNLOAD_CANCEL' ||
               action === 'UPLOADED' ||
-              action === 'RENAMED') && (
-              <Check size={24} className="text-green" weight="bold" />
-            )}
+              action === 'RENAMED') && <Check size={24} className="text-green" weight="bold" />}
 
           {/* ERROR */}
           {action &&
@@ -132,9 +119,7 @@ export function Item({
               action === 'UPLOAD_ERROR' ||
               action === 'RENAME_ERROR' ||
               action === 'METADATA_READ_ERROR' ||
-              action === 'GENERATE_TREE') && (
-              <WarningCircle size={24} className="text-red" weight="regular" />
-            )}
+              action === 'GENERATE_TREE') && <WarningCircle size={24} className="text-red" weight="regular" />}
         </div>
       </div>
     </div>

@@ -6,8 +6,7 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';
 
-const widgetConfig: { width: number; height: number; placeUnderTray: boolean } =
-  { width: 330, height: 392, placeUnderTray: true };
+const widgetConfig: { width: number; height: number; placeUnderTray: boolean } = { width: 330, height: 392, placeUnderTray: true };
 
 let widget: BrowserWindow | null = null;
 export const getWidget = () => (widget?.isDestroyed() ? null : widget);
@@ -90,21 +89,12 @@ export function toggleWidgetVisibility() {
   }
 }
 
-function getLocationUnderTray(
-  { width, height }: { width: number; height: number },
-  bounds: Electron.Rectangle
-): { x: number; y: number } {
+function getLocationUnderTray({ width, height }: { width: number; height: number }, bounds: Electron.Rectangle): { x: number; y: number } {
   const display = screen.getDisplayMatching(bounds);
-  let x = Math.min(
-    bounds.x - display.workArea.x - width / 2,
-    display.workArea.width - width
-  );
+  let x = Math.min(bounds.x - display.workArea.x - width / 2, display.workArea.width - width);
   x += display.workArea.x;
   x = Math.max(display.workArea.x, x);
-  let y = Math.min(
-    bounds.y - display.workArea.y - height / 2,
-    display.workArea.height - height
-  );
+  let y = Math.min(bounds.y - display.workArea.y - height / 2, display.workArea.height - height);
   y += display.workArea.y;
   y = Math.max(display.workArea.y, y);
 
@@ -114,10 +104,7 @@ function getLocationUnderTray(
   };
 }
 
-export function setBoundsOfWidgetByPath(
-  widgetWindow: BrowserWindow,
-  tray: TrayMenu
-) {
+export function setBoundsOfWidgetByPath(widgetWindow: BrowserWindow, tray: TrayMenu) {
   const { ...size } = widgetConfig;
 
   const bounds = tray.bounds;

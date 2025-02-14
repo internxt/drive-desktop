@@ -38,9 +38,7 @@ function decryptName(cipherText: string, salt: string, encryptVersion: string) {
     return possibleAesResult;
   } catch (e) {
     Logger.warn(
-      `AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${
-        (e as Error).message
-      }, encryptVersion: ${encryptVersion}`
+      `AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${(e as Error).message}, encryptVersion: ${encryptVersion}`,
     );
     Logger.warn((e as Error).stack);
   }

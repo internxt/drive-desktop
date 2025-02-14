@@ -27,8 +27,7 @@ export const ActionDialog = ({
       className="fixed inset-0 z-10 overflow-y-auto bg-black/40"
       onClose={() => {
         //
-      }}
-    >
+      }}>
       <div className="min-h-screen px-4 text-center ">
         <Transition.Child
           as={Fragment}
@@ -37,8 +36,7 @@ export const ActionDialog = ({
           enterTo="opacity-100"
           leave="ease-in duration-100"
           leaveFrom="opacity-100"
-          leaveTo="opacity-0"
-        >
+          leaveTo="opacity-0">
           <Dialog.Overlay className="fixed inset-0 bg-black/30" />
         </Transition.Child>
 
@@ -53,12 +51,10 @@ export const ActionDialog = ({
           enterTo="opacity-100 scale-100"
           leave="ease-in duration-200"
           leaveFrom="opacity-100 scale-100"
-          leaveTo="opacity-0 scale-95"
-        >
+          leaveTo="opacity-0 scale-95">
           <div
             style={{ width: '340px' }}
-            className="my-8 inline-block transform overflow-hidden rounded-2xl bg-surface p-4 text-left align-middle shadow transition-all"
-          >
+            className="my-8 inline-block transform overflow-hidden rounded-2xl bg-surface p-4 text-left align-middle shadow transition-all">
             <Dialog.Title as="h3" className="text-neutral-700 mb-3 text-lg font-medium leading-6">
               {title}
             </Dialog.Title>

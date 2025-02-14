@@ -15,7 +15,7 @@ export class FileDeleter {
     private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
   ) {}
 
   async run(contentsId: File['contentsId']): Promise<void> {
@@ -30,14 +30,10 @@ export class FileDeleter {
       return;
     }
 
-    const allParentsExists = this.allParentFoldersStatusIsExists.run(
-      file.folderId.value
-    );
+    const allParentsExists = this.allParentFoldersStatusIsExists.run(file.folderId.value);
 
     if (!allParentsExists) {
-      Logger.warn(
-        `Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`
-      );
+      Logger.warn(`Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`);
       return;
     }
 
@@ -61,10 +57,7 @@ export class FileDeleter {
         size: file.size,
       });
     } catch (error: unknown) {
-      Logger.error(
-        `Error deleting the file ${file.nameWithExtension}: `,
-        error
-      );
+      Logger.error(`Error deleting the file ${file.nameWithExtension}: `, error);
 
       const message = error instanceof Error ? error.message : 'Unknown error';
       this.local.createPlaceHolder(file);

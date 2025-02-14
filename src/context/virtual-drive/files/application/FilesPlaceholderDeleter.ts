@@ -9,7 +9,7 @@ export class FilesPlaceholderDeleter {
   constructor(
     private remoteFileSystem: SDKRemoteFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-    private readonly local: NodeWinLocalFileSystem
+    private readonly local: NodeWinLocalFileSystem,
   ) {}
 
   private async hasToBeDeleted(remote: File): Promise<boolean> {
@@ -26,15 +26,11 @@ export class FilesPlaceholderDeleter {
       `
       Localdb path: ${remote.path}\n
       ___________\n
-      Condition Status: ${
-        fileStatus === FileStatuses.TRASHED ||
-        fileStatus === FileStatuses.DELETED
-      }\n
-      Condition ID: ${localUUID.split(':')[1] === remote['contentsId']}\n`
+      Condition Status: ${fileStatus === FileStatuses.TRASHED || fileStatus === FileStatuses.DELETED}\n
+      Condition ID: ${localUUID.split(':')[1] === remote['contentsId']}\n`,
     );
     return (
-      (fileStatus === FileStatuses.TRASHED ||
-        fileStatus === FileStatuses.DELETED) &&
+      (fileStatus === FileStatuses.TRASHED || fileStatus === FileStatuses.DELETED) &&
       localUUID.split(':')[1]?.trim() === remote['contentsId']?.trim()
     );
   }
@@ -50,7 +46,7 @@ export class FilesPlaceholderDeleter {
     await Promise.all(
       remotes.map(async (remote) => {
         await this.delete(remote);
-      })
+      }),
     );
   }
 }

@@ -20,7 +20,7 @@ export async function setUpBackups() {
   const scheduler = new BackupScheduler(
     () => backupConfiguration.lastBackup,
     () => backupConfiguration.backupInterval,
-    () => launchBackupProcesses(true, tracker, status, errors, stopController)
+    () => launchBackupProcesses(true, tracker, status, errors, stopController),
   );
 
   backupConfiguration.onBackupIntervalChanged = (interval: number) => {

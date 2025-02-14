@@ -1,9 +1,6 @@
 import { FilePath } from '../domain/FilePath';
 
-import MimeTypesMap, {
-  MimeTypes,
-  UnknownMimeType,
-} from '../domain/MimeTypesMap';
+import MimeTypesMap, { MimeTypes, UnknownMimeType } from '../domain/MimeTypesMap';
 
 export class WebdavFileMimeTypeResolver {
   private static DefaultMimeType: UnknownMimeType = 'application/octet-stream';

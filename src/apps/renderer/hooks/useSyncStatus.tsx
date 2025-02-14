@@ -1,9 +1,7 @@
 import { useEffect, useState } from 'react';
 import { SyncStatus } from '../../../context/desktop/sync/domain/SyncStatus';
 
-export default function useSyncStatus(
-  onChange?: (curentState: SyncStatus) => void
-) {
+export default function useSyncStatus(onChange?: (curentState: SyncStatus) => void) {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>('RUNNING');
 
   useEffect(() => {
@@ -25,25 +23,23 @@ export default function useSyncStatus(
       }
     });
 
-    const removeListener = window.electron.onRemoteSyncStatusChange(
-      (newStatus) => {
-        if (newStatus === 'SYNCING') {
-          setSyncStatus('RUNNING');
-        }
-
-        if (newStatus === 'IDLE' || newStatus === 'SYNCED') {
-          setSyncStatus('STANDBY');
-        }
-
-        if (newStatus === 'SYNC_FAILED') {
-          setSyncStatus('FAILED');
-        }
-
-        if (newStatus === 'SYNC_PENDING') {
-          setSyncStatus('SYNC PENDING');
-        }
+    const removeListener = window.electron.onRemoteSyncStatusChange((newStatus) => {
+      if (newStatus === 'SYNCING') {
+        setSyncStatus('RUNNING');
       }
-    );
+
+      if (newStatus === 'IDLE' || newStatus === 'SYNCED') {
+        setSyncStatus('STANDBY');
+      }
+
+      if (newStatus === 'SYNC_FAILED') {
+        setSyncStatus('FAILED');
+      }
+
+      if (newStatus === 'SYNC_PENDING') {
+        setSyncStatus('SYNC PENDING');
+      }
+    });
 
     return removeListener;
   }, []);

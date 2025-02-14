@@ -7,16 +7,12 @@ import * as Sentry from '@sentry/electron/renderer';
 export class OfflineRenameOrMoveController extends CallbackController {
   constructor(
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
-    private readonly folderPathUpdater: OfflineFolderPathUpdater
+    private readonly folderPathUpdater: OfflineFolderPathUpdater,
   ) {
     super();
   }
 
-  async execute(
-    absolutePath: string,
-    placeholderId: string,
-    callback: (response: boolean) => void
-  ) {
+  async execute(absolutePath: string, placeholderId: string, callback: (response: boolean) => void) {
     Logger.warn('Inside the fallback');
     const trimmedId = this.trim(placeholderId);
 
@@ -25,11 +21,9 @@ export class OfflineRenameOrMoveController extends CallbackController {
         return callback(false);
       }
 
-      const win32RelativePath =
-        this.absolutePathToRelativeConverter.run(absolutePath);
+      const win32RelativePath = this.absolutePathToRelativeConverter.run(absolutePath);
 
-      const posixRelativePath =
-        PlatformPathConverter.winToPosix(win32RelativePath);
+      const posixRelativePath = PlatformPathConverter.winToPosix(win32RelativePath);
 
       if (this.isFilePlaceholder(trimmedId)) {
         Logger.error('Tried to rename or move an offline file');

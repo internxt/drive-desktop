@@ -18,7 +18,7 @@ export async function launchBackupProcesses(
   tracker: BackupsProcessTracker,
   status: BackupsProcessStatus,
   errors: BackupFatalErrors,
-  stopController: BackupsStopController
+  stopController: BackupsStopController,
 ): Promise<void> {
   if (!backupsCanRun(status)) {
     Logger.debug('[BACKUPS] Already running');
@@ -77,9 +77,7 @@ export async function launchBackupProcesses(
       errors.add({ name: backupInfo.name, error: endReason });
     }
 
-    Logger.info(
-      `Backup process for ${backupInfo.folderId} ended with ${endReason}`
-    );
+    Logger.info(`Backup process for ${backupInfo.folderId} ended with ${endReason}`);
 
     tracker.backupFinished(backupInfo.folderId, endReason);
   }

@@ -44,7 +44,7 @@ export class SyncRemoteFilesService {
           result.map(async (remoteFile) => {
             self.db.files.create(remoteFile);
             self.totalFilesSynced++;
-          })
+          }),
         );
 
         allResults.push(...result);

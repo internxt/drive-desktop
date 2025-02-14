@@ -14,10 +14,7 @@ import { BackupsIPCRenderer } from './BackupsIPCRenderer';
 import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
 import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
-import {
-  FoldersDiff,
-  FoldersDiffCalculator,
-} from './diff/FoldersDiffCalculator';
+import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator';
 import { getParentDirectory, relativeV2 } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { UserAvaliableSpaceValidator } from '../../context/user/usage/application/UserAvaliableSpaceValidator';
@@ -37,20 +34,15 @@ export class Backup {
     private readonly remoteFileDeleter: FileDeleter,
     private readonly remoteFolderDeleter: FolderDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
-    private readonly userAvaliableSpaceValidator: UserAvaliableSpaceValidator
+    private readonly userAvaliableSpaceValidator: UserAvaliableSpaceValidator,
   ) {}
 
   private backed = 0;
 
-  async run(
-    info: BackupInfo,
-    abortController: AbortController
-  ): Promise<DriveDesktopError | undefined> {
+  async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
     Logger.info('[BACKUPS] Local tree built 1');
 
-    const localTreeEither = await this.localTreeBuilder.run(
-      info.pathname as AbsolutePath
-    );
+    const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
 
     Logger.info('[BACKUPS] Local tree built 2');
 
@@ -70,23 +62,15 @@ export class Backup {
 
     const filesDiff = DiffFilesCalculator.calculate(local, remote);
 
-    const alreadyBacked =
-      filesDiff.unmodified.length + foldersDiff.unmodified.length;
+    const alreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;
 
     this.backed = alreadyBacked;
 
-    Logger.info(
-      '[BACKUPS] Total items to backup',
-      filesDiff.total + foldersDiff.total
-    );
+    Logger.info('[BACKUPS] Total items to backup', filesDiff.total + foldersDiff.total);
 
     Logger.info('[BACKUPS] Already backed', alreadyBacked);
 
-    BackupsIPCRenderer.send(
-      'backups.total-items-calculated',
-      filesDiff.total + foldersDiff.total,
-      alreadyBacked
-    );
+    BackupsIPCRenderer.send('backups.total-items-calculated', filesDiff.total + foldersDiff.total, alreadyBacked);
 
     await this.backupFolders(foldersDiff, local, remote, abortController);
 
@@ -95,12 +79,7 @@ export class Backup {
     return undefined;
   }
 
-  private async backupFolders(
-    diff: FoldersDiff,
-    local: LocalTree,
-    remote: RemoteTree,
-    abortController: AbortController
-  ) {
+  private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
     Logger.info('[BACKUPS] Backing folders');
     Logger.info('[BACKUPS] Folders added', diff.added.length);
 
@@ -109,32 +88,18 @@ export class Backup {
     const deleteFolder = this.deleteRemoteFolders(deleted, abortController);
 
     Logger.debug('[BACKUPS] start upload', deleted.length);
-    const uploadFolder = this.uploadAndCreateFolder(
-      local.root.path,
-      added,
-      remote
-    );
+    const uploadFolder = this.uploadAndCreateFolder(local.root.path, added, remote);
 
     return await Promise.all([deleteFolder, uploadFolder]);
   }
 
-  private async backupFiles(
-    filesDiff: FilesDiff,
-    local: LocalTree,
-    remote: RemoteTree,
-    abortController: AbortController
-  ) {
+  private async backupFiles(filesDiff: FilesDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
     Logger.info('[BACKUPS] Backing files');
 
     const { added, modified, deleted } = filesDiff;
 
     Logger.info('[BACKUPS] Files added', added.length);
-    await this.uploadAndCreateFile(
-      local.root.path,
-      added,
-      remote,
-      abortController
-    );
+    await this.uploadAndCreateFile(local.root.path, added, remote, abortController);
 
     Logger.info('[BACKUPS] Files modified', modified.size);
     await this.uploadAndUpdate(modified, local, remote, abortController);
@@ -147,7 +112,7 @@ export class Backup {
     localRootPath: string,
     added: Array<LocalFile>,
     tree: RemoteTree,
-    abortController: AbortController
+    abortController: AbortController,
   ): Promise<void> {
     const batches = AddedFilesBatchCreator.run(added);
 
@@ -157,19 +122,10 @@ export class Backup {
           return;
         }
         // eslint-disable-next-line no-await-in-loop
-        await this.fileBatchUploader.run(
-          localRootPath,
-          tree,
-          batch,
-          abortController.signal,
-          async () => {
-            this.backed += 1;
-            await BackupsIPCRenderer.send(
-              'backups.progress-update',
-              this.backed
-            );
-          }
-        );
+        await this.fileBatchUploader.run(localRootPath, tree, batch, abortController.signal, async () => {
+          this.backed += 1;
+          await BackupsIPCRenderer.send('backups.progress-update', this.backed);
+        });
       } catch (error) {
         Logger.error('Error uploading files', error);
         if (error instanceof DriveDesktopError) {
@@ -186,7 +142,7 @@ export class Backup {
     modified: Map<LocalFile, File>,
     localTree: LocalTree,
     remoteTree: RemoteTree,
-    abortController: AbortController
+    abortController: AbortController,
   ): Promise<void> {
     const batches = ModifiedFilesBatchCreator.run(modified);
 
@@ -197,12 +153,7 @@ export class Backup {
       }
       try {
         // eslint-disable-next-line no-await-in-loop
-        await this.fileBatchUpdater.run(
-          localTree.root,
-          remoteTree,
-          Array.from(batch.keys()),
-          abortController.signal
-        );
+        await this.fileBatchUpdater.run(localTree.root, remoteTree, Array.from(batch.keys()), abortController.signal);
       } catch (error) {
         Logger.error('[BACKUPS] Error updating files', error);
         if (error instanceof DriveDesktopError) {
@@ -218,10 +169,7 @@ export class Backup {
     }
   }
 
-  private async deleteRemoteFiles(
-    deleted: Array<File>,
-    abortController: AbortController
-  ) {
+  private async deleteRemoteFiles(deleted: Array<File>, abortController: AbortController) {
     for (const file of deleted) {
       if (abortController.signal.aborted) {
         return;
@@ -245,10 +193,7 @@ export class Backup {
     // BackupsIPCRenderer.send('backups.progress-update', this.backed);
   }
 
-  private async deleteRemoteFolders(
-    deleted: Array<Folder>,
-    abortController: AbortController
-  ) {
+  private async deleteRemoteFolders(deleted: Array<Folder>, abortController: AbortController) {
     for (const folder of deleted) {
       if (abortController.signal.aborted) {
         return;
@@ -272,11 +217,7 @@ export class Backup {
       // BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }
-  private async uploadAndCreateFolder(
-    localRootPath: string,
-    added: Array<LocalFolder>,
-    tree: RemoteTree
-  ): Promise<void> {
+  private async uploadAndCreateFolder(localRootPath: string, added: Array<LocalFolder>, tree: RemoteTree): Promise<void> {
     for (const localFolder of added) {
       const relativePath = relativeV2(localRootPath, localFolder.path);
 
@@ -287,10 +228,7 @@ export class Backup {
         continue; // Ignorar la carpeta raíz
       }
 
-      const remoteParentPath = getParentDirectory(
-        localRootPath,
-        localFolder.path
-      );
+      const remoteParentPath = getParentDirectory(localRootPath, localFolder.path);
 
       Logger.debug('[BACKUPS] Remote parent path', remoteParentPath);
 
@@ -310,10 +248,7 @@ export class Backup {
       }
 
       try {
-        const folder = await this.simpleFolderCreator.run(
-          relativePath,
-          parent.id
-        );
+        const folder = await this.simpleFolderCreator.run(relativePath, parent.id);
 
         tree.addFolder(parent, folder);
       } catch (error) {

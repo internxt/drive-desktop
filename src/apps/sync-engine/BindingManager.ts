@@ -42,7 +42,7 @@ export class BindingsManager {
     private readonly handleHydrate = new HandleHydrateService(),
     private readonly handleDehydrate = new HandleDehydrateService(),
     private readonly handleAdd = new HandleAddService(),
-    private readonly handleChangeSize = new HandleChangeSizeService()
+    private readonly handleChangeSize = new HandleChangeSizeService(),
   ) {
     Logger.info(`Running sync engine ${paths.root}`);
 
@@ -147,7 +147,7 @@ export class BindingsManager {
         message: string,
         action: ProcessIssue['action'],
         errorName: ProcessIssue['errorName'],
-        callback: (response: boolean) => void
+        callback: (response: boolean) => void,
       ) => {
         try {
           callback(true);

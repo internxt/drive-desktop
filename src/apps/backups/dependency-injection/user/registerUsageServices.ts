@@ -4,10 +4,7 @@ import { IpcUserUsageRepository } from '../../../../context/user/usage/infrastru
 
 export async function registerUserUsageServices(builder: ContainerBuilder) {
   // Infra
-  builder
-    .register(IpcUserUsageRepository)
-    .useClass(IpcUserUsageRepository)
-    .private();
+  builder.register(IpcUserUsageRepository).useClass(IpcUserUsageRepository).private();
 
   // Services
   builder.registerAndUse(UserAvaliableSpaceValidator);

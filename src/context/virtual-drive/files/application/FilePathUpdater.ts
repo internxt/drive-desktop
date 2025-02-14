@@ -19,7 +19,7 @@ export class FilePathUpdater {
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
   ) {}
 
   private async rename(file: File, path: FilePath) {
@@ -83,11 +83,7 @@ export class FilePathUpdater {
 
       Logger.debug('[RUN RENAME]', file.name, destination.value);
       Logger.debug('[RUN RENAME]', file.name, destination.nameWithExtension());
-      Logger.debug(
-        '[RUN RENAME]',
-        file.nameWithExtension,
-        destination.extensionMatch(file.type)
-      );
+      Logger.debug('[RUN RENAME]', file.nameWithExtension, destination.extensionMatch(file.type));
       if (destination.extensionMatch(file.type)) {
         this.ipc.send('FILE_RENAMING', {
           oldName: file.name,

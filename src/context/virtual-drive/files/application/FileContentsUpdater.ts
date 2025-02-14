@@ -6,14 +6,10 @@ import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 export class FileContentsUpdater {
   constructor(
     private readonly repository: InMemoryFileRepository,
-    private readonly remote: SDKRemoteFileSystem
+    private readonly remote: SDKRemoteFileSystem,
   ) {}
 
-  async run(
-    file: File,
-    contentsId: File['contentsId'],
-    size: File['size']
-  ): Promise<File> {
+  async run(file: File, contentsId: File['contentsId'], size: File['size']): Promise<File> {
     Logger.info('Replace', file, contentsId, size);
     await this.remote.replace(file, contentsId, size);
     Logger.info('Updated', file, contentsId, size);

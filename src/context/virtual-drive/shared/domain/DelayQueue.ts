@@ -8,7 +8,7 @@ export class DelayQueue {
   constructor(
     private readonly name: string,
     private readonly fn: (item: string) => Promise<void>,
-    private readonly canLoop: () => boolean
+    private readonly canLoop: () => boolean,
   ) {
     this.queue = new Map();
   }

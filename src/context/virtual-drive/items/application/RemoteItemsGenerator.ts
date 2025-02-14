@@ -1,14 +1,8 @@
 import { DriveFile } from '../../../../apps/main/database/entities/DriveFile';
 import { DriveFolder } from '../../../../apps/main/database/entities/DriveFolder';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import {
-  ServerFile,
-  ServerFileStatus,
-} from '../../../shared/domain/ServerFile';
-import {
-  ServerFolder,
-  ServerFolderStatus,
-} from '../../../shared/domain/ServerFolder';
+import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
+import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 
 export class RemoteItemsGenerator {
   constructor(private readonly ipc: SyncEngineIpc) {}
@@ -48,15 +42,11 @@ export class RemoteItemsGenerator {
   }
 
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await this.ipc.invoke(
-      'GET_UPDATED_REMOTE_ITEMS'
-    );
+    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS');
 
     const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
 
-    const folders = updatedRemoteItems.folders.map<ServerFolder>(
-      this.mapFolder
-    );
+    const folders = updatedRemoteItems.folders.map<ServerFolder>(this.mapFolder);
 
     return { files, folders };
   }

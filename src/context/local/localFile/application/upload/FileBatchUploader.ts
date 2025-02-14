@@ -16,7 +16,7 @@ export class FileBatchUploader {
   constructor(
     private readonly localHandler: EnvironmentLocalFileUploader,
     private readonly creator: SimpleFileCreator,
-    protected readonly messenger: RendererIpcLocalFileMessenger
+    protected readonly messenger: RendererIpcLocalFileMessenger,
   ) {}
 
   async run(
@@ -24,34 +24,24 @@ export class FileBatchUploader {
     remoteTree: RemoteTree,
     batch: Array<LocalFile>,
     signal: AbortSignal,
-    updateProgress: () => void
+    updateProgress: () => void,
   ): Promise<void> {
     const MAX_CONCURRENT_TASKS = 5;
 
-    const chunks = Array.from(
-      { length: Math.ceil(batch.length / MAX_CONCURRENT_TASKS) },
-      (_, i) =>
-        batch.slice(i * MAX_CONCURRENT_TASKS, (i + 1) * MAX_CONCURRENT_TASKS)
+    const chunks = Array.from({ length: Math.ceil(batch.length / MAX_CONCURRENT_TASKS) }, (_, i) =>
+      batch.slice(i * MAX_CONCURRENT_TASKS, (i + 1) * MAX_CONCURRENT_TASKS),
     );
 
     for (const chunk of chunks) {
       await Promise.all(
         chunk.map(async (localFile) => {
           try {
-            const uploadEither = await this.localHandler.upload(
-              localFile.path,
-              localFile.size,
-              signal
-            );
+            const uploadEither = await this.localHandler.upload(localFile.path, localFile.size, signal);
             Logger.info(localFile.path);
 
             if (uploadEither.isLeft()) {
               const error = uploadEither.getLeft();
-              Logger.error(
-                '[Local File Uploader] Error uploading file',
-                localFile.path,
-                error
-              );
+              Logger.error('[Local File Uploader] Error uploading file', localFile.path, error);
 
               if (isFatalError(error.cause)) {
                 throw error;
@@ -68,12 +58,7 @@ export class FileBatchUploader {
             const remotePath = relativeV2(localRootPath, localFile.path);
             const parent = remoteTree.getParent(remotePath);
 
-            const either = await this.creator.run(
-              contentsId,
-              remotePath,
-              localFile.size,
-              parent.id
-            );
+            const either = await this.creator.run(contentsId, remotePath, localFile.size, parent.id);
 
             if (either.isLeft()) {
               await this.localHandler.delete(contentsId);
@@ -105,11 +90,7 @@ export class FileBatchUploader {
 
             remoteTree.addFile(parent, file);
           } catch (error: any) {
-            Logger.error(
-              '[Local File Uploader] Error uploading file',
-              localFile.path,
-              error
-            );
+            Logger.error('[Local File Uploader] Error uploading file', localFile.path, error);
 
             if (isFatalError(error.cause)) {
               throw error;
@@ -119,7 +100,7 @@ export class FileBatchUploader {
           } finally {
             await updateProgress();
           }
-        })
+        }),
       );
     }
   }
