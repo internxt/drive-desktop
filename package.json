@@ -38,7 +38,7 @@
     "prepare": "husky install",
     "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && yarn",
     "start:reload-bindings": "npm run reload-virtual-drive && npm run start",
-    "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/network/schema.d.ts"
+    "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts"
   },
   "build": {
     "productName": "Internxt",
@@ -221,6 +221,9 @@
     "@internxt/lib": "^1.1.6",
     "@internxt/scan": "1.0.2",
     "@internxt/sdk": "1.9.7",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.57.1",
+    "@opentelemetry/sdk-logs": "^0.57.1",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@sentry/electron": "^4.5.0",
