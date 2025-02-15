@@ -39,14 +39,6 @@ export class FolderPlaceholderDeleter {
       return false;
     }
 
-    Logger.info(
-      `
-      Localdb path: ${remote.path}\n
-      ___________\n
-      Condition Status: ${folderStatus === FolderStatuses.TRASHED || folderStatus === FolderStatuses.DELETED}\n
-      Condition ID: ${localUUID.split(':')[1] === remote['uuid']}\n`,
-    );
-
     return (
       (folderStatus === FolderStatuses.TRASHED || folderStatus === FolderStatuses.DELETED) &&
       localUUID.split(':')[1]?.trim() === remote['uuid']?.trim()

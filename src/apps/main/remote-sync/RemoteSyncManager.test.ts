@@ -55,7 +55,7 @@ const createRemoteSyncedFolderFixture = (payload: Partial<RemoteSyncedFolder>): 
     userId: 567,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    parentId: null,
+    parentId: 555,
     uuid: uuid.v4(),
     status: 'EXISTS',
     ...payload,

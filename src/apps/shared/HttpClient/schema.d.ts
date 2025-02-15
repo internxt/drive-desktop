@@ -2543,6 +2543,48 @@ export interface components {
        */
       creationTime?: string;
     };
+    FileDto: {
+      /**
+       * @description The id of the file
+       * @example 1
+       */
+      id: number;
+      /**
+       * @description The uuid of the file
+       * @example a1b2c3d4-1234-5678-9abc-123456789abc
+       */
+      uuid: string;
+      /**
+       * @description The fileId of the file
+       * @example a1b2c3d4-1234-5678-9abc-123456789abc
+       */
+      fileId: string;
+      /**
+       * @description The name of the file
+       * @example file.txt
+       */
+      name: string;
+      type: string;
+      /** Format: int64 */
+      size: number;
+      bucket: string;
+      folderId: number;
+      folder: Record<string, never>;
+      folderUuid: string;
+      encryptVersion: string;
+      userId: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      plainName: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
+    };
     ReplaceFileDto: {
       /**
        * @description File id
@@ -2566,31 +2608,6 @@ export interface components {
        * @example New type
        */
       type: string;
-    };
-    GetFilesDto: {
-      id: number;
-      uuid: string;
-      fileId: string;
-      name: string;
-      type: string;
-      /** Format: int64 */
-      size: number;
-      bucket: string;
-      folderId: number;
-      folder: Record<string, never>;
-      folderUuid: string;
-      encryptVersion: string;
-      userId: number;
-      /** Format: date-time */
-      creationTime: string;
-      /** Format: date-time */
-      modificationTime: string;
-      /** Format: date-time */
-      createdAt: string;
-      /** Format: date-time */
-      updatedAt: string;
-      plainName: string;
-      status: string;
     };
     MoveFileDto: {
       /**
@@ -2658,12 +2675,12 @@ export interface components {
        * @description Folder name
        * @example Untitled Folder
        */
-      plainName: Record<string, never>;
+      plainName: string;
       /**
        * @description Uuid of the parent folder
        * @example 79a88429-b45a-4ae7-90f1-c351b6882670
        */
-      parentFolderUuid: Record<string, never>;
+      parentFolderUuid: string;
       /**
        * Format: date-time
        * @description The last modification time of the folder (optional)
@@ -2677,8 +2694,11 @@ export interface components {
        */
       creationTime?: string;
     };
-    ResultGetFilesDto: {
-      result: components['schemas']['GetFilesDto'][];
+    FilesDto: {
+      files: components['schemas']['FileDto'][];
+    };
+    ResultFilesDto: {
+      result: components['schemas']['FileDto'][];
     };
     CheckFoldersExistenceDto: {
       /**
@@ -2694,7 +2714,7 @@ export interface components {
       files: string[];
     };
     Folder: Record<string, never>;
-    GetFoldersDto: {
+    FolderDto: {
       type: string;
       id: number;
       parentId: number;
@@ -2715,10 +2735,11 @@ export interface components {
       creationTime: string;
       /** Format: date-time */
       modificationTime: string;
-      status: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
     };
-    ResultGetFoldersDto: {
-      result: components['schemas']['GetFoldersDto'][];
+    ResultFoldersDto: {
+      result: components['schemas']['FolderDto'][];
     };
     UpdateFolderMetaDto: {
       /**
@@ -2732,7 +2753,7 @@ export interface components {
        * @description New Destination Folder UUID
        * @example 366be646-6d67-436e-8cb6-4b275dfe1729
        */
-      destinationFolder: Record<string, never>;
+      destinationFolder: string;
     };
     SetSharingPasswordDto: {
       /**
@@ -3531,7 +3552,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetFilesDto'][];
+          'application/json': components['schemas']['FileDto'][];
         };
       };
     };
@@ -3580,7 +3601,9 @@ export interface operations {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        uuid: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -3589,7 +3612,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
       };
     };
   };
@@ -3983,7 +4008,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetFoldersDto'][];
+          'application/json': components['schemas']['FolderDto'][];
         };
       };
     };
@@ -4067,7 +4092,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FilesDto'];
+        };
       };
     };
   };
@@ -4092,7 +4119,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ResultGetFilesDto'];
+          'application/json': components['schemas']['ResultFilesDto'];
         };
       };
     };
@@ -4268,7 +4295,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ResultGetFoldersDto'];
+          'application/json': components['schemas']['ResultFoldersDto'];
         };
       };
     };
@@ -4277,7 +4304,9 @@ export interface operations {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        uuid: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4286,7 +4315,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
       };
     };
   };
@@ -4294,7 +4325,9 @@ export interface operations {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        uuid: string;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -4386,7 +4419,9 @@ export interface operations {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        uuid: string;
+      };
       cookie?: never;
     };
     requestBody: {
@@ -5349,7 +5384,9 @@ export interface operations {
         offset?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        workspaceId: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5358,7 +5395,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FileDto'][];
+        };
       };
     };
   };
@@ -5401,7 +5440,9 @@ export interface operations {
         offset?: number;
       };
       header?: never;
-      path?: never;
+      path: {
+        workspaceId: string;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -5410,7 +5451,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'][];
+        };
       };
     };
   };
@@ -6068,19 +6111,20 @@ export interface operations {
       };
       header?: never;
       path: {
-        folderUuid: string;
         workspaceId: string;
+        folderUuid: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
-      /** @description Folders in folder */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['ResultFoldersDto'];
+        };
       };
     };
   };
@@ -6109,12 +6153,13 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      /** @description Files in folder */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['ResultFilesDto'];
+        };
       };
     };
   };

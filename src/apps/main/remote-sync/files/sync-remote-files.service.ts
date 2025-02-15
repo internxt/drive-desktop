@@ -1,14 +1,21 @@
+/* eslint-disable no-await-in-loop */
 import { logger } from '../../../shared/logger/logger';
 import { RemoteSyncedFile } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { reportError } from '../../bug-report/service';
 import Logger from 'electron-log';
 import { FetchRemoteFilesService } from './fetch-remote-files.service';
+import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
+import { FetchFilesService } from './fetch-files.service.interface';
 
 const MAX_RETRIES = 3;
 
 export class SyncRemoteFilesService {
-  constructor(private readonly fetchRemoteFiles = new FetchRemoteFilesService()) {}
+  private fetchRemoteFiles: FetchFilesService;
+  constructor(private readonly workspaceId?: string) {
+    this.workspaceId = workspaceId;
+    this.fetchRemoteFiles = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService();
+  }
 
   async run({
     self,
@@ -20,6 +27,7 @@ export class SyncRemoteFilesService {
     retry: number;
     from?: Date;
     folderId?: number;
+    workspaceId?: string;
   }): Promise<RemoteSyncedFile[]> {
     const allResults: RemoteSyncedFile[] = [];
 
@@ -66,7 +74,7 @@ export class SyncRemoteFilesService {
         return [];
       }
 
-      return await this.run({ self, retry: retry + 1, from });
+      return await this.run({ self, retry: retry + 1, from, workspaceId: this.workspaceId });
     }
   }
 }

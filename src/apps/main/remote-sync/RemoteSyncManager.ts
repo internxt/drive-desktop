@@ -32,9 +32,11 @@ export class RemoteSyncManager {
       fetchFilesLimitPerRequest: number;
       fetchFoldersLimitPerRequest: number;
     },
-    private readonly syncRemoteFiles = new SyncRemoteFilesService(),
-    private readonly syncRemoteFolders = new SyncRemoteFoldersService(),
-    private readonly fetchRemoteFolders = new FetchRemoteFoldersService(),
+
+    public workspaceId?: string,
+    private readonly syncRemoteFiles = new SyncRemoteFilesService(this.workspaceId),
+    private readonly syncRemoteFolders = new SyncRemoteFoldersService(this.workspaceId),
+    private readonly fetchRemoteFolders = this.workspaceId ? new FetchRemoteFoldersService() : new FetchRemoteFoldersService(),
   ) {}
 
   set placeholderStatus(status: RemoteSyncStatus) {

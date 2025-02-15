@@ -4,11 +4,17 @@ import { RemoteSyncManager } from '../RemoteSyncManager';
 import { reportError } from '../../bug-report/service';
 import Logger from 'electron-log';
 import { FetchRemoteFoldersService } from './fetch-remote-folders.service';
+import { FetchFoldersService } from './fetch-folders.service.interface';
+import { FetchWorkspaceFoldersService } from './fetch-workspace-folders.service';
 
 const MAX_RETRIES = 3;
 
 export class SyncRemoteFoldersService {
-  constructor(private readonly fetchRemoteFolders = new FetchRemoteFoldersService()) {}
+  private fetchRemoteFolders: FetchFoldersService;
+  constructor(private readonly workspaceId?: string) {
+    this.workspaceId = workspaceId;
+    this.fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService() : new FetchRemoteFoldersService();
+  }
 
   async run({
     self,
@@ -20,6 +26,7 @@ export class SyncRemoteFoldersService {
     retry: number;
     from?: Date;
     folderId?: number;
+    workspaceId?: string;
   }): Promise<RemoteSyncedFolder[]> {
     const allResults: RemoteSyncedFolder[] = [];
 
@@ -66,7 +73,7 @@ export class SyncRemoteFoldersService {
         return [];
       }
 
-      return await this.run({ self, retry: retry + 1, from });
+      return await this.run({ self, retry: retry + 1, from, workspaceId: this.workspaceId });
     }
   }
 }
