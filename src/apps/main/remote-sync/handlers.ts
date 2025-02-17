@@ -45,29 +45,26 @@ async function initializeRemoteSyncManagers() {
     ),
   );
 
-  // workspaces.availableWorkspaces.forEach(({ workspace }) => {
-  //   remoteSyncManagers.set(
-  //     workspace.id,
-  //     new RemoteSyncManager(
-  //       {
-  //         files: driveFilesCollection,
-  //         folders: driveFoldersCollection,
-  //       },
-  //       {
-  //         httpClient: getNewTokenClient(),
-  //         fetchFilesLimitPerRequest: 50,
-  //         fetchFoldersLimitPerRequest: 50,
-  //       },
-  //       workspace.id,
-  //     ),
-  //   );
-  // });
-}
+  logger.info({ fn: 'initializeRemoteSyncManagers', workspaces });
 
-initializeRemoteSyncManagers().catch((error) => {
-  Logger.error('Error initializing remote sync managers', error);
-  reportError(error);
-});
+  workspaces.availableWorkspaces.forEach(({ workspace }) => {
+    remoteSyncManagers.set(
+      workspace.id,
+      new RemoteSyncManager(
+        {
+          files: driveFilesCollection,
+          folders: driveFoldersCollection,
+        },
+        {
+          httpClient: getNewTokenClient(),
+          fetchFilesLimitPerRequest: 50,
+          fetchFoldersLimitPerRequest: 50,
+        },
+        workspace.id,
+      ),
+    );
+  });
+}
 
 export function setIsProcessing(isProcessing: boolean, workspaceId = '') {
   const manager = remoteSyncManagers.get(workspaceId);

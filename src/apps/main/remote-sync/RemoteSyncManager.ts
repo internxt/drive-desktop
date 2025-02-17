@@ -88,7 +88,7 @@ export class RemoteSyncManager {
    *
    * Throws an error if there's a sync in progress for this class instance
    */
-  async startRemoteSync(folderId?: number) {
+  async startRemoteSync(folderId?: number | string) {
     logger.info({ msg: 'Starting remote to local sync', folderId });
 
     this.totalFilesSynced = 0;

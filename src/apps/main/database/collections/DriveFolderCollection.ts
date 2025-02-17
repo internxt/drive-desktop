@@ -109,6 +109,28 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
     }
   }
 
+  async getLastUpdatedByWorkspace(workspaceId: string): Promise<{ success: boolean; result: DriveFolder | null }> {
+    try {
+      const queryResult = await this.repository
+        .createQueryBuilder('drive_folder')
+        .where('workspaceId = :workspaceId', { workspaceId })
+        .orderBy('datetime(drive_folder.updatedAt)', 'DESC')
+        .getOne();
+
+      return {
+        success: true,
+        result: queryResult,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error fetching newest drive folder:', error);
+      return {
+        success: false,
+        result: null,
+      };
+    }
+  }
+
   async searchPartialBy(partialData: Partial<DriveFolder>): Promise<{ success: boolean; result: DriveFolder[] }> {
     try {
       const result = await this.repository.find({

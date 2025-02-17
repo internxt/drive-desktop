@@ -14,6 +14,9 @@ export class DriveFolder {
   id!: number;
 
   @Column({ nullable: true })
+  workspaceId?: string;
+
+  @Column({ nullable: true })
   parentId?: number;
 
   @Column({ nullable: true })

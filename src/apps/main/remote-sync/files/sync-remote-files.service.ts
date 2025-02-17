@@ -6,7 +6,7 @@ import { reportError } from '../../bug-report/service';
 import Logger from 'electron-log';
 import { FetchRemoteFilesService } from './fetch-remote-files.service';
 import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
-import { FetchFilesService } from './fetch-files.service.interface';
+import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
 
 const MAX_RETRIES = 3;
 
@@ -26,8 +26,7 @@ export class SyncRemoteFilesService {
     self: RemoteSyncManager;
     retry: number;
     from?: Date;
-    folderId?: number;
-    workspaceId?: string;
+    folderId?: number | string;
   }): Promise<RemoteSyncedFile[]> {
     const allResults: RemoteSyncedFile[] = [];
 
@@ -40,17 +39,29 @@ export class SyncRemoteFilesService {
       while (hasMore) {
         logger.info({ msg: 'Retrieving files', offset });
 
-        const { hasMore: newHasMore, result } = await this.fetchRemoteFiles.run({
+        const param: FetchFilesServiceParams = {
           self,
           offset,
-          folderId,
           updatedAtCheckpoint: from,
           status: 'ALL',
-        });
+        };
+
+        if (folderId) {
+          if (typeof folderId === 'string') {
+            param.folderUuid = folderId;
+          } else if (typeof folderId === 'number') {
+            param.folderId = folderId;
+          }
+        }
+
+        const { hasMore: newHasMore, result } = await this.fetchRemoteFiles.run(param);
 
         await Promise.all(
           result.map(async (remoteFile) => {
-            self.db.files.create(remoteFile);
+            self.db.files.create({
+              ...remoteFile,
+              workspaceId: this.workspaceId,
+            });
             self.totalFilesSynced++;
           }),
         );
@@ -74,7 +85,7 @@ export class SyncRemoteFilesService {
         return [];
       }
 
-      return await this.run({ self, retry: retry + 1, from, workspaceId: this.workspaceId });
+      return await this.run({ self, retry: retry + 1, from });
     }
   }
 }

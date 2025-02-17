@@ -14,6 +14,9 @@ export class DriveFile {
   })
   uuid!: string;
 
+  @Column({ nullable: true })
+  workspaceId?: string;
+
   @Column({ nullable: true, default: '' })
   type!: string;
 
