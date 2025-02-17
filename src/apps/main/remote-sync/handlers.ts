@@ -20,16 +20,20 @@ import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/doma
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { FetchWorkspacesService } from './workspace/fetch-workspaces.service';
+import { DriveWorkspaceCollection } from '../database/collections/DriveWorkspaceCollection';
+import { SyncRemoteWorkspaceService } from './workspace/sync-remote-workspace';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
 const driveFilesCollection = new DriveFilesCollection();
 const driveFoldersCollection = new DriveFoldersCollection();
+const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
+const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection);
 
 async function initializeRemoteSyncManagers() {
-  const workspaces = await FetchWorkspacesService.run();
+  const workspaces = await syncWorkspaceService.run();
   remoteSyncManagers.set(
     '',
     new RemoteSyncManager(
@@ -47,7 +51,7 @@ async function initializeRemoteSyncManagers() {
 
   logger.info({ fn: 'initializeRemoteSyncManagers', workspaces });
 
-  workspaces.availableWorkspaces.forEach(({ workspace }) => {
+  workspaces.forEach((workspace) => {
     remoteSyncManagers.set(
       workspace.id,
       new RemoteSyncManager(

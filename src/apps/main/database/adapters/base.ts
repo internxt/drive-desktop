@@ -45,6 +45,11 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
     result: DatabaseItemType | null;
   }>;
 
+  getLastUpdatedByWorkspace?(workspaceId: string): Promise<{
+    success: boolean;
+    result: DatabaseItemType | null;
+  }>;
+
   /**
    * Gets items from partial data
    */
