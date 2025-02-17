@@ -2877,6 +2877,31 @@ export interface components {
        */
       roleId: Record<string, never>;
     };
+    WorkspaceUserToJSONDTO: {
+      id: string;
+      memberId: string;
+      key: string;
+      workspaceId: string;
+      rootFolderId: string;
+      spaceLimit: number;
+      driveUsage: number;
+      backupsUsage: number;
+      deactivated: boolean;
+      member: Record<string, never>;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    WorkspaceDto: {
+      workspaceUser: components['schemas']['WorkspaceUserToJSONDTO'];
+      workspace: Record<string, never>;
+    };
+    Workspace: Record<string, never>;
+    GetAvailableWorkspacesResponseDto: {
+      availableWorkspaces: components['schemas']['WorkspaceDto'][];
+      pendingWorkspaces: components['schemas']['Workspace'][];
+    };
     AcceptWorkspaceInviteDto: {
       /**
        * @description id of the invitation
@@ -5158,7 +5183,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['GetAvailableWorkspacesResponseDto'];
+        };
       };
     };
   };

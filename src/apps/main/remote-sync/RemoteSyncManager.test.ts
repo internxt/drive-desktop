@@ -13,7 +13,11 @@ vi.mock('@sentry/electron/main', () => ({
   captureException: () => vi.fn(),
 }));
 
-vi.mock('electron');
+vi.mock('electron', () => ({
+  app: {
+    getPath: () => '/path/to/app',
+  },
+}));
 vi.mock('electron-store');
 vi.mock('axios');
 
