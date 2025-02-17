@@ -1,4 +1,4 @@
-import { logger } from '@/apps/shared/logger/logger';
+import { logger } from '../../../../apps/shared/logger/logger';
 import { DriveWorkspaceCollection } from '../../database/collections/DriveWorkspaceCollection';
 import { DriveWorkspace } from '../../database/entities/DriveWorkspace';
 import { FetchWorkspacesService } from './fetch-workspaces.service';
@@ -11,7 +11,7 @@ export class SyncRemoteWorkspaceService {
       const updateOrCreateWorkspace = async (workspace: DriveWorkspace) => {
         const existingWorkspace = await this.workspaceCollection.get(workspace.id);
         let response;
-        if (existingWorkspace) {
+        if (existingWorkspace.result) {
           response = await this.workspaceCollection.update(workspace.id, workspace);
         } else {
           response = await this.workspaceCollection.create(workspace);
@@ -20,7 +20,8 @@ export class SyncRemoteWorkspaceService {
       };
 
       const result = await Promise.all(workspaces.map(updateOrCreateWorkspace));
-      return result.map((r: DriveWorkspace | null) => r as DriveWorkspace);
+
+      return result.filter(Boolean) as DriveWorkspace[];
     } catch (error) {
       logger.error('Error creating or updating workspace', error);
       throw error;
@@ -49,5 +50,19 @@ export class SyncRemoteWorkspaceService {
       logger.error('Error syncing workspace', error);
       throw error;
     }
+  }
+
+  async getWorkspaceById(workspaceId: string): Promise<{
+    result: DriveWorkspace | null;
+    success: boolean;
+  }> {
+    return await this.workspaceCollection.get(workspaceId);
+  }
+
+  async getWorkspaces(): Promise<{
+    result: DriveWorkspace[];
+    success: boolean;
+  }> {
+    return await this.workspaceCollection.getAll();
   }
 }

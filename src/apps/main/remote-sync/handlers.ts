@@ -19,7 +19,6 @@ import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/P
 import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
-import { FetchWorkspacesService } from './workspace/fetch-workspaces.service';
 import { DriveWorkspaceCollection } from '../database/collections/DriveWorkspaceCollection';
 import { SyncRemoteWorkspaceService } from './workspace/sync-remote-workspace';
 
@@ -30,7 +29,7 @@ const driveFilesCollection = new DriveFilesCollection();
 const driveFoldersCollection = new DriveFoldersCollection();
 const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
-const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection);
+export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection);
 
 async function initializeRemoteSyncManagers() {
   const workspaces = await syncWorkspaceService.run();
