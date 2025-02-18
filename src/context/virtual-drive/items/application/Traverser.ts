@@ -74,7 +74,6 @@ export class Traverser {
 
       if (serverFile.status === ServerFileStatus.DELETED || serverFile.status === ServerFileStatus.TRASHED) {
         try {
-          Logger.info(`[Traverser] Adding the file to the local deletion queue: ${relativeFilePath}`);
           tree.appendTrashedFile(createFileFromServerFile(serverFile, relativeFilePath));
           return;
         } catch (error) {
@@ -117,7 +116,6 @@ export class Traverser {
 
       if (serverFolder.status === ServerFolderStatus.DELETED || serverFolder.status === ServerFolderStatus.TRASHED) {
         try {
-          Logger.info(`[Traverser] Adding the folder to the local deletion queue: ${name}`);
           tree.appendTrashedFolder(createFolderFromServerFolder(serverFolder, name));
           return;
         } catch (error) {

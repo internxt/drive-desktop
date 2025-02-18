@@ -18,10 +18,10 @@ export class FolderPlaceholderDeleter {
       return false;
     }
     const localUUID = await this.local.getFileIdentity(remote.path);
-    Logger.info(`Local UUID: ${localUUID}, remote path: ${remote.path}`);
+    // Logger.info(`Local UUID: ${localUUID}, remote path: ${remote.path}`);
 
     if (!localUUID) {
-      Logger.info(`Local UUID not found for ${remote.path}, skipping deletion`);
+      // Logger.info(`Local UUID not found for ${remote.path}, skipping deletion`);
       return false;
     }
 

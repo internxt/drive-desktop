@@ -30,26 +30,22 @@ const driveFoldersCollection = new DriveFoldersCollection();
 const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
 export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection);
-
+remoteSyncManagers.set(
+  '',
+  new RemoteSyncManager(
+    {
+      files: driveFilesCollection,
+      folders: driveFoldersCollection,
+    },
+    {
+      httpClient: getNewTokenClient(),
+      fetchFilesLimitPerRequest: 50,
+      fetchFoldersLimitPerRequest: 50,
+    },
+  ),
+);
 async function initializeRemoteSyncManagers() {
   const workspaces = await syncWorkspaceService.run();
-  remoteSyncManagers.set(
-    '',
-    new RemoteSyncManager(
-      {
-        files: driveFilesCollection,
-        folders: driveFoldersCollection,
-      },
-      {
-        httpClient: getNewTokenClient(),
-        fetchFilesLimitPerRequest: 50,
-        fetchFoldersLimitPerRequest: 50,
-      },
-    ),
-  );
-
-  logger.info({ fn: 'initializeRemoteSyncManagers', workspaces });
-
   workspaces.forEach((workspace) => {
     remoteSyncManagers.set(
       workspace.id,
@@ -267,14 +263,14 @@ export async function updateRemoteSync(workspaceId = ''): Promise<void> {
     Logger.info('Remote sync is already running');
     return;
   }
-  updateSyncEngine();
+  updateSyncEngine(workspaceId);
 }
 
 export async function fallbackRemoteSync(workspaceId = ''): Promise<void> {
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
   Logger.info('Fallback remote sync');
-  fallbackSyncEngine();
+  fallbackSyncEngine(workspaceId);
 }
 
 ipcMain.handle('SYNC_MANUALLY', async (_, workspaceId = '') => {
@@ -297,7 +293,7 @@ ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_, workspaceId =
   Logger.info('[UPDATE UnSync] Received update UnSync File event');
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
-  await sendUpdateFilesInSyncPending();
+  await sendUpdateFilesInSyncPending(workspaceId);
 });
 
 ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: string[], workspaceId = '') => {
@@ -307,13 +303,13 @@ ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: st
   manager.setUnsyncFiles(filesPath);
 });
 
-const debouncedSynchronization = debounce(async () => {
-  await updateRemoteSync();
+const debouncedSynchronization = debounce(async (WorkspaceId = '') => {
+  await updateRemoteSync(WorkspaceId);
 }, SYNC_DEBOUNCE_DELAY);
 
-eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
+eventBus.on('RECEIVED_REMOTE_CHANGES', async (WorkspaceId?: string) => {
   Logger.info('Received remote changes event');
-  debouncedSynchronization();
+  debouncedSynchronization(WorkspaceId);
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {

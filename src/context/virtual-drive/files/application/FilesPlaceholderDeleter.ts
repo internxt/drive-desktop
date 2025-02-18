@@ -22,13 +22,6 @@ export class FilesPlaceholderDeleter {
     sleep(500);
     const fileStatus = await this.remoteFileSystem.checkStatusFile(remote.uuid);
 
-    Logger.info(
-      `
-      Localdb path: ${remote.path}\n
-      ___________\n
-      Condition Status: ${fileStatus === FileStatuses.TRASHED || fileStatus === FileStatuses.DELETED}\n
-      Condition ID: ${localUUID.split(':')[1] === remote['contentsId']}\n`,
-    );
     return (
       (fileStatus === FileStatuses.TRASHED || fileStatus === FileStatuses.DELETED) &&
       localUUID.split(':')[1]?.trim() === remote['contentsId']?.trim()
