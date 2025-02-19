@@ -6,7 +6,9 @@ import nodeSchedule from 'node-schedule';
 import * as Sentry from '@sentry/electron/main';
 import { monitorHealth } from './sync-engine/monitor-health';
 import { Config } from '../../sync-engine/config';
-import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
+import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtual-root-folder/service';
+import { logger } from '../../../apps/shared/logger/logger';
+import { syncWorkspaceService } from '../remote-sync/handlers';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -17,7 +19,7 @@ interface WorkerConfig {
 
 const workers: { [key: string]: WorkerConfig } = {};
 
-ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId) => {
+ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
   if (workers[workspaceId]) {
     workers[workspaceId].workerIsRunning = true;
@@ -84,6 +86,8 @@ export async function spawnSyncEngineWorker(config: Config) {
         : `${path.join(__dirname, '..', 'sync-engine')}/index.html`,
     );
 
+    logger.info(`[MAIN] SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId} LOADED`);
+
     worker.webContents.send('SET_CONFIG', config);
 
     monitorHealth({
@@ -103,7 +107,7 @@ export async function spawnSyncEngineWorker(config: Config) {
   }
 }
 
-export async function stopAndClearSyncEngineWatcher(workspaceId: string) {
+async function stopAndClearSyncEngineWatcher(workspaceId = '') {
   Logger.info(`[MAIN] STOPPING AND CLEARING SYNC ENGINE WORKER for workspace ${workspaceId}...`);
 
   if (!workers[workspaceId] || !workers[workspaceId].workerIsRunning) {
@@ -183,10 +187,12 @@ export async function sendUpdateFilesInSyncPending(workspaceId: string): Promise
   }
 }
 
-const stopAndClearAllSyncEngineWatcher = async () => {
-  for (const workspaceId in workers) {
-    await stopAndClearSyncEngineWatcher(workspaceId);
-  }
+export const stopAndClearAllSyncEngineWatcher = async () => {
+  await Promise.all(
+    Object.keys(workers).map(async (workspaceId) => {
+      await stopAndClearSyncEngineWatcher(workspaceId);
+    }),
+  );
 };
 
 const spawnAllSyncEngineWorker = async () => {
@@ -199,7 +205,23 @@ const spawnAllSyncEngineWorker = async () => {
     workspaceId: '',
   };
 
-  spawnSyncEngineWorker(values);
+  await spawnSyncEngineWorker(values);
+
+  const workspaces = await syncWorkspaceService.getWorkspaces();
+
+  await Promise.all(
+    workspaces.map(async (workspace) => {
+      const values: Config = {
+        providerId: `{${workspace.id}}`,
+        rootPath: getRootWorkspace(workspace.id),
+        providerName: workspace.name,
+        loggerPath: getLoggersPaths().logWatcherPath,
+        workspaceId: workspace.id,
+      };
+
+      await spawnSyncEngineWorker(values);
+    }),
+  );
 };
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);

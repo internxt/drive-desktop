@@ -59,10 +59,8 @@ export class SyncRemoteWorkspaceService {
     return await this.workspaceCollection.get(workspaceId);
   }
 
-  async getWorkspaces(): Promise<{
-    result: DriveWorkspace[];
-    success: boolean;
-  }> {
-    return await this.workspaceCollection.getAll();
+  async getWorkspaces(): Promise<DriveWorkspace[]> {
+    const workspaces = await this.workspaceCollection.getAll();
+    return workspaces.result;
   }
 }

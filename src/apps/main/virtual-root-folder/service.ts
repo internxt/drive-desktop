@@ -46,6 +46,16 @@ export function getRootVirtualDrive(): string {
   return configStore.get('syncRoot');
 }
 
+export function getRootWorkspace(workspaceId: string): string {
+  const current = configStore.get('workspacesPath');
+  if (!current[workspaceId]) {
+    const pathName = path.join(HOME_FOLDER_PATH, `${ROOT_FOLDER_NAME} - ${workspaceId}`);
+    configStore.set('workspacesPath', { ...current, [workspaceId]: pathName });
+    return pathName;
+  }
+  return current[workspaceId];
+}
+
 export interface LoggersPaths {
   logEnginePath: string;
   logWatcherPath: string;

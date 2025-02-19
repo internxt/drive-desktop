@@ -6,7 +6,6 @@ import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
-import { VirtualDrive } from 'virtual-drive/dist';
 import { setConfig, Config, getConfig } from './config';
 
 Logger.log(`Running sync engine ${packageJson.version}`);
@@ -60,7 +59,7 @@ async function setUp() {
     Logger.info('[SYNC ENGINE] Checking sync engine response');
     const placeholderStatuses = await container.filesCheckerStatusInRoot.run();
     const placeholderStates = placeholderStatuses;
-    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates);
+    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates, getConfig().workspaceId);
   });
 
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
@@ -116,7 +115,7 @@ ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
   setUp()
     .then(() => {
       Logger.info('[SYNC ENGINE] Sync engine has successfully started');
-      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL');
+      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', config.workspaceId);
     })
     .catch((error) => {
       Logger.error('[SYNC ENGINE] Error setting up', error);
@@ -125,6 +124,6 @@ ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
         Logger.info('[SYNC ENGINE] We neeed to restart the app virtual drive');
         Sentry.captureMessage('Restarting sync engine virtual drive is required');
       }
-      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED');
+      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
     });
 });
