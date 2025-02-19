@@ -176,7 +176,23 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderId: number,
   return getUpdatedRemoteItemsByFolder(folderId, workspaceId);
 });
 
-export async function startRemoteSync(folderId?: number, workspaceId = ''): Promise<void> {
+async function populateAllRemoteSync(): Promise<void> {
+  try {
+    // const userData = configStore.get('userData');
+    // const lastFilesSyncAt = await remoteSyncManagers.get('')?.getFileCheckpoint();
+    // logger.info({ msg: 'Received user logged in event', lastFilesSyncAt });
+    // const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
+    // await startRemoteSync(folderId);
+    remoteSyncManagers.forEach(async (manager, workspaceId) => {
+      await startRemoteSync(undefined, workspaceId);
+    });
+  } catch (error) {
+    Logger.error('Error populating all remote sync', error);
+    if (error instanceof Error) reportError(error);
+  }
+}
+
+async function startRemoteSync(folderId?: number, workspaceId = ''): Promise<void> {
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
   try {
@@ -303,13 +319,13 @@ ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: st
   manager.setUnsyncFiles(filesPath);
 });
 
-const debouncedSynchronization = debounce(async (WorkspaceId = '') => {
-  await updateRemoteSync(WorkspaceId);
+const debouncedSynchronization = debounce(async (workspaceId = '') => {
+  await updateRemoteSync(workspaceId);
 }, SYNC_DEBOUNCE_DELAY);
 
-eventBus.on('RECEIVED_REMOTE_CHANGES', async (WorkspaceId?: string) => {
+eventBus.on('RECEIVED_REMOTE_CHANGES', async (workspaceId?: string) => {
   Logger.info('Received remote changes event');
-  debouncedSynchronization(WorkspaceId);
+  debouncedSynchronization(workspaceId);
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
@@ -318,12 +334,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     remoteSyncManagers.forEach((manager) => {
       manager.isProcessRunning = true;
     });
-    setTrayStatus('SYNCING');
-    const userData = configStore.get('userData');
-    const lastFilesSyncAt = await remoteSyncManagers.get('')?.getFileCheckpoint();
-    logger.info({ msg: 'Received user logged in event', lastFilesSyncAt });
-    const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
-    await startRemoteSync(folderId);
+    await populateAllRemoteSync();
+
     eventBus.emit('INITIAL_SYNC_READY');
   } catch (error) {
     Logger.error('Error starting remote sync manager', error);

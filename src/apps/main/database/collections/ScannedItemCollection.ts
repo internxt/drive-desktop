@@ -1,11 +1,10 @@
-import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 import { SCANNED_ITEMS_DB_ENTITY, ScannedItem } from '../entities/ScannedItem';
 
-export class ScannedItemCollection implements DatabaseCollectionAdapter<ScannedItem> {
+export class ScannedItemCollection {
   private repository: Repository<ScannedItem> = AppDataSource.getRepository(SCANNED_ITEMS_DB_ENTITY);
 
   async connect(): Promise<{ success: boolean }> {

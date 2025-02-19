@@ -66,11 +66,14 @@ export type FilesEvents = {
 };
 
 export type SyncEngineInvocableFunctions = {
-  GET_UPDATED_REMOTE_ITEMS: () => Promise<{
+  GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
-  GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (folderId: number) => Promise<{
+  GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (
+    folderId: number,
+    workspaceId: string,
+  ) => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
   }>;

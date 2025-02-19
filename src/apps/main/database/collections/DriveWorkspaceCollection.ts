@@ -92,6 +92,31 @@ export class DriveWorkspaceCollection implements DatabaseCollectionAdapter<Drive
     }
   }
 
+  async getLastUpdatedByWorkspace(workspaceId: string): Promise<{
+    success: boolean;
+    result: DriveWorkspace | null;
+  }> {
+    try {
+      const queryResult = await this.repository
+        .createQueryBuilder('drive_workspace')
+        .where('drive_workspace.workspaceId = :workspaceId', { workspaceId })
+        .orderBy('datetime(drive_workspace.updatedAt)', 'DESC')
+        .getOne();
+
+      return {
+        success: true,
+        result: queryResult,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error fetching newest drive workspace:', error);
+      return {
+        success: false,
+        result: null,
+      };
+    }
+  }
+
   async searchPartialBy(partialData: Partial<DriveWorkspace>): Promise<{ success: boolean; result: DriveWorkspace[] }> {
     try {
       const result = await this.repository.find({

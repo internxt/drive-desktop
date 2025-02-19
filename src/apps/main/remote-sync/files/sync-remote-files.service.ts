@@ -14,6 +14,7 @@ export class SyncRemoteFilesService {
   private fetchRemoteFiles: FetchFilesService;
   constructor(private readonly workspaceId?: string) {
     this.workspaceId = workspaceId;
+    logger.info({ msg: 'SyncRemoteFilesService', workspaceId });
     this.fetchRemoteFiles = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService();
   }
 

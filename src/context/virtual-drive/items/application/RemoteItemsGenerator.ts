@@ -1,10 +1,14 @@
+import { getConfig } from '@/apps/sync-engine/config';
 import { DriveFile } from '../../../../apps/main/database/entities/DriveFile';
 import { DriveFolder } from '../../../../apps/main/database/entities/DriveFolder';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
+import { RemoteItemsGenerator as RIG } from '../../remoteTree/domain/RemoteItemsGenerator';
+import { Service } from 'diod';
 
-export class RemoteItemsGenerator {
+@Service()
+export class RemoteItemsGenerator implements RIG {
   constructor(private readonly ipc: SyncEngineIpc) {}
 
   private mapFile(updatedFile: DriveFile): ServerFile {
@@ -38,16 +42,31 @@ export class RemoteItemsGenerator {
       plain_name: updatedFolder.plainName ?? null,
       status: updatedFolder.status as ServerFolderStatus,
       uuid: updatedFolder.uuid,
+      removed: updatedFolder.status === 'REMOVED',
     };
   }
 
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS');
+    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS', getConfig().workspaceId);
 
     const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
 
     const folders = updatedRemoteItems.folders.map<ServerFolder>(this.mapFolder);
 
     return { files, folders };
+  }
+
+  async getAllItemsByFolderId(folderId: number): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
+    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', folderId, getConfig().workspaceId);
+
+    const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
+
+    const folders = updatedRemoteItems.folders.map<ServerFolder>(this.mapFolder);
+
+    return { files, folders };
+  }
+
+  async forceRefresh(folderId: number): Promise<void> {
+    await this.ipc.invoke('FORCE_REFRESH_BACKUPS', folderId);
   }
 }
