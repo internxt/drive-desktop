@@ -1,4 +1,28 @@
 import { ipcMain } from 'electron';
+import Logger from 'electron-log';
+import { dialog } from 'electron';
+let lastDialogTime = 0; 
+
+function showDialog(issue: ProcessIssue) {
+  const now = Date.now();
+  const TWO_MINUTES = 2 * 60 * 1000;
+
+  if (now - lastDialogTime < TWO_MINUTES) {
+    return;
+  }
+
+  lastDialogTime = now;
+
+
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Internxt',
+    message:
+      'Your account storage limit has been reached, for more details go to Settings -> Issues',
+  });
+}
+
+
 
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
@@ -48,6 +72,9 @@ export function clearGeneralIssues() {
 }
 
 export function addProcessIssue(issue: ProcessIssue) {
+  if ( issue.errorName === 'NOT_ENOUGH_SPACE' ) {
+    showDialog(issue);
+  }
   processIssues.push(issue);
   onProcessIssuesChanged();
 }

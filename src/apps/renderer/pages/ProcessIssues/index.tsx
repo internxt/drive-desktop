@@ -36,14 +36,12 @@ export default function ProcessIssues() {
       generalIssues.length
     ) {
       setActiveSection('GENERAL');
-      setTrayStatus('ALERT');
     } else if (
       processIssuesFilteredByActiveSection.length === 0 &&
       backupErrors.length === 0 &&
       processIssues.length
     ) {
       setActiveSection('SYNC');
-      setTrayStatus('ALERT');
     }
   }, [processIssues, backupErrors, generalIssues]);
 
