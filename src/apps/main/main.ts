@@ -1,3 +1,11 @@
+import { app, ipcMain, nativeTheme } from 'electron';
+import Logger from 'electron-log';
+
+app.whenReady().then(() => {
+  app.setAppUserModelId('com.internxt.app');
+});
+
+
 import 'reflect-metadata';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
@@ -33,8 +41,6 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
-import { app, ipcMain, nativeTheme } from 'electron';
-import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';

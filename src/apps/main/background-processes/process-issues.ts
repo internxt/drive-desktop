@@ -1,28 +1,5 @@
-import { ipcMain } from 'electron';
-import Logger from 'electron-log';
-import { dialog } from 'electron';
-let lastDialogTime = 0; 
-
-function showDialog(issue: ProcessIssue) {
-  const now = Date.now();
-  const TWO_MINUTES = 2 * 60 * 1000;
-
-  if (now - lastDialogTime < TWO_MINUTES) {
-    return;
-  }
-
-  lastDialogTime = now;
-
-
-  dialog.showMessageBox({
-    type: 'info',
-    title: 'Internxt',
-    message:
-      'Your account storage limit has been reached, for more details go to Settings -> Issues',
-  });
-}
-
-
+import { ipcMain, Notification } from 'electron';
+import Logger from 'electron-log';;
 
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
@@ -31,6 +8,31 @@ import {
   GeneralIssue,
   ProcessInfoUpdatePayload,
 } from '../../shared/types';
+import path from 'path';
+
+let lastDialogTime = 0; 
+
+function showNotification(issue: ProcessIssue) {
+  const now = Date.now();
+  const TWO_MINUTES = 2 * 60 * 1000;
+
+  if (now - lastDialogTime < TWO_MINUTES) {
+    return;
+  }
+  lastDialogTime = now;
+
+  const notification = new Notification({
+    title: 'Internxt',
+    body: 'Your account storage limit has been reached, for more details go to Settings -> Issues',
+    icon: path.join(__dirname, 'assets', 'icon.ico')
+  });
+
+  notification.on('click', () => {
+    Logger.info('El usuario hizo clic en la notificación');
+  });
+
+  notification.show();
+}
 
 let processIssues: ProcessIssue[] = [];
 let generalIssues: GeneralIssue[] = [];
@@ -72,8 +74,10 @@ export function clearGeneralIssues() {
 }
 
 export function addProcessIssue(issue: ProcessIssue) {
-  if ( issue.errorName === 'NOT_ENOUGH_SPACE' ) {
-    showDialog(issue);
+  Logger.warn(`Se ha añadido un issue: ${issue.errorName}`);
+  if (issue.errorName === 'NOT_ENOUGH_SPACE') {
+    // Se reemplaza el dialog por la notificación tipo toast
+    showNotification(issue);
   }
   processIssues.push(issue);
   onProcessIssuesChanged();
