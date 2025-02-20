@@ -82,10 +82,13 @@ export class ContentsUploader {
         abortSignal
       );
 
+      Logger.debug('[DEBUG UPLOAD STEEP 2]: ');
       this.registerEvents(uploader, contents);
 
+      Logger.debug('[DEBUG UPLOAD STEEP 3]: ');
       const contentsId = await uploader.upload(contents.stream, contents.size);
 
+      Logger.debug('[DEBUG UPLOAD STEEP 4]: ');
       const fileContents = RemoteFileContents.create(contentsId, contents.size);
 
       return fileContents;
