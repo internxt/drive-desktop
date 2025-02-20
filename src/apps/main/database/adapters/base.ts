@@ -12,7 +12,7 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
   /**
    * Gets all items in database
    */
-  getAll(): Promise<{ success: boolean; result: DatabaseItemType[] | null }>;
+  getAll(workspaceId?: string): Promise<{ success: boolean; result: DatabaseItemType[] | null }>;
 
   /**
    * Updates an item in the database

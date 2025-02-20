@@ -9,6 +9,7 @@ import { Config } from '../../sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtual-root-folder/service';
 import { logger } from '../../../apps/shared/logger/logger';
 import { syncWorkspaceService } from '../remote-sync/handlers';
+import { getUser } from '../auth/service';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -196,6 +197,11 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
 };
 
 const spawnAllSyncEngineWorker = async () => {
+  const user = getUser();
+
+  if (!user) {
+    return;
+  }
   // default drive
   const values: Config = {
     providerId: '{E9D7EB38-B229-5DC5-9396-017C449D59CD}',
@@ -203,6 +209,7 @@ const spawnAllSyncEngineWorker = async () => {
     providerName: 'Internxt',
     loggerPath: getLoggersPaths().logEnginePath,
     workspaceId: '',
+    rootUid: user.rootFolderId,
   };
 
   await spawnSyncEngineWorker(values);
@@ -217,6 +224,7 @@ const spawnAllSyncEngineWorker = async () => {
         providerName: workspace.name,
         loggerPath: getLoggersPaths().logWatcherPath,
         workspaceId: workspace.id,
+        rootUid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
       };
 
       await spawnSyncEngineWorker(values);

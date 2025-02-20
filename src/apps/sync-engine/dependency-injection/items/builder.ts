@@ -3,6 +3,7 @@ import { Traverser } from '../../../../context/virtual-drive/items/application/T
 import { TreeBuilder } from '../../../../context/virtual-drive/items/application/TreeBuilder';
 import { CryptoJsNameDecrypt } from '../../../../context/virtual-drive/items/infrastructure/CryptoJsNameDecrypt';
 import { getUser } from '../../../main/auth/service';
+import { getConfig } from '../../config';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { ItemsContainer } from './ItemsContainer';
 
@@ -17,8 +18,8 @@ export function buildItemsContainer(): ItemsContainer {
 
   const nameDecryptor = new CryptoJsNameDecrypt();
 
-  const existingItemsTraverser = Traverser.existingItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, user.rootFolderId);
-  const allStatusesTraverser = Traverser.allItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, user.rootFolderId);
+  const existingItemsTraverser = Traverser.existingItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUid);
+  const allStatusesTraverser = Traverser.allItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUid);
   const treeBuilder = new TreeBuilder(remoteItemsGenerator, existingItemsTraverser);
 
   const allStatusesTreeBuilder = new TreeBuilder(remoteItemsGenerator, allStatusesTraverser);

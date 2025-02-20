@@ -22,9 +22,11 @@ export class DriveWorkspaceCollection implements DatabaseCollectionAdapter<Drive
     };
   }
 
-  async getAll() {
+  async getAll(workspacesId?: string) {
     try {
-      const result = await this.repository.find();
+      const result = await this.repository.find({
+        where: { id: workspacesId },
+      });
       return {
         success: true,
         result: result,

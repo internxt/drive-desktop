@@ -1,6 +1,8 @@
 export interface Config {
   providerId: string;
   rootPath: string;
+
+  rootUid: string;
   providerName: string;
   loggerPath: string;
 
@@ -13,6 +15,7 @@ let config: Config = {
   providerName: '',
   loggerPath: '',
   workspaceId: '',
+  rootUid: '',
 };
 
 export function setConfig(newConfig: Config) {

@@ -11,7 +11,6 @@ import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
 import { updateSyncEngine, fallbackSyncEngine, sendUpdateFilesInSyncPending } from '../background-processes/sync-engine';
 import { debounce } from 'lodash';
-import configStore from '../config';
 import { setTrayStatus } from '../tray/tray';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
@@ -29,7 +28,7 @@ const driveFilesCollection = new DriveFilesCollection();
 const driveFoldersCollection = new DriveFoldersCollection();
 const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
-export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection);
+export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection, driveFoldersCollection);
 remoteSyncManagers.set(
   '',
   new RemoteSyncManager(
@@ -38,7 +37,6 @@ remoteSyncManagers.set(
       folders: driveFoldersCollection,
     },
     {
-      httpClient: getNewTokenClient(),
       fetchFilesLimitPerRequest: 50,
       fetchFoldersLimitPerRequest: 50,
     },
@@ -55,7 +53,6 @@ async function initializeRemoteSyncManagers() {
           folders: driveFoldersCollection,
         },
         {
-          httpClient: getNewTokenClient(),
           fetchFilesLimitPerRequest: 50,
           fetchFoldersLimitPerRequest: 50,
         },
@@ -82,10 +79,10 @@ export function checkSyncEngineInProcess(milliSeconds: number, workspaceId = '')
 }
 
 export async function getUpdatedRemoteItems(workspaceId = '') {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
   try {
-    const [allDriveFiles, allDriveFolders] = await Promise.all([driveFilesCollection.getAll(), driveFoldersCollection.getAll()]);
+    const promise = Promise.all([driveFilesCollection.getAll(workspaceId), driveFoldersCollection.getAll(workspaceId)]);
+
+    const [allDriveFiles, allDriveFolders] = await promise;
 
     if (!allDriveFiles.success) throw new Error('Failed to retrieve all the drive files from local db');
 
@@ -119,8 +116,8 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
     };
 
     const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAllByFolder(folderId),
-      driveFoldersCollection.getAllByFolder(folderId),
+      driveFilesCollection.getAllByFolder(folderId, workspaceId),
+      driveFoldersCollection.getAllByFolder(folderId, workspaceId),
     ]);
 
     if (!allDriveFiles.success) {
@@ -167,7 +164,7 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
 }
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId = '') => {
-  Logger.debug('[MAIN] Getting updated remote items');
+  Logger.debug('[MAIN] Getting updated remote file items ' + workspaceId);
   return getUpdatedRemoteItems(workspaceId);
 });
 
@@ -234,7 +231,7 @@ ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderId: number, workspaceId 
   await startRemoteSync(folderId, workspaceId);
 });
 
-remoteSyncManagers.forEach((manager, workspaceId) => {
+remoteSyncManagers.forEach((manager) => {
   manager.onStatusChange((newStatus) => {
     if (!initialSyncReady && newStatus === 'SYNCED') {
       initialSyncReady = true;
@@ -260,26 +257,17 @@ ipcMain.handle('get-remote-sync-status', (_, workspaceId = '') => {
   return manager.getSyncStatus();
 });
 
-export async function updateRemoteSync(workspaceId = ''): Promise<void> {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  // Wait before checking for updates, could be possible
-  // that we received the notification, but if we check
-  // for new data we don't receive it
-  Logger.info('Updating remote sync');
-
-  const userData = configStore.get('userData');
-  const lastFilesSyncAt = await manager.getFileCheckpoint();
-  logger.info({ msg: 'Last files sync at', lastFilesSyncAt });
-  const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
-  await startRemoteSync(folderId, workspaceId);
-  const isSyncing = await checkSyncEngineInProcess(5000, workspaceId);
-  Logger.info('Is syncing', isSyncing);
-  if (isSyncing) {
-    Logger.info('Remote sync is already running');
-    return;
-  }
-  updateSyncEngine(workspaceId);
+export async function updateRemoteSync(): Promise<void> {
+  remoteSyncManagers.forEach(async (manager, workspaceId) => {
+    await startRemoteSync(undefined, workspaceId);
+    const isSyncing = checkSyncEngineInProcess(5000, workspaceId);
+    Logger.info('Is syncing', isSyncing);
+    if (isSyncing) {
+      Logger.info('Remote sync is already running');
+      return;
+    }
+    updateSyncEngine(workspaceId);
+  });
 }
 
 export async function fallbackRemoteSync(workspaceId = ''): Promise<void> {
@@ -293,7 +281,7 @@ ipcMain.handle('SYNC_MANUALLY', async (_, workspaceId = '') => {
   Logger.info('[Manual Sync] Received manual sync event');
   const isSyncing = await checkSyncEngineInProcess(5000, workspaceId);
   if (isSyncing) return;
-  await updateRemoteSync(workspaceId);
+  await updateRemoteSync();
   await fallbackRemoteSync(workspaceId);
 });
 
@@ -319,13 +307,13 @@ ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: st
   manager.setUnsyncFiles(filesPath);
 });
 
-const debouncedSynchronization = debounce(async (workspaceId = '') => {
-  await updateRemoteSync(workspaceId);
+const debouncedSynchronization = debounce(async () => {
+  await updateRemoteSync();
 }, SYNC_DEBOUNCE_DELAY);
 
-eventBus.on('RECEIVED_REMOTE_CHANGES', async (workspaceId?: string) => {
+eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   Logger.info('Received remote changes event');
-  debouncedSynchronization(workspaceId);
+  debouncedSynchronization();
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {

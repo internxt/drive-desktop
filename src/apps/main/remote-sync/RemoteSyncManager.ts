@@ -28,7 +28,6 @@ export class RemoteSyncManager {
       folders: DatabaseCollectionAdapter<DriveFolder>;
     },
     public config: {
-      httpClient: Axios;
       fetchFilesLimitPerRequest: number;
       fetchFoldersLimitPerRequest: number;
     },

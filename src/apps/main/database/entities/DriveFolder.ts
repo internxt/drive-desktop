@@ -20,6 +20,9 @@ export class DriveFolder {
   parentId?: number;
 
   @Column({ nullable: true })
+  parentUuid?: string;
+
+  @Column({ nullable: true })
   bucket?: string;
 
   @Column({ nullable: false })

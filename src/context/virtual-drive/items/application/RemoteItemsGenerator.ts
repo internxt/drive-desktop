@@ -6,6 +6,7 @@ import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile'
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { RemoteItemsGenerator as RIG } from '../../remoteTree/domain/RemoteItemsGenerator';
 import { Service } from 'diod';
+import Logger from 'electron-log';
 
 @Service()
 export class RemoteItemsGenerator implements RIG {
@@ -18,6 +19,7 @@ export class RemoteItemsGenerator implements RIG {
       encrypt_version: '03-aes',
       fileId: updatedFile.fileId,
       folderId: updatedFile.folderId,
+      folderUid: updatedFile.folderUuid,
       id: updatedFile.id,
       modificationTime: updatedFile.modificationTime,
       name: updatedFile.name,
@@ -38,6 +40,7 @@ export class RemoteItemsGenerator implements RIG {
       id: updatedFolder.id,
       name: updatedFolder.name,
       parentId: updatedFolder.parentId ?? null,
+      parentUid: updatedFolder.parentUuid,
       updatedAt: updatedFolder.updatedAt,
       plain_name: updatedFolder.plainName ?? null,
       status: updatedFolder.status as ServerFolderStatus,

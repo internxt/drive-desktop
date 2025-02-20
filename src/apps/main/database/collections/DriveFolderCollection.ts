@@ -1,7 +1,7 @@
 import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFolder } from '../entities/DriveFolder';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
@@ -21,9 +21,14 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
     };
   }
 
-  async getAll() {
+  async getAll(workspaceId?: string) {
     try {
-      const result = await this.repository.find();
+      const where: FindOptionsWhere<DriveFolder> = {};
+      if (workspaceId) {
+        where.workspaceId = workspaceId;
+      }
+
+      const result = await this.repository.find({ where });
       return {
         success: true,
         result: result,
@@ -35,12 +40,15 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
       };
     }
   }
-  async getAllByFolder(parentId: number) {
+  async getAllByFolder(parentId: number, workspaceId?: string) {
     try {
+      const where: FindOptionsWhere<DriveFolder> = { parentId };
+      if (workspaceId) {
+        where.workspaceId = workspaceId;
+      }
+
       const result = await this.repository.find({
-        where: {
-          parentId,
-        },
+        where,
       });
       return {
         success: true,

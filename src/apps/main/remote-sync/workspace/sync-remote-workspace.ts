@@ -1,10 +1,11 @@
 import { logger } from '../../../../apps/shared/logger/logger';
+import { DriveFoldersCollection } from '../../database/collections/DriveFolderCollection';
 import { DriveWorkspaceCollection } from '../../database/collections/DriveWorkspaceCollection';
 import { DriveWorkspace } from '../../database/entities/DriveWorkspace';
 import { FetchWorkspacesService } from './fetch-workspaces.service';
 
 export class SyncRemoteWorkspaceService {
-  constructor(private readonly workspaceCollection: DriveWorkspaceCollection) {}
+  constructor(private readonly workspaceCollection: DriveWorkspaceCollection, private readonly folderCollection: DriveFoldersCollection) {}
 
   private async createOrUpdate(workspaces: DriveWorkspace[]): Promise<DriveWorkspace[]> {
     try {
@@ -62,5 +63,15 @@ export class SyncRemoteWorkspaceService {
   async getWorkspaces(): Promise<DriveWorkspace[]> {
     const workspaces = await this.workspaceCollection.getAll();
     return workspaces.result;
+  }
+
+  async getRootFolderUuid(workspaceId: string): Promise<string> {
+    const workspace = await this.getWorkspaceById(workspaceId);
+    const rootFolder = await this.folderCollection.searchPartialBy({ parentUuid: workspace.result?.rootFolderId, workspaceId });
+    logger.info('Root folder', rootFolder);
+    if (!rootFolder.result || rootFolder.result.length === 0) {
+      throw new Error('Root folder not found');
+    }
+    return rootFolder.result[0]?.uuid ?? '';
   }
 }

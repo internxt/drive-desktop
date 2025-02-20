@@ -56,10 +56,12 @@ export class Traverser {
   private traverse(tree: Tree, items: Items, currentFolder: Folder) {
     if (!items) return;
 
-    const filesInThisFolder = items.files.filter((file) => file.folderId === currentFolder.id);
+    const filesInThisFolder = items.files.filter((file) => {
+      return file.folderUid === currentFolder.uuid;
+    });
 
     const foldersInThisFolder = items.folders.filter((folder) => {
-      return folder.parentId === currentFolder.id;
+      return folder.parentUid === currentFolder.uuid;
     });
 
     filesInThisFolder.forEach((serverFile) => {
@@ -77,7 +79,6 @@ export class Traverser {
           tree.appendTrashedFile(createFileFromServerFile(serverFile, relativeFilePath));
           return;
         } catch (error) {
-          Logger.warn(`[Traverser] Error adding file to delete queue: ${error}`);
           return;
         }
       }

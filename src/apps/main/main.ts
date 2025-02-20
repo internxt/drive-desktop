@@ -148,7 +148,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     // scheduleDailyScan();
 
-    setCleanUpFunction(stopAndClearAllSyncEngineWatcher);
+    await setCleanUpFunction(stopAndClearAllSyncEngineWatcher);
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
