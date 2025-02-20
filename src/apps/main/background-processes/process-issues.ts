@@ -28,7 +28,7 @@ function showNotification(issue: ProcessIssue) {
   });
 
   notification.on('click', () => {
-    Logger.info('El usuario hizo clic en la notificación');
+    Logger.info('The users clicked on the notification');
   });
 
   notification.show();
@@ -74,7 +74,6 @@ export function clearGeneralIssues() {
 }
 
 export function addProcessIssue(issue: ProcessIssue) {
-  Logger.warn(`Se ha añadido un issue: ${issue.errorName}`);
   if (issue.errorName === 'NOT_ENOUGH_SPACE') {
     // Se reemplaza el dialog por la notificación tipo toast
     showNotification(issue);
