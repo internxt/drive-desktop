@@ -202,9 +202,9 @@ const spawnAllSyncEngineWorker = async () => {
   if (!user) {
     return;
   }
-  // default drive
+  const providerId = process.env.PROVIDER_ID || 'E9D7EB38-B229-5DC5-9396-017C449D59CD';
   const values: Config = {
-    providerId: '{E9D7EB38-B229-5DC5-9396-017C449D59CD}',
+    providerId: `{${providerId}}`,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt',
     loggerPath: getLoggersPaths().logEnginePath,
@@ -212,24 +212,28 @@ const spawnAllSyncEngineWorker = async () => {
     rootUid: user.rootFolderId,
   };
 
+  logger.info('Spawning sync engine worker for Internxt Drive');
+  logger.info({
+    values,
+  });
   await spawnSyncEngineWorker(values);
 
-  const workspaces = await syncWorkspaceService.getWorkspaces();
+  // const workspaces = await syncWorkspaceService.getWorkspaces();
 
-  await Promise.all(
-    workspaces.map(async (workspace) => {
-      const values: Config = {
-        providerId: `{${workspace.id}}`,
-        rootPath: getRootWorkspace(workspace.id),
-        providerName: workspace.name,
-        loggerPath: getLoggersPaths().logWatcherPath,
-        workspaceId: workspace.id,
-        rootUid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
-      };
+  // await Promise.all(
+  //   workspaces.map(async (workspace) => {
+  //     const values: Config = {
+  //       providerId: `{${workspace.id}}`,
+  //       rootPath: getRootWorkspace(workspace.id),
+  //       providerName: workspace.name,
+  //       loggerPath: getLoggersPaths().logWatcherPath,
+  //       workspaceId: workspace.id,
+  //       rootUid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
+  //     };
 
-      await spawnSyncEngineWorker(values);
-    }),
-  );
+  //     await spawnSyncEngineWorker(values);
+  //   }),
+  // );
 };
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
