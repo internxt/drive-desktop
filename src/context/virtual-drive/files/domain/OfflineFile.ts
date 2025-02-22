@@ -10,12 +10,15 @@ export type OfflineFileAttributes = {
   folderId: number;
   path: string;
   size: number;
+  folderUuid: string;
 };
 
 export class OfflineFile extends AggregateRoot {
   private constructor(
     private _contentsId: ContentsId,
     private _folderId: number,
+
+    private _folderUid: string,
     private _path: FilePath,
     private readonly _size: FileSize,
   ) {
@@ -28,6 +31,10 @@ export class OfflineFile extends AggregateRoot {
 
   public get folderId() {
     return this._folderId;
+  }
+
+  public get folderUid() {
+    return this._folderUid;
   }
 
   public get path(): string {
@@ -58,19 +65,21 @@ export class OfflineFile extends AggregateRoot {
     return new OfflineFile(
       new ContentsId(attributes.contentsId),
       attributes.folderId,
+      attributes.folderUuid,
       new FilePath(attributes.path),
       new FileSize(attributes.size),
     );
   }
 
   static create(contentsId: string, folder: Folder, size: FileSize, path: FilePath): OfflineFile {
-    const file = new OfflineFile(new ContentsId(contentsId), folder.id, path, size);
+    const file = new OfflineFile(new ContentsId(contentsId), folder.id, folder.uuid, path, size);
 
     file.record(
       new FileCreatedDomainEvent({
         aggregateId: contentsId,
         size: file.size,
         type: path.extension(),
+        path: path.value,
       }),
     );
 
@@ -94,6 +103,7 @@ export class OfflineFile extends AggregateRoot {
       contentsId: this.contentsId,
       folderId: this.folderId,
       path: this._path.value,
+      folderUuid: this.folderUid,
       size: this._size.value,
     };
   }
