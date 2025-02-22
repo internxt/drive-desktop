@@ -12,11 +12,11 @@ import { FileStatuses } from '../domain/FileStatus';
 import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 
 export class FileCreator {
   constructor(
-    private readonly remote: SDKRemoteFileSystem,
+    private readonly remote: HttpRemoteFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,

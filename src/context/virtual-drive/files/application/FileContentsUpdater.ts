@@ -1,13 +1,10 @@
 import { File } from '../domain/File';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 
 export class FileContentsUpdater {
-  constructor(
-    private readonly repository: InMemoryFileRepository,
-    private readonly remote: SDKRemoteFileSystem,
-  ) {}
+  constructor(private readonly repository: InMemoryFileRepository, private readonly remote: HttpRemoteFileSystem) {}
 
   async run(file: File, contentsId: File['contentsId'], size: File['size']): Promise<File> {
     Logger.info('Replace', file, contentsId, size);

@@ -10,10 +10,10 @@ import { FolderFinder } from '@/context/virtual-drive/folders/application/Folder
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 
 describe('File Creator', () => {
-  const remoteFileSystemMock = mockDeep<SDKRemoteFileSystem>();
+  const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
   const fileRepository = mockDeep<InMemoryFileRepository>();
   const fileDeleter = mockDeep<FileDeleter>();
   const folderRepository = mockDeep<FolderRepository>();
@@ -91,7 +91,7 @@ describe('File Creator', () => {
     expect(remoteFileSystemMock.persist).toBeCalledWith(
       expect.objectContaining({
         contentsId: contents.id,
-      })
+      }),
     );
     expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(fileAttributes)));
   });
