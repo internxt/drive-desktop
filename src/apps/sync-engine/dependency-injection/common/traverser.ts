@@ -14,7 +14,7 @@ export class DependencyInjectionTraverserProvider {
 
     const user = DependencyInjectionUserProvider.get();
 
-    const traverser = Traverser.existingItems(crypt, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUid);
+    const traverser = Traverser.existingItems(crypt, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUuid);
 
     DependencyInjectionTraverserProvider.traverser = traverser;
 

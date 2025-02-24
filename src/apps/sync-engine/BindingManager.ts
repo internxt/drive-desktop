@@ -237,7 +237,7 @@ export class BindingsManager {
   }
 
   async cleanUp() {
-    Logger.info('[SYNC ENGINE]: Cleaning up');
+    await this.container.virtualDrive.unregisterSyncRoot();
   }
 
   async cleanQueue() {
