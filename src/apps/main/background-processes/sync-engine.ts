@@ -209,7 +209,7 @@ const spawnAllSyncEngineWorker = async () => {
     providerName: 'Internxt',
     loggerPath: getLoggersPaths().logEnginePath,
     workspaceId: '',
-    rootUid: user.rootFolderId,
+    rootUuid: user.rootFolderId,
   };
 
   logger.info('Spawning sync engine worker for Internxt Drive');
@@ -228,7 +228,7 @@ const spawnAllSyncEngineWorker = async () => {
   //       providerName: workspace.name,
   //       loggerPath: getLoggersPaths().logWatcherPath,
   //       workspaceId: workspace.id,
-  //       rootUid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
+  //       rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
   //     };
 
   //     await spawnSyncEngineWorker(values);

@@ -57,11 +57,11 @@ export class Traverser {
     if (!items) return;
 
     const filesInThisFolder = items.files.filter((file) => {
-      return file.folderUid === currentFolder.uuid;
+      return file.folderUuid === currentFolder.uuid;
     });
 
     const foldersInThisFolder = items.folders.filter((folder) => {
-      return folder.parentUid === currentFolder.uuid;
+      return folder.parentUuid === currentFolder.uuid;
     });
 
     filesInThisFolder.forEach((serverFile) => {

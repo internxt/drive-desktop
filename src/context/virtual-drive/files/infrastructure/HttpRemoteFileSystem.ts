@@ -33,7 +33,7 @@ export class HttpRemoteFileSystem {
         bucket: this.bucket,
         fileId: offline.contentsId,
         encryptVersion: EncryptionVersion.Aes03,
-        folderUuid: offline.folderUid,
+        folderUuid: offline.folderUuid,
         plainName: offline.name,
         size: offline.size,
         type: offline.type,
