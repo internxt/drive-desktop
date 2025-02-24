@@ -11,7 +11,7 @@ export class FetchRemoteFilesService implements FetchFilesService {
       updatedAt: updatedAtCheckpoint?.toISOString(),
     };
 
-    const promise = folderId ? this.getFilesByFolder({ folderId: folderId, query }) : this.getFiles({ query });
+    const promise = folderId ? this.getFilesByFolder({ folderId, query }) : this.getFiles({ query });
 
     const result = await promise;
 
