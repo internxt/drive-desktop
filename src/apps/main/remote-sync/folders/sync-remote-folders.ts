@@ -11,11 +11,10 @@ import { FetchWorkspaceFoldersService } from './fetch-workspace-folders.service'
 const MAX_RETRIES = 3;
 
 export class SyncRemoteFoldersService {
-  private fetchRemoteFolders: FetchFoldersService;
-  constructor(private readonly workspaceId?: string) {
-    this.workspaceId = workspaceId;
-    this.fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService() : new FetchRemoteFoldersService();
-  }
+  constructor(
+    private readonly workspaceId?: string,
+    private fetchRemoteFolders: FetchFoldersService = workspaceId ? new FetchWorkspaceFoldersService() : new FetchRemoteFoldersService(),
+  ) {}
 
   async run({
     self,
