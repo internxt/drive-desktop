@@ -24,7 +24,7 @@ function showNotification(issue: ProcessIssue) {
   const notification = new Notification({
     title: 'Internxt',
     body: 'Your account storage limit has been reached, for more details go to Settings -> Issues',
-    icon: path.join(__dirname, 'assets', 'icon.ico')
+    icon: path.join(process.cwd(), 'assets', 'icon.ico')
   });
 
   notification.on('click', () => {
