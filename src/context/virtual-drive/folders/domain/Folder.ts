@@ -15,6 +15,7 @@ export type FolderAttributes = {
   id: number;
   uuid: string;
   parentId: null | number;
+  parentUuid?: null | string;
   path: string;
   updatedAt: string;
   createdAt: string;
@@ -27,6 +28,7 @@ export class Folder extends AggregateRoot {
     private _uuid: FolderUuid,
     private _path: FolderPath,
     private _parentId: null | FolderId,
+    private _parentUuid: null | FolderUuid,
     public _createdAt: FolderCreatedAt,
     public _updatedAt: FolderUpdatedAt,
     private _status: FolderStatus,
@@ -54,8 +56,12 @@ export class Folder extends AggregateRoot {
     return new FolderPath(this._path.dirname());
   }
 
-  public get parentId(): number | undefined {
+  public get parentId() {
     return this._parentId?.value;
+  }
+
+  public get parentUuid() {
+    return this._parentUuid?.value;
   }
 
   public get status(): FolderStatuses {
@@ -113,25 +119,33 @@ export class Folder extends AggregateRoot {
       new FolderUuid(attributes.uuid),
       new FolderPath(attributes.path),
       attributes.parentId ? new FolderId(attributes.parentId) : null,
+      attributes.parentUuid ? new FolderUuid(attributes.parentUuid) : null,
       FolderUpdatedAt.fromString(attributes.updatedAt),
       FolderCreatedAt.fromString(attributes.createdAt),
       FolderStatus.fromValue(attributes.status),
     );
   }
 
-  static create(
-    id: FolderId,
-    uuid: FolderUuid,
-    path: FolderPath,
-    parentId: FolderId,
-    createdAt: FolderCreatedAt,
-    updatedAt: FolderUpdatedAt,
-  ): Folder {
-    const folder = new Folder(id, uuid, path, parentId, createdAt, updatedAt, FolderStatus.Exists);
+  static create({
+    id,
+    uuid,
+    path,
+    parentId,
+    parentUuid,
+    createdAt,
+    updatedAt,
+  }: {
+    id: FolderId;
+    uuid: FolderUuid;
+    path: FolderPath;
+    parentId: FolderId;
+    parentUuid: FolderUuid | null;
+    createdAt: FolderCreatedAt;
+    updatedAt: FolderUpdatedAt;
+  }): Folder {
+    const folder = new Folder(id, uuid, path, parentId, parentUuid, createdAt, updatedAt, FolderStatus.Exists);
 
-    const folderCreatedEvent = new FolderCreatedDomainEvent({
-      aggregateId: folder.uuid,
-    });
+    const folderCreatedEvent = new FolderCreatedDomainEvent({ aggregateId: folder.uuid });
     folder.record(folderCreatedEvent);
 
     return folder;

@@ -82,7 +82,7 @@ function cleanAndStartRemoteNotifications() {
 
     const { event, payload } = data;
 
-    logger.log('Notification received 2: ', event, payload);
+    Logger.log('Notification received 2: ', event, payload);
   });
 }
 

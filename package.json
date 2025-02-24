@@ -38,7 +38,7 @@
     "prepare": "husky install",
     "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && yarn",
     "start:reload-bindings": "npm run reload-virtual-drive && npm run start",
-    "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/network/schema.d.ts"
+    "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts"
   },
   "build": {
     "productName": "Internxt",

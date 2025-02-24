@@ -32,14 +32,15 @@ export class SimpleFolderCreator {
       },
       (dto): Promise<Folder | undefined> => {
         return Promise.resolve(
-          Folder.create(
-            new FolderId(dto.id),
-            new FolderUuid(dto.uuid),
-            folderPath,
-            folderParentId,
-            FolderCreatedAt.fromString(dto.createdAt),
-            FolderUpdatedAt.fromString(dto.updatedAt),
-          ),
+          Folder.create({
+            id: new FolderId(dto.id),
+            uuid: new FolderUuid(dto.uuid),
+            path: folderPath,
+            parentId: folderParentId,
+            parentUuid: null,
+            createdAt: FolderCreatedAt.fromString(dto.createdAt),
+            updatedAt: FolderUpdatedAt.fromString(dto.updatedAt),
+          }),
         );
       },
     );
