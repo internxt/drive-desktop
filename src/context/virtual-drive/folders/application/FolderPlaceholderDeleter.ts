@@ -18,31 +18,17 @@ export class FolderPlaceholderDeleter {
       return false;
     }
     const localUUID = await this.local.getFileIdentity(remote.path);
-    // Logger.info(`Local UUID: ${localUUID}, remote path: ${remote.path}`);
 
     if (!localUUID) {
-      // Logger.info(`Local UUID not found for ${remote.path}, skipping deletion`);
       return false;
     }
 
-    sleep(500);
-    const folderStatus = await this.remoteFileSystem.checkStatusFolder(remote.uuid);
-
-    // temporal condition to avoid deleting folders that are not in the trash
-    // https://github.com/internxt/drive-desktop/blob/60f2ee9a28eab37438b3e8365f4bd519e748a047/src/context/virtual-drive/folders/infrastructure/HttpRemoteFileSystem.ts#L70
-    if (
-      folderStatus === FolderStatuses.DELETED &&
-      !(remote.status === FolderStatuses.DELETED) &&
-      !(remote.status === FolderStatuses.TRASHED)
-    ) {
+    if (!(remote.status === FolderStatuses.DELETED) && !(remote.status === FolderStatuses.TRASHED)) {
       Logger.info(`Folder ${remote.path} with undefined status, skipping deletion`);
       return false;
     }
 
-    return (
-      (folderStatus === FolderStatuses.TRASHED || folderStatus === FolderStatuses.DELETED) &&
-      localUUID.split(':')[1]?.trim() === remote['uuid']?.trim()
-    );
+    return localUUID.split(':')[1]?.trim() === remote['uuid']?.trim();
   }
 
   private async delete(remote: Folder): Promise<void> {

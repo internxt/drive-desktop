@@ -2,122 +2,16 @@ import axios, { Axios } from 'axios';
 import { Service } from 'diod';
 import Logger from 'electron-log';
 import * as uuidv4 from 'uuid';
-import { Either, left, right } from '../../../shared/domain/Either';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { Folder, FolderAttributes } from '../domain/Folder';
-import { FolderId } from '../domain/FolderId';
-import { FolderPath } from '../domain/FolderPath';
-import { FolderUuid } from '../domain/FolderUuid';
-
 import { CreateFolderDTO } from './dtos/CreateFolderDTO';
 import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { OfflineFolder } from '../domain/OfflineFolder';
-import { FileStatuses } from '../../files/domain/FileStatus';
-import { File } from '../../files/domain/File';
-import { FolderPersistedDto, RemoteFileSystemErrors } from '../domain/file-systems/RemoteFolderSystem';
-
-type NewServerFolder = Omit<ServerFolder, 'plain_name'> & { plainName: string };
 
 @Service()
 export class HttpRemoteFolderSystem {
-  private readonly PAGE_SIZE = 50;
-  public folders: Record<string, Folder> = {};
-
-  constructor(
-    private readonly driveClient: Axios,
-    private readonly trashClient: Axios,
-    private readonly maxRetries: number = 3,
-  ) {}
-
-  async searchWith(parentId: FolderId, folderPath: FolderPath): Promise<Folder | undefined> {
-    let page = 0;
-    const folders: Array<NewServerFolder> = [];
-    let lastNumberOfFolders = 0;
-
-    do {
-      const offset = page * this.PAGE_SIZE;
-
-      // eslint-disable-next-line no-await-in-loop
-      const result = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/${parentId.value}/folders?offset=${offset}&limit=${this.PAGE_SIZE}`,
-      );
-
-      const founded = result.data.result as Array<NewServerFolder>;
-      folders.push(...founded);
-      lastNumberOfFolders = founded.length;
-
-      page++;
-    } while (folders.length % this.PAGE_SIZE === 0 && lastNumberOfFolders > 0);
-
-    const name = folderPath.name();
-
-    const folder = folders.find((folder) => folder.plainName === name);
-
-    if (!folder) return;
-
-    return Folder.from({
-      ...folder,
-      path: folderPath.value,
-    });
-  }
-
-  async persistv2(
-    path: FolderPath,
-    parentId: FolderId,
-    uuid?: FolderUuid,
-    attempt = 0,
-  ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
-    const body: CreateFolderDTO = {
-      folderName: path.name(),
-      parentFolderId: parentId.value,
-      uuid: uuid?.value,
-    };
-
-    try {
-      const response = await this.driveClient.post(`${process.env.API_URL}/storage/folder`, body);
-
-      if (response.status !== 201) {
-        throw new Error('Folder creation failed');
-      }
-
-      const serverFolder = response.data as ServerFolder | null;
-
-      if (!serverFolder) {
-        throw new Error('Folder creation failed, no data returned');
-      }
-
-      return right({
-        id: serverFolder.id,
-        uuid: serverFolder.uuid,
-        parentId: parentId.value,
-        updatedAt: serverFolder.updatedAt,
-        createdAt: serverFolder.createdAt,
-      });
-    } catch (err: any) {
-      const { status } = err.response;
-
-      Logger.error('[FOLDER FILE SYSTEM] Error creating folder', err);
-
-      if (status === 409) {
-        return left('ALREADY_EXISTS');
-      }
-
-      if (attempt < this.maxRetries) {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 1_000);
-        });
-        Logger.debug('Retrying');
-        return this.persistv2(path, parentId, uuid, attempt + 1);
-      }
-
-      if (status === 400) {
-        return left('WRONG_DATA');
-      }
-
-      return left('UNHANDLED');
-    }
-  }
+  constructor(private readonly driveClient: Axios, private readonly trashClient: Axios, private readonly maxRetries: number = 3) {}
 
   async persist(offline: OfflineFolder): Promise<FolderAttributes> {
     if (!offline.name || !offline.basename) {
@@ -127,7 +21,7 @@ export class HttpRemoteFolderSystem {
     const body: CreateFolderDTO = {
       folderName: offline.basename,
       parentFolderId: offline.parentId,
-      uuid: offline.uuid, // TODO: Maybe we can avoid errors sending the uuid, because it's optional
+      uuid: offline.uuid,
     };
 
     try {
@@ -145,6 +39,7 @@ export class HttpRemoteFolderSystem {
         id: serverFolder.id,
         uuid: serverFolder.uuid,
         parentId: serverFolder.parentId,
+        parentUuid: serverFolder.parentUuid || '',
         updatedAt: serverFolder.updatedAt,
         createdAt: serverFolder.createdAt,
         path: offline.path.value,
@@ -181,6 +76,7 @@ export class HttpRemoteFolderSystem {
         id: serverFolder.id,
         uuid: serverFolder.uuid,
         parentId: serverFolder.parentId,
+        parentUuid: serverFolder.parentUuid || '',
         updatedAt: serverFolder.updatedAt,
         createdAt: serverFolder.createdAt,
         path: offline.path.value,
@@ -267,41 +163,5 @@ export class HttpRemoteFolderSystem {
     if (res.status !== 200) {
       throw new Error(`[FOLDER FILE SYSTEM] Error moving item: ${res.status}`);
     }
-  }
-
-  async checkStatusFile(uuid: File['uuid']): Promise<FileStatuses> {
-    Logger.info(`Checking status for file 1 ${uuid}`);
-    const response = await this.driveClient.get(`${process.env.NEW_DRIVE_URL}/drive/files/${uuid}/meta`);
-
-    if (response.status === 404) {
-      return FileStatuses.DELETED;
-    }
-
-    if (response.status !== 200) {
-      Logger.error('[FILE FILE SYSTEM] Error checking file status', response.status, response.statusText);
-      throw new Error('Error checking file status');
-    }
-
-    return response.data.status as FileStatuses;
-  }
-
-  async checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses> {
-    Logger.info(`Checking status for folder 1 ${uuid}`);
-    let response;
-    try {
-      response = await this.trashClient.get(`${process.env.NEW_DRIVE_URL}/drive/folders/${uuid.toString()}/meta`);
-    } catch (error) {
-      return FolderStatuses.DELETED;
-    }
-    if (response.status === 404 || response.status === 400) {
-      return FolderStatuses.DELETED;
-    }
-
-    if (response.status > 400) {
-      Logger.error('[FOLDER FILE SYSTEM] Error getting folder metadata', response.status, response.statusText);
-      throw new Error('Error getting folder metadata');
-    }
-
-    return response.data.status as FolderStatuses;
   }
 }

@@ -1,3 +1,4 @@
+import { Service } from 'diod';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
@@ -6,6 +7,7 @@ import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 import { FolderPlaceholderConverter } from './FolderPlaceholderConverter';
 
+@Service()
 export class FolderCreator {
   constructor(
     private readonly repository: InMemoryFolderRepository,
