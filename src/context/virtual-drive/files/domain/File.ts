@@ -1,3 +1,4 @@
+import { FolderUuid } from './../../folders/domain/FolderUuid';
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
@@ -22,6 +23,7 @@ export type FileAttributes = {
   uuid?: string;
   contentsId: string;
   folderId: number;
+  folderUuid: string;
   createdAt: string;
   modificationTime: string;
   path: string;
@@ -36,6 +38,8 @@ export class File extends AggregateRoot {
     private _uuid: FileUuid,
     private _contentsId: FileContentsId,
     private _folderId: FileFolderId,
+
+    private _folderUuid: FolderUuid,
     private _path: FilePath,
     private _size: FileSize,
     public createdAt: Date,
@@ -59,6 +63,10 @@ export class File extends AggregateRoot {
 
   public get folderId() {
     return this._folderId;
+  }
+
+  public get folderUuid() {
+    return this._folderUuid;
   }
 
   public get path(): string {
@@ -99,6 +107,7 @@ export class File extends AggregateRoot {
       new FileUuid(attributes.uuid ?? ''),
       new FileContentsId(attributes.contentsId),
       new FileFolderId(attributes.folderId),
+      new FolderUuid(attributes.folderUuid),
       new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
@@ -107,37 +116,13 @@ export class File extends AggregateRoot {
     );
   }
 
-  static create(contentsId: string, folder: Folder, size: FileSize, path: FilePath): File {
-    const file = new File(
-      0,
-      new FileUuid(''),
-      new FileContentsId(contentsId),
-      new FileFolderId(folder.id),
-      path,
-      size,
-      new Date(),
-      new Date(),
-      FileStatus.Exists,
-    );
-
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: contentsId,
-        size: file.size,
-        type: path.extension(),
-        path: path.value,
-      }),
-    );
-
-    return file;
-  }
-
-  static createv2(attributes: Omit<FileAttributes, 'status'>): File {
+  static create(attributes: Omit<FileAttributes, 'status'>): File {
     const file = new File(
       attributes.id,
       new FileUuid(attributes.uuid || ''),
       new FileContentsId(attributes.contentsId),
       new FileFolderId(attributes.folderId),
+      new FolderUuid(attributes.folderUuid),
       new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
@@ -255,6 +240,7 @@ export class File extends AggregateRoot {
       uuid: this._uuid.toString(),
       contentsId: this.contentsId,
       folderId: Number(this.folderId),
+      folderUuid: this.folderUuid.value,
       createdAt: this.createdAt.toISOString(),
       path: this.path,
       size: this.size,

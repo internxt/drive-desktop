@@ -15,7 +15,6 @@ export class FetchWorkspaceFoldersService implements FetchFoldersService {
       updatedAt: updatedAtCheckpoint?.toISOString(),
     };
 
-
     const promise = folderUuid
       ? this.getFoldersByFolderInWorkspace({
           folderUuid,

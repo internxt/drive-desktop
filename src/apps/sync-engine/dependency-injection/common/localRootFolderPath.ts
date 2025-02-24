@@ -1,4 +1,4 @@
-import configStore from '../../../main/config';
+import { getConfig } from '../../config';
 
 export class DependencyInjectionLocalRootFolderPath {
   private static path: string;
@@ -8,7 +8,7 @@ export class DependencyInjectionLocalRootFolderPath {
       return DependencyInjectionLocalRootFolderPath.path;
     }
 
-    DependencyInjectionLocalRootFolderPath.path = configStore.get('syncRoot');
+    DependencyInjectionLocalRootFolderPath.path = getConfig().rootPath;
 
     return DependencyInjectionLocalRootFolderPath.path;
   }

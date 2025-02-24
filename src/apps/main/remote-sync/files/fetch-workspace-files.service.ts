@@ -8,14 +8,12 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
     if (!self.workspaceId) {
       throw new Error('Workspace id is required to fetch files');
     }
-
     const query: Query = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,
       status,
       updatedAt: updatedAtCheckpoint?.toISOString(),
     };
-
 
     const promise = folderUuid
       ? this.getFilesByFolderInWorkspace({

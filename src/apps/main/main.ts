@@ -48,7 +48,7 @@ import { getTray, setTrayStatus } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { setCleanUpFunction } from './quit';
-import { stopAndClearSyncEngineWatcher } from './background-processes/sync-engine';
+import { stopAndClearAllSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
@@ -148,7 +148,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     // scheduleDailyScan();
 
-    setCleanUpFunction(stopAndClearSyncEngineWatcher);
+    await setCleanUpFunction(stopAndClearAllSyncEngineWatcher);
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
