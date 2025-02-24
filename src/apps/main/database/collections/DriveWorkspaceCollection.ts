@@ -1,11 +1,12 @@
+import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
+import { DriveWorkspace } from '../entities/DriveWorkspace';
 import { Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
-import { SCANNED_ITEMS_DB_ENTITY, ScannedItem } from '../entities/ScannedItem';
 
-export class ScannedItemCollection {
-  private repository: Repository<ScannedItem> = AppDataSource.getRepository(SCANNED_ITEMS_DB_ENTITY);
+export class DriveWorkspaceCollection implements DatabaseCollectionAdapter<DriveWorkspace> {
+  private repository: Repository<DriveWorkspace> = AppDataSource.getRepository('drive_workspace');
 
   async connect(): Promise<{ success: boolean }> {
     return {
@@ -13,7 +14,7 @@ export class ScannedItemCollection {
     };
   }
 
-  async get(id: ScannedItem['id']) {
+  async get(id: DriveWorkspace['id']) {
     const match = await this.repository.findOneBy({ id });
     return {
       success: true,
@@ -21,24 +22,16 @@ export class ScannedItemCollection {
     };
   }
 
-  async getByPathName(pathName: ScannedItem['pathName']) {
-    const match = await this.repository.findOneBy({ pathName });
-    return {
-      success: true,
-      result: match,
-    };
-  }
-
-  async getAll() {
+  async getAll(workspacesId?: string) {
     try {
-      const result = await this.repository.find();
+      const result = await this.repository.find({
+        where: { id: workspacesId },
+      });
       return {
         success: true,
         result: result,
       };
     } catch (error) {
-      Sentry.captureException(error);
-      Logger.error('Error getting all DB items:', error);
       return {
         success: false,
         result: [],
@@ -46,7 +39,7 @@ export class ScannedItemCollection {
     }
   }
 
-  async update(id: ScannedItem['id'], updatePayload: Partial<ScannedItem>) {
+  async update(id: DriveWorkspace['id'], updatePayload: Partial<DriveWorkspace>) {
     const match = await this.repository.update(
       {
         id,
@@ -60,7 +53,7 @@ export class ScannedItemCollection {
     };
   }
 
-  async create(creationPayload: ScannedItem) {
+  async create(creationPayload: DriveWorkspace) {
     const createResult = await this.repository.save(creationPayload);
 
     return {
@@ -69,7 +62,7 @@ export class ScannedItemCollection {
     };
   }
 
-  async remove(id: ScannedItem['id']) {
+  async remove(id: DriveWorkspace['id']) {
     const result = await this.repository.delete({ id });
 
     return {
@@ -79,12 +72,12 @@ export class ScannedItemCollection {
 
   async getLastUpdated(): Promise<{
     success: boolean;
-    result: ScannedItem | null;
+    result: DriveWorkspace | null;
   }> {
     try {
       const queryResult = await this.repository
-        .createQueryBuilder(SCANNED_ITEMS_DB_ENTITY)
-        .orderBy(`datetime(${SCANNED_ITEMS_DB_ENTITY}.updatedAt)`, 'DESC')
+        .createQueryBuilder('drive_workspace')
+        .orderBy('datetime(drive_workspace.updatedAt)', 'DESC')
         .getOne();
 
       return {
@@ -93,7 +86,7 @@ export class ScannedItemCollection {
       };
     } catch (error) {
       Sentry.captureException(error);
-      Logger.error('Error fetching newest drive file:', error);
+      Logger.error('Error fetching newest drive workspace:', error);
       return {
         success: false,
         result: null,
@@ -101,7 +94,32 @@ export class ScannedItemCollection {
     }
   }
 
-  async searchPartialBy(partialData: Partial<ScannedItem>): Promise<{ success: boolean; result: ScannedItem[] }> {
+  async getLastUpdatedByWorkspace(workspaceId: string): Promise<{
+    success: boolean;
+    result: DriveWorkspace | null;
+  }> {
+    try {
+      const queryResult = await this.repository
+        .createQueryBuilder('drive_workspace')
+        .where('drive_workspace.workspaceId = :workspaceId', { workspaceId })
+        .orderBy('datetime(drive_workspace.updatedAt)', 'DESC')
+        .getOne();
+
+      return {
+        success: true,
+        result: queryResult,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error fetching newest drive workspace:', error);
+      return {
+        success: false,
+        result: null,
+      };
+    }
+  }
+
+  async searchPartialBy(partialData: Partial<DriveWorkspace>): Promise<{ success: boolean; result: DriveWorkspace[] }> {
     try {
       const result = await this.repository.find({
         where: partialData,
@@ -112,7 +130,7 @@ export class ScannedItemCollection {
       };
     } catch (error) {
       Sentry.captureException(error);
-      Logger.error('Error fetching drive folders:', error);
+      Logger.error('Error fetching drive workspaces:', error);
       return {
         success: false,
         result: [],

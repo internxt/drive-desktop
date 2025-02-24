@@ -11,6 +11,7 @@ export type ServerFile = {
   encrypt_version: string;
   fileId: string;
   folderId: number;
+  folderUid?: string;
   id: number;
   modificationTime: string;
   name: string;

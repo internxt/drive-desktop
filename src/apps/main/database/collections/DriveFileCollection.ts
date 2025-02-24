@@ -1,7 +1,7 @@
 import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
@@ -22,9 +22,14 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
     };
   }
 
-  async getAll() {
+  async getAll(workspaceId: string | undefined) {
     try {
-      const result = await this.repository.find();
+      const where: FindOptionsWhere<DriveFile> = {};
+      if (workspaceId) {
+        where.workspaceId = workspaceId;
+      }
+
+      const result = await this.repository.find({ where });
       return {
         success: true,
         result: result,
@@ -36,12 +41,14 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
       };
     }
   }
-  async getAllByFolder(folderId: number) {
+  async getAllByFolder(folderId: number, workspaceId?: string) {
     try {
+      const where: FindOptionsWhere<DriveFile> = { folderId };
+      if (workspaceId) {
+        where.workspaceId = workspaceId;
+      }
       const result = await this.repository.find({
-        where: {
-          folderId,
-        },
+        where,
       });
       return {
         success: true,
@@ -100,6 +107,28 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
     } catch (error) {
       Sentry.captureException(error);
       Logger.error('Error fetching newest drive file:', error);
+      return {
+        success: false,
+        result: null,
+      };
+    }
+  }
+
+  async getLastUpdatedByWorkspace(workspaceId: string): Promise<{ success: boolean; result: DriveFile | null }> {
+    try {
+      const queryResult = await this.repository
+        .createQueryBuilder('drive_file')
+        .where('workspaceId = :workspaceId', { workspaceId })
+        .orderBy('datetime(drive_file.updatedAt)', 'DESC')
+        .getOne();
+
+      return {
+        success: true,
+        result: queryResult,
+      };
+    } catch (error) {
+      Sentry.captureException(error);
+      Logger.error('Error fetching newest drive folder:', error);
       return {
         success: false,
         result: null,
