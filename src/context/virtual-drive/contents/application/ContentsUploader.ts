@@ -75,20 +75,16 @@ export class ContentsUploader {
       const { contents, abortSignal } = await this.contentProvider.provide(
         absolutePath
       );
-      Logger.debug('[DEBUG UPLOAD STEEP 1]: ');
 
       const uploader = this.remoteContentsManagersFactory.uploader(
         contents,
         abortSignal
       );
 
-      Logger.debug('[DEBUG UPLOAD STEEP 2]: ');
       this.registerEvents(uploader, contents);
 
-      Logger.debug('[DEBUG UPLOAD STEEP 3]: ');
       const contentsId = await uploader.upload(contents.stream, contents.size);
 
-      Logger.debug('[DEBUG UPLOAD STEEP 4]: ');
       const fileContents = RemoteFileContents.create(contentsId, contents.size);
 
       return fileContents;

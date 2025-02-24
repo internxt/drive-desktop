@@ -75,7 +75,6 @@ export function clearGeneralIssues() {
 
 export function addProcessIssue(issue: ProcessIssue) {
   if (issue.errorName === 'NOT_ENOUGH_SPACE') {
-    // Se reemplaza el dialog por la notificación tipo toast
     showNotification(issue);
   }
   processIssues.push(issue);
