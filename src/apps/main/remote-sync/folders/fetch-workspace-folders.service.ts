@@ -4,15 +4,17 @@ import { FetchFoldersService, FetchFoldersServiceParams, FetchFoldersServiceResu
 
 export class FetchWorkspaceFoldersService implements FetchFoldersService {
   async run({ self, offset, folderUuid, updatedAtCheckpoint, status }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
+
+    if (!self.workspaceId) {
+      throw new Error('Workspace id is required to fetch folders');
+    }
     const query: Query = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,
       status,
       updatedAt: updatedAtCheckpoint?.toISOString(),
     };
-    if (!self.workspaceId) {
-      throw new Error('Workspace id is required to fetch folders');
-    }
+
 
     const promise = folderUuid
       ? this.getFoldersByFolderInWorkspace({
