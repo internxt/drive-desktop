@@ -7,7 +7,7 @@ import Logger from 'electron-log';
 import { isAxiosError } from 'axios';
 import { Service } from 'diod';
 import { client } from '@/apps/shared/HttpClient/client';
-import { persistFileDto, persistFileResponseDto } from './dtos/client.dto';
+import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
 
 @Service()
 export class HttpRemoteFileSystem {
@@ -29,7 +29,7 @@ export class HttpRemoteFileSystem {
       Logger.info(`Creating file ${offline.name} in folder ${offline.folderId}`);
       Logger.info(`Encrypted name: ${offline.path}`);
 
-      const body: persistFileDto = {
+      const body: PersistFileDto = {
         bucket: this.bucket,
         fileId: offline.contentsId,
         encryptVersion: EncryptionVersion.Aes03,
@@ -66,7 +66,7 @@ export class HttpRemoteFileSystem {
     }
   }
 
-  private async createFile(body: persistFileDto): Promise<persistFileResponseDto> {
+  private async createFile(body: PersistFileDto): Promise<PersistFileResponseDto> {
     try {
       const response = await client.POST('/files', {
         body,
@@ -87,7 +87,7 @@ export class HttpRemoteFileSystem {
     }
   }
 
-  private async createFileInWorkspace(body: persistFileDto, workspaceId: string): Promise<persistFileResponseDto> {
+  private async createFileInWorkspace(body: PersistFileDto, workspaceId: string): Promise<PersistFileResponseDto> {
     try {
       const response = await client.POST('/workspaces/{workspaceId}/files', {
         params: {
