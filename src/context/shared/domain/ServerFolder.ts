@@ -11,7 +11,7 @@ export type ServerFolder = {
   id: number;
   name: string;
   parentId: null | number;
-  parentUid?: string;
+  parentUuid?: string;
   updatedAt: string;
   plain_name: string | null;
   status: ServerFolderStatus;
