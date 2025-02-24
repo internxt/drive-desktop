@@ -9,6 +9,7 @@ import { SyncRemoteFoldersService } from './folders/sync-remote-folders';
 import { FetchRemoteFoldersService } from './folders/fetch-remote-folders.service';
 import { SyncRemoteFilesService } from './files/sync-remote-files.service';
 import { Nullable } from '@/apps/shared/types/Nullable';
+import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.service';
 
 export class RemoteSyncManager {
   foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -34,7 +35,7 @@ export class RemoteSyncManager {
     public workspaceId?: string,
     private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),
-    private readonly fetchRemoteFolders = workspaceId ? new FetchRemoteFoldersService() : new FetchRemoteFoldersService(),
+    private readonly fetchRemoteFolders = workspaceId ? new FetchRemoteFoldersService() : new FetchWorkspaceFoldersService(),
   ) {}
 
   set placeholderStatus(status: RemoteSyncStatus) {
