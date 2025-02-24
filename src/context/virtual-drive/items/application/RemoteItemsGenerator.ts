@@ -4,12 +4,10 @@ import { DriveFolder } from '../../../../apps/main/database/entities/DriveFolder
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
-import { RemoteItemsGenerator as RIG } from '../../remoteTree/domain/RemoteItemsGenerator';
 import { Service } from 'diod';
-import Logger from 'electron-log';
 
 @Service()
-export class RemoteItemsGenerator implements RIG {
+export class RemoteItemsGenerator {
   constructor(private readonly ipc: SyncEngineIpc) {}
 
   private mapFile(updatedFile: DriveFile): ServerFile {
