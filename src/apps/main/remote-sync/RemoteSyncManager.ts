@@ -2,7 +2,6 @@ import { RemoteSyncStatus, rewind, WAITING_AFTER_SYNCING_DEFAULT, FIVETEEN_MINUT
 import { reportError } from '../bug-report/service';
 
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
-import { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
 import { logger } from '../../shared/logger/logger';
@@ -10,6 +9,7 @@ import { SyncRemoteFoldersService } from './folders/sync-remote-folders';
 import { FetchRemoteFoldersService } from './folders/fetch-remote-folders.service';
 import { SyncRemoteFilesService } from './files/sync-remote-files.service';
 import { Nullable } from '@/apps/shared/types/Nullable';
+import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.service';
 
 export class RemoteSyncManager {
   foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -28,13 +28,14 @@ export class RemoteSyncManager {
       folders: DatabaseCollectionAdapter<DriveFolder>;
     },
     public config: {
-      httpClient: Axios;
       fetchFilesLimitPerRequest: number;
       fetchFoldersLimitPerRequest: number;
     },
-    private readonly syncRemoteFiles = new SyncRemoteFilesService(),
-    private readonly syncRemoteFolders = new SyncRemoteFoldersService(),
-    private readonly fetchRemoteFolders = new FetchRemoteFoldersService(),
+
+    public workspaceId?: string,
+    private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
+    private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),
+    private readonly fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService(): new FetchRemoteFoldersService(),
   ) {}
 
   set placeholderStatus(status: RemoteSyncStatus) {
@@ -86,14 +87,14 @@ export class RemoteSyncManager {
    *
    * Throws an error if there's a sync in progress for this class instance
    */
-  async startRemoteSync(folderId?: number) {
+  async startRemoteSync(folderId?: number | string) { // TODO: change to folderUuid type
     logger.info({ msg: 'Starting remote to local sync', folderId });
+
+    logger.info({ msg: 'Checking if there is a sync in progress', workspaceId: this.workspaceId });
 
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
     this.totalFoldersSynced = 0;
-    await this.db.files.connect();
-    await this.db.folders.connect();
 
     try {
       const syncFilesPromise = this.syncRemoteFiles.run({
@@ -113,6 +114,7 @@ export class RemoteSyncManager {
       const [files, folders] = await Promise.all([await syncFilesPromise, await syncFoldersPromise]);
       return { files, folders };
     } catch (error) {
+      logger.error('Remote sync failed with error: ', error);
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
     } finally {
@@ -169,7 +171,9 @@ export class RemoteSyncManager {
   }
 
   async getFileCheckpoint(): Promise<Nullable<Date>> {
-    const { success, result } = await this.db.files.getLastUpdated();
+    const promise = this.workspaceId ? this.db.files.getLastUpdatedByWorkspace(this.workspaceId) : this.db.files.getLastUpdated();
+
+    const { success, result } = await promise;
 
     if (!success) return undefined;
 
@@ -181,7 +185,9 @@ export class RemoteSyncManager {
   }
 
   private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
-    const { success, result } = await this.db.folders.getLastUpdated();
+    const promise = this.workspaceId ? this.db.folders.getLastUpdatedByWorkspace(this.workspaceId) : this.db.folders.getLastUpdated();
+
+    const { success, result } = await promise;
 
     if (!success) return undefined;
 
