@@ -9,7 +9,6 @@ import ProcessIssuesList from './List';
 import { ReportModal } from './ReportModal';
 import { ProcessIssue } from '../../../shared/types';
 import useBackupErrors from '../../hooks/backups/useBackupErrors';
-import { setTrayStatus } from '@/apps/main/tray/tray';
 
 type Section = 'SYNC' | 'GENERAL' | 'BACKUPS';
 
