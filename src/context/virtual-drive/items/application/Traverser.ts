@@ -10,6 +10,7 @@ import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus'
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
+import { getConfig } from '@/apps/sync-engine/config';
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
@@ -46,6 +47,7 @@ export class Traverser {
       id: this.baseFolderId,
       uuid: this.baseFolderUuid,
       parentId: null,
+      parentUuid: '',
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',

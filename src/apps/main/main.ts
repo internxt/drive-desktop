@@ -112,7 +112,7 @@ app
       return nativeTheme.shouldUseDarkColors;
     });
 
-    await clamAVServer.startClamdServer();
+    // await clamAVServer.startClamdServer();
 
     checkForUpdates();
   })

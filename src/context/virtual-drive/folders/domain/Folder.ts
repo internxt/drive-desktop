@@ -154,11 +154,6 @@ export class Folder extends AggregateRoot {
     if (!this._parentId) {
       throw new Error('Root folder cannot be moved');
     }
-
-    if (!this._parentUuid) {
-      throw new Error('Root folder cannot be moved');
-    }
-
     if (this.isIn(folder)) {
       throw new Error('Cannot move a folder to its current folder');
     }

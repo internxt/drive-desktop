@@ -1,167 +1,246 @@
-import axios, { Axios } from 'axios';
+import { Folder, FolderAttributes } from '../domain/Folder';
 import { Service } from 'diod';
 import Logger from 'electron-log';
-import * as uuidv4 from 'uuid';
-import { ServerFolder } from '../../../shared/domain/ServerFolder';
-import { Folder, FolderAttributes } from '../domain/Folder';
-import { CreateFolderDTO } from './dtos/CreateFolderDTO';
-import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { OfflineFolder } from '../domain/OfflineFolder';
-
+import { PersistFolderDto, PersistFolderInWorkspaceDto, PersistFolderResponseDto, UpdateFolderMetaDto } from './dtos/client.dto';
+import { driveClient as client } from '../../../../apps/shared/HttpClient/drive-client';
 @Service()
 export class HttpRemoteFolderSystem {
-  constructor(private readonly driveClient: Axios, private readonly trashClient: Axios, private readonly maxRetries: number = 3) {}
+  constructor(private readonly workspaceId?: string) {}
 
   async persist(offline: OfflineFolder): Promise<FolderAttributes> {
     if (!offline.name || !offline.basename) {
       throw new Error('Bad folder name');
     }
 
-    const body: CreateFolderDTO = {
-      folderName: offline.basename,
-      parentFolderId: offline.parentId,
-      uuid: offline.uuid,
+    const body = {
+      plainName: offline.basename,
+      name: offline.basename,
+      parentFolderUuid: offline.parentUuid,
     };
-
     try {
-      const response = await this.driveClient.post(`${process.env.API_URL}/storage/folder`, body);
-      if (response.status !== 201) {
-        throw new Error('Folder creation failed');
-      }
+      const result = this.workspaceId ? await this.createFolderInWorkspace(body, this.workspaceId) : await this.createFolder(body);
 
-      const serverFolder = response.data as ServerFolder | null;
-
-      if (!serverFolder) {
-        throw new Error('Folder creation failed, no data returned');
-      }
       return {
-        id: serverFolder.id,
-        uuid: serverFolder.uuid,
-        parentId: serverFolder.parentId,
-        parentUuid: serverFolder.parentUuid || '',
-        updatedAt: serverFolder.updatedAt,
-        createdAt: serverFolder.createdAt,
+        id: result.id,
+        uuid: result.uuid,
+        parentId: result.parentId,
+        parentUuid: result.parentUuid,
         path: offline.path.value,
+        updatedAt: result.updatedAt,
+        createdAt: result.createdAt,
         status: FolderStatuses.EXISTS,
       };
     } catch (error: unknown) {
       Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
-      if (axios.isAxiosError(error)) {
-        Logger.error('[Is Axios Error]', error.response);
-        const existing = await this.existFolder(offline);
-        return existing.status !== FolderStatuses.EXISTS ? Promise.reject(error) : existing;
+
+      const existing = await this.existFolder(offline);
+      return existing.status !== FolderStatuses.EXISTS ? Promise.reject(error) : existing;
+    }
+  }
+
+  private async createFolder(body: PersistFolderDto): Promise<PersistFolderResponseDto> {
+    try {
+      const response = await client.POST('/folders', {
+        body,
+      });
+
+      if (response.error) {
+        Logger.error({
+          message: 'Error creating file entry',
+          error: response,
+        });
+
+        throw new Error('Error creating file entry');
       }
 
-      throw error;
+      return response.data;
+    } catch (error) {
+      // logger.error({
+      //   message: 'Error creating file entry',
+      //   error,
+      // });
+      throw new Error('Failed to create file and no existing file found');
+    }
+  }
+
+  private async createFolderInWorkspace(body: PersistFolderInWorkspaceDto, workspaceId: string): Promise<PersistFolderResponseDto> {
+    try {
+      const response = await client.POST('/workspaces/{workspaceId}/folders', {
+        params: {
+          path: {
+            workspaceId,
+          },
+        },
+        body,
+      });
+
+      if (response.error) {
+        Logger.error({
+          message: 'Error creating file entry',
+          error: response,
+        });
+        throw new Error('Error creating file entry');
+      }
+
+      return response.data;
+    } catch (error) {
+      Logger.error('Error creating file entry', error);
+      throw new Error('Failed to create file and no existing file found');
     }
   }
 
   private async existFolder(offline: OfflineFolder): Promise<FolderAttributes> {
     try {
-      const response = await this.trashClient.post(
-        `${process.env.NEW_DRIVE_URL}/drive/folders/content/${offline.parentUuid}/folders/existence`,
-        {
+      const response = await client.POST('/folders/content/{uuid}/folders/existence', {
+        params: {
+          path: {
+            uuid: offline.uuid,
+          },
+        },
+        body: {
           plainNames: [offline.basename],
         },
-      );
+      });
       Logger.debug('[FOLDER FILE SYSTEM] Folder already exists', response.data);
 
-      const serverFolder = response.data.existentFolders[0] as ServerFolder | null;
+      if (response.error) {
+        Logger.error({
+          message: 'Error getting folder by name',
+          error: response,
+        });
+        throw new Error('Error getting file by name');
+      }
+      const data = response.data.existentFolders[0];
 
-      if (!serverFolder) {
+      if (!data) {
         throw new Error('Folder creation failed, no data returned');
       }
+
       return {
-        id: serverFolder.id,
-        uuid: serverFolder.uuid,
-        parentId: serverFolder.parentId,
-        parentUuid: serverFolder.parentUuid || '',
-        updatedAt: serverFolder.updatedAt,
-        createdAt: serverFolder.createdAt,
+        id: data.id,
+        uuid: data.uuid,
+        parentId: data.parentId,
+        parentUuid: data.parentUuid,
+        updatedAt: data.updatedAt,
+        createdAt: data.createdAt,
         path: offline.path.value,
-        status: serverFolder.removed ? FolderStatuses.TRASHED : FolderStatuses.EXISTS,
+        status: data.removed ? FolderStatuses.TRASHED : FolderStatuses.EXISTS,
       };
     } catch (error) {
       Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
-      if (axios.isAxiosError(error)) {
-        Logger.error('[Is Axios Error]', error.response?.data);
-      }
-
       throw error;
     }
   }
 
-  async trash(id: Folder['id']): Promise<void> {
-    const result = await this.trashClient.post(`${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`, {
-      items: [{ type: 'folder', id }],
-    });
-
-    if (result.status !== 200) {
-      Logger.error('[FOLDER FILE SYSTEM] Folder deletion failed with status: ', result.status, result.statusText);
-
-      throw new Error('Error when deleting folder');
+  async trash(folder: Folder): Promise<void> {
+    try {
+      const response = await client.POST('/storage/trash/add', {
+        body: {
+          items: [{ type: 'folder', uuid: folder.uuid, id: null }],
+        },
+      });
+      if (response.error) {
+        Logger.error({
+          message: 'Error trashing file',
+          error: response,
+        });
+        throw new Error('Error trashing file');
+      }
+    } catch (error) {
+      Logger.error('Error trashing file', error);
+      throw error;
     }
   }
 
-  async getFolderMetadata(folder: Folder): Promise<any> {
+  async getFolderMetadata(folder: Folder): Promise<PersistFolderResponseDto> {
     try {
-      const url = `${process.env.NEW_DRIVE_URL}/drive/folders/${folder.uuid}/meta`;
+      const res = await client.GET('/folders/{uuid}/meta', {
+        params: {
+          path: {
+            uuid: folder.uuid,
+          },
+        },
+      });
 
-      const res = await this.trashClient.get(url);
-
-      if (res.status !== 200) {
-        throw new Error(`[FOLDER FILE SYSTEM] Error getting folder metadata: ${res.status}`);
+      if (res.error) {
+        Logger.error({
+          message: 'Error getting folder metadata',
+          error: res,
+        });
+        throw new Error('Error getting folder metadata');
       }
 
-      const serverFolder = res.data as ServerFolder;
-      Logger.debug('[FOLDER FILE SYSTEM] Folder metadata', serverFolder);
+      const serverFolder = res.data;
       return serverFolder;
     } catch (error) {
       Logger.error('[FOLDER FILE SYSTEM] Error getting folder metadata');
-      if (axios.isAxiosError(error)) {
-        Logger.error('[Is Axios Error]', error.response?.data);
-      }
       throw error;
     }
   }
 
   async rename(folder: Folder): Promise<void> {
     try {
-      const url = `${process.env.API_URL}/storage/folder/${folder.id}/meta`;
-
       const metadata = await this.getFolderMetadata(folder);
-
       if (metadata.plainName === folder.name) return;
 
-      const body: UpdateFolderNameDTO = {
-        metadata: { itemName: folder.name },
-        relativePath: uuidv4.v4(),
+      const body: UpdateFolderMetaDto = {
+        plainName: folder.name,
       };
 
-      const res = await this.driveClient.post(url, body);
+      const res = await client.PUT('/folders/{uuid}/meta', {
+        params: {
+          path: {
+            uuid: folder.uuid,
+          },
+        },
+        body,
+      });
 
-      if (res.status !== 200) {
-        throw new Error(`[FOLDER FILE SYSTEM] Error updating item metadata: ${res.status}`);
+      if (res.error) {
+        Logger.error({
+          message: 'Error renaming folder',
+          error: res,
+        });
+        throw new Error('Error renaming folder');
       }
     } catch (error) {
       Logger.error('[FOLDER FILE SYSTEM] Error renaming folder');
-      if (axios.isAxiosError(error)) {
-        Logger.error('[Is Axios Error]', error.response?.data);
-      }
       throw error;
     }
   }
 
   async move(folder: Folder): Promise<void> {
-    const url = `${process.env.API_URL}/storage/move/folder`;
+    try {
+      if (!folder.parentUuid) {
+        Logger.error({
+          message: 'Error moving folder',
+          error: 'Folder does not have a parent',
+        });
+        throw new Error('Error moving folder');
+      }
 
-    const body = { destination: folder.parentId, folderId: folder.id };
-
-    const res = await this.driveClient.post(url, body);
-
-    if (res.status !== 200) {
-      throw new Error(`[FOLDER FILE SYSTEM] Error moving item: ${res.status}`);
+      const res = await client.PATCH('/folders/{uuid}', {
+        params: {
+          path: {
+            uuid: folder.uuid,
+          },
+        },
+        body: {
+          destinationFolder: folder.parentUuid,
+        },
+      });
+      if (res.error) {
+        Logger.error({
+          message: 'Error moving folder',
+          error: res,
+        });
+        throw new Error('Error moving folder');
+      }
+    } catch (error) {
+      Logger.error('[FOLDER FILE SYSTEM] Error moving folder');
+      throw error;
     }
   }
 }

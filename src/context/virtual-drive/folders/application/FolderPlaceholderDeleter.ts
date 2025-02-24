@@ -2,7 +2,6 @@ import { RelativePathToAbsoluteConverter } from '../../shared/application/Relati
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
 import Logger from 'electron-log';
-import { sleep } from '../../../../apps/main/util';
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
 import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 

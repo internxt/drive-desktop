@@ -38,6 +38,7 @@ export class Traverser {
       id: id,
       uuid: rootFolderUuid,
       parentId: null,
+      parentUuid: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',
