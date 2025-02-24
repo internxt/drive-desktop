@@ -1,11 +1,9 @@
 export interface Config {
   providerId: string;
   rootPath: string;
-
   rootUuid: string;
   providerName: string;
   loggerPath: string;
-
   workspaceId: string;
 }
 
