@@ -4,7 +4,7 @@ import { Traverser } from '../../../../context/virtual-drive/remoteTree/applicat
 import { RemoteItemsGenerator as RIG } from '../../../../context/virtual-drive/remoteTree/domain/RemoteItemsGenerator';
 import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../../sync-engine/ipcRendererSyncEngine';
-import { RemoteItemsGenerator } from '@/context/virtual-drive/items/application/RemoteItemsGenerator';
+import { RemoteItemsGenerator } from '../../../../context/virtual-drive/items/application/RemoteItemsGenerator';
 
 export async function registerRemoteTreeServices(builder: ContainerBuilder) {
   // Infra

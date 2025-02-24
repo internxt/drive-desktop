@@ -33,7 +33,7 @@ export class OfflineFile extends AggregateRoot {
     return this._folderId;
   }
 
-  public get folderUid() {
+  public get folderUuid() {
     return this._folderUid;
   }
 
@@ -103,7 +103,7 @@ export class OfflineFile extends AggregateRoot {
       contentsId: this.contentsId,
       folderId: this.folderId,
       path: this._path.value,
-      folderUuid: this.folderUid,
+      folderUuid: this.folderUuid,
       size: this._size.value,
     };
   }

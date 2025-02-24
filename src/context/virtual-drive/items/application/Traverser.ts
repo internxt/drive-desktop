@@ -57,7 +57,7 @@ export class Traverser {
     if (!items) return;
 
     const filesInThisFolder = items.files.filter((file) => {
-      return file.folderUid === currentFolder.uuid;
+      return file.folderUuid === currentFolder.uuid;
     });
 
     const foldersInThisFolder = items.folders.filter((folder) => {

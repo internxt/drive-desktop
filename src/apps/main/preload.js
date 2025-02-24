@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.send('path-changed', pathname);
   },
   userIsUnauthorized() {
-    ipcRenderer.send('user-is-unauthorized');
+    ipcRenderer.send('USER_IS_UNAUTHORIZED');
   },
   userLoggedIn(data) {
     return ipcRenderer.send('user-logged-in', data);

@@ -6,8 +6,8 @@ import { OfflineFile } from '../domain/OfflineFile';
 import Logger from 'electron-log';
 import { isAxiosError } from 'axios';
 import { Service } from 'diod';
-import { client } from '@/apps/shared/HttpClient/client';
 import { persistFileDto, persistFileResponseDto } from './dtos/client.dto';
+import { driveClient as client } from '../../../../apps/shared/HttpClient/drive-client';
 
 @Service()
 export class HttpRemoteFileSystem {
@@ -33,7 +33,7 @@ export class HttpRemoteFileSystem {
         bucket: this.bucket,
         fileId: offline.contentsId,
         encryptVersion: EncryptionVersion.Aes03,
-        folderUuid: offline.folderUid,
+        folderUuid: offline.folderUuid,
         plainName: offline.name,
         size: offline.size,
         type: offline.type,
@@ -55,7 +55,7 @@ export class HttpRemoteFileSystem {
         status: FileStatuses.EXISTS,
       };
     } catch (error) {
-      Logger.error('Error creating file entry', error);
+      Logger.error('Error persisting file: ', error);
 
       const existingFile = await this.getFileByPath(offline.path);
       Logger.info('Existing file', existingFile);
@@ -77,6 +77,7 @@ export class HttpRemoteFileSystem {
           message: 'Error creating file entry',
           error: response,
         });
+
         throw new Error('Error creating file entry');
       }
 

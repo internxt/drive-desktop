@@ -19,7 +19,7 @@ export class RemoteItemsGenerator implements RIG {
       encrypt_version: '03-aes',
       fileId: updatedFile.fileId,
       folderId: updatedFile.folderId,
-      folderUid: updatedFile.folderUuid,
+      folderUuid: updatedFile.folderUuid,
       id: updatedFile.id,
       modificationTime: updatedFile.modificationTime,
       name: updatedFile.name,
