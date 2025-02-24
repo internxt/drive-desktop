@@ -75,7 +75,6 @@ export class ContentsUploader {
       const { contents, abortSignal } = await this.contentProvider.provide(
         absolutePath
       );
-      Logger.debug('[DEBUG UPLOAD STEEP 1]: ');
 
       const uploader = this.remoteContentsManagersFactory.uploader(
         contents,
