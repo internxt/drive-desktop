@@ -111,9 +111,9 @@ export async function spawnSyncEngineWorker(config: Config) {
 async function stopAndClearSyncEngineWatcher(workspaceId = '') {
   Logger.info(`[MAIN] STOPPING AND CLEARING SYNC ENGINE WORKER for workspace ${workspaceId}...`);
 
-  if (!workers[workspaceId] || !workers[workspaceId].workerIsRunning) {
+  if (workers[workspaceId] && !workers[workspaceId].workerIsRunning) {
     Logger.info(`[MAIN] WORKER for workspace ${workspaceId} WAS NOT RUNNING`);
-    workers[workspaceId]?.worker?.destroy();
+    workers[workspaceId].worker?.destroy();
     delete workers[workspaceId];
 
     return;
@@ -209,7 +209,7 @@ const spawnAllSyncEngineWorker = async () => {
     providerName: 'Internxt',
     loggerPath: getLoggersPaths().logEnginePath,
     workspaceId: '',
-    rootUid: user.rootFolderId,
+    rootUuid: user.rootFolderId,
   };
 
   logger.info('Spawning sync engine worker for Internxt Drive');
@@ -228,7 +228,7 @@ const spawnAllSyncEngineWorker = async () => {
         providerName: workspace.name,
         loggerPath: getLoggersPaths().logWatcherPath,
         workspaceId: workspace.id,
-        rootUid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
+        rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
       };
 
       await spawnSyncEngineWorker(values);

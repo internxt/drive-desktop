@@ -1,4 +1,3 @@
-import { components } from '../../../../../apps/shared/HttpClient/schema.d';
-export type persistFileDto = components['schemas']['CreateFileDto'];
-
-export type persistFileResponseDto = components['schemas']['FileDto'];
+import { components } from './../../../../../apps/shared/HttpClient/schema.d';
+export type PersistFileDto = components['schemas']['CreateFileDto'];
+export type PersistFileResponseDto = components['schemas']['FileDto'];

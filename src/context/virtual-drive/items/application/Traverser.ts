@@ -61,7 +61,7 @@ export class Traverser {
     });
 
     const foldersInThisFolder = items.folders.filter((folder) => {
-      return folder.parentUid === currentFolder.uuid;
+      return folder.parentUuid === currentFolder.uuid;
     });
 
     filesInThisFolder.forEach((serverFile) => {
