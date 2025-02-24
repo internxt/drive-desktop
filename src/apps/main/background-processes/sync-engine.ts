@@ -7,6 +7,7 @@ import * as Sentry from '@sentry/electron/main';
 import { monitorHealth } from './sync-engine/monitor-health';
 import { Config } from '../../sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
+import { logger } from '@/apps/shared/logger/logger';
 
 let worker: BrowserWindow | null = null;
 let workerIsRunning = false;
@@ -46,7 +47,7 @@ export async function spawnSyncEngineWorker() {
     return;
   }
 
-  Logger.info('[MAIN] SPAWNING SYNC ENGINE WORKER...');
+  logger.debug({ msg: '[MAIN] SPAWNING SYNC ENGINE WORKER...' });
   startingWorker = true;
 
   worker = new BrowserWindow({
@@ -87,6 +88,8 @@ export async function spawnSyncEngineWorker() {
 
     scheduleSync();
 
+    // This is useful when the process of sync-engine is not working
+    // We can uncomment this to check why it's failing
     // worker.webContents.on('console-message', (event, level, message) => {
     //   console.log(`[WORKER CONSOLE ${level}] ${message}`);
     // });
