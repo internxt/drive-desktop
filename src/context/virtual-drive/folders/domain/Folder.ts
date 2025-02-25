@@ -28,7 +28,6 @@ export class Folder extends AggregateRoot {
     private _uuid: FolderUuid,
     private _path: FolderPath,
     private _parentId: null | FolderId,
-
     private _parentUuid: null | FolderUuid,
     public _createdAt: FolderCreatedAt,
     public _updatedAt: FolderUpdatedAt,

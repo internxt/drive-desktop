@@ -22,7 +22,7 @@ export class FolderPlaceholderDeleter {
       return false;
     }
 
-    if (!(remote.status === FolderStatuses.DELETED) && !(remote.status === FolderStatuses.TRASHED)) {
+    if (remote.status !== FolderStatuses.DELETED && remote.status !== FolderStatuses.TRASHED) {
       Logger.info(`Folder ${remote.path} with undefined status, skipping deletion`);
       return false;
     }
