@@ -16,9 +16,7 @@ export class FetchWorkspacesService {
         },
       },
     });
-    if (result.data) {
-      return result.data;
-    }
-    throw new Error(`Fetch workspaces response not ok with error ${result.error}`);
+    if (!result.data) throw new Error(`Fetch workspace credentials response not ok with error ${result.error}`);
+    return result.data;
   }
 }

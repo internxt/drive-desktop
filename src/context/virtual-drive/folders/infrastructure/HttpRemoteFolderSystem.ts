@@ -4,7 +4,7 @@ import Logger from 'electron-log';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { PersistFolderDto, PersistFolderInWorkspaceDto, PersistFolderResponseDto, UpdateFolderMetaDto } from './dtos/client.dto';
-import { driveClient as client } from '../../../../apps/shared/HttpClient/drive-client';
+import { client } from '../../../../apps/shared/HttpClient/client';
 @Service()
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId?: string) {}
@@ -57,10 +57,6 @@ export class HttpRemoteFolderSystem {
 
       return response.data;
     } catch (error) {
-      // logger.error({
-      //   message: 'Error creating file entry',
-      //   error,
-      // });
       throw new Error('Failed to create file and no existing file found');
     }
   }

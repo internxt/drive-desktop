@@ -47,7 +47,7 @@ export class Traverser {
       id: this.baseFolderId,
       uuid: this.baseFolderUuid,
       parentId: null,
-      parentUuid: '',
+      parentUuid: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',
