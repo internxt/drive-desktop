@@ -221,8 +221,8 @@ export class Folder extends AggregateRoot {
     return {
       id: this.id,
       uuid: this.uuid,
-      parentId: this.parentId || 0,
-      parentUuid: this.parentUuid || '',
+      parentId: this.parentId ?? 0,
+      parentUuid: this.parentUuid ?? '',
       path: this.path,
       updatedAt: this.updatedAt.toISOString(),
       createdAt: this.createdAt.toISOString(),
