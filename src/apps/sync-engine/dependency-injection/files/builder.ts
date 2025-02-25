@@ -1,4 +1,3 @@
-import { FileFinder } from './../../../../context/virtual-drive/files/application/FileFinder';
 import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionEventBus } from '../common/eventBus';
@@ -8,7 +7,6 @@ import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
-import { DependencyInjectionStorageSdk } from '../common/sdk';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../../../context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
@@ -21,10 +19,8 @@ import { RepositoryPopulator } from '../../../../context/virtual-drive/files/app
 import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
-import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
 import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
@@ -33,6 +29,8 @@ import { FileContentsUpdater } from '../../../../context/virtual-drive/files/app
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
+import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
+import { getConfig } from '../../config';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -45,11 +43,8 @@ export async function buildFilesContainer(
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
   const { virtualDrive } = DependencyInjectionVirtualDrive;
-  const sdk = await DependencyInjectionStorageSdk.get();
 
-  const clients = DependencyInjectionHttpClientsProvider.get();
-
-  const remoteFileSystem = new SDKRemoteFileSystem(sdk, clients, crypt, user.bucket);
+  const remoteFileSystem = new HttpRemoteFileSystem(crypt, user.bucket, getConfig().workspaceId);
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
   const repository = new InMemoryFileRepository();
@@ -78,8 +73,6 @@ export async function buildFilesContainer(
     eventBus,
   );
 
-  const fileFinder = new FileFinder(repository);
-
   const fileCreator = new FileCreator(
     remoteFileSystem,
     repository,
@@ -107,11 +100,7 @@ export async function buildFilesContainer(
     eventHistory,
   );
 
-  const filesPlaceholderDeleter = new FilesPlaceholderDeleter(
-    remoteFileSystem,
-    sharedContainer.relativePathToAbsoluteConverter,
-    localFileSystem,
-  );
+  const filesPlaceholderDeleter = new FilesPlaceholderDeleter(localFileSystem);
 
   const filePlaceholderConverter = new FilePlaceholderConverter(localFileSystem);
 
@@ -137,7 +126,6 @@ export async function buildFilesContainer(
 
   const container: FilesContainer = {
     fileFinderByContentsId,
-    fileFinder,
     fileDeleter,
     filePathUpdater,
     fileCreator,

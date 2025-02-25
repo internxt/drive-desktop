@@ -218,22 +218,22 @@ const spawnAllSyncEngineWorker = async () => {
   });
   await spawnSyncEngineWorker(values);
 
-  // const workspaces = await syncWorkspaceService.getWorkspaces();
+  const workspaces = await syncWorkspaceService.getWorkspaces();
 
-  // await Promise.all(
-  //   workspaces.map(async (workspace) => {
-  //     const values: Config = {
-  //       providerId: `{${workspace.id}}`,
-  //       rootPath: getRootWorkspace(workspace.id),
-  //       providerName: workspace.name,
-  //       loggerPath: getLoggersPaths().logWatcherPath,
-  //       workspaceId: workspace.id,
-  //       rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
-  //     };
+  await Promise.all(
+    workspaces.map(async (workspace) => {
+      const values: Config = {
+        providerId: `{${workspace.id}}`,
+        rootPath: getRootWorkspace(workspace.id),
+        providerName: workspace.name,
+        loggerPath: getLoggersPaths().logWatcherPath,
+        workspaceId: workspace.id,
+        rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
+      };
 
-  //     await spawnSyncEngineWorker(values);
-  //   }),
-  // );
+      await spawnSyncEngineWorker(values);
+    }),
+  );
 };
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);

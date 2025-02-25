@@ -79,6 +79,10 @@ export type SyncEngineInvocableFunctions = {
   }>;
   START_REMOTE_SYNC: () => Promise<void>;
   FORCE_REFRESH_BACKUPS: (folderId: number) => Promise<void>;
+
+  GET_HEADERS: () => Promise<Record<string, string>>;
+
+  USER_IS_UNAUTHORIZED: () => void;
 };
 
 // TODO: change how errors are reported to the ui

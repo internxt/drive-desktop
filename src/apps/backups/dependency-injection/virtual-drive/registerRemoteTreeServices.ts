@@ -3,7 +3,7 @@ import { RemoteTreeBuilder } from '../../../../context/virtual-drive/remoteTree/
 import { Traverser } from '../../../../context/virtual-drive/remoteTree/application/Traverser';
 import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../../sync-engine/ipcRendererSyncEngine';
-import { RemoteItemsGenerator } from '@/context/virtual-drive/items/application/RemoteItemsGenerator';
+import { RemoteItemsGenerator } from '../../../../context/virtual-drive/items/application/RemoteItemsGenerator';
 
 export async function registerRemoteTreeServices(builder: ContainerBuilder) {
   // Infra
