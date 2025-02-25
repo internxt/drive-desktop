@@ -5,9 +5,8 @@ import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile } from '../domain/OfflineFile';
 import Logger from 'electron-log';
 import { Service } from 'diod';
-import { driveClient as client } from '../../../../apps/shared/HttpClient/drive-client';
 import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
-import { error } from 'console';
+import { client } from '../../../../apps/shared/HttpClient/client';
 
 @Service()
 export class HttpRemoteFileSystem {
