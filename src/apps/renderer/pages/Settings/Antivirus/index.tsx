@@ -64,7 +64,7 @@ export default function AntivirusSection({
   return (
     <section className={`${active ? 'block' : 'hidden'} relative h-full w-full`}>
       <div className="flex h-full w-full flex-col">{viewStates[view]}</div>
-      {isDefenderActive && active && (
+      {isDefenderActive && isAntivirusAvailable && active && (
         <ActionDialog
           showDialog={isDefenderActive && active}
           title={translate('settings.antivirus.deactivateAntivirus.title')}
