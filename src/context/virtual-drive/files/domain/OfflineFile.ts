@@ -18,7 +18,7 @@ export class OfflineFile extends AggregateRoot {
     private _contentsId: ContentsId,
     private _folderId: number,
 
-    private _folderUid: string,
+    private _folderUuid: string,
     private _path: FilePath,
     private readonly _size: FileSize,
   ) {
@@ -34,7 +34,7 @@ export class OfflineFile extends AggregateRoot {
   }
 
   public get folderUuid() {
-    return this._folderUid;
+    return this._folderUuid;
   }
 
   public get path(): string {

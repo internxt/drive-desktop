@@ -111,9 +111,9 @@ export async function spawnSyncEngineWorker(config: Config) {
 async function stopAndClearSyncEngineWatcher(workspaceId = '') {
   Logger.info(`[MAIN] STOPPING AND CLEARING SYNC ENGINE WORKER for workspace ${workspaceId}...`);
 
-  if (!workers[workspaceId] || !workers[workspaceId].workerIsRunning) {
+  if (workers[workspaceId] && !workers[workspaceId].workerIsRunning) {
     Logger.info(`[MAIN] WORKER for workspace ${workspaceId} WAS NOT RUNNING`);
-    workers[workspaceId]?.worker?.destroy();
+    workers[workspaceId].worker?.destroy();
     delete workers[workspaceId];
 
     return;

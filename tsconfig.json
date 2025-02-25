@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ESNext",
     "module": "commonjs",
-    "lib": [
-      "dom",
-      "esnext"
-    ],
+    "lib": ["dom", "esnext"],
     "declaration": true,
     "declarationMap": true,
     "jsx": "react-jsx",
@@ -28,16 +26,10 @@
     "skipLibCheck": true,
     "allowJs": true,
     "outDir": "release/app/dist",
-    "types": [
-      "vitest/globals"
-    ],
+    "types": ["vitest/globals"],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "virtual-drive/dist": [
-        "../node-win/dist"
-      ],
+      "@/*": ["./src/*"],
+      "virtual-drive/dist": ["../node-win/dist"]
     }
   },
   "exclude": [
@@ -46,6 +38,6 @@
     ".erb/dll",
     "src/workers/backups/process.ts",
     "src/workers/backups",
-    "src/workers/filesystems",
+    "src/workers/filesystems"
   ]
 }

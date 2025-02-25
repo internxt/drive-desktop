@@ -18,8 +18,8 @@ export function buildItemsContainer(): ItemsContainer {
 
   const nameDecryptor = new CryptoJsNameDecrypt();
 
-  const existingItemsTraverser = Traverser.existingItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUid);
-  const allStatusesTraverser = Traverser.allItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUid);
+  const existingItemsTraverser = Traverser.existingItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUuid);
+  const allStatusesTraverser = Traverser.allItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUuid);
   const treeBuilder = new TreeBuilder(remoteItemsGenerator, existingItemsTraverser);
 
   const allStatusesTreeBuilder = new TreeBuilder(remoteItemsGenerator, allStatusesTraverser);
