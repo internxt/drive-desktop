@@ -178,6 +178,7 @@ export class File extends AggregateRoot {
     }
 
     this._folderId = new FileFolderId(folder.id);
+    this._folderUuid = new FolderUuid(folder.uuid);
     this._path = this._path.changeFolder(folder.path);
 
     this.record(

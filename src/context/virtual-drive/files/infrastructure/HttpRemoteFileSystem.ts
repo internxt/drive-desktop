@@ -4,7 +4,6 @@ import { File, FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile } from '../domain/OfflineFile';
 import Logger from 'electron-log';
-import { isAxiosError } from 'axios';
 import { Service } from 'diod';
 import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
@@ -117,13 +116,13 @@ export class HttpRemoteFileSystem {
     try {
       const response = await client.POST('/storage/trash/add', {
         body: {
-          items: [{ type: 'file', id: file.contentsId, uuid: file.uuid }],
+          items: [{ type: 'file', uuid: file.uuid, id: null }],
         },
       });
       if (response.error) {
         Logger.error({
           message: 'Error trashing file',
-          error: response,
+          error: response.response,
         });
         throw new Error('Error trashing file');
       }
@@ -169,8 +168,10 @@ export class HttpRemoteFileSystem {
       if (response.error) {
         Logger.error({
           message: 'Error moving file',
-          error: response,
+          error: response.response,
+          errorData: response.error,
         });
+
         throw new Error('Error moving file');
       }
     } catch (error) {
@@ -266,9 +267,6 @@ export class HttpRemoteFileSystem {
 
       return attributes;
     } catch (error) {
-      if (isAxiosError(error)) {
-        Logger.error('Error getting file by path', error.response?.status, error.response?.data);
-      }
       return null;
     }
   }

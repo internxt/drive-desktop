@@ -7,41 +7,29 @@ import { FolderCreatedAt } from '../../domain/FolderCreatedAt';
 import { FolderUpdatedAt } from '../../domain/FolderUpdatedAt';
 import Logger from 'electron-log';
 import { HttpRemoteFolderSystem } from '../../infrastructure/HttpRemoteFolderSystem';
+import { OfflineFolder } from '../../domain/OfflineFolder';
 
 @Service()
 export class SimpleFolderCreator {
   constructor(private readonly rfs: HttpRemoteFolderSystem) {}
 
-  async run(path: string, parentId: number): Promise<Folder> {
-    Logger.debug('Creating folder', path, 'with parent', parentId);
-    const folderPath = new FolderPath(path);
+  async run(offlineFolder: OfflineFolder): Promise<Folder> {
+    Logger.debug('Creating folder', offlineFolder.path.value, 'with parent', offlineFolder.parentId);
+    const folderPath = new FolderPath(offlineFolder.path.value);
     Logger.debug('Creating folder', folderPath);
-    const folderParentId = new FolderId(parentId);
 
-    const response = await this.rfs.persistv2(folderPath, folderParentId);
+    // const offlineFolder = OfflineFolder
 
-    Logger.debug('Creating folder', folderPath, 'with parent', folderParentId);
+    const response = await this.rfs.persist(offlineFolder);
 
-    const folder = await response.fold<Promise<Folder | undefined>>(
-      async (error): Promise<Folder | undefined> => {
-        Logger.warn('The folder was not been able to create', error);
-        if (error !== 'ALREADY_EXISTS') {
-          return;
-        }
-        return this.rfs.searchWith(folderParentId, folderPath);
-      },
-      (dto): Promise<Folder | undefined> => {
-        return Promise.resolve(
-          Folder.create(
-            new FolderId(dto.id),
-            new FolderUuid(dto.uuid),
-            folderPath,
-            folderParentId,
-            FolderCreatedAt.fromString(dto.createdAt),
-            FolderUpdatedAt.fromString(dto.updatedAt),
-          ),
-        );
-      },
+    const folder = Folder.create(
+      new FolderId(response.id),
+      new FolderUuid(response.uuid),
+      folderPath,
+      new FolderId(offlineFolder.parentId),
+      new FolderUuid(offlineFolder.parentUuid),
+      FolderCreatedAt.fromString(response.createdAt),
+      FolderUpdatedAt.fromString(response.updatedAt),
     );
 
     if (!folder) {

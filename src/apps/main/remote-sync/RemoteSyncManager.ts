@@ -35,7 +35,7 @@ export class RemoteSyncManager {
     public workspaceId?: string,
     private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),
-    private readonly fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService(): new FetchRemoteFoldersService(),
+    private readonly fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService() : new FetchRemoteFoldersService(),
   ) {}
 
   set placeholderStatus(status: RemoteSyncStatus) {
@@ -87,7 +87,8 @@ export class RemoteSyncManager {
    *
    * Throws an error if there's a sync in progress for this class instance
    */
-  async startRemoteSync(folderId?: number | string) { // TODO: change to folderUuid type
+  async startRemoteSync(folderId?: number | string) {
+    // TODO: change to folderUuid type
     logger.info({ msg: 'Starting remote to local sync', folderId });
 
     logger.info({ msg: 'Checking if there is a sync in progress', workspaceId: this.workspaceId });

@@ -2695,25 +2695,6 @@ export interface components {
              */
             creationTime?: string;
         };
-        FilesDto: {
-            files: components["schemas"]["FileDto"][];
-        };
-        ResultFilesDto: {
-            result: components["schemas"]["FileDto"][];
-        };
-        CheckFoldersExistenceDto: {
-            /**
-             * @description Plain name of folder or array of plain names
-             * @example [
-             *       "My folder"
-             *     ]
-             */
-            plainNames: string[];
-        };
-        CheckFileExistenceInFolderDto: {
-            /** @description Array of files with names and types */
-            files: string[];
-        };
         Folder: Record<string, never>;
         FolderDto: {
             type: string;
@@ -2736,8 +2717,30 @@ export interface components {
             creationTime: string;
             /** Format: date-time */
             modificationTime: string;
-            /** @enum {string} */
-            status: "EXISTS" | "TRASHED" | "DELETED";
+            deleted: boolean;
+            removed: boolean;
+        };
+        FilesDto: {
+            files: components["schemas"]["FileDto"][];
+        };
+        ResultFilesDto: {
+            result: components["schemas"]["FileDto"][];
+        };
+        CheckFoldersExistenceDto: {
+            /**
+             * @description Plain name of folder or array of plain names
+             * @example [
+             *       "My folder"
+             *     ]
+             */
+            plainNames: string[];
+        };
+        ExistingFoldersDto: {
+            existentFolders: components["schemas"]["FolderDto"][];
+        };
+        CheckFileExistenceInFolderDto: {
+            /** @description Array of files with names and types */
+            files: string[];
         };
         ResultFoldersDto: {
             result: components["schemas"]["FolderDto"][];
@@ -3069,12 +3072,12 @@ export interface components {
              * @description Folder name
              * @example Untitled Folder
              */
-            name: Record<string, never>;
+            name: string;
             /**
              * @description Uuid of the parent folder
              * @example 79a88429-b45a-4ae7-90f1-c351b6882670
              */
-            parentFolderUuid: Record<string, never>;
+            parentFolderUuid: string;
         };
         ChangeUserRoleDto: {
             /**
@@ -3378,7 +3381,7 @@ export interface components {
              * @description Id of file or folder
              * @example 4
              */
-            id: string;
+            id: string | null;
             /**
              * @description Uuid of file or folder
              * @example 4
@@ -4078,11 +4081,14 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            /** @description Folder created */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FolderDto"];
+                };
             };
         };
     };
@@ -4264,11 +4270,13 @@ export interface operations {
             };
         };
         responses: {
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["ExistingFoldersDto"];
+                };
             };
         };
     };
@@ -5533,7 +5541,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FolderDto"];
+                };
             };
         };
     };

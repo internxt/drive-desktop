@@ -4,10 +4,10 @@ import { FetchFilesService, FetchFilesServiceParams, FetchFilesServiceResult, Qu
 
 export class FetchWorkspaceFilesService implements FetchFilesService {
   async run({ self, offset, folderUuid, updatedAtCheckpoint, status }: FetchFilesServiceParams): Promise<FetchFilesServiceResult> {
-
     if (!self.workspaceId) {
       throw new Error('Workspace id is required to fetch files');
     }
+
     const query: Query = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,

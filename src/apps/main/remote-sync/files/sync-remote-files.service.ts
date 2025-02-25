@@ -13,7 +13,7 @@ const MAX_RETRIES = 3;
 export class SyncRemoteFilesService {
   constructor(
     private readonly workspaceId?: string,
-    private fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService()
+    private fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService(),
   ) {}
 
   async run({
