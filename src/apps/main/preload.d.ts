@@ -47,6 +47,8 @@ declare interface Window {
 
     isUserLoggedIn(): Promise<boolean>;
 
+    checkInternetConnection(): Promise<boolean>;
+
     onUserLoggedInChanged(func: (value: boolean) => void): void;
 
     logout(): void;
