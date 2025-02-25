@@ -223,6 +223,9 @@
     "@internxt/lib": "^1.1.6",
     "@internxt/scan": "1.0.2",
     "@internxt/sdk": "1.9.7",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.57.1",
+    "@opentelemetry/sdk-logs": "^0.57.1",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@sentry/electron": "^4.5.0",
@@ -263,8 +266,7 @@
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
     "tiny-glob": "^0.2.9",
-    "uuid": "^8.3.2",
-    "winston": "^3.17.0"
+    "uuid": "^8.3.2"
   },
   "devEngines": {
     "node": ">=14.x",
