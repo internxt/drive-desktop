@@ -29,7 +29,7 @@ export class DriveFile {
   @Column({ nullable: false })
   folderId!: number;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   folderUuid!: string;
 
   @Column({ nullable: false })
