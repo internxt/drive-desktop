@@ -109,9 +109,21 @@ async function setUp() {
 
   ipcRenderer.send('CHECK_SYNC');
 }
+
+async function refreshToken() {
+  Logger.info('[SYNC ENGINE] Refreshing token');
+  const newToken: string = await ipcRenderer.invoke('REFRESH_WORKSPACE_TOKEN', getConfig().workspaceId);
+  setConfig({ ...getConfig(), workspaceToken: newToken });
+}
+
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
   Logger.info('[SYNC ENGINE] Setting config:', config);
   setConfig(config);
+
+  if (config.workspaceToken) {
+    setInterval(refreshToken, 23 * 60 * 60 * 1000);
+  }
+
   setUp()
     .then(() => {
       Logger.info('[SYNC ENGINE] Sync engine has successfully started');
@@ -121,7 +133,7 @@ ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
       Logger.error('[SYNC ENGINE] Error setting up', error);
       Sentry.captureException(error);
       if (error.toString().includes('Error: ConnectSyncRoot failed')) {
-        Logger.info('[SYNC ENGINE] We neeed to restart the app virtual drive');
+        Logger.info('[SYNC ENGINE] We need to restart the app virtual drive');
         Sentry.captureMessage('Restarting sync engine virtual drive is required');
       }
       ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);

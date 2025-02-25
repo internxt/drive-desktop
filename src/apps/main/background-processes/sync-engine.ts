@@ -208,9 +208,8 @@ const spawnAllSyncEngineWorker = async () => {
     providerId: `{${providerId}}`,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt',
-    loggerPath: getLoggersPaths().logEnginePath,
     workspaceId: '',
-    workspaceToken: '',
+    loggerPath: getLoggersPaths().logEnginePath,
     rootUuid: user.rootFolderId,
   };
 

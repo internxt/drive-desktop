@@ -14,7 +14,7 @@ export class HttpRemoteFileSystem {
     private readonly crypt: Crypt,
     private readonly bucket: string,
 
-    private readonly workspaceId?: string,
+    private readonly workspaceId?: string | null,
   ) {}
 
   async persist(offline: OfflineFile): Promise<FileAttributes> {

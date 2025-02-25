@@ -48,7 +48,7 @@ export class RemoteItemsGenerator {
   }
 
   async getAll(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS', getConfig().workspaceId);
+    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS', getConfig().workspaceId ?? '');
 
     const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
 
@@ -58,7 +58,7 @@ export class RemoteItemsGenerator {
   }
 
   async getAllItemsByFolderId(folderId: number): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', folderId, getConfig().workspaceId);
+    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', folderId, getConfig().workspaceId ?? '');
 
     const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
 

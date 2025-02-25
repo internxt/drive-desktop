@@ -19,6 +19,7 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { DriveWorkspaceCollection } from '../database/collections/DriveWorkspaceCollection';
 import { SyncRemoteWorkspaceService } from './workspace/sync-remote-workspace';
+import { FetchWorkspacesService } from './workspace/fetch-workspaces.service';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
@@ -166,6 +167,11 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId = '') => {
   Logger.debug('[MAIN] Getting updated remote file items ' + workspaceId);
   return getUpdatedRemoteItems(workspaceId);
 });
+ipcMain.handle('REFRESH_WORKSPACE_TOKEN', async (_, workspaceId: string): Promise<string> => {
+  Logger.debug('[MAIN] refresh token ' + workspaceId);
+  const credential = await FetchWorkspacesService.getCredencials(workspaceId);
+  return credential.tokenHeader;
+});
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderId: number, workspaceId = '') => {
   Logger.debug('[MAIN] Getting updated remote items');
@@ -174,14 +180,11 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderId: number,
 
 async function populateAllRemoteSync(): Promise<void> {
   try {
-    // const userData = configStore.get('userData');
-    // const lastFilesSyncAt = await remoteSyncManagers.get('')?.getFileCheckpoint();
-    // logger.info({ msg: 'Received user logged in event', lastFilesSyncAt });
-    // const folderId = lastFilesSyncAt ? undefined : userData?.root_folder_id;
-    // await startRemoteSync(folderId);
-    remoteSyncManagers.forEach(async (manager, workspaceId) => {
-      await startRemoteSync(undefined, workspaceId);
-    });
+    await Promise.all(
+      Array.from(remoteSyncManagers.entries()).map(async ([workspaceId, manager]) => {
+        await startRemoteSync(undefined, workspaceId);
+      }),
+    );
   } catch (error) {
     Logger.error('Error populating all remote sync', error);
     if (error instanceof Error) reportError(error);
@@ -234,7 +237,7 @@ remoteSyncManagers.forEach((manager) => {
   manager.onStatusChange((newStatus) => {
     if (!initialSyncReady && newStatus === 'SYNCED') {
       initialSyncReady = true;
-      eventBus.emit('INITIAL_SYNC_READY');
+      // eventBus.emit('INITIAL_SYNC_READY');
     }
     broadcastToWindows('remote-sync-status-change', newStatus);
   });
