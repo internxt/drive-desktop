@@ -7,7 +7,7 @@ import Logger from 'electron-log';
 import { isAxiosError } from 'axios';
 import { Service } from 'diod';
 import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
-import { driveClient as client } from '../../../../apps/shared/HttpClient/drive-client';
+import { client } from '../../../../apps/shared/HttpClient/client';
 
 @Service()
 export class HttpRemoteFileSystem {
