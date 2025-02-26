@@ -22,15 +22,15 @@ export class SimpleFolderCreator {
 
     const response = await this.rfs.persist(offlineFolder);
 
-    const folder = Folder.create(
-      new FolderId(response.id),
-      new FolderUuid(response.uuid),
-      folderPath,
-      new FolderId(offlineFolder.parentId),
-      new FolderUuid(offlineFolder.parentUuid),
-      FolderCreatedAt.fromString(response.createdAt),
-      FolderUpdatedAt.fromString(response.updatedAt),
-    );
+    const folder = Folder.create({
+      id: new FolderId(response.id),
+      uuid: new FolderUuid(response.uuid),
+      path: folderPath,
+      parentId: new FolderId(offlineFolder.parentId),
+      parentUuid: new FolderUuid(offlineFolder.parentUuid),
+      createdAt: FolderCreatedAt.fromString(response.createdAt),
+      updatedAt: FolderUpdatedAt.fromString(response.updatedAt),
+    });
 
     if (!folder) {
       throw new Error('Could not create folder and was not found either');

@@ -15,7 +15,7 @@ export type FolderAttributes = {
   id: number;
   uuid: string;
   parentId: null | number;
-  parentUuid: null | string;
+  parentUuid?: null | string;
   path: string;
   updatedAt: string;
   createdAt: string;
@@ -56,11 +56,11 @@ export class Folder extends AggregateRoot {
     return new FolderPath(this._path.dirname());
   }
 
-  public get parentId(): number | undefined {
+  public get parentId() {
     return this._parentId?.value;
   }
 
-  public get parentUuid(): string | undefined {
+  public get parentUuid() {
     return this._parentUuid?.value;
   }
 
@@ -124,26 +124,33 @@ export class Folder extends AggregateRoot {
       new FolderPath(attributes.path),
       attributes.parentId ? new FolderId(attributes.parentId) : null,
       attributes.parentUuid ? new FolderUuid(attributes.parentUuid) : null,
+      attributes.parentUuid ? new FolderUuid(attributes.parentUuid) : null,
       FolderUpdatedAt.fromString(attributes.updatedAt),
       FolderCreatedAt.fromString(attributes.createdAt),
       FolderStatus.fromValue(attributes.status),
     );
   }
 
-  static create(
-    id: FolderId,
-    uuid: FolderUuid,
-    path: FolderPath,
-    parentId: FolderId,
-    parentUuid: FolderUuid,
-    createdAt: FolderCreatedAt,
-    updatedAt: FolderUpdatedAt,
-  ): Folder {
+  static create({
+    id,
+    uuid,
+    path,
+    parentId,
+    parentUuid,
+    createdAt,
+    updatedAt,
+  }: {
+    id: FolderId;
+    uuid: FolderUuid;
+    path: FolderPath;
+    parentId: FolderId;
+    parentUuid: FolderUuid | null;
+    createdAt: FolderCreatedAt;
+    updatedAt: FolderUpdatedAt;
+  }): Folder {
     const folder = new Folder(id, uuid, path, parentId, parentUuid, createdAt, updatedAt, FolderStatus.Exists);
 
-    const folderCreatedEvent = new FolderCreatedDomainEvent({
-      aggregateId: folder.uuid,
-    });
+    const folderCreatedEvent = new FolderCreatedDomainEvent({ aggregateId: folder.uuid });
     folder.record(folderCreatedEvent);
 
     return folder;
