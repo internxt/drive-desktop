@@ -32,11 +32,3 @@ function registerUsageHandlers() {
 }
 
 eventBus.on('APP_IS_READY', registerUsageHandlers);
-
-export function getUsageService() {
-  if (!service) {
-    service = buildUsageService();
-  }
-
-  return service;
-}
