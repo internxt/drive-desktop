@@ -340,4 +340,39 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on('backup-failed', (_, error) => callback(error));
     return () => ipcRenderer.removeListener('backup-failed', callback);
   },
+  antivirus: {
+    isAvailable: () => {
+      return ipcRenderer.invoke('antivirus:is-available');
+    },
+    isDefenderActive: () => {
+      return ipcRenderer.invoke('antivirus:is-Defender-active');
+    },
+    scanItems: (paths) => {
+      return ipcRenderer.invoke('antivirus:scan-items', paths);
+    },
+
+    onScanProgress: (callback) => {
+      ipcRenderer.on('antivirus:scan-progress', (_, progress) =>
+        callback(progress)
+      );
+    },
+    removeScanProgressListener: () => {
+      ipcRenderer.removeAllListeners('antivirus:scan-progress');
+    },
+    scanSystem: (systemPath) => {
+      return ipcRenderer.invoke('antivirus:scan-system', systemPath);
+    },
+    addItemsToScan: (getFiles) => {
+      return ipcRenderer.invoke('antivirus:add-items-to-scan', getFiles);
+    },
+    removeInfectedFiles: (infectedFiles) => {
+      return ipcRenderer.invoke(
+        'antivirus:remove-infected-files',
+        infectedFiles
+      );
+    },
+    cancelScan: () => {
+      return ipcRenderer.invoke('antivirus:cancel-scan');
+    },
+  },
 });

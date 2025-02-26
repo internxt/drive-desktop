@@ -27,6 +27,8 @@
     "test:unit": "ELECTRON_RUN_AS_NODE=true ./node_modules/.bin/electron ./node_modules/jest-cli/bin/jest.js",
     "test:unit:watch": "jest --watch",
     "test:e2e": "playwright test --config=src/test",
+    "test:renderer": "jest --config jest.config.renderer.js",
+    "test:antivirus": "jest --config jest.config.renderer.js \"src/apps/renderer/pages/Settings/Antivirus\"",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install"
   },
@@ -117,6 +119,7 @@
     },
     "extraResources": [
       "./assets/**",
+      "./clamAV/**",
       "./src/apps/nautilus-extension/internxt-virtual-drive.py"
     ],
     "publish": {
@@ -170,7 +173,7 @@
     "@sentry/webpack-plugin": "^1.20.1",
     "@svgr/webpack": "^6.1.2",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
-    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^8.0.1",
     "@types/async": "^3.2.16",
@@ -272,7 +275,8 @@
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/inxt-js": "^2.0.8",
     "@internxt/lib": "^1.1.6",
-    "@internxt/sdk": "^1.5.24",
+    "@internxt/scan": "1.0.2",
+    "@internxt/sdk": "1.9.7",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@sentry/electron": "^4.5.0",
