@@ -167,11 +167,6 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId = '') => {
   Logger.debug('[MAIN] Getting updated remote file items ' + workspaceId);
   return getUpdatedRemoteItems(workspaceId);
 });
-ipcMain.handle('REFRESH_WORKSPACE_TOKEN', async (_, workspaceId: string): Promise<string> => {
-  Logger.debug('[MAIN] refresh token ' + workspaceId);
-  const credential = await FetchWorkspacesService.getCredencials(workspaceId);
-  return credential.tokenHeader;
-});
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderId: number, workspaceId = '') => {
   Logger.debug('[MAIN] Getting updated remote items');

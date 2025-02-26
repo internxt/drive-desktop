@@ -2,8 +2,8 @@ import createClient, { Middleware } from 'openapi-fetch';
 import { paths } from './schema';
 import { getNewApiHeaders } from '../../../apps/main/auth/service';
 import { onUserUnauthorized } from './background-process-clients';
-import { getConfig } from '@/apps/sync-engine/config';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { getConfig } from '../../sync-engine/config';
+import { ipcRendererSyncEngine } from '../../sync-engine/ipcRendererSyncEngine';
 
 const getHeaders = async () => {
   const providerId = getConfig().providerId;

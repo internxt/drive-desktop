@@ -7,6 +7,7 @@ import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
 import { setConfig, Config, getConfig } from './config';
+import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
 
 Logger.log(`Running sync engine ${packageJson.version}`);
 
@@ -111,9 +112,14 @@ async function setUp() {
 }
 
 async function refreshToken() {
-  Logger.info('[SYNC ENGINE] Refreshing token');
-  const newToken: string = await ipcRenderer.invoke('REFRESH_WORKSPACE_TOKEN', getConfig().workspaceId);
-  setConfig({ ...getConfig(), workspaceToken: newToken });
+  try {
+    Logger.info('[SYNC ENGINE] Refreshing token');
+    const credential = await FetchWorkspacesService.getCredencials(getConfig().workspaceId);
+    const newToken = credential.tokenHeader;
+    setConfig({ ...getConfig(), workspaceToken: newToken });
+  } catch (exc) {
+    Logger.error('[SYNC ENGINE] Error refreshing token', exc);
+  }
 }
 
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
