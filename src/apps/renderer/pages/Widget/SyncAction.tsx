@@ -1,5 +1,5 @@
 import { CheckCircle, XCircle } from '@phosphor-icons/react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { SyncStatus } from '../../../../context/desktop/sync/domain/SyncStatus';
 import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
@@ -7,12 +7,11 @@ import { useTranslationContext } from '../../context/LocalContext';
 import useVirtualDriveStatus from '../../hooks/useVirtualDriveStatus';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useUsage from '../../hooks/useUsage';
-import isOnline from '../../../utils/is-online';
+import { useOnlineStatus } from '../../hooks/useOnlineStatus/useOnlineStatus';
 
 export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();
-
-  const [isOnLine, setIsOnLine] = useState(true);
+  const isOnLine = useOnlineStatus();
   const { usage, status } = useUsage();
   const { virtualDriveStatus } = useVirtualDriveStatus();
   const { syncStatus } = useSyncStatus();
@@ -29,26 +28,6 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
       reportError(error);
     }
   };
-
-  useEffect(() => {
-    const updateOnlineStatus = async () => {
-      const online = await isOnline();
-      setIsOnLine(online);
-    };
-
-    updateOnlineStatus();
-
-    const intervalId = setInterval(updateOnlineStatus, 60000 * 5);
-
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-
-    return () => {
-      clearInterval(intervalId);
-      window.removeEventListener('online', updateOnlineStatus);
-      window.removeEventListener('offline', updateOnlineStatus);
-    };
-  }, []);
 
   useEffect(() => {
     if (!isOnLine) {
