@@ -7,6 +7,7 @@ export function createFileFromServerFile(server: ServerFile, relativePath: strin
     id: server.id,
     uuid: server.uuid,
     folderId: server.folderId,
+    folderUuid: server.folderUuid,
     contentsId: server.fileId,
     modificationTime: server.modificationTime,
     size: server.size,

@@ -6,13 +6,14 @@ import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
 import Logger from 'electron-log';
 import { ScannedItem } from './entities/ScannedItem';
+import { DriveWorkspace } from './entities/DriveWorkspace';
 const dbPath = app.getPath('appData') + '/internxt-drive/internxt_desktop.db';
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
   database: dbPath,
   logging: false,
   synchronize: true,
-  entities: [DriveFile, DriveFolder, ScannedItem],
+  entities: [DriveFile, DriveFolder, ScannedItem, DriveWorkspace],
 });
 
 Logger.info(`Using database file at ${dbPath}`);

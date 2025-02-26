@@ -1,25 +1,9 @@
 import { paths } from '@/apps/shared/HttpClient/schema';
-import { RemoteSyncedFolder } from '../helpers';
-import { RemoteSyncManager } from '../RemoteSyncManager';
 import { client } from '../../../shared/HttpClient/client';
+import { FetchFoldersService, FetchFoldersServiceParams, FetchFoldersServiceResult } from './fetch-folders.service.interface';
 
-export class FetchRemoteFoldersService {
-  async run({
-    self,
-    updatedAtCheckpoint,
-    folderId,
-    offset,
-    status,
-  }: {
-    self: RemoteSyncManager;
-    folderId?: number;
-    updatedAtCheckpoint?: Date;
-    offset: number;
-    status: string;
-  }): Promise<{
-    hasMore: boolean;
-    result: RemoteSyncedFolder[];
-  }> {
+export class FetchRemoteFoldersService implements FetchFoldersService {
+  async run({ self, updatedAtCheckpoint, folderId, offset, status }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
     const query = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,

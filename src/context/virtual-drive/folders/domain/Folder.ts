@@ -106,6 +106,10 @@ export class Folder extends AggregateRoot {
       this._parentId = new FolderId(attributes.parentId);
     }
 
+    if (attributes.parentUuid) {
+      this._parentUuid = new FolderUuid(attributes.parentUuid);
+    }
+
     if (attributes.status) {
       this._status = FolderStatus.fromValue(attributes.status);
     }
@@ -119,6 +123,7 @@ export class Folder extends AggregateRoot {
       new FolderUuid(attributes.uuid),
       new FolderPath(attributes.path),
       attributes.parentId ? new FolderId(attributes.parentId) : null,
+      attributes.parentUuid ? new FolderUuid(attributes.parentUuid) : null,
       attributes.parentUuid ? new FolderUuid(attributes.parentUuid) : null,
       FolderUpdatedAt.fromString(attributes.updatedAt),
       FolderCreatedAt.fromString(attributes.createdAt),
@@ -155,7 +160,6 @@ export class Folder extends AggregateRoot {
     if (!this._parentId) {
       throw new Error('Root folder cannot be moved');
     }
-
     if (this.isIn(folder)) {
       throw new Error('Cannot move a folder to its current folder');
     }
@@ -164,6 +168,7 @@ export class Folder extends AggregateRoot {
 
     this._path = this._path.changeFolder(folder.path);
     this._parentId = new FolderId(folder.id);
+    this._parentUuid = new FolderUuid(folder.uuid);
 
     this.record(
       new FolderMovedDomainEvent({
@@ -223,7 +228,8 @@ export class Folder extends AggregateRoot {
     return {
       id: this.id,
       uuid: this.uuid,
-      parentId: this.parentId || 0,
+      parentId: this.parentId ?? 0,
+      parentUuid: this.parentUuid ?? '',
       path: this.path,
       updatedAt: this.updatedAt.toISOString(),
       createdAt: this.createdAt.toISOString(),

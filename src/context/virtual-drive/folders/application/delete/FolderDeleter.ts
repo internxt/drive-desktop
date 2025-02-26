@@ -7,6 +7,6 @@ export class FolderDeleter {
   constructor(private readonly fs: HttpRemoteFolderSystem) {}
 
   async run(folder: Folder) {
-    await this.fs.trash(folder.id);
+    await this.fs.trash(folder);
   }
 }

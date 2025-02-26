@@ -6,12 +6,12 @@ import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngin
 import { Service } from 'diod';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 
 @Service()
 export class FileDeleter {
   constructor(
-    private readonly remote: SDKRemoteFileSystem,
+    private readonly remote: HttpRemoteFileSystem,
     private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
@@ -47,7 +47,7 @@ export class FileDeleter {
     try {
       file.trash();
 
-      await this.remote.trash(file.contentsId);
+      await this.remote.delete(file);
       await this.repository.update(file);
 
       this.ipc.send('FILE_DELETED', {

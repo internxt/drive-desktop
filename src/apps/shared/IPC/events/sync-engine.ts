@@ -66,16 +66,23 @@ export type FilesEvents = {
 };
 
 export type SyncEngineInvocableFunctions = {
-  GET_UPDATED_REMOTE_ITEMS: () => Promise<{
+  GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
-  GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (folderId: number) => Promise<{
+  GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (
+    folderId: number,
+    workspaceId: string,
+  ) => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
   START_REMOTE_SYNC: () => Promise<void>;
   FORCE_REFRESH_BACKUPS: (folderId: number) => Promise<void>;
+
+  GET_HEADERS: () => Promise<Record<string, string>>;
+
+  USER_IS_UNAUTHORIZED: () => void;
 };
 
 // TODO: change how errors are reported to the ui

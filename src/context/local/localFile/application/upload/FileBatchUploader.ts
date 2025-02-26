@@ -58,7 +58,13 @@ export class FileBatchUploader {
             const remotePath = relativeV2(localRootPath, localFile.path);
             const parent = remoteTree.getParent(remotePath);
 
-            const either = await this.creator.run(contentsId, remotePath, localFile.size, parent.id);
+            const either = await this.creator.run({
+              contentsId,
+              folderId: parent.id,
+              folderUuid: parent.uuid,
+              path: remotePath,
+              size: localFile.size,
+            });
 
             if (either.isLeft()) {
               await this.localHandler.delete(contentsId);

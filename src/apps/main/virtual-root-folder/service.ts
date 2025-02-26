@@ -6,7 +6,7 @@ import path from 'path';
 import configStore from '../config';
 import eventBus from '../event-bus';
 
-const ROOT_FOLDER_NAME = 'InternxtDrive';
+const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME ||'InternxtDrive';
 const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
@@ -44,6 +44,16 @@ export function getRootVirtualDrive(): string {
   }
 
   return configStore.get('syncRoot');
+}
+
+export function getRootWorkspace(workspaceId: string): string {
+  const current = configStore.get('workspacesPath');
+  if (!current[workspaceId]) {
+    const pathName = path.join(HOME_FOLDER_PATH, `${ROOT_FOLDER_NAME} - ${workspaceId}`);
+    configStore.set('workspacesPath', { ...current, [workspaceId]: pathName });
+    return pathName;
+  }
+  return current[workspaceId];
 }
 
 export interface LoggersPaths {

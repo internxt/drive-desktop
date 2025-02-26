@@ -9,7 +9,7 @@ import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 
 describe('File path updater', () => {
   const repository = mockDeep<InMemoryFileRepository>();
@@ -18,7 +18,7 @@ describe('File path updater', () => {
   const ipcRenderer = mockDeep<SyncEngineIpc>();
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
   const eventBus = mockDeep<EventBus>();
-  const remoteFileSystem = mockDeep<SDKRemoteFileSystem>();
+  const remoteFileSystem = mockDeep<HttpRemoteFileSystem>();
 
   const SUT = new FilePathUpdater(
     remoteFileSystem,
@@ -27,7 +27,7 @@ describe('File path updater', () => {
     fileFinderByContentsId,
     folderFinder,
     ipcRenderer,
-    eventBus
+    eventBus,
   );
 
   beforeEach(() => {
@@ -73,7 +73,7 @@ describe('File path updater', () => {
     const destination = new FilePath(`${fileToMove.dirname}_/${fileToMove.nameWithExtension}`);
 
     const destinationFolder = FolderMother.fromPartial({
-      id: fileToMove.folderId + 1,
+      id: fileToMove.folderId.value + 1,
       path: destination.dirname(),
     });
 
@@ -85,13 +85,13 @@ describe('File path updater', () => {
       expect.objectContaining({
         folderId: destinationFolder.id,
         path: destination.value,
-      })
+      }),
     );
     expect(remoteFileSystem.move).toBeCalledWith(
       expect.objectContaining({
         folderId: destinationFolder.id,
         path: destination.value,
-      })
+      }),
     );
   });
 });

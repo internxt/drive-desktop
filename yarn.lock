@@ -5342,7 +5342,7 @@ enhanced-resolve@^0.9.1:
     memory-fs "^0.2.0"
     tapable "^0.1.8"
 
-enhanced-resolve@^5.0.0, enhanced-resolve@^5.17.1:
+enhanced-resolve@^5.0.0, enhanced-resolve@^5.17.1, enhanced-resolve@^5.7.0:
   version "5.18.1"
   resolved "https://registry.yarnpkg.com/enhanced-resolve/-/enhanced-resolve-5.18.1.tgz#728ab082f8b7b6836de51f1637aab5d3b9568faf"
   integrity sha512-ZSW3ma5GkcQBIpwZTSRAI8N71Uuwgs93IezB7mf7R60tC8ZbJideoDNKjHn2O9KIlx6rkGTTEk1xUCK2E1Y2Yg==
@@ -7494,7 +7494,7 @@ json5@^1.0.1, json5@^1.0.2:
   dependencies:
     minimist "^1.2.0"
 
-json5@^2.1.2, json5@^2.2.0, json5@^2.2.3:
+json5@^2.1.2, json5@^2.2.0, json5@^2.2.2, json5@^2.2.3:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
@@ -10891,6 +10891,16 @@ tsconfck@^3.0.3:
   resolved "https://registry.yarnpkg.com/tsconfck/-/tsconfck-3.1.5.tgz#2f07f9be6576825e7a77470a5304ce06c7746e61"
   integrity sha512-CLDfGgUp7XPswWnezWwsCRxNmgQjhYq3VXHM0/XIRxhVrKw0M1if9agzryh1QS3nxjCROvV+xWxoJO1YctzzWg==
 
+tsconfig-paths-webpack-plugin@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/tsconfig-paths-webpack-plugin/-/tsconfig-paths-webpack-plugin-4.2.0.tgz#f7459a8ed1dd4cf66ad787aefc3d37fff3cf07fc"
+  integrity sha512-zbem3rfRS8BgeNK50Zz5SIQgXzLafiHjOwUAvk/38/o1jHn/V5QAgVUcz884or7WYcPaH3N2CIfUc2u0ul7UcA==
+  dependencies:
+    chalk "^4.1.0"
+    enhanced-resolve "^5.7.0"
+    tapable "^2.2.1"
+    tsconfig-paths "^4.1.2"
+
 tsconfig-paths@^3.14.1, tsconfig-paths@^3.15.0:
   version "3.15.0"
   resolved "https://registry.yarnpkg.com/tsconfig-paths/-/tsconfig-paths-3.15.0.tgz#5299ec605e55b1abb23ec939ef15edaf483070d4"
@@ -10898,6 +10908,15 @@ tsconfig-paths@^3.14.1, tsconfig-paths@^3.15.0:
   dependencies:
     "@types/json5" "^0.0.29"
     json5 "^1.0.2"
+    minimist "^1.2.6"
+    strip-bom "^3.0.0"
+
+tsconfig-paths@^4.1.2, tsconfig-paths@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/tsconfig-paths/-/tsconfig-paths-4.2.0.tgz#ef78e19039133446d244beac0fd6a1632e2d107c"
+  integrity sha512-NoZ4roiN7LnbKn9QqE1amc9DJfzvZXxF4xDavcOWt1BPkdx+m+0gJuPM+S0vCe7zTJMYUP0R8pO2XMr+Y8oLIg==
+  dependencies:
+    json5 "^2.2.2"
     minimist "^1.2.6"
     strip-bom "^3.0.0"
 

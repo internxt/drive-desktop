@@ -18,7 +18,6 @@ import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folder
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { InMemoryOfflineFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { DependencyInjectionHttpClientsProvider } from '../common/clients';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
@@ -33,7 +32,6 @@ import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/fo
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 
 export async function buildFoldersContainer(shredContainer: SharedContainer): Promise<FoldersContainer> {
-  const clients = DependencyInjectionHttpClientsProvider.get();
   const eventBus = DependencyInjectionEventBus.bus;
   const { virtualDrive } = DependencyInjectionVirtualDrive;
   const eventRepository = DependencyInjectionEventRepository.get();
@@ -41,7 +39,7 @@ export async function buildFoldersContainer(shredContainer: SharedContainer): Pr
   const repository = new InMemoryFolderRepository();
 
   const localFolderSystem = new NodeWinLocalFolderSystem(virtualDrive, shredContainer.relativePathToAbsoluteConverter);
-  const remoteFolderSystem = new HttpRemoteFolderSystem(clients.drive, clients.newDrive);
+  const remoteFolderSystem = new HttpRemoteFolderSystem();
 
   const folderPlaceholderConverter = new FolderPlaceholderConverter(localFolderSystem);
 
