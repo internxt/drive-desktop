@@ -5,6 +5,7 @@ export interface Config {
   providerName: string;
   loggerPath: string;
   workspaceId: string;
+  workspaceToken?: string | null;
 }
 
 let config: Config = {
@@ -14,6 +15,7 @@ let config: Config = {
   loggerPath: '',
   workspaceId: '',
   rootUuid: '',
+  workspaceToken: null,
 };
 
 export function setConfig(newConfig: Config) {

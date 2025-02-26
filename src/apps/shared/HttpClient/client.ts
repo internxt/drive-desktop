@@ -1,12 +1,27 @@
 import createClient, { Middleware } from 'openapi-fetch';
 import { paths } from './schema';
 import { getNewApiHeaders } from '../../../apps/main/auth/service';
-// import { logger } from '../logger/logger';
 import { onUserUnauthorized } from './background-process-clients';
+import { getConfig } from '../../sync-engine/config';
+import { ipcRendererSyncEngine } from '../../sync-engine/ipcRendererSyncEngine';
+
+const getHeaders = async () => {
+  const providerId = getConfig().providerId;
+  if (providerId) {
+    return await ipcRendererSyncEngine.invoke('GET_HEADERS');
+  }
+  return getNewApiHeaders();
+};
 
 const middleware: Middleware = {
   async onRequest({ request }) {
-    const headers = getNewApiHeaders();
+    const headers = await getHeaders();
+
+    const workspaceToken = getConfig().workspaceToken;
+    if (workspaceToken) {
+      headers['x-internxt-workspace'] = workspaceToken;
+    }
+
     Object.entries(headers).forEach(([key, value]) => {
       request.headers.set(key, value);
     });

@@ -10,6 +10,7 @@ import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtu
 import { logger } from '../../../apps/shared/logger/logger';
 import { syncWorkspaceService } from '../remote-sync/handlers';
 import { getUser } from '../auth/service';
+import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -207,8 +208,8 @@ const spawnAllSyncEngineWorker = async () => {
     providerId: `{${providerId}}`,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt',
-    loggerPath: getLoggersPaths().logEnginePath,
     workspaceId: '',
+    loggerPath: getLoggersPaths().logEnginePath,
     rootUuid: user.rootFolderId,
   };
 
@@ -222,12 +223,14 @@ const spawnAllSyncEngineWorker = async () => {
 
   await Promise.all(
     workspaces.map(async (workspace) => {
+      const workspaceCredential = await FetchWorkspacesService.getCredencials(workspace.id);
       const values: Config = {
         providerId: `{${workspace.id}}`,
         rootPath: getRootWorkspace(workspace.id),
         providerName: workspace.name,
         loggerPath: getLoggersPaths().logWatcherPath,
         workspaceId: workspace.id,
+        workspaceToken: workspaceCredential.tokenHeader,
         rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
       };
 

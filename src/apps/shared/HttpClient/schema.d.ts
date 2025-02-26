@@ -2942,6 +2942,46 @@ export interface components {
              */
             encryptedMnemonic: Record<string, never>;
         };
+        WorkspaceCredentialsDetailsDto: {
+            /**
+             * @description Network password
+             * @example networkPass
+             */
+            networkPass: string;
+            /**
+             * @description Network user
+             * @example networkUser
+             */
+            networkUser: string;
+        };
+        WorkspaceCredentialsDto: {
+            /**
+             * @description workspaceId
+             * @example workspaceId
+             */
+            workspaceId: string;
+            /**
+             * @description bucket
+             * @example bucket
+             */
+            bucket: string;
+            /**
+             * @description workspaceUserId
+             * @example workspaceUserId
+             */
+            workspaceUserId: string;
+            /**
+             * @description email
+             * @example email
+             */
+            email: string;
+            credentials: components["schemas"]["WorkspaceCredentialsDetailsDto"];
+            /**
+             * @description tokenHeader
+             * @example tokenHeader
+             */
+            tokenHeader: string;
+        };
         ChangeUserAssignedSpaceDto: {
             /**
              * @description New Space assigned to user in bytes
@@ -5676,7 +5716,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["WorkspaceCredentialsDto"];
+                };
             };
         };
     };
