@@ -1,3 +1,5 @@
+import { getUser } from '../main/auth/service';
+
 export interface Config {
   providerId: string;
   rootPath: string;
@@ -10,17 +12,22 @@ export interface Config {
   mnemonic: string;
 }
 
-let config: Config = {
-  providerId: '',
-  rootPath: '',
-  providerName: '',
-  loggerPath: '',
-  workspaceId: '',
-  rootUuid: '',
-  bucket: '',
-  mnemonic: '',
-  workspaceToken: null,
+const getDefaultConfig = (): Config => {
+  const user = getUser();
+  return {
+    providerId: '',
+    rootPath: '',
+    providerName: '',
+    loggerPath: '',
+    workspaceId: '',
+    rootUuid: '',
+    bucket: user?.bucket || '',
+    mnemonic: user?.mnemonic || '',
+    workspaceToken: null,
+  };
 };
+
+let config: Config = getDefaultConfig();
 
 export function setConfig(newConfig: Config) {
   config = { ...config, ...newConfig };
