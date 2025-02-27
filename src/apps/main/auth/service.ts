@@ -11,6 +11,13 @@ const tokensKeys = ['bearerToken', 'newToken'] as const;
 type TokenKey = (typeof tokensKeys)[number];
 type EncryptedTokenKey = `${(typeof tokensKeys)[number]}Encrypted`;
 
+type Credentials = {
+  userData: User;
+  bearerToken: string;
+  newToken: string;
+  password: string;
+};
+
 export function encryptToken() {
   const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');
 
@@ -56,7 +63,7 @@ function ecnryptToken(token: string): string {
   return buffer.toString(TOKEN_ENCODING);
 }
 
-export function setCredentials(userData: User, mnemonic: string, bearerToken: string, newToken: string, password: string) {
+export function setCredentials({ userData, bearerToken, newToken, password }: Credentials) {
   const { publicKey, privateKey, publicKyberKey, privateKyberKey } = parseAndDecryptUserKeys(userData, password);
 
   userData.publicKey = publicKey;

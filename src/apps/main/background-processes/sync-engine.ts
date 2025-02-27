@@ -229,7 +229,6 @@ const spawnAllSyncEngineWorker = async () => {
     workspaces.map(async (workspace) => {
       const workspaceCredential = await FetchWorkspacesService.getCredencials(workspace.id);
 
-      // obtener la key
       const user = configStore.get('userData');
 
       if (!user) {

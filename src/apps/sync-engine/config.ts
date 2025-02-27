@@ -12,25 +12,39 @@ export interface Config {
   mnemonic: string;
 }
 
-const getDefaultConfig = (): Config => {
+let config: Config = {
+  providerId: '',
+  rootPath: '',
+  providerName: '',
+  loggerPath: '',
+  workspaceId: '',
+  rootUuid: '',
+  bucket: '',
+  mnemonic: '',
+  workspaceToken: null,
+};
+
+const defaultValues = (): Config => {
   const user = getUser();
+  if (!user) {
+    return config;
+  }
+
   return {
-    providerId: '',
-    rootPath: '',
-    providerName: '',
-    loggerPath: '',
-    workspaceId: '',
-    rootUuid: '',
-    bucket: user?.bucket || '',
-    mnemonic: user?.mnemonic || '',
-    workspaceToken: null,
+    providerId: config.providerId || '',
+    rootPath: config.rootPath || '',
+    providerName: config.providerName || '',
+    loggerPath: config.loggerPath || '',
+    workspaceId: config.workspaceId || '',
+    rootUuid: config.rootUuid || '',
+    bucket: user.bucket || config.bucket,
+    mnemonic: user.mnemonic || config.mnemonic,
+    workspaceToken: config.workspaceToken || null,
   };
 };
 
-let config: Config = getDefaultConfig();
-
 export function setConfig(newConfig: Config) {
-  config = { ...config, ...newConfig };
+  config = { ...defaultValues(), ...newConfig };
 }
 
 export function getConfig(): Config {
