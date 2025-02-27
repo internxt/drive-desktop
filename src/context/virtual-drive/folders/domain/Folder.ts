@@ -124,7 +124,6 @@ export class Folder extends AggregateRoot {
       new FolderPath(attributes.path),
       attributes.parentId ? new FolderId(attributes.parentId) : null,
       attributes.parentUuid ? new FolderUuid(attributes.parentUuid) : null,
-      attributes.parentUuid ? new FolderUuid(attributes.parentUuid) : null,
       FolderUpdatedAt.fromString(attributes.updatedAt),
       FolderCreatedAt.fromString(attributes.createdAt),
       FolderStatus.fromValue(attributes.status),
