@@ -143,7 +143,7 @@ export class Folder extends AggregateRoot {
     uuid: FolderUuid;
     path: FolderPath;
     parentId: FolderId;
-    parentUuid: FolderUuid | null;
+    parentUuid: FolderUuid;
     createdAt: FolderCreatedAt;
     updatedAt: FolderUpdatedAt;
   }): Folder {
