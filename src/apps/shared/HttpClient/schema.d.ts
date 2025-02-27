@@ -2544,25 +2544,9 @@ export interface components {
             creationTime?: string;
         };
         FileDto: {
-            /**
-             * @description The id of the file
-             * @example 1
-             */
             id: number;
-            /**
-             * @description The uuid of the file
-             * @example a1b2c3d4-1234-5678-9abc-123456789abc
-             */
             uuid: string;
-            /**
-             * @description The fileId of the file
-             * @example a1b2c3d4-1234-5678-9abc-123456789abc
-             */
             fileId: string;
-            /**
-             * @description The name of the file
-             * @example file.txt
-             */
             name: string;
             type: string;
             /** Format: int64 */
@@ -2717,14 +2701,19 @@ export interface components {
             creationTime: string;
             /** Format: date-time */
             modificationTime: string;
-            deleted: boolean;
+            /** @enum {string} */
+            status: "EXISTS" | "TRASHED" | "DELETED";
             removed: boolean;
+            deleted: boolean;
         };
         FilesDto: {
             files: components["schemas"]["FileDto"][];
         };
         ResultFilesDto: {
             result: components["schemas"]["FileDto"][];
+        };
+        FoldersDto: {
+            folders: components["schemas"]["FolderDto"][];
         };
         CheckFoldersExistenceDto: {
             /**
@@ -2943,43 +2932,15 @@ export interface components {
             encryptedMnemonic: Record<string, never>;
         };
         WorkspaceCredentialsDetailsDto: {
-            /**
-             * @description Network password
-             * @example networkPass
-             */
             networkPass: string;
-            /**
-             * @description Network user
-             * @example networkUser
-             */
             networkUser: string;
         };
         WorkspaceCredentialsDto: {
-            /**
-             * @description workspaceId
-             * @example workspaceId
-             */
             workspaceId: string;
-            /**
-             * @description bucket
-             * @example bucket
-             */
             bucket: string;
-            /**
-             * @description workspaceUserId
-             * @example workspaceUserId
-             */
             workspaceUserId: string;
-            /**
-             * @description email
-             * @example email
-             */
             email: string;
             credentials: components["schemas"]["WorkspaceCredentialsDetailsDto"];
-            /**
-             * @description tokenHeader
-             * @example tokenHeader
-             */
             tokenHeader: string;
         };
         ChangeUserAssignedSpaceDto: {
@@ -4121,7 +4082,6 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Folder created */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4264,7 +4224,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FoldersDto"];
+                };
             };
         };
     };
@@ -5518,7 +5480,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description File created */
+            /** @description Created File */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6226,6 +6188,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Folders in folder */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -6261,6 +6224,7 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description Files in folder */
             200: {
                 headers: {
                     [name: string]: unknown;

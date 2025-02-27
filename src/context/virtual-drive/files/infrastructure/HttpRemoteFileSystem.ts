@@ -165,7 +165,7 @@ export class HttpRemoteFileSystem {
           },
         },
       });
-      if (response.error) {
+      if (!response.data) {
         Logger.error({
           message: 'Error moving file',
           error: response.response,

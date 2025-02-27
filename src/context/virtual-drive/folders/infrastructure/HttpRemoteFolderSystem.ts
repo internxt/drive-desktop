@@ -122,7 +122,7 @@ export class HttpRemoteFolderSystem {
         updatedAt: data.updatedAt,
         createdAt: data.createdAt,
         path: offline.path.value,
-        status: data.removed ? FolderStatuses.TRASHED : FolderStatuses.EXISTS,
+        status: data.status,
       };
     } catch (error) {
       Logger.error('[FOLDER FILE SYSTEM] Error creating folder');

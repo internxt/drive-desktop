@@ -130,20 +130,26 @@ export class Folder extends AggregateRoot {
     );
   }
 
-  static create(
-    id: FolderId,
-    uuid: FolderUuid,
-    path: FolderPath,
-    parentId: FolderId,
-    parentUuid: FolderUuid,
-    createdAt: FolderCreatedAt,
-    updatedAt: FolderUpdatedAt,
-  ): Folder {
+  static create({
+    id,
+    uuid,
+    path,
+    parentId,
+    parentUuid,
+    createdAt,
+    updatedAt,
+  }: {
+    id: FolderId;
+    uuid: FolderUuid;
+    path: FolderPath;
+    parentId: FolderId;
+    parentUuid: FolderUuid;
+    createdAt: FolderCreatedAt;
+    updatedAt: FolderUpdatedAt;
+  }): Folder {
     const folder = new Folder(id, uuid, path, parentId, parentUuid, createdAt, updatedAt, FolderStatus.Exists);
 
-    const folderCreatedEvent = new FolderCreatedDomainEvent({
-      aggregateId: folder.uuid,
-    });
+    const folderCreatedEvent = new FolderCreatedDomainEvent({ aggregateId: folder.uuid });
     folder.record(folderCreatedEvent);
 
     return folder;
