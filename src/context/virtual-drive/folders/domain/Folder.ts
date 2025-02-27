@@ -15,7 +15,7 @@ export type FolderAttributes = {
   id: number;
   uuid: string;
   parentId: null | number;
-  parentUuid?: null | string;
+  parentUuid: null | string;
   path: string;
   updatedAt: string;
   createdAt: string;
@@ -56,11 +56,11 @@ export class Folder extends AggregateRoot {
     return new FolderPath(this._path.dirname());
   }
 
-  public get parentId() {
+  public get parentId(): number | undefined {
     return this._parentId?.value;
   }
 
-  public get parentUuid() {
+  public get parentUuid(): string | undefined {
     return this._parentUuid?.value;
   }
 
