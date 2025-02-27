@@ -36,7 +36,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
   const [folder, setFolder] = useState<ItemBackup>({
     id: selected?.id || 0,
     uuid: selected?.uuid || '',
-    name: selected?.name || '',
+    plainName: selected?.name || '',
     pathname: '',
     backupsBucket: '',
     tmpPath: '',

@@ -243,7 +243,6 @@ async function postBackup(name: string) {
   const deviceUuid = getDeviceUuid();
 
   const res = await client.POST('/folders', {
-    headers: getHeaders(true),
     body: { parentFolderUuid: deviceUuid, plainName: name },
   });
 
@@ -317,7 +316,6 @@ export async function addBackup(): Promise<void> {
 
 async function fetchFolder({ folderUuid }: { folderUuid: string }) {
   const res = await client.GET('/folders/content/{uuid}', {
-    headers: getHeaders(true),
     params: { path: { uuid: folderUuid } },
   });
 
@@ -495,7 +493,6 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
 
   if (oldFolderName !== newFolderName) {
     const res = await client.PATCH('/folders/{uuid}', {
-      headers: getHeaders(true),
       params: { path: { uuid: existingBackup.folderUuid } },
       body: { destinationFolder: newFolderName },
     });
