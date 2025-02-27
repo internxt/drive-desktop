@@ -11,9 +11,6 @@ export class DriveWorkspace {
   @Column({ type: 'varchar', length: 255 })
   name!: string;
 
-  @Column({ type: 'text', nullable: true })
-  description!: string;
-
   @Column('uuid')
   defaultTeamId!: string;
 
@@ -22,6 +19,9 @@ export class DriveWorkspace {
 
   @Column({ type: 'boolean', default: false })
   setupCompleted!: boolean;
+
+  @Column({ type: 'varchar' })
+  mnemonic!: string;
 
   @Column('uuid')
   rootFolderId!: string;

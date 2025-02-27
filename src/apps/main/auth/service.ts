@@ -1,6 +1,6 @@
+import { parseAndDecryptUserKeys } from '../../../apps/shared/crypto/keys.service';
 import { safeStorage } from 'electron';
 import Logger from 'electron-log';
-
 import packageConfig from '../../../../package.json';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import { User } from '../types';
@@ -56,8 +56,16 @@ function ecnryptToken(token: string): string {
   return buffer.toString(TOKEN_ENCODING);
 }
 
-export function setCredentials(userData: User, mnemonic: string, bearerToken: string, newToken: string) {
-  ConfigStore.set('mnemonic', mnemonic);
+export function setCredentials(userData: User, mnemonic: string, bearerToken: string, newToken: string, password: string) {
+  const { publicKey, privateKey, publicKyberKey, privateKyberKey } = parseAndDecryptUserKeys(userData, password);
+
+  userData.publicKey = publicKey;
+  userData.privateKey = privateKey;
+  userData.keys.ecc.publicKey = publicKey;
+  userData.keys.ecc.privateKey = privateKey;
+  userData.keys.kyber.publicKey = publicKyberKey;
+  userData.keys.kyber.privateKey = privateKyberKey;
+
   ConfigStore.set('userData', userData);
 
   const isSafeStorageAvailable = safeStorage.isEncryptionAvailable();

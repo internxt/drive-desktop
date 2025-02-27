@@ -1,11 +1,17 @@
+import { Buffer } from 'buffer';
+import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { logger } from '../../../../apps/shared/logger/logger';
+import configStore from '../../config';
 import { DriveFoldersCollection } from '../../database/collections/DriveFolderCollection';
 import { DriveWorkspaceCollection } from '../../database/collections/DriveWorkspaceCollection';
 import { DriveWorkspace } from '../../database/entities/DriveWorkspace';
 import { FetchWorkspacesService } from './fetch-workspaces.service';
 
 export class SyncRemoteWorkspaceService {
-  constructor(private readonly workspaceCollection: DriveWorkspaceCollection, private readonly folderCollection: DriveFoldersCollection) {}
+  constructor(
+    private readonly workspaceCollection: DriveWorkspaceCollection,
+    private readonly folderCollection: DriveFoldersCollection,
+  ) {}
 
   private async createOrUpdate(workspaces: DriveWorkspace[]): Promise<DriveWorkspace[]> {
     try {
@@ -32,20 +38,22 @@ export class SyncRemoteWorkspaceService {
   async run(): Promise<DriveWorkspace[]> {
     try {
       const result = await FetchWorkspacesService.run();
-      const workspaces: DriveWorkspace[] = result.availableWorkspaces.map(({ workspace }) => {
-        return {
-          id: workspace.id,
-          ownerId: workspace.ownerId,
-          name: workspace.name,
-          description: workspace.description,
-          defaultTeamId: workspace.defaultTeamId,
-          workspaceUserId: workspace.workspaceUserId,
-          setupCompleted: workspace.setupCompleted,
-          rootFolderId: workspace.rootFolderId,
-          createdAt: workspace.createdAt,
-          updatedAt: workspace.updatedAt,
-        };
-      });
+      const workspaces: DriveWorkspace[] = await Promise.all(
+        result.availableWorkspaces.map(async ({ workspace, workspaceUser }) => {
+          return {
+            id: workspace.id,
+            ownerId: workspace.ownerId,
+            name: workspace.name,
+            defaultTeamId: workspace.defaultTeamId,
+            workspaceUserId: workspace.workspaceUserId,
+            setupCompleted: workspace.setupCompleted,
+            rootFolderId: workspace.rootFolderId ?? '',
+            mnemonic: workspaceUser.key,
+            createdAt: new Date(workspace.createdAt),
+            updatedAt: new Date(workspace.updatedAt),
+          };
+        }),
+      );
       return await this.createOrUpdate(workspaces);
     } catch (error) {
       logger.error('Error syncing workspace', error);

@@ -11,6 +11,8 @@ import { logger } from '../../../apps/shared/logger/logger';
 import { syncWorkspaceService } from '../remote-sync/handlers';
 import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
+import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+import configStore from '../config';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -211,6 +213,8 @@ const spawnAllSyncEngineWorker = async () => {
     workspaceId: '',
     loggerPath: getLoggersPaths().logEnginePath,
     rootUuid: user.rootFolderId,
+    mnemonic: user.mnemonic,
+    bucket: user.bucket,
   };
 
   logger.info('Spawning sync engine worker for Internxt Drive');
@@ -224,7 +228,21 @@ const spawnAllSyncEngineWorker = async () => {
   await Promise.all(
     workspaces.map(async (workspace) => {
       const workspaceCredential = await FetchWorkspacesService.getCredencials(workspace.id);
+
+      // obtener la key
+      const user = configStore.get('userData');
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const mnemonic = await decryptMessageWithPrivateKey({
+        encryptedMessage: Buffer.from(workspace.mnemonic, 'base64').toString(),
+        privateKeyInBase64: user.privateKey,
+      });
+
       const values: Config = {
+        mnemonic: mnemonic.toString(),
         providerId: `{${workspace.id}}`,
         rootPath: getRootWorkspace(workspace.id),
         providerName: workspace.name,
@@ -232,6 +250,7 @@ const spawnAllSyncEngineWorker = async () => {
         workspaceId: workspace.id,
         workspaceToken: workspaceCredential.tokenHeader,
         rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
+        bucket: workspaceCredential.bucket,
       };
 
       await spawnSyncEngineWorker(values);

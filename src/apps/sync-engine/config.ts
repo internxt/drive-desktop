@@ -6,6 +6,8 @@ export interface Config {
   loggerPath: string;
   workspaceId: string;
   workspaceToken?: string | null;
+  bucket: string;
+  mnemonic: string;
 }
 
 let config: Config = {
@@ -15,6 +17,8 @@ let config: Config = {
   loggerPath: '',
   workspaceId: '',
   rootUuid: '',
+  bucket: '',
+  mnemonic: '',
   workspaceToken: null,
 };
 

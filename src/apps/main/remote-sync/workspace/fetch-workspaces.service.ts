@@ -3,7 +3,7 @@ import { client } from '../../../shared/HttpClient/client';
 import { customInspect } from '../../../shared/logger/custom-inspect';
 
 export class FetchWorkspacesService {
-  static async run(): Promise<paths['/workspaces']['get']['responses']['200']['content']['application/json']> {
+  static async run(): Promise<components['schemas']['GetAvailableWorkspacesResponseDto']> {
     const result = await client.GET('/workspaces');
     if (!result.data) throw new Error(`Fetch workspaces response not ok with error ${customInspect(result.error)}`);
     return result.data;

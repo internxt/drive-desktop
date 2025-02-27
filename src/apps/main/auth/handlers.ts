@@ -57,7 +57,7 @@ export function onUserUnauthorized() {
 ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
 
 ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
-  setCredentials(data.user, data.user.mnemonic, data.token, data.newToken);
+  setCredentials(data.user, data.user.mnemonic, data.token, data.newToken, data.password);
   if (!canHisConfigBeRestored(data.user.uuid)) {
     await setupRootFolder();
   }

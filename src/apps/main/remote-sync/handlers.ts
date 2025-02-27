@@ -19,7 +19,6 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { DriveWorkspaceCollection } from '../database/collections/DriveWorkspaceCollection';
 import { SyncRemoteWorkspaceService } from './workspace/sync-remote-workspace';
-import { FetchWorkspacesService } from './workspace/fetch-workspaces.service';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
