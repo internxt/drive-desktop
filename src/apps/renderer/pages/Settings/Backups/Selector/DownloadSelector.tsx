@@ -81,8 +81,8 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
 
   const handleDownloadBackup = async () => {
     if (!thereIsDownloadProgress) {
-      const folderIds = selectedBackup.map((item) => item.id);
-      await downloadBackups(selected!, folderIds);
+      const folderUuids = selectedBackup.map((item) => item.uuid);
+      await downloadBackups(selected!, folderUuids);
       onClose();
     } else {
       try {

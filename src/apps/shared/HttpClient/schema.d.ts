@@ -2731,6 +2731,34 @@ export interface components {
             /** @description Array of files with names and types */
             files: string[];
         };
+        GetFolderContentDto: {
+            type: string;
+            id: number;
+            parentId: number;
+            parentUuid: string;
+            name: string;
+            parent: components["schemas"]["Folder"];
+            bucket: string;
+            userId: number;
+            encryptVersion: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            uuid: string;
+            plainName: string;
+            size: number;
+            /** Format: date-time */
+            creationTime: string;
+            /** Format: date-time */
+            modificationTime: string;
+            /** @enum {string} */
+            status: "EXISTS" | "TRASHED" | "DELETED";
+            removed: boolean;
+            deleted: boolean;
+            children: components["schemas"]["FolderDto"][];
+            files: components["schemas"]["FileDto"][];
+        };
         ResultFoldersDto: {
             result: components["schemas"]["FolderDto"][];
         };
@@ -4332,7 +4360,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["GetFolderContentDto"];
+                };
             };
         };
     };

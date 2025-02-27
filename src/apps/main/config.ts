@@ -35,7 +35,7 @@ export interface AppStore {
   lastOnboardingShown: string;
   deviceId: number;
   deviceUuid: string;
-  backupList: Record<string, { enabled: boolean; folderId: number }>;
+  backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
 
   workspacesPath: Record<string, string>;
   clientId: string;

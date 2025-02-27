@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 
 import {
@@ -16,6 +15,7 @@ import {
   createBackupsFromLocalPaths,
   downloadBackup,
 } from './service';
+
 ipcMain.handle('get-or-create-device', getOrCreateDevice);
 
 ipcMain.handle('rename-device', (_, v) => renameDevice(v));
@@ -34,10 +34,7 @@ ipcMain.handle('delete-backups-from-device', (_, v, c?) => deleteBackupsFromDevi
 
 ipcMain.handle('disable-backup', (_, v) => disableBackup(v));
 
-ipcMain.handle('download-backup', (_, v, fd) => {
-  Logger.info('Downloading backup', v, fd);
-  downloadBackup(v, fd);
-});
+ipcMain.handle('download-backup', (_, v, fd) => downloadBackup(v, fd));
 
 ipcMain.handle('change-backup-path', (_, v) => changeBackupPath(v));
 
