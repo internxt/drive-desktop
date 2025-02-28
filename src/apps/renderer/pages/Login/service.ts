@@ -33,7 +33,6 @@ export async function accessRequest(email: string, password: string, hashedPassw
 
   let accessRes;
   try {
-    window.electron.logger.info('accessRequest', `${process.env.NEW_DRIVE_URL}/login/access`);
     accessRes = await fetch(`${process.env.NEW_DRIVE_URL}/drive/auth/login/access`, {
       method: 'POST',
       body: JSON.stringify({
@@ -76,8 +75,6 @@ export async function loginRequest(email: string): Promise<{
   let loginRes;
 
   try {
-    window.electron.logger.info('loginRequest', `${process.env.NEW_DRIVE_URL}/login`);
-
     loginRes = await fetch(`${process.env.NEW_DRIVE_URL}/drive/auth/login`, {
       method: 'POST',
       body: JSON.stringify({ email }),
@@ -87,7 +84,6 @@ export async function loginRequest(email: string): Promise<{
         'internxt-version': packageConfig.version,
       },
     });
-    window.electron.logger.info('res in /login', loginRes.body);
   } catch (err) {
     window.electron.logger.info('error in /login', err);
     throw new Error(fallbackErrorMessage);
