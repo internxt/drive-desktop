@@ -2886,9 +2886,27 @@ export interface components {
             /** Format: date-time */
             updatedAt: string;
         };
+        WorkspaceAttributesDto: {
+            id: string;
+            ownerId: string;
+            address?: string;
+            name: string;
+            description?: string;
+            avatar: string | null;
+            defaultTeamId: string;
+            workspaceUserId: string;
+            setupCompleted: boolean;
+            numberOfSeats: number;
+            phoneNumber?: string;
+            rootFolderId?: string;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
         WorkspaceDto: {
             workspaceUser: components["schemas"]["WorkspaceUserToJSONDTO"];
-            workspace: Record<string, never>;
+            workspace: components["schemas"]["WorkspaceAttributesDto"];
         };
         Workspace: Record<string, never>;
         GetAvailableWorkspacesResponseDto: {

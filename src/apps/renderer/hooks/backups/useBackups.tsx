@@ -22,7 +22,6 @@ export function useBackups(): BackupContextProps {
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
 
   async function fetchBackups(): Promise<void> {
-    window.electron.logger.info('Fetching backups');
     let backups: BackupInfo[];
 
     if (!selected) {

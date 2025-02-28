@@ -25,6 +25,7 @@ export type AccessResponse = {
   newToken: string;
   token: string;
   user: User;
+  password: string;
 };
 
 export async function accessRequest(email: string, password: string, hashedPassword: string, tfa?: string): Promise<AccessResponse> {
@@ -32,7 +33,7 @@ export async function accessRequest(email: string, password: string, hashedPassw
 
   let accessRes;
   try {
-    accessRes = await fetch(`${process.env.API_URL}/access`, {
+    accessRes = await fetch(`${process.env.NEW_DRIVE_URL}/drive/auth/login/access`, {
       method: 'POST',
       body: JSON.stringify({
         email: email.toLowerCase(),
@@ -45,7 +46,9 @@ export async function accessRequest(email: string, password: string, hashedPassw
         'internxt-version': packageConfig.version,
       },
     });
-  } catch {
+  } catch (err) {
+    window.electron.logger.info('error in /login', err);
+
     throw new Error(fallbackErrorMessage);
   }
   if (!accessRes.ok) {
@@ -72,7 +75,7 @@ export async function loginRequest(email: string): Promise<{
   let loginRes;
 
   try {
-    loginRes = await fetch(`${process.env.API_URL}/login`, {
+    loginRes = await fetch(`${process.env.NEW_DRIVE_URL}/drive/auth/login`, {
       method: 'POST',
       body: JSON.stringify({ email }),
       headers: {
@@ -81,7 +84,8 @@ export async function loginRequest(email: string): Promise<{
         'internxt-version': packageConfig.version,
       },
     });
-  } catch {
+  } catch (err) {
+    window.electron.logger.info('error in /login', err);
     throw new Error(fallbackErrorMessage);
   }
 

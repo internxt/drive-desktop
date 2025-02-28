@@ -40,7 +40,10 @@ export default function Login() {
     try {
       const res = await accessRequest(email, password, encryptedHash, twoFA);
       setUserContextForReports(res.user);
-      window.electron.userLoggedIn(res);
+      window.electron.userLoggedIn({
+        ...res,
+        password,
+      });
     } catch (err) {
       const { message } = err as Error;
 

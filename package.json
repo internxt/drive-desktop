@@ -252,6 +252,7 @@
     "multipipe": "^4.0.0",
     "node-schedule": "^2.1.0",
     "openapi-fetch": "^0.13.4",
+    "openpgp": "5.9.0",
     "phosphor-react": "^1.4.1",
     "react": "^17.0.2",
     "react-auth-code-input": "^3.2.0",
