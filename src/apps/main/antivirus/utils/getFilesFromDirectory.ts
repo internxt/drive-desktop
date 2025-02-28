@@ -5,6 +5,7 @@ import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { isPermissionError } from '../utils/isPermissionError';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import Logger from 'electron-log';
 
 const execAsync = promisify(exec);
 
@@ -55,16 +56,51 @@ export const getFilesFromDirectory = async (dir: string, cb: (file: string) => P
   }
 };
 
-export async function countFilesUsingWindowsCommand(folder: string): Promise<number> {
-  const command = `powershell -command "Get-ChildItem -Path '${folder}' -File -Recurse | Measure-Object | Select -ExpandProperty Count"`;
-  try {
-    const { stdout, stderr } = await execAsync(command);
-    if (stderr) {
-      console.error('Error de PowerShell:', stderr);
-    }
-    return parseInt(stdout.trim(), 10);
-  } catch (err) {
-    console.error('Error al contar archivos con PowerShell:', err);
-    return 0;
+export async function countSystemFiles(folder: string) {
+  if (await PathTypeChecker.isFile(folder)) {
+    return 1;
   }
+
+  let items;
+  try {
+    items = await readdir(folder, { withFileTypes: true });
+  } catch (err) {
+    if (isPermissionError(err)) {
+      console.warn(`Skipping directory "${folder}" due to permission error.`);
+      return 0;
+    }
+    throw err;
+  }
+
+  const nonTempItems = items.filter((item) => {
+    const fullPath = resolve(folder, item.name);
+    return !fullPath.toLowerCase().includes('temp') && !fullPath.toLowerCase().includes('tmp');
+  });
+
+  const chunkSize = 25;
+  let total = 0;
+
+  for (let i = 0; i < nonTempItems.length; i += chunkSize) {
+    const chunk = nonTempItems.slice(i, i + chunkSize);
+    const counts = await Promise.all(
+      chunk.map(async (item) => {
+        const fullPath = resolve(folder, item.name);
+        if (item.isDirectory()) {
+          try {
+            return await countSystemFiles(fullPath);
+          } catch (err) {
+            if (!isPermissionError(err)) throw err;
+            console.warn(`Skipping subdirectory "${fullPath}" due to permission error.`);
+            return 0;
+          }
+        } else {
+          return 1;
+        }
+      })
+    );
+    total += counts.reduce((sum, c) => sum + c, 0);
+  }
+
+  Logger.info(`TOTAL NUMBER OF ITEMS TO SCAN in ${folder}: ${total}`);
+  return total;
 }

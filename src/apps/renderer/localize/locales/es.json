@@ -379,6 +379,7 @@
         }
       },
       "scanProcess": {
+        "countingFiles": "Contando archivos...",
         "scanning": "Escaneando...",
         "scannedFiles": "Archivos escaneados",
         "detectedFiles": "Archivos detectados",

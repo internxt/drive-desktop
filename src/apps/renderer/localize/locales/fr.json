@@ -375,6 +375,7 @@
         }
       },
       "scanProcess": {
+        "countingFiles": "Comptage des fichiers...",
         "scanning": "Analyse en cours...",
         "scannedFiles": "Fichiers analysés",
         "detectedFiles": "Fichiers détectés",

@@ -24,6 +24,7 @@ export default function AntivirusSection({
     countScannedFiles,
     infectedFiles,
     currentScanPath,
+    countFiles,
     view,
     progressRatio,
     isAntivirusAvailable,
@@ -49,6 +50,7 @@ export default function AntivirusSection({
       <ScanState
         isScanning={isScanning}
         isScanCompleted={isScanCompleted}
+        countFiles={countFiles}
         scannedFilesCount={countScannedFiles}
         progressRatio={progressRatio}
         currentScanPath={currentScanPath}

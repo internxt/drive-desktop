@@ -396,6 +396,7 @@
         }
       },
       "scanProcess": {
+        "countingFiles": "Counting files...",
         "scanning": "Scanning...",
         "scannedFiles": "Scanned files",
         "detectedFiles": "Detected files",
