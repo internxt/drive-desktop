@@ -530,7 +530,7 @@ async function downloadDeviceBackupZip({
   path: PathLike;
   updateProgress: (progress: number) => void;
   abortController?: AbortController;
-}): Promise<void> {
+}) {
   if (!device.id) {
     throw new Error('This backup has not been uploaded yet');
   }
