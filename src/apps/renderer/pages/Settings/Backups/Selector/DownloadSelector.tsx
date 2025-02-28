@@ -36,7 +36,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
   const [folder, setFolder] = useState<ItemBackup>({
     id: selected?.id || 0,
     uuid: selected?.uuid || '',
-    name: selected?.name || '',
+    plainName: selected?.name || '',
     pathname: '',
     backupsBucket: '',
     tmpPath: '',
@@ -81,8 +81,8 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
 
   const handleDownloadBackup = async () => {
     if (!thereIsDownloadProgress) {
-      const folderIds = selectedBackup.map((item) => item.id);
-      await downloadBackups(selected!, folderIds);
+      const folderUuids = selectedBackup.map((item) => item.uuid);
+      await downloadBackups(selected!, folderUuids);
       onClose();
     } else {
       try {

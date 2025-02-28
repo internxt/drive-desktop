@@ -74,7 +74,7 @@ export async function launchBackupProcesses(
     const endReason = await executeBackupWorker(backupInfo, stopController);
 
     if (isSyncError(endReason)) {
-      errors.add({ name: backupInfo.name, error: endReason });
+      errors.add({ name: backupInfo.plainName, error: endReason });
     }
 
     Logger.info(`Backup process for ${backupInfo.folderId} ended with ${endReason}`);

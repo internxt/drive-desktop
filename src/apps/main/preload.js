@@ -271,8 +271,8 @@ contextBridge.exposeInMainWorld('electron', {
   getLastBackupExitReason() {
     return ipcRenderer.invoke('get-last-backup-exit-reason');
   },
-  downloadBackup(backup, listToFolder) {
-    return ipcRenderer.invoke('download-backup', backup, listToFolder);
+  downloadBackup(backup, folderUuids) {
+    return ipcRenderer.invoke('download-backup', backup, folderUuids);
   },
   changeBackupPath(currentPath) {
     return ipcRenderer.invoke('change-backup-path', currentPath);

@@ -16,7 +16,7 @@ export function BackupListItem({ backup, selected }: BackupListItemProps) {
     tmpPath: backup.tmpPath,
     pathname: backup.pathname,
     backupsBucket: backup.backupsBucket,
-    name: backup.name,
+    plainName: backup.plainName,
   });
 
   return (

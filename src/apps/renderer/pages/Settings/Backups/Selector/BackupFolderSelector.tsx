@@ -46,7 +46,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
             items={backups.map((backup) => ({
               id: backup.folderId,
               uuid: backup.folderUuid,
-              name: backup.name,
+              plainName: backup.plainName,
               tmpPath: backup.tmpPath,
               backupsBucket: backup.backupsBucket,
               pathname: backup.pathname,
@@ -74,7 +74,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
               refreshLastExitReason();
               disableBackup({
                 folderId: selectedBackup[0].id,
-                name: selectedBackup[0].name,
+                plainName: selectedBackup[0].plainName,
                 pathname: selectedBackup[0].pathname,
                 tmpPath: selectedBackup[0].tmpPath,
                 backupsBucket: selectedBackup[0].backupsBucket,
