@@ -2337,13 +2337,6 @@
   dependencies:
     "@types/node" "*"
 
-"@types/bn.js@*":
-  version "5.1.6"
-  resolved "https://registry.npmjs.org/@types/bn.js/-/bn.js-5.1.6.tgz#9ba818eec0c85e4d3c679518428afdf611d03203"
-  integrity sha512-Xh8vSwUeMKeYYrj3cX4lGQgFSF/N03r+tv4AiLl1SucqV+uTQpxRcnM8AkXKHwYP9ZPXOYXRr2KPXpVlIvqh9w==
-  dependencies:
-    "@types/node" "*"
-
 "@types/body-parser@*":
   version "1.19.5"
   resolved "https://registry.yarnpkg.com/@types/body-parser/-/body-parser-1.19.5.tgz#04ce9a3b677dc8bd681a17da1ab9835dc9d3ede4"
@@ -2623,13 +2616,6 @@
   version "2.4.4"
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.4.tgz#56e2cc26c397c038fab0e3a917a12d5c5909e901"
   integrity sha512-37i+OaWTh9qeK4LSHPsyRC7NahnGotNuZvjLSgcPzblpHB3rrCJxAOgI5gCdKm7coonsaX1Of0ILiTcnZjbfxA==
-
-"@types/openpgp@^4.4.22":
-  version "4.4.22"
-  resolved "https://registry.npmjs.org/@types/openpgp/-/openpgp-4.4.22.tgz#daec690452f731e9b8c04352c22b2851b383771a"
-  integrity sha512-afQsbrWITIcSI3OBBJtTA87H5Av2/bjRn6YBHD+abxqJVpD2HRwjP6DL7drboJcuizwcnwnVKSupXYYdImdIoQ==
-  dependencies:
-    "@types/bn.js" "*"
 
 "@types/parse-json@^4.0.0":
   version "4.0.2"
