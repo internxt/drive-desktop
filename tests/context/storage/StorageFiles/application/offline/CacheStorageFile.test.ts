@@ -3,7 +3,7 @@ import { StorageFileId } from '../../../../../../src/context/storage/StorageFile
 import { SingleFileMatchingFinderTestClass } from '../../../../virtual-drive/files/__test-class__/SingleFileMatchingFinderTestClass';
 import { FileMother } from '../../../../virtual-drive/files/domain/FileMother';
 import { StorageFileCacheMock } from '../../__mocks__/StorageFileCacheMock';
-import { StorageFileDownloaderTestClass } from '../../__test-class__/download/StorageFileDownloaderTestClass';
+import { StorageFileDownloaderTestClass } from '../download/StorageFileDownloaderTestClass';
 
 describe('Cache Storage File', () => {
   let SUT: CacheStorageFile;

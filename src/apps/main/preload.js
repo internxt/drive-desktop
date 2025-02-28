@@ -344,36 +344,65 @@ contextBridge.exposeInMainWorld('electron', {
     return () => ipcRenderer.removeListener('backup-failed', callback);
   },
   antivirus: {
+    /**
+     * Check if antivirus feature is available for the current user
+     * @returns {Promise<boolean>} Whether antivirus is available
+     */
     isAvailable: () => {
       return ipcRenderer.invoke('antivirus:is-available');
     },
-    isDefenderActive: () => {
-      return ipcRenderer.invoke('antivirus:is-Defender-active');
-    },
-    scanItems: (paths) => {
-      return ipcRenderer.invoke('antivirus:scan-items', paths);
+
+    /**
+     * Scan items for viruses
+     * @param {Array<{path: string, itemName: string, isDirectory: boolean}>} items Items to scan
+     * @returns {Promise<void>}
+     */
+    scanItems: (items) => {
+      return ipcRenderer.invoke('antivirus:scan-items', items);
     },
 
+    /**
+     * Register callback to receive scan progress updates
+     * @param {Function} callback Function to call when progress updates are received
+     */
     onScanProgress: (callback) => {
       ipcRenderer.on('antivirus:scan-progress', (_, progress) =>
         callback(progress)
       );
     },
+
+    /**
+     * Remove scan progress listener
+     */
     removeScanProgressListener: () => {
       ipcRenderer.removeAllListeners('antivirus:scan-progress');
     },
-    scanSystem: (systemPath) => {
-      return ipcRenderer.invoke('antivirus:scan-system', systemPath);
-    },
+
+    /**
+     * Open dialog to add items to scan
+     * @param {boolean} getFiles Whether to get files (true) or directories (false)
+     * @returns {Promise<Array<string>>} Selected item paths
+     */
     addItemsToScan: (getFiles) => {
       return ipcRenderer.invoke('antivirus:add-items-to-scan', getFiles);
     },
+
+    /**
+     * Remove infected files by moving them to trash
+     * @param {Array<string>} infectedFiles Array of file paths to remove
+     * @returns {Promise<void>}
+     */
     removeInfectedFiles: (infectedFiles) => {
       return ipcRenderer.invoke(
         'antivirus:remove-infected-files',
         infectedFiles
       );
     },
+
+    /**
+     * Cancel ongoing antivirus scan
+     * @returns {Promise<void>}
+     */
     cancelScan: () => {
       return ipcRenderer.invoke('antivirus:cancel-scan');
     },

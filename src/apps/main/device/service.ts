@@ -15,6 +15,7 @@ import { broadcastToWindows } from '../windows';
 import { ipcMain } from 'electron';
 import { DependencyInjectionUserProvider } from '../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { BackupError } from '../../backups/BackupError';
+import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
 
 export type Device = {
   id: number;
@@ -566,28 +567,103 @@ export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   await Promise.all(operations);
 }
 
-export async function getPathFromDialog(): Promise<{
+export type PathInfo = {
   path: string;
   itemName: string;
-} | null> {
+  isDirectory?: boolean;
+};
+
+export async function getPathFromDialog(
+  allowFiles = false
+): Promise<PathInfo | null> {
   const result = await dialog.showOpenDialog({
-    properties: ['openDirectory'],
+    properties: [
+      ...(allowFiles ? (['openFile'] as const) : ['openDirectory' as const]),
+    ],
   });
 
-  if (result.canceled) {
+  if (result.canceled || result.filePaths.length === 0) {
     return null;
   }
 
   const chosenPath = result.filePaths[0];
 
-  const itemPath =
-    chosenPath +
-    (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep);
+  let isDirectory = false;
+  try {
+    isDirectory = fs.statSync(chosenPath).isDirectory();
+  } catch (error) {
+    logger.error(`Error checking if path is directory: ${chosenPath}`, error);
+    isDirectory = !allowFiles;
+  }
 
-  const itemName = path.basename(itemPath);
+  const itemPath = isDirectory
+    ? chosenPath + (chosenPath.endsWith(path.sep) ? '' : path.sep)
+    : chosenPath;
+
+  const itemName = path.basename(chosenPath);
 
   return {
     path: itemPath,
     itemName,
+    isDirectory,
+  };
+}
+
+export async function getMultiplePathsFromDialog(
+  allowFiles = false
+): Promise<PathInfo[] | null> {
+  const result = await dialog.showOpenDialog({
+    properties: [
+      'multiSelections' as const,
+      ...(allowFiles ? (['openFile'] as const) : ['openDirectory' as const]),
+    ],
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+
+  return result.filePaths.map((chosenPath) => {
+    let isDirectory = false;
+    try {
+      isDirectory = fs.statSync(chosenPath).isDirectory();
+    } catch (error) {
+      logger.error(`Error checking if path is directory: ${chosenPath}`, error);
+      // Default to behavior based on allowFiles parameter
+      isDirectory = !allowFiles;
+    }
+
+    const itemPath = isDirectory
+      ? chosenPath + (chosenPath.endsWith(path.sep) ? '' : path.sep)
+      : chosenPath;
+
+    const itemName = path.basename(chosenPath);
+
+    return {
+      path: itemPath,
+      itemName,
+      isDirectory,
+    };
+  });
+}
+
+export async function getUserSystemPath(): Promise<
+  | {
+      path: string;
+      itemName: string;
+      isDirectory: boolean;
+    }
+  | undefined
+> {
+  const filePath = os.homedir();
+  if (!filePath) return;
+
+  const isFolder = await PathTypeChecker.isFolder(filePath);
+  const itemName = path.basename(filePath);
+
+  return {
+    path: filePath,
+    itemName,
+    isDirectory: isFolder,
   };
 }

@@ -32,7 +32,7 @@ import './app-info/handlers';
 import './remote-sync/handlers';
 import './virtual-drive';
 
-import { app, ipcMain, nativeTheme } from 'electron';
+import { app, nativeTheme, ipcMain } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
@@ -56,9 +56,11 @@ import { Theme } from '../shared/types/Theme';
 import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
+import clamAVServer from './antivirus/ClamAVDaemon';
+import { runFreshclam } from './antivirus/FreshclamUpdater';
 import dns from 'node:dns';
-
-let mainWindow: Electron.BrowserWindow;
+import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
+import { setupAntivirusIpc } from './background-processes/antivirus/setupAntivirusIPC';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -119,12 +121,37 @@ app
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
+
+    try {
+      await runFreshclam().catch((error) => {
+        Logger.error('Failed to run freshclam:', error);
+      });
+
+      Logger.info('Starting ClamAV daemon after freshclam...');
+      await clamAVServer.startClamdServer();
+      await clamAVServer.waitForClamd(300000, 10000);
+      Logger.info('ClamAV daemon is ready');
+
+      scheduleDailyScan();
+    } catch (error) {
+      Logger.error('Failed to initialize ClamAV:', error);
+    }
+
     checkForUpdates();
   })
   .catch(Logger.error);
 
 eventBus.on('WIDGET_IS_READY', () => {
   setUpBackups();
+
+  // Initialize antivirus with better logging and error handling
+  try {
+    Logger.info('[Main] Setting up antivirus IPC handlers');
+    setupAntivirusIpc();
+    Logger.info('[Main] Antivirus IPC handlers setup complete');
+  } catch (error) {
+    Logger.error('[Main] Error setting up antivirus IPC handlers:', error);
+  }
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
@@ -169,6 +196,8 @@ eventBus.on('USER_LOGGED_OUT', async () => {
 
   if (widget) {
     widget?.hide();
+    clearDailyScan();
+    clamAVServer.stopClamdServer();
   }
 
   await createAuthWindow();
@@ -189,13 +218,6 @@ process.on('uncaughtException', (error) => {
   } else {
     Logger.error('Uncaught exception in main process: ', error);
   }
-});
-
-ipcMain.handle('request-reinitialize-backups', async () => {
-  if (mainWindow) {
-    mainWindow.webContents.send('reinitialize-backups');
-  }
-  return 'Reinitialization requested';
 });
 
 ipcMain.handle('check-internet-connection', async () => {
