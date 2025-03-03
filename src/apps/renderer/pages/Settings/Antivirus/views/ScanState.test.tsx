@@ -1,28 +1,32 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ScanState } from './ScanState';
+import { useAntivirusContext } from '../../../../context/AntivirusContext';
 
 jest.mock('../../../../context/LocalContext');
+jest.mock('../../../../context/AntivirusContext');
 
 describe('ScanState', () => {
-  const defaultProps = {
+  const mockShowItemsWithMalware = jest.fn();
+
+  const mockAntivirusContext = {
     currentScanPath: '/test/path/file.txt',
-    scannedFilesCount: 100,
+    countScannedFiles: 100,
     progressRatio: 50,
     isScanning: true,
     isScanCompleted: false,
-    corruptedFiles: [],
+    infectedFiles: [],
     showErrorState: false,
-    onStopProgressScanButtonClicked: jest.fn(),
+    onCancelScan: jest.fn(),
     onScanAgainButtonClicked: jest.fn(),
-    showItemsWithMalware: jest.fn(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useAntivirusContext as jest.Mock).mockReturnValue(mockAntivirusContext);
   });
 
   it('renders scanning state correctly', () => {
-    render(<ScanState {...defaultProps} />);
+    render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
     expect(
       screen.getByText('settings.antivirus.scanProcess.scanning')
@@ -33,7 +37,7 @@ describe('ScanState', () => {
   });
 
   it('shows stop scan button during scan', () => {
-    render(<ScanState {...defaultProps} />);
+    render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
     const stopButton = screen.getByText(
       'settings.antivirus.scanOptions.stopScan'
@@ -41,20 +45,18 @@ describe('ScanState', () => {
     expect(stopButton).toBeInTheDocument();
 
     fireEvent.click(stopButton);
-    expect(defaultProps.onStopProgressScanButtonClicked).toHaveBeenCalledTimes(
-      1
-    );
+    expect(mockAntivirusContext.onCancelScan).toHaveBeenCalledTimes(1);
   });
 
   it('shows scan completed state with no corrupted files', () => {
-    render(
-      <ScanState
-        {...defaultProps}
-        isScanning={false}
-        isScanCompleted={true}
-        progressRatio={100}
-      />
-    );
+    (useAntivirusContext as jest.Mock).mockReturnValue({
+      ...mockAntivirusContext,
+      isScanning: false,
+      isScanCompleted: true,
+      progressRatio: 100,
+    });
+
+    render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
     expect(
       screen.getByText('settings.antivirus.scanProcess.noFilesFound.title')
@@ -63,26 +65,27 @@ describe('ScanState', () => {
       screen.getByText('settings.antivirus.scanProcess.noFilesFound.subtitle')
     ).toBeInTheDocument();
 
-    const scanAgainButton = screen.getByText(
-      'settings.antivirus.scanProcess.scanAgain'
-    );
+    const scanAgainButton = screen.getByTestId('scan-again-button');
     expect(scanAgainButton).toBeInTheDocument();
 
     fireEvent.click(scanAgainButton);
-    expect(defaultProps.onScanAgainButtonClicked).toHaveBeenCalledTimes(1);
+    expect(mockAntivirusContext.onScanAgainButtonClicked).toHaveBeenCalledTimes(
+      1
+    );
   });
 
   it('shows scan completed state with corrupted files', () => {
     const corruptedFiles = ['/test/infected1.txt', '/test/infected2.txt'];
-    render(
-      <ScanState
-        {...defaultProps}
-        isScanning={false}
-        isScanCompleted={true}
-        progressRatio={100}
-        corruptedFiles={corruptedFiles}
-      />
-    );
+
+    (useAntivirusContext as jest.Mock).mockReturnValue({
+      ...mockAntivirusContext,
+      isScanning: false,
+      isScanCompleted: true,
+      progressRatio: 100,
+      infectedFiles: corruptedFiles,
+    });
+
+    render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
     expect(
       screen.getByText('settings.antivirus.scanProcess.malwareFound.title')
@@ -97,18 +100,18 @@ describe('ScanState', () => {
     expect(removeMalwareButton).toBeInTheDocument();
 
     fireEvent.click(removeMalwareButton);
-    expect(defaultProps.showItemsWithMalware).toHaveBeenCalledTimes(1);
+    expect(mockShowItemsWithMalware).toHaveBeenCalledTimes(1);
   });
 
   it('shows error state when scan fails', () => {
-    render(
-      <ScanState
-        {...defaultProps}
-        isScanning={false}
-        isScanCompleted={false}
-        showErrorState={true}
-      />
-    );
+    (useAntivirusContext as jest.Mock).mockReturnValue({
+      ...mockAntivirusContext,
+      isScanning: false,
+      isScanCompleted: false,
+      showErrorState: true,
+    });
+
+    render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
     expect(
       screen.getByText('settings.antivirus.errorState.title')
@@ -120,12 +123,20 @@ describe('ScanState', () => {
     expect(tryAgainButton).toBeInTheDocument();
 
     fireEvent.click(tryAgainButton);
-    expect(defaultProps.onScanAgainButtonClicked).toHaveBeenCalledTimes(1);
+    expect(mockAntivirusContext.onScanAgainButtonClicked).toHaveBeenCalledTimes(
+      1
+    );
   });
 
   it('shows scan statistics', () => {
     const corruptedFiles = ['/test/infected1.txt', '/test/infected2.txt'];
-    render(<ScanState {...defaultProps} corruptedFiles={corruptedFiles} />);
+
+    (useAntivirusContext as jest.Mock).mockReturnValue({
+      ...mockAntivirusContext,
+      infectedFiles: corruptedFiles,
+    });
+
+    render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
     expect(
       screen.getByText('settings.antivirus.scanProcess.scannedFiles')
@@ -133,20 +144,20 @@ describe('ScanState', () => {
     expect(
       screen.getByText('settings.antivirus.scanProcess.detectedFiles')
     ).toBeInTheDocument();
-    expect(screen.getByText('100')).toBeInTheDocument(); // scannedFilesCount
-    expect(screen.getByText('2')).toBeInTheDocument(); // corruptedFiles.length
+    expect(screen.getByText('100')).toBeInTheDocument(); // countScannedFiles
+    expect(screen.getByText('2')).toBeInTheDocument(); // infectedFiles.length
   });
 
   it('updates current scan path during scanning', () => {
-    const { rerender } = render(<ScanState {...defaultProps} />);
+    render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
     expect(screen.getByText('/test/path/file.txt')).toBeInTheDocument();
 
-    rerender(
-      <ScanState
-        {...defaultProps}
-        currentScanPath="/test/path/another-file.txt"
-      />
-    );
+    (useAntivirusContext as jest.Mock).mockReturnValue({
+      ...mockAntivirusContext,
+      currentScanPath: '/test/path/another-file.txt',
+    });
+
+    render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
     expect(screen.getByText('/test/path/another-file.txt')).toBeInTheDocument();
   });
 });

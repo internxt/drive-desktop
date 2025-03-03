@@ -1288,10 +1288,10 @@
   resolved "https://npm.pkg.github.com/download/@internxt/lib/1.2.0/172d7929abb3dc34fda044ad9977875791f7a471#172d7929abb3dc34fda044ad9977875791f7a471"
   integrity sha512-14byNxSU0S0KSc3g+BWiJb7/fcHUfqxkHQRz9fwJhAHNmgOo+Bhx13xXk07KKUzeNX1JymSGEZkVCk0AOQiM+Q==
 
-"@internxt/scan@1.0.2":
-  version "1.0.2"
-  resolved "https://npm.pkg.github.com/download/@internxt/scan/1.0.2/dc85bd75165ff50adfc8b9f607b233398898c60a#dc85bd75165ff50adfc8b9f607b233398898c60a"
-  integrity sha512-AZAPF+JywxfyEWJ9LPk+b3HHJG1c6fDq+x+YX5U5FKilfX43RgM6GdCME/RfuJPLuMy6B0r/W24NWIRs6sQUXQ==
+"@internxt/scan@1.0.3":
+  version "1.0.3"
+  resolved "https://npm.pkg.github.com/download/@internxt/scan/1.0.3/ae308e065a8769d6cebe99671c8b8513a502cb8d#ae308e065a8769d6cebe99671c8b8513a502cb8d"
+  integrity sha512-Nqk2nusTr9J2G1KEoQdSy+V1gIS4mG87hJngj/DrskLz19PMgSQxs+F5KYnjurnCLS3vZV0eiZhu+2R0mLBzrQ==
 
 "@internxt/sdk@1.9.7":
   version "1.9.7"

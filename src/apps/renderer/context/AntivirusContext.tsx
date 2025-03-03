@@ -1,29 +1,31 @@
 import { createContext, ReactNode, useContext } from 'react';
 import {
+  AntivirusContext as AntivirusContextType,
   useAntivirus,
-  UseAntivirusReturn,
 } from '../hooks/antivirus/useAntivirus';
 
-type AntivirusContext = UseAntivirusReturn;
-
-export const AntivirusContext = createContext<AntivirusContext>(
-  {} as AntivirusContext
+const AntivirusContext = createContext<AntivirusContextType | undefined>(
+  undefined
 );
 
 export function AntivirusProvider({ children }: { children: ReactNode }) {
-  const antivirus = useAntivirus();
+  const antivirusState = useAntivirus();
 
   return (
-    <AntivirusContext.Provider
-      value={{
-        ...antivirus,
-      }}
-    >
+    <AntivirusContext.Provider value={antivirusState}>
       {children}
     </AntivirusContext.Provider>
   );
 }
 
-export const useAntivirusContext = (): UseAntivirusReturn => {
-  return useContext(AntivirusContext);
-};
+export function useAntivirusContext(): AntivirusContextType {
+  const context = useContext(AntivirusContext);
+
+  if (context === undefined) {
+    throw new Error(
+      'useAntivirusContext must be used within an AntivirusProvider'
+    );
+  }
+
+  return context;
+}

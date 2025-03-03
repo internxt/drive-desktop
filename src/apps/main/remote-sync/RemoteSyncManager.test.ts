@@ -3,10 +3,16 @@ jest.mock('@sentry/electron/main', () => ({
   captureException: () => jest.fn(),
 }));
 
+jest.mock('electron-log');
 jest.mock('electron');
 jest.mock('electron-store');
 jest.mock('axios');
-
+jest.mock('./RemoteSyncErrorHandler/RemoteSyncErrorHandler', () => ({
+  RemoteSyncErrorHandler: jest.fn().mockImplementation(() => ({
+    handleSyncError: jest.fn(),
+  })),
+}));
+import { RemoteSyncErrorHandler } from './RemoteSyncErrorHandler/RemoteSyncErrorHandler';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { RemoteSyncedFile, RemoteSyncedFolder } from './helpers';
 import * as uuid from 'uuid';
@@ -83,26 +89,16 @@ const createRemoteSyncedFolderFixture = (
 };
 
 describe('RemoteSyncManager', () => {
-  let sut: RemoteSyncManager = new RemoteSyncManager(
-    {
-      folders: inMemorySyncedFoldersCollection,
-      files: inMemorySyncedFilesCollection,
-    },
-    {
-      httpClient: mockedAxios,
-      fetchFilesLimitPerRequest: 2,
-      fetchFoldersLimitPerRequest: 2,
-      syncFiles: true,
-      syncFolders: true,
-    }
-  );
-
+  let errorHandler: RemoteSyncErrorHandler;
+  let sut: RemoteSyncManager;
   inMemorySyncedFilesCollection.getLastUpdated = () =>
     Promise.resolve({ success: false, result: null });
   inMemorySyncedFoldersCollection.getLastUpdated = () =>
     Promise.resolve({ success: false, result: null });
 
   beforeEach(() => {
+    errorHandler = new RemoteSyncErrorHandler();
+
     sut = new RemoteSyncManager(
       {
         folders: inMemorySyncedFoldersCollection,
@@ -114,7 +110,8 @@ describe('RemoteSyncManager', () => {
         fetchFoldersLimitPerRequest: 2,
         syncFiles: true,
         syncFolders: true,
-      }
+      },
+      errorHandler
     );
     mockedAxios.get.mockClear();
   });
@@ -132,7 +129,8 @@ describe('RemoteSyncManager', () => {
           fetchFoldersLimitPerRequest: 2,
           syncFiles: true,
           syncFolders: false,
-        }
+        },
+        errorHandler
       );
 
       mockedAxios.get
@@ -171,7 +169,8 @@ describe('RemoteSyncManager', () => {
           fetchFoldersLimitPerRequest: 2,
           syncFiles: false,
           syncFolders: true,
-        }
+        },
+        errorHandler
       );
 
       mockedAxios.get
@@ -221,7 +220,8 @@ describe('RemoteSyncManager', () => {
           fetchFoldersLimitPerRequest: 2,
           syncFiles: true,
           syncFolders: false,
-        }
+        },
+        errorHandler
       );
       const file1 = createRemoteSyncedFileFixture({
         plainName: 'file_1',
@@ -263,6 +263,63 @@ describe('RemoteSyncManager', () => {
 
       expect(mockedAxios.get).toBeCalledTimes(6);
       expect(sut.getSyncStatus()).toBe('SYNC_FAILED');
+    });
+
+    it('should handle the error while syncing files by calling the error handler properly', async () => {
+      const sut = new RemoteSyncManager(
+        {
+          folders: inMemorySyncedFoldersCollection,
+          files: inMemorySyncedFilesCollection,
+        },
+        {
+          httpClient: mockedAxios,
+          fetchFilesLimitPerRequest: 2,
+          fetchFoldersLimitPerRequest: 2,
+          syncFiles: true,
+          syncFolders: false,
+        },
+        errorHandler
+      );
+      mockedAxios.get.mockRejectedValueOnce('Fail on purpose');
+      const errorHandlerInstance = sut['errorHandler'];
+      const errorHandlerSpy = jest.spyOn(
+        errorHandlerInstance,
+        'handleSyncError'
+      );
+
+      await sut.startRemoteSync();
+
+      expect(errorHandlerSpy).toHaveBeenCalled();
+      expect(errorHandlerSpy.mock.calls[0][1]).toBe('files');
+    });
+
+    it('should handle the error while syncing folders by calling the error handler properly', async () => {
+      const sut = new RemoteSyncManager(
+        {
+          folders: inMemorySyncedFoldersCollection,
+          files: inMemorySyncedFilesCollection,
+        },
+        {
+          httpClient: mockedAxios,
+          fetchFilesLimitPerRequest: 2,
+          fetchFoldersLimitPerRequest: 2,
+          syncFiles: false,
+          syncFolders: true,
+        },
+        errorHandler
+      );
+
+      mockedAxios.get.mockRejectedValueOnce('Fail on purpose');
+      const errorHandlerInstance = sut['errorHandler'];
+      const errorHandlerSpy = jest.spyOn(
+        errorHandlerInstance,
+        'handleSyncError'
+      );
+
+      await sut.startRemoteSync();
+
+      expect(errorHandlerSpy).toHaveBeenCalled();
+      expect(errorHandlerSpy.mock.calls[0][1]).toBe('folders');
     });
   });
 });
