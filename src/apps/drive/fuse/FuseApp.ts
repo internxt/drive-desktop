@@ -4,7 +4,7 @@ import { StorageClearer } from '../../../context/storage/StorageFiles/applicatio
 import { FileRepositorySynchronizer } from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
 import { FolderRepositorySynchronizer } from '../../../context/virtual-drive/folders/application/FolderRepositorySynchronizer';
 import { RemoteTreeBuilder } from '../../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
-import { VirtualDrive } from '../VirtualDrive';
+import { VirtualDrive } from '../virtual-drive/VirtualDrive';
 import { FuseDriveStatus } from './FuseDriveStatus';
 import { CreateCallback } from './callbacks/CreateCallback';
 import { GetAttributesCallback } from './callbacks/GetAttributesCallback';

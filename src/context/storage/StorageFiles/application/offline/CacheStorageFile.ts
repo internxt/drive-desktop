@@ -4,7 +4,7 @@ import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/applic
 import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFile } from '../../domain/StorageFile';
 import { StorageFileId } from '../../domain/StorageFileId';
-import { StorageFileDownloader } from '../download/StorageFileDownloader';
+import { StorageFileDownloader } from '../download/StorageFileDownloader/StorageFileDownloader';
 import { StorageFileCache } from '../../domain/StorageFileCache';
 
 @Service()

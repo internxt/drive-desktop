@@ -23,4 +23,6 @@ export type MainProcessBackupsMessages = {
   'backups.get-backup-issues': (id: number) => WorkerExitCause;
 
   'backups.file-issue': (name: string, issue: ProcessFatalErrorName) => void;
+
+  'backups.abort': () => void;
 };

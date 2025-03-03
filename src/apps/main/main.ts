@@ -56,6 +56,7 @@ import { Theme } from '../shared/types/Theme';
 import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
+import dns from 'node:dns';
 
 let mainWindow: Electron.BrowserWindow;
 
@@ -195,4 +196,14 @@ ipcMain.handle('request-reinitialize-backups', async () => {
     mainWindow.webContents.send('reinitialize-backups');
   }
   return 'Reinitialization requested';
+});
+
+ipcMain.handle('check-internet-connection', async () => {
+  return new Promise((resolve) => {
+    dns.lookup('google.com', (err) => {
+      resolve(!err);
+    });
+
+    setTimeout(() => resolve(false), 3000);
+  });
 });
