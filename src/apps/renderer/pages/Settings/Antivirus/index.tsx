@@ -13,45 +13,12 @@ export default function AntivirusSection({
   active,
   showItemsWithMalware,
 }: AntivirusSectionProps): JSX.Element {
-  const {
-    isScanning,
-    isScanCompleted,
-    countScannedFiles,
-    infectedFiles,
-    currentScanPath,
-    progressRatio,
-    isAntivirusAvailable,
-    showErrorState,
-    onScanUserSystemButtonClicked,
-    onScanAgainButtonClicked,
-    onCustomScanButtonClicked,
-    onCancelScan,
-    view,
-  } = useAntivirusContext();
+  const { view } = useAntivirusContext();
 
   const viewStates: Record<Views, JSX.Element> = {
     locked: <LockedState />,
-    chooseItems: (
-      <ChooseItemsState
-        isUserElegible={isAntivirusAvailable}
-        onScanButtonClicked={onCustomScanButtonClicked}
-        onScanUserSystemButtonClicked={onScanUserSystemButtonClicked}
-      />
-    ),
-    scan: (
-      <ScanState
-        isScanning={isScanning}
-        isScanCompleted={isScanCompleted}
-        scannedFilesCount={countScannedFiles}
-        progressRatio={progressRatio}
-        currentScanPath={currentScanPath}
-        corruptedFiles={infectedFiles}
-        showErrorState={showErrorState}
-        onStopProgressScanButtonClicked={onCancelScan}
-        onScanAgainButtonClicked={onScanAgainButtonClicked}
-        showItemsWithMalware={showItemsWithMalware}
-      />
-    ),
+    chooseItems: <ChooseItemsState />,
+    scan: <ScanState showItemsWithMalware={showItemsWithMalware} />,
   };
 
   return (

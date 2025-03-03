@@ -1,23 +1,25 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ChooseItemsState } from './ChooseItemsState';
+import { useAntivirusContext } from '../../../../context/AntivirusContext';
 
 jest.mock('../../../../context/LocalContext');
+jest.mock('../../../../context/AntivirusContext');
 
 describe('ChooseItemsState', () => {
-  const defaultProps = {
-    isUserElegible: true,
-    onScanButtonClicked: jest.fn(),
+  const mockAntivirusContext = {
+    isAntivirusAvailable: true,
+    onCustomScanButtonClicked: jest.fn(),
     onScanUserSystemButtonClicked: jest.fn(),
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
+    (useAntivirusContext as jest.Mock).mockReturnValue(mockAntivirusContext);
   });
 
   it('renders the component with all options', () => {
-    render(<ChooseItemsState {...defaultProps} />);
+    render(<ChooseItemsState />);
 
-    // Check for scan options text
     expect(
       screen.getByText('settings.antivirus.scanOptions.systemScan.text')
     ).toBeInTheDocument();
@@ -25,7 +27,6 @@ describe('ChooseItemsState', () => {
       screen.getByText('settings.antivirus.scanOptions.customScan.text')
     ).toBeInTheDocument();
 
-    // Check for buttons
     expect(
       screen.getByText('settings.antivirus.scanOptions.systemScan.action')
     ).toBeInTheDocument();
@@ -35,7 +36,12 @@ describe('ChooseItemsState', () => {
   });
 
   it('disables buttons when user is not eligible', () => {
-    render(<ChooseItemsState {...defaultProps} isUserElegible={false} />);
+    (useAntivirusContext as jest.Mock).mockReturnValue({
+      ...mockAntivirusContext,
+      isAntivirusAvailable: false,
+    });
+
+    render(<ChooseItemsState />);
 
     const systemScanButton = screen.getByText(
       'settings.antivirus.scanOptions.systemScan.action'
@@ -49,18 +55,20 @@ describe('ChooseItemsState', () => {
   });
 
   it('calls onScanUserSystemButtonClicked when system scan button is clicked', () => {
-    render(<ChooseItemsState {...defaultProps} />);
+    render(<ChooseItemsState />);
 
     const systemScanButton = screen.getByText(
       'settings.antivirus.scanOptions.systemScan.action'
     );
     fireEvent.click(systemScanButton);
 
-    expect(defaultProps.onScanUserSystemButtonClicked).toHaveBeenCalledTimes(1);
+    expect(
+      mockAntivirusContext.onScanUserSystemButtonClicked
+    ).toHaveBeenCalledTimes(1);
   });
 
   it('shows custom scan dropdown when custom scan button is clicked', () => {
-    render(<ChooseItemsState {...defaultProps} />);
+    render(<ChooseItemsState />);
 
     const customScanButton = screen.getByText(
       'settings.antivirus.scanOptions.customScan.action'
@@ -79,8 +87,8 @@ describe('ChooseItemsState', () => {
     ).toBeInTheDocument();
   });
 
-  it('calls onScanButtonClicked with "files" when files option is selected', () => {
-    render(<ChooseItemsState {...defaultProps} />);
+  it('calls onCustomScanButtonClicked with "files" when files option is selected', () => {
+    render(<ChooseItemsState />);
 
     const customScanButton = screen.getByText(
       'settings.antivirus.scanOptions.customScan.action'
@@ -92,11 +100,13 @@ describe('ChooseItemsState', () => {
     );
     fireEvent.click(filesOption);
 
-    expect(defaultProps.onScanButtonClicked).toHaveBeenCalledWith('files');
+    expect(mockAntivirusContext.onCustomScanButtonClicked).toHaveBeenCalledWith(
+      'files'
+    );
   });
 
-  it('calls onScanButtonClicked with "folders" when folders option is selected', () => {
-    render(<ChooseItemsState {...defaultProps} />);
+  it('calls onCustomScanButtonClicked with "folders" when folders option is selected', () => {
+    render(<ChooseItemsState />);
 
     const customScanButton = screen.getByText(
       'settings.antivirus.scanOptions.customScan.action'
@@ -108,11 +118,13 @@ describe('ChooseItemsState', () => {
     );
     fireEvent.click(foldersOption);
 
-    expect(defaultProps.onScanButtonClicked).toHaveBeenCalledWith('folders');
+    expect(mockAntivirusContext.onCustomScanButtonClicked).toHaveBeenCalledWith(
+      'folders'
+    );
   });
 
   it('renders with correct styling', () => {
-    render(<ChooseItemsState {...defaultProps} />);
+    render(<ChooseItemsState />);
 
     const container = screen.getByTestId('choose-items-container');
     expect(container).toHaveClass('flex flex-col gap-4 p-10');
