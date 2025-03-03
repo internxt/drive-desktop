@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import packageJson from '../../../../../package.json';
 import { useTranslationContext } from '../../context/LocalContext';
 import ErrorBanner from './ErrorBanner';
-import { accessRequest, hashPassword, loginRequest } from './service';
+import { accessRequest, hashPassword } from './service';
 import TwoFA from './TwoFA';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
@@ -11,6 +11,7 @@ import PasswordInput from '../../components/PasswordInput';
 import TextInput from '../../components/TextInput';
 import WindowTopBar from '../../components/WindowTopBar';
 import { reportError, setUserContextForReports } from '../../utils/sentry';
+import { SettingsIPCRenderer } from '../../ipc/settings-ipc-renderer';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 
@@ -38,7 +39,7 @@ export default function Login() {
     const encryptedHash = hashPassword(password, sKey.current);
 
     try {
-      const res = await accessRequest(email, password, encryptedHash, twoFA);
+      const res = await accessRequest({ email, password, hashedPassword: encryptedHash, tfa: twoFA });
       setUserContextForReports(res.user);
       window.electron.userLoggedIn({
         ...res,
@@ -76,7 +77,7 @@ export default function Login() {
     }
 
     try {
-      const body = await loginRequest(email);
+      const body = await SettingsIPCRenderer.send('renderer.login', { email });
       sKey.current = body.sKey;
       if (body.tfa) {
         setState('ready');

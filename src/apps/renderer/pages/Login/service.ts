@@ -1,7 +1,7 @@
 import CryptoJS from 'crypto-js';
 
-import packageConfig from '../../../../../package.json';
 import { User } from '../../../main/types';
+import { SettingsIPCRenderer } from '../../ipc/settings-ipc-renderer';
 
 export function hashPassword(password: string, sKey: string): string {
   const reb = CryptoJS.enc.Hex.parse(sKey);
@@ -28,73 +28,22 @@ export type AccessResponse = {
   password: string;
 };
 
-export async function accessRequest(email: string, password: string, hashedPassword: string, tfa?: string): Promise<AccessResponse> {
-  const fallbackErrorMessage = 'Error while logging in';
-
-  let accessRes;
-  try {
-    accessRes = await fetch(`${process.env.NEW_DRIVE_URL}/drive/auth/login/access`, {
-      method: 'POST',
-      body: JSON.stringify({
-        email: email.toLowerCase(),
-        password: hashedPassword,
-        tfa,
-      }),
-      headers: {
-        'content-type': 'application/json',
-        'internxt-client': 'drive-desktop',
-        'internxt-version': packageConfig.version,
-      },
-    });
-  } catch (err) {
-    window.electron.logger.info('error in /login', err);
-
-    throw new Error(fallbackErrorMessage);
-  }
-  if (!accessRes.ok) {
-    const body = await accessRes.json();
-    const errorMessage = body.error ?? fallbackErrorMessage;
-    throw new Error(errorMessage);
-  }
-
-  const res: AccessResponse = await accessRes.json();
+export async function accessRequest({
+  email,
+  password,
+  hashedPassword,
+  tfa,
+}: {
+  email: string;
+  password: string;
+  hashedPassword: string;
+  tfa?: string;
+}) {
+  const res = await SettingsIPCRenderer.send('renderer.login-access', { email, password: hashedPassword, tfa });
 
   res.user.mnemonic = CryptoJS.AES.decrypt(CryptoJS.enc.Hex.parse(res.user.mnemonic).toString(CryptoJS.enc.Base64), password).toString(
     CryptoJS.enc.Utf8,
   );
 
   return res;
-}
-
-export async function loginRequest(email: string): Promise<{
-  sKey: string;
-  tfa: boolean;
-}> {
-  const fallbackErrorMessage = 'Error while logging in';
-
-  let loginRes;
-
-  try {
-    loginRes = await fetch(`${process.env.NEW_DRIVE_URL}/drive/auth/login`, {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-      headers: {
-        'content-type': 'application/json',
-        'internxt-client': 'drive-desktop',
-        'internxt-version': packageConfig.version,
-      },
-    });
-  } catch (err) {
-    window.electron.logger.info('error in /login', err);
-    throw new Error(fallbackErrorMessage);
-  }
-
-  const body = await loginRes.json();
-
-  if (!loginRes.ok) {
-    const errorMessage = body.error ?? 'Error while logging in';
-    throw new Error(errorMessage);
-  }
-
-  return body;
 }
