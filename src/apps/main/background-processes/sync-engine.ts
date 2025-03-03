@@ -90,7 +90,7 @@ export async function spawnSyncEngineWorker(config: Config) {
         : `${path.join(__dirname, '..', 'sync-engine')}/index.html`,
     );
 
-    logger.info(`[MAIN] SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId} LOADED`);
+    logger.debug({ msg: `[MAIN] SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId} LOADED` });
 
     worker.webContents.send('SET_CONFIG', config);
 
@@ -219,10 +219,7 @@ const spawnAllSyncEngineWorker = async () => {
     bridgePass: user.userId,
   };
 
-  logger.info('Spawning sync engine worker for Internxt Drive');
-  logger.info({
-    values,
-  });
+  logger.debug({ msg: 'Spawning sync engine worker for Internxt Drive', values });
   await spawnSyncEngineWorker(values);
 
   const workspaces = await syncWorkspaceService.getWorkspaces();
