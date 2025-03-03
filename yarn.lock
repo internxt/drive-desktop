@@ -11572,7 +11572,7 @@ winston-transport@^4.9.0:
     readable-stream "^3.6.2"
     triple-beam "^1.3.0"
 
-winston@^3.17.0, winston@^3.3.3:
+winston@^3.3.3:
   version "3.17.0"
   resolved "https://registry.yarnpkg.com/winston/-/winston-3.17.0.tgz#74b8665ce9b4ea7b29d0922cfccf852a08a11423"
   integrity sha512-DLiFIXYC5fMPxaRg832S6F5mJYvePtmO5G9v9IgUFPhXm9/GkXarH/TUrBAVzhTCzAj9anE/+GjrgXp/54nOgw==
