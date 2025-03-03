@@ -7,11 +7,13 @@ import { RemoteSyncManager } from './RemoteSyncManager';
 import { reportError } from '../bug-report/service';
 import { broadcastToWindows } from '../windows';
 import { isInitialSyncReady, setInitialSyncState } from './InitialSyncReady';
+import { RemoteSyncErrorHandler } from './RemoteSyncErrorHandler/RemoteSyncErrorHandler';
 
 const SYNC_DEBOUNCE_DELAY = 3_000;
 
 const driveFilesCollection = new DriveFilesCollection();
 const driveFoldersCollection = new DriveFoldersCollection();
+const errorHandler = new RemoteSyncErrorHandler();
 
 export const remoteSyncManager = new RemoteSyncManager(
   {
@@ -24,7 +26,8 @@ export const remoteSyncManager = new RemoteSyncManager(
     fetchFoldersLimitPerRequest: 50,
     syncFiles: true,
     syncFolders: true,
-  }
+  },
+  errorHandler
 );
 
 remoteSyncManager.onStatusChange(async (newStatus) => {
