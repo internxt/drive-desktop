@@ -46,10 +46,10 @@ export class HttpRemoteFolderSystem {
         body,
       });
 
-      if (response.error) {
+      if (!response.data) {
         Logger.error({
           message: 'Error creating file entry',
-          error: response,
+          error: response.error,
         });
 
         throw new Error('Error creating file entry');
@@ -101,10 +101,10 @@ export class HttpRemoteFolderSystem {
       });
       Logger.debug('[FOLDER FILE SYSTEM] Folder already exists', response.data);
 
-      if (response.error) {
+      if (!response.data) {
         Logger.error({
           message: 'Error getting folder by name',
-          error: response,
+          error: response.error,
         });
         throw new Error('Error getting file by name');
       }

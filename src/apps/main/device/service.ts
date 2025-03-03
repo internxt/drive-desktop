@@ -19,6 +19,7 @@ import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
 import { customInspect } from '@/apps/shared/logger/custom-inspect';
+import { getConfig } from '@/apps/sync-engine/config';
 
 export type Device = {
   name: string;
@@ -546,7 +547,7 @@ async function downloadDeviceBackupZip({
   const networkApiUrl = process.env.BRIDGE_URL;
   const bridgeUser = user.bridgeUser;
   const bridgePass = user.userId;
-  const encryptionKey = user.mnemonic;
+  const encryptionKey = getConfig().mnemonic;
 
   await downloadFolder(
     device.name,
