@@ -74,7 +74,11 @@ export class ContentsUploader {
 
       this.registerEvents(uploader, contents);
 
+      Logger.debug('[DEBUG UPLOAD STEEP 2]: ');
+
       const contentsId = await uploader.upload(contents.stream, contents.size);
+
+      Logger.debug('[DEBUG UPLOAD STEEP 3]: ');
 
       const fileContents = RemoteFileContents.create(contentsId, contents.size);
 

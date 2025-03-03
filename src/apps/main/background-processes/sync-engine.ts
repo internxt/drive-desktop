@@ -215,6 +215,8 @@ const spawnAllSyncEngineWorker = async () => {
     rootUuid: user.rootFolderId,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
+    bridgeUser: user.bridgeUser,
+    bridgePass: user.userId,
   };
 
   logger.info('Spawning sync engine worker for Internxt Drive');
@@ -250,6 +252,8 @@ const spawnAllSyncEngineWorker = async () => {
         workspaceToken: workspaceCredential.tokenHeader,
         rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
         bucket: workspaceCredential.bucket,
+        bridgeUser: workspaceCredential.credentials.networkUser,
+        bridgePass: workspaceCredential.credentials.networkPass,
       };
 
       await spawnSyncEngineWorker(values);
