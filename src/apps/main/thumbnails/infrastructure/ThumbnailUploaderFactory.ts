@@ -43,7 +43,7 @@ export class ThumbnailUploaderFactory {
 
     const storage = ThumbnailUploaderFactory.createStorageClient();
 
-    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, storage, user.bucket);
+    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, storage, getConfig().bucket);
 
     return ThumbnailUploaderFactory.instance;
   }

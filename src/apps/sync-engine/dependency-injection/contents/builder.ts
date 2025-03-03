@@ -15,6 +15,7 @@ import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { getConfig } from '../../config';
+import Logger from 'electron-log';
 
 export async function buildContentsContainer(sharedContainer: SharedContainer): Promise<ContentsContainer> {
   const mnemonic = DependencyInjectionMnemonicProvider.get();

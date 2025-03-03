@@ -123,7 +123,6 @@ async function refreshToken() {
 }
 
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
-  Logger.info('[SYNC ENGINE] Setting config:', config);
   setConfig(config);
 
   if (config.workspaceToken) {
