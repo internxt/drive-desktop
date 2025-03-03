@@ -1,30 +1,57 @@
-import { app } from 'electron';
-import { join, resolve } from 'path';
-import winston from 'winston';
-import { customInspect } from './custom-inspect';
+import { inspect } from 'node:util';
+import { getUser } from '../../main/auth/service';
+import ElectronLog from 'electron-log';
 
-const { format, transports } = winston;
-
-export const createLogger = (path: string) => {
-  return winston.createLogger({
-    format: format.errors({ stack: true }),
-    transports: [
-      new transports.File({
-        filename: resolve(path),
-        format: format.combine(format.timestamp(), format.json()),
-      }),
-      new transports.Console({
-        format: format.combine(
-          format.printf(({ level, message, stack }) => {
-            const object: { level: string; message: unknown; stack?: unknown } = { level, message };
-            if (stack) object.stack = stack;
-            return customInspect(object);
-          }),
-        ),
-      }),
-    ],
-  });
+type TRawBody = {
+  msg: string;
+  exc?: Error;
+  attributes?: {
+    tag?: 'BACKUPS' | 'SYNC-ENGINE';
+    userId?: string;
+  };
+  [key: string]: unknown;
 };
 
-export const loggerPath = join(app.getPath('appData'), 'internxt-drive', 'logs', 'watcher-win.txt');
-export const logger = createLogger(loggerPath);
+class Logger {
+  private prepareBody(rawBody: TRawBody) {
+    const user = getUser();
+
+    rawBody.attributes = {
+      userId: user?.uuid,
+      ...rawBody.attributes,
+    };
+
+    const { attributes, ...rest } = rawBody;
+
+    const body = inspect(rest, { colors: true, depth: Infinity, breakLength: Infinity });
+
+    return { attributes, body };
+  }
+
+  debug(rawBody: TRawBody) {
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.debug(body);
+  }
+
+  info(rawBody: TRawBody) {
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.info(body);
+  }
+
+  warn(rawBody: TRawBody) {
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.warn(body);
+  }
+
+  error(rawBody: TRawBody) {
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.error(body);
+  }
+
+  fatal(rawBody: TRawBody) {
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.error(body);
+  }
+}
+
+export const logger = new Logger();

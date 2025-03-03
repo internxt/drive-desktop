@@ -1,7 +1,4 @@
-import { Buffer } from 'buffer';
-import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { logger } from '../../../../apps/shared/logger/logger';
-import configStore from '../../config';
 import { DriveFoldersCollection } from '../../database/collections/DriveFolderCollection';
 import { DriveWorkspaceCollection } from '../../database/collections/DriveWorkspaceCollection';
 import { DriveWorkspace } from '../../database/entities/DriveWorkspace';
@@ -30,7 +27,7 @@ export class SyncRemoteWorkspaceService {
 
       return result.filter(Boolean) as DriveWorkspace[];
     } catch (error) {
-      logger.error('Error creating or updating workspace', error);
+      logger.error({ msg: 'Error creating or updating workspace', error });
       throw error;
     }
   }
@@ -56,7 +53,7 @@ export class SyncRemoteWorkspaceService {
       );
       return await this.createOrUpdate(workspaces);
     } catch (error) {
-      logger.error('Error syncing workspace', error);
+      logger.error({ msg: 'Error syncing workspace', error });
       throw error;
     }
   }
@@ -76,7 +73,7 @@ export class SyncRemoteWorkspaceService {
   async getRootFolderUuid(workspaceId: string): Promise<string> {
     const workspace = await this.getWorkspaceById(workspaceId);
     const rootFolder = await this.folderCollection.searchPartialBy({ parentUuid: workspace.result?.rootFolderId, workspaceId });
-    logger.info('Root folder', rootFolder);
+    logger.debug({ msg: 'Root folder', rootFolder });
     if (!rootFolder.result || rootFolder.result.length === 0) {
       throw new Error('Root folder not found');
     }
