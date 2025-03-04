@@ -1,13 +1,15 @@
 import { inspect } from 'node:util';
 import { getUser } from '../../main/auth/service';
 import ElectronLog from 'electron-log';
+import { paths } from '../HttpClient/schema';
 
 type TRawBody = {
   msg: string;
   exc?: Error;
   attributes?: {
-    tag?: 'BACKUPS' | 'SYNC-ENGINE';
+    tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
     userId?: string;
+    endpoint?: keyof paths;
   };
   [key: string]: unknown;
 };
@@ -46,11 +48,13 @@ class Logger {
   error(rawBody: TRawBody) {
     const { body } = this.prepareBody(rawBody);
     ElectronLog.error(body);
+    return new Error(rawBody.msg);
   }
 
   fatal(rawBody: TRawBody) {
     const { body } = this.prepareBody(rawBody);
     ElectronLog.error(body);
+    return new Error(rawBody.msg);
   }
 }
 

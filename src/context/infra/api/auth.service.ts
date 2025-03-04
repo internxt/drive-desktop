@@ -1,7 +1,7 @@
-import { inspect } from 'node:util';
 import packageConfig from '../../../../package.json';
 import { authClient } from '../../../apps/shared/HttpClient/auth-client';
-import { logger } from '@/apps/shared/logger/logger';
+import { logger } from '../../../apps/shared/logger/logger';
+import Logger from 'electron-log';
 
 const HEADERS = {
   'content-type': 'application/json',
@@ -17,13 +17,14 @@ export class AuthService {
     });
 
     if (!res.data) {
-      logger.error({
-        tag: 'AUTH',
+      throw logger.error({
         msg: 'Access request was not successful',
-        endpoint: '/auth/login/access',
         error: res.error,
+        attributes: {
+          tag: 'AUTH',
+          endpoint: '/auth/login/access',
+        },
       });
-      throw new Error('Access request was not successful');
     }
 
     return res.data;
@@ -36,15 +37,14 @@ export class AuthService {
     });
 
     if (!res.data) {
-      logger.error(
-        inspect({
+      throw logger.error({
+        msg: 'Login request was not successful',
+        error: res.error,
+        attributes: {
           tag: 'AUTH',
-          msg: 'Login request was not successful',
           endpoint: '/auth/login',
-          error: res.error,
-        }),
-      );
-      throw new Error('Login request was not successful');
+        },
+      });
     }
 
     return res.data;

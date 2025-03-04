@@ -1,7 +1,6 @@
 import CryptoJS from 'crypto-js';
 
 import { User } from '../../../main/types';
-import { SettingsIPCRenderer } from '../../ipc/settings-ipc-renderer';
 
 export function hashPassword(password: string, sKey: string): string {
   const reb = CryptoJS.enc.Hex.parse(sKey);
@@ -39,7 +38,7 @@ export async function accessRequest({
   hashedPassword: string;
   tfa?: string;
 }) {
-  const res = await SettingsIPCRenderer.send('renderer.login-access', { email, password: hashedPassword, tfa });
+  const res = await window.electron.authService.access({ email, password: hashedPassword, tfa });
 
   res.user.mnemonic = CryptoJS.AES.decrypt(CryptoJS.enc.Hex.parse(res.user.mnemonic).toString(CryptoJS.enc.Base64), password).toString(
     CryptoJS.enc.Utf8,

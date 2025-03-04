@@ -11,7 +11,6 @@ import PasswordInput from '../../components/PasswordInput';
 import TextInput from '../../components/TextInput';
 import WindowTopBar from '../../components/WindowTopBar';
 import { reportError, setUserContextForReports } from '../../utils/sentry';
-import { SettingsIPCRenderer } from '../../ipc/settings-ipc-renderer';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 
@@ -77,7 +76,7 @@ export default function Login() {
     }
 
     try {
-      const body = await SettingsIPCRenderer.send('renderer.login', { email });
+      const body = await window.electron.authService.login({ email });
       sKey.current = body.sKey;
       if (body.tfa) {
         setState('ready');

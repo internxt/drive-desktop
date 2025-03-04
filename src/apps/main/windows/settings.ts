@@ -3,6 +3,7 @@ import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import eventBus from '../event-bus';
+import { setupIPCHandlers } from './ipc/setup-ipc-handlers';
 
 let settingsWindow: BrowserWindow | null = null;
 export const getSettingsWindow = () => (settingsWindow?.isDestroyed() ? null : settingsWindow);
@@ -51,6 +52,8 @@ async function openSettingsWindow(section?: string) {
   });
 
   setUpCommonWindowHandlers(settingsWindow);
+
+  setupIPCHandlers();
 }
 
 ipcMain.on('settings-window-resized', (_, { height }: { width: number; height: number }) => {
