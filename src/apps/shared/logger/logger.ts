@@ -4,6 +4,7 @@ import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { inspect } from 'node:util';
 import { getUser } from '../../main/auth/service';
 import ElectronLog from 'electron-log';
+import { paths } from '../HttpClient/schema';
 
 const logExporter = new OTLPLogExporter({
   url: 'http://localhost:4318/v1/logs',
@@ -64,12 +65,14 @@ class Logger {
     const { attributes, body } = this.prepareBody(rawBody);
     otelLogger.emit({ severityNumber: SeverityNumber.ERROR, body, attributes });
     ElectronLog.error(body);
+    return new Error(rawBody.msg);
   }
 
   fatal(rawBody: TRawBody) {
     const { attributes, body } = this.prepareBody(rawBody);
     otelLogger.emit({ severityNumber: SeverityNumber.FATAL, body, attributes });
     ElectronLog.error(body);
+    return new Error(rawBody.msg);
   }
 }
 
