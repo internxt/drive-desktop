@@ -373,13 +373,6 @@ function processFolderTree(tree: FolderTree) {
   return { size, folderDecryptedNames, fileDecryptedNames, totalItems };
 }
 
-export async function fetchFolderTree(folderUuid: string): Promise<FolderTreeResponse> {
-  const tree = await fetchTreeFromApi(folderUuid);
-  const { size, folderDecryptedNames, fileDecryptedNames, totalItems } = processFolderTree(tree);
-
-  return { tree, folderDecryptedNames, fileDecryptedNames, size, totalItems };
-}
-
 export async function fetchArrayFolderTree(folderUuids: string[]): Promise<FolderTreeResponse> {
   const trees: FolderTree[] = [];
   const folderDecryptedNames: Record<number, string> = {};

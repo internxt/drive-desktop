@@ -50,15 +50,13 @@ async function generateImageThumbnail(filePath: string): Promise<Buffer> {
   const image = nativeImage.createFromPath(filePath);
 
   if (!image.isEmpty()) {
-    // Redimensionar la imagen manteniendo el aspecto
     const resizedImage = image.resize({ width: ThumbnailConfig.MaxHeight });
 
-    // Obtener el buffer como PNG
     const buffer = resizedImage.toPNG();
 
-    return buffer; // Devolver el buffer
+    return buffer;
   } else {
-    throw new Error('No se pudo cargar la imagen.');
+    throw new Error('cant create image from path');
   }
 }
 
