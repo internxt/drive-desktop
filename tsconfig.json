@@ -10,7 +10,6 @@
     "strict": true,
     "pretty": true,
     "sourceMap": true,
-    "rootDir": ".",
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -25,7 +24,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "outDir": "release/app/dist",
+    "outDir": "dist",
     "types": ["vitest/globals"],
     "paths": {
       "@/*": ["./src/*"],
