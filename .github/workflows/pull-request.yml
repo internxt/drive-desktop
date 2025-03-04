@@ -1,0 +1,23 @@
+name: Pull request checks
+
+on:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: yarn install --ignore-scripts
+
+      - name: Run Prettier
+        run: yarn prettier src --check
