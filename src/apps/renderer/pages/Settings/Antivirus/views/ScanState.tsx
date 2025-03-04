@@ -5,6 +5,7 @@ import Button from '../../../../components/Button';
 interface ScanStateProps {
   isScanning: boolean;
   isScanCompleted: boolean;
+  countFiles: boolean;
   scannedFilesCount: number;
   progressRatio: number;
   currentScanPath?: string;
@@ -121,6 +122,7 @@ export const ScanState = ({
   currentScanPath,
   progressRatio,
   scannedFilesCount,
+  countFiles,
   showErrorState,
   onStopProgressScanButtonClicked,
   onScanAgainButtonClicked,
@@ -133,6 +135,11 @@ export const ScanState = ({
   return (
     <section className="flex w-full flex-col items-center justify-center">
       <div className="flex h-full max-h-[320px] w-full max-w-[590px] flex-col items-center justify-center gap-10 p-5">
+        {countFiles && (
+          <div className="flex flex-col items-center gap-4">
+            <p className="text-lg">{translate('settings.antivirus.scanProcess.countingFiles')}</p>
+          </div>
+        )}
         {isScanning ? (
           <ScanProcess
             currentScanPath={currentScanPath}

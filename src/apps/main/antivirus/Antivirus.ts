@@ -31,7 +31,7 @@ export class Antivirus {
 
       this.clamAv = await new NodeClam().init({
         removeInfected: false,
-        debugMode: true,
+        debugMode: false,
         scanRecursively: true,
         clamdscan: {
           path: path.join(RESOURCES_PATH, 'clamdscan.exe'),
