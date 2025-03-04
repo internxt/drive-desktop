@@ -25,6 +25,7 @@ const middleware: Middleware = {
     Object.entries(headers).forEach(([key, value]) => {
       request.headers.set(key, value);
     });
+
     return request;
   },
   onResponse({ response }) {

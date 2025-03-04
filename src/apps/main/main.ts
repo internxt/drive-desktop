@@ -33,6 +33,7 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
+import { setupSettingsIPCHandlers } from './windows/ipc/setup-ipc-handlers';
 import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
@@ -59,6 +60,8 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 }
+
+setupSettingsIPCHandlers();
 
 Logger.log(`Running ${packageJson.version}`);
 

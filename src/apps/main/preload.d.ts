@@ -125,8 +125,6 @@ declare interface Window {
 
     chooseSyncRootWithDialog: typeof import('./virtual-root-folder/service').chooseSyncRootWithDialog;
 
-    path: typeof import('path');
-
     getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
 
     renameDevice: typeof import('../main/device/service').renameDevice;
@@ -223,6 +221,14 @@ declare interface Window {
       >;
       removeInfectedFiles: (infectedFiles: string[]) => Promise<void>;
       cancelScan: () => Promise<void>;
+    };
+    authService: {
+      access: (
+        props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['access']>[0],
+      ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['access']>;
+      login: (
+        props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>[0],
+      ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>;
     };
   };
 }

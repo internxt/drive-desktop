@@ -1,5 +1,4 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const path = require('path');
 const Logger = require('electron-log');
 
 contextBridge.exposeInMainWorld('electron', {
@@ -403,6 +402,12 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.invoke('antivirus:cancel-scan');
     },
   },
-
-  path,
+  authService: {
+    access: (props) => {
+      return ipcRenderer.invoke('renderer.login-access', props);
+    },
+    login: (props) => {
+      return ipcRenderer.invoke('renderer.login', props);
+    },
+  },
 });

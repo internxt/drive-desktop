@@ -3455,6 +3455,13 @@ export interface components {
              */
             email: string;
         };
+        LoginResponseDto: {
+            hasKeys: boolean;
+            sKey: string;
+            tfa: boolean;
+            hasKyberKeys: boolean;
+            hasEccKeys: boolean;
+        };
         OptionalKeyGroup: {
             /** @description ECC keys */
             ecc?: components["schemas"]["EccKeysDto"];
@@ -3476,30 +3483,73 @@ export interface components {
              * @description TFA
              * @example two_factor_authentication_code
              */
-            tfa: string;
+            tfa?: string;
             /**
              * @deprecated
              * @description Public Key
              * @example public_key
              */
-            publicKey: string;
+            publicKey?: string;
             /**
              * @deprecated
              * @description Private Key
              * @example private_key
              */
-            privateKey: string;
+            privateKey?: string;
             /**
              * @deprecated
              * @description Revocate Key
              * @example revocate_key
              */
-            revocateKey: string;
+            revocateKey?: string;
             /**
              * @description keys
              * @example newKeys
              */
-            keys: components["schemas"]["OptionalKeyGroup"];
+            keys?: components["schemas"]["OptionalKeyGroup"];
+        };
+        PublicAndPrivateKeyDto: {
+            publicKey: string;
+            privateKey: string;
+        };
+        UserKeysDto: {
+            ecc: components["schemas"]["PublicAndPrivateKeyDto"];
+            kyber: components["schemas"]["PublicAndPrivateKeyDto"];
+        };
+        UserDto: {
+            email: string;
+            userId: string;
+            mnemonic: string;
+            root_folder_id: number;
+            rootFolderId: string;
+            name: string;
+            lastname: string;
+            uuid: string;
+            credit: number;
+            /** Format: date-time */
+            createdAt: string;
+            privateKey: string;
+            publicKey: string;
+            revocateKey: string;
+            keys: components["schemas"]["UserKeysDto"];
+            bucket: string;
+            registerCompleted: boolean;
+            teams: boolean;
+            username: string;
+            bridgeUser: string;
+            sharedWorkspace: boolean;
+            hasReferralsProgram: boolean;
+            backupsBucket: string;
+            avatar: string;
+            emailVerified: boolean;
+            /** Format: date-time */
+            lastPasswordChangedAt: string;
+        };
+        LoginAccessResponseDto: {
+            user: components["schemas"]["UserDto"];
+            token: string;
+            userTeam: Record<string, never>;
+            newToken: string;
         };
         UpdateTfaDto: {
             /**
@@ -7247,7 +7297,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LoginResponseDto"];
+                };
             };
         };
     };
@@ -7269,7 +7321,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["LoginAccessResponseDto"];
+                };
             };
         };
     };
