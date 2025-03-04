@@ -1,7 +1,6 @@
 import packageConfig from '../../../../package.json';
 import { authClient } from '../../../apps/shared/HttpClient/auth-client';
 import { logger } from '../../../apps/shared/logger/logger';
-import Logger from 'electron-log';
 
 const HEADERS = {
   'content-type': 'application/json',
