@@ -21,7 +21,6 @@ export class FileCreationOrchestrator {
       // if we find out that its the same file return the contents Id of that file
       throw new Error('File was moved here');
     }
-
     const fileContents = await this.contentsUploader.run(posixRelativePath);
 
     const createdFile = await this.fileCreator.run(path, fileContents);

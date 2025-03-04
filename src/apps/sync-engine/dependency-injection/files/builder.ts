@@ -39,12 +39,11 @@ export async function buildFilesContainer(
   container: FilesContainer;
   subscribers: any;
 }> {
-  const user = DependencyInjectionUserProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
   const { virtualDrive } = DependencyInjectionVirtualDrive;
 
-  const remoteFileSystem = new HttpRemoteFileSystem(crypt, user.bucket, getConfig().workspaceId);
+  const remoteFileSystem = new HttpRemoteFileSystem(crypt, getConfig().bucket, getConfig().workspaceId);
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
   const repository = new InMemoryFileRepository();

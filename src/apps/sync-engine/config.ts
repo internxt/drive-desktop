@@ -10,6 +10,8 @@ export interface Config {
   workspaceToken?: string | null;
   bucket: string;
   mnemonic: string;
+  bridgeUser: string;
+  bridgePass: string;
 }
 
 let config: Config = {
@@ -21,6 +23,8 @@ let config: Config = {
   rootUuid: '',
   bucket: '',
   mnemonic: '',
+  bridgePass: '',
+  bridgeUser: '',
   workspaceToken: null,
 };
 
@@ -39,6 +43,8 @@ const defaultValues = (): Config => {
     rootUuid: config.rootUuid || '',
     bucket: user.bucket || config.bucket,
     mnemonic: user.mnemonic || config.mnemonic,
+    bridgeUser: user.bridgeUser || config.bridgeUser,
+    bridgePass: user.userId || config.bridgePass,
     workspaceToken: config.workspaceToken || null,
   };
 };

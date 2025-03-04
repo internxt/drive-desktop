@@ -14,21 +14,22 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../contex
 import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
+import { getConfig } from '../../config';
+import Logger from 'electron-log';
 
 export async function buildContentsContainer(sharedContainer: SharedContainer): Promise<ContentsContainer> {
-  const user = DependencyInjectionUserProvider.get();
   const mnemonic = DependencyInjectionMnemonicProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventRepository = DependencyInjectionEventRepository.get();
 
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
-    bridgeUser: user.bridgeUser,
-    bridgePass: user.userId,
+    bridgeUser: getConfig().bridgeUser,
+    bridgePass: getConfig().bridgePass,
     encryptionKey: mnemonic,
   });
 
-  const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, user.bucket);
+  const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, getConfig().bucket);
 
   const contentsProvider = new FSLocalFileProvider();
   const contentsUploader = new ContentsUploader(
