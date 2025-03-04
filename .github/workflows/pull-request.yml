@@ -15,6 +15,17 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
+          cache: 'yarn'
+
+      # You cannot read packages from other private repos with GITHUB_TOKEN
+      # You have to use a PERSONAL_ACCESS_TOKEN instead
+      # https://github.com/actions/setup-node/issues/49
+      - name: Create .npmrc file
+        run: |
+          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+          echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
         run: yarn install --ignore-scripts
