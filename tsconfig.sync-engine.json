@@ -1,4 +1,10 @@
 {
-  "extends": "tsconfig.json",
+  "compilerOptions": {
+    "declaration": false,
+    "declarationMap": false,
+    "outDir": "dist",
+    "sourceMap": false
+  },
+  "extends": "./tsconfig.json",
   "include": ["src/apps/sync-engine/index.ts"]
 }

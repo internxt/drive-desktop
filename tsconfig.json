@@ -24,7 +24,7 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "outDir": "dist",
+    "outDir": "release/app/dist",
     "types": ["vitest/globals"],
     "paths": {
       "@/*": ["./src/*"],
@@ -34,6 +34,7 @@
   "exclude": [
     "release/build",
     "release/app/dist",
+    "dist",
     ".erb/dll",
     "src/workers/backups/process.ts",
     "src/workers/backups",

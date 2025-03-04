@@ -1,4 +1,4 @@
-import { DomainEventSubscribers } from '../../../context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
+import { DomainEventSubscribers } from '@/context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
 import { getUser } from '../../main/auth/service';
 import { DependencyContainer } from './DependencyContainer';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
