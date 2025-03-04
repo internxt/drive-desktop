@@ -28,7 +28,9 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        uses: bahmutov/npm-install@v1
+        with:
+          install-command: yarn --ignore-scripts --frozen-lockfile
 
       - name: Run Prettier
         run: yarn prettier src --check
