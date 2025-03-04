@@ -13,6 +13,7 @@ import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import configStore from '../config';
+import { utilityProcess } from 'electron/main';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -73,6 +74,11 @@ export async function spawnSyncEngineWorker(config: Config) {
 
   Logger.info(`[MAIN] SPAWNING SYNC ENGINE WORKER for workspace  ${providerName}: ${workspaceId}...`);
   workers[workspaceId].startingWorker = true;
+
+  const child = utilityProcess.fork(path.join(process.cwd(), 'dist', 'src', 'apps', 'sync-engine', 'index.js'));
+  logger.debug({ msg: '🚀 ~ spawnSyncEngineWorker ~ child:', child });
+
+  return;
 
   const worker = new BrowserWindow({
     webPreferences: {
