@@ -1,3 +1,4 @@
+import { getIssueAffectedFiles } from '@/apps/main/remote-sync/handlers';
 import { isTemporaryFile } from '../../../../apps/utils/isTemporalFile';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
@@ -10,6 +11,28 @@ export class FileSyncOrchestrator {
   ) {}
 
   async run(absolutePaths: string[]): Promise<void> {
+
+    const filesWithIssues = await getIssueAffectedFiles();
+    const issuePathFiles = [];
+
+    const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
+    const endDate = new Date('2025-03-04T13:00:00.000Z').getTime();
+
+
+    for (const file of filesWithIssues) {
+      const fileDate = (new Date(file.createdAt)).getTime();
+
+      if (fileDate >= startDate && fileDate <= endDate) {
+        issuePathFiles.push(file.fileId);
+      }
+    }
+
+    if (issuePathFiles.length > 0) {
+      Logger.debug(`Issue affected files: ${issuePathFiles}`);
+      await this.fileSyncronizer.overrideCorruptedFiles(issuePathFiles);
+    }
+
+
     for (const absolutePath of absolutePaths) {
       const tempFile = await isTemporaryFile(absolutePath);
 

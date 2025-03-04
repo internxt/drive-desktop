@@ -33,6 +33,20 @@ export class FileSyncronizer {
     private readonly fileContentsUpdater: FileContentsUpdater
   ) {}
 
+  // this method is temporal only used to override corrupted files
+  async overrideCorruptedFiles(contentsIds: File['contentsId'][]) {
+    const files = await this.repository.searchByContentsIds(contentsIds);
+
+    for (const file of files) {
+      await this.fileContentsUpdater.hardUpdateRun({
+        contentsId: file.contentsId,
+        folderId: file.folderId as unknown as number,
+        size: file.size,
+        path: file.path,
+      });
+    }
+  }
+
   async run(
     absolutePath: string,
     upload: (path: string) => Promise<RemoteFileContents>

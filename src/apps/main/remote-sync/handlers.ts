@@ -42,6 +42,13 @@ const remoteSyncManager = new RemoteSyncManager(
   }
 );
 
+// this is a temporal function to get the affected files of an issue
+export async function getIssueAffectedFiles() {
+  const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS' });
+
+  return allExisting.result;
+}
+
 export function setIsProcessing(isProcessing: boolean) {
   remoteSyncManager.isProcessRunning = isProcessing;
 }
