@@ -7,6 +7,10 @@ jobs:
   checks:
     runs-on: windows-latest
 
+    permissions:
+      contents: read
+      packages: read
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -28,9 +32,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        uses: bahmutov/npm-install@v1
-        with:
-          install-command: yarn --ignore-scripts --frozen-lockfile
+        run: yarn --ignore-scripts
 
       - name: Run Prettier
         run: yarn prettier src --check
