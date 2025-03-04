@@ -4,7 +4,7 @@ import ElectronLog from 'electron-log';
 
 type TRawBody = {
   msg: string;
-  exc?: Error;
+  exc?: Error | unknown;
   attributes?: {
     tag?: 'BACKUPS' | 'SYNC-ENGINE';
     userId?: string;

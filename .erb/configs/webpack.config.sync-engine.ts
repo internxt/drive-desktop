@@ -10,9 +10,10 @@ import TerserPlugin from 'terser-webpack-plugin';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import Dotenv from 'dotenv-webpack';
+import { cwd } from 'process';
 
 const configuration: webpack.Configuration = {
-  mode: process.env.NODE_ENV,
+  mode: process.env.NODE_ENV as 'none' | 'development' | 'production' | undefined,
 
   target: 'electron-renderer',
 
@@ -20,11 +21,7 @@ const configuration: webpack.Configuration = {
     rules: [{ test: /\.node$/, loader: 'node-loader' }],
   },
 
-  entry: [
-    'core-js',
-    'regenerator-runtime/runtime',
-    path.join(webpackPaths.srcSyncEnginePath, 'index.ts'),
-  ],
+  entry: ['core-js', 'regenerator-runtime/runtime', path.join(webpackPaths.srcSyncEnginePath, 'index.ts')],
 
   output: {
     path: webpackPaths.distSyncEnginePath,
@@ -32,6 +29,12 @@ const configuration: webpack.Configuration = {
     filename: 'renderer.js',
     library: {
       type: 'umd',
+    },
+  },
+
+  resolve: {
+    alias: {
+      'virtual-drive/dist': path.resolve(cwd(), '../node-win/dist'),
     },
   },
 
