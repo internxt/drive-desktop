@@ -24,6 +24,18 @@ export class InMemoryFileRepository {
     return Promise.resolve(files);
   }
 
+  async searchByContentsIds(contentsIds: File['contentsId'][]): Promise<Array<File>> {
+    const files = contentsIds.map((contentsId) => {
+      const file = this.filesByContentsId.get(contentsId);
+      if (file) {
+        return File.from(file);
+      }
+      return undefined;
+    }).filter((file) => file !== undefined);
+    
+    return files;
+  }
+  
   async allSearchByPartial(
     partial: Partial<FileAttributes>
   ): Promise<Array<File>> {

@@ -39,6 +39,24 @@ export class DriveFilesCollection
       };
     }
   }
+
+  async getAllWhere(where: Partial<DriveFile>) {
+    try {
+      const result = await this.repository.find({
+        where,
+      });
+      return {
+        success: true,
+        result: result
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: [],
+      };
+    }
+  }
+
   async getAllByFolder(folderId: number) {
     try {
       const result = await this.repository.find({
