@@ -6,8 +6,8 @@ import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
-import { VirtualDrive } from 'virtual-drive/dist';
 import { setConfig, Config, getConfig } from './config';
+import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
 
 Logger.log(`Running sync engine ${packageJson.version}`);
 
@@ -60,7 +60,7 @@ async function setUp() {
     Logger.info('[SYNC ENGINE] Checking sync engine response');
     const placeholderStatuses = await container.filesCheckerStatusInRoot.run();
     const placeholderStates = placeholderStatuses;
-    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates);
+    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates, getConfig().workspaceId);
   });
 
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
@@ -110,21 +110,38 @@ async function setUp() {
 
   ipcRenderer.send('CHECK_SYNC');
 }
+
+async function refreshToken() {
+  try {
+    Logger.info('[SYNC ENGINE] Refreshing token');
+    const credential = await FetchWorkspacesService.getCredencials(getConfig().workspaceId);
+    const newToken = credential.tokenHeader;
+    setConfig({ ...getConfig(), workspaceToken: newToken });
+  } catch (exc) {
+    Logger.error('[SYNC ENGINE] Error refreshing token', exc);
+  }
+}
+
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
   Logger.info('[SYNC ENGINE] Setting config:', config);
   setConfig(config);
+
+  if (config.workspaceToken) {
+    setInterval(refreshToken, 23 * 60 * 60 * 1000);
+  }
+
   setUp()
     .then(() => {
       Logger.info('[SYNC ENGINE] Sync engine has successfully started');
-      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL');
+      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', config.workspaceId);
     })
     .catch((error) => {
       Logger.error('[SYNC ENGINE] Error setting up', error);
       Sentry.captureException(error);
       if (error.toString().includes('Error: ConnectSyncRoot failed')) {
-        Logger.info('[SYNC ENGINE] We neeed to restart the app virtual drive');
+        Logger.info('[SYNC ENGINE] We need to restart the app virtual drive');
         Sentry.captureMessage('Restarting sync engine virtual drive is required');
       }
-      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED');
+      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
     });
 });

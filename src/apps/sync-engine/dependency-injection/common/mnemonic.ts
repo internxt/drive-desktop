@@ -1,4 +1,4 @@
-import configStore from '../../../main/config';
+import { getConfig } from '../../config';
 
 export class DependencyInjectionMnemonicProvider {
   private static _: string;
@@ -8,7 +8,7 @@ export class DependencyInjectionMnemonicProvider {
       return DependencyInjectionMnemonicProvider._;
     }
 
-    const mnemonic = configStore.get('mnemonic');
+    const mnemonic = getConfig().mnemonic;
 
     if (mnemonic) {
       DependencyInjectionMnemonicProvider._ = mnemonic;

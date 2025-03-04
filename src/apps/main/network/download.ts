@@ -1,6 +1,5 @@
 /* eslint-disable no-await-in-loop */
 import { FileVersionOneError } from '@internxt/sdk/dist/network/download';
-import { FlatFolderZip } from './zip.service';
 import { items } from '@internxt/lib';
 import fs, { PathLike } from 'fs';
 import { FileInfo, getFileInfoWithAuth, getFileInfoWithToken, getMirrors, Mirror, NetworkCredentials } from './requests';
@@ -8,7 +7,7 @@ import { GenerateFileKey } from '@internxt/inxt-js/build/lib/utils/crypto';
 import { createDecipheriv, Decipher } from 'crypto';
 import downloadFileV2 from './downloadv2';
 import { fetchArrayFolderTree } from '../device/service';
-import { ReadableStream, WritableStream } from 'node:stream/web';
+import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
 import fetch from 'electron-fetch';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';

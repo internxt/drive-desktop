@@ -14,6 +14,9 @@ export class DriveFile {
   })
   uuid!: string;
 
+  @Column({ nullable: true })
+  workspaceId?: string;
+
   @Column({ nullable: true, default: '' })
   type!: string;
 
@@ -26,8 +29,8 @@ export class DriveFile {
   @Column({ nullable: false })
   folderId!: number;
 
-  @Column({ nullable: true })
-  folderUuid?: string;
+  @Column({ nullable: false })
+  folderUuid!: string;
 
   @Column({ nullable: false })
   userId!: number;

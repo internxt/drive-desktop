@@ -1,6 +1,6 @@
 import { ItemBackup } from '../../../../../shared/types/items';
 import { BackupListItem } from './BackupItem';
-import React, { useState } from 'react';
+import React from 'react';
 
 interface BackupsListProps {
   items: Array<ItemBackup>;

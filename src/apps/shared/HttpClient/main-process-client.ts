@@ -4,7 +4,7 @@ import { getNewApiHeaders } from '../../main/auth/service';
 import { AuthorizedHttpClient } from './HttpClient';
 import { ipcMain } from 'electron';
 
-const onUserUnauthorized = () => ipcMain.emit('user-is-unauthorized');
+const onUserUnauthorized = () => ipcMain.emit('USER_IS_UNAUTHORIZED');
 
 const newHeadersProvider = () => Promise.resolve(getNewApiHeaders());
 

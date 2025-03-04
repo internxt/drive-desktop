@@ -23,6 +23,7 @@ import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/applic
 import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/RemoteTree';
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
+import { OfflineFolder } from '@/context/virtual-drive/folders/domain/OfflineFolder';
 
 @Service()
 export class Backup {
@@ -248,7 +249,17 @@ export class Backup {
       }
 
       try {
-        const folder = await this.simpleFolderCreator.run(relativePath, parent.id);
+        const offlineFolder = OfflineFolder.from({
+          uuid: '',
+          parentId: parent.id,
+          parentUuid: parent.uuid,
+          path: relativePath,
+          updatedAt: '',
+          createdAt: '',
+          status: '',
+        });
+
+        const folder = await this.simpleFolderCreator.run(offlineFolder);
 
         tree.addFolder(parent, folder);
       } catch (error) {

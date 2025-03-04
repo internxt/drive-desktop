@@ -3,13 +3,13 @@ import { Service } from 'diod';
 import Logger from 'electron-log';
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
-import { createFileFromServerFile } from './FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { RemoteTree } from '../domain/RemoteTree';
+import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 
 type Items = {
   files: Array<ServerFile>;
@@ -38,6 +38,7 @@ export class Traverser {
       id: id,
       uuid: rootFolderUuid,
       parentId: null,
+      parentUuid: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',

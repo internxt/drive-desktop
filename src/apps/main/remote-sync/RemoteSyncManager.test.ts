@@ -13,7 +13,11 @@ vi.mock('@sentry/electron/main', () => ({
   captureException: () => vi.fn(),
 }));
 
-vi.mock('electron');
+vi.mock('electron', () => ({
+  app: {
+    getPath: () => '/path/to/app',
+  },
+}));
 vi.mock('electron-store');
 vi.mock('axios');
 
@@ -55,7 +59,7 @@ const createRemoteSyncedFolderFixture = (payload: Partial<RemoteSyncedFolder>): 
     userId: 567,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    parentId: null,
+    parentId: 555,
     uuid: uuid.v4(),
     status: 'EXISTS',
     ...payload,

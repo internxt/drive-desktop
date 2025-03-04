@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import packageJson from '../../../../../package.json';
 import { useTranslationContext } from '../../context/LocalContext';
 import ErrorBanner from './ErrorBanner';
-import { accessRequest, hashPassword, loginRequest } from './service';
+import { accessRequest, hashPassword } from './service';
 import TwoFA from './TwoFA';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
@@ -38,9 +38,12 @@ export default function Login() {
     const encryptedHash = hashPassword(password, sKey.current);
 
     try {
-      const res = await accessRequest(email, password, encryptedHash, twoFA);
+      const res = await accessRequest({ email, password, hashedPassword: encryptedHash, tfa: twoFA });
       setUserContextForReports(res.user);
-      window.electron.userLoggedIn(res);
+      window.electron.userLoggedIn({
+        ...res,
+        password,
+      });
     } catch (err) {
       const { message } = err as Error;
 
@@ -73,7 +76,7 @@ export default function Login() {
     }
 
     try {
-      const body = await loginRequest(email);
+      const body = await window.electron.authService.login({ email });
       sKey.current = body.sKey;
       if (body.tfa) {
         setState('ready');

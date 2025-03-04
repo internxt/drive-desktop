@@ -37,7 +37,7 @@ ipcMain.handle('get-user', getUser);
 
 ipcMain.handle('get-headers', (_, includeMnemonic) => getHeaders(includeMnemonic));
 
-ipcMain.handle('get-headers-for-new-api', () => getNewApiHeaders());
+ipcMain.handle('GET_HEADERS', () => getNewApiHeaders());
 
 ipcMain.handle('get-new-token', () => obtainToken('newToken'));
 
@@ -54,10 +54,15 @@ export function onUserUnauthorized() {
   setIsLoggedIn(false);
 }
 
-ipcMain.on('user-is-unauthorized', onUserUnauthorized);
+ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
 
 ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
-  setCredentials(data.user, data.user.mnemonic, data.token, data.newToken);
+  setCredentials({
+    userData: data.user,
+    bearerToken: data.token,
+    newToken: data.newToken,
+    password: data.password,
+  });
   if (!canHisConfigBeRestored(data.user.uuid)) {
     await setupRootFolder();
   }

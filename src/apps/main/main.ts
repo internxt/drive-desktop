@@ -33,6 +33,7 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
+import { setupSettingsIPCHandlers } from './windows/ipc/setup-ipc-handlers';
 import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
@@ -48,7 +49,7 @@ import { getTray, setTrayStatus } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { setCleanUpFunction } from './quit';
-import { stopAndClearSyncEngineWatcher } from './background-processes/sync-engine';
+import { stopAndClearAllSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
@@ -59,6 +60,8 @@ const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) {
   app.quit();
 }
+
+setupSettingsIPCHandlers();
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -112,7 +115,7 @@ app
       return nativeTheme.shouldUseDarkColors;
     });
 
-    await clamAVServer.startClamdServer();
+    // await clamAVServer.startClamdServer();
 
     checkForUpdates();
   })
@@ -148,7 +151,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     // scheduleDailyScan();
 
-    setCleanUpFunction(stopAndClearSyncEngineWatcher);
+    await setCleanUpFunction(stopAndClearAllSyncEngineWatcher);
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);

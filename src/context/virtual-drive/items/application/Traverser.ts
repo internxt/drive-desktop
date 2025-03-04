@@ -10,6 +10,7 @@ import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus'
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
+import { getConfig } from '@/apps/sync-engine/config';
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
@@ -46,6 +47,7 @@ export class Traverser {
       id: this.baseFolderId,
       uuid: this.baseFolderUuid,
       parentId: null,
+      parentUuid: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',
@@ -56,10 +58,12 @@ export class Traverser {
   private traverse(tree: Tree, items: Items, currentFolder: Folder) {
     if (!items) return;
 
-    const filesInThisFolder = items.files.filter((file) => file.folderId === currentFolder.id);
+    const filesInThisFolder = items.files.filter((file) => {
+      return file.folderUuid === currentFolder.uuid;
+    });
 
     const foldersInThisFolder = items.folders.filter((folder) => {
-      return folder.parentId === currentFolder.id;
+      return folder.parentUuid === currentFolder.uuid;
     });
 
     filesInThisFolder.forEach((serverFile) => {
@@ -74,11 +78,9 @@ export class Traverser {
 
       if (serverFile.status === ServerFileStatus.DELETED || serverFile.status === ServerFileStatus.TRASHED) {
         try {
-          Logger.info(`[Traverser] Adding the file to the local deletion queue: ${relativeFilePath}`);
           tree.appendTrashedFile(createFileFromServerFile(serverFile, relativeFilePath));
           return;
         } catch (error) {
-          Logger.warn(`[Traverser] Error adding file to delete queue: ${error}`);
           return;
         }
       }
@@ -117,7 +119,6 @@ export class Traverser {
 
       if (serverFolder.status === ServerFolderStatus.DELETED || serverFolder.status === ServerFolderStatus.TRASHED) {
         try {
-          Logger.info(`[Traverser] Adding the folder to the local deletion queue: ${name}`);
           tree.appendTrashedFolder(createFolderFromServerFolder(serverFolder, name));
           return;
         } catch (error) {

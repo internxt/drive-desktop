@@ -9,11 +9,11 @@ import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngin
 import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 
 export class FilePathUpdater {
   constructor(
-    private readonly remote: SDKRemoteFileSystem,
+    private readonly remote: HttpRemoteFileSystem,
     private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,

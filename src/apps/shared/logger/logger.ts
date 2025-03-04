@@ -20,7 +20,9 @@ type TRawBody = {
   msg: string;
   exc?: Error;
   attributes?: {
+    tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
     userId?: string;
+    endpoint?: keyof paths;
   };
   [key: string]: unknown;
 };

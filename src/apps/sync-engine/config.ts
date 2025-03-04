@@ -1,8 +1,15 @@
+import { getUser } from '../main/auth/service';
+
 export interface Config {
   providerId: string;
   rootPath: string;
+  rootUuid: string;
   providerName: string;
   loggerPath: string;
+  workspaceId: string;
+  workspaceToken?: string | null;
+  bucket: string;
+  mnemonic: string;
 }
 
 let config: Config = {
@@ -10,10 +17,34 @@ let config: Config = {
   rootPath: '',
   providerName: '',
   loggerPath: '',
+  workspaceId: '',
+  rootUuid: '',
+  bucket: '',
+  mnemonic: '',
+  workspaceToken: null,
+};
+
+const defaultValues = (): Config => {
+  const user = getUser();
+  if (!user) {
+    return config;
+  }
+
+  return {
+    providerId: config.providerId || '',
+    rootPath: config.rootPath || '',
+    providerName: config.providerName || '',
+    loggerPath: config.loggerPath || '',
+    workspaceId: config.workspaceId || '',
+    rootUuid: config.rootUuid || '',
+    bucket: user.bucket || config.bucket,
+    mnemonic: user.mnemonic || config.mnemonic,
+    workspaceToken: config.workspaceToken || null,
+  };
 };
 
 export function setConfig(newConfig: Config) {
-  config = { ...config, ...newConfig };
+  config = { ...defaultValues(), ...newConfig };
 }
 
 export function getConfig(): Config {

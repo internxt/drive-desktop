@@ -1,5 +1,4 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const path = require('path');
 const Logger = require('electron-log');
 
 contextBridge.exposeInMainWorld('electron', {
@@ -31,7 +30,7 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.send('path-changed', pathname);
   },
   userIsUnauthorized() {
-    ipcRenderer.send('user-is-unauthorized');
+    ipcRenderer.send('USER_IS_UNAUTHORIZED');
   },
   userLoggedIn(data) {
     return ipcRenderer.send('user-logged-in', data);
@@ -271,8 +270,8 @@ contextBridge.exposeInMainWorld('electron', {
   getLastBackupExitReason() {
     return ipcRenderer.invoke('get-last-backup-exit-reason');
   },
-  downloadBackup(backup, listToFolder) {
-    return ipcRenderer.invoke('download-backup', backup, listToFolder);
+  downloadBackup(backup, folderUuids) {
+    return ipcRenderer.invoke('download-backup', backup, folderUuids);
   },
   changeBackupPath(currentPath) {
     return ipcRenderer.invoke('change-backup-path', currentPath);
@@ -403,6 +402,12 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.invoke('antivirus:cancel-scan');
     },
   },
-
-  path,
+  authService: {
+    access: (props) => {
+      return ipcRenderer.invoke('renderer.login-access', props);
+    },
+    login: (props) => {
+      return ipcRenderer.invoke('renderer.login', props);
+    },
+  },
 });
