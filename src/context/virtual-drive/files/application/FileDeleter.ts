@@ -15,7 +15,7 @@ export class FileDeleter {
     private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
-    private readonly ipc: SyncEngineIpc,
+    private readonly ipc: SyncEngineIpc
   ) {}
 
   async runHardDelete(contentsId: File['contentsId']): Promise<void> {

@@ -8,11 +8,11 @@ import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 export class FileSyncOrchestrator {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
-    private readonly fileSyncronizer: FileSyncronizer,
+    private readonly fileSyncronizer: FileSyncronizer
   ) {}
 
   async run(absolutePaths: string[]): Promise<void> {
-    const filesWithIssues = await ipcRenderer.invoke('FIND_ISSUE_AFFECTED_FILES');
+    const filesWithIssues = await ipcRenderer.invoke('FIND_DANGLED_FILES');
 
     Logger.debug(`Files with issues: ${JSON.stringify(filesWithIssues)}`);
 
@@ -37,11 +37,10 @@ export class FileSyncOrchestrator {
     Logger.debug(`Issue affected files: ${issuePathFiles}`);
     if (issuePathFiles.length > 0) {
       Logger.debug(`Issue affected files: ${issuePathFiles}`);
-      const overridedFiles = await this.fileSyncronizer.overrideCorruptedFiles(
+      const overridedFiles = await this.fileSyncronizer.overrideDangledFiles(
         issuePathFiles,
         this.contentsUploader.run.bind(this.contentsUploader),
       );
-      // update CreatedAt to avoid reprocessing
 
       const toUpdateInDatabase = overridedFiles.reduce((acc: string[], current) => {
         if (current.updated) {

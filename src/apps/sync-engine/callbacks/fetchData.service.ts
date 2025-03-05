@@ -113,7 +113,6 @@ export class FetchDataService {
         const cleanContentId = contentsId.replace('file:', '');
         const filePath = dangledFiles.get(cleanContentId);
         if (filePath) {
-          // DELETE
           await this.fileDeleter.runHardDelete(cleanContentId);
           fs.unlinkSync(filePath);
         }

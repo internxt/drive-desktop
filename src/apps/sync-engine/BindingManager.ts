@@ -80,9 +80,6 @@ export class BindingsManager {
     const callbacks = {
       notifyDeleteCallback: (contentsId: string, callback: (response: boolean) => void) => {
         Logger.debug('Path received from delete callback', contentsId);
-
-        // si es hardDelete o softDelete
-
         this.controllers.delete
           .execute(contentsId)
           .then(() => {
@@ -94,7 +91,6 @@ export class BindingsManager {
             Sentry.captureException(error);
             callback(false);
           });
-
         ipcRenderer.send('SYNCED');
       },
       notifyDeleteCompletionCallback: () => {
@@ -150,7 +146,7 @@ export class BindingsManager {
         message: string,
         action: ProcessIssue['action'],
         errorName: ProcessIssue['errorName'],
-        callback: (response: boolean) => void,
+        callback: (response: boolean) => void
       ) => {
         try {
           callback(true);

@@ -227,7 +227,6 @@ export class SDKRemoteFileSystem {
     await this.trash(file.contentsId);
   }
 
-  // to check
   async hardDelete(contentsId: string) {
     const result = await this.clients.newDrive.delete(
       `${process.env.NEW_DRIVE_URL}/drive/storage/trash`,
