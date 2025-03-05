@@ -36,15 +36,20 @@ export class FileSyncronizer {
   // this method is temporal only used to override corrupted files
   async overrideCorruptedFiles(contentsIds: File['contentsId'][]) {
     const files = await this.repository.searchByContentsIds(contentsIds);
+    const result: { path: string; updated: boolean; }[] = [];
 
-    for (const file of files) {
-      await this.fileContentsUpdater.hardUpdateRun({
+    Promise.all(files.map(async (file) => {
+      const updatedOutput = await this.fileContentsUpdater.hardUpdateRun({
         contentsId: file.contentsId,
         folderId: file.folderId as unknown as number,
         size: file.size,
         path: file.path,
       });
-    }
+
+      result.push(updatedOutput);
+    }));
+
+    return result;
   }
 
   async run(

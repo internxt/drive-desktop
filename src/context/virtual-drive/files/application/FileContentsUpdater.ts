@@ -10,11 +10,24 @@ export class FileContentsUpdater {
     private readonly remote: SDKRemoteFileSystem
   ) {}
 
-  async hardUpdateRun(Attributes: OfflineFileAttributes): Promise<void> {
-    await this.remote.trash(Attributes.contentsId);
+  async hardUpdateRun(Attributes: OfflineFileAttributes) {
+    try {
+      await this.remote.trash(Attributes.contentsId);
 
-    const offlineFile = OfflineFile.from(Attributes);
-    await this.remote.persist(offlineFile);
+      const offlineFile = OfflineFile.from(Attributes);
+      await this.remote.persist(offlineFile);
+
+      return {
+        path: offlineFile.path,
+        updated: true
+      };
+    } catch (error) {
+      Logger.error('Error updating file', Attributes, error);
+      return {
+        path: Attributes.path,
+        updated: false
+      };
+    }
   }
 
   async run(

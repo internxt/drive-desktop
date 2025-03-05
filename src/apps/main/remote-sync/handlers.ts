@@ -22,6 +22,7 @@ import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { ItemBackup } from '../../shared/types/items';
+import { In } from 'typeorm';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
@@ -48,6 +49,15 @@ export async function getIssueAffectedFiles() {
 
   return allExisting.result;
 }
+
+export const updateFileInBatch = async (itemsId: string[], file: Partial<DriveFile>) => {
+  await driveFilesCollection.updateInBatch(
+    {
+      fileId: In(itemsId),
+    },
+    file,
+  );
+};
 
 export function setIsProcessing(isProcessing: boolean) {
   remoteSyncManager.isProcessRunning = isProcessing;

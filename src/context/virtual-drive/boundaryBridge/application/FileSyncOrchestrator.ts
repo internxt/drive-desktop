@@ -1,4 +1,4 @@
-import { getIssueAffectedFiles } from '@/apps/main/remote-sync/handlers';
+import { getIssueAffectedFiles, updateFileInBatch } from '@/apps/main/remote-sync/handlers';
 import { isTemporaryFile } from '../../../../apps/utils/isTemporalFile';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
@@ -29,7 +29,19 @@ export class FileSyncOrchestrator {
 
     if (issuePathFiles.length > 0) {
       Logger.debug(`Issue affected files: ${issuePathFiles}`);
-      await this.fileSyncronizer.overrideCorruptedFiles(issuePathFiles);
+      const overridedFiles = await this.fileSyncronizer.overrideCorruptedFiles(issuePathFiles);
+      // update CreatedAt to avoid reprocessing
+
+      const toUpdateInDatabase = overridedFiles.reduce((acc: string[], current) => {
+        if (current.updated) {
+          acc.push(current.path);
+        }
+        return acc;
+      }, []);
+
+      Logger.debug(`Updating files in database: ${toUpdateInDatabase}`);
+
+      await updateFileInBatch(toUpdateInDatabase, { status: 'TRASHED' });
     }
 
 
