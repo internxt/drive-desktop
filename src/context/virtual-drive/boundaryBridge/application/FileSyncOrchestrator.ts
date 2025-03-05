@@ -19,7 +19,7 @@ export class FileSyncOrchestrator {
     const issuePathFiles = [];
 
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
-    const endDate = new Date('2025-03-04T13:00:00.000Z').getTime();
+    const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
     const dangledFilesMap = new Map<string, string>();
 
