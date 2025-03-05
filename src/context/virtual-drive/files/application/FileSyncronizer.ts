@@ -31,39 +31,41 @@ export class FileSyncronizer {
     private readonly folderCreator: FolderCreator,
     private readonly offlineFolderCreator: OfflineFolderCreator,
     // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
-    private readonly fileContentsUpdater: FileContentsUpdater
+    private readonly fileContentsUpdater: FileContentsUpdater,
   ) {}
 
   async overrideDangledFiles(contentsIds: File['contentsId'][], upload: (path: string) => Promise<RemoteFileContents>) {
     const files = await this.repository.searchByContentsIds(contentsIds);
 
-    await Promise.all(files.map(async (file) => {
-      DangledFilesManager.getInstance().add(file.contentsId, file.path);
-    }));
+    await Promise.all(
+      files.map(async (file) => {
+        DangledFilesManager.getInstance().add(file.contentsId, file.path);
+      }),
+    );
 
     Logger.debug(`Files to be updated: ${JSON.stringify(files)}`);
 
-    return await Promise.all(files.map(async (file) => {
-      const updatedOutput = await this.fileContentsUpdater.hardUpdateRun({
-        contentsId: file.contentsId,
-        folderId: file.folderId.value,
-        size: file.size,
-        path: file.path,
-      }, upload);
-      return updatedOutput;
-    }));
+    const updatedFiles = [];
 
+    for (const file of files) {
+      const updatedOutput = await this.fileContentsUpdater.hardUpdateRun(
+        {
+          contentsId: file.contentsId,
+          folderId: file.folderId.value,
+          size: file.size,
+          path: file.path,
+        },
+        upload,
+      );
+      updatedFiles.push(updatedOutput);
+    }
+    return updatedFiles;
   }
 
-  async run(
-    absolutePath: string,
-    upload: (path: string) => Promise<RemoteFileContents>
-  ): Promise<void> {
-    const win32RelativePath =
-      this.absolutePathToRelativeConverter.run(absolutePath);
+  async run(absolutePath: string, upload: (path: string) => Promise<RemoteFileContents>): Promise<void> {
+    const win32RelativePath = this.absolutePathToRelativeConverter.run(absolutePath);
 
-    const posixRelativePath =
-      PlatformPathConverter.winToPosix(win32RelativePath);
+    const posixRelativePath = PlatformPathConverter.winToPosix(win32RelativePath);
 
     const path = new FilePath(posixRelativePath);
 
@@ -72,13 +74,7 @@ export class FileSyncronizer {
       status: FileStatuses.EXISTS,
     });
 
-    await this.sync(
-      existingFile,
-      absolutePath,
-      posixRelativePath,
-      path,
-      upload
-    );
+    await this.sync(existingFile, absolutePath, posixRelativePath, path, upload);
   }
 
   private async sync(
@@ -86,17 +82,13 @@ export class FileSyncronizer {
     absolutePath: string,
     posixRelativePath: string,
     path: FilePath,
-    upload: (path: string) => Promise<RemoteFileContents>
+    upload: (path: string) => Promise<RemoteFileContents>,
   ) {
     //
     if (existingFile) {
       if (this.hasDifferentSize(existingFile, absolutePath)) {
         const contents = await upload(posixRelativePath);
-        existingFile = await this.fileContentsUpdater.run(
-          existingFile,
-          contents.id,
-          contents.size
-        );
+        existingFile = await this.fileContentsUpdater.run(existingFile, contents.id, contents.size);
         Logger.info('existingFile ', existingFile);
       }
       await this.convertAndUpdateSyncStatus(existingFile);
@@ -110,7 +102,7 @@ export class FileSyncronizer {
     posixRelativePath: string,
     filePath: FilePath,
     upload: (path: string) => Promise<RemoteFileContents>,
-    attemps = 3
+    attemps = 3,
   ) => {
     try {
       const fileContents = await upload(posixRelativePath);
@@ -121,18 +113,13 @@ export class FileSyncronizer {
       if (error instanceof FolderNotFoundError) {
         await this.createFolderFather(posixRelativePath);
       }
-      
+
       if (error instanceof Error && error.message.includes('Max space used')) {
         return;
       }
 
       if (attemps > 0) {
-        await this.retryCreation(
-          posixRelativePath,
-          filePath,
-          upload,
-          attemps - 1
-        );
+        await this.retryCreation(posixRelativePath, filePath, upload, attemps - 1);
         return;
       }
     }
@@ -145,8 +132,7 @@ export class FileSyncronizer {
 
   private async createFolderFather(posixRelativePath: string) {
     Logger.info('posixRelativePath', posixRelativePath);
-    const posixDir =
-      PlatformPathConverter.getFatherPathPosix(posixRelativePath);
+    const posixDir = PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
       await this.runFolderCreator(posixDir);
     } catch (error) {
@@ -159,10 +145,7 @@ export class FileSyncronizer {
         Logger.info('Creating child', posixDir);
         await this.retryFolderCreation(posixDir);
       } else {
-        Logger.error(
-          'Error creating folder father creation inside catch:',
-          error
-        );
+        Logger.error('Error creating folder father creation inside catch:', error);
         throw error;
       }
     }
@@ -174,11 +157,7 @@ export class FileSyncronizer {
   }
 
   private async convertAndUpdateSyncStatus(file: File) {
-    await Promise.all([
-      this.filePlaceholderConverter.run(file),
-      this.fileIdentityUpdater.run(file),
-      this.fileSyncStatusUpdater.run(file),
-    ]);
+    await Promise.all([this.filePlaceholderConverter.run(file), this.fileIdentityUpdater.run(file), this.fileSyncStatusUpdater.run(file)]);
   }
 
   private retryFolderCreation = async (posixDir: string, attemps = 3) => {

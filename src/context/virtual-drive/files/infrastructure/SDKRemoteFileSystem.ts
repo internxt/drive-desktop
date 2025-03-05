@@ -3,10 +3,7 @@ import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
-import {
-  FileDataToPersist,
-  PersistedFileData,
-} from '../domain/file-systems/RemoteFileSystem';
+import { FileDataToPersist, PersistedFileData } from '../domain/file-systems/RemoteFileSystem';
 import { OfflineFile } from '../domain/OfflineFile';
 import * as uuidv4 from 'uuid';
 import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
@@ -25,14 +22,11 @@ export class SDKRemoteFileSystem {
     private readonly sdk: Storage,
     private readonly clients: AuthorizedClients,
     private readonly crypt: Crypt,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {}
 
   async persist(offline: OfflineFile): Promise<FileAttributes> {
-    const encryptedName = this.crypt.encryptName(
-      offline.name,
-      offline.folderId.toString()
-    );
+    const encryptedName = this.crypt.encryptName(offline.name, offline.folderId.toString());
 
     if (!encryptedName) {
       throw new Error('Failed to encrypt name');
@@ -66,22 +60,17 @@ export class SDKRemoteFileSystem {
     };
   }
 
-  async persistv2(
-    dataToPersists: FileDataToPersist
-  ): Promise<Either<DriveDesktopError, PersistedFileData>> {
+  async persistv2(dataToPersists: FileDataToPersist): Promise<Either<DriveDesktopError, PersistedFileData>> {
     const plainName = dataToPersists.path.name();
 
-    const encryptedName = this.crypt.encryptName(
-      plainName,
-      dataToPersists.folderId.value.toString()
-    );
+    const encryptedName = this.crypt.encryptName(plainName, dataToPersists.folderId.value.toString());
 
     if (!encryptedName) {
       return left(
         new DriveDesktopError(
           'COULD_NOT_ENCRYPT_NAME',
-          `Could not encrypt the file name: ${plainName} with salt: ${dataToPersists.folderId.value.toString()}`
-        )
+          `Could not encrypt the file name: ${plainName} with salt: ${dataToPersists.folderId.value.toString()}`,
+        ),
       );
     }
 
@@ -101,10 +90,7 @@ export class SDKRemoteFileSystem {
     };
 
     try {
-      const { data } = await this.clients.drive.post(
-        `${process.env.API_URL}/storage/file`,
-        body
-      );
+      const { data } = await this.clients.drive.post(`${process.env.API_URL}/storage/file`, body);
 
       const result: PersistedFileData = {
         modificationTime: data.updatedAt,
@@ -116,65 +102,39 @@ export class SDKRemoteFileSystem {
       return right(result);
     } catch (err: unknown) {
       if (!isAxiosError(err) || !err.response) {
-        return left(
-          new DriveDesktopError('UNKNOWN', `Creating file ${plainName}: ${err}`)
-        );
+        return left(new DriveDesktopError('UNKNOWN', `Creating file ${plainName}: ${err}`));
       }
 
       const { status } = err.response;
 
       if (status === 400) {
-        return left(
-          new DriveDesktopError(
-            'BAD_REQUEST',
-            `Some data was not valid for ${plainName}: ${body.file}`
-          )
-        );
+        return left(new DriveDesktopError('BAD_REQUEST', `Some data was not valid for ${plainName}: ${body.file}`));
       }
 
       if (status === 409) {
         return left(
-          new DriveDesktopError(
-            'FILE_ALREADY_EXISTS',
-            `File with name ${plainName} on ${dataToPersists.folderId.value} already exists`
-          )
+          new DriveDesktopError('FILE_ALREADY_EXISTS', `File with name ${plainName} on ${dataToPersists.folderId.value} already exists`),
         );
       }
 
       if (status >= 500) {
-        return left(
-          new DriveDesktopError(
-            'BAD_RESPONSE',
-            `The server could not handle the creation of ${plainName}: ${body.file}`
-          )
-        );
+        return left(new DriveDesktopError('BAD_RESPONSE', `The server could not handle the creation of ${plainName}: ${body.file}`));
       }
 
-      return left(
-        new DriveDesktopError(
-          'UNKNOWN',
-          `Response with status ${status} not expected`
-        )
-      );
+      return left(new DriveDesktopError('UNKNOWN', `Response with status ${status} not expected`));
     }
   }
 
   async checkStatusFile(uuid: File['uuid']): Promise<FileStatuses> {
     Logger.info(`Checking status for file ${uuid}`);
-    const response = await this.clients.newDrive.get(
-      `${process.env.NEW_DRIVE_URL}/drive/files/${uuid}/meta`
-    );
+    const response = await this.clients.newDrive.get(`${process.env.NEW_DRIVE_URL}/drive/files/${uuid}/meta`);
 
     if (response.status === 404) {
       return FileStatuses.DELETED;
     }
 
     if (response.status !== 200) {
-      Logger.error(
-        '[FILE FILE SYSTEM] Error checking file status',
-        response.status,
-        response.statusText
-      );
+      Logger.error('[FILE FILE SYSTEM] Error checking file status', response.status, response.statusText);
       throw new Error('Error checking file status');
     }
 
@@ -184,20 +144,14 @@ export class SDKRemoteFileSystem {
   async checkStatusFolder(uuid: Folder['uuid']): Promise<FolderStatuses> {
     Logger.info(`Checking status for folder 2 ${uuid}`);
 
-    const response = await this.clients.newDrive.get(
-      `${process.env.NEW_DRIVE_URL}/drive/folders/${uuid}/meta`
-    );
+    const response = await this.clients.newDrive.get(`${process.env.NEW_DRIVE_URL}/drive/folders/${uuid}/meta`);
 
     if (response.status === 404) {
       return FolderStatuses.DELETED;
     }
 
     if (response.status !== 200) {
-      Logger.error(
-        '[FOLDER FILE SYSTEM] Error checking folder status',
-        response.status,
-        response.statusText
-      );
+      Logger.error('[FOLDER FILE SYSTEM] Error checking folder status', response.status, response.statusText);
       throw new Error('Error checking folder status');
     }
 
@@ -205,19 +159,12 @@ export class SDKRemoteFileSystem {
   }
 
   async trash(contentsId: string): Promise<void> {
-    const result = await this.clients.newDrive.post(
-      `${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`,
-      {
-        items: [{ type: 'file', id: contentsId }],
-      }
-    );
+    const result = await this.clients.newDrive.post(`${process.env.NEW_DRIVE_URL}/drive/storage/trash/add`, {
+      items: [{ type: 'file', id: contentsId }],
+    });
 
     if (result.status !== 200) {
-      Logger.error(
-        '[FILE FILE SYSTEM] File deletion failed with status: ',
-        result.status,
-        result.statusText
-      );
+      Logger.error('[FILE FILE SYSTEM] File deletion failed with status: ', result.status, result.statusText);
 
       throw new Error('Error when deleting file');
     }
@@ -228,19 +175,10 @@ export class SDKRemoteFileSystem {
   }
 
   async hardDelete(contentsId: string) {
-    const result = await this.clients.newDrive.delete(
-      `${process.env.NEW_DRIVE_URL}/drive/storage/trash`,
-      {
-        data: { items: [contentsId] },
-      }
-    );
+    const result = await this.clients.newDrive.delete(`${process.env.NEW_DRIVE_URL}/drive/storage/trash/file/${contentsId}`);
 
-    if (result.status !== 200) {
-      Logger.error(
-        '[FILE FILE SYSTEM] Hard delete failed with status: ',
-        result.status,
-        result.statusText
-      );
+    if (result.status > 204) {
+      Logger.error('[FILE FILE SYSTEM] Hard delete failed with status:', result.status);
 
       throw new Error('Error when hard deleting file');
     }
@@ -266,37 +204,25 @@ export class SDKRemoteFileSystem {
     });
   }
 
-  async replace(
-    file: File,
-    newContentsId: File['contentsId'],
-    newSize: File['size']
-  ): Promise<void> {
-    await this.clients.newDrive.put(
-      `${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`,
-      {
-        fileId: newContentsId,
-        size: newSize,
-      }
-    );
+  async replace(file: File, newContentsId: File['contentsId'], newSize: File['size']): Promise<void> {
+    await this.clients.newDrive.put(`${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`, {
+      fileId: newContentsId,
+      size: newSize,
+    });
   }
 
   async override(file: File): Promise<void> {
-    await this.clients.newDrive.put(
-      `${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`,
-      {
-        fileId: file.contentsId,
-        size: file.size,
-      }
-    );
+    await this.clients.newDrive.put(`${process.env.NEW_DRIVE_URL}/drive/files/${file.uuid}`, {
+      fileId: file.contentsId,
+      size: file.size,
+    });
 
     Logger.info(`File ${file.path} overridden`);
   }
 
   async getFileByPath(filePath: string): Promise<null | FileAttributes> {
     try {
-      const response = await this.clients.newDrive.get(
-        `${process.env.NEW_DRIVE_URL}/drive/files/meta?path=${filePath}`
-      );
+      const response = await this.clients.newDrive.get(`${process.env.NEW_DRIVE_URL}/drive/files/meta?path=${filePath}`);
 
       Logger.info('Response from getFileByPath', response.data);
 
@@ -318,11 +244,7 @@ export class SDKRemoteFileSystem {
       return attibutes;
     } catch (error) {
       if (isAxiosError(error)) {
-        Logger.error(
-          'Error getting file by folder and name',
-          error.response?.status,
-          error.response?.data
-        );
+        Logger.error('Error getting file by folder and name', error.response?.status, error.response?.data);
       }
       return null;
     }
