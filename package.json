@@ -202,7 +202,6 @@
     "ts-essentials": "^10.0.4",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
-    "tsc-alias": "^1.8.11",
     "tsconfig-paths": "^4.2.0",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^4.5.4",
