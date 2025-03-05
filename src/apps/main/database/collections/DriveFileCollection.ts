@@ -1,15 +1,12 @@
 import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
-export class DriveFilesCollection
-  implements DatabaseCollectionAdapter<DriveFile>
-{
-  private repository: Repository<DriveFile> =
-    AppDataSource.getRepository('drive_file');
+export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile> {
+  private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 
   async connect(): Promise<{ success: boolean }> {
     return {
@@ -40,14 +37,14 @@ export class DriveFilesCollection
     }
   }
 
-  async getAllWhere(where: Partial<DriveFile>) {
+  async getAllWhere(where: FindOptionsWhere<DriveFile>[] | FindOptionsWhere<DriveFile>) {
     try {
       const result = await this.repository.find({
         where,
       });
       return {
         success: true,
-        result: result
+        result: result,
       };
     } catch (error) {
       return {
@@ -55,6 +52,14 @@ export class DriveFilesCollection
         result: [],
       };
     }
+  }
+
+  async updateInBatch(where: FindOptionsWhere<DriveFile>, updatePayload: Partial<DriveFile>) {
+    const match = await this.repository.update(where, updatePayload);
+
+    return {
+      success: match.affected ? true : false,
+    };
   }
 
   async getAllByFolder(folderId: number) {
@@ -81,7 +86,7 @@ export class DriveFilesCollection
       {
         uuid,
       },
-      updatePayload
+      updatePayload,
     );
 
     return {
@@ -112,10 +117,7 @@ export class DriveFilesCollection
     result: DriveFile | null;
   }> {
     try {
-      const queryResult = await this.repository
-        .createQueryBuilder('drive_file')
-        .orderBy('datetime(drive_file.updatedAt)', 'DESC')
-        .getOne();
+      const queryResult = await this.repository.createQueryBuilder('drive_file').orderBy('datetime(drive_file.updatedAt)', 'DESC').getOne();
 
       return {
         success: true,
@@ -131,9 +133,7 @@ export class DriveFilesCollection
     }
   }
 
-  async searchPartialBy(
-    partialData: Partial<DriveFile>
-  ): Promise<{ success: boolean; result: DriveFile[] }> {
+  async searchPartialBy(partialData: Partial<DriveFile>): Promise<{ success: boolean; result: DriveFile[] }> {
     try {
       Logger.info('Searching partial by', partialData);
       const result = await this.repository.find({
