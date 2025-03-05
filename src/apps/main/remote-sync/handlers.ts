@@ -167,6 +167,7 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   Logger.debug('[MAIN] Getting updated remote items');
   return getUpdatedRemoteItems();
 });
+
 ipcMain.handle(
   'GET_UPDATED_REMOTE_ITEMS_BY_FOLDER',
   async (_, folderId: number) => {
@@ -177,6 +178,10 @@ ipcMain.handle(
 
 ipcMain.handle('FIND_DANGLED_FILES', async() => {
   return await getLocalDangledFiles();
+});
+
+ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData ) => {
+  return await updateFileInBatch(inputData.itemIds, inputData.fileFilter);
 });
 
 export async function startRemoteSync(folderId?: number): Promise<void> {

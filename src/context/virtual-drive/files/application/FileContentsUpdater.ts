@@ -27,12 +27,14 @@ export class FileContentsUpdater {
 
       return {
         path: Attributes.path,
+        contentsId: Attributes.contentsId,
         updated: true
       };
     } catch (error) {
       Logger.error('Error updating file', Attributes, error);
       return {
         path: Attributes.path,
+        contentsId: Attributes.contentsId,
         updated: false
       };
     }

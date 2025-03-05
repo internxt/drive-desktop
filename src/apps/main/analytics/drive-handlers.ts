@@ -92,8 +92,10 @@ ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
+ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (event, payload) => {
   const { name, error } = payload;
+
+  event.sender.send('FILE_DOWNLOAD_ERROR', payload);
 
   trackError('Download Error', new Error(error), {
     itemType: 'File',

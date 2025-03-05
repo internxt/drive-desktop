@@ -75,6 +75,7 @@ export class ContentsDownloader {
       Logger.error('[Server] Error downloading file', error);
       this.ipc.send('FILE_DOWNLOAD_ERROR', {
         name: file.name,
+        contentsId: file.contentsId,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
         error: error.message,

@@ -38,12 +38,11 @@ export class BindingsManager {
       root: string;
       icon: string;
     },
-    private readonly fetchData = new FetchDataService(this.container.fileDeleter),
+    private readonly fetchData = new FetchDataService(),
     private readonly handleHydrate = new HandleHydrateService(),
     private readonly handleDehydrate = new HandleDehydrateService(),
     private readonly handleAdd = new HandleAddService(),
     private readonly handleChangeSize = new HandleChangeSizeService(),
-    private dangledFiles = [],
   ) {
     this.controllers = buildControllers(this.container);
   }

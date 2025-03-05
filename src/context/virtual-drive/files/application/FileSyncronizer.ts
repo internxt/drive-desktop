@@ -16,6 +16,7 @@ import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
 import { FileContentsUpdater } from './FileContentsUpdater';
 import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
@@ -35,6 +36,10 @@ export class FileSyncronizer {
 
   async overrideDangledFiles(contentsIds: File['contentsId'][], upload: (path: string) => Promise<RemoteFileContents>) {
     const files = await this.repository.searchByContentsIds(contentsIds);
+
+    await Promise.all(files.map(async (file) => {
+      DangledFilesManager.getInstance().add(file.contentsId, file.path);
+    }));
 
     Logger.debug(`Files to be updated: ${JSON.stringify(files)}`);
 

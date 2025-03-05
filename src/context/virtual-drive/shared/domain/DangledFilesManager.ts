@@ -1,6 +1,8 @@
+import Logger from 'electron-log';
+
 class DangledFilesManager {
   private static instance: DangledFilesManager;
-  private list: Map<string, string> = new Map();
+  private accumulate: Record<string, string> = {};
   public static getInstance(): DangledFilesManager {
     if (!DangledFilesManager.instance) {
       DangledFilesManager.instance = new DangledFilesManager();
@@ -9,12 +11,17 @@ class DangledFilesManager {
     return DangledFilesManager.instance;
   }
 
-  public get(): Map<string, string> {
-    return this.list;
+  public get() {
+    return this.accumulate;
   }
 
-  public set(files: Map<string, string>): void {
-    this.list = files;
+  public add(contentId: string, path: string): void {
+    Logger.debug(`Adding dangled file: ${contentId} - ${path}`);
+    this.accumulate[contentId] = path;
+  }
+
+  public set(files: Record<string, string>): void {
+    this.accumulate = files;
   }
 }
 
