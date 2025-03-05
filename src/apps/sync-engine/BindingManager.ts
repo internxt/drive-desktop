@@ -1,10 +1,7 @@
 import Logger from 'electron-log';
 import { VirtualDrive, QueueItem, QueueManager } from 'virtual-drive/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
-import {
-  IControllers,
-  buildControllers,
-} from './callbacks-controllers/buildControllers';
+import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
@@ -22,15 +19,9 @@ import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
 import { HandleAddService } from './callbacks/handleAdd.service';
 import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 
-export type CallbackDownload = (
-  success: boolean,
-  filePath: string
-) => Promise<{ finished: boolean; progress: number }>;
+export type CallbackDownload = (success: boolean, filePath: string) => Promise<{ finished: boolean; progress: number }>;
 
-export type FileAddedCallback = (
-  acknowledge: boolean,
-  id: string
-) => Promise<boolean>;
+export type FileAddedCallback = (acknowledge: boolean, id: string) => Promise<boolean>;
 
 export class BindingsManager {
   private static readonly PROVIDER_NAME = 'Internxt';
@@ -47,7 +38,7 @@ export class BindingsManager {
       root: string;
       icon: string;
     },
-    private readonly fetchData = new FetchDataService(),
+    private readonly fetchData = new FetchDataService(this.container.fileDeleter),
     private readonly handleHydrate = new HandleHydrateService(),
     private readonly handleDehydrate = new HandleDehydrateService(),
     private readonly handleAdd = new HandleAddService(),
@@ -87,11 +78,11 @@ export class BindingsManager {
     await this.pollingStart();
 
     const callbacks = {
-      notifyDeleteCallback: (
-        contentsId: string,
-        callback: (response: boolean) => void
-      ) => {
+      notifyDeleteCallback: (contentsId: string, callback: (response: boolean) => void) => {
         Logger.debug('Path received from delete callback', contentsId);
+
+        // si es hardDelete o softDelete
+
         this.controllers.delete
           .execute(contentsId)
           .then(() => {
@@ -103,16 +94,13 @@ export class BindingsManager {
             Sentry.captureException(error);
             callback(false);
           });
+
         ipcRenderer.send('SYNCED');
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: async (
-        absolutePath: string,
-        contentsId: string,
-        callback: (response: boolean) => void
-      ) => {
+      notifyRenameCallback: async (absolutePath: string, contentsId: string, callback: (response: boolean) => void) => {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
 
@@ -134,12 +122,8 @@ export class BindingsManager {
           }
 
           const fn = executeControllerWithFallback({
-            handler: this.controllers.renameOrMove.execute.bind(
-              this.controllers.renameOrMove
-            ),
-            fallback: this.controllers.offline.renameOrMove.execute.bind(
-              this.controllers.offline.renameOrMove
-            ),
+            handler: this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove),
+            fallback: this.controllers.offline.renameOrMove.execute.bind(this.controllers.offline.renameOrMove),
           });
           fn(absolutePath, contentsId, callback);
           Logger.debug('Finish Rename', absolutePath);
@@ -150,18 +134,12 @@ export class BindingsManager {
         ipcRendererSyncEngine.send('SYNCED');
         ipcRenderer.send('CHECK_SYNC');
       },
-      notifyFileAddedCallback: async (
-        absolutePath: string,
-        callback: FileAddedCallback
-      ) => {
+      notifyFileAddedCallback: async (absolutePath: string, callback: FileAddedCallback) => {
         Logger.debug('Path received from callback', absolutePath);
         await this.controllers.addFile.execute(absolutePath);
         ipcRenderer.send('CHECK_SYNC');
       },
-      fetchDataCallback: (
-        contentsId: FilePlaceholderId,
-        callback: CallbackDownload
-      ) =>
+      fetchDataCallback: (contentsId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
           self: this,
           contentsId,
@@ -172,7 +150,7 @@ export class BindingsManager {
         message: string,
         action: ProcessIssue['action'],
         errorName: ProcessIssue['errorName'],
-        callback: (response: boolean) => void
+        callback: (response: boolean) => void,
       ) => {
         try {
           callback(true);
@@ -223,13 +201,7 @@ export class BindingsManager {
       },
     };
 
-    await this.container.virtualDrive.registerSyncRoot(
-      BindingsManager.PROVIDER_NAME,
-      version,
-      providerId,
-      callbacks,
-      this.paths.icon
-    );
+    await this.container.virtualDrive.registerSyncRoot(BindingsManager.PROVIDER_NAME, version, providerId, callbacks, this.paths.icon);
 
     await this.container.virtualDrive.connectSyncRoot();
 
@@ -251,24 +223,14 @@ export class BindingsManager {
       onTaskProcessing: async () => ipcRendererSyncEngine.send('SYNCING'),
     };
 
-    const persistQueueManager: string = configStore.get(
-      'persistQueueManagerPath'
-    );
+    const persistQueueManager: string = configStore.get('persistQueueManagerPath');
 
     Logger.debug('persistQueueManager', persistQueueManager);
 
-    const queueManager = new QueueManager(
-      callbacks,
-      notify,
-      persistQueueManager
-    );
+    const queueManager = new QueueManager(callbacks, notify, persistQueueManager);
     this.queueManager = queueManager;
     const logWatcherPath = DependencyInjectionLogWatcherPath.get();
-    this.container.virtualDrive.watchAndWait(
-      this.paths.root,
-      queueManager,
-      logWatcherPath
-    );
+    this.container.virtualDrive.watchAndWait(this.paths.root, queueManager, logWatcherPath);
     await queueManager.processAll();
   }
 
@@ -318,8 +280,7 @@ export class BindingsManager {
     try {
       ipcRendererSyncEngine.send('SYNCING');
       Logger.info('[SYNC ENGINE] Monitoring polling...');
-      const fileInPendingPaths =
-        (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
+      const fileInPendingPaths = (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
@@ -333,8 +294,7 @@ export class BindingsManager {
     try {
       Logger.info('[SYNC ENGINE] Updating unsync files...');
 
-      const fileInPendingPaths =
-        (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
+      const fileInPendingPaths = (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       return fileInPendingPaths;

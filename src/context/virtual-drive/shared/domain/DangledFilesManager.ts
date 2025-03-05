@@ -1,24 +1,21 @@
 class DangledFilesManager {
-    private static instance: DangledFilesManager;
-    private list: string[] = [];
-
-    private constructor() {}
-
-    public static getInstance(): DangledFilesManager {
-        if (!DangledFilesManager.instance) {
-            DangledFilesManager.instance = new DangledFilesManager();
-        }
-
-        return DangledFilesManager.instance;
+  private static instance: DangledFilesManager;
+  private list: Map<string, string> = new Map();
+  public static getInstance(): DangledFilesManager {
+    if (!DangledFilesManager.instance) {
+      DangledFilesManager.instance = new DangledFilesManager();
     }
 
-    public get(): string[] {
-        return this.list;
-    }
+    return DangledFilesManager.instance;
+  }
 
-    public set(files: string[]): void {
-        this.list = files;
-    }
+  public get(): Map<string, string> {
+    return this.list;
+  }
+
+  public set(files: Map<string, string>): void {
+    this.list = files;
+  }
 }
 
 export { DangledFilesManager };

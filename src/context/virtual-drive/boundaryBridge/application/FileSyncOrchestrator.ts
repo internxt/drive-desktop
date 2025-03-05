@@ -3,16 +3,15 @@ import { RetryContentsUploader } from '../../contents/application/RetryContentsU
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
-import { DangledFilesManager } from '../../shared/domain/dangledFilesManager';
+import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 
 export class FileSyncOrchestrator {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
     private readonly fileSyncronizer: FileSyncronizer,
-  ) { }
+  ) {}
 
   async run(absolutePaths: string[]): Promise<void> {
-
     const filesWithIssues = await ipcRenderer.invoke('FIND_ISSUE_AFFECTED_FILES');
 
     Logger.debug(`Files with issues: ${JSON.stringify(filesWithIssues)}`);
@@ -22,22 +21,26 @@ export class FileSyncOrchestrator {
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
     const endDate = new Date('2025-03-04T13:00:00.000Z').getTime();
 
+    const dangledFilesMap = new Map<string, string>();
 
     for (const file of filesWithIssues) {
-      const fileDate = (new Date(file.createdAt)).getTime();
+      const fileDate = new Date(file.createdAt).getTime();
 
       if (fileDate >= startDate && fileDate <= endDate) {
         issuePathFiles.push(file.fileId);
+        dangledFilesMap.set(file.contentId, file.path);
       }
     }
 
-    DangledFilesManager.getInstance().set(issuePathFiles);
+    DangledFilesManager.getInstance().set(dangledFilesMap);
 
     Logger.debug(`Issue affected files: ${issuePathFiles}`);
     if (issuePathFiles.length > 0) {
       Logger.debug(`Issue affected files: ${issuePathFiles}`);
       const overridedFiles = await this.fileSyncronizer.overrideCorruptedFiles(
-        issuePathFiles, this.contentsUploader.run.bind(this.contentsUploader));
+        issuePathFiles,
+        this.contentsUploader.run.bind(this.contentsUploader),
+      );
       // update CreatedAt to avoid reprocessing
 
       const toUpdateInDatabase = overridedFiles.reduce((acc: string[], current) => {
@@ -52,7 +55,6 @@ export class FileSyncOrchestrator {
       // await updateFileInBatch(toUpdateInDatabase, { status: 'TRASHED' });
     }
 
-
     for (const absolutePath of absolutePaths) {
       const tempFile = await isTemporaryFile(absolutePath);
 
@@ -61,10 +63,7 @@ export class FileSyncOrchestrator {
         continue;
       }
       try {
-        await this.fileSyncronizer.run(
-          absolutePath,
-          this.contentsUploader.run.bind(this.contentsUploader)
-        );
+        await this.fileSyncronizer.run(absolutePath, this.contentsUploader.run.bind(this.contentsUploader));
       } catch (error) {
         console.error(error);
       }
