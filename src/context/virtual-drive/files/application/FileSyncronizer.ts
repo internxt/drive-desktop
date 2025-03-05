@@ -43,7 +43,7 @@ export class FileSyncronizer {
       }),
     );
 
-    Logger.debug(`Files to be updated: ${JSON.stringify(files)}`);
+    Logger.debug(`Dangled feeded files to be updated: ${JSON.stringify(files, null, 2)}`);
 
     const updatedFiles = [];
 

@@ -14,7 +14,7 @@ export class FileSyncOrchestrator {
   async run(absolutePaths: string[]): Promise<void> {
     const filesWithIssues = await ipcRenderer.invoke('FIND_DANGLED_FILES');
 
-    Logger.debug(`Files with issues: ${JSON.stringify(filesWithIssues)}`);
+    Logger.debug('Dangled files checking');
 
     const issuePathFiles = [];
 
@@ -31,14 +31,14 @@ export class FileSyncOrchestrator {
     }
 
     if (issuePathFiles.length > 0) {
-      Logger.debug(`Issue affected files: ${issuePathFiles}`);
+      Logger.debug(`Dangled files files: ${issuePathFiles}`);
       const overridedFiles = await this.fileSyncronizer.overrideDangledFiles(
         issuePathFiles,
         this.contentsUploader.run.bind(this.contentsUploader),
       );
 
 
-      Logger.debug(`Overrided files: ${overridedFiles}`);
+      Logger.debug(`Processed dangled files: ${overridedFiles}`);
       const toUpdateInDatabase = overridedFiles.reduce((acc: string[], current) => {
         if (current.updated) {
           acc.push(current.contentsId);
@@ -46,7 +46,7 @@ export class FileSyncOrchestrator {
         return acc;
       }, []);
 
-      Logger.debug(`Updating files in database: ${toUpdateInDatabase}`);
+      Logger.debug(`Updating dangled files in database: ${toUpdateInDatabase}`);
 
       await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
         itemIds: toUpdateInDatabase,

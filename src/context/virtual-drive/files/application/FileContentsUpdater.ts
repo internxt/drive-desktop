@@ -13,15 +13,13 @@ export class FileContentsUpdater {
 
   async hardUpdateRun(Attributes: OfflineFileAttributes, upload: (path: string) => Promise<RemoteFileContents>) {
     try {
-      Logger.info('New contentsId 1 ');
+      Logger.info('Running hard update before upload');
 
       const content = await upload(Attributes.path);
 
-      Logger.info('New contentsId 2', content);
+      Logger.info('Running hard update after upload, Content id generated', content);
 
       const newContentsId = content.id;
-
-      Logger.info('New contentsId 3', newContentsId);
 
       if (newContentsId) {
         await this.remote.hardDelete(Attributes.contentsId);
@@ -38,7 +36,7 @@ export class FileContentsUpdater {
         updated: true,
       };
     } catch (error) {
-      Logger.error('Error updating file', Attributes, error);
+      Logger.error('Error hard updating file', Attributes, error);
       return {
         path: Attributes.path,
         contentsId: Attributes.contentsId,

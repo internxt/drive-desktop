@@ -26,7 +26,6 @@ export class InMemoryFileRepository {
   }
 
   async searchByContentsIds(contentsIds: File['contentsId'][]): Promise<Array<File>> {
-    Logger.debug('FilesByContentsIds', Object(this.files).keys, Object(this.files).values);
     const files = contentsIds.map((contentsId) => {
       const file = this.files.get(contentsId);
       if (file) {
@@ -129,7 +128,6 @@ export class InMemoryFileRepository {
   }
 
   async add(file: File): Promise<void> {
-    Logger.debug('Add method, inMemoryFileRepository');
     this.files.set(file.contentsId, {
       id: file.id,
       uuid: file.uuid,
