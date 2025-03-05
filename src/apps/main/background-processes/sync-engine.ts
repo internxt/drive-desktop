@@ -14,6 +14,8 @@ import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspace
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import configStore from '../config';
 import { utilityProcess } from 'electron/main';
+import electron from 'electron';
+import { fork } from 'child_process';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -75,8 +77,24 @@ export async function spawnSyncEngineWorker(config: Config) {
   Logger.info(`[MAIN] SPAWNING SYNC ENGINE WORKER for workspace  ${providerName}: ${workspaceId}...`);
   workers[workspaceId].startingWorker = true;
 
-  const child = utilityProcess.fork(path.join(process.cwd(), 'release', 'app', 'dist', 'sync-engine', 'main.js'));
-  logger.debug({ msg: '🚀 ~ spawnSyncEngineWorker ~ child:', child });
+  logger.debug({ msg: 'Testttttttttttttttttttttttttt', electron });
+
+  // const child = utilityProcess.fork(path.join(process.cwd(), 'dist', 'src', 'apps', 'sync-engine', 'index.js'));
+  // const child = utilityProcess.fork(path.join(process.cwd(), 'release', 'app', 'dist', 'sync-engine', 'main.js'));
+  // logger.debug({ msg: '🚀 ~ spawnSyncEngineWorker ~ child:', child });
+
+  // child.postMessage({ type: 'SET_CONFIG', config });
+  // child.on('message', (message) => {
+  //   logger.debug({ msg: message });
+  // });
+
+  const child = fork(path.join('dist', 'src', 'apps', 'sync-engine', 'index.js'));
+
+  child.on('message', (message) => {
+    logger.debug({ msg: 'Received', message });
+  });
+
+  child.send({ greeting: 'Test' });
 
   return;
 

@@ -27,8 +27,7 @@
     "outDir": "release/app/dist",
     "types": ["vitest/globals"],
     "paths": {
-      "@/*": ["./src/*"],
-      "virtual-drive/dist": ["../node-win/dist"]
+      "@/*": ["./src/*"]
     }
   },
   "exclude": [
