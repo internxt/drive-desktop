@@ -3,6 +3,7 @@ import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
+import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 
 export class FileContentsUpdater {
   constructor(
@@ -10,15 +11,22 @@ export class FileContentsUpdater {
     private readonly remote: SDKRemoteFileSystem
   ) {}
 
-  async hardUpdateRun(Attributes: OfflineFileAttributes) {
+  async hardUpdateRun(Attributes: OfflineFileAttributes, upload: (path: string) => Promise<RemoteFileContents>) {
     try {
-      await this.remote.trash(Attributes.contentsId);
+      const content = await upload(Attributes.path);
+      const newContentsId = content.id;
 
-      const offlineFile = OfflineFile.from(Attributes);
-      await this.remote.persist(offlineFile);
+      if (content.id) {
+        await this.remote.hardDelete(Attributes.contentsId);
+        
+        const offlineFile = OfflineFile.from({...Attributes, contentsId: newContentsId});
+        this.remote.persist(offlineFile);
+      } else {
+        throw new Error('Failed to upload file in hardUpdate');
+      }
 
       return {
-        path: offlineFile.path,
+        path: Attributes.path,
         updated: true
       };
     } catch (error) {

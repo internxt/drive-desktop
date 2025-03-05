@@ -34,22 +34,21 @@ export class FileSyncronizer {
   ) {}
 
   // this method is temporal only used to override corrupted files
-  async overrideCorruptedFiles(contentsIds: File['contentsId'][]) {
+  async overrideCorruptedFiles(contentsIds: File['contentsId'][], upload: (path: string) => Promise<RemoteFileContents>) {
     const files = await this.repository.searchByContentsIds(contentsIds);
-    const result: { path: string; updated: boolean; }[] = [];
 
-    Promise.all(files.map(async (file) => {
+    Logger.debug(`Files to be updated: ${JSON.stringify(files)}`);
+
+    return await Promise.all(files.map(async (file) => {
       const updatedOutput = await this.fileContentsUpdater.hardUpdateRun({
         contentsId: file.contentsId,
-        folderId: file.folderId as unknown as number,
+        folderId: file.folderId.value,
         size: file.size,
         path: file.path,
-      });
-
-      result.push(updatedOutput);
+      }, upload);
+      return updatedOutput;
     }));
 
-    return result;
   }
 
   async run(

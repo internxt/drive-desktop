@@ -227,6 +227,26 @@ export class SDKRemoteFileSystem {
     await this.trash(file.contentsId);
   }
 
+  // to check
+  async hardDelete(contentsId: string) {
+    const result = await this.clients.newDrive.delete(
+      `${process.env.NEW_DRIVE_URL}/drive/storage/trash`,
+      {
+        data: { items: [contentsId] },
+      }
+    );
+
+    if (result.status !== 200) {
+      Logger.error(
+        '[FILE FILE SYSTEM] Hard delete failed with status: ',
+        result.status,
+        result.statusText
+      );
+
+      throw new Error('Error when hard deleting file');
+    }
+  }
+
   async rename(file: File): Promise<void> {
     await this.sdk.updateFile({
       fileId: file.contentsId,

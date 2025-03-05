@@ -52,6 +52,7 @@ export class BindingsManager {
     private readonly handleDehydrate = new HandleDehydrateService(),
     private readonly handleAdd = new HandleAddService(),
     private readonly handleChangeSize = new HandleChangeSizeService(),
+    private dangledFiles = [],
   ) {
     this.controllers = buildControllers(this.container);
   }

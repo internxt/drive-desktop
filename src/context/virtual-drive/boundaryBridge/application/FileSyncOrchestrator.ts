@@ -1,18 +1,22 @@
-import { getIssueAffectedFiles, updateFileInBatch } from '@/apps/main/remote-sync/handlers';
 import { isTemporaryFile } from '../../../../apps/utils/isTemporalFile';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
 import Logger from 'electron-log';
+import { ipcRenderer } from 'electron';
+import { DangledFilesManager } from '../../shared/domain/dangledFilesManager';
 
 export class FileSyncOrchestrator {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
-    private readonly fileSyncronizer: FileSyncronizer
-  ) {}
+    private readonly fileSyncronizer: FileSyncronizer,
+  ) { }
 
   async run(absolutePaths: string[]): Promise<void> {
 
-    const filesWithIssues = await getIssueAffectedFiles();
+    const filesWithIssues = await ipcRenderer.invoke('FIND_ISSUE_AFFECTED_FILES');
+
+    Logger.debug(`Files with issues: ${JSON.stringify(filesWithIssues)}`);
+
     const issuePathFiles = [];
 
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
@@ -27,9 +31,13 @@ export class FileSyncOrchestrator {
       }
     }
 
+    DangledFilesManager.getInstance().set(issuePathFiles);
+
+    Logger.debug(`Issue affected files: ${issuePathFiles}`);
     if (issuePathFiles.length > 0) {
       Logger.debug(`Issue affected files: ${issuePathFiles}`);
-      const overridedFiles = await this.fileSyncronizer.overrideCorruptedFiles(issuePathFiles);
+      const overridedFiles = await this.fileSyncronizer.overrideCorruptedFiles(
+        issuePathFiles, this.contentsUploader.run.bind(this.contentsUploader));
       // update CreatedAt to avoid reprocessing
 
       const toUpdateInDatabase = overridedFiles.reduce((acc: string[], current) => {
@@ -41,7 +49,7 @@ export class FileSyncOrchestrator {
 
       Logger.debug(`Updating files in database: ${toUpdateInDatabase}`);
 
-      await updateFileInBatch(toUpdateInDatabase, { status: 'TRASHED' });
+      // await updateFileInBatch(toUpdateInDatabase, { status: 'TRASHED' });
     }
 
 

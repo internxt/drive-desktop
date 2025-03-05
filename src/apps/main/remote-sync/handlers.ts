@@ -45,6 +45,7 @@ const remoteSyncManager = new RemoteSyncManager(
 
 // this is a temporal function to get the affected files of an issue
 export async function getIssueAffectedFiles() {
+  Logger.debug('Getting affected files');
   const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS' });
 
   return allExisting.result;
@@ -174,6 +175,10 @@ ipcMain.handle(
     return getUpdatedRemoteItemsByFolder(folderId);
   }
 );
+
+ipcMain.handle('FIND_ISSUE_AFFECTED_FILES', async() => {
+  return await getIssueAffectedFiles();
+})
 
 export async function startRemoteSync(folderId?: number): Promise<void> {
   try {

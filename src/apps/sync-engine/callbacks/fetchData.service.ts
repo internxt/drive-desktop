@@ -8,6 +8,7 @@ import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
 import * as fs from 'fs';
 import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { dirname } from 'path';
+import { DangledFilesManager } from '@/context/virtual-drive/shared/domain/dangledFilesManager';
 
 type TProps = {
   self: BindingsManager;
@@ -105,6 +106,14 @@ export class FetchDataService {
 
       Logger.debug('[Fetch Data Callback] Finish', path);
     } catch (error) {
+      if (error instanceof Error && error.message && error.message.includes('Object not found')) {
+        const dangledFiles = DangledFilesManager.getInstance().get();
+        const cleanContentId = contentsId.replace('file:', '');
+        if (!dangledFiles.includes(cleanContentId)) {
+          // DELETE
+        }
+
+      }
       Logger.error(error);
       Sentry.captureException(error);
       await callback(false, '');

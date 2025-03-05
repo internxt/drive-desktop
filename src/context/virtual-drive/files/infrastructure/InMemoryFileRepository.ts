@@ -1,5 +1,6 @@
 import { Service } from 'diod';
 import { File, FileAttributes } from '../domain/File';
+import Logger from 'electron-log';
 @Service()
 export class InMemoryFileRepository {
   private files: Map<string, FileAttributes>;
@@ -25,8 +26,9 @@ export class InMemoryFileRepository {
   }
 
   async searchByContentsIds(contentsIds: File['contentsId'][]): Promise<Array<File>> {
+    Logger.debug('FilesByContentsIds', Object(this.files).keys, Object(this.files).values);
     const files = contentsIds.map((contentsId) => {
-      const file = this.filesByContentsId.get(contentsId);
+      const file = this.files.get(contentsId);
       if (file) {
         return File.from(file);
       }
@@ -127,6 +129,7 @@ export class InMemoryFileRepository {
   }
 
   async add(file: File): Promise<void> {
+    Logger.debug('Add method, inMemoryFileRepository');
     this.files.set(file.contentsId, {
       id: file.id,
       uuid: file.uuid,
