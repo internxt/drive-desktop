@@ -5,7 +5,7 @@ import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
-import * as Sentry from '@sentry/electron/renderer';
+import * as Sentry from '@sentry/electron/main';
 import { setConfig, Config, getConfig } from './config';
 import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
 
@@ -97,7 +97,6 @@ async function setUp() {
       event.sender.send('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS');
     } catch (error: unknown) {
       Logger.error('[SYNC ENGINE] Error stopping and cleaning: ', error);
-      Sentry.captureException(error);
       event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
     }
   });
@@ -136,10 +135,8 @@ ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
     })
     .catch((error) => {
       Logger.error('[SYNC ENGINE] Error setting up', error);
-      Sentry.captureException(error);
       if (error.toString().includes('Error: ConnectSyncRoot failed')) {
         Logger.info('[SYNC ENGINE] We need to restart the app virtual drive');
-        Sentry.captureMessage('Restarting sync engine virtual drive is required');
       }
       ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
     });

@@ -1,7 +1,7 @@
-import { VirtualDrive } from 'virtual-drive/dist';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
+import { VirtualDrive } from '@/apps/node-win';
 
 export class NodeWinLocalFolderSystem {
   constructor(

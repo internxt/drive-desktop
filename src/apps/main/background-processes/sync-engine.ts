@@ -75,7 +75,7 @@ export async function spawnSyncEngineWorker(config: Config) {
   Logger.info(`[MAIN] SPAWNING SYNC ENGINE WORKER for workspace  ${providerName}: ${workspaceId}...`);
   workers[workspaceId].startingWorker = true;
 
-  const child = utilityProcess.fork(path.join(process.cwd(), 'dist', 'src', 'apps', 'sync-engine', 'index.js'));
+  const child = utilityProcess.fork(path.join(process.cwd(), 'release', 'app', 'dist', 'sync-engine', 'main.js'));
   logger.debug({ msg: '🚀 ~ spawnSyncEngineWorker ~ child:', child });
 
   return;
