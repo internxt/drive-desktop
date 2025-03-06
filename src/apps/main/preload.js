@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const path = require('path');
 const Logger = require('electron-log');
 
 contextBridge.exposeInMainWorld('electron', {
@@ -410,4 +411,5 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.invoke('renderer.login', props);
     },
   },
+  path,
 });
