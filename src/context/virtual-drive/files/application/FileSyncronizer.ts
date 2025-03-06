@@ -17,6 +17,8 @@ import { FileContentsUpdater } from './FileContentsUpdater';
 import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
+import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
+import { CallbackDownload } from '@/apps/sync-engine/BindingManager';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
@@ -32,22 +34,37 @@ export class FileSyncronizer {
     private readonly offlineFolderCreator: OfflineFolderCreator,
     // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
+    private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot
   ) {}
 
-  async overrideDangledFiles(contentsIds: File['contentsId'][], upload: (path: string) => Promise<RemoteFileContents>) {
+  async overrideDangledFiles(contentsIds: File['contentsId'][], upload: (path: string) => Promise<RemoteFileContents>, download: (file: File, callback: CallbackDownload) => Promise<string>) {
     const files = await this.repository.searchByContentsIds(contentsIds);
+
+    const filesWithContent = this.fileCheckerStatusInRoot.isHydrated(files.map((file) => file.path));
+
+    const filesHydrated: File[] = [];
 
     await Promise.all(
       files.map(async (file) => {
-        DangledFilesManager.getInstance().add(file.contentsId, file.path);
+
+        // await download(file);
+
+        if (filesWithContent[file.path]) {
+          Logger.info(`Possible dangled file ${file.path} hydrated.`);
+          DangledFilesManager.getInstance().add(file.contentsId, file.path);
+          filesHydrated.push(file);
+        } else {
+          Logger.info(`Possible dangled file ${file.path} not hydrated.`);
+        }
       }),
     );
+
 
     Logger.debug(`Dangled feeded files to be updated: ${JSON.stringify(files, null, 2)}`);
 
     const updatedFiles = [];
 
-    for (const file of files) {
+    for (const file of filesHydrated) {
       const updatedOutput = await this.fileContentsUpdater.hardUpdateRun(
         {
           contentsId: file.contentsId,

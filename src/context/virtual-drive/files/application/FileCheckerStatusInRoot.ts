@@ -38,6 +38,21 @@ export class FileCheckerStatusInRoot {
     return finalStatus;
   }
 
+  public isHydrated(paths: string[]): Record<string, boolean> {
+    const fileOnlineOnly: Record<string,boolean> = {};
+    for (const path of paths) {
+      const placeholderStatus = this.localFileSystem.getPlaceholderStateByRelativePath(path);
+
+      if (placeholderStatus.pinState === PinState.OnlineOnly) {
+        fileOnlineOnly[path] = false;
+      }
+
+      fileOnlineOnly[path] = true;
+    }
+
+    return fileOnlineOnly;
+  } 
+
   private async getItemsRoot(absolutePath: string): Promise<string[]> {
     const items = fs.readdirSync(absolutePath);
     return items;

@@ -3,11 +3,12 @@ import { RetryContentsUploader } from '../../contents/application/RetryContentsU
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
-import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
+import { ContentsDownloader } from '../../contents/application/ContentsDownloader';
 
 export class FileSyncOrchestrator {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
+    private readonly contentsDownloader: ContentsDownloader,
     private readonly fileSyncronizer: FileSyncronizer
   ) {}
 
@@ -35,6 +36,7 @@ export class FileSyncOrchestrator {
       const overridedFiles = await this.fileSyncronizer.overrideDangledFiles(
         issuePathFiles,
         this.contentsUploader.run.bind(this.contentsUploader),
+        this.contentsDownloader.run.bind(this.contentsDownloader)
       );
 
 
