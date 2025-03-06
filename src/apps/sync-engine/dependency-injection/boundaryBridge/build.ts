@@ -16,7 +16,7 @@ export function buildBoundaryBridgeContainer(
 
   const fileSyncOrchestrator = new FileSyncOrchestrator(
     contentsContainer.contentsUploader,
-    contentsContainer.contentsDownloader,
+    contentsContainer.contentsManagerFactory,
     filesContainer.fileSyncronizer
   );
 

@@ -50,6 +50,10 @@ export async function getLocalDangledFiles() {
   return allExisting.result;
 }
 
+export async function setAsNotDangledFiles(filesIds: string[]) {
+  await driveFilesCollection.updateInBatch({ isDangledStatus: true, fileId: In(filesIds) }, { isDangledStatus: false });
+}
+
 export const updateFileInBatch = async (itemsId: string[], file: Partial<DriveFile>) => {
   await driveFilesCollection.updateInBatch(
     {
@@ -178,6 +182,10 @@ ipcMain.handle(
 
 ipcMain.handle('FIND_DANGLED_FILES', async() => {
   return await getLocalDangledFiles();
+});
+
+ipcMain.handle('SET_HEALTHY_FILES', async(_, inputData) => {
+  return await setAsNotDangledFiles(inputData);
 });
 
 ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData ) => {

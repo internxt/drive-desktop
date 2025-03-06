@@ -43,11 +43,11 @@ export class FileCheckerStatusInRoot {
     for (const path of paths) {
       const placeholderStatus = this.localFileSystem.getPlaceholderStateByRelativePath(path);
 
-      if (placeholderStatus.pinState === PinState.OnlineOnly) {
+      if (placeholderStatus.pinState == PinState.OnlineOnly) {
         fileOnlineOnly[path] = false;
+      } else {
+        fileOnlineOnly[path] = true;
       }
-
-      fileOnlineOnly[path] = true;
     }
 
     return fileOnlineOnly;

@@ -10,7 +10,7 @@ const dbPath = app.getPath('appData') + '/internxt-drive/internxt_desktop.db';
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
   database: dbPath,
-  logging: false,
+  logging: true,
   synchronize: true,
   entities: [DriveFile, DriveFolder, ScannedItem],
 });

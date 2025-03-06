@@ -13,45 +13,38 @@ export class FileSyncOrchestrator {
   ) {}
 
   async run(absolutePaths: string[]): Promise<void> {
-    const filesWithIssues = await ipcRenderer.invoke('FIND_DANGLED_FILES');
+    const filesToCheck = await ipcRenderer.invoke('FIND_DANGLED_FILES');
 
     Logger.debug('Dangled files checking');
 
-    const issuePathFiles = [];
+    const dangledFilesIds = [];
+    const healthyFilesIds = [];
 
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
     const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
-    for (const file of filesWithIssues) {
+    for (const file of filesToCheck) {
       const fileDate = new Date(file.createdAt).getTime();
 
       if (fileDate >= startDate && fileDate <= endDate) {
-        issuePathFiles.push(file.fileId);
+        dangledFilesIds.push(file.fileId);
+      } else {
+        healthyFilesIds.push(file.fileId);
       }
     }
 
-    if (issuePathFiles.length > 0) {
-      Logger.debug(`Dangled files files: ${issuePathFiles}`);
-      const overridedFiles = await this.fileSyncronizer.overrideDangledFiles(
-        issuePathFiles,
+    Logger.debug(`Dangled files: ${dangledFilesIds}`);
+
+    Logger.debug(`Healthy files: ${healthyFilesIds}`);
+    await ipcRenderer.invoke('SET_HEALTHY_FILES', healthyFilesIds);
+
+    if (dangledFilesIds.length > 0) {
+      Logger.debug(`Dangled files: ${dangledFilesIds}`);
+      await this.fileSyncronizer.overrideDangledFiles(
+        dangledFilesIds,
         this.contentsUploader.run.bind(this.contentsUploader),
         this.contentsManagerFactory,
       );
-
-      Logger.debug(`Processed dangled files: ${overridedFiles}`);
-      const toUpdateInDatabase = overridedFiles.reduce((acc: string[], current) => {
-        if (current.updated) {
-          acc.push(current.contentsId);
-        }
-        return acc;
-      }, []);
-
-      Logger.debug(`Updating dangled files in database: ${toUpdateInDatabase}`);
-
-      await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
-        itemIds: toUpdateInDatabase,
-        fileFilter: { status: 'DELETED' },
-      });
     }
 
     for (const absolutePath of absolutePaths) {
