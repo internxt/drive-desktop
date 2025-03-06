@@ -45,7 +45,7 @@ const remoteSyncManager = new RemoteSyncManager(
 
 // Dangled Files Management
 export async function getLocalDangledFiles() {
-  const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS' });
+  const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS', isDangledStatus: true });
 
   return allExisting.result;
 }

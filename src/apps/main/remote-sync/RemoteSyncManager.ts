@@ -892,7 +892,7 @@ export class RemoteSyncManager {
     if (!remoteFile.folderId) {
       return;
     }
-    await this.db.files.create(remoteFile);
+    await this.db.files.create({...remoteFile, isDangledStatus: false});
   }
 
   private async createOrUpdateSyncedFolderEntry(
