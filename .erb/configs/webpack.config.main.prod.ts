@@ -1,7 +1,3 @@
-/**
- * Webpack config for production electron main process
- */
-
 import path from 'path';
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
@@ -10,21 +6,13 @@ import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import Dotenv from 'dotenv-webpack';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
-import checkNodeEnv from '../scripts/check-node-env';
 import deleteSourceMaps from '../scripts/delete-source-maps';
 
-checkNodeEnv('production');
 deleteSourceMaps();
 
-const devtoolsConfig = {
-  devtool: 'source-map',
-};
-
 const configuration: webpack.Configuration = {
-  ...devtoolsConfig,
-
+  devtool: 'source-map',
   mode: 'production',
-
   target: 'electron-main',
 
   entry: {
@@ -59,9 +47,7 @@ const configuration: webpack.Configuration = {
      * NODE_ENV should be production so that modules do not perform certain
      * development checks
      */
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
-    }),
+    new webpack.EnvironmentPlugin({ NODE_ENV: 'production' }),
     new Dotenv({ ignoreStub: true }),
   ],
 

@@ -1,9 +1,9 @@
-import { VirtualDrive } from 'virtual-drive/dist';
 import { FileStatuses } from '../../files/domain/FileStatus';
 import { File } from '../domain/File';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import fs from 'fs/promises';
 import Logger from 'electron-log';
+import { VirtualDrive } from '@/apps/node-win';
 
 export class NodeWinLocalFileSystem {
   constructor(

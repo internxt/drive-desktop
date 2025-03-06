@@ -4,7 +4,7 @@ import Logger from 'electron-log';
 
 // Webpack dotenv plugin won't replace if you destructure
 // eslint-disable-next-line prefer-destructuring
-const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
+const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY ?? '';
 
 if (!CRYPTO_KEY) {
   Logger.error('No encryption key provided');

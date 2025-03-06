@@ -10,7 +10,6 @@
     "strict": true,
     "pretty": true,
     "sourceMap": true,
-    "rootDir": ".",
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -28,13 +27,13 @@
     "outDir": "release/app/dist",
     "types": ["vitest/globals"],
     "paths": {
-      "@/*": ["./src/*"],
-      "virtual-drive/dist": ["../node-win/dist"]
+      "@/*": ["./src/*"]
     }
   },
   "exclude": [
     "release/build",
     "release/app/dist",
+    "dist",
     ".erb/dll",
     "src/workers/backups/process.ts",
     "src/workers/backups",
