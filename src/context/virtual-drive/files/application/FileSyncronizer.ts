@@ -39,10 +39,14 @@ export class FileSyncronizer {
     // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
     private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot,
-  ) { }
+  ) {}
 
   // eslint-disable-next-line max-len
-  private async registerEvents(downloader: ContentFileDownloader, file: File, callback: (hydratedFilesIds: string[], remoteDangledFiles: string[]) => Promise<void>) {
+  private async registerEvents(
+    downloader: ContentFileDownloader,
+    file: File,
+    callback: (hydratedFilesIds: string[], remoteDangledFiles: string[]) => Promise<void>,
+  ) {
     const location = await temporalFolderProvider();
     ensureFolderExists(location);
 
@@ -77,7 +81,6 @@ export class FileSyncronizer {
     const healthyFilesIds: string[] = [];
 
     const asynchronousCheckingOfDangledFiles = async (hydratedFilesIds: string[], remoteDangledFiles: string[]) => {
-
       Logger.debug('Hydrated files ids: ', hydratedFilesIds);
       Logger.debug('Remote dangled files: ', remoteDangledFiles);
 
@@ -93,7 +96,9 @@ export class FileSyncronizer {
 
       Logger.info('hydratedFilesRemoteDangled List: ', hydratedFilesRemotlyDangled);
 
-      await ipcRenderer.invoke('SET_HEALTHY_FILES', healthyFilesIds);
+      if (healthyFilesIds.length) {
+        await ipcRenderer.invoke('SET_HEALTHY_FILES', healthyFilesIds);
+      }
 
       const updatedFiles = [];
 
@@ -109,7 +114,6 @@ export class FileSyncronizer {
         );
         updatedFiles.push(updatedOutput);
       }
-
 
       Logger.debug(`Processed dangled files: ${updatedFiles}`);
       const toUpdateInDatabase = updatedFiles.reduce((acc: string[], current) => {
@@ -140,7 +144,6 @@ export class FileSyncronizer {
         Logger.info(`Possible dangled file ${file.path} not hydrated.`);
       }
     }
-
   }
 
   async run(absolutePath: string, upload: (path: string) => Promise<RemoteFileContents>): Promise<void> {

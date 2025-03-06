@@ -4,6 +4,7 @@ import { FileSyncronizer } from '../../files/application/FileSyncronizer';
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 
 export class FileSyncOrchestrator {
   constructor(
@@ -13,12 +14,12 @@ export class FileSyncOrchestrator {
   ) {}
 
   async run(absolutePaths: string[]): Promise<void> {
-    const filesToCheck = await ipcRenderer.invoke('FIND_DANGLED_FILES');
+    const filesToCheck: DriveFile[] = await ipcRenderer.invoke('FIND_DANGLED_FILES');
 
     Logger.debug('Dangled files checking');
 
     const dangledFilesIds = [];
-    const healthyFilesIds = [];
+    const healthyFilesIds: string[] = [];
 
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
     const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
@@ -27,6 +28,7 @@ export class FileSyncOrchestrator {
       const fileDate = new Date(file.createdAt).getTime();
 
       if (fileDate >= startDate && fileDate <= endDate) {
+        Logger.debug(`File ${file.plainName} is in the range`);
         dangledFilesIds.push(file.fileId);
       } else {
         healthyFilesIds.push(file.fileId);
@@ -36,7 +38,9 @@ export class FileSyncOrchestrator {
     Logger.debug(`Dangled files: ${dangledFilesIds}`);
 
     Logger.debug(`Healthy files: ${healthyFilesIds}`);
-    await ipcRenderer.invoke('SET_HEALTHY_FILES', healthyFilesIds);
+    if (healthyFilesIds.length) {
+      await ipcRenderer.invoke('SET_HEALTHY_FILES', healthyFilesIds);
+    }
 
     if (dangledFilesIds.length > 0) {
       Logger.debug(`Dangled files: ${dangledFilesIds}`);
