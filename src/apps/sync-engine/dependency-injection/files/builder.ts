@@ -150,6 +150,9 @@ export async function buildFilesContainer(
 
   const fileIdentityUpdater = new FileIdentityUpdater(localFileSystem);
 
+
+  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
+
   const fileSyncronizer = new FileSyncronizer(
     repository,
     fileSyncStatusUpdater,
@@ -159,10 +162,9 @@ export async function buildFilesContainer(
     sharedContainer.absolutePathToRelativeConverter,
     folderContainer.folderCreator,
     folderContainer.offline.folderCreator,
-    fileContentsUpdater
+    fileContentsUpdater,
+    filesCheckerStatusInRoot
   );
-
-  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
 
   const container: FilesContainer = {
     fileFinderByContentsId,

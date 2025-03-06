@@ -1,7 +1,7 @@
 import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
@@ -39,6 +39,32 @@ export class DriveFilesCollection
       };
     }
   }
+
+  async getAllWhere(where: Partial<DriveFile>) {
+    try {
+      const result = await this.repository.find({
+        where,
+      });
+      return {
+        success: true,
+        result: result
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: [],
+      };
+    }
+  }
+
+  async updateInBatch(where: FindOptionsWhere<DriveFile>, updatePayload: Partial<DriveFile>) {
+    const match = await this.repository.update(where, updatePayload);
+
+    return {
+      success: match.affected ? true : false,
+    };
+  }
+
   async getAllByFolder(folderId: number) {
     try {
       const result = await this.repository.find({

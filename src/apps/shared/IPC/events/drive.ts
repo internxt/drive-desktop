@@ -24,6 +24,7 @@ export type FileErrorInfo = {
   name: string;
   extension: string;
   nameWithExtension: string;
+  contentsId?: string;
   error: string;
 };
 

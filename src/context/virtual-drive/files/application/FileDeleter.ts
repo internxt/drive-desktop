@@ -18,6 +18,26 @@ export class FileDeleter {
     private readonly ipc: SyncEngineIpc
   ) {}
 
+  async runHardDelete(contentsId: File['contentsId']): Promise<void> {
+    try {
+      const file = this.repository.searchByPartial({ contentsId });
+
+      if (!file) {
+        Logger.warn(`File with contentsId ${contentsId} not found. Will ignore...`);
+        return;
+      }
+
+      Logger.info(`Hard deleting file ${file.nameWithExtension}`);
+
+      file.trash();
+
+      await this.remote.hardDelete(file.contentsId);
+      await this.repository.update(file);
+    } catch (error: unknown) {
+      Logger.error('Error deleting the file: ', error);
+    }
+  }
+
   async run(contentsId: File['contentsId']): Promise<void> {
     const file = this.repository.searchByPartial({ contentsId });
 
@@ -30,14 +50,10 @@ export class FileDeleter {
       return;
     }
 
-    const allParentsExists = this.allParentFoldersStatusIsExists.run(
-      file.folderId.value
-    );
+    const allParentsExists = this.allParentFoldersStatusIsExists.run(file.folderId.value);
 
     if (!allParentsExists) {
-      Logger.warn(
-        `Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`
-      );
+      Logger.warn(`Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`);
       return;
     }
 
@@ -61,10 +77,7 @@ export class FileDeleter {
         size: file.size,
       });
     } catch (error: unknown) {
-      Logger.error(
-        `Error deleting the file ${file.nameWithExtension}: `,
-        error
-      );
+      Logger.error(`Error deleting the file ${file.nameWithExtension}: `, error);
 
       const message = error instanceof Error ? error.message : 'Unknown error';
       this.local.createPlaceHolder(file);
