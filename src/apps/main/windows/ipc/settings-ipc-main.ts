@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron/main';
+import { ipcMain } from 'electron';
 import { TypedIPC } from '../../../shared/IPC/TypedIPC';
 import { EmittedEvents } from './emitted-events';
 import { ListenedEvents } from './listened-events';

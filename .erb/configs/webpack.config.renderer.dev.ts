@@ -32,10 +32,10 @@ if (
 ) {
   console.log(
     chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "npm run build-dll"'
+      'The DLL files are missing. Sit back while we build them for you'
     )
   );
-  execSync('npm run postinstall');
+  execSync('yarn postinstall');
 }
 
 const configuration: webpack.Configuration = {
@@ -157,7 +157,6 @@ const configuration: webpack.Configuration = {
       isBrowser: false,
       env: process.env.NODE_ENV,
       isDevelopment: process.env.NODE_ENV !== 'production',
-      nodeModules: webpackPaths.appNodeModulesPath,
     }),
   ],
 
