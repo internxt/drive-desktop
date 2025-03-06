@@ -1,13 +1,8 @@
-/**
- * Base webpack config used across other specific configs
- */
-
 import path from 'path';
 import { cwd } from 'process';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
 import webpackPaths from './webpack.paths';
-import { dependencies as externals } from '../../release/app/package.json';
 
 const aliases = {};
 if (process.env.NODE_ENV === 'development') {
@@ -15,7 +10,14 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 const configuration: webpack.Configuration = {
-  externals: [...Object.keys(externals || {})],
+  /*
+   * These libraries use native code and should be treated differently.
+   * Run yarn ts-node .erb/scripts/check-native-deps.ts to check which libraries have native dependencies.
+   * We have ruled out the use of two package.json.
+   * https://github.com/electron-react-boilerplate/electron-react-boilerplate/issues/1827#issuecomment-427991777
+   * https://electron-react-boilerplate.js.org/docs/adding-dependencies/#module-structure
+   */
+  externals: ['@rudderstack/rudder-sdk-node', 'typeorm', 'better-sqlite3', 'virtual-drive'],
 
   stats: 'errors-only',
 
@@ -48,9 +50,6 @@ const configuration: webpack.Configuration = {
     },
   },
 
-  /**
-   * Determine the array of extensions that should be used to resolve modules.
-   */
   resolve: {
     alias: { ...aliases },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
