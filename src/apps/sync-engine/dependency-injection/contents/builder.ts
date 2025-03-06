@@ -15,9 +15,7 @@ import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 
-export async function buildContentsContainer(
-  sharedContainer: SharedContainer
-): Promise<ContentsContainer> {
+export async function buildContentsContainer(sharedContainer: SharedContainer): Promise<ContentsContainer> {
   const user = DependencyInjectionUserProvider.get();
   const mnemonic = DependencyInjectionMnemonicProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
@@ -30,15 +28,14 @@ export async function buildContentsContainer(
     encryptionKey: mnemonic,
   });
 
-  const contentsManagerFactory =
-    new EnvironmentRemoteFileContentsManagersFactory(environment, user.bucket);
+  const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, user.bucket);
 
   const contentsProvider = new FSLocalFileProvider();
   const contentsUploader = new ContentsUploader(
     contentsManagerFactory,
     contentsProvider,
     ipcRendererSyncEngine,
-    sharedContainer.relativePathToAbsoluteConverter
+    sharedContainer.relativePathToAbsoluteConverter,
   );
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);
@@ -50,19 +47,16 @@ export async function buildContentsContainer(
     localWriter,
     ipcRendererSyncEngine,
     temporalFolderProvider,
-    eventBus
+    eventBus,
   );
 
-  const notifyMainProcessHydrationFinished =
-    new NotifyMainProcessHydrationFinished(
-      eventRepository,
-      ipcRendererSyncEngine
-    );
+  const notifyMainProcessHydrationFinished = new NotifyMainProcessHydrationFinished(eventRepository, ipcRendererSyncEngine);
 
   return {
     contentsUploader: retryContentsUploader,
     contentsDownloader,
     temporalFolderProvider,
     notifyMainProcessHydrationFinished,
+    contentsManagerFactory,
   };
 }

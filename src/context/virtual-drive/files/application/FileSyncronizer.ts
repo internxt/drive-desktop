@@ -18,7 +18,10 @@ import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
-import { CallbackDownload } from '@/apps/sync-engine/BindingManager';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { ContentFileDownloader } from '../../contents/domain/contentHandlers/ContentFileDownloader';
+import { temporalFolderProvider } from '../../contents/application/temporalFolderProvider';
+import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
@@ -34,10 +37,24 @@ export class FileSyncronizer {
     private readonly offlineFolderCreator: OfflineFolderCreator,
     // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
-    private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot
+    private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot,
   ) {}
 
-  async overrideDangledFiles(contentsIds: File['contentsId'][], upload: (path: string) => Promise<RemoteFileContents>, download: (file: File, callback: CallbackDownload) => Promise<string>) {
+  private async registerEvents(downloader: ContentFileDownloader, file: File) {
+    const location = await temporalFolderProvider();
+    ensureFolderExists(location);
+
+    downloader.on('error', (error: Error) => {
+      Logger.error('[Server] Error downloading file', error);
+      // manejar error
+    });
+  }
+
+  async overrideDangledFiles(
+    contentsIds: File['contentsId'][],
+    upload: (path: string) => Promise<RemoteFileContents>,
+    downloaderManger: EnvironmentRemoteFileContentsManagersFactory,
+  ) {
     const files = await this.repository.searchByContentsIds(contentsIds);
 
     const filesWithContent = this.fileCheckerStatusInRoot.isHydrated(files.map((file) => file.path));
@@ -46,8 +63,9 @@ export class FileSyncronizer {
 
     await Promise.all(
       files.map(async (file) => {
-
-        // await download(file);
+        const downloader = downloaderManger.downloader();
+        this.registerEvents(downloader, file);
+        await downloader.download(file);
 
         if (filesWithContent[file.path]) {
           Logger.info(`Possible dangled file ${file.path} hydrated.`);
@@ -58,7 +76,6 @@ export class FileSyncronizer {
         }
       }),
     );
-
 
     Logger.debug(`Dangled feeded files to be updated: ${JSON.stringify(files, null, 2)}`);
 

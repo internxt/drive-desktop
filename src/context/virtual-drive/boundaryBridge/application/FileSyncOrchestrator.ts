@@ -3,13 +3,13 @@ import { RetryContentsUploader } from '../../contents/application/RetryContentsU
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
-import { ContentsDownloader } from '../../contents/application/ContentsDownloader';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 export class FileSyncOrchestrator {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
-    private readonly contentsDownloader: ContentsDownloader,
-    private readonly fileSyncronizer: FileSyncronizer
+    private readonly contentsManagerFactory: EnvironmentRemoteFileContentsManagersFactory,
+    private readonly fileSyncronizer: FileSyncronizer,
   ) {}
 
   async run(absolutePaths: string[]): Promise<void> {
@@ -21,7 +21,6 @@ export class FileSyncOrchestrator {
 
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
     const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
-
 
     for (const file of filesWithIssues) {
       const fileDate = new Date(file.createdAt).getTime();
@@ -36,9 +35,8 @@ export class FileSyncOrchestrator {
       const overridedFiles = await this.fileSyncronizer.overrideDangledFiles(
         issuePathFiles,
         this.contentsUploader.run.bind(this.contentsUploader),
-        this.contentsDownloader.run.bind(this.contentsDownloader)
+        this.contentsManagerFactory,
       );
-
 
       Logger.debug(`Processed dangled files: ${overridedFiles}`);
       const toUpdateInDatabase = overridedFiles.reduce((acc: string[], current) => {
