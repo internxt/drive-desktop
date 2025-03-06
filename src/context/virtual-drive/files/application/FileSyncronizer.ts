@@ -26,6 +26,7 @@ import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
 export class FileSyncronizer {
   // queue of files to be uploaded
   private foldersPathQueue: string[] = [];
+  private remoteDangledFiles: string[] = [];
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
@@ -38,7 +39,7 @@ export class FileSyncronizer {
     // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
     private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot,
-  ) {}
+  ) { }
 
   private async registerEvents(downloader: ContentFileDownloader, file: File) {
     const location = await temporalFolderProvider();
@@ -46,7 +47,9 @@ export class FileSyncronizer {
 
     downloader.on('error', (error: Error) => {
       Logger.error('[Server] Error downloading file', error);
-      // manejar error
+      if (error.message.includes('Object not found')) {
+        this.remoteDangledFiles.push(file.contentsId);
+      }
     });
   }
 
@@ -57,31 +60,31 @@ export class FileSyncronizer {
   ) {
     const files = await this.repository.searchByContentsIds(contentsIds);
 
-    const filesWithContent = this.fileCheckerStatusInRoot.isHydrated(files.map((file) => file.path));
+    const filesWithContentLocally = this.fileCheckerStatusInRoot.isHydrated(files.map((file) => file.path));
 
     const filesHydrated: File[] = [];
 
-    await Promise.all(
-      files.map(async (file) => {
-        const downloader = downloaderManger.downloader();
-        this.registerEvents(downloader, file);
-        await downloader.download(file);
+    for (const file of files) {
+      const downloader = downloaderManger.downloader();
+      this.registerEvents(downloader, file);
+      await downloader.download(file);
 
-        if (filesWithContent[file.path]) {
-          Logger.info(`Possible dangled file ${file.path} hydrated.`);
-          DangledFilesManager.getInstance().add(file.contentsId, file.path);
-          filesHydrated.push(file);
-        } else {
-          Logger.info(`Possible dangled file ${file.path} not hydrated.`);
-        }
-      }),
-    );
+      if (filesWithContentLocally[file.path]) {
+        Logger.info(`Possible dangled file ${file.path} hydrated.`);
+        DangledFilesManager.getInstance().add(file.contentsId, file.path);
+        filesHydrated.push(file);
+      } else {
+        Logger.info(`Possible dangled file ${file.path} not hydrated.`);
+      }
+    }
+
+    const filesRemoteDangled = filesHydrated.filter( (file) => this.remoteDangledFiles.includes(file.contentsId));
 
     Logger.debug(`Dangled feeded files to be updated: ${JSON.stringify(files, null, 2)}`);
 
     const updatedFiles = [];
 
-    for (const file of filesHydrated) {
+    for (const file of filesRemoteDangled) {
       const updatedOutput = await this.fileContentsUpdater.hardUpdateRun(
         {
           contentsId: file.contentsId,
