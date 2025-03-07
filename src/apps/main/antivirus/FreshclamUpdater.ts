@@ -2,17 +2,25 @@ import path from 'path';
 import { spawn } from 'child_process';
 import { app } from 'electron';
 import Logger from 'electron-log';
+import { prepareConfigFiles, ensureDirectories } from './ClamAVDaemon';
 
 const RESOURCES_PATH = app.isPackaged
   ? path.join(process.resourcesPath, 'clamAV')
   : path.join(__dirname, '../../../../clamAV');
 
 const freshclamPath = path.join(RESOURCES_PATH, '/bin/freshclam');
-const freshclamConfigPath = path.join(RESOURCES_PATH, '/etc/freshclam.conf');
+const originalFreshclamConfigPath = path.join(
+  RESOURCES_PATH,
+  '/etc/freshclam.conf'
+);
 
 export const runFreshclam = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     Logger.info('[freshclam] Starting virus definitions update...');
+
+    ensureDirectories();
+
+    const { freshclamConfigPath } = prepareConfigFiles();
 
     const freshclamProcess = spawn(freshclamPath, [
       '--config-file',

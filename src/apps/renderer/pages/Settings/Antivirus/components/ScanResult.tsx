@@ -37,7 +37,7 @@ export const ScanResult = ({
         onClick={onScanAgainButtonClicked}
         data-testid="scan-again-button"
       >
-        {translate('settings.antivirus.scanOptions.scanAgain')}
+        {translate('settings.antivirus.scanProcess.scanAgain')}
       </Button>
     </div>
   );

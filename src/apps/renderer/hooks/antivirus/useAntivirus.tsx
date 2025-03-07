@@ -145,6 +145,7 @@ export const useAntivirus = (): AntivirusContext => {
 
       setView('scan');
       setIsScanning(true);
+      setShowErrorState(false);
 
       const scanItems = items.map((item: string | SelectedItemToScanProps) => {
         if (typeof item === 'string') {
@@ -175,6 +176,7 @@ export const useAntivirus = (): AntivirusContext => {
   const onScanUserSystemButtonClicked = async () => {
     setView('scan');
     setIsScanning(true);
+    setShowErrorState(false);
     try {
       await window.electron.antivirus.scanItems([]);
     } catch (error) {

@@ -41,26 +41,26 @@ export class AntivirusIPCHandler {
    * Add all IPC message handlers
    */
   private addMessagesHandlers(): void {
-    ipcMain.handle('antivirus:is-available', async () => {
-      Logger.info('[Antivirus] Handler called: antivirus:is-available');
-      try {
-        if (!this.paymentService) {
-          this.paymentService = buildPaymentsService();
-        }
-        return true;
-      } catch (error) {
-        Logger.error('[Antivirus] Error checking availability:', error);
-        throw error;
-      }
+    // Handle direct events (keep this one)
+    ipcMain.on('antivirus:scan-progress', (_, progress) => {
+      this.broadcastScanProgress(progress);
     });
 
-    ipcMain.handle('antivirus:cancel-scan', async () => {
+    // Register all handlers using AntivirusIPCMain to avoid duplicates
+    AntivirusIPCMain.handle('antivirus:is-available', async () => {
+      if (!this.paymentService) {
+        this.paymentService = buildPaymentsService();
+      }
+      return true;
+    });
+
+    AntivirusIPCMain.handle('antivirus:cancel-scan', async () => {
       Logger.info('[Antivirus] Handler called: antivirus:cancel-scan');
       const fileSystemMonitor = await getManualScanMonitorInstance();
       await fileSystemMonitor.stopScan();
     });
 
-    ipcMain.handle('antivirus:scan-items', async (_, items = []) => {
+    AntivirusIPCMain.handle('antivirus:scan-items', async (_, items = []) => {
       Logger.info('[Antivirus] Handler called: antivirus:scan-items');
 
       const itemsArray = Array.isArray(items) ? items : [];
@@ -221,7 +221,7 @@ export class AntivirusIPCHandler {
     Logger.info(
       '[Antivirus] Registering handler for antivirus:remove-infected-files'
     );
-    ipcMain.handle(
+    AntivirusIPCMain.handle(
       'antivirus:remove-infected-files',
       async (_, infectedFiles) => {
         try {
@@ -266,41 +266,6 @@ export class AntivirusIPCHandler {
           Logger.error('[Antivirus] Error removing infected files:', error);
           return false;
         }
-      }
-    );
-
-    ipcMain.on('antivirus:scan-progress', (_, progress) => {
-      this.broadcastScanProgress(progress);
-    });
-
-    AntivirusIPCMain.handle('antivirus:is-available', async () => {
-      if (!this.paymentService) {
-        this.paymentService = buildPaymentsService();
-      }
-      return true;
-    });
-
-    AntivirusIPCMain.handle('antivirus:cancel-scan', async () => {
-      const fileSystemMonitor = await getManualScanMonitorInstance();
-      await fileSystemMonitor.stopScan();
-    });
-
-    AntivirusIPCMain.handle('antivirus:scan-items', (_, items) => {
-      return ipcMain.emit('antivirus:scan-items', _, items);
-    });
-
-    AntivirusIPCMain.handle('antivirus:add-items-to-scan', (_, getFiles) => {
-      return ipcMain.emit('antivirus:add-items-to-scan', _, getFiles);
-    });
-
-    AntivirusIPCMain.handle(
-      'antivirus:remove-infected-files',
-      (_, infectedFiles) => {
-        return ipcMain.emit(
-          'antivirus:remove-infected-files',
-          _,
-          infectedFiles
-        );
       }
     );
 

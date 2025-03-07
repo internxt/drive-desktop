@@ -73,7 +73,7 @@ describe('ScanResult', () => {
     expect(scanAgainButton).toBeInTheDocument();
 
     expect(mockProps.translate).toHaveBeenCalledWith(
-      'settings.antivirus.scanOptions.scanAgain'
+      'settings.antivirus.scanProcess.scanAgain'
     );
   });
 

@@ -25,9 +25,6 @@ export const ScanState = ({ showItemsWithMalware }: ScanStateProps) => {
 
   const thereAreCorruptedFiles = corruptedFiles.length > 0;
 
-  const shouldShowScanResult =
-    !isScanning && (isScanCompleted || progressRatio >= 100);
-
   return (
     <section className="flex w-full flex-col items-center justify-center">
       <div className="flex h-full max-h-[320px] w-full max-w-[590px] flex-col items-center justify-center gap-10 p-5">
@@ -40,7 +37,7 @@ export const ScanState = ({ showItemsWithMalware }: ScanStateProps) => {
           />
         )}
 
-        {shouldShowScanResult && (
+        {!isScanning && isScanCompleted && (
           <ScanResult
             thereAreCorruptedFiles={thereAreCorruptedFiles}
             translate={translate}
@@ -49,7 +46,7 @@ export const ScanState = ({ showItemsWithMalware }: ScanStateProps) => {
           />
         )}
 
-        {!isScanning && !shouldShowScanResult && showErrorState && (
+        {!isScanning && !isScanCompleted && showErrorState && (
           <ErrorWhileScanningItems
             translate={translate}
             onScanAgainButtonClicked={onScanAgainButtonClicked}

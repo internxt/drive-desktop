@@ -573,39 +573,29 @@ export type PathInfo = {
   isDirectory?: boolean;
 };
 
-export async function getPathFromDialog(
-  allowFiles = false
-): Promise<PathInfo | null> {
+export async function getPathFromDialog(): Promise<{
+  path: string;
+  itemName: string;
+} | null> {
   const result = await dialog.showOpenDialog({
-    properties: [
-      ...(allowFiles ? (['openFile'] as const) : ['openDirectory' as const]),
-    ],
+    properties: ['openDirectory'],
   });
 
-  if (result.canceled || result.filePaths.length === 0) {
+  if (result.canceled) {
     return null;
   }
 
   const chosenPath = result.filePaths[0];
 
-  let isDirectory = false;
-  try {
-    isDirectory = fs.statSync(chosenPath).isDirectory();
-  } catch (error) {
-    logger.error(`Error checking if path is directory: ${chosenPath}`, error);
-    isDirectory = !allowFiles;
-  }
+  const itemPath =
+    chosenPath +
+    (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep);
 
-  const itemPath = isDirectory
-    ? chosenPath + (chosenPath.endsWith(path.sep) ? '' : path.sep)
-    : chosenPath;
-
-  const itemName = path.basename(chosenPath);
+  const itemName = path.basename(itemPath);
 
   return {
     path: itemPath,
     itemName,
-    isDirectory,
   };
 }
 
@@ -623,28 +613,19 @@ export async function getMultiplePathsFromDialog(
     return null;
   }
 
-  return result.filePaths.map((chosenPath) => {
-    let isDirectory = false;
-    try {
-      isDirectory = fs.statSync(chosenPath).isDirectory();
-    } catch (error) {
-      logger.error(`Error checking if path is directory: ${chosenPath}`, error);
-      // Default to behavior based on allowFiles parameter
-      isDirectory = !allowFiles;
-    }
+  const paths = await Promise.all(
+    result.filePaths.map(async (filePath) => {
+      const isFolder = await PathTypeChecker.isFolder(filePath);
+      const itemName = path.basename(filePath);
+      return {
+        path: filePath,
+        itemName,
+        isDirectory: isFolder,
+      };
+    })
+  );
 
-    const itemPath = isDirectory
-      ? chosenPath + (chosenPath.endsWith(path.sep) ? '' : path.sep)
-      : chosenPath;
-
-    const itemName = path.basename(chosenPath);
-
-    return {
-      path: itemPath,
-      itemName,
-      isDirectory,
-    };
-  });
+  return paths;
 }
 
 export async function getUserSystemPath(): Promise<
