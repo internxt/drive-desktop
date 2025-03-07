@@ -51,7 +51,16 @@ export class AntivirusIPCHandler {
       if (!this.paymentService) {
         this.paymentService = buildPaymentsService();
       }
-      return true;
+
+      try {
+        const availableProducts =
+          await this.paymentService.getAvailableProducts();
+
+        return availableProducts.antivirus;
+      } catch (error) {
+        Logger.error('[Antivirus] Error getting products: ', error);
+        throw error;
+      }
     });
 
     AntivirusIPCMain.handle('antivirus:cancel-scan', async () => {
