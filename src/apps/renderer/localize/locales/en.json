@@ -352,7 +352,9 @@
         "removeMalware": {
           "actions": {
             "cancel": "Cancel",
-            "remove": "Remove"
+            "remove": "Remove",
+            "confirmIgnore": "Cancel and ignore",
+            "goBack": "Go back"
           },
           "actionRequired": {
             "title": "Action required",
