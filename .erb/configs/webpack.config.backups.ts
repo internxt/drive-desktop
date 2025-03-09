@@ -20,11 +20,7 @@ const configuration: webpack.Configuration = {
     rules: [{ test: /\.node$/, loader: 'node-loader' }],
   },
 
-  entry: [
-    'core-js',
-    'regenerator-runtime/runtime',
-    path.join(webpackPaths.srcBackupsPath, 'index.ts'),
-  ],
+  entry: ['core-js', 'regenerator-runtime/runtime', path.join(webpackPaths.srcBackupsPath, 'index.ts')],
 
   output: {
     path: webpackPaths.distBackupsPath,

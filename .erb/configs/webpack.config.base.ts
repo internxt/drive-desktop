@@ -9,7 +9,7 @@ import webpack from 'webpack';
 import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
 
-const aliases = {};
+const aliases: Record<string, string> = {};
 if (process.env.NODE_ENV === 'development') {
   aliases['virtual-drive/dist'] = path.resolve(cwd(), '../node-win/dist');
 }
