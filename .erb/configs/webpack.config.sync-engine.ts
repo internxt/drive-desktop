@@ -13,7 +13,7 @@ import Dotenv from 'dotenv-webpack';
 import { cwd } from 'process';
 
 const configuration: webpack.Configuration = {
-  mode: process.env.NODE_ENV as 'none' | 'development' | 'production' | undefined,
+  mode: process.env.NODE_ENV,
 
   target: 'electron-renderer',
 
