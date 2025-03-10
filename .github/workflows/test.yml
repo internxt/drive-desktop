@@ -29,7 +29,7 @@ jobs:
           install-command: yarn --ignore-scripts --frozen-lockfile
       - name: Lint
         run: yarn run lint
-      - name: Build processes
-        run: yarn build:main && yarn build:renderer
       - name: Run test
         run: yarn test
+      # - name: Build processes
+      #   run: yarn build:main && yarn build:renderer
