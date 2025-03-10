@@ -14,6 +14,7 @@ module.exports = {
     'no-await-in-loop': 'warn',
     'no-use-before-define': 'warn',
     'array-callback-return': 'warn',
+    'no-empty': 'off',
     'max-len': [
       'error',
       {
