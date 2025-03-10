@@ -1,39 +1,36 @@
-name: Run tests
+name: Test
 
-on:
-  pull_request:
+on: [pull_request]
 
 jobs:
-  checks:
+  test:
+    name: 🧪 Lint and test
+    if: false
     runs-on: windows-latest
 
-    permissions:
-      contents: read
-      packages: read
-
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+      - name: Use Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: 'https://npm.pkg.github.com'
-
-      - run: echo "registry=https://registry.yarnpkg.com/" > .npmrc
-      - run: echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
-      - run: echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
-      - run: echo "always-auth=true" >> .npmrc
-
+          node-version: 18
+          cache: 'yarn'
+      - name: Create .npmrc file
+        run: |
+          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          # You cannot read packages from other private repos with GITHUB_TOKEN
+          # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+          echo "always-auth=true" >> .npmrc
       - name: Install dependencies
-        run: yarn --ignore-scripts
-        shell: bash
-
-      - name: Run test 🧾🧪
+        uses: bahmutov/npm-install@v1
+        with:
+          install-command: yarn --ignore-scripts --frozen-lockfile
+      - name: Lint
+        run: yarn run lint
+      # - name: Build processes
+      #   run: yarn build:main && yarn build:renderer
+      - name: Run test
         run: yarn test
-        shell: bash
