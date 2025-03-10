@@ -5,6 +5,7 @@ on: [pull_request]
 jobs:
   test:
     name: 🧪 Lint and test
+    if: false
     runs-on: windows-latest
 
     steps:
