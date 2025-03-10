@@ -12,7 +12,6 @@ import { FileStatuses } from '../domain/FileStatus';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
-import { logger } from '@/apps/shared/logger/logger';
 
 export class FileCreator {
   constructor(

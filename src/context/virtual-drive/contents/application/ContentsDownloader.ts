@@ -11,7 +11,6 @@ import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDown
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import * as fs from 'fs';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
-import { logger } from '@/apps/shared/logger/logger';
 
 export class ContentsDownloader {
   constructor(
