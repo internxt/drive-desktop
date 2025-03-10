@@ -3,7 +3,7 @@ import { backgroundProcessSharedInfraBuilder } from '../../shared/dependency-inj
 import { registerFilesServices } from './virtual-drive/registerFilesServices';
 import { registerFolderServices } from './virtual-drive/registerFolderServices';
 import { registerLocalFileServices } from './local/registerLocalFileServices';
-import { Backup } from '../Backup';
+import { BackupService } from '../BackupService';
 import { registerLocalTreeServices } from './local/registerLocalTreeServices';
 import { registerRemoteTreeServices } from './virtual-drive/registerRemoteTreeServices';
 import { registerUserUsageServices } from './user/registerUsageServices';
@@ -27,7 +27,7 @@ export class BackupsDependencyContainerFactory {
 
     registerUserUsageServices(builder);
 
-    builder.registerAndUse(Backup);
+    builder.registerAndUse(BackupService);
 
     this.container = builder.build();
 

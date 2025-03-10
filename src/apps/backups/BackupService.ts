@@ -23,9 +23,12 @@ import {
 import { relative } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { UserAvaliableSpaceValidator } from '../../context/user/usage/application/UserAvaliableSpaceValidator';
+import { Either, left, right } from '../../context/shared/domain/Either';
+import { RetryOptions } from '../shared/retry/types';
+import { RetryHandler } from '../shared/retry/RetryHandler';
 
 @Service()
-export class Backup {
+export class BackupService {
   constructor(
     private readonly localTreeBuilder: LocalTreeBuilder,
     private readonly remoteTreeBuilder: RemoteTreeBuilder,
@@ -38,6 +41,7 @@ export class Backup {
 
   private backed = 0;
 
+  // TODO: PB-3897 - Change Signature of this method for a better error handling
   async run(
     info: BackupInfo,
     abortController: AbortController
@@ -102,6 +106,31 @@ export class Backup {
         return error;
       }
       return new DriveDesktopError('UNKNOWN', 'An unknown error occurred');
+    }
+  }
+
+  /**
+   * Executes the backup process with retry logic.
+   */
+  async runWithRetry(info: BackupInfo, abortController: AbortController) {
+    const options: RetryOptions = {
+      maxRetries: 3,
+      initialDelay: 5000,
+      backoffFactor: 2,
+      jitter: true,
+      signal: abortController.signal
+    };
+    const run = () => this.run(info, abortController);
+    return await RetryHandler.execute(run,options);
+  }
+
+  async getBackupInfo(): Promise<Either<Error, BackupInfo>>{
+    try {
+      const backupInfo = await BackupsIPCRenderer.invoke('backups.get-backup');
+      return right(backupInfo);
+    } catch (error: unknown) {
+      this.logAndReportError(error);
+      return left(error instanceof Error ? error : new Error('Uncontrolled error while getting backup info'));
     }
   }
 
@@ -256,5 +285,11 @@ export class Backup {
 
     this.backed += deleted.length;
     BackupsIPCRenderer.send('backups.progress-update', this.backed);
+  }
+
+  private logAndReportError(error: unknown) {
+    Logger.error(error);
+    const message = error instanceof Error ? error.message : 'unknown';
+    BackupsIPCRenderer.send('backups.process-error', message);
   }
 }

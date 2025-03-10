@@ -28,6 +28,9 @@ contextBridge.exposeInMainWorld('electron', {
   isUserLoggedIn() {
     return ipcRenderer.invoke('is-user-logged-in');
   },
+  checkInternetConnection() {
+    return ipcRenderer.invoke('check-internet-connection');
+  },
   onUserLoggedInChanged(func) {
     return ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
   },

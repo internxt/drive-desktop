@@ -1,4 +1,4 @@
-import { Backup } from '../../../src/apps/backups/Backup';
+import { BackupService } from '../../../src/apps/backups/BackupService';
 import LocalTreeBuilder from '../../../src/context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTreeBuilder } from '../../../src/context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { FileBatchUploader } from '../../../src/context/local/localFile/application/upload/FileBatchUploader';
@@ -25,7 +25,7 @@ jest.mock('../../../src/apps/backups/BackupsIPCRenderer', () => ({
 }));
 
 describe('Backup', () => {
-  let backup: Backup;
+  let backupService: BackupService;
   let localTreeBuilder: jest.Mocked<LocalTreeBuilder>;
   let remoteTreeBuilder: jest.Mocked<RemoteTreeBuilder>;
   let fileBatchUploader: jest.Mocked<FileBatchUploader>;
@@ -73,7 +73,7 @@ describe('Backup', () => {
         }),
     } as unknown as jest.Mocked<SimpleFolderCreator>;
 
-    backup = new Backup(
+    backupService = new BackupService(
       localTreeBuilder,
       remoteTreeBuilder,
       fileBatchUploader,
@@ -104,7 +104,7 @@ describe('Backup', () => {
     remoteTreeBuilder.run.mockResolvedValueOnce(remoteTree);
     userAvaliableSpaceValidator.run.mockResolvedValueOnce(true);
 
-    const result = await backup.run(info, abortController);
+    const result = await backupService.run(info, abortController);
 
     expect(result).toBeUndefined();
     expect(localTreeBuilder.run).toHaveBeenCalledWith(info.pathname);
@@ -129,7 +129,7 @@ describe('Backup', () => {
 
     localTreeBuilder.run.mockResolvedValueOnce(left(error));
 
-    const result = await backup.run(info, abortController);
+    const result = await backupService.run(info, abortController);
 
     expect(result).toBe(error);
     expect(localTreeBuilder.run).toHaveBeenCalledWith(info.pathname);
@@ -158,7 +158,7 @@ describe('Backup', () => {
       left(error) as unknown as Promise<RemoteTree>
     );
 
-    const result = await backup.run(info, abortController);
+    const result = await backupService.run(info, abortController);
 
     expect(result).toStrictEqual(
       new DriveDesktopError('UNKNOWN', 'An unknown error occurred')
@@ -183,7 +183,7 @@ describe('Backup', () => {
     remoteTreeBuilder.run.mockResolvedValueOnce(RemoteTreeMother.oneLevel(10));
     userAvaliableSpaceValidator.run.mockResolvedValueOnce(false);
 
-    const result = await backup.run(info, abortController);
+    const result = await backupService.run(info, abortController);
 
     expect(result).toBeDefined();
   });
@@ -203,7 +203,7 @@ describe('Backup', () => {
       throw new Error('Unexpected error');
     });
 
-    const result = await backup.run(info, abortController);
+    const result = await backupService.run(info, abortController);
 
     expect(result).toBeInstanceOf(DriveDesktopError);
     expect(result?.message).toBe('An unknown error occurred');

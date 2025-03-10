@@ -32,7 +32,7 @@ import './app-info/handlers';
 import './remote-sync/handlers';
 import './virtual-drive';
 
-import { app, nativeTheme } from 'electron';
+import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
@@ -56,6 +56,7 @@ import { Theme } from '../shared/types/Theme';
 import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
+import dns from 'node:dns';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -186,4 +187,14 @@ process.on('uncaughtException', (error) => {
   } else {
     Logger.error('Uncaught exception in main process: ', error);
   }
+});
+
+ipcMain.handle('check-internet-connection', async () => {
+  return new Promise((resolve) => {
+    dns.lookup('google.com', (err) => {
+      resolve(!err);
+    });
+
+    setTimeout(() => resolve(false), 3000);
+  });
 });
