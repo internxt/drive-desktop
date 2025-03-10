@@ -10,7 +10,7 @@ import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
-import logger from '../../../../apps/shared/logger/logger';
+import { logger } from '../../../../apps/shared/logger/logger';
 
 export class FilePathUpdater {
   constructor(
