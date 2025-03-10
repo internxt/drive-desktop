@@ -23,13 +23,15 @@ jobs:
           # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
-      - name: Install dependencies
-        uses: bahmutov/npm-install@v1
-        with:
-          install-command: yarn --ignore-scripts --frozen-lockfile
+
+      - name: Install dependencies 🚀
+        run: yarn --ignore-scripts
+
       - name: Lint
         run: yarn run lint
+
       - name: Run test
         run: yarn test
+        
       # - name: Build processes
       #   run: yarn build:main && yarn build:renderer
