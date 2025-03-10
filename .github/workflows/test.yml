@@ -32,4 +32,4 @@ jobs:
       - name: Build processes
         run: yarn build:main && yarn build:renderer
       - name: Run test
-        run: yarn test:unit
+        run: yarn test

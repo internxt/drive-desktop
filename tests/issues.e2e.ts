@@ -4,7 +4,6 @@ import { _electron as electron } from 'playwright';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
 import { createBackupFatalError, createGeneralIssueFixture, createSyncError } from './fixtures/errors';
-import { getWindowTopBarTitle } from './selectors';
 import { wait } from './utils';
 import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
 import { ProcessErrorName, ProcessFatalErrorName, GeneralIssue } from '../src/apps/shared/types';

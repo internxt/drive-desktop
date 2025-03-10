@@ -1,6 +1,5 @@
 import { Buffer } from 'buffer';
 import { Data, MaybeStream, WebStream } from 'openpgp';
-const WORDS_HYBRID_MODE_IN_BASE64 = 'SHlicmlkTW9kZQ=='; // 'HybridMode' in BASE64 format
 
 export async function getOpenpgp(): Promise<typeof import('openpgp')> {
   return import('openpgp');
