@@ -35,5 +35,5 @@ jobs:
         shell: bash
 
       - name: Run test 🧾🧪
-        run: yarn test --verbose
+        run: yarn test
         shell: bash
