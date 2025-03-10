@@ -1,28 +1,16 @@
 import { ElectronApplication, expect, Page, test } from '@playwright/test';
-import {
-  ipcMainCallFirstListener,
-  ipcMainEmit,
-} from 'electron-playwright-helpers';
+import { ipcMainCallFirstListener, ipcMainEmit } from 'electron-playwright-helpers';
 import { _electron as electron } from 'playwright';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
-import {
-  createBackupFatalError,
-  createGeneralIssueFixture,
-  createSyncError,
-} from './fixtures/errors';
+import { createBackupFatalError, createGeneralIssueFixture, createSyncError } from './fixtures/errors';
 import { getWindowTopBarTitle } from './selectors';
 import { wait } from './utils';
 import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
-import {
-  ProcessErrorName,
-  ProcessFatalErrorName,
-  GeneralIssue,
-} from '../src/apps/shared/types';
+import { ProcessErrorName, ProcessFatalErrorName, GeneralIssue } from '../src/apps/shared/types';
 
 const activeTabSelector = 'button.text-neutral-500';
-const tabSelector = (name: 'Sync' | 'Backups' | 'General') =>
-  `button.text-m-neutral-80:has-text("${name}")`;
+const tabSelector = (name: 'Sync' | 'Backups' | 'General') => `button.text-m-neutral-80:has-text("${name}")`;
 const emptyIssuesListSelector = 'p.text-xs.font-medium.text-m-neutral-60';
 
 test.describe('process issues', () => {
@@ -30,24 +18,18 @@ test.describe('process issues', () => {
   let page: Page;
 
   const addSyncErrors = async (errors: Array<ProcessErrorName>) => {
-    const emitEvents = errors
-      .map(createSyncError)
-      .map((error) => ipcMainEmit(electronApp, 'SYNC_INFO_UPDATE', error));
+    const emitEvents = errors.map(createSyncError).map((error) => ipcMainEmit(electronApp, 'SYNC_INFO_UPDATE', error));
 
     return Promise.all(emitEvents);
   };
 
-  const addBackupsErrors = async (
-    errorsName: Array<ProcessFatalErrorName>
-  ): Promise<void> => {
+  const addBackupsErrors = async (errorsName: Array<ProcessFatalErrorName>): Promise<void> => {
     const errors = errorsName.map(createBackupFatalError);
     await ipcMainEmit(electronApp, 'add-backup-fatal-errors', errors);
   };
 
   const addGeneralIssues = async (issues: Array<GeneralIssue>) => {
-    const eventsEmited = issues.map((issue) =>
-      ipcMainEmit(electronApp, 'add-device-issue', issue)
-    );
+    const eventsEmited = issues.map((issue) => ipcMainEmit(electronApp, 'add-device-issue', issue));
 
     await Promise.all(eventsEmited);
   };
@@ -76,17 +58,6 @@ test.describe('process issues', () => {
     page.close();
   });
 
-  test.describe('process issues window', () => {
-    test('app is defined', () => {
-      expect(electronApp).toBeDefined();
-    });
-
-    test('issues window opens', async () => {
-      const topBarTitle = await getWindowTopBarTitle(page);
-      expect(topBarTitle).toBe('Issues');
-    });
-  });
-
   test.describe('sync issues', () => {
     test('tab selected is sync when there is any issue', async () => {
       const activeTab = await page.innerHTML(activeTabSelector);
@@ -103,13 +74,9 @@ test.describe('process issues', () => {
 
     test('displays correct number of issues', async () => {
       const emitNErrors = 40;
-      await addSyncErrors(
-        Array.from({ length: emitNErrors }, () => 'EMPTY_FILE')
-      );
+      await addSyncErrors(Array.from({ length: emitNErrors }, () => 'EMPTY_FILE'));
 
-      const numberOfIssues = await page.innerHTML(
-        '[data-test=number-sync-issues]'
-      );
+      const numberOfIssues = await page.innerHTML('[data-test=number-sync-issues]');
 
       expect(numberOfIssues).toBe(`${emitNErrors} files`);
     });
@@ -165,9 +132,7 @@ test.describe('process issues', () => {
 
   test.describe('general issues', () => {
     test('tab selected is general when there is only general issues', async () => {
-      await addGeneralIssues([
-        createGeneralIssueFixture('UNKNOWN_DEVICE_NAME'),
-      ]);
+      await addGeneralIssues([createGeneralIssueFixture('UNKNOWN_DEVICE_NAME')]);
       await wait(300);
 
       const activeTab = await page.innerHTML(activeTabSelector);

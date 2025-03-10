@@ -9,10 +9,10 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { OfflineFile } from '../domain/OfflineFile';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { FileStatuses } from '../domain/FileStatus';
-import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class FileCreator {
   constructor(
@@ -49,7 +49,11 @@ export class FileCreator {
 
       const persistedAttributes = await this.remote.persist(offline);
 
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 4]' + filePath.value);
+      logger.info({
+        msg: '[DEBUG IN FILECREATOR STEEP 4]',
+        file: persistedAttributes,
+      });
+
       const file = File.from(persistedAttributes);
 
       Logger.debug('[DEBUG IN FILECREATOR STEEP 5]' + filePath.value);
@@ -64,8 +68,6 @@ export class FileCreator {
         fileId: file.id,
         path: file.path,
       });
-
-      ipcRenderer.send('CHECK_SYNC');
 
       return file;
     } catch (error: unknown) {

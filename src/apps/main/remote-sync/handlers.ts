@@ -446,6 +446,7 @@ ipcMain.handle('get-item-by-folder-id', async (_, folderId, workspaceId = ''): P
     id: folder.id,
     uuid: folder.uuid,
     name: folder.plainName,
+    plainName: folder.plainName,
     tmpPath: '',
     pathname: '',
     backupsBucket: folder.bucket || '',
