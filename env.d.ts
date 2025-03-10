@@ -14,6 +14,7 @@ declare global {
       BUG_REPORTING_URL: string;
       platform: string;
       NOTIFICATIONS_URL: string;
+      NODE_ENV?: 'none' | 'development' | 'production';
       LOCK_REFRESH_INTERVAL: string;
       PHOTOS_URL: string;
       RUDDERSTACK_KEY: string;

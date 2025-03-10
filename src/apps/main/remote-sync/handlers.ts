@@ -9,7 +9,7 @@ import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
 import { updateSyncEngine, fallbackSyncEngine, sendUpdateFilesInSyncPending } from '../background-processes/sync-engine';
-import { debounce } from 'lodash';
+import lodashDebounce from 'lodash.debounce';
 import { setTrayStatus } from '../tray/tray';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
@@ -303,7 +303,7 @@ ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: st
   manager.setUnsyncFiles(filesPath);
 });
 
-const debouncedSynchronization = debounce(async () => {
+const debouncedSynchronization = lodashDebounce(async () => {
   await updateRemoteSync();
 }, SYNC_DEBOUNCE_DELAY);
 
