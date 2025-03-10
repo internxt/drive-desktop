@@ -38,3 +38,9 @@ jobs:
 
       - name: Run Prettier
         run: yarn prettier src --check
+
+      - name: Run Eslint
+        run: yarn lint
+
+      - name: Run tests
+        run: yarn test:once
