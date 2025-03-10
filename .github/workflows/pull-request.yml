@@ -43,4 +43,4 @@ jobs:
         run: yarn lint
 
       - name: Run tests
-        run: yarn test:once
+        run: yarn vitest:once
