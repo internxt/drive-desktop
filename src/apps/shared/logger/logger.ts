@@ -1,27 +1,54 @@
 import ElectronLog from 'electron-log';
+import { paths } from '../HttpClient/schema';
 
-type TRawBody = any;
+type TRawBody = {
+  msg: string;
+  exc?: Error | unknown;
+  attributes?: {
+    tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
+    userId?: string;
+    endpoint?: keyof paths;
+  };
+  [key: string]: unknown;
+};
 
 class Logger {
+  private prepareBody(rawBody: TRawBody) {
+    rawBody.attributes = {
+      ...rawBody.attributes,
+    };
+
+    const { attributes, ...rest } = rawBody;
+
+    const body = rest;
+
+    return { attributes, body };
+  }
+
   debug(rawBody: TRawBody) {
-    ElectronLog.debug(rawBody);
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.debug(body);
   }
 
   info(rawBody: TRawBody) {
-    ElectronLog.info(rawBody);
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.info(body);
   }
 
   warn(rawBody: TRawBody) {
-    ElectronLog.warn(rawBody);
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.warn(body);
   }
 
   error(rawBody: TRawBody) {
-    ElectronLog.error(rawBody);
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.error(body);
     return new Error(rawBody.msg);
   }
 
   fatal(rawBody: TRawBody) {
-    ElectronLog.error(rawBody);
+    const { body } = this.prepareBody(rawBody);
+    ElectronLog.error(body);
     return new Error(rawBody.msg);
   }
 }
