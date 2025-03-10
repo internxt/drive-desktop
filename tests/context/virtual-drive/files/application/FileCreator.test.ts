@@ -5,12 +5,14 @@ import { FileContentsMother } from '../../contents/domain/FileContentsMother';
 import { mockDeep } from 'vitest-mock-extended';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { FileMother } from '../domain/FileMother';
+import { FileMother, generateRandomFileId } from '../domain/FileMother';
 import { FolderFinder } from '@/context/virtual-drive/folders/application/FolderFinder';
 import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
+import { FolderMother } from '../../folders/domain/FolderMother';
+import { v4 } from 'uuid';
 
 describe('File Creator', () => {
   const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
@@ -28,38 +30,44 @@ describe('File Creator', () => {
   });
 
   it('creates the file on the drive server', async () => {
-    const path = new FilePath('/cat.png');
     const contents = FileContentsMother.random();
 
-    const fileAttributes = FileMother.fromPartial({
-      path: path.value,
+    const folderParent = FolderMother.any();
+    const path = new FilePath(folderParent.path + '/cat.png');
+
+    const file = FileMother.fromPartial({
+      uuid: v4(),
+      id: generateRandomFileId(),
       contentsId: contents.id,
+      folderId: folderParent.id,
+      folderUuid: folderParent.uuid,
+      path: path.value,
     }).attributes();
 
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
+    remoteFileSystemMock.persist.mockResolvedValueOnce(file);
 
-    remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
+    vi.spyOn(folderFinder, 'findFromFilePath').mockReturnValueOnce(folderParent);
 
     await SUT.run(path, contents);
 
-    expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(fileAttributes)));
+    expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(file)));
   });
 
   it('once the file entry is created the creation event should have been emitted', async () => {
-    const path = new FilePath('/cat.png');
+    const folderParent = FolderMother.any();
+    const path = new FilePath(folderParent.path + '/cat.png');
+
     const contents = FileContentsMother.random();
     const fileAttributes = FileMother.fromPartial({
       path: path.value,
       contentsId: contents.id,
+      folderId: folderParent.id,
+      folderUuid: folderParent.uuid,
     }).attributes();
 
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
-
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
+
+    vi.spyOn(folderFinder, 'findFromFilePath').mockReturnValueOnce(folderParent);
 
     await SUT.run(path, contents);
 
@@ -68,21 +76,23 @@ describe('File Creator', () => {
   });
 
   it('deletes the file on remote if it already exists on the path', async () => {
-    const path = new FilePath('/cat.png');
+    const folderParent = FolderMother.any();
+    const path = new FilePath(folderParent.path + '/cat.png');
+
     const existingFile = FileMother.fromPath(path.value);
     const contents = FileContentsMother.random();
     const fileAttributes = FileMother.fromPartial({
       path: path.value,
       contentsId: contents.id,
+      folderId: folderParent.id,
+      folderUuid: folderParent.uuid,
     }).attributes();
 
     fileRepository.searchByPartial.mockReturnValueOnce(existingFile).mockReturnValueOnce(existingFile);
 
-    remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
+    vi.spyOn(folderFinder, 'findFromFilePath').mockReturnValueOnce(folderParent);
 
-    fileRepository.add.mockImplementationOnce(() => {
-      // returns Promise<void>
-    });
+    remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
     await SUT.run(path, contents);
 

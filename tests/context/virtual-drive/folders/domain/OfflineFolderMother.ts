@@ -12,6 +12,7 @@ export class OfflineFolderMother {
     return OfflineFolder.from({
       uuid: FolderUuid.random().value,
       parentId: chance.integer({ min: 1 }),
+      parentUuid: FolderUuid.random().value,
       path: `/${chance.name()}`,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),

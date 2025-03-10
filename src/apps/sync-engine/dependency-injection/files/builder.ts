@@ -2,7 +2,6 @@ import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
-import { DependencyInjectionUserProvider } from '../common/user';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
@@ -37,7 +36,7 @@ export async function buildFilesContainer(
   sharedContainer: SharedContainer,
 ): Promise<{
   container: FilesContainer;
-  subscribers: any;
+  subscribers: unknown;
 }> {
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();

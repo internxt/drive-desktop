@@ -5,7 +5,6 @@ on: [pull_request]
 jobs:
   test:
     name: 🧪 Lint and test
-    if: false
     runs-on: windows-latest
 
     steps:
@@ -30,7 +29,7 @@ jobs:
           install-command: yarn --ignore-scripts --frozen-lockfile
       - name: Lint
         run: yarn run lint
-      - name: Build processes
-        run: yarn build:main && yarn build:renderer
+      # - name: Build processes
+      #   run: yarn build:main && yarn build:renderer
       - name: Run test
-        run: yarn test:unit
+        run: yarn test

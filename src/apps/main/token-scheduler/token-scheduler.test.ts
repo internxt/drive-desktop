@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
-import ms from 'ms';
+import ms, { StringValue } from 'ms';
 
 import { TokenScheduler } from './TokenScheduler';
 
-function calculateDayFromToday(t: string): Date {
+function calculateDayFromToday(t: StringValue): Date {
   const today = new Date();
 
   return new Date(today.getTime() + ms(t));

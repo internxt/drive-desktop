@@ -1,6 +1,4 @@
 import { RemoteSyncStatus, rewind, WAITING_AFTER_SYNCING_DEFAULT, FIVETEEN_MINUTES_IN_MILLISECONDS } from './helpers';
-import { reportError } from '../bug-report/service';
-
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
@@ -117,7 +115,6 @@ export class RemoteSyncManager {
     } catch (error) {
       logger.error({ msg: 'Remote sync failed with error', error });
       this.changeStatus('SYNC_FAILED');
-      reportError(error as Error);
     } finally {
       logger.debug({
         msg: 'Remote sync finished',

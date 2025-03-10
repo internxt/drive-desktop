@@ -65,7 +65,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(remoteFileSystem.delete).toBeCalledWith(file.contentsId);
+    expect(remoteFileSystem.delete).toBeCalledWith(file);
     expect(repository.update).toBeCalledWith(expect.objectContaining({ status: FileStatus.Trashed }));
   });
 });

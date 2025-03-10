@@ -25,7 +25,7 @@ describe('Folder deleter', () => {
 
     await SUT.run(folder.uuid);
 
-    expect(remote.trash).toBeCalledWith(folder.id);
+    expect(remote.trash).toBeCalledWith(folder);
   });
 
   it('throws an error when trashing a folder already trashed', async () => {

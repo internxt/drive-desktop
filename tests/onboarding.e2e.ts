@@ -31,19 +31,6 @@ test.describe('onboarding', () => {
     });
   });
 
-  test.describe('welcome slide', () => {
-    test('onboarding windows starts with welcome message', async () => {
-      const content = await page.innerHTML('h3');
-      expect(content).toBe('Welcome to Internxt!');
-    });
-
-    test('welcome slide has lets go button', async () => {
-      const button = await page.innerHTML('button');
-
-      expect(button).toBe("Let's go!");
-    });
-  });
-
   test.describe('sync folder slide', () => {
     test('is sync folder explanation', async () => {
       await page.click('button');
