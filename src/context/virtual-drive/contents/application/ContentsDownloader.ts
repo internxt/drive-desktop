@@ -30,11 +30,6 @@ export class ContentsDownloader {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
-    logger.info({
-      msg: 'Registering events for file download',
-      downloader: downloader,
-    });
-
     const filePath = path.join(location, file.nameWithExtension);
 
     downloader.on('start', () => {

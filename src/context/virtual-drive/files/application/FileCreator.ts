@@ -49,11 +49,6 @@ export class FileCreator {
 
       const persistedAttributes = await this.remote.persist(offline);
 
-      logger.info({
-        msg: '[DEBUG IN FILECREATOR STEEP 4]',
-        file: persistedAttributes,
-      });
-
       const file = File.from(persistedAttributes);
 
       Logger.debug('[DEBUG IN FILECREATOR STEEP 5]' + filePath.value);
