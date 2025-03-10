@@ -1,4 +1,4 @@
-import { getUser } from '../../main/auth/service';
+import { inspect } from 'node:util';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
@@ -7,7 +7,7 @@ type TRawBody = {
   exc?: Error | unknown;
   attributes?: {
     tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
-    userUuid?: string;
+    userId?: string;
     endpoint?: keyof paths;
   };
   [key: string]: unknown;
@@ -15,21 +15,8 @@ type TRawBody = {
 
 class Logger {
   private prepareBody(rawBody: TRawBody) {
-    let userUuid: string | undefined;
-
-    try {
-      userUuid = getUser()?.uuid;
-    } catch (_) {}
-
-    rawBody.attributes = {
-      userUuid,
-      ...rawBody.attributes,
-    };
-
     const { attributes, ...rest } = rawBody;
-
-    const body = rest;
-
+    const body = inspect(rest, { colors: true, depth: Infinity, breakLength: Infinity });
     return { attributes, body };
   }
 
