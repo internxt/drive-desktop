@@ -10,6 +10,7 @@ import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class FilePathUpdater {
   constructor(
@@ -40,11 +41,12 @@ export class FilePathUpdater {
     try {
       const trackerId = await this.local.getFileIdentity(file.path);
       file.moveTo(destinationFolder, trackerId);
-    } catch (error: unknown) {
-      error instanceof Error
-        ? Logger.error(`Error in FilePathUpdater.move: ${error.message}`)
-        : Logger.error('Error in FilePathUpdater.move: unknown error');
-      throw error;
+    } catch (exc: unknown) {
+      logger.error({
+        msg: 'Error in FilePathUpdater.move',
+        exc,
+      });
+      throw exc;
     }
 
     Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
@@ -101,11 +103,12 @@ export class FilePathUpdater {
       }
 
       throw new Error('Cannot reupload files atm');
-    } catch (error: unknown) {
-      error instanceof Error
-        ? Logger.error(`Error in FilePathUpdater.move: ${error.message}`)
-        : Logger.error('Error in FilePathUpdater.move: unknown error');
-      throw error;
+    } catch (exc: unknown) {
+      logger.error({
+        msg: 'Error in FilePathUpdater.move',
+        exc,
+      });
+      throw exc;
     }
   }
 }

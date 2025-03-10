@@ -1,18 +1,18 @@
 import jwt from 'jsonwebtoken';
-import ms from 'ms';
+import ms, { StringValue } from 'ms';
 
 import { TokenScheduler } from './TokenScheduler';
 
-function calculateDayFromToday(t: number): Date {
+function calculateDayFromToday(t: StringValue): Date {
   const today = new Date();
 
-  return new Date(today.getTime() + t);
+  return new Date(today.getTime() + ms(t));
 }
 
 const dataSet = [
-  { daysBefore: 5, day: calculateDayFromToday(ms('25 days')) },
-  { daysBefore: 1, day: calculateDayFromToday(ms('29 day')) },
-  { daysBefore: 10, day: calculateDayFromToday(ms('20 days')) },
+  { daysBefore: 5, day: calculateDayFromToday('25 days') },
+  { daysBefore: 1, day: calculateDayFromToday('29 day') },
+  { daysBefore: 10, day: calculateDayFromToday('20 days') },
 ];
 
 function createToken(expiresIn: string) {
@@ -58,7 +58,7 @@ describe('Token Scheduler', () => {
       // no op
     });
 
-    const expectedExpireDay = calculateDayFromToday(ms('26 days'));
+    const expectedExpireDay = calculateDayFromToday('26 days');
 
     const schedule = scheduler.schedule(task);
 

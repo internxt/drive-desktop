@@ -31,6 +31,4 @@ npm-debug.log.*
 src/workers/backups/process.ts
 src/workers/backups/*
 src/workers/filesystems/*
-src/test/*
-
 *.d.ts

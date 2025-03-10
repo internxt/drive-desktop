@@ -1,6 +1,5 @@
 import Logger from 'electron-log';
 import path from 'path';
-import { Readable } from 'stream';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
@@ -12,20 +11,16 @@ import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDown
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import * as fs from 'fs';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class ContentsDownloader {
-  private readableDownloader: Readable | null;
-  private WAIT_TO_SEND_PROGRESS = 1000;
-  private progressAt: Date | null = null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
     private readonly eventBus: EventBus,
-  ) {
-    this.readableDownloader = null;
-  }
+  ) {}
 
   private downloaderIntance: ContentFileDownloader | null = null;
   private downloaderIntanceCB: CallbackDownload | null = null;
@@ -35,10 +30,14 @@ export class ContentsDownloader {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
+    logger.info({
+      msg: 'Registering events for file download',
+      downloader: downloader,
+    });
+
     const filePath = path.join(location, file.nameWithExtension);
 
     downloader.on('start', () => {
-      this.progressAt = new Date();
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
@@ -85,7 +84,7 @@ export class ContentsDownloader {
   }
 
   async run(file: File, callback: CallbackDownload): Promise<string> {
-    const downloader = this.managerFactory.downloader();
+    const downloader = await this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
     this.downloaderIntanceCB = callback;
@@ -93,7 +92,6 @@ export class ContentsDownloader {
     await this.registerEvents(downloader, file, callback);
 
     const readable = await downloader.download(file);
-    this.readableDownloader = readable;
 
     const localContents = LocalFileContents.downloadedFrom(file, readable, downloader.elapsedTime());
 
