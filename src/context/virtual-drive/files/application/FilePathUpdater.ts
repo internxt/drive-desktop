@@ -42,11 +42,10 @@ export class FilePathUpdater {
       const trackerId = await this.local.getFileIdentity(file.path);
       file.moveTo(destinationFolder, trackerId);
     } catch (exc: unknown) {
-      logger.error({
+      throw logger.error({
         msg: 'Error in FilePathUpdater.move',
         exc,
       });
-      throw exc;
     }
 
     Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
@@ -104,11 +103,10 @@ export class FilePathUpdater {
 
       throw new Error('Cannot reupload files atm');
     } catch (exc: unknown) {
-      logger.error({
-        msg: 'Error in FilePathUpdater.move',
+      throw logger.error({
+        msg: 'Error in FilePathUpdater.run',
         exc,
       });
-      throw exc;
     }
   }
 }
