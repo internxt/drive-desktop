@@ -30,6 +30,7 @@ import { FileSyncronizer } from '../../../../context/virtual-drive/files/applica
 import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsUpdater } from '../../../../context/virtual-drive/files/application/FileContentsUpdater';
+import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
@@ -149,6 +150,10 @@ export async function buildFilesContainer(
     remoteFileSystem
   );
 
+  const fileContentsHardUpdate = new FileContentsHardUpdater(
+    remoteFileSystem
+  );
+
   const fileIdentityUpdater = new FileIdentityUpdater(localFileSystem);
 
 
@@ -157,7 +162,7 @@ export async function buildFilesContainer(
   const fileOverwriteContent = new FileOverwriteContent(
     repository,
     filesCheckerStatusInRoot,
-    fileContentsUpdater
+    fileContentsHardUpdate
   );
 
   const fileSyncronizer = new FileSyncronizer(

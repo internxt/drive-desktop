@@ -6,16 +6,16 @@ import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
 import { temporalFolderProvider } from '../../contents/application/temporalFolderProvider';
 import { ContentFileDownloader } from '../../contents/domain/contentHandlers/ContentFileDownloader';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { FileContentsUpdater } from './FileContentsUpdater';
 import { File } from '../domain/File';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
+import { FileContentsHardUpdater } from './FileContentsHardUpdater';
 
 export class FileOverwriteContent {
     private processingErrorQueue: boolean;
     constructor(
         private readonly repository: InMemoryFileRepository,
         private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot,
-        private readonly fileContentsUpdater: FileContentsUpdater,
+        private readonly fileContentsHardUpdater: FileContentsHardUpdater,
     ) {
         this.processingErrorQueue = false;
     }
@@ -95,7 +95,7 @@ export class FileOverwriteContent {
 
             Logger.info('hydratedDangledRemoteFile ', { id: hydratedDangledRemoteFile.contentsId, path: hydratedDangledRemoteFile.path });
 
-            await this.fileContentsUpdater.hardUpdateRun(
+            await this.fileContentsHardUpdater.run(
                 {
                     contentsId: hydratedDangledRemoteFile.contentsId,
                     folderId: hydratedDangledRemoteFile.folderId.value,
