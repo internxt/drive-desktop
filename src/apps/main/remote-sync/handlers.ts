@@ -9,7 +9,11 @@ import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine, fallbackSyncEngine, sendUpdateFilesInSyncPending } from '../background-processes/sync-engine';
+import {
+  updateSyncEngine,
+  fallbackSyncEngine,
+  sendUpdateFilesInSyncPending,
+} from '../background-processes/sync-engine';
 import { debounce } from 'lodash';
 import configStore from '../config';
 import { setTrayStatus } from '../tray/tray';
@@ -36,7 +40,7 @@ const remoteSyncManager = new RemoteSyncManager(
     fetchFoldersLimitPerRequest: 50,
     syncFiles: true,
     syncFolders: true,
-  },
+  }
 );
 
 export async function getLocalDangledFiles() {
@@ -46,15 +50,20 @@ export async function getLocalDangledFiles() {
 }
 
 export async function setAsNotDangledFiles(filesIds: string[]) {
-  await driveFilesCollection.updateInBatch({ isDangledStatus: true, fileId: In(filesIds) }, { isDangledStatus: false });
+  await driveFilesCollection.updateInBatch({ 
+    where: { isDangledStatus: true, fileId: In(filesIds) }, 
+    updatePayload: { isDangledStatus: false }
+  });
 }
 
 export const updateFileInBatch = async (itemsId: string[], file: Partial<DriveFile>) => {
   await driveFilesCollection.updateInBatch(
     {
-      fileId: In(itemsId),
-    },
-    file,
+      where: {
+        fileId: In(itemsId),
+      },
+      updatePayload: file,
+    }
   );
 };
 
@@ -71,18 +80,24 @@ export function checkSyncEngineInProcess(milliSeconds: number) {
 
 export async function getUpdatedRemoteItems() {
   try {
-    const [allDriveFiles, allDriveFolders] = await Promise.all([driveFilesCollection.getAll(), driveFoldersCollection.getAll()]);
+    const [allDriveFiles, allDriveFolders] = await Promise.all([
+      driveFilesCollection.getAll(),
+      driveFoldersCollection.getAll(),
+    ]);
 
-    if (!allDriveFiles.success) throw new Error('Failed to retrieve all the drive files from local db');
-
-    if (!allDriveFolders.success) throw new Error('Failed to retrieve all the drive folders from local db');
+    if (!allDriveFiles.success)
+      throw new Error('Failed to retrieve all the drive files from local db');
+    
+    if (!allDriveFolders.success)
+      throw new Error('Failed to retrieve all the drive folders from local db');
     return {
       files: allDriveFiles.result,
       folders: allDriveFolders.result,
     };
   } catch (error) {
     reportError(error as Error, {
-      description: 'Something failed when updating the local db pulling the new changes from remote',
+      description:
+        'Something failed when updating the local db pulling the new changes from remote',
     });
     throw error;
   }
@@ -107,11 +122,15 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number) {
     ]);
 
     if (!allDriveFiles.success) {
-      throw new Error(`Failed to retrieve all the drive files from local db for folderId: ${folderId}`);
+      throw new Error(
+        `Failed to retrieve all the drive files from local db for folderId: ${folderId}`
+      );
     }
 
     if (!allDriveFolders.success) {
-      throw new Error(`Failed to retrieve all the drive folders from local db for folderId: ${folderId}`);
+      throw new Error(
+        `Failed to retrieve all the drive folders from local db for folderId: ${folderId}`
+      );
     }
 
     result.files.push(...allDriveFiles.result);
@@ -121,10 +140,11 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number) {
       return result;
     }
 
-    const folderChildrenPromises = allDriveFolders.result.map(async (folder) => {
-      if (folder.id) {
-        return getUpdatedRemoteItemsByFolder(folder.id);
-      }
+    const folderChildrenPromises = allDriveFolders.result.map(
+      async (folder) => {
+        if (folder.id) {
+          return getUpdatedRemoteItemsByFolder(folder.id);
+        }
     });
 
     const folderChildrenResults = await Promise.all(folderChildrenPromises);
