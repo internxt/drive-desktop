@@ -1,17 +1,15 @@
 import path from 'path';
 import NodeClam from '@internxt/scan';
 import clamAVServer from './ClamAVDaemon';
-import { app } from 'electron';
 import Logger from 'electron-log';
+import { AntivirusError } from './AntivirusError';
+import { RESOURCES_PATH, SERVER_HOST, SERVER_PORT } from './constants';
+
 export interface SelectedItemToScanProps {
   path: string;
   itemName: string;
   isDirectory: boolean;
 }
-
-const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'clamAV')
-  : path.join(__dirname, '../../../../clamAV');
 
 export class Antivirus {
   private clamAv: NodeClam | null = null;
@@ -41,9 +39,9 @@ export class Antivirus {
           path: path.join(RESOURCES_PATH, '/bin/clamdscan'),
           configFile: clamdConfigPath,
           socket: false,
-          host: '127.0.0.1',
+          host: SERVER_HOST,
           localFallback: false,
-          port: 3310,
+          port: SERVER_PORT,
           timeout: 3600000,
           multiscan: true,
           active: true,
@@ -54,7 +52,10 @@ export class Antivirus {
       this.isInitialized = true;
     } catch (error) {
       Logger.error('Error Initializing ClamAV:', error);
-      throw error;
+      throw AntivirusError.initializationFailed(
+        'Failed to initialize ClamAV',
+        error
+      );
     }
   }
 
@@ -62,30 +63,42 @@ export class Antivirus {
     filePath: string
   ): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
     if (!this.clamAv || !this.isInitialized) {
-      throw new Error('ClamAV is not initialized');
+      throw AntivirusError.notInitialized();
     }
 
-    return (await this.clamAv.isInfected(filePath)) as {
-      file: string;
-      isInfected: boolean;
-      viruses: [];
-    };
+    try {
+      return (await this.clamAv.isInfected(filePath)) as {
+        file: string;
+        isInfected: boolean;
+        viruses: [];
+      };
+    } catch (error) {
+      throw AntivirusError.scanFailed(filePath, error);
+    }
   }
 
   async stopClamAv() {
     if (!this.clamAv) {
-      throw new Error('ClamAv instance is not initialized');
+      throw AntivirusError.notInitialized();
     }
 
-    const isClamAVAlive = await this.clamAv.ping();
+    try {
+      const isClamAVAlive = await this.clamAv.ping();
 
-    if (isClamAVAlive) {
-      this.isInitialized = false;
-      await this.clamAv.closeAllSockets();
+      if (isClamAVAlive) {
+        this.isInitialized = false;
+        await this.clamAv.closeAllSockets();
+      }
+    } catch (error) {
+      throw AntivirusError.unknown('Failed to stop ClamAV', error);
     }
   }
 
   async stopServer() {
-    clamAVServer.stopClamdServer();
+    try {
+      clamAVServer.stopClamdServer();
+    } catch (error) {
+      throw AntivirusError.unknown('Failed to stop ClamAV server', error);
+    }
   }
 }

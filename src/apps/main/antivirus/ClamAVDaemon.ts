@@ -1,44 +1,41 @@
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { app } from 'electron';
 import net from 'net';
 import path from 'path';
 import Logger from 'electron-log';
-import os from 'os';
 import fs from 'fs';
-const SERVER_HOST = '127.0.0.1';
-const SERVER_PORT = 3310;
+import { AntivirusError } from './AntivirusError';
+import {
+  SERVER_HOST,
+  SERVER_PORT,
+  DIRECTORY_MODE,
+  FILE_MODE,
+  RESOURCES_PATH,
+  userHomeDir,
+  configDir,
+  logDir,
+  dbDir,
+  logFilePath,
+  freshclamLogPath,
+  clamdPath,
+  clamdConfigTemplatePath,
+  DEFAULT_CLAMD_WAIT_TIMEOUT,
+  DEFAULT_CLAMD_CHECK_INTERVAL,
+} from './constants';
 
 let clamdProcess: ChildProcessWithoutNullStreams | null = null;
-const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'clamAV')
-  : path.join(__dirname, '../../../../clamAV');
-
 let timer: NodeJS.Timeout | null = null;
-
-// Export these paths so they can be used in other files
-export const userHomeDir = os.homedir();
-export const configDir = path.join(
-  userHomeDir,
-  '.config',
-  'internxt',
-  'clamav'
-);
-export const logDir = path.join(configDir, 'logs');
-export const dbDir = path.join(configDir, 'db');
-export const logFilePath = path.join(logDir, 'clamd.log');
-export const freshclamLogPath = path.join(logDir, 'freshclam.log');
 
 export const ensureDirectories = () => {
   const dirs = [configDir, logDir, dbDir];
   for (const dir of dirs) {
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true, mode: 0o755 });
+      fs.mkdirSync(dir, { recursive: true, mode: DIRECTORY_MODE });
       Logger.info(`[CLAM_AVD] Created directory: ${dir}`);
     }
   }
 
   if (!fs.existsSync(logFilePath)) {
-    fs.writeFileSync(logFilePath, '', { mode: 0o644 });
+    fs.writeFileSync(logFilePath, '', { mode: FILE_MODE });
     Logger.info(`[CLAM_AVD] Created log file: ${logFilePath}`);
   }
 
@@ -78,7 +75,6 @@ export const prepareConfigFiles = (): {
     'utf8'
   );
 
-  // Replace placeholders with actual paths
   const modifiedClamdConfig = originalClamdConfig
     .replace('LOGFILE_PATH', logFilePath)
     .replace('DATABASE_DIRECTORY', dbDir);
@@ -87,7 +83,6 @@ export const prepareConfigFiles = (): {
     .replace('DATABASE_DIRECTORY', dbDir)
     .replace('FRESHCLAM_LOG_PATH', freshclamLogPath);
 
-  // Write the modified configs to the user's config directory
   fs.writeFileSync(tempClamdConfigPath, modifiedClamdConfig);
   fs.writeFileSync(tempFreshclamConfigPath, modifiedFreshclamConfig);
 
@@ -111,16 +106,13 @@ const checkClamdAvailability = (
       resolve(true);
     });
 
-    client.on('error', () => {
+    client.on('error', (error) => {
       client.destroy();
+      Logger.debug(`[CLAM_AVD] Connection to clamd failed: ${error.message}`);
       resolve(false);
     });
   });
 };
-
-const clamdPath = path.join(RESOURCES_PATH, '/bin/clamd');
-// This original config path will be used to reference the template, not as the actual config file
-const originalClamdConfigPath = path.join(RESOURCES_PATH, '/etc/clamd.conf');
 
 const startClamdServer = async (): Promise<void> => {
   Logger.info('[CLAM_AVD] Starting clamd server...');
@@ -159,7 +151,7 @@ const startClamdServer = async (): Promise<void> => {
           errorMsg.includes('Fatal error') ||
           errorMsg.includes('ERROR: No supported database files found')
         ) {
-          reject(new Error(errorMsg));
+          reject(AntivirusError.clamdConfigError(errorMsg));
         }
       });
 
@@ -168,14 +160,18 @@ const startClamdServer = async (): Promise<void> => {
           Logger.error(`[CLAM_AVD] clamd process exited with code ${code}`);
           clamdProcess = null;
           reject(
-            new Error(`[CLAM_AVD] clamd process exited with code ${code}`)
+            AntivirusError.clamdStartFailed(
+              `clamd process exited with code ${code}`
+            )
           );
         }
       });
 
       clamdProcess.on('error', (error) => {
         Logger.error('[CLAM_AVD] Failed to start clamd server:', error);
-        reject(error);
+        reject(
+          AntivirusError.clamdStartFailed('Failed to start clamd server', error)
+        );
       });
 
       setTimeout(() => {
@@ -195,22 +191,25 @@ const startClamdServer = async (): Promise<void> => {
                       resolve();
                     } else {
                       reject(
-                        new Error(
-                          '[CLAM_AVD] clamd server failed to start after multiple attempts'
+                        AntivirusError.clamdNotAvailable(
+                          'clamd server failed to start after multiple attempts'
                         )
                       );
                     }
                   })
                   .catch(reject);
-              }, 5000);
+              }, DEFAULT_CLAMD_CHECK_INTERVAL);
             }
           })
           .catch(reject);
-      }, 5000);
+      }, DEFAULT_CLAMD_CHECK_INTERVAL);
     });
   } catch (error) {
     Logger.error('[CLAM_AVD] Error during clamd server startup:', error);
-    throw error;
+    throw AntivirusError.clamdStartFailed(
+      'Error during clamd server startup',
+      error
+    );
   }
 };
 
@@ -228,8 +227,8 @@ const stopClamdServer = (): void => {
 };
 
 const waitForClamd = async (
-  timeout = 180000,
-  interval = 5000
+  timeout = DEFAULT_CLAMD_WAIT_TIMEOUT,
+  interval = DEFAULT_CLAMD_CHECK_INTERVAL
 ): Promise<void> => {
   const startTime = Date.now();
   let attempts = 0;
@@ -254,16 +253,14 @@ const waitForClamd = async (
         `[CLAM_AVD] Clamd not available yet, waiting ${interval}ms before next attempt...`
       );
     } catch (error) {
-      Logger.error(`[CLAM_AVD] Error checking clamd availability: ${error}`);
+      Logger.error('[CLAM_AVD] Error checking clamd availability:', error);
     }
 
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
 
   const timeElapsed = Date.now() - startTime;
-  throw new Error(
-    `[CLAM_AVD] Timeout (${timeElapsed}ms) waiting for clamd server to become available after ${attempts} attempts`
-  );
+  throw AntivirusError.clamdTimeout(attempts, timeout);
 };
 
 const clamAVServer = {

@@ -124,7 +124,11 @@ export class ManualSystemScan {
     }
 
     if (this.antivirus) {
-      await this.antivirus.stopClamAv();
+      try {
+        await this.antivirus.stopClamAv();
+      } catch (error) {
+        Logger.error('[SYSTEM_SCAN] Error stopping ClamAV:', error);
+      }
     }
 
     this.resetCounters();

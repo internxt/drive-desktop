@@ -1,18 +1,8 @@
-import path from 'path';
 import { spawn } from 'child_process';
-import { app } from 'electron';
 import Logger from 'electron-log';
 import { prepareConfigFiles, ensureDirectories } from './ClamAVDaemon';
-
-const RESOURCES_PATH = app.isPackaged
-  ? path.join(process.resourcesPath, 'clamAV')
-  : path.join(__dirname, '../../../../clamAV');
-
-const freshclamPath = path.join(RESOURCES_PATH, '/bin/freshclam');
-const originalFreshclamConfigPath = path.join(
-  RESOURCES_PATH,
-  '/etc/freshclam.conf'
-);
+import { freshclamPath } from './constants';
+import { AntivirusError } from './AntivirusError';
 
 export const runFreshclam = (): Promise<void> => {
   return new Promise((resolve, reject) => {
@@ -38,9 +28,9 @@ export const runFreshclam = (): Promise<void> => {
 
     freshclamProcess.on('close', (code) => {
       if (code !== 0) {
-        const error = `freshclam process exited with code ${code}`;
-        Logger.error(error);
-        reject(new Error(error));
+        const errorMessage = `freshclam process exited with code ${code}`;
+        Logger.error(errorMessage);
+        reject(AntivirusError.databaseError(errorMessage));
       } else {
         Logger.info(
           '[freshclam] Virus definitions update completed successfully'
@@ -49,10 +39,11 @@ export const runFreshclam = (): Promise<void> => {
       }
     });
 
-    // Handle process errors
     freshclamProcess.on('error', (error) => {
       Logger.error('[freshclam] Failed to start update process:', error);
-      reject(error);
+      reject(
+        AntivirusError.databaseError('Failed to start update process', error)
+      );
     });
   });
 };
