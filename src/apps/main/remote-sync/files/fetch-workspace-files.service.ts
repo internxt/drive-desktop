@@ -2,14 +2,13 @@ import { client } from '../../../shared/HttpClient/client';
 import {
   FetchFilesService,
   FetchFilesServiceParams,
-  FetchFilesServiceResult,
   QueryFilesInFolderInWorkspace,
   QueryFilesInWorkspace,
   QueryWorkspace,
 } from './fetch-files.service.interface';
 
 export class FetchWorkspaceFilesService implements FetchFilesService {
-  async run({ self, offset, folderUuid }: FetchFilesServiceParams): Promise<FetchFilesServiceResult> {
+  async run({ self, offset, folderUuid }: FetchFilesServiceParams) {
     if (!self.workspaceId) {
       throw new Error('Workspace id is required to fetch files');
     }

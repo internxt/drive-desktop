@@ -1,15 +1,8 @@
 import { client } from '../../../shared/HttpClient/client';
-import {
-  FetchFilesService,
-  FetchFilesServiceParams,
-  FetchFilesServiceResult,
-  Query,
-  QueryFiles,
-  QueryFilesInFolder,
-} from './fetch-files.service.interface';
+import { FetchFilesService, FetchFilesServiceParams, Query, QueryFiles, QueryFilesInFolder } from './fetch-files.service.interface';
 
 export class FetchRemoteFilesService implements FetchFilesService {
-  async run({ self, updatedAtCheckpoint, offset, status = 'ALL', folderId }: FetchFilesServiceParams): Promise<FetchFilesServiceResult> {
+  async run({ self, updatedAtCheckpoint, offset, status = 'ALL', folderId }: FetchFilesServiceParams) {
     const query: Query = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,

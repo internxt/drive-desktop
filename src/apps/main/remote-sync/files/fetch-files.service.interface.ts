@@ -16,7 +16,6 @@ export interface FetchFilesServiceParams {
   offset: number;
   status?: QueryFiles['status'];
 }
-
 export interface FetchFilesServiceResult {
   hasMore: boolean;
   result: RemoteSyncedFile[];
