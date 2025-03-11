@@ -1,4 +1,5 @@
 import { inspect } from 'node:util';
+import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
@@ -15,6 +16,13 @@ type TRawBody = {
 
 class Logger {
   private prepareBody(rawBody: TRawBody) {
+    const user = getUser();
+
+    rawBody.attributes = {
+      userId: user?.uuid,
+      ...rawBody.attributes,
+    };
+
     const { attributes, ...rest } = rawBody;
     const body = inspect(rest, { colors: true, depth: Infinity, breakLength: Infinity });
     return { attributes, body };
