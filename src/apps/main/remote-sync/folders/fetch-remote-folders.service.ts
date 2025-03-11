@@ -1,5 +1,12 @@
 import { client } from '../../../shared/HttpClient/client';
-import { FetchFoldersService, FetchFoldersServiceParams, FetchFoldersServiceResult, Query } from './fetch-folders.service.interface';
+import {
+  FetchFoldersService,
+  FetchFoldersServiceParams,
+  FetchFoldersServiceResult,
+  Query,
+  QueryFolders,
+  QueryFoldersInFolder,
+} from './fetch-folders.service.interface';
 
 export class FetchRemoteFoldersService implements FetchFoldersService {
   async run({
@@ -27,11 +34,11 @@ export class FetchRemoteFoldersService implements FetchFoldersService {
     throw new Error(`Fetch folders response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
   }
 
-  private getFolders({ query }: { query: Query }) {
+  private getFolders({ query }: { query: QueryFolders }) {
     return client.GET('/folders', { params: { query } });
   }
 
-  private async getFoldersByFolder({ folderId, query }: { folderId: number; query: Query }) {
+  private async getFoldersByFolder({ folderId, query }: { folderId: number; query: QueryFoldersInFolder }) {
     const result = await client.GET('/folders/{id}/folders', { params: { path: { id: folderId }, query } });
     return { ...result, data: result.data?.result };
   }

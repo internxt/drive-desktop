@@ -3,6 +3,8 @@ import {
   FetchFoldersService,
   FetchFoldersServiceParams,
   FetchFoldersServiceResult,
+  QueryFoldersInFolderInWorkspace,
+  QueryFoldersInWorkspace,
   QueryWorkspace,
 } from './fetch-folders.service.interface';
 
@@ -36,7 +38,7 @@ export class FetchWorkspaceFoldersService implements FetchFoldersService {
     throw new Error(`Fetch folders response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
   }
 
-  private async getFoldersInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryWorkspace }) {
+  private async getFoldersInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryFoldersInWorkspace }) {
     const result = await client.GET('/workspaces/{workspaceId}/folders', { params: { path: { workspaceId: workspaceId }, query } });
     return { ...result, data: result.data };
   }
@@ -48,7 +50,7 @@ export class FetchWorkspaceFoldersService implements FetchFoldersService {
   }: {
     folderUuid: string;
     workspaceId: string;
-    query: QueryWorkspace;
+    query: QueryFoldersInFolderInWorkspace;
   }) {
     const result = await client.GET('/workspaces/{workspaceId}/folders/{folderUuid}/folders', {
       params: { path: { workspaceId, folderUuid }, query },

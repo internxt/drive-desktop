@@ -1,5 +1,12 @@
 import { client } from '../../../shared/HttpClient/client';
-import { FetchFilesService, FetchFilesServiceParams, FetchFilesServiceResult, QueryWorkspace } from './fetch-files.service.interface';
+import {
+  FetchFilesService,
+  FetchFilesServiceParams,
+  FetchFilesServiceResult,
+  QueryFilesInFolderInWorkspace,
+  QueryFilesInWorkspace,
+  QueryWorkspace,
+} from './fetch-files.service.interface';
 
 export class FetchWorkspaceFilesService implements FetchFilesService {
   async run({ self, offset, folderUuid }: FetchFilesServiceParams): Promise<FetchFilesServiceResult> {
@@ -32,7 +39,7 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
     throw new Error(`Fetch files response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
   }
 
-  private async getFileInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryWorkspace }) {
+  private async getFileInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryFilesInWorkspace }) {
     const result = await client.GET('/workspaces/{workspaceId}/files', { params: { path: { workspaceId: workspaceId }, query } });
     return { ...result, data: result.data };
   }
@@ -44,7 +51,7 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
   }: {
     folderUuid: string;
     workspaceId: string;
-    query: QueryWorkspace;
+    query: QueryFilesInFolderInWorkspace;
   }) {
     const result = await client.GET('/workspaces/{workspaceId}/folders/{folderUuid}/files', {
       params: { path: { workspaceId, folderUuid }, query },
