@@ -32,7 +32,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: yarn --ignore-scripts
+        run: yarn install
 
       - name: Run TypeScript compiler
         run: yarn type-check
