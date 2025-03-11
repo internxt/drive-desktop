@@ -2,7 +2,6 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveWorkspace } from '../entities/DriveWorkspace';
 import { Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
 export class DriveWorkspaceCollection implements DatabaseCollectionAdapter<DriveWorkspace> {
@@ -85,7 +84,6 @@ export class DriveWorkspaceCollection implements DatabaseCollectionAdapter<Drive
         result: queryResult,
       };
     } catch (error) {
-      Sentry.captureException(error);
       Logger.error('Error fetching newest drive workspace:', error);
       return {
         success: false,
@@ -110,7 +108,6 @@ export class DriveWorkspaceCollection implements DatabaseCollectionAdapter<Drive
         result: queryResult,
       };
     } catch (error) {
-      Sentry.captureException(error);
       Logger.error('Error fetching newest drive workspace:', error);
       return {
         success: false,
@@ -129,7 +126,6 @@ export class DriveWorkspaceCollection implements DatabaseCollectionAdapter<Drive
         result,
       };
     } catch (error) {
-      Sentry.captureException(error);
       Logger.error('Error fetching drive workspaces:', error);
       return {
         success: false,

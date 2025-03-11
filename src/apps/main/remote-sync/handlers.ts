@@ -5,7 +5,6 @@ import { DriveFoldersCollection } from '../database/collections/DriveFolderColle
 import { RemoteSyncStatus } from './helpers';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
-import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
 import { updateSyncEngine, fallbackSyncEngine, sendUpdateFilesInSyncPending } from '../background-processes/sync-engine';
@@ -91,10 +90,10 @@ export async function getUpdatedRemoteItems(workspaceId = '') {
       folders: allDriveFolders.result,
     };
   } catch (error) {
-    reportError(error as Error, {
-      description: 'Something failed when updating the local db pulling the new changes from remote',
+    throw logger.error({
+      msg: 'Error getting updated remote items',
+      exc: error,
     });
-    throw error;
   }
 }
 
@@ -149,14 +148,10 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
 
     return result;
   } catch (error) {
-    if (error instanceof Error) {
-      reportError(error, {
-        description: 'Something failed when updating the local db pulling the new changes from remote',
-      });
-      throw error;
-    } else {
-      throw new Error('An unknown error occurred');
-    }
+    throw logger.error({
+      msg: 'Error getting updated remote items by folder',
+      exc: error,
+    });
   }
 }
 
@@ -178,8 +173,10 @@ async function populateAllRemoteSync(): Promise<void> {
       }),
     );
   } catch (error) {
-    Logger.error('Error populating all remote sync', error);
-    if (error instanceof Error) reportError(error);
+    throw logger.error({
+      msg: 'Error populating all remote sync',
+      exc: error,
+    });
   }
 }
 
@@ -202,10 +199,10 @@ async function startRemoteSync(folderId?: number, workspaceId = ''): Promise<voi
     }
     Logger.info('Remote sync finished');
   } catch (error) {
-    if (error instanceof Error) {
-      Logger.error('Error during remote sync', error);
-      reportError(error);
-    }
+    throw logger.error({
+      msg: 'Error starting remote sync',
+      exc: error,
+    });
   }
 }
 
@@ -320,8 +317,10 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     eventBus.emit('INITIAL_SYNC_READY');
   } catch (error) {
-    Logger.error('Error starting remote sync manager', error);
-    if (error instanceof Error) reportError(error);
+    throw logger.error({
+      msg: 'Error initializing remote sync managers',
+      exc: error,
+    });
   }
 });
 

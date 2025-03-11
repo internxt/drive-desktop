@@ -7,7 +7,7 @@ export interface Config {
   providerName: string;
   loggerPath: string;
   workspaceId: string;
-  workspaceToken?: string | null;
+  workspaceToken?: string;
   bucket: string;
   mnemonic: string;
   bridgeUser: string;
@@ -25,7 +25,7 @@ let config: Config = {
   mnemonic: '',
   bridgePass: '',
   bridgeUser: '',
-  workspaceToken: null,
+  workspaceToken: '',
 };
 
 const defaultValues = (): Config => {
@@ -45,7 +45,7 @@ const defaultValues = (): Config => {
     mnemonic: user.mnemonic || config.mnemonic,
     bridgeUser: user.bridgeUser || config.bridgeUser,
     bridgePass: user.userId || config.bridgePass,
-    workspaceToken: config.workspaceToken || null,
+    workspaceToken: config.workspaceToken || '',
   };
 };
 
