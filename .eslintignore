@@ -27,8 +27,9 @@ npm-debug.log.*
 *.css.d.ts
 *.sass.d.ts
 *.scss.d.ts
+*/assets.d.ts
+src/apps/shared/HttpClient/schema.d.ts
 
 src/workers/backups/process.ts
 src/workers/backups/*
 src/workers/filesystems/*
-src/test/*

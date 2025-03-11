@@ -10,7 +10,6 @@ import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus'
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
-import { getConfig } from '@/apps/sync-engine/config';
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;

@@ -1,5 +1,5 @@
 import { inspect } from 'node:util';
-import { getUser } from '../../main/auth/service';
+import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
@@ -24,9 +24,7 @@ class Logger {
     };
 
     const { attributes, ...rest } = rawBody;
-
     const body = inspect(rest, { colors: true, depth: Infinity, breakLength: Infinity });
-
     return { attributes, body };
   }
 
