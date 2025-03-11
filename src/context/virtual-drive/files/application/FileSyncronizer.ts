@@ -16,17 +16,12 @@ import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
 import { FileContentsUpdater } from './FileContentsUpdater';
 import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
-import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
-import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { ContentFileDownloader } from '../../contents/domain/contentHandlers/ContentFileDownloader';
-import { temporalFolderProvider } from '../../contents/application/temporalFolderProvider';
-import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
-import { ipcRenderer } from 'electron';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
   private foldersPathQueue: string[] = [];
+  
+  
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
@@ -38,114 +33,10 @@ export class FileSyncronizer {
     private readonly offlineFolderCreator: OfflineFolderCreator,
     // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
-    private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot,
+    
   ) {}
 
-  // eslint-disable-next-line max-len
-  private async registerEvents(
-    downloader: ContentFileDownloader,
-    file: File,
-    callback: (hydratedFilesIds: string[], remoteDangledFiles: string[]) => Promise<void>,
-  ) {
-    const location = await temporalFolderProvider();
-    ensureFolderExists(location);
-
-    downloader.on('progress', async () => {
-      Logger.info(`Downloading file force stop${file.path}...`);
-      DangledFilesManager.getInstance().addDiscardedDangledFiles(file.contentsId, callback);
-      downloader.forceStop();
-    });
-
-    downloader.on('error', (error: Error) => {
-      Logger.error('[Server] Error downloading file', error);
-      if (error.message.includes('Object not found')) {
-        DangledFilesManager.getInstance().addRemoteDangledFiles(file.contentsId, callback);
-      } else {
-        DangledFilesManager.getInstance().addDiscardedDangledFiles(file.contentsId, callback);
-      }
-    });
-  }
-
-  async overrideDangledFiles(
-    contentsIds: File['contentsId'][],
-    upload: (path: string) => Promise<RemoteFileContents>,
-    downloaderManger: EnvironmentRemoteFileContentsManagersFactory,
-  ) {
-    Logger.debug('Inside overrideDangledFiles');
-    const files = await this.repository.searchByContentsIds(contentsIds);
-
-    const filesWithContentLocally = this.fileCheckerStatusInRoot.isHydrated(files.map((file) => file.path));
-
-    Logger.debug('filesWithContentLocally', filesWithContentLocally);
-
-    const healthyFilesIds: string[] = [];
-
-    const asynchronousCheckingOfDangledFiles = async (hydratedFilesIds: string[], remoteDangledFiles: string[]) => {
-      Logger.debug('Hydrated files ids: ', hydratedFilesIds);
-      Logger.debug('Remote dangled files: ', remoteDangledFiles);
-
-      const hydratedFiles = files.filter((file) => hydratedFilesIds.includes(file.contentsId));
-      const hydratedFilesRemotlyDangled = hydratedFiles.filter((file) => {
-        if (remoteDangledFiles.includes(file.contentsId)) {
-          return true;
-        } else {
-          healthyFilesIds.push(file.contentsId);
-          return false;
-        }
-      });
-
-      Logger.info('hydratedFilesRemoteDangled List: ', hydratedFilesRemotlyDangled);
-
-      if (healthyFilesIds.length) {
-        await ipcRenderer.invoke('SET_HEALTHY_FILES', healthyFilesIds);
-      }
-
-      const updatedFiles = [];
-
-      for (const file of hydratedFilesRemotlyDangled) {
-        const updatedOutput = await this.fileContentsUpdater.hardUpdateRun(
-          {
-            contentsId: file.contentsId,
-            folderId: file.folderId.value,
-            size: file.size,
-            path: file.path,
-          },
-          upload,
-        );
-        updatedFiles.push(updatedOutput);
-      }
-
-      Logger.debug(`Processed dangled files: ${updatedFiles}`);
-      const toUpdateInDatabase = updatedFiles.reduce((acc: string[], current) => {
-        if (current.updated) {
-          acc.push(current.contentsId);
-        }
-        return acc;
-      }, []);
-
-      Logger.debug(`Updating dangled files in database: ${toUpdateInDatabase}`);
-
-      await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
-        itemIds: toUpdateInDatabase,
-        fileFilter: { status: 'DELETED' },
-      });
-    };
-
-    for (const file of files) {
-      if (filesWithContentLocally[file.path]) {
-        const downloader = downloaderManger.downloader();
-        this.registerEvents(downloader, file, asynchronousCheckingOfDangledFiles);
-        downloader.download(file);
-
-        Logger.info(`Possible dangled file ${file.path} hydrated.`);
-        DangledFilesManager.getInstance().add(file.contentsId, file.path);
-        DangledFilesManager.getInstance().addToCheckDangledFiles(file.contentsId);
-      } else {
-        Logger.info(`Possible dangled file ${file.path} not hydrated.`);
-      }
-    }
-  }
-
+  
   async run(absolutePath: string, upload: (path: string) => Promise<RemoteFileContents>): Promise<void> {
     const win32RelativePath = this.absolutePathToRelativeConverter.run(absolutePath);
 

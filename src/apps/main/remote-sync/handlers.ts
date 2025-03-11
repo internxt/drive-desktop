@@ -187,6 +187,7 @@ ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
 });
 
 ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
+  Logger.info('Updating fixed files', inputData);
   return await updateFileInBatch(inputData.itemIds, inputData.fileFilter);
 });
 

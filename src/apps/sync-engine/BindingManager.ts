@@ -279,6 +279,7 @@ export class BindingsManager {
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+      await this.container.fileDangledManager.run();
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);

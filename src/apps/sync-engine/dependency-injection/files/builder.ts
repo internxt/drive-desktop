@@ -33,6 +33,7 @@ import { FileContentsUpdater } from '../../../../context/virtual-drive/files/app
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
+import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';  
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -153,6 +154,12 @@ export async function buildFilesContainer(
 
   const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
 
+  const fileOverwriteContent = new FileOverwriteContent(
+    repository,
+    filesCheckerStatusInRoot,
+    fileContentsUpdater
+  );
+
   const fileSyncronizer = new FileSyncronizer(
     repository,
     fileSyncStatusUpdater,
@@ -163,7 +170,6 @@ export async function buildFilesContainer(
     folderContainer.folderCreator,
     folderContainer.offline.folderCreator,
     fileContentsUpdater,
-    filesCheckerStatusInRoot
   );
 
   const container: FilesContainer = {
@@ -187,6 +193,7 @@ export async function buildFilesContainer(
     fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
     fileIdentityUpdater,
+    fileOverwriteContent
   };
 
   return { container, subscribers: [] };
