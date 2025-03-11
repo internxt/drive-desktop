@@ -1,6 +1,26 @@
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { ScanStatistics } from './ScanStatistics';
 import * as LocalContext from '../../../../context/LocalContext';
+
+// Mock ResizeObserver
+class ResizeObserverMock {
+  observe() {
+    // Mock implementation
+    return null;
+  }
+  unobserve() {
+    // Mock implementation
+    return null;
+  }
+  disconnect() {
+    // Mock implementation
+    return null;
+  }
+}
+
+// Add the mock to the global object
+global.ResizeObserver = ResizeObserverMock;
 
 describe('ScanStatistics', () => {
   const mockTranslate = jest.fn((key) => key);
