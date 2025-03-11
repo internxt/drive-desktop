@@ -5,6 +5,7 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
+type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>, updatePayload: Partial<DriveFile> };
 export class DriveFilesCollection
   implements DatabaseCollectionAdapter<DriveFile>
 {
@@ -57,7 +58,8 @@ export class DriveFilesCollection
     }
   }
 
-  async updateInBatch(where: FindOptionsWhere<DriveFile>, updatePayload: Partial<DriveFile>) {
+  async updateInBatch(input: UpdateInBatchPayload) {
+    const { where, updatePayload } = input;
     const match = await this.repository.update(where, updatePayload);
 
     return {
