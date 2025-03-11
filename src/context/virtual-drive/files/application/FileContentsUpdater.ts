@@ -8,7 +8,7 @@ import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 export class FileContentsUpdater {
   constructor(
     private readonly repository: InMemoryFileRepository,
-    private readonly remote: SDKRemoteFileSystem,
+    private readonly remote: SDKRemoteFileSystem
   ) {}
 
   async hardUpdateRun(Attributes: OfflineFileAttributes, upload: (path: string) => Promise<RemoteFileContents>) {

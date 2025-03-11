@@ -7,7 +7,7 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/inf
 export class FileSyncOrchestrator {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
-    private readonly fileSyncronizer: FileSyncronizer,
+    private readonly fileSyncronizer: FileSyncronizer
   ) {}
 
   async run(absolutePaths: string[]): Promise<void> {
@@ -19,7 +19,10 @@ export class FileSyncOrchestrator {
         continue;
       }
       try {
-        await this.fileSyncronizer.run(absolutePath, this.contentsUploader.run.bind(this.contentsUploader));
+        await this.fileSyncronizer.run(
+          absolutePath,
+          this.contentsUploader.run.bind(this.contentsUploader)
+        );
       } catch (error) {
         console.error(error);
       }
