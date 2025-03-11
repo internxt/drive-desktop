@@ -87,7 +87,7 @@ export async function getUpdatedRemoteItems() {
 
     if (!allDriveFiles.success)
       throw new Error('Failed to retrieve all the drive files from local db');
-    
+
     if (!allDriveFolders.success)
       throw new Error('Failed to retrieve all the drive folders from local db');
     return {
@@ -145,7 +145,8 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number) {
         if (folder.id) {
           return getUpdatedRemoteItemsByFolder(folder.id);
         }
-    });
+      }
+    );
 
     const folderChildrenResults = await Promise.all(folderChildrenPromises);
 
@@ -160,7 +161,8 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number) {
   } catch (error) {
     if (error instanceof Error) {
       reportError(error, {
-        description: 'Something failed when updating the local db pulling the new changes from remote',
+        description:
+          'Something failed when updating the local db pulling the new changes from remote',
       });
       throw error;
     } else {
@@ -215,7 +217,9 @@ export async function startRemoteSync(folderId?: number): Promise<void> {
     Logger.info('Starting remote sync function');
     Logger.info('Folder id', folderId);
 
-    const { files, folders } = await remoteSyncManager.startRemoteSync(folderId);
+    const { files, folders } = await remoteSyncManager.startRemoteSync(
+      folderId
+    );
     Logger.info('Remote sync started', folders?.length, 'folders');
     Logger.info('Remote sync started', files?.length, 'files');
 
@@ -225,7 +229,7 @@ export async function startRemoteSync(folderId?: number): Promise<void> {
           if (!folder.id) return;
           await sleep(400);
           await startRemoteSync(folder.id);
-        }),
+        })
       );
     }
     Logger.info('Remote sync finished');
@@ -271,7 +275,9 @@ remoteSyncManager.onStatusChange((newStatus) => {
   setTrayStatus('IDLE');
 });
 
-ipcMain.handle('get-remote-sync-status', () => remoteSyncManager.getSyncStatus());
+ipcMain.handle('get-remote-sync-status', () =>
+  remoteSyncManager.getSyncStatus()
+);
 
 export async function updateRemoteSync(): Promise<void> {
   // Wait before checking for updates, could be possible
@@ -316,10 +322,13 @@ ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
   await sendUpdateFilesInSyncPending();
 });
 
-ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: string[]) => {
-  Logger.info('[SYNC ENGINE] update unSync files', filesPath);
-  remoteSyncManager.setUnsyncFiles(filesPath);
-});
+ipcMain.on(
+  'UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE',
+  async (_: unknown, filesPath: string[]) => {
+    Logger.info('[SYNC ENGINE] update unSync files', filesPath);
+    remoteSyncManager.setUnsyncFiles(filesPath);
+  }
+);
 
 const debouncedSynchronization = debounce(async () => {
   await updateRemoteSync();
@@ -379,7 +388,7 @@ function parseItemId(itemId: string) {
     .replace(
       // eslint-disable-next-line no-control-regex
       /[\x00-\x1F\x7F-\x9F]/g,
-      '',
+      ''
     )
     .normalize()
     .split(':');
