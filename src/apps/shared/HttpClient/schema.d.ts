@@ -4147,6 +4147,7 @@ export interface operations {
       query: {
         limit: number;
         offset: number;
+        status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
         updatedAt?: string;
       };
       header?: never;

@@ -1,10 +1,15 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
 import { client } from '../../../shared/HttpClient/client';
-import { FetchFoldersService, FetchFoldersServiceParams, FetchFoldersServiceResult } from './fetch-folders.service.interface';
+import { FetchFoldersService, FetchFoldersServiceParams, FetchFoldersServiceResult, Query } from './fetch-folders.service.interface';
 
 export class FetchRemoteFoldersService implements FetchFoldersService {
-  async run({ self, updatedAtCheckpoint, folderId, offset, status }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
-    const query = {
+  async run({
+    self,
+    updatedAtCheckpoint,
+    folderId,
+    offset,
+    status = 'ALL',
+  }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
+    const query: Query = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,
       status,
@@ -22,17 +27,11 @@ export class FetchRemoteFoldersService implements FetchFoldersService {
     throw new Error(`Fetch folders response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
   }
 
-  private getFolders({ query }: { query: paths['/folders']['get']['parameters']['query'] }) {
+  private getFolders({ query }: { query: Query }) {
     return client.GET('/folders', { params: { query } });
   }
 
-  private async getFoldersByFolder({
-    folderId,
-    query,
-  }: {
-    folderId: number;
-    query: paths['/folders/{id}/folders']['get']['parameters']['query'];
-  }) {
+  private async getFoldersByFolder({ folderId, query }: { folderId: number; query: Query }) {
     const result = await client.GET('/folders/{id}/folders', { params: { path: { id: folderId }, query } });
     return { ...result, data: result.data?.result };
   }

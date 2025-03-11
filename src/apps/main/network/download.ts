@@ -247,7 +247,7 @@ async function _downloadFile(params: IDownloadParams): Promise<ReadableStream<Ui
   );
 
   return buildProgressStream(downloadStream, (readBytes) => {
-    params.options?.notifyProgress(metadata.fileMeta.size, readBytes);
+    params.options?.notifyProgress && params.options.notifyProgress(fileMeta.size, readBytes);
   });
 }
 

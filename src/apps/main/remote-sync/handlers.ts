@@ -135,9 +135,7 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
     }
 
     const folderChildrenPromises = allDriveFolders.result.map(async (folder) => {
-      if (folder.id) {
-        return getUpdatedRemoteItemsByFolder(folder.id, workspaceId);
-      }
+      return getUpdatedRemoteItemsByFolder(folder.id, workspaceId);
     });
 
     const folderChildrenResults = await Promise.all(folderChildrenPromises);

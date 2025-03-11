@@ -38,7 +38,7 @@ export function SelectedFoldersSection({ className, onGoToList }: SelectedFolder
       {lastBackupHadIssues && lastExistReason && errorDictionary[lastExistReason] && (
         <SecondaryText className="ml-2 inline  text-red">
           <WarningCircle size={18} weight="fill" className="mr-1 inline" />
-          {translate(errorDictionary[lastExistReason])}
+          {translate(errorDictionary[lastExistReason] ?? 'issues.short-error-messages.unknown')}
         </SecondaryText>
       )}
     </section>

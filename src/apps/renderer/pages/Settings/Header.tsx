@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useTranslationContext } from '../../context/LocalContext';
 import { UilHistory } from '@iconscout/react-unicons';
 
-const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS'] as const;
+const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS', 'ANTIVIRUS'] as const;
 export type Section = (typeof sectionValues)[number];
 
 function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; onClick: () => void; isActive: boolean }) {
