@@ -5,36 +5,40 @@ on:
 
 jobs:
   checks:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     permissions:
       contents: read
       packages: read
 
-    strategy:
-      matrix:
-        node-version: [18.x]
-
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: 18
           registry-url: 'https://npm.pkg.github.com'
 
       # We should see why permissions field is not doing the job. This should be removed
-      - run: echo "registry=https://registry.yarnpkg.com/" > .npmrc
-      - run: echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
       # You cannot read packages from other private repos with GITHUB_TOKEN
       # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
-      - run: echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
-      - run: echo "always-auth=true" >> .npmrc
+      - name: Create .npmrc file
+        run: |
+          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+          echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
         run: yarn --ignore-scripts
 
       - name: Run Prettier
         run: yarn prettier src --check
+
+      - name: Run Eslint
+        run: yarn lint
+
+      - name: Run tests
+        run: yarn test:once

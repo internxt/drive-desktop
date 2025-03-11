@@ -238,7 +238,7 @@ export class File extends AggregateRoot {
   attributes(): FileAttributes {
     return {
       id: this._id,
-      uuid: this._uuid.toString(),
+      uuid: this._uuid.value,
       contentsId: this.contentsId,
       folderId: Number(this.folderId),
       folderUuid: this.folderUuid.value,
