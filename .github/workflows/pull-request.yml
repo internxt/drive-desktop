@@ -26,21 +26,19 @@ jobs:
       # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
       - name: Create .npmrc file
         run: |
+          echo "registry=https://registry.yarnpkg.com/" > .npmrc
           echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: npm install --force
-
-      - name: Run TypeScript compiler
-        run: npm run type-check
+        run: yarn install --ignore-scripts
 
       - name: Run Prettier
-        run: npm run format
+        run: yarn format
 
       - name: Run Eslint
-        run: npm run lint
+        run: yarn lint
 
       - name: Run tests
-        run: npm run test:once
+        run: yarn test:once
