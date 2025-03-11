@@ -32,5 +32,5 @@
       "virtual-drive/dist": ["../node-win/dist"]
     }
   },
-  "include": ["env.d.ts", "src", "tests", ".erb/configs", ".erb/scripts"]
+  "include": ["env.d.ts", "src", "tests", ".erb/configs", ".erb/scripts", "assets/assets.d.ts"]
 }

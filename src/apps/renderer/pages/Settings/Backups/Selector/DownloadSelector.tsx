@@ -56,7 +56,8 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
 
       return () => clearTimeout(timer);
     } else {
-      setShowText(false); // Oculta el texto si no se cumplen las condiciones
+      setShowText(false);
+      return undefined;
     }
   }, [backupsState, selectedBackup]);
 
@@ -106,7 +107,9 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
             <UilArrowLeft size={24} />
           </button>
         )}
-        <h1 className="text-lg font-normal">{truncateText(folder?.name || '', folderHistory.map((i) => i.name).reverse(), 50)}</h1>
+        <h1 className="text-lg font-normal">
+          {truncateText(folder?.plainName || '', folderHistory.map((i) => i.plainName).reverse(), 50)}
+        </h1>
         <div className="ml-auto text-gray-50">
           {showText &&
             translate('settings.backups.selected-folder', {

@@ -17,7 +17,7 @@ export class FileFolderContainerDetector {
     if (!file) {
       throw new FileNotFoundError(contentId);
     }
-    const folder = this.folderFinder.findFromId(file.folderId);
+    const folder = this.folderFinder.findFromId(file.folderId.value);
     return folder.uuid === folderContentId;
   }
 }

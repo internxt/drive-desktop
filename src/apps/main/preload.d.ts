@@ -230,5 +230,6 @@ declare interface Window {
         props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>[0],
       ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>;
     };
+    path: import('path');
   };
 }

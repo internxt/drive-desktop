@@ -41,7 +41,7 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
 
 function scheduleSync(workspaceId: string) {
   if (workers[workspaceId].syncSchedule) {
-    workers[workspaceId].syncSchedule.cancel(false);
+    workers[workspaceId].syncSchedule?.cancel(false);
   }
 
   workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('0 0 */2 * * *', async () => {

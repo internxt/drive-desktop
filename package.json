@@ -36,7 +36,7 @@
     "test:one": "yarn vitest related x",
     "test:e2e": "playwright test --config=tests",
     "test:all": "yarn vitest:once && yarn test:e2e",
-    "type-check": "tsc --noEmit --pretty --skipLibCheck",
+    "type-check": "tsc --noEmit",
     "prepare": "husky install",
     "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && yarn",
     "start:reload-bindings": "npm run reload-virtual-drive && npm run start",

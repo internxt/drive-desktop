@@ -131,7 +131,7 @@ export class BindingsManager {
         ipcRendererSyncEngine.send('SYNCED');
         ipcRenderer.send('CHECK_SYNC');
       },
-      notifyFileAddedCallback: async (absolutePath: string, callback: FileAddedCallback) => {
+      notifyFileAddedCallback: async (absolutePath: string) => {
         Logger.debug('Path received from callback', absolutePath);
         await this.controllers.addFile.execute(absolutePath);
         ipcRenderer.send('CHECK_SYNC');

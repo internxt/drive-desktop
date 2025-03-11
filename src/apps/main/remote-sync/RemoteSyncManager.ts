@@ -8,6 +8,7 @@ import { FetchRemoteFoldersService } from './folders/fetch-remote-folders.servic
 import { SyncRemoteFilesService } from './files/sync-remote-files.service';
 import { Nullable } from '@/apps/shared/types/Nullable';
 import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.service';
+import { QueryFolders } from './folders/fetch-folders.service.interface';
 
 export class RemoteSyncManager {
   foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -206,7 +207,7 @@ export class RemoteSyncManager {
     folderId: number;
     offset: number;
     updatedAtCheckpoint: Date;
-    status: string;
+    status: QueryFolders['status'];
   }) {
     return this.fetchRemoteFolders.run({ self: this, offset, folderId, updatedAtCheckpoint, status });
   }
