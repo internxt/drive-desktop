@@ -36,17 +36,6 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   non-focusable */
   const dummyRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (process.env.platform === 'darwin') {
-      const listener = () => {
-        dummyRef.current?.blur();
-        dummyRef.current?.removeEventListener('focus', listener);
-        dummyRef.current?.setAttribute('tabindex', '-1');
-      };
-      dummyRef.current?.addEventListener('focus', listener);
-    }
-  }, []);
-
   function onQuitClick() {
     window.electron.quit();
   }
@@ -153,7 +142,6 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
 
   const ItemsSection = () => (
     <div className="flex shrink-0 items-center space-x-0.5 text-gray-80">
-      {process.env.platform === 'darwin' && <div className="h-0 w-0" tabIndex={0} ref={dummyRef} />}
       <HeaderItemWrapper onClick={() => handleOpenURL('https://drive.internxt.com')}>
         <Globe size={22} />
       </HeaderItemWrapper>

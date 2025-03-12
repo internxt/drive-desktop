@@ -41,6 +41,7 @@ class Logger {
   warn(rawBody: TRawBody) {
     const { body } = this.prepareBody(rawBody);
     ElectronLog.warn(body);
+    return new Error(rawBody.msg);
   }
 
   error(rawBody: TRawBody) {

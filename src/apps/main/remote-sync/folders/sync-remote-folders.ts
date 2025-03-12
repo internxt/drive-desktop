@@ -31,10 +31,10 @@ export class SyncRemoteFoldersService {
     let hasMore = true;
 
     try {
-      logger.info({ msg: 'Syncing folders', from });
+      logger.debug({ msg: 'Syncing folders', from });
 
       while (hasMore) {
-        logger.info({ msg: 'Retrieving folders', offset });
+        logger.debug({ msg: 'Retrieving folders', offset });
 
         const param: FetchFoldersServiceParams = {
           self,

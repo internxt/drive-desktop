@@ -25,11 +25,9 @@ export class HttpRemoteFileSystem {
         throw new Error('Failed to encrypt name');
       }
 
-      logger.info({
+      logger.debug({
         msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
-      });
-      logger.info({
-        msg: `Encrypted name: ${offline.path}`,
+        encryptedName: offline.path,
       });
 
       const body: PersistFileDto = {
@@ -64,7 +62,7 @@ export class HttpRemoteFileSystem {
       });
 
       const existingFile = await this.getFileByPath(offline.path);
-      logger.info({
+      logger.debug({
         msg: 'Existing file',
         existingFile,
       });

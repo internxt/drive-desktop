@@ -53,7 +53,7 @@ function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('connect', () => {
-    logger.info({ msg: 'Remote notifications connected' });
+    logger.debug({ msg: 'Remote notifications connected' });
   });
 
   socket.on('disconnect', (reason) => {
@@ -76,7 +76,7 @@ function cleanAndStartRemoteNotifications() {
     }
 
     if (data.payload.bucket !== user?.backupsBucket) {
-      logger.info({ msg: 'Notification received', data });
+      logger.debug({ msg: 'Notification received', data });
       await updateRemoteSync();
       return;
     }
