@@ -26,9 +26,9 @@ export class DriveWorkspace {
   @Column({ type: 'uuid' })
   rootFolderId!: string;
 
-  @CreateDateColumn({ type: 'timestamp' })
-  createdAt!: Date;
+  @CreateDateColumn({ type: 'varchar' })
+  createdAt!: string;
 
-  @UpdateDateColumn({ type: 'timestamp' })
-  updatedAt!: Date;
+  @UpdateDateColumn({ type: 'varchar' })
+  updatedAt!: string;
 }
