@@ -1,12 +1,6 @@
 import { useEffect, useState } from 'react';
 import log from '../../utils/logger';
 
-export interface SelectedItemToScanProps {
-  path: string;
-  itemName: string;
-  isDirectory: boolean;
-}
-
 export type ScanType = 'files' | 'folders';
 
 export type Views = 'locked' | 'chooseItems' | 'scan';

@@ -144,7 +144,6 @@ app
 eventBus.on('WIDGET_IS_READY', () => {
   setUpBackups();
 
-  // Initialize antivirus with better logging and error handling
   try {
     Logger.info('[Main] Setting up antivirus IPC handlers');
     setupAntivirusIpc();

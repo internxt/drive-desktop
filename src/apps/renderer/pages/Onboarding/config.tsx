@@ -11,6 +11,7 @@ import {
   OnboardingSlide,
   SideImageAnimation,
   SideTextAnimation,
+  getAntivirusImageSvg,
   getFinderImage,
   getOfflineImageSvg,
   getOnlineImageSvg,
@@ -20,6 +21,7 @@ import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
+import { AntivirusSlide } from './slides/AntivirusSlide';
 export const SLIDES: OnboardingSlide[] = [
   {
     name: 'Welcome Slide',
@@ -205,6 +207,45 @@ export const SLIDES: OnboardingSlide[] = [
         <div className="relative mt-8 flex h-full w-full items-center justify-center ">
           <SideImageAnimation display>
             <ContextMenuSvg />
+          </SideImageAnimation>
+        </div>
+      );
+    },
+  },
+  {
+    name: 'Antivirus Slide',
+    component: (props) => {
+      return (
+        <div className="flex h-full w-full ">
+          <SideTextAnimation display>
+            <AntivirusSlide {...props} />
+          </SideTextAnimation>
+        </div>
+      );
+    },
+    footer: (props) => {
+      const { translate } = useTranslationContext();
+      return (
+        <div className="flex w-full flex-1 items-end justify-center">
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
+            {translate('onboarding.common.continue')}
+          </Button>
+          <span className="ml-auto text-gray-50">
+            {translate('onboarding.common.onboarding-progress', {
+              current_slide: props.currentSlide,
+              total_slides: props.totalSlides,
+            })}
+          </span>
+        </div>
+      );
+    },
+    image: () => {
+      const { language } = useTranslationContext();
+      const Image = getAntivirusImageSvg(language);
+      return (
+        <div className="relative flex h-full w-full items-center justify-center ">
+          <SideImageAnimation display>
+            <Image />
           </SideImageAnimation>
         </div>
       );

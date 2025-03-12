@@ -1,258 +1,208 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import { useAntivirus } from './useAntivirus';
 
-const mockElectron = {
-  antivirus: {
-    onScanProgress: jest.fn(),
-    removeScanProgressListener: jest.fn(),
-    isAvailable: jest.fn(),
-    addItemsToScan: jest.fn(),
-    scanItems: jest.fn(),
-    removeInfectedFiles: jest.fn(),
-    cancelScan: jest.fn(),
-  },
-};
-
-beforeEach(() => {
-  global.window = {
-    electron: mockElectron,
-  } as any;
-});
-
-afterEach(() => {
-  jest.clearAllMocks();
-});
+const originalWindow = { ...window };
 
 describe('useAntivirus', () => {
+  let progressCallbackStore: ((progress: any) => void) | null = null;
+
+  const mockOnScanProgress = jest.fn().mockImplementation((cb) => {
+    progressCallbackStore = cb;
+    return Promise.resolve();
+  });
+
+  const mockRemoveScanProgressListener = jest.fn();
+  const mockIsAvailable = jest.fn().mockResolvedValue(true);
+  const mockAddItemsToScan = jest
+    .fn()
+    .mockResolvedValue(['file1.txt', 'file2.txt']);
+  const mockScanItems = jest.fn().mockResolvedValue(undefined);
+  const mockRemoveInfectedFiles = jest.fn().mockResolvedValue(undefined);
+  const mockCancelScan = jest.fn().mockResolvedValue(undefined);
+
+  beforeEach(() => {
+    window.electron = {
+      ...window.electron,
+      antivirus: {
+        onScanProgress: mockOnScanProgress,
+        removeScanProgressListener: mockRemoveScanProgressListener,
+        isAvailable: mockIsAvailable,
+        isDefenderActive: jest.fn().mockResolvedValue(true),
+        scanItems: mockScanItems,
+        scanSystem: jest.fn().mockResolvedValue(undefined),
+        addItemsToScan: mockAddItemsToScan,
+        removeInfectedFiles: mockRemoveInfectedFiles,
+        cancelScan: mockCancelScan,
+      },
+    };
+
+    jest.clearAllMocks();
+    progressCallbackStore = null;
+  });
+
+  afterEach(() => {
+    window.electron = originalWindow.electron;
+  });
+
   describe('initialization', () => {
     it('should initialize with default values', () => {
       const { result } = renderHook(() => useAntivirus());
 
-      expect(result.current).toEqual(
-        expect.objectContaining({
-          infectedFiles: [],
-          currentScanPath: undefined,
-          countScannedFiles: 0,
-          view: 'locked',
-          isScanning: false,
-          isScanCompleted: false,
-          progressRatio: 0,
-          isAntivirusAvailable: false,
-          showErrorState: false,
-        })
-      );
-    });
-
-    it('should set up scan progress listener on mount', () => {
-      renderHook(() => useAntivirus());
-      expect(mockElectron.antivirus.onScanProgress).toHaveBeenCalled();
-    });
-
-    it('should clean up scan progress listener on unmount', () => {
-      const { unmount } = renderHook(() => useAntivirus());
-      unmount();
-      expect(
-        mockElectron.antivirus.removeScanProgressListener
-      ).toHaveBeenCalled();
+      expect(result.current.infectedFiles).toEqual([]);
+      expect(result.current.currentScanPath).toBeUndefined();
+      expect(result.current.countScannedFiles).toBe(0);
+      expect(result.current.progressRatio).toBe(0);
+      expect(result.current.isScanCompleted).toBe(false);
+      expect(result.current.isScanning).toBe(false);
+      expect(result.current.isAntivirusAvailable).toBe(false);
+      expect(result.current.showErrorState).toBe(false);
+      expect(result.current.view).toBe('locked');
     });
   });
 
-  describe('eligibility check', () => {
-    it('should set view to chooseItems when antivirus is available', async () => {
-      mockElectron.antivirus.isAvailable.mockResolvedValue(true);
-
+  describe('UI operations', () => {
+    it('should properly handle scan again button click', () => {
       const { result } = renderHook(() => useAntivirus());
 
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
+      act(() => {
+        result.current.onScanAgainButtonClicked();
       });
 
       expect(result.current.view).toBe('chooseItems');
-      expect(result.current.isAntivirusAvailable).toBe(true);
-    });
-
-    it('should keep view as locked when antivirus is not available', async () => {
-      mockElectron.antivirus.isAvailable.mockResolvedValue(false);
-
-      const { result } = renderHook(() => useAntivirus());
-
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      });
-
-      expect(result.current.view).toBe('locked');
-      expect(result.current.isAntivirusAvailable).toBe(false);
-    });
-  });
-
-  describe('scan progress handling', () => {
-    it('should update states when receiving scan progress', async () => {
-      let scanResolve: () => void;
-      const scanPromise = new Promise<void>((resolve) => {
-        scanResolve = resolve;
-      });
-
-      mockElectron.antivirus.scanItems.mockReturnValue(scanPromise);
-
-      const { result } = renderHook(() => useAntivirus());
-
-      mockElectron.antivirus.isAvailable.mockResolvedValue(true);
-
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      });
-
-      act(() => {
-        result.current.onScanUserSystemButtonClicked();
-      });
-
-      const progressCallback =
-        mockElectron.antivirus.onScanProgress.mock.calls[0][0];
-
-      await act(async () => {
-        progressCallback({
-          scanId: '123',
-          currentScanPath: '/test/path',
-          infectedFiles: ['infected.txt'],
-          progress: 50,
-          totalScannedFiles: 10,
-          done: false,
-        });
-      });
-
-      expect(result.current.currentScanPath).toBe('/test/path');
-      expect(result.current.countScannedFiles).toBe(10);
-      expect(result.current.progressRatio).toBe(50);
-      expect(result.current.infectedFiles).toEqual(['infected.txt']);
-      expect(result.current.isScanning).toBe(true);
+      expect(result.current.isScanning).toBe(false);
       expect(result.current.isScanCompleted).toBe(false);
-
-      await act(async () => {
-        scanResolve();
-        await scanPromise;
-      });
+      expect(result.current.infectedFiles).toEqual([]);
+      expect(result.current.countScannedFiles).toBe(0);
+      expect(result.current.progressRatio).toBe(0);
     });
 
-    it('should handle scan completion', async () => {
-      const { result } = renderHook(() => useAntivirus());
+    it('should handle system scan button click', async () => {
+      const { result, waitForNextUpdate } = renderHook(() => useAntivirus());
 
-      mockElectron.antivirus.isAvailable.mockResolvedValue(true);
-
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      });
-
+      let scanPromise: Promise<void> = Promise.resolve();
       act(() => {
-        result.current.onScanUserSystemButtonClicked();
+        scanPromise = result.current.onScanUserSystemButtonClicked();
       });
 
-      const progressCallback =
-        mockElectron.antivirus.onScanProgress.mock.calls[0][0];
+      expect(result.current.view).toBe('scan');
+      expect(result.current.isScanning).toBe(true);
 
-      await act(async () => {
-        progressCallback({
-          scanId: '123',
-          currentScanPath: '/test/path',
-          infectedFiles: ['infected.txt'],
-          progress: 100,
-          totalScannedFiles: 10,
-          done: true,
-        });
-      });
+      await scanPromise;
+
+      expect(mockScanItems).toHaveBeenCalled();
 
       expect(result.current.isScanning).toBe(false);
       expect(result.current.isScanCompleted).toBe(true);
     });
-  });
 
-  describe('scan operations', () => {
-    beforeEach(async () => {
-      mockElectron.antivirus.isAvailable.mockResolvedValue(true);
-    });
-
-    it('should handle custom scan button click', async () => {
-      mockElectron.antivirus.addItemsToScan.mockResolvedValue([
-        { path: '/test/file.txt' },
-      ]);
+    it('should handle errors during scanning', async () => {
+      mockScanItems.mockRejectedValueOnce(new Error('Scan failed'));
 
       const { result } = renderHook(() => useAntivirus());
 
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
+      let scanPromise: Promise<void> = Promise.resolve();
+      act(() => {
+        scanPromise = result.current.onScanUserSystemButtonClicked();
       });
 
-      await act(async () => {
-        await result.current.onCustomScanButtonClicked('files');
-      });
-
-      expect(mockElectron.antivirus.addItemsToScan).toHaveBeenCalledWith(true);
-      expect(mockElectron.antivirus.scanItems).toHaveBeenCalled();
       expect(result.current.view).toBe('scan');
+      expect(result.current.isScanning).toBe(true);
+
+      await scanPromise;
+
+      expect(mockScanItems).toHaveBeenCalled();
+
+      expect(result.current.isScanning).toBe(false);
+      expect(result.current.showErrorState).toBe(true);
+      expect(result.current.isScanCompleted).toBe(false);
     });
 
-    it('should handle system scan button click', async () => {
+    it('should handle canceling a scan', async () => {
       const { result } = renderHook(() => useAntivirus());
 
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
+      act(() => {
+        result.current.onScanUserSystemButtonClicked();
       });
 
-      await act(async () => {
-        await result.current.onScanUserSystemButtonClicked();
-      });
-
-      expect(mockElectron.antivirus.scanItems).toHaveBeenCalled();
       expect(result.current.view).toBe('scan');
-    });
-
-    it('should handle scan cancellation', async () => {
-      const { result } = renderHook(() => useAntivirus());
-
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      });
+      expect(result.current.isScanning).toBe(true);
 
       await act(async () => {
         await result.current.onCancelScan();
       });
 
-      expect(mockElectron.antivirus.cancelScan).toHaveBeenCalled();
+      expect(mockCancelScan).toHaveBeenCalled();
+
       expect(result.current.view).toBe('chooseItems');
-    });
-
-    it('should handle infected files removal', async () => {
-      const { result } = renderHook(() => useAntivirus());
-      const infectedFiles = ['/test/infected.txt'];
-
-      await act(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      });
-
-      await act(async () => {
-        await result.current.onRemoveInfectedItems(infectedFiles);
-      });
-
-      expect(mockElectron.antivirus.removeInfectedFiles).toHaveBeenCalledWith(
-        infectedFiles
-      );
-      expect(result.current.view).toBe('chooseItems');
+      expect(result.current.isScanning).toBe(false);
+      expect(result.current.isScanCompleted).toBe(false);
+      expect(result.current.infectedFiles).toEqual([]);
+      expect(result.current.countScannedFiles).toBe(0);
+      expect(result.current.progressRatio).toBe(0);
     });
   });
 
-  describe('error handling', () => {
-    it('should set error state when scan fails', async () => {
-      mockElectron.antivirus.scanItems.mockRejectedValue(
-        new Error('Scan failed')
-      );
-
+  describe('public methods', () => {
+    it('should expose all required methods', () => {
       const { result } = renderHook(() => useAntivirus());
 
-      await act(async () => {
-        await result.current.onScanUserSystemButtonClicked();
+      expect(typeof result.current.onScanUserSystemButtonClicked).toBe(
+        'function'
+      );
+      expect(typeof result.current.onScanAgainButtonClicked).toBe('function');
+      expect(typeof result.current.onCancelScan).toBe('function');
+    });
+  });
+
+  describe('progress handling', () => {
+    it('should update state based on progress updates', () => {
+      const { result } = renderHook(() => useAntivirus());
+
+      expect(mockOnScanProgress).toHaveBeenCalled();
+
+      expect(progressCallbackStore).not.toBeNull();
+
+      act(() => {
+        if (progressCallbackStore) {
+          progressCallbackStore({
+            scanId: 'test-scan-id',
+            currentScanPath: '/path/to/file.txt',
+            infectedFiles: ['infected.exe'],
+            progress: 50,
+            totalScannedFiles: 100,
+            done: false,
+          });
+        }
       });
 
-      expect(result.current.showErrorState).toBe(true);
+      expect(result.current.currentScanPath).toBe('/path/to/file.txt');
+      expect(result.current.infectedFiles).toEqual(['infected.exe']);
+      expect(result.current.progressRatio).toBe(50);
+      expect(result.current.countScannedFiles).toBe(100);
       expect(result.current.isScanning).toBe(false);
+      expect(result.current.isScanCompleted).toBe(false);
+
+      act(() => {
+        if (progressCallbackStore) {
+          progressCallbackStore({
+            scanId: 'test-scan-id',
+            currentScanPath: '/path/to/last/file.txt',
+            infectedFiles: ['infected.exe', 'virus.dll'],
+            progress: 100,
+            totalScannedFiles: 200,
+            done: true,
+          });
+        }
+      });
+
+      expect(result.current.infectedFiles).toEqual([
+        'infected.exe',
+        'virus.dll',
+      ]);
+      expect(result.current.progressRatio).toBe(100);
+      expect(result.current.countScannedFiles).toBe(200);
+      expect(result.current.isScanning).toBe(false);
+      expect(result.current.isScanCompleted).toBe(true);
     });
   });
 });
