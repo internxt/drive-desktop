@@ -21,7 +21,7 @@ import { HandleHydrateService } from './callbacks/handleHydrate.service';
 import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
 import { HandleAddService } from './callbacks/handleAdd.service';
 import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
-import { DangledFilesManager } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
+import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 
 export type CallbackDownload = (
   success: boolean,
@@ -332,10 +332,10 @@ export class BindingsManager {
 
     Logger.debug('[SYNC ENGINE] Polling finished');
 
-    DangledFilesManager.getInstance().pushAndClean(async (contentsIds: string[]) => {
+    DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
           await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
-            itemIds: contentsIds,
-            fileFilter: { isDangledStatus: false },
+            toUpdate: input.toUpdateContentsIds,
+            toDelete: input.toDeleteContentsIds,
           });
         });
   }

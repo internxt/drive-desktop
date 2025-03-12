@@ -56,6 +56,15 @@ export async function setAsNotDangledFiles(filesIds: string[]) {
   });
 }
 
+export const updateFileInBatch = async (itemsId: string[], file: Partial<DriveFile>) => {
+  await driveFilesCollection.updateInBatch({
+    where: {
+      fileId: In(itemsId),
+    },
+    updatePayload: file,
+  });
+};
+
 export const deleteFileInBatch = async (itemsIds: string[]) => {
   await driveFilesCollection.removeInBatch(
     {
@@ -206,7 +215,9 @@ ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
 
 ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
   Logger.info('Updating fixed files', inputData);
-  return await deleteFileInBatch(inputData.itemIds);
+  await updateFileInBatch(inputData.toUpdate, { isDangledStatus: false });
+  await deleteFileInBatch(inputData.toDelete);
+  return;
 });
 
 export async function startRemoteSync(folderId?: number): Promise<void> {

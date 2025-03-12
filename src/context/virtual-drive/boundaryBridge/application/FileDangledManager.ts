@@ -4,21 +4,21 @@ import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
 import { FileOverwriteContent } from '../../files/application/FileOverwriteContent';
 import Logger from 'electron-log';
-import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
+import { DangledFilesManager, PushAndCleanInput } from '../../shared/domain/DangledFilesManager';
 
 export class FileDangledManager {
     constructor(
         private readonly contentsUploader: RetryContentsUploader,
         private readonly contentsManagerFactory: EnvironmentRemoteFileContentsManagersFactory,
         private readonly fileOverwriteContent: FileOverwriteContent,
-    ) {}
+    ) { }
 
     async run(): Promise<void> {
-        await DangledFilesManager.getInstance().pushAndClean(async (contentsIds: string[]) => {
+        await DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
             await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
-                itemIds: contentsIds,
-                fileFilter: { isDangledStatus: false },
-              });
+                toUpdate: input.toUpdateContentsIds,
+                toDelete: input.toDeleteContentsIds,
+            });
         });
         const filesToCheck: DriveFile[] = await ipcRenderer.invoke('FIND_DANGLED_FILES');
 
