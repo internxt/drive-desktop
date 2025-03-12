@@ -1,18 +1,18 @@
 import { getUser } from '../main/auth/service';
 
-export interface Config {
+export type Config = {
   providerId: string;
   rootPath: string;
   rootUuid: string;
   providerName: string;
   loggerPath: string;
   workspaceId: string;
-  workspaceToken?: string | null;
+  workspaceToken: string | undefined;
   bucket: string;
   mnemonic: string;
   bridgeUser: string;
   bridgePass: string;
-}
+};
 
 let config: Config = {
   providerId: '',
@@ -25,7 +25,7 @@ let config: Config = {
   mnemonic: '',
   bridgePass: '',
   bridgeUser: '',
-  workspaceToken: null,
+  workspaceToken: undefined,
 };
 
 const defaultValues = (): Config => {
@@ -45,7 +45,7 @@ const defaultValues = (): Config => {
     mnemonic: user.mnemonic || config.mnemonic,
     bridgeUser: user.bridgeUser || config.bridgeUser,
     bridgePass: user.userId || config.bridgePass,
-    workspaceToken: config.workspaceToken || null,
+    workspaceToken: config.workspaceToken,
   };
 };
 
