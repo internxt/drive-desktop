@@ -302,9 +302,6 @@ contextBridge.exposeInMainWorld('electron', {
   addFakeIssues(errorsName, process) {
     return ipcRenderer.invoke('add-fake-sync-issues', { errorsName, process });
   },
-  sendFeedback(feedback) {
-    return ipcRenderer.invoke('send-feedback', feedback);
-  },
   onRemoteSyncStatusChange(callback) {
     const eventName = 'remote-sync-status-change';
     const callbackWrapper = (_, v) => {

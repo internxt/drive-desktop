@@ -2,7 +2,6 @@ import { ipcMain } from 'electron';
 import Logger from 'electron-log';
 
 import { AccessResponse } from '../../renderer/pages/Login/service';
-import { applicationOpened } from '../analytics/service';
 import eventBus from '../event-bus';
 import { clearRootVirtualDrive, setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
@@ -86,7 +85,6 @@ eventBus.on('APP_IS_READY', async () => {
   }
   await checkUserData();
   encryptToken();
-  applicationOpened();
   await createTokenSchedule();
   eventBus.emit('USER_LOGGED_IN');
 });

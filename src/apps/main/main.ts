@@ -25,7 +25,6 @@ import './tray/tray';
 import './tray/handlers';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
-import './analytics/handlers';
 import './platform/handlers';
 import './migration/handlers';
 import './config/handlers';
