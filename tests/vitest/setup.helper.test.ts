@@ -59,19 +59,6 @@ vi.mock('../event-bus', () => {
   };
 });
 
-vi.mock('@apps/main/analytics/rudderstack-client', () => {
-  return {
-    client: {
-      identify: vi.fn().mockReturnValue(Promise.resolve()),
-      track: vi.fn().mockReturnValue(Promise.resolve()),
-      page: vi.fn().mockReturnValue(Promise.resolve()),
-      alias: vi.fn().mockReturnValue(Promise.resolve()),
-      group: vi.fn().mockReturnValue(Promise.resolve()),
-      flush: vi.fn().mockReturnValue(Promise.resolve()),
-    },
-  };
-});
-
 vi.mock('electron', async () => {
   const ipcMainHandlers: Record<string, (...args: any[]) => void> = {};
   const actual = await vi.importActual<typeof import('electron')>('electron');

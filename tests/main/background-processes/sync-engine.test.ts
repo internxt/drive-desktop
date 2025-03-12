@@ -65,5 +65,5 @@ describe('Sync Engine Worker', () => {
     await stopAndClearSyncEngineWatcher(mockConfig.workspaceId);
 
     expect(workers['workspace-1']).toBeUndefined();
-  }, 15000);
+  });
 });
