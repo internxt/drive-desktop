@@ -193,7 +193,7 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-const spawnAllSyncEngineWorker = async () => {
+export const spawnAllSyncEngineWorker = async () => {
   const user = getUser();
 
   if (!user) {
@@ -255,4 +255,3 @@ const spawnAllSyncEngineWorker = async () => {
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearAllSyncEngineWatcher);
-eventBus.on('INITIAL_SYNC_READY', spawnAllSyncEngineWorker);

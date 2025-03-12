@@ -17,7 +17,6 @@ import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
 import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator';
 import { getParentDirectory, relativeV2 } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
-import { UserAvaliableSpaceValidator } from '../../context/user/usage/application/UserAvaliableSpaceValidator';
 import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
 import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/RemoteTree';
@@ -35,7 +34,6 @@ export class Backup {
     private readonly remoteFileDeleter: FileDeleter,
     private readonly remoteFolderDeleter: FolderDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
-    private readonly userAvaliableSpaceValidator: UserAvaliableSpaceValidator,
   ) {}
 
   private backed = 0;

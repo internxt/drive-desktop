@@ -7,7 +7,12 @@ import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine, fallbackSyncEngine, sendUpdateFilesInSyncPending } from '../background-processes/sync-engine';
+import {
+  updateSyncEngine,
+  fallbackSyncEngine,
+  sendUpdateFilesInSyncPending,
+  spawnAllSyncEngineWorker,
+} from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { setTrayStatus } from '../tray/tray';
 import { DriveFile } from '../database/entities/DriveFile';
@@ -310,12 +315,13 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
     await initializeRemoteSyncManagers();
+
     remoteSyncManagers.forEach((manager) => {
       manager.isProcessRunning = true;
     });
-    await populateAllRemoteSync();
 
-    eventBus.emit('INITIAL_SYNC_READY');
+    await populateAllRemoteSync();
+    await spawnAllSyncEngineWorker();
   } catch (error) {
     throw logger.error({
       msg: 'Error initializing remote sync managers',

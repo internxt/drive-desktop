@@ -1,7 +1,6 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
 import path from 'path';
 import PackageJson from '../../../../package.json';
-import eventBus from '../event-bus';
 import { getOrCreateWidged, setBoundsOfWidgetByPath, toggleWidgetVisibility } from '../windows/widget';
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
@@ -137,5 +136,3 @@ export function setupTrayIcon() {
 
   tray = new TrayMenu(iconsPath, onTrayClick, onQuitClick);
 }
-
-eventBus.on('APP_IS_READY', setupTrayIcon);

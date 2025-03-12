@@ -2,8 +2,6 @@
 import { logger } from '../../../shared/logger/logger';
 import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { reportError } from '../../bug-report/service';
-import Logger from 'electron-log';
 import { FetchRemoteFoldersService } from './fetch-remote-folders.service';
 import { FetchFoldersService, FetchFoldersServiceParams } from './fetch-folders.service.interface';
 import { FetchWorkspaceFoldersService } from './fetch-workspace-folders.service';
@@ -72,11 +70,7 @@ export class SyncRemoteFoldersService {
 
       return allResults;
     } catch (error) {
-      Logger.error('Remote folders sync failed with error: ', error);
-
-      reportError(error as Error, {
-        lastFoldersSyncAt: from ? from.toISOString() : 'INITIAL_FOLDERS_SYNC',
-      });
+      logger.error({ msg: 'Remote folders sync failed with error: ', exc: error });
 
       if (retry >= MAX_RETRIES) {
         self.foldersSyncStatus = 'SYNC_FAILED';

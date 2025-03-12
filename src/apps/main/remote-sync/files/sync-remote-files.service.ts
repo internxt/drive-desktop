@@ -2,8 +2,6 @@
 import { logger } from '../../../shared/logger/logger';
 import { RemoteSyncedFile } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { reportError } from '../../bug-report/service';
-import Logger from 'electron-log';
 import { FetchRemoteFilesService } from './fetch-remote-files.service';
 import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
 import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
@@ -13,7 +11,7 @@ const MAX_RETRIES = 3;
 export class SyncRemoteFilesService {
   constructor(
     private readonly workspaceId?: string,
-    private fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService(),
+    private readonly fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService(),
   ) {}
 
   async run({
@@ -72,11 +70,7 @@ export class SyncRemoteFilesService {
 
       return allResults;
     } catch (error) {
-      Logger.error('Remote files sync failed with error: ', error);
-
-      reportError(error as Error, {
-        lastFilesSyncAt: from ? from.toISOString() : 'INITIAL_FILES_SYNC',
-      });
+      logger.error({ msg: 'Remote files sync failed with error: ', error });
 
       if (retry >= MAX_RETRIES) {
         self.filesSyncStatus = 'SYNC_FAILED';
