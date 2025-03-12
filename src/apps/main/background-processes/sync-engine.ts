@@ -211,6 +211,7 @@ const spawnAllSyncEngineWorker = async () => {
     bucket: user.bucket,
     bridgeUser: user.bridgeUser,
     bridgePass: user.userId,
+    workspaceToken: undefined,
   };
 
   logger.debug({ msg: 'Spawning sync engine worker for Internxt Drive', values });
