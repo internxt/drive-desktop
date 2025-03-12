@@ -3,7 +3,6 @@ import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
-import * as Sentry from '@sentry/electron/main';
 import { monitorHealth } from './sync-engine/monitor-health';
 import { Config } from '../../sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtual-root-folder/service';
@@ -12,7 +11,6 @@ import { syncWorkspaceService } from '../remote-sync/handlers';
 import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
-import configStore from '../config';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -21,7 +19,7 @@ interface WorkerConfig {
   syncSchedule: nodeSchedule.Job | null;
 }
 
-const workers: { [key: string]: WorkerConfig } = {};
+export const workers: { [key: string]: WorkerConfig } = {};
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -71,7 +69,7 @@ export async function spawnSyncEngineWorker(config: Config) {
     return;
   }
 
-  Logger.info(`[MAIN] SPAWNING SYNC ENGINE WORKER for workspace  ${providerName}: ${workspaceId}...`);
+  Logger.info(`[MAIN] SPAWNING SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId}...`);
   workers[workspaceId].startingWorker = true;
 
   const worker = new BrowserWindow({
@@ -107,11 +105,10 @@ export async function spawnSyncEngineWorker(config: Config) {
     workers[workspaceId].worker = worker;
   } catch (err) {
     Logger.error(`[MAIN] Error loading sync engine worker for workspace ${providerName}: ${workspaceId}`, err);
-    Sentry.captureException(err);
   }
 }
 
-async function stopAndClearSyncEngineWatcher(workspaceId = '') {
+export async function stopAndClearSyncEngineWatcher(workspaceId = '') {
   Logger.info(`[MAIN] STOPPING AND CLEARING SYNC ENGINE WORKER for workspace ${workspaceId}...`);
 
   if (workers[workspaceId] && !workers[workspaceId].workerIsRunning) {
@@ -125,7 +122,6 @@ async function stopAndClearSyncEngineWatcher(workspaceId = '') {
   const response = new Promise<void>((resolve, reject) => {
     ipcMain.on('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (_, error: Error) => {
       Logger.error(`[MAIN] Error stopping sync engine worker for workspace ${workspaceId}`, error);
-      Sentry.captureException(error);
       reject(error);
     });
 
@@ -147,7 +143,6 @@ async function stopAndClearSyncEngineWatcher(workspaceId = '') {
     await response;
   } catch (err) {
     Logger.error(err);
-    Sentry.captureException(err);
   } finally {
     workers[workspaceId]?.worker?.destroy();
     workers[workspaceId].workerIsRunning = false;
@@ -163,7 +158,6 @@ export function updateSyncEngine(workspaceId: string) {
     }
   } catch (err) {
     Logger.error(err);
-    Sentry.captureException(err);
   }
 }
 
@@ -228,7 +222,7 @@ export const spawnAllSyncEngineWorker = async () => {
     workspaces.map(async (workspace) => {
       const workspaceCredential = await FetchWorkspacesService.getCredencials(workspace.id);
 
-      const user = configStore.get('userData');
+      const user = getUser();
 
       if (!user) {
         throw new Error('User not found');

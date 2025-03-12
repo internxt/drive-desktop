@@ -46,8 +46,8 @@ export class SyncRemoteWorkspaceService {
             setupCompleted: workspace.setupCompleted,
             rootFolderId: workspace.rootFolderId ?? '',
             mnemonic: workspaceUser.key,
-            createdAt: new Date(workspace.createdAt),
-            updatedAt: new Date(workspace.updatedAt),
+            createdAt: workspace.createdAt,
+            updatedAt: workspace.updatedAt,
           };
         }),
       );

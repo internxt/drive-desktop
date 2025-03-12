@@ -2,7 +2,6 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFolder } from '../entities/DriveFolder';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
 export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFolder> {
@@ -108,7 +107,6 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         result: queryResult,
       };
     } catch (error) {
-      Sentry.captureException(error);
       Logger.error('Error fetching newest drive folder:', error);
       return {
         success: false,
@@ -130,7 +128,6 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         result: queryResult,
       };
     } catch (error) {
-      Sentry.captureException(error);
       Logger.error('Error fetching newest drive folder:', error);
       return {
         success: false,
@@ -149,7 +146,6 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         result,
       };
     } catch (error) {
-      Sentry.captureException(error);
       Logger.error('Error fetching drive folders:', error);
       return {
         success: false,
