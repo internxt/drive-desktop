@@ -1,6 +1,10 @@
 import { spawn } from 'child_process';
 import Logger from 'electron-log';
-import { prepareConfigFiles, ensureDirectories } from './ClamAVDaemon';
+import {
+  prepareConfigFiles,
+  ensureDirectories,
+  getEnvWithLibraryPath,
+} from './ClamAVDaemon';
 import { freshclamPath } from './constants';
 import { AntivirusError } from './AntivirusError';
 
@@ -12,11 +16,13 @@ export const runFreshclam = (): Promise<void> => {
 
     const { freshclamConfigPath } = prepareConfigFiles();
 
-    const freshclamProcess = spawn(freshclamPath, [
-      '--config-file',
-      freshclamConfigPath,
-      '--foreground',
-    ]);
+    const freshclamProcess = spawn(
+      freshclamPath,
+      ['--config-file', freshclamConfigPath, '--foreground'],
+      {
+        env: getEnvWithLibraryPath(),
+      }
+    );
 
     freshclamProcess.stdout.on('data', (data) => {
       Logger.info(`[freshclam stdout]: ${data}`);

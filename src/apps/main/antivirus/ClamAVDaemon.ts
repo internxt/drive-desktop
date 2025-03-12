@@ -114,6 +114,16 @@ const checkClamdAvailability = (
   });
 };
 
+export const getEnvWithLibraryPath = () => {
+  const env = { ...process.env };
+  const libPath = path.join(RESOURCES_PATH, 'lib');
+
+  env.LD_LIBRARY_PATH = `${libPath}:${env.LD_LIBRARY_PATH || ''}`;
+
+  Logger.info(`[CLAM_AVD] Setting library path to: ${libPath}`);
+  return env;
+};
+
 const startClamdServer = async (): Promise<void> => {
   Logger.info('[CLAM_AVD] Starting clamd server...');
 
@@ -123,13 +133,14 @@ const startClamdServer = async (): Promise<void> => {
     // Prepare configuration files with proper paths
     const { clamdConfigPath } = prepareConfigFiles();
 
+    const env = getEnvWithLibraryPath();
+
     return new Promise((resolve, reject) => {
-      clamdProcess = spawn(clamdPath, [
-        '--config-file',
-        clamdConfigPath,
-        '--foreground',
-        '--debug',
-      ]);
+      clamdProcess = spawn(
+        clamdPath,
+        ['--config-file', clamdConfigPath, '--foreground', '--debug'],
+        { env }
+      );
 
       clamdProcess.stdout.on('data', (data) => {
         const output = data.toString();
