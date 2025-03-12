@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import log from '../../utils/logger';
+import { SelectedItemToScanProps } from '../../../main/antivirus/Antivirus';
 
 export type ScanType = 'files' | 'folders';
 

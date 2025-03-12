@@ -12,8 +12,14 @@ const execAsync = promisify(exec);
 
 export const getFilesFromDirectory = async (
   dir: string,
-  cb: (file: string) => Promise<void>
+  cb: (file: string) => Promise<void>,
+  isCancelled?: () => boolean
 ): Promise<void | null> => {
+  if (isCancelled && isCancelled()) {
+    Logger.info(`Directory traversal cancelled at ${dir}`);
+    return null;
+  }
+
   let items: Dirent[];
   const isFile = await PathTypeChecker.isFile(dir);
 
@@ -54,12 +60,17 @@ export const getFilesFromDirectory = async (
   });
 
   for (const item of nonTempItems) {
+    if (isCancelled && isCancelled()) {
+      Logger.info(`Directory traversal cancelled during processing at ${dir}`);
+      return null;
+    }
+
     const fullPath = resolve(dir, item.name);
     if (item.isDirectory()) {
       try {
         const subitems = await readdir(fullPath, { withFileTypes: true });
         if (subitems.length > 0) {
-          await getFilesFromDirectory(fullPath, cb);
+          await getFilesFromDirectory(fullPath, cb, isCancelled);
         }
       } catch (error: unknown) {
         if (isPermissionError(error)) {

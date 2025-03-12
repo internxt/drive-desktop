@@ -55,7 +55,7 @@ export class ManualSystemScan {
     this.totalItemsToScan = 0;
     this.antivirus = null;
     this.cancelled = false;
-    this.scanSessionId = 0;
+    this.scanSessionId = 1;
 
     const scannedItemsAdapter = new ScannedItemCollection();
     this.dbConnection = new DBScannerConnection(scannedItemsAdapter);
@@ -116,6 +116,17 @@ export class ManualSystemScan {
     }
   };
 
+  private clearAntivirus = async () => {
+    if (this.antivirus) {
+      try {
+        await this.antivirus.stopClamAv();
+        this.antivirus = null;
+      } catch (error) {
+        Logger.error('[SYSTEM_SCAN] Error stopping ClamAV:', error);
+      }
+    }
+  };
+
   public stopScan = async () => {
     this.cancelled = true;
     this.scanSessionId++;
@@ -123,18 +134,12 @@ export class ManualSystemScan {
       this.manualQueue.kill();
     }
 
-    if (this.antivirus) {
-      try {
-        await this.antivirus.stopClamAv();
-      } catch (error) {
-        Logger.error('[SYSTEM_SCAN] Error stopping ClamAV:', error);
-      }
-    }
+    await this.clearAntivirus();
 
-    this.resetCounters();
+    await this.resetCounters();
   };
 
-  private resetCounters() {
+  private async resetCounters() {
     Logger.info('[SYSTEM_SCAN] Resetting scan counters and state');
 
     this.totalScannedFiles = 0;
@@ -152,7 +157,7 @@ export class ManualSystemScan {
       }
     }
 
-    this.antivirus = null;
+    await this.clearAntivirus();
   }
 
   private handlePreviousScannedItem = async (
@@ -196,8 +201,10 @@ export class ManualSystemScan {
     Logger.info(`[SYSTEM_SCAN] Total files to scan: ${total}`);
 
     for (const p of pathsToScan) {
-      await getFilesFromDirectory(p, (filePath: string) =>
-        this.manualQueue!.pushAsync(filePath)
+      await getFilesFromDirectory(
+        p,
+        (filePath: string) => this.manualQueue!.pushAsync(filePath),
+        () => this.cancelled
       );
     }
   }
@@ -234,8 +241,10 @@ export class ManualSystemScan {
 
       Logger.info(`[SYSTEM_SCAN] Total system files to scan: ${total}`);
 
-      await getFilesFromDirectory(userSystemPath.path, (filePath: string) =>
-        this.manualQueue!.pushAsync(filePath)
+      await getFilesFromDirectory(
+        userSystemPath.path,
+        (filePath: string) => this.manualQueue!.pushAsync(filePath),
+        () => this.cancelled
       );
     } catch (error) {
       Logger.error('[SYSTEM_SCAN] Error in system scan process:', error);
@@ -245,7 +254,7 @@ export class ManualSystemScan {
 
   public async scanItems(pathNames?: string[]): Promise<void> {
     this.cancelled = false;
-    this.resetCounters();
+    await this.resetCounters();
     let reportProgressInterval: NodeJS.Timeout | null = null;
     let scanCompleted = false;
 
