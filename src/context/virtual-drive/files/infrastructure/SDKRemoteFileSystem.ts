@@ -4,7 +4,7 @@ import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { FileDataToPersist, PersistedFileData } from '../domain/file-systems/RemoteFileSystem';
-import { OfflineFile } from '../domain/OfflineFile';
+import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import * as uuidv4 from 'uuid';
 import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
 import Logger from 'electron-log';
@@ -25,6 +25,41 @@ export class SDKRemoteFileSystem {
     private readonly bucket: string,
   ) {}
 
+  async deleteAndPersist(attributes: OfflineFileAttributes, newContentsId: string): Promise<FileAttributes> {
+    if (!newContentsId) {
+      throw new Error('Failed to generate new contents id');
+    }
+  
+    Logger.info('New contents id generated', newContentsId, ' path: ', attributes.path);
+    await this.hardDelete(attributes.contentsId);
+    
+    Logger.info('Deleted old contents id', attributes.contentsId, ' path: ', attributes.path);
+  
+    const delays = [50, 100, 200];
+    let isDeleted = false;
+  
+    for (const delay of delays) {
+      await new Promise(resolve => setTimeout(resolve, delay));
+      const fileCheck = await this.getFileByPath(attributes.path);
+      if (!fileCheck) {
+        isDeleted = true;
+        break;
+      }
+      Logger.info(`File still exists after ${delay}ms delay, retrying...`);
+    }
+  
+    if (!isDeleted) {
+      throw new Error(`File deletion not confirmed for path: ${attributes.path} after retries`);
+    }
+    const offlineFile = OfflineFile.from({ ...attributes, contentsId: newContentsId });
+    
+    const persistedFile = await this.persist(offlineFile);
+    Logger.info('Persisted new contents id', newContentsId, ' path: ', attributes.path);
+    
+    return persistedFile;
+  }
+
+  
   async persist(offline: OfflineFile): Promise<FileAttributes> {
     const encryptedName = this.crypt.encryptName(offline.name, offline.folderId.toString());
 
