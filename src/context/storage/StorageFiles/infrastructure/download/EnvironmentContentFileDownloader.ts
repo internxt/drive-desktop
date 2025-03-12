@@ -8,6 +8,7 @@ import {
   DownloadEvents,
   DownloaderHandler,
 } from '../../domain/download/DownloaderHandler';
+import logger from 'electron-log';
 
 export class EnvironmentContentFileDownloader implements DownloaderHandler {
   private eventEmitter: EventEmitter;
@@ -34,16 +35,23 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
   }
 
   download(file: StorageFile): Promise<Readable> {
+    return this.executeDownload(file.id.value);
+  }
+
+  downloadById(fileId: string): Promise<Readable> {
+    return this.executeDownload(fileId);
+  }
+
+  private executeDownload(fileId: string): Promise<Readable> {
     this.stopwatch.start();
-
     this.eventEmitter.emit('start');
-
     return new Promise((resolve, reject) => {
       this.state = this.fn(
         this.bucket,
-        file.id.value,
+        fileId,
         {
           progressCallback: (progress: number) => {
+            logger.info(`[DOWNLOAD PROGRESS] ${progress}`);
             this.eventEmitter.emit('progress', progress, this.elapsedTime());
           },
           finishedCallback: async (err: Error, stream: Readable) => {

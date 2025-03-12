@@ -39,6 +39,23 @@ export class InMemoryFileRepository implements FileRepository {
     return File.from(attributes);
   }
 
+  async searchByArrayOfContentsId(
+    contentsIds: Array<File['contentsId']>
+  ): Promise<Array<File>> {
+    const files = contentsIds
+      .map((contentsId) => {
+        const file = this.filesByContentsId.get(contentsId);
+
+        if (file) {
+          return File.from(file);
+        }
+
+        return undefined;
+      })
+      .filter((file) => file !== undefined) as Array<File>;
+    return files;
+  }
+
   public all(): Promise<Array<File>> {
     const files = [...this.filesByUuid.values()].map((attributes) =>
       File.from(attributes)
