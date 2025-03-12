@@ -2482,6 +2482,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/gateway/users/storage/stackability': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Check if user can expand storage space */
+    get: operations['GatewayController_checkUserStorageExpansion'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -7614,6 +7631,34 @@ export interface operations {
     requestBody?: never;
     responses: {
       /** @description Details of the user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_checkUserStorageExpansion: {
+    parameters: {
+      query: {
+        /**
+         * @description UUID of the user
+         * @example f9d113e3-8267-4419-a309-9b601f4f6f9b
+         */
+        userUuid: string;
+        /**
+         * @description Extra space to add to user in bytes
+         * @example 3298534883328
+         */
+        additionalBytes: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
       200: {
         headers: {
           [name: string]: unknown;

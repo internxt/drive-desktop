@@ -32,10 +32,10 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: yarn --ignore-scripts
+        run: yarn install --ignore-scripts
 
       - name: Run Prettier
-        run: yarn prettier src --check
+        run: yarn format
 
       - name: Run Eslint
         run: yarn lint

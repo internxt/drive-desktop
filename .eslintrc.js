@@ -1,5 +1,4 @@
 module.exports = {
-  ignorePatterns: ['schema.d.ts'],
   extends: ['@internxt/eslint-config-internxt'],
   overrides: [
     {
@@ -30,14 +29,6 @@ module.exports = {
   },
   parser: '@typescript-eslint/parser',
   settings: {
-    'import/resolver': {
-      // See https://github.com/benmosher/eslint-plugin-import/issues/1396#issuecomment-575727774 for line below
-      node: {},
-      webpack: {
-        config: require.resolve('./.erb/configs/webpack.config.eslint.ts'),
-      },
-      typescript: {},
-    },
     'import/parsers': {
       '@typescript-eslint/parser': ['.ts', '.tsx'],
     },
