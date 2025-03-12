@@ -28,7 +28,12 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "allowJs": true,
-    "outDir": "release/app/dist"
+    "outDir": "release/app/dist",
+    "types": [
+      "jest",
+      "@testing-library/jest-dom",
+      "node"
+    ]
   },
   "exclude": [
     "release/build",
