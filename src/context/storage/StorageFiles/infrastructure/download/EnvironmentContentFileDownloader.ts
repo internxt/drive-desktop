@@ -8,7 +8,6 @@ import {
   DownloadEvents,
   DownloaderHandler,
 } from '../../domain/download/DownloaderHandler';
-import logger from 'electron-log';
 
 export class EnvironmentContentFileDownloader implements DownloaderHandler {
   private eventEmitter: EventEmitter;
@@ -51,7 +50,6 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
         fileId,
         {
           progressCallback: (progress: number) => {
-            logger.info(`[DOWNLOAD PROGRESS] ${progress}`);
             this.eventEmitter.emit('progress', progress, this.elapsedTime());
           },
           finishedCallback: async (err: Error, stream: Readable) => {
