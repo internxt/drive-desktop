@@ -10,9 +10,10 @@ import TerserPlugin from 'terser-webpack-plugin';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import Dotenv from 'dotenv-webpack';
+import { ENV } from '../../src/core/env/env';
 
 const configuration: webpack.Configuration = {
-  mode: process.env.NODE_ENV,
+  mode: ENV.NODE_ENV,
 
   target: 'electron-renderer',
 
@@ -51,7 +52,7 @@ const configuration: webpack.Configuration = {
         removeComments: true,
       },
       isBrowser: false,
-      isDevelopment: process.env.NODE_ENV !== 'production',
+      isDevelopment: ENV.NODE_ENV !== 'production',
     }),
   ],
 };

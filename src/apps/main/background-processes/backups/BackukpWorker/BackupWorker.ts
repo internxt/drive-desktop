@@ -1,3 +1,4 @@
+import { ENV } from '@/core/env/env';
 import { BrowserWindow } from 'electron';
 import Logger from 'electron-log';
 import path from 'path';
@@ -29,7 +30,7 @@ export class BackupWorker {
       show: false,
     });
 
-    worker.loadFile(process.env.NODE_ENV === 'development' ? BackupWorker.DEV_PATH : BackupWorker.PROD_PATH).catch(Logger.error);
+    worker.loadFile(ENV.NODE_ENV === 'development' ? BackupWorker.DEV_PATH : BackupWorker.PROD_PATH).catch(Logger.error);
 
     return new BackupWorker(id, worker);
   }

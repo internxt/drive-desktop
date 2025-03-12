@@ -5,6 +5,7 @@ import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 import { logger } from '../shared/logger/logger';
 import { updateRemoteSync } from './remote-sync/handlers';
+import { ENV } from '@/core/env/env';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -18,7 +19,7 @@ let user = getUser();
 function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
 
-  socket = io(process.env.NOTIFICATIONS_URL, {
+  socket = io(ENV.NOTIFICATIONS_URL, {
     transports: ['websocket'],
     auth: {
       token: obtainToken('newToken'),
