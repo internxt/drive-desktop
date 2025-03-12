@@ -56,10 +56,12 @@ vi.mock('@/apps/main/auth/service', () => {
 });
 
 vi.mock('../event-bus', () => {
+  const listeners: Record<string, ((...args: any[]) => void)[]> = {};
+
   return {
     default: {
-      emit: vi.fn(),
-      on: vi.fn(),
+      emit: vi.fn((event, ...args) => listeners[event] && listeners[event].forEach((listener) => listener(...args))),
+      on: vi.fn((event, callback) => listeners[event] && listeners[event].push(callback)),
     },
   };
 });
@@ -74,5 +76,93 @@ vi.mock('@apps/main/analytics/rudderstack-client', () => {
       group: vi.fn().mockReturnValue(Promise.resolve()),
       flush: vi.fn().mockReturnValue(Promise.resolve()),
     },
+  };
+});
+
+vi.mock('electron', async () => {
+  const ipcMainHandlers: Record<string, (...args: any[]) => void> = {};
+  const actual = await vi.importActual<typeof import('electron')>('electron');
+  return {
+    ...actual,
+    app: {
+      ...actual.app,
+      getPath: vi.fn(() => '/mock/path'),
+      on: vi.fn(),
+    },
+    ipcMain: {
+      on: vi.fn((event, callback) => {
+        ipcMainHandlers[event] = callback;
+      }),
+      emit: vi.fn((event, ...args) => ipcMainHandlers[event] && ipcMainHandlers[event](...args)),
+      handle: vi.fn((event, callback) => {
+        ipcMainHandlers[event] = callback;
+      }),
+      invoke: vi.fn((event, ...args) => ipcMainHandlers[event] && ipcMainHandlers[event](...args)),
+    },
+    BrowserWindow: vi.fn().mockImplementation(() => ({
+      loadFile: vi.fn(),
+      webContents: {
+        send: vi.fn(),
+        on: vi.fn(),
+        getOSProcessId: vi.fn().mockReturnValue(1234),
+      },
+      destroy: vi.fn(),
+      isDestroyed: vi.fn().mockReturnValue(false),
+    })),
+    ipcRenderer: {
+      on: vi.fn(
+        (event, callback) =>
+          ipcMainHandlers[event] &&
+          ipcMainHandlers[event]({
+            sender: {
+              send: vi.fn(),
+            },
+          }),
+      ),
+      send: vi.fn(
+        (event, ...args) =>
+          ipcMainHandlers[event] &&
+          ipcMainHandlers[event](
+            {
+              sender: {
+                send: vi.fn(),
+              },
+            },
+            ...args,
+          ),
+      ),
+      handle: vi.fn(
+        (event, callback) =>
+          ipcMainHandlers[event] &&
+          ipcMainHandlers[event]({
+            sender: {
+              send: vi.fn(),
+            },
+          }),
+      ),
+      invoke: vi.fn(
+        (event, ...args) =>
+          ipcMainHandlers[event] &&
+          ipcMainHandlers[event]({
+            sender: {
+              send: vi.fn(),
+            },
+          }),
+      ),
+    },
+  };
+});
+
+vi.mock('@/apps/main/virtual-root-folder/service.ts', () => {
+  return {
+    getLoggersPaths: vi.fn(() => '/mock/logs'),
+    getRootVirtualDrive: vi.fn(() => '/mock/path'),
+    getRootWorkspace: vi.fn(() => ({
+      logEnginePath: '/mock/logs',
+      logWatcherPath: '/mock/logs',
+      persistQueueManagerPath: '/mock/logs',
+      syncRoot: '/mock/path',
+      lastSavedListing: '/mock/logs',
+    })),
   };
 });

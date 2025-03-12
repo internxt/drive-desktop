@@ -1,50 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BrowserWindow, ipcMain, ipcRenderer } from 'electron';
+import { BrowserWindow, ipcRenderer } from 'electron';
 import { Config } from '@/apps/sync-engine/config';
 import { spawnSyncEngineWorker, stopAndClearSyncEngineWatcher, workers } from '@/apps/main/background-processes/sync-engine';
-import { mockDeep } from 'vitest-mock-extended';
-
-vi.mock('@/apps/main/virtual-root-folder/service.ts', () => {
-  return {
-    getLoggersPaths: vi.fn(() => '/mock/logs'),
-    getRootVirtualDrive: vi.fn(() => '/mock/path'),
-    getRootWorkspace: vi.fn(() => ({
-      logEnginePath: '/mock/logs',
-      logWatcherPath: '/mock/logs',
-      persistQueueManagerPath: '/mock/logs',
-      syncRoot: '/mock/path',
-      lastSavedListing: '/mock/logs',
-    })),
-  };
-});
-
-vi.mock('electron', async () => {
-  const actual = await vi.importActual<typeof import('electron')>('electron');
-  return {
-    ...actual,
-    app: {
-      ...actual.app,
-      getPath: vi.fn(() => '/mock/path'),
-      on: vi.fn(),
-    },
-    BrowserWindow: vi.fn().mockImplementation(() => ({
-      loadFile: vi.fn(),
-      webContents: {
-        send: vi.fn(),
-        on: vi.fn(),
-        getOSProcessId: vi.fn().mockReturnValue(1234),
-      },
-      destroy: vi.fn(),
-      isDestroyed: vi.fn().mockReturnValue(false),
-    })),
-    ipcRenderer: {
-      on: vi.fn(),
-      send: vi.fn(),
-      handle: vi.fn(),
-      invoke: vi.fn(),
-    },
-  };
-});
 
 vi.mock('@/apps/main/windows/widget', () => ({
   getWidget: vi.fn(() => ({
@@ -71,79 +28,6 @@ describe('Sync Engine Worker', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mock('electron', async () => {
-      const ipcMainHandlers: Record<string, (...args: any[]) => void> = {};
-      const actual = await vi.importActual<typeof import('electron')>('electron');
-      return {
-        ...actual,
-        app: {
-          ...actual.app,
-          getPath: vi.fn(() => '/mock/path'),
-          on: vi.fn(),
-        },
-        ipcMain: {
-          on: vi.fn((event, callback) => {
-            ipcMainHandlers[event] = callback;
-          }),
-          emit: vi.fn((event, ...args) => ipcMainHandlers[event] && ipcMainHandlers[event](...args)),
-          handle: vi.fn((event, callback) => {
-            ipcMainHandlers[event] = callback;
-          }),
-          invoke: vi.fn((event, ...args) => ipcMainHandlers[event] && ipcMainHandlers[event](...args)),
-        },
-        BrowserWindow: vi.fn().mockImplementation(() => ({
-          loadFile: vi.fn(),
-          webContents: {
-            send: vi.fn(),
-            on: vi.fn(),
-            getOSProcessId: vi.fn().mockReturnValue(1234),
-          },
-          destroy: vi.fn(),
-          isDestroyed: vi.fn().mockReturnValue(false),
-        })),
-        ipcRenderer: {
-          on: vi.fn(
-            (event, callback) =>
-              ipcMainHandlers[event] &&
-              ipcMainHandlers[event]({
-                sender: {
-                  send: vi.fn(),
-                },
-              }),
-          ),
-          send: vi.fn(
-            (event, ...args) =>
-              ipcMainHandlers[event] &&
-              ipcMainHandlers[event](
-                {
-                  sender: {
-                    send: vi.fn(),
-                  },
-                },
-                ...args,
-              ),
-          ),
-          handle: vi.fn(
-            (event, callback) =>
-              ipcMainHandlers[event] &&
-              ipcMainHandlers[event]({
-                sender: {
-                  send: vi.fn(),
-                },
-              }),
-          ),
-          invoke: vi.fn(
-            (event, ...args) =>
-              ipcMainHandlers[event] &&
-              ipcMainHandlers[event]({
-                sender: {
-                  send: vi.fn(),
-                },
-              }),
-          ),
-        },
-      };
-    });
   });
 
   afterEach(() => {
