@@ -1,3 +1,4 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { client } from '../../../shared/HttpClient/client';
 import {
   FetchFilesService,
@@ -35,7 +36,7 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
       return { hasMore, result: result.data };
     }
 
-    throw new Error(`Fetch files response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
+    throw logger.error({ msg: 'Fetch workspace files response not ok', query, error: result.error });
   }
 
   private async getFileInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryFilesInWorkspace }) {

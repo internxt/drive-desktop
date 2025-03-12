@@ -19,6 +19,7 @@ import {
 } from './service';
 
 let isLoggedIn: boolean;
+
 export function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
 
@@ -31,20 +32,6 @@ export function getIsLoggedIn() {
   return isLoggedIn;
 }
 
-ipcMain.handle('is-user-logged-in', getIsLoggedIn);
-
-ipcMain.handle('get-user', getUser);
-
-ipcMain.handle('get-headers', (_, includeMnemonic) => getHeaders(includeMnemonic));
-
-ipcMain.handle('GET_HEADERS', () => getNewApiHeaders());
-
-ipcMain.handle('get-new-token', () => obtainToken('newToken'));
-
-ipcMain.handle('get-token', () => {
-  return obtainToken('bearerToken');
-});
-
 export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
   eventBus.emit('USER_LOGGED_OUT');
@@ -54,39 +41,48 @@ export function onUserUnauthorized() {
   setIsLoggedIn(false);
 }
 
-ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
-
-ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
-  setCredentials({
-    userData: data.user,
-    bearerToken: data.token,
-    newToken: data.newToken,
-    password: data.password,
-  });
-  if (!canHisConfigBeRestored(data.user.uuid)) {
-    await setupRootFolder();
-  }
-  await clearRootVirtualDrive();
-
-  setIsLoggedIn(true);
-  eventBus.emit('USER_LOGGED_IN');
-});
-
-ipcMain.on('user-logged-out', () => {
-  eventBus.emit('USER_LOGGED_OUT');
-
-  setIsLoggedIn(false);
-
-  logout();
-});
-
-eventBus.on('APP_IS_READY', async () => {
+export async function checkIfUserIsLoggedIn() {
   if (!isLoggedIn) {
     return;
   }
+
   await checkUserData();
   encryptToken();
   applicationOpened();
   await createTokenSchedule();
   eventBus.emit('USER_LOGGED_IN');
-});
+}
+
+export function setupAuthIpcHandlers() {
+  ipcMain.handle('is-user-logged-in', getIsLoggedIn);
+  ipcMain.handle('get-user', getUser);
+  ipcMain.handle('get-headers', (_, includeMnemonic) => getHeaders(includeMnemonic));
+  ipcMain.handle('GET_HEADERS', () => getNewApiHeaders());
+  ipcMain.handle('get-new-token', () => obtainToken('newToken'));
+  ipcMain.handle('get-token', () => obtainToken('bearerToken'));
+  ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
+
+  ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
+    setCredentials({
+      userData: data.user,
+      bearerToken: data.token,
+      newToken: data.newToken,
+      password: data.password,
+    });
+    if (!canHisConfigBeRestored(data.user.uuid)) {
+      await setupRootFolder();
+    }
+    await clearRootVirtualDrive();
+
+    setIsLoggedIn(true);
+    eventBus.emit('USER_LOGGED_IN');
+  });
+
+  ipcMain.on('user-logged-out', () => {
+    eventBus.emit('USER_LOGGED_OUT');
+
+    setIsLoggedIn(false);
+
+    logout();
+  });
+}

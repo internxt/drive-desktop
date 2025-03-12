@@ -1,3 +1,4 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { client } from '../../../shared/HttpClient/client';
 import { FetchFilesService, FetchFilesServiceParams, Query, QueryFiles, QueryFilesInFolder } from './fetch-files.service.interface';
 
@@ -19,7 +20,7 @@ export class FetchRemoteFilesService implements FetchFilesService {
       return { hasMore, result: result.data };
     }
 
-    throw new Error(`Fetch files response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
+    throw logger.error({ msg: 'Fetch files response not ok', query, error: result.error });
   }
 
   private getFiles({ query }: { query: QueryFiles }) {

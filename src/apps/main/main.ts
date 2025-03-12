@@ -8,11 +8,11 @@ import 'regenerator-runtime/runtime';
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
-import './virtual-root-folder/handlers';
-import './auto-launch/handlers';
+import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
+import { setupAutoLaunchHandlers } from './auto-launch/handlers';
 import './logger';
-import './bug-report/handlers';
-import './auth/handlers';
+import { setupBugReportHandlers } from './bug-report/handlers';
+import { checkIfUserIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
 import './windows';
@@ -21,7 +21,6 @@ import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';
-import './tray/tray';
 import './tray/handlers';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
@@ -44,15 +43,15 @@ import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
-import { getTray, setTrayStatus } from './tray/tray';
+import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
-import { setCleanUpFunction } from './quit';
-import { stopAndClearAllSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
 import clamAVServer from './antivirus/ClamAVDaemon';
+import { registerUsageHandlers } from './usage/handlers';
+import { setupQuitHandlers } from './quit';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -60,7 +59,12 @@ if (!gotTheLock) {
   app.quit();
 }
 
+setupAutoLaunchHandlers();
+setupBugReportHandlers();
+setupAuthIpcHandlers();
 setupSettingsIPCHandlers();
+setupVirtualDriveHandlers();
+setupQuitHandlers();
 
 Logger.log(`Running ${packageJson.version}`);
 
@@ -101,7 +105,10 @@ app
       await AppDataSource.initialize();
     }
 
-    eventBus.emit('APP_IS_READY');
+    setupTrayIcon();
+    registerUsageHandlers();
+    await checkIfUserIsLoggedIn();
+
     const isLoggedIn = getIsLoggedIn();
     setUpBackups();
 
@@ -122,10 +129,6 @@ app
 
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-
     getAuthWindow()?.hide();
 
     nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
@@ -149,8 +152,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     // await clamAVServer.waitForClamd();
 
     // scheduleDailyScan();
-
-    await setCleanUpFunction(stopAndClearAllSyncEngineWatcher);
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
