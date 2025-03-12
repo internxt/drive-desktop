@@ -5,8 +5,17 @@
     "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noImplicitAny": true,
-    "noImplicitThis": true
+    "noImplicitThis": true,
+    "types": [
+      "jest",
+      "node",
+      "@testing-library/jest-dom"
+    ]
   },
+  "include": [
+    "src/**/*",
+    "src/types/**/*"
+  ],
   "exclude": [
     "__mock__"
   ]

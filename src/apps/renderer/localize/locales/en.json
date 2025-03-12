@@ -55,6 +55,10 @@
         "list-1": "Label files available offline to access them anytime, with or without internet",
         "list-2": "Label files online only to save physical hard drive space"
       },
+      "antivirus": {
+        "title": "Keep your computer safe from virus",
+        "description": "Internxt's Desktop app now also features the brand new Internxt Antivirus, with which you can scan and remove any potential malware from your device."
+      },
       "backups": {
         "title": "Back up and secure your files with couple clicks",
         "description": "Back up your files by simply selecting the folders you want to protect.",
@@ -138,7 +142,9 @@
         "send-feedback": "Send feedback",
         "support": "Support",
         "logout": "Log out",
-        "quit": "Quit"
+        "quit": "Quit",
+        "antivirus": "Antivirus",
+        "new": "New"
       }
     },
     "body": {
@@ -209,7 +215,8 @@
       "section": {
         "GENERAL": "general",
         "ACCOUNT": "account",
-        "BACKUPS": "backups"
+        "BACKUPS": "backups",
+        "ANTIVIRUS": "antivirus"
       }
     },
     "general": {
@@ -313,6 +320,79 @@
           "explanation-2": "This action cannot be undone.",
           "confirm": "Yes, delete",
           "cancel": "Cancel"
+        }
+      }
+    },
+    "antivirus": {
+      "featureLocked": {
+        "title": "Feature locked",
+        "subtitle": "Please upgrade your plan to use this feature.",
+        "action": "Upgrade"
+      },
+      "errorState": {
+        "title": "Something went wrong while scanning the directory",
+        "button": "Try again"
+      },
+      "deactivateAntivirus": {
+        "title": "Windows Defender is active",
+        "description": "Please disable Windows Defender to be able to use Internxt Antivirus. To do this, open Windows Security > Virus and Threat Protection > Manage settings > disable Real-time protection.",
+        "retry": "Retry",
+        "cancel": "Cancel"
+      },
+      "scanOptions": {
+        "stopScan": "Stop scan",
+        "systemScan": {
+          "text": "Antivirus system scan",
+          "action": "Start scan"
+        },
+        "customScan": {
+          "text": "Antivirus custom scan",
+          "action": "Choose",
+          "selector": {
+            "files": "Files",
+            "folders": "Folders"
+          }
+        },
+        "removeMalware": {
+          "actions": {
+            "cancel": "Cancel",
+            "remove": "Remove"
+          },
+          "actionRequired": {
+            "title": "Action required",
+            "description": " Removing the malware will also permanently delete the folder from your storage to protect your device. This action cannot be undone.",
+            "confirmToContinue": "Please confirm to continue."
+          },
+          "securityWarning": {
+            "title": "Security warning",
+            "description": "Malware is still present, and your device is at risk.",
+            "confirmToCancel": "Are you sure you want to cancel?"
+          }
+        }
+      },
+      "scanProcess": {
+        "scanning": "Scanning...",
+        "scannedFiles": "Scanned files",
+        "detectedFiles": "Detected files",
+        "errorWhileScanning": "An error occurred while scanning the items. Please try again.",
+        "noFilesFound": {
+          "title": "No threats were found",
+          "subtitle": "No further actions are necessary"
+        },
+        "malwareFound": {
+          "title": "Malware detected",
+          "subtitle": "Please review and remove threats.",
+          "action": "Remove malware"
+        },
+        "scanAgain": "Scan again"
+      },
+      "filesContainingMalwareModal": {
+        "title": "Files containing malware",
+        "selectedItems": "Selected {{selectedFiles}} out of {{totalFiles}}",
+        "selectAll": "Select all",
+        "actions": {
+          "cancel": "Cancel",
+          "remove": "Remove"
         }
       }
     }
