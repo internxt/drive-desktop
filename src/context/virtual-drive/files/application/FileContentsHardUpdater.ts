@@ -4,6 +4,7 @@ import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository
 import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
+import { sleep } from '@/apps/main/util';
 
 export class FileContentsHardUpdater {
   constructor(
@@ -27,6 +28,7 @@ export class FileContentsHardUpdater {
         Logger.info('Deleted old contents id', Attributes.contentsId, ' path: ', Attributes.path);
 
         const offlineFile = OfflineFile.from({ ...Attributes, contentsId: newContentsId });
+        await sleep(200);
         this.remote.persist(offlineFile);
         Logger.info('Persisted new contents id', newContentsId, ' path: ', Attributes.path);
       } else {

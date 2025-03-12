@@ -36,6 +36,7 @@ class DangledFilesManager {
 
   public async pushAndClean(pushCallback: (input: PushAndCleanInput) => Promise<void>): Promise<void> {
     await pushCallback({toUpdateContentsIds: Object.keys(this.accumulate), toDeleteContentsIds: this.toDelete});
+    this.toDelete = [];
     this.accumulate = {};
   }
 }
