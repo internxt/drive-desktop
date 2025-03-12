@@ -1,13 +1,13 @@
+import { ENV } from '@/core/env/env';
 import path from 'path';
 import { URL } from 'url';
 
 export let resolveHtmlPath: (pathname: string, query?: string) => string;
 const htmlFileName = 'index.html';
 
-if (process.env.NODE_ENV === 'development') {
-  const port = process.env.PORT || 1212;
+if (ENV.NODE_ENV === 'development') {
   resolveHtmlPath = (pathname: string, query = '') => {
-    const url = new URL(`http://localhost:${port}`);
+    const url = new URL(`http://localhost:${ENV.PORT}`);
     url.pathname = htmlFileName;
     url.hash = `/${pathname}`;
     url.search = query;

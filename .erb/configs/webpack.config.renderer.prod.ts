@@ -15,6 +15,7 @@ import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import deleteSourceMaps from '../scripts/delete-source-maps';
+import { ENV } from '../../src/core/env/env';
 
 checkNodeEnv('production');
 deleteSourceMaps();
@@ -30,11 +31,7 @@ const configuration: webpack.Configuration = {
 
   target: ['web', 'electron-renderer'],
 
-  entry: [
-    'core-js',
-    'regenerator-runtime/runtime',
-    path.join(webpackPaths.srcRendererPath, 'index.tsx'),
-  ],
+  entry: ['core-js', 'regenerator-runtime/runtime', path.join(webpackPaths.srcRendererPath, 'index.tsx')],
 
   output: {
     path: webpackPaths.distRendererPath,
@@ -125,7 +122,7 @@ const configuration: webpack.Configuration = {
     }),
 
     new BundleAnalyzerPlugin({
-      analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled',
+      analyzerMode: ENV.ANALYZE ? 'server' : 'disabled',
     }),
 
     new HtmlWebpackPlugin({
@@ -137,7 +134,7 @@ const configuration: webpack.Configuration = {
         removeComments: true,
       },
       isBrowser: false,
-      isDevelopment: process.env.NODE_ENV !== 'production',
+      isDevelopment: ENV.NODE_ENV !== 'production',
     }),
   ],
 };
