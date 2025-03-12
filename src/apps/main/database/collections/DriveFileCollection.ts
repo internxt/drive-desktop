@@ -117,6 +117,14 @@ export class DriveFilesCollection
     };
   }
 
+  async removeInBatch(where: FindOptionsWhere<DriveFile>) {
+    const result = await this.repository.delete(where);
+
+    return {
+      success: result.affected ? true : false,
+    };
+  }
+
   async getLastUpdated(): Promise<{
     success: boolean;
     result: DriveFile | null;
