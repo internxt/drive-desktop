@@ -12,7 +12,6 @@ const ENV_SCHEMA = z.object({
   NODE_ENV: z.union([z.literal('development'), z.literal('production')]),
   NOTIFICATIONS_URL: z.string(),
   PAYMENTS_URL: z.string(),
-  PHOTOS_URL: z.string(),
   PORT: z.coerce.number(),
   PROVIDER_ID: z.string().default('E9D7EB38-B229-5DC5-9396-017C449D59CD'),
   ROOT_FOLDER_NAME: z.string().default('InternxtDrive'),

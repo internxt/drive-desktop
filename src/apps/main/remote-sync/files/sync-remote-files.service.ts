@@ -31,10 +31,10 @@ export class SyncRemoteFilesService {
     let hasMore = true;
 
     try {
-      logger.info({ msg: 'Syncing files', from });
+      logger.debug({ msg: 'Syncing files', from });
 
       while (hasMore) {
-        logger.info({ msg: 'Retrieving files', offset });
+        logger.debug({ msg: 'Retrieving files', offset });
 
         const param: FetchFilesServiceParams = {
           self,

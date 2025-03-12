@@ -15,7 +15,7 @@ export function setupBugReportHandlers() {
       return;
     }
     identifyUserForErrorReporting(userData);
-    logger.info({ msg: 'User identified for error reporting' });
+    logger.debug({ msg: 'User identified for error reporting' });
   });
 
   eventBus.on('USER_LOGGED_OUT', () => {
