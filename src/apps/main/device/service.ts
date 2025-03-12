@@ -628,14 +628,7 @@ export async function getMultiplePathsFromDialog(
   return paths;
 }
 
-export async function getUserSystemPath(): Promise<
-  | {
-      path: string;
-      itemName: string;
-      isDirectory: boolean;
-    }
-  | undefined
-> {
+export async function getUserSystemPath(): Promise<PathInfo | undefined> {
   const filePath = os.homedir();
   if (!filePath) return;
 

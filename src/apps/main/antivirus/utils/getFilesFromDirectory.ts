@@ -2,10 +2,12 @@ import { Dirent } from 'fs';
 import { readdir } from 'fs/promises';
 import { resolve } from 'path';
 import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
-import { isPermissionError } from '../utils/isPermissionError';
+import { isPermissionError } from './isPermissionError';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import Logger from 'electron-log';
+import { getErrorMessage } from './errorUtils';
+
 const execAsync = promisify(exec);
 
 export const getFilesFromDirectory = async (
@@ -16,20 +18,31 @@ export const getFilesFromDirectory = async (
   const isFile = await PathTypeChecker.isFile(dir);
 
   if (isFile) {
-    cb(dir);
+    // Make sure to await the callback
+    try {
+      Logger.debug(`Processing file: ${dir}`);
+      await cb(dir);
+    } catch (error) {
+      Logger.error(`Error processing file "${dir}": ${getErrorMessage(error)}`);
+    }
     return;
   }
 
   try {
     items = await readdir(dir, { withFileTypes: true });
-  } catch (err) {
-    const error = err;
-
+  } catch (error: unknown) {
     if (isPermissionError(error)) {
-      Logger.info(`Skipping directory "${dir}" due to permission error.`);
+      Logger.info(
+        `Skipping directory "${dir}" due to permission error: ${getErrorMessage(
+          error
+        )}`
+      );
       return null;
     }
-    throw err;
+
+    // Log other errors but continue scanning
+    Logger.warn(`Error reading directory "${dir}": ${getErrorMessage(error)}`);
+    return null;
   }
 
   const nonTempItems = items.filter((item) => {
@@ -48,16 +61,31 @@ export const getFilesFromDirectory = async (
         if (subitems.length > 0) {
           await getFilesFromDirectory(fullPath, cb);
         }
-      } catch (err) {
-        if (!isPermissionError(err)) {
-          throw err;
+      } catch (error: unknown) {
+        if (isPermissionError(error)) {
+          Logger.info(
+            `Skipping subdirectory "${fullPath}" due to permission error: ${getErrorMessage(
+              error
+            )}`
+          );
+        } else {
+          // Log other errors but continue scanning
+          Logger.warn(
+            `Error accessing subdirectory "${fullPath}": ${getErrorMessage(
+              error
+            )}`
+          );
         }
-        Logger.info(
-          `Skipping subdirectory "${fullPath}" due to permission error.`
-        );
       }
     } else {
-      cb(fullPath);
+      try {
+        Logger.debug(`Processing file: ${fullPath}`);
+        await cb(fullPath);
+      } catch (error: unknown) {
+        Logger.warn(
+          `Error processing file "${fullPath}": ${getErrorMessage(error)}`
+        );
+      }
     }
   }
 };
@@ -72,8 +100,10 @@ export async function countFilesUsingLinuxCommand(
       Logger.error('Error executing find command:', stderr);
     }
     return parseInt(stdout.trim(), 10);
-  } catch (err) {
-    Logger.error('Error counting files with find command:', err);
+  } catch (error: unknown) {
+    Logger.error(
+      `Error counting files with find command: ${getErrorMessage(error)}`
+    );
     return 0;
   }
 }

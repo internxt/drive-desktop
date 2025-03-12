@@ -23,7 +23,10 @@ export class DBScannerConnection {
     }
   };
 
-  updateItemToDatabase = async (itemId: ScannedItem['id'], item: ScannedItem) => {
+  updateItemToDatabase = async (
+    itemId: ScannedItem['id'],
+    item: ScannedItem
+  ) => {
     const currentTime = new Date().toISOString();
 
     const itemToUpdate: Partial<ScannedItem> = {
@@ -45,7 +48,7 @@ export class DBScannerConnection {
     if (success) {
       return result;
     } else {
-      throw result;
+      return null;
     }
   };
 }

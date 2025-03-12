@@ -20,6 +20,15 @@ export class ScannedItemCollection
 
   async get(id: ScannedItem['id']) {
     const match = await this.repository.findOneBy({ id });
+
+    if (!match) {
+      return {
+        success: false,
+        result: null,
+        message: 'Item not found',
+      };
+    }
+
     return {
       success: true,
       result: match,
@@ -28,6 +37,15 @@ export class ScannedItemCollection
 
   async getByPathName(pathName: ScannedItem['pathName']) {
     const match = await this.repository.findOneBy({ pathName });
+
+    if (!match) {
+      return {
+        success: false,
+        result: null,
+        message: 'Item not found',
+      };
+    }
+
     return {
       success: true,
       result: match,

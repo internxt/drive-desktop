@@ -52,10 +52,7 @@ export class Antivirus {
       this.isInitialized = true;
     } catch (error) {
       Logger.error('Error Initializing ClamAV:', error);
-      throw AntivirusError.initializationFailed(
-        'Failed to initialize ClamAV',
-        error
-      );
+      throw AntivirusError.initializationFailed('Initialization failed', error);
     }
   }
 
@@ -79,7 +76,7 @@ export class Antivirus {
 
   async stopClamAv() {
     if (!this.clamAv) {
-      throw AntivirusError.notInitialized();
+      throw AntivirusError.clamAvNotInitialized();
     }
 
     try {

@@ -28,7 +28,12 @@ jest.mock('./utils/transformItem', () => ({
 jest.mock('./utils/isPermissionError', () => ({
   isPermissionError: jest.fn(() => false),
 }));
-jest.mock('./utils/dbConections', () => ({
+jest.mock('./utils/errorUtils', () => ({
+  isError: jest.fn((error) => error instanceof Error),
+  getErrorMessage: jest.fn((error) => error?.message || String(error)),
+  shouldRethrowError: jest.fn(() => false),
+}));
+jest.mock('./db/DBScannerConnection', () => ({
   DBScannerConnection: jest.fn().mockImplementation(() => ({
     getConnection: jest.fn(() => ({
       getRepository: jest.fn(() => ({
@@ -172,8 +177,9 @@ describe('ManualSystemScan', () => {
 
   describe('stopScan', () => {
     it('should stop the scan process', async () => {
+      const mockKill = jest.fn();
       (manualSystemScan as any).manualQueue = {
-        kill: jest.fn(),
+        kill: mockKill,
       };
 
       (manualSystemScan as any).antivirus = mockAntivirus;
@@ -182,7 +188,7 @@ describe('ManualSystemScan', () => {
 
       expect((manualSystemScan as any).cancelled).toBe(true);
 
-      expect((manualSystemScan as any).manualQueue.kill).toHaveBeenCalled();
+      expect(mockKill).toHaveBeenCalled();
 
       expect(mockAntivirus.stopClamAv).toHaveBeenCalled();
     });

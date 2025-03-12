@@ -61,7 +61,7 @@ export class AntivirusError extends Error {
   ): AntivirusError {
     return new AntivirusError(
       AntivirusErrorCode.INITIALIZATION_FAILED,
-      message || 'Failed to initialize antivirus',
+      message || 'Initialization failed',
       originalError
     );
   }
@@ -72,7 +72,17 @@ export class AntivirusError extends Error {
   static notInitialized(): AntivirusError {
     return new AntivirusError(
       AntivirusErrorCode.NOT_INITIALIZED,
-      'Antivirus is not initialized'
+      'ClamAV is not initialized'
+    );
+  }
+
+  /**
+   * Create a not initialized error specifically for stopClamAv
+   */
+  static clamAvNotInitialized(): AntivirusError {
+    return new AntivirusError(
+      AntivirusErrorCode.NOT_INITIALIZED,
+      'ClamAv instance is not initialized'
     );
   }
 

@@ -3,7 +3,7 @@ import { Antivirus } from './Antivirus';
 import { getFilesFromDirectory } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 import { queue, QueueObject } from 'async';
-import { DBScannerConnection } from './utils/dbConections';
+import { DBScannerConnection } from './db/DBScannerConnection';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { isPermissionError } from './utils/isPermissionError';
 import Logger from 'electron-log';

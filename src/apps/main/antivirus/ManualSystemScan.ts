@@ -10,7 +10,7 @@ import {
 } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
-import { DBScannerConnection } from './utils/dbConections';
+import { DBScannerConnection } from './db/DBScannerConnection';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import Logger from 'electron-log';
 import { AppDataSource } from '../database/data-source';
@@ -173,6 +173,76 @@ export class ManualSystemScan {
     }
   };
 
+  private async performCustomScan(
+    currentSession: number,
+    pathNames: string[],
+    scan: (filePath: string) => Promise<void>
+  ): Promise<void> {
+    Logger.info('[SYSTEM_SCAN] Starting custom scan with selected paths');
+    const pathsToScan: string[] = pathNames;
+
+    this.manualQueue = queue(scan, 10);
+
+    let total = 0;
+    for (const p of pathNames) {
+      try {
+        total += await countFilesUsingLinuxCommand(p);
+      } catch (error) {
+        Logger.error(`[SYSTEM_SCAN] Error counting files in path ${p}:`, error);
+      }
+    }
+
+    this.totalItemsToScan = total;
+    Logger.info(`[SYSTEM_SCAN] Total files to scan: ${total}`);
+
+    for (const p of pathsToScan) {
+      await getFilesFromDirectory(p, (filePath: string) =>
+        this.manualQueue!.pushAsync(filePath)
+      );
+    }
+  }
+
+  private async performFullSystemScan(
+    currentSession: number,
+    scan: (filePath: string) => Promise<void>
+  ): Promise<void> {
+    Logger.info('[SYSTEM_SCAN] Starting full system scan');
+
+    const userSystemPath = await getUserSystemPath();
+    if (!userSystemPath) {
+      Logger.error('[SYSTEM_SCAN] Could not get user system path');
+      return;
+    }
+
+    Logger.info(`[SYSTEM_SCAN] Using user system path: ${userSystemPath.path}`);
+
+    this.manualQueue = queue(scan, 10);
+
+    try {
+      const initialProgressEvent: ProgressData = {
+        currentScanPath: 'Scanning your system...',
+        infectedFiles: [],
+        progress: 0,
+        totalScannedFiles: 0,
+        scanId: `scan-${currentSession}`,
+      };
+
+      eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', initialProgressEvent);
+
+      const total = await countFilesUsingLinuxCommand(userSystemPath.path);
+      this.totalItemsToScan = total;
+
+      Logger.info(`[SYSTEM_SCAN] Total system files to scan: ${total}`);
+
+      await getFilesFromDirectory(userSystemPath.path, (filePath: string) =>
+        this.manualQueue!.pushAsync(filePath)
+      );
+    } catch (error) {
+      Logger.error('[SYSTEM_SCAN] Error in system scan process:', error);
+      throw error;
+    }
+  }
+
   public async scanItems(pathNames?: string[]): Promise<void> {
     this.cancelled = false;
     this.resetCounters();
@@ -237,70 +307,10 @@ export class ManualSystemScan {
 
       if (pathNames) {
         // Custom scan mode
-        Logger.info('[SYSTEM_SCAN] Starting custom scan with selected paths');
-        const pathsToScan: string[] = pathNames;
-
-        this.manualQueue = queue(scan, 10);
-
-        let total = 0;
-        for (const p of pathNames) {
-          try {
-            total += await countFilesUsingLinuxCommand(p);
-          } catch (error) {
-            Logger.error(
-              `[SYSTEM_SCAN] Error counting files in path ${p}:`,
-              error
-            );
-          }
-        }
-
-        this.totalItemsToScan = total;
-        Logger.info(`[SYSTEM_SCAN] Total files to scan: ${total}`);
-
-        for (const p of pathsToScan) {
-          await getFilesFromDirectory(p, (filePath: string) =>
-            this.manualQueue!.pushAsync(filePath)
-          );
-        }
+        await this.performCustomScan(currentSession, pathNames, scan);
       } else {
         // System scan mode
-        Logger.info('[SYSTEM_SCAN] Starting full system scan');
-
-        const userSystemPath = await getUserSystemPath();
-        if (!userSystemPath) {
-          Logger.error('[SYSTEM_SCAN] Could not get user system path');
-          return;
-        }
-
-        Logger.info(
-          `[SYSTEM_SCAN] Using user system path: ${userSystemPath.path}`
-        );
-
-        this.manualQueue = queue(scan, 10);
-
-        try {
-          const initialProgressEvent: ProgressData = {
-            currentScanPath: 'Scanning your system...',
-            infectedFiles: [],
-            progress: 0,
-            totalScannedFiles: 0,
-            scanId: `scan-${currentSession}`,
-          };
-
-          eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', initialProgressEvent);
-
-          const total = await countFilesUsingLinuxCommand(userSystemPath.path);
-          this.totalItemsToScan = total;
-
-          Logger.info(`[SYSTEM_SCAN] Total system files to scan: ${total}`);
-
-          await getFilesFromDirectory(userSystemPath.path, (filePath: string) =>
-            this.manualQueue!.pushAsync(filePath)
-          );
-        } catch (error) {
-          Logger.error('[SYSTEM_SCAN] Error in system scan process:', error);
-          throw error;
-        }
+        await this.performFullSystemScan(currentSession, scan);
       }
 
       await this.manualQueue?.drain();
