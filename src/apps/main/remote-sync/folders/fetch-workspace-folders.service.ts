@@ -1,3 +1,4 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { client } from '../../../shared/HttpClient/client';
 import {
   FetchFoldersService,
@@ -16,7 +17,7 @@ export class FetchWorkspaceFoldersService implements FetchFoldersService {
     const query: QueryWorkspace = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,
-      order: 'desc',
+      order: 'DESC',
       sort: 'updatedAt',
     };
 
@@ -35,7 +36,7 @@ export class FetchWorkspaceFoldersService implements FetchFoldersService {
       return { hasMore, result: result.data };
     }
 
-    throw new Error(`Fetch folders response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
+    throw logger.error({ msg: 'Fetch workspace folders response not ok', query, error: result.error });
   }
 
   private async getFoldersInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryFoldersInWorkspace }) {

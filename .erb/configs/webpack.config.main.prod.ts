@@ -16,16 +16,10 @@ import deleteSourceMaps from '../scripts/delete-source-maps';
 checkNodeEnv('production');
 deleteSourceMaps();
 
-const devtoolsConfig = {
-  devtool: 'source-map',
-};
-
 const configuration: webpack.Configuration = {
-  ...devtoolsConfig,
-
   mode: 'production',
-
   target: 'electron-main',
+  devtool: 'source-map',
 
   entry: {
     main: path.join(webpackPaths.srcMainPath, 'main.ts'),

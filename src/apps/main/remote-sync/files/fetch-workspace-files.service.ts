@@ -18,7 +18,7 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,
       sort: 'updatedAt',
-      order: 'desc',
+      order: 'DESC',
     };
 
     const promise = folderUuid
