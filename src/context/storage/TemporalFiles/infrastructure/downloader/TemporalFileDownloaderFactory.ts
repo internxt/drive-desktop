@@ -17,7 +17,7 @@ export class TemporalFileDownloaderFactory
   private _replaces: Replaces | undefined = undefined;
   private _abortController: AbortController | undefined = undefined;
 
-  private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
+  private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024; // 100MB
 
   constructor(
     private readonly environment: Environment,
