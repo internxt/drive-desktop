@@ -104,16 +104,6 @@ export class FileOverwriteContent {
                 },
                 upload,
             );
-
-            // if (updatedOutput.updated) {
-            //   Logger.info(`[Processing D File]:  ${hydratedDangledRemoteFile.path} mark as deleted`);
-            //   await sleep(1500);
-            //   await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
-            //     itemIds: [updatedOutput.contentsId],
-            //     fileFilter: { status: 'DELETED' },
-            //   });
-            //   Logger.info(`[Processing D File]: ${hydratedDangledRemoteFile.path} updated`);
-            // }
         };
 
 
@@ -121,7 +111,9 @@ export class FileOverwriteContent {
             if (filesWithContentLocally[file.path]) {
                 const downloader = downloaderManger.downloader();
                 this.registerEvents(downloader, file, asynchronousFixingOfDangledFiles);
-                downloader.download(file);
+
+                Logger.debug('Trying to download file ', file.uuid, ' ', file.name);
+                await downloader.download(file);
 
                 Logger.info(`Possible dangled file ${file.path} hydrated.`);
                 DangledFilesManager.getInstance().add(file.contentsId, file.path);
