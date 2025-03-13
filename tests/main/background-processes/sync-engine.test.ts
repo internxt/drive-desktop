@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { BrowserWindow, ipcRenderer } from 'electron';
 import { Config } from '@/apps/sync-engine/config';
 import { spawnSyncEngineWorker, stopAndClearSyncEngineWatcher, workers } from '@/apps/main/background-processes/sync-engine';
 
@@ -11,7 +10,7 @@ vi.mock('@/apps/main/windows/widget', () => ({
   })),
 }));
 
-describe('Sync Engine Worker', () => {
+describe('Sync Engine Worker', async () => {
   const mockConfig: Config = {
     workspaceId: 'workspace-1',
     providerId: 'mock-provider',
@@ -25,6 +24,8 @@ describe('Sync Engine Worker', () => {
     bridgePass: 'mock-pass',
     workspaceToken: 'mock-token',
   };
+
+  const { BrowserWindow, ipcRenderer } = await import('electron');
 
   beforeEach(() => {
     vi.clearAllMocks();
