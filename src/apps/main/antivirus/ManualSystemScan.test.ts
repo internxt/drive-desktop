@@ -14,7 +14,7 @@ jest.mock('./utils/getFilesFromDirectory', () => ({
     callback('/path/to/file.txt');
     return Promise.resolve();
   }),
-  countFilesUsingLinuxCommand: jest.fn(() => Promise.resolve(10)),
+  countSystemFiles: jest.fn(() => Promise.resolve(10)),
 }));
 jest.mock('./utils/transformItem', () => ({
   transformItem: jest.fn((path) => ({

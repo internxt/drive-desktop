@@ -70,66 +70,93 @@ export class AntivirusScanService {
     progressCallback: (progress: ScanProgress) => void
   ): Promise<void> {
     const isSystemScan = itemsArray.length === 0;
-    const fileSystemMonitor = await getManualScanMonitorInstance();
-
-    if (isSystemScan) {
-      Logger.info('[Antivirus] Starting full system scan');
-    } else {
-      Logger.info(`[Antivirus] Starting scan of ${itemsArray.length} items`);
-    }
-
-    let pathNames: string[] | undefined = undefined;
-
-    if (!isSystemScan) {
-      pathNames = this.normalizeScanPaths(itemsArray);
-    }
-
+    let fileSystemMonitor = null;
     let progressInterval: NodeJS.Timeout | null = null;
 
-    // Setup progress tracking
-    if (!isSystemScan) {
-      progressInterval = this.setupItemScanProgress(
-        pathNames,
-        progressCallback
-      );
-    } else {
-      this.initializeSystemScanProgress(progressCallback);
-    }
-
     try {
-      await fileSystemMonitor.scanItems(isSystemScan ? undefined : pathNames);
-
-      if (progressInterval) {
-        clearInterval(progressInterval);
+      try {
+        fileSystemMonitor = await getManualScanMonitorInstance();
+      } catch (monitorError) {
+        Logger.error(
+          '[Antivirus] Error getting scanner instance:',
+          monitorError
+        );
+        throw new Error('Failed to initialize scanner');
       }
 
-      // Final progress update
-      progressCallback({
-        currentPath: undefined,
-        scannedFiles: isSystemScan ? 100 : pathNames?.length || 0,
-        progressRatio: 1,
-        infected: [],
-        isCompleted: true,
+      if (isSystemScan) {
+        Logger.info('[Antivirus] Starting full system scan');
+      } else {
+        Logger.info(`[Antivirus] Starting scan of ${itemsArray.length} items`);
+      }
+
+      let pathNames: string[] | undefined = undefined;
+
+      if (!isSystemScan) {
+        pathNames = this.normalizeScanPaths(itemsArray);
+        Logger.info(`[Antivirus] Normalized paths: ${pathNames.length} items`);
+      }
+
+      try {
+        if (!isSystemScan) {
+          progressInterval = this.setupItemScanProgress(
+            pathNames,
+            progressCallback
+          );
+        } else {
+          this.initializeSystemScanProgress(progressCallback);
+        }
+      } catch (progressError) {
+        Logger.error(
+          '[Antivirus] Error setting up progress tracking:',
+          progressError
+        );
+      }
+
+      const scanPromise = fileSystemMonitor.scanItems(
+        isSystemScan ? undefined : pathNames
+      );
+      const timeoutPromise = new Promise<void>((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('Scan timeout after 10 minutes'));
+        }, 10 * 60 * 1000);
       });
 
-      return;
+      try {
+        await Promise.race([scanPromise, timeoutPromise]);
+        Logger.info('[Antivirus] Scan completed successfully');
+      } catch (scanError) {
+        Logger.error('[Antivirus] Error or timeout during scan:', scanError);
+        throw scanError;
+      }
     } catch (error) {
-      Logger.error('[Antivirus] Error during scan:', error);
-
+      Logger.error('[Antivirus] Error during scan process:', error);
+      throw error;
+    } finally {
       if (progressInterval) {
-        clearInterval(progressInterval);
+        try {
+          clearInterval(progressInterval);
+        } catch (clearError) {
+          Logger.error('[Antivirus] Error clearing interval:', clearError);
+        }
       }
 
-      // Final progress update even on error
-      progressCallback({
-        currentPath: undefined,
-        scannedFiles: isSystemScan ? 100 : pathNames?.length || 0,
-        progressRatio: 1,
-        infected: [],
-        isCompleted: true,
-      });
+      try {
+        progressCallback({
+          currentPath: undefined,
+          scannedFiles: isSystemScan ? 100 : itemsArray.length || 0,
+          progressRatio: 1,
+          infected: [],
+          isCompleted: true,
+        });
+      } catch (callbackError) {
+        Logger.error(
+          '[Antivirus] Error sending final progress callback:',
+          callbackError
+        );
+      }
 
-      throw error;
+      Logger.info('[Antivirus] Scan process finalized, progress callback sent');
     }
   }
 
@@ -317,13 +344,74 @@ export class AntivirusIPCHandler {
   private setupScanItemsHandler(): void {
     AntivirusIPCMain.handle('antivirus:scan-items', async (_, items = []) => {
       Logger.info('[Antivirus] Handler called: antivirus:scan-items');
-      const itemsArray = Array.isArray(items) ? items : [];
+      try {
+        const itemsArray = Array.isArray(items) ? items : [];
+        const isSystemScan = itemsArray.length === 0;
 
-      await AntivirusScanService.performScan(
-        itemsArray,
-        this.broadcastScanProgress.bind(this)
-      );
-      return;
+        Logger.info(
+          `[Antivirus] Request for ${
+            isSystemScan ? 'system' : 'custom'
+          } scan received`
+        );
+
+        try {
+          const fileSystemMonitor = await getManualScanMonitorInstance();
+          await fileSystemMonitor.stopScan();
+        } catch (stopError) {
+          Logger.error('[Antivirus] Error stopping previous scan:', stopError);
+        }
+
+        // 1 hour for system scan, 10 mins for custom
+        const timeoutDuration = isSystemScan ? 60 * 60 * 1000 : 10 * 60 * 1000;
+
+        if (isSystemScan) {
+          AntivirusScanService.performScan(
+            itemsArray,
+            this.broadcastScanProgress.bind(this)
+          ).catch((error) => {
+            Logger.error('[Antivirus] Error in background system scan:', error);
+          });
+
+          Logger.info(
+            '[Antivirus] System scan started in background, sending early success response'
+          );
+          return true;
+        }
+
+        return await Promise.race([
+          (async () => {
+            try {
+              await AntivirusScanService.performScan(
+                itemsArray,
+                this.broadcastScanProgress.bind(this)
+              );
+              Logger.info(
+                '[Antivirus] Scan completed, sending response to renderer'
+              );
+              return true;
+            } catch (scanError) {
+              Logger.error(
+                '[Antivirus] Error during scan operation:',
+                scanError
+              );
+              return false;
+            }
+          })(),
+          new Promise((resolve) =>
+            setTimeout(() => {
+              Logger.warn(
+                `[Antivirus] Scan operation timed out after ${
+                  timeoutDuration / 60000
+                } minutes, forcing response`
+              );
+              resolve(false);
+            }, timeoutDuration)
+          ),
+        ]);
+      } catch (error) {
+        Logger.error('[Antivirus] Error in scan-items handler:', error);
+        return false;
+      }
     });
   }
 

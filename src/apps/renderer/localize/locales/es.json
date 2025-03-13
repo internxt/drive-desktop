@@ -360,7 +360,7 @@
           },
           "actionRequired": {
             "title": "Acción requerida",
-            "description": "La eliminación del malware también eliminará permanentemente la carpeta de tu almacenamiento para proteger tu dispositivo. Esta acción no se puede deshacer.",
+            "description": "La eliminación del malware también eliminará permanentemente el elemento de tu almacenamiento para proteger tu dispositivo. Esta acción no se puede deshacer.",
             "confirmToContinue": "Por favor, confirma para continuar."
           },
           "securityWarning": {

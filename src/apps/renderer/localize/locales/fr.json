@@ -355,7 +355,7 @@
           },
           "actionRequired": {
             "title": "Action requise",
-            "description": "La suppression du malware supprimera également définitivement le dossier de votre stockage pour protéger votre appareil. Cette action ne peut pas être annulée.",
+            "description": "La suppression du malware supprimera également définitivement l'élément de votre stockage pour protéger votre appareil. Cette action ne peut pas être annulée.",
             "confirmToContinue": "Veuillez confirmer pour continuer."
           },
           "securityWarning": {

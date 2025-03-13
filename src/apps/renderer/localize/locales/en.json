@@ -362,7 +362,7 @@
           },
           "actionRequired": {
             "title": "Action required",
-            "description": " Removing the malware will also permanently delete the folder from your storage to protect your device. This action cannot be undone.",
+            "description": " Removing the malware will also permanently delete the item from your storage to protect your device. This action cannot be undone.",
             "confirmToContinue": "Please confirm to continue."
           },
           "securityWarning": {

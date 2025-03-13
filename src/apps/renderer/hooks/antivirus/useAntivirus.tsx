@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import log from '../../utils/logger';
 import { SelectedItemToScanProps } from '../../../main/antivirus/Antivirus';
+import logger from '../../utils/logger';
 
 export type ScanType = 'files' | 'folders';
 
@@ -124,7 +125,7 @@ export const useAntivirus = (): AntivirusContext => {
 
       return items;
     } catch (error) {
-      console.error('[Antivirus] Error selecting items:', error);
+      logger.error('[Antivirus] Error selecting items:', error);
       setShowErrorState(true);
       return null;
     }
@@ -161,7 +162,7 @@ export const useAntivirus = (): AntivirusContext => {
 
       await window.electron.antivirus.scanItems(scanItems);
     } catch (error) {
-      console.error('[Antivirus] Error in custom scan:', error);
+      logger.error('[Antivirus] Error in custom scan:', error);
       setShowErrorState(true);
     } finally {
       setIsScanning(false);
@@ -175,7 +176,7 @@ export const useAntivirus = (): AntivirusContext => {
     try {
       await window.electron.antivirus.scanItems([]);
     } catch (error) {
-      console.error('[Antivirus] Error in system scan:', error);
+      logger.error('[Antivirus] Error in system scan:', error);
       setShowErrorState(true);
     } finally {
       setIsScanning(false);

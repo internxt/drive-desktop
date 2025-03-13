@@ -10,6 +10,17 @@ import { getErrorMessage } from './errorUtils';
 
 const execAsync = promisify(exec);
 
+const isNonTempItem = (item: Dirent, dir: string): boolean => {
+  const fullPath = resolve(dir, item.name);
+  const isDirectory = item.isDirectory();
+  return (
+    (isDirectory &&
+      !fullPath.toLowerCase().includes('temp') &&
+      !fullPath.toLowerCase().includes('tmp')) ||
+    (!isDirectory && !fullPath.toLowerCase().endsWith('.tmp'))
+  );
+};
+
 export const getFilesFromDirectory = async (
   dir: string,
   cb: (file: string) => Promise<void>,
@@ -26,7 +37,6 @@ export const getFilesFromDirectory = async (
   if (isFile) {
     // Make sure to await the callback
     try {
-      Logger.debug(`Processing file: ${dir}`);
       await cb(dir);
     } catch (error) {
       Logger.error(`Error processing file "${dir}": ${getErrorMessage(error)}`);
@@ -51,13 +61,7 @@ export const getFilesFromDirectory = async (
     return null;
   }
 
-  const nonTempItems = items.filter((item) => {
-    const fullPath = resolve(dir, item.name);
-    const isTempFileOrFolder =
-      fullPath.toLowerCase().includes('temp') ||
-      fullPath.toLowerCase().includes('tmp');
-    return !isTempFileOrFolder;
-  });
+  const nonTempItems = items.filter((item) => isNonTempItem(item, dir));
 
   for (const item of nonTempItems) {
     if (isCancelled && isCancelled()) {
@@ -90,7 +94,6 @@ export const getFilesFromDirectory = async (
       }
     } else {
       try {
-        Logger.debug(`Processing file: ${fullPath}`);
         await cb(fullPath);
       } catch (error: unknown) {
         Logger.warn(
@@ -101,20 +104,45 @@ export const getFilesFromDirectory = async (
   }
 };
 
-export async function countFilesUsingLinuxCommand(
-  folder: string
-): Promise<number> {
-  const command = `find '${folder}' -type f | wc -l`;
-  try {
-    const { stdout, stderr } = await execAsync(command);
-    if (stderr) {
-      Logger.error('Error executing find command:', stderr);
-    }
-    return parseInt(stdout.trim(), 10);
-  } catch (error: unknown) {
-    Logger.error(
-      `Error counting files with find command: ${getErrorMessage(error)}`
-    );
-    return 0;
+export async function countSystemFiles(folder: string) {
+  if (await PathTypeChecker.isFile(folder)) {
+    return 1;
   }
+
+  let items;
+  try {
+    items = await readdir(folder, { withFileTypes: true });
+  } catch (err) {
+    if (isPermissionError(err)) {
+      Logger.warn(`Skipping directory "${folder}" due to permission error.`);
+      return 0;
+    }
+    throw err;
+  }
+
+  const nonTempItems = items.filter((item) => isNonTempItem(item, folder));
+
+  let total = 0;
+
+  const counts = await Promise.all(
+    nonTempItems.map(async (item) => {
+      const fullPath = resolve(folder, item.name);
+      if (item.isDirectory()) {
+        try {
+          return await countSystemFiles(fullPath);
+        } catch (err) {
+          if (!isPermissionError(err)) throw err;
+          Logger.warn(
+            `Skipping subdirectory "${fullPath}" due to permission error.`
+          );
+          return 0;
+        }
+      } else {
+        return 1;
+      }
+    })
+  );
+  total += counts.reduce((sum, c) => sum + c, 0);
+
+  return total;
 }
