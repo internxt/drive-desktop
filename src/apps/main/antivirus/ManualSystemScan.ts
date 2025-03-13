@@ -81,6 +81,8 @@ export class ManualSystemScan {
         Math.round((this.totalScannedFiles / this.totalItemsToScan) * 100),
         100
       );
+    } else {
+      progressValue = 100;
     }
 
     if (this.totalScannedFiles % 50 === 0 || isInfected) {
@@ -200,6 +202,11 @@ export class ManualSystemScan {
     this.totalItemsToScan = total;
     Logger.info(`[SYSTEM_SCAN] Total files to scan: ${total}`);
 
+    if (total === 0) {
+      this.emitEmptyDirProgressEvent(pathNames.join(', '), currentSession);
+      return;
+    }
+
     for (const p of pathsToScan) {
       await getFilesFromDirectory(
         p,
@@ -240,6 +247,11 @@ export class ManualSystemScan {
       this.totalItemsToScan = total;
 
       Logger.info(`[SYSTEM_SCAN] Total system files to scan: ${total}`);
+
+      if (total === 0) {
+        this.emitEmptyDirProgressEvent(userSystemPath.path, currentSession);
+        return;
+      }
 
       await getFilesFromDirectory(
         userSystemPath.path,
@@ -367,5 +379,21 @@ export class ManualSystemScan {
         eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', finalProgressEvent);
       }
     }
+  }
+
+  private emitEmptyDirProgressEvent(
+    currentScanPath: string,
+    currentSession: number
+  ) {
+    const emptyDirProgressEvent: ProgressData = {
+      currentScanPath: currentScanPath,
+      infectedFiles: [],
+      progress: 100,
+      totalScannedFiles: 0,
+      done: true,
+      scanId: `scan-empty-${currentSession}`,
+    };
+
+    eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', emptyDirProgressEvent);
   }
 }
