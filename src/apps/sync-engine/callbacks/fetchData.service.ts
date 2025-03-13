@@ -7,7 +7,7 @@ import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/P
 import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
 import * as fs from 'fs';
 import { SyncEngineIpc } from '../ipcRendererSyncEngine';
-import { dirname } from 'path';
+import { win32 } from 'path';
 
 type TProps = {
   self: BindingsManager;
@@ -113,6 +113,6 @@ export class FetchDataService {
   }
 
   normalizePath(path: string) {
-    return dirname(path).replace(/\\/g, '/');
+    return win32.dirname(path).replace(/\\/g, '/');
   }
 }
