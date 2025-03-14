@@ -25,7 +25,7 @@ export class SDKRemoteFileSystem {
     private readonly bucket: string
   ) {}
 
-  async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }): Promise<FileAttributes> {
+  async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }) {
     const { attributes, newContentsId } = input;
     if (!newContentsId) {
       throw new Error('Failed to generate new contents id');
