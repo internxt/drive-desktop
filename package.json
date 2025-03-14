@@ -17,7 +17,7 @@
     "package": "ts-node .erb/scripts/clean.js && npm run build && electron-builder build --publish never",
     "check-native-deps": "ts-node .erb/scripts/check-native-dep.js",
     "rebuild": "electron-builder install-app-deps",
-    "postinstall": "npm run check-native-deps && npm run rebuild && node node_modules/electron/install.js",
+    "postinstall": "npm run check-native-deps && npm run rebuild",
     "========== Code style ==========": "",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "npm run lint --fix",
