@@ -1,4 +1,4 @@
-import { components, paths } from '@/apps/shared/HttpClient/schema';
+import { components } from '@/apps/shared/HttpClient/schema';
 import { client } from '../../../shared/HttpClient/client';
 import { customInspect } from '../../../shared/logger/custom-inspect';
 
