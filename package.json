@@ -211,5 +211,10 @@
   "devEngines": {
     "node": ">=14.x",
     "npm": ">=7.x"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron"
+    ]
   }
 }
