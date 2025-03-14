@@ -32,7 +32,7 @@ export class FileCheckerStatusInRoot {
   }
 
   public isHydrated(paths: string[]): Record<string, boolean> {
-    const fileOnlineOnly: Record<string,boolean> = {};
+    const fileOnlineOnly: Record<string, boolean> = {};
     for (const path of paths) {
       const placeholderStatus = this.localFileSystem.getPlaceholderStateByRelativePath(path);
 
@@ -44,7 +44,7 @@ export class FileCheckerStatusInRoot {
     }
 
     return fileOnlineOnly;
-  } 
+  }
 
   private async getItemsRoot(absolutePath: string): Promise<string[]> {
     const items = fs.readdirSync(absolutePath);

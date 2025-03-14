@@ -20,12 +20,12 @@ export function buildBoundaryBridgeContainer(
   const fileDangledManager = new FileDangledManager(
     contentsContainer.contentsUploader,
     contentsContainer.contentsManagerFactory,
-    filesContainer.fileOverwriteContent
+    filesContainer.fileOverwriteContent,
   );
 
   return {
     fileCreationOrchestrator,
     fileSyncOrchestrator,
-    fileDangledManager
+    fileDangledManager,
   };
 }

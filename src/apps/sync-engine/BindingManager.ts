@@ -292,11 +292,11 @@ export class BindingsManager {
     Logger.debug('[SYNC ENGINE] Polling finished');
 
     DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
-          await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
-            toUpdate: input.toUpdateContentsIds,
-            toDelete: input.toDeleteContentsIds,
-          });
-        });
+      await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
+        toUpdate: input.toUpdateContentsIds,
+        toDelete: input.toDeleteContentsIds,
+      });
+    });
   }
   async getFileInSyncPending(): Promise<string[]> {
     try {
