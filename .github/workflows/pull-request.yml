@@ -33,7 +33,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts && node node_modules/electron/install.js
+        run: yarn install
 
       - name: Create .env file
         run: |
