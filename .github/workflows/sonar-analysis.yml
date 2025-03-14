@@ -6,7 +6,6 @@ on:
 
 jobs:
   sonarcloud:
-    name: SonarCloud
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
