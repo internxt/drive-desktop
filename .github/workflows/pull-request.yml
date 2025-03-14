@@ -39,7 +39,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: pnpm install --ignore-scripts && node node_modules/electron/install.js
+        run: pnpm install
 
       - name: Create .env file
         run: |
