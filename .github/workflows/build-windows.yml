@@ -1,9 +1,5 @@
 name: Build Windows
 
-#on:
-#  create:
-#    tags:
-#      - '*'
 on:
   workflow_dispatch:
 
@@ -13,10 +9,18 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Install yarn and requirements
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies and prepare environment
         run: |
           $ErrorActionPreference = "Stop"
-          SET GH_TOKEN= ${{ secrets.GITHUB_TOKEN }}
           if (Test-Path -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop") {
             Remove-Item -Path "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop" -Recurse -Force
             Write-Host "Folder deleted"
@@ -28,11 +32,14 @@ jobs:
           cd drive-desktop
           Copy-Item -Path "..\variables\.env" -Destination ".\"
           Copy-Item -Path "..\variables\.npmrc" -Destination ".\"
+          yarn install
+
       - name: Run Python script
         run: |
           cd C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\
           python check-sign.py
-      - name: Check file
+
+      - name: Check release build files
         run: |
           cd "C:\Users\LENOVO\Desktop\Trabajo\drive-web-sign\drive-desktop"
           ls release/build/
