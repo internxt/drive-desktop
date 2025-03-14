@@ -4,6 +4,7 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import eventBus from '../event-bus';
 import { ProgressData } from '../antivirus/ManualSystemScan';
+import Logger from 'electron-log';
 
 let settingsWindow: BrowserWindow | null = null;
 export const getSettingsWindow = () =>
@@ -17,6 +18,14 @@ async function openSettingsWindow(section?: string) {
 
     return;
   }
+
+  function handleScanProgress(progressData: ProgressData) {
+    if (settingsWindow && !settingsWindow.isDestroyed()) {
+      settingsWindow.webContents.send('antivirus:scan-progress', progressData);
+    }
+  }
+
+  eventBus.on('ANTIVIRUS_SCAN_PROGRESS', handleScanProgress);
 
   settingsWindow = new BrowserWindow({
     width: 600,
@@ -34,25 +43,8 @@ async function openSettingsWindow(section?: string) {
 
   settingsWindow.loadURL(resolveHtmlPath('settings', `section=${section}`));
 
-  function handleScanProgress(progressData: ProgressData) {
-    if (settingsWindow && !settingsWindow.isDestroyed()) {
-      settingsWindow.webContents.send('antivirus:scan-progress', progressData);
-    }
-  }
-
   settingsWindow.on('ready-to-show', () => {
     settingsWindow?.show();
-  });
-
-  settingsWindow.on('closed', () => {
-    settingsWindow = null;
-  });
-
-  settingsWindow.on('ready-to-show', () => {
-    settingsWindow?.show();
-    if (settingsWindow) {
-      eventBus.on('ANTIVIRUS_SCAN_PROGRESS', handleScanProgress);
-    }
   });
 
   settingsWindow.on('closed', () => {

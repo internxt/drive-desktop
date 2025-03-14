@@ -178,7 +178,6 @@ export const useAntivirus = (): AntivirusContext => {
     } catch (error) {
       logger.error('[Antivirus] Error in system scan:', error);
       setShowErrorState(true);
-    } finally {
       setIsScanning(false);
     }
   };

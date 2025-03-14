@@ -141,22 +141,27 @@ export class AntivirusScanService {
         }
       }
 
-      try {
-        progressCallback({
-          currentPath: undefined,
-          scannedFiles: isSystemScan ? 100 : itemsArray.length || 0,
-          progressRatio: 1,
-          infected: [],
-          isCompleted: true,
-        });
-      } catch (callbackError) {
-        Logger.error(
-          '[Antivirus] Error sending final progress callback:',
-          callbackError
+      if (!isSystemScan) {
+        try {
+          progressCallback({
+            currentPath: undefined,
+            scannedFiles: itemsArray.length || 0,
+            progressRatio: 1,
+            infected: [],
+            isCompleted: true,
+          });
+        } catch (callbackError) {
+          Logger.error(
+            '[Antivirus] Error sending final progress callback:',
+            callbackError
+          );
+        }
+        Logger.info(
+          '[Antivirus] Scan process finalized, progress callback sent'
         );
+      } else {
+        Logger.info('[Antivirus] System scan process continuing in background');
       }
-
-      Logger.info('[Antivirus] Scan process finalized, progress callback sent');
     }
   }
 
@@ -365,6 +370,14 @@ export class AntivirusIPCHandler {
         const timeoutDuration = isSystemScan ? 60 * 60 * 1000 : 10 * 60 * 1000;
 
         if (isSystemScan) {
+          this.broadcastScanProgress({
+            currentPath: 'Preparing system scan - counting files...',
+            scannedFiles: 0,
+            progressRatio: 0.02, // Show a small amount of progress (2%)
+            infected: [],
+            isCompleted: false,
+          });
+
           AntivirusScanService.performScan(
             itemsArray,
             this.broadcastScanProgress.bind(this)
@@ -375,7 +388,7 @@ export class AntivirusIPCHandler {
           Logger.info(
             '[Antivirus] System scan started in background, sending early success response'
           );
-          return true;
+          return { success: true, inProgress: true };
         }
 
         return await Promise.race([

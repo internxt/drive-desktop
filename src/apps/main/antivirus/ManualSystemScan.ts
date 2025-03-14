@@ -24,6 +24,11 @@ export interface ProgressData {
   scanId?: string;
 }
 
+interface IntervalHandle {
+  interval: NodeJS.Timeout;
+  name: string;
+}
+
 let fileSystemMonitorInstanceManual: ManualSystemScan | null = null;
 
 export async function getManualScanMonitorInstance() {
@@ -44,6 +49,7 @@ export class ManualSystemScan {
   private cancelled = false;
   private scanSessionId = 0;
   private errorCount = 0;
+  private intervals: IntervalHandle[] = [];
 
   private antivirus: Antivirus | null;
 
@@ -58,8 +64,267 @@ export class ManualSystemScan {
     this.cancelled = false;
     this.scanSessionId = 1;
     this.errorCount = 0;
+    this.intervals = [];
     const scannedItemsAdapter = new ScannedItemCollection();
     this.dbConnection = new DBScannerConnection(scannedItemsAdapter);
+  }
+
+  /**
+   * Create and emit a progress event to update scan status
+   */
+  private emitProgressEvent(
+    data: Partial<ProgressData>,
+    sessionId?: number,
+    emitNow = true
+  ): ProgressData {
+    const progressEvent: ProgressData = {
+      currentScanPath: data.currentScanPath || 'Scanning...',
+      infectedFiles: data.infectedFiles || this.infectedFiles,
+      progress:
+        data.progress !== undefined ? data.progress : this.calculateProgress(),
+      totalScannedFiles:
+        data.totalScannedFiles !== undefined
+          ? data.totalScannedFiles
+          : this.totalScannedFiles,
+      scanId:
+        data.scanId ||
+        (sessionId ? `scan-${sessionId}` : `scan-${this.scanSessionId}`),
+      done: data.done || false,
+    };
+
+    this.progressEvents.push(progressEvent);
+
+    if (emitNow) {
+      eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', { ...progressEvent });
+    }
+
+    return progressEvent;
+  }
+
+  /**
+   * Calculate progress percentage based on scanned files vs total items
+   */
+  private calculateProgress(): number {
+    if (this.totalItemsToScan <= 0) {
+      return 50;
+    }
+
+    if (this.totalScannedFiles >= this.totalItemsToScan) {
+      return 100;
+    }
+
+    return Math.min(
+      Math.floor((this.totalScannedFiles / this.totalItemsToScan) * 99),
+      99
+    );
+  }
+
+  /**
+   * Emit a final completion event, with optional delay
+   */
+  private emitCompletionEvent(
+    message = 'Scan completed',
+    delay = 0,
+    sessionId?: string
+  ): void {
+    const finalEvent: ProgressData = {
+      currentScanPath: message,
+      infectedFiles: this.infectedFiles,
+      progress: 100,
+      totalScannedFiles: this.totalScannedFiles,
+      done: true,
+      scanId: sessionId || `scan-complete-${Date.now()}`,
+    };
+
+    eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', finalEvent);
+
+    if (delay > 0) {
+      setTimeout(() => {
+        eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', finalEvent);
+      }, delay);
+    }
+  }
+
+  /**
+   * Emit an error event
+   */
+  private emitErrorEvent(errorMessage: string, sessionId?: string): void {
+    const errorEvent: ProgressData = {
+      currentScanPath: errorMessage,
+      infectedFiles: this.infectedFiles,
+      progress: 100,
+      totalScannedFiles: this.totalScannedFiles,
+      done: true,
+      scanId: sessionId || `scan-error-${Date.now()}`,
+    };
+
+    eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', errorEvent);
+  }
+
+  /**
+   * Set up an interval and track it for cleanup
+   */
+  private createInterval(
+    callback: () => void,
+    delay: number,
+    name: string
+  ): IntervalHandle {
+    const interval = setInterval(callback, delay);
+    const handle = { interval, name };
+    this.intervals.push(handle);
+    return handle;
+  }
+
+  /**
+   * Clear a specific interval and remove from tracking
+   */
+  private clearInterval(intervalHandle: IntervalHandle | null): void {
+    if (!intervalHandle) return;
+
+    clearInterval(intervalHandle.interval);
+    this.intervals = this.intervals.filter(
+      (h) => h.interval !== intervalHandle.interval
+    );
+  }
+
+  /**
+   * Clear all tracked intervals
+   */
+  private clearAllIntervals(): void {
+    this.intervals.forEach((handle) => {
+      clearInterval(handle.interval);
+    });
+    this.intervals = [];
+  }
+
+  /**
+   * Check if scan appears to be completed based on processed files
+   */
+  private isScanComplete(): boolean {
+    return (
+      this.totalItemsToScan > 0 &&
+      this.totalScannedFiles >= this.totalItemsToScan
+    );
+  }
+
+  /**
+   * Check if scan is nearly complete based on progress percentage
+   */
+  private isNearlyScanComplete(): boolean {
+    if (this.totalItemsToScan <= 0) return false;
+
+    const totalProcessed = this.totalScannedFiles + this.errorCount;
+    const percentComplete = (totalProcessed / this.totalItemsToScan) * 100;
+
+    return (
+      percentComplete >= 99.5 || this.totalItemsToScan - totalProcessed <= 5
+    );
+  }
+
+  /**
+   * Check if a scan is stalled and handle accordingly
+   */
+  private handleStalledScan(
+    lastCount: number,
+    currentSession: number,
+    stuckCheckCount: number,
+    hasReportedError: boolean,
+    scanCompleted: boolean,
+    isCustomScan: boolean
+  ): {
+    stuckCount: number;
+    hasError: boolean;
+    isComplete: boolean;
+    shouldContinue: boolean;
+  } {
+    let newStuckCount = stuckCheckCount;
+    let newHasError = hasReportedError;
+    let newIsComplete = scanCompleted;
+    let shouldContinue = true;
+
+    if (this.totalScannedFiles === lastCount) {
+      newStuckCount++;
+
+      if (newStuckCount >= 5) {
+        const isNearlyScanComplete = this.isNearlyScanComplete();
+
+        if (isNearlyScanComplete) {
+          Logger.warn(
+            `[SYSTEM_SCAN] Scan appears stuck at ${this.totalScannedFiles}/${this.totalItemsToScan} files. ` +
+              `With ${this.errorCount} errors, total processed: ${
+                this.totalScannedFiles + this.errorCount
+              }/${this.totalItemsToScan}. ` +
+              'Forcing completion.'
+          );
+
+          if (!scanCompleted && !hasReportedError) {
+            this.emitCompletionEvent(
+              `Scan completed with ${this.errorCount} errors`,
+              0,
+              `scan-complete-${Date.now()}`
+            );
+
+            newIsComplete = true;
+            shouldContinue = false;
+          }
+        } else if (isCustomScan && !hasReportedError) {
+          Logger.warn(
+            '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout'
+          );
+          this.cancelled = true;
+
+          this.emitErrorEvent(
+            'Scan appears stuck - no progress detected for 10 minutes',
+            `scan-stalled-${Date.now()}`
+          );
+          newHasError = true;
+        }
+      }
+    } else {
+      newStuckCount = 0;
+    }
+
+    return {
+      stuckCount: newStuckCount,
+      hasError: newHasError,
+      isComplete: newIsComplete,
+      shouldContinue,
+    };
+  }
+
+  /**
+   * Wait for active scans to complete or timeout
+   */
+  private async waitForActiveScans(activeScans: number): Promise<void> {
+    const maxWaitTime = 30000;
+    const startTime = Date.now();
+
+    while (activeScans > 0) {
+      if (this.isNearlyScanComplete()) {
+        Logger.info(
+          `[SYSTEM_SCAN] Processed ${(
+            ((this.totalScannedFiles + this.errorCount) /
+              this.totalItemsToScan) *
+            100
+          ).toFixed(
+            2
+          )}% of files, continuing despite ${activeScans} active scans`
+        );
+        break;
+      }
+
+      if (Date.now() - startTime > maxWaitTime) {
+        Logger.warn(
+          `[SYSTEM_SCAN] Timed out waiting for ${activeScans} active scans to complete`
+        );
+        break;
+      }
+
+      Logger.debug(
+        `[SYSTEM_SCAN] Waiting for ${activeScans} active scans to complete...`
+      );
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
   }
 
   trackProgress = (
@@ -76,44 +341,29 @@ export class ManualSystemScan {
 
     this.totalScannedFiles++;
 
-    let progressValue = 0;
-    if (this.totalItemsToScan > 0) {
-      const totalProcessedFiles = this.totalScannedFiles;
-      if (totalProcessedFiles >= this.totalItemsToScan) {
-        progressValue = 100;
-      } else {
-        progressValue = Math.min(
-          Math.floor((totalProcessedFiles / this.totalItemsToScan) * 100),
-          100
-        );
-      }
-    } else {
-      progressValue = 100;
-    }
-
-    if (this.totalScannedFiles % 50 === 0 || isInfected) {
+    if (this.totalScannedFiles % 100 === 0 || isInfected) {
       Logger.info(
-        `[SYSTEM_SCAN] Progress: ${progressValue}%, Scanned: ${this.totalScannedFiles}/${this.totalItemsToScan}, Infected: ${this.totalInfectedFiles}`
+        `[SYSTEM_SCAN] Progress: ${this.calculateProgress()}%, Scanned: ${
+          this.totalScannedFiles
+        }/${this.totalItemsToScan}, Infected: ${this.totalInfectedFiles}`
       );
     }
 
-    const progressEvent: ProgressData = {
-      currentScanPath: file,
-      infectedFiles: this.infectedFiles,
-      progress: progressValue,
-      totalScannedFiles: this.totalScannedFiles,
-      scanId: `scan-${currentSession}`,
-    };
+    const progressEvent = this.emitProgressEvent(
+      {
+        currentScanPath: file,
+        scanId: `scan-${currentSession}`,
+      },
+      currentSession,
+      false
+    );
 
-    if (progressValue === 100) {
+    if (
+      this.calculateProgress() === 100 &&
+      this.totalScannedFiles >= this.totalItemsToScan
+    ) {
       progressEvent.done = true;
-    }
 
-    this.progressEvents.push(progressEvent);
-
-    eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', { ...progressEvent });
-
-    if (progressValue === 100) {
       setTimeout(() => {
         const finalEvent: ProgressData = {
           ...progressEvent,
@@ -144,7 +394,6 @@ export class ManualSystemScan {
     }
 
     await this.clearAntivirus();
-
     await this.resetCounters();
     Logger.info('[SYSTEM_SCAN] Scan stopped successfully');
   };
@@ -159,6 +408,9 @@ export class ManualSystemScan {
     this.totalItemsToScan = 0;
     this.errorCount = 0;
     this.cancelled = false;
+
+    this.clearAllIntervals();
+
     if (this.manualQueue) {
       try {
         this.manualQueue.kill();
@@ -242,20 +494,19 @@ export class ManualSystemScan {
     this.manualQueue = queue(scan, 10);
 
     try {
-      const initialProgressEvent: ProgressData = {
-        currentScanPath: 'Scanning your system...',
-        infectedFiles: [],
-        progress: 0,
-        totalScannedFiles: 0,
-        scanId: `scan-${currentSession}`,
-      };
-
-      eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', initialProgressEvent);
-
       const total = await countSystemFiles(userSystemPath.path);
       this.totalItemsToScan = total;
 
       Logger.info(`[SYSTEM_SCAN] Total system files to scan: ${total}`);
+
+      this.emitProgressEvent(
+        {
+          currentScanPath: 'Scanning your system...',
+          progress: 0,
+          scanId: `scan-${currentSession}`,
+        },
+        currentSession
+      );
 
       if (total === 0) {
         this.emitEmptyDirProgressEvent(userSystemPath.path, currentSession);
@@ -273,6 +524,242 @@ export class ManualSystemScan {
     }
   }
 
+  /**
+   * Scan a single file and handle errors
+   */
+  private createScanHandler(
+    antivirus: Antivirus,
+    currentSession: number,
+    activeScans: { count: number },
+    maxToleratedErrors: number,
+    hasReportedError: { value: boolean }
+  ): (filePath: string) => Promise<void> {
+    return async (filePath: string) => {
+      if (this.cancelled) return;
+
+      activeScans.count++;
+      try {
+        const scannedItem = await transformItem(filePath);
+        const previousScannedItem = await this.dbConnection.getItemFromDatabase(
+          scannedItem.pathName
+        );
+
+        if (previousScannedItem) {
+          activeScans.count--;
+          return this.handlePreviousScannedItem(
+            currentSession,
+            scannedItem,
+            previousScannedItem
+          );
+        }
+
+        try {
+          const currentScannedFile = await antivirus.scanFile(
+            scannedItem.pathName
+          );
+
+          if (currentScannedFile) {
+            await this.dbConnection.addItemToDatabase({
+              ...scannedItem,
+              isInfected: currentScannedFile.isInfected,
+            });
+
+            this.trackProgress(currentSession, {
+              file: currentScannedFile.file,
+              isInfected: currentScannedFile.isInfected,
+            });
+          }
+        } catch (error) {
+          this.errorCount++;
+          Logger.error(
+            `[SYSTEM_SCAN] Error scanning file ${scannedItem.pathName}:`,
+            error
+          );
+
+          if (this.errorCount > maxToleratedErrors && !hasReportedError.value) {
+            hasReportedError.value = true;
+            this.emitErrorEvent(
+              `Error: Too many scan failures (${this.errorCount} files failed)`,
+              `scan-error-${currentSession}`
+            );
+          } else {
+            this.trackProgress(currentSession, {
+              file: `${scannedItem.pathName} (scan error)`,
+              isInfected: false,
+            });
+          }
+
+          if (!isPermissionError(error)) {
+            Logger.warn(
+              `[SYSTEM_SCAN] Continuing scan despite error with file: ${scannedItem.pathName}`
+            );
+          }
+        }
+      } catch (error) {
+        this.errorCount++;
+        if (!isPermissionError(error)) {
+          Logger.error(
+            `[SYSTEM_SCAN] Error processing file ${filePath}:`,
+            error
+          );
+        }
+      } finally {
+        activeScans.count--;
+      }
+    };
+  }
+
+  /**
+   * Setup progress monitoring intervals
+   */
+  private setupMonitoringIntervals(
+    currentSession: number,
+    scanState: {
+      lastProgressCount: number;
+      lastScannedCount: number;
+      noProgressIntervals: number;
+      stuckScanCheckCount: number;
+      hasReportedError: boolean;
+      scanCompleted: boolean;
+      allFilesScanned: boolean;
+      activeScans: { count: number };
+    },
+    isCustomScan: boolean
+  ): {
+    progressCheck: IntervalHandle;
+    heartbeat: IntervalHandle;
+    reportProgress: IntervalHandle;
+  } {
+    const progressCheckInterval = this.createInterval(
+      () => {
+        if (!scanState.scanCompleted && !this.cancelled) {
+          if (this.totalScannedFiles === scanState.lastProgressCount) {
+            scanState.noProgressIntervals++;
+            Logger.debug(
+              `[SYSTEM_SCAN] No progress for ${
+                scanState.noProgressIntervals
+              } intervals (${scanState.noProgressIntervals / 2} minutes)`
+            );
+
+            if (scanState.noProgressIntervals >= 20) {
+              Logger.warn(
+                `[SYSTEM_SCAN] No progress detected for ~${
+                  scanState.noProgressIntervals / 2
+                } minutes: ` +
+                  `${this.totalScannedFiles}/${this.totalItemsToScan} files scanned. ` +
+                  'Scan appears stalled but will continue.'
+              );
+
+              if (isCustomScan && !scanState.hasReportedError) {
+                Logger.warn(
+                  '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout'
+                );
+                this.cancelled = true;
+
+                this.emitErrorEvent(
+                  'Scan appears stuck - no progress detected for 10 minutes',
+                  `scan-stalled-${Date.now()}`
+                );
+                scanState.hasReportedError = true;
+              }
+
+              scanState.noProgressIntervals = 15;
+            }
+          } else {
+            scanState.noProgressIntervals = 0;
+            scanState.lastProgressCount = this.totalScannedFiles;
+          }
+        } else {
+          this.clearInterval(progressCheckInterval);
+        }
+      },
+      30000,
+      'progressCheck'
+    );
+
+    const heartbeatInterval = this.createInterval(
+      () => {
+        if (!this.cancelled && !scanState.scanCompleted) {
+          if (this.isScanComplete()) {
+            Logger.info(
+              `[SYSTEM_SCAN] All files scanned (${this.totalScannedFiles}/${this.totalItemsToScan}). Stopping heartbeat.`
+            );
+
+            if (!scanState.scanCompleted && !scanState.hasReportedError) {
+              this.emitCompletionEvent(
+                `Scan completed with ${this.errorCount} errors`,
+                0,
+                `scan-complete-${Date.now()}`
+              );
+
+              scanState.scanCompleted = true;
+              this.clearInterval(heartbeatInterval);
+              return;
+            }
+          }
+
+          const stuckResult = this.handleStalledScan(
+            scanState.lastScannedCount,
+            currentSession,
+            scanState.stuckScanCheckCount,
+            scanState.hasReportedError,
+            scanState.scanCompleted,
+            isCustomScan
+          );
+
+          scanState.stuckScanCheckCount = stuckResult.stuckCount;
+          scanState.hasReportedError = stuckResult.hasError;
+          scanState.scanCompleted = stuckResult.isComplete;
+
+          if (!stuckResult.shouldContinue) {
+            this.clearInterval(heartbeatInterval);
+            return;
+          }
+
+          scanState.lastScannedCount = this.totalScannedFiles;
+
+          this.emitProgressEvent(
+            {
+              currentScanPath: `Scanning in progress... (${
+                this.totalScannedFiles
+              }/${this.totalItemsToScan || 'calculating'})`,
+              progress: this.calculateProgress(),
+              scanId: `scan-${currentSession}-heartbeat`,
+            },
+            currentSession
+          );
+
+          Logger.debug(
+            `[SYSTEM_SCAN] Heartbeat: ${this.totalScannedFiles}/${this.totalItemsToScan} files scanned`
+          );
+        } else {
+          this.clearInterval(heartbeatInterval);
+        }
+      },
+      3000,
+      'heartbeat'
+    );
+
+    const reportProgressInterval = this.createInterval(
+      () => {
+        if (this.progressEvents.length > 0) {
+          const latestEvent =
+            this.progressEvents[this.progressEvents.length - 1];
+          eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', { ...latestEvent });
+          this.progressEvents = [];
+        }
+      },
+      500,
+      'reportProgress'
+    );
+
+    return {
+      progressCheck: progressCheckInterval,
+      heartbeat: heartbeatInterval,
+      reportProgress: reportProgressInterval,
+    };
+  }
+
   public async scanItems(pathNames?: string[]): Promise<void> {
     Logger.info(
       `[SYSTEM_SCAN] Starting new scan with ${
@@ -287,17 +774,19 @@ export class ManualSystemScan {
     }
 
     this.cancelled = false;
-    let reportProgressInterval: NodeJS.Timeout | null = null;
-    let heartbeatInterval: NodeJS.Timeout | null = null;
-    let progressCheckInterval: NodeJS.Timeout | null = null;
-    let scanCompleted = false;
-    let hasReportedError = false;
-    let activeScans = 0;
-    let stuckScanCheckCount = 0;
-    let lastScannedCount = 0;
-    const MAX_TOLERATED_ERRORS = 10;
-    const MAX_STUCK_CHECKS = 5;
     const scanStartTime = Date.now();
+    const MAX_TOLERATED_ERRORS = 10;
+
+    const scanState = {
+      lastProgressCount: 0,
+      lastScannedCount: 0,
+      noProgressIntervals: 0,
+      stuckScanCheckCount: 0,
+      hasReportedError: false,
+      scanCompleted: false,
+      allFilesScanned: false,
+      activeScans: { count: 0 },
+    };
 
     try {
       if (!AppDataSource.isInitialized) {
@@ -323,261 +812,22 @@ export class ManualSystemScan {
       const currentSession = ++this.scanSessionId;
       Logger.info(`[SYSTEM_SCAN] Starting scan session ${currentSession}`);
 
-      let lastProgressCheckCount = this.totalScannedFiles;
-      let noProgressIntervals = 0;
-      const MAX_NO_PROGRESS_INTERVALS = 20;
+      const intervals = this.setupMonitoringIntervals(
+        currentSession,
+        scanState,
+        !!pathNames
+      );
 
-      progressCheckInterval = setInterval(() => {
-        if (!scanCompleted && !this.cancelled) {
-          if (this.totalScannedFiles === lastProgressCheckCount) {
-            noProgressIntervals++;
-            Logger.debug(
-              `[SYSTEM_SCAN] No progress for ${noProgressIntervals} intervals (${
-                noProgressIntervals / 2
-              } minutes)`
-            );
+      const hasReportedErrorRef = { value: scanState.hasReportedError };
+      const scan = this.createScanHandler(
+        antivirus,
+        currentSession,
+        scanState.activeScans,
+        MAX_TOLERATED_ERRORS,
+        hasReportedErrorRef
+      );
 
-            if (noProgressIntervals >= MAX_NO_PROGRESS_INTERVALS) {
-              Logger.warn(
-                `[SYSTEM_SCAN] No progress detected for ~${
-                  noProgressIntervals / 2
-                } minutes: ` +
-                  `${this.totalScannedFiles}/${this.totalItemsToScan} files scanned. ` +
-                  'Scan appears stalled but will continue.'
-              );
-
-              if (pathNames && !hasReportedError) {
-                Logger.warn(
-                  '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout'
-                );
-                this.cancelled = true;
-
-                const timeoutEvent: ProgressData = {
-                  currentScanPath:
-                    'Scan appears stuck - no progress detected for 10 minutes',
-                  infectedFiles: this.infectedFiles,
-                  progress: 100,
-                  totalScannedFiles: this.totalScannedFiles,
-                  done: true,
-                  scanId: `scan-stalled-${Date.now()}`,
-                };
-                eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', timeoutEvent);
-                hasReportedError = true;
-              }
-
-              noProgressIntervals = MAX_NO_PROGRESS_INTERVALS - 5;
-            }
-          } else {
-            noProgressIntervals = 0;
-            lastProgressCheckCount = this.totalScannedFiles;
-          }
-        } else {
-          if (progressCheckInterval) {
-            clearInterval(progressCheckInterval);
-            progressCheckInterval = null;
-          }
-        }
-      }, 30000);
-
-      heartbeatInterval = setInterval(() => {
-        if (!this.cancelled && !scanCompleted) {
-          if (this.totalScannedFiles >= this.totalItemsToScan) {
-            Logger.info(
-              `[SYSTEM_SCAN] All files scanned (${this.totalScannedFiles}/${this.totalItemsToScan}). Stopping heartbeat.`
-            );
-
-            if (!scanCompleted && !hasReportedError) {
-              const finalProgressEvent: ProgressData = {
-                currentScanPath: `Scan completed with ${this.errorCount} errors`,
-                infectedFiles: this.infectedFiles,
-                progress: 100,
-                totalScannedFiles: this.totalScannedFiles,
-                done: true,
-                scanId: `scan-complete-${Date.now()}`,
-              };
-
-              eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', finalProgressEvent);
-              scanCompleted = true;
-
-              if (heartbeatInterval) {
-                clearInterval(heartbeatInterval);
-                heartbeatInterval = null;
-              }
-
-              if (reportProgressInterval) {
-                clearInterval(reportProgressInterval);
-                reportProgressInterval = null;
-              }
-            }
-            return;
-          }
-
-          if (this.totalScannedFiles === lastScannedCount) {
-            stuckScanCheckCount++;
-
-            if (stuckScanCheckCount >= MAX_STUCK_CHECKS) {
-              const totalProcessed = this.totalScannedFiles + this.errorCount;
-              const percentComplete =
-                (totalProcessed / this.totalItemsToScan) * 100;
-
-              if (
-                percentComplete >= 99.5 ||
-                this.totalItemsToScan - totalProcessed <= 5
-              ) {
-                Logger.warn(
-                  `[SYSTEM_SCAN] Scan appears stuck at ${this.totalScannedFiles}/${this.totalItemsToScan} files. ` +
-                    `With ${
-                      this.errorCount
-                    } errors, total processed: ${totalProcessed}/${
-                      this.totalItemsToScan
-                    } (${percentComplete.toFixed(2)}%). ` +
-                    'Forcing completion.'
-                );
-
-                if (!scanCompleted && !hasReportedError) {
-                  const finalProgressEvent: ProgressData = {
-                    currentScanPath: `Scan completed with ${this.errorCount} errors`,
-                    infectedFiles: this.infectedFiles,
-                    progress: 100,
-                    totalScannedFiles: this.totalScannedFiles,
-                    done: true,
-                    scanId: `scan-complete-${Date.now()}`,
-                  };
-
-                  eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', finalProgressEvent);
-                  scanCompleted = true;
-
-                  if (heartbeatInterval) {
-                    clearInterval(heartbeatInterval);
-                    heartbeatInterval = null;
-                  }
-
-                  if (reportProgressInterval) {
-                    clearInterval(reportProgressInterval);
-                    reportProgressInterval = null;
-                  }
-
-                  return;
-                }
-              }
-            }
-          } else {
-            stuckScanCheckCount = 0;
-            lastScannedCount = this.totalScannedFiles;
-          }
-
-          const heartbeatEvent: ProgressData = {
-            currentScanPath: `Scanning in progress... (${this.totalScannedFiles}/${this.totalItemsToScan})`,
-            infectedFiles: this.infectedFiles,
-            progress:
-              this.totalItemsToScan > 0
-                ? this.totalScannedFiles >= this.totalItemsToScan
-                  ? 100
-                  : Math.floor(
-                      (this.totalScannedFiles / this.totalItemsToScan) * 100
-                    )
-                : 50,
-            totalScannedFiles: this.totalScannedFiles,
-            scanId: `scan-${currentSession}-heartbeat`,
-          };
-          eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', heartbeatEvent);
-          Logger.debug(
-            `[SYSTEM_SCAN] Heartbeat: ${this.totalScannedFiles}/${this.totalItemsToScan} files scanned`
-          );
-        }
-      }, 3000);
-
-      reportProgressInterval = setInterval(() => {
-        if (this.progressEvents.length > 0) {
-          const latestEvent =
-            this.progressEvents[this.progressEvents.length - 1];
-          eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', { ...latestEvent });
-          this.progressEvents = [];
-        }
-      }, 500);
-
-      const scan = async (filePath: string) => {
-        if (this.cancelled) return;
-
-        activeScans++;
-        const cleanPath = filePath;
-        try {
-          const scannedItem = await transformItem(cleanPath);
-          const previousScannedItem =
-            await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
-          if (previousScannedItem) {
-            activeScans--;
-            return this.handlePreviousScannedItem(
-              currentSession,
-              scannedItem,
-              previousScannedItem
-            );
-          }
-
-          try {
-            const currentScannedFile = await antivirus.scanFile(
-              scannedItem.pathName
-            );
-
-            if (currentScannedFile) {
-              await this.dbConnection.addItemToDatabase({
-                ...scannedItem,
-                isInfected: currentScannedFile.isInfected,
-              });
-
-              this.trackProgress(currentSession, {
-                file: currentScannedFile.file,
-                isInfected: currentScannedFile.isInfected,
-              });
-            }
-          } catch (error) {
-            this.errorCount++;
-            Logger.error(
-              `[SYSTEM_SCAN] Error scanning file ${scannedItem.pathName}:`,
-              error
-            );
-
-            if (this.errorCount > MAX_TOLERATED_ERRORS && !hasReportedError) {
-              hasReportedError = true;
-              const errorEvent: ProgressData = {
-                currentScanPath: `Error: Too many scan failures (${this.errorCount} files failed)`,
-                infectedFiles: this.infectedFiles,
-                progress:
-                  this.totalItemsToScan > 0
-                    ? Math.round(
-                        (this.totalScannedFiles / this.totalItemsToScan) * 100
-                      )
-                    : 100,
-                totalScannedFiles: this.totalScannedFiles,
-                done: true,
-                scanId: `scan-error-${currentSession}`,
-              };
-              eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', errorEvent);
-            } else {
-              this.trackProgress(currentSession, {
-                file: `${scannedItem.pathName} (scan error)`,
-                isInfected: false,
-              });
-            }
-
-            if (!isPermissionError(error)) {
-              Logger.warn(
-                `[SYSTEM_SCAN] Continuing scan despite error with file: ${scannedItem.pathName}`
-              );
-            }
-          }
-        } catch (error) {
-          this.errorCount++;
-          if (!isPermissionError(error)) {
-            Logger.error(
-              `[SYSTEM_SCAN] Error processing file ${filePath}:`,
-              error
-            );
-          }
-        } finally {
-          activeScans--;
-        }
-      };
+      scanState.hasReportedError = hasReportedErrorRef.value;
 
       if (pathNames) {
         await this.performCustomScan(currentSession, pathNames, scan);
@@ -586,117 +836,69 @@ export class ManualSystemScan {
       }
 
       await this.manualQueue?.drain();
+      await this.waitForActiveScans(scanState.activeScans.count);
 
-      const waitForActiveScans = async () => {
-        const maxWaitTime = 30000;
-        const startTime = Date.now();
+      if (!scanState.hasReportedError) {
+        scanState.allFilesScanned =
+          this.totalScannedFiles >= this.totalItemsToScan;
 
-        while (activeScans > 0) {
-          const totalProcessed = this.totalScannedFiles + this.errorCount;
-          const percentComplete =
-            (totalProcessed / this.totalItemsToScan) * 100;
-
-          if (
-            percentComplete >= 99.5 ||
-            this.totalItemsToScan - totalProcessed <= 5
-          ) {
-            Logger.info(
-              `[SYSTEM_SCAN] Processed ${percentComplete.toFixed(
-                2
-              )}% of files, continuing despite ${activeScans} active scans`
-            );
-            break;
-          }
-
-          if (Date.now() - startTime > maxWaitTime) {
-            Logger.warn(
-              `[SYSTEM_SCAN] Timed out waiting for ${activeScans} active scans to complete`
-            );
-            break;
-          }
-
-          Logger.debug(
-            `[SYSTEM_SCAN] Waiting for ${activeScans} active scans to complete...`
-          );
-          await new Promise((resolve) => setTimeout(resolve, 500));
-        }
-      };
-
-      await waitForActiveScans();
-
-      if (!hasReportedError) {
-        const finalProgressEvent: ProgressData = {
-          currentScanPath: '',
-          infectedFiles: this.infectedFiles,
-          progress: 100,
-          totalScannedFiles: this.totalScannedFiles,
-          done: true,
-          scanId: `scan-${Date.now()}`,
-        };
+        this.emitProgressEvent(
+          {
+            currentScanPath: scanState.allFilesScanned
+              ? 'Scan complete'
+              : 'Scan in progress...',
+            progress: scanState.allFilesScanned
+              ? 100
+              : this.calculateProgress(),
+            done: scanState.allFilesScanned,
+            scanId: `scan-${Date.now()}`,
+          },
+          currentSession
+        );
 
         this.progressEvents = [];
 
-        Logger.info('[SYSTEM_SCAN] Sending final done event directly');
-        eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', finalProgressEvent);
-
-        setTimeout(() => {
-          Logger.info('[SYSTEM_SCAN] Sending final done event after timeout');
-          eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', finalProgressEvent);
-        }, 1500);
+        if (scanState.allFilesScanned) {
+          Logger.info('[SYSTEM_SCAN] Sending final done event directly');
+          this.emitCompletionEvent('Scan complete', 1500);
+        }
       }
 
-      scanCompleted = true;
+      scanState.scanCompleted = scanState.allFilesScanned;
     } catch (error) {
       Logger.error('[SYSTEM_SCAN] Error during manual scan:', error);
 
-      if (!hasReportedError) {
-        const errorEvent: ProgressData = {
-          currentScanPath: 'Error occurred during scan',
-          infectedFiles: this.infectedFiles,
-          progress: 100,
-          totalScannedFiles: this.totalScannedFiles,
-          done: true,
-          scanId: `scan-error-${Date.now()}`,
-        };
-
-        eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', errorEvent);
-        hasReportedError = true;
+      if (!scanState.hasReportedError) {
+        this.emitErrorEvent('Error occurred during scan');
+        scanState.hasReportedError = true;
       }
 
       if (!isPermissionError(error)) {
         throw error;
       }
     } finally {
-      if (progressCheckInterval) {
-        clearInterval(progressCheckInterval);
-        progressCheckInterval = null;
+      this.clearAllIntervals();
+
+      if (!scanState.scanCompleted && !scanState.hasReportedError) {
+        scanState.allFilesScanned =
+          this.totalScannedFiles >= this.totalItemsToScan;
+
+        this.emitProgressEvent(
+          {
+            currentScanPath: scanState.allFilesScanned
+              ? 'Scan completed'
+              : 'Scan interrupted',
+            progress: scanState.allFilesScanned
+              ? 100
+              : this.calculateProgress(),
+            done: scanState.allFilesScanned,
+            scanId: `scan-final-${Date.now()}`,
+          },
+          this.scanSessionId
+        );
       }
 
-      if (reportProgressInterval) {
-        clearInterval(reportProgressInterval);
-        reportProgressInterval = null;
-      }
-
-      if (heartbeatInterval) {
-        clearInterval(heartbeatInterval);
-        heartbeatInterval = null;
-      }
-
-      if (!scanCompleted && !hasReportedError) {
-        const finalProgressEvent: ProgressData = {
-          currentScanPath: '',
-          infectedFiles: this.infectedFiles,
-          progress: 100,
-          totalScannedFiles: this.totalScannedFiles,
-          done: true,
-          scanId: `scan-final-${Date.now()}`,
-        };
-
-        Logger.info('[SYSTEM_SCAN] Sending final event from finally block');
-        eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', finalProgressEvent);
-      }
-
-      scanCompleted = true;
+      scanState.scanCompleted = scanState.allFilesScanned;
 
       const scanDuration = (Date.now() - scanStartTime) / 1000;
       Logger.info(
@@ -704,7 +906,7 @@ export class ManualSystemScan {
           2
         )}s with state:`,
         {
-          completed: scanCompleted,
+          completed: scanState.scanCompleted,
           filesScanned: this.totalScannedFiles,
           infected: this.totalInfectedFiles,
           errors: this.errorCount,
@@ -725,15 +927,15 @@ export class ManualSystemScan {
     currentScanPath: string,
     currentSession: number
   ) {
-    const emptyDirProgressEvent: ProgressData = {
-      currentScanPath: currentScanPath,
-      infectedFiles: [],
-      progress: 100,
-      totalScannedFiles: 0,
-      done: true,
-      scanId: `scan-empty-${currentSession}`,
-    };
-
-    eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', emptyDirProgressEvent);
+    this.emitProgressEvent(
+      {
+        currentScanPath,
+        progress: 100,
+        totalScannedFiles: 0,
+        done: true,
+        scanId: `scan-empty-${currentSession}`,
+      },
+      currentSession
+    );
   }
 }
