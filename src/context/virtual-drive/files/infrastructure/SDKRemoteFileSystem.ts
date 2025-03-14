@@ -22,24 +22,25 @@ export class SDKRemoteFileSystem {
     private readonly sdk: Storage,
     private readonly clients: AuthorizedClients,
     private readonly crypt: Crypt,
-    private readonly bucket: string,
+    private readonly bucket: string
   ) {}
 
-  async deleteAndPersist(attributes: OfflineFileAttributes, newContentsId: string): Promise<FileAttributes> {
+  async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }): Promise<FileAttributes> {
+    const { attributes, newContentsId } = input;
     if (!newContentsId) {
       throw new Error('Failed to generate new contents id');
     }
-  
+
     Logger.info('New contents id generated', newContentsId, ' path: ', attributes.path);
     await this.hardDelete(attributes.contentsId);
-    
+
     Logger.info('Deleted old contents id', attributes.contentsId, ' path: ', attributes.path);
-  
+
     const delays = [50, 100, 200];
     let isDeleted = false;
-  
+
     for (const delay of delays) {
-      await new Promise(resolve => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, delay));
       const fileCheck = await this.getFileByPath(attributes.path);
       if (!fileCheck) {
         isDeleted = true;
@@ -47,19 +48,18 @@ export class SDKRemoteFileSystem {
       }
       Logger.info(`File still exists after ${delay}ms delay, retrying...`);
     }
-  
+
     if (!isDeleted) {
       throw new Error(`File deletion not confirmed for path: ${attributes.path} after retries`);
     }
     const offlineFile = OfflineFile.from({ ...attributes, contentsId: newContentsId });
-    
+
     const persistedFile = await this.persist(offlineFile);
     Logger.info('Persisted new contents id', newContentsId, ' path: ', attributes.path);
-    
+
     return persistedFile;
   }
 
-  
   async persist(offline: OfflineFile): Promise<FileAttributes> {
     const encryptedName = this.crypt.encryptName(offline.name, offline.folderId.toString());
 
@@ -104,8 +104,8 @@ export class SDKRemoteFileSystem {
       return left(
         new DriveDesktopError(
           'COULD_NOT_ENCRYPT_NAME',
-          `Could not encrypt the file name: ${plainName} with salt: ${dataToPersists.folderId.value.toString()}`,
-        ),
+          `Could not encrypt the file name: ${plainName} with salt: ${dataToPersists.folderId.value.toString()}`
+        )
       );
     }
 
@@ -148,7 +148,7 @@ export class SDKRemoteFileSystem {
 
       if (status === 409) {
         return left(
-          new DriveDesktopError('FILE_ALREADY_EXISTS', `File with name ${plainName} on ${dataToPersists.folderId.value} already exists`),
+          new DriveDesktopError('FILE_ALREADY_EXISTS', `File with name ${plainName} on ${dataToPersists.folderId.value} already exists`)
         );
       }
 

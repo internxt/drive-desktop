@@ -114,7 +114,7 @@ export class FileOverwriteContent {
         await downloader.download(file);
 
         Logger.info(`Possible dangled file ${file.path} hydrated.`);
-        DangledFilesManager.getInstance().add(file.contentsId, file.path);
+        DangledFilesManager.getInstance().add({ contentId: file.contentsId, path: file.path });
       } else {
         Logger.info(`Possible dangled file ${file.path} not hydrated.`);
       }
