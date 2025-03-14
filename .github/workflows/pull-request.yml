@@ -5,8 +5,8 @@ on:
 
 jobs:
   checks:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    runs-on: windows-latest
+    timeout-minutes: 7
 
     permissions:
       contents: read
@@ -15,6 +15,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -28,12 +34,13 @@ jobs:
       - name: Create .npmrc file
         run: |
           touch .npmrc
+          echo "node-linker=hoisted" >> .npmrc
           echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: yarn install
+        run: pnpm install
 
       - name: Create .env file
         run: |
