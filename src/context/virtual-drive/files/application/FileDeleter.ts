@@ -18,6 +18,26 @@ export class FileDeleter {
     private readonly ipc: SyncEngineIpc,
   ) {}
 
+  async runHardDelete(contentsId: File['contentsId']): Promise<void> {
+    try {
+      const file = this.repository.searchByPartial({ contentsId });
+
+      if (!file) {
+        Logger.warn(`File with contentsId ${contentsId} not found. Will ignore...`);
+        return;
+      }
+
+      Logger.info(`Hard deleting file ${file.nameWithExtension}`);
+
+      file.trash();
+
+      await this.remote.hardDelete(file.contentsId);
+      await this.repository.update(file);
+    } catch (error: unknown) {
+      Logger.error('Error deleting the file: ', error);
+    }
+  }
+
   async run(contentsId: File['contentsId']): Promise<void> {
     const file = this.repository.searchByPartial({ contentsId });
 

@@ -80,6 +80,10 @@ export class ContentsUploader {
       return fileContents;
     } catch (error: unknown) {
       Logger.error('[ERROR DEBUG]', error);
+      const fileName = posixRelativePath.split('/').pop() || posixRelativePath;
+      if (error instanceof Error) {
+        (error as any).fileName = fileName;
+      }
       throw error;
     }
   }

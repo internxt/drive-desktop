@@ -20,6 +20,7 @@ import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository
 export class FileSyncronizer {
   // queue of files to be uploaded
   private foldersPathQueue: string[] = [];
+
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
@@ -84,6 +85,11 @@ export class FileSyncronizer {
       if (error instanceof FolderNotFoundError) {
         await this.createFolderFather(posixRelativePath);
       }
+
+      if (error instanceof Error && error.message.includes('Max space used')) {
+        return;
+      }
+
       if (attemps > 0) {
         await this.retryCreation(posixRelativePath, filePath, upload, attemps - 1);
         return;

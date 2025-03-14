@@ -131,7 +131,7 @@
         "upgrade": "Upgrade"
       },
       "dropdown": {
-        "new": "Nuevo",
+        "new": "New",
         "preferences": "Preferences",
         "sync": "Sync",
         "issues": "Issues",
@@ -396,6 +396,7 @@
         }
       },
       "scanProcess": {
+        "countingFiles": "Counting files...",
         "scanning": "Scanning...",
         "scannedFiles": "Scanned files",
         "detectedFiles": "Detected files",

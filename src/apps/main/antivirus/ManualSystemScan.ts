@@ -4,7 +4,7 @@ import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { Antivirus } from './Antivirus';
-import { countFilesUsingWindowsCommand, getFilesFromDirectory } from './utils/getFilesFromDirectory';
+import { countSystemFiles, getFilesFromDirectory } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './utils/dbConections';
@@ -145,11 +145,8 @@ export class ManualSystemScan {
       }
     }, 1000);
 
-    console.time('manual-scan');
-
     const scan = async (filePath: string) => {
       if (this.cancelled) return;
-      console.log('SCAN ITEM: ', filePath);
       try {
         const scannedItem = await transformItem(filePath);
         const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
@@ -177,16 +174,22 @@ export class ManualSystemScan {
       }
     };
 
+    console.time('manual-scan');
     try {
       if (!pathNames) {
         const userSystemPath = await getUserSystemPath();
         if (!userSystemPath) return;
 
-        this.totalItemsToScan = await countFilesUsingWindowsCommand(userSystemPath.path);
+        const countPromise = countSystemFiles(userSystemPath.path);
+
+        await new Promise((resolve) => setTimeout(resolve, 15000));
 
         this.manualQueue = queue(scan, 10);
+        const filesPromise = getFilesFromDirectory(userSystemPath.path, (filePath: string) => this.manualQueue!.pushAsync(filePath));
 
-        await getFilesFromDirectory(userSystemPath.path, (filePath: string) => this.manualQueue!.pushAsync(filePath));
+        this.totalItemsToScan = await countPromise;
+
+        await filesPromise;
       } else {
         let pathsToScan: string[] = [];
         if (pathNames && pathNames.length > 0) {
@@ -196,27 +199,35 @@ export class ManualSystemScan {
           if (!userSystemPath) return;
           pathsToScan = [userSystemPath.path];
         }
-        this.manualQueue = queue(scan, 10);
 
         let total = 0;
         for (const p of pathNames) {
-          total += await countFilesUsingWindowsCommand(p);
+          total += await countSystemFiles(p);
         }
 
         this.totalItemsToScan = total;
 
+        eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
+          totalScannedFiles: 0,
+          infectedFiles: [],
+          currentScanPath: '',
+          progress: 0,
+        });
+
+        this.manualQueue = queue(scan, 10);
         for (const p of pathsToScan) {
           await getFilesFromDirectory(p, (filePath: string) => this.manualQueue!.pushAsync(filePath));
         }
       }
 
       await this.manualQueue.drain();
-
       this.finishScan(currentSession);
     } catch (error) {
       if (!isPermissionError(error)) {
         throw error;
       }
+      this.resetCounters();
+      await this.manualQueue?.drain();
     } finally {
       console.timeEnd('manual-scan');
       if (reportProgressInterval) {
