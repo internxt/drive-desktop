@@ -35,12 +35,18 @@ export class FileOverwriteContent {
     this.processingErrorQueue = false;
   }
 
-  private enqueueError(file: File, callback: (remoteDangledFile: string) => Promise<void>) {
+  private enqueueError(input: { file: File; callback: (remoteDangledFile: string) => Promise<void> }) {
+    const { file, callback } = input;
     this.errorQueue.push({ file, callback });
     this.processErrorQueue();
   }
 
-  private async registerEvents(downloader: ContentFileDownloader, file: File, fixCallback: (remoteDangledFile: string) => Promise<void>) {
+  private async registerEvents(input: {
+    downloader: ContentFileDownloader;
+    file: File;
+    callback: (remoteDangledFile: string) => Promise<void>;
+  }) {
+    const { downloader, file, callback } = input;
     const location = await temporalFolderProvider();
     ensureFolderExists(location);
 
@@ -56,18 +62,19 @@ export class FileOverwriteContent {
     downloader.on('error', (error: Error) => {
       Logger.error('[FileSyncronizer] Error downloading file', error.message, file.path);
       if (error.message.includes('Object not found')) {
-        this.enqueueError(file, fixCallback);
+        this.enqueueError({ file, callback });
       } else {
         Logger.error('Error downloading file', error);
       }
     });
   }
 
-  async run(
-    contentsIds: File['contentsId'][],
-    upload: (path: string) => Promise<RemoteFileContents>,
-    downloaderManger: EnvironmentRemoteFileContentsManagersFactory
-  ) {
+  async run(input: {
+    contentsIds: File['contentsId'][];
+    upload: (path: string) => Promise<RemoteFileContents>;
+    downloaderManger: EnvironmentRemoteFileContentsManagersFactory;
+  }) {
+    const { contentsIds, upload, downloaderManger } = input;
     Logger.debug('Inside overrideDangledFiles');
     const files = await this.repository.searchByContentsIds(contentsIds);
 
@@ -101,7 +108,7 @@ export class FileOverwriteContent {
     for (const file of files) {
       if (filesWithContentLocally[file.path]) {
         const downloader = downloaderManger.downloader();
-        this.registerEvents(downloader, file, asynchronousFixingOfDangledFiles);
+        this.registerEvents({ downloader, file, callback: asynchronousFixingOfDangledFiles });
 
         Logger.debug('Trying to download file ', file.uuid, ' ', file.name);
         await downloader.download(file);
