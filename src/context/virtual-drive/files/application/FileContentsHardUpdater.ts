@@ -6,12 +6,14 @@ import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { sleep } from '@/apps/main/util';
 
+type FileContentsHardUpdaterRun = {
+  Attributes: OfflineFileAttributes;
+  upload: (path: string) => Promise<RemoteFileContents>;
+};
 export class FileContentsHardUpdater {
-  constructor(
-    private readonly remote: SDKRemoteFileSystem
-  ) {}
-
-  async run(Attributes: OfflineFileAttributes, upload: (path: string) => Promise<RemoteFileContents>) {
+  constructor(private readonly remote: SDKRemoteFileSystem) {}
+  async run(input: FileContentsHardUpdaterRun) {
+    const { Attributes, upload } = input;
     try {
       Logger.info('Running hard update before upload');
 
