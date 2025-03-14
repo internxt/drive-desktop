@@ -40,7 +40,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install && pnpm postinstall
 
       - name: Create .env file
         run: |
