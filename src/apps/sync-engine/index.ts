@@ -57,31 +57,6 @@ async function setUp() {
     event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates);
   });
 
-  // ipcRenderer.on('FILE_DOWNLOAD_ERROR', async (_, payload) => {
-  //   const errorMessage = payload.error;
-
-  //   Logger.debug('Payload', JSON.stringify(payload, null, 2));
-  //   if ( payload.contentsId && errorMessage && errorMessage.includes('Object not found')) {
-  //     Logger.debug('ERROR FOUND');
-  //     const dangledFiles = DangledFilesManager.getInstance().get();
-
-  //     Logger.debug('DANGLED FILES', JSON.stringify(Object(dangledFiles), null, 2));
-  //     const cleanContentId = payload.contentsId.replace('file:', '');
-
-  //     Logger.debug('CLEAN CONTENT ID', cleanContentId);
-  //     const filePath = dangledFiles[cleanContentId];
-
-  //     Logger.debug('FILE PATH', filePath);
-
-  //     if (filePath) {
-  //       await container.fileDeleter.runHardDelete(cleanContentId);
-
-  //       Logger.debug('DELETED FILE');
-  //       // aawait fs.unlink(filePath);
-  //     }
-  //   }
-  // });
-
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     Logger.info('[SYNC ENGINE] Updating sync engine');
     await bindings.update();
@@ -121,10 +96,7 @@ async function setUp() {
     }
   });
 
-  await bindings.start(
-    packageJson.version,
-    '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
-  );
+  await bindings.start(packageJson.version, '{E9D7EB38-B229-5DC5-9396-017C449D59CD}');
 
   await bindings.watch();
 
