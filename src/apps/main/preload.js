@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 const Logger = require('electron-log');
+const { inspect } = require('util');
 
 contextBridge.exposeInMainWorld('electron', {
   getConfigKey(key) {
@@ -22,7 +23,7 @@ contextBridge.exposeInMainWorld('electron', {
   },
 
   logger: {
-    info: (...message) => Logger.info(String(message)),
+    info: (...message) => Logger.info(inspect(message, { colors: true, depth: Infinity, breakLength: Infinity })),
     error: (...message) => Logger.error(message),
     warn: (...message) => Logger.warn(message),
   },

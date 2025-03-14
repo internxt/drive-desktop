@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { ipcMain, shell } from 'electron';
 import { SelectedItemToScanProps } from '../antivirus/Antivirus';
 import { getMultiplePathsFromDialog } from '../device/service';
@@ -6,6 +5,7 @@ import { exec } from 'node:child_process';
 import { PaymentsService } from '../payments/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
 import { buildPaymentsService } from '../payments/builder';
+import { logger } from '@/apps/shared/logger/logger';
 
 let paymentService: PaymentsService | null = null;
 
@@ -34,12 +34,14 @@ ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
 
     return availableProducts.antivirus;
   } catch (error) {
-    Logger.error('ERROR GETTING PRODUCTS: ', error);
-    throw error;
+    logger.info({
+      msg: 'ERROR GETTING PRODUCTS FOR ANTIVIRUS',
+      error: (error as Error).message,
+    });
+    return false;
   }
 });
-
-ipcMain.handle('backups:is-available', async (): Promise<boolean> => {
+export async function isAvailableBackups(): Promise<boolean> {
   try {
     if (!paymentService) {
       paymentService = buildPaymentsService();
@@ -49,10 +51,15 @@ ipcMain.handle('backups:is-available', async (): Promise<boolean> => {
 
     return availableProducts.backups;
   } catch (error) {
-    Logger.error('ERROR GETTING PRODUCTS: ', error);
-    throw error;
+    logger.info({
+      msg: 'ERROR GETTING PRODUCTS FOR BACKUPS',
+      error: (error as Error).message,
+    });
+    return false;
   }
-});
+}
+
+ipcMain.handle('backups:is-available', isAvailableBackups);
 
 ipcMain.handle('antivirus:is-Defender-active', async () => {
   try {
