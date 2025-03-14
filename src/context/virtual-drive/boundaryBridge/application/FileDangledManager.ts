@@ -10,7 +10,7 @@ export class FileDangledManager {
   constructor(
     private readonly contentsUploader: RetryContentsUploader,
     private readonly contentsManagerFactory: EnvironmentRemoteFileContentsManagersFactory,
-    private readonly fileOverwriteContent: FileOverwriteContent
+    private readonly fileOverwriteContent: FileOverwriteContent,
   ) {}
 
   async run(): Promise<void> {

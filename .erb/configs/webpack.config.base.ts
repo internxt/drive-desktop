@@ -3,13 +3,16 @@
  */
 
 import path from 'path';
+import { cwd } from 'process';
+import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
 import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
+import { ENV } from '../../src/core/env/env';
 
-const aliases = {}
-if (process.env.NODE_ENV === 'development') {
-  aliases['virtual-drive/dist'] = path.resolve(__dirname, '../../../node-win/dist');
+const aliases: Record<string, string> = {};
+if (ENV.NODE_ENV === 'development') {
+  aliases['virtual-drive/dist'] = path.resolve(cwd(), '../node-win/dist');
 }
 
 const configuration: webpack.Configuration = {
@@ -50,12 +53,10 @@ const configuration: webpack.Configuration = {
    * Determine the array of extensions that should be used to resolve modules.
    */
   resolve: {
-    alias: {
-      ...aliases,
-      '@': path.resolve(__dirname, '../../src'),
-    },
+    alias: { ...aliases },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
     modules: [webpackPaths.srcPath, 'node_modules'],
+    plugins: [new TsconfigPathsPlugin()],
   },
 
   plugins: [

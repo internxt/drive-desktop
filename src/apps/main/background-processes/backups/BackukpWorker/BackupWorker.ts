@@ -1,20 +1,16 @@
+import { ENV } from '@/core/env/env';
 import { BrowserWindow } from 'electron';
 import Logger from 'electron-log';
 import path from 'path';
 
 export class BackupWorker {
-  private static readonly DEV_PATH =
-    '../../../release/app/dist/backups/index.html';
+  private static readonly DEV_PATH = '../../../release/app/dist/backups/index.html';
 
-  private static readonly PROD_PATH = `${path.join(
-    __dirname,
-    '..',
-    'backups'
-  )}/index.html`;
+  private static readonly PROD_PATH = `${path.join(__dirname, '..', 'backups')}/index.html`;
 
   private constructor(
     public readonly id: number,
-    private readonly worker: BrowserWindow
+    private readonly worker: BrowserWindow,
   ) {}
 
   send(message: string, ...args: any[]) {
@@ -34,13 +30,7 @@ export class BackupWorker {
       show: false,
     });
 
-    worker
-      .loadFile(
-        process.env.NODE_ENV === 'development'
-          ? BackupWorker.DEV_PATH
-          : BackupWorker.PROD_PATH
-      )
-      .catch(Logger.error);
+    worker.loadFile(ENV.NODE_ENV === 'development' ? BackupWorker.DEV_PATH : BackupWorker.PROD_PATH).catch(Logger.error);
 
     return new BackupWorker(id, worker);
   }

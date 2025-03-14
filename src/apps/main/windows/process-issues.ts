@@ -4,8 +4,7 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 
 let processIssuesWindow: BrowserWindow | null = null;
-export const getProcessIssuesWindow = () =>
-  processIssuesWindow?.isDestroyed() ? null : processIssuesWindow;
+export const getProcessIssuesWindow = () => (processIssuesWindow?.isDestroyed() ? null : processIssuesWindow);
 
 ipcMain.on('open-process-issues-window', openProcessIssuesWindow);
 ipcMain.handle('open-process-issues-window', async () => {

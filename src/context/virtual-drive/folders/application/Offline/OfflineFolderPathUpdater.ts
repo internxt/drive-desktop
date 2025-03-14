@@ -10,7 +10,7 @@ export class OfflineFolderPathUpdater {
   constructor(
     private readonly offlineFoldersRepository: OfflineFolderRepository,
     private readonly offlineFolderMover: OfflineFolderMover,
-    private readonly offlineFolderRenamer: OfflineFolderRenamer
+    private readonly offlineFolderRenamer: OfflineFolderRenamer,
   ) {}
 
   async run(uuid: OfflineFolder['uuid'], posixRelativePath: string) {

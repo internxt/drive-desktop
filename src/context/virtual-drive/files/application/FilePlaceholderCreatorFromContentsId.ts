@@ -5,7 +5,7 @@ import { FileFinderByContentsId } from './FileFinderByContentsId';
 export class FilePlaceholderCreatorFromContentsId {
   constructor(
     private readonly finder: FileFinderByContentsId,
-    private readonly local: NodeWinLocalFileSystem
+    private readonly local: NodeWinLocalFileSystem,
   ) {}
 
   run(contentsId: File['contentsId']) {

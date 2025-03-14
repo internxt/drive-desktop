@@ -1,9 +1,11 @@
-import logger from 'electron-log';
+import Logger from 'electron-log';
 import { io, Socket } from 'socket.io-client';
 import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
-import { ipcMain } from 'electron';
+import { logger } from '../shared/logger/logger';
+import { updateRemoteSync } from './remote-sync/handlers';
+import { ENV } from '@/core/env/env';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -17,7 +19,7 @@ let user = getUser();
 function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
 
-  socket = io(process.env.NOTIFICATIONS_URL, {
+  socket = io(ENV.NOTIFICATIONS_URL, {
     transports: ['websocket'],
     auth: {
       token: obtainToken('newToken'),
@@ -51,18 +53,18 @@ function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('connect', () => {
-    logger.log('✅ Remote notifications connected');
+    logger.debug({ msg: 'Remote notifications connected' });
   });
 
   socket.on('disconnect', (reason) => {
-    logger.log('❌ Remote notifications disconnected, reason: ', reason);
+    Logger.log('❌ Remote notifications disconnected, reason: ', reason);
   });
 
   socket.on('connect_error', (error) => {
-    logger.error('❌ Remote notifications connect error: ', error);
+    Logger.error('❌ Remote notifications connect error: ', error);
   });
 
-  socket.on('event', (data) => {
+  socket.on('event', async (data) => {
     broadcastToWindows('remote-changes', undefined);
 
     if (data.event === 'FOLDER_DELETED') {
@@ -74,16 +76,14 @@ function cleanAndStartRemoteNotifications() {
     }
 
     if (data.payload.bucket !== user?.backupsBucket) {
-      logger.log('Notification received: ', data);
-      setTimeout(() => {
-        eventBus.emit('RECEIVED_REMOTE_CHANGES');
-      }, 2000);
+      logger.debug({ msg: 'Notification received', data });
+      await updateRemoteSync();
       return;
     }
 
     const { event, payload } = data;
 
-    logger.log('Notification received 2: ', event, payload);
+    Logger.log('Notification received 2: ', event, payload);
   });
 }
 

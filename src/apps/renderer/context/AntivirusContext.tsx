@@ -12,8 +12,7 @@ export function AntivirusProvider({ children }: { children: ReactNode }) {
     <AntivirusContext.Provider
       value={{
         ...antivirus,
-      }}
-    >
+      }}>
       {children}
     </AntivirusContext.Provider>
   );

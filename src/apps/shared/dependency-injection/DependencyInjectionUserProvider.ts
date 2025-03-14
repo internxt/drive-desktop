@@ -11,8 +11,7 @@ export class DependencyInjectionUserProvider {
   private static _user: User;
 
   static get() {
-    if (DependencyInjectionUserProvider._user)
-      return DependencyInjectionUserProvider._user;
+    if (DependencyInjectionUserProvider._user) return DependencyInjectionUserProvider._user;
 
     const user = getUser();
 

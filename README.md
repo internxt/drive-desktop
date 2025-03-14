@@ -9,7 +9,7 @@ This guide explains how to set up and build the Windows application, including b
 Before proceeding, ensure you have the following tools installed:
 
 ```markdown
-- Python (configured correctly).
+- Python 3.10 (configured correctly).
 - Node.js and yarn.
 - node-gyp (global installation):
   npm install -g node-gyp

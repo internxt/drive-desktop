@@ -1,5 +1,4 @@
-interface TextAreaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextAreaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   customClassName?: string;
   resize?: 'none' | 'both' | 'horizontal' | 'vertical';
 }

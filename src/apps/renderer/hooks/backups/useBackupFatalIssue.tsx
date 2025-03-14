@@ -21,7 +21,7 @@ export function useBackupFatalIssue(backup: BackupInfo) {
   const [issue, setIssue] = useState<SyncError | undefined>(undefined);
   const [message, setMessage] = useState<string>('');
   const [action, setAction] = useState<FixAction | undefined>(undefined);
-  const [name, setName] = useState(backup.name);
+  const [name, setName] = useState(backup.plainName);
 
   const { refreshBackups, refreshLastExitReason } = useContext(BackupContext);
 

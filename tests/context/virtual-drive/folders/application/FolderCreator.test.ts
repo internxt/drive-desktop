@@ -7,6 +7,9 @@ import { FolderPlaceholderConverter } from '@/context/virtual-drive/folders/appl
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { mockDeep } from 'vitest-mock-extended';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
+import { FolderId } from '@/context/virtual-drive/folders/domain/FolderId';
+import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderUuid';
+import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 
 describe('Folder Creator', () => {
   const repository = mockDeep<InMemoryFolderRepository>();
@@ -31,7 +34,15 @@ describe('Folder Creator', () => {
     await SUT.run(offlineFolder);
 
     // Assert
-    expect(repository.add).toBeCalledWith(folder);
+    expect(repository.add).toBeCalledWith(
+      expect.objectContaining({
+        _id: new FolderId(folder.id),
+        _parentId: new FolderId(folder.parentId ?? 0),
+        _parentUuid: new FolderUuid(folder.parentUuid ?? ''),
+        _path: new FolderPath(folder.path),
+        _uuid: new FolderUuid(folder.uuid ?? ''),
+      }),
+    );
   });
 
   describe('Synchronization messages', () => {

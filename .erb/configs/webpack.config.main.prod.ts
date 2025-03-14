@@ -12,20 +12,15 @@ import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import deleteSourceMaps from '../scripts/delete-source-maps';
+import { ENV } from '../../src/core/env/env';
 
 checkNodeEnv('production');
 deleteSourceMaps();
 
-const devtoolsConfig = {
-  devtool: 'source-map',
-};
-
 const configuration: webpack.Configuration = {
-  ...devtoolsConfig,
-
   mode: 'production',
-
   target: 'electron-main',
+  devtool: 'source-map',
 
   entry: {
     main: path.join(webpackPaths.srcMainPath, 'main.ts'),
@@ -47,7 +42,7 @@ const configuration: webpack.Configuration = {
 
   plugins: [
     new BundleAnalyzerPlugin({
-      analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled',
+      analyzerMode: ENV.ANALYZE ? 'server' : 'disabled',
     }),
 
     /**

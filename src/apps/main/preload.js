@@ -31,7 +31,7 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.send('path-changed', pathname);
   },
   userIsUnauthorized() {
-    ipcRenderer.send('user-is-unauthorized');
+    ipcRenderer.send('USER_IS_UNAUTHORIZED');
   },
   userLoggedIn(data) {
     return ipcRenderer.send('user-logged-in', data);
@@ -271,8 +271,8 @@ contextBridge.exposeInMainWorld('electron', {
   getLastBackupExitReason() {
     return ipcRenderer.invoke('get-last-backup-exit-reason');
   },
-  downloadBackup(backup, listToFolder) {
-    return ipcRenderer.invoke('download-backup', backup, listToFolder);
+  downloadBackup(backup, folderUuids) {
+    return ipcRenderer.invoke('download-backup', backup, folderUuids);
   },
   changeBackupPath(currentPath) {
     return ipcRenderer.invoke('change-backup-path', currentPath);
@@ -301,9 +301,6 @@ contextBridge.exposeInMainWorld('electron', {
   },
   addFakeIssues(errorsName, process) {
     return ipcRenderer.invoke('add-fake-sync-issues', { errorsName, process });
-  },
-  sendFeedback(feedback) {
-    return ipcRenderer.invoke('send-feedback', feedback);
   },
   onRemoteSyncStatusChange(callback) {
     const eventName = 'remote-sync-status-change';
@@ -373,6 +370,11 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
+  backups: {
+    isAvailable: () => {
+      return ipcRenderer.invoke('backups:is-available');
+    },
+  },
   antivirus: {
     isAvailable: () => {
       return ipcRenderer.invoke('antivirus:is-available');
@@ -403,6 +405,13 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.invoke('antivirus:cancel-scan');
     },
   },
-
+  authService: {
+    access: (props) => {
+      return ipcRenderer.invoke('renderer.login-access', props);
+    },
+    login: (props) => {
+      return ipcRenderer.invoke('renderer.login', props);
+    },
+  },
   path,
 });

@@ -9,13 +9,9 @@ import { SharedContainer } from './SharedContainer';
 export function buildSharedContainer(): SharedContainer {
   const MONITORING_PULLING_INTERVAL = 60 * 60 * 1000;
   const localRootFolderPath = DependencyInjectionLocalRootFolderPath.get();
-  const absolutePathToRelativeConverter = new AbsolutePathToRelativeConverter(
-    localRootFolderPath
-  );
+  const absolutePathToRelativeConverter = new AbsolutePathToRelativeConverter(localRootFolderPath);
 
-  const relativePathToAbsoluteConverter = new RelativePathToAbsoluteConverter(
-    localRootFolderPath
-  );
+  const relativePathToAbsoluteConverter = new RelativePathToAbsoluteConverter(localRootFolderPath);
 
   const pollingMonitor = new PollingMonitor(MONITORING_PULLING_INTERVAL);
   const pollingMonitorStart = new PollingMonitorStart(pollingMonitor);

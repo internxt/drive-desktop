@@ -7,24 +7,10 @@ export class BytesInBinaryToInternationalSystem {
       return 0;
     }
 
-    const exponent = Math.floor(
-      Math.log(bytes) /
-        Math.log(BytesInBinaryToInternationalSystem.BINARY_CONVERSION_FACTOR)
-    );
+    const exponent = Math.floor(Math.log(bytes) / Math.log(BytesInBinaryToInternationalSystem.BINARY_CONVERSION_FACTOR));
 
-    const bin =
-      bytes /
-      Math.pow(
-        BytesInBinaryToInternationalSystem.BINARY_CONVERSION_FACTOR,
-        exponent
-      );
+    const bin = bytes / Math.pow(BytesInBinaryToInternationalSystem.BINARY_CONVERSION_FACTOR, exponent);
 
-    return (
-      bin *
-      Math.pow(
-        BytesInBinaryToInternationalSystem.SI_CONVERSION_FACTOR,
-        exponent
-      )
-    );
+    return bin * Math.pow(BytesInBinaryToInternationalSystem.SI_CONVERSION_FACTOR, exponent);
   }
 }

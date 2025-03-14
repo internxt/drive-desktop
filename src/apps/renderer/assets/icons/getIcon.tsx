@@ -138,19 +138,7 @@ const file_type: iconLibrary[] = [
   {
     id: 'excel',
     icon: <Excel />,
-    extensions: [
-      'xlsx',
-      'xlsm',
-      'xlsb',
-      'xltx',
-      'xltm',
-      'xls',
-      'xlt',
-      'xlam',
-      'xla',
-      'xlw',
-      'xlr',
-    ],
+    extensions: ['xlsx', 'xlsm', 'xlsb', 'xltx', 'xltm', 'xls', 'xlt', 'xlam', 'xla', 'xlw', 'xlr'],
   },
   {
     id: 'figma',
@@ -170,23 +158,7 @@ const file_type: iconLibrary[] = [
   {
     id: 'image',
     icon: <Image />,
-    extensions: [
-      'tif',
-      'tiff',
-      'bmp',
-      'heic',
-      'jpg',
-      'jpeg',
-      'gif',
-      'png',
-      'eps',
-      'raw',
-      'cr2',
-      'nef',
-      'orf',
-      'sr2',
-      'webp',
-    ],
+    extensions: ['tif', 'tiff', 'bmp', 'heic', 'jpg', 'jpeg', 'gif', 'png', 'eps', 'raw', 'cr2', 'nef', 'orf', 'sr2', 'webp'],
   },
   {
     id: 'indesign',
@@ -274,25 +246,12 @@ const file_type: iconLibrary[] = [
   {
     id: 'zip',
     icon: <Zip />,
-    extensions: [
-      'zip',
-      'zipx',
-      'rar',
-      '7z',
-      'deb',
-      'pkg',
-      'tar.gz',
-      'z',
-      'arj',
-      'rpm',
-    ],
+    extensions: ['zip', 'zipx', 'rar', '7z', 'deb', 'pkg', 'tar.gz', 'z', 'arj', 'rpm'],
   },
 ];
 
 export const fileIcon = (extension: string) => {
-  const file_icon = file_type.filter((type) =>
-    type.extensions.includes(extension.toLowerCase())
-  );
+  const file_icon = file_type.filter((type) => type.extensions.includes(extension.toLowerCase()));
 
   if (file_icon.length > 0) {
     return file_icon[0].icon;
@@ -300,5 +259,3 @@ export const fileIcon = (extension: string) => {
     return <Default />;
   }
 };
-
-export const folderIcon = <Folder />;

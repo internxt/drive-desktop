@@ -3,6 +3,7 @@ import { sha256 } from './requests';
 import { NetworkFacade } from './NetworkFacade';
 import { ReadableStream } from 'node:stream/web';
 import { appInfo } from '../app-info/app-info';
+import { ENV } from '@/core/env/env';
 
 type DownloadProgressCallback = (totalBytes: number, downloadedBytes: number) => void;
 type FileStream = ReadableStream<Uint8Array>;
@@ -43,7 +44,7 @@ const downloadSharedFile: DownloadSharedFileFunction = (params) => {
 
   return new NetworkFacade(
     Network.client(
-      process.env.BRIDGE_URL as string,
+      ENV.BRIDGE_URL,
       {
         clientName,
         clientVersion,
@@ -75,7 +76,7 @@ const downloadOwnFile: DownloadOwnFileFunction = (params) => {
 
   return new NetworkFacade(
     Network.client(
-      process.env.BRIDGE_URL as string,
+      ENV.BRIDGE_URL,
       {
         clientName,
         clientVersion,

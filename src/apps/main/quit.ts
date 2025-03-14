@@ -1,21 +1,11 @@
 import { app, ipcMain } from 'electron';
-
-let cleanUpFunction: () => Promise<void>;
-
-export function setCleanUpFunction(fn: () => Promise<void>) {
-  cleanUpFunction = fn;
-}
+import { stopAndClearAllSyncEngineWatcher } from './background-processes/sync-engine';
 
 export async function quitApp() {
-  // await stopVirtualDrive();
-
-  if (cleanUpFunction) {
-    await Promise.allSettled([cleanUpFunction()]);
-  }
-
+  await stopAndClearAllSyncEngineWatcher();
   app.quit();
 }
 
-ipcMain.on('user-quit', async () => {
-  await quitApp();
-});
+export function setupQuitHandlers() {
+  ipcMain.on('user-quit', quitApp);
+}

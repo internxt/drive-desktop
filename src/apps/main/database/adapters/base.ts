@@ -12,14 +12,14 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
   /**
    * Gets all items in database
    */
-  getAll(): Promise<{ success: boolean; result: DatabaseItemType[] | null }>;
+  getAll(workspaceId?: string): Promise<{ success: boolean; result: DatabaseItemType[] | null }>;
 
   /**
    * Updates an item in the database
    */
   update(
     itemId: string,
-    updatePayload: Partial<DatabaseItemType>
+    updatePayload: Partial<DatabaseItemType>,
   ): Promise<{
     success: boolean;
     result: DatabaseItemType | null;
@@ -41,6 +41,11 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
   }>;
 
   getLastUpdated(): Promise<{
+    success: boolean;
+    result: DatabaseItemType | null;
+  }>;
+
+  getLastUpdatedByWorkspace(workspaceId: string): Promise<{
     success: boolean;
     result: DatabaseItemType | null;
   }>;

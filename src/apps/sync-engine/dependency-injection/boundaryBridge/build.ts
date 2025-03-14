@@ -7,28 +7,25 @@ import { FileDangledManager } from '../../../../context/virtual-drive/boundaryBr
 
 export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
-  filesContainer: FilesContainer
+  filesContainer: FilesContainer,
 ): BoundaryBridgeContainer {
   const fileCreationOrchestrator = new FileCreationOrchestrator(
     contentsContainer.contentsUploader,
     filesContainer.fileCreator,
-    filesContainer.sameFileWasMoved
+    filesContainer.sameFileWasMoved,
   );
 
-  const fileSyncOrchestrator = new FileSyncOrchestrator(
-    contentsContainer.contentsUploader,
-    filesContainer.fileSyncronizer
-  );
+  const fileSyncOrchestrator = new FileSyncOrchestrator(contentsContainer.contentsUploader, filesContainer.fileSyncronizer);
 
   const fileDangledManager = new FileDangledManager(
     contentsContainer.contentsUploader,
     contentsContainer.contentsManagerFactory,
-    filesContainer.fileOverwriteContent
+    filesContainer.fileOverwriteContent,
   );
 
   return {
     fileCreationOrchestrator,
     fileSyncOrchestrator,
-    fileDangledManager
+    fileDangledManager,
   };
 }

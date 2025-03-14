@@ -1,45 +1,42 @@
-import { File } from '../domain/File';
 import Logger from 'electron-log';
-import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
-import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
+import { OfflineFileAttributes } from '../domain/OfflineFile';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
-import { sleep } from '@/apps/main/util';
+import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 
 type FileContentsHardUpdaterRun = {
-  Attributes: OfflineFileAttributes;
+  attributes: OfflineFileAttributes;
   upload: (path: string) => Promise<RemoteFileContents>;
 };
 export class FileContentsHardUpdater {
-  constructor(private readonly remote: SDKRemoteFileSystem) {}
+  constructor(private readonly remote: HttpRemoteFileSystem) {}
   async run(input: FileContentsHardUpdaterRun) {
-    const { Attributes, upload } = input;
+    const { attributes, upload } = input;
     try {
       Logger.info('Running hard update before upload');
 
-      const content = await upload(Attributes.path);
+      const content = await upload(attributes.path);
 
       Logger.info('Running hard update after upload, Content id generated', content);
 
       const newContentsId = content.id;
 
       if (newContentsId) {
-        await this.remote.deleteAndPersist({ attributes: Attributes, newContentsId });
-        Logger.info('Persisted new contents id', newContentsId, ' path: ', Attributes.path);
+        await this.remote.deleteAndPersist({ attributes: attributes, newContentsId });
+        Logger.info('Persisted new contents id', newContentsId, ' path: ', attributes.path);
       } else {
         throw new Error('Failed to upload file in hardUpdate');
       }
 
       return {
-        path: Attributes.path,
-        contentsId: Attributes.contentsId,
+        path: attributes.path,
+        contentsId: attributes.contentsId,
         updated: true,
       };
     } catch (error) {
-      Logger.error('Error hard updating file', Attributes, error);
+      Logger.error('Error hard updating file', attributes, error);
       return {
-        path: Attributes.path,
-        contentsId: Attributes.contentsId,
+        path: attributes.path,
+        contentsId: attributes.contentsId,
         updated: false,
       };
     }

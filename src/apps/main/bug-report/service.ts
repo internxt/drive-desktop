@@ -8,10 +8,10 @@ import path from 'path';
 import packageJson from '../../../../package.json';
 import { obtainToken } from '../auth/service';
 import { BugReportResult } from './BugReportResult';
-import * as Sentry from '@sentry/electron/main';
 import { User } from '../types';
 import Logger from 'electron-log';
 import { ErrorDetails } from '../../shared/types';
+import { ENV } from '@/core/env/env';
 
 /**
  * Reports an error to Sentry from the main process
@@ -19,23 +19,14 @@ import { ErrorDetails } from '../../shared/types';
  * @param error The error to be reported
  * @param context The context to attach to the error such the userId, tags, boolean values...
  */
-export const reportError = (
-  error: Error,
-  context: Record<string, string> = {}
-) => {
+export const reportError = (error: Error, context: Record<string, string> = {}) => {
   Logger.error('[SENTRY_CAPTURED]: ', error);
-  Sentry.captureException(error, context);
 };
 
 export const identifyUserForErrorReporting = (user: User | null) => {
   if (!user) {
-    Sentry.setUser(null);
     return;
   }
-  Sentry.setUser({
-    email: user.email,
-    id: user.uuid,
-  });
 };
 
 export async function sendReport({
@@ -61,7 +52,7 @@ export async function sendReport({
     form.append('logs', await readLog());
   }
 
-  const res = await fetch(process.env.BUG_REPORTING_URL, {
+  const res = await fetch(ENV.BUG_REPORTING_URL, {
     method: 'POST',
     body: form,
     headers: { Authorization: `Bearer ${obtainToken('bearerToken')}` },
@@ -77,9 +68,7 @@ export async function sendReport({
     return { state: 'TOO_MANY_REPORTS' };
   }
 
-  log.error(
-    `[BUG-REPORT] Request to report bug failed with status: ${res.status}`
-  );
+  log.error(`[BUG-REPORT] Request to report bug failed with status: ${res.status}`);
 
   return { state: 'ERROR' };
 }

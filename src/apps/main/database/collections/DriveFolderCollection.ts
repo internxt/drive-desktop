@@ -1,8 +1,7 @@
 import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFolder } from '../entities/DriveFolder';
-import { Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import Logger from 'electron-log';
 
 export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFolder> {
@@ -21,9 +20,14 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
     };
   }
 
-  async getAll() {
+  async getAll(workspaceId?: string) {
     try {
-      const result = await this.repository.find();
+      const where: FindOptionsWhere<DriveFolder> = {};
+      if (workspaceId) {
+        where.workspaceId = workspaceId;
+      }
+
+      const result = await this.repository.find({ where });
       return {
         success: true,
         result: result,
@@ -35,12 +39,15 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
       };
     }
   }
-  async getAllByFolder(parentId: number) {
+  async getAllByFolder({ parentId, workspaceId }: { parentId: number; workspaceId?: string }) {
     try {
+      const where: FindOptionsWhere<DriveFolder> = { parentId };
+      if (workspaceId) {
+        where.workspaceId = workspaceId;
+      }
+
       const result = await this.repository.find({
-        where: {
-          parentId,
-        },
+        where,
       });
       return {
         success: true,
@@ -59,7 +66,7 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
       {
         uuid,
       },
-      updatePayload
+      updatePayload,
     );
 
     return {
@@ -100,7 +107,27 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         result: queryResult,
       };
     } catch (error) {
-      Sentry.captureException(error);
+      Logger.error('Error fetching newest drive folder:', error);
+      return {
+        success: false,
+        result: null,
+      };
+    }
+  }
+
+  async getLastUpdatedByWorkspace(workspaceId: string): Promise<{ success: boolean; result: DriveFolder | null }> {
+    try {
+      const queryResult = await this.repository
+        .createQueryBuilder('drive_folder')
+        .where('workspaceId = :workspaceId', { workspaceId })
+        .orderBy('datetime(drive_folder.updatedAt)', 'DESC')
+        .getOne();
+
+      return {
+        success: true,
+        result: queryResult,
+      };
+    } catch (error) {
       Logger.error('Error fetching newest drive folder:', error);
       return {
         success: false,
@@ -119,7 +146,6 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         result,
       };
     } catch (error) {
-      Sentry.captureException(error);
       Logger.error('Error fetching drive folders:', error);
       return {
         success: false,

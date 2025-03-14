@@ -3,11 +3,7 @@ import { stat } from 'fs/promises';
 import { Readable } from 'stream';
 
 export class WriteReadableToFile {
-  static write(
-    readable: Readable,
-    path: PathLike,
-    expectedSize?: number
-  ): Promise<void> {
+  static write(readable: Readable, path: PathLike, expectedSize?: number): Promise<void> {
     const writableStream = fs.createWriteStream(path);
 
     readable.pipe(writableStream);

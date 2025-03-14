@@ -1,24 +1,15 @@
 import * as Sentry from '@sentry/electron/renderer';
 import { Service } from 'diod';
 import Logger from 'electron-log';
-import {
-  ServerFile,
-  ServerFileStatus,
-} from '../../../shared/domain/ServerFile';
-import {
-  ServerFolder,
-  ServerFolderStatus,
-} from '../../../shared/domain/ServerFolder';
-import { createFileFromServerFile } from './FileCreatorFromServerFile';
+import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
+import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
-import {
-  FolderStatus,
-  FolderStatuses,
-} from '../../folders/domain/FolderStatus';
+import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { RemoteTree } from '../domain/RemoteTree';
+import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 
 type Items = {
   files: Array<ServerFile>;
@@ -29,15 +20,11 @@ export class Traverser {
   constructor(
     private readonly decrypt: NameDecrypt,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
-    private readonly folderStatusesToFilter: Array<ServerFolderStatus>
+    private readonly folderStatusesToFilter: Array<ServerFolderStatus>,
   ) {}
 
   static existingItems(decrypt: NameDecrypt): Traverser {
-    return new Traverser(
-      decrypt,
-      [ServerFileStatus.EXISTS],
-      [ServerFolderStatus.EXISTS]
-    );
+    return new Traverser(decrypt, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
   }
 
   static allItems(decrypt: NameDecrypt): Traverser {
@@ -51,6 +38,7 @@ export class Traverser {
       id: id,
       uuid: rootFolderUuid,
       parentId: null,
+      parentUuid: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',
@@ -61,9 +49,7 @@ export class Traverser {
   private traverse(tree: RemoteTree, items: Items, currentFolder: Folder) {
     if (!items) return;
 
-    const filesInThisFolder = items.files.filter(
-      (file) => file.folderId === currentFolder.id
-    );
+    const filesInThisFolder = items.files.filter((file) => file.folderId === currentFolder.id);
 
     const foldersInThisFolder = items.folders.filter((folder) => {
       return folder.parentId === currentFolder.id;
@@ -75,19 +61,10 @@ export class Traverser {
       }
 
       const decryptedName =
-        serverFile.plainName ??
-        this.decrypt.decryptName(
-          serverFile.name,
-          serverFile.folderId.toString(),
-          serverFile.encrypt_version
-        );
+        serverFile.plainName ?? this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
       const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
 
-      const relativeFilePath =
-        `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll(
-          '//',
-          '/'
-        );
+      const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
 
       EitherTransformer.handleWithEither(() => {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
@@ -99,18 +76,14 @@ export class Traverser {
         },
         () => {
           //  no-op
-        }
+        },
       );
     });
 
     foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
       const plainName =
         serverFolder.plain_name ||
-        this.decrypt.decryptName(
-          serverFolder.name,
-          (serverFolder.parentId as number).toString(),
-          '03-aes'
-        ) ||
+        this.decrypt.decryptName(serverFolder.name, (serverFolder.parentId as number).toString(), '03-aes') ||
         serverFolder.name;
 
       const name = `${currentFolder.path}/${plainName}`;
@@ -138,7 +111,7 @@ export class Traverser {
             // We cannot perform any action on them either way
             this.traverse(tree, items, folder);
           }
-        }
+        },
       );
     });
   }

@@ -1,9 +1,6 @@
 import Logger from 'electron-log';
 import path from 'path';
-import {
-  isImageThumbnailable,
-  isPdfThumbnailable,
-} from '../domain/ThumbnableExtension';
+import { isImageThumbnailable } from '../domain/ThumbnableExtension';
 import { nativeImage } from 'electron';
 
 export const ThumbnailConfig = {
@@ -53,15 +50,13 @@ async function generateImageThumbnail(filePath: string): Promise<Buffer> {
   const image = nativeImage.createFromPath(filePath);
 
   if (!image.isEmpty()) {
-    // Redimensionar la imagen manteniendo el aspecto
     const resizedImage = image.resize({ width: ThumbnailConfig.MaxHeight });
 
-    // Obtener el buffer como PNG
     const buffer = resizedImage.toPNG();
 
-    return buffer; // Devolver el buffer
+    return buffer;
   } else {
-    throw new Error('No se pudo cargar la imagen.');
+    throw new Error('cant create image from path');
   }
 }
 
@@ -71,9 +66,7 @@ function getExtension(pathLike: string) {
   return ext.replace('.', '');
 }
 
-export async function obtainImageToThumbnailIt(
-  filePath: string
-): Promise<Buffer | undefined> {
+export async function obtainImageToThumbnailIt(filePath: string): Promise<Buffer | undefined> {
   const ext = getExtension(filePath);
 
   Logger.info(`[THUMBNAIL] Extension: ${ext}`);

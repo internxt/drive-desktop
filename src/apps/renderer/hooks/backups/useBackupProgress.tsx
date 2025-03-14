@@ -3,9 +3,7 @@ import { BackupsProgress } from '../../../main/background-processes/backups/type
 import { IndividualBackupProgress } from '../../../main/background-processes/backups/types/IndividualBackupProgress';
 
 export function useBackupProgress() {
-  const [backupProgress, setBackupProgress] = useState<null | BackupsProgress>(
-    null
-  );
+  const [backupProgress, setBackupProgress] = useState<null | BackupsProgress>(null);
   const [thereIsProgress, setThereIsProgress] = useState<boolean>(false);
   const [percentualProgress, setPercentualProgress] = useState<number>(0);
 
@@ -31,9 +29,7 @@ export function useBackupProgress() {
     setBackupProgress(null);
   }
 
-  function calculatePartialProgress(
-    individualProgress: IndividualBackupProgress | undefined
-  ) {
+  function calculatePartialProgress(individualProgress: IndividualBackupProgress | undefined) {
     if (!individualProgress) {
       return 0;
     }
@@ -45,9 +41,7 @@ export function useBackupProgress() {
     return individualProgress.processed / individualProgress.total;
   }
 
-  function calculatePercentualProgress(
-    backupProgress: BackupsProgress
-  ): number {
+  function calculatePercentualProgress(backupProgress: BackupsProgress): number {
     const { currentFolder, totalFolders, partial } = backupProgress;
 
     const partialProgress = calculatePartialProgress(partial);

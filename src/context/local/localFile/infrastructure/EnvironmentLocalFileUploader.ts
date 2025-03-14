@@ -8,6 +8,7 @@ import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
+import { ENV } from '@/core/env/env';
 
 @Service()
 export class EnvironmentLocalFileUploader {
@@ -16,14 +17,10 @@ export class EnvironmentLocalFileUploader {
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
-    private readonly httpClient: Axios
+    private readonly httpClient: Axios,
   ) {}
 
-  upload(
-    path: AbsolutePath,
-    size: number,
-    abortSignal: AbortSignal
-  ): Promise<Either<DriveDesktopError, string>> {
+  upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
     const fn: UploadStrategyFunction =
       size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile.bind(this.environment)
@@ -54,9 +51,7 @@ export class EnvironmentLocalFileUploader {
           resolve(right(contentsId));
         },
         progressCallback: (progress: number) => {
-          Logger.info(
-            `Uploading file ${path} to the bucket ${this.bucket} ${progress}%`
-          );
+          Logger.info(`Uploading file ${path} to the bucket ${this.bucket} ${progress}%`);
         },
       });
 
@@ -69,9 +64,7 @@ export class EnvironmentLocalFileUploader {
 
   async delete(contentsId: string): Promise<void> {
     try {
-      await this.httpClient.delete(
-        `${process.env.API_URL}/storage/bucket/${this.bucket}/file/${contentsId}`
-      );
+      await this.httpClient.delete(`${ENV.API_URL}/storage/bucket/${this.bucket}/file/${contentsId}`);
     } catch (error) {
       // Not being able to delete from the bucket is not critical
       Logger.error(`Could not delete the file ${contentsId} from the bucket`);

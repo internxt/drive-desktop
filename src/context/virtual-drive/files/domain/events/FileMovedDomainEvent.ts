@@ -5,13 +5,7 @@ export class FileMovedDomainEvent extends DomainEvent {
 
   readonly trackerId: string;
 
-  constructor({
-    aggregateId,
-    trackerId,
-  }: {
-    aggregateId: string;
-    trackerId: string;
-  }) {
+  constructor({ aggregateId, trackerId }: { aggregateId: string; trackerId: string }) {
     super({
       eventName: FileMovedDomainEvent.EVENT_NAME,
       aggregateId,

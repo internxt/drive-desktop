@@ -8,7 +8,7 @@ import Logger from 'electron-log';
 export class RemoteTreeBuilder {
   constructor(
     private readonly remoteItemsGenerator: RemoteItemsGenerator,
-    private readonly traverser: Traverser
+    private readonly traverser: Traverser,
   ) {}
 
   async run(rootFolderId: number, refresh = false): Promise<RemoteTree> {
@@ -17,9 +17,7 @@ export class RemoteTreeBuilder {
       await this.remoteItemsGenerator.forceRefresh(rootFolderId);
     }
 
-    const items = await this.remoteItemsGenerator.getAllItemsByFolderId(
-      rootFolderId
-    );
+    const items = await this.remoteItemsGenerator.getAllItemsByFolderId(rootFolderId);
 
     return this.traverser.run(rootFolderId, items);
   }

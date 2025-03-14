@@ -1,10 +1,11 @@
+import { ENV } from '@/core/env/env';
 import { aes } from '@internxt/lib';
 import CryptoJS from 'crypto-js';
 import Logger from 'electron-log';
 
 // Webpack dotenv plugin won't replace if you destructure
 // eslint-disable-next-line prefer-destructuring
-const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
+const CRYPTO_KEY = ENV.NEW_CRYPTO_KEY;
 
 if (!CRYPTO_KEY) {
   Logger.error('No encryption key provided');
@@ -38,9 +39,7 @@ function decryptName(cipherText: string, salt: string, encryptVersion: string) {
     return possibleAesResult;
   } catch (e) {
     Logger.warn(
-      `AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${
-        (e as Error).message
-      }, encryptVersion: ${encryptVersion}`
+      `AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${(e as Error).message}, encryptVersion: ${encryptVersion}`,
     );
     Logger.warn((e as Error).stack);
   }

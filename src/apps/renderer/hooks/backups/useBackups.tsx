@@ -11,7 +11,7 @@ export interface BackupContextProps {
   disableBackup: (backup: BackupInfo) => Promise<void>;
   addBackup: () => Promise<void>;
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
-  downloadBackups: (device: Device, foldersId?: number[]) => Promise<void>;
+  downloadBackups: (device: Device, folderUuids?: string[]) => Promise<void>;
   abortDownloadBackups: (device: Device) => void;
   refreshBackups: () => Promise<void>;
 }
@@ -22,7 +22,6 @@ export function useBackups(): BackupContextProps {
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
 
   async function fetchBackups(): Promise<void> {
-    window.electron.logger.info('Fetching backups');
     let backups: BackupInfo[];
 
     if (!selected) {
@@ -30,10 +29,7 @@ export function useBackups(): BackupContextProps {
 
       backups = await window.electron.getBackupsFromDevice(current, true);
     } else {
-      backups = await window.electron.getBackupsFromDevice(
-        selected,
-        selected.id === current?.id
-      );
+      backups = await window.electron.getBackupsFromDevice(selected, selected.id === current?.id);
     }
     window.electron.logger.info('Backups fetched', backups.length);
     setBackups(backups);
@@ -57,10 +53,7 @@ export function useBackups(): BackupContextProps {
   }, [selected]);
 
   useEffect(() => {
-    const removeListener = window.electron.listenersRefreshBackups(
-      fetchBackups,
-      'refresh-backup'
-    );
+    const removeListener = window.electron.listenersRefreshBackups(fetchBackups, 'refresh-backup');
 
     return removeListener;
   }, []);
@@ -90,9 +83,9 @@ export function useBackups(): BackupContextProps {
     }
   }
 
-  async function downloadBackups(device: Device, foldersId?: number[]) {
+  async function downloadBackups(device: Device, folderUuids?: string[]) {
     try {
-      await window.electron.downloadBackup(device, foldersId);
+      await window.electron.downloadBackup(device, folderUuids);
     } catch (error) {
       reportError(error);
     }

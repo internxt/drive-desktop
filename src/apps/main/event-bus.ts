@@ -23,7 +23,7 @@ interface Events {
 
   // Fired when we receive some changes
   // via websocket
-  RECEIVED_REMOTE_CHANGES: () => void;
+  RECEIVED_REMOTE_CHANGES: (workspaceId?: string) => void;
 
   // Used when we have at least one full remote-local sync so we can display content
   INITIAL_SYNC_READY: () => void;
