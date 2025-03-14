@@ -214,7 +214,6 @@ export const spawnAllSyncEngineWorker = async () => {
     workspaceToken: undefined,
   };
 
-  logger.debug({ msg: 'Spawning sync engine worker for Internxt Drive', values });
   await spawnSyncEngineWorker(values);
 
   const workspaces = await syncWorkspaceService.getWorkspaces();

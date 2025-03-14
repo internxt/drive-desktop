@@ -14,6 +14,7 @@ export interface UseAntivirusReturn {
   countScannedFiles: number;
   view: Views;
   isScanning: boolean;
+  countFiles: boolean;
   isScanCompleted: boolean;
   progressRatio: number;
   isAntivirusAvailable: boolean;
@@ -37,6 +38,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
   const [isAntivirusAvailable, setIsAntivirusAvailable] = useState<boolean>(false);
   const [isDefenderActive, setIsDefenderActive] = useState<boolean>(false);
   const [showErrorState, setShowErrorState] = useState<boolean>(false);
+  const [countFiles, setIsCountFiles] = useState(true);
   const [view, setView] = useState<Views>('locked');
 
   useEffect(() => {
@@ -89,6 +91,8 @@ export const useAntivirus = (): UseAntivirusReturn => {
     done?: boolean;
   }) => {
     if (!progress) return;
+    setIsCountFiles(false);
+    setIsScanning(true);
 
     setCurrentScanPath(progress.currentScanPath);
     setCountScannedFiles(progress.totalScannedFiles);
@@ -110,6 +114,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     setIsScanning(false);
     setIsScanCompleted(false);
     setShowErrorState(false);
+    setIsCountFiles(true);
   };
 
   const onScanAgainButtonClicked = () => {
@@ -133,7 +138,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     const items = await onSelectItemsButtonClicked(scanType);
     if (!items || items.length === 0) return;
     setView('scan');
-    setIsScanning(true);
+
     try {
       await window.electron.antivirus.scanItems(items);
       setIsScanCompleted(true);
@@ -151,7 +156,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
     setView('scan');
 
-    setIsScanning(true);
     try {
       await window.electron.antivirus.scanItems();
       setIsScanCompleted(true);
@@ -193,6 +197,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     isAntivirusAvailable,
     isDefenderActive,
     showErrorState,
+    countFiles,
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,

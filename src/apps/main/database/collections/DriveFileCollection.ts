@@ -2,8 +2,10 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
 import { FindOptionsWhere, Repository } from 'typeorm';
+import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
+type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; updatePayload: Partial<DriveFile> };
 export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile> {
   private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 
@@ -40,7 +42,34 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
       };
     }
   }
-  async getAllByFolder(folderId: number, workspaceId?: string) {
+
+  async getAllWhere(where: Partial<DriveFile>) {
+    try {
+      const result = await this.repository.find({
+        where,
+      });
+      return {
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: [],
+      };
+    }
+  }
+
+  async updateInBatch(input: UpdateInBatchPayload) {
+    const { where, updatePayload } = input;
+    const match = await this.repository.update(where, updatePayload);
+
+    return {
+      success: match.affected ? true : false,
+    };
+  }
+
+  async getAllByFolder({ folderId, workspaceId }: { folderId: number; workspaceId?: string }) {
     try {
       const where: FindOptionsWhere<DriveFile> = { folderId };
       if (workspaceId) {
@@ -86,6 +115,14 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
 
   async remove(uuid: DriveFile['uuid']) {
     const result = await this.repository.delete({ uuid });
+
+    return {
+      success: result.affected ? true : false,
+    };
+  }
+
+  async removeInBatch(where: FindOptionsWhere<DriveFile>) {
+    const result = await this.repository.delete(where);
 
     return {
       success: result.affected ? true : false,

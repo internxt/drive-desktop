@@ -2,7 +2,7 @@ import Logger from 'electron-log';
 import fs from 'fs';
 import { DependencyInjectionLocalRootFolderPath } from '../../../../apps/sync-engine/dependency-injection/common/localRootFolderPath';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
-import { PinState, SyncState } from 'virtual-drive/dist';
+import { PinState, SyncState } from './PlaceholderTypes';
 
 export class FileCheckerStatusInRoot {
   constructor(private readonly localFileSystem: NodeWinLocalFileSystem) {}
@@ -29,6 +29,21 @@ export class FileCheckerStatusInRoot {
       }
     }
     return finalStatus;
+  }
+
+  public isHydrated(paths: string[]): Record<string, boolean> {
+    const fileOnlineOnly: Record<string, boolean> = {};
+    for (const path of paths) {
+      const placeholderStatus = this.localFileSystem.getPlaceholderStateByRelativePath(path);
+
+      if (placeholderStatus.pinState == PinState.OnlineOnly) {
+        fileOnlineOnly[path] = false;
+      } else {
+        fileOnlineOnly[path] = true;
+      }
+    }
+
+    return fileOnlineOnly;
   }
 
   private async getItemsRoot(absolutePath: string): Promise<string[]> {
