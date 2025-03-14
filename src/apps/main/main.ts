@@ -5,7 +5,6 @@ app.whenReady().then(() => {
   app.setAppUserModelId('com.internxt.app');
 });
 
-
 import 'reflect-metadata';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';

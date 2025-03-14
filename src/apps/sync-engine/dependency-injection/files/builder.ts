@@ -30,9 +30,11 @@ import { FileSyncronizer } from '../../../../context/virtual-drive/files/applica
 import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsUpdater } from '../../../../context/virtual-drive/files/application/FileContentsUpdater';
+import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
+import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';  
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -148,7 +150,20 @@ export async function buildFilesContainer(
     remoteFileSystem
   );
 
+  const fileContentsHardUpdate = new FileContentsHardUpdater(
+    remoteFileSystem
+  );
+
   const fileIdentityUpdater = new FileIdentityUpdater(localFileSystem);
+
+
+  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
+
+  const fileOverwriteContent = new FileOverwriteContent(
+    repository,
+    filesCheckerStatusInRoot,
+    fileContentsHardUpdate
+  );
 
   const fileSyncronizer = new FileSyncronizer(
     repository,
@@ -159,10 +174,8 @@ export async function buildFilesContainer(
     sharedContainer.absolutePathToRelativeConverter,
     folderContainer.folderCreator,
     folderContainer.offline.folderCreator,
-    fileContentsUpdater
+    fileContentsUpdater,
   );
-
-  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
 
   const container: FilesContainer = {
     fileFinderByContentsId,
@@ -185,6 +198,7 @@ export async function buildFilesContainer(
     fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
     fileIdentityUpdater,
+    fileOverwriteContent
   };
 
   return { container, subscribers: [] };

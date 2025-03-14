@@ -17,8 +17,7 @@ import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 
 export async function buildContentsContainer(
   sharedContainer: SharedContainer
-): Promise<ContentsContainer> {
-  const user = DependencyInjectionUserProvider.get();
+): Promise<ContentsContainer> {  const user = DependencyInjectionUserProvider.get();
   const mnemonic = DependencyInjectionMnemonicProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventRepository = DependencyInjectionEventRepository.get();
@@ -64,5 +63,6 @@ export async function buildContentsContainer(
     contentsDownloader,
     temporalFolderProvider,
     notifyMainProcessHydrationFinished,
+    contentsManagerFactory,
   };
 }

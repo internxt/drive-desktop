@@ -9,7 +9,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 export class EnvironmentRemoteFileContentsManagersFactory
   implements ContentsManagersFactory
 {
-  private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
+  private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
   constructor(
     private readonly environment: Environment,

@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.4.4",
+  "version": "2.4.6",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt client UI",
   "license": "AGPL-3.0",
@@ -228,7 +228,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/inxt-js": "^2.0.8",
+    "@internxt/inxt-js": "^2.1.0",
     "@internxt/lib": "^1.1.6",
     "@internxt/scan": "1.0.2",
     "@internxt/sdk": "1.9.7",

@@ -2,18 +2,14 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
-import { RemoteSyncedFolder, RemoteSyncStatus } from './helpers';
+import { RemoteSyncStatus } from './helpers';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import {
-  updateSyncEngine,
-  fallbackSyncEngine,
-  sendUpdateFilesInSyncPending,
-} from '../background-processes/sync-engine';
+import { updateSyncEngine, fallbackSyncEngine, sendUpdateFilesInSyncPending } from '../background-processes/sync-engine';
 import { debounce } from 'lodash';
 import configStore from '../config';
 import { setTrayStatus } from '../tray/tray';
@@ -22,6 +18,7 @@ import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { ItemBackup } from '../../shared/types/items';
+import { In } from 'typeorm';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
@@ -42,12 +39,40 @@ const remoteSyncManager = new RemoteSyncManager(
   }
 );
 
-// this is a temporal function to get the affected files of an issue
-export async function getIssueAffectedFiles() {
-  const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS' });
+type UpdateFileInBatchInput = {
+  itemsId: string[];
+  file: Partial<DriveFile>;
+};
+
+export async function getLocalDangledFiles() {
+  const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS', isDangledStatus: true });
 
   return allExisting.result;
 }
+
+export async function setAsNotDangledFiles(filesIds: string[]) {
+  await driveFilesCollection.updateInBatch({
+    where: { isDangledStatus: true, fileId: In(filesIds) },
+    updatePayload: { isDangledStatus: false },
+  });
+}
+
+export const updateFileInBatch = async (input: UpdateFileInBatchInput) => {
+  const { itemsId, file } = input;
+
+  await driveFilesCollection.updateInBatch({
+    where: {
+      fileId: In(itemsId),
+    },
+    updatePayload: file,
+  });
+};
+
+export const deleteFileInBatch = async (itemsIds: string[]) => {
+  await driveFilesCollection.removeInBatch({
+    fileId: In(itemsIds),
+  });
+};
 
 export function setIsProcessing(isProcessing: boolean) {
   remoteSyncManager.isProcessRunning = isProcessing;
@@ -62,24 +87,18 @@ export function checkSyncEngineInProcess(milliSeconds: number) {
 
 export async function getUpdatedRemoteItems() {
   try {
-    const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAll(),
-      driveFoldersCollection.getAll(),
-    ]);
+    const [allDriveFiles, allDriveFolders] = await Promise.all([driveFilesCollection.getAll(), driveFoldersCollection.getAll()]);
 
-    if (!allDriveFiles.success)
-      throw new Error('Failed to retrieve all the drive files from local db');
+    if (!allDriveFiles.success) throw new Error('Failed to retrieve all the drive files from local db');
 
-    if (!allDriveFolders.success)
-      throw new Error('Failed to retrieve all the drive folders from local db');
+    if (!allDriveFolders.success) throw new Error('Failed to retrieve all the drive folders from local db');
     return {
       files: allDriveFiles.result,
       folders: allDriveFolders.result,
     };
   } catch (error) {
     reportError(error as Error, {
-      description:
-        'Something failed when updating the local db pulling the new changes from remote',
+      description: 'Something failed when updating the local db pulling the new changes from remote',
     });
     throw error;
   }
@@ -104,15 +123,11 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number) {
     ]);
 
     if (!allDriveFiles.success) {
-      throw new Error(
-        `Failed to retrieve all the drive files from local db for folderId: ${folderId}`
-      );
+      throw new Error(`Failed to retrieve all the drive files from local db for folderId: ${folderId}`);
     }
 
     if (!allDriveFolders.success) {
-      throw new Error(
-        `Failed to retrieve all the drive folders from local db for folderId: ${folderId}`
-      );
+      throw new Error(`Failed to retrieve all the drive folders from local db for folderId: ${folderId}`);
     }
 
     result.files.push(...allDriveFiles.result);
@@ -122,13 +137,11 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number) {
       return result;
     }
 
-    const folderChildrenPromises = allDriveFolders.result.map(
-      async (folder) => {
-        if (folder.id) {
-          return getUpdatedRemoteItemsByFolder(folder.id);
-        }
+    const folderChildrenPromises = allDriveFolders.result.map(async (folder) => {
+      if (folder.id) {
+        return getUpdatedRemoteItemsByFolder(folder.id);
       }
-    );
+    });
 
     const folderChildrenResults = await Promise.all(folderChildrenPromises);
 
@@ -143,8 +156,7 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number) {
   } catch (error) {
     if (error instanceof Error) {
       reportError(error, {
-        description:
-          'Something failed when updating the local db pulling the new changes from remote',
+        description: 'Something failed when updating the local db pulling the new changes from remote',
       });
       throw error;
     } else {
@@ -157,22 +169,52 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
   Logger.debug('[MAIN] Getting updated remote items');
   return getUpdatedRemoteItems();
 });
-ipcMain.handle(
-  'GET_UPDATED_REMOTE_ITEMS_BY_FOLDER',
-  async (_, folderId: number) => {
-    Logger.debug('[MAIN] Getting updated remote items');
-    return getUpdatedRemoteItemsByFolder(folderId);
+
+ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderId: number) => {
+  Logger.debug('[MAIN] Getting updated remote items');
+  return getUpdatedRemoteItemsByFolder(folderId);
+});
+
+ipcMain.handle('FIND_DANGLED_FILES', async () => {
+  return await getLocalDangledFiles();
+});
+
+const queue: (() => Promise<void>)[] = [];
+let isProcessingQueue = false;
+
+async function processQueue() {
+  if (isProcessingQueue) return;
+  isProcessingQueue = true;
+
+  while (queue.length > 0) {
+    const task = queue.shift();
+    if (task) {
+      await task();
+    }
   }
-);
+
+  isProcessingQueue = false;
+}
+
+ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
+  queue.push(() => setAsNotDangledFiles(inputData));
+  processQueue();
+});
+
+ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
+  Logger.info('Updating fixed files', inputData);
+  await updateFileInBatch({ itemsId: inputData.toUpdate, file: { isDangledStatus: false } });
+  await deleteFileInBatch(inputData.toDelete);
+  return;
+});
 
 export async function startRemoteSync(folderId?: number): Promise<void> {
   try {
     Logger.info('Starting remote sync function');
+
     Logger.info('Folder id', folderId);
 
-    const { files, folders } = await remoteSyncManager.startRemoteSync(
-      folderId
-    );
+    const { files, folders } = await remoteSyncManager.startRemoteSync(folderId);
     Logger.info('Remote sync started', folders?.length, 'folders');
     Logger.info('Remote sync started', files?.length, 'files');
 
@@ -228,9 +270,7 @@ remoteSyncManager.onStatusChange((newStatus) => {
   setTrayStatus('IDLE');
 });
 
-ipcMain.handle('get-remote-sync-status', () =>
-  remoteSyncManager.getSyncStatus()
-);
+ipcMain.handle('get-remote-sync-status', () => remoteSyncManager.getSyncStatus());
 
 export async function updateRemoteSync(): Promise<void> {
   // Wait before checking for updates, could be possible
@@ -275,13 +315,10 @@ ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async () => {
   await sendUpdateFilesInSyncPending();
 });
 
-ipcMain.on(
-  'UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE',
-  async (_: unknown, filesPath: string[]) => {
-    Logger.info('[SYNC ENGINE] update unSync files', filesPath);
-    remoteSyncManager.setUnsyncFiles(filesPath);
-  }
-);
+ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: string[]) => {
+  Logger.info('[SYNC ENGINE] update unSync files', filesPath);
+  remoteSyncManager.setUnsyncFiles(filesPath);
+});
 
 const debouncedSynchronization = debounce(async () => {
   await updateRemoteSync();
@@ -380,56 +417,42 @@ async function deleteFile(fileId: string): Promise<boolean> {
   }
 }
 
-ipcMain.handle(
-  'DELETE_ITEM_DRIVE',
-  async (
-    _,
-    itemId: FilePlaceholderId | FolderPlaceholderId
-  ): Promise<boolean> => {
-    try {
-      const { type, id } = parseItemId(itemId);
-      Logger.info('Deleting item in handler', { type, id });
+ipcMain.handle('DELETE_ITEM_DRIVE', async (_, itemId: FilePlaceholderId | FolderPlaceholderId): Promise<boolean> => {
+  try {
+    const { type, id } = parseItemId(itemId);
+    Logger.info('Deleting item in handler', { type, id });
 
-      const isFolder = type === 'FOLDER';
-      const result = isFolder ? await deleteFolder(id) : await deleteFile(id);
+    const isFolder = type === 'FOLDER';
+    const result = isFolder ? await deleteFolder(id) : await deleteFile(id);
 
-      return result;
-    } catch (error) {
-      Logger.error('Error deleting item in handler', { error });
-      return false;
-    }
+    return result;
+  } catch (error) {
+    Logger.error('Error deleting item in handler', { error });
+    return false;
   }
-);
+});
 
-ipcMain.handle(
-  'get-item-by-folder-id',
-  async (_, folderId): Promise<ItemBackup[]> => {
-    Logger.info('Getting items by folder id', folderId);
+ipcMain.handle('get-item-by-folder-id', async (_, folderId): Promise<ItemBackup[]> => {
+  Logger.info('Getting items by folder id', folderId);
 
-    let offset = 0;
-    let hasMore = true;
-    const folders = [];
+  let offset = 0;
+  let hasMore = true;
+  const folders = [];
 
-    do {
-      const response = await remoteSyncManager.fetchFoldersByFolderFromRemote(
-        folderId,
-        new Date(),
-        offset,
-        'EXISTS'
-      );
+  do {
+    const response = await remoteSyncManager.fetchFoldersByFolderFromRemote(folderId, new Date(), offset, 'EXISTS');
 
-      hasMore = response.hasMore;
-      offset += response.result.length;
-      folders.push(...response.result);
-    } while (hasMore);
+    hasMore = response.hasMore;
+    offset += response.result.length;
+    folders.push(...response.result);
+  } while (hasMore);
 
-    return folders.map((folder) => ({
-      id: folder.id,
-      uuid: folder.uuid,
-      name: folder.plainName,
-      tmpPath: '',
-      pathname: '',
-      backupsBucket: folder.bucket || '',
-    }));
-  }
-);
+  return folders.map((folder) => ({
+    id: folder.id,
+    uuid: folder.uuid,
+    name: folder.plainName,
+    tmpPath: '',
+    pathname: '',
+    backupsBucket: folder.bucket || '',
+  }));
+});
