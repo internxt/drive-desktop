@@ -6,6 +6,7 @@ import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
+import { DangledFilesManager } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 
 Logger.log(`Running sync engine ${packageJson.version}`);
 
@@ -95,10 +96,7 @@ async function setUp() {
     }
   });
 
-  await bindings.start(
-    packageJson.version,
-    '{E9D7EB38-B229-5DC5-9396-017C449D59CD}'
-  );
+  await bindings.start(packageJson.version, '{E9D7EB38-B229-5DC5-9396-017C449D59CD}');
 
   await bindings.watch();
 

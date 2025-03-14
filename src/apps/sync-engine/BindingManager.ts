@@ -21,6 +21,7 @@ import { HandleHydrateService } from './callbacks/handleHydrate.service';
 import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
 import { HandleAddService } from './callbacks/handleAdd.service';
 import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
+import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 
 export type CallbackDownload = (
   success: boolean,
@@ -322,11 +323,21 @@ export class BindingsManager {
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+      await this.container.fileDangledManager.run();
     } catch (error) {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);
     }
     ipcRendererSyncEngine.send('SYNCED');
+
+    Logger.debug('[SYNC ENGINE] Polling finished');
+
+    DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
+          await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
+            toUpdate: input.toUpdateContentsIds,
+            toDelete: input.toDeleteContentsIds,
+          });
+        });
   }
   async getFileInSyncPending(): Promise<string[]> {
     try {

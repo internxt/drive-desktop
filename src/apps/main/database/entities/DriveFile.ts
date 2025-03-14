@@ -49,4 +49,7 @@ export class DriveFile {
 
   @Column({ nullable: false })
   status!: string;
+
+  @Column({ nullable: false, default: true })
+  isDangledStatus!: boolean;
 }

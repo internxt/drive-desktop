@@ -1,5 +1,6 @@
 import { Service } from 'diod';
 import { File, FileAttributes } from '../domain/File';
+import Logger from 'electron-log';
 @Service()
 export class InMemoryFileRepository {
   private files: Map<string, FileAttributes>;
@@ -24,6 +25,18 @@ export class InMemoryFileRepository {
     return Promise.resolve(files);
   }
 
+  async searchByContentsIds(contentsIds: File['contentsId'][]): Promise<Array<File>> {
+    const files = contentsIds.map((contentsId) => {
+      const file = this.files.get(contentsId);
+      if (file) {
+        return File.from(file);
+      }
+      return undefined;
+    }).filter((file) => file !== undefined);
+    
+    return files;
+  }
+  
   async allSearchByPartial(
     partial: Partial<FileAttributes>
   ): Promise<Array<File>> {

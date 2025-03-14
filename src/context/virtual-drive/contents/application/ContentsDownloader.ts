@@ -14,35 +14,25 @@ import * as fs from 'fs';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 
 export class ContentsDownloader {
-  private readableDownloader: Readable | null;
-  private WAIT_TO_SEND_PROGRESS = 1000;
-  private progressAt: Date | null = null;
   constructor(
     private readonly managerFactory: ContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
-    private readonly eventBus: EventBus
-  ) {
-    this.readableDownloader = null;
-  }
+    private readonly eventBus: EventBus,
+  ) {}
 
   private downloaderIntance: ContentFileDownloader | null = null;
   private downloaderIntanceCB: CallbackDownload | null = null;
   private downloaderFile: File | null = null;
 
-  private async registerEvents(
-    downloader: ContentFileDownloader,
-    file: File,
-    callback: CallbackDownload
-  ) {
+  private async registerEvents(downloader: ContentFileDownloader, file: File, callback: CallbackDownload) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
     const filePath = path.join(location, file.nameWithExtension);
 
     downloader.on('start', () => {
-      this.progressAt = new Date();
       this.ipc.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
@@ -75,6 +65,7 @@ export class ContentsDownloader {
       Logger.error('[Server] Error downloading file', error);
       this.ipc.send('FILE_DOWNLOAD_ERROR', {
         name: file.name,
+        contentsId: file.contentsId,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
         error: error.message,
@@ -97,7 +88,6 @@ export class ContentsDownloader {
     await this.registerEvents(downloader, file, callback);
 
     const readable = await downloader.download(file);
-    this.readableDownloader = readable;
 
     const localContents = LocalFileContents.downloadedFrom(
       file,

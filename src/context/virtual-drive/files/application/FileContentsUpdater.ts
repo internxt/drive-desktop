@@ -2,6 +2,8 @@ import { File } from '../domain/File';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
+import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
+import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 
 export class FileContentsUpdater {
   constructor(
@@ -9,11 +11,7 @@ export class FileContentsUpdater {
     private readonly remote: SDKRemoteFileSystem
   ) {}
 
-  async run(
-    file: File,
-    contentsId: File['contentsId'],
-    size: File['size']
-  ): Promise<File> {
+  async run(file: File, contentsId: File['contentsId'], size: File['size']): Promise<File> {
     Logger.info('Replace', file, contentsId, size);
     await this.remote.replace(file, contentsId, size);
     Logger.info('Updated', file, contentsId, size);
