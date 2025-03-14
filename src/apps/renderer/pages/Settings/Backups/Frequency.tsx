@@ -2,9 +2,13 @@ import Select from '../../../components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { useBackupsInterval } from '../../../hooks/backups/useBackupsInterval';
 import { SectionHeader } from '../../../components/SectionHeader';
+import { BackupContext } from '@/apps/renderer/context/BackupContext';
+import { useContext } from 'react';
 
 export function Frequency() {
   const { backupsInterval, updateBackupsInterval } = useBackupsInterval();
+
+  const { isBackupAvailable } = useContext(BackupContext);
 
   const { translate } = useTranslationContext();
 
@@ -38,7 +42,7 @@ export function Frequency() {
   return (
     <section>
       <SectionHeader>{translate('settings.backups.frequency.title')}</SectionHeader>
-      <Select options={intervals} value={backupsInterval.toString()} onValueChange={onStringValueChange} />
+      <Select options={intervals} value={backupsInterval.toString()} onValueChange={onStringValueChange} disabled={!isBackupAvailable} />
       {backupsInterval < 0 && <p className="mt-1 text-xs text-gray-50">{translate('settings.backups.frequency.warning')}</p>}
     </section>
   );

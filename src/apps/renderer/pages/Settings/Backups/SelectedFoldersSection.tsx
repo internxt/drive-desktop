@@ -13,7 +13,7 @@ interface SelectedFoldersSectionProps extends React.HTMLAttributes<HTMLBaseEleme
 
 export function SelectedFoldersSection({ className, onGoToList }: SelectedFoldersSectionProps) {
   const { translate } = useTranslationContext();
-  const { backups, backupStatus, lastExistReason, lastBackupHadIssues } = useContext(BackupContext);
+  const { backups, backupStatus, lastExistReason, lastBackupHadIssues, isBackupAvailable } = useContext(BackupContext);
 
   const errorDictionary: Partial<Record<WorkerExitCause, string>> = {
     INSUFFICIENT_PERMISSION: 'issues.short-error-messages.no-permission',
@@ -27,7 +27,7 @@ export function SelectedFoldersSection({ className, onGoToList }: SelectedFolder
   return (
     <section className={`${className}`}>
       <SectionHeader>{translate('settings.backups.selected-folders-title')}</SectionHeader>
-      <Button variant="secondary" disabled={backupStatus === 'RUNNING'} onClick={onGoToList} size="md">
+      <Button variant="secondary" disabled={!isBackupAvailable || backupStatus === 'RUNNING'} onClick={onGoToList} size="md">
         {translate('settings.backups.select-folders')}
       </Button>
       <SecondaryText className="ml-2 inline">
