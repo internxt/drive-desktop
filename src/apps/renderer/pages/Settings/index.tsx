@@ -13,7 +13,7 @@ import AntivirusSection from './Antivirus';
 import { RemoveMalwareState } from './Antivirus/views/RemoveMalwareState';
 import { AntivirusProvider } from '../../context/AntivirusContext';
 
-export const SHOW_ANTIVIRUS_TOOL = false;
+export const SHOW_ANTIVIRUS_TOOL = true;
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');

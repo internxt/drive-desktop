@@ -1,6 +1,5 @@
 import { Environment } from '@internxt/inxt-js';
 import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
-import { DependencyInjectionUserProvider } from '../common/user';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
 import { DependencyInjectionEventBus } from '../common/eventBus';
@@ -58,5 +57,6 @@ export async function buildContentsContainer(sharedContainer: SharedContainer): 
     contentsDownloader,
     temporalFolderProvider,
     notifyMainProcessHydrationFinished,
+    contentsManagerFactory,
   };
 }

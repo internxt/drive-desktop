@@ -189,6 +189,9 @@ declare interface Window {
     };
     listenersRefreshBackups(callback: (data: any) => void, eventName?: string): () => void;
 
+    backups: {
+      isAvailable: () => Promise<boolean>;
+    };
     antivirus: {
       isAvailable: () => Promise<boolean>;
       isDefenderActive: () => Promise<boolean>;

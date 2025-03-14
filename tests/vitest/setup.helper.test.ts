@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
+process.env.NODE_ENV = 'development';
+
 vi.mock('@/apps/main/auth/service', () => {
   const user = {
     email: 'jonathandanielarce9@gmail.com',

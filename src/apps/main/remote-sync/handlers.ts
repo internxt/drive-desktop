@@ -1,3 +1,5 @@
+import { In } from 'typeorm';
+/* eslint-disable no-use-before-define */
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
@@ -23,6 +25,7 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { DriveWorkspaceCollection } from '../database/collections/DriveWorkspaceCollection';
 import { SyncRemoteWorkspaceService } from './workspace/sync-remote-workspace';
+import Queue from '@/apps/shared/Queue/Queue';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
@@ -64,6 +67,41 @@ async function initializeRemoteSyncManagers() {
     );
   });
 }
+
+type UpdateFileInBatchInput = {
+  itemsId: string[];
+  file: Partial<DriveFile>;
+};
+
+export async function getLocalDangledFiles() {
+  const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS', isDangledStatus: true });
+
+  return allExisting.result;
+}
+
+export async function setAsNotDangledFiles(filesIds: string[]) {
+  await driveFilesCollection.updateInBatch({
+    where: { isDangledStatus: true, fileId: In(filesIds) },
+    updatePayload: { isDangledStatus: false },
+  });
+}
+
+export const updateFileInBatch = async (input: UpdateFileInBatchInput) => {
+  const { itemsId, file } = input;
+
+  await driveFilesCollection.updateInBatch({
+    where: {
+      fileId: In(itemsId),
+    },
+    updatePayload: file,
+  });
+};
+
+export const deleteFileInBatch = async (itemsIds: string[]) => {
+  await driveFilesCollection.removeInBatch({
+    fileId: In(itemsIds),
+  });
+};
 
 export function setIsProcessing(isProcessing: boolean, workspaceId = '') {
   const manager = remoteSyncManagers.get(workspaceId);
@@ -119,8 +157,8 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
     };
 
     const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAllByFolder(folderId, workspaceId),
-      driveFoldersCollection.getAllByFolder(folderId, workspaceId),
+      driveFilesCollection.getAllByFolder({ folderId, workspaceId }),
+      driveFoldersCollection.getAllByFolder({ parentId: folderId, workspaceId }),
     ]);
 
     if (!allDriveFiles.success) {
@@ -160,6 +198,21 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
   }
 }
 
+ipcMain.handle('FIND_DANGLED_FILES', async () => {
+  return await getLocalDangledFiles();
+});
+
+ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
+  Queue.enqueue(() => setAsNotDangledFiles(inputData));
+});
+
+ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
+  Logger.info('Updating fixed files', inputData);
+  await updateFileInBatch({ itemsId: inputData.toUpdate, file: { isDangledStatus: false } });
+  await deleteFileInBatch(inputData.toDelete);
+  return;
+});
+
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId = '') => {
   Logger.debug('[MAIN] Getting updated remote file items ' + workspaceId);
   return getUpdatedRemoteItems(workspaceId);
@@ -173,7 +226,7 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderId: number,
 async function populateAllRemoteSync(): Promise<void> {
   try {
     await Promise.all(
-      Array.from(remoteSyncManagers.entries()).map(async ([workspaceId, manager]) => {
+      Array.from(remoteSyncManagers.entries()).map(async ([workspaceId]) => {
         await startRemoteSync(undefined, workspaceId);
       }),
     );

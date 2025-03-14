@@ -1,8 +1,9 @@
+/* eslint-disable no-await-in-loop */
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
-import { OfflineFile } from '../domain/OfflineFile';
+import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { Service } from 'diod';
 import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
@@ -72,7 +73,6 @@ export class HttpRemoteFileSystem {
       throw new Error('Failed to create file and no existing file found');
     }
   }
-
   private async createFile(body: PersistFileDto): Promise<PersistFileResponseDto> {
     try {
       const response = await client.POST('/files', {
@@ -97,7 +97,6 @@ export class HttpRemoteFileSystem {
       throw new Error('Failed to create file and no existing file found');
     }
   }
-
   private async createFileInWorkspace(body: PersistFileDto, workspaceId: string): Promise<PersistFileResponseDto> {
     try {
       const response = await client.POST('/workspaces/{workspaceId}/files', {
@@ -148,7 +147,6 @@ export class HttpRemoteFileSystem {
       throw error;
     }
   }
-
   async rename(file: File): Promise<void> {
     try {
       const response = await client.PUT('/files/{uuid}/meta', {
@@ -174,7 +172,6 @@ export class HttpRemoteFileSystem {
       throw error;
     }
   }
-
   async move(file: File): Promise<void> {
     try {
       const response = await client.PATCH('/files/{uuid}', {
@@ -202,7 +199,6 @@ export class HttpRemoteFileSystem {
       throw error;
     }
   }
-
   async replace(file: File, newContentsId: File['contentsId'], newSize: File['size']): Promise<void> {
     try {
       const response = await client.PUT('/files/{uuid}', {
@@ -231,7 +227,6 @@ export class HttpRemoteFileSystem {
       throw error;
     }
   }
-
   async override(file: File): Promise<void> {
     try {
       const response = await client.PUT('/files/{uuid}', {
@@ -260,7 +255,6 @@ export class HttpRemoteFileSystem {
       throw error;
     }
   }
-
   async getFileByPath(filePath: string): Promise<null | FileAttributes> {
     try {
       const response = await client.GET('/files/meta', {
@@ -298,5 +292,64 @@ export class HttpRemoteFileSystem {
     } catch (error) {
       return null;
     }
+  }
+  async hardDelete(fileId: string): Promise<void> {
+    const result = await client.DELETE('/storage/trash/file/{fileId}', {
+      params: {
+        path: {
+          fileId,
+        },
+      },
+    });
+
+    if (result.error) {
+      logger.error({
+        msg: 'Error hard deleting file',
+        exc: result as unknown,
+      });
+    }
+  }
+
+  async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }) {
+    const { attributes, newContentsId } = input;
+    if (!newContentsId) {
+      throw new Error('Failed to generate new contents id');
+    }
+
+    logger.info({
+      msg: `New contents id generated ${newContentsId}, path: ${attributes.path}`,
+    });
+    await this.hardDelete(attributes.contentsId);
+
+    logger.info({
+      msg: `Deleted file with contents id ${attributes.contentsId}, path: ${attributes.path}`,
+    });
+
+    const delays = [50, 100, 200];
+    let isDeleted = false;
+
+    for (const delay of delays) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+      const fileCheck = await this.getFileByPath(attributes.path);
+      if (!fileCheck) {
+        isDeleted = true;
+        break;
+      }
+      logger.info({
+        msg: `File not deleted yet, path: ${attributes.path}`,
+      });
+    }
+
+    if (!isDeleted) {
+      throw new Error(`File deletion not confirmed for path: ${attributes.path} after retries`);
+    }
+    const offlineFile = OfflineFile.from({ ...attributes, contentsId: newContentsId });
+
+    const persistedFile = await this.persist(offlineFile);
+    logger.info({
+      msg: `File persisted with new contents id ${newContentsId}, path: ${attributes.path}`,
+    });
+
+    return persistedFile;
   }
 }

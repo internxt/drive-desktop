@@ -203,7 +203,7 @@ export const spawnAllSyncEngineWorker = async () => {
   const values: Config = {
     providerId: `{${ENV.PROVIDER_ID}}`,
     rootPath: getRootVirtualDrive(),
-    providerName: 'Internxt',
+    providerName: 'Internxt Drive',
     workspaceId: '',
     loggerPath: getLoggersPaths().logEnginePath,
     rootUuid: user.rootFolderId,
@@ -214,7 +214,6 @@ export const spawnAllSyncEngineWorker = async () => {
     workspaceToken: undefined,
   };
 
-  logger.debug({ msg: 'Spawning sync engine worker for Internxt Drive', values });
   await spawnSyncEngineWorker(values);
 
   const workspaces = await syncWorkspaceService.getWorkspaces();
@@ -238,7 +237,7 @@ export const spawnAllSyncEngineWorker = async () => {
         mnemonic: mnemonic.toString(),
         providerId: `{${workspace.id}}`,
         rootPath: getRootWorkspace(workspace.id),
-        providerName: workspace.name,
+        providerName: 'Internxt Drive for Business',
         loggerPath: getLoggersPaths().logWatcherPath,
         workspaceId: workspace.id,
         workspaceToken: workspaceCredential.tokenHeader,

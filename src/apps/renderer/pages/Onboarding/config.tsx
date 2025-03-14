@@ -5,7 +5,8 @@ import { ContextMenuSlide } from './slides/ContextMenuSlide';
 // import { BackupsSlide } from './slides/BackupsSlide';
 import { WelcomeSlide } from './slides/WelcomeSlide';
 import { FilesOrganizationSlide } from './slides/FilesOrganizationSlide';
-
+import AntivirusSvg from '../../assets/onboarding/scanner.svg';
+import AntivirusDarkSvg from '../../assets/onboarding/scanner-dark.svg';
 import {
   // BackupsSVG,
   OnboardingSlide,
@@ -25,6 +26,7 @@ import { useTranslationContext } from '../../context/LocalContext';
 import { BackupsSlide } from './slides/BackupsSlide';
 import useConfig from '../../hooks/useConfig';
 import { Theme } from '../../../shared/types/Theme';
+import { AntivirusSlide } from './slides/AntivirusSlide';
 
 export const SLIDES: OnboardingSlide[] = [
   {
@@ -211,55 +213,50 @@ export const SLIDES: OnboardingSlide[] = [
     },
   },
 
-  // {
-  //   name: 'Antivirus Slide',
-  //   component: (props) => {
-  //     return (
-  //       <div className="flex h-full w-full ">
-  //         <SideTextAnimation display>
-  //           <AntivirusSlide {...props} />
-  //         </SideTextAnimation>
-  //       </div>
-  //     );
-  //   },
-  //   footer: (props) => {
-  //     const { translate } = useTranslationContext();
-  //     return (
-  //       <div className="flex w-full flex-1 items-end justify-center">
-  //         <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
-  //           {translate('onboarding.common.continue')}
-  //         </Button>
-  //         <span className="ml-auto text-gray-50">
-  //           {translate('onboarding.common.onboarding-progress', {
-  //             current_slide: props.currentSlide,
-  //             total_slides: props.totalSlides,
-  //           })}
-  //         </span>
-  //       </div>
-  //     );
-  //   },
-  //   image: () => {
-  //     const isDarkTheme = window.electron.isDarkModeActive();
+  {
+    name: 'Antivirus Slide',
+    component: (props) => {
+      return (
+        <div className="flex h-full w-full ">
+          <SideTextAnimation display>
+            <AntivirusSlide {...props} />
+          </SideTextAnimation>
+        </div>
+      );
+    },
+    footer: (props) => {
+      const { translate } = useTranslationContext();
+      return (
+        <div className="flex w-full flex-1 items-end justify-center">
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
+            {translate('onboarding.common.continue')}
+          </Button>
+          <span className="ml-auto text-gray-50">
+            {translate('onboarding.common.onboarding-progress', {
+              current_slide: props.currentSlide,
+              total_slides: props.totalSlides,
+            })}
+          </span>
+        </div>
+      );
+    },
+    image: () => {
+      const isDarkTheme = window.electron.isDarkModeActive();
 
-  //     const AntivirusImage = () => {
-  //       const preferredTheme = useConfig('preferedTheme') as Theme;
-  //       const theme =
-  //         preferredTheme === 'system'
-  //           ? isDarkTheme
-  //             ? 'dark'
-  //             : 'light'
-  //           : preferredTheme;
+      const AntivirusImage = () => {
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? (isDarkTheme ? 'dark' : 'light') : preferredTheme;
 
-  //       return theme === 'dark' ? <AntivirusDarkSvg /> : <AntivirusSvg />;
-  //     };
+        return theme === 'dark' ? <AntivirusDarkSvg /> : <AntivirusSvg />;
+      };
 
-  //     return (
-  //       <div className="flex h-full w-full items-center justify-center">
-  //         <AntivirusImage />
-  //       </div>
-  //     );
-  //   },
-  // },
+      return (
+        <div className="flex h-full w-full items-center justify-center">
+          <AntivirusImage />
+        </div>
+      );
+    },
+  },
   {
     name: 'Backups Slide',
     component: (props) => {

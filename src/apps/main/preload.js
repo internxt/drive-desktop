@@ -370,6 +370,11 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
+  backups: {
+    isAvailable: () => {
+      return ipcRenderer.invoke('backups:is-available');
+    },
+  },
   antivirus: {
     isAvailable: () => {
       return ipcRenderer.invoke('antivirus:is-available');

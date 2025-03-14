@@ -39,6 +39,21 @@ ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
   }
 });
 
+ipcMain.handle('backups:is-available', async (): Promise<boolean> => {
+  try {
+    if (!paymentService) {
+      paymentService = buildPaymentsService();
+    }
+
+    const availableProducts = await paymentService.getAvailableProducts();
+
+    return availableProducts.backups;
+  } catch (error) {
+    Logger.error('ERROR GETTING PRODUCTS: ', error);
+    throw error;
+  }
+});
+
 ipcMain.handle('antivirus:is-Defender-active', async () => {
   try {
     const isWinDefenderActive = await isWindowsDefenderRealTimeProtectionActive();

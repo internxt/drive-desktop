@@ -57,6 +57,7 @@ export class SyncRemoteFilesService {
           result.map(async (remoteFile) => {
             self.db.files.create({
               ...remoteFile,
+              isDangledStatus: false,
               workspaceId: this.workspaceId,
             });
             self.totalFilesSynced++;

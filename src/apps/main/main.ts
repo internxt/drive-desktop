@@ -1,3 +1,10 @@
+import { app, ipcMain, nativeTheme } from 'electron';
+import Logger from 'electron-log';
+
+app.whenReady().then(() => {
+  app.setAppUserModelId('com.internxt.app');
+});
+
 import 'reflect-metadata';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
@@ -31,8 +38,6 @@ import './app-info/handlers';
 import './remote-sync/handlers';
 
 import { setupSettingsIPCHandlers } from './windows/ipc/setup-ipc-handlers';
-import { app, ipcMain, nativeTheme } from 'electron';
-import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
@@ -117,7 +122,7 @@ app
       return nativeTheme.shouldUseDarkColors;
     });
 
-    // await clamAVServer.startClamdServer();
+    await clamAVServer.startClamdServer();
 
     checkForUpdates();
   })
@@ -149,9 +154,9 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
-    // await clamAVServer.waitForClamd();
+    await clamAVServer.waitForClamd();
 
-    // scheduleDailyScan();
+    scheduleDailyScan();
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
