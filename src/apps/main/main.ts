@@ -9,11 +9,6 @@ import 'reflect-metadata';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
-// Only effective during development
-// the variables are injectedif (process.env.NODE_ENV === 'production') {
-
-// via webpack in prod
-import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';

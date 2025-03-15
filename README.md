@@ -38,7 +38,7 @@ internxt
 1. Open a terminal and navigate to the `node-win` directory.
 2. Run the following command to build the project:
    ```bash
-   yarn build
+   npm run build
    ```
    This step compiles the necessary native bindings for `node-win`.
 
@@ -49,7 +49,7 @@ internxt
 1. Open a terminal and navigate to the `drive-desktop` directory.
 2. Run the following command to build and start the project:
    ```bash
-   yarn start:reload-bindings
+   npm run start:reload-bindings
    ```
    This will start the desktop application with the updated bindings.
 
@@ -75,7 +75,7 @@ If you plan to manually sign a build for publication, follow these steps:
 Run the command:
 
 ```bash
-yarn package
+npm run package
 ```
 
 This will generate an unsigned build and the following files:

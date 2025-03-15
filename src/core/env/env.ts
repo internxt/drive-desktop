@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { z } from 'zod';
 
 const ENV_SCHEMA = z.object({
-  ANALYZE: z.coerce.boolean(),
+  ANALYZE: z.enum(['true', 'false']).transform((value) => value === 'true'),
   API_URL: z.string(),
   BRIDGE_URL: z.string(),
   BUG_REPORTING_URL: z.string(),

@@ -7,7 +7,6 @@ import { registerLocalFileServices } from './local/registerLocalFileServices';
 import { Backup } from '../Backups';
 import { registerLocalTreeServices } from './local/registerLocalTreeServices';
 import { registerRemoteTreeServices } from './virtual-drive/registerRemoteTreeServices';
-import { registerUserUsageServices } from './user/registerUsageServices';
 
 export class BackupsDependencyContainerFactory {
   static async build(): Promise<Container> {
@@ -31,9 +30,6 @@ export class BackupsDependencyContainerFactory {
 
       Logger.info('[BackupsDependencyContainerFactory] Registering local tree services.');
       await registerLocalTreeServices(builder);
-
-      Logger.info('[BackupsDependencyContainerFactory] Registering user usage services.');
-      await registerUserUsageServices(builder);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering Backup service.');
       await builder.registerAndUse(Backup);
