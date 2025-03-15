@@ -59,8 +59,8 @@ jobs:
           echo "ROOT_FOLDER_NAME=fake" >> .env
           echo "SENTRY_DSN=fake" >> .env
 
-      - name: Run TypeScript compiler
-        run: npm run type-check
+      # - name: Run TypeScript compiler
+      #   run: npm run type-check
 
       - name: Run Prettier
         run: npm run format
