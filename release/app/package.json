@@ -17,5 +17,10 @@
   "license": "MIT",
   "devDependencies": {
     "@electron/rebuild": "^3.7.1"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
   }
 }
