@@ -8,6 +8,9 @@ import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
 import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
+import { validateProcessEnv } from '.erb/scripts/validate-process-env';
+
+validateProcessEnv();
 
 const aliases: Record<string, string> = {};
 if (process.env.NODE_ENV === 'development') {
