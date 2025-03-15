@@ -9,7 +9,6 @@ import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 import { getConfig } from '@/apps/sync-engine/config';
-import { ENV } from '@/core/env/env';
 
 export async function registerLocalFileServices(builder: ContainerBuilder) {
   //Infra
@@ -18,7 +17,7 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
   const mnemonic = DependencyInjectionMnemonicProvider.get();
 
   const environment = new Environment({
-    bridgeUrl: ENV.BRIDGE_URL,
+    bridgeUrl: process.env.BRIDGE_URL,
     bridgeUser: getConfig().bridgeUser,
     bridgePass: getConfig().bridgePass,
     encryptionKey: mnemonic,

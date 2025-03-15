@@ -5,9 +5,8 @@ import path from 'path';
 
 import configStore from '../config';
 import eventBus from '../event-bus';
-import { ENV } from '@/core/env/env';
 
-const ROOT_FOLDER_NAME = ENV.ROOT_FOLDER_NAME;
+const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME;
 const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);

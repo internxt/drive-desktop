@@ -6,7 +6,6 @@ import { onUserUnauthorized } from '../../auth/handlers';
 import { getUser, obtainToken } from '../../auth/service';
 import { EnvironmentAndStorageThumbnailUploader } from './EnvironmentAndStorageThumbnailUploader';
 import { getConfig } from '@/apps/sync-engine/config';
-import { ENV } from '@/core/env/env';
 
 export class ThumbnailUploaderFactory {
   private static instance: EnvironmentAndStorageThumbnailUploader | null;
@@ -15,7 +14,7 @@ export class ThumbnailUploaderFactory {
     const { name: clientName, version: clientVersion } = appInfo;
 
     return Storage.client(
-      ENV.API_URL,
+      process.env.API_URL,
       { clientName, clientVersion },
       {
         token: obtainToken('bearerToken'),
@@ -36,7 +35,7 @@ export class ThumbnailUploaderFactory {
     }
 
     const environment = new Environment({
-      bridgeUrl: ENV.BRIDGE_URL,
+      bridgeUrl: process.env.BRIDGE_URL,
       bridgeUser: getConfig().bridgeUser,
       bridgePass: getConfig().bridgePass,
       encryptionKey: getConfig().mnemonic,

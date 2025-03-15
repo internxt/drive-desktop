@@ -4,7 +4,6 @@ import { obtainToken } from '../auth/service';
 
 import { onUserUnauthorized } from '../auth/handlers';
 import { PaymentsService } from './service';
-import { ENV } from '@/core/env/env';
 
 export function buildPaymentsService() {
   const { name: clientName, version: clientVersion } = appInfo;
@@ -12,7 +11,7 @@ export function buildPaymentsService() {
   const newToken = obtainToken('newToken');
 
   const payments = Payments.client(
-    ENV.PAYMENTS_URL,
+    process.env.PAYMENTS_URL,
     {
       clientName,
       clientVersion,

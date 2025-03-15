@@ -4,7 +4,6 @@ import { obtainToken } from '../auth/service';
 
 import { UserUsageService } from './service';
 import { onUserUnauthorized } from '../auth/handlers';
-import { ENV } from '@/core/env/env';
 
 export function buildUsageService() {
   const { name: clientName, version: clientVersion } = appInfo;
@@ -12,7 +11,7 @@ export function buildUsageService() {
   const driveToken = obtainToken('bearerToken');
 
   const storage = Storage.client(
-    ENV.API_URL,
+    process.env.API_URL,
     {
       clientName,
       clientVersion,

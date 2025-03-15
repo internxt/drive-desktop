@@ -9,6 +9,7 @@ import 'reflect-metadata';
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
+import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
@@ -51,7 +52,6 @@ import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
 import clamAVServer from './antivirus/ClamAVDaemon';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
-import { ENV } from '@/core/env/env';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -71,9 +71,8 @@ Logger.log(`App is packaged: ${app.isPackaged}`);
 
 Logger.log('Initializing Sentry for main process');
 Sentry.init({
-  // Enable Sentry only when app is packaged
   enabled: app.isPackaged,
-  dsn: ENV.SENTRY_DSN,
+  dsn: process.env.SENTRY_DSN,
 });
 Sentry.captureMessage('Main process started');
 Logger.log('Sentry is ready for main process');
@@ -83,13 +82,13 @@ function checkForUpdates() {
   autoUpdater.checkForUpdatesAndNotify();
 }
 
-if (ENV.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
 }
 
-if (ENV.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development') {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   require('electron-debug')({ showDevTools: false });
 }

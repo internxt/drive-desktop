@@ -4,7 +4,6 @@ import { getNewApiHeaders } from '../../../apps/main/auth/service';
 import { onUserUnauthorized } from './background-process-clients';
 import { getConfig } from '../../sync-engine/config';
 import { ipcRendererSyncEngine } from '../../sync-engine/ipcRendererSyncEngine';
-import { ENV } from '@/core/env/env';
 
 const getHeaders = async () => {
   const providerId = getConfig().providerId;
@@ -37,6 +36,6 @@ const middleware: Middleware = {
   },
 };
 
-export const client = createClient<paths>({ baseUrl: `${ENV.NEW_DRIVE_URL}/drive` });
+export const client = createClient<paths>({ baseUrl: `${process.env.NEW_DRIVE_URL}/drive` });
 
 client.use(middleware);

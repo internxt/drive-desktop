@@ -134,9 +134,6 @@ importers:
       uuid:
         specifier: ^8.3.2
         version: 8.3.2
-      zod:
-        specifier: ^3.24.2
-        version: 3.24.2
     devDependencies:
       '@babel/eslint-parser':
         specifier: ^7.21.3
@@ -399,6 +396,9 @@ importers:
       webpack-merge:
         specifier: ^5.8.0
         version: 5.10.0
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
 
 packages:
 
