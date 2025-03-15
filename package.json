@@ -40,7 +40,7 @@
     "test:all": "npm run test:once && npm run test:e2e",
     "type-check": "tsc --noEmit",
     "prepare": "husky install",
-    "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && yarn",
+    "reload-virtual-drive": "cd release/app && yarn install && cd ../.. && yarn",
     "start:reload-bindings": "npm run reload-virtual-drive && npm run start",
     "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts"
   },
