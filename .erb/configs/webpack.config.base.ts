@@ -8,7 +8,7 @@ import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
 import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
-import { validateProcessEnv } from '.erb/scripts/validate-process-env';
+import { validateProcessEnv } from '../scripts/validate-process-env';
 
 validateProcessEnv();
 
