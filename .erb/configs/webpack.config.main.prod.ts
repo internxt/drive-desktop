@@ -1,7 +1,3 @@
-/**
- * Webpack config for production electron main process
- */
-
 import path from 'path';
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
@@ -33,30 +29,12 @@ const configuration: webpack.Configuration = {
   },
 
   optimization: {
-    minimizer: [
-      new TerserPlugin({
-        parallel: true,
-      }),
-    ],
+    minimizer: [new TerserPlugin({ parallel: true })],
   },
 
   plugins: [
-    new BundleAnalyzerPlugin({
-      analyzerMode: ENV.ANALYZE ? 'server' : 'disabled',
-    }),
-
-    /**
-     * Create global constants which can be configured at compile time.
-     *
-     * Useful for allowing different behaviour between development builds and
-     * release builds
-     *
-     * NODE_ENV should be production so that modules do not perform certain
-     * development checks
-     */
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
-    }),
+    new BundleAnalyzerPlugin({ analyzerMode: ENV.ANALYZE ? 'server' : 'disabled' }),
+    new webpack.EnvironmentPlugin({ NODE_ENV: 'production' }),
     new Dotenv({ ignoreStub: true }),
   ],
 

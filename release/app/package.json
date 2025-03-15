@@ -6,7 +6,7 @@
   "author": "Internxt <hello@internxt.com>",
   "scripts": {
     "link-modules": "ts-node ../../.erb/scripts/link-modules.ts",
-    "rebuild": "electron-rebuild --sequential --force --types prod,dev,optional --module-dir .",
+    "rebuild": "electron-rebuild --parallel --force --types prod,dev,optional --module-dir .",
     "postinstall": "npm run rebuild && npm run link-modules"
   },
   "dependencies": {

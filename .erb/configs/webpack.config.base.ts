@@ -1,7 +1,3 @@
-/**
- * Base webpack config used across other specific configs
- */
-
 import path from 'path';
 import { cwd } from 'process';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
@@ -16,7 +12,7 @@ if (ENV.NODE_ENV === 'development') {
 }
 
 const configuration: webpack.Configuration = {
-  externals: [...Object.keys(externals || {})],
+  externals: [...Object.keys(externals)],
 
   stats: 'errors-only',
 
@@ -49,9 +45,6 @@ const configuration: webpack.Configuration = {
     },
   },
 
-  /**
-   * Determine the array of extensions that should be used to resolve modules.
-   */
   resolve: {
     alias: { ...aliases },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
@@ -59,11 +52,7 @@ const configuration: webpack.Configuration = {
     plugins: [new TsconfigPathsPlugin()],
   },
 
-  plugins: [
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
-    }),
-  ],
+  plugins: [new webpack.EnvironmentPlugin({ NODE_ENV: 'production' })],
 };
 
 export default configuration;
