@@ -167,7 +167,7 @@ const configuration: webpack.Configuration = {
     },
     onBeforeSetupMiddleware() {
       console.log('Starting Main Process...');
-      spawn('pnpm', ['nodemon'], {
+      spawn('npm', ['run', 'start:nodemon'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',

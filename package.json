@@ -8,6 +8,7 @@
     "url": "https://github.com/internxt/drive-desktop"
   },
   "scripts": {
+    "========== Build ==========": "",
     "build": "concurrently \"npm run build:main\" \"npm run build:backups\" \"npm run build:renderer\" \"npm run build:sync-engine\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.renderer.prod.ts",
@@ -15,9 +16,6 @@
     "build:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.backups.ts",
     "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.renderer.dev.dll.ts",
     "package": "ts-node .erb/scripts/clean.js && npm run build && electron-builder build --publish never",
-    "check-native-deps": "ts-node .erb/scripts/check-native-dep.js",
-    "rebuild": "electron-builder install-app-deps",
-    "postinstall": "npm run check-native-deps && npm run rebuild",
     "========== Code style ==========": "",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "npm run lint -- --fix",
@@ -26,6 +24,7 @@
     "type-check": "tsc --noEmit",
     "========== Start ==========": "",
     "start": "npm run start:renderer",
+    "start:nodemon": "nodemon",
     "start:reload": "npm run start:processes && npm run start:main",
     "start:processes": "concurrently \"npm run start:sync-engine\" \"npm run start:backups\"",
     "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only -r tsconfig-paths/register ./src/apps/main/main.ts",
@@ -39,12 +38,13 @@
     "test:one": "npm run test -- related x",
     "test:e2e": "playwright test --config=tests",
     "test:all": "npm run test:once && npm run test:e2e",
+    "========== Native deps ==========": "",
+    "reload-native-deps": "cd release/app && pnpm install && pnpm postinstall",
+    "check-native-deps": "ts-node .erb/scripts/check-native-deps.js",
+    "========== Other ==========": "",
     "prepare": "husky install",
     "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",
-    "========== Virtual drive ==========": "",
-    "link-modules": "ts-node .erb/scripts/link-modules.ts",
-    "reload-virtual-drive": "cd release/app && npm run reload-virtual-drive && cd ../.. && npm run rebuild",
-    "start:reload-bindings": "npm run reload-virtual-drive && npm run start"
+    "postinstall": "npm run check-native-deps"
   },
   "build": {
     "productName": "Internxt",
@@ -76,7 +76,6 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.21.3",
-    "@electron/rebuild": "^3.7.1",
     "@internxt/eslint-config-internxt": "^1.0.9",
     "@playwright/test": "1.26.1",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.4",

@@ -5,16 +5,17 @@
   "main": "./dist/main/main.js",
   "author": "Internxt <hello@internxt.com>",
   "scripts": {
-    "electron-rebuild": "ts-node ../../.erb/scripts/electron-rebuild.ts",
     "link-modules": "ts-node ../../.erb/scripts/link-modules.ts",
-    "postinstall": "npm run electron-rebuild --sequential && npm run link-modules",
-    "reload-virtual-drive": "npm install --ignore-scripts ../../../node-win && npm run link-modules"
+    "rebuild": "electron-rebuild --sequential --force --types prod,dev,optional --module-dir .",
+    "postinstall": "npm run rebuild && npm run link-modules"
   },
   "dependencies": {
-    "@rudderstack/rudder-sdk-node": "^1.1.4",
     "better-sqlite3": "^8.3.0",
     "typeorm": "^0.3.16",
     "virtual-drive": "../../../node-win"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@electron/rebuild": "^3.7.1"
+  }
 }
