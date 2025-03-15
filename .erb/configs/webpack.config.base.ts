@@ -8,10 +8,9 @@ import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
 import webpackPaths from './webpack.paths';
 import { dependencies as externals } from '../../release/app/package.json';
-import { ENV } from '../../src/core/env/env';
 
 const aliases: Record<string, string> = {};
-if (ENV.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development') {
   aliases['virtual-drive/dist'] = path.resolve(cwd(), '../node-win/dist');
 }
 

@@ -11,10 +11,9 @@ import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import Dotenv from 'dotenv-webpack';
 import { cwd } from 'process';
-import { ENV } from '../../src/core/env/env';
 
 const configuration: webpack.Configuration = {
-  mode: ENV.NODE_ENV,
+  mode: process.env.NODE_ENV,
 
   target: 'electron-renderer',
 
@@ -59,7 +58,7 @@ const configuration: webpack.Configuration = {
         removeComments: true,
       },
       isBrowser: false,
-      isDevelopment: ENV.NODE_ENV !== 'production',
+      isDevelopment: process.env.NODE_ENV !== 'production',
     }),
   ],
 };
