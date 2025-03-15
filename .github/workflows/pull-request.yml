@@ -6,7 +6,7 @@ on:
 jobs:
   checks:
     runs-on: windows-latest
-    timeout-minutes: 7
+    timeout-minutes: 5
 
     permissions:
       contents: read
