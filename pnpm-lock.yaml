@@ -252,9 +252,6 @@ importers:
       del-cli:
         specifier: ^5.0.0
         version: 5.1.0
-      detect-port:
-        specifier: ^2.1.0
-        version: 2.1.0
       dotenv:
         specifier: ^10.0.0
         version: 10.0.0
@@ -2634,10 +2631,6 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  address@2.0.3:
-    resolution: {integrity: sha512-XNAb/a6TCqou+TufU8/u11HCu9x1gYvOoxLwtlXgIqmkrYQADVv6ljyW2zwiPhHz9R1gItAWpuDrdJMmrOBFEA==}
-    engines: {node: '>= 16.0.0'}
-
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
@@ -3620,11 +3613,6 @@ packages:
 
   detect-node@2.1.0:
     resolution: {integrity: sha512-T0NIuQpnTvFDATNuHN5roPwSBG83rFsuO+MXXH9/3N1eFbn4wcPjttvjMLEPWJ0RGUYgQE7cGgS3tNxbqCGM7g==}
-
-  detect-port@2.1.0:
-    resolution: {integrity: sha512-epZuWb/6Q62L+nDHJc/hQAqf8pylsqgk3BpZXVBx1CDnr3nkrVNn73Uu1rXcFzkNcc+hkP3whuOg7JZYaQB65Q==}
-    engines: {node: '>= 16.0.0'}
-    hasBin: true
 
   didyoumean@1.2.2:
     resolution: {integrity: sha512-gxtyfqMg7GKyhQmb056K7M3xszy/myH8w+B4RT+QXBQsvAOdc3XymqDDPHx1BgPgsdAA5SIifona89YtRATDzw==}
@@ -10341,8 +10329,6 @@ snapshots:
 
   acorn@8.14.1: {}
 
-  address@2.0.3: {}
-
   agent-base@6.0.2:
     dependencies:
       debug: 4.4.0
@@ -11482,10 +11468,6 @@ snapshots:
   detect-node-es@1.1.0: {}
 
   detect-node@2.1.0: {}
-
-  detect-port@2.1.0:
-    dependencies:
-      address: 2.0.3
 
   didyoumean@1.2.2: {}
 
