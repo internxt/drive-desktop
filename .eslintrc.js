@@ -14,6 +14,7 @@ module.exports = {
     'no-use-before-define': 'warn',
     'array-callback-return': 'warn',
     'no-empty': 'off',
+    '@typescript-eslint/no-empty-interface': 'off',
     'max-len': [
       'error',
       {

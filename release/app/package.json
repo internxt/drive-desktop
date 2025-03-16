@@ -5,8 +5,8 @@
   "main": "./dist/main/main.js",
   "author": "Internxt <hello@internxt.com>",
   "scripts": {
-    "electron-rebuild": "node -r ts-node/register ../../.erb/scripts/electron-rebuild.js",
-    "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts",
+    "electron-rebuild": "ts-node ../../.erb/scripts/electron-rebuild.ts",
+    "link-modules": "ts-node ../../.erb/scripts/link-modules.ts",
     "postinstall": "npm run electron-rebuild --sequential && npm run link-modules"
   },
   "dependencies": {
