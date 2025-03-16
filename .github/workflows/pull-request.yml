@@ -6,6 +6,7 @@ on:
 jobs:
   checks:
     runs-on: windows-latest
+    timeout-minutes: 5
 
     permissions:
       contents: read
@@ -14,6 +15,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -26,13 +33,14 @@ jobs:
       # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
       - name: Create .npmrc file
         run: |
-          echo "registry=https://registry.yarnpkg.com/" > .npmrc
+          touch .npmrc
+          echo "node-linker=hoisted" >> .npmrc
           echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        run: pnpm install && pnpm ci:reload-native-deps
 
       - name: Run Prettier
         run: npm run format

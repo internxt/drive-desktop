@@ -7,12 +7,18 @@
   "scripts": {
     "electron-rebuild": "ts-node ../../.erb/scripts/electron-rebuild.ts",
     "link-modules": "ts-node ../../.erb/scripts/link-modules.ts",
-    "postinstall": "npm run electron-rebuild --sequential && npm run link-modules"
+    "reload-native-deps": "yarn install && npm run electron-rebuild && npm run link-modules",
+    "ci:reload-native-deps": "pnpm install && npm run link-modules"
   },
   "dependencies": {
     "better-sqlite3": "^8.3.0",
     "typeorm": "^0.3.16",
     "virtual-drive": "../../../node-win"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3"
+    ]
+  }
 }

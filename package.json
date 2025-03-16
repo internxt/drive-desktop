@@ -15,8 +15,6 @@
     "build:backups": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.backups.ts",
     "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.renderer.dev.dll.ts",
     "package": "ts-node .erb/scripts/clean.js && npm run build && electron-builder build --publish never",
-    "check-native-deps": "ts-node .erb/scripts/check-native-deps.ts",
-    "postinstall": "npm run check-native-deps",
     "========== Code style ==========": "",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "npm run run lint --fix",
@@ -38,9 +36,12 @@
     "test:one": "npm run test -- related x",
     "test:e2e": "playwright test --config=tests",
     "test:all": "npm run test:once && npm run test:e2e",
+    "========== Native deps ==========": "",
+    "reload-native-deps": "cd release/app && npm run reload-native-deps && cd ../.. && pnpm install",
+    "ci:reload-native-deps": "cd release/app && npm run ci:reload-native-deps && cd ../.. && pnpm install",
+    "========== Other ==========": "",
     "prepare": "husky install",
-    "reload-virtual-drive": "cd release/app && yarn install && cd ../.. && yarn",
-    "start:reload-bindings": "npm run reload-virtual-drive && npm run start",
+    "postinstall": "ts-node .erb/scripts/check-native-deps.ts",
     "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts"
   },
   "build": {
@@ -209,5 +210,10 @@
   "devEngines": {
     "node": ">=14.x",
     "npm": ">=7.x"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron"
+    ]
   }
 }
