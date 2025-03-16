@@ -10,7 +10,7 @@ Before proceeding, ensure you have the following tools installed:
 
 ```markdown
 - Python 3.10 (configured correctly).
-- Node.js and yarn.
+- Node.js, yarn and pnpm.
 - node-gyp (global installation):
   npm install -g node-gyp
 ```
@@ -49,7 +49,11 @@ internxt
 1. Open a terminal and navigate to the `drive-desktop` directory.
 2. Run the following command to build and start the project:
    ```bash
-   npm run start:reload-bindings
+   pnpm install
+   # if pnpm does not run postinstall scripts, run manually
+   node node_modules/electron/install.js
+   npm run reload-native-deps
+   npm run start
    ```
    This will start the desktop application with the updated bindings.
 
