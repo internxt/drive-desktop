@@ -1,12 +1,11 @@
 /* eslint-disable no-await-in-loop */
 import { app } from 'electron';
-import eventBus from '../event-bus';
 import { DataSource } from 'typeorm';
 import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
-import Logger from 'electron-log';
 import { ScannedItem } from './entities/ScannedItem';
 import { DriveWorkspace } from './entities/DriveWorkspace';
+import { logger } from '@/apps/shared/logger/logger';
 const dbPath = app.getPath('appData') + '/internxt-drive/internxt_desktop.db';
 export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
@@ -16,13 +15,15 @@ export const AppDataSource = new DataSource({
   entities: [DriveFile, DriveFolder, ScannedItem, DriveWorkspace],
 });
 
-Logger.info(`Using database file at ${dbPath}`);
+logger.debug({
+  msg: `Using database file at ${dbPath}`,
+});
 
 export const destroyDatabase = async () => {
-  const entities = AppDataSource.entityMetadatas;
-  for (const entity of entities) {
-    const repository = AppDataSource.getRepository(entity.name);
-    await repository.clear();
-  }
-  Logger.info('All data cleared from database');
+  AppDataSource.dropDatabase().catch((error) => {
+    reportError(error);
+  });
+  logger.debug({
+    msg: 'Database destroyed',
+  });
 };
