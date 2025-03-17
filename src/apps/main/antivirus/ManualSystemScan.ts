@@ -106,7 +106,7 @@ export class ManualSystemScan {
    */
   private calculateProgress(): number {
     if (this.totalItemsToScan <= 0) {
-      return 50;
+      return 1;
     }
 
     if (this.totalScannedFiles >= this.totalItemsToScan) {
@@ -811,12 +811,6 @@ export class ManualSystemScan {
 
       const currentSession = ++this.scanSessionId;
       Logger.info(`[SYSTEM_SCAN] Starting scan session ${currentSession}`);
-
-      const intervals = this.setupMonitoringIntervals(
-        currentSession,
-        scanState,
-        !!pathNames
-      );
 
       const hasReportedErrorRef = { value: scanState.hasReportedError };
       const scan = this.createScanHandler(
