@@ -10,7 +10,6 @@ import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
-import { ENV } from '../../src/core/env/env';
 
 checkNodeEnv('development');
 
@@ -22,7 +21,7 @@ const requiredByDLLConfig = module.parent!.filename.includes('webpack.config.ren
  */
 if (!requiredByDLLConfig && !(fs.existsSync(webpackPaths.dllPath) && fs.existsSync(manifest))) {
   console.log(chalk.black.bgYellow.bold('The DLL files are missing. Sit back while we build them for you'));
-  execSync('yarn postinstall');
+  execSync('npm run build:dll');
 }
 
 const configuration: webpack.Configuration = {
@@ -33,7 +32,7 @@ const configuration: webpack.Configuration = {
   target: ['web', 'electron-renderer'],
 
   entry: [
-    `webpack-dev-server/client?http://localhost:${ENV.PORT}/dist`,
+    `webpack-dev-server/client?http://localhost:${process.env.PORT}/dist`,
     'webpack/hot/only-dev-server',
     'core-js',
     'regenerator-runtime/runtime',
@@ -142,8 +141,8 @@ const configuration: webpack.Configuration = {
         removeComments: true,
       },
       isBrowser: false,
-      env: ENV.NODE_ENV,
-      isDevelopment: ENV.NODE_ENV !== 'production',
+      env: process.env.NODE_ENV,
+      isDevelopment: process.env.NODE_ENV !== 'production',
       nodeModules: webpackPaths.appNodeModulesPath,
     }),
   ],
@@ -155,7 +154,7 @@ const configuration: webpack.Configuration = {
 
   // @ts-ignore
   devServer: {
-    port: ENV.PORT,
+    port: process.env.PORT,
     compress: true,
     hot: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
@@ -167,7 +166,7 @@ const configuration: webpack.Configuration = {
     },
     onBeforeSetupMiddleware() {
       console.log('Starting Main Process...');
-      spawn('yarn', ['nodemon'], {
+      spawn('npm', ['run', 'start:nodemon'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',

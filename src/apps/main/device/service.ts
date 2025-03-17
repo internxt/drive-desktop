@@ -20,7 +20,6 @@ import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
 import { customInspect } from '@/apps/shared/logger/custom-inspect';
 import { getConfig } from '@/apps/sync-engine/config';
-import { ENV } from '@/core/env/env';
 
 export type Device = {
   name: string;
@@ -74,7 +73,7 @@ export const addUnknownDeviceIssue = (error: Error) => {
 };
 
 function createDevice(deviceName: string) {
-  return fetch(`${ENV.API_URL}/backup/deviceAsFolder`, {
+  return fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
     method: 'POST',
     headers: getHeaders(true),
     body: JSON.stringify({ deviceName }),
@@ -82,7 +81,7 @@ function createDevice(deviceName: string) {
 }
 
 export async function getDevices(): Promise<Array<Device>> {
-  const response = await fetch(`${ENV.API_URL}/backup/deviceAsFolder`, {
+  const response = await fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
     method: 'GET',
     headers: getHeaders(true),
   });
@@ -129,7 +128,7 @@ export async function getOrCreateDevice() {
   let newDevice: Device | null = null;
 
   if (deviceIsDefined) {
-    const res = await fetch(`${ENV.API_URL}/backup/deviceAsFolder/${savedDeviceId}`, {
+    const res = await fetch(`${process.env.API_URL}/backup/deviceAsFolder/${savedDeviceId}`, {
       method: 'GET',
       headers: getHeaders(),
     });
@@ -169,7 +168,7 @@ export async function getOrCreateDevice() {
 export async function renameDevice(deviceName: string): Promise<Device> {
   const deviceId = getDeviceId();
 
-  const res = await fetch(`${ENV.API_URL}/backup/deviceAsFolder/${deviceId}`, {
+  const res = await fetch(`${process.env.API_URL}/backup/deviceAsFolder/${deviceId}`, {
     method: 'PATCH',
     headers: getHeaders(true),
     body: JSON.stringify({ deviceName }),
@@ -184,10 +183,10 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
   let nameDevice;
   let key;
   try {
-    key = `${ENV.NEW_CRYPTO_KEY}-${rest.bucket}`;
+    key = `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`;
     nameDevice = aes.decrypt(name, key);
   } catch (error) {
-    key = `${ENV.NEW_CRYPTO_KEY}-${null}`;
+    key = `${process.env.NEW_CRYPTO_KEY}-${null}`;
     nameDevice = aes.decrypt(name, key);
   }
 
@@ -334,7 +333,7 @@ async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
 }
 
 async function fetchTreeFromApi(folderUuid: string): Promise<FolderTree> {
-  const res = await fetch(`${ENV.NEW_DRIVE_URL}/drive/folders/${folderUuid}/tree`, {
+  const res = await fetch(`${process.env.NEW_DRIVE_URL}/drive/folders/${folderUuid}/tree`, {
     method: 'GET',
     headers: getNewApiHeaders(),
   });
@@ -364,7 +363,7 @@ function processFolderTree(tree: FolderTree) {
     folderDecryptedNames[currentTree.id] = currentTree.plainName;
 
     for (const file of files) {
-      fileDecryptedNames[file.id] = aes.decrypt(file.name, `${ENV.NEW_CRYPTO_KEY}-${file.folderId}`);
+      fileDecryptedNames[file.id] = aes.decrypt(file.name, `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`);
       size += Number(file.size);
       totalItems++;
     }
@@ -427,7 +426,7 @@ export async function fetchArrayFolderTree(folderUuids: string[]): Promise<Folde
 }
 
 export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Promise<void> {
-  const res = await fetch(`${ENV.API_URL}/storage/folder/${backup.folderId}`, {
+  const res = await fetch(`${process.env.API_URL}/storage/folder/${backup.folderId}`, {
     method: 'DELETE',
     headers: getHeaders(true),
   });
@@ -538,7 +537,7 @@ async function downloadDeviceBackupZip({
 
   const folders = await fetchFolders({ folderUuids: folderUuidsToDownload });
 
-  const networkApiUrl = ENV.BRIDGE_URL;
+  const networkApiUrl = process.env.BRIDGE_URL;
   const bridgeUser = user.bridgeUser;
   const bridgePass = user.userId;
   const encryptionKey = getConfig().mnemonic;

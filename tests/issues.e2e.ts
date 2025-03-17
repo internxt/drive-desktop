@@ -38,6 +38,7 @@ test.describe('process issues', () => {
       args: ['release/app/dist/main/main.js'],
       env: {
         ...process.env,
+        PORT: process.env.PORT.toString(),
         NODE_ENV: 'TEST',
       },
     });

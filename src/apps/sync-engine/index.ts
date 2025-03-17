@@ -8,13 +8,12 @@ import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
 import { setConfig, Config, getConfig } from './config';
 import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
-import { ENV } from '@/core/env/env';
 
 Logger.log(`Running sync engine ${packageJson.version}`);
 
 function initSentry() {
   Sentry.init({
-    dsn: ENV.SENTRY_DSN,
+    dsn: process.env.SENTRY_DSN,
     enabled: true, // it is true but is using app.isPackaged from the main process
   });
   Sentry.captureMessage('Sync engine process started');

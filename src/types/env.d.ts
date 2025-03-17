@@ -1,10 +1,8 @@
+import { TEnv } from '.erb/scripts/validate-process-env';
+
 declare global {
   namespace NodeJS {
-    interface ProcessEnv {
-      CRYPTO_KEY: string;
-      NODE_ENV: 'development' | 'production';
-      SENTRY_DSN: string;
-    }
+    interface ProcessEnv extends TEnv {}
   }
 }
 
