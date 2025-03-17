@@ -8,6 +8,8 @@ import { BackupsProcessStatus } from './BackupsProcessStatus/BackupsProcessStatu
 import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import { BackupsStopController } from './BackupsStopController/BackupsStopController';
 import { isSyncError } from '../../../shared/issues/SyncErrorCause';
+import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
+import { logger } from '@/apps/shared/logger/logger';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -24,6 +26,10 @@ export async function launchBackupProcesses(
     Logger.debug('[BACKUPS] Already running');
     return;
   }
+
+  const isAvailable = await isAvailableBackups();
+
+  if (!isAvailable) return;
 
   status.set('RUNNING');
 

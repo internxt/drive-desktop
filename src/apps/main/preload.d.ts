@@ -11,10 +11,10 @@ declare interface Window {
     isDarkModeActive(): boolean;
 
     logger: {
-      info: (...message: unknown[]) => void;
-      error: (...message: unknown[]) => void;
-      warn: (...message: unknown[]) => void;
-      debug: (...message: unknown[]) => void;
+      info: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
+      error: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
+      warn: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
+      debug: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
     };
 
     getGeneralIssues: () => Promise<import('../../apps/shared/types').GeneralIssue[]>;
