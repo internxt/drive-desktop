@@ -1,13 +1,8 @@
-/**
- * Builds the DLL for development electron renderer process
- */
-
 import webpack from 'webpack';
 import path from 'path';
 import { merge } from 'webpack-merge';
 import baseConfig from './webpack.config.base';
-import webpackPaths from './webpack.paths';
-import { dependencies } from '../../package.json';
+import webpackPaths, { nativeDeps } from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 
 checkNodeEnv('development');
@@ -31,7 +26,7 @@ const configuration: webpack.Configuration = {
   module: require('./webpack.config.renderer.dev').default.module,
 
   entry: {
-    renderer: Object.keys(dependencies),
+    renderer: nativeDeps,
   },
 
   output: {
@@ -65,7 +60,7 @@ const configuration: webpack.Configuration = {
     new webpack.LoaderOptionsPlugin({
       debug: true,
       options: {
-        context: webpackPaths.srcPath,
+        context: webpackPaths.rootPath,
         output: {
           path: webpackPaths.dllPath,
         },

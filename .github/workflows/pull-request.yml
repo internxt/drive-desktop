@@ -40,7 +40,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: pnpm install && pnpm ci:reload-native-deps
+        run: pnpm install && npm run reload-native-deps
 
       - name: Run Prettier
         run: npm run format
