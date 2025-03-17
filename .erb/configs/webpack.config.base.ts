@@ -8,7 +8,7 @@ import { validateProcessEnv } from '../scripts/validate-process-env';
 validateProcessEnv();
 
 const aliases: Record<string, string> = {};
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === 'development' && process.env.USE_LOCAL_NODE_WIN === 'true') {
   aliases['virtual-drive/dist'] = path.resolve(cwd(), '../node-win/dist');
 }
 
