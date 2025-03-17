@@ -1,6 +1,9 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
 const Logger = require('electron-log');
+const { inspect } = require('util');
 
 contextBridge.exposeInMainWorld('electron', {
   getConfigKey(key) {
@@ -22,9 +25,10 @@ contextBridge.exposeInMainWorld('electron', {
   },
 
   logger: {
-    info: (...message) => Logger.info(String(message)),
-    error: (...message) => Logger.error(message),
-    warn: (...message) => Logger.warn(message),
+    info: (rawBody) => Logger.info(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    error: (rawBody) => Logger.error(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    warn: (rawBody) => Logger.warn(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    debug: (rawBody) => Logger.debug(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
   },
 
   pathChanged(pathname) {
