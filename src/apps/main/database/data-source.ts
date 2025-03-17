@@ -1,5 +1,5 @@
+/* eslint-disable no-await-in-loop */
 import { app } from 'electron';
-import { reportError } from '../bug-report/service';
 import eventBus from '../event-bus';
 import { DataSource } from 'typeorm';
 import { DriveFile } from './entities/DriveFile';
@@ -18,8 +18,11 @@ export const AppDataSource = new DataSource({
 
 Logger.info(`Using database file at ${dbPath}`);
 
-eventBus.on('USER_LOGGED_OUT', () => {
-  AppDataSource.dropDatabase().catch((error) => {
-    reportError(error);
-  });
-});
+export const destroyDatabase = async () => {
+  const entities = AppDataSource.entityMetadatas;
+  for (const entity of entities) {
+    const repository = AppDataSource.getRepository(entity.name);
+    await repository.clear();
+  }
+  Logger.info('All data cleared from database');
+};

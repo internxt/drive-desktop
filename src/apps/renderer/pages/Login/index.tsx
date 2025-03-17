@@ -86,7 +86,7 @@ export default function Login() {
       }
     } catch (err) {
       setState('error');
-      setErrorDetails((err as Error).message);
+      setErrorDetails(translate('login.2fa.wrong-code'));
     }
   }
 
