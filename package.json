@@ -39,7 +39,7 @@
     "test:all": "npm run test:once && npm run test:e2e",
     "========== Native deps ==========": "",
     "electron-rebuild": "electron-rebuild --sequential --force --types prod,dev,optional --module-dir .",
-    "reload-native-deps": "ts-node .erb/scripts/check-native-deps.ts && pnpm install",
+    "reload-native-deps": "ts-node .erb/scripts/check-native-deps.ts && npm run electron-rebuild && pnpm install",
     "========== Other ==========": "",
     "prepare": "husky install",
     "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts"
@@ -215,8 +215,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "electron",
-      "better-sqlite3",
-      "virtual-drive"
+      "better-sqlite3"
     ]
   }
 }
