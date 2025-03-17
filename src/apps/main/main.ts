@@ -42,7 +42,7 @@ import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
-import { AppDataSource } from './database/data-source';
+import { AppDataSource, destroyDatabase } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
@@ -164,6 +164,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
 eventBus.on('USER_LOGGED_OUT', async () => {
   setTrayStatus('IDLE');
+  await destroyDatabase();
   const widget = getWidget();
   if (widget) {
     widget.hide();
@@ -173,7 +174,4 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   }
 
   await createAuthWindow();
-  if (AppDataSource.isInitialized) {
-    await AppDataSource.destroy();
-  }
 });

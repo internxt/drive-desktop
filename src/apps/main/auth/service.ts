@@ -63,6 +63,13 @@ function ecnryptToken(token: string): string {
   return buffer.toString(TOKEN_ENCODING);
 }
 
+export function setUser(userData: User) {
+  ConfigStore.set('userData', {
+    ...userData,
+    needLogout: false,
+  });
+}
+
 export function setCredentials({ userData, bearerToken, newToken, password }: Credentials) {
   const { publicKey, privateKey, publicKyberKey, privateKyberKey } = parseAndDecryptUserKeys(userData, password);
 
@@ -73,7 +80,7 @@ export function setCredentials({ userData, bearerToken, newToken, password }: Cr
   userData.keys.kyber.publicKey = publicKyberKey;
   userData.keys.kyber.privateKey = privateKyberKey;
 
-  ConfigStore.set('userData', userData);
+  setUser(userData);
 
   const isSafeStorageAvailable = safeStorage.isEncryptionAvailable();
 
@@ -87,11 +94,6 @@ export function setCredentials({ userData, bearerToken, newToken, password }: Cr
   ConfigStore.set('newToken', secondToken);
   ConfigStore.set('newTokenEncrypted', isSafeStorageAvailable);
 }
-
-export function setUser(userData: User) {
-  ConfigStore.set('userData', userData);
-}
-
 export function updateCredentials(bearerToken: string, newBearerToken?: string) {
   const isSafeStorageAvailable = safeStorage.isEncryptionAvailable();
 
