@@ -25,10 +25,10 @@ contextBridge.exposeInMainWorld('electron', {
   },
 
   logger: {
-    info: (...message) => Logger.info(inspect(message, { colors: true, depth: Infinity, breakLength: Infinity })),
-    error: (...message) => Logger.error(inspect(message, { colors: true, depth: Infinity, breakLength: Infinity })),
-    warn: (...message) => Logger.warn(inspect(message, { colors: true, depth: Infinity, breakLength: Infinity })),
-    debug: (...message) => Logger.debug(inspect(message, { colors: true, depth: Infinity, breakLength: Infinity })),
+    info: (rawBody) => Logger.info(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    error: (rawBody) => Logger.error(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    warn: (rawBody) => Logger.warn(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    debug: (rawBody) => Logger.debug(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
   },
 
   pathChanged(pathname) {
