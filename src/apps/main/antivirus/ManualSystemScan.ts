@@ -106,7 +106,7 @@ export class ManualSystemScan {
    */
   private calculateProgress(): number {
     if (this.totalItemsToScan <= 0) {
-      return 1;
+      return 50;
     }
 
     if (this.totalScannedFiles >= this.totalItemsToScan) {
@@ -341,7 +341,7 @@ export class ManualSystemScan {
 
     this.totalScannedFiles++;
 
-    if (isInfected) {
+    if (isInfected || this.totalScannedFiles % 1000 === 0) {
       Logger.info(
         `[SYSTEM_SCAN] Progress: ${this.calculateProgress()}%, Scanned: ${
           this.totalScannedFiles
@@ -349,13 +349,15 @@ export class ManualSystemScan {
       );
     }
 
+    const shouldEmitNow = isInfected;
+
     const progressEvent = this.emitProgressEvent(
       {
         currentScanPath: file,
         scanId: `scan-${currentSession}`,
       },
       currentSession,
-      false
+      shouldEmitNow
     );
 
     if (
@@ -823,6 +825,9 @@ export class ManualSystemScan {
 
       scanState.hasReportedError = hasReportedErrorRef.value;
 
+      const isCustomScan = !!pathNames;
+      this.setupMonitoringIntervals(currentSession, scanState, isCustomScan);
+
       if (pathNames) {
         await this.performCustomScan(currentSession, pathNames, scan);
       } else {
@@ -871,8 +876,6 @@ export class ManualSystemScan {
         throw error;
       }
     } finally {
-      this.clearAllIntervals();
-
       if (!scanState.scanCompleted && !scanState.hasReportedError) {
         scanState.allFilesScanned =
           this.totalScannedFiles >= this.totalItemsToScan;
@@ -907,6 +910,8 @@ export class ManualSystemScan {
           cancelled: this.cancelled,
         }
       );
+
+      this.clearAllIntervals();
 
       await this.clearAntivirus().catch((err) => {
         Logger.error(
