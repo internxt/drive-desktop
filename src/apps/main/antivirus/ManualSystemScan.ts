@@ -383,6 +383,7 @@ export class ManualSystemScan {
         this.antivirus = null;
       } catch (error) {
         Logger.error('[SYSTEM_SCAN] Error stopping ClamAV:', error);
+        this.antivirus = null;
       }
     }
   };
@@ -395,7 +396,15 @@ export class ManualSystemScan {
       this.manualQueue.kill();
     }
 
-    await this.clearAntivirus();
+    try {
+      await this.clearAntivirus();
+    } catch (error) {
+      Logger.error(
+        '[SYSTEM_SCAN] Error clearing antivirus during stop:',
+        error
+      );
+    }
+
     await this.resetCounters();
     Logger.info('[SYSTEM_SCAN] Scan stopped successfully');
   };
@@ -422,7 +431,14 @@ export class ManualSystemScan {
       }
     }
 
-    await this.clearAntivirus();
+    try {
+      await this.clearAntivirus();
+    } catch (error) {
+      Logger.error(
+        '[SYSTEM_SCAN] Error clearing Antivirus during reset:',
+        error
+      );
+    }
   }
 
   private handlePreviousScannedItem = async (
@@ -556,7 +572,7 @@ export class ManualSystemScan {
         }
 
         try {
-          const currentScannedFile = await antivirus.scanFile(
+          const currentScannedFile = await antivirus.scanFileWithRetry(
             scannedItem.pathName
           );
 
@@ -805,10 +821,22 @@ export class ManualSystemScan {
         this.antivirus = antivirus;
       } catch (avError) {
         Logger.error(
-          '[SYSTEM_SCAN] Error creating antivirus instance:',
+          '[SYSTEM_SCAN] Error creating antivirus instance, retrying once:',
           avError
         );
-        throw new Error('Failed to initialize antivirus scanner');
+
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
+        try {
+          antivirus = await Antivirus.createInstance();
+          this.antivirus = antivirus;
+        } catch (retryError) {
+          Logger.error(
+            '[SYSTEM_SCAN] Failed to create antivirus instance after retry:',
+            retryError
+          );
+          throw new Error('Failed to initialize antivirus scanner');
+        }
       }
 
       const currentSession = ++this.scanSessionId;

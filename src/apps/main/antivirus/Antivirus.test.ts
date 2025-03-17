@@ -16,6 +16,14 @@ jest.mock('path', () => ({
   join: jest.fn((...args) => args.join('/')),
 }));
 jest.mock('electron-log');
+jest.mock('fs', () => ({
+  promises: {
+    access: jest.fn().mockResolvedValue(undefined),
+  },
+  constants: {
+    R_OK: 4,
+  },
+}));
 
 type ScanResult = {
   file: string;
@@ -38,9 +46,9 @@ describe('Antivirus', () => {
 
     (NodeClam as jest.Mock).mockImplementation(() => mockNodeClam);
 
-    (clamAVServer.checkClamdAvailability as jest.Mock).mockResolvedValue(
-      undefined
-    );
+    (clamAVServer.checkClamdAvailability as jest.Mock).mockResolvedValue(true);
+    (clamAVServer.startClamdServer as jest.Mock).mockResolvedValue(undefined);
+    (clamAVServer.waitForClamd as jest.Mock).mockResolvedValue(undefined);
     (clamAVServer.stopClamdServer as jest.Mock).mockReturnValue(undefined);
   });
 
@@ -62,12 +70,16 @@ describe('Antivirus', () => {
     });
 
     it('should throw an error if initialization fails', async () => {
-      const error = new Error('Initialization failed');
-      (clamAVServer.checkClamdAvailability as jest.Mock).mockRejectedValue(
-        error
+      (clamAVServer.checkClamdAvailability as jest.Mock).mockResolvedValue(
+        false
+      );
+      (clamAVServer.startClamdServer as jest.Mock).mockRejectedValue(
+        new Error('Failed to start ClamAV daemon')
       );
 
-      await expect(Antivirus.createInstance()).rejects.toThrow(error);
+      await expect(Antivirus.createInstance()).rejects.toThrow(
+        'Failed to start ClamAV daemon'
+      );
     });
   });
 
@@ -82,6 +94,9 @@ describe('Antivirus', () => {
       mockNodeClam.isInfected.mockResolvedValue(mockScanResult);
 
       const antivirus = await Antivirus.createInstance();
+      (antivirus as any).clamAv = mockNodeClam;
+      (antivirus as any).isInitialized = true;
+
       const result = await antivirus.scanFile('/path/to/file.txt');
 
       expect(mockNodeClam.isInfected).toHaveBeenCalledWith('/path/to/file.txt');
@@ -90,11 +105,35 @@ describe('Antivirus', () => {
 
     it('should throw an error if ClamAV is not initialized', async () => {
       const antivirus = await Antivirus.createInstance();
+
       (antivirus as any).isInitialized = false;
+      (antivirus as any).connectionRetries = 3;
+      (antivirus as any).ensureConnection = jest.fn().mockResolvedValue(false);
 
       await expect(antivirus.scanFile('/path/to/file.txt')).rejects.toThrow(
         'ClamAV is not initialized'
       );
+    });
+
+    it('should retry scan if connection issues are encountered', async () => {
+      const mockScanResult: ScanResult = {
+        file: '/path/to/file.txt',
+        isInfected: false,
+        viruses: [],
+      };
+
+      const antivirus = await Antivirus.createInstance();
+      (antivirus as any).clamAv = mockNodeClam;
+      (antivirus as any).isInitialized = true;
+
+      mockNodeClam.isInfected
+        .mockRejectedValueOnce(new Error('connection error'))
+        .mockResolvedValueOnce(mockScanResult);
+
+      const result = await antivirus.scanFileWithRetry('/path/to/file.txt');
+
+      expect(mockNodeClam.isInfected).toHaveBeenCalledTimes(2);
+      expect(result).toEqual(mockScanResult);
     });
   });
 
