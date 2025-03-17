@@ -11,7 +11,6 @@ import { BugReportResult } from './BugReportResult';
 import { User } from '../types';
 import Logger from 'electron-log';
 import { ErrorDetails } from '../../shared/types';
-import { ENV } from '@/core/env/env';
 
 /**
  * Reports an error to Sentry from the main process
@@ -52,7 +51,7 @@ export async function sendReport({
     form.append('logs', await readLog());
   }
 
-  const res = await fetch(ENV.BUG_REPORTING_URL, {
+  const res = await fetch(process.env.BUG_REPORTING_URL, {
     method: 'POST',
     body: form,
     headers: { Authorization: `Bearer ${obtainToken('bearerToken')}` },

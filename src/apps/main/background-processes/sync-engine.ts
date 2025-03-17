@@ -11,7 +11,6 @@ import { syncWorkspaceService } from '../remote-sync/handlers';
 import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
-import { ENV } from '@/core/env/env';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -84,7 +83,7 @@ export async function spawnSyncEngineWorker(config: Config) {
 
   try {
     await worker.loadFile(
-      ENV.NODE_ENV === 'development'
+      process.env.NODE_ENV === 'development'
         ? '../../../release/app/dist/sync-engine/index.html'
         : `${path.join(__dirname, '..', 'sync-engine')}/index.html`,
     );
@@ -201,7 +200,7 @@ export const spawnAllSyncEngineWorker = async () => {
     return;
   }
   const values: Config = {
-    providerId: `{${ENV.PROVIDER_ID}}`,
+    providerId: `{${process.env.PROVIDER_ID}}`,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',

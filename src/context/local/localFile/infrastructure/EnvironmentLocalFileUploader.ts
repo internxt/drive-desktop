@@ -8,7 +8,6 @@ import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
-import { ENV } from '@/core/env/env';
 
 @Service()
 export class EnvironmentLocalFileUploader {
@@ -64,7 +63,7 @@ export class EnvironmentLocalFileUploader {
 
   async delete(contentsId: string): Promise<void> {
     try {
-      await this.httpClient.delete(`${ENV.API_URL}/storage/bucket/${this.bucket}/file/${contentsId}`);
+      await this.httpClient.delete(`${process.env.API_URL}/storage/bucket/${this.bucket}/file/${contentsId}`);
     } catch (error) {
       // Not being able to delete from the bucket is not critical
       Logger.error(`Could not delete the file ${contentsId} from the bucket`);

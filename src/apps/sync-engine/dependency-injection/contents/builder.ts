@@ -14,7 +14,6 @@ import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { getConfig } from '../../config';
-import { ENV } from '@/core/env/env';
 
 export async function buildContentsContainer(sharedContainer: SharedContainer): Promise<ContentsContainer> {
   const mnemonic = DependencyInjectionMnemonicProvider.get();
@@ -22,7 +21,7 @@ export async function buildContentsContainer(sharedContainer: SharedContainer): 
   const eventRepository = DependencyInjectionEventRepository.get();
 
   const environment = new Environment({
-    bridgeUrl: ENV.BRIDGE_URL,
+    bridgeUrl: process.env.BRIDGE_URL,
     bridgeUser: getConfig().bridgeUser,
     bridgePass: getConfig().bridgePass,
     encryptionKey: mnemonic,
