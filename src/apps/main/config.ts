@@ -2,6 +2,7 @@ import Store, { Schema } from 'electron-store';
 import * as uuid from 'uuid';
 
 import { User } from './types';
+import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
 
 // Fields to persist between user sessions
 export const fieldsToSave = [
@@ -42,6 +43,7 @@ export interface AppStore {
   virtualdriveWindowsLetter: string;
   nautilusExtensionVersion: number;
   discoveredBackup: number;
+  availableUserProducts?: AvailableProducts['featuresPerService'];
 }
 
 const schema: Schema<AppStore> = {
@@ -110,6 +112,7 @@ const schema: Schema<AppStore> = {
   },
   nautilusExtensionVersion: { type: 'number' },
   discoveredBackup: { type: 'number' },
+  availableUserProducts: { type: 'object' },
 } as const;
 
 export const defaults: AppStore = {
@@ -136,6 +139,7 @@ export const defaults: AppStore = {
   virtualdriveWindowsLetter: 'I',
   nautilusExtensionVersion: 0,
   discoveredBackup: 0,
+  availableUserProducts: undefined,
 };
 
 const configStore = new Store({ schema, defaults });

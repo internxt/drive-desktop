@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
+const { AvailableProducts } = require('@internxt/sdk/dist/drive/payments/types');
 
 contextBridge.exposeInMainWorld('electron', {
   getConfigKey(key) {
@@ -406,5 +407,18 @@ contextBridge.exposeInMainWorld('electron', {
     cancelScan: () => {
       return ipcRenderer.invoke('antivirus:cancel-scan');
     },
+  },
+  userAvailableProducts: {
+    get: () => ipcRenderer.invoke('get-available-user-products'),
+    subscribe: () => ipcRenderer.send('subscribe-available-user-products'),
+    onUpdate: (callback) => {
+      const listener = (_event, products) => {
+        callback(products);
+      };
+      ipcRenderer.on('available-user-products-updated', listener);
+      return () => {
+        ipcRenderer.removeListener('available-user-products-updated', listener);
+      };
+    }
   },
 });

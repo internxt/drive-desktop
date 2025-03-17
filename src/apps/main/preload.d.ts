@@ -1,3 +1,5 @@
+import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
+
 declare interface Window {
   electron: {
     getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
@@ -269,5 +271,13 @@ declare interface Window {
       removeInfectedFiles: (infectedFiles: string[]) => Promise<void>;
       cancelScan: () => Promise<void>;
     };
+
+    userAvailableProducts: {
+      get: () => AvailableProducts['featuresPerService'] | undefined;
+      subscribe: () => void;
+      onUpdated: (
+        callback: (products: AvailableProducts['featuresPerService']) => void
+      ) => void;
+    }
   };
 }

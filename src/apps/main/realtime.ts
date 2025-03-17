@@ -87,6 +87,8 @@ function cleanAndStartRemoteNotifications() {
       eventPayload.bucket = data.payload.bucket;
     }
 
+    eventBus.emit('GET_USER_AVAILABLE_PRODUCTS');
+
     broadcastToWindows('remote-changes', eventPayload);
 
 

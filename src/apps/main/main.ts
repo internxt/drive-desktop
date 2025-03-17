@@ -31,6 +31,7 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 import './virtual-drive';
+import './payments/handler';
 
 import { app, nativeTheme, ipcMain } from 'electron';
 import Logger from 'electron-log';
@@ -61,6 +62,7 @@ import { runFreshclam } from './antivirus/FreshclamUpdater';
 import dns from 'node:dns';
 import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
 import { setupAntivirusIpc } from './background-processes/antivirus/setupAntivirusIPC';
+import { registerAvailableUserProductsHandlers } from './payments/ipc/AvailableUserProductsIPCHandler';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -138,6 +140,7 @@ app
     }
 
     checkForUpdates();
+    registerAvailableUserProductsHandlers();
   })
   .catch(Logger.error);
 

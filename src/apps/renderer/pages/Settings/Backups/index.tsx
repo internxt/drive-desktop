@@ -4,6 +4,7 @@ import { DeviceSettings } from './DeviceSettings';
 import { DevicesList } from './DevicesList';
 import { ScrollableContent } from '../../../components/ScrollableContent';
 import Spinner from '../../../assets/spinner.svg';
+import { useUserAvailableProducts } from '../../../hooks/useUserAvailableProducts/useUserAvailableProducts';
 
 interface BackupsSectionProps {
   active: boolean;
@@ -17,7 +18,7 @@ export default function BackupsSection({
   showIssues,
 }: BackupsSectionProps) {
   const { deviceState } = useContext(DeviceContext);
-
+  const { products } = useUserAvailableProducts(); // Placeholder for the useUserAvailableProducts hook
   return (
     <div className={`${active ? 'block' : 'hidden'} w-full`}>
       {deviceState.status === 'LOADING' && (

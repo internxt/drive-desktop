@@ -4,25 +4,28 @@ import { obtainToken } from '../auth/service';
 
 import { onUserUnauthorized } from '../auth/handlers';
 import { PaymentsService } from './service';
+let paymentsServiceInstance: PaymentsService | null = null;
 
-export function buildPaymentsService() {
-  const paymentsUrl = `${process.env.PAYMENTS_URL}`;
+export function buildPaymentsService(): PaymentsService {
+  if (!paymentsServiceInstance) {
+    const paymentsUrl = `${process.env.PAYMENTS_URL}`;
+    const { name: clientName, version: clientVersion } = appInfo;
+    const newToken = obtainToken('newToken');
 
-  const { name: clientName, version: clientVersion } = appInfo;
+    const payments = Payments.client(
+      paymentsUrl,
+      {
+        clientName,
+        clientVersion,
+      },
+      {
+        unauthorizedCallback: onUserUnauthorized,
+        token: newToken,
+      }
+    );
 
-  const newToken = obtainToken('newToken');
+    paymentsServiceInstance = new PaymentsService(payments);
+  }
 
-  const payments = Payments.client(
-    paymentsUrl,
-    {
-      clientName,
-      clientVersion,
-    },
-    {
-      unauthorizedCallback: onUserUnauthorized,
-      token: newToken,
-    }
-  );
-
-  return new PaymentsService(payments);
+  return paymentsServiceInstance;
 }
