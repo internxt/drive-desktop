@@ -34,9 +34,9 @@ ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
 
     return availableProducts.antivirus;
   } catch (error) {
-    logger.info({
+    logger.warn({
       msg: 'ERROR GETTING PRODUCTS FOR ANTIVIRUS',
-      error: (error as Error).message,
+      exc: error,
     });
     return false;
   }
@@ -51,9 +51,9 @@ export async function isAvailableBackups(): Promise<boolean> {
 
     return availableProducts.backups;
   } catch (error) {
-    logger.info({
+    logger.warn({
       msg: 'ERROR GETTING PRODUCTS FOR BACKUPS',
-      error: (error as Error).message,
+      exc: error,
     });
     return false;
   }
@@ -66,8 +66,10 @@ ipcMain.handle('antivirus:is-Defender-active', async () => {
     const isWinDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
     return isWinDefenderActive;
   } catch (error) {
-    const err = error as Error;
-    console.log(`Error while getting the Win Defender status: ${err.stack ?? err.message}`);
+    logger.warn({
+      msg: 'Error while getting the Win Defender status',
+      exc: error,
+    });
     return false;
   }
 });

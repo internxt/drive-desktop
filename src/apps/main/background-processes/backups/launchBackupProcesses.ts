@@ -29,12 +29,7 @@ export async function launchBackupProcesses(
 
   const isAvailable = await isAvailableBackups();
 
-  if (!isAvailable) {
-    logger.info({
-      msg: 'Backups are not available',
-    });
-    return;
-  }
+  if (!isAvailable) return;
 
   status.set('RUNNING');
 

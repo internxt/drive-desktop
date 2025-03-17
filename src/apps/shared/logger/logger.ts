@@ -3,7 +3,7 @@ import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
-type TRawBody = {
+export type TRawBody = {
   msg: string;
   exc?: Error | unknown;
   attributes?: {
