@@ -38,7 +38,7 @@ export function useBackups(): BackupContextProps {
     } else {
       backups = await window.electron.getBackupsFromDevice(selected, selected.id === current?.id);
     }
-    window.electron.logger.info('Backups fetched', backups.length);
+    window.electron.logger.info({ msg: 'Backups fetched', length: backups.length });
     setBackups(backups);
   }
 
