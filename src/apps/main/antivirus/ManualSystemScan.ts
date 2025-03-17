@@ -341,7 +341,7 @@ export class ManualSystemScan {
 
     this.totalScannedFiles++;
 
-    if (this.totalScannedFiles % 100 === 0 || isInfected) {
+    if (isInfected) {
       Logger.info(
         `[SYSTEM_SCAN] Progress: ${this.calculateProgress()}%, Scanned: ${
           this.totalScannedFiles

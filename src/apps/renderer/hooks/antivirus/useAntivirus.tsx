@@ -5,7 +5,7 @@ import logger from '../../utils/logger';
 
 export type ScanType = 'files' | 'folders';
 
-export type Views = 'locked' | 'chooseItems' | 'scan';
+export type Views = 'loading' | 'locked' | 'chooseItems' | 'scan';
 
 export interface AntivirusContext {
   infectedFiles: string[];
@@ -34,7 +34,7 @@ export const useAntivirus = (): AntivirusContext => {
   const [isAntivirusAvailable, setIsAntivirusAvailable] =
     useState<boolean>(false);
   const [showErrorState, setShowErrorState] = useState<boolean>(false);
-  const [view, setView] = useState<Views>('locked');
+  const [view, setView] = useState<Views>('loading');
 
   useEffect(() => {
     window.electron.antivirus.onScanProgress(handleProgress);
