@@ -1,6 +1,6 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-npx yarn run lint
-npx yarn format:fix
-# npx yarn run type-check
+# npm run run lint
+# npm run format:fix
+# npm run run type-check

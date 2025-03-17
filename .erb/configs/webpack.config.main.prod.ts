@@ -1,7 +1,3 @@
-/**
- * Webpack config for production electron main process
- */
-
 import path from 'path';
 import webpack from 'webpack';
 import { merge } from 'webpack-merge';
@@ -11,10 +7,8 @@ import Dotenv from 'dotenv-webpack';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
-import deleteSourceMaps from '../scripts/delete-source-maps';
 
 checkNodeEnv('production');
-deleteSourceMaps();
 
 const configuration: webpack.Configuration = {
   mode: 'production',
@@ -40,22 +34,8 @@ const configuration: webpack.Configuration = {
   },
 
   plugins: [
-    new BundleAnalyzerPlugin({
-      analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled',
-    }),
-
-    /**
-     * Create global constants which can be configured at compile time.
-     *
-     * Useful for allowing different behaviour between development builds and
-     * release builds
-     *
-     * NODE_ENV should be production so that modules do not perform certain
-     * development checks
-     */
-    new webpack.EnvironmentPlugin({
-      NODE_ENV: 'production',
-    }),
+    new BundleAnalyzerPlugin({ analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled' }),
+    new webpack.EnvironmentPlugin({ NODE_ENV: 'production' }),
     new Dotenv({ ignoreStub: true }),
   ],
 

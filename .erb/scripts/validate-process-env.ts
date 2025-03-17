@@ -18,6 +18,8 @@ const ENV_SCHEMA = z.object({
   SENTRY_DSN: z.string(),
 });
 
+export type TEnv = z.infer<typeof ENV_SCHEMA>;
+
 export function validateProcessEnv() {
   ENV_SCHEMA.parse(process.env);
 }

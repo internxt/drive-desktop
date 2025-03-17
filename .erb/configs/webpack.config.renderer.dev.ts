@@ -21,7 +21,7 @@ const requiredByDLLConfig = module.parent!.filename.includes('webpack.config.ren
  */
 if (!requiredByDLLConfig && !(fs.existsSync(webpackPaths.dllPath) && fs.existsSync(manifest))) {
   console.log(chalk.black.bgYellow.bold('The DLL files are missing. Sit back while we build them for you'));
-  execSync('yarn postinstall');
+  execSync('npm run build:dll');
 }
 
 const configuration: webpack.Configuration = {
@@ -166,7 +166,7 @@ const configuration: webpack.Configuration = {
     },
     onBeforeSetupMiddleware() {
       console.log('Starting Main Process...');
-      spawn('yarn', ['nodemon'], {
+      spawn('npm', ['run', 'start:nodemon'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',
