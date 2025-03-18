@@ -273,6 +273,11 @@
       }
     },
     "backups": {
+      "featureLocked": {
+        "title": "Fonction verrouillée",
+        "subtitle": "Veuillez mettre à niveau votre plan pour utiliser cette fonctionnalité.",
+        "action": "Mettre à niveau"
+      },
       "add-folders": "Cliquez sur + pour sélectionner les dossiers que vous souhaitez sauvegarder",
       "selected-folder_one": "{{count}} dossier",
       "selected-folder_other": "{{count}} dossiers",

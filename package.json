@@ -277,7 +277,7 @@
     "@internxt/inxt-js": "^2.1.0",
     "@internxt/lib": "^1.1.6",
     "@internxt/scan": "1.0.3",
-    "@internxt/sdk": "1.9.7",
+    "@internxt/sdk": "1.9.9",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@sentry/electron": "^4.5.0",

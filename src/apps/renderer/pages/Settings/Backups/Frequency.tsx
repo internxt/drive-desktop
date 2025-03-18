@@ -2,12 +2,14 @@ import Select from '../../../components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { useBackupsInterval } from '../../../hooks/backups/useBackupsInterval';
 import { SectionHeader } from '../../../components/SectionHeader';
+import { useUserAvailableProducts } from '../../../hooks/useUserAvailableProducts/useUserAvailableProducts';
 
 export function Frequency() {
   const { backupsInterval, updateBackupsInterval } = useBackupsInterval();
-
+  const { products } = useUserAvailableProducts();
   const { translate } = useTranslationContext();
 
+  const userCanBackup = products?.backups;
   const intervals = [
     {
       value: 6 * 3600 * 1000,
@@ -40,6 +42,7 @@ export function Frequency() {
         options={intervals}
         value={backupsInterval.toString()}
         onValueChange={onStringValueChange}
+        disabled={!userCanBackup}
       />
       {backupsInterval < 0 && (
         <p className="mt-1 text-xs text-gray-50">

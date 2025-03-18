@@ -278,6 +278,11 @@
       }
     },
     "backups": {
+      "featureLocked": {
+        "title": "Función bloqueada",
+        "subtitle": "Por favor, actualiza tu plan para usar esta función.",
+        "action": "Actualizar"
+      },
       "add-folders": "Haz clic en + para hacer una copia de seguridad de tus carpetas",
       "selected-folder_one": "{{count}} carpeta",
       "selected-folder_other": "{{count}} carpetas",

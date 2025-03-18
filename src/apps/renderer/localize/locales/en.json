@@ -279,6 +279,11 @@
       }
     },
     "backups": {
+      "featureLocked": {
+        "title": "Feature locked",
+        "subtitle": "Please upgrade your plan to use this feature.",
+        "action": "Upgrade"
+      },
       "title": "Backup folders",
       "selected-folder_one": "{{count}} folder",
       "selected-folder_other": "{{count}} folders",
