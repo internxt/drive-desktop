@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import Logger from 'electron-log';
 
 export type HeadersProvider = () => Promise<Record<string, string>>;
@@ -23,10 +23,10 @@ export class AuthorizedHttpClient {
     return Promise.reject(error);
   }
 
-  private async addApplicationHeaders(config: AxiosRequestConfig) {
+  private async addApplicationHeaders(config: AxiosRequestConfig): Promise<InternalAxiosRequestConfig> {
     config.headers = await this.headersProvider();
 
-    return config;
+    return config as InternalAxiosRequestConfig;
   }
 
   constructor(

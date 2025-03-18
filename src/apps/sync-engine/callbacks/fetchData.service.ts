@@ -8,6 +8,7 @@ import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
 import * as fs from 'fs';
 import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { dirname } from 'path';
+import { getConfig } from '../config';
 
 type TProps = {
   self: BindingsManager;
@@ -108,7 +109,7 @@ export class FetchDataService {
       Logger.error(error);
       Sentry.captureException(error);
       await callback(false, '');
-      ipcRendererSyncEngine.send('SYNCED');
+      ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
     }
   }
 
