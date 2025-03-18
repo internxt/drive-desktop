@@ -56,7 +56,7 @@ import { setCleanUpFunction } from './quit';
 import { stopAndClearSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { clearAntivirusIfAvailable, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
+import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -163,7 +163,7 @@ eventBus.on('USER_LOGGED_OUT', async () => {
     widget.destroy();
   }
 
-  clearAntivirusIfAvailable();
+  clearAntivirus();
 
   await createAuthWindow();
   if (AppDataSource.isInitialized) {
