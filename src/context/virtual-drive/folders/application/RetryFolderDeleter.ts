@@ -7,7 +7,7 @@ export class RetryFolderDeleter {
   private static MILLISECOND_BETWEEN_TRIES = 1_000;
   private static INITIAL_DELAY = 100;
   constructor(private readonly deleter: FolderDeleter) {}
-  async retryDeleter(asyncFunction: () => Promise<any>) {
+  async retryDeleter(asyncFunction: () => Promise<void>) {
     let retryCount = 0;
 
     while (retryCount <= RetryFolderDeleter.NUMBER_OF_RETRIES) {
@@ -16,15 +16,9 @@ export class RetryFolderDeleter {
         return result;
       } catch (error: unknown) {
         if (error instanceof Error) {
-          Logger.warn(
-            `Folder deleter attempt ${retryCount + 1} failed: ${error.message}`
-          );
+          Logger.warn(`Folder deleter attempt ${retryCount + 1} failed: ${error.message}`);
         } else {
-          Logger.warn(
-            `Folder deleter attempt ${
-              retryCount + 1
-            } failed with an unknown error.`
-          );
+          Logger.warn(`Folder deleter attempt ${retryCount + 1} failed with an unknown error.`);
         }
 
         await new Promise((resolve) => {
@@ -34,12 +28,10 @@ export class RetryFolderDeleter {
         retryCount++;
       }
     }
-    throw new MaxRetriesDeletingFolderError(
-      RetryFolderDeleter.NUMBER_OF_RETRIES
-    );
+    throw new MaxRetriesDeletingFolderError(RetryFolderDeleter.NUMBER_OF_RETRIES);
   }
 
-  async run(folder: string): Promise<any> {
+  async run(folder: string): Promise<void> {
     await new Promise((resolve) => {
       setTimeout(resolve, RetryFolderDeleter.INITIAL_DELAY);
     });

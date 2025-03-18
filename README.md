@@ -9,8 +9,8 @@ This guide explains how to set up and build the Windows application, including b
 Before proceeding, ensure you have the following tools installed:
 
 ```markdown
-- Python (configured correctly).
-- Node.js and yarn.
+- Python 3.10 (configured correctly).
+- Node.js, yarn and pnpm.
 - node-gyp (global installation):
   npm install -g node-gyp
 ```
@@ -38,7 +38,7 @@ internxt
 1. Open a terminal and navigate to the `node-win` directory.
 2. Run the following command to build the project:
    ```bash
-   yarn build
+   npm run build
    ```
    This step compiles the necessary native bindings for `node-win`.
 
@@ -49,7 +49,11 @@ internxt
 1. Open a terminal and navigate to the `drive-desktop` directory.
 2. Run the following command to build and start the project:
    ```bash
-   yarn start:reload-bindings
+   pnpm install
+   # if pnpm does not run postinstall scripts, run manually
+   node node_modules/electron/install.js
+   npm run reload-native-deps
+   npm run start
    ```
    This will start the desktop application with the updated bindings.
 
@@ -75,7 +79,7 @@ If you plan to manually sign a build for publication, follow these steps:
 Run the command:
 
 ```bash
-yarn package
+npm run package
 ```
 
 This will generate an unsigned build and the following files:

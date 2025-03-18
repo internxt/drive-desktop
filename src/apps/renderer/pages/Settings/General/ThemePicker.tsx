@@ -6,9 +6,7 @@ import useConfig from '../../../hooks/useConfig';
 
 export default function ThemePicker(): JSX.Element {
   const { translate } = useTranslationContext();
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(
-    (useConfig('preferedTheme') as Theme) || null
-  );
+  const [selectedTheme, setSelectedTheme] = useState<Theme | null>((useConfig('preferedTheme') as Theme) || null);
 
   const themes: SelectOptionsType[] = [
     {
@@ -45,21 +43,10 @@ export default function ThemePicker(): JSX.Element {
   }, []);
 
   return (
-    <div
-      id="theme-picker"
-      className="flex flex-1 flex-col items-start space-y-2"
-    >
-      <p className="text-sm font-medium leading-4 text-gray-80">
-        {translate('settings.general.theme.label')}
-      </p>
+    <div id="theme-picker" className="flex flex-1 flex-col items-start space-y-2">
+      <p className="text-sm font-medium leading-4 text-gray-80">{translate('settings.general.theme.label')}</p>
 
-      {selectedTheme && (
-        <Select
-          options={themes}
-          value={selectedTheme}
-          onValueChange={updatePreferedTheme}
-        />
-      )}
+      {selectedTheme && <Select options={themes} value={selectedTheme} onValueChange={updatePreferedTheme} />}
     </div>
   );
 }

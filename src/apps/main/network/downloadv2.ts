@@ -43,7 +43,7 @@ const downloadSharedFile: DownloadSharedFileFunction = (params) => {
 
   return new NetworkFacade(
     Network.client(
-      process.env.BRIDGE_URL as string,
+      process.env.BRIDGE_URL,
       {
         clientName,
         clientVersion,
@@ -75,7 +75,7 @@ const downloadOwnFile: DownloadOwnFileFunction = (params) => {
 
   return new NetworkFacade(
     Network.client(
-      process.env.BRIDGE_URL as string,
+      process.env.BRIDGE_URL,
       {
         clientName,
         clientVersion,

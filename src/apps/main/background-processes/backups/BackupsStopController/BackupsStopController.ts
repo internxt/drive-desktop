@@ -82,10 +82,7 @@ export class BackupsStopController {
     });
   }
 
-  on<Reason extends StopReason>(
-    reason: Reason,
-    handler: StopReasonPayload[Reason]
-  ) {
+  on<Reason extends StopReason>(reason: Reason, handler: StopReasonPayload[Reason]) {
     this.handlers[reason].push(handler);
   }
 

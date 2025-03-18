@@ -1,0 +1,52 @@
+name: Pull request checks
+
+on:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: windows-latest
+    timeout-minutes: 5
+
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://npm.pkg.github.com'
+
+      # We should see why permissions field is not doing the job. This should be removed
+      # You cannot read packages from other private repos with GITHUB_TOKEN
+      # You have to use a PAT instead https://github.com/actions/setup-node/issues/49
+      - name: Create .npmrc file
+        run: |
+          touch .npmrc
+          echo "node-linker=hoisted" >> .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
+          echo "always-auth=true" >> .npmrc
+
+      - name: Install dependencies
+        run: pnpm install && pnpm ci:reload-native-deps
+
+      - name: Run Prettier
+        run: npm run format
+
+      - name: Run Eslint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test:once

@@ -8,7 +8,7 @@ export class FolderRenamer {
   constructor(
     private readonly repository: FolderRepository,
     private readonly remote: HttpRemoteFolderSystem,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
   ) {}
 
   async run(folder: Folder, destination: FolderPath) {

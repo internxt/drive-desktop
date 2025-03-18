@@ -2,11 +2,7 @@ import dayjs from 'dayjs';
 import i18next from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import DayJsLocales from '../../shared/Locale/DayJsLocales';
-import {
-  DEFAULT_LANGUAGE,
-  Language,
-  isLanguage,
-} from '../../shared/Locale/Language';
+import { DEFAULT_LANGUAGE, Language, isLanguage } from '../../shared/Locale/Language';
 import { getConfigKey } from '../utils/query';
 
 const languageDetection = (callback: (lang: Language | undefined) => void) => {
@@ -22,8 +18,7 @@ const languageDetection = (callback: (lang: Language | undefined) => void) => {
     const systemLangs = await window.electron.getPreferredAppLanguage();
     const parsed = systemLangs.map((l: string) => l.split('-')[0]);
 
-    const preferedLanguageAvailable =
-      (parsed.find(isLanguage) as Language) || undefined;
+    const preferedLanguageAvailable = (parsed.find(isLanguage) as Language) || undefined;
 
     const language = preferedLanguageAvailable || DEFAULT_LANGUAGE;
 

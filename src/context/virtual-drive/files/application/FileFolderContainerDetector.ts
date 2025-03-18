@@ -7,7 +7,7 @@ import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository
 export class FileFolderContainerDetector {
   constructor(
     private readonly repository: InMemoryFileRepository,
-    private readonly folderFinder: FolderFinder
+    private readonly folderFinder: FolderFinder,
   ) {}
 
   run(contentId: File['contentsId'], folderContentId: Folder['uuid']): boolean {
@@ -17,7 +17,7 @@ export class FileFolderContainerDetector {
     if (!file) {
       throw new FileNotFoundError(contentId);
     }
-    const folder = this.folderFinder.findFromId(file.folderId);
+    const folder = this.folderFinder.findFromId(file.folderId.value);
     return folder.uuid === folderContentId;
   }
 }

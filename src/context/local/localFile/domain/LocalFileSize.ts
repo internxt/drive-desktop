@@ -21,10 +21,7 @@ export class LocalFileSize extends ValueObject<number> {
   }
 
   isMedium(): boolean {
-    return (
-      this.value > LocalFileSize.MAX_SMALL_FILE_SIZE &&
-      this.value <= LocalFileSize.MAX_MEDIUM_FILE_SIZE
-    );
+    return this.value > LocalFileSize.MAX_SMALL_FILE_SIZE && this.value <= LocalFileSize.MAX_MEDIUM_FILE_SIZE;
   }
 
   isBig(): boolean {

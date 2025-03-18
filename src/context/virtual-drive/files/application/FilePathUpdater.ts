@@ -9,17 +9,18 @@ import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngin
 import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { logger } from '../../../../apps/shared/logger/logger';
 
 export class FilePathUpdater {
   constructor(
-    private readonly remote: SDKRemoteFileSystem,
+    private readonly remote: HttpRemoteFileSystem,
     private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
   ) {}
 
   private async rename(file: File, path: FilePath) {
@@ -40,8 +41,11 @@ export class FilePathUpdater {
     try {
       const trackerId = await this.local.getFileIdentity(file.path);
       file.moveTo(destinationFolder, trackerId);
-    } catch (error: any) {
-      Logger.warn(`Error in FilePathUpdater.move: ${error?.message}`);
+    } catch (exc: unknown) {
+      throw logger.error({
+        msg: 'Error in FilePathUpdater.move',
+        exc,
+      });
     }
 
     Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
@@ -83,11 +87,7 @@ export class FilePathUpdater {
 
       Logger.debug('[RUN RENAME]', file.name, destination.value);
       Logger.debug('[RUN RENAME]', file.name, destination.nameWithExtension());
-      Logger.debug(
-        '[RUN RENAME]',
-        file.nameWithExtension,
-        destination.extensionMatch(file.type)
-      );
+      Logger.debug('[RUN RENAME]', file.nameWithExtension, destination.extensionMatch(file.type));
       if (destination.extensionMatch(file.type)) {
         this.ipc.send('FILE_RENAMING', {
           oldName: file.name,
@@ -102,9 +102,11 @@ export class FilePathUpdater {
       }
 
       throw new Error('Cannot reupload files atm');
-    } catch (error: any) {
-      Logger.error(`Error in FilePathUpdater.run: ${error.message}`);
-      throw error;
+    } catch (exc: unknown) {
+      throw logger.error({
+        msg: 'Error in FilePathUpdater.run',
+        exc,
+      });
     }
   }
 }

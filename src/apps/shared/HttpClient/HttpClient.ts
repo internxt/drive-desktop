@@ -1,9 +1,4 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-} from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Logger from 'electron-log';
 
 export type HeadersProvider = () => Promise<Record<string, string>>;
@@ -22,7 +17,7 @@ export class AuthorizedHttpClient {
       }
     }
     // Prevent the token from being displayed in the logs
-    if (error.config.headers?.Authorization) {
+    if (error.config?.headers?.Authorization) {
       error.config.headers['Authorization'] = 'Bearer ****************';
     }
     return Promise.reject(error);
@@ -36,7 +31,7 @@ export class AuthorizedHttpClient {
 
   constructor(
     private headersProvider: HeadersProvider,
-    private unauthorizedNotifier: UnauthorizedNotifier
+    private unauthorizedNotifier: UnauthorizedNotifier,
   ) {
     this.unauthorizedNotifier = unauthorizedNotifier;
     this.client = axios.create();

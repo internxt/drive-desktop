@@ -11,8 +11,7 @@ const DropdownItem = ({ children, active, onClick }: { children: JSX.Element; ac
       }`}
       tabIndex={0}
       onKeyDown={onClick}
-      onClick={onClick}
-    >
+      onClick={onClick}>
       {children}
     </button>
   );
@@ -40,8 +39,7 @@ const CustomScanItemsSelectorDropdown = ({
         leave="transition duration-75 ease-out"
         leaveFrom="transform scale-100 opacity-100"
         leaveTo="transform scale-95 opacity-0"
-        className="relative z-10"
-      >
+        className="relative z-10">
         <Menu.Items className="absolute right-0 top-1 max-w-[288px] origin-top-right whitespace-nowrap rounded-md bg-surface py-1 shadow-xl ring-1 ring-gray-20 focus:outline-none dark:bg-gray-1">
           <Menu.Item>
             {({ active }) => (

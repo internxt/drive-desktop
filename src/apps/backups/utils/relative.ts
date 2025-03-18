@@ -23,7 +23,5 @@ export function getParentDirectory(root: string, filePath: string): string {
   const parentDirectory = path.dirname(relativePath);
 
   // Asegurar que la ruta empiece con una barra inclinada
-  return parentDirectory === '.'
-    ? '/'
-    : `/${parentDirectory.replace(/\\/g, '/')}`;
+  return parentDirectory === '.' ? '/' : `/${parentDirectory.replace(/\\/g, '/')}`;
 }

@@ -1,16 +1,12 @@
 import { ipcMain, Notification } from 'electron';
-import Logger from 'electron-log';;
+import Logger from 'electron-log';
 
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
-import {
-  ProcessIssue,
-  GeneralIssue,
-  ProcessInfoUpdatePayload,
-} from '../../shared/types';
+import { ProcessIssue, GeneralIssue, ProcessInfoUpdatePayload } from '../../shared/types';
 import path from 'path';
 
-let lastDialogTime = 0; 
+let lastDialogTime = 0;
 
 function showNotification(issue: ProcessIssue) {
   const now = Date.now();
@@ -24,7 +20,7 @@ function showNotification(issue: ProcessIssue) {
   const notification = new Notification({
     title: 'Internxt',
     body: 'Your account storage limit has been reached, for more details go to Settings -> Issues',
-    icon: path.join(process.cwd(), 'assets', 'icon.ico')
+    icon: path.join(process.cwd(), 'assets', 'icon.ico'),
   });
 
   notification.on('click', () => {
@@ -87,15 +83,7 @@ export function addGeneralIssue(issue: GeneralIssue) {
 }
 
 ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
-  if (
-    [
-      'PULL_ERROR',
-      'RENAME_ERROR',
-      'DELETE_ERROR',
-      'METADATA_READ_ERROR',
-      'UPLOAD_ERROR',
-    ].includes(payload.action)
-  ) {
+  if (['PULL_ERROR', 'RENAME_ERROR', 'DELETE_ERROR', 'METADATA_READ_ERROR', 'UPLOAD_ERROR'].includes(payload.action)) {
     addProcessIssue(payload as ProcessIssue);
   }
 });

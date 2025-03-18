@@ -25,34 +25,17 @@ export class CLSFsLocalItemsGenerator {
       const { code } = err as { code?: string };
 
       if (err?.message?.includes('ENOENT')) {
-        return left(
-          new DriveDesktopError(
-            'BASE_DIRECTORY_DOES_NOT_EXIST',
-            `${dir} does not exist`
-          )
-        );
+        return left(new DriveDesktopError('BASE_DIRECTORY_DOES_NOT_EXIST', `${dir} does not exist`));
       }
       if (err?.message?.includes('EACCES')) {
-        return left(
-          new DriveDesktopError(
-            'INSUFFICIENT_PERMISSION',
-            `Cannot read stats of ${dir}`
-          )
-        );
+        return left(new DriveDesktopError('INSUFFICIENT_PERMISSION', `Cannot read stats of ${dir}`));
       }
 
-      return left(
-        new DriveDesktopError(
-          'UNKNOWN',
-          `An unknown error with code ${code} happened when reading ${dir}`
-        )
-      );
+      return left(new DriveDesktopError('UNKNOWN', `An unknown error with code ${code} happened when reading ${dir}`));
     }
   }
 
-  async getAll(
-    dir: string
-  ): Promise<{ files: LocalFileDTO[]; folders: LocalFolderDTO[] }> {
+  async getAll(dir: string): Promise<{ files: LocalFileDTO[]; folders: LocalFolderDTO[] }> {
     const accumulator = Promise.resolve({
       files: [] as LocalFileDTO[],
       folders: [] as LocalFolderDTO[],
@@ -89,22 +72,13 @@ export class CLSFsLocalItemsGenerator {
           // Capturar error relacionado con permisos (EPERM) o cualquier otro error
 
           if (error?.message?.includes('ENOENT')) {
-            throw new DriveDesktopError(
-              'BASE_DIRECTORY_DOES_NOT_EXIST',
-              `${dir} does not exist`
-            );
+            throw new DriveDesktopError('BASE_DIRECTORY_DOES_NOT_EXIST', `${dir} does not exist`);
           }
 
           if (error.message.includes('EPERM')) {
-            throw new DriveDesktopError(
-              'INSUFFICIENT_PERMISSION',
-              `Cannot read stats of ${absolutePath}`
-            );
+            throw new DriveDesktopError('INSUFFICIENT_PERMISSION', `Cannot read stats of ${absolutePath}`);
           }
-          throw new DriveDesktopError(
-            'UNKNOWN',
-            `Unexpected error while accessing ${absolutePath}: ${error.message}`
-          );
+          throw new DriveDesktopError('UNKNOWN', `Unexpected error while accessing ${absolutePath}: ${error.message}`);
         }
 
         return acc;
@@ -116,15 +90,9 @@ export class CLSFsLocalItemsGenerator {
       }
 
       if (error.message.includes('EPERM')) {
-        throw new DriveDesktopError(
-          'INSUFFICIENT_PERMISSION',
-          `Cannot read directory ${dir}`
-        );
+        throw new DriveDesktopError('INSUFFICIENT_PERMISSION', `Cannot read directory ${dir}`);
       } else {
-        throw new DriveDesktopError(
-          'UNKNOWN',
-          `Unexpected error while accessing directory ${dir}: ${error.message}`
-        );
+        throw new DriveDesktopError('UNKNOWN', `Unexpected error while accessing directory ${dir}: ${error.message}`);
       }
     }
   }

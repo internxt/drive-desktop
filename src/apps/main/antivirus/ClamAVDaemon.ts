@@ -77,7 +77,6 @@ const waitForClamd = async (timeout = 180000, interval = 5000): Promise<void> =>
     if (isAvailable) {
       return;
     }
-    console.log('Waiting for clamd server to become available...');
     await new Promise((resolve) => setTimeout(resolve, interval));
   }
   throw new Error('Timeout waiting for clamd server to become available');

@@ -1,6 +1,5 @@
 import Logger from 'electron-log';
 import path from 'path';
-import { Readable } from 'stream';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
@@ -65,7 +64,6 @@ export class ContentsDownloader {
       Logger.error('[Server] Error downloading file', error);
       this.ipc.send('FILE_DOWNLOAD_ERROR', {
         name: file.name,
-        contentsId: file.contentsId,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
         error: error.message,
@@ -80,7 +78,7 @@ export class ContentsDownloader {
   }
 
   async run(file: File, callback: CallbackDownload): Promise<string> {
-    const downloader = this.managerFactory.downloader();
+    const downloader = await this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
     this.downloaderIntanceCB = callback;
@@ -89,11 +87,7 @@ export class ContentsDownloader {
 
     const readable = await downloader.download(file);
 
-    const localContents = LocalFileContents.downloadedFrom(
-      file,
-      readable,
-      downloader.elapsedTime()
-    );
+    const localContents = LocalFileContents.downloadedFrom(file, readable, downloader.elapsedTime());
 
     const write = await this.localWriter.write(localContents);
 
@@ -105,12 +99,7 @@ export class ContentsDownloader {
 
   async stop() {
     Logger.info('[Server] Stopping download 1');
-    if (
-      !this.downloaderIntance ||
-      !this.downloaderIntanceCB ||
-      !this.downloaderFile
-    )
-      return;
+    if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 
     Logger.info('[Server] Stopping download 2');
     this.downloaderIntance.forceStop();

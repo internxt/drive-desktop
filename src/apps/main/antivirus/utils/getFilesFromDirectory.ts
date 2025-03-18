@@ -96,7 +96,7 @@ export async function countSystemFiles(folder: string) {
         } else {
           return 1;
         }
-      })
+      }),
     );
     total += counts.reduce((sum, c) => sum + c, 0);
   }

@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { BackupInfo } from '../../../backups/BackupInfo';
 import { DeviceContext } from '../../context/DeviceContext';
 import { Device } from '../../../main/device/service';
+import { useDevices } from '../devices/useDevices';
 
 export type BackupsState = 'LOADING' | 'ERROR' | 'SUCCESS';
 
@@ -11,18 +12,23 @@ export interface BackupContextProps {
   disableBackup: (backup: BackupInfo) => Promise<void>;
   addBackup: () => Promise<void>;
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
-  downloadBackups: (device: Device, foldersId?: number[]) => Promise<void>;
+  downloadBackups: (device: Device, folderUuids?: string[]) => Promise<void>;
   abortDownloadBackups: (device: Device) => void;
   refreshBackups: () => Promise<void>;
+  isBackupAvailable: boolean;
+  existsBackup: boolean;
 }
 
 export function useBackups(): BackupContextProps {
   const { selected, current } = useContext(DeviceContext);
   const [backupsState, setBackupsState] = useState<BackupsState>('LOADING');
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
+  const [isBackupAvailable, setIsBackupAvailable] = useState<boolean>(false);
+  const [existsBackup, setExistsBackup] = useState<boolean>(false);
+
+  const { devices } = useDevices();
 
   async function fetchBackups(): Promise<void> {
-    window.electron.logger.info('Fetching backups');
     let backups: BackupInfo[];
 
     if (!selected) {
@@ -30,14 +36,26 @@ export function useBackups(): BackupContextProps {
 
       backups = await window.electron.getBackupsFromDevice(current, true);
     } else {
-      backups = await window.electron.getBackupsFromDevice(
-        selected,
-        selected.id === current?.id
-      );
+      backups = await window.electron.getBackupsFromDevice(selected, selected.id === current?.id);
     }
-    window.electron.logger.info('Backups fetched', backups.length);
+    window.electron.logger.info({ msg: 'Backups fetched', length: backups.length });
     setBackups(backups);
   }
+
+  const validateIfBackupExists = async () => {
+    const existsBackup = devices.some((device) => device.hasBackups);
+    window.electron.logger.info({
+      msg: 'Backup exists',
+      devices,
+      existsBackup,
+    });
+    setExistsBackup(existsBackup);
+  };
+
+  const isUserElegible = async () => {
+    const isAntivirusAvailable = await window.electron.backups.isAvailable();
+    setIsBackupAvailable(isAntivirusAvailable);
+  };
 
   async function loadBackups() {
     setBackupsState('LOADING');
@@ -53,14 +71,13 @@ export function useBackups(): BackupContextProps {
   }
 
   useEffect(() => {
+    isUserElegible();
+    validateIfBackupExists();
     loadBackups();
-  }, [selected]);
+  }, [selected, devices]);
 
   useEffect(() => {
-    const removeListener = window.electron.listenersRefreshBackups(
-      fetchBackups,
-      'refresh-backup'
-    );
+    const removeListener = window.electron.listenersRefreshBackups(fetchBackups, 'refresh-backup');
 
     return removeListener;
   }, []);
@@ -90,9 +107,9 @@ export function useBackups(): BackupContextProps {
     }
   }
 
-  async function downloadBackups(device: Device, foldersId?: number[]) {
+  async function downloadBackups(device: Device, folderUuids?: string[]) {
     try {
-      await window.electron.downloadBackup(device, foldersId);
+      await window.electron.downloadBackup(device, folderUuids);
     } catch (error) {
       reportError(error);
     }
@@ -111,5 +128,7 @@ export function useBackups(): BackupContextProps {
     deleteBackups,
     downloadBackups,
     abortDownloadBackups,
+    isBackupAvailable,
+    existsBackup,
   };
 }

@@ -8,7 +8,7 @@ import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSy
 export class FoldersFatherSyncStatusUpdater {
   constructor(
     private readonly localFileSystem: NodeWinLocalFolderSystem,
-    private readonly repository: FolderRepository
+    private readonly repository: FolderRepository,
   ) {}
 
   async run(file: File): Promise<void> {

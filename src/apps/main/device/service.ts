@@ -1,7 +1,6 @@
 import { aes } from '@internxt/lib';
 import { app, dialog } from 'electron';
 import fetch from 'electron-fetch';
-import logger from 'electron-log';
 import os from 'os';
 import path from 'path';
 import { IpcMainEvent, ipcMain } from 'electron';
@@ -17,6 +16,10 @@ import Logger from 'electron-log';
 import { broadcastToWindows } from '../windows';
 import { randomUUID } from 'crypto';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
+import { logger } from '@/apps/shared/logger/logger';
+import { client } from '@/apps/shared/HttpClient/client';
+import { customInspect } from '@/apps/shared/logger/custom-inspect';
+import { getConfig } from '@/apps/sync-engine/config';
 
 export type Device = {
   name: string;
@@ -95,14 +98,14 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
 
   while (res.status === 409 && i <= 10) {
     const deviceName = `${os.hostname()} (${i})`;
-    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
+    Logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
     res = await createDevice(deviceName);
     i++;
   }
 
   if (!res.ok) {
     const deviceName = `${new Date().valueOf() % 1000}`;
-    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
+    Logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
     res = await createDevice(`${os.hostname()} (${deviceName})`);
   }
 
@@ -152,7 +155,7 @@ export async function getOrCreateDevice() {
     configStore.set('deviceUuid', newDevice.uuid);
     configStore.set('backupList', {});
     const device = decryptDeviceName(newDevice);
-    logger.info(`[DEVICE] Created device with name "${device.name}"`);
+    Logger.info(`[DEVICE] Created device with name "${device.name}"`);
 
     Logger.info(device);
     return device;
@@ -195,10 +198,8 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
   };
 }
 
-export type Backup = { id: number; name: string; uuid: string };
-
 export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
-  const folder = await fetchFolder(device.id);
+  const folder = await fetchFolder({ folderUuid: device.uuid });
 
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
@@ -211,20 +212,18 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
     }
 
     return folder.children
-      .filter((backup: Backup) => {
-        const pathname = findBackupPathnameFromId(backup.id);
-        return pathname && backupsList[pathname].enabled;
-      })
-      .map((backup: Backup) => ({
+      .map((backup) => ({ ...backup, pathname: findBackupPathnameFromId(backup.id) }))
+      .filter(({ pathname }) => pathname && backupsList[pathname].enabled)
+      .map((backup) => ({
         ...backup,
-        pathname: findBackupPathnameFromId(backup.id),
+        pathname: backup.pathname as string,
         folderId: backup.id,
         folderUuid: backup.uuid,
         tmpPath: app.getPath('temp'),
         backupsBucket: device.bucket,
       }));
   } else {
-    return folder.children.map((backup: Backup) => ({
+    return folder.children.map((backup) => ({
       ...backup,
       folderId: backup.id,
       folderUuid: backup.uuid,
@@ -241,19 +240,19 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
  * @param name Name of the backup folder
  * @returns
  */
-async function postBackup(name: string): Promise<Backup> {
-  const deviceId = getDeviceId();
-  try {
-    const res = await fetch(`${process.env.API_URL}/storage/folder`, {
-      method: 'POST',
-      headers: getHeaders(true),
-      body: JSON.stringify({ parentFolderId: deviceId, folderName: name }),
-    });
-    return res.json();
-  } catch (error) {
-    logger.error(error);
-    throw new Error('Post backup request wasnt successful');
+async function postBackup(name: string) {
+  const deviceUuid = getDeviceUuid();
+
+  const res = await client.POST('/folders', {
+    body: { parentFolderUuid: deviceUuid, plainName: name },
+  });
+
+  if (!res.data) {
+    logger.error({ tag: 'BACKUPS', msg: 'Post backup request was not successful', error: res.error });
+    throw new Error('Post backup request was not successful');
   }
+
+  return res.data;
 }
 
 /**
@@ -263,17 +262,15 @@ async function postBackup(name: string): Promise<Backup> {
 async function createBackup(pathname: string): Promise<void> {
   const { base } = path.parse(pathname);
 
-  logger.debug(`[BACKUPS] Creating backup for ${base}`);
-
   const newBackup = await postBackup(base);
 
-  logger.debug(`[BACKUPS] Created backup with id ${newBackup.uuid}`);
+  logger.debug({ msg: '[BACKUPS] Created backup', base, uuid: newBackup.uuid });
 
   const backupList = configStore.get('backupList');
 
-  backupList[pathname] = { enabled: true, folderId: newBackup.id };
+  backupList[pathname] = { enabled: true, folderId: newBackup.id, folderUuid: newBackup.uuid };
 
-  logger.debug(`[BACKUPS] Backup list: ${JSON.stringify(backupList)}`);
+  logger.debug({ msg: '[BACKUPS] Backup list', backupList });
 
   configStore.set('backupList', backupList);
 }
@@ -286,14 +283,14 @@ export async function addBackup(): Promise<void> {
     }
 
     const chosenPath = chosenItem.path;
-    logger.debug(`[BACKUPS] Chosen item: ${chosenItem.path}`);
+    Logger.debug(`[BACKUPS] Chosen item: ${chosenItem.path}`);
 
     const backupList = configStore.get('backupList');
 
     Logger.debug(`[BACKUPS] Backup list: ${JSON.stringify(backupList)}`);
     const existingBackup = backupList[chosenPath];
 
-    logger.debug(`[BACKUPS] Existing backup: ${existingBackup}`);
+    Logger.debug(`[BACKUPS] Existing backup: ${existingBackup}`);
 
     if (!existingBackup) {
       return createBackup(chosenPath);
@@ -301,7 +298,7 @@ export async function addBackup(): Promise<void> {
 
     let folderStillExists;
     try {
-      const existFolder = await fetchFolder(existingBackup.folderId);
+      const existFolder = await fetchFolder({ folderUuid: existingBackup.folderUuid });
       folderStillExists = !existFolder.removed;
     } catch {
       folderStillExists = false;
@@ -314,27 +311,24 @@ export async function addBackup(): Promise<void> {
       return createBackup(chosenPath);
     }
   } catch (error) {
-    logger.error(error);
+    Logger.error(error);
   }
 }
 
-async function fetchFolder(folderId: number) {
-  const res = await fetch(`${process.env.API_URL}/storage/v2/folder/${folderId}`, {
-    method: 'GET',
-    headers: getHeaders(true),
+async function fetchFolder({ folderUuid }: { folderUuid: string }) {
+  const res = await client.GET('/folders/content/{uuid}', {
+    params: { path: { uuid: folderUuid } },
   });
 
-  if (res.ok) {
-    return res.json();
+  if (!res.data) {
+    throw new Error('Unsuccesful request to fetch folder');
   }
-  throw new Error('Unsuccesful request to fetch folder');
+
+  return res.data;
 }
-async function fetchFolders(foldersId: number[]) {
-  const folders = [];
-  for (const folderId of foldersId) {
-    const folder = await fetchFolder(folderId);
-    folders.push(folder);
-  }
+
+async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
+  const folders = await Promise.all(folderUuids.map((folderUuid) => fetchFolder({ folderUuid })));
   return folders;
 }
 
@@ -378,13 +372,6 @@ function processFolderTree(tree: FolderTree) {
   }
 
   return { size, folderDecryptedNames, fileDecryptedNames, totalItems };
-}
-
-export async function fetchFolderTree(folderUuid: string): Promise<FolderTreeResponse> {
-  const tree = await fetchTreeFromApi(folderUuid);
-  const { size, folderDecryptedNames, fileDecryptedNames, totalItems } = processFolderTree(tree);
-
-  return { tree, folderDecryptedNames, fileDecryptedNames, size, totalItems };
 }
 
 export async function fetchArrayFolderTree(folderUuids: string[]): Promise<FolderTreeResponse> {
@@ -499,15 +486,13 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   const newFolderName = path.basename(chosenPath);
 
   if (oldFolderName !== newFolderName) {
-    const res = await fetch(`${process.env.API_URL}/storage/folder/${existingBackup.folderId}/meta`, {
-      method: 'POST',
-      headers: getHeaders(true),
-      body: JSON.stringify({
-        metadata: { itemName: newFolderName },
-      }),
+    const res = await client.PATCH('/folders/{uuid}', {
+      params: { path: { uuid: existingBackup.folderUuid } },
+      body: { destinationFolder: newFolderName },
     });
-    if (!res.ok) {
-      throw new Error('Error in the request to rename a backup');
+
+    if (!res.data) {
+      throw new Error(`Error in the request to rename a backup: ${customInspect(res.error)}`);
     }
   }
 
@@ -527,18 +512,19 @@ function findBackupPathnameFromId(id: number): string | undefined {
   return entryfound?.[0];
 }
 
-async function downloadDeviceBackupZip(
-  device: Device,
-  foldersIdToDownload: number[],
-  path: PathLike,
-  {
-    updateProgress,
-    abortController,
-  }: {
-    updateProgress: (progress: number) => void;
-    abortController?: AbortController;
-  }
-): Promise<void> {
+async function downloadDeviceBackupZip({
+  device,
+  folderUuidsToDownload,
+  path,
+  updateProgress,
+  abortController,
+}: {
+  device: Device;
+  folderUuidsToDownload: string[];
+  path: PathLike;
+  updateProgress: (progress: number) => void;
+  abortController?: AbortController;
+}) {
   if (!device.id) {
     throw new Error('This backup has not been uploaded yet');
   }
@@ -549,12 +535,12 @@ async function downloadDeviceBackupZip(
   }
   Logger.info(`[BACKUPS] Downloading backup for device ${device.name}`);
 
-  const folders = await fetchFolders(foldersIdToDownload);
+  const folders = await fetchFolders({ folderUuids: folderUuidsToDownload });
 
   const networkApiUrl = process.env.BRIDGE_URL;
   const bridgeUser = user.bridgeUser;
   const bridgePass = user.userId;
-  const encryptionKey = user.mnemonic;
+  const encryptionKey = getConfig().mnemonic;
 
   await downloadFolder(
     device.name,
@@ -569,19 +555,18 @@ async function downloadDeviceBackupZip(
     {
       abortController,
       updateProgress,
-    }
+    },
   );
 }
 
-export async function downloadBackup(device: Device, foldersId?: number[]): Promise<void> {
+export async function downloadBackup(device: Device, folderUuids?: string[]): Promise<void> {
   const chosenItem = await getPathFromDialog();
   if (!chosenItem || !chosenItem.path) {
     return;
   }
 
   const chosenPath = chosenItem.path;
-  logger.info(`[BACKUPS] Downloading Device: "${device.name}", ChosenPath "${chosenPath}"`);
-  logger.info(`[BACKUPS] Folders id to download: ${foldersId}`);
+  logger.debug({ tag: 'BACKUPS', msg: 'Downloading device', device: device.name, chosenPath });
 
   const date = new Date();
   const now =
@@ -617,13 +602,16 @@ export async function downloadBackup(device: Device, foldersId?: number[]): Prom
   const removeListenerIpc = ipcMain.on(listenerName, abortListener);
 
   try {
-    const foldersIdToDownload = foldersId?.length ? foldersId : [device.id];
-    Logger.info(`[BACKUPS] Folders to download: ${foldersIdToDownload}`);
-    Logger.info(`[BACKUPS] Folders to download: ${foldersIdToDownload.length}`);
-    await downloadDeviceBackupZip(device, foldersIdToDownload, zipFilePath, {
+    const folderUuidsToDownload = folderUuids?.length ? folderUuids : [device.uuid];
+    logger.debug({ tag: 'BACKUPS', msg: 'Folders to download', length: folderUuidsToDownload.length });
+
+    await downloadDeviceBackupZip({
+      device,
+      folderUuidsToDownload,
+      path: zipFilePath,
       updateProgress: (progress: number) => {
         if (abortController?.signal.aborted) return;
-        Logger.info(`[BACKUPS] Download progress: ${progress}`);
+        logger.debug({ tag: 'BACKUPS', msg: 'Download progress', progress });
         broadcastToWindows('backup-download-progress', {
           id: device.uuid,
           progress: Math.trunc(progress),
@@ -651,6 +639,16 @@ function getDeviceId(): number {
   }
 
   return deviceId;
+}
+
+function getDeviceUuid(): string {
+  const deviceUuid = configStore.get('deviceUuid');
+
+  if (deviceUuid === '') {
+    throw new Error('deviceUuid is not defined');
+  }
+
+  return deviceUuid;
 }
 
 export async function createBackupsFromLocalPaths(folderPaths: string[]) {
@@ -711,7 +709,7 @@ export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenD
 }
 
 export async function openFileSystemAndGetPaths(
-  dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']
+  dialogPropertiesOptions?: Electron.OpenDialogOptions['properties'],
 ): Promise<string[] | undefined> {
   const dialogProperties = dialogPropertiesOptions ?? ['openDirectory'];
 
@@ -748,7 +746,7 @@ export async function getMultiplePathsFromDialog(getFiles?: boolean): Promise<
         itemName,
         isDirectory: isFolder,
       };
-    })
+    }),
   );
 
   return paths;

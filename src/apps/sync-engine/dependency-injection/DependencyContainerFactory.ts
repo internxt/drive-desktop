@@ -18,9 +18,7 @@ export class DependencyContainerFactory {
     'synchronizeOfflineModificationsOnFolderCreated',
   ];
 
-  eventSubscribers(
-    key: keyof DependencyContainer
-  ): DependencyContainer[keyof DependencyContainer] | undefined {
+  eventSubscribers(key: keyof DependencyContainer): DependencyContainer[keyof DependencyContainer] | undefined {
     if (!DependencyContainerFactory._container) return undefined;
 
     return DependencyContainerFactory._container[key];
@@ -43,14 +41,8 @@ export class DependencyContainerFactory {
     const itemsContainer = buildItemsContainer();
     const contentsContainer = await buildContentsContainer(sharedContainer);
     const foldersContainer = await buildFoldersContainer(sharedContainer);
-    const { container: filesContainer } = await buildFilesContainer(
-      foldersContainer,
-      sharedContainer
-    );
-    const boundaryBridgeContainer = buildBoundaryBridgeContainer(
-      contentsContainer,
-      filesContainer
-    );
+    const { container: filesContainer } = await buildFilesContainer(foldersContainer, sharedContainer);
+    const boundaryBridgeContainer = buildBoundaryBridgeContainer(contentsContainer, filesContainer);
 
     const container = {
       ...itemsContainer,

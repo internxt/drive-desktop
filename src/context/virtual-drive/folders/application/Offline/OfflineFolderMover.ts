@@ -7,7 +7,7 @@ import { FolderFinder } from '../FolderFinder';
 export class OfflineFolderMover {
   constructor(
     private readonly offlineFolderRepository: OfflineFolderRepository,
-    private readonly folderFinder: FolderFinder
+    private readonly folderFinder: FolderFinder,
   ) {}
 
   async run(folder: OfflineFolder, destination: FolderPath) {

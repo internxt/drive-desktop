@@ -1,7 +1,7 @@
 export type ItemBackup = {
   id: number;
   uuid: string;
-  name: string;
+  plainName: string;
   tmpPath: string;
   backupsBucket: string;
   pathname: string;

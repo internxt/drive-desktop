@@ -6,7 +6,7 @@ import { RelativePathToAbsoluteConverter } from '../../shared/application/Relati
 export class NodeWinLocalFolderSystem {
   constructor(
     private readonly virtualDrive: VirtualDrive,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
+    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
   async createPlaceHolder(folder: Folder): Promise<void> {
@@ -16,19 +16,12 @@ export class NodeWinLocalFolderSystem {
 
     const folderPath = `${folder.path}/`;
 
-    this.virtualDrive.createFolderByPath(
-      folderPath,
-      folder.placeholderId,
-      0,
-      folder.createdAt.getTime(),
-      folder.updatedAt.getTime()
-    );
+    this.virtualDrive.createFolderByPath(folderPath, folder.placeholderId, 0, folder.createdAt.getTime(), folder.updatedAt.getTime());
   }
 
   async updateSyncStatus(folder: Folder, status = true) {
     const folderPath = `${folder.path}/`;
-    const win32AbsolutePath =
-      this.relativePathToAbsoluteConverter.run(folderPath);
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
 
     return this.virtualDrive.updateSyncStatus(win32AbsolutePath, true, status);
   }
@@ -43,13 +36,9 @@ export class NodeWinLocalFolderSystem {
   async convertToPlaceholder(folder: Folder) {
     const folderPath = `${folder.path}/`;
 
-    const win32AbsolutePath =
-      this.relativePathToAbsoluteConverter.run(folderPath);
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
 
-    return this.virtualDrive.convertToPlaceholder(
-      win32AbsolutePath,
-      folder.placeholderId
-    );
+    return this.virtualDrive.convertToPlaceholder(win32AbsolutePath, folder.placeholderId);
   }
 
   getPlaceholderState(folder: Folder) {

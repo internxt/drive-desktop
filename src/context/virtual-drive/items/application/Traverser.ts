@@ -1,21 +1,12 @@
 import * as Sentry from '@sentry/electron/renderer';
 import Logger from 'electron-log';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import {
-  ServerFile,
-  ServerFileStatus,
-} from '../../../shared/domain/ServerFile';
-import {
-  ServerFolder,
-  ServerFolderStatus,
-} from '../../../shared/domain/ServerFolder';
+import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
+import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
-import {
-  FolderStatus,
-  FolderStatuses,
-} from '../../folders/domain/FolderStatus';
+import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
@@ -31,31 +22,14 @@ export class Traverser {
     private readonly baseFolderId: number,
     private readonly baseFolderUuid: string,
     private fileStatusesToFilter: Array<ServerFileStatus>,
-    private folderStatusesToFilter: Array<ServerFolderStatus>
+    private folderStatusesToFilter: Array<ServerFolderStatus>,
   ) {}
 
-  static existingItems(
-    decrypt: NameDecrypt,
-    ipc: SyncEngineIpc,
-    baseFolderId: number,
-    baseFolderUuid: string
-  ): Traverser {
-    return new Traverser(
-      decrypt,
-      ipc,
-      baseFolderId,
-      baseFolderUuid,
-      [ServerFileStatus.EXISTS],
-      [ServerFolderStatus.EXISTS]
-    );
+  static existingItems(decrypt: NameDecrypt, ipc: SyncEngineIpc, baseFolderId: number, baseFolderUuid: string): Traverser {
+    return new Traverser(decrypt, ipc, baseFolderId, baseFolderUuid, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
   }
 
-  static allItems(
-    decrypt: NameDecrypt,
-    ipc: SyncEngineIpc,
-    baseFolderId: number,
-    baseFolderUuid: string
-  ): Traverser {
+  static allItems(decrypt: NameDecrypt, ipc: SyncEngineIpc, baseFolderId: number, baseFolderUuid: string): Traverser {
     return new Traverser(decrypt, ipc, baseFolderId, baseFolderUuid, [], []);
   }
 
@@ -72,6 +46,7 @@ export class Traverser {
       id: this.baseFolderId,
       uuid: this.baseFolderUuid,
       parentId: null,
+      parentUuid: null,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
       path: '/',
@@ -82,12 +57,12 @@ export class Traverser {
   private traverse(tree: Tree, items: Items, currentFolder: Folder) {
     if (!items) return;
 
-    const filesInThisFolder = items.files.filter(
-      (file) => file.folderId === currentFolder.id
-    );
+    const filesInThisFolder = items.files.filter((file) => {
+      return file.folderUuid === currentFolder.uuid;
+    });
 
     const foldersInThisFolder = items.folders.filter((folder) => {
-      return folder.parentId === currentFolder.id;
+      return folder.parentUuid === currentFolder.uuid;
     });
 
     filesInThisFolder.forEach((serverFile) => {
@@ -95,35 +70,16 @@ export class Traverser {
         return;
       }
 
-      const decryptedName = this.decrypt.decryptName(
-        serverFile.name,
-        serverFile.folderId.toString(),
-        serverFile.encrypt_version
-      );
+      const decryptedName = this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
       const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
 
-      const relativeFilePath =
-        `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll(
-          '//',
-          '/'
-        );
+      const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
 
-      if (
-        serverFile.status === ServerFileStatus.DELETED ||
-        serverFile.status === ServerFileStatus.TRASHED
-      ) {
+      if (serverFile.status === ServerFileStatus.DELETED || serverFile.status === ServerFileStatus.TRASHED) {
         try {
-          Logger.info(
-            `[Traverser] Adding the file to the local deletion queue: ${relativeFilePath}`
-          );
-          tree.appendTrashedFile(
-            createFileFromServerFile(serverFile, relativeFilePath)
-          );
+          tree.appendTrashedFile(createFileFromServerFile(serverFile, relativeFilePath));
           return;
         } catch (error) {
-          Logger.warn(
-            `[Traverser] Error adding file to delete queue: ${error}`
-          );
           return;
         }
       }
@@ -144,18 +100,14 @@ export class Traverser {
         },
         () => {
           //  no-op
-        }
+        },
       );
     });
 
     foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
       const plainName =
         serverFolder.plain_name ||
-        this.decrypt.decryptName(
-          serverFolder.name,
-          (serverFolder.parentId as number).toString(),
-          '03-aes'
-        ) ||
+        this.decrypt.decryptName(serverFolder.name, (serverFolder.parentId as number).toString(), '03-aes') ||
         serverFolder.name;
 
       const name = `${currentFolder.path}/${plainName}`;
@@ -164,22 +116,12 @@ export class Traverser {
         return;
       }
 
-      if (
-        serverFolder.status === ServerFolderStatus.DELETED ||
-        serverFolder.status === ServerFolderStatus.TRASHED
-      ) {
+      if (serverFolder.status === ServerFolderStatus.DELETED || serverFolder.status === ServerFolderStatus.TRASHED) {
         try {
-          Logger.info(
-            `[Traverser] Adding the folder to the local deletion queue: ${name}`
-          );
-          tree.appendTrashedFolder(
-            createFolderFromServerFolder(serverFolder, name)
-          );
+          tree.appendTrashedFolder(createFolderFromServerFolder(serverFolder, name));
           return;
         } catch (error) {
-          Logger.warn(
-            `[Traverser] Error adding folder to delete queue: ${error}`
-          );
+          Logger.warn(`[Traverser] Error adding folder to delete queue: ${error}`);
           return;
         }
       }
@@ -209,7 +151,7 @@ export class Traverser {
             // We cannot perform any action on them either way
             this.traverse(tree, items, folder);
           }
-        }
+        },
       );
     });
   }

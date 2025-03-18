@@ -6,7 +6,8 @@ import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
-import { DangledFilesManager } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
+import { setConfig, Config, getConfig } from './config';
+import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
 
 Logger.log(`Running sync engine ${packageJson.version}`);
 
@@ -32,19 +33,24 @@ async function ensureTheFolderExist(path: string) {
 async function setUp() {
   Logger.info('[SYNC ENGINE] Starting sync engine process');
 
-  const virtualDrivePath = await ipcRenderer.invoke('get-virtual-drive-root');
+  const { rootPath, providerName } = getConfig();
 
-  Logger.info('[SYNC ENGINE] Going to use root folder: ', virtualDrivePath);
+  Logger.info('[SYNC ENGINE] Going to use root folder: ', rootPath);
 
-  await ensureTheFolderExist(virtualDrivePath);
+  await ensureTheFolderExist(rootPath);
 
   const factory = new DependencyContainerFactory();
+
   const container = await factory.build();
 
-  const bindings = new BindingsManager(container, {
-    root: virtualDrivePath,
-    icon: iconPath,
-  });
+  const bindings = new BindingsManager(
+    container,
+    {
+      root: rootPath,
+      icon: iconPath,
+    },
+    providerName,
+  );
 
   ipcRenderer.on('USER_LOGGED_OUT', async () => {
     bindings.cleanQueue();
@@ -54,7 +60,7 @@ async function setUp() {
     Logger.info('[SYNC ENGINE] Checking sync engine response');
     const placeholderStatuses = await container.filesCheckerStatusInRoot.run();
     const placeholderStates = placeholderStatuses;
-    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates);
+    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates, getConfig().workspaceId);
   });
 
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
@@ -96,24 +102,45 @@ async function setUp() {
     }
   });
 
-  await bindings.start(packageJson.version, '{E9D7EB38-B229-5DC5-9396-017C449D59CD}');
+  await bindings.start(packageJson.version);
 
   await bindings.watch();
+
+  Logger.info('[SYNC ENGINE] Second sync engine started');
 
   ipcRenderer.send('CHECK_SYNC');
 }
 
-setUp()
-  .then(() => {
-    Logger.info('[SYNC ENGINE] Sync engine has successfully started');
-    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL');
-  })
-  .catch((error) => {
-    Logger.error('[SYNC ENGINE] Error setting up', error);
-    Sentry.captureException(error);
-    if (error.toString().includes('Error: ConnectSyncRoot failed')) {
-      Logger.info('[SYNC ENGINE] We neeed to restart the app virtual drive');
-      Sentry.captureMessage('Restarting sync engine virtual drive is required');
-    }
-    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED');
-  });
+async function refreshToken() {
+  try {
+    Logger.info('[SYNC ENGINE] Refreshing token');
+    const credential = await FetchWorkspacesService.getCredencials(getConfig().workspaceId);
+    const newToken = credential.tokenHeader;
+    setConfig({ ...getConfig(), workspaceToken: newToken });
+  } catch (exc) {
+    Logger.error('[SYNC ENGINE] Error refreshing token', exc);
+  }
+}
+
+ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
+  setConfig(config);
+
+  if (config.workspaceToken) {
+    setInterval(refreshToken, 23 * 60 * 60 * 1000);
+  }
+
+  setUp()
+    .then(() => {
+      Logger.info('[SYNC ENGINE] Sync engine has successfully started');
+      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', config.workspaceId);
+    })
+    .catch((error) => {
+      Logger.error('[SYNC ENGINE] Error setting up', error);
+      Sentry.captureException(error);
+      if (error.toString().includes('Error: ConnectSyncRoot failed')) {
+        Logger.info('[SYNC ENGINE] We need to restart the app virtual drive');
+        Sentry.captureMessage('Restarting sync engine virtual drive is required');
+      }
+      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
+    });
+});

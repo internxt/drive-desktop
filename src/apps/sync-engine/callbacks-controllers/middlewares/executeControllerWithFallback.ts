@@ -2,18 +2,8 @@ import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
 
 export const executeControllerWithFallback =
-  <Action extends (...args: any[]) => void>({
-    handler,
-    fallback,
-  }: {
-    handler: Action;
-    fallback: Action;
-  }) =>
-  (
-    absolutePath: string,
-    placeholderId: string,
-    callback: (response: boolean) => void
-  ) => {
+  <Action extends (...args: any[]) => void>({ handler, fallback }: { handler: Action; fallback: Action }) =>
+  (absolutePath: string, placeholderId: string, callback: (response: boolean) => void) => {
     Logger.warn('Executing');
     try {
       handler(absolutePath, placeholderId, (response: boolean) => {

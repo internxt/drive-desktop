@@ -20,8 +20,7 @@ import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository
 export class FileSyncronizer {
   // queue of files to be uploaded
   private foldersPathQueue: string[] = [];
-  
-  
+
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
@@ -33,10 +32,8 @@ export class FileSyncronizer {
     private readonly offlineFolderCreator: OfflineFolderCreator,
     // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
-    
   ) {}
 
-  
   async run(absolutePath: string, upload: (path: string) => Promise<RemoteFileContents>): Promise<void> {
     const win32RelativePath = this.absolutePathToRelativeConverter.run(absolutePath);
 

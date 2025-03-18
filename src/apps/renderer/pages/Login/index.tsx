@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import packageJson from '../../../../../package.json';
 import { useTranslationContext } from '../../context/LocalContext';
 import ErrorBanner from './ErrorBanner';
-import { accessRequest, hashPassword, loginRequest } from './service';
+import { accessRequest, hashPassword } from './service';
 import TwoFA from './TwoFA';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
@@ -38,14 +38,16 @@ export default function Login() {
     const encryptedHash = hashPassword(password, sKey.current);
 
     try {
-      const res = await accessRequest(email, password, encryptedHash, twoFA);
+      const res = await accessRequest({ email, password, hashedPassword: encryptedHash, tfa: twoFA });
       setUserContextForReports(res.user);
-      window.electron.userLoggedIn(res);
+      window.electron.userLoggedIn({
+        ...res,
+        password,
+      });
     } catch (err) {
       const { message } = err as Error;
 
-      const phaseToSet =
-        message === TOWFA_ERROR_MESSAGE ? '2fa' : 'credentials';
+      const phaseToSet = message === TOWFA_ERROR_MESSAGE ? '2fa' : 'credentials';
 
       setState('error');
       setPhase(phaseToSet);
@@ -74,7 +76,7 @@ export default function Login() {
     }
 
     try {
-      const body = await loginRequest(email);
+      const body = await window.electron.authService.login({ email });
       sKey.current = body.sKey;
       if (body.tfa) {
         setState('ready');
@@ -84,7 +86,7 @@ export default function Login() {
       }
     } catch (err) {
       setState('error');
-      setErrorDetails((err as Error).message);
+      setErrorDetails(translate('login.2fa.wrong-code'));
     }
   }
 
@@ -111,12 +113,9 @@ export default function Login() {
       onSubmit={(e) => {
         e.preventDefault();
         onSubmit();
-      }}
-    >
+      }}>
       <label className="flex flex-col items-start space-y-2">
-        <p className="text-sm font-medium leading-4 text-gray-80">
-          {translate('login.email.section')}
-        </p>
+        <p className="text-sm font-medium leading-4 text-gray-80">{translate('login.email.section')}</p>
 
         <TextInput
           required
@@ -130,9 +129,7 @@ export default function Login() {
       </label>
 
       <label className="flex flex-col items-start space-y-2">
-        <p className="text-sm font-medium leading-4 text-gray-80">
-          {translate('login.password.section')}
-        </p>
+        <p className="text-sm font-medium leading-4 text-gray-80">{translate('login.password.section')}</p>
 
         <PasswordInput
           required
@@ -147,29 +144,14 @@ export default function Login() {
       <button
         type="button"
         disabled={state === 'loading'}
-        onClick={() =>
-          handleOpenURL('https://drive.internxt.com/recovery-link')
-        }
+        onClick={() => handleOpenURL('https://drive.internxt.com/recovery-link')}
         tabIndex={3}
-        className={`text-sm font-medium outline-none ${
-          state === 'loading' ? 'text-gray-30' : 'text-primary'
-        }`}
-      >
+        className={`text-sm font-medium outline-none ${state === 'loading' ? 'text-gray-30' : 'text-primary'}`}>
         {translate('login.password.forgotten')}
       </button>
 
-      <Button
-        type="submit"
-        variant="primary"
-        size="lg"
-        disabled={state === 'loading'}
-        tabIndex={4}
-      >
-        {translate(
-          state === 'loading'
-            ? 'login.action.is-logging-in'
-            : 'login.action.login'
-        )}
+      <Button type="submit" variant="primary" size="lg" disabled={state === 'loading'} tabIndex={4}>
+        {translate(state === 'loading' ? 'login.action.is-logging-in' : 'login.action.login')}
       </Button>
 
       <button
@@ -177,10 +159,7 @@ export default function Login() {
         disabled={state === 'loading'}
         onClick={() => handleOpenURL('https://drive.internxt.com/new')}
         tabIndex={5}
-        className={`text-sm font-medium outline-none ${
-          state === 'loading' ? 'text-gray-30' : 'text-primary'
-        }`}
-      >
+        className={`text-sm font-medium outline-none ${state === 'loading' ? 'text-gray-30' : 'text-primary'}`}>
         {translate('login.create-account')}
       </button>
     </form>
@@ -195,33 +174,20 @@ export default function Login() {
   const twoFAComponents = (
     // TODO: move this to a React component, aling items properly
     <>
-      <p
-        className={`mt-3 text-xs font-medium ${
-          state === 'error'
-            ? 'text-red'
-            : state === 'loading'
-            ? 'text-gray-50'
-            : 'text-primary'
-        }`}
-      >
+      <p className={`mt-3 text-xs font-medium ${state === 'error' ? 'text-red' : state === 'loading' ? 'text-gray-50' : 'text-primary'}`}>
         {translate('login.2fa.section')}
       </p>
       <TwoFA state={state} onChange={setTwoFA} />
-      <p className="mt-4 text-xs text-gray-60">
-        {translate('login.2fa.description')}
-      </p>
+      <p className="mt-4 text-xs text-gray-60">{translate('login.2fa.description')}</p>
 
       <div
         className={`mx-auto mt-5 block w-max text-sm font-medium ${
-          state === 'loading'
-            ? 'pointer-events-none cursor-default text-gray-100'
-            : 'cursor-pointer text-primary'
+          state === 'loading' ? 'pointer-events-none cursor-default text-gray-100' : 'cursor-pointer text-primary'
         }`}
         onClick={resetForm}
         onKeyDown={resetForm}
         role="button"
-        tabIndex={0}
-      >
+        tabIndex={0}>
         {translate('login.2fa.change-account')}
       </div>
     </>
@@ -233,25 +199,15 @@ export default function Login() {
 
       <div className="flex h-32 flex-col items-center justify-center">
         <h1 className="text-xl font-semibold text-gray-100">Internxt</h1>
-        <h2 className="text-supporting-1 font-semibold text-gray-60">
-          v{packageJson.version}
-        </h2>
+        <h2 className="text-supporting-1 font-semibold text-gray-60">v{packageJson.version}</h2>
       </div>
 
       <div className="flex flex-1 flex-col space-y-2 p-6 pt-0">
         {warning && state === 'warning' && (
-          <WarningBanner
-            className={`${state === 'warning' ? 'opacity-100' : 'opacity-0'}`}
-          >
-            {warning}
-          </WarningBanner>
+          <WarningBanner className={`${state === 'warning' ? 'opacity-100' : 'opacity-0'}`}>{warning}</WarningBanner>
         )}
         {errorDetails && state === 'error' && (
-          <ErrorBanner
-            className={`${state === 'error' ? 'opacity-100' : 'opacity-0'}`}
-          >
-            {errorDetails}
-          </ErrorBanner>
+          <ErrorBanner className={`${state === 'error' ? 'opacity-100' : 'opacity-0'}`}>{errorDetails}</ErrorBanner>
         )}
         {phase === 'credentials' ? credentialsComponents : twoFAComponents}
       </div>

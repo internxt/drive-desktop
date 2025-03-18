@@ -8,7 +8,7 @@ import { CallbackDownload } from '../../BindingManager';
 export class DownloadFileController extends CallbackController {
   constructor(
     private readonly fileFinder: FileFinderByContentsId,
-    private readonly downloader: ContentsDownloader
+    private readonly downloader: ContentsDownloader,
   ) {
     super();
   }
@@ -16,10 +16,7 @@ export class DownloadFileController extends CallbackController {
   private MAX_RETRY = 3;
   private RETRY_DELAY = 100;
 
-  private async action(
-    id: string,
-    callback: CallbackDownload
-  ): Promise<string> {
+  private async action(id: string, callback: CallbackDownload): Promise<string> {
     const file = this.fileFinder.run(id);
     Logger.info('[Begin] Download: ', file.path);
     return await this.downloader.run(file, callback);
@@ -29,24 +26,13 @@ export class DownloadFileController extends CallbackController {
     return this.fileFinder.run(contentsId);
   }
 
-  async execute(
-    filePlaceholderId: FilePlaceholderId,
-    callback: CallbackDownload
-  ): Promise<string> {
+  async execute(filePlaceholderId: FilePlaceholderId, callback: CallbackDownload): Promise<string> {
     const trimmedId = this.trim(filePlaceholderId);
     const [_, contentsId] = trimmedId.split(':');
 
-    return await this.withRetries(
-      () => this.action(contentsId, callback),
-      this.MAX_RETRY,
-      this.RETRY_DELAY
-    );
+    return await this.withRetries(() => this.action(contentsId, callback), this.MAX_RETRY, this.RETRY_DELAY);
   }
-  private async withRetries<T>(
-    action: () => Promise<T>,
-    maxRetries: number,
-    delayMs: number
-  ): Promise<T> {
+  private async withRetries<T>(action: () => Promise<T>, maxRetries: number, delayMs: number): Promise<T> {
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         return await action();

@@ -23,10 +23,7 @@ test.describe('user gets unauthorized', () => {
       token: 'invalid token',
       newToken: 'invalid token',
     });
-    const isLoggedIn = await ipcMainInvokeHandler(
-      electronApp,
-      'is-user-logged-in'
-    );
+    const isLoggedIn = await ipcMainInvokeHandler(electronApp, 'is-user-logged-in');
     expect(isLoggedIn).toBe(true);
   });
 
@@ -36,15 +33,9 @@ test.describe('user gets unauthorized', () => {
       token: 'invalid token',
       newToken: 'invalid token',
     });
-    const isLoggedInBefore = await ipcMainInvokeHandler(
-      electronApp,
-      'is-user-logged-in'
-    );
-    await ipcMainEmit(electronApp, 'user-is-unauthorized');
-    const isLoggedIn = await ipcMainInvokeHandler(
-      electronApp,
-      'is-user-logged-in'
-    );
+    const isLoggedInBefore = await ipcMainInvokeHandler(electronApp, 'is-user-logged-in');
+    await ipcMainEmit(electronApp, 'USER_IS_UNAUTHORIZED');
+    const isLoggedIn = await ipcMainInvokeHandler(electronApp, 'is-user-logged-in');
     expect(isLoggedInBefore).toBe(true);
     expect(isLoggedIn).toBe(false);
   });

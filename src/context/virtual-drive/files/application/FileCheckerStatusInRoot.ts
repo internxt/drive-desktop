@@ -20,17 +20,10 @@ export class FileCheckerStatusInRoot {
 
       const ps = placeholderStatus.pinState;
       const ss = placeholderStatus.syncState;
-      const notSynced =
-        ps &&
-        ss &&
-        ps !== PinState.AlwaysLocal &&
-        ps !== PinState.OnlineOnly &&
-        ss !== SyncState.InSync;
+      const notSynced = ps && ss && ps !== PinState.AlwaysLocal && ps !== PinState.OnlineOnly && ss !== SyncState.InSync;
 
       if (notSynced) {
-        Logger.debug(
-          `[File Checker Status In Root] item ${path} with status: ${notSynced}`
-        );
+        Logger.debug(`[File Checker Status In Root] item ${path} with status: ${notSynced}`);
         finalStatus = 'SYNC_PENDING';
         break;
       }
@@ -39,7 +32,7 @@ export class FileCheckerStatusInRoot {
   }
 
   public isHydrated(paths: string[]): Record<string, boolean> {
-    const fileOnlineOnly: Record<string,boolean> = {};
+    const fileOnlineOnly: Record<string, boolean> = {};
     for (const path of paths) {
       const placeholderStatus = this.localFileSystem.getPlaceholderStateByRelativePath(path);
 
@@ -51,7 +44,7 @@ export class FileCheckerStatusInRoot {
     }
 
     return fileOnlineOnly;
-  } 
+  }
 
   private async getItemsRoot(absolutePath: string): Promise<string[]> {
     const items = fs.readdirSync(absolutePath);

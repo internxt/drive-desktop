@@ -14,7 +14,7 @@ export class FolderDeleter {
     private readonly repository: FolderRepository,
     private readonly remote: HttpRemoteFolderSystem,
     private readonly local: NodeWinLocalFolderSystem,
-    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists
+    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
@@ -31,19 +31,17 @@ export class FolderDeleter {
 
       const allParentsExists = this.allParentFoldersStatusIsExists.run(
         // TODO: Create a new aggregate root for root folder so the rest have the parent Id as number
-        folder.parentId as number
+        folder.parentId as number,
       );
 
       if (!allParentsExists) {
-        Logger.warn(
-          `Skipped folder deletion for ${folder.path}. A folder in a higher level is already marked as trashed`
-        );
+        Logger.warn(`Skipped folder deletion for ${folder.path}. A folder in a higher level is already marked as trashed`);
         return;
       }
 
       folder.trash();
 
-      await this.remote.trash(folder.id);
+      await this.remote.trash(folder);
       await this.repository.update(folder);
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);

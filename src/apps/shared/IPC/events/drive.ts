@@ -31,13 +31,7 @@ export type FileErrorInfo = {
 type UploadEvents = {
   FILE_UPLOADING: (payload: FileProgressInfo) => void;
   FILE_UPLOADED: (payload: FileProgressInfo) => void;
-  FILE_CREATED: (payload: {
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    fileId: number;
-    path: string;
-  }) => void;
+  FILE_CREATED: (payload: { name: string; extension: string; nameWithExtension: string; fileId: number; path: string }) => void;
 
   FILE_UPLOAD_ERROR: (payload: FileErrorInfo) => void;
 };
@@ -57,14 +51,8 @@ type TrashEvents = {
 };
 
 type RenameEvents = {
-  FILE_RENAMING: (payload: {
-    nameWithExtension: string;
-    oldName: string;
-  }) => void;
-  FILE_RENAMED: (payload: {
-    nameWithExtension: string;
-    oldName: string;
-  }) => void;
+  FILE_RENAMING: (payload: { nameWithExtension: string; oldName: string }) => void;
+  FILE_RENAMED: (payload: { nameWithExtension: string; oldName: string }) => void;
   FILE_RENAME_ERROR: (payload: FileErrorInfo) => void;
 };
 
@@ -73,10 +61,7 @@ type OverwriteEvents = {
 };
 
 type MoveEvents = {
-  FILE_MOVED: (payload: {
-    nameWithExtension: string;
-    folderName: string;
-  }) => void;
+  FILE_MOVED: (payload: { nameWithExtension: string; folderName: string }) => void;
 };
 
 type SyncEvents = {
@@ -88,13 +73,6 @@ type CloneEvents = {
   FILE_CLONNED: (payload: FileProgressInfo) => void;
 };
 
-type FileEvents = UploadEvents &
-  DownloadEvents &
-  TrashEvents &
-  RenameEvents &
-  OverwriteEvents &
-  MoveEvents &
-  CloneEvents &
-  SyncEvents;
+type FileEvents = UploadEvents & DownloadEvents & TrashEvents & RenameEvents & OverwriteEvents & MoveEvents & CloneEvents & SyncEvents;
 
 export type DriveEvents = FolderEvents & FileEvents;

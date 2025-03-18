@@ -8,8 +8,6 @@ import fetch from 'electron-fetch';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
 
-
-
 interface DownloadOptions {
   key?: Buffer;
   token?: string;
@@ -36,12 +34,7 @@ export class NetworkFacade {
     };
   }
 
-  async download(
-    bucketId: string,
-    fileId: string,
-    mnemonic: string,
-    options?: DownloadOptions,
-  ): Promise<ReadableStream<Uint8Array>> {
+  async download(bucketId: string, fileId: string, mnemonic: string, options?: DownloadOptions): Promise<ReadableStream<Uint8Array>> {
     const encryptedContentStreams: ReadableStream<Uint8Array>[] = [];
     let fileStream: ReadableStream<Uint8Array>;
 
@@ -90,28 +83,27 @@ export class NetworkFacade {
   }
 }
 
-
 export function convertToReadableStream(readStream: Readable): ReadableStream<Uint8Array> {
-    return new ReadableStream<Uint8Array>({
-        start(controller) {
-            readStream.on('data', (chunk) => {
-                // Convertir el chunk a Uint8Array y pasarlo al controller
-                controller.enqueue(new Uint8Array(chunk));
-            });
+  return new ReadableStream<Uint8Array>({
+    start(controller) {
+      readStream.on('data', (chunk) => {
+        // Convertir el chunk a Uint8Array y pasarlo al controller
+        controller.enqueue(new Uint8Array(chunk));
+      });
 
-            readStream.on('end', () => {
-                // Señalar que la transmisión ha finalizado
-                controller.close();
-            });
+      readStream.on('end', () => {
+        // Señalar que la transmisión ha finalizado
+        controller.close();
+      });
 
-            readStream.on('error', (err) => {
-                // Señalar un error al controller
-                controller.error(err);
-            });
-        },
-        cancel() {
-            // Abortar la lectura del ReadStream de fs
-            readStream.destroy();
-        }
-    });
+      readStream.on('error', (err) => {
+        // Señalar un error al controller
+        controller.error(err);
+      });
+    },
+    cancel() {
+      // Abortar la lectura del ReadStream de fs
+      readStream.destroy();
+    },
+  });
 }

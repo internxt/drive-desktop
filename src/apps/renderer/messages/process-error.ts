@@ -16,8 +16,7 @@ export const shortMessages: ProcessErrorMessages = {
   FILE_ALREADY_EXISTS: 'issues.short-error-messages.file-already-exists',
   COULD_NOT_ENCRYPT_NAME: '',
   BAD_REQUEST: 'issues.short-error-messages.no-remote-connection',
-  BASE_DIRECTORY_DOES_NOT_EXIST:
-    'issues.short-error-messages.folder-does-not-exist',
+  BASE_DIRECTORY_DOES_NOT_EXIST: 'issues.short-error-messages.folder-does-not-exist',
   INSUFFICIENT_PERMISSION: 'issues.short-error-messages.no-permission',
   NOT_ENOUGH_SPACE: 'issues.short-error-messages.not-enough-space',
   ACTION_NOT_PERMITTED: '',
@@ -25,8 +24,7 @@ export const shortMessages: ProcessErrorMessages = {
 
 export const longMessages: ProcessErrorMessages = {
   NOT_EXISTS: 'issues.error-messages.file-does-not-exist',
-  NO_PERMISSION:
-    'issues.error-messages.insuficient-permision-accessing-base-directory',
+  NO_PERMISSION: 'issues.error-messages.insuficient-permision-accessing-base-directory',
   NO_INTERNET: 'issues.error-messages.no-internet',
   NO_REMOTE_CONNECTION: 'issues.error-messages.no-remote-connection',
   BAD_RESPONSE: 'issues.error-messages.bad-response',
@@ -39,8 +37,7 @@ export const longMessages: ProcessErrorMessages = {
   COULD_NOT_ENCRYPT_NAME: '',
   BAD_REQUEST: 'issues.error-messages.no-remote-connection',
   BASE_DIRECTORY_DOES_NOT_EXIST: 'issues.error-messages.folder-does-not-exist',
-  INSUFFICIENT_PERMISSION:
-    'issues.error-messages.insufficient-permission-accessing-base-directory',
+  INSUFFICIENT_PERMISSION: 'issues.error-messages.insufficient-permission-accessing-base-directory',
   NOT_ENOUGH_SPACE: 'issues.error-messages.not-enough-space',
   ACTION_NOT_PERMITTED: 'issues.short-error-messages.action-not-permitted',
 };
