@@ -5,6 +5,10 @@ import { exec } from 'node:child_process';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
 import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
+import { PaymentsService } from '../payments/service';
+import { buildPaymentsService } from '../payments/builder';
+
+let paymentService: PaymentsService | null;
 
 export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
   return new Promise((resolve, reject) => {
@@ -25,6 +29,26 @@ ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
   const result = await initializeAntivirusIfAvailable();
   return result.antivirusEnabled;
 });
+
+export async function isAvailableBackups(): Promise<boolean> {
+  try {
+    if (!paymentService) {
+      paymentService = buildPaymentsService();
+    }
+
+    const availableProducts = await paymentService.getAvailableProducts();
+
+    return availableProducts.backups;
+  } catch (error) {
+    logger.warn({
+      msg: 'ERROR GETTING PRODUCTS FOR BACKUPS',
+      exc: error,
+    });
+    return false;
+  }
+}
+
+ipcMain.handle('backups:is-available', isAvailableBackups);
 
 ipcMain.handle('antivirus:is-Defender-active', async () => {
   try {
