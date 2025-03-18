@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  sonarcloud:
+  checks:
     runs-on: windows-latest
     timeout-minutes: 5
 
