@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'danger' | 'secondary';
@@ -9,16 +9,33 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export default function Button(props: ButtonProps) {
+  const [isExecuting, setIsExecuting] = useState(false);
+
+  useEffect(() => {
+    if (props.disabled) {
+      setIsExecuting(false);
+    }
+  }, [props.disabled]);
+
+  const handleClick = async (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (props.onClick) {
+      setIsExecuting(true);
+      await props.onClick(event);
+      setIsExecuting(false);
+    }
+  };
+
   const variants = {
-    primary: props.disabled
-      ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
-      : 'bg-primary active:bg-primary-dark text-white',
-    secondary: props.disabled
-      ? 'bg-surface text-gray-40 border border-gray-5 dark:bg-gray-5 dark:text-gray-40'
-      : 'bg-surface active:bg-gray-1 text-highlight border border-gray-20 dark:bg-gray-5 dark:active:bg-gray-10 dark:active:border-gray-30',
-    danger: props.disabled
-      ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
-      : 'bg-red active:bg-red-dark text-white',
+    primary:
+      props.disabled || isExecuting
+        ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30'
+        : 'bg-primary active:bg-primary-dark text-white',
+    secondary:
+      props.disabled || isExecuting
+        ? 'bg-surface text-gray-40 border border-gray-5 dark:bg-gray-5 dark:text-gray-40'
+        : 'bg-surface active:bg-gray-1 text-highlight border border-gray-20 dark:bg-gray-5 dark:active:bg-gray-10 dark:active:border-gray-30',
+    danger:
+      props.disabled || isExecuting ? 'bg-gray-30 dark:bg-gray-5 text-white dark:text-gray-30' : 'bg-red active:bg-red-dark text-white',
   };
 
   const sizes = {
@@ -38,10 +55,10 @@ export default function Button(props: ButtonProps) {
   return (
     <button
       type={props.type ?? 'button'}
-      disabled={props.disabled ?? false}
+      disabled={props.disabled ?? isExecuting}
       className={styles}
-      {...propsWithOutClassName}
-    >
+      onClick={handleClick}
+      {...propsWithOutClassName}>
       {props.children}
     </button>
   );

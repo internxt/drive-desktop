@@ -3,12 +3,7 @@ import Logger from 'electron-log';
 import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { onUserUnauthorized } from './handlers';
-import {
-  getUser,
-  obtainTokens as obtainStoredTokens,
-  setUser,
-  updateCredentials,
-} from './service';
+import { getUser, obtainTokens as obtainStoredTokens, setUser, updateCredentials } from './service';
 import axios from 'axios';
 
 const newAuthorizedClient = getNewTokenClient();
@@ -16,9 +11,7 @@ const newAuthorizedClient = getNewTokenClient();
 async function obtainTokens() {
   try {
     Logger.debug('[TOKEN] Obtaining new tokens');
-    const res = await newAuthorizedClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/users/refresh`
-    );
+    const res = await newAuthorizedClient.get(`${process.env.NEW_DRIVE_URL}/drive/users/refresh`);
 
     return res.data;
   } catch (err) {
@@ -57,9 +50,7 @@ export async function createTokenSchedule(refreshedTokens?: Array<string>) {
 
 async function getRootFolderMetadata(rootFolderid: number) {
   try {
-    const res = await newAuthorizedClient.get(
-      `${process.env.NEW_DRIVE_URL}/drive/folders/${rootFolderid}/metadata`
-    );
+    const res = await newAuthorizedClient.get(`${process.env.NEW_DRIVE_URL}/drive/folders/${rootFolderid}/metadata`);
 
     Logger.info('[AUTH] Got root folder metadata', res.data);
     return res.data;

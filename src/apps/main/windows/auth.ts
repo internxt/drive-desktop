@@ -48,15 +48,3 @@ export const createAuthWindow = async () => {
 
   await authLoaded;
 };
-
-export function toggleAuthVisibility() {
-  if (!authWindow) {
-    return;
-  }
-
-  if (authWindow.isVisible()) {
-    authWindow.hide();
-  } else {
-    authWindow.show();
-  }
-}

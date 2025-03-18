@@ -6,8 +6,7 @@ export default function useGeneralIssues() {
 
   useEffect(() => {
     window.electron.getGeneralIssues().then(setGeneralIssues);
-    const removeListener =
-      window.electron.onGeneralIssuesChanged(setGeneralIssues);
+    const removeListener = window.electron.onGeneralIssuesChanged(setGeneralIssues);
 
     return removeListener;
   }, []);

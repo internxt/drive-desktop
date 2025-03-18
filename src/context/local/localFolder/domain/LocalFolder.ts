@@ -10,7 +10,7 @@ export type LocalFolderAttributes = {
 export class LocalFolder extends AggregateRoot {
   private constructor(
     private _path: AbsolutePath,
-    private _modificationTime: number
+    private _modificationTime: number,
   ) {
     super();
   }

@@ -13,10 +13,7 @@ export type FileUploadEvents = {
 export interface ContentFileUploader {
   upload(contents: Readable, size: number): Promise<ContentsId>;
 
-  on(
-    event: keyof FileUploadEvents,
-    fn: FileUploadEvents[keyof FileUploadEvents]
-  ): void;
+  on(event: keyof FileUploadEvents, fn: FileUploadEvents[keyof FileUploadEvents]): void;
 
   elapsedTime(): number;
 }

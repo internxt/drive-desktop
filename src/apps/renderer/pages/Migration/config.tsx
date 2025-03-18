@@ -1,11 +1,5 @@
 import { MigrationSlide, UploadSuccessAnimation } from './helpers';
-import {
-  SideImageAnimation,
-  SideTextAnimation,
-  getFinderImage,
-  getOfflineImageSvg,
-  getOnlineImageSvg,
-} from '../Onboarding/helpers';
+import { SideImageAnimation, SideTextAnimation, getFinderImage, getOfflineImageSvg, getOnlineImageSvg } from '../Onboarding/helpers';
 import Spinner from '../../assets/spinner.svg';
 import WidgetSvg from '../../assets/migration/widget.svg';
 
@@ -27,22 +21,16 @@ export const SLIDES: MigrationSlide[] = [
         <div className="flex h-full w-full">
           <SideTextAnimation display>
             <div className="flex w-full flex-col">
-              <h1 className="mb-6 text-3xl font-semibold text-gray-100">
-                {props.translate('migration.slides.welcome.title')}
-              </h1>
+              <h1 className="mb-6 text-3xl font-semibold text-gray-100">{props.translate('migration.slides.welcome.title')}</h1>
               <h3 className="leading text-lg font-semibold leading-[22px] text-gray-100">
                 {props.translate('migration.slides.welcome.features.title')}
               </h3>
               <ul className="mt-2.5 list-disc pl-6">
                 <li className="font-regular mb-2.5 text-lg leading-[22px] text-gray-100">
-                  {props.translate(
-                    'migration.slides.welcome.features.feature-1'
-                  )}
+                  {props.translate('migration.slides.welcome.features.feature-1')}
                 </li>
                 <li className="font-regular mb-2.5 text-lg leading-[22px] text-gray-100">
-                  {props.translate(
-                    'migration.slides.welcome.features.feature-2'
-                  )}
+                  {props.translate('migration.slides.welcome.features.feature-2')}
                 </li>
               </ul>
             </div>
@@ -54,11 +42,7 @@ export const SLIDES: MigrationSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onStartMigration}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onStartMigration} variant="primary" className="mr-2 h-10 cursor-pointer px-5 font-medium">
             {translate('migration.common.continue')}
           </Button>
         </div>
@@ -82,27 +66,16 @@ export const SLIDES: MigrationSlide[] = [
         <div className="flex h-full w-full">
           <SideTextAnimation display>
             <div className="flex w-full flex-col">
-              <h1 className="mb-6 text-3xl font-semibold text-gray-100">
-                {props.translate('migration.slides.migration.title')}
-              </h1>
+              <h1 className="mb-6 text-3xl font-semibold text-gray-100">{props.translate('migration.slides.migration.title')}</h1>
               <div className="flex flex-row items-start ">
-                <Spinner
-                  className="mr-3 animate-spin fill-primary"
-                  width="20"
-                  height="20"
-                />
+                <Spinner className="mr-3 animate-spin fill-primary" width="20" height="20" />
                 <div>
-                  <h3 className="text-lg font-medium leading-tight">
-                    {props.translate('migration.slides.migration.in-progress')}
-                  </h3>
+                  <h3 className="text-lg font-medium leading-tight">{props.translate('migration.slides.migration.in-progress')}</h3>
                   <h4 className="font-regular mt-0.5 text-base text-gray-50">
-                    {props.translate(
-                      'migration.slides.migration.item-progress',
-                      {
-                        processed_items: props.progress.migratedItems,
-                        total_items: props.progress.totalItemsToMigrate,
-                      }
-                    )}
+                    {props.translate('migration.slides.migration.item-progress', {
+                      processed_items: props.progress.migratedItems,
+                      total_items: props.progress.totalItemsToMigrate,
+                    })}
                   </h4>
                 </div>
               </div>
@@ -115,11 +88,7 @@ export const SLIDES: MigrationSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onCancelMigration}
-            variant="secondary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onCancelMigration} variant="secondary" className="mr-2 h-10 cursor-pointer px-5 font-medium">
             {translate('migration.common.cancel')}
           </Button>
         </div>
@@ -148,11 +117,7 @@ export const SLIDES: MigrationSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" className="mr-2 h-10 cursor-pointer px-5 font-medium">
             {translate('migration.common.continue')}
           </Button>
         </div>
@@ -182,11 +147,7 @@ export const SLIDES: MigrationSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" className="mr-2 h-10 cursor-pointer px-5 font-medium">
             {translate('migration.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
@@ -222,11 +183,7 @@ export const SLIDES: MigrationSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" className="mr-2 h-10 cursor-pointer px-5 font-medium">
             {translate('migration.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
@@ -263,11 +220,7 @@ export const SLIDES: MigrationSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" className="mr-2 h-10 cursor-pointer px-5 font-medium">
             {translate('migration.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
@@ -304,11 +257,7 @@ export const SLIDES: MigrationSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onGoNextSlide}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onGoNextSlide} variant="primary" className="mr-2 h-10 cursor-pointer px-5 font-medium">
             {translate('migration.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
@@ -336,15 +285,9 @@ export const SLIDES: MigrationSlide[] = [
       return (
         <SideTextAnimation display>
           <div className="flex w-full flex-col">
-            <h1 className="mb-8 text-3xl font-semibold text-gray-100">
-              {props.translate('migration.slides.new-widget.title')}
-            </h1>
-            <h3 className="text-lg leading-[22px] text-gray-100">
-              {props.translate('migration.slides.new-widget.message')}
-            </h3>
-            <h3 className="mt-4 text-lg leading-[22px] text-gray-100">
-              {props.translate('migration.slides.new-widget.message-2')}
-            </h3>
+            <h1 className="mb-8 text-3xl font-semibold text-gray-100">{props.translate('migration.slides.new-widget.title')}</h1>
+            <h3 className="text-lg leading-[22px] text-gray-100">{props.translate('migration.slides.new-widget.message')}</h3>
+            <h3 className="mt-4 text-lg leading-[22px] text-gray-100">{props.translate('migration.slides.new-widget.message-2')}</h3>
           </div>
         </SideTextAnimation>
       );
@@ -353,11 +296,7 @@ export const SLIDES: MigrationSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end ">
-          <Button
-            onClick={props.onFinish}
-            variant="primary"
-            className="mr-2 h-10 cursor-pointer px-5 font-medium"
-          >
+          <Button onClick={props.onFinish} variant="primary" className="mr-2 h-10 cursor-pointer px-5 font-medium">
             {translate('migration.common.open-drive')}
           </Button>
           <span className="ml-auto text-gray-50">

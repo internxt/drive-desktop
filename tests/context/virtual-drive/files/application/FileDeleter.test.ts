@@ -8,14 +8,14 @@ import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderR
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 
 describe('File Deleter', () => {
   const repository = mockDeep<InMemoryFileRepository>();
   const folderRepository = mockDeep<FolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(folderRepository);
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
-  const remoteFileSystem = mockDeep<SDKRemoteFileSystem>();
+  const remoteFileSystem = mockDeep<HttpRemoteFileSystem>();
   const ipc = mockDeep<SyncEngineIpc>();
 
   const SUT = new FileDeleter(remoteFileSystem, localFileSystem, repository, allParentFoldersStatusIsExists, ipc);
@@ -54,7 +54,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(remoteFileSystem.trash).toBeCalled();
+    expect(remoteFileSystem.delete).toBeCalled();
   });
 
   it('trashes the file with the status trashed', async () => {
@@ -65,7 +65,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(remoteFileSystem.trash).toBeCalledWith(file.contentsId);
+    expect(remoteFileSystem.delete).toBeCalledWith(file);
     expect(repository.update).toBeCalledWith(expect.objectContaining({ status: FileStatus.Trashed }));
   });
 });

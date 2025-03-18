@@ -26,7 +26,7 @@ export default function Settings() {
       window.electron.settingsWindowResized({
         width: rootElement.borderBoxSize[0].inlineSize,
         height: rootElement.borderBoxSize[0].blockSize,
-      })
+      }),
     );
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -54,8 +54,7 @@ export default function Settings() {
             style={{
               minWidth: subsection === 'list' ? 'auto' : 400,
               minHeight: subsection === 'list' ? 'auto' : 420,
-            }}
-          >
+            }}>
             {subsection === 'list' && activeSection === 'BACKUPS' && <BackupFolderSelector onClose={() => setSubsection('panel')} />}
             {subsection === 'download_list' && <DownloadFolderSelector onClose={() => setSubsection('panel')} />}
             {SHOW_ANTIVIRUS_TOOL && subsection === 'list' && activeSection === 'ANTIVIRUS' && (

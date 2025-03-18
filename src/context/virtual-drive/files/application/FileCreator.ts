@@ -9,26 +9,21 @@ import { PlatformPathConverter } from '../../shared/application/PlatformPathConv
 import { OfflineFile } from '../domain/OfflineFile';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { FileStatuses } from '../domain/FileStatus';
-import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
+import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 
 export class FileCreator {
   constructor(
-    private readonly remote: SDKRemoteFileSystem,
+    private readonly remote: HttpRemoteFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
     private readonly eventBus: EventBus,
-    private readonly ipc: SyncEngineIpc
+    private readonly ipc: SyncEngineIpc,
   ) {}
 
-  async run(
-    filePath: FilePath,
-    contents: RemoteFileContents,
-    existingFileAlreadyEvaluated = false
-  ): Promise<File> {
+  async run(filePath: FilePath, contents: RemoteFileContents, existingFileAlreadyEvaluated = false): Promise<File> {
     try {
       if (!existingFileAlreadyEvaluated) {
         const existingFile = this.repository.searchByPartial({
@@ -53,7 +48,6 @@ export class FileCreator {
 
       const persistedAttributes = await this.remote.persist(offline);
 
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 4]' + filePath.value);
       const file = File.from(persistedAttributes);
 
       Logger.debug('[DEBUG IN FILECREATOR STEEP 5]' + filePath.value);
@@ -68,8 +62,6 @@ export class FileCreator {
         fileId: file.id,
         path: file.path,
       });
-
-      ipcRenderer.send('CHECK_SYNC');
 
       return file;
     } catch (error: unknown) {

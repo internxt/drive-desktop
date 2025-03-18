@@ -14,11 +14,7 @@ interface DeviceBackupsProps {
   showDownloadFolers: () => void;
 }
 
-export function DeviceBackups({
-  onGoToList,
-  showIssues,
-  showDownloadFolers,
-}: DeviceBackupsProps) {
+export function DeviceBackups({ onGoToList, showIssues, showDownloadFolers }: DeviceBackupsProps) {
   const { current, selected } = useContext(DeviceContext);
 
   return (
@@ -34,16 +30,11 @@ export function DeviceBackups({
         ) : (
           <>
             <DownloadBackups className="w-full" />
-            <ViewBackups
-              className="w-full"
-              showDownloadFolers={showDownloadFolers}
-            />
+            <ViewBackups className="w-full" showDownloadFolers={showDownloadFolers} />
           </>
         )}
       </div>
-      {selected === current && (
-        <SelectedFoldersSection className="mt-2" onGoToList={onGoToList} />
-      )}
+      {selected === current && <SelectedFoldersSection className="mt-2" onGoToList={onGoToList} />}
       {selected === current && <Frequency />}
       <DeleteBackups />
     </div>

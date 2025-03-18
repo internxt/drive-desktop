@@ -3,8 +3,7 @@ import { reportError } from '../utils/sentry';
 import { VirtualDriveStatus } from '../../shared/types/VirtualDriveStatus';
 
 export default function useVirtualDriveStatus() {
-  const [virtualDriveStatus, setVirtualDriveStatus] =
-    useState<VirtualDriveStatus>();
+  const [virtualDriveStatus, setVirtualDriveStatus] = useState<VirtualDriveStatus>();
 
   useEffect(() => {
     window.electron

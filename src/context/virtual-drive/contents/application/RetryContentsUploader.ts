@@ -15,7 +15,7 @@ function getFormattedFileSize(error: { context?: { fileSize?: number } }): strin
     const kbRounded = parseFloat(kb.toFixed(2));
     return `${kbRounded} KB`;
   }
-  
+
   return `${mbRounded} MB`;
 }
 
@@ -26,7 +26,7 @@ export class RetryContentsUploader {
   private static MILLISECOND_BETWEEN_TRIES = 1_000;
   private static INITIAL_DELAY = 50;
 
-  constructor(private readonly uploader: ContentsUploader, private readonly path?: string) {}
+  constructor(private readonly uploader: ContentsUploader) {}
 
   async retryUpload(asyncFunction: () => Promise<RemoteFileContents>) {
     let retryCount = 0;
@@ -34,11 +34,10 @@ export class RetryContentsUploader {
     let rejectionReason = '';
 
     while (retryCount <= RetryContentsUploader.NUMBER_OF_RETRIES) {
-      
       try {
         const result = await asyncFunction();
         return result;
-      } catch (error_: unknown ) {
+      } catch (error_: unknown) {
         if (error_ instanceof Error) {
           const error = error_ as Error & { fileName?: string; context?: { fileSize?: number } };
 
@@ -55,13 +54,9 @@ export class RetryContentsUploader {
             // if the number of retries is reached, we should skip the retry
             skipRetry = true;
           }
-           Logger.warn(
-            `Upload attempt ${retryCount + 1} failed: ${error.message}`
-          );
+          Logger.warn(`Upload attempt ${retryCount + 1} failed: ${error.message}`);
         } else {
-          Logger.warn(
-            `Upload attempt ${retryCount + 1} failed with an unknown error.`
-          );
+          Logger.warn(`Upload attempt ${retryCount + 1} failed with an unknown error.`);
         }
 
         await new Promise((resolve) => {
@@ -74,12 +69,9 @@ export class RetryContentsUploader {
         } else {
           retryCount++;
         }
-        
       }
     }
-    throw new Error(
-      `Max retries (${RetryContentsUploader.NUMBER_OF_RETRIES}) reached. Upload still failed.${rejectionReason}`
-    );
+    throw new Error(`Max retries (${RetryContentsUploader.NUMBER_OF_RETRIES}) reached. Upload still failed.${rejectionReason}`);
   }
 
   async run(posixRelativePath: string): Promise<RemoteFileContents> {

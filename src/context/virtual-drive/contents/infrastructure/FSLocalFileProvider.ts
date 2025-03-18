@@ -19,10 +19,7 @@ export class FSLocalFileProvider implements LocalContentsProvider {
   private static readonly TIMEOUT_BUSY_CHECK = 10_000;
   private reading = new Map<string, AbortController>();
 
-  private async untilIsNotBusy(
-    filePath: string,
-    retriesLeft = 5
-  ): Promise<void> {
+  private async untilIsNotBusy(filePath: string, retriesLeft = 5): Promise<void> {
     let isResolved = false;
 
     const attemptRead = async () => {
@@ -39,7 +36,7 @@ export class FSLocalFileProvider implements LocalContentsProvider {
           readable.on('error', async (err: NodeJS.ErrnoException) => {
             if (err.code === 'EBUSY' && retriesLeft > 0 && !isResolved) {
               Logger.debug(
-                `File is busy, will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`
+                `File is busy, will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
               );
               setTimeout(async () => {
                 await attemptRead();
@@ -82,9 +79,7 @@ export class FSLocalFileProvider implements LocalContentsProvider {
   async provide(absoluteFilePath: string) {
     try {
       // Creación del stream con posibilidad de aborto
-      const { readable, controller } = await this.createAbortableStream(
-        absoluteFilePath
-      );
+      const { readable, controller } = await this.createAbortableStream(absoluteFilePath);
 
       const { size, mtimeMs, birthtimeMs } = await fs.stat(absoluteFilePath);
 
@@ -95,10 +90,7 @@ export class FSLocalFileProvider implements LocalContentsProvider {
         if (filename !== nameWithExtension) {
           return;
         }
-        Logger.warn(
-          filename,
-          ' has been changed during read, it will be aborted'
-        );
+        Logger.warn(filename, ' has been changed during read, it will be aborted');
 
         controller.abort();
       });

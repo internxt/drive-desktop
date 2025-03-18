@@ -21,19 +21,14 @@ export class AddController extends CallbackController {
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly fileCreationOrchestrator: FileCreationOrchestrator,
     private readonly folderCreator: FolderCreator,
-    private readonly offlineFolderCreator: OfflineFolderCreator
+    private readonly offlineFolderCreator: OfflineFolderCreator,
   ) {
     super();
   }
 
-  private createFile = async (
-    posixRelativePath: string,
-    attempts = 3
-  ): Promise<string> => {
+  private createFile = async (posixRelativePath: string, attempts = 3): Promise<string> => {
     try {
-      const contentsId = await this.fileCreationOrchestrator.run(
-        posixRelativePath
-      );
+      const contentsId = await this.fileCreationOrchestrator.run(posixRelativePath);
       return createFilePlaceholderId(contentsId);
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ' + posixRelativePath, error);
@@ -52,10 +47,7 @@ export class AddController extends CallbackController {
     }
   };
 
-  private createFolder = async (
-    offlineFolder: OfflineFolder,
-    attempts = 3
-  ): Promise<string> => {
+  private createFolder = async (offlineFolder: OfflineFolder, attempts = 3): Promise<string> => {
     try {
       await this.folderCreator.run(offlineFolder);
       return createFilePlaceholderId(offlineFolder.uuid);
@@ -67,11 +59,7 @@ export class AddController extends CallbackController {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         return this.createFolder(offlineFolder, attempts - 1);
       }
-      Logger.error(
-        '[Creating folder]',
-        'Max retries reached',
-        'callback emited'
-      );
+      Logger.error('[Creating folder]', 'Max retries reached', 'callback emited');
       Sentry.captureException(error);
       throw error;
     }
@@ -83,8 +71,7 @@ export class AddController extends CallbackController {
 
   private async createFolderFather(posixRelativePath: string) {
     Logger.info('posixRelativePath', posixRelativePath);
-    const posixDir =
-      PlatformPathConverter.getFatherPathPosix(posixRelativePath);
+    const posixDir = PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       await this.runFolderCreator(posixDir);
@@ -97,28 +84,18 @@ export class AddController extends CallbackController {
         // child created
         await this.runFolderCreator(posixDir);
       } else {
-        Logger.error(
-          'Error creating folder father creation inside catch:',
-          error
-        );
+        Logger.error('Error creating folder father creation inside catch:', error);
         Sentry.captureException(error);
         throw error;
       }
     }
   }
 
-  private async createOfflineFolder(
-    posixRelativePath: string
-  ): Promise<OfflineFolder> {
+  private async createOfflineFolder(posixRelativePath: string): Promise<OfflineFolder> {
     try {
       return this.offlineFolderCreator.run(posixRelativePath);
     } catch (error) {
-      Logger.error(
-        'Error creating offline folder:',
-        posixRelativePath,
-        'Error: ',
-        error
-      );
+      Logger.error('Error creating offline folder:', posixRelativePath, 'Error: ', error);
       if (error instanceof FolderNotFoundError) {
         // father created
         await this.createFolderFather(posixRelativePath);
@@ -133,11 +110,9 @@ export class AddController extends CallbackController {
   }
 
   async execute(absolutePath: string): Promise<string | undefined> {
-    const win32RelativePath =
-      this.absolutePathToRelativeConverter.run(absolutePath);
+    const win32RelativePath = this.absolutePathToRelativeConverter.run(absolutePath);
 
-    const posixRelativePath =
-      PlatformPathConverter.winToPosix(win32RelativePath);
+    const posixRelativePath = PlatformPathConverter.winToPosix(win32RelativePath);
 
     const isFolder = await PathTypeChecker.isFolder(absolutePath);
     const attempts = 3;

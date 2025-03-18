@@ -17,29 +17,16 @@ export default function ProcessIssues() {
   const processIssues = useProcessIssues();
   const { generalIssues } = useGeneralIssues();
   const { backupErrors } = useBackupErrors();
-  const [reportData, setReportData] = useState<Pick<
-    ProcessIssue,
-    'errorName'
-  > | null>(null);
+  const [reportData, setReportData] = useState<Pick<ProcessIssue, 'errorName'> | null>(null);
 
   const [activeSection, setActiveSection] = useState<Section>('SYNC');
 
-  const processIssuesFilteredByActiveSection = processIssues.filter(
-    (issue) => issue.process === activeSection
-  );
+  const processIssuesFilteredByActiveSection = processIssues.filter((issue) => issue.process === activeSection);
 
   useEffect(() => {
-    if (
-      activeSection === 'SYNC' &&
-      processIssuesFilteredByActiveSection.length === 0 &&
-      generalIssues.length
-    ) {
+    if (activeSection === 'SYNC' && processIssuesFilteredByActiveSection.length === 0 && generalIssues.length) {
       setActiveSection('GENERAL');
-    } else if (
-      processIssuesFilteredByActiveSection.length === 0 &&
-      backupErrors.length === 0 &&
-      processIssues.length
-    ) {
+    } else if (processIssuesFilteredByActiveSection.length === 0 && backupErrors.length === 0 && processIssues.length) {
       setActiveSection('SYNC');
     }
   }, [processIssues, backupErrors, generalIssues]);
@@ -59,22 +46,12 @@ export default function ProcessIssues() {
         onClickOnErrorInfo={setReportData}
       />
 
-      <ReportModal
-        key={reportData?.errorName}
-        data={reportData}
-        onClose={() => setReportData(null)}
-      />
+      <ReportModal key={reportData?.errorName} data={reportData} onClose={() => setReportData(null)} />
     </div>
   );
 }
 
-function Tabs({
-  active,
-  onChangeTab,
-}: {
-  active: Section;
-  onChangeTab: (section: Section) => void;
-}) {
+function Tabs({ active, onChangeTab }: { active: Section; onChangeTab: (section: Section) => void }) {
   const { translate, language } = useTranslationContext();
   const [tabsWidth, setTabsWidth] = useState<[number, number]>([0, 0]);
 
@@ -102,8 +79,7 @@ function Tabs({
       onClick={() => onChangeTab(value)}
       className={`relative flex cursor-pointer items-center px-4 transition-colors duration-200 ease-out ${
         active === value ? 'text-gray-100' : 'text-gray-60'
-      }`}
-    >
+      }`}>
       {name}
     </li>
   );

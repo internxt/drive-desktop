@@ -15,7 +15,7 @@ export class FileOverwriteContent {
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot,
-    private readonly fileContentsHardUpdater: FileContentsHardUpdater
+    private readonly fileContentsHardUpdater: FileContentsHardUpdater,
   ) {
     this.processingErrorQueue = false;
   }
@@ -95,9 +95,10 @@ export class FileOverwriteContent {
       Logger.info('hydratedDangledRemoteFile ', { id: hydratedDangledRemoteFile.contentsId, path: hydratedDangledRemoteFile.path });
 
       await this.fileContentsHardUpdater.run({
-        Attributes: {
+        attributes: {
           contentsId: hydratedDangledRemoteFile.contentsId,
           folderId: hydratedDangledRemoteFile.folderId.value,
+          folderUuid: hydratedDangledRemoteFile.folderUuid.value,
           size: hydratedDangledRemoteFile.size,
           path: hydratedDangledRemoteFile.path,
         },

@@ -46,6 +46,7 @@ export default function IssuesPage() {
         selectedTab={activeSection}
         issues={{
           app: generalIssues,
+          // @ts-expect-error we need to migrate this typescript error
           virtualDrive: virtualDriveIssues,
           backups: backupErrors,
         }}

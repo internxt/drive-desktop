@@ -6,8 +6,7 @@ export default function useProcessIssues() {
 
   useEffect(() => {
     window.electron.getProcessIssues().then(setProcessIssues);
-    const removeListener =
-      window.electron.onProcessIssuesChanged(setProcessIssues);
+    const removeListener = window.electron.onProcessIssuesChanged(setProcessIssues);
 
     return removeListener;
   }, []);

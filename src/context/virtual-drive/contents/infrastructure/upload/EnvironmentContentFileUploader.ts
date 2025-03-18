@@ -1,9 +1,6 @@
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core/upload/strategy';
 import { EventEmitter, Readable } from 'stream';
-import {
-  ContentFileUploader,
-  FileUploadEvents,
-} from '../../domain/contentHandlers/ContentFileUploader';
+import { ContentFileUploader, FileUploadEvents } from '../../domain/contentHandlers/ContentFileUploader';
 import { ContentsId } from '../../domain/ContentsId';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
 
@@ -14,7 +11,7 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
   constructor(
     private readonly fn: UploadStrategyFunction,
     private readonly bucket: string,
-    private readonly abortSignal?: AbortSignal
+    private readonly abortSignal?: AbortSignal,
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
@@ -52,10 +49,7 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
     });
   }
 
-  on(
-    event: keyof FileUploadEvents,
-    handler: FileUploadEvents[keyof FileUploadEvents]
-  ): void {
+  on(event: keyof FileUploadEvents, handler: FileUploadEvents[keyof FileUploadEvents]): void {
     this.eventEmitter.on(event, handler);
   }
 

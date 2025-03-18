@@ -12,15 +12,8 @@ interface DevicePillProps {
   setSelected: (device: Device) => void;
 }
 
-function DevicePill({
-  device,
-  current,
-  selected,
-  setSelected,
-}: DevicePillProps) {
-  const borderStyle = selected
-    ? 'rounded-lg border border-gray-10 bg-surface shadow-sm dark:bg-gray-5'
-    : '';
+function DevicePill({ device, current, selected, setSelected }: DevicePillProps) {
+  const borderStyle = selected ? 'rounded-lg border border-gray-10 bg-surface shadow-sm dark:bg-gray-5' : '';
 
   const styles = `${borderStyle} flex flex-col px-3 py-2 hover:cursor-pointer`;
 
@@ -35,9 +28,7 @@ function DevicePill({
 function Help() {
   const handleOpenURL = async () => {
     try {
-      await window.electron.openUrl(
-        'https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive'
-      );
+      await window.electron.openUrl('https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive');
     } catch (error) {
       reportError(error);
     }
@@ -54,14 +45,10 @@ function Help() {
 type DevicesSideBarProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DevicesList({ className }: DevicesSideBarProps) {
-  const { deviceState, current, selected, setSelected } =
-    useContext(DeviceContext);
+  const { deviceState, current, selected, setSelected } = useContext(DeviceContext);
   const { devices } = useDevices();
 
-  const devicesWithoutCurrent = devices.filter(
-    (device) =>
-      deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id
-  );
+  const devicesWithoutCurrent = devices.filter((device) => deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id);
 
   return (
     <aside className={className}>
@@ -71,23 +58,12 @@ export function DevicesList({ className }: DevicesSideBarProps) {
           <ul>
             {current && (
               <li>
-                <DevicePill
-                  device={current}
-                  current
-                  selected={current === selected}
-                  setSelected={setSelected}
-                />
+                <DevicePill device={current} current selected={current === selected} setSelected={setSelected} />
               </li>
             )}
             {devicesWithoutCurrent.map((device) => (
               <li className="my-1" key={device.id}>
-                {
-                  <DevicePill
-                    device={device}
-                    selected={device === selected}
-                    setSelected={setSelected}
-                  />
-                }
+                {<DevicePill device={device} selected={device === selected} setSelected={setSelected} />}
               </li>
             ))}
           </ul>

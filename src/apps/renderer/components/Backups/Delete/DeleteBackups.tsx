@@ -9,7 +9,7 @@ import { DeviceContext } from '../../../context/DeviceContext';
 import { useBackupProgress } from '../../../hooks/backups/useBackupProgress';
 
 export function DeleteBackups() {
-  const { backups, deleteBackups, backupStatus } = useContext(BackupContext);
+  const { backups, deleteBackups, backupStatus, isBackupAvailable } = useContext(BackupContext);
   const { selected, current } = useContext(DeviceContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
@@ -17,6 +17,8 @@ export function DeleteBackups() {
   const { thereIsDownloadProgress } = useContext(BackupContext);
 
   const { translate } = useTranslationContext();
+
+  const isDeleteDisabled = !isBackupAvailable || backups.length === 0 || backupStatus !== 'STANDBY' || thereIsDownloadProgress;
 
   function toggleConfirmation() {
     setAskConfirmation(!askConfirmation);
@@ -35,21 +37,9 @@ export function DeleteBackups() {
 
   return (
     <section>
-      <SectionHeader>
-        {translate('settings.backups.delete.title')}
-      </SectionHeader>
-      <SecondaryText className="mb-2">
-        {translate('settings.backups.delete.explanation')}
-      </SecondaryText>
-      <Button
-        variant="secondary"
-        onClick={toggleConfirmation}
-        disabled={
-          backups.length === 0 ||
-          backupStatus !== 'STANDBY' ||
-          thereIsDownloadProgress
-        }
-      >
+      <SectionHeader>{translate('settings.backups.delete.title')}</SectionHeader>
+      <SecondaryText className="mb-2">{translate('settings.backups.delete.explanation')}</SecondaryText>
+      <Button variant="secondary" onClick={toggleConfirmation} disabled={isDeleteDisabled}>
         {translate('settings.backups.delete.action')}
       </Button>
       <ConfirmationModal
@@ -57,16 +47,10 @@ export function DeleteBackups() {
         onCanceled={toggleConfirmation}
         onConfirmed={deleteBackupsFromDevice}
         title={translate('settings.backups.delete.deletion-modal.title')}
-        explanation={translate(
-          'settings.backups.delete.deletion-modal.explanation'
-        )}
-        explanation2={translate(
-          'settings.backups.delete.deletion-modal.explanation-2'
-        )}
+        explanation={translate('settings.backups.delete.deletion-modal.explanation')}
+        explanation2={translate('settings.backups.delete.deletion-modal.explanation-2')}
         cancelText={translate('settings.backups.delete.deletion-modal.cancel')}
-        confirmText={translate(
-          'settings.backups.delete.deletion-modal.confirm'
-        )}
+        confirmText={translate('settings.backups.delete.deletion-modal.confirm')}
       />
     </section>
   );

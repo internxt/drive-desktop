@@ -13,7 +13,7 @@ export class LocalFile extends AggregateRoot {
   private constructor(
     private _path: AbsolutePath,
     private _modificationTime: number,
-    private _size: LocalFileSize
+    private _size: LocalFileSize,
   ) {
     super();
   }
@@ -62,11 +62,7 @@ export class LocalFile extends AggregateRoot {
   }
 
   static from(attributes: LocalFileAttributes): LocalFile {
-    return new LocalFile(
-      attributes.path,
-      attributes.modificationTime,
-      new LocalFileSize(attributes.size)
-    );
+    return new LocalFile(attributes.path, attributes.modificationTime, new LocalFileSize(attributes.size));
   }
 
   attributes(): LocalFileAttributes {

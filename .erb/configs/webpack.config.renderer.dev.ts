@@ -11,31 +11,17 @@ import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 
-// When an ESLint server is running, we can't set the NODE_ENV so we'll check if it's
-// at the dev webpack config is not accidentally run in a production environment
-if (process.env.NODE_ENV === 'production') {
-  checkNodeEnv('development');
-}
+checkNodeEnv('development');
 
-const port = process.env.PORT || 1212;
 const manifest = path.resolve(webpackPaths.dllPath, 'renderer.json');
-const requiredByDLLConfig = module.parent!.filename.includes(
-  'webpack.config.renderer.dev.dll'
-);
+const requiredByDLLConfig = module.parent!.filename.includes('webpack.config.renderer.dev.dll');
 
 /**
  * Warn if the DLL is not built
  */
-if (
-  !requiredByDLLConfig &&
-  !(fs.existsSync(webpackPaths.dllPath) && fs.existsSync(manifest))
-) {
-  console.log(
-    chalk.black.bgYellow.bold(
-      'The DLL files are missing. Sit back while we build them for you with "npm run build-dll"'
-    )
-  );
-  execSync('npm run postinstall');
+if (!requiredByDLLConfig && !(fs.existsSync(webpackPaths.dllPath) && fs.existsSync(manifest))) {
+  console.log(chalk.black.bgYellow.bold('The DLL files are missing. Sit back while we build them for you'));
+  execSync('npm run build:dll');
 }
 
 const configuration: webpack.Configuration = {
@@ -46,7 +32,7 @@ const configuration: webpack.Configuration = {
   target: ['web', 'electron-renderer'],
 
   entry: [
-    `webpack-dev-server/client?http://localhost:${port}/dist`,
+    `webpack-dev-server/client?http://localhost:${process.env.PORT}/dist`,
     'webpack/hot/only-dev-server',
     'core-js',
     'regenerator-runtime/runtime',
@@ -168,7 +154,7 @@ const configuration: webpack.Configuration = {
 
   // @ts-ignore
   devServer: {
-    port,
+    port: process.env.PORT,
     compress: true,
     hot: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
@@ -180,7 +166,7 @@ const configuration: webpack.Configuration = {
     },
     onBeforeSetupMiddleware() {
       console.log('Starting Main Process...');
-      spawn('npm', ['run', 'start:main'], {
+      spawn('npm', ['run', 'start:nodemon'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',

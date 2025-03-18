@@ -15,8 +15,7 @@ function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; o
       type="button"
       className={`relative flex w-20 cursor-pointer flex-col items-center rounded-lg px-4 py-1.5 outline-none transition-colors duration-100 ease-in-out ${
         isActive ? 'text-gray-100' : 'text-gray-50 hover:text-gray-60 active:text-gray-80'
-      }`}
-    >
+      }`}>
       <Icon size={28} />
       <p className="text-xs font-medium capitalize">{title.toLowerCase()}</p>
     </button>
@@ -42,7 +41,7 @@ export default function Header({ onClick, active }: { onClick: (active: Section)
         left: `${(i / sectionValues.length) * 100}%`,
       },
     }),
-    {} as Record<Section, { left: string }>
+    {} as Record<Section, { left: string }>,
   );
 
   return (

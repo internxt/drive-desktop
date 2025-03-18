@@ -10,8 +10,7 @@ export function useBackupStatus() {
   useEffect(() => {
     window.electron.getBackupsStatus().then(setBackupStatus);
 
-    const removeListener =
-      window.electron.onBackupsStatusChanged(setBackupStatus);
+    const removeListener = window.electron.onBackupsStatusChanged(setBackupStatus);
     return removeListener;
   }, []);
 

@@ -11,61 +11,38 @@ import { registerUserUsageServices } from './user/registerUsageServices';
 
 export class BackupsDependencyContainerFactory {
   static async build(): Promise<Container> {
-    Logger.info(
-      '[BackupsDependencyContainerFactory] Starting to build the container.'
-    );
+    Logger.info('[BackupsDependencyContainerFactory] Starting to build the container.');
 
     const builder = await backgroundProcessSharedInfraBuilder();
-    Logger.info(
-      '[BackupsDependencyContainerFactory] Shared infrastructure builder created.'
-    );
+    Logger.info('[BackupsDependencyContainerFactory] Shared infrastructure builder created.');
 
     try {
-      Logger.info(
-        '[BackupsDependencyContainerFactory] Registering file services.'
-      );
+      Logger.info('[BackupsDependencyContainerFactory] Registering file services.');
       await registerFilesServices(builder);
 
-      Logger.info(
-        '[BackupsDependencyContainerFactory] Registering folder services.'
-      );
+      Logger.info('[BackupsDependencyContainerFactory] Registering folder services.');
       await registerFolderServices(builder);
 
-      Logger.info(
-        '[BackupsDependencyContainerFactory] Registering remote tree services.'
-      );
+      Logger.info('[BackupsDependencyContainerFactory] Registering remote tree services.');
       await registerRemoteTreeServices(builder);
 
-      Logger.info(
-        '[BackupsDependencyContainerFactory] Registering local file services.'
-      );
+      Logger.info('[BackupsDependencyContainerFactory] Registering local file services.');
       await registerLocalFileServices(builder);
 
-      Logger.info(
-        '[BackupsDependencyContainerFactory] Registering local tree services.'
-      );
+      Logger.info('[BackupsDependencyContainerFactory] Registering local tree services.');
       await registerLocalTreeServices(builder);
 
-      Logger.info(
-        '[BackupsDependencyContainerFactory] Registering user usage services.'
-      );
+      Logger.info('[BackupsDependencyContainerFactory] Registering user usage services.');
       await registerUserUsageServices(builder);
 
-      Logger.info(
-        '[BackupsDependencyContainerFactory] Registering Backup service.'
-      );
+      Logger.info('[BackupsDependencyContainerFactory] Registering Backup service.');
       await builder.registerAndUse(Backup);
       const container = builder.build();
-      Logger.info(
-        '[BackupsDependencyContainerFactory] Container built successfully.'
-      );
+      Logger.info('[BackupsDependencyContainerFactory] Container built successfully.');
 
       return container;
     } catch (error) {
-      Logger.error(
-        '[BackupsDependencyContainerFactory] Error during service registration:',
-        error
-      );
+      Logger.error('[BackupsDependencyContainerFactory] Error during service registration:', error);
       Logger.error(error);
       throw error; // Rethrow the error after logging it
     }

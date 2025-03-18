@@ -6,12 +6,9 @@ export async function reziseImage(file: Readable): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     gm(file)
       .resize(ThumbnailProperties.dimensions, ThumbnailProperties.dimensions)
-      .toBuffer(
-        ThumbnailProperties.type,
-        (err: Error | null, buffer: Buffer) => {
-          if (err) reject(err);
-          resolve(buffer);
-        }
-      );
+      .toBuffer(ThumbnailProperties.type, (err: Error | null, buffer: Buffer) => {
+        if (err) reject(err);
+        resolve(buffer);
+      });
   });
 }

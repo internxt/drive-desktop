@@ -58,11 +58,7 @@ export class Antivirus {
       throw new Error('ClamAV is not initialized');
     }
 
-    return (await this.clamAv.isInfected(filePath)) as {
-      file: string;
-      isInfected: boolean;
-      viruses: [];
-    };
+    return await this.clamAv.isInfected(filePath);
   }
 
   async stopClamAv() {

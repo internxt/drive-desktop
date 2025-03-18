@@ -1,16 +1,7 @@
-import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import Logger from 'electron-log';
-import { sleep } from '../../../../apps/main/util';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
-import { SDKRemoteFileSystem } from '../infrastructure/SDKRemoteFileSystem';
 export class FilesPlaceholderDeleter {
-  constructor(
-    private remoteFileSystem: SDKRemoteFileSystem,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-    private readonly local: NodeWinLocalFileSystem
-  ) {}
+  constructor(private readonly local: NodeWinLocalFileSystem) {}
 
   private async hasToBeDeleted(remote: File): Promise<boolean> {
     const localUUID = await this.local.getFileIdentity(remote.path);
@@ -19,24 +10,7 @@ export class FilesPlaceholderDeleter {
       return false;
     }
 
-    sleep(500);
-    const fileStatus = await this.remoteFileSystem.checkStatusFile(remote.uuid);
-
-    Logger.info(
-      `
-      Localdb path: ${remote.path}\n
-      ___________\n
-      Condition Status: ${
-        fileStatus === FileStatuses.TRASHED ||
-        fileStatus === FileStatuses.DELETED
-      }\n
-      Condition ID: ${localUUID.split(':')[1] === remote['contentsId']}\n`
-    );
-    return (
-      (fileStatus === FileStatuses.TRASHED ||
-        fileStatus === FileStatuses.DELETED) &&
-      localUUID.split(':')[1]?.trim() === remote['contentsId']?.trim()
-    );
+    return localUUID.split(':')[1]?.trim() === remote['contentsId']?.trim();
   }
 
   private async delete(remote: File): Promise<void> {
@@ -50,7 +24,7 @@ export class FilesPlaceholderDeleter {
     await Promise.all(
       remotes.map(async (remote) => {
         await this.delete(remote);
-      })
+      }),
     );
   }
 }

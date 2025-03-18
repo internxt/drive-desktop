@@ -1,4 +1,5 @@
 export type User = {
+  needLogout?: boolean;
   backupsBucket: string;
   bridgeUser: string;
   bucket: string;
@@ -20,4 +21,14 @@ export type User = {
   userId: string;
   username: string;
   uuid: string;
+  keys: {
+    ecc: {
+      privateKey: string;
+      publicKey: string;
+    };
+    kyber: {
+      privateKey: string;
+      publicKey: string;
+    };
+  };
 };

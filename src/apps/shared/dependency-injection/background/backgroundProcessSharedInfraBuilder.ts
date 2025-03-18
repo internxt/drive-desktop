@@ -11,18 +11,14 @@ export async function backgroundProcessSharedInfraBuilder(): Promise<ContainerBu
 
   const token = await ipcRenderer.invoke('get-token');
 
-  builder
-    .register(AuthorizedClients)
-    .useClass(BackgroundProcessAuthorizedClients)
-    .asSingleton()
-    .private();
+  builder.register(AuthorizedClients).useClass(BackgroundProcessAuthorizedClients).asSingleton().private();
 
   builder
     .register(Storage)
     .useFactory(() => {
       const { name: clientName, version: clientVersion } = packageJson;
       const storage = Storage.client(
-        `${process.env.API_URL}`,
+        process.env.API_URL,
         {
           clientName,
           clientVersion,
@@ -30,7 +26,7 @@ export async function backgroundProcessSharedInfraBuilder(): Promise<ContainerBu
         {
           token,
           unauthorizedCallback: onUserUnauthorized,
-        }
+        },
       );
 
       return storage;

@@ -15,7 +15,7 @@ export class FilesPlaceholderUpdater {
     private readonly localFileSystem: NodeWinLocalFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,
-    private readonly eventHistory: EventRepository
+    private readonly eventHistory: EventRepository,
   ) {}
 
   private hasToBeDeleted(local: File, remote: File): boolean {
@@ -27,9 +27,7 @@ export class FilesPlaceholderUpdater {
 
   private async hasToBeCreated(remote: File): Promise<boolean> {
     const remoteExists = remote.status.is(FileStatuses.EXISTS);
-    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-      remote.path
-    );
+    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
     const existsFile = await this.fileExists(win32AbsolutePath);
     return remoteExists && !existsFile;
   }
@@ -78,20 +76,14 @@ export class FilesPlaceholderUpdater {
         await fs.stat(remote.path);
         // Do nothing
       } catch {
-        const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-          local.path
-        );
-        const newWin32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-          remote.path
-        );
+        const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
+        const newWin32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
         await fs.rename(win32AbsolutePath, newWin32AbsolutePath);
       }
     }
 
     if (this.hasToBeDeleted(local, remote)) {
-      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-        local.path
-      );
+      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
       await fs.unlink(win32AbsolutePath);
     }
 

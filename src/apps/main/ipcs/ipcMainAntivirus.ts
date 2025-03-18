@@ -5,6 +5,7 @@ import { exec } from 'node:child_process';
 import { PaymentsService } from '../payments/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
 import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
+import { logger } from '@/apps/shared/logger/logger';
 
 const paymentService: PaymentsService | null = null;
 
@@ -33,8 +34,10 @@ ipcMain.handle('antivirus:is-Defender-active', async () => {
     const isWinDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
     return isWinDefenderActive;
   } catch (error) {
-    const err = error as Error;
-    console.log(`Error while getting the Win Defender status: ${err.stack ?? err.message}`);
+    logger.warn({
+      msg: 'Error while getting the Win Defender status',
+      exc: error,
+    });
     return false;
   }
 });
@@ -60,7 +63,7 @@ ipcMain.handle('antivirus:remove-infected-files', async (_, infectedFiles: strin
     await Promise.all(
       infectedFiles.map(async (infectedFile) => {
         await shell.trashItem(infectedFile);
-      })
+      }),
     );
   }
 });

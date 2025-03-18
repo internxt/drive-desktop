@@ -57,13 +57,7 @@ export class LocalTree {
     const parent = this.tree.get(parentNode.path) as LocalFolderNode;
 
     if (!parent) {
-      throw new Error(
-        `Parent node not found for ${JSON.stringify(
-          file.attributes(),
-          null,
-          2
-        )}`
-      );
+      throw new Error(`Parent node not found for ${JSON.stringify(file.attributes(), null, 2)}`);
     }
 
     const node = LocalFileNode.from(file);

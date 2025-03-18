@@ -17,12 +17,10 @@ import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
-import { FileFinder } from '../../../../context/virtual-drive/files/application/FileFinder';
 
 export interface FilesContainer {
   fileFinderByContentsId: FileFinderByContentsId;
   fileDeleter: FileDeleter;
-  fileFinder: FileFinder;
   fileFolderContainerDetector: FileFolderContainerDetector;
   filePathUpdater: FilePathUpdater;
   fileCreator: FileCreator;

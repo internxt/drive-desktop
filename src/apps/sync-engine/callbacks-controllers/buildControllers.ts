@@ -22,37 +22,31 @@ export function buildControllers(container: DependencyContainer): IControllers {
     container.absolutePathToRelativeConverter,
     container.fileCreationOrchestrator,
     container.folderCreator,
-    container.offline.folderCreator
+    container.offline.folderCreator,
   );
 
   const deleteController = new DeleteController(
     container.fileDeleter,
     container.retryFolderDeleter,
     container.fileFolderContainerDetector,
-    container.folderContainerDetector
+    container.folderContainerDetector,
   );
 
   const renameOrMoveController = new RenameOrMoveController(
     container.absolutePathToRelativeConverter,
     container.filePathUpdater,
     container.folderPathUpdater,
-    deleteController
+    deleteController,
   );
 
-  const downloadFileController = new DownloadFileController(
-    container.fileFinderByContentsId,
-    container.contentsDownloader
-  );
+  const downloadFileController = new DownloadFileController(container.fileFinderByContentsId, container.contentsDownloader);
 
   const offlineRenameOrMoveController = new OfflineRenameOrMoveController(
     container.absolutePathToRelativeConverter,
-    container.offline.folderPathUpdater
+    container.offline.folderPathUpdater,
   );
 
-  const notifyPlaceholderHydrationFinished =
-    new NotifyPlaceholderHydrationFinished(
-      container.notifyMainProcessHydrationFinished
-    );
+  const notifyPlaceholderHydrationFinished = new NotifyPlaceholderHydrationFinished(container.notifyMainProcessHydrationFinished);
 
   return {
     addFile: addFileController,

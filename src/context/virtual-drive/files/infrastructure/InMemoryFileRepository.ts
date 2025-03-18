@@ -1,6 +1,6 @@
 import { Service } from 'diod';
 import { File, FileAttributes } from '../domain/File';
-import Logger from 'electron-log';
+
 @Service()
 export class InMemoryFileRepository {
   private files: Map<string, FileAttributes>;
@@ -19,37 +19,32 @@ export class InMemoryFileRepository {
   }
 
   public all(): Promise<Array<File>> {
-    const files = [...this.files.values()].map((attributes) =>
-      File.from(attributes)
-    );
+    const files = [...this.files.values()].map((attributes) => File.from(attributes));
     return Promise.resolve(files);
   }
 
   async searchByContentsIds(contentsIds: File['contentsId'][]): Promise<Array<File>> {
-    const files = contentsIds.map((contentsId) => {
-      const file = this.files.get(contentsId);
-      if (file) {
-        return File.from(file);
-      }
-      return undefined;
-    }).filter((file) => file !== undefined);
-    
-    return files;
+    const files = contentsIds
+      .map((contentsId) => {
+        const file = this.files.get(contentsId);
+        if (file) {
+          return File.from(file);
+        }
+        return undefined;
+      })
+      .filter((file) => file !== undefined);
+
+    return files as Array<File>;
   }
-  
-  async allSearchByPartial(
-    partial: Partial<FileAttributes>
-  ): Promise<Array<File>> {
+
+  async allSearchByPartial(partial: Partial<FileAttributes>): Promise<Array<File>> {
     const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
 
     const files = this.values
       .filter((attributes) => {
         return keys.every((key: keyof FileAttributes) => {
           if (key === 'contentsId') {
-            return (
-              attributes[key].normalize() ==
-              (partial[key] as string).normalize()
-            );
+            return attributes[key].normalize() == (partial[key] as string).normalize();
           }
 
           return attributes[key] == partial[key];
@@ -66,9 +61,7 @@ export class InMemoryFileRepository {
     const file: FileAttributes | undefined = this.values.find((attributes) => {
       return keys.every((key: keyof FileAttributes) => {
         if (key === 'contentsId') {
-          return (
-            attributes[key].normalize() == (partial[key] as string).normalize()
-          );
+          return attributes[key].normalize() == (partial[key] as string).normalize();
         }
         return attributes[key] == partial[key];
       });
@@ -86,9 +79,7 @@ export class InMemoryFileRepository {
     const filesAttributes = this.values.filter((attributes) => {
       return keys.every((key: keyof FileAttributes) => {
         if (key === 'contentsId') {
-          return (
-            attributes[key].normalize() == (partial[key] as string).normalize()
-          );
+          return attributes[key].normalize() == (partial[key] as string).normalize();
         }
 
         return attributes[key] == partial[key];
@@ -105,9 +96,7 @@ export class InMemoryFileRepository {
   async upsert(file: File): Promise<boolean> {
     const attributes = file.attributes();
 
-    const isAlreadyStored =
-      this.filesByUuid.has(file.uuid) ||
-      this.filesByContentsId.has(file.contentsId);
+    const isAlreadyStored = this.filesByUuid.has(file.uuid) || this.filesByContentsId.has(file.contentsId);
 
     if (isAlreadyStored) {
       this.filesByUuid.delete(file.uuid);
@@ -133,6 +122,7 @@ export class InMemoryFileRepository {
       uuid: file.uuid,
       contentsId: file.contentsId,
       folderId: file.folderId.value,
+      folderUuid: file.folderUuid.value,
       path: file.path,
       createdAt: file.createdAt.toISOString(),
       updatedAt: file.updatedAt.toDateString(),
@@ -150,11 +140,7 @@ export class InMemoryFileRepository {
     return this.add(file);
   }
 
-  async updateContentsAndSize(
-    file: File,
-    newContentsId: File['contentsId'],
-    newSize: File['size']
-  ): Promise<File> {
+  async updateContentsAndSize(file: File, newContentsId: File['contentsId'], newSize: File['size']): Promise<File> {
     if (!this.files.has(file.contentsId)) {
       throw new Error('File not found');
     }
