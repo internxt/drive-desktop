@@ -56,6 +56,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const isUserElegible = async () => {
     try {
+      setView('loading');
       const isAntivirusAvailable = await window.electron.antivirus.isAvailable();
 
       if (!isAntivirusAvailable) {
