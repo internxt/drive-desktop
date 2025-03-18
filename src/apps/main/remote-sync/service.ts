@@ -75,3 +75,11 @@ const debouncedSynchronization = debounce(async () => {
 export async function resyncRemoteSync() {
   await debouncedSynchronization();
 }
+
+export async function getExistingFiles() {
+  const allExisting = await driveFilesCollection.getAllWhere({
+    status: 'EXISTS',
+  });
+
+  return allExisting.result;
+}

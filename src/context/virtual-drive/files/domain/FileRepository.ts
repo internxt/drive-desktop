@@ -11,6 +11,10 @@ export abstract class FileRepository {
     id: File['contentsId']
   ): Promise<File | undefined>;
 
+  abstract searchByArrayOfContentsId(
+    contentsIds: Array<File['contentsId']>
+  ): Promise<Array<File>>
+
   abstract upsert(file: File): Promise<boolean>;
 
   abstract update(file: File): Promise<void>;

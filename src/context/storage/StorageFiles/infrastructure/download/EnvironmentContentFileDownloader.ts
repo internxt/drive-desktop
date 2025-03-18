@@ -34,14 +34,20 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
   }
 
   download(file: StorageFile): Promise<Readable> {
+    return this.executeDownload(file.id.value);
+  }
+
+  downloadById(fileId: string): Promise<Readable> {
+    return this.executeDownload(fileId);
+  }
+
+  private executeDownload(fileId: string): Promise<Readable> {
     this.stopwatch.start();
-
     this.eventEmitter.emit('start');
-
     return new Promise((resolve, reject) => {
       this.state = this.fn(
         this.bucket,
-        file.id.value,
+        fileId,
         {
           progressCallback: (progress: number) => {
             this.eventEmitter.emit('progress', progress, this.elapsedTime());

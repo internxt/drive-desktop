@@ -11,6 +11,8 @@ export type DownloadEvents = {
 export interface DownloaderHandler {
   download(file: StorageFile): Promise<Readable>;
 
+  downloadById(fileId: string): Promise<Readable>;
+
   forceStop(): void;
 
   on(
