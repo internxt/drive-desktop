@@ -18,7 +18,6 @@ export default function BackupsSection({
   showIssues,
 }: BackupsSectionProps) {
   const { deviceState } = useContext(DeviceContext);
-  const { products } = useUserAvailableProducts(); // Placeholder for the useUserAvailableProducts hook
   return (
     <div className={`${active ? 'block' : 'hidden'} w-full`}>
       {deviceState.status === 'LOADING' && (
