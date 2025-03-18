@@ -2,12 +2,9 @@ import { ipcMain, shell } from 'electron';
 import { SelectedItemToScanProps } from '../antivirus/Antivirus';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { exec } from 'node:child_process';
-import { PaymentsService } from '../payments/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
 import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
-
-const paymentService: PaymentsService | null = null;
 
 export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
   return new Promise((resolve, reject) => {
