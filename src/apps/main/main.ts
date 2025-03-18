@@ -56,8 +56,7 @@ import { setCleanUpFunction } from './quit';
 import { stopAndClearSyncEngineWatcher } from './background-processes/sync-engine';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
-import clamAVServer from './antivirus/ClamAVDaemon';
+import { clearAntivirusIfAvailable, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -117,8 +116,6 @@ app
       return nativeTheme.shouldUseDarkColors;
     });
 
-    await clamAVServer.startClamdServer();
-
     checkForUpdates();
   })
   .catch(Logger.error);
@@ -149,9 +146,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
-    await clamAVServer.waitForClamd();
-
-    scheduleDailyScan();
+    await initializeAntivirusIfAvailable();
 
     setCleanUpFunction(stopAndClearSyncEngineWatcher);
   } catch (error) {
@@ -166,9 +161,9 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   if (widget) {
     widget.hide();
     widget.destroy();
-    clearDailyScan();
-    clamAVServer.stopClamdServer();
   }
+
+  clearAntivirusIfAvailable();
 
   await createAuthWindow();
   if (AppDataSource.isInitialized) {

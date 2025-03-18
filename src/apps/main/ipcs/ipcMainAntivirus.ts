@@ -1,13 +1,12 @@
-import Logger from 'electron-log';
 import { ipcMain, shell } from 'electron';
 import { SelectedItemToScanProps } from '../antivirus/Antivirus';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { exec } from 'node:child_process';
 import { PaymentsService } from '../payments/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
-import { buildPaymentsService } from '../payments/builder';
+import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
 
-let paymentService: PaymentsService | null = null;
+const paymentService: PaymentsService | null = null;
 
 export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
   return new Promise((resolve, reject) => {
@@ -25,18 +24,8 @@ export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
 }
 
 ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
-  try {
-    if (!paymentService) {
-      paymentService = buildPaymentsService();
-    }
-
-    const availableProducts = await paymentService.getAvailableProducts();
-
-    return availableProducts.antivirus;
-  } catch (error) {
-    Logger.error('ERROR GETTING PRODUCTS: ', error);
-    throw error;
-  }
+  const result = await initializeAntivirusIfAvailable();
+  return result.antivirusEnabled;
 });
 
 ipcMain.handle('antivirus:is-Defender-active', async () => {
