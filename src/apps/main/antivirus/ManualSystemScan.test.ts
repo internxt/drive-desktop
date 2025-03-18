@@ -683,7 +683,7 @@ describe('ManualSystemScan', () => {
       const result = manualSystemScan['handleStalledScan'](
         98,
         1,
-        5,
+        30,
         false,
         false,
         false
@@ -711,7 +711,7 @@ describe('ManualSystemScan', () => {
       const result = manualSystemScan['handleStalledScan'](
         50,
         1,
-        5,
+        30,
         false,
         false,
         true

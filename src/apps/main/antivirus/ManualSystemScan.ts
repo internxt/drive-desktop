@@ -245,7 +245,7 @@ export class ManualSystemScan {
     if (this.totalScannedFiles === lastCount) {
       newStuckCount++;
 
-      if (newStuckCount >= 5) {
+      if (newStuckCount >= 30) {
         const isNearlyScanComplete = this.isNearlyScanComplete();
 
         if (isNearlyScanComplete) {
@@ -269,12 +269,12 @@ export class ManualSystemScan {
           }
         } else if (isCustomScan && !hasReportedError) {
           Logger.warn(
-            '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout'
+            '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout after extended period'
           );
           this.cancelled = true;
 
           this.emitErrorEvent(
-            'Scan appears stuck - no progress detected for 10 minutes',
+            'Scan appears stuck - no progress detected for 30 minutes',
             `scan-stalled-${Date.now()}`
           );
           newHasError = true;
@@ -659,7 +659,7 @@ export class ManualSystemScan {
               } intervals (${scanState.noProgressIntervals / 2} minutes)`
             );
 
-            if (scanState.noProgressIntervals >= 20) {
+            if (scanState.noProgressIntervals >= 40) {
               Logger.warn(
                 `[SYSTEM_SCAN] No progress detected for ~${
                   scanState.noProgressIntervals / 2
@@ -670,18 +670,18 @@ export class ManualSystemScan {
 
               if (isCustomScan && !scanState.hasReportedError) {
                 Logger.warn(
-                  '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout'
+                  '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout after extended period'
                 );
                 this.cancelled = true;
 
                 this.emitErrorEvent(
-                  'Scan appears stuck - no progress detected for 10 minutes',
+                  'Scan appears stuck - no progress detected for 20 minutes',
                   `scan-stalled-${Date.now()}`
                 );
                 scanState.hasReportedError = true;
               }
 
-              scanState.noProgressIntervals = 15;
+              scanState.noProgressIntervals = 30;
             }
           } else {
             scanState.noProgressIntervals = 0;
