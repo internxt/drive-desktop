@@ -5,6 +5,8 @@ import { Views } from '../../../hooks/antivirus/useAntivirus';
 import { useAntivirusContext } from '../../../context/AntivirusContext';
 import { ActionDialog } from './components/ActionDialog';
 import { useTranslationContext } from '../../../context/LocalContext';
+import { Spinner } from 'phosphor-react';
+import { useEffect } from 'react';
 
 interface AntivirusSectionProps {
   active: boolean;
@@ -33,9 +35,16 @@ export default function AntivirusSection({
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
+    isUserElegible,
     onCancelScan,
     isWinDefenderActive,
   } = useAntivirusContext();
+
+  useEffect(() => {
+    if (!active) return;
+    isUserElegible();
+    isWinDefenderActive();
+  }, [active]);
 
   const viewStates: Record<Views, JSX.Element> = {
     locked: <LockedState />,
@@ -60,6 +69,11 @@ export default function AntivirusSection({
         onScanAgainButtonClicked={onScanAgainButtonClicked}
         showItemsWithMalware={showItemsWithMalware}
       />
+    ),
+    loading: (
+      <div className="flex h-[200px] w-full flex-col items-center justify-center">
+        <Spinner className="animate-spin" />
+      </div>
     ),
   };
 

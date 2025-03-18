@@ -13,7 +13,7 @@ const hashItem = async (filePath: string): Promise<string> => {
     await pipeline(stream, hasher);
     return hasher.digest('hex');
   } catch (error) {
-    console.log('ERROR HASHING ITEM ');
+    console.log(`ERROR HASHING ITEM ${error}`);
     throw error;
   }
 };
