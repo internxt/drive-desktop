@@ -57,12 +57,10 @@ import { Theme } from '../shared/types/Theme';
 import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import clamAVServer from './antivirus/ClamAVDaemon';
-import { runFreshclam } from './antivirus/FreshclamUpdater';
 import dns from 'node:dns';
-import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
 import { setupAntivirusIpc } from './background-processes/antivirus/setupAntivirusIPC';
 import { registerAvailableUserProductsHandlers } from './payments/ipc/AvailableUserProductsIPCHandler';
+import { getAntivirusManager } from './antivirus/antivirusManager';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -124,21 +122,6 @@ app
       setTrayStatus('IDLE');
     }
 
-    try {
-      await runFreshclam().catch((error) => {
-        Logger.error('Failed to run freshclam:', error);
-      });
-
-      Logger.info('Starting ClamAV daemon after freshclam...');
-      await clamAVServer.startClamdServer();
-      await clamAVServer.waitForClamd(300000, 10000);
-      Logger.info('ClamAV daemon is ready');
-
-      scheduleDailyScan();
-    } catch (error) {
-      Logger.error('Failed to initialize ClamAV:', error);
-    }
-
     checkForUpdates();
     registerAvailableUserProductsHandlers();
   })
@@ -151,8 +134,10 @@ eventBus.on('WIDGET_IS_READY', () => {
     Logger.info('[Main] Setting up antivirus IPC handlers');
     setupAntivirusIpc();
     Logger.info('[Main] Antivirus IPC handlers setup complete');
+
+    void getAntivirusManager().initialize();
   } catch (error) {
-    Logger.error('[Main] Error setting up antivirus IPC handlers:', error);
+    Logger.error('[Main] Error setting up antivirus:', error);
   }
 });
 
@@ -186,6 +171,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     }
 
     setCleanUpFunction(stopSyncEngineWatcher);
+
+    void getAntivirusManager().initialize();
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
@@ -198,8 +185,8 @@ eventBus.on('USER_LOGGED_OUT', async () => {
 
   if (widget) {
     widget?.hide();
-    clearDailyScan();
-    clamAVServer.stopClamdServer();
+
+    void getAntivirusManager().shutdown();
   }
 
   await createAuthWindow();
