@@ -10,20 +10,15 @@ let isClamAVRunning = false;
 let clamAVInitializationPromise: Promise<{ antivirusEnabled: boolean }> | null = null;
 
 export async function initializeAntivirusIfAvailable() {
-  Logger.info('[INITIALIZING ANTIVIRUS] Checking ClamAV availability...');
-
   isClamAVRunning = await clamAVServer.checkClamdAvailability();
   if (isClamAVRunning) {
-    Logger.info('[INITIALIZING ANTIVIRUS] ClamAV is already running.');
     return { antivirusEnabled: true };
   }
 
   if (clamAVInitializationPromise) {
-    Logger.info('[INITIALIZING ANTIVIRUS] ClamAV initialization is in progress. Returning existing promise.');
     return clamAVInitializationPromise;
   }
 
-  Logger.info('[INITIALIZING ANTIVIRUS] ClamAV is not running. Attempting to initialize...');
   clamAVInitializationPromise = initializeClamAV();
   return clamAVInitializationPromise;
 }
@@ -57,19 +52,16 @@ async function initializeClamAV() {
     } else {
       Logger.info('[INITIALIZING CLAM AV] Antivirus not enabled for this user. Clearing any running ClamAV instance...');
       clamAVInitializationPromise = null;
-      if (isClamAVRunning) {
-        await clearAntivirus();
-      }
+
+      await clearAntivirus();
+
       return { antivirusEnabled: false };
     }
   } catch (error) {
     console.error('[INITIALIZING CLAM AV] Error initializing antivirus:', error);
-
     clamAVInitializationPromise = null;
+    await clearAntivirus();
 
-    if (isClamAVRunning) {
-      await clearAntivirus();
-    }
     return { antivirusEnabled: false };
   }
 }
