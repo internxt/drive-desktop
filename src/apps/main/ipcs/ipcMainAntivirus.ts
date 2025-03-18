@@ -8,7 +8,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { PaymentsService } from '../payments/service';
 import { buildPaymentsService } from '../payments/builder';
 
-let paymentService: PaymentsService | null;
+let paymentService: PaymentsService | null = null;
 
 export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
   return new Promise((resolve, reject) => {
