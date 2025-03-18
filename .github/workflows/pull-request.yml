@@ -2,9 +2,10 @@ name: Pull request checks
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
-  checks:
+  sonarcloud:
     runs-on: windows-latest
     timeout-minutes: 5
 

@@ -2,6 +2,7 @@ name: Check PR size
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   check_pr_size:
