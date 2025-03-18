@@ -38,7 +38,13 @@ describe('File path updater', () => {
     const fileToRename = FileMother.any();
     const fileWithDestinationPath = undefined;
 
+    const folderFather = FolderMother.fromPartial({
+      path: fileToRename.dirname,
+    });
+
     repository.searchByPartial.mockReturnValueOnce(fileToRename).mockReturnValueOnce(fileWithDestinationPath);
+
+    folderFinder.findFromUuid.mockReturnValueOnce(folderFather);
 
     const destination = new FilePath(`${fileToRename.dirname}/_${fileToRename.nameWithExtension}`);
 
@@ -65,6 +71,12 @@ describe('File path updater', () => {
     const fileToMove = FileMother.any();
     const fileInDestination = undefined;
     const localFileId = '1-2';
+
+    const folderFather = FolderMother.fromPartial({
+      path: fileToMove.dirname,
+    });
+
+    folderFinder.findFromUuid.mockReturnValueOnce(folderFather);
 
     repository.searchByPartial.mockReturnValueOnce(fileToMove).mockReturnValueOnce(fileInDestination);
 
