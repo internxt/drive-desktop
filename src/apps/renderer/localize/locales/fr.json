@@ -345,6 +345,24 @@
             "files": "Fichiers",
             "folders": "Dossiers"
           }
+        },
+        "removeMalware": {
+          "actions": {
+            "cancel": "Annuler",
+            "remove": "Supprimer",
+            "confirmIgnore": "Annuler et ignorer",
+            "goBack": "Retour"
+          },
+          "actionRequired": {
+            "title": "Action requise",
+            "description": "La suppression du malware supprimera également définitivement l'élément de votre stockage pour protéger votre appareil. Cette action ne peut pas être annulée.",
+            "confirmToContinue": "Veuillez confirmer pour continuer."
+          },
+          "securityWarning": {
+            "title": "Attention de sécurité",
+            "description": "Le malware est toujours présent et votre appareil est en danger.",
+            "confirmToCancel": "Êtes-vous sûr de vouloir annuler ?"
+          }
         }
       },
       "scanProcess": {

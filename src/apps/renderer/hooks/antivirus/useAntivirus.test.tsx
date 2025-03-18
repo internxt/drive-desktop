@@ -56,7 +56,7 @@ describe('useAntivirus', () => {
       expect(result.current.isScanning).toBe(false);
       expect(result.current.isAntivirusAvailable).toBe(false);
       expect(result.current.showErrorState).toBe(false);
-      expect(result.current.view).toBe('locked');
+      expect(result.current.view).toBe('loading');
     });
   });
 

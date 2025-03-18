@@ -1,4 +1,6 @@
 import { EventEmitter } from 'events';
+import { ProgressData } from './antivirus/ManualSystemScan';
+import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
 
 class EventBus extends EventEmitter {}
 
@@ -31,6 +33,14 @@ interface Events {
   REMOTE_CHANGES_SYNCHED: () => void;
 
   APP_DATA_SOURCE_INITIALIZED: () => void;
+
+  ANTIVIRUS_SCAN_PROGRESS: (
+    progress: ProgressData & { done?: boolean }
+  ) => void;
+
+  GET_USER_AVAILABLE_PRODUCTS: () => void;
+
+  USER_AVAILABLE_PRODUCTS_UPDATED: (products: AvailableProducts['featuresPerService']) => void;
 }
 
 declare interface EventBus {

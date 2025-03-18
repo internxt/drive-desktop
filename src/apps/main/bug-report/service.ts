@@ -61,7 +61,12 @@ export async function sendReport({
     form.append('logs', await readLog());
   }
 
-  const res = await fetch(process.env.BUG_REPORTING_URL, {
+  const bugReportingUrl = process.env.BUG_REPORTING_URL;
+  if (!bugReportingUrl) {
+    return { state: 'ERROR' };
+  }
+
+  const res = await fetch(bugReportingUrl, {
     method: 'POST',
     body: form,
     headers: { Authorization: `Bearer ${obtainToken('bearerToken')}` },

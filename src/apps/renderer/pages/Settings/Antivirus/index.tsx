@@ -1,6 +1,7 @@
 import { LockedState } from './views/LockedState';
 import { ChooseItemsState } from './views/ChooseItemsState';
 import { ScanState } from './views/ScanState';
+import { LoadingState } from './views/LoadingState';
 import { Views } from '../../../hooks/antivirus/useAntivirus';
 import { useAntivirusContext } from '../../../context/AntivirusContext';
 
@@ -16,6 +17,7 @@ export default function AntivirusSection({
   const { view } = useAntivirusContext();
 
   const viewStates: Record<Views, JSX.Element> = {
+    loading: <LoadingState />,
     locked: <LockedState />,
     chooseItems: <ChooseItemsState />,
     scan: <ScanState showItemsWithMalware={showItemsWithMalware} />,

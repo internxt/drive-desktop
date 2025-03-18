@@ -2,6 +2,9 @@ import { BrowserWindow, ipcMain, nativeTheme } from 'electron';
 
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
+import eventBus from '../event-bus';
+import { ProgressData } from '../antivirus/ManualSystemScan';
+import Logger from 'electron-log';
 
 let settingsWindow: BrowserWindow | null = null;
 export const getSettingsWindow = () =>
@@ -15,6 +18,14 @@ async function openSettingsWindow(section?: string) {
 
     return;
   }
+
+  function handleScanProgress(progressData: ProgressData) {
+    if (settingsWindow && !settingsWindow.isDestroyed()) {
+      settingsWindow.webContents.send('antivirus:scan-progress', progressData);
+    }
+  }
+
+  eventBus.on('ANTIVIRUS_SCAN_PROGRESS', handleScanProgress);
 
   settingsWindow = new BrowserWindow({
     width: 600,
@@ -38,6 +49,7 @@ async function openSettingsWindow(section?: string) {
 
   settingsWindow.on('closed', () => {
     settingsWindow = null;
+    eventBus.off('ANTIVIRUS_SCAN_PROGRESS', handleScanProgress);
   });
 
   setUpCommonWindowHandlers(settingsWindow);
