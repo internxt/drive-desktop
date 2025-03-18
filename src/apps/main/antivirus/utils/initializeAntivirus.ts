@@ -1,7 +1,7 @@
 import { buildPaymentsService } from '../../payments/builder';
 import { PaymentsService } from '../../payments/service';
 import clamAVServer from '../ClamAVDaemon';
-import { scheduleDailyScan } from '../scanCronJob';
+import { clearDailyScan, scheduleDailyScan } from '../scanCronJob';
 
 let paymentService: PaymentsService | null = null;
 let isClamAVRunning = false;
@@ -48,5 +48,12 @@ async function initializeClamAV() {
     console.error('Error initializing antivirus:', error);
     clamAVInitializationPromise = null;
     return { antivirusEnabled: false };
+  }
+}
+
+export async function clearAntivirusIfAvailable() {
+  if (isClamAVRunning) {
+    clearDailyScan();
+    clamAVServer.stopClamdServer();
   }
 }
