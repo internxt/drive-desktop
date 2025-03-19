@@ -188,4 +188,18 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
       };
     }
   }
+
+  async cleanWorkspace(workspaceId: string): Promise<{ success: boolean }> {
+    try {
+      await this.repository.delete({ workspaceId });
+      return {
+        success: true,
+      };
+    } catch (error) {
+      Logger.error('Error cleaning workspace:', error);
+      return {
+        success: false,
+      };
+    }
+  }
 }

@@ -65,8 +65,8 @@ type MoveEvents = {
 };
 
 type SyncEvents = {
-  SYNCING: () => void;
-  SYNCED: () => void;
+  SYNCING: (workspacesId: string) => void;
+  SYNCED: (workspacesId: string) => void;
 };
 
 type CloneEvents = {

@@ -20,6 +20,9 @@ export class DriveWorkspace {
   @Column({ type: 'boolean', default: false })
   setupCompleted!: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  removed!: boolean;
+
   @Column({ type: 'varchar' })
   mnemonic!: string;
 

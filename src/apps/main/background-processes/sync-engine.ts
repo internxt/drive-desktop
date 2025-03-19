@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import { BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import Logger from 'electron-log';
@@ -7,7 +8,7 @@ import { monitorHealth } from './sync-engine/monitor-health';
 import { Config } from '../../sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtual-root-folder/service';
 import { logger } from '../../../apps/shared/logger/logger';
-import { syncWorkspaceService } from '../remote-sync/handlers';
+import { driveFilesCollection, driveFoldersCollection, syncWorkspaceService } from '../remote-sync/handlers';
 import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
@@ -42,7 +43,7 @@ function scheduleSync(workspaceId: string) {
     workers[workspaceId].syncSchedule?.cancel(false);
   }
 
-  workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('0 0 */2 * * *', async () => {
+  workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('*/15 * * * *', async () => {
     eventBus.emit('RECEIVED_REMOTE_CHANGES', workspaceId);
   });
 }
@@ -219,6 +220,15 @@ export const spawnAllSyncEngineWorker = async () => {
 
   await Promise.all(
     workspaces.map(async (workspace) => {
+      if (workspace.removed) {
+        const rootFolder = await getRootWorkspace(workspace.id);
+        await fs.rm(rootFolder, { recursive: true, force: true });
+        await driveFilesCollection.cleanWorkspace(workspace.id);
+        await driveFoldersCollection.cleanWorkspace(workspace.id);
+        ipcMain.emit('UNREGISTER_SYNC_ENGINE_PROCESS', `{${workspace.id}}`);
+        return;
+      }
+
       const workspaceCredential = await FetchWorkspacesService.getCredencials(workspace.id);
 
       const user = getUser();
