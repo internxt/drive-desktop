@@ -56,11 +56,11 @@ function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('disconnect', (reason) => {
-    Logger.log('❌ Remote notifications disconnected, reason: ', reason);
+    logger.debug({ msg: '❌ Remote notifications disconnected, reason: ', reason });
   });
 
-  socket.on('connect_error', (error) => {
-    Logger.error('❌ Remote notifications connect error: ', error);
+  socket.on('connect_error', (exc) => {
+    // logger.warn({ msg: '❌ Remote notifications connect error: ', exc });
   });
 
   socket.on('event', async (data) => {

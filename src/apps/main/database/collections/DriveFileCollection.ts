@@ -2,10 +2,10 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
 import Logger from 'electron-log';
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; updatePayload: Partial<DriveFile> };
+
 export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile> {
   private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 

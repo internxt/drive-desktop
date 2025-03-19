@@ -1,8 +1,8 @@
 import { app, ipcMain } from 'electron';
-import { stopAndClearAllSyncEngineWatcher } from './background-processes/sync-engine';
+import { StopAndClearAllSyncEngineWorkersService } from './background-processes/sync-engine/in/stop-and-clear-all-sync-engine-workers.service';
 
 export async function quitApp() {
-  await stopAndClearAllSyncEngineWatcher();
+  await new StopAndClearAllSyncEngineWorkersService().run();
   app.quit();
 }
 
