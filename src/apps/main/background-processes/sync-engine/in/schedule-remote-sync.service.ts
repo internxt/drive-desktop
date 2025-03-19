@@ -1,7 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
 import nodeSchedule from 'node-schedule';
-import { updateRemoteSync } from '@/apps/main/remote-sync/handlers';
 import { WorkerConfig } from './spawn-sync-engine-worker.service';
+import { updateRemoteSync } from '@/apps/main/remote-sync/out/update-remote-sync.service';
 
 type Props = {
   worker: WorkerConfig;

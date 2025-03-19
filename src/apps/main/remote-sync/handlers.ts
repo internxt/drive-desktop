@@ -3,13 +3,12 @@ import { In } from 'typeorm';
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
-import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
 import { RemoteSyncStatus } from './helpers';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { fallbackSyncEngine, sendUpdateFilesInSyncPending, updateSyncEngine } from '../background-processes/sync-engine';
+import { fallbackSyncEngine, sendUpdateFilesInSyncPending } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { setTrayStatus } from '../tray/tray';
 import { DriveFile } from '../database/entities/DriveFile';
@@ -21,13 +20,17 @@ import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
 import { driveFoldersCollection, syncWorkspaceService } from './workspace/sync-remote-workspace';
 import { SpawnAllSyncEngineWorkersService } from '../background-processes/sync-engine/in/spawn-all-sync-engine-workers.service';
+import { startRemoteSync } from './out/start-remote-sync.service';
+import { updateRemoteSync } from './out/update-remote-sync.service';
+import { checkSyncEngineInProcess } from './out/check-sync-engine-in-process.service';
+import { remoteSyncManagers } from './store';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
 
 const driveFilesCollection = new DriveFilesCollection();
-const remoteSyncManagers = new Map<string, RemoteSyncManager>();
+
 remoteSyncManagers.set(
   '',
   new RemoteSyncManager(
@@ -101,15 +104,6 @@ export function setIsProcessing(isProcessing: boolean, workspaceId = '') {
   if (manager) {
     manager.isProcessRunning = isProcessing;
   }
-}
-
-export function checkSyncEngineInProcess(milliSeconds: number, workspaceId = '') {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) return false;
-  const syncingStatus: RemoteSyncStatus = 'SYNCING';
-  const isSyncing = manager.getSyncStatus() === syncingStatus;
-  const recentlySyncing = manager.recentlyWasSyncing(milliSeconds);
-  return isSyncing || recentlySyncing; // syncing or recently was syncing
 }
 
 export async function getUpdatedRemoteItems(workspaceId = '') {
@@ -231,32 +225,6 @@ async function populateAllRemoteSync(): Promise<void> {
   }
 }
 
-async function startRemoteSync(folderId?: number, workspaceId = ''): Promise<void> {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  try {
-    const { files, folders } = await manager.startRemoteSync(folderId);
-
-    logger.debug({ msg: 'startRemoteSync', folderId, folders: folders.length, files: files.length });
-
-    if (folderId && folders.length > 0) {
-      await Promise.all(
-        folders.map(async (folder) => {
-          if (!folder.id) return;
-          await sleep(400);
-          await startRemoteSync(folder.id, workspaceId);
-        }),
-      );
-    }
-    Logger.info('Remote sync finished');
-  } catch (error) {
-    throw logger.error({
-      msg: 'Error starting remote sync',
-      exc: error,
-    });
-  }
-}
-
 ipcMain.handle('START_REMOTE_SYNC', async (_, workspaceId = '') => {
   Logger.info('Received start remote sync event');
   const isSyncing = await checkSyncEngineInProcess(5_000, workspaceId);
@@ -298,19 +266,6 @@ ipcMain.handle('get-remote-sync-status', (_, workspaceId = '') => {
   if (!manager) throw new Error('RemoteSyncManager not found');
   return manager.getSyncStatus();
 });
-
-export async function updateRemoteSync(): Promise<void> {
-  remoteSyncManagers.forEach(async (manager, workspaceId) => {
-    await startRemoteSync(undefined, workspaceId);
-    const isSyncing = checkSyncEngineInProcess(5000, workspaceId);
-    Logger.info('Is syncing', isSyncing);
-    if (isSyncing) {
-      Logger.info('Remote sync is already running');
-      return;
-    }
-    updateSyncEngine(workspaceId);
-  });
-}
 
 export async function fallbackRemoteSync(workspaceId = ''): Promise<void> {
   const manager = remoteSyncManagers.get(workspaceId);
