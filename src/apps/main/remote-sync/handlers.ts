@@ -30,8 +30,8 @@ import Queue from '@/apps/shared/Queue/Queue';
 const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
-const driveFilesCollection = new DriveFilesCollection();
-const driveFoldersCollection = new DriveFoldersCollection();
+export const driveFilesCollection = new DriveFilesCollection();
+export const driveFoldersCollection = new DriveFoldersCollection();
 const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
 export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection, driveFoldersCollection);
@@ -330,7 +330,7 @@ ipcMain.handle('SYNC_MANUALLY', async (_, workspaceId = '') => {
   Logger.info('[Manual Sync] Received manual sync event');
   const isSyncing = await checkSyncEngineInProcess(5000, workspaceId);
   if (isSyncing) return;
-  await updateRemoteSync();
+  await debouncedSynchronization();
   await fallbackRemoteSync(workspaceId);
 });
 
@@ -356,7 +356,7 @@ ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: st
   manager.setUnsyncFiles(filesPath);
 });
 
-const debouncedSynchronization = lodashDebounce(async () => {
+export const debouncedSynchronization = lodashDebounce(async () => {
   await updateRemoteSync();
 }, SYNC_DEBOUNCE_DELAY);
 

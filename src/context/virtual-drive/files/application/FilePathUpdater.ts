@@ -62,7 +62,18 @@ export class FilePathUpdater {
       const destination = new FilePath(posixRelativePath);
       const file = this.fileFinderByContentsId.run(contentsId);
 
-      if (file.dirname !== destination.dirname()) {
+      const folderFather = this.folderFinder.findFromUuid(file.folderUuid.value);
+
+      logger.info({
+        msg: 'File path updater info',
+        file: file.name,
+        fileDirname: file.dirname,
+        folder: folderFather.name,
+        folderPath: folderFather.path,
+        destination: destination.dirname(),
+      });
+
+      if (folderFather.path !== destination.dirname()) {
         if (file.nameWithExtension !== destination.nameWithExtension()) {
           throw new ActionNotPermittedError('rename and change folder');
         }
@@ -83,6 +94,11 @@ export class FilePathUpdater {
           error: 'Renaming error: file already exists',
         });
         throw new FileAlreadyExistsError(destination.name());
+      }
+
+      if (folderFather.path !== file.dirname) {
+        const trackerId = await this.local.getFileIdentity(destination.value);
+        file.moveTo(folderFather, trackerId);
       }
 
       Logger.debug('[RUN RENAME]', file.name, destination.value);

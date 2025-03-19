@@ -33,4 +33,11 @@ export class FolderFinder {
     }
     return folder;
   }
+  findFromUuid(uuid: Folder['uuid']): Folder {
+    const folder = this.repository.searchByPartial({ uuid });
+    if (!folder) {
+      throw new Error('Folder not found');
+    }
+    return folder;
+  }
 }
