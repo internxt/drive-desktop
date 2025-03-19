@@ -8,7 +8,6 @@
     "url": "https://github.com/internxt/drive-desktop"
   },
   "scripts": {
-    "abc": "tsc -p tsconfig.preload.json && tsc-alias -p tsconfig.preload.json",
     "build": "concurrently \"npm run build:main\" \"npm run build:backups\" \"npm run build:renderer\" \"npm run build:sync-engine\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.main.prod.ts",
     "build:renderer": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.renderer.prod.ts",
@@ -150,7 +149,6 @@
     "ts-essentials": "^10.0.4",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",
-    "tsc-alias": "^1.8.11",
     "tsconfig-paths": "^4.2.0",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^4.5.4",
