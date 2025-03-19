@@ -2,6 +2,7 @@ import Store, { Schema } from 'electron-store';
 import * as uuid from 'uuid';
 
 import { User } from './types';
+import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
 
 // Fields to persist between user sessions
 export const fieldsToSave = [
@@ -16,7 +17,7 @@ export const fieldsToSave = [
   'backupList',
   'nautilusExtensionVersion',
   'discoveredBackup',
-  'shouldFixDanglingFiles'
+  'shouldFixDanglingFiles',
 ] as const;
 
 export interface AppStore {
@@ -43,9 +44,10 @@ export interface AppStore {
   virtualdriveWindowsLetter: string;
   nautilusExtensionVersion: number;
   discoveredBackup: number;
+  availableUserProducts?: AvailableProducts['featuresPerService'];
   shouldFixDanglingFiles: boolean;
-  storageMigrationDate: string
-  fixDeploymentDate: string
+  storageMigrationDate: string;
+  fixDeploymentDate: string;
 }
 
 const schema: Schema<AppStore> = {
@@ -114,6 +116,7 @@ const schema: Schema<AppStore> = {
   },
   nautilusExtensionVersion: { type: 'number' },
   discoveredBackup: { type: 'number' },
+  availableUserProducts: { type: 'object' },
   shouldFixDanglingFiles: { type: 'boolean' },
   storageMigrationDate: { type: 'string' },
   fixDeploymentDate: { type: 'string' },
@@ -143,6 +146,7 @@ export const defaults: AppStore = {
   virtualdriveWindowsLetter: 'I',
   nautilusExtensionVersion: 0,
   discoveredBackup: 0,
+  availableUserProducts: undefined,
   shouldFixDanglingFiles: true,
   storageMigrationDate: '2025-02-19T12:00:00Z',
   fixDeploymentDate: '2025-03-04T15:30:00Z',

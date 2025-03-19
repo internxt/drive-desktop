@@ -55,11 +55,20 @@
         "list-1": "Identifiez les fichiers disponibles hors ligne pour y accéder à tout moment, avec ou sans internet",
         "list-2": "Étiqueter les fichiers uniquement en ligne pour économiser de l'espace sur le disque dur"
       },
+      "antivirus": {
+        "title": "Protégez votre ordinateur contre les virus",
+        "description": "L'application de bureau d'Internxt intègre désormais le tout nouveau Internxt Antivirus, qui vous permet d'analyser et de supprimer tout malware potentiel de votre appareil."
+      },
       "backups": {
         "title": "Sauvegardez et sécurisez vos fichiers en quelques clics",
         "description": "Sauvegardez vos fichiers en sélectionnant simplement les dossiers que vous souhaitez protéger.",
         "description-2": "Planifiez des sauvegardes et gardez vos fichiers en sécurité et à jour sur tous vos appareils.",
         "setup-backups": "Configurer les sauvegardes"
+      },
+      "antivirus": {
+        "title": "Protégez vos fichiers avec un antivirus",
+        "description": "Protégez vos fichiers avec un antivirus pour éviter toute menace de virus ou de malware.",
+        "description-2": "L'antivirus d'Internxt Drive vous permet de protéger vos fichiers et dossiers contre toute menace de virus ou de malware."
       },
       "onboarding-completed": {
         "title": "Vous êtes prêt, profitez de votre vie privée !",
@@ -201,7 +210,8 @@
       "section": {
         "GENERAL": "Général",
         "ACCOUNT": "Compte",
-        "BACKUPS": "Sauvegardes"
+        "BACKUPS": "Sauvegardes",
+        "ANTIVIRUS": "Antivirus"
       }
     },
     "general": {
@@ -263,6 +273,11 @@
       }
     },
     "backups": {
+      "featureLocked": {
+        "title": "Fonction verrouillée",
+        "subtitle": "Veuillez mettre à niveau votre plan pour utiliser cette fonctionnalité.",
+        "action": "Mettre à niveau"
+      },
       "add-folders": "Cliquez sur + pour sélectionner les dossiers que vous souhaitez sauvegarder",
       "selected-folder_one": "{{count}} dossier",
       "selected-folder_other": "{{count}} dossiers",
@@ -303,6 +318,81 @@
           "explanation-2": "Cette action est irréversible.",
           "confirm": "Oui, supprimer",
           "cancel": "Annuler"
+        }
+      }
+    },
+    "antivirus": {
+      "featureLocked": {
+        "title": "Fonction verrouillée",
+        "subtitle": "Veuillez mettre à niveau votre plan pour utiliser cette fonctionnalité.",
+        "action": "Mettre à niveau"
+      },
+      "errorState": {
+        "title": "Une erreur s'est produite lors de l'analyse du répertoire",
+        "button": "Réessayer"
+      },
+      "deactivateAntivirus": {
+        "title": "Windows Defender est actif",
+        "description": "Veuillez désactiver Windows Defender afin de pouvoir utiliser Internxt Antivirus. Pour ce faire, ouvrez Sécurité Windows > Protection contre les virus et menaces > Gérer les paramètres > désactivez la protection en temps réel.",
+        "retry": "Réessayer",
+        "cancel": "Annuler"
+      },
+      "scanOptions": {
+        "stopScan": "Arrêter l'analyse",
+        "systemScan": {
+          "text": "Analyse du système antivirus",
+          "action": "Démarrer l'analyse"
+        },
+        "customScan": {
+          "text": "Analyse personnalisée de l'antivirus",
+          "action": "Choisir",
+          "selector": {
+            "files": "Fichiers",
+            "folders": "Dossiers"
+          }
+        },
+        "removeMalware": {
+          "actions": {
+            "cancel": "Annuler",
+            "remove": "Supprimer",
+            "confirmIgnore": "Annuler et ignorer",
+            "goBack": "Retour"
+          },
+          "actionRequired": {
+            "title": "Action requise",
+            "description": "La suppression du malware supprimera également définitivement l'élément de votre stockage pour protéger votre appareil. Cette action ne peut pas être annulée.",
+            "confirmToContinue": "Veuillez confirmer pour continuer."
+          },
+          "securityWarning": {
+            "title": "Attention de sécurité",
+            "description": "Le malware est toujours présent et votre appareil est en danger.",
+            "confirmToCancel": "Êtes-vous sûr de vouloir annuler ?"
+          }
+        }
+      },
+      "scanProcess": {
+        "scanning": "Analyse en cours...",
+        "scannedFiles": "Fichiers analysés",
+        "detectedFiles": "Fichiers détectés",
+        "errorWhileScanning": "Une erreur s'est produite lors de l'analyse des éléments. Veuillez réessayer.",
+        "noFilesFound": {
+          "title": "Aucune menace détectée",
+          "subtitle": "Aucune action supplémentaire requise"
+        },
+        "malwareFound": {
+          "title": "Malware détecté",
+          "subtitle": "Veuillez examiner et supprimer les menaces.",
+          "action": "Supprimer le malware"
+        },
+        "scanAgain": "Analyser à nouveau"
+      },
+      "filesContainingMalwareModal": {
+        "title": "Fichiers contenant des malwares",
+        "selectedItems": "Sélectionné {{selectedFiles}} sur {{totalFiles}}",
+        "selectAll": "Tout sélectionner",
+        "actions": {
+          "cancel": "Annuler",
+          "remove": "Supprimer"
         }
       }
     }

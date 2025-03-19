@@ -31,8 +31,9 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 import './virtual-drive';
+import './payments/handler';
 
-import { app, ipcMain, nativeTheme } from 'electron';
+import { app, nativeTheme, ipcMain } from 'electron';
 import Logger from 'electron-log';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
@@ -57,8 +58,9 @@ import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import dns from 'node:dns';
-
-let mainWindow: Electron.BrowserWindow;
+import { setupAntivirusIpc } from './background-processes/antivirus/setupAntivirusIPC';
+import { registerAvailableUserProductsHandlers } from './payments/ipc/AvailableUserProductsIPCHandler';
+import { getAntivirusManager } from './antivirus/antivirusManager';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -119,12 +121,24 @@ app
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
+
     checkForUpdates();
+    registerAvailableUserProductsHandlers();
   })
   .catch(Logger.error);
 
 eventBus.on('WIDGET_IS_READY', () => {
   setUpBackups();
+
+  try {
+    Logger.info('[Main] Setting up antivirus IPC handlers');
+    setupAntivirusIpc();
+    Logger.info('[Main] Antivirus IPC handlers setup complete');
+
+    void getAntivirusManager().initialize();
+  } catch (error) {
+    Logger.error('[Main] Error setting up antivirus:', error);
+  }
 });
 
 eventBus.on('USER_LOGGED_IN', async () => {
@@ -157,6 +171,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     }
 
     setCleanUpFunction(stopSyncEngineWatcher);
+
+    void getAntivirusManager().initialize();
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
@@ -169,6 +185,8 @@ eventBus.on('USER_LOGGED_OUT', async () => {
 
   if (widget) {
     widget?.hide();
+
+    void getAntivirusManager().shutdown();
   }
 
   await createAuthWindow();
@@ -189,13 +207,6 @@ process.on('uncaughtException', (error) => {
   } else {
     Logger.error('Uncaught exception in main process: ', error);
   }
-});
-
-ipcMain.handle('request-reinitialize-backups', async () => {
-  if (mainWindow) {
-    mainWindow.webContents.send('reinitialize-backups');
-  }
-  return 'Reinitialization requested';
 });
 
 ipcMain.handle('check-internet-connection', async () => {

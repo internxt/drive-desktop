@@ -8,9 +8,20 @@ import { initiateBackupsProcessTracker } from './BackupsProcessTracker/BackupsPr
 import { BackupsStopController } from './BackupsStopController/BackupsStopController';
 import { launchBackupProcesses } from './launchBackupProcesses';
 import Logger from 'electron-log';
+import configStore from '../../config';
+
+function userCanBackup(): boolean {
+  const availableUserProducts = configStore.get('availableUserProducts');
+  return !!availableUserProducts?.backups;
+}
 
 export async function setUpBackups() {
   Logger.debug('[BACKUPS] Setting up backups');
+  const userHasBackupFeatureAvailable = userCanBackup();
+
+  if (!userHasBackupFeatureAvailable) {
+    Logger.debug('[BACKUPS] User does not have the backup feature available');
+  }
 
   const backupConfiguration = setupBackupConfig();
   const tracker = initiateBackupsProcessTracker();
@@ -30,8 +41,10 @@ export async function setUpBackups() {
       return;
     }
 
-    scheduler.reschedule();
-    Logger.debug('[BACKUPS] The backups has been rescheduled');
+    if (userHasBackupFeatureAvailable) {
+      scheduler.reschedule();
+      Logger.debug('[BACKUPS] The backups has been rescheduled');
+    }
   };
 
   function stopAndClearBackups() {
@@ -44,19 +57,41 @@ export async function setUpBackups() {
   eventBus.on('USER_LOGGED_OUT', stopAndClearBackups);
   eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearBackups);
 
-  ipcMain.on('start-backups-process', async () => {
-    Logger.debug('Backups started manually');
-
-    await launchBackupProcesses(false, tracker, status, errors, stopController);
+  eventBus.on('USER_AVAILABLE_PRODUCTS_UPDATED', (updatedProducts) => {
+    const userHasBackupFeatureNow = !!updatedProducts?.backups;
+    if (userHasBackupFeatureNow && !userHasBackupFeatureAvailable) {
+      Logger.debug(
+        '[BACKUPS] User now has the backup feature available, setting up backups'
+      );
+      setUpBackups();
+    } else if (!userHasBackupFeatureNow && userHasBackupFeatureAvailable) {
+      Logger.debug('[BACKUPS] User no longer has the backup feature available');
+      stopAndClearBackups();
+    }
   });
 
-  Logger.debug('[BACKUPS] Start service');
+  ipcMain.on('start-backups-process', async () => {
+    if (userHasBackupFeatureAvailable) {
+      Logger.debug('Backups started manually');
 
-  await scheduler.start();
+      await launchBackupProcesses(
+        false,
+        tracker,
+        status,
+        errors,
+        stopController
+      );
+    }
+  });
 
-  if (scheduler.isScheduled()) {
-    Logger.debug('[BACKUPS] Backups schedule is set');
+  if (userHasBackupFeatureAvailable) {
+    Logger.debug('[BACKUPS] Start service');
+    await scheduler.start();
+
+    if (scheduler.isScheduled()) {
+      Logger.debug('[BACKUPS] Backups schedule is set');
+    }
+
+    Logger.debug('[BACKUPS] Backups ready');
   }
-
-  Logger.debug('[BACKUPS] Backups ready');
 }

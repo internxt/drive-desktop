@@ -13,6 +13,12 @@ import AvailableOfflineImageFrench from '../../assets/onboarding/folder-with-ove
 import MacOSFinderImage from '../../assets/onboarding/finder/macos.svg';
 import LinuxFinderImage from '../../assets/onboarding/finder/linux.svg';
 import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
+
+// Antivirus images
+import AntivirusImageSpanish from '../../assets/onboarding/antivirus/es.svg';
+import AntivirusImageEnglish from '../../assets/onboarding/antivirus/en.svg';
+import AntivirusImageFrench from '../../assets/onboarding/antivirus/fr.svg';
+
 import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
 
 export type OnboardingSlideProps = {
@@ -30,6 +36,12 @@ export const getOnlineImageSvg = (language: string) => {
   if (language === 'es') return AvailableOnlineImageSpanish;
   if (language === 'fr') return AvailableOnlineImageFrench;
   return AvailableOnlineImageEnglish;
+};
+
+export const getAntivirusImageSvg = (language: string) => {
+  if (language === 'es') return AntivirusImageSpanish;
+  if (language === 'fr') return AntivirusImageFrench;
+  return AntivirusImageEnglish;
 };
 
 export const getOfflineImageSvg = (language: string) => {

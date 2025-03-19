@@ -1,6 +1,6 @@
 {
   "name": "internxt",
-  "version": "2.4.6",
+  "version": "2.4.7",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt Drive client UI",
   "license": "AGPL-3.0",
@@ -23,10 +23,12 @@
     "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/apps/main/main.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "start:backups": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.backups.ts",
-    "test": "jest && playwright test --config=src/test",
+    "test": "jest --testPathIgnorePatterns=\"src/apps/renderer/pages/Settings/Antivirus\" && playwright test --config=src/test",
     "test:unit": "ELECTRON_RUN_AS_NODE=true ./node_modules/.bin/electron ./node_modules/jest-cli/bin/jest.js",
     "test:unit:watch": "jest --watch",
     "test:e2e": "playwright test --config=src/test",
+    "test:renderer": "jest --config jest.config.renderer.js",
+    "test:antivirus": "jest --config jest.config.renderer.js \"src/apps/renderer/pages/Settings/Antivirus\"",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install"
   },
@@ -117,6 +119,7 @@
     },
     "extraResources": [
       "./assets/**",
+      "./clamAV/**",
       "./src/apps/nautilus-extension/internxt-virtual-drive.py"
     ],
     "publish": {
@@ -125,7 +128,8 @@
   },
   "jest": {
     "setupFilesAfterEnv": [
-      "jest-extended/all"
+      "jest-extended/all",
+      "<rootDir>/jest.setup.js"
     ],
     "globals": {
       "ts-jest": {
@@ -136,7 +140,7 @@
     "transformIgnorePatterns": [
       "node_modules/(?!axios)"
     ],
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "transform": {
       "\\.(ts|tsx|js|jsx)$": "ts-jest"
     },
@@ -170,7 +174,7 @@
     "@sentry/webpack-plugin": "^1.20.1",
     "@svgr/webpack": "^6.1.2",
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
-    "@testing-library/jest-dom": "^5.16.1",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^8.0.1",
     "@types/async": "^3.2.16",
@@ -272,7 +276,8 @@
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/inxt-js": "^2.1.0",
     "@internxt/lib": "^1.1.6",
-    "@internxt/sdk": "^1.5.24",
+    "@internxt/scan": "1.0.3",
+    "@internxt/sdk": "1.9.9",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@sentry/electron": "^4.5.0",

@@ -15,6 +15,7 @@ import { broadcastToWindows } from '../windows';
 import { ipcMain } from 'electron';
 import { DependencyInjectionUserProvider } from '../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { BackupError } from '../../backups/BackupError';
+import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
 
 export type Device = {
   id: number;
@@ -566,6 +567,12 @@ export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   await Promise.all(operations);
 }
 
+export type PathInfo = {
+  path: string;
+  itemName: string;
+  isDirectory?: boolean;
+};
+
 export async function getPathFromDialog(): Promise<{
   path: string;
   itemName: string;
@@ -589,5 +596,48 @@ export async function getPathFromDialog(): Promise<{
   return {
     path: itemPath,
     itemName,
+  };
+}
+
+export async function getMultiplePathsFromDialog(
+  allowFiles = false
+): Promise<PathInfo[] | null> {
+  const result = await dialog.showOpenDialog({
+    properties: [
+      'multiSelections' as const,
+      ...(allowFiles ? (['openFile'] as const) : ['openDirectory' as const]),
+    ],
+  });
+
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+
+  const paths = await Promise.all(
+    result.filePaths.map(async (filePath) => {
+      const isFolder = await PathTypeChecker.isFolder(filePath);
+      const itemName = path.basename(filePath);
+      return {
+        path: filePath,
+        itemName,
+        isDirectory: isFolder,
+      };
+    })
+  );
+
+  return paths;
+}
+
+export async function getUserSystemPath(): Promise<PathInfo | undefined> {
+  const filePath = os.homedir();
+  if (!filePath) return;
+
+  const isFolder = await PathTypeChecker.isFolder(filePath);
+  const itemName = path.basename(filePath);
+
+  return {
+    path: filePath,
+    itemName,
+    isDirectory: isFolder,
   };
 }
