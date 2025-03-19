@@ -4,7 +4,7 @@ import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 import { logger } from '../shared/logger/logger';
-import { updateRemoteSync } from './remote-sync/handlers';
+import { debouncedSynchronization } from './remote-sync/handlers';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -76,7 +76,7 @@ function cleanAndStartRemoteNotifications() {
 
     if (data.payload.bucket !== user?.backupsBucket) {
       logger.debug({ msg: 'Notification received', data });
-      await updateRemoteSync();
+      await debouncedSynchronization();
       return;
     }
 
