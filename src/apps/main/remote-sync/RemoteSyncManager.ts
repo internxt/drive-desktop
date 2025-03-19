@@ -3,7 +3,7 @@ import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
 import { logger } from '../../shared/logger/logger';
-import { SyncRemoteFoldersService } from './folders/sync-remote-folders';
+import { SyncRemoteFoldersService } from './folders/sync-remote-folders.service';
 import { FetchRemoteFoldersService } from './folders/fetch-remote-folders.service';
 import { SyncRemoteFilesService } from './files/sync-remote-files.service';
 import { Nullable } from '@/apps/shared/types/Nullable';
@@ -97,14 +97,12 @@ export class RemoteSyncManager {
     try {
       const syncFilesPromise = this.syncRemoteFiles.run({
         self: this,
-        retry: 1,
         folderId,
         from: await this.getFileCheckpoint(),
       });
 
       const syncFoldersPromise = this.syncRemoteFolders.run({
         self: this,
-        retry: 1,
         folderId,
         from: await this.getLastFolderSyncAt(),
       });
