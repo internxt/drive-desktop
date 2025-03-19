@@ -1,8 +1,10 @@
 import { registerDI } from '@/apps/main/background-processes/sync-engine/di';
 import { ContainerBuilder } from 'diod';
 
-const builder = new ContainerBuilder();
+export function getDIContainer() {
+  const builder = new ContainerBuilder();
 
-registerDI(builder);
+  registerDI(builder);
 
-export const container = builder.build();
+  return builder.build();
+}

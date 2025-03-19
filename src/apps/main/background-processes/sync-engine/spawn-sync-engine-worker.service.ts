@@ -6,9 +6,9 @@ import nodeSchedule from 'node-schedule';
 import path from 'path';
 import { cwd } from 'process';
 import { MonitorHealthService } from './monitor-health.service';
-import { updateRemoteSync } from '../../remote-sync/handlers';
 import { StopAndClearSyncEngineWorkerService } from './stop-and-clear-sync-engine-worker.service';
 import { workers } from '../sync-engine';
+import { ScheduleRemoteSyncService } from './schedule-remote-sync.service';
 
 export type WorkerConfig = {
   browserWindow: BrowserWindow | null;
@@ -26,6 +26,7 @@ export class SpawnSyncEngineWorkerService {
   constructor(
     private readonly monitorHealth: MonitorHealthService,
     private readonly stopAndClearSyncEngineWorker: StopAndClearSyncEngineWorkerService,
+    private readonly scheduleRemoteSync: ScheduleRemoteSyncService,
   ) {}
 
   async run({ config }: Props) {
@@ -43,25 +44,25 @@ export class SpawnSyncEngineWorkerService {
     const worker = workers[workspaceId];
 
     if (worker.startingWorker) {
-      logger.debug({ msg: `[MAIN] Worker for drive ${providerName}: ${workspaceId} is already starting` });
+      logger.debug({ msg: '[MAIN] Sync engine worker is already starting', providerName, workspaceId });
       return;
     }
 
     if (worker.workerIsRunning) {
-      logger.info({ msg: `[MAIN] Worker for drive ${providerName}: ${workspaceId} is already running` });
+      logger.info({ msg: '[MAIN] Sync engine worker is already running', providerName, workspaceId });
       return;
     }
 
-    logger.debug({ msg: `[MAIN] SPAWNING SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId}...` });
+    logger.debug({ msg: '[MAIN] Spawing sync engine worker', providerName, workspaceId });
     worker.startingWorker = true;
 
     const browserWindow = new BrowserWindow({
+      show: false,
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
         backgroundThrottling: false,
       },
-      show: false,
     });
 
     try {
@@ -71,7 +72,7 @@ export class SpawnSyncEngineWorkerService {
           : path.join(__dirname, '..', 'sync-engine', 'index.html'),
       );
 
-      logger.debug({ msg: `[MAIN] SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId} LOADED` });
+      logger.debug({ msg: '[MAIN] Sync engine worker loaded', providerName, workspaceId });
 
       browserWindow.webContents.send('SET_CONFIG', config);
 
@@ -83,19 +84,14 @@ export class SpawnSyncEngineWorkerService {
         },
       });
 
-      if (worker.syncSchedule) {
-        workers[workspaceId].syncSchedule?.cancel(false);
-      }
-
-      worker.syncSchedule = nodeSchedule.scheduleJob('0 0 */2 * * *', async () => {
-        logger.debug({ msg: 'Received remote changes event' });
-        await updateRemoteSync();
-      });
+      this.scheduleRemoteSync.run({ worker });
 
       worker.browserWindow = browserWindow;
     } catch (exc) {
       logger.error({
-        msg: `[MAIN] Error loading sync engine worker for workspace ${providerName}: ${workspaceId}`,
+        msg: '[MAIN] Error loading sync engine worker',
+        providerName,
+        workspaceId,
         exc,
       });
     }

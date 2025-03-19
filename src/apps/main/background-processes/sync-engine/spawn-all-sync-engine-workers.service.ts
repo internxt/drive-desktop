@@ -3,13 +3,16 @@ import { getUser } from '../../auth/service';
 import { Config } from '@/apps/sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../../virtual-root-folder/service';
 import { SpawnSyncEngineWorkerService } from './spawn-sync-engine-worker.service';
-import { syncWorkspaceService } from '../../remote-sync/handlers';
-import { FetchWorkspacesService } from '../../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+import { SyncRemoteWorkspaceService } from '../../remote-sync/workspace/sync-remote-workspace';
+import { FetchWorkspacesService } from '../../remote-sync/workspace/fetch-workspaces.service';
 
 @Service()
 export class SpawnAllSyncEngineWorkersService {
-  constructor(private readonly spawnSyncEngineWorker: SpawnSyncEngineWorkerService) {}
+  constructor(
+    private readonly spawnSyncEngineWorker: SpawnSyncEngineWorkerService,
+    private readonly syncRemoteWorkspace: SyncRemoteWorkspaceService,
+  ) {}
 
   async run() {
     const user = getUser();
@@ -34,7 +37,7 @@ export class SpawnAllSyncEngineWorkersService {
 
     await this.spawnSyncEngineWorker.run({ config });
 
-    const workspaces = await syncWorkspaceService.getWorkspaces();
+    const workspaces = await this.syncRemoteWorkspace.getWorkspaces();
 
     await Promise.all(
       workspaces.map(async (workspace) => {
@@ -53,7 +56,7 @@ export class SpawnAllSyncEngineWorkersService {
           loggerPath: getLoggersPaths().logWatcherPath,
           workspaceId: workspace.id,
           workspaceToken: workspaceCredential.tokenHeader,
-          rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
+          rootUuid: await this.syncRemoteWorkspace.getRootFolderUuid(workspace.id),
           bucket: workspaceCredential.bucket,
           bridgeUser: workspaceCredential.credentials.networkUser,
           bridgePass: workspaceCredential.credentials.networkPass,

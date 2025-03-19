@@ -10,16 +10,15 @@ type Props = {
 @Service()
 export class MonitorHealthService {
   async run({ browserWindow, stopAndSpawn }: Props) {
+    const pid = browserWindow.webContents.getOSProcessId();
+
     async function checkWorkerHealth() {
-      if (browserWindow && browserWindow.webContents.getOSProcessId()) {
-        const pid = browserWindow.webContents.getOSProcessId();
-        try {
-          process.kill(pid, 0);
-          logger.debug({ msg: '[MAIN] Sync engine worker is still running' });
-        } catch (err) {
-          logger.error({ msg: '[MAIN] Sync engine worker is dead' });
-          await stopAndSpawn();
-        }
+      try {
+        process.kill(pid, 0);
+        logger.debug({ msg: '[MAIN] Sync engine worker is still running' });
+      } catch (err) {
+        logger.error({ msg: '[MAIN] Sync engine worker is dead' });
+        await stopAndSpawn();
       }
     }
 

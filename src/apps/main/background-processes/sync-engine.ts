@@ -3,7 +3,7 @@ import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { StopAndClearAllSyncEngineWorkersService } from './sync-engine/stop-and-clear-all-sync-engine-workers.service';
 import { WorkerConfig } from './sync-engine/spawn-sync-engine-worker.service';
-import { container } from '@/core/dependency-injection/container';
+import { getDIContainer } from '@/core/dependency-injection/container';
 
 export const workers: { [key: string]: WorkerConfig } = {};
 
@@ -37,11 +37,13 @@ export async function sendUpdateFilesInSyncPending(workspaceId: string): Promise
 }
 
 eventBus.on('USER_LOGGED_OUT', async () => {
+  const container = getDIContainer();
   const service = container.get(StopAndClearAllSyncEngineWorkersService);
   await service.run();
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', async () => {
+  const container = getDIContainer();
   const service = container.get(StopAndClearAllSyncEngineWorkersService);
   await service.run();
 });
