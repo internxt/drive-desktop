@@ -19,7 +19,7 @@ describe('sync-remote-files.service', () => {
     remoteSyncManager.config.fetchFilesLimitPerRequest = 10;
   });
 
-  it('If no hasMore is false, then do not fetch again', async () => {
+  it('If hasMore is false, then do not fetch again', async () => {
     // Given
     fetchFiles.run.mockResolvedValueOnce({ hasMore: false, result: [] });
 
