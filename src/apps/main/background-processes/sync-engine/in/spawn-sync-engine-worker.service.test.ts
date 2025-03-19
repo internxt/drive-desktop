@@ -3,9 +3,9 @@ import { workers } from '@/apps/main/background-processes/sync-engine';
 import { SpawnSyncEngineWorkerService } from './spawn-sync-engine-worker.service';
 import { mockDeep } from 'vitest-mock-extended';
 import { MonitorHealthService } from './monitor-health.service';
-import { StopAndClearSyncEngineWorkerService } from './stop-and-clear-sync-engine-worker.service';
 import { mockProps } from 'tests/vitest/mocks.helper.test';
 import { ScheduleRemoteSyncService } from './schedule-remote-sync.service';
+import { StopAndClearSyncEngineWorkerService } from './stop-and-clear-sync-engine-worker.service';
 
 describe('spawn-sync-engine-worker.service', () => {
   const monitorHealth = mockDeep<MonitorHealthService>();

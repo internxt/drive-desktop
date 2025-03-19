@@ -1,17 +1,15 @@
-import { Service } from 'diod';
-import { getUser } from '../../auth/service';
 import { Config } from '@/apps/sync-engine/config';
-import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../../virtual-root-folder/service';
 import { SpawnSyncEngineWorkerService } from './spawn-sync-engine-worker.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
-import { SyncRemoteWorkspaceService } from '../../remote-sync/workspace/sync-remote-workspace';
-import { FetchWorkspacesService } from '../../remote-sync/workspace/fetch-workspaces.service';
+import { syncWorkspaceService } from '@/apps/main/remote-sync/workspace/sync-remote-workspace';
+import { getUser } from '@/apps/main/auth/service';
+import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '@/apps/main/virtual-root-folder/service';
+import { FetchWorkspacesService } from '@/apps/main/remote-sync/workspace/fetch-workspaces.service';
 
-@Service()
 export class SpawnAllSyncEngineWorkersService {
   constructor(
-    private readonly spawnSyncEngineWorker: SpawnSyncEngineWorkerService,
-    private readonly syncRemoteWorkspace: SyncRemoteWorkspaceService,
+    private readonly spawnSyncEngineWorker = new SpawnSyncEngineWorkerService(),
+    private readonly syncRemoteWorkspace = syncWorkspaceService,
   ) {}
 
   async run() {

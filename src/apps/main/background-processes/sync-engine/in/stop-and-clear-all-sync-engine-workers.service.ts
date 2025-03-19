@@ -1,10 +1,8 @@
-import { Service } from 'diod';
+import { workers } from '../../sync-engine';
 import { StopAndClearSyncEngineWorkerService } from './stop-and-clear-sync-engine-worker.service';
-import { workers } from '../sync-engine';
 
-@Service()
 export class StopAndClearAllSyncEngineWorkersService {
-  constructor(private readonly stopAndClearSyncEngineWorker: StopAndClearSyncEngineWorkerService) {}
+  constructor(private readonly stopAndClearSyncEngineWorker = new StopAndClearSyncEngineWorkerService()) {}
 
   async run() {
     await Promise.all(

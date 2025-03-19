@@ -5,6 +5,7 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import Logger from 'electron-log';
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; updatePayload: Partial<DriveFile> };
+
 export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile> {
   private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 

@@ -1,5 +1,4 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { Service } from 'diod';
 import { BrowserWindow } from 'electron';
 
 type Props = {
@@ -7,7 +6,6 @@ type Props = {
   stopAndSpawn: () => Promise<void>;
 };
 
-@Service()
 export class MonitorHealthService {
   async run({ browserWindow, stopAndSpawn }: Props) {
     const pid = browserWindow.webContents.getOSProcessId();

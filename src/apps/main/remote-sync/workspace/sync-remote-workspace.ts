@@ -80,3 +80,7 @@ export class SyncRemoteWorkspaceService {
     return rootFolder.result[0]?.uuid ?? '';
   }
 }
+
+export const driveFoldersCollection = new DriveFoldersCollection();
+export const driveWorkspaceCollection = new DriveWorkspaceCollection();
+export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection, driveFoldersCollection);

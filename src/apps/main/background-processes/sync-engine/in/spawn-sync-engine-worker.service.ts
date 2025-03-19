@@ -1,14 +1,13 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { Config } from '@/apps/sync-engine/config';
-import { Service } from 'diod';
 import { BrowserWindow } from 'electron';
 import nodeSchedule from 'node-schedule';
 import path from 'path';
 import { cwd } from 'process';
 import { MonitorHealthService } from './monitor-health.service';
-import { StopAndClearSyncEngineWorkerService } from './stop-and-clear-sync-engine-worker.service';
-import { workers } from '../sync-engine';
 import { ScheduleRemoteSyncService } from './schedule-remote-sync.service';
+import { workers } from '../../sync-engine';
+import { StopAndClearSyncEngineWorkerService } from './stop-and-clear-sync-engine-worker.service';
 
 export type WorkerConfig = {
   browserWindow: BrowserWindow | null;
@@ -21,12 +20,11 @@ type Props = {
   config: Config;
 };
 
-@Service()
 export class SpawnSyncEngineWorkerService {
   constructor(
-    private readonly monitorHealth: MonitorHealthService,
-    private readonly stopAndClearSyncEngineWorker: StopAndClearSyncEngineWorkerService,
-    private readonly scheduleRemoteSync: ScheduleRemoteSyncService,
+    private readonly monitorHealth = new MonitorHealthService(),
+    private readonly stopAndClearSyncEngineWorker = new StopAndClearSyncEngineWorkerService(),
+    private readonly scheduleRemoteSync = new ScheduleRemoteSyncService(),
   ) {}
 
   async run({ config }: Props) {
