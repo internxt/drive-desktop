@@ -2,7 +2,7 @@ import eventBus from '../event-bus';
 import { buildPaymentsService } from './builder';
 import Logger from 'electron-log';
 
-async function getUserAvailableProductsAndStore() {
+export async function getUserAvailableProductsAndStore() {
   try {
     const paymentsService = buildPaymentsService();
     const products = await paymentsService.getAvailableProducts();
