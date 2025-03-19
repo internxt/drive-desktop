@@ -242,8 +242,8 @@ export class BindingsManager {
     await this.container.virtualDrive.unregisterSyncRoot();
   }
 
-  async unregisterSyncEngine(providerId: string) {
-    await this.container.virtualDrive.unRegisterSyncRootByProviderId(providerId);
+  async unregisterSyncEngine({ providerId }: { providerId: string }) {
+    await this.container.virtualDrive.unRegisterSyncRootByProviderId({ providerId });
   }
 
   async cleanQueue() {

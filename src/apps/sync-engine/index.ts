@@ -104,7 +104,7 @@ async function setUp() {
 
   ipcRenderer.on('UNREGISTER_SYNC_ENGINE_PROCESS', async (_, providerId: string) => {
     Logger.info('[SYNC ENGINE] Unregistering sync engine');
-    await bindings.unregisterSyncEngine(providerId);
+    await bindings.unregisterSyncEngine({ providerId });
     Logger.info('[SYNC ENGINE] sync engine unregistered successfully');
   });
 
