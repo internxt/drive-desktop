@@ -6,7 +6,7 @@ import { DependencyInjectionUserProvider } from '../../../shared/dependency-inje
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/delete/FileDeleter';
 import { SimpleFileCreator } from '../../../../context/virtual-drive/files/application/create/SimpleFileCreator';
 
-export function registerFilesServices(builder: ContainerBuilder) {
+export async function registerFilesServices(builder: ContainerBuilder) {
   // Infra
   const user = DependencyInjectionUserProvider.get();
 

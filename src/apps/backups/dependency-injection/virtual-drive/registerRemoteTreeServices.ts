@@ -5,7 +5,7 @@ import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../../sync-engine/ipcRendererSyncEngine';
 import { RemoteItemsGenerator } from '../../../../context/virtual-drive/items/application/RemoteItemsGenerator';
 
-export function registerRemoteTreeServices(builder: ContainerBuilder) {
+export async function registerRemoteTreeServices(builder: ContainerBuilder) {
   // Infra
   builder
     .register(RemoteItemsGenerator)

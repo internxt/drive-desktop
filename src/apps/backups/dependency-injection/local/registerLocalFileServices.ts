@@ -10,7 +10,7 @@ import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 import { getConfig } from '@/apps/sync-engine/config';
 
-export function registerLocalFileServices(builder: ContainerBuilder) {
+export async function registerLocalFileServices(builder: ContainerBuilder) {
   //Infra
   const user = DependencyInjectionUserProvider.get();
 
