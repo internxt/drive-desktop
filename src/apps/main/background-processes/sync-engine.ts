@@ -42,7 +42,7 @@ function scheduleSync(workspaceId: string) {
     workers[workspaceId].syncSchedule?.cancel(false);
   }
 
-  workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('0 0 */2 * * *', async () => {
+  workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('*/15 * * * *', async () => {
     eventBus.emit('RECEIVED_REMOTE_CHANGES', workspaceId);
   });
 }
