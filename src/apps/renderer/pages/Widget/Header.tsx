@@ -81,7 +81,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     } else if (status === 'error') {
       displayUsage = '';
     } else if (usage) {
-      displayUsage = `${bytes.format(usage.usageInBytes)} ${translate(
+      displayUsage = `${bytes.format(usage?.usageInBytes || 0)} ${translate(
         'widget.header.usage.of',
       )} ${usage.isInfinite ? '∞' : bytes.format(usage.limitInBytes)}`;
     } else {
