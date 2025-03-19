@@ -30,8 +30,8 @@ import Queue from '@/apps/shared/Queue/Queue';
 const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
-const driveFilesCollection = new DriveFilesCollection();
-const driveFoldersCollection = new DriveFoldersCollection();
+export const driveFilesCollection = new DriveFilesCollection();
+export const driveFoldersCollection = new DriveFoldersCollection();
 const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
 export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection, driveFoldersCollection);
