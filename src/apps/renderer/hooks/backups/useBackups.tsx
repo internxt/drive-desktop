@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { BackupInfo } from '../../../backups/BackupInfo';
 import { DeviceContext } from '../../context/DeviceContext';
 import { Device } from '../../../main/device/service';
+import { useDevices } from '../devices/useDevices';
 
 export type BackupsState = 'LOADING' | 'ERROR' | 'SUCCESS';
 
@@ -13,12 +14,15 @@ export interface BackupContextProps {
   deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
   downloadBackups: (device: Device) => Promise<void>;
   abortDownloadBackups: (device: Device) => void;
+  hasExistingBackups: boolean;
 }
 
 export function useBackups(): BackupContextProps {
   const { selected, current } = useContext(DeviceContext);
   const [backupsState, setBackupsState] = useState<BackupsState>('LOADING');
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
+  const [hasExistingBackups, setHasExistingBackups] = useState(false);
+  const { devices } = useDevices();
 
   async function fetchBackups(): Promise<void> {
     if (!selected) return;
@@ -28,6 +32,11 @@ export function useBackups(): BackupContextProps {
     );
     setBackups(backups);
   }
+
+  const validateIfBackupExists = async () => {
+    const existsBackup = devices.some((device) => device.hasBackups);
+    setHasExistingBackups(existsBackup);
+  };
 
   async function loadBackups() {
     setBackupsState('LOADING');
@@ -47,8 +56,9 @@ export function useBackups(): BackupContextProps {
   }, []);
 
   useEffect(() => {
+    validateIfBackupExists();
     loadBackups();
-  }, [selected]);
+  }, [selected, devices]);
 
   async function addBackup(): Promise<void> {
     try {
@@ -96,5 +106,6 @@ export function useBackups(): BackupContextProps {
     deleteBackups,
     downloadBackups,
     abortDownloadBackups,
+    hasExistingBackups,
   };
 }

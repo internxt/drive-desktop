@@ -15,10 +15,10 @@ export default function BackupsSection({
   showBackedFolders,
   showIssues,
 }: BackupsSectionProps) {
-  const { backups } = useContext(BackupContext);
+  const { hasExistingBackups } = useContext(BackupContext);
   const { products } = useUserAvailableProducts();
 
-  const userCanAccessBackups = backups.length > 0 || products?.backups;
+  const userCanAccessBackups = products?.backups || hasExistingBackups;
 
   return (
     <div className={`${active ? 'block' : 'hidden'} w-full`}>
@@ -27,7 +27,7 @@ export default function BackupsSection({
           showBackedFolders={showBackedFolders}
           showIssues={showIssues}
         />
-      ): (
+      ) : (
         <LockedState />
       )}
     </div>
