@@ -46,7 +46,7 @@ export const ScanState = ({ showItemsWithMalware }: ScanStateProps) => {
           />
         )}
 
-        {!isScanning && !isScanCompleted && showErrorState && (
+        {isScanCompleted && showErrorState && (
           <ErrorWhileScanningItems
             translate={translate}
             onScanAgainButtonClicked={onScanAgainButtonClicked}

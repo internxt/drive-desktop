@@ -184,12 +184,26 @@ export class Antivirus {
    */
   async verifyConnection(): Promise<boolean> {
     if (!this.clamAv || !this.isInitialized) {
+      Logger.error(
+        '[ANTIVIRUS] Connection verification failed: ClamAV not initialized'
+      );
       return false;
     }
 
     try {
+      Logger.debug('[ANTIVIRUS] Verifying ClamAV connection with ping');
       const pingResult = await this.clamAv.ping();
-      return !!pingResult;
+      const isConnected = !!pingResult;
+
+      if (isConnected) {
+        Logger.debug('[ANTIVIRUS] ClamAV connection verified successfully');
+      } else {
+        Logger.warn(
+          '[ANTIVIRUS] ClamAV ping succeeded but returned falsy value'
+        );
+      }
+
+      return isConnected;
     } catch (error) {
       Logger.error('[ANTIVIRUS] Error verifying ClamAV connection:', error);
       return false;
@@ -248,7 +262,7 @@ export class Antivirus {
 
         retryCount++;
         Logger.warn(
-          `[ANTIVIRUS] Connection issue detected for ${filePath}, retry ${retryCount}/${maxRetries}`
+          `[ANTIVIRUS_SCAN] Connection issue detected for ${filePath}, retry ${retryCount}/${maxRetries}`
         );
 
         await new Promise((resolve) => setTimeout(resolve, 500 * retryCount));

@@ -456,7 +456,10 @@ export class ManualSystemScan {
         file: previousScannedItem.pathName,
         isInfected: previousScannedItem.isInfected,
       });
+      return true;
     }
+
+    return false;
   };
 
   private async performCustomScan(
@@ -556,6 +559,7 @@ export class ManualSystemScan {
       if (this.cancelled) return;
 
       activeScans.count++;
+
       try {
         const scannedItem = await transformItem(filePath);
         const previousScannedItem = await this.dbConnection.getItemFromDatabase(
@@ -563,12 +567,16 @@ export class ManualSystemScan {
         );
 
         if (previousScannedItem) {
-          activeScans.count--;
-          return this.handlePreviousScannedItem(
+          const isFileUnchanged = await this.handlePreviousScannedItem(
             currentSession,
             scannedItem,
             previousScannedItem
           );
+
+          if (isFileUnchanged) {
+            activeScans.count--;
+            return;
+          }
         }
 
         try {
