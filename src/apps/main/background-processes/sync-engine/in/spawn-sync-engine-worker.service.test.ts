@@ -13,7 +13,7 @@ describe('spawn-sync-engine-worker.service', () => {
   const scheduleRemoteSync = mockDeep<ScheduleRemoteSyncService>();
   const service = new SpawnSyncEngineWorkerService(monitorHealth, stopAndClearSyncEngineWorker, scheduleRemoteSync);
 
-  const workspaceId = 'workspace1';
+  const workspaceId = 'workspaceId';
   const props = mockProps<SpawnSyncEngineWorkerService>({ config: { workspaceId } });
 
   beforeEach(() => {

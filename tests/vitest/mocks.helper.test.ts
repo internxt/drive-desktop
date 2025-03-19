@@ -6,3 +6,7 @@ type TClass = { run: (props: any) => unknown };
 export function mockProps<T extends TClass>(props: DeepPartial<Parameters<T['run']>[0]>) {
   return props as Parameters<T['run']>[0];
 }
+
+export function mockObject<T>(obj: DeepPartial<T>): T {
+  return obj as T;
+}

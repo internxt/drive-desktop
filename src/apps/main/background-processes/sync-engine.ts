@@ -1,7 +1,5 @@
 import { BrowserWindow } from 'electron';
 import { WorkerConfig } from './sync-engine/in/spawn-sync-engine-worker.service';
-import { SyncEngineIpcService } from './sync-engine/out/sync-engine-ipc.service';
-import { SyncEngineEventBusService } from './sync-engine/out/sync-engine-event-bus.service';
 
 export const workers: { [key: string]: WorkerConfig } = {};
 
@@ -29,6 +27,3 @@ export function fallbackSyncEngine(workspaceId: string) {
   const browserWindow = getBrowserWindow(workspaceId);
   browserWindow?.webContents.send('FALLBACK_SYNC_ENGINE_PROCESS');
 }
-
-new SyncEngineIpcService().run();
-new SyncEngineEventBusService().run();

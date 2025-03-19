@@ -56,6 +56,8 @@ import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
 import clamAVServer from './antivirus/ClamAVDaemon';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
+import { SyncEngineIpcService } from './background-processes/sync-engine/out/sync-engine-ipc.service';
+import { SyncEngineEventBusService } from './background-processes/sync-engine/out/sync-engine-event-bus.service';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -69,6 +71,9 @@ setupAuthIpcHandlers();
 setupSettingsIPCHandlers();
 setupVirtualDriveHandlers();
 setupQuitHandlers();
+
+new SyncEngineIpcService().run();
+new SyncEngineEventBusService().run();
 
 Logger.log(`Running ${packageJson.version}`);
 Logger.log(`App is packaged: ${app.isPackaged}`);
