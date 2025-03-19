@@ -18,25 +18,25 @@ export class BackupsDependencyContainerFactory {
 
     try {
       Logger.info('[BackupsDependencyContainerFactory] Registering file services.');
-      await registerFilesServices(builder);
+      registerFilesServices(builder);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering folder services.');
-      await registerFolderServices(builder);
+      registerFolderServices(builder);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering remote tree services.');
-      await registerRemoteTreeServices(builder);
+      registerRemoteTreeServices(builder);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering local file services.');
-      await registerLocalFileServices(builder);
+      registerLocalFileServices(builder);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering local tree services.');
-      await registerLocalTreeServices(builder);
+      registerLocalTreeServices(builder);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering user usage services.');
-      await registerUserUsageServices(builder);
+      registerUserUsageServices(builder);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering Backup service.');
-      await builder.registerAndUse(Backup);
+      builder.registerAndUse(Backup);
       const container = builder.build();
       Logger.info('[BackupsDependencyContainerFactory] Container built successfully.');
 

@@ -3,7 +3,7 @@ import { SimpleFolderCreator } from '../../../../context/virtual-drive/folders/a
 import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/delete/FolderDeleter';
 
-export async function registerFolderServices(builder: ContainerBuilder) {
+export function registerFolderServices(builder: ContainerBuilder) {
   builder
     .register(HttpRemoteFolderSystem)
     .useFactory(() => {
