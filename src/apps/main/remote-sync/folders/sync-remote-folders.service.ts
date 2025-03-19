@@ -23,15 +23,15 @@ export class SyncRemoteFoldersService {
     folderId,
     retry = 1,
     offset = 0,
+    allResults = [],
   }: {
     self: RemoteSyncManager;
     retry?: number;
     from?: Date;
     folderId?: number | string;
     offset?: number;
+    allResults?: RemoteSyncedFolder[];
   }): Promise<RemoteSyncedFolder[]> {
-    const allResults: RemoteSyncedFolder[] = [];
-
     let hasMore = true;
 
     try {
@@ -82,7 +82,7 @@ export class SyncRemoteFoldersService {
         return [];
       }
 
-      return await this.run({ self, retry: retry + 1, from, offset });
+      return await this.run({ self, retry: retry + 1, from, offset, allResults });
     }
   }
 }

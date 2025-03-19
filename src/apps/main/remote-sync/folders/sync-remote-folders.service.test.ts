@@ -4,6 +4,7 @@ import { FetchFoldersService } from './fetch-folders.service.interface';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { LoggerService } from '@/apps/shared/logger/logger';
 import { getMockCalls } from 'tests/vitest/utils.helper.test';
+import { RemoteSyncedFolder } from '../helpers';
 
 describe('sync-remote-folders.service', () => {
   const workspaceId = 'workspaceId';
@@ -17,6 +18,7 @@ describe('sync-remote-folders.service', () => {
     vi.clearAllMocks();
     remoteSyncManager.foldersSyncStatus = 'IDLE';
     remoteSyncManager.config.fetchFoldersLimitPerRequest = 10;
+    remoteSyncManager.totalFoldersSynced = 0;
   });
 
   it('If hasMore is false, then do not fetch again', async () => {
@@ -69,6 +71,35 @@ describe('sync-remote-folders.service', () => {
       expect.objectContaining({ msg: 'Remote folders sync failed', offset: 10, retry: 1 }),
       expect.objectContaining({ msg: 'Remote folders sync failed', offset: 10, retry: 2 }),
       expect.objectContaining({ msg: 'Remote folders sync failed', offset: 10, retry: 3 }),
+    ]);
+  });
+
+  it('If fails in the middle, keep previous folders', async () => {
+    // Given
+    fetchFiles.run.mockResolvedValueOnce({
+      hasMore: true,
+      result: [{ uuid: 'folder1' } as unknown as RemoteSyncedFolder],
+    });
+    fetchFiles.run.mockRejectedValueOnce(new Error());
+    fetchFiles.run.mockResolvedValueOnce({
+      hasMore: false,
+      result: [{ uuid: 'folder2' } as unknown as RemoteSyncedFolder],
+    });
+
+    // When
+    const folders = await service.run({ self: remoteSyncManager });
+
+    // Then
+    expect(folders.length).toBe(2);
+    expect(remoteSyncManager.totalFoldersSynced).toBe(2);
+    expect(fetchFiles.run).toHaveBeenCalledTimes(3);
+    expect(remoteSyncManager.foldersSyncStatus).toBe('IDLE');
+    expect(getMockCalls(logger.error)).toStrictEqual([
+      expect.objectContaining({
+        msg: 'Remote folders sync failed',
+        offset: 10,
+        retry: 1,
+      }),
     ]);
   });
 });
