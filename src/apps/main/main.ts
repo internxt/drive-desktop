@@ -52,8 +52,7 @@ import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
-import clamAVServer from './antivirus/ClamAVDaemon';
+import { clearAntivirusIfAvailable, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 
@@ -121,8 +120,6 @@ app
       return nativeTheme.shouldUseDarkColors;
     });
 
-    await clamAVServer.startClamdServer();
-
     checkForUpdates();
   })
   .catch(Logger.error);
@@ -153,9 +150,9 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
-    await clamAVServer.waitForClamd();
+    await initializeAntivirusIfAvailable();
 
-    scheduleDailyScan();
+    
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
@@ -169,9 +166,9 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   if (widget) {
     widget.hide();
     widget.destroy();
-    clearDailyScan();
-    clamAVServer.stopClamdServer();
   }
+
+  clearAntivirusIfAvailable();
 
   await createAuthWindow();
 });
