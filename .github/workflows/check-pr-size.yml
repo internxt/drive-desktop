@@ -2,6 +2,7 @@ name: Check PR size
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   check_pr_size:
@@ -29,7 +30,7 @@ jobs:
 
           # Calculate added and deleted lines between the merge base and the head commit
           TOTAL_CHANGED=$(git diff --numstat "$MERGE_BASE" "$HEAD_SHA" \
-            | grep -Ev "(yarn.lock|pnpm-lock.json|schema.d.ts)" \
+            | grep -Ev "(pnpm-lock.json|schema.d.ts)" \
             | awk '{ added += $1; deleted += $2 } END { print added + deleted }')
 
           # Default to 0 if nothing is output

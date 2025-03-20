@@ -28,8 +28,8 @@
     "outDir": "release/app/dist",
     "types": ["vitest/globals"],
     "paths": {
-      "@/*": ["./src/*"],
-      "virtual-drive/dist": ["../node-win/dist"]
+      "@/*": ["./src/*"]
+      // "@internxt/node-win/dist": ["../node-win/dist"]
     }
   },
   "include": ["src", "tests", ".erb/configs", ".erb/scripts"]

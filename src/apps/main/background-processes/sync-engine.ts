@@ -12,6 +12,7 @@ import { driveFilesCollection, driveFoldersCollection, syncWorkspaceService } fr
 import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+import { cwd } from 'process';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -85,8 +86,8 @@ export async function spawnSyncEngineWorker(config: Config) {
   try {
     await worker.loadFile(
       process.env.NODE_ENV === 'development'
-        ? '../../../release/app/dist/sync-engine/index.html'
-        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`,
+        ? path.join(cwd(), 'dist', 'sync-engine', 'index.html')
+        : path.join(__dirname, '..', 'sync-engine', 'index.html'),
     );
 
     logger.debug({ msg: `[MAIN] SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId} LOADED` });

@@ -151,8 +151,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     }
 
     await initializeAntivirusIfAvailable();
-
-    
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);

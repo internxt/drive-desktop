@@ -16,6 +16,7 @@ const ENV_SCHEMA = z.object({
   PROVIDER_ID: z.string(),
   ROOT_FOLDER_NAME: z.string(),
   SENTRY_DSN: z.string(),
+  USE_LOCAL_NODE_WIN: z.union([z.literal('true'), z.literal('false')]),
 });
 
 export type TEnv = z.infer<typeof ENV_SCHEMA>;

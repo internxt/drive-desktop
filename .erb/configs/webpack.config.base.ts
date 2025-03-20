@@ -2,19 +2,18 @@ import path from 'path';
 import { cwd } from 'process';
 import { TsconfigPathsPlugin } from 'tsconfig-paths-webpack-plugin';
 import webpack from 'webpack';
-import webpackPaths from './webpack.paths';
-import { dependencies as externals } from '../../release/app/package.json';
+import webpackPaths, { nativeDeps } from './webpack.paths';
 import { validateProcessEnv } from '../scripts/validate-process-env';
 
 validateProcessEnv();
 
 const aliases: Record<string, string> = {};
-if (process.env.NODE_ENV === 'development') {
-  aliases['virtual-drive/dist'] = path.resolve(cwd(), '../node-win/dist');
+if (process.env.NODE_ENV === 'development' && process.env.USE_LOCAL_NODE_WIN === 'true') {
+  aliases['@internxt/node-win/dist'] = path.resolve(cwd(), '../node-win/dist');
 }
 
 const configuration: webpack.Configuration = {
-  externals: [...Object.keys(externals)],
+  externals: nativeDeps,
 
   stats: 'errors-only',
 
@@ -50,7 +49,7 @@ const configuration: webpack.Configuration = {
   resolve: {
     alias: { ...aliases },
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
-    modules: [webpackPaths.srcPath, 'node_modules'],
+    modules: [webpackPaths.rootPath, 'node_modules'],
     plugins: [new TsconfigPathsPlugin()],
   },
 

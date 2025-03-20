@@ -3,6 +3,7 @@
   "version": "2.5.0",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt client UI",
+  "main": "./dist/main/main.js",
   "license": "AGPL-3.0",
   "repository": {
     "url": "https://github.com/internxt/drive-desktop"
@@ -37,11 +38,10 @@
     "test:e2e": "playwright test --config=tests",
     "test:all": "npm run test:once && npm run test:e2e",
     "========== Native deps ==========": "",
-    "reload-native-deps": "cd release/app && npm run reload-native-deps && cd ../.. && pnpm install",
-    "ci:reload-native-deps": "cd release/app && npm run ci:reload-native-deps && cd ../.. && pnpm install",
+    "electron-rebuild": "electron-rebuild --sequential --force --types prod,dev,optional --module-dir .",
+    "reload-native-deps": "ts-node .erb/scripts/check-native-deps.ts && npm run electron-rebuild && pnpm install",
     "========== Other ==========": "",
     "prepare": "husky install",
-    "postinstall": "ts-node .erb/scripts/check-native-deps.ts",
     "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts"
   },
   "build": {
@@ -63,9 +63,8 @@
       "verifyUpdateCodeSignature": false
     },
     "directories": {
-      "app": "release/app",
       "buildResources": "assets",
-      "output": "release/build"
+      "output": "build"
     },
     "extraResources": [
       "./assets/**",
@@ -165,8 +164,9 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/inxt-js": "^2.1.0",
-    "@internxt/lib": "^1.1.6",
+    "@internxt/inxt-js": "2.1.0",
+    "@internxt/lib": "1.1.6",
+    "@internxt/node-win": "1.0.4",
     "@internxt/scan": "1.0.2",
     "@internxt/sdk": "1.9.9",
     "@phosphor-icons/react": "2.0.9",
@@ -174,6 +174,7 @@
     "@sentry/electron": "^4.5.0",
     "async": "^3.2.4",
     "axios": "^1.1.3",
+    "better-sqlite3": "^8.3.0",
     "bytes": "^3.1.1",
     "chance": "^1.1.11",
     "crypto-js": "4.1.1",
@@ -204,6 +205,7 @@
     "reflect-metadata": "^0.1.13",
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
+    "typeorm": "^0.3.16",
     "uuid": "^8.3.2"
   },
   "devEngines": {
@@ -212,7 +214,8 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "electron"
+      "electron",
+      "better-sqlite3"
     ]
   }
 }

@@ -1,4 +1,4 @@
-import { VirtualDrive } from 'virtual-drive/dist';
+import { VirtualDrive } from '@internxt/node-win/dist';
 import { FileStatuses } from '../../files/domain/FileStatus';
 import { File } from '../domain/File';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
