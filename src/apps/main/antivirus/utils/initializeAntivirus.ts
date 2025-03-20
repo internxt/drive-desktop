@@ -24,10 +24,8 @@ export async function initializeAntivirusIfAvailable() {
 }
 
 async function initializeClamAV() {
-  if (!paymentService) {
-    logger.info({ msg: '[INITIALIZING CLAM AV] Building payment service...' });
-    paymentService = buildPaymentsService();
-  }
+  logger.info({ msg: '[INITIALIZING CLAM AV] Building payment service...' });
+  paymentService = buildPaymentsService();
 
   logger.info({ msg: '[INITIALIZING CLAM AV] Checking user subscription...' });
   try {
