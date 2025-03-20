@@ -2,10 +2,11 @@ import { ipcMain, shell } from 'electron';
 import { SelectedItemToScanProps } from '../antivirus/Antivirus';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { exec } from 'node:child_process';
-import { PaymentsService } from '../payments/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
-import { buildPaymentsService } from '../payments/builder';
+import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
+import { PaymentsService } from '../payments/service';
+import { buildPaymentsService } from '../payments/builder';
 
 let paymentService: PaymentsService | null = null;
 
@@ -25,22 +26,10 @@ export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
 }
 
 ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
-  try {
-    if (!paymentService) {
-      paymentService = buildPaymentsService();
-    }
-
-    const availableProducts = await paymentService.getAvailableProducts();
-
-    return availableProducts.antivirus;
-  } catch (error) {
-    logger.warn({
-      msg: 'ERROR GETTING PRODUCTS FOR ANTIVIRUS',
-      exc: error,
-    });
-    return false;
-  }
+  const result = await initializeAntivirusIfAvailable();
+  return result.antivirusEnabled;
 });
+
 export async function isAvailableBackups(): Promise<boolean> {
   try {
     if (!paymentService) {

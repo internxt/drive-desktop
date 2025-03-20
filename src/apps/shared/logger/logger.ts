@@ -14,7 +14,7 @@ export type TRawBody = {
   [key: string]: unknown;
 };
 
-class Logger {
+export class LoggerService {
   private prepareBody(rawBody: TRawBody) {
     const user = getUser();
 
@@ -57,4 +57,5 @@ class Logger {
   }
 }
 
-export const logger = new Logger();
+export const logger = new LoggerService();
+export const loggerService = logger;

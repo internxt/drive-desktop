@@ -89,8 +89,8 @@ export type SyncEngineInvocableFunctions = {
 export type ProcessInfoUpdate = {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
   SYNC_PROBLEM: (payload: { key: string; additionalData: Record<string, any> }) => void;
-  SYNCING: () => void;
-  SYNCED: () => void;
+  SYNCING: (workspacesId: string) => void;
+  SYNCED: (workspacesId: string) => void;
 };
 
 export type FromProcess = FilesEvents & FolderEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;

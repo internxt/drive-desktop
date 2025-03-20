@@ -42,7 +42,7 @@ import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
-import { AppDataSource } from './database/data-source';
+import { AppDataSource, destroyDatabase } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
@@ -52,8 +52,7 @@ import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { clearDailyScan, scheduleDailyScan } from './antivirus/scanCronJob';
-import clamAVServer from './antivirus/ClamAVDaemon';
+import { clearAntivirusIfAvailable, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 
@@ -121,8 +120,6 @@ app
       return nativeTheme.shouldUseDarkColors;
     });
 
-    await clamAVServer.startClamdServer();
-
     checkForUpdates();
   })
   .catch(Logger.error);
@@ -153,9 +150,9 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
 
-    await clamAVServer.waitForClamd();
+    await initializeAntivirusIfAvailable();
 
-    scheduleDailyScan();
+    
   } catch (error) {
     Logger.error(error);
     reportError(error as Error);
@@ -164,16 +161,14 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
 eventBus.on('USER_LOGGED_OUT', async () => {
   setTrayStatus('IDLE');
+  await destroyDatabase();
   const widget = getWidget();
   if (widget) {
     widget.hide();
     widget.destroy();
-    clearDailyScan();
-    clamAVServer.stopClamdServer();
   }
 
+  clearAntivirusIfAvailable();
+
   await createAuthWindow();
-  if (AppDataSource.isInitialized) {
-    await AppDataSource.destroy();
-  }
 });

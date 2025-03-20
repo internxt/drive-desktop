@@ -28,12 +28,12 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('SYNCING', () => {
-  setIsProcessing(true);
+ipcMainDrive.on('SYNCING', (_, workspacesId) => {
+  setIsProcessing(true, workspacesId);
 });
 
-ipcMainDrive.on('SYNCED', () => {
-  setIsProcessing(false);
+ipcMainDrive.on('SYNCED', (_, workspacesId) => {
+  setIsProcessing(false, workspacesId);
 });
 
 ipcMainDrive.on('FILE_PREPARING', (_, payload) => {

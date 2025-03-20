@@ -19,6 +19,7 @@ import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
 import { HandleAddService } from './callbacks/handleAdd.service';
 import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
+import { getConfig } from './config';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -75,7 +76,7 @@ export class BindingsManager {
   }
 
   async start(version: string) {
-    ipcRendererSyncEngine.send('SYNCING');
+    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
     await this.stop();
     await this.pollingStart();
 
@@ -129,7 +130,7 @@ export class BindingsManager {
         } catch (error) {
           Logger.error('Error during rename or move operation', error);
         }
-        ipcRendererSyncEngine.send('SYNCED');
+        ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
         ipcRenderer.send('CHECK_SYNC');
       },
       notifyFileAddedCallback: async (absolutePath: string) => {
@@ -205,7 +206,7 @@ export class BindingsManager {
 
     await this.load();
     await this.polling();
-    ipcRendererSyncEngine.send('SYNCED');
+    ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
   }
 
   async watch() {
@@ -217,8 +218,8 @@ export class BindingsManager {
     };
 
     const notify = {
-      onTaskSuccess: async () => ipcRendererSyncEngine.send('SYNCED'),
-      onTaskProcessing: async () => ipcRendererSyncEngine.send('SYNCING'),
+      onTaskSuccess: async () => ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId),
+      onTaskProcessing: async () => ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId),
     };
 
     const persistQueueManager: string = configStore.get('persistQueueManagerPath');
@@ -241,6 +242,10 @@ export class BindingsManager {
     await this.container.virtualDrive.unregisterSyncRoot();
   }
 
+  async unregisterSyncEngine({ providerId }: { providerId: string }) {
+    await this.container.virtualDrive.unRegisterSyncRootByProviderId({ providerId });
+  }
+
   async cleanQueue() {
     if (this.queueManager) {
       this.queueManager.clearQueue();
@@ -249,7 +254,7 @@ export class BindingsManager {
 
   async update() {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
-    ipcRendererSyncEngine.send('SYNCING');
+    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
 
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
@@ -262,7 +267,7 @@ export class BindingsManager {
         this.container.folderPlaceholderUpdater.run(tree.folders),
         this.container.filesPlaceholderUpdater.run(tree.files),
       ]);
-      ipcRendererSyncEngine.send('SYNCED');
+      ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
       Sentry.captureException(error);
@@ -276,7 +281,7 @@ export class BindingsManager {
 
   async polling(): Promise<void> {
     try {
-      ipcRendererSyncEngine.send('SYNCING');
+      ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
       Logger.info('[SYNC ENGINE] Monitoring polling...');
       const fileInPendingPaths = (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
@@ -287,7 +292,7 @@ export class BindingsManager {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);
     }
-    ipcRendererSyncEngine.send('SYNCED');
+    ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
 
     Logger.debug('[SYNC ENGINE] Polling finished');
 

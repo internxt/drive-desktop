@@ -173,10 +173,6 @@ export class File extends AggregateRoot {
   }
 
   moveTo(folder: Folder, trackerId: string): void {
-    if (Number(this.folderId) === Number(folder.id)) {
-      throw new FileCannotBeMovedToTheOriginalFolderError(this.path);
-    }
-
     this._folderId = new FileFolderId(folder.id);
     this._folderUuid = new FolderUuid(folder.uuid);
     this._path = this._path.changeFolder(folder.path);

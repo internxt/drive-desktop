@@ -16,6 +16,7 @@ import {
   obtainToken,
   setCredentials,
 } from './service';
+import { logger } from '@/apps/shared/logger/logger';
 
 let isLoggedIn: boolean;
 
@@ -41,9 +42,19 @@ export function onUserUnauthorized() {
 }
 
 export async function checkIfUserIsLoggedIn() {
-  if (!isLoggedIn) {
-    return;
+  const user = getUser();
+
+  if (user && user.needLogout === undefined) {
+    logger.debug({
+      msg: 'User need logout is undefined',
+    });
+    eventBus.emit('USER_LOGGED_OUT');
+    setIsLoggedIn(false);
+
+    logout();
   }
+
+  if (!isLoggedIn) return;
 
   await checkUserData();
   encryptToken();

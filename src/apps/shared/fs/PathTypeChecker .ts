@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import { logger } from '../logger/logger';
 
 export class PathTypeChecker {
   static async isFolder(path: string): Promise<boolean> {
@@ -6,7 +7,11 @@ export class PathTypeChecker {
       const stats = await fs.stat(path);
       return stats.isDirectory();
     } catch (error) {
-      return false;
+      throw logger.error({
+        msg: 'Error checking if path is a folder',
+        path,
+        exc: error,
+      });
     }
   }
 
