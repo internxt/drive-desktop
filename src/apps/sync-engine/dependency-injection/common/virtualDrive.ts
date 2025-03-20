@@ -1,4 +1,4 @@
-import { VirtualDrive } from 'virtual-drive/dist';
+import { VirtualDrive } from '@internxt/node-win/dist';
 import { getConfig } from '../../config';
 
 export class DependencyInjectionVirtualDrive {

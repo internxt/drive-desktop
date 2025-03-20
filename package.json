@@ -164,8 +164,9 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/inxt-js": "^2.1.0",
-    "@internxt/lib": "^1.1.6",
+    "@internxt/inxt-js": "2.1.0",
+    "@internxt/lib": "1.1.6",
+    "@internxt/node-win": "1.0.1",
     "@internxt/scan": "1.0.2",
     "@internxt/sdk": "1.9.9",
     "@phosphor-icons/react": "2.0.9",
@@ -205,8 +206,7 @@
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
     "typeorm": "^0.3.16",
-    "uuid": "^8.3.2",
-    "virtual-drive": "1.0.1"
+    "uuid": "^8.3.2"
   },
   "devEngines": {
     "node": ">=14.x",

@@ -1,6 +1,6 @@
 import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
-import { QueueItem, VirtualDrive } from 'virtual-drive/dist';
+import { QueueItem, VirtualDrive } from '@internxt/node-win/dist';
 import { BindingsManager } from '../BindingManager';
 import { isTemporaryFile } from '../../../apps/utils/isTemporalFile';
 

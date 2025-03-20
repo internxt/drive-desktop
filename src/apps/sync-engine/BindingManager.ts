@@ -1,5 +1,5 @@
 import Logger from 'electron-log';
-import { QueueItem, QueueManager, Callbacks } from 'virtual-drive/dist';
+import { QueueItem, QueueManager, Callbacks } from '@internxt/node-win/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
 import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';

@@ -18,7 +18,7 @@ const distSyncEnginePath = path.join(distPath, 'sync-engine');
 
 const buildPath = path.join(rootPath, 'build');
 
-export const nativeDeps = ['better-sqlite3', 'virtual-drive'];
+export const nativeDeps = ['better-sqlite3', '@internxt/node-win'];
 
 export default {
   rootPath,
