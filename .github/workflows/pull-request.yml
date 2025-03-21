@@ -2,6 +2,7 @@ name: Pull request checks
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   checks:
@@ -40,7 +41,10 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: pnpm install && pnpm ci:reload-native-deps
+        run: pnpm install
+
+      - name: Run TypeScript compiler
+        run: npm run type-check
 
       - name: Run Prettier
         run: npm run format

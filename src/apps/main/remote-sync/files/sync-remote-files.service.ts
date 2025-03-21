@@ -1,10 +1,10 @@
 /* eslint-disable no-await-in-loop */
-import { logger } from '../../../shared/logger/logger';
 import { RemoteSyncedFile } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FetchRemoteFilesService } from './fetch-remote-files.service';
 import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
 import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
+import { loggerService } from '@/apps/shared/logger/logger';
 
 const MAX_RETRIES = 3;
 
@@ -12,29 +12,31 @@ export class SyncRemoteFilesService {
   constructor(
     private readonly workspaceId?: string,
     private readonly fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService(),
+    private readonly logger = loggerService,
   ) {}
 
   async run({
     self,
-    retry,
     from,
     folderUuid,
+    retry = 1,
+    offset = 0,
+    allResults = [],
   }: {
     self: RemoteSyncManager;
-    retry: number;
+    retry?: number;
     from?: Date;
     folderUuid?: string;
+    offset?: number;
+    allResults?: RemoteSyncedFile[];
   }): Promise<RemoteSyncedFile[]> {
-    const allResults: RemoteSyncedFile[] = [];
-
-    let offset = 0;
     let hasMore = true;
 
     try {
-      logger.debug({ msg: 'Syncing files', from });
+      this.logger.debug({ msg: 'Syncing files', from });
 
       while (hasMore) {
-        logger.debug({ msg: 'Retrieving files', offset, folderUuid, workspacesId: self.workspaceId, from });
+        this.logger.debug({ msg: 'Retrieving files', offset, folderUuid, workspacesId: self.workspaceId, from });
 
         const param: FetchFilesServiceParams = {
           self,
@@ -63,8 +65,8 @@ export class SyncRemoteFilesService {
       }
 
       return allResults;
-    } catch (error) {
-      logger.error({ msg: 'Remote files sync failed with error: ', error });
+    } catch (exc) {
+      this.logger.error({ msg: 'Remote files sync failed', exc, retry, offset });
 
       if (retry >= MAX_RETRIES) {
         self.filesSyncStatus = 'SYNC_FAILED';
@@ -72,7 +74,7 @@ export class SyncRemoteFilesService {
         return [];
       }
 
-      return await this.run({ self, retry: retry + 1, from });
+      return await this.run({ self, retry: retry + 1, from, offset, allResults });
     }
   }
 }

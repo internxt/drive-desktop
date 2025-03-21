@@ -1,4 +1,4 @@
-import { QueueItem, VirtualDrive } from 'virtual-drive/dist';
+import { QueueItem, VirtualDrive } from '@internxt/node-win/dist';
 import { BindingsManager } from '../BindingManager';
 import { isTemporaryFile } from '../../../apps/utils/isTemporalFile';
 import { logger } from '@/apps/shared/logger/logger';
