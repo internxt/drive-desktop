@@ -24,31 +24,26 @@ export async function initializeAntivirusIfAvailable() {
 }
 
 async function initializeClamAV() {
-  logger.info({ msg: '[INITIALIZING CLAM AV] Building payment service...' });
   paymentService = buildPaymentsService();
 
-  logger.info({ msg: '[INITIALIZING CLAM AV] Checking user subscription...' });
   try {
     const availableProducts = await paymentService.getAvailableProducts();
     const isAntivirusEnabled = availableProducts.antivirus;
 
     if (isAntivirusEnabled) {
-      logger.info({ msg: '[INITIALIZING CLAM AV] Antivirus is enabled. Starting ClamAV daemon...' });
       await clamAVServer.startClamdServer();
 
-      logger.info({ msg: '[INITIALIZING CLAM AV] Waiting for ClamAV to be ready...' });
       await clamAVServer.waitForClamd();
 
-      logger.info({ msg: '[INITIALIZING CLAM AV] ClamAV is running. Scheduling daily scan...' });
+      logger.debug({ msg: '[INITIALIZING CLAM AV] ClamAV is running. Scheduling daily scan...' });
       scheduleDailyScan();
 
       isClamAVRunning = true;
       clamAVInitializationPromise = null;
 
-      logger.info({ msg: '[INITIALIZING CLAM AV] ClamAV initialization completed successfully.' });
       return { antivirusEnabled: true };
     } else {
-      logger.info({ msg: '[INITIALIZING CLAM AV] Antivirus not enabled for this user. Clearing any running ClamAV instance...' });
+      logger.debug({ msg: '[INITIALIZING CLAM AV] Antivirus not enabled for this user. Clearing any running ClamAV instance...' });
       clamAVInitializationPromise = null;
 
       await clearAntivirus();
@@ -66,13 +61,10 @@ async function initializeClamAV() {
 
 export async function clearAntivirus() {
   if (isClamAVRunning) {
-    logger.info({ msg: '[CLEARING ANTIVIRUS] Stopping ClamAV and clearing daily scan...' });
     clearDailyScan();
     clamAVServer.stopClamdServer();
 
     isClamAVRunning = false;
-    logger.info({ msg: '[CLEARING ANTIVIRUS] ClamAV has been stopped successfully.' });
-  } else {
-    logger.info({ msg: '[CLEARING ANTIVIRUS] ClamAV is not running, nothing to stop.' });
+    logger.debug({ msg: '[CLEARING ANTIVIRUS] ClamAV has been stopped successfully.' });
   }
 }
