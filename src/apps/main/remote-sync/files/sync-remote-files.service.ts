@@ -34,7 +34,7 @@ export class SyncRemoteFilesService {
       logger.debug({ msg: 'Syncing files', from });
 
       while (hasMore) {
-        logger.debug({ msg: 'Retrieving files', offset });
+        logger.debug({ msg: 'Retrieving files', offset, folderUuid, workspacesId: self.workspaceId, from });
 
         const param: FetchFilesServiceParams = {
           self,

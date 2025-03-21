@@ -5551,7 +5551,7 @@ export interface operations {
   };
   WorkspacesController_getFiles: {
     parameters: {
-      query?: {
+      query: {
         /**
          * @description Items per page
          * @example 3
@@ -5562,6 +5562,11 @@ export interface operations {
          * @example 0
          */
         offset?: number;
+        status: string;
+        bucket?: string;
+        sort?: string;
+        order?: string;
+        updatedAt?: string;
       };
       header?: never;
       path: {
