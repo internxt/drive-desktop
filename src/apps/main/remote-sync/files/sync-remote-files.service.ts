@@ -18,7 +18,7 @@ export class SyncRemoteFilesService {
   async run({
     self,
     from,
-    folderId,
+    folderUuid,
     retry = 1,
     offset = 0,
     allResults = [],
@@ -26,7 +26,7 @@ export class SyncRemoteFilesService {
     self: RemoteSyncManager;
     retry?: number;
     from?: Date;
-    folderId?: number | string;
+    folderUuid?: string;
     offset?: number;
     allResults?: RemoteSyncedFile[];
   }): Promise<RemoteSyncedFile[]> {
@@ -36,22 +36,15 @@ export class SyncRemoteFilesService {
       this.logger.debug({ msg: 'Syncing files', from });
 
       while (hasMore) {
-        this.logger.debug({ msg: 'Retrieving files', offset });
+        this.logger.debug({ msg: 'Retrieving files', offset, folderUuid, workspacesId: self.workspaceId, from });
 
         const param: FetchFilesServiceParams = {
           self,
           offset,
           updatedAtCheckpoint: from,
           status: 'ALL',
+          folderUuid,
         };
-
-        if (folderId) {
-          if (typeof folderId === 'string') {
-            param.folderUuid = folderId;
-          } else if (typeof folderId === 'number') {
-            param.folderId = folderId;
-          }
-        }
 
         const { hasMore: newHasMore, result } = await this.fetchRemoteFiles.run(param);
 

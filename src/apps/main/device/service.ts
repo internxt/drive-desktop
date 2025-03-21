@@ -88,7 +88,7 @@ export async function getDevices(): Promise<Array<Device>> {
 
   const devices = ((await response.json()) as Array<DeviceDTO>) || [];
 
-  return devices.filter(({ removed, hasBackups }) => !removed && hasBackups).map((device) => decryptDeviceName(device));
+  return devices?.filter(({ removed, hasBackups }) => !removed && hasBackups).map((device) => decryptDeviceName(device));
 }
 
 async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {

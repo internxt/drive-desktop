@@ -259,8 +259,8 @@ contextBridge.exposeInMainWorld('electron', {
   getBackupFatalErrors() {
     return ipcRenderer.invoke('get-backup-fatal-errors');
   },
-  getItemByFolderId(folderId) {
-    return ipcRenderer.invoke('get-item-by-folder-id', folderId);
+  getItemByFolderId(folderUuid) {
+    return ipcRenderer.invoke('get-item-by-folder-id', folderUuid);
   },
 
   deleteBackupError(folderId) {

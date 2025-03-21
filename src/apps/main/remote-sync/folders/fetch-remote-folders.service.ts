@@ -4,7 +4,6 @@ import {
   FetchFoldersService,
   FetchFoldersServiceParams,
   FetchFoldersServiceResult,
-  Query,
   QueryFolders,
   QueryFoldersInFolder,
 } from './fetch-folders.service.interface';
@@ -13,18 +12,28 @@ export class FetchRemoteFoldersService implements FetchFoldersService {
   async run({
     self,
     updatedAtCheckpoint,
-    folderId,
+    folderUuid,
     offset,
     status = 'ALL',
   }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
-    const query: Query = {
-      limit: self.config.fetchFilesLimitPerRequest,
-      offset,
-      status,
-      updatedAt: updatedAtCheckpoint?.toISOString(),
-    };
-
-    const promise = folderId ? this.getFoldersByFolder({ folderId, query }) : this.getFolders({ query });
+    const promise = folderUuid
+      ? this.getFoldersByFolder({
+          folderUuid,
+          query: {
+            limit: self.config.fetchFilesLimitPerRequest,
+            offset,
+            order: 'DESC',
+            sort: 'updatedAt',
+          },
+        })
+      : this.getFolders({
+          query: {
+            limit: self.config.fetchFilesLimitPerRequest,
+            offset,
+            status,
+            updatedAt: updatedAtCheckpoint?.toISOString(),
+          },
+        });
     const result = await promise;
 
     if (result.data) {
@@ -32,15 +41,15 @@ export class FetchRemoteFoldersService implements FetchFoldersService {
       return { hasMore, result: result.data };
     }
 
-    throw logger.error({ msg: 'Fetch folders response not ok', query, error: result.error });
+    throw logger.error({ msg: 'Fetch folders response not ok', exc: result.error });
   }
 
   private getFolders({ query }: { query: QueryFolders }) {
     return client.GET('/folders', { params: { query } });
   }
 
-  private async getFoldersByFolder({ folderId, query }: { folderId: number; query: QueryFoldersInFolder }) {
-    const result = await client.GET('/folders/{id}/folders', { params: { path: { id: folderId }, query } });
-    return { ...result, data: result.data?.result };
+  private async getFoldersByFolder({ folderUuid, query }: { folderUuid: string; query: QueryFoldersInFolder }) {
+    const result = await client.GET('/folders/content/{uuid}/folders', { params: { path: { uuid: folderUuid }, query } });
+    return { ...result, data: result.data?.folders };
   }
 }

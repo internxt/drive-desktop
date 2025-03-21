@@ -20,7 +20,7 @@ export class SyncRemoteFoldersService {
   async run({
     self,
     from,
-    folderId,
+    folderUuid,
     retry = 1,
     offset = 0,
     allResults = [],
@@ -28,7 +28,7 @@ export class SyncRemoteFoldersService {
     self: RemoteSyncManager;
     retry?: number;
     from?: Date;
-    folderId?: number | string;
+    folderUuid?: string;
     offset?: number;
     allResults?: RemoteSyncedFolder[];
   }): Promise<RemoteSyncedFolder[]> {
@@ -45,15 +45,8 @@ export class SyncRemoteFoldersService {
           offset,
           updatedAtCheckpoint: from,
           status: 'ALL',
+          folderUuid: folderUuid,
         };
-
-        if (folderId) {
-          if (typeof folderId === 'string') {
-            param.folderUuid = folderId;
-          } else if (typeof folderId === 'number') {
-            param.folderId = folderId;
-          }
-        }
 
         const { hasMore: newHasMore, result } = await this.fetchRemoteFolders.run(param);
 
