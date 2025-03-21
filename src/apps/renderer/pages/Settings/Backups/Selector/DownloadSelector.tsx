@@ -27,7 +27,7 @@ function truncateText(text: string, prev: string[], maxLength: number) {
 export default function DownloadFolderSelector({ onClose }: DownloadFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const { backups, backupsState, downloadBackups, abortDownloadBackups, thereIsDownloadProgress, clearBackupDownloadProgress } =
+  const { backupsState, downloadBackups, abortDownloadBackups, thereIsDownloadProgress, clearBackupDownloadProgress } =
     useContext(BackupContext);
 
   const { selected } = useContext(DeviceContext);
@@ -42,7 +42,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
     tmpPath: '',
   });
 
-  const items = useGetItems(folder.id);
+  const items = useGetItems(folder.uuid);
 
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
 

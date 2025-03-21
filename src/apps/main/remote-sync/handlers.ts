@@ -238,20 +238,20 @@ async function populateAllRemoteSync(): Promise<void> {
   }
 }
 
-async function startRemoteSync(folderId?: number, workspaceId = ''): Promise<void> {
+async function startRemoteSync(folderUuid?: string, workspaceId = ''): Promise<void> {
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
   try {
-    const { files, folders } = await manager.startRemoteSync(folderId);
+    const { files, folders } = await manager.startRemoteSync(folderUuid);
 
-    logger.debug({ msg: 'startRemoteSync', folderId, folders: folders.length, files: files.length });
+    logger.debug({ msg: 'startRemoteSync', folderUuid, folders: folders.length, files: files.length });
 
-    if (folderId && folders.length > 0) {
+    if (folderUuid && folders.length > 0) {
       await Promise.all(
         folders.map(async (folder) => {
           if (!folder.id) return;
           await sleep(400);
-          await startRemoteSync(folder.id, workspaceId);
+          await startRemoteSync(folder.uuid, workspaceId);
         }),
       );
     }
@@ -276,8 +276,8 @@ ipcMain.handle('START_REMOTE_SYNC', async (_, workspaceId = '') => {
   setIsProcessing(false, workspaceId);
 });
 
-ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderId: number, workspaceId = '') => {
-  await startRemoteSync(folderId, workspaceId);
+ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string, workspaceId = '') => {
+  await startRemoteSync(folderUuid, workspaceId);
 });
 
 remoteSyncManagers.forEach((manager) => {
@@ -475,8 +475,8 @@ ipcMain.handle('DELETE_ITEM_DRIVE', async (_, itemId: FilePlaceholderId | Folder
   }
 });
 
-ipcMain.handle('get-item-by-folder-id', async (_, folderId, workspaceId = ''): Promise<ItemBackup[]> => {
-  Logger.info('Getting items by folder id', folderId);
+ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid, workspaceId = ''): Promise<ItemBackup[]> => {
+  Logger.info('Getting items by folder uuid', folderUuid);
 
   let offset = 0;
   let hasMore = true;
@@ -488,7 +488,7 @@ ipcMain.handle('get-item-by-folder-id', async (_, folderId, workspaceId = ''): P
   do {
     const response = await manager.fetchFoldersByFolderFromRemote({
       offset,
-      folderId,
+      folderUuid,
       updatedAtCheckpoint: new Date(),
       status: 'EXISTS',
     });

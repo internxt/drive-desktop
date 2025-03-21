@@ -86,9 +86,9 @@ export class RemoteSyncManager {
    *
    * Throws an error if there's a sync in progress for this class instance
    */
-  async startRemoteSync(folderId?: number | string) {
+  async startRemoteSync(folderUuid?: string) {
     // TODO: change to folderUuid type
-    logger.debug({ msg: 'Starting remote to local sync', folderId, workspaceId: this.workspaceId });
+    logger.debug({ msg: 'Starting remote to local sync', folderUuid, workspaceId: this.workspaceId });
 
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
@@ -98,14 +98,14 @@ export class RemoteSyncManager {
       const syncFilesPromise = this.syncRemoteFiles.run({
         self: this,
         retry: 1,
-        folderId,
+        folderUuid,
         from: await this.getFileCheckpoint(),
       });
 
       const syncFoldersPromise = this.syncRemoteFolders.run({
         self: this,
         retry: 1,
-        folderId,
+        folderUuid,
         from: await this.getLastFolderSyncAt(),
       });
 
@@ -197,16 +197,16 @@ export class RemoteSyncManager {
   }
 
   async fetchFoldersByFolderFromRemote({
-    folderId,
+    folderUuid,
     offset,
     updatedAtCheckpoint,
     status,
   }: {
-    folderId: number;
+    folderUuid: string;
     offset: number;
     updatedAtCheckpoint: Date;
     status: QueryFolders['status'];
   }) {
-    return this.fetchRemoteFolders.run({ self: this, offset, folderId, updatedAtCheckpoint, status });
+    return this.fetchRemoteFolders.run({ self: this, offset, folderUuid, updatedAtCheckpoint, status });
   }
 }

@@ -18,12 +18,12 @@ export class SyncRemoteFilesService {
     self,
     retry,
     from,
-    folderId,
+    folderUuid,
   }: {
     self: RemoteSyncManager;
     retry: number;
     from?: Date;
-    folderId?: number | string;
+    folderUuid?: string;
   }): Promise<RemoteSyncedFile[]> {
     const allResults: RemoteSyncedFile[] = [];
 
@@ -41,15 +41,8 @@ export class SyncRemoteFilesService {
           offset,
           updatedAtCheckpoint: from,
           status: 'ALL',
+          folderUuid,
         };
-
-        if (folderId) {
-          if (typeof folderId === 'string') {
-            param.folderUuid = folderId;
-          } else if (typeof folderId === 'number') {
-            param.folderId = folderId;
-          }
-        }
 
         const { hasMore: newHasMore, result } = await this.fetchRemoteFiles.run(param);
 
