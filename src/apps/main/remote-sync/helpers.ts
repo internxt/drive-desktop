@@ -7,8 +7,6 @@ export type RemoteSyncedFolder = paths['/folders']['get']['responses']['200']['c
 
 export type RemoteSyncStatus = 'IDLE' | 'SYNCED' | 'SYNCING' | 'SYNC_FAILED' | 'SYNC_PENDING';
 
-export const WAITING_AFTER_SYNCING_DEFAULT = 1000 * 60 * 3;
-
 export function rewind(original: Date, milliseconds: number): Date {
   const shallowCopy = new Date(original.getTime());
 

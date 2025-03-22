@@ -1,11 +1,12 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '../../../shared/HttpClient/client';
 import { FetchFilesService, FetchFilesServiceParams, Query, QueryFiles, QueryFilesInFolder } from './fetch-files.service.interface';
+import { FETCH_FILES_LIMIT_PER_REQUEST } from '../store';
 
 export class FetchRemoteFilesService implements FetchFilesService {
-  async run({ self, updatedAtCheckpoint, offset, status = 'ALL', folderId }: FetchFilesServiceParams) {
+  async run({ updatedAtCheckpoint, offset, status = 'ALL', folderId }: FetchFilesServiceParams) {
     const query: Query = {
-      limit: self.config.fetchFilesLimitPerRequest,
+      limit: FETCH_FILES_LIMIT_PER_REQUEST,
       offset,
       status,
       updatedAt: updatedAtCheckpoint?.toISOString(),
@@ -16,7 +17,7 @@ export class FetchRemoteFilesService implements FetchFilesService {
     const result = await promise;
 
     if (result.data) {
-      const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
+      const hasMore = result.data.length === FETCH_FILES_LIMIT_PER_REQUEST;
       return { hasMore, result: result.data };
     }
 

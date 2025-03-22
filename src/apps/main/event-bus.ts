@@ -25,9 +25,6 @@ interface Events {
   // via websocket
   RECEIVED_REMOTE_CHANGES: (workspaceId?: string) => void;
 
-  // Used when we have at least one full remote-local sync so we can display content
-  INITIAL_SYNC_READY: () => void;
-
   // Get the scan progress
   ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
 }

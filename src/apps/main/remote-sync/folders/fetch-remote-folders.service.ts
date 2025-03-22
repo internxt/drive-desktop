@@ -8,17 +8,12 @@ import {
   QueryFolders,
   QueryFoldersInFolder,
 } from './fetch-folders.service.interface';
+import { FETCH_FOLDERS_LIMIT_PER_REQUEST } from '../store';
 
 export class FetchRemoteFoldersService implements FetchFoldersService {
-  async run({
-    self,
-    updatedAtCheckpoint,
-    folderId,
-    offset,
-    status = 'ALL',
-  }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
+  async run({ updatedAtCheckpoint, folderId, offset, status = 'ALL' }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
     const query: Query = {
-      limit: self.config.fetchFilesLimitPerRequest,
+      limit: FETCH_FOLDERS_LIMIT_PER_REQUEST,
       offset,
       status,
       updatedAt: updatedAtCheckpoint?.toISOString(),
@@ -28,7 +23,7 @@ export class FetchRemoteFoldersService implements FetchFoldersService {
     const result = await promise;
 
     if (result.data) {
-      const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
+      const hasMore = result.data.length === FETCH_FOLDERS_LIMIT_PER_REQUEST;
       return { hasMore, result: result.data };
     }
 
