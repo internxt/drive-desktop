@@ -2,8 +2,6 @@ import { In } from 'typeorm';
 /* eslint-disable no-use-before-define */
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
-import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
-import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
 import { RemoteSyncStatus } from './helpers';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
@@ -26,27 +24,20 @@ import { logger } from '../../shared/logger/logger';
 import { DriveWorkspaceCollection } from '../database/collections/DriveWorkspaceCollection';
 import { SyncRemoteWorkspaceService } from './workspace/sync-remote-workspace';
 import Queue from '@/apps/shared/Queue/Queue';
+import { driveFilesCollection, driveFoldersCollection } from './store';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
-export const driveFilesCollection = new DriveFilesCollection();
-export const driveFoldersCollection = new DriveFoldersCollection();
 const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
 export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection, driveFoldersCollection);
 remoteSyncManagers.set(
   '',
-  new RemoteSyncManager(
-    {
-      files: driveFilesCollection,
-      folders: driveFoldersCollection,
-    },
-    {
-      fetchFilesLimitPerRequest: 50,
-      fetchFoldersLimitPerRequest: 50,
-    },
-  ),
+  new RemoteSyncManager({
+    files: driveFilesCollection,
+    folders: driveFoldersCollection,
+  }),
 );
 async function initializeRemoteSyncManagers() {
   const workspaces = await syncWorkspaceService.run();
@@ -57,10 +48,6 @@ async function initializeRemoteSyncManagers() {
         {
           files: driveFilesCollection,
           folders: driveFoldersCollection,
-        },
-        {
-          fetchFilesLimitPerRequest: 50,
-          fetchFoldersLimitPerRequest: 50,
         },
         workspace.id,
       ),

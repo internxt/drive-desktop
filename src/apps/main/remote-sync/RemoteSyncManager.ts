@@ -26,11 +26,6 @@ export class RemoteSyncManager {
       files: DatabaseCollectionAdapter<DriveFile>;
       folders: DatabaseCollectionAdapter<DriveFolder>;
     },
-    public config: {
-      fetchFilesLimitPerRequest: number;
-      fetchFoldersLimitPerRequest: number;
-    },
-
     public workspaceId?: string,
     private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),

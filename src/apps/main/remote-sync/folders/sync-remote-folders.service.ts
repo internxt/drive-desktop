@@ -5,6 +5,7 @@ import { FetchRemoteFoldersService } from './fetch-remote-folders.service';
 import { FetchFoldersService, FetchFoldersServiceParams } from './fetch-folders.service.interface';
 import { FetchWorkspaceFoldersService } from './fetch-workspace-folders.service';
 import { loggerService } from '@/apps/shared/logger/logger';
+import { FETCH_FOLDERS_LIMIT_PER_REQUEST } from '../store';
 
 const MAX_RETRIES = 3;
 
@@ -69,7 +70,7 @@ export class SyncRemoteFoldersService {
 
         allResults.push(...result);
         hasMore = newHasMore;
-        offset += self.config.fetchFoldersLimitPerRequest;
+        offset += FETCH_FOLDERS_LIMIT_PER_REQUEST;
       }
 
       return allResults;

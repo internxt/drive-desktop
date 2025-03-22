@@ -8,11 +8,12 @@ import { monitorHealth } from './sync-engine/monitor-health';
 import { Config } from '../../sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtual-root-folder/service';
 import { logger } from '../../../apps/shared/logger/logger';
-import { driveFilesCollection, driveFoldersCollection, syncWorkspaceService } from '../remote-sync/handlers';
+import { syncWorkspaceService } from '../remote-sync/handlers';
 import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { cwd } from 'process';
+import { driveFilesCollection, driveFoldersCollection } from '../remote-sync/store';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;

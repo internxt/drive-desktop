@@ -7,6 +7,7 @@ import {
   QueryFilesInWorkspace,
   QueryWorkspace,
 } from './fetch-files.service.interface';
+import { FETCH_FILES_LIMIT_PER_REQUEST } from '../store';
 
 export class FetchWorkspaceFilesService implements FetchFilesService {
   async run({ self, offset, folderUuid }: FetchFilesServiceParams) {
@@ -15,7 +16,7 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
     }
 
     const query: QueryWorkspace = {
-      limit: self.config.fetchFilesLimitPerRequest,
+      limit: FETCH_FILES_LIMIT_PER_REQUEST,
       offset,
       sort: 'updatedAt',
       order: 'DESC',
@@ -32,7 +33,7 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
     const result = await promise;
 
     if (result.data) {
-      const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
+      const hasMore = result.data.length === FETCH_FILES_LIMIT_PER_REQUEST;
       return { hasMore, result: result.data };
     }
 
