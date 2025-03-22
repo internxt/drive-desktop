@@ -5,7 +5,9 @@ import { FetchRemoteFilesService } from './fetch-remote-files.service';
 import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
 import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
 import { loggerService } from '@/apps/shared/logger/logger';
-import { FETCH_FILES_LIMIT_PER_REQUEST } from '../store';
+import { driveFilesCollection, FETCH_FILES_LIMIT_PER_REQUEST } from '../store';
+import { DatabaseCollectionAdapter } from '../../database/adapters/base';
+import { DriveFile } from '../../database/entities/DriveFile';
 
 const MAX_RETRIES = 3;
 
@@ -14,6 +16,7 @@ export class SyncRemoteFilesService {
     private readonly workspaceId?: string,
     private readonly fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService(),
     private readonly logger = loggerService,
+    private readonly dbFile: DatabaseCollectionAdapter<DriveFile> = driveFilesCollection,
   ) {}
 
   async run({
@@ -58,12 +61,12 @@ export class SyncRemoteFilesService {
 
         await Promise.all(
           result.map(async (remoteFile) => {
-            self.db.files.create({
+            this.dbFile.create({
               ...remoteFile,
               isDangledStatus: false,
               workspaceId: this.workspaceId,
             });
-            self.totalFilesSynced++;
+            self.store.totalFilesSynced++;
           }),
         );
 
@@ -77,12 +80,18 @@ export class SyncRemoteFilesService {
       this.logger.error({ msg: 'Remote files sync failed', exc, retry, offset });
 
       if (retry >= MAX_RETRIES) {
-        self.filesSyncStatus = 'SYNC_FAILED';
+        self.store.filesSyncStatus = 'SYNC_FAILED';
         self.checkRemoteSyncStatus();
         return [];
       }
 
-      return await this.run({ self, retry: retry + 1, from, offset, allResults });
+      return await this.run({
+        self,
+        retry: retry + 1,
+        from,
+        offset,
+        allResults,
+      });
     }
   }
 }

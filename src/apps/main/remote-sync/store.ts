@@ -2,7 +2,7 @@ import { DriveFilesCollection } from '../database/collections/DriveFileCollectio
 import { DriveFoldersCollection } from '../database/collections/DriveFolderCollection';
 import { RemoteSyncStatus } from './helpers';
 
-type TStore = {
+export type TStore = {
   totalFilesSynced: number;
   totalFilesUnsynced: string[];
   totalFoldersSynced: number;

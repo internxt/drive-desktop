@@ -5,7 +5,9 @@ import { FetchRemoteFoldersService } from './fetch-remote-folders.service';
 import { FetchFoldersService, FetchFoldersServiceParams } from './fetch-folders.service.interface';
 import { FetchWorkspaceFoldersService } from './fetch-workspace-folders.service';
 import { loggerService } from '@/apps/shared/logger/logger';
-import { FETCH_FOLDERS_LIMIT_PER_REQUEST } from '../store';
+import { driveFoldersCollection, FETCH_FOLDERS_LIMIT_PER_REQUEST } from '../store';
+import { DatabaseCollectionAdapter } from '../../database/adapters/base';
+import { DriveFolder } from '../../database/entities/DriveFolder';
 
 const MAX_RETRIES = 3;
 
@@ -16,6 +18,7 @@ export class SyncRemoteFoldersService {
       ? new FetchWorkspaceFoldersService()
       : new FetchRemoteFoldersService(),
     private readonly logger = loggerService,
+    private readonly dbFolder: DatabaseCollectionAdapter<DriveFolder> = driveFoldersCollection,
   ) {}
 
   async run({
@@ -60,11 +63,11 @@ export class SyncRemoteFoldersService {
 
         await Promise.all(
           result.map(async (remoteFolder) => {
-            await self.db.folders.create({
+            await this.dbFolder.create({
               ...remoteFolder,
               workspaceId: this.workspaceId,
             });
-            self.totalFoldersSynced++;
+            self.store.totalFoldersSynced++;
           }),
         );
 
@@ -78,12 +81,18 @@ export class SyncRemoteFoldersService {
       this.logger.error({ msg: 'Remote folders sync failed', exc, retry, offset });
 
       if (retry >= MAX_RETRIES) {
-        self.foldersSyncStatus = 'SYNC_FAILED';
+        self.store.foldersSyncStatus = 'SYNC_FAILED';
         self.checkRemoteSyncStatus();
         return [];
       }
 
-      return await this.run({ self, retry: retry + 1, from, offset, allResults });
+      return await this.run({
+        self,
+        retry: retry + 1,
+        from,
+        offset,
+        allResults,
+      });
     }
   }
 }

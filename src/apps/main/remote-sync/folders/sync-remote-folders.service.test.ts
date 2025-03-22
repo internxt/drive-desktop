@@ -5,6 +5,8 @@ import { RemoteSyncManager } from '../RemoteSyncManager';
 import { LoggerService } from '@/apps/shared/logger/logger';
 import { getMockCalls } from 'tests/vitest/utils.helper.test';
 import { RemoteSyncedFolder } from '../helpers';
+import { DatabaseCollectionAdapter } from '../../database/adapters/base';
+import { DriveFolder } from '../../database/entities/DriveFolder';
 
 describe('sync-remote-folders.service', () => {
   const workspaceId = 'workspaceId';
@@ -12,12 +14,13 @@ describe('sync-remote-folders.service', () => {
   const remoteSyncManager = mockDeep<RemoteSyncManager>();
   const fetchFiles = mockDeep<FetchFoldersService>();
   const logger = mockDeep<LoggerService>();
-  const service = new SyncRemoteFoldersService(workspaceId, fetchFiles, logger);
+  const dbFolder = mockDeep<DatabaseCollectionAdapter<DriveFolder>>();
+  const service = new SyncRemoteFoldersService(workspaceId, fetchFiles, logger, dbFolder);
 
   beforeEach(() => {
     vi.clearAllMocks();
-    remoteSyncManager.foldersSyncStatus = 'IDLE';
-    remoteSyncManager.totalFoldersSynced = 0;
+    remoteSyncManager.store.foldersSyncStatus = 'IDLE';
+    remoteSyncManager.store.totalFoldersSynced = 0;
   });
 
   it('If hasMore is false, then do not fetch again', async () => {
@@ -31,7 +34,7 @@ describe('sync-remote-folders.service', () => {
     expect(folders.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(1);
     // TODO: maybe we need to set it to SYNCED?
-    expect(remoteSyncManager.foldersSyncStatus).toBe('IDLE');
+    expect(remoteSyncManager.store.foldersSyncStatus).toBe('IDLE');
   });
 
   it('If fetch always throws an error, retry it 3 times with offset 0', async () => {
@@ -44,7 +47,7 @@ describe('sync-remote-folders.service', () => {
     // Then
     expect(folders.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(3);
-    expect(remoteSyncManager.foldersSyncStatus).toBe('SYNC_FAILED');
+    expect(remoteSyncManager.store.foldersSyncStatus).toBe('SYNC_FAILED');
     expect(remoteSyncManager.checkRemoteSyncStatus).toHaveBeenCalledTimes(1);
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({ msg: 'Remote folders sync failed', offset: 0, retry: 1 }),
@@ -64,7 +67,7 @@ describe('sync-remote-folders.service', () => {
     // Then
     expect(folders.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(4);
-    expect(remoteSyncManager.foldersSyncStatus).toBe('SYNC_FAILED');
+    expect(remoteSyncManager.store.foldersSyncStatus).toBe('SYNC_FAILED');
     expect(remoteSyncManager.checkRemoteSyncStatus).toHaveBeenCalledTimes(1);
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({ msg: 'Remote folders sync failed', offset: 50, retry: 1 }),
@@ -90,9 +93,9 @@ describe('sync-remote-folders.service', () => {
 
     // Then
     expect(folders.length).toBe(2);
-    expect(remoteSyncManager.totalFoldersSynced).toBe(2);
+    expect(remoteSyncManager.store.totalFoldersSynced).toBe(2);
     expect(fetchFiles.run).toHaveBeenCalledTimes(3);
-    expect(remoteSyncManager.foldersSyncStatus).toBe('IDLE');
+    expect(remoteSyncManager.store.foldersSyncStatus).toBe('IDLE');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({
         msg: 'Remote folders sync failed',

@@ -6,7 +6,6 @@ import { RemoteSyncStatus } from './helpers';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { sleep } from '../util';
-import { broadcastToWindows } from '../windows';
 import {
   updateSyncEngine,
   fallbackSyncEngine,
@@ -14,7 +13,6 @@ import {
   spawnAllSyncEngineWorker,
 } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
-import { setTrayStatus } from '../tray/tray';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
@@ -28,7 +26,6 @@ import { driveFilesCollection, driveFoldersCollection } from './store';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
-let initialSyncReady = false;
 const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
 export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection, driveFoldersCollection);
@@ -267,26 +264,6 @@ ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderId: number, workspaceId 
   await startRemoteSync(folderId, workspaceId);
 });
 
-remoteSyncManagers.forEach((manager) => {
-  manager.onStatusChange((newStatus) => {
-    if (!initialSyncReady && newStatus === 'SYNCED') {
-      initialSyncReady = true;
-      // eventBus.emit('INITIAL_SYNC_READY');
-    }
-    broadcastToWindows('remote-sync-status-change', newStatus);
-  });
-
-  manager.onStatusChange((newStatus) => {
-    if (newStatus === 'SYNCING') {
-      return setTrayStatus('SYNCING');
-    }
-    if (newStatus === 'SYNC_FAILED') {
-      return setTrayStatus('ALERT');
-    }
-    setTrayStatus('IDLE');
-  });
-});
-
 ipcMain.handle('get-remote-sync-status', (_, workspaceId = '') => {
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
@@ -371,7 +348,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
 });
 
 eventBus.on('USER_LOGGED_OUT', () => {
-  initialSyncReady = false;
   remoteSyncManagers.forEach((manager) => {
     manager.resetRemoteSync();
   });
