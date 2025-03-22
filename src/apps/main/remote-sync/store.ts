@@ -15,7 +15,6 @@ export type TStore = {
 
 export const driveFilesCollection = new DriveFilesCollection();
 export const driveFoldersCollection = new DriveFoldersCollection();
-export const stores = new Map<string, TStore>();
 export const FETCH_FILES_LIMIT_PER_REQUEST = 50;
 export const FETCH_FOLDERS_LIMIT_PER_REQUEST = 50;
 
