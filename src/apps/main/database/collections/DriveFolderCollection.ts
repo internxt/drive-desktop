@@ -2,8 +2,7 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFolder } from '../entities/DriveFolder';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
-import Logger from 'electron-log';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFolder> {
   private repository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
@@ -40,7 +39,7 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
       };
     }
   }
-  async getAllByFolder(parentId: number, workspaceId?: string) {
+  async getAllByFolder({ parentId, workspaceId }: { parentId: number; workspaceId?: string }) {
     try {
       const where: FindOptionsWhere<DriveFolder> = { parentId };
       if (workspaceId) {
@@ -107,9 +106,11 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         success: true,
         result: queryResult,
       };
-    } catch (error) {
-      Sentry.captureException(error);
-      Logger.error('Error fetching newest drive folder:', error);
+    } catch (exc) {
+      logger.warn({
+        msg: 'Error fetching newest drive folder:',
+        exc,
+      });
       return {
         success: false,
         result: null,
@@ -129,9 +130,11 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         success: true,
         result: queryResult,
       };
-    } catch (error) {
-      Sentry.captureException(error);
-      Logger.error('Error fetching newest drive folder:', error);
+    } catch (exc) {
+      logger.warn({
+        msg: 'Error fetching newest drive folder:',
+        exc,
+      });
       return {
         success: false,
         result: null,
@@ -148,12 +151,32 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
         success: true,
         result,
       };
-    } catch (error) {
-      Sentry.captureException(error);
-      Logger.error('Error fetching drive folders:', error);
+    } catch (exc) {
+      logger.warn({
+        msg: 'Error fetching drive folders:',
+        exc,
+      });
       return {
         success: false,
         result: [],
+      };
+    }
+  }
+
+  async cleanWorkspace(workspaceId: string): Promise<{ success: boolean }> {
+    try {
+      await this.repository.delete({ workspaceId });
+      return {
+        success: true,
+      };
+    } catch (exc) {
+      logger.warn({
+        msg: 'Error cleaning workspace',
+        workspaceId,
+        exc,
+      });
+      return {
+        success: false,
       };
     }
   }

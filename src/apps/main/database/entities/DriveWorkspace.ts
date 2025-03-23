@@ -5,30 +5,33 @@ export class DriveWorkspace {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column('uuid')
+  @Column({ type: 'uuid' })
   ownerId!: string;
 
   @Column({ type: 'varchar', length: 255 })
   name!: string;
 
-  @Column('uuid')
+  @Column({ type: 'uuid' })
   defaultTeamId!: string;
 
-  @Column('uuid')
+  @Column({ type: 'uuid' })
   workspaceUserId!: string;
 
   @Column({ type: 'boolean', default: false })
   setupCompleted!: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  removed!: boolean;
+
   @Column({ type: 'varchar' })
   mnemonic!: string;
 
-  @Column('uuid')
+  @Column({ type: 'uuid' })
   rootFolderId!: string;
 
-  @CreateDateColumn()
-  createdAt!: Date;
+  @CreateDateColumn({ type: 'varchar' })
+  createdAt!: string;
 
-  @UpdateDateColumn()
-  updatedAt!: Date;
+  @UpdateDateColumn({ type: 'varchar' })
+  updatedAt!: string;
 }

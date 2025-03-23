@@ -12,13 +12,31 @@ export class SyncRemoteWorkspaceService {
 
   private async createOrUpdate(workspaces: DriveWorkspace[]): Promise<DriveWorkspace[]> {
     try {
+      const existingWorkspaces = await this.workspaceCollection.getAll();
+      const incomingWorkspaceIds = new Set(workspaces.map((ws) => ws.id));
+
+      const workspacesToDelete = existingWorkspaces.result.filter((ws) => !incomingWorkspaceIds.has(ws.id));
+      await Promise.all(
+        workspacesToDelete.map(async (ws) => {
+          return await this.workspaceCollection.update(ws.id, {
+            removed: true,
+          });
+        }),
+      );
+
       const updateOrCreateWorkspace = async (workspace: DriveWorkspace) => {
         const existingWorkspace = await this.workspaceCollection.get(workspace.id);
         let response;
         if (existingWorkspace.result) {
-          response = await this.workspaceCollection.update(workspace.id, workspace);
+          response = await this.workspaceCollection.update(workspace.id, {
+            ...workspace,
+            removed: false,
+          });
         } else {
-          response = await this.workspaceCollection.create(workspace);
+          response = await this.workspaceCollection.create({
+            ...workspace,
+            removed: false,
+          });
         }
         return response.result;
       };
@@ -27,7 +45,7 @@ export class SyncRemoteWorkspaceService {
 
       return result.filter(Boolean) as DriveWorkspace[];
     } catch (error) {
-      logger.error({ msg: 'Error creating or updating workspace', error });
+      logger.error({ msg: 'Error creating, updating, or deleting workspace', error });
       throw error;
     }
   }
@@ -46,8 +64,9 @@ export class SyncRemoteWorkspaceService {
             setupCompleted: workspace.setupCompleted,
             rootFolderId: workspace.rootFolderId ?? '',
             mnemonic: workspaceUser.key,
-            createdAt: new Date(workspace.createdAt),
-            updatedAt: new Date(workspace.updatedAt),
+            createdAt: workspace.createdAt,
+            updatedAt: workspace.updatedAt,
+            removed: false,
           };
         }),
       );

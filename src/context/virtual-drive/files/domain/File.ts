@@ -173,10 +173,6 @@ export class File extends AggregateRoot {
   }
 
   moveTo(folder: Folder, trackerId: string): void {
-    if (Number(this.folderId) === Number(folder.id)) {
-      throw new FileCannotBeMovedToTheOriginalFolderError(this.path);
-    }
-
     this._folderId = new FileFolderId(folder.id);
     this._folderUuid = new FolderUuid(folder.uuid);
     this._path = this._path.changeFolder(folder.path);
@@ -238,7 +234,7 @@ export class File extends AggregateRoot {
   attributes(): FileAttributes {
     return {
       id: this._id,
-      uuid: this._uuid.toString(),
+      uuid: this._uuid.value,
       contentsId: this.contentsId,
       folderId: Number(this.folderId),
       folderUuid: this.folderUuid.value,

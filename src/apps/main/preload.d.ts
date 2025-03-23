@@ -11,10 +11,10 @@ declare interface Window {
     isDarkModeActive(): boolean;
 
     logger: {
-      info: (...message: unknown[]) => void;
-      error: (...message: unknown[]) => void;
-      warn: (...message: unknown[]) => void;
-      debug: (...message: unknown[]) => void;
+      info: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
+      error: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
+      warn: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
+      debug: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
     };
 
     getGeneralIssues: () => Promise<import('../../apps/shared/types').GeneralIssue[]>;
@@ -169,7 +169,6 @@ declare interface Window {
 
     startMigration: () => Promise<void>;
     openMigrationFailedFolder: () => Promise<void>;
-    sendFeedback: (feedback: string) => Promise<void>;
     onRemoteSyncStatusChange(callback: (status: import('./remote-sync/helpers').RemoteSyncStatus) => void): () => void;
     getRemoteSyncStatus(): Promise<import('./remote-sync/helpers').RemoteSyncStatus>;
     getVirtualDriveStatus(): Promise<import('../shared/types/VirtualDriveStatus').VirtualDriveStatus>;
@@ -190,6 +189,9 @@ declare interface Window {
     };
     listenersRefreshBackups(callback: (data: any) => void, eventName?: string): () => void;
 
+    backups: {
+      isAvailable: () => Promise<boolean>;
+    };
     antivirus: {
       isAvailable: () => Promise<boolean>;
       isDefenderActive: () => Promise<boolean>;
@@ -230,5 +232,6 @@ declare interface Window {
         props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>[0],
       ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>;
     };
+    path: import('path');
   };
 }

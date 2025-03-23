@@ -8,7 +8,6 @@ import path from 'path';
 import packageJson from '../../../../package.json';
 import { obtainToken } from '../auth/service';
 import { BugReportResult } from './BugReportResult';
-import * as Sentry from '@sentry/electron/main';
 import { User } from '../types';
 import Logger from 'electron-log';
 import { ErrorDetails } from '../../shared/types';
@@ -21,18 +20,12 @@ import { ErrorDetails } from '../../shared/types';
  */
 export const reportError = (error: Error, context: Record<string, string> = {}) => {
   Logger.error('[SENTRY_CAPTURED]: ', error);
-  Sentry.captureException(error, context);
 };
 
 export const identifyUserForErrorReporting = (user: User | null) => {
   if (!user) {
-    Sentry.setUser(null);
     return;
   }
-  Sentry.setUser({
-    email: user.email,
-    id: user.uuid,
-  });
 };
 
 export async function sendReport({

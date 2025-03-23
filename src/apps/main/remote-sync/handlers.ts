@@ -1,3 +1,5 @@
+import { In } from 'typeorm';
+/* eslint-disable no-use-before-define */
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { DriveFilesCollection } from '../database/collections/DriveFileCollection';
@@ -5,11 +7,15 @@ import { DriveFoldersCollection } from '../database/collections/DriveFolderColle
 import { RemoteSyncStatus } from './helpers';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
-import { reportError } from '../bug-report/service';
 import { sleep } from '../util';
 import { broadcastToWindows } from '../windows';
-import { updateSyncEngine, fallbackSyncEngine, sendUpdateFilesInSyncPending } from '../background-processes/sync-engine';
-import { debounce } from 'lodash';
+import {
+  updateSyncEngine,
+  fallbackSyncEngine,
+  sendUpdateFilesInSyncPending,
+  spawnAllSyncEngineWorker,
+} from '../background-processes/sync-engine';
+import lodashDebounce from 'lodash.debounce';
 import { setTrayStatus } from '../tray/tray';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
@@ -19,12 +25,13 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import { DriveWorkspaceCollection } from '../database/collections/DriveWorkspaceCollection';
 import { SyncRemoteWorkspaceService } from './workspace/sync-remote-workspace';
+import Queue from '@/apps/shared/Queue/Queue';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
-const driveFilesCollection = new DriveFilesCollection();
-const driveFoldersCollection = new DriveFoldersCollection();
+export const driveFilesCollection = new DriveFilesCollection();
+export const driveFoldersCollection = new DriveFoldersCollection();
 const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
 export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection, driveFoldersCollection);
@@ -61,6 +68,41 @@ async function initializeRemoteSyncManagers() {
   });
 }
 
+type UpdateFileInBatchInput = {
+  itemsId: string[];
+  file: Partial<DriveFile>;
+};
+
+export async function getLocalDangledFiles() {
+  const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS', isDangledStatus: true });
+
+  return allExisting.result;
+}
+
+export async function setAsNotDangledFiles(filesIds: string[]) {
+  await driveFilesCollection.updateInBatch({
+    where: { isDangledStatus: true, fileId: In(filesIds) },
+    updatePayload: { isDangledStatus: false },
+  });
+}
+
+export const updateFileInBatch = async (input: UpdateFileInBatchInput) => {
+  const { itemsId, file } = input;
+
+  await driveFilesCollection.updateInBatch({
+    where: {
+      fileId: In(itemsId),
+    },
+    updatePayload: file,
+  });
+};
+
+export const deleteFileInBatch = async (itemsIds: string[]) => {
+  await driveFilesCollection.removeInBatch({
+    fileId: In(itemsIds),
+  });
+};
+
 export function setIsProcessing(isProcessing: boolean, workspaceId = '') {
   const manager = remoteSyncManagers.get(workspaceId);
   if (manager) {
@@ -91,10 +133,10 @@ export async function getUpdatedRemoteItems(workspaceId = '') {
       folders: allDriveFolders.result,
     };
   } catch (error) {
-    reportError(error as Error, {
-      description: 'Something failed when updating the local db pulling the new changes from remote',
+    throw logger.error({
+      msg: 'Error getting updated remote items',
+      exc: error,
     });
-    throw error;
   }
 }
 
@@ -115,8 +157,8 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
     };
 
     const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAllByFolder(folderId, workspaceId),
-      driveFoldersCollection.getAllByFolder(folderId, workspaceId),
+      driveFilesCollection.getAllByFolder({ folderId, workspaceId }),
+      driveFoldersCollection.getAllByFolder({ parentId: folderId, workspaceId }),
     ]);
 
     if (!allDriveFiles.success) {
@@ -135,9 +177,7 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
     }
 
     const folderChildrenPromises = allDriveFolders.result.map(async (folder) => {
-      if (folder.id) {
-        return getUpdatedRemoteItemsByFolder(folder.id, workspaceId);
-      }
+      return getUpdatedRemoteItemsByFolder(folder.id, workspaceId);
     });
 
     const folderChildrenResults = await Promise.all(folderChildrenPromises);
@@ -151,16 +191,27 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
 
     return result;
   } catch (error) {
-    if (error instanceof Error) {
-      reportError(error, {
-        description: 'Something failed when updating the local db pulling the new changes from remote',
-      });
-      throw error;
-    } else {
-      throw new Error('An unknown error occurred');
-    }
+    throw logger.error({
+      msg: 'Error getting updated remote items by folder',
+      exc: error,
+    });
   }
 }
+
+ipcMain.handle('FIND_DANGLED_FILES', async () => {
+  return await getLocalDangledFiles();
+});
+
+ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
+  Queue.enqueue(() => setAsNotDangledFiles(inputData));
+});
+
+ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
+  Logger.info('Updating fixed files', inputData);
+  await updateFileInBatch({ itemsId: inputData.toUpdate, file: { isDangledStatus: false } });
+  await deleteFileInBatch(inputData.toDelete);
+  return;
+});
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId = '') => {
   Logger.debug('[MAIN] Getting updated remote file items ' + workspaceId);
@@ -175,13 +226,15 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderId: number,
 async function populateAllRemoteSync(): Promise<void> {
   try {
     await Promise.all(
-      Array.from(remoteSyncManagers.entries()).map(async ([workspaceId, manager]) => {
+      Array.from(remoteSyncManagers.entries()).map(async ([workspaceId]) => {
         await startRemoteSync(undefined, workspaceId);
       }),
     );
   } catch (error) {
-    Logger.error('Error populating all remote sync', error);
-    if (error instanceof Error) reportError(error);
+    throw logger.error({
+      msg: 'Error populating all remote sync',
+      exc: error,
+    });
   }
 }
 
@@ -191,7 +244,7 @@ async function startRemoteSync(folderId?: number, workspaceId = ''): Promise<voi
   try {
     const { files, folders } = await manager.startRemoteSync(folderId);
 
-    logger.info({ msg: 'startRemoteSync', folderId, folders: folders.length, files: files.length });
+    logger.debug({ msg: 'startRemoteSync', folderId, folders: folders.length, files: files.length });
 
     if (folderId && folders.length > 0) {
       await Promise.all(
@@ -204,10 +257,10 @@ async function startRemoteSync(folderId?: number, workspaceId = ''): Promise<voi
     }
     Logger.info('Remote sync finished');
   } catch (error) {
-    if (error instanceof Error) {
-      Logger.error('Error during remote sync', error);
-      reportError(error);
-    }
+    throw logger.error({
+      msg: 'Error starting remote sync',
+      exc: error,
+    });
   }
 }
 
@@ -277,7 +330,7 @@ ipcMain.handle('SYNC_MANUALLY', async (_, workspaceId = '') => {
   Logger.info('[Manual Sync] Received manual sync event');
   const isSyncing = await checkSyncEngineInProcess(5000, workspaceId);
   if (isSyncing) return;
-  await updateRemoteSync();
+  await debouncedSynchronization();
   await fallbackRemoteSync(workspaceId);
 });
 
@@ -303,7 +356,7 @@ ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: st
   manager.setUnsyncFiles(filesPath);
 });
 
-const debouncedSynchronization = debounce(async () => {
+export const debouncedSynchronization = lodashDebounce(async () => {
   await updateRemoteSync();
 }, SYNC_DEBOUNCE_DELAY);
 
@@ -315,15 +368,18 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
     await initializeRemoteSyncManagers();
+
     remoteSyncManagers.forEach((manager) => {
       manager.isProcessRunning = true;
     });
-    await populateAllRemoteSync();
 
-    eventBus.emit('INITIAL_SYNC_READY');
+    await populateAllRemoteSync();
+    await spawnAllSyncEngineWorker();
   } catch (error) {
-    Logger.error('Error starting remote sync manager', error);
-    if (error instanceof Error) reportError(error);
+    throw logger.error({
+      msg: 'Error initializing remote sync managers',
+      exc: error,
+    });
   }
 });
 
@@ -446,6 +502,7 @@ ipcMain.handle('get-item-by-folder-id', async (_, folderId, workspaceId = ''): P
     id: folder.id,
     uuid: folder.uuid,
     name: folder.plainName,
+    plainName: folder.plainName,
     tmpPath: '',
     pathname: '',
     backupsBucket: folder.bucket || '',

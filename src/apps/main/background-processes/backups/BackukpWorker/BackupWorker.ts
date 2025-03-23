@@ -1,11 +1,12 @@
 import { BrowserWindow } from 'electron';
 import Logger from 'electron-log';
 import path from 'path';
+import { cwd } from 'process';
 
 export class BackupWorker {
-  private static readonly DEV_PATH = '../../../release/app/dist/backups/index.html';
+  private static readonly DEV_PATH = path.join(cwd(), 'dist', 'backups', 'index.html');
 
-  private static readonly PROD_PATH = `${path.join(__dirname, '..', 'backups')}/index.html`;
+  private static readonly PROD_PATH = path.join(__dirname, '..', 'backups', 'index.html');
 
   private constructor(
     public readonly id: number,

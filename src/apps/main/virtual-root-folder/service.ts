@@ -5,8 +5,9 @@ import path from 'path';
 
 import configStore from '../config';
 import eventBus from '../event-bus';
+import { getUser } from '../auth/service';
 
-const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME ||'InternxtDrive';
+const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME;
 const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
@@ -47,13 +48,20 @@ export function getRootVirtualDrive(): string {
 }
 
 export function getRootWorkspace(workspaceId: string): string {
+  const user = getUser();
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const key = `${user.uuid}-${workspaceId}`;
+
   const current = configStore.get('workspacesPath');
-  if (!current[workspaceId]) {
-    const pathName = path.join(HOME_FOLDER_PATH, `${ROOT_FOLDER_NAME} - ${workspaceId}`);
-    configStore.set('workspacesPath', { ...current, [workspaceId]: pathName });
+  if (!current[key]) {
+    const pathName = path.join(HOME_FOLDER_PATH, `${ROOT_FOLDER_NAME} - ${key}`);
+    configStore.set('workspacesPath', { ...current, [key]: pathName });
     return pathName;
   }
-  return current[workspaceId];
+  return current[key];
 }
 
 export interface LoggersPaths {

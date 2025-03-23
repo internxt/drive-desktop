@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import lodashChunk from 'lodash.chunk';
 import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
 
 export type Chucks = Array<Array<LocalFile>>;
@@ -23,6 +23,6 @@ export class GroupFilesInChunksBySize {
   }
 
   private static chunk(files: Array<LocalFile>, size: number) {
-    return _.chunk(files, size);
+    return lodashChunk(files, size);
   }
 }

@@ -28,16 +28,9 @@
     "outDir": "release/app/dist",
     "types": ["vitest/globals"],
     "paths": {
-      "@/*": ["./src/*"],
-      "virtual-drive/dist": ["../node-win/dist"]
+      "@/*": ["./src/*"]
+      // "@internxt/node-win/dist": ["../node-win/dist"]
     }
   },
-  "exclude": [
-    "release/build",
-    "release/app/dist",
-    ".erb/dll",
-    "src/workers/backups/process.ts",
-    "src/workers/backups",
-    "src/workers/filesystems"
-  ]
+  "include": ["src", "tests", ".erb/configs", ".erb/scripts"]
 }

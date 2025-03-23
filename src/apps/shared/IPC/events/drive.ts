@@ -24,6 +24,7 @@ export type FileErrorInfo = {
   name: string;
   extension: string;
   nameWithExtension: string;
+  contentsId?: string;
   error: string;
 };
 
@@ -64,8 +65,8 @@ type MoveEvents = {
 };
 
 type SyncEvents = {
-  SYNCING: () => void;
-  SYNCED: () => void;
+  SYNCING: (workspacesId: string) => void;
+  SYNCED: (workspacesId: string) => void;
 };
 
 type CloneEvents = {

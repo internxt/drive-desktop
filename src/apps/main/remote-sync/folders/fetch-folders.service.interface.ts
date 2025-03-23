@@ -1,13 +1,20 @@
+import { paths } from '@/apps/shared/HttpClient/schema';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { RemoteSyncedFolder } from '../helpers';
 
+export type QueryFolders = paths['/folders']['get']['parameters']['query'];
+export type QueryFoldersInFolder = paths['/folders/{id}/folders']['get']['parameters']['query'];
+export type Query = QueryFolders | QueryFoldersInFolder;
+export type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
+export type QueryFoldersInFolderInWorkspace = paths['/workspaces/{workspaceId}/folders/{folderUuid}/folders']['get']['parameters']['query'];
+export type QueryWorkspace = QueryFoldersInWorkspace | QueryFoldersInFolderInWorkspace;
 export interface FetchFoldersServiceParams {
   self: RemoteSyncManager;
   folderId?: number;
   folderUuid?: string;
   updatedAtCheckpoint?: Date;
   offset: number;
-  status?: string;
+  status: QueryFolders['status'];
 }
 
 export interface FetchFoldersServiceResult {
@@ -17,13 +24,4 @@ export interface FetchFoldersServiceResult {
 
 export interface FetchFoldersService {
   run(params: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult>;
-}
-
-export interface Query {
-  limit: number;
-  offset: number;
-  status?: string;
-  updatedAt?: string;
-  order?: string;
-  sort?: string;
 }

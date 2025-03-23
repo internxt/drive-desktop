@@ -5,6 +5,7 @@ import { appInfo } from '../../app-info/app-info';
 import { onUserUnauthorized } from '../../auth/handlers';
 import { getUser, obtainToken } from '../../auth/service';
 import { EnvironmentAndStorageThumbnailUploader } from './EnvironmentAndStorageThumbnailUploader';
+import { getConfig } from '@/apps/sync-engine/config';
 
 export class ThumbnailUploaderFactory {
   private static instance: EnvironmentAndStorageThumbnailUploader | null;
@@ -35,14 +36,14 @@ export class ThumbnailUploaderFactory {
 
     const environment = new Environment({
       bridgeUrl: process.env.BRIDGE_URL,
-      bridgeUser: user.bridgeUser,
-      bridgePass: user.userId,
-      encryptionKey: user.mnemonic,
+      bridgeUser: getConfig().bridgeUser,
+      bridgePass: getConfig().bridgePass,
+      encryptionKey: getConfig().mnemonic,
     });
 
     const storage = ThumbnailUploaderFactory.createStorageClient();
 
-    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, storage, user.bucket);
+    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, storage, getConfig().bucket);
 
     return ThumbnailUploaderFactory.instance;
   }

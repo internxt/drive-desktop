@@ -5,6 +5,8 @@ import { Views } from '../../../hooks/antivirus/useAntivirus';
 import { useAntivirusContext } from '../../../context/AntivirusContext';
 import { ActionDialog } from './components/ActionDialog';
 import { useTranslationContext } from '../../../context/LocalContext';
+import { useEffect } from 'react';
+import { Spinner } from 'phosphor-react';
 
 interface AntivirusSectionProps {
   active: boolean;
@@ -24,6 +26,7 @@ export default function AntivirusSection({
     countScannedFiles,
     infectedFiles,
     currentScanPath,
+    countFiles,
     view,
     progressRatio,
     isAntivirusAvailable,
@@ -32,9 +35,16 @@ export default function AntivirusSection({
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
+    isUserElegible,
     onCancelScan,
     isWinDefenderActive,
   } = useAntivirusContext();
+
+  useEffect(() => {
+    if (!active) return;
+    isUserElegible();
+    isWinDefenderActive();
+  }, [active]);
 
   const viewStates: Record<Views, JSX.Element> = {
     locked: <LockedState />,
@@ -49,6 +59,7 @@ export default function AntivirusSection({
       <ScanState
         isScanning={isScanning}
         isScanCompleted={isScanCompleted}
+        countFiles={countFiles}
         scannedFilesCount={countScannedFiles}
         progressRatio={progressRatio}
         currentScanPath={currentScanPath}
@@ -59,12 +70,17 @@ export default function AntivirusSection({
         showItemsWithMalware={showItemsWithMalware}
       />
     ),
+    loading: (
+      <div className="flex h-[200px] w-full flex-col items-center justify-center">
+        <Spinner className="animate-spin" />
+      </div>
+    ),
   };
 
   return (
     <section className={`${active ? 'block' : 'hidden'} relative h-full w-full`}>
       <div className="flex h-full w-full flex-col">{viewStates[view]}</div>
-      {isDefenderActive && active && (
+      {isDefenderActive && isAntivirusAvailable && active && (
         <ActionDialog
           showDialog={isDefenderActive && active}
           title={translate('settings.antivirus.deactivateAntivirus.title')}

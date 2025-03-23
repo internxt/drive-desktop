@@ -1,7 +1,6 @@
 import Logger from 'electron-log';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 import nodeSchedule from 'node-schedule';
-import * as Sentry from '@sentry/electron/main';
 
 const FIVE_SECONDS = 5 * 60;
 
@@ -21,7 +20,6 @@ export class TokenScheduler {
       return decoded.exp || TokenScheduler.MAX_TIME;
     } catch (err) {
       Logger.error('[TOKEN] Token could be not decoded');
-      Sentry.captureException(err); // Use the 'Sentry' module to capture the exception
       return TokenScheduler.MAX_TIME;
     }
   }

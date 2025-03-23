@@ -1,5 +1,9 @@
+/* eslint-disable no-undef */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { contextBridge, ipcRenderer } = require('electron');
+const path = require('path');
 const Logger = require('electron-log');
+const { inspect } = require('util');
 
 contextBridge.exposeInMainWorld('electron', {
   getConfigKey(key) {
@@ -21,9 +25,10 @@ contextBridge.exposeInMainWorld('electron', {
   },
 
   logger: {
-    info: (...message) => Logger.info(String(message)),
-    error: (...message) => Logger.error(message),
-    warn: (...message) => Logger.warn(message),
+    info: (rawBody) => Logger.info(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    error: (rawBody) => Logger.error(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    warn: (rawBody) => Logger.warn(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    debug: (rawBody) => Logger.debug(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
   },
 
   pathChanged(pathname) {
@@ -301,9 +306,6 @@ contextBridge.exposeInMainWorld('electron', {
   addFakeIssues(errorsName, process) {
     return ipcRenderer.invoke('add-fake-sync-issues', { errorsName, process });
   },
-  sendFeedback(feedback) {
-    return ipcRenderer.invoke('send-feedback', feedback);
-  },
   onRemoteSyncStatusChange(callback) {
     const eventName = 'remote-sync-status-change';
     const callbackWrapper = (_, v) => {
@@ -372,6 +374,11 @@ contextBridge.exposeInMainWorld('electron', {
 
     return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
+  backups: {
+    isAvailable: () => {
+      return ipcRenderer.invoke('backups:is-available');
+    },
+  },
   antivirus: {
     isAvailable: () => {
       return ipcRenderer.invoke('antivirus:is-available');
@@ -410,4 +417,5 @@ contextBridge.exposeInMainWorld('electron', {
       return ipcRenderer.invoke('renderer.login', props);
     },
   },
+  path,
 });

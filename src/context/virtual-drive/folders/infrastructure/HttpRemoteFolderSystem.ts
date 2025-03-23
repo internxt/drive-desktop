@@ -1,10 +1,10 @@
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { Service } from 'diod';
-import Logger from 'electron-log';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { PersistFolderDto, PersistFolderInWorkspaceDto, PersistFolderResponseDto, UpdateFolderMetaDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
+import { logger } from '@/apps/shared/logger/logger';
 @Service()
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId?: string) {}
@@ -33,7 +33,10 @@ export class HttpRemoteFolderSystem {
         status: FolderStatuses.EXISTS,
       };
     } catch (error: unknown) {
-      Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
+      logger.error({
+        msg: 'Error creating folder',
+        exc: error,
+      });
 
       const existing = await this.existFolder(offline);
       return existing.status !== FolderStatuses.EXISTS ? Promise.reject(error) : existing;
@@ -46,10 +49,10 @@ export class HttpRemoteFolderSystem {
         body,
       });
 
-      if (response.error) {
-        Logger.error({
-          message: 'Error creating file entry',
-          error: response,
+      if (!response.data) {
+        logger.error({
+          msg: 'Error creating file entry',
+          error: response.error,
         });
 
         throw new Error('Error creating file entry');
@@ -73,8 +76,8 @@ export class HttpRemoteFolderSystem {
       });
 
       if (response.error) {
-        Logger.error({
-          message: 'Error creating file entry',
+        logger.error({
+          msg: 'Error creating file entry',
           error: response,
         });
         throw new Error('Error creating file entry');
@@ -82,7 +85,10 @@ export class HttpRemoteFolderSystem {
 
       return response.data;
     } catch (error) {
-      Logger.error('Error creating file entry', error);
+      logger.error({
+        msg: 'Error creating file entry',
+        exc: error,
+      });
       throw new Error('Failed to create file and no existing file found');
     }
   }
@@ -99,12 +105,15 @@ export class HttpRemoteFolderSystem {
           plainNames: [offline.basename],
         },
       });
-      Logger.debug('[FOLDER FILE SYSTEM] Folder already exists', response.data);
+      logger.debug({
+        msg: 'Checking folder existence',
+        response,
+      });
 
-      if (response.error) {
-        Logger.error({
-          message: 'Error getting folder by name',
-          error: response,
+      if (!response.data) {
+        logger.error({
+          msg: 'Error getting folder by name',
+          error: response.error,
         });
         throw new Error('Error getting file by name');
       }
@@ -125,7 +134,10 @@ export class HttpRemoteFolderSystem {
         status: data.status,
       };
     } catch (error) {
-      Logger.error('[FOLDER FILE SYSTEM] Error creating folder');
+      logger.error({
+        msg: 'Error getting folder by name',
+        exc: error,
+      });
       throw error;
     }
   }
@@ -138,14 +150,17 @@ export class HttpRemoteFolderSystem {
         },
       });
       if (response.error) {
-        Logger.error({
-          message: 'Error trashing file',
+        logger.error({
+          msg: 'Error trashing file',
           error: response,
         });
         throw new Error('Error trashing file');
       }
     } catch (error) {
-      Logger.error('Error trashing file', error);
+      logger.error({
+        msg: 'Error trashing file',
+        exc: error,
+      });
       throw error;
     }
   }
@@ -161,8 +176,8 @@ export class HttpRemoteFolderSystem {
       });
 
       if (res.error) {
-        Logger.error({
-          message: 'Error getting folder metadata',
+        logger.error({
+          msg: 'Error getting folder metadata',
           error: res,
         });
         throw new Error('Error getting folder metadata');
@@ -171,7 +186,10 @@ export class HttpRemoteFolderSystem {
       const serverFolder = res.data;
       return serverFolder;
     } catch (error) {
-      Logger.error('[FOLDER FILE SYSTEM] Error getting folder metadata');
+      logger.error({
+        msg: 'Error getting folder metadata',
+        exc: error,
+      });
       throw error;
     }
   }
@@ -195,14 +213,17 @@ export class HttpRemoteFolderSystem {
       });
 
       if (res.error) {
-        Logger.error({
-          message: 'Error renaming folder',
+        logger.error({
+          msg: 'Error renaming folder',
           error: res,
         });
         throw new Error('Error renaming folder');
       }
     } catch (error) {
-      Logger.error('[FOLDER FILE SYSTEM] Error renaming folder');
+      logger.error({
+        msg: 'Error renaming folder',
+        exc: error,
+      });
       throw error;
     }
   }
@@ -210,8 +231,8 @@ export class HttpRemoteFolderSystem {
   async move(folder: Folder): Promise<void> {
     try {
       if (!folder.parentUuid) {
-        Logger.error({
-          message: 'Error moving folder',
+        logger.error({
+          msg: 'Error moving folder',
           error: 'Folder does not have a parent',
         });
         throw new Error('Error moving folder');
@@ -228,14 +249,17 @@ export class HttpRemoteFolderSystem {
         },
       });
       if (res.error) {
-        Logger.error({
-          message: 'Error moving folder',
+        logger.error({
+          msg: 'Error moving folder',
           error: res,
         });
         throw new Error('Error moving folder');
       }
     } catch (error) {
-      Logger.error('[FOLDER FILE SYSTEM] Error moving folder');
+      logger.error({
+        msg: 'Error moving folder',
+        exc: error,
+      });
       throw error;
     }
   }

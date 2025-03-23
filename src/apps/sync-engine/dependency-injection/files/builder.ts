@@ -2,7 +2,6 @@ import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
-import { DependencyInjectionUserProvider } from '../common/user';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
@@ -26,25 +25,26 @@ import { FileSyncronizer } from '../../../../context/virtual-drive/files/applica
 import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsUpdater } from '../../../../context/virtual-drive/files/application/FileContentsUpdater';
+import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '../../config';
+import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
   sharedContainer: SharedContainer,
 ): Promise<{
   container: FilesContainer;
-  subscribers: any;
+  subscribers: unknown;
 }> {
-  const user = DependencyInjectionUserProvider.get();
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
   const { virtualDrive } = DependencyInjectionVirtualDrive;
 
-  const remoteFileSystem = new HttpRemoteFileSystem(crypt, user.bucket, getConfig().workspaceId);
+  const remoteFileSystem = new HttpRemoteFileSystem(crypt, getConfig().bucket, getConfig().workspaceId);
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
   const repository = new InMemoryFileRepository();
@@ -108,7 +108,13 @@ export async function buildFilesContainer(
 
   const fileContentsUpdater = new FileContentsUpdater(repository, remoteFileSystem);
 
+  const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem);
+
   const fileIdentityUpdater = new FileIdentityUpdater(localFileSystem);
+
+  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
+
+  const fileOverwriteContent = new FileOverwriteContent(repository, filesCheckerStatusInRoot, fileContentsHardUpdate);
 
   const fileSyncronizer = new FileSyncronizer(
     repository,
@@ -121,8 +127,6 @@ export async function buildFilesContainer(
     folderContainer.offline.folderCreator,
     fileContentsUpdater,
   );
-
-  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
 
   const container: FilesContainer = {
     fileFinderByContentsId,
@@ -143,6 +147,7 @@ export async function buildFilesContainer(
     fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
     fileIdentityUpdater,
+    fileOverwriteContent,
   };
 
   return { container, subscribers: [] };

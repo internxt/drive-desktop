@@ -31,7 +31,7 @@ export class Antivirus {
 
       this.clamAv = await new NodeClam().init({
         removeInfected: false,
-        debugMode: true,
+        debugMode: false,
         scanRecursively: true,
         clamdscan: {
           path: path.join(RESOURCES_PATH, 'clamdscan.exe'),
@@ -58,11 +58,7 @@ export class Antivirus {
       throw new Error('ClamAV is not initialized');
     }
 
-    return (await this.clamAv.isInfected(filePath)) as {
-      file: string;
-      isInfected: boolean;
-      viruses: [];
-    };
+    return await this.clamAv.isInfected(filePath);
   }
 
   async stopClamAv() {

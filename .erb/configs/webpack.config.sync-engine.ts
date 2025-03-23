@@ -1,7 +1,3 @@
-/**
- * Build config for electron renderer process
- */
-
 import path from 'path';
 import webpack from 'webpack';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
@@ -20,11 +16,7 @@ const configuration: webpack.Configuration = {
     rules: [{ test: /\.node$/, loader: 'node-loader' }],
   },
 
-  entry: [
-    'core-js',
-    'regenerator-runtime/runtime',
-    path.join(webpackPaths.srcSyncEnginePath, 'index.ts'),
-  ],
+  entry: ['core-js', 'regenerator-runtime/runtime', path.join(webpackPaths.srcSyncEnginePath, 'index.ts')],
 
   output: {
     path: webpackPaths.distSyncEnginePath,

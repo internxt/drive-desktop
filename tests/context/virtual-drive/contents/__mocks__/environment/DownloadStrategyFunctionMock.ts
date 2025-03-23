@@ -7,7 +7,7 @@ type DownloadCallbacks = {
 };
 
 export function createDownloadStrategy(fn: (opts: DownloadCallbacks) => void) {
-  return (_bucket: string, _fileId: string, opts: any, _strategyObj: any) => {
+  return (_bucket: string, _fileId: string, opts: DownloadCallbacks) => {
     fn(opts);
 
     return new ActionState(ActionTypes.Download);

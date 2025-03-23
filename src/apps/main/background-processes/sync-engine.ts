@@ -1,18 +1,18 @@
+import fs from 'fs/promises';
 import { BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
-import * as Sentry from '@sentry/electron/main';
 import { monitorHealth } from './sync-engine/monitor-health';
 import { Config } from '../../sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtual-root-folder/service';
 import { logger } from '../../../apps/shared/logger/logger';
-import { syncWorkspaceService } from '../remote-sync/handlers';
+import { driveFilesCollection, driveFoldersCollection, syncWorkspaceService } from '../remote-sync/handlers';
 import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
-import configStore from '../config';
+import { cwd } from 'process';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -21,7 +21,7 @@ interface WorkerConfig {
   syncSchedule: nodeSchedule.Job | null;
 }
 
-const workers: { [key: string]: WorkerConfig } = {};
+export const workers: { [key: string]: WorkerConfig } = {};
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -41,10 +41,10 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
 
 function scheduleSync(workspaceId: string) {
   if (workers[workspaceId].syncSchedule) {
-    workers[workspaceId].syncSchedule.cancel(false);
+    workers[workspaceId].syncSchedule?.cancel(false);
   }
 
-  workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('0 0 */2 * * *', async () => {
+  workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('*/15 * * * *', async () => {
     eventBus.emit('RECEIVED_REMOTE_CHANGES', workspaceId);
   });
 }
@@ -71,7 +71,7 @@ export async function spawnSyncEngineWorker(config: Config) {
     return;
   }
 
-  Logger.info(`[MAIN] SPAWNING SYNC ENGINE WORKER for workspace  ${providerName}: ${workspaceId}...`);
+  Logger.info(`[MAIN] SPAWNING SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId}...`);
   workers[workspaceId].startingWorker = true;
 
   const worker = new BrowserWindow({
@@ -86,8 +86,8 @@ export async function spawnSyncEngineWorker(config: Config) {
   try {
     await worker.loadFile(
       process.env.NODE_ENV === 'development'
-        ? '../../../release/app/dist/sync-engine/index.html'
-        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`,
+        ? path.join(cwd(), 'dist', 'sync-engine', 'index.html')
+        : path.join(__dirname, '..', 'sync-engine', 'index.html'),
     );
 
     logger.debug({ msg: `[MAIN] SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId} LOADED` });
@@ -107,11 +107,10 @@ export async function spawnSyncEngineWorker(config: Config) {
     workers[workspaceId].worker = worker;
   } catch (err) {
     Logger.error(`[MAIN] Error loading sync engine worker for workspace ${providerName}: ${workspaceId}`, err);
-    Sentry.captureException(err);
   }
 }
 
-async function stopAndClearSyncEngineWatcher(workspaceId = '') {
+export async function stopAndClearSyncEngineWatcher(workspaceId = '') {
   Logger.info(`[MAIN] STOPPING AND CLEARING SYNC ENGINE WORKER for workspace ${workspaceId}...`);
 
   if (workers[workspaceId] && !workers[workspaceId].workerIsRunning) {
@@ -125,7 +124,6 @@ async function stopAndClearSyncEngineWatcher(workspaceId = '') {
   const response = new Promise<void>((resolve, reject) => {
     ipcMain.on('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (_, error: Error) => {
       Logger.error(`[MAIN] Error stopping sync engine worker for workspace ${workspaceId}`, error);
-      Sentry.captureException(error);
       reject(error);
     });
 
@@ -147,7 +145,6 @@ async function stopAndClearSyncEngineWatcher(workspaceId = '') {
     await response;
   } catch (err) {
     Logger.error(err);
-    Sentry.captureException(err);
   } finally {
     workers[workspaceId]?.worker?.destroy();
     workers[workspaceId].workerIsRunning = false;
@@ -163,7 +160,6 @@ export function updateSyncEngine(workspaceId: string) {
     }
   } catch (err) {
     Logger.error(err);
-    Sentry.captureException(err);
   }
 }
 
@@ -199,34 +195,44 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-const spawnAllSyncEngineWorker = async () => {
+export const spawnAllSyncEngineWorker = async () => {
   const user = getUser();
 
   if (!user) {
     return;
   }
-  const providerId = process.env.PROVIDER_ID || 'E9D7EB38-B229-5DC5-9396-017C449D59CD';
   const values: Config = {
-    providerId: `{${providerId}}`,
+    providerId: `{${process.env.PROVIDER_ID}}`,
     rootPath: getRootVirtualDrive(),
-    providerName: 'Internxt',
+    providerName: 'Internxt Drive',
     workspaceId: '',
     loggerPath: getLoggersPaths().logEnginePath,
     rootUuid: user.rootFolderId,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
+    bridgeUser: user.bridgeUser,
+    bridgePass: user.userId,
+    workspaceToken: undefined,
   };
 
-  logger.debug({ msg: 'Spawning sync engine worker for Internxt Drive', values });
   await spawnSyncEngineWorker(values);
 
   const workspaces = await syncWorkspaceService.getWorkspaces();
 
   await Promise.all(
     workspaces.map(async (workspace) => {
+      if (workspace.removed) {
+        const rootFolder = await getRootWorkspace(workspace.id);
+        await fs.rm(rootFolder, { recursive: true, force: true });
+        await driveFilesCollection.cleanWorkspace(workspace.id);
+        await driveFoldersCollection.cleanWorkspace(workspace.id);
+        ipcMain.emit('UNREGISTER_SYNC_ENGINE_PROCESS', `{${workspace.id}}`);
+        return;
+      }
+
       const workspaceCredential = await FetchWorkspacesService.getCredencials(workspace.id);
 
-      const user = configStore.get('userData');
+      const user = getUser();
 
       if (!user) {
         throw new Error('User not found');
@@ -241,12 +247,14 @@ const spawnAllSyncEngineWorker = async () => {
         mnemonic: mnemonic.toString(),
         providerId: `{${workspace.id}}`,
         rootPath: getRootWorkspace(workspace.id),
-        providerName: workspace.name,
+        providerName: 'Internxt Drive for Business',
         loggerPath: getLoggersPaths().logWatcherPath,
         workspaceId: workspace.id,
         workspaceToken: workspaceCredential.tokenHeader,
         rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
         bucket: workspaceCredential.bucket,
+        bridgeUser: workspaceCredential.credentials.networkUser,
+        bridgePass: workspaceCredential.credentials.networkPass,
       };
 
       await spawnSyncEngineWorker(values);
@@ -256,4 +264,3 @@ const spawnAllSyncEngineWorker = async () => {
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearAllSyncEngineWatcher);
-eventBus.on('INITIAL_SYNC_READY', spawnAllSyncEngineWorker);

@@ -1,38 +1,9 @@
-# Logs
-logs
-*.log
-.vscode
-
-# Runtime data
-pids
-*.pid
-*.seed
-
-# Coverage directory used by tools like istanbul
-coverage
-.eslintcache
-
-# Dependency directory
-# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
-node_modules
-clamAV
-
-# OSX
-.DS_Store
-
-release/app/dist
-release/build
-.erb/dll
-
-.idea
-npm-debug.log.*
-*.css.d.ts
-*.sass.d.ts
-*.scss.d.ts
-
-.npmrc
-.env
-
-src/test/screenshots
-
-*.db
+/.env
+/.erb/dll
+/.idea
+/.npmrc
+/.vscode
+/build
+/clamAV
+/dist
+/node_modules

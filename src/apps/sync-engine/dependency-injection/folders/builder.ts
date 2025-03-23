@@ -30,6 +30,7 @@ import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folde
 import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FoldersFatherSyncStatusUpdater';
 import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
+import { getConfig } from '../../config';
 
 export async function buildFoldersContainer(shredContainer: SharedContainer): Promise<FoldersContainer> {
   const eventBus = DependencyInjectionEventBus.bus;
@@ -39,7 +40,7 @@ export async function buildFoldersContainer(shredContainer: SharedContainer): Pr
   const repository = new InMemoryFolderRepository();
 
   const localFolderSystem = new NodeWinLocalFolderSystem(virtualDrive, shredContainer.relativePathToAbsoluteConverter);
-  const remoteFolderSystem = new HttpRemoteFolderSystem();
+  const remoteFolderSystem = new HttpRemoteFolderSystem(getConfig().workspaceId ?? null);
 
   const folderPlaceholderConverter = new FolderPlaceholderConverter(localFolderSystem);
 

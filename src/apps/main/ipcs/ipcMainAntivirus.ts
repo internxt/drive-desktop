@@ -1,10 +1,11 @@
-import Logger from 'electron-log';
 import { ipcMain, shell } from 'electron';
 import { SelectedItemToScanProps } from '../antivirus/Antivirus';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { exec } from 'node:child_process';
-import { PaymentsService } from '../payments/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
+import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
+import { logger } from '@/apps/shared/logger/logger';
+import { PaymentsService } from '../payments/service';
 import { buildPaymentsService } from '../payments/builder';
 
 let paymentService: PaymentsService | null = null;
@@ -25,6 +26,11 @@ export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
 }
 
 ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
+  const result = await initializeAntivirusIfAvailable();
+  return result.antivirusEnabled;
+});
+
+export async function isAvailableBackups(): Promise<boolean> {
   try {
     if (!paymentService) {
       paymentService = buildPaymentsService();
@@ -32,20 +38,27 @@ ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
 
     const availableProducts = await paymentService.getAvailableProducts();
 
-    return availableProducts.antivirus;
+    return availableProducts.backups;
   } catch (error) {
-    Logger.error('ERROR GETTING PRODUCTS: ', error);
-    throw error;
+    logger.warn({
+      msg: 'ERROR GETTING PRODUCTS FOR BACKUPS',
+      exc: error,
+    });
+    return false;
   }
-});
+}
+
+ipcMain.handle('backups:is-available', isAvailableBackups);
 
 ipcMain.handle('antivirus:is-Defender-active', async () => {
   try {
     const isWinDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
     return isWinDefenderActive;
   } catch (error) {
-    const err = error as Error;
-    console.log(`Error while getting the Win Defender status: ${err.stack ?? err.message}`);
+    logger.warn({
+      msg: 'Error while getting the Win Defender status',
+      exc: error,
+    });
     return false;
   }
 });

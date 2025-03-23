@@ -3,8 +3,9 @@ import { motion } from 'framer-motion';
 
 import { useTranslationContext } from '../../context/LocalContext';
 import { UilHistory } from '@iconscout/react-unicons';
+import { Shield } from 'phosphor-react';
 
-const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS'] as const;
+const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS', 'ANTIVIRUS'] as const;
 export type Section = (typeof sectionValues)[number];
 
 function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; onClick: () => void; isActive: boolean }) {
@@ -30,7 +31,7 @@ export default function Header({ onClick, active }: { onClick: (active: Section)
     { label: 'GENERAL', icon: Gear },
     { label: 'ACCOUNT', icon: At },
     { label: 'BACKUPS', icon: UilHistory },
-    // { label: 'ANTIVIRUS', icon: Shield },
+    { label: 'ANTIVIRUS', icon: Shield },
   ];
 
   const animationVariants: Record<Section, { left: string }> = sectionValues.reduce(

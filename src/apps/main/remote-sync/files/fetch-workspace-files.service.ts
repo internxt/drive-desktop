@@ -1,30 +1,31 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { logger } from '@/apps/shared/logger/logger';
 import { client } from '../../../shared/HttpClient/client';
-import { FetchFilesService, FetchFilesServiceParams, FetchFilesServiceResult, Query } from './fetch-files.service.interface';
+import {
+  FetchFilesService,
+  FetchFilesServiceParams,
+  QueryFilesInFolderInWorkspace,
+  QueryFilesInWorkspace,
+  QueryWorkspace,
+} from './fetch-files.service.interface';
 
 export class FetchWorkspaceFilesService implements FetchFilesService {
-  async run({ self, offset, folderUuid, updatedAtCheckpoint, status }: FetchFilesServiceParams): Promise<FetchFilesServiceResult> {
+  async run({ self, offset, folderUuid }: FetchFilesServiceParams) {
     if (!self.workspaceId) {
       throw new Error('Workspace id is required to fetch files');
     }
 
-    const query: Query = {
+    const query: QueryWorkspace = {
       limit: self.config.fetchFilesLimitPerRequest,
       offset,
-      status,
-      updatedAt: updatedAtCheckpoint?.toISOString(),
+      sort: 'updatedAt',
+      order: 'DESC',
     };
 
     const promise = folderUuid
       ? this.getFilesByFolderInWorkspace({
           folderUuid,
           workspaceId: self.workspaceId,
-          query: {
-            limit: self.config.fetchFilesLimitPerRequest,
-            offset,
-            order: 'desc',
-            sort: 'updatedAt',
-          },
+          query,
         })
       : this.getFileInWorkspace({ workspaceId: self.workspaceId, query });
 
@@ -35,16 +36,10 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
       return { hasMore, result: result.data };
     }
 
-    throw new Error(`Fetch files response not ok with query ${JSON.stringify(query, null, 2)} and error ${result.error}`);
+    throw logger.error({ msg: 'Fetch workspace files response not ok', query, error: result.error });
   }
 
-  private async getFileInWorkspace({
-    query,
-    workspaceId,
-  }: {
-    workspaceId: string;
-    query: paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
-  }) {
+  private async getFileInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryFilesInWorkspace }) {
     const result = await client.GET('/workspaces/{workspaceId}/files', { params: { path: { workspaceId: workspaceId }, query } });
     return { ...result, data: result.data };
   }
@@ -56,7 +51,7 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
   }: {
     folderUuid: string;
     workspaceId: string;
-    query: paths['/workspaces/{workspaceId}/folders/{folderUuid}/files']['get']['parameters']['query'];
+    query: QueryFilesInFolderInWorkspace;
   }) {
     const result = await client.GET('/workspaces/{workspaceId}/folders/{folderUuid}/files', {
       params: { path: { workspaceId, folderUuid }, query },

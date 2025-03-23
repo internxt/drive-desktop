@@ -102,6 +102,12 @@ async function setUp() {
     }
   });
 
+  ipcRenderer.on('UNREGISTER_SYNC_ENGINE_PROCESS', async (_, providerId: string) => {
+    Logger.info('[SYNC ENGINE] Unregistering sync engine');
+    await bindings.unregisterSyncEngine({ providerId });
+    Logger.info('[SYNC ENGINE] sync engine unregistered successfully');
+  });
+
   await bindings.start(packageJson.version);
 
   await bindings.watch();
@@ -123,7 +129,6 @@ async function refreshToken() {
 }
 
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
-  Logger.info('[SYNC ENGINE] Setting config:', config);
   setConfig(config);
 
   if (config.workspaceToken) {

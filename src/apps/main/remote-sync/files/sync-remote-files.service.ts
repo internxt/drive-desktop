@@ -1,42 +1,42 @@
 /* eslint-disable no-await-in-loop */
-import { logger } from '../../../shared/logger/logger';
 import { RemoteSyncedFile } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { reportError } from '../../bug-report/service';
-import Logger from 'electron-log';
 import { FetchRemoteFilesService } from './fetch-remote-files.service';
 import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
 import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
+import { loggerService } from '@/apps/shared/logger/logger';
 
 const MAX_RETRIES = 3;
 
 export class SyncRemoteFilesService {
   constructor(
     private readonly workspaceId?: string,
-    private fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService(),
+    private readonly fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService(),
+    private readonly logger = loggerService,
   ) {}
 
   async run({
     self,
-    retry,
     from,
     folderId,
+    retry = 1,
+    offset = 0,
+    allResults = [],
   }: {
     self: RemoteSyncManager;
-    retry: number;
+    retry?: number;
     from?: Date;
     folderId?: number | string;
+    offset?: number;
+    allResults?: RemoteSyncedFile[];
   }): Promise<RemoteSyncedFile[]> {
-    const allResults: RemoteSyncedFile[] = [];
-
-    let offset = 0;
     let hasMore = true;
 
     try {
-      logger.info({ msg: 'Syncing files', from });
+      this.logger.debug({ msg: 'Syncing files', from });
 
       while (hasMore) {
-        logger.info({ msg: 'Retrieving files', offset });
+        this.logger.debug({ msg: 'Retrieving files', offset });
 
         const param: FetchFilesServiceParams = {
           self,
@@ -59,6 +59,7 @@ export class SyncRemoteFilesService {
           result.map(async (remoteFile) => {
             self.db.files.create({
               ...remoteFile,
+              isDangledStatus: false,
               workspaceId: this.workspaceId,
             });
             self.totalFilesSynced++;
@@ -71,12 +72,8 @@ export class SyncRemoteFilesService {
       }
 
       return allResults;
-    } catch (error) {
-      Logger.error('Remote files sync failed with error: ', error);
-
-      reportError(error as Error, {
-        lastFilesSyncAt: from ? from.toISOString() : 'INITIAL_FILES_SYNC',
-      });
+    } catch (exc) {
+      this.logger.error({ msg: 'Remote files sync failed', exc, retry, offset });
 
       if (retry >= MAX_RETRIES) {
         self.filesSyncStatus = 'SYNC_FAILED';
@@ -84,7 +81,7 @@ export class SyncRemoteFilesService {
         return [];
       }
 
-      return await this.run({ self, retry: retry + 1, from });
+      return await this.run({ self, retry: retry + 1, from, offset, allResults });
     }
   }
 }

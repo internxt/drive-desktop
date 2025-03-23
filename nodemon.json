@@ -1,0 +1,7 @@
+{
+  "exec": "npm run start:reload",
+  "ext": "ts",
+  "ignore": ["src/apps/renderer", "**/*.test.ts"],
+  "verbose": true,
+  "watch": ["src"]
+}

@@ -1,15 +1,14 @@
 import { RemoteSyncStatus, rewind, WAITING_AFTER_SYNCING_DEFAULT, FIVETEEN_MINUTES_IN_MILLISECONDS } from './helpers';
-import { reportError } from '../bug-report/service';
-
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
 import { logger } from '../../shared/logger/logger';
-import { SyncRemoteFoldersService } from './folders/sync-remote-folders';
+import { SyncRemoteFoldersService } from './folders/sync-remote-folders.service';
 import { FetchRemoteFoldersService } from './folders/fetch-remote-folders.service';
 import { SyncRemoteFilesService } from './files/sync-remote-files.service';
 import { Nullable } from '@/apps/shared/types/Nullable';
 import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.service';
+import { QueryFolders } from './folders/fetch-folders.service.interface';
 
 export class RemoteSyncManager {
   foldersSyncStatus: RemoteSyncStatus = 'IDLE';
@@ -89,9 +88,7 @@ export class RemoteSyncManager {
    */
   async startRemoteSync(folderId?: number | string) {
     // TODO: change to folderUuid type
-    logger.info({ msg: 'Starting remote to local sync', folderId });
-
-    logger.info({ msg: 'Checking if there is a sync in progress', workspaceId: this.workspaceId });
+    logger.debug({ msg: 'Starting remote to local sync', folderId, workspaceId: this.workspaceId });
 
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
@@ -100,14 +97,12 @@ export class RemoteSyncManager {
     try {
       const syncFilesPromise = this.syncRemoteFiles.run({
         self: this,
-        retry: 1,
         folderId,
         from: await this.getFileCheckpoint(),
       });
 
       const syncFoldersPromise = this.syncRemoteFolders.run({
         self: this,
-        retry: 1,
         folderId,
         from: await this.getLastFolderSyncAt(),
       });
@@ -117,7 +112,6 @@ export class RemoteSyncManager {
     } catch (error) {
       logger.error({ msg: 'Remote sync failed with error', error });
       this.changeStatus('SYNC_FAILED');
-      reportError(error as Error);
     } finally {
       logger.debug({
         msg: 'Remote sync finished',
@@ -141,7 +135,7 @@ export class RemoteSyncManager {
 
     if (newStatus === this.status) return;
 
-    logger.info({
+    logger.debug({
       msg: 'RemoteSyncManager change status',
       current: this.status,
       newStatus,
@@ -209,7 +203,7 @@ export class RemoteSyncManager {
     folderId: number;
     offset: number;
     updatedAtCheckpoint: Date;
-    status: string;
+    status: QueryFolders['status'];
   }) {
     return this.fetchRemoteFolders.run({ self: this, offset, folderId, updatedAtCheckpoint, status });
   }

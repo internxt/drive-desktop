@@ -2,7 +2,7 @@ import { SeverityNumber } from '@opentelemetry/api-logs';
 import { LoggerProvider, BatchLogRecordProcessor } from '@opentelemetry/sdk-logs';
 import { OTLPLogExporter } from '@opentelemetry/exporter-logs-otlp-http';
 import { inspect } from 'node:util';
-import { getUser } from '../../main/auth/service';
+import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
@@ -17,9 +17,9 @@ loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(logExporter));
 
 const otelLogger = loggerProvider.getLogger('default', '1.0.0');
 
-type TRawBody = {
+export type TRawBody = {
   msg: string;
-  exc?: Error;
+  exc?: Error | unknown;
   attributes?: {
     tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
     userId?: string;
@@ -28,7 +28,7 @@ type TRawBody = {
   [key: string]: unknown;
 };
 
-class Logger {
+export class LoggerService {
   private prepareBody(rawBody: TRawBody) {
     const user = getUser();
 
@@ -38,9 +38,7 @@ class Logger {
     };
 
     const { attributes, ...rest } = rawBody;
-
     const body = inspect(rest, { colors: true, depth: Infinity, breakLength: Infinity });
-
     return { attributes, body };
   }
 
@@ -59,6 +57,7 @@ class Logger {
     const { attributes, body } = this.prepareBody(rawBody);
     otelLogger.emit({ severityNumber: SeverityNumber.WARN, body, attributes });
     ElectronLog.warn(body);
+    return new Error(rawBody.msg);
   }
 
   error(rawBody: TRawBody) {
@@ -76,4 +75,5 @@ class Logger {
   }
 }
 
-export const logger = new Logger();
+export const logger = new LoggerService();
+export const loggerService = logger;

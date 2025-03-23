@@ -2,9 +2,9 @@ import { DatabaseCollectionAdapter } from '../adapters/base';
 import { AppDataSource } from '../data-source';
 import { DriveFile } from '../entities/DriveFile';
 import { FindOptionsWhere, Repository } from 'typeorm';
-import * as Sentry from '@sentry/electron/main';
-import Logger from 'electron-log';
+import { logger } from '@/apps/shared/logger/logger';
 
+type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; updatePayload: Partial<DriveFile> };
 export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile> {
   private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 
@@ -41,7 +41,34 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
       };
     }
   }
-  async getAllByFolder(folderId: number, workspaceId?: string) {
+
+  async getAllWhere(where: Partial<DriveFile>) {
+    try {
+      const result = await this.repository.find({
+        where,
+      });
+      return {
+        success: true,
+        result: result,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        result: [],
+      };
+    }
+  }
+
+  async updateInBatch(input: UpdateInBatchPayload) {
+    const { where, updatePayload } = input;
+    const match = await this.repository.update(where, updatePayload);
+
+    return {
+      success: match.affected ? true : false,
+    };
+  }
+
+  async getAllByFolder({ folderId, workspaceId }: { folderId: number; workspaceId?: string }) {
     try {
       const where: FindOptionsWhere<DriveFile> = { folderId };
       if (workspaceId) {
@@ -93,6 +120,14 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
     };
   }
 
+  async removeInBatch(where: FindOptionsWhere<DriveFile>) {
+    const result = await this.repository.delete(where);
+
+    return {
+      success: result.affected ? true : false,
+    };
+  }
+
   async getLastUpdated(): Promise<{
     success: boolean;
     result: DriveFile | null;
@@ -104,9 +139,11 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
         success: true,
         result: queryResult,
       };
-    } catch (error) {
-      Sentry.captureException(error);
-      Logger.error('Error fetching newest drive file:', error);
+    } catch (exc) {
+      logger.warn({
+        msg: 'Error fetching newest drive folder:',
+        exc,
+      });
       return {
         success: false,
         result: null,
@@ -126,9 +163,11 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
         success: true,
         result: queryResult,
       };
-    } catch (error) {
-      Sentry.captureException(error);
-      Logger.error('Error fetching newest drive folder:', error);
+    } catch (exc) {
+      logger.warn({
+        msg: 'Error fetching newest drive folder:',
+        exc,
+      });
       return {
         success: false,
         result: null,
@@ -138,7 +177,10 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
 
   async searchPartialBy(partialData: Partial<DriveFile>): Promise<{ success: boolean; result: DriveFile[] }> {
     try {
-      Logger.info('Searching partial by', partialData);
+      logger.debug({
+        msg: 'Searching drive files by partial data',
+        partialData,
+      });
       const result = await this.repository.find({
         where: partialData,
       });
@@ -146,12 +188,32 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
         success: true,
         result,
       };
-    } catch (error) {
-      Sentry.captureException(error);
-      Logger.error('Error fetching drive folders:', error);
+    } catch (exc) {
+      logger.warn({
+        msg: 'Error searching drive files by partial data',
+        exc,
+      });
       return {
         success: false,
         result: [],
+      };
+    }
+  }
+
+  async cleanWorkspace(workspaceId: string): Promise<{ success: boolean }> {
+    try {
+      await this.repository.delete({ workspaceId });
+      return {
+        success: true,
+      };
+    } catch (exc) {
+      logger.warn({
+        msg: 'Error cleaning workspace',
+        workspaceId,
+        exc,
+      });
+      return {
+        success: false,
       };
     }
   }

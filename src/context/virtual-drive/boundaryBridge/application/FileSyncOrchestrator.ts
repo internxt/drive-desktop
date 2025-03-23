@@ -2,6 +2,7 @@ import { isTemporaryFile } from '../../../../apps/utils/isTemporalFile';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { FileSyncronizer } from '../../files/application/FileSyncronizer';
 import Logger from 'electron-log';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 export class FileSyncOrchestrator {
   constructor(

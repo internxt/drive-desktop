@@ -131,7 +131,7 @@
         "upgrade": "Comprar espacio"
       },
       "dropdown": {
-        "new": "New",
+        "new": "Nuevo",
         "preferences": "Preferencias",
         "sync": "Sincronizar",
         "issues": "Lista de errores",
@@ -379,6 +379,7 @@
         }
       },
       "scanProcess": {
+        "countingFiles": "Contando archivos...",
         "scanning": "Escaneando...",
         "scannedFiles": "Archivos escaneados",
         "detectedFiles": "Archivos detectados",

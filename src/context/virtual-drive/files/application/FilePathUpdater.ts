@@ -10,6 +10,7 @@ import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { logger } from '../../../../apps/shared/logger/logger';
 
 export class FilePathUpdater {
   constructor(
@@ -40,8 +41,11 @@ export class FilePathUpdater {
     try {
       const trackerId = await this.local.getFileIdentity(file.path);
       file.moveTo(destinationFolder, trackerId);
-    } catch (error: any) {
-      Logger.warn(`Error in FilePathUpdater.move: ${error?.message}`);
+    } catch (exc: unknown) {
+      throw logger.error({
+        msg: 'Error in FilePathUpdater.move',
+        exc,
+      });
     }
 
     Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
@@ -58,7 +62,18 @@ export class FilePathUpdater {
       const destination = new FilePath(posixRelativePath);
       const file = this.fileFinderByContentsId.run(contentsId);
 
-      if (file.dirname !== destination.dirname()) {
+      const folderFather = this.folderFinder.findFromUuid(file.folderUuid.value);
+
+      logger.info({
+        msg: 'File path updater info',
+        file: file.name,
+        fileDirname: file.dirname,
+        folder: folderFather.name,
+        folderPath: folderFather.path,
+        destination: destination.dirname(),
+      });
+
+      if (folderFather.path !== destination.dirname()) {
         if (file.nameWithExtension !== destination.nameWithExtension()) {
           throw new ActionNotPermittedError('rename and change folder');
         }
@@ -81,6 +96,11 @@ export class FilePathUpdater {
         throw new FileAlreadyExistsError(destination.name());
       }
 
+      if (folderFather.path !== file.dirname) {
+        const trackerId = await this.local.getFileIdentity(destination.value);
+        file.moveTo(folderFather, trackerId);
+      }
+
       Logger.debug('[RUN RENAME]', file.name, destination.value);
       Logger.debug('[RUN RENAME]', file.name, destination.nameWithExtension());
       Logger.debug('[RUN RENAME]', file.nameWithExtension, destination.extensionMatch(file.type));
@@ -98,9 +118,11 @@ export class FilePathUpdater {
       }
 
       throw new Error('Cannot reupload files atm');
-    } catch (error: any) {
-      Logger.error(`Error in FilePathUpdater.run: ${error.message}`);
-      throw error;
+    } catch (exc: unknown) {
+      throw logger.error({
+        msg: 'Error in FilePathUpdater.run',
+        exc,
+      });
     }
   }
 }

@@ -68,7 +68,6 @@ export class ContentsUploader {
       Logger.debug('[DEBUG UPLOAD]:', posixRelativePath, absolutePath);
 
       const { contents, abortSignal } = await this.contentProvider.provide(absolutePath);
-      Logger.debug('[DEBUG UPLOAD STEEP 1]: ');
 
       const uploader = this.remoteContentsManagersFactory.uploader(contents, abortSignal);
 
@@ -81,6 +80,10 @@ export class ContentsUploader {
       return fileContents;
     } catch (error: unknown) {
       Logger.error('[ERROR DEBUG]', error);
+      const fileName = posixRelativePath.split('/').pop() || posixRelativePath;
+      if (error instanceof Error) {
+        (error as any).fileName = fileName;
+      }
       throw error;
     }
   }
