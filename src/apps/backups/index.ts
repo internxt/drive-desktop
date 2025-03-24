@@ -5,7 +5,9 @@ import { BackupsDependencyContainerFactory } from './dependency-injection/Backup
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
 import { setDefaultConfig } from '../sync-engine/config';
-setDefaultConfig();
+setDefaultConfig({
+  providerId: 'BACKUPS_PROVIDER_ID',
+});
 
 async function obtainBackup(): Promise<BackupInfo> {
   try {
@@ -57,7 +59,7 @@ async function backupFolder() {
       Logger.info('[BACKUPS] done');
       BackupsIPCRenderer.send('backups.backup-completed', data.folderId);
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     Logger.error('[BACKUPS] ', error);
     if (error instanceof DriveDesktopError) {
       Logger.error('[BACKUPS] ', { cause: error.cause });

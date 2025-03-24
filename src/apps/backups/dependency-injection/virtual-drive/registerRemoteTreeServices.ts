@@ -21,5 +21,10 @@ export async function registerRemoteTreeServices(builder: ContainerBuilder) {
     .private();
 
   // Services
-  builder.registerAndUse(RemoteTreeBuilder);
+  builder
+    .register(RemoteTreeBuilder)
+    .useFactory((container) => new RemoteTreeBuilder(container.get(RemoteItemsGenerator),
+      container.get(Traverser))
+    )
+    .private();
 }

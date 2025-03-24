@@ -28,7 +28,7 @@ export class HttpRemoteFileSystem {
 
       logger.debug({
         msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
-        encryptedName: offline.path,
+        offline,
       });
 
       const body: PersistFileDto = {
@@ -40,6 +40,12 @@ export class HttpRemoteFileSystem {
         size: offline.size,
         type: offline.type,
       };
+
+      logger.debug({
+        msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
+        offline,
+        body,
+      });
 
       const result = this.workspaceId ? await this.createFileInWorkspace(body, this.workspaceId) : await this.createFile(body);
 
@@ -110,16 +116,16 @@ export class HttpRemoteFileSystem {
 
       if (response.error) {
         logger.error({
-          msg: 'Error creating file entry',
+          msg: 'Error creating file entry in workspaces',
           error: response,
         });
-        throw new Error('Error creating file entry');
+        throw new Error('Error creating file entry in workspaces');
       }
 
       return response.data;
     } catch (error) {
       logger.error({
-        msg: 'Error creating file entry',
+        msg: 'Error creating file entry in workspaces',
         exc: error,
       });
       throw new Error('Failed to create file and no existing file found');
