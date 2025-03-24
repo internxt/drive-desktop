@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import configStore from '../config';
-import { ensureBackupUuidExists, getBackupFolderUuid } from './service';
+import { ensureBackupUuidExists } from './service';
 import { client } from '@/apps/shared/HttpClient/client';
 
 // Mock dependencies
