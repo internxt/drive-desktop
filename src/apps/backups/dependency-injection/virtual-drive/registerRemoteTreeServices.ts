@@ -23,8 +23,6 @@ export async function registerRemoteTreeServices(builder: ContainerBuilder) {
   // Services
   builder
     .register(RemoteTreeBuilder)
-    .useFactory((container) => new RemoteTreeBuilder(container.get(RemoteItemsGenerator),
-      container.get(Traverser))
-    )
+    .useFactory((container) => new RemoteTreeBuilder(container.get(RemoteItemsGenerator), container.get(Traverser)))
     .private();
 }
