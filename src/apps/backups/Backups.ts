@@ -39,11 +39,7 @@ export class Backup {
   private backed = 0;
 
   async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
-    Logger.info('[BACKUPS] Local tree built 1');
-
     const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
-
-    Logger.info('[BACKUPS] Local tree built 2');
 
     if (localTreeEither.isLeft()) {
       Logger.error('[BACKUPS] Error building local tree');
@@ -51,11 +47,9 @@ export class Backup {
       return localTreeEither.getLeft();
     }
 
-    Logger.info('[BACKUPS] Local tree built 3');
-
     const local = localTreeEither.getRight();
 
-    const remote = await this.remoteTreeBuilder.run(info.folderId, true);
+    const remote = await this.remoteTreeBuilder.run(info.folderUuid, true);
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
 

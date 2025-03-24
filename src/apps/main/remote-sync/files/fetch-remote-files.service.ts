@@ -30,7 +30,7 @@ export class FetchRemoteFilesService implements FetchFilesService {
       return { hasMore, result: result.data };
     }
 
-    throw logger.error({ msg: 'Fetch files response not ok', exc: result.error });
+    throw logger.error({ msg: 'Fetch files response not ok', exc: result.error, folderUuid });
   }
 
   private getFiles({ query }: { query: QueryFiles }) {

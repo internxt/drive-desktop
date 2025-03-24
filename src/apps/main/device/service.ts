@@ -201,11 +201,37 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
   };
 }
 
+export const ensureBackupUuidExists = async (
+  backupsList: Record<
+    string,
+    {
+      enabled: boolean;
+      folderId: number;
+      folderUuid?: string;
+    }
+  >,
+) => {
+  const entries = Object.entries(backupsList);
+
+  const promises = entries.map(async ([pathname, backup]) => {
+    if (!backup.folderUuid && backup.enabled) {
+      backup.folderUuid = await getBackupFolderUuid(backup);
+      backupsList[pathname] = backup;
+    }
+  });
+
+  await Promise.all(promises);
+
+  configStore.set('backupList', backupsList);
+};
+
 export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
   const folder = await fetchFolder({ folderUuid: device.uuid });
 
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
+
+    await ensureBackupUuidExists(backupsList);
 
     const user = getUser();
 
@@ -454,7 +480,7 @@ export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolea
   await Promise.all(deletionPromises);
 }
 
-const getFolderUuid = async (backup: { enabled: boolean; folderId: number; folderUuid?: string }): Promise<string> => {
+export const getBackupFolderUuid = async (backup: { enabled: boolean; folderId: number; folderUuid?: string }): Promise<string> => {
   if (backup.folderUuid) return backup.folderUuid;
 
   const res = await client.GET('/folders/{id}/metadata', {
@@ -503,7 +529,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   if (oldFolderName !== newFolderName) {
     logger.info({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
 
-    const folderUuid = await getFolderUuid(existingBackup);
+    const folderUuid = await getBackupFolderUuid(existingBackup);
 
     const res = await client.PUT('/folders/{uuid}/meta', {
       params: { path: { uuid: folderUuid } },
