@@ -5,9 +5,6 @@ import { BackupsDependencyContainerFactory } from './dependency-injection/Backup
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
 import { setDefaultConfig } from '../sync-engine/config';
-setDefaultConfig({
-  providerId: 'BACKUPS_PROVIDER_ID',
-});
 
 async function obtainBackup(): Promise<BackupInfo> {
   try {
@@ -27,6 +24,9 @@ async function obtainBackup(): Promise<BackupInfo> {
 
 async function backupFolder() {
   const data = await obtainBackup();
+  setDefaultConfig({
+    providerId: 'BACKUPS_PROVIDER_ID',
+  });
 
   try {
     Logger.info('[BACKUPS] building container');

@@ -97,14 +97,12 @@ export class RemoteSyncManager {
     try {
       const syncFilesPromise = this.syncRemoteFiles.run({
         self: this,
-        retry: 1,
         folderUuid,
         from: await this.getFileCheckpoint(),
       });
 
       const syncFoldersPromise = this.syncRemoteFolders.run({
         self: this,
-        retry: 1,
         folderUuid,
         from: await this.getLastFolderSyncAt(),
       });
