@@ -23,6 +23,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
 import { customInspect } from '@/apps/shared/logger/custom-inspect';
 import { getConfig } from '@/apps/sync-engine/config';
+import { BackupFolderUuid } from './backup-folder-uuid';
 
 export type Device = {
   name: string;
@@ -201,37 +202,13 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
   };
 }
 
-export const ensureBackupUuidExists = async (
-  backupsList: Record<
-    string,
-    {
-      enabled: boolean;
-      folderId: number;
-      folderUuid?: string;
-    }
-  >,
-) => {
-  const entries = Object.entries(backupsList);
-
-  const promises = entries.map(async ([pathname, backup]) => {
-    if (!backup.folderUuid && backup.enabled) {
-      backup.folderUuid = await getBackupFolderUuid(backup);
-      backupsList[pathname] = backup;
-    }
-  });
-
-  await Promise.all(promises);
-
-  configStore.set('backupList', backupsList);
-};
-
 export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
   const folder = await fetchFolder({ folderUuid: device.uuid });
 
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
 
-    await ensureBackupUuidExists(backupsList);
+    await new BackupFolderUuid().ensureBackupUuidExists({ backupsList });
 
     const user = getUser();
 
