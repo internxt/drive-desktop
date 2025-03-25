@@ -26,11 +26,6 @@ export class HttpRemoteFileSystem {
         throw new Error('Failed to encrypt name');
       }
 
-      logger.debug({
-        msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
-        offline,
-      });
-
       const body: PersistFileDto = {
         bucket: this.bucket,
         fileId: offline.contentsId,
@@ -76,7 +71,9 @@ export class HttpRemoteFileSystem {
 
       if (existingFile) return existingFile;
 
-      throw new Error('Failed to create file and no existing file found');
+      throw logger.error({
+        msg: 'Failed to persist file and no existing file found',
+      });
     }
   }
   private async createFile(body: PersistFileDto): Promise<PersistFileResponseDto> {
@@ -86,12 +83,10 @@ export class HttpRemoteFileSystem {
       });
 
       if (response.error) {
-        logger.error({
+        throw logger.error({
           msg: 'Error creating file entry',
-          error: response,
+          exc: response,
         });
-
-        throw new Error('Error creating file entry');
       }
 
       return response.data;
@@ -115,11 +110,10 @@ export class HttpRemoteFileSystem {
       });
 
       if (response.error) {
-        logger.error({
+        throw logger.error({
           msg: 'Error creating file entry in workspaces',
           error: response,
         });
-        throw new Error('Error creating file entry in workspaces');
       }
 
       return response.data;
