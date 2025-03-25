@@ -457,20 +457,6 @@ export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolea
   await Promise.all(deletionPromises);
 }
 
-export const getBackupFolderUuid = async (backup: { enabled: boolean; folderId: number; folderUuid?: string }): Promise<string> => {
-  if (backup.folderUuid) return backup.folderUuid;
-
-  const res = await client.GET('/folders/{id}/metadata', {
-    params: { path: { id: backup.folderId } },
-  });
-
-  if (!res.data) {
-    throw new Error(`Error trying to get the backup metadata ${customInspect(res.error)}`);
-  }
-
-  return res.data.uuid;
-};
-
 export async function disableBackup(backup: BackupInfo): Promise<void> {
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.folderId)!;
@@ -506,7 +492,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   if (oldFolderName !== newFolderName) {
     logger.info({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
 
-    const folderUuid = await getBackupFolderUuid(existingBackup);
+    const folderUuid = await new BackupFolderUuid().getBackupFolderUuid({ backup: existingBackup });
 
     const res = await client.PUT('/folders/{uuid}/meta', {
       params: { path: { uuid: folderUuid } },
