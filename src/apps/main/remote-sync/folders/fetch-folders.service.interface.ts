@@ -3,7 +3,6 @@ import { RemoteSyncManager } from '../RemoteSyncManager';
 import { RemoteSyncedFolder } from '../helpers';
 
 export type QueryFolders = paths['/folders']['get']['parameters']['query'];
-export type QueryFoldersInFolder = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
 export type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
 export type QueryFoldersInFolderInWorkspace = paths['/workspaces/{workspaceId}/folders/{folderUuid}/folders']['get']['parameters']['query'];
 export type QueryWorkspace = QueryFoldersInWorkspace | QueryFoldersInFolderInWorkspace;

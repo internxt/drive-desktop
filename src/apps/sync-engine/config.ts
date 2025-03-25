@@ -53,8 +53,8 @@ export function setConfig(newConfig: Config) {
   config = { ...defaultValues(), ...newConfig };
 }
 
-export function setDefaultConfig() {
-  config = defaultValues();
+export function setDefaultConfig(newConfig: Partial<Config>) {
+  config = { ...defaultValues(), ...newConfig };
 }
 export function getConfig(): Config {
   return config;

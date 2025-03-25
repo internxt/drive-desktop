@@ -6,6 +6,7 @@ import { paths } from '../HttpClient/schema';
 export type TRawBody = {
   msg: string;
   exc?: Error | unknown;
+  context?: Record<string, unknown>;
   attributes?: {
     tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
     userId?: string;

@@ -11,14 +11,14 @@ export class RemoteTreeBuilder {
     private readonly traverser: Traverser,
   ) {}
 
-  async run(rootFolderId: number, refresh = false): Promise<RemoteTree> {
+  async run(rootFolderUuid: string, refresh = false): Promise<RemoteTree> {
     if (refresh) {
       Logger.debug('[REMOTE TREE BUILDER] Force refresh');
-      await this.remoteItemsGenerator.forceRefresh(rootFolderId);
+      await this.remoteItemsGenerator.forceRefresh(rootFolderUuid);
     }
 
-    const items = await this.remoteItemsGenerator.getAllItemsByFolderId(rootFolderId);
+    const items = await this.remoteItemsGenerator.getAllItemsByFolderId(rootFolderUuid);
 
-    return this.traverser.run(rootFolderId, items);
+    return this.traverser.run(rootFolderUuid, items);
   }
 }
