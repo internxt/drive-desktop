@@ -57,8 +57,8 @@ export class RemoteItemsGenerator {
     return { files, folders };
   }
 
-  async getAllItemsByFolderId(folderId: number): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', folderId, getConfig().workspaceId ?? '');
+  async getAllItemsByFolderId(folderUuid: string): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
+    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', folderUuid, getConfig().workspaceId ?? '');
 
     const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
 
@@ -67,7 +67,7 @@ export class RemoteItemsGenerator {
     return { files, folders };
   }
 
-  async forceRefresh(folderId: number): Promise<void> {
-    await this.ipc.invoke('FORCE_REFRESH_BACKUPS', folderId);
+  async forceRefresh(folderUuid: string): Promise<void> {
+    await this.ipc.invoke('FORCE_REFRESH_BACKUPS', folderUuid);
   }
 }

@@ -1,3 +1,6 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-use-before-define */
 import { aes } from '@internxt/lib';
 import { app, dialog } from 'electron';
 import fetch from 'electron-fetch';
@@ -20,6 +23,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
 import { customInspect } from '@/apps/shared/logger/custom-inspect';
 import { getConfig } from '@/apps/sync-engine/config';
+import { BackupFolderUuid } from './backup-folder-uuid';
 
 export type Device = {
   name: string;
@@ -203,6 +207,8 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
 
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
+
+    await new BackupFolderUuid().ensureBackupUuidExists({ backupsList });
 
     const user = getUser();
 
@@ -455,8 +461,6 @@ export async function disableBackup(backup: BackupInfo): Promise<void> {
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.folderId)!;
 
-  // await deleteBackup(backup);
-
   backupsList[pathname].enabled = false;
 
   configStore.set('backupList', backupsList);
@@ -486,9 +490,13 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   const newFolderName = path.basename(chosenPath);
 
   if (oldFolderName !== newFolderName) {
-    const res = await client.PATCH('/folders/{uuid}', {
-      params: { path: { uuid: existingBackup.folderUuid } },
-      body: { destinationFolder: newFolderName },
+    logger.info({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
+
+    const folderUuid = await new BackupFolderUuid().getBackupFolderUuid({ backup: existingBackup });
+
+    const res = await client.PUT('/folders/{uuid}/meta', {
+      params: { path: { uuid: folderUuid } },
+      body: { plainName: newFolderName },
     });
 
     if (!res.data) {

@@ -26,11 +26,6 @@ export class HttpRemoteFileSystem {
         throw new Error('Failed to encrypt name');
       }
 
-      logger.debug({
-        msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
-        encryptedName: offline.path,
-      });
-
       const body: PersistFileDto = {
         bucket: this.bucket,
         fileId: offline.contentsId,
@@ -40,6 +35,12 @@ export class HttpRemoteFileSystem {
         size: offline.size,
         type: offline.type,
       };
+
+      logger.debug({
+        msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
+        offline,
+        body,
+      });
 
       const result = this.workspaceId ? await this.createFileInWorkspace(body, this.workspaceId) : await this.createFile(body);
 
@@ -70,228 +71,170 @@ export class HttpRemoteFileSystem {
 
       if (existingFile) return existingFile;
 
-      throw new Error('Failed to create file and no existing file found');
+      throw logger.error({
+        msg: 'Failed to persist file and no existing file found',
+      });
     }
   }
   private async createFile(body: PersistFileDto): Promise<PersistFileResponseDto> {
-    try {
-      const response = await client.POST('/files', {
-        body,
-      });
+    const response = await client.POST('/files', {
+      body,
+    });
 
-      if (response.error) {
-        logger.error({
-          msg: 'Error creating file entry',
-          error: response,
-        });
-
-        throw new Error('Error creating file entry');
-      }
-
-      return response.data;
-    } catch (error) {
-      logger.error({
+    if (!response.data) {
+      throw logger.error({
         msg: 'Error creating file entry',
-        exc: error,
+        exc: response.error,
       });
-      throw new Error('Failed to create file and no existing file found');
     }
+
+    return response.data;
   }
   private async createFileInWorkspace(body: PersistFileDto, workspaceId: string): Promise<PersistFileResponseDto> {
-    try {
-      const response = await client.POST('/workspaces/{workspaceId}/files', {
-        params: {
-          path: {
-            workspaceId,
-          },
+    const response = await client.POST('/workspaces/{workspaceId}/files', {
+      params: {
+        path: {
+          workspaceId,
         },
-        body,
-      });
+      },
+      body,
+    });
 
-      if (response.error) {
-        logger.error({
-          msg: 'Error creating file entry',
-          error: response,
-        });
-        throw new Error('Error creating file entry');
-      }
-
-      return response.data;
-    } catch (error) {
-      logger.error({
-        msg: 'Error creating file entry',
-        exc: error,
+    if (!response.data) {
+      throw logger.error({
+        msg: 'Error creating file entry in workspaces',
+        error: response.error,
       });
-      throw new Error('Failed to create file and no existing file found');
     }
+
+    return response.data;
   }
   async delete(file: File): Promise<void> {
-    try {
-      const response = await client.POST('/storage/trash/add', {
-        body: {
-          items: [{ type: 'file', uuid: file.uuid, id: null }],
-        },
-      });
-      if (response.error) {
-        logger.error({
-          msg: 'Error trashing file',
-          error: response.response,
-        });
-        throw new Error('Error trashing file');
-      }
-    } catch (error) {
-      logger.error({
+    const response = await client.POST('/storage/trash/add', {
+      body: {
+        items: [{ type: 'file', uuid: file.uuid, id: null }],
+      },
+    });
+
+    if (!response.data) {
+      throw logger.error({
         msg: 'Error trashing file',
-        exc: error,
+        error: response.error,
       });
-      throw error;
     }
   }
+
   async rename(file: File): Promise<void> {
-    try {
-      const response = await client.PUT('/files/{uuid}/meta', {
-        body: { plainName: file.name, type: file.type },
-        params: {
-          path: {
-            uuid: file.uuid,
-          },
+    const response = await client.PUT('/files/{uuid}/meta', {
+      body: { plainName: file.name, type: file.type },
+      params: {
+        path: {
+          uuid: file.uuid,
         },
-      });
-      if (response.error) {
-        logger.error({
-          msg: 'Error renaming file',
-          error: response,
-        });
-        throw new Error('Error renaming file');
-      }
-    } catch (error) {
-      logger.error({
+      },
+    });
+
+    if (!response.data) {
+      throw logger.error({
         msg: 'Error renaming file',
-        exc: error,
+        error: response.error,
       });
-      throw error;
     }
   }
   async move(file: File): Promise<void> {
-    try {
-      const response = await client.PATCH('/files/{uuid}', {
-        body: { destinationFolder: file.folderUuid.value },
-        params: {
-          path: {
-            uuid: file.uuid,
-          },
+    const response = await client.PATCH('/files/{uuid}', {
+      body: { destinationFolder: file.folderUuid.value },
+      params: {
+        path: {
+          uuid: file.uuid,
         },
-      });
-      if (!response.data) {
-        logger.error({
-          msg: 'Error moving file',
-          error: response.response,
-          errorData: response.error,
-        });
+      },
+    });
 
-        throw new Error('Error moving file');
-      }
-    } catch (error) {
-      logger.error({
+    if (!response.data) {
+      throw logger.error({
         msg: 'Error moving file',
-        exc: error,
+        error: response.error,
       });
-      throw error;
     }
   }
+
   async replace(file: File, newContentsId: File['contentsId'], newSize: File['size']): Promise<void> {
-    try {
-      const response = await client.PUT('/files/{uuid}', {
-        body: {
-          fileId: newContentsId,
-          size: newSize,
+    const response = await client.PUT('/files/{uuid}', {
+      body: {
+        fileId: newContentsId,
+        size: newSize,
+      },
+      params: {
+        path: {
+          uuid: file.uuid,
         },
-        params: {
-          path: {
-            uuid: file.uuid,
-          },
-        },
-      });
-      if (response.error) {
-        logger.error({
-          msg: 'Error moving file',
-          error: response,
-        });
-        throw new Error('Error moving file');
-      }
-    } catch (error) {
-      logger.error({
+      },
+    });
+
+    if (!response.data) {
+      throw logger.error({
         msg: 'Error moving file',
-        exc: error,
+        error: response.error,
       });
-      throw error;
     }
   }
+
   async override(file: File): Promise<void> {
-    try {
-      const response = await client.PUT('/files/{uuid}', {
-        body: {
-          fileId: file.contentsId,
-          size: file.size,
+    const response = await client.PUT('/files/{uuid}', {
+      body: {
+        fileId: file.contentsId,
+        size: file.size,
+      },
+      params: {
+        path: {
+          uuid: file.uuid,
         },
-        params: {
-          path: {
-            uuid: file.uuid,
-          },
-        },
-      });
-      if (response.error) {
-        logger.error({
-          msg: 'Error moving file',
-          error: response,
-        });
-        throw new Error('Error moving file');
-      }
-    } catch (error) {
-      logger.error({
+      },
+    });
+
+    if (!response.data) {
+      throw logger.error({
         msg: 'Error moving file',
-        exc: error,
+        error: response.error,
       });
-      throw error;
     }
   }
+
   async getFileByPath(filePath: string): Promise<null | FileAttributes> {
-    try {
-      const response = await client.GET('/files/meta', {
-        params: {
-          query: {
-            path: filePath,
-          },
+    const response = await client.GET('/files/meta', {
+      params: {
+        query: {
+          path: filePath,
         },
+      },
+    });
+    if (!response.data) {
+      logger.error({
+        msg: 'Error getting file by path',
+        error: response.error,
       });
-      if (response.error) {
-        logger.error({
-          msg: 'Error getting file by path',
-          error: response,
-        });
-        throw new Error('Error getting file by path');
-      }
-      const data = response.data;
-      if (data.status !== FileStatuses.EXISTS) return null;
-
-      const attributes: FileAttributes = {
-        id: data.id,
-        uuid: data.uuid,
-        contentsId: data.fileId,
-        folderId: data.folderId,
-        folderUuid: data.folderUuid,
-        createdAt: data.createdAt,
-        modificationTime: data.modificationTime,
-        path: filePath,
-        size: data.size,
-        status: FileStatuses.EXISTS,
-        updatedAt: data.updatedAt,
-      };
-
-      return attributes;
-    } catch (error) {
       return null;
     }
+
+    const data = response.data;
+    if (data.status !== FileStatuses.EXISTS) return null;
+
+    const attributes: FileAttributes = {
+      id: data.id,
+      uuid: data.uuid,
+      contentsId: data.fileId,
+      folderId: data.folderId,
+      folderUuid: data.folderUuid,
+      createdAt: data.createdAt,
+      modificationTime: data.modificationTime,
+      path: filePath,
+      size: data.size,
+      status: FileStatuses.EXISTS,
+      updatedAt: data.updatedAt,
+    };
+
+    return attributes;
   }
   async hardDelete(fileId: string): Promise<void> {
     const result = await client.DELETE('/storage/trash/file/{fileId}', {

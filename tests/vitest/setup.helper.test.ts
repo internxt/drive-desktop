@@ -148,3 +148,13 @@ vi.mock('@/apps/main/virtual-root-folder/service.ts', () => {
     })),
   };
 });
+
+vi.mock('@/apps/main/windows/widget.ts', () => {
+  return {
+    getWidget: vi.fn(() => ({
+      webContents: {
+        send: vi.fn(),
+      },
+    })),
+  };
+});

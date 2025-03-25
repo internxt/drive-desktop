@@ -71,14 +71,14 @@ export type SyncEngineInvocableFunctions = {
     folders: DriveFolder[];
   }>;
   GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (
-    folderId: number,
+    folderUuid: string,
     workspaceId: string,
   ) => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
   START_REMOTE_SYNC: () => Promise<void>;
-  FORCE_REFRESH_BACKUPS: (folderId: number) => Promise<void>;
+  FORCE_REFRESH_BACKUPS: (folderUuid: string) => Promise<void>;
 
   GET_HEADERS: () => Promise<Record<string, string>>;
 
