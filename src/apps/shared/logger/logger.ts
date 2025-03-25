@@ -10,6 +10,7 @@ export type TRawBody = {
   attributes?: {
     tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
     userId?: string;
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
     endpoint?: keyof paths;
   };
   [key: string]: unknown;

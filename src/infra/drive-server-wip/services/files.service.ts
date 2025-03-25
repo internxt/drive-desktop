@@ -12,7 +12,7 @@ export class FilesService {
 
     if (!res.data) {
       throw this.logger.error({
-        msg: 'Files request was not successful',
+        msg: 'Get files request was not successful',
         exc: res.error,
         context: {
           query,
