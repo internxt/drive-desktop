@@ -5,8 +5,9 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     coverage: {
-      reporter: 'lcov',
+      reporter: ['text', 'lcov', 'json', 'json-summary'],
       provider: 'v8',
+      reportOnFailure: true,
     },
     reporters: ['verbose'],
     setupFiles: './tests/vitest/setup.helper.test.ts',

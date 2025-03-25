@@ -53,4 +53,8 @@ jobs:
         run: npm run lint
 
       - name: Run tests
-        run: npm run test:once
+        run: npm run test:cov
+
+      - name: Run report coverage
+        if: always()
+        uses: davelosert/vitest-coverage-report-action@v2
