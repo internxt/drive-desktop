@@ -6,7 +6,7 @@ export interface ScannedItemsProps {
   isInfected: boolean | null;
   viruses: string[];
 }
-export type Views = 'locked' | 'chooseItems' | 'scan';
+export type Views = 'locked' | 'chooseItems' | 'scan' | 'loading';
 
 export interface UseAntivirusReturn {
   infectedFiles: string[];
@@ -23,6 +23,7 @@ export interface UseAntivirusReturn {
   onScanUserSystemButtonClicked: () => Promise<void>;
   onScanAgainButtonClicked: () => void;
   onCancelScan: () => void;
+  isUserElegible: () => void;
   onCustomScanButtonClicked: (scanType: ScanType) => Promise<void>;
   onRemoveInfectedItems: (infectedFiles: string[]) => Promise<void>;
   isWinDefenderActive: () => Promise<boolean>;
@@ -55,6 +56,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const isUserElegible = async () => {
     try {
+      setView('loading');
       const isAntivirusAvailable = await window.electron.antivirus.isAvailable();
 
       if (!isAntivirusAvailable) {
@@ -201,6 +203,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
+    isUserElegible,
     onRemoveInfectedItems,
     onCancelScan,
     isWinDefenderActive,

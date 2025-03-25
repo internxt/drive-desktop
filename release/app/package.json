@@ -1,6 +1,6 @@
 {
   "name": "internxt-drive",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Internxt client UI",
   "main": "./dist/main/main.js",
   "author": "Internxt <hello@internxt.com>",
