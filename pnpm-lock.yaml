@@ -390,6 +390,9 @@ importers:
       vitest-mock-extended:
         specifier: ^2.0.2
         version: 2.0.2(typescript@4.9.5)(vitest@3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0))
+      vitest-sonar-reporter:
+        specifier: ^2.0.0
+        version: 2.0.0(vitest@3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0))
       webpack:
         specifier: ^5.73.0
         version: 5.98.0(webpack-cli@4.10.0)
@@ -7630,6 +7633,12 @@ packages:
     peerDependencies:
       typescript: 3.x || 4.x || 5.x
       vitest: '>=2.0.0'
+
+  vitest-sonar-reporter@2.0.0:
+    resolution: {integrity: sha512-LorC3NnmrBrryx4+l3BEsNQjD0Y7wfmrD1y/+tHDuZUuVj7w8nOxRXCBSppDfmgfpToOhwchh0JcL4IGMKUKDA==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    peerDependencies:
+      vitest: '>=1'
 
   vitest@3.0.8:
     resolution: {integrity: sha512-dfqAsNqRGUc8hB9OVR2P0w8PZPEckti2+5rdZip0WIz9WW0MnImJ8XiR61QhqLa92EQzKP2uPkzenKOAHyEIbA==}
@@ -16159,6 +16168,10 @@ snapshots:
     dependencies:
       ts-essentials: 10.0.4(typescript@4.9.5)
       typescript: 4.9.5
+      vitest: 3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0)
+
+  vitest-sonar-reporter@2.0.0(vitest@3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0)):
+    dependencies:
       vitest: 3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0)
 
   vitest@3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0):
