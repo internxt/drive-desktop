@@ -14,6 +14,7 @@ import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { convertToReadableStream } from './NetworkFacade';
 import Logger from 'electron-log';
 import path from 'path';
+import { logger } from '@/apps/shared/logger/logger';
 
 async function writeReadableStreamToFile(readableStream: ReadableStream<Uint8Array>, filePath: string): Promise<void> {
   const writer = fs.createWriteStream(filePath);
@@ -137,9 +138,8 @@ export async function downloadFolder(
             Logger.info('totalItems:', totalItems, 'downloadedItems:', downloadedItems);
             Logger.info('Download progress:', progress);
             updateProgress && updateProgress(Math.max(progress, 1));
-          } catch (error: any) {
-            Logger.error('[Downloader] Error downloading file:', file, error.message);
-            throw error;
+          } catch (error) {
+            throw logger.error({ msg: '[Downloader] Error downloading file:', file, error });
           }
         }),
       );
