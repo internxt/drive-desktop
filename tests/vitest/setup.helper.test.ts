@@ -6,6 +6,8 @@ dotenv.config();
 
 process.env.NODE_ENV = 'development';
 
+process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
+
 vi.mock('@/apps/main/auth/service', () => {
   const user = {
     email: 'jonathandanielarce9@gmail.com',
