@@ -40,11 +40,17 @@ export class SyncRemoteFoldersService {
       while (hasMore) {
         this.logger.debug({ msg: 'Retrieving folders', offset });
 
+        /**
+         * We fetch ALL folders when we want to synchronize the current state with the web state.
+         * It means that we need to delete or create the folders that are not in the web state anymore.
+         * However, if no checkpoint is provided it means that we don't have a local state yet.
+         * In that situation, fetch only EXISTS folders.
+         */
         const param: FetchFoldersServiceParams = {
           self,
           offset,
           updatedAtCheckpoint: from,
-          status: 'ALL',
+          status: from ? 'ALL' : 'EXISTS',
           folderUuid: folderUuid,
         };
 

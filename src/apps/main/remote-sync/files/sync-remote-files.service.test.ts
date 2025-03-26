@@ -35,6 +35,30 @@ describe('sync-remote-files.service', () => {
     expect(remoteSyncManager.filesSyncStatus).toBe('IDLE');
   });
 
+  it('If checkpoint is null, fetch only EXISTS files', async () => {
+    // When
+    await service.run({ self: remoteSyncManager });
+
+    // Then
+    expect(fetchFiles.run).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'EXISTS',
+      }),
+    );
+  });
+
+  it('If checkpoint is provided, fetch ALL files', async () => {
+    // When
+    await service.run({ self: remoteSyncManager, from: new Date() });
+
+    // Then
+    expect(fetchFiles.run).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: 'ALL',
+      }),
+    );
+  });
+
   it('If fetch always throws an error, retry it 3 times with offset 0', async () => {
     // Given
     fetchFiles.run.mockRejectedValue(new Error());
