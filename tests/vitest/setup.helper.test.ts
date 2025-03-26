@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config();
 
@@ -68,7 +69,12 @@ vi.mock('electron', async () => {
     ...actual,
     app: {
       ...actual.app,
-      getPath: vi.fn(() => '/mock/path'),
+      getPath: vi.fn((string) => {
+        if (string === 'home') {
+          return path.join(__dirname, '../temp-test');
+        }
+        return '/mock/logs';
+      }),
       on: vi.fn(),
     },
     ipcMain: {

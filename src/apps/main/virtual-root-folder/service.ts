@@ -6,6 +6,8 @@ import path from 'path';
 import configStore from '../config';
 import eventBus from '../event-bus';
 import { getUser } from '../auth/service';
+import { logger } from '@/apps/shared/logger/logger';
+import { User } from '../types';
 
 const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME;
 const HOME_FOLDER_PATH = app.getPath('home');
@@ -23,7 +25,7 @@ export async function clearDirectory(pathname: string): Promise<boolean> {
   }
 }
 
-function setSyncRoot(pathname: string): void {
+export function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
   const logEnginePath = path.join(app.getPath('appData'), 'internxt-drive', 'logs', 'node-win.txt');
 
@@ -40,11 +42,32 @@ function setSyncRoot(pathname: string): void {
 
 export function getRootVirtualDrive(): string {
   const current = configStore.get('syncRoot');
-  if (current !== VIRTUAL_DRIVE_FOLDER) {
-    setupRootFolder();
+  const user = getUser();
+  if (!user)
+    throw logger.error({
+      msg: 'User not found when getting root virtual drive',
+    });
+
+  logger.debug({
+    msg: 'Current root virtual drive',
+    current,
+  });
+
+  if (!current.includes(user.email)) {
+    logger.debug({
+      msg: 'Root virtual drive not found for user',
+    });
+    setupRootFolder(user);
+    const newRoot = configStore.get('syncRoot');
+
+    logger.debug({
+      msg: 'New root virtual drive',
+      newRoot,
+    });
+    return newRoot;
   }
 
-  return configStore.get('syncRoot');
+  return current;
 }
 
 export function getRootWorkspace(workspaceId: string): string {
@@ -84,23 +107,40 @@ export function getLoggersPaths(): LoggersPaths {
 
 export async function clearRootVirtualDrive(): Promise<void> {
   try {
-    const syncFolderPath = configStore.get('syncRoot');
-
     const queue = path.join(app.getPath('appData'), 'internxt-drive', 'queue-manager.json');
 
     await fs.rm(queue, { recursive: true, force: true });
-
-    await fs.rm(syncFolderPath, { recursive: true, force: true });
-
-    Logger.info(`Directory contents cleared: ${syncFolderPath}`);
   } catch (err) {
     Logger.error('Error clearing root virtual drive', err);
   }
 }
 
-export async function setupRootFolder(n = 0): Promise<void> {
-  setSyncRoot(VIRTUAL_DRIVE_FOLDER);
-  return;
+export async function setupRootFolder(user: User): Promise<void> {
+  const current = configStore.get('syncRoot');
+
+  logger.debug({
+    msg: 'Current root virtual drive in setup',
+    current,
+  });
+
+  const pathNameWithSepInTheEnd = VIRTUAL_DRIVE_FOLDER + path.sep;
+
+  const syncFolderPath = VIRTUAL_DRIVE_FOLDER + ` - ${user.email}`;
+
+  logger.debug({
+    msg: 'virtual drive folder',
+    pathNameWithSepInTheEnd,
+    current,
+    syncFolderPath,
+  });
+  if (current === pathNameWithSepInTheEnd) {
+    logger.debug({
+      msg: 'Renaming root virtual drive',
+    });
+    await fs.rename(current, syncFolderPath);
+  }
+
+  setSyncRoot(syncFolderPath);
 }
 
 export async function chooseSyncRootWithDialog(): Promise<string | null> {
