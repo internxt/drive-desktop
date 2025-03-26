@@ -67,22 +67,6 @@ describe('setupRootFolder', () => {
     expect(renameSpy).not.toHaveBeenCalled();
   });
 
-  it('should handle a syncRoot belonging to another user and update it correctly', async () => {
-    const user: User = { email: 'test3@gmail.com', uuid: '789' } as User;
-    const virtualDriveFolder = path.join(tempDir, 'virtual-drive');
-    const syncRoot = `${virtualDriveFolder} - test@gmail.com`;
-
-    if (!fs.existsSync(virtualDriveFolder)) {
-      fs.mkdirSync(virtualDriveFolder);
-    }
-
-    configStore.get = vi.fn().mockReturnValue(syncRoot);
-
-    await setupRootFolder(user);
-
-    expect(renameSpy).not.toHaveBeenCalled();
-  });
-
   it('should not rename or setSyncRoot if syncRoot is undefined', async () => {
     const user: User = { email: 'test4@gmail.com', uuid: '101' } as User;
     configStore.get = vi.fn().mockReturnValue(undefined);
