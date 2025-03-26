@@ -42,7 +42,7 @@ export class FileBatchUploader {
 
             if (uploadEither.isLeft()) {
               const error = uploadEither.getLeft();
-              Logger.error('[Local File Uploader] Error uploading file', localFile.path, error);
+              logger.error({ msg: '[Local File Uploader] Error uploading file', path: localFile.path, error });
 
               if (isFatalError(error.cause)) {
                 throw error;

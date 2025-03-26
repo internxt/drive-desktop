@@ -105,11 +105,9 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
 export async function getOrCreateDevice() {
   const savedDeviceUuid = configStore.get('deviceUuid');
 
-  Logger.info(`[DEVICE] Saved device uuid: ${savedDeviceUuid}`);
+  logger.debug({ msg: '[DEVICE] Saved device', savedDeviceUuid });
 
   const deviceIsDefined = savedDeviceUuid !== '';
-
-  Logger.info(`[DEVICE] Device is defined: ${deviceIsDefined}`);
 
   let newDevice: Device | null = null;
 
@@ -118,10 +116,8 @@ export async function getOrCreateDevice() {
 
     if (res.data) {
       const device = decryptDeviceName(res.data);
-      Logger.info(`[DEVICE] Found device with name "${device.name}"`);
+      logger.debug({ msg: '[DEVICE] Found device', device });
       configStore.set('deviceUuid', device.uuid);
-
-      Logger.info(device);
 
       if (!device.removed) return device;
       newDevice = await tryToCreateDeviceWithDifferentNames();
@@ -137,9 +133,7 @@ export async function getOrCreateDevice() {
     configStore.set('deviceUuid', newDevice.uuid);
     configStore.set('backupList', {});
     const device = decryptDeviceName(newDevice);
-    Logger.info(`[DEVICE] Created device with name "${device.name}"`);
-
-    Logger.info(device);
+    logger.debug({ msg: '[DEVICE] Created device', device });
     return device;
   }
   const error = new Error('Could not get or create device');
@@ -170,7 +164,7 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
     nameDevice = aes.decrypt(name, key);
   }
 
-  Logger.info(`[DEVICE] Decrypted device name "${nameDevice}"`);
+  logger.debug({ msg: '[DEVICE] Decrypted device', nameDevice });
 
   return {
     name: nameDevice,
