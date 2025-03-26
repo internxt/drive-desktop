@@ -4,7 +4,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 export class FetchRemoteFilesService implements FetchFilesService {
   constructor(private readonly driveServerWip = driveServerWipModule) {}
 
-  async run({ self, updatedAtCheckpoint, offset, status = 'ALL', folderUuid }: FetchFilesServiceParams) {
+  async run({ self, updatedAtCheckpoint, offset, status, folderUuid }: FetchFilesServiceParams) {
     const promise = folderUuid
       ? this.driveServerWip.folders.getFiles({
           folderUuid,

@@ -10,7 +10,7 @@ export interface FetchFilesServiceParams {
   folderUuid?: string;
   updatedAtCheckpoint?: Date;
   offset: number;
-  status?: QueryFiles['status'];
+  status: QueryFiles['status'];
 }
 export interface FetchFilesServiceResult {
   hasMore: boolean;

@@ -8,7 +8,7 @@ import {
 } from './fetch-files.service.interface';
 
 export class FetchWorkspaceFilesService implements FetchFilesService {
-  async run({ self, offset, folderUuid, updatedAtCheckpoint, status = 'ALL' }: FetchFilesServiceParams) {
+  async run({ self, offset, folderUuid, updatedAtCheckpoint, status }: FetchFilesServiceParams) {
     if (!self.workspaceId) {
       throw new Error('Workspace id is required to fetch files');
     }

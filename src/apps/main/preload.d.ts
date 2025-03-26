@@ -29,7 +29,7 @@ declare interface Window {
 
     onSyncInfoUpdate(func: (value: import('../shared/types').ProcessInfoUpdatePayload) => void): () => void;
 
-    getItemByFolderId(folderUuid: string): Promise<import('../shared/types/items').ItemBackup[]>;
+    getItemByFolderUuid(folderUuid: string): Promise<import('../shared/types/items').ItemBackup[]>;
 
     userIsUnauthorized(): void;
 
