@@ -8,10 +8,7 @@ import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLo
 
 @Service()
 export class FileBatchUpdater {
-  constructor(
-    private readonly uploader: EnvironmentLocalFileUploader,
-    private readonly simpleFileOverrider: SimpleFileOverrider,
-  ) {}
+  constructor(private readonly uploader: EnvironmentLocalFileUploader, private readonly simpleFileOverrider: SimpleFileOverrider) {}
 
   async run(localRoot: LocalFolder, remoteTree: RemoteTree, batch: Array<LocalFile>, signal: AbortSignal): Promise<void> {
     for (const localFile of batch) {

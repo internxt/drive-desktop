@@ -14,11 +14,7 @@ import { logger } from '@/apps/shared/logger/logger';
 export class EnvironmentLocalFileUploader {
   private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
-  constructor(
-    private readonly environment: Environment,
-    private readonly bucket: string,
-    private readonly httpClient: Axios,
-  ) {}
+  constructor(private readonly environment: Environment, private readonly bucket: string, private readonly httpClient: Axios) {}
 
   upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
     const fn: UploadStrategyFunction =

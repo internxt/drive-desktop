@@ -5,11 +5,7 @@ import { Readable } from 'stream';
 import { ThumbnailProperties } from '../domain/ThumbnailProperties';
 
 export class EnvironmentAndStorageThumbnailUploader {
-  constructor(
-    private readonly environment: Environment,
-    private readonly storage: Storage,
-    private readonly bucket: string,
-  ) {}
+  constructor(private readonly environment: Environment, private readonly storage: Storage, private readonly bucket: string) {}
 
   private async uploadThumbnail(thumbnail: Buffer) {
     const thumbnailStream = new Readable({

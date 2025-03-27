@@ -1,8 +1,5 @@
 class Right<L, R> {
-  constructor(
-    _: L,
-    private _value: R,
-  ) {}
+  constructor(_: L, private _value: R) {}
 
   getRight = (): R => this._value;
 
@@ -22,10 +19,7 @@ class Right<L, R> {
 }
 
 class Left<L, R> {
-  constructor(
-    private _value: L,
-    _: R,
-  ) {}
+  constructor(private _value: L, _: R) {}
 
   getLeft = (): L => this._value;
 

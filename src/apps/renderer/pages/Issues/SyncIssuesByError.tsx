@@ -17,20 +17,17 @@ type VirtualDriveIssueProps = {
 };
 
 function groupAppIssuesByErrorName(issues: VirtualDriveIssue[]) {
-  const appIssuesGroupedByErrorName = issues.reduce(
-    (acc, current) => {
-      const key = current.cause;
+  const appIssuesGroupedByErrorName = issues.reduce((acc, current) => {
+    const key = current.cause;
 
-      if (!acc[key]) {
-        acc[key] = [];
-      }
+    if (!acc[key]) {
+      acc[key] = [];
+    }
 
-      acc[key].push(current);
+    acc[key].push(current);
 
-      return acc;
-    },
-    {} as Record<SyncError, VirtualDriveIssue[]>,
-  );
+    return acc;
+  }, {} as Record<SyncError, VirtualDriveIssue[]>);
 
   return Object.entries(appIssuesGroupedByErrorName) as Array<[SyncError, Array<VirtualDriveIssue>]>;
 }

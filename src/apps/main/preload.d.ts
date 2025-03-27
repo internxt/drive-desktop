@@ -226,11 +226,11 @@ declare interface Window {
     };
     authService: {
       access: (
-        props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['access']>[0],
-      ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['access']>;
+        props: Parameters<typeof import('../../context/infra/api/auth.service').AuthService['access']>[0],
+      ) => ReturnType<typeof import('../../context/infra/api/auth.service').AuthService['access']>;
       login: (
-        props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>[0],
-      ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>;
+        props: Parameters<typeof import('../../context/infra/api/auth.service').AuthService['login']>[0],
+      ) => ReturnType<typeof import('../../context/infra/api/auth.service').AuthService['login']>;
     };
     path: import('path');
   };

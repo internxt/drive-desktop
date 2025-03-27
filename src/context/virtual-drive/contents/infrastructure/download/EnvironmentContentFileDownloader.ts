@@ -14,10 +14,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
 
   private state: ActionState | null;
 
-  constructor(
-    private readonly fn: DownloadStrategyFunction<DownloadOneShardStrategy>,
-    private readonly bucket: string,
-  ) {
+  constructor(private readonly fn: DownloadStrategyFunction<DownloadOneShardStrategy>, private readonly bucket: string) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
     this.state = null;

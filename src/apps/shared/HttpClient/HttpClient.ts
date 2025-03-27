@@ -29,10 +29,7 @@ export class AuthorizedHttpClient {
     return config as InternalAxiosRequestConfig;
   }
 
-  constructor(
-    private headersProvider: HeadersProvider,
-    private unauthorizedNotifier: UnauthorizedNotifier,
-  ) {
+  constructor(private headersProvider: HeadersProvider, private unauthorizedNotifier: UnauthorizedNotifier) {
     this.unauthorizedNotifier = unauthorizedNotifier;
     this.client = axios.create();
 

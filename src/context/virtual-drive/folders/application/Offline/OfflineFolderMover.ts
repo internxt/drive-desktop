@@ -5,10 +5,7 @@ import { ActionNotPermittedError } from '../../domain/errors/ActionNotPermittedE
 import { FolderFinder } from '../FolderFinder';
 
 export class OfflineFolderMover {
-  constructor(
-    private readonly offlineFolderRepository: OfflineFolderRepository,
-    private readonly folderFinder: FolderFinder,
-  ) {}
+  constructor(private readonly offlineFolderRepository: OfflineFolderRepository, private readonly folderFinder: FolderFinder) {}
 
   async run(folder: OfflineFolder, destination: FolderPath) {
     const resultFolder = this.offlineFolderRepository.searchByPartial({

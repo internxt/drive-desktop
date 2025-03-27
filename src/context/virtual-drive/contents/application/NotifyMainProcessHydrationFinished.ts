@@ -4,10 +4,7 @@ import { ContentsDownloadedDomainEvent } from '../domain/events/ContentsDownload
 import Logger from 'electron-log';
 
 export class NotifyMainProcessHydrationFinished {
-  constructor(
-    private readonly eventRepository: EventRepository,
-    private readonly ipc: SyncEngineIpc,
-  ) {}
+  constructor(private readonly eventRepository: EventRepository, private readonly ipc: SyncEngineIpc) {}
 
   async run(contentsId: string) {
     try {

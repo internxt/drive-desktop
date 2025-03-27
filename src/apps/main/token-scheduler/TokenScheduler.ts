@@ -7,11 +7,7 @@ const FIVE_SECONDS = 5 * 60;
 export class TokenScheduler {
   private static MAX_TIME = 8640000000000000;
 
-  constructor(
-    private daysBefore: number,
-    private tokens: Array<string>,
-    private unauthorized: () => void,
-  ) {}
+  constructor(private daysBefore: number, private tokens: Array<string>, private unauthorized: () => void) {}
 
   private getExpiration(token: string): number {
     try {

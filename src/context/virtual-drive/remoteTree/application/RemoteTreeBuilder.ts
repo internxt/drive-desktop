@@ -6,10 +6,7 @@ import Logger from 'electron-log';
 
 @Service()
 export class RemoteTreeBuilder {
-  constructor(
-    private readonly remoteItemsGenerator: RemoteItemsGenerator,
-    private readonly traverser: Traverser,
-  ) {}
+  constructor(private readonly remoteItemsGenerator: RemoteItemsGenerator, private readonly traverser: Traverser) {}
 
   async run(rootFolderUuid: string, refresh = false): Promise<RemoteTree> {
     if (refresh) {

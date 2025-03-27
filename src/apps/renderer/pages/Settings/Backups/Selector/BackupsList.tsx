@@ -45,8 +45,8 @@ export function BackupsList({ items, selected, setSelected, onDobleClick }: Back
             selected.find((item) => item.id === backup.id)
               ? 'bg-primary text-white'
               : index % 2 !== 0
-                ? 'text-neutral-700 bg-white  dark:bg-black'
-                : 'bg-l-neutral-10 text-neutral-700  dark:bg-black'
+              ? 'text-neutral-700 bg-white  dark:bg-black'
+              : 'bg-l-neutral-10 text-neutral-700  dark:bg-black'
           }`}>
           <BackupListItem backup={backup} selected={selected.find((item) => item.id === backup.id) !== undefined} />
         </li>

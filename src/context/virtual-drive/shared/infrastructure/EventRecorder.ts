@@ -4,10 +4,7 @@ import { EventRepository } from '../domain/EventRepository';
 import { DomainEventSubscribers } from './DomainEventSubscribers';
 
 export class EventRecorder implements EventBus {
-  constructor(
-    private readonly history: EventRepository,
-    private readonly bus: EventBus,
-  ) {}
+  constructor(private readonly history: EventRepository, private readonly bus: EventBus) {}
 
   async publish(events: Array<DomainEvent>): Promise<void> {
     const stored = events.map((event) => this.history.store(event));

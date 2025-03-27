@@ -8,20 +8,17 @@ import { AppError } from '../../../shared/issues/AppError';
 import { AppIssue } from '../../../shared/issues/AppIssue';
 
 function groupAppIssuesByErrorName(issues: AppIssue[]) {
-  const appIssuesGroupedByErrorName = issues.reduce(
-    (acc, current) => {
-      const key = current.errorName;
+  const appIssuesGroupedByErrorName = issues.reduce((acc, current) => {
+    const key = current.errorName;
 
-      if (!acc[key]) {
-        acc[key] = [];
-      }
+    if (!acc[key]) {
+      acc[key] = [];
+    }
 
-      acc[key].push(current);
+    acc[key].push(current);
 
-      return acc;
-    },
-    {} as Record<AppError, AppIssue[]>,
-  );
+    return acc;
+  }, {} as Record<AppError, AppIssue[]>);
 
   return Object.entries(appIssuesGroupedByErrorName) as Array<[AppError, Array<AppIssue>]>;
 }

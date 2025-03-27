@@ -5,10 +5,7 @@ import Logger from 'electron-log';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 export class FileSyncOrchestrator {
-  constructor(
-    private readonly contentsUploader: RetryContentsUploader,
-    private readonly fileSyncronizer: FileSyncronizer,
-  ) {}
+  constructor(private readonly contentsUploader: RetryContentsUploader, private readonly fileSyncronizer: FileSyncronizer) {}
 
   async run(absolutePaths: string[]): Promise<void> {
     for (const absolutePath of absolutePaths) {

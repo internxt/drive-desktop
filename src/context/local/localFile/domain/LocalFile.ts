@@ -10,11 +10,7 @@ export type LocalFileAttributes = {
 };
 
 export class LocalFile extends AggregateRoot {
-  private constructor(
-    private _path: AbsolutePath,
-    private _modificationTime: number,
-    private _size: LocalFileSize,
-  ) {
+  private constructor(private _path: AbsolutePath, private _modificationTime: number, private _size: LocalFileSize) {
     super();
   }
 

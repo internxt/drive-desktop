@@ -8,10 +8,7 @@ export class BackupWorker {
 
   private static readonly PROD_PATH = path.join(__dirname, '..', 'backups', 'index.html');
 
-  private constructor(
-    public readonly id: number,
-    private readonly worker: BrowserWindow,
-  ) {}
+  private constructor(public readonly id: number, private readonly worker: BrowserWindow) {}
 
   send(message: string, ...args: any[]) {
     if (this.worker.isDestroyed()) {

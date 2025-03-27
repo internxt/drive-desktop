@@ -4,10 +4,7 @@ import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 
 export class FileContentsUpdater {
-  constructor(
-    private readonly repository: InMemoryFileRepository,
-    private readonly remote: HttpRemoteFileSystem,
-  ) {}
+  constructor(private readonly repository: InMemoryFileRepository, private readonly remote: HttpRemoteFileSystem) {}
 
   async run(file: File, contentsId: File['contentsId'], size: File['size']): Promise<File> {
     Logger.info('Replace', file, contentsId, size);

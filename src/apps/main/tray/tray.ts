@@ -15,11 +15,7 @@ export class TrayMenu {
     return this.tray.getBounds();
   }
 
-  constructor(
-    private readonly iconsPath: string,
-    private readonly onClick: () => Promise<void>,
-    private readonly onQuit: () => void,
-  ) {
+  constructor(private readonly iconsPath: string, private readonly onClick: () => Promise<void>, private readonly onQuit: () => void) {
     const trayIcon = this.getIconPath('LOADING');
 
     this.tray = new Tray(trayIcon);

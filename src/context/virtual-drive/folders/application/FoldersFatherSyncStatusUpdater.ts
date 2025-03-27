@@ -6,10 +6,7 @@ import Logger from 'electron-log';
 import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 
 export class FoldersFatherSyncStatusUpdater {
-  constructor(
-    private readonly localFileSystem: NodeWinLocalFolderSystem,
-    private readonly repository: FolderRepository,
-  ) {}
+  constructor(private readonly localFileSystem: NodeWinLocalFolderSystem, private readonly repository: FolderRepository) {}
 
   async run(file: File): Promise<void> {
     return this.update(file.path);

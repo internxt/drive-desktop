@@ -9,10 +9,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 export class EnvironmentRemoteFileContentsManagersFactory implements ContentsManagersFactory {
   private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
 
-  constructor(
-    private readonly environment: Environment,
-    private readonly bucket: string,
-  ) {}
+  constructor(private readonly environment: Environment, private readonly bucket: string) {}
 
   downloader(): ContentFileDownloader {
     return new EnvironmentContentFileDownloader(this.environment.download, this.bucket);

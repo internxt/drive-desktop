@@ -4,9 +4,7 @@
   font-family: 'Instrument Sans';
   font-style: normal;
   font-display: swap;
-  src:
-    local('Instrument Sans'),
-    url('./InstrumentSans[wdth\,wght].woff2') format('woff2');
+  src: local('Instrument Sans'), url('./InstrumentSans[wdth\,wght].woff2') format('woff2');
 }
 
 /* @font-face {

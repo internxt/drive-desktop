@@ -5,10 +5,7 @@ type TBackup = { enabled: boolean; folderId: number; folderUuid?: string };
 type TBackupList = Record<string, TBackup>;
 
 export class BackupFolderUuid {
-  constructor(
-    private readonly store = configStore,
-    private readonly driveServerWip = driveServerWipModule,
-  ) {}
+  constructor(private readonly store = configStore, private readonly driveServerWip = driveServerWipModule) {}
 
   async getBackupFolderUuid({ backup }: { backup: TBackup }): Promise<string> {
     if (backup.folderUuid) return backup.folderUuid;

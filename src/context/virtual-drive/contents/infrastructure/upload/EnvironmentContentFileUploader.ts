@@ -8,11 +8,7 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
 
-  constructor(
-    private readonly fn: UploadStrategyFunction,
-    private readonly bucket: string,
-    private readonly abortSignal?: AbortSignal,
-  ) {
+  constructor(private readonly fn: UploadStrategyFunction, private readonly bucket: string, private readonly abortSignal?: AbortSignal) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
   }

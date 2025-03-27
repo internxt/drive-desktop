@@ -6,10 +6,7 @@ import { CallbackController } from './CallbackController';
 import { CallbackDownload } from '../../BindingManager';
 
 export class DownloadFileController extends CallbackController {
-  constructor(
-    private readonly fileFinder: FileFinderByContentsId,
-    private readonly downloader: ContentsDownloader,
-  ) {
+  constructor(private readonly fileFinder: FileFinderByContentsId, private readonly downloader: ContentsDownloader) {
     super();
   }
 

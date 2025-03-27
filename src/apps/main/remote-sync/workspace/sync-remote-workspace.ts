@@ -5,10 +5,7 @@ import { DriveWorkspace } from '../../database/entities/DriveWorkspace';
 import { FetchWorkspacesService } from './fetch-workspaces.service';
 
 export class SyncRemoteWorkspaceService {
-  constructor(
-    private readonly workspaceCollection: DriveWorkspaceCollection,
-    private readonly folderCollection: DriveFoldersCollection,
-  ) {}
+  constructor(private readonly workspaceCollection: DriveWorkspaceCollection, private readonly folderCollection: DriveFoldersCollection) {}
 
   private async createOrUpdate(workspaces: DriveWorkspace[]): Promise<DriveWorkspace[]> {
     try {
