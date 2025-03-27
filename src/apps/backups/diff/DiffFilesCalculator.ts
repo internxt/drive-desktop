@@ -18,7 +18,7 @@ export type FilesDiff = {
 };
 
 const store = new Store();
-const IS_PATCH_2_5_1_APPLIED = `patch-executed-2.5.1'`;
+const IS_PATCH_2_5_1_APPLIED = 'patch-executed-2.5.1';
 
 export class DiffFilesCalculator {
   static calculate(local: LocalTree, remote: RemoteTree): FilesDiff {
