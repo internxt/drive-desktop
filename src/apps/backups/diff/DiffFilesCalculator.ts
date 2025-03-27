@@ -7,6 +7,7 @@ import { RemoteTree } from '../../../context/virtual-drive/remoteTree/domain/Rem
 import { relativeV2 } from '../utils/relative';
 import Logger from 'electron-log';
 import { FileStatus } from '../../../context/virtual-drive/files/domain/FileStatus';
+import Store from 'electron-store';
 
 export type FilesDiff = {
   added: Array<LocalFile>;
@@ -15,6 +16,10 @@ export type FilesDiff = {
   unmodified: Array<LocalFile>;
   total: number;
 };
+
+const store = new Store();
+const FIX_TARGET_VERSION = '2.5.1';
+const PATCH_KEY_3_5_1 = `patch-executed-${FIX_TARGET_VERSION}`;
 
 export class DiffFilesCalculator {
   static calculate(local: LocalTree, remote: RemoteTree): FilesDiff {
@@ -43,6 +48,16 @@ export class DiffFilesCalculator {
 
       const remoteModificationTime = Math.trunc(remoteNode.updatedAt.getTime() / 1000);
       const localModificationTime = Math.trunc(local.modificationTime / 1000);
+
+      const createdAt = remoteNode.createdAt.getTime();
+      const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
+      const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
+
+      if (!store.get(PATCH_KEY_3_5_1, false) && createdAt >= startDate && createdAt <= endDate) {
+        modified.set(local, remoteNode);
+        store.set(PATCH_KEY_3_5_1, true);
+        return;
+      }
 
       if (remoteModificationTime < localModificationTime) {
         modified.set(local, remoteNode);
