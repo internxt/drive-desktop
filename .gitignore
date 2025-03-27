@@ -8,6 +8,4 @@
 /coverage
 /dist
 /node_modules
-
-# Testing temp files
 /test/temp-test/

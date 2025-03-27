@@ -54,7 +54,7 @@ vi.mock('@/apps/main/auth/service', () => {
 });
 
 vi.mock('../event-bus', () => {
-  const listeners: Record<string, ((...args: any[]) => void)[]> = {};
+  const listeners: Record<string, ((...args: unknown[]) => void)[]> = {};
 
   return {
     default: {
@@ -65,7 +65,7 @@ vi.mock('../event-bus', () => {
 });
 
 vi.mock('electron', async () => {
-  const ipcMainHandlers: Record<string, (...args: any[]) => void> = {};
+  const ipcMainHandlers: Record<string, (...args: unknown[]) => void> = {};
   const actual = await vi.importActual<typeof import('electron')>('electron');
   return {
     ...actual,
@@ -73,7 +73,7 @@ vi.mock('electron', async () => {
       ...actual.app,
       getPath: vi.fn((string) => {
         if (string === 'home') {
-          return path.join(__dirname, '../temp-test');
+          return path.join(process.cwd(), 'tests/temp-test');
         }
         return '/mock/logs';
       }),
@@ -101,7 +101,7 @@ vi.mock('electron', async () => {
     })),
     ipcRenderer: {
       on: vi.fn(
-        (event, callback) =>
+        (event) =>
           ipcMainHandlers[event] &&
           ipcMainHandlers[event]({
             sender: {
@@ -122,7 +122,7 @@ vi.mock('electron', async () => {
           ),
       ),
       handle: vi.fn(
-        (event, callback) =>
+        (event) =>
           ipcMainHandlers[event] &&
           ipcMainHandlers[event]({
             sender: {
@@ -131,7 +131,7 @@ vi.mock('electron', async () => {
           }),
       ),
       invoke: vi.fn(
-        (event, ...args) =>
+        (event) =>
           ipcMainHandlers[event] &&
           ipcMainHandlers[event]({
             sender: {

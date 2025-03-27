@@ -43,10 +43,11 @@ export function setSyncRoot(pathname: string): void {
 export function getRootVirtualDrive(): string {
   const current = configStore.get('syncRoot');
   const user = getUser();
-  if (!user)
+  if (!user) {
     throw logger.error({
       msg: 'User not found when getting root virtual drive',
     });
+  }
 
   logger.debug({
     msg: 'Current root virtual drive',

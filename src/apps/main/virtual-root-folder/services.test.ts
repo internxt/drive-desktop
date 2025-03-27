@@ -5,7 +5,6 @@ import path from 'path';
 import configStore from '../config';
 import { User } from '../types';
 import { getRootVirtualDrive, setupRootFolder } from './service';
-import { logger } from '@/apps/shared/logger/logger';
 
 vi.mock('./service', async () => {
   const actual = await vi.importActual('./service');
@@ -15,7 +14,7 @@ vi.mock('./service', async () => {
   };
 });
 
-const tempDir = path.join(__dirname, '../../../../tests/temp-test');
+const tempDir = path.join(process.cwd(), 'tests/temp-test');
 let renameSpy: MockInstance<(oldPath: string, newPath: string) => void>;
 
 beforeEach(async () => {
