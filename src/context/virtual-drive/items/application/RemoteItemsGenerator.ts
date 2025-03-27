@@ -57,7 +57,7 @@ export class RemoteItemsGenerator {
     return { files, folders };
   }
 
-  async getAllItemsByFolderId(folderUuid: string): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
+  async getAllItemsByFolderUuid(folderUuid: string): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
     const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', folderUuid, getConfig().workspaceId ?? '');
 
     const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
