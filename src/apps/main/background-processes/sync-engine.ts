@@ -222,8 +222,6 @@ export const spawnAllSyncEngineWorker = async () => {
   await Promise.all(
     workspaces.map(async (workspace) => {
       if (workspace.removed) {
-        const rootFolder = await getRootWorkspace(workspace.id);
-        await fs.rm(rootFolder, { recursive: true, force: true });
         await driveFilesCollection.cleanWorkspace(workspace.id);
         await driveFoldersCollection.cleanWorkspace(workspace.id);
         ipcMain.emit('UNREGISTER_SYNC_ENGINE_PROCESS', `{${workspace.id}}`);

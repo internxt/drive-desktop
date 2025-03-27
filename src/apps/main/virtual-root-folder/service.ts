@@ -15,17 +15,6 @@ const HOME_FOLDER_PATH = app.getPath('home');
 
 const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
-export async function clearDirectory(pathname: string): Promise<boolean> {
-  try {
-    await fsPromises.rm(pathname, { recursive: true });
-    await fsPromises.mkdir(pathname);
-
-    return true;
-  } catch {
-    return false;
-  }
-}
-
 export function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
   const logEnginePath = path.join(app.getPath('appData'), 'internxt-drive', 'logs', 'node-win.txt');

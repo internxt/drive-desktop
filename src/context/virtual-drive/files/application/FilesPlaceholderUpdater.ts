@@ -84,7 +84,7 @@ export class FilesPlaceholderUpdater {
 
     if (this.hasToBeDeleted(local, remote)) {
       const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
-      await fs.unlink(win32AbsolutePath);
+      await fs.rm(win32AbsolutePath);
     }
 
     if (await this.hasToBeCreated(remote)) {
