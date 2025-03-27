@@ -36,7 +36,6 @@ export interface AppStore {
   deviceId: number;
   deviceUuid: string;
   backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
-
   workspacesPath: Record<string, string>;
   clientId: string;
   preferedLanguage?: string;

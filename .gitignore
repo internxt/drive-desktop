@@ -8,3 +8,4 @@
 /coverage
 /dist
 /node_modules
+/test/temp-test/
