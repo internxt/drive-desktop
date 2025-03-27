@@ -79,7 +79,7 @@ export function setupAuthIpcHandlers() {
       password: data.password,
     });
     if (!canHisConfigBeRestored(data.user.uuid)) {
-      await setupRootFolder(data.user);
+      setupRootFolder(data.user);
     }
     await clearRootVirtualDrive();
 

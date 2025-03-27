@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach, afterEach, MockInstance } from 'vitest';
-import fsPromise from 'fs/promises';
 import fs from 'fs';
 import path from 'path';
 import configStore from '../config';
@@ -22,7 +21,7 @@ beforeEach(async () => {
     fs.mkdirSync(tempDir);
   }
 
-  renameSpy = vi.spyOn(fsPromise, 'rename').mockImplementation(async () => Promise.resolve());
+  renameSpy = vi.spyOn(fs, 'renameSync').mockImplementation(async () => Promise.resolve());
 });
 
 afterEach(() => {
@@ -44,7 +43,7 @@ describe('setupRootFolder', () => {
 
     configStore.get = vi.fn().mockReturnValue(syncRoot);
 
-    await setupRootFolder(user);
+    setupRootFolder(user);
 
     expect(renameSpy).toHaveBeenCalledWith(syncRoot, `${virtualDriveFolder} - ${user.email}`);
     expect(configStore.get).toHaveBeenCalledWith('syncRoot');
@@ -61,7 +60,7 @@ describe('setupRootFolder', () => {
 
     configStore.get = vi.fn().mockReturnValue(syncRoot);
 
-    await setupRootFolder(user);
+    setupRootFolder(user);
 
     expect(renameSpy).not.toHaveBeenCalled();
   });
@@ -70,7 +69,7 @@ describe('setupRootFolder', () => {
     const user: User = { email: 'test4@gmail.com', uuid: '101' } as User;
     configStore.get = vi.fn().mockReturnValue(undefined);
 
-    await setupRootFolder(user);
+    setupRootFolder(user);
 
     expect(renameSpy).not.toHaveBeenCalled();
   });

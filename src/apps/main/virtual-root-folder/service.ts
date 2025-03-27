@@ -1,6 +1,7 @@
 import Logger from 'electron-log';
 import { app, dialog, shell } from 'electron';
-import fs from 'fs/promises';
+import fsPromises from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 
 import configStore from '../config';
@@ -16,8 +17,8 @@ const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
 export async function clearDirectory(pathname: string): Promise<boolean> {
   try {
-    await fs.rm(pathname, { recursive: true });
-    await fs.mkdir(pathname);
+    await fsPromises.rm(pathname, { recursive: true });
+    await fsPromises.mkdir(pathname);
 
     return true;
   } catch {
@@ -110,13 +111,13 @@ export async function clearRootVirtualDrive(): Promise<void> {
   try {
     const queue = path.join(app.getPath('appData'), 'internxt-drive', 'queue-manager.json');
 
-    await fs.rm(queue, { recursive: true, force: true });
+    await fsPromises.rm(queue, { recursive: true, force: true });
   } catch (err) {
     Logger.error('Error clearing root virtual drive', err);
   }
 }
 
-export async function setupRootFolder(user: User): Promise<void> {
+export function setupRootFolder(user: User): void {
   const current = configStore.get('syncRoot');
 
   logger.debug({
@@ -134,11 +135,19 @@ export async function setupRootFolder(user: User): Promise<void> {
     current,
     syncFolderPath,
   });
+
+  /**
+   * v2.5.1 Jonathan Arce
+   * Previously, the drive name in Explorer was "Internxt Drive," and when you logged out and logged in,
+   * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
+   * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
+   * login called "Internxt Drive - {user.email}."
+   */
   if (current === pathNameWithSepInTheEnd) {
     logger.debug({
       msg: 'Renaming root virtual drive',
     });
-    await fs.rename(current, syncFolderPath);
+    fs.renameSync(current, syncFolderPath);
   }
 
   setSyncRoot(syncFolderPath);
