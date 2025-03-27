@@ -109,17 +109,11 @@ export async function clearRootVirtualDrive(): Promise<void> {
 export function setupRootFolder(user: User): void {
   const current = configStore.get('syncRoot');
 
-  logger.debug({
-    msg: 'Current root virtual drive in setup',
-    current,
-  });
-
   const pathNameWithSepInTheEnd = VIRTUAL_DRIVE_FOLDER + path.sep;
-
-  const syncFolderPath = VIRTUAL_DRIVE_FOLDER + ` - ${user.email}`;
+  const syncFolderPath = `${VIRTUAL_DRIVE_FOLDER} - ${user.email}`;
 
   logger.debug({
-    msg: 'virtual drive folder',
+    msg: 'Virtual drive folder',
     pathNameWithSepInTheEnd,
     current,
     syncFolderPath,
@@ -127,16 +121,23 @@ export function setupRootFolder(user: User): void {
 
   /**
    * v2.5.1 Jonathan Arce
-   * Previously, the drive name in Explorer was "Internxt Drive," and when you logged out and logged in,
+   * Previously, the drive name in Explorer was "Internxt Drive" and when you logged out and logged in,
    * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
    * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
    * login called "Internxt Drive - {user.email}."
+   * So, we need to rename "Internxt Drive" to "Internxt Drive - {user.email}".
    */
   if (current === pathNameWithSepInTheEnd) {
-    logger.debug({
-      msg: 'Renaming root virtual drive',
-    });
-    fs.renameSync(current, syncFolderPath);
+    if (fs.existsSync(syncFolderPath)) {
+      logger.debug({
+        msg: 'Root virtual drive with new name format already exists, do not try to rename it',
+      });
+    } else {
+      logger.debug({
+        msg: 'Renaming root virtual drive',
+      });
+      fs.renameSync(current, syncFolderPath);
+    }
   }
 
   setSyncRoot(syncFolderPath);
