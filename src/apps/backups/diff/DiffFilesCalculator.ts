@@ -19,7 +19,7 @@ export type FilesDiff = {
 
 const store = new Store();
 const FIX_TARGET_VERSION = '2.5.1';
-const PATCH_KEY_3_5_1 = `patch-executed-${FIX_TARGET_VERSION}`;
+const PATCH_KEY_2_5_1 = `patch-executed-${FIX_TARGET_VERSION}`;
 
 export class DiffFilesCalculator {
   static calculate(local: LocalTree, remote: RemoteTree): FilesDiff {
@@ -53,9 +53,9 @@ export class DiffFilesCalculator {
       const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
       const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
-      if (!store.get(PATCH_KEY_3_5_1, false) && createdAt >= startDate && createdAt <= endDate) {
+      if (!store.get(PATCH_KEY_2_5_1, false) && createdAt >= startDate && createdAt <= endDate) {
         modified.set(local, remoteNode);
-        store.set(PATCH_KEY_3_5_1, true);
+        store.set(PATCH_KEY_2_5_1, true);
         return;
       }
 
