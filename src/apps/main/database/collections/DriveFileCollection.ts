@@ -68,9 +68,9 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
     };
   }
 
-  async getAllByFolder({ folderId, workspaceId }: { folderId: number; workspaceId?: string }) {
+  async getAllByFolder({ folderUuid, workspaceId }: { folderUuid: string; workspaceId?: string }) {
     try {
-      const where: FindOptionsWhere<DriveFile> = { folderId };
+      const where: FindOptionsWhere<DriveFile> = { folderUuid };
       if (workspaceId) {
         where.workspaceId = workspaceId;
       }

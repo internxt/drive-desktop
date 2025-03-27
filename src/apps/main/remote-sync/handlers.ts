@@ -140,11 +140,11 @@ export async function getUpdatedRemoteItems(workspaceId = '') {
   }
 }
 
-export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceId = '') {
+export async function getUpdatedRemoteItemsByFolder(folderUuid: string, workspaceId = '') {
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
-  if (!folderId) {
-    throw new Error('Invalid folderId provided');
+  if (!folderUuid) {
+    throw new Error('Invalid folderUuid provided');
   }
 
   try {
@@ -157,16 +157,16 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
     };
 
     const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAllByFolder({ folderId, workspaceId }),
-      driveFoldersCollection.getAllByFolder({ parentId: folderId, workspaceId }),
+      driveFilesCollection.getAllByFolder({ folderUuid, workspaceId }),
+      driveFoldersCollection.getAllByFolder({ parentUuid: folderUuid, workspaceId }),
     ]);
 
     if (!allDriveFiles.success) {
-      throw new Error(`Failed to retrieve all the drive files from local db for folderId: ${folderId}`);
+      throw new Error(`Failed to retrieve all the drive files from local db for folderUuid: ${folderUuid}`);
     }
 
     if (!allDriveFolders.success) {
-      throw new Error(`Failed to retrieve all the drive folders from local db for folderId: ${folderId}`);
+      throw new Error(`Failed to retrieve all the drive folders from local db for folderUuid: ${folderUuid}`);
     }
 
     result.files.push(...allDriveFiles.result);
@@ -177,7 +177,7 @@ export async function getUpdatedRemoteItemsByFolder(folderId: number, workspaceI
     }
 
     const folderChildrenPromises = allDriveFolders.result.map(async (folder) => {
-      return getUpdatedRemoteItemsByFolder(folder.id, workspaceId);
+      return getUpdatedRemoteItemsByFolder(folder.uuid, workspaceId);
     });
 
     const folderChildrenResults = await Promise.all(folderChildrenPromises);
@@ -218,9 +218,9 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId = '') => {
   return getUpdatedRemoteItems(workspaceId);
 });
 
-ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderId: number, workspaceId = '') => {
+ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderUuid: string, workspaceId = '') => {
   Logger.debug('[MAIN] Getting updated remote items');
-  return getUpdatedRemoteItemsByFolder(folderId, workspaceId);
+  return getUpdatedRemoteItemsByFolder(folderUuid, workspaceId);
 });
 
 async function populateAllRemoteSync(): Promise<void> {
