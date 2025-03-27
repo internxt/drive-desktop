@@ -3,6 +3,7 @@ import { BackupService } from './services/backup.service';
 import { FilesService } from './services/files.service';
 import { FoldersService } from './services/folders.service';
 import { StorageService } from './services/storage.service';
+import { UserService } from './services/user.service';
 
 export class DriveServerWipModule {
   constructor(
@@ -11,6 +12,7 @@ export class DriveServerWipModule {
     public files = new FilesService(),
     public folders = new FoldersService(),
     public storage = new StorageService(),
+    public user = new UserService(),
   ) {}
 }
 

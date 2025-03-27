@@ -1,4 +1,3 @@
-import fs from 'fs/promises';
 import { BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
 import Logger from 'electron-log';

@@ -3678,6 +3678,9 @@ export interface components {
     GetUserUsageDto: {
       drive: number;
     };
+    GetUserLimitDto: {
+      maxSpaceBytes: number;
+    };
     FuzzySearchResult: {
       id: string;
       itemId: string;
@@ -7513,7 +7516,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['GetUserLimitDto'];
+        };
       };
     };
   };

@@ -12,7 +12,8 @@ export class BackupFolderUuid {
 
   async getBackupFolderUuid({ backup }: { backup: TBackup }): Promise<string> {
     if (backup.folderUuid) return backup.folderUuid;
-    const data = await this.driveServerWip.folders.getMetadata({ folderId: backup.folderId });
+    const { data, error } = await this.driveServerWip.folders.getMetadata({ folderId: backup.folderId });
+    if (error) throw error;
     return data.uuid;
   }
 

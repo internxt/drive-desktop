@@ -24,7 +24,9 @@ export class FetchRemoteFilesService implements FetchFilesService {
           },
         });
 
-    const data = await promise;
+    const { data, error } = await promise;
+
+    if (error) throw error;
 
     const hasMore = data.length === self.config.fetchFilesLimitPerRequest;
     return { hasMore, result: data };
