@@ -125,6 +125,7 @@ export function setupRootFolder(user: User): void {
    * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
    * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
    * login called "Internxt Drive - {user.email}."
+   * So, we need to rename "Internxt Drive" to "Internxt Drive - {user.email}".
    */
   if (current === pathNameWithSepInTheEnd) {
     if (fs.existsSync(syncFolderPath)) {
