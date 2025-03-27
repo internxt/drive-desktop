@@ -20,10 +20,19 @@ logger.debug({
 });
 
 export const destroyDatabase = async () => {
-  AppDataSource.dropDatabase().catch((error) => {
-    reportError(error);
-  });
-  logger.debug({
-    msg: 'Database destroyed',
-  });
+  try {
+    // Clear all tables instead of dropping the database
+    await AppDataSource.getRepository(DriveFile).clear();
+    await AppDataSource.getRepository(DriveFolder).clear();
+    await AppDataSource.getRepository(DriveWorkspace).clear();
+
+    logger.debug({
+      msg: 'All table contents cleared',
+    });
+  } catch (error) {
+    logger.warn({
+      msg: 'Error clearing database',
+      exc: error,
+    });
+  }
 };

@@ -23,6 +23,7 @@ import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/Remote
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { OfflineFolder } from '@/context/virtual-drive/folders/domain/OfflineFolder';
+import { logger } from '../shared/logger/logger';
 
 @Service()
 export class Backup {
@@ -49,7 +50,11 @@ export class Backup {
 
     const local = localTreeEither.getRight();
 
-    const remote = await this.remoteTreeBuilder.run(info.folderUuid, true);
+    const remote = await this.remoteTreeBuilder.run({
+      rootFolderId: info.folderId,
+      rootFolderUuid: info.folderUuid,
+      refresh: true,
+    });
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
 
