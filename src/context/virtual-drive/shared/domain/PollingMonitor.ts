@@ -1,8 +1,11 @@
-export type MonitorFn = () => Promise<void>;
-export type PermissionFn = () => Promise<boolean>;
-export class PollingMonitor {
-  constructor(private readonly delay: number) {}
+import { logger } from '@/apps/shared/logger/logger';
+import { ipcRenderer } from 'electron';
 
+export type MonitorFn = () => Promise<void>;
+
+const DELAY = 60 * 60 * 1000;
+
+export class PollingMonitor {
   private timeout: NodeJS.Timeout | null = null;
 
   private clearTimeout() {
@@ -12,25 +15,29 @@ export class PollingMonitor {
     }
   }
 
-  private setTimeout(fn: MonitorFn, permissionFn: PermissionFn) {
+  private setTimeout(fn: MonitorFn) {
     this.clearTimeout();
+
     this.timeout = setTimeout(async () => {
-      if (!(await permissionFn())) {
-        // wait for the next interval
-        this.repeatDelay(fn, permissionFn);
-        return;
+      const isPermitted = await this.checkIsPermitted();
+
+      if (isPermitted) {
+        await fn();
       }
-      await fn();
-      this.repeatDelay(fn, permissionFn);
-    }, this.delay);
+
+      this.setTimeout(fn);
+    }, DELAY);
   }
 
-  private repeatDelay(fn: MonitorFn, runPermissionFn: PermissionFn) {
-    this.setTimeout(fn, runPermissionFn);
+  private async checkIsPermitted() {
+    const isSyncing = await ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS');
+    const isPermitted = !isSyncing;
+    logger.debug({ msg: '[START FALLBAK] Checking permission to start polling', isSyncing, isPermitted });
+    return isPermitted;
   }
 
-  start(fn: MonitorFn, runPermissionFn: PermissionFn) {
-    this.setTimeout(fn, runPermissionFn);
+  start(fn: MonitorFn) {
+    this.setTimeout(fn);
   }
 
   stop() {
