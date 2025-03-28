@@ -7,7 +7,7 @@ import { monitorHealth } from './sync-engine/monitor-health';
 import { Config } from '../../sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtual-root-folder/service';
 import { logger } from '../../../apps/shared/logger/logger';
-import { driveFilesCollection, driveFoldersCollection, syncWorkspaceService } from '../remote-sync/handlers';
+import { debouncedSynchronization, driveFilesCollection, driveFoldersCollection, syncWorkspaceService } from '../remote-sync/handlers';
 import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
@@ -44,7 +44,8 @@ function scheduleSync(workspaceId: string) {
   }
 
   workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('*/15 * * * *', async () => {
-    eventBus.emit('RECEIVED_REMOTE_CHANGES', workspaceId);
+    logger.debug({ msg: 'Received remote changes event' });
+    debouncedSynchronization();
   });
 }
 
@@ -221,6 +222,7 @@ export const spawnAllSyncEngineWorker = async () => {
   await Promise.all(
     workspaces.map(async (workspace) => {
       if (workspace.removed) {
+        logger.debug({ msg: 'Unregistering sync engine for workspace', workspace });
         await driveFilesCollection.cleanWorkspace(workspace.id);
         await driveFoldersCollection.cleanWorkspace(workspace.id);
         ipcMain.emit('UNREGISTER_SYNC_ENGINE_PROCESS', `{${workspace.id}}`);

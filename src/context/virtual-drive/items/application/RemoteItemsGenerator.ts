@@ -1,14 +1,14 @@
 import { getConfig } from '@/apps/sync-engine/config';
 import { DriveFile } from '../../../../apps/main/database/entities/DriveFile';
 import { DriveFolder } from '../../../../apps/main/database/entities/DriveFolder';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { Service } from 'diod';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 @Service()
 export class RemoteItemsGenerator {
-  constructor(private readonly ipc: SyncEngineIpc) {}
+  constructor(private readonly ipc = ipcRendererSyncEngine) {}
 
   private mapFile(updatedFile: DriveFile): ServerFile {
     return {

@@ -1,6 +1,5 @@
 import * as Sentry from '@sentry/electron/renderer';
 import Logger from 'electron-log';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
@@ -10,6 +9,7 @@ import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus'
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { NameDecrypt } from '../domain/NameDecrypt';
 import { Tree } from '../domain/Tree';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
@@ -18,19 +18,15 @@ type Items = {
 export class Traverser {
   constructor(
     private readonly decrypt: NameDecrypt,
-    private readonly ipc: SyncEngineIpc,
     private readonly baseFolderId: number,
     private readonly baseFolderUuid: string,
     private fileStatusesToFilter: Array<ServerFileStatus>,
     private folderStatusesToFilter: Array<ServerFolderStatus>,
+    private readonly ipc = ipcRendererSyncEngine,
   ) {}
 
-  static existingItems(decrypt: NameDecrypt, ipc: SyncEngineIpc, baseFolderId: number, baseFolderUuid: string): Traverser {
-    return new Traverser(decrypt, ipc, baseFolderId, baseFolderUuid, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
-  }
-
-  static allItems(decrypt: NameDecrypt, ipc: SyncEngineIpc, baseFolderId: number, baseFolderUuid: string): Traverser {
-    return new Traverser(decrypt, ipc, baseFolderId, baseFolderUuid, [], []);
+  static existingItems(decrypt: NameDecrypt, baseFolderId: number, baseFolderUuid: string): Traverser {
+    return new Traverser(decrypt, baseFolderId, baseFolderUuid, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
   }
 
   public setFileStatusesToFilter(statuses: Array<ServerFileStatus>): void {

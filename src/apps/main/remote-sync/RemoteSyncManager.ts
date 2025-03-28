@@ -87,7 +87,7 @@ export class RemoteSyncManager {
    * Throws an error if there's a sync in progress for this class instance
    */
   async startRemoteSync(folderUuid?: string) {
-    logger.debug({ msg: 'Starting remote to local sync', folderUuid, workspaceId: this.workspaceId });
+    logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId, folderUuid });
 
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
@@ -106,19 +106,13 @@ export class RemoteSyncManager {
         from: await this.getLastFolderSyncAt(),
       });
 
-      const [files, folders] = await Promise.all([await syncFilesPromise, await syncFoldersPromise]);
+      const [files, folders] = await Promise.all([syncFilesPromise, syncFoldersPromise]);
       return { files, folders };
     } catch (error) {
       logger.error({ msg: 'Remote sync failed with error', error });
       this.changeStatus('SYNC_FAILED');
-    } finally {
-      logger.debug({
-        msg: 'Remote sync finished',
-        totalFilesSynced: this.totalFilesSynced,
-        totalFoldersSynced: this.totalFoldersSynced,
-        totalFilesUnsynced: this.totalFilesUnsynced,
-      });
     }
+
     return {
       files: [],
       folders: [],
@@ -136,6 +130,7 @@ export class RemoteSyncManager {
 
     logger.debug({
       msg: 'RemoteSyncManager change status',
+      workspaceId: this.workspaceId,
       current: this.status,
       newStatus,
       lastSyncingFinishedTimestamp: this.lastSyncingFinishedTimestamp,

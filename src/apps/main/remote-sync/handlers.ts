@@ -244,7 +244,13 @@ async function startRemoteSync(folderUuid?: string, workspaceId = ''): Promise<v
   try {
     const { files, folders } = await manager.startRemoteSync(folderUuid);
 
-    logger.debug({ msg: 'startRemoteSync', folderUuid, folders: folders.length, files: files.length });
+    logger.debug({
+      msg: 'Remote sync finished',
+      workspaceId,
+      folderUuid,
+      folders: folders.length,
+      files: files.length,
+    });
 
     if (folderUuid && folders.length > 0) {
       await Promise.all(
@@ -255,7 +261,6 @@ async function startRemoteSync(folderUuid?: string, workspaceId = ''): Promise<v
         }),
       );
     }
-    Logger.info('Remote sync finished');
   } catch (error) {
     throw logger.error({
       msg: 'Error starting remote sync',
@@ -360,12 +365,7 @@ export const debouncedSynchronization = lodashDebounce(async () => {
   await updateRemoteSync();
 }, SYNC_DEBOUNCE_DELAY);
 
-eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
-  Logger.info('Received remote changes event');
-  debouncedSynchronization();
-});
-
-eventBus.on('USER_LOGGED_IN', async () => {
+export async function initSyncEngine() {
   try {
     await initializeRemoteSyncManagers();
 
@@ -381,7 +381,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
       exc: error,
     });
   }
-});
+}
 
 eventBus.on('USER_LOGGED_OUT', () => {
   initialSyncReady = false;

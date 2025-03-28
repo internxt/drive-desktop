@@ -33,10 +33,14 @@ export class SyncRemoteFilesService {
     let hasMore = true;
 
     try {
-      this.logger.debug({ msg: 'Syncing files', from });
-
       while (hasMore) {
-        this.logger.debug({ msg: 'Retrieving files', offset, folderUuid, workspacesId: self.workspaceId, from });
+        this.logger.debug({
+          msg: 'Retrieving files',
+          workspacesId: this.workspaceId,
+          folderUuid,
+          from,
+          offset,
+        });
 
         /**
          * We fetch ALL files when we want to synchronize the current state with the web state.
