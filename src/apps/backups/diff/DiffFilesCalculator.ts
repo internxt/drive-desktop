@@ -18,7 +18,7 @@ export type FilesDiff = {
 };
 
 const store = new Store();
-const IS_PATCH_2_5_1_APPLIED = 'patch-executed-2.5.1';
+const IS_PATCH_2_5_1_APPLIED = 'patch-executed-2-5-1';
 
 export class DiffFilesCalculator {
   static calculate(local: LocalTree, remote: RemoteTree): FilesDiff {
@@ -53,6 +53,7 @@ export class DiffFilesCalculator {
       const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
       if (!store.get(IS_PATCH_2_5_1_APPLIED, false) && createdAt >= startDate && createdAt <= endDate) {
+        Logger.debug('Possible Dangled File', remoteNode.name);
         modified.set(local, remoteNode);
         return;
       }
