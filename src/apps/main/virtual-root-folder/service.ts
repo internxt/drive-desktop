@@ -44,7 +44,7 @@ export function getRootVirtualDrive(): string {
     current,
   });
 
-  if (!current.includes(user.email)) {
+  if (!current.includes(user.uuid)) {
     logger.debug({
       msg: 'Root virtual drive not found for user',
     });
@@ -110,7 +110,7 @@ export function setupRootFolder(user: User): void {
   const current = configStore.get('syncRoot');
 
   const pathNameWithSepInTheEnd = VIRTUAL_DRIVE_FOLDER + path.sep;
-  const syncFolderPath = `${VIRTUAL_DRIVE_FOLDER} - ${user.email}`;
+  const syncFolderPath = `${VIRTUAL_DRIVE_FOLDER} - ${user.uuid}`;
 
   logger.debug({
     msg: 'Virtual drive folder',
@@ -124,8 +124,8 @@ export function setupRootFolder(user: User): void {
    * Previously, the drive name in Explorer was "Internxt Drive" and when you logged out and logged in,
    * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
    * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
-   * login called "Internxt Drive - {user.email}."
-   * So, we need to rename "Internxt Drive" to "Internxt Drive - {user.email}".
+   * login called "Internxt Drive - { user.uuid}."
+   * So, we need to rename "Internxt Drive" to "Internxt Drive - { user.uuid}".
    */
   if (current === pathNameWithSepInTheEnd) {
     if (fs.existsSync(syncFolderPath)) {

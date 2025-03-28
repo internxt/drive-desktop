@@ -55,6 +55,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearAntivirusIfAvailable, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
+import { setDefaultConfig } from '../sync-engine/config';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -115,6 +116,8 @@ app
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
+
+    setDefaultConfig({});
 
     ipcMain.handle('is-dark-mode-active', () => {
       return nativeTheme.shouldUseDarkColors;

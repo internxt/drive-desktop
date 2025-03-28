@@ -45,7 +45,7 @@ describe('setupRootFolder', () => {
 
     setupRootFolder(user);
 
-    expect(renameSpy).toHaveBeenCalledWith(syncRoot, `${virtualDriveFolder} - ${user.email}`);
+    expect(renameSpy).toHaveBeenCalledWith(syncRoot, `${virtualDriveFolder} - ${user.uuid}`);
     expect(configStore.get).toHaveBeenCalledWith('syncRoot');
   });
 
@@ -106,7 +106,7 @@ describe('getRootVirtualDrive', () => {
       };
     });
     const oldSyncRoot = '/test/path - test1@gmail.com';
-    const newSyncRoot = `/test/path - ${user.email}`;
+    const newSyncRoot = `/test/path - ${user.uuid}`;
     configStore.get = vi.fn().mockReturnValueOnce(oldSyncRoot).mockReturnValueOnce(oldSyncRoot).mockReturnValueOnce(newSyncRoot);
 
     const result = getRootVirtualDrive();
