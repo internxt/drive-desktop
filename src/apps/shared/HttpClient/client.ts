@@ -37,5 +37,6 @@ const middleware: Middleware = {
 };
 
 export const client = createClient<paths>({ baseUrl: `${process.env.NEW_DRIVE_URL}/drive` });
+export const clientService = client;
 
 client.use(middleware);

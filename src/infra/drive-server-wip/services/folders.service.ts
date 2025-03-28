@@ -1,91 +1,103 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
-import { loggerService } from '@/apps/shared/logger/logger';
+import { ClientWrapperService } from '../in/client-wrapper.service';
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
 type TGetFilesByFolderQuery = paths['/folders/content/{uuid}/files']['get']['parameters']['query'];
 
 export class FoldersService {
-  constructor(private readonly logger = loggerService) {}
+  constructor(private readonly clientWrapper = new ClientWrapperService()) {}
 
   async getMetadata({ folderId }: { folderId: number }) {
-    const res = await client.GET('/folders/{id}/metadata', {
+    const promise = client.GET('/folders/{id}/metadata', {
       params: { path: { id: folderId } },
     });
 
-    if (!res.data) {
-      throw this.logger.error({
+    return this.clientWrapper.run({
+      promise,
+      loggerBody: {
         msg: 'Get folder metadata request was not successful',
-        exc: res.error,
         context: {
           folderId,
         },
         attributes: {
+          method: 'GET',
           endpoint: '/folders/{id}/metadata',
         },
-      });
-    }
-
-    return res.data;
+      },
+    });
   }
 
   async getFolders({ query }: { query: TGetFoldersQuery }) {
-    const res = await client.GET('/folders', { params: { query } });
+    const promise = client.GET('/folders', { params: { query } });
 
-    if (!res.data) {
-      throw this.logger.error({
+    return this.clientWrapper.run({
+      promise,
+      loggerBody: {
         msg: 'Get folders request was not successful',
-        exc: res.error,
         context: {
           query,
         },
         attributes: {
+          method: 'GET',
           endpoint: '/folders',
         },
-      });
-    }
-
-    return res.data;
+      },
+    });
   }
 
   async getFoldersByFolder({ folderUuid, query }: { folderUuid: string; query: TGetFoldersByFolderQuery }) {
-    const res = await client.GET('/folders/content/{uuid}/folders', { params: { path: { uuid: folderUuid }, query } });
+    const promise = client.GET('/folders/content/{uuid}/folders', {
+      params: { path: { uuid: folderUuid }, query },
+    });
 
-    if (!res.data) {
-      throw this.logger.error({
+    const res = await this.clientWrapper.run({
+      promise,
+      loggerBody: {
         msg: 'Get folders by folder request was not successful',
-        exc: res.error,
         context: {
           folderUuid,
           query,
         },
         attributes: {
+          method: 'GET',
           endpoint: '/folders/content/{uuid}/folders',
         },
-      });
-    }
+      },
+    });
 
-    return res.data.folders;
+    if (res.data) {
+      return { data: res.data.folders };
+    } else {
+      return { error: res.error };
+    }
   }
 
   async getFiles({ folderUuid, query }: { folderUuid: string; query: TGetFilesByFolderQuery }) {
-    const res = await client.GET('/folders/content/{uuid}/files', { params: { path: { uuid: folderUuid }, query } });
+    const promise = client.GET('/folders/content/{uuid}/files', {
+      params: { path: { uuid: folderUuid }, query },
+    });
 
-    if (!res.data) {
-      throw this.logger.error({
+    const res = await this.clientWrapper.run({
+      promise,
+      loggerBody: {
         msg: 'Get files by folder request was not successful',
-        exc: res.error,
         context: {
           folderUuid,
           query,
         },
         attributes: {
+          method: 'GET',
           endpoint: '/folders/content/{uuid}/files',
         },
-      });
-    }
+      },
+    });
 
-    return res.data.files;
+    if (res.data) {
+      return { data: res.data.files };
+    } else {
+      return { error: res.error };
+    }
   }
 }

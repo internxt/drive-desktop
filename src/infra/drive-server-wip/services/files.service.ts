@@ -1,28 +1,49 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { clientService } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
-import { loggerService } from '@/apps/shared/logger/logger';
+import { ClientWrapperService } from '../in/client-wrapper.service';
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
+type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 export class FilesService {
-  constructor(private readonly logger = loggerService) {}
+  constructor(
+    private readonly client = clientService,
+    private readonly clientWrapper = new ClientWrapperService(),
+  ) {}
 
   async getFiles({ query }: { query: TGetFilesQuery }) {
-    const res = await client.GET('/files', { params: { query } });
+    const promise = this.client.GET('/files', { params: { query } });
 
-    if (!res.data) {
-      throw this.logger.error({
+    return this.clientWrapper.run({
+      promise,
+      loggerBody: {
         msg: 'Get files request was not successful',
-        exc: res.error,
         context: {
           query,
         },
         attributes: {
+          method: 'GET',
           endpoint: '/files',
         },
-      });
-    }
+      },
+    });
+  }
 
-    return res.data;
+  async createThumbnail({ body }: { body: TCreateThumnailBody }) {
+    const promise = this.client.POST('/files/thumbnail', { body });
+
+    return this.clientWrapper.run({
+      promise,
+      loggerBody: {
+        msg: 'Get files request was not successful',
+        context: {
+          body,
+        },
+        attributes: {
+          method: 'POST',
+          endpoint: '/files/thumbnail',
+        },
+      },
+    });
   }
 }
