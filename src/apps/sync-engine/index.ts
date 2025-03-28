@@ -1,15 +1,16 @@
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
-import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
 import { setConfig, Config, getConfig } from './config';
 import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
+import { logger } from '../shared/logger/logger';
+import { INTERNXT_VERSION } from '@/core/utils/utils';
 
-Logger.log(`Running sync engine ${packageJson.version}`);
+Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
 
 function initSentry() {
   Sentry.init({
@@ -99,12 +100,12 @@ async function setUp() {
   });
 
   ipcRenderer.on('UNREGISTER_SYNC_ENGINE_PROCESS', async (_, providerId: string) => {
-    Logger.info('[SYNC ENGINE] Unregistering sync engine');
+    logger.debug({ msg: '[SYNC ENGINE] Unregistering sync engine', providerId });
     await bindings.unregisterSyncEngine({ providerId });
-    Logger.info('[SYNC ENGINE] sync engine unregistered successfully');
+    logger.debug({ msg: '[SYNC ENGINE] sync engine unregistered successfully' });
   });
 
-  await bindings.start(packageJson.version);
+  await bindings.start(INTERNXT_VERSION);
 
   await bindings.watch();
 

@@ -15,7 +15,7 @@ let socket: Socket | undefined;
 
 let user = getUser();
 
-function cleanAndStartRemoteNotifications() {
+export function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
 
   socket = io(process.env.NOTIFICATIONS_URL, {
@@ -93,6 +93,5 @@ function stopRemoteNotifications() {
   }
 }
 
-eventBus.on('USER_LOGGED_IN', cleanAndStartRemoteNotifications);
 eventBus.on('USER_LOGGED_OUT', stopRemoteNotifications);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopRemoteNotifications);

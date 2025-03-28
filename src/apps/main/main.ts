@@ -106,10 +106,10 @@ app
 
     setupTrayIcon();
     registerUsageHandlers();
+    setUpBackups();
     await checkIfUserIsLoggedIn();
 
     const isLoggedIn = getIsLoggedIn();
-    setUpBackups();
 
     if (!isLoggedIn) {
       await createAuthWindow();

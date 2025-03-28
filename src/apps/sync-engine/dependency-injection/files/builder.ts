@@ -32,10 +32,12 @@ import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/app
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
+import { ContentsContainer } from '../contents/ContentsContainer';
 
 export async function buildFilesContainer(
   folderContainer: FoldersContainer,
   sharedContainer: SharedContainer,
+  contentsContainer: ContentsContainer,
 ): Promise<{
   container: FilesContainer;
   subscribers: unknown;
@@ -126,6 +128,7 @@ export async function buildFilesContainer(
     folderContainer.folderCreator,
     folderContainer.offline.folderCreator,
     fileContentsUpdater,
+    contentsContainer.contentsUploader,
   );
 
   const container: FilesContainer = {
