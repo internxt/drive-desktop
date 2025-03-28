@@ -10,7 +10,7 @@ export class TreeBuilder {
     private readonly traverser: Traverser,
   ) {}
 
-  public setFilterStatusesToFilter(statuses: Array<ServerFileStatus>): void {
+  public setFileStatusesToFilter(statuses: Array<ServerFileStatus>): void {
     this.traverser.setFileStatusesToFilter(statuses);
   }
 
