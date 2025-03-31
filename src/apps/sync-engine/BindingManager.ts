@@ -23,8 +23,6 @@ import { getConfig } from './config';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
-export type FileAddedCallback = (acknowledge: boolean, id: string) => Promise<boolean>;
-
 export class BindingsManager {
   progressBuffer = 0;
   controllers: IControllers;
@@ -52,7 +50,7 @@ export class BindingsManager {
   }
 
   async load(): Promise<void> {
-    this.container.existingItemsTreeBuilder.setFilterStatusesToFilter([
+    this.container.existingItemsTreeBuilder.setFileStatusesToFilter([
       ServerFileStatus.EXISTS,
       ServerFileStatus.TRASHED,
       ServerFileStatus.DELETED,
@@ -76,10 +74,6 @@ export class BindingsManager {
   }
 
   async start(version: string) {
-    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
-    await this.stop();
-    await this.pollingStart();
-
     const callbacks: Callbacks = {
       notifyDeleteCallback: (contentsId: string, callback: (response: boolean) => void) => {
         Logger.debug('Path received from delete callback', contentsId);
@@ -200,12 +194,17 @@ export class BindingsManager {
       },
     };
 
-    await this.container.virtualDrive.registerSyncRoot(this.PROVIDER_NAME, version, callbacks, this.paths.icon);
+    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
 
+    await this.stop();
+
+    await this.container.virtualDrive.registerSyncRoot(this.PROVIDER_NAME, version, callbacks, this.paths.icon);
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
     await this.polling();
+    await this.pollingStart();
+
     ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
   }
 
@@ -235,7 +234,7 @@ export class BindingsManager {
 
   async stop() {
     await this.container.virtualDrive.disconnectSyncRoot();
-    this.container.pollingMonitorStop.run();
+    this.container.pollingMonitor.stop();
   }
 
   async cleanUp() {
@@ -276,14 +275,14 @@ export class BindingsManager {
 
   private async pollingStart() {
     Logger.debug('[SYNC ENGINE] Starting polling');
-    return this.container.pollingMonitorStart.run(this.polling.bind(this));
+    return this.container.pollingMonitor.start(this.polling.bind(this));
   }
 
   async polling(): Promise<void> {
     try {
       ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
       Logger.info('[SYNC ENGINE] Monitoring polling...');
-      const fileInPendingPaths = (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
+      const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
@@ -307,7 +306,7 @@ export class BindingsManager {
     try {
       Logger.info('[SYNC ENGINE] Updating unsync files...');
 
-      const fileInPendingPaths = (await this.container.virtualDrive.getPlaceholderWithStatePending()) as Array<string>;
+      const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
 
       return fileInPendingPaths;
