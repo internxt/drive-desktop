@@ -7,7 +7,6 @@ import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
 import { setConfig, Config, getConfig } from './config';
 import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
-import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 
 Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
@@ -97,12 +96,6 @@ async function setUp() {
       Sentry.captureException(error);
       event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
     }
-  });
-
-  ipcRenderer.on('UNREGISTER_SYNC_ENGINE_PROCESS', async (_, providerId: string) => {
-    logger.debug({ msg: '[SYNC ENGINE] Unregistering sync engine', providerId });
-    await bindings.unregisterSyncEngine({ providerId });
-    logger.debug({ msg: '[SYNC ENGINE] sync engine unregistered successfully' });
   });
 
   await bindings.start(INTERNXT_VERSION);

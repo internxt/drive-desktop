@@ -162,22 +162,4 @@ export class DriveFoldersCollection implements DatabaseCollectionAdapter<DriveFo
       };
     }
   }
-
-  async cleanWorkspace(workspaceId: string): Promise<{ success: boolean }> {
-    try {
-      await this.repository.delete({ workspaceId });
-      return {
-        success: true,
-      };
-    } catch (exc) {
-      logger.warn({
-        msg: 'Error cleaning workspace',
-        workspaceId,
-        exc,
-      });
-      return {
-        success: false,
-      };
-    }
-  }
 }

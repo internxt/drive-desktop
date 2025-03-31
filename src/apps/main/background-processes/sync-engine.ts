@@ -12,6 +12,7 @@ import { getUser } from '../auth/service';
 import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { cwd } from 'process';
+import { VirtualDrive } from '@internxt/node-win/dist';
 
 interface WorkerConfig {
   worker: BrowserWindow | null;
@@ -222,10 +223,14 @@ export const spawnAllSyncEngineWorker = async () => {
   await Promise.all(
     workspaces.map(async (workspace) => {
       if (workspace.removed) {
-        logger.debug({ msg: 'Unregistering sync engine for workspace', workspace });
-        await driveFilesCollection.cleanWorkspace(workspace.id);
-        await driveFoldersCollection.cleanWorkspace(workspace.id);
-        ipcMain.emit('UNREGISTER_SYNC_ENGINE_PROCESS', `{${workspace.id}}`);
+        /**
+         * v2.5.1 Daniel Jiménez
+         * Just unregister the root folder. Do not delete the folder itself (maybe there were some files that were not synced,
+         * and we lose them - it happened). Also, do not clear the database, because since we are keeping the files, we also need to keep
+         * the lastSyncCheckpoint of files and folders.
+         */
+        logger.debug({ msg: 'Unregistering sync engine for workspace', workspaceId: workspace.id });
+        VirtualDrive.unRegisterSyncRootByProviderId({ providerId: `{${workspace.id}}` });
         return;
       }
 
