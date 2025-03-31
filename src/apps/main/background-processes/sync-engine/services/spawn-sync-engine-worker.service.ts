@@ -12,72 +12,70 @@ type TProps = {
   config: Config;
 };
 
-export class SpawnSyncEngineWorkerService {
-  async run({ config }: TProps) {
-    const workspaceId = config.workspaceId;
+export async function spawnSyncEngineWorker({ config }: TProps) {
+  const workspaceId = config.workspaceId;
 
-    if (!workers[workspaceId]) {
-      workers[workspaceId] = {
-        worker: null,
-        workerIsRunning: false,
-        startingWorker: false,
-        syncSchedule: null,
-      };
-    }
+  if (!workers[workspaceId]) {
+    workers[workspaceId] = {
+      worker: null,
+      workerIsRunning: false,
+      startingWorker: false,
+      syncSchedule: null,
+    };
+  }
 
-    const worker = workers[workspaceId];
+  const worker = workers[workspaceId];
 
-    if (worker.startingWorker) {
-      logger.debug({ msg: '[MAIN] Sync engine worker is already starting', workspaceId });
-      return;
-    }
+  if (worker.startingWorker) {
+    logger.debug({ msg: '[MAIN] Sync engine worker is already starting', workspaceId });
+    return;
+  }
 
-    if (worker.workerIsRunning) {
-      logger.debug({ msg: '[MAIN] Sync engine worker is already running', workspaceId });
-      return;
-    }
+  if (worker.workerIsRunning) {
+    logger.debug({ msg: '[MAIN] Sync engine worker is already running', workspaceId });
+    return;
+  }
 
-    logger.debug({ msg: '[MAIN] Spawn sync engine worker', workspaceId });
+  logger.debug({ msg: '[MAIN] Spawn sync engine worker', workspaceId });
 
-    worker.startingWorker = true;
+  worker.startingWorker = true;
 
-    const browserWindow = new BrowserWindow({
-      show: false,
-      webPreferences: {
-        nodeIntegration: true,
-        contextIsolation: false,
-        backgroundThrottling: false,
+  const browserWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      backgroundThrottling: false,
+    },
+  });
+
+  try {
+    await browserWindow.loadFile(
+      process.env.NODE_ENV === 'development'
+        ? path.join(cwd(), 'dist', 'sync-engine', 'index.html')
+        : path.join(__dirname, '..', 'sync-engine', 'index.html'),
+    );
+
+    logger.debug({ msg: '[MAIN] Browser window loaded', workspaceId });
+
+    browserWindow.webContents.send('SET_CONFIG', config);
+
+    monitorHealth({
+      browserWindow,
+      stopAndSpawn: async () => {
+        await stopAndClearSyncEngineWorker({ workspaceId });
+        await spawnSyncEngineWorker({ config });
       },
     });
 
-    try {
-      await browserWindow.loadFile(
-        process.env.NODE_ENV === 'development'
-          ? path.join(cwd(), 'dist', 'sync-engine', 'index.html')
-          : path.join(__dirname, '..', 'sync-engine', 'index.html'),
-      );
+    scheduleSync({ worker });
 
-      logger.debug({ msg: '[MAIN] Browser window loaded', workspaceId });
-
-      browserWindow.webContents.send('SET_CONFIG', config);
-
-      monitorHealth({
-        browserWindow,
-        stopAndSpawn: async () => {
-          await stopAndClearSyncEngineWorker({ workspaceId });
-          await this.run({ config });
-        },
-      });
-
-      scheduleSync({ worker });
-
-      worker.worker = browserWindow;
-    } catch (exc) {
-      logger.error({
-        msg: '[MAIN] Error loading sync engine worker for workspace',
-        workspaceId,
-        exc,
-      });
-    }
+    worker.worker = browserWindow;
+  } catch (exc) {
+    logger.error({
+      msg: '[MAIN] Error loading sync engine worker for workspace',
+      workspaceId,
+      exc,
+    });
   }
 }

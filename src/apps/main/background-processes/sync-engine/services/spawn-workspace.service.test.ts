@@ -1,20 +1,24 @@
-import { mockDeep } from 'vitest-mock-extended';
-import { SpawnWorkspaceService } from './spawn-workspace.service';
-import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+vi.mock('./spawn-sync-engine-worker.service');
+vi.mock('@/apps/main/auth/service');
+vi.mock('@/apps/shared/crypto/service');
+vi.mock('@/apps/shared/logger/logger');
+vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
+
 import { mockProps } from 'tests/vitest/utils.helper.test';
-import { SpawnSyncEngineWorkerService } from './spawn-sync-engine-worker.service';
-import { LoggerService } from '@/apps/shared/logger/logger';
 import { sleep } from '@/apps/main/util';
-import { GetUserService } from '@/apps/main/auth/get-user.service';
-import { CryptoService } from '@/apps/shared/crypto/crypto.service';
+import { spawnWorkspace } from './spawn-workspace.service';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { logger } from '@/apps/shared/logger/logger';
+import { spawnSyncEngineWorker } from './spawn-sync-engine-worker.service';
+import { getUserOrThrow } from '@/apps/main/auth/service';
+import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 
 describe('spawn-workspace.service', () => {
-  const driveServerWip = mockDeep<DriveServerWipModule>();
-  const spawnSyncEngineWorker = mockDeep<SpawnSyncEngineWorkerService>();
-  const logger = mockDeep<LoggerService>();
-  const getUser = mockDeep<GetUserService>();
-  const crypto = mockDeep<CryptoService>();
-  const service = new SpawnWorkspaceService(driveServerWip, spawnSyncEngineWorker, logger, getUser, crypto);
+  const driveServerWipMock = vi.mocked(driveServerWipModule.workspaces);
+  const loggerMock = vi.mocked(logger);
+  const spawnSyncEngineWorkerMock = vi.mocked(spawnSyncEngineWorker);
+  const getUserOrThrowMock = vi.mocked(getUserOrThrow);
+  const decryptMessageWithPrivateKeyMock = vi.mocked(decryptMessageWithPrivateKey);
 
   const workspaceId = 'workspaceId';
   const mnemonic = 'mnemonic';
@@ -29,34 +33,34 @@ describe('spawn-workspace.service', () => {
 
   it('If get credentials gives an error, then retry it again', async () => {
     // Given
-    driveServerWip.workspaces.getCredentials
+    driveServerWipMock.getCredentials
       .mockResolvedValueOnce({ error: new Error() })
       .mockResolvedValueOnce({ error: new Error() })
       .mockResolvedValueOnce({ error: new Error() })
       .mockResolvedValueOnce({ error: new Error() });
 
-    const props = mockProps<typeof service.run>({ workspace: { id: workspaceId, mnemonic } });
+    const props = mockProps<typeof spawnWorkspace>({ workspace: { id: workspaceId, mnemonic } });
 
     // When
-    await service.run(props);
+    await spawnWorkspace(props);
     await sleep(50);
 
     // Then
-    expect(driveServerWip.workspaces.getCredentials).toHaveBeenCalledTimes(5);
-    expect(logger.debug).toHaveBeenCalledTimes(5);
-    expect(logger.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 1 });
-    expect(logger.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 2 });
-    expect(logger.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 3 });
-    expect(logger.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 4 });
-    expect(logger.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 5 });
+    expect(driveServerWipMock.getCredentials).toHaveBeenCalledTimes(5);
+    expect(loggerMock.debug).toHaveBeenCalledTimes(5);
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 1 });
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 2 });
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 3 });
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 4 });
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 5 });
   });
 
-  it('If get credentials success, then spawn sync engine worker', async () => {
+  it.only('If get credentials success, then spawn sync engine worker', async () => {
     // Given
     // @ts-expect-error TODO: add DeepPartial here
-    getUser.getOrThrow.mockReturnValue({});
-    crypto.decryptMessageWithPrivateKey.mockResolvedValue(mnemonic);
-    driveServerWip.workspaces.getCredentials.mockResolvedValueOnce({
+    getUserOrThrowMock.mockReturnValue({});
+    decryptMessageWithPrivateKeyMock.mockResolvedValue(mnemonic);
+    driveServerWipMock.getCredentials.mockResolvedValueOnce({
       // @ts-expect-error TODO: add DeepPartial here
       data: {
         workspaceId,
@@ -67,14 +71,14 @@ describe('spawn-workspace.service', () => {
       },
     });
 
-    const props = mockProps<typeof service.run>({ workspace: { id: workspaceId, mnemonic } });
+    const props = mockProps<typeof spawnWorkspace>({ workspace: { id: workspaceId, mnemonic } });
 
     // When
-    await service.run(props);
+    await spawnWorkspace(props);
 
     // Then
-    expect(spawnSyncEngineWorker.run).toHaveBeenCalledTimes(1);
-    expect(spawnSyncEngineWorker.run).toHaveBeenCalledWith({
+    expect(spawnSyncEngineWorkerMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncEngineWorkerMock).toHaveBeenCalledWith({
       config: {
         bridgePass: 'pass',
         bridgeUser: 'user',

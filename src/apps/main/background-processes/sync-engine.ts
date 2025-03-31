@@ -5,9 +5,9 @@ import { workers } from './sync-engine/store';
 import { getUser } from '../auth/service';
 import { Config } from '@/apps/sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
-import { SpawnSyncEngineWorkerService } from './sync-engine/services/spawn-sync-engine-worker.service';
 import { SpawnWorkspacesService } from './sync-engine/services/spawn-workspaces.service';
 import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker.service';
+import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker.service';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -89,7 +89,7 @@ export const spawnAllSyncEngineWorker = async () => {
     workspaceToken: undefined,
   };
 
-  await new SpawnSyncEngineWorkerService().run({ config });
+  await spawnSyncEngineWorker({ config });
   await new SpawnWorkspacesService().run({});
 };
 
