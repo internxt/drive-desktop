@@ -1,25 +1,18 @@
 import { Config } from '@/apps/sync-engine/config';
-import { loggerService } from '@/apps/shared/logger/logger';
 import { BrowserWindow } from 'electron';
 import path from 'path';
 import { cwd } from 'process';
 import { workers } from '../store';
-import { MonitorHealthService } from './monitor-health.service';
-import { ScheduleSyncService } from './schedule-sync.service';
-import { StopAndClearSyncEngineWorkerService } from './stop-and-clear-sync-engine-worker.service';
+import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worker.service';
+import { monitorHealth } from './monitor-health.service';
+import { logger } from '@/apps/shared/logger/logger';
+import { scheduleSync } from './schedule-sync.service';
 
 type TProps = {
   config: Config;
 };
 
 export class SpawnSyncEngineWorkerService {
-  constructor(
-    private readonly monitorHealth = new MonitorHealthService(),
-    private readonly scheduleSync = new ScheduleSyncService(),
-    private readonly stopAndClearSyncEngineWorker = new StopAndClearSyncEngineWorkerService(),
-    private readonly logger = loggerService,
-  ) {}
-
   async run({ config }: TProps) {
     const workspaceId = config.workspaceId;
 
@@ -35,16 +28,16 @@ export class SpawnSyncEngineWorkerService {
     const worker = workers[workspaceId];
 
     if (worker.startingWorker) {
-      this.logger.debug({ msg: '[MAIN] Sync engine worker is already starting', workspaceId });
+      logger.debug({ msg: '[MAIN] Sync engine worker is already starting', workspaceId });
       return;
     }
 
     if (worker.workerIsRunning) {
-      this.logger.debug({ msg: '[MAIN] Sync engine worker is already running', workspaceId });
+      logger.debug({ msg: '[MAIN] Sync engine worker is already running', workspaceId });
       return;
     }
 
-    this.logger.debug({ msg: '[MAIN] Spawn sync engine worker', workspaceId });
+    logger.debug({ msg: '[MAIN] Spawn sync engine worker', workspaceId });
 
     worker.startingWorker = true;
 
@@ -64,23 +57,23 @@ export class SpawnSyncEngineWorkerService {
           : path.join(__dirname, '..', 'sync-engine', 'index.html'),
       );
 
-      this.logger.debug({ msg: '[MAIN] Browser window loaded', workspaceId });
+      logger.debug({ msg: '[MAIN] Browser window loaded', workspaceId });
 
       browserWindow.webContents.send('SET_CONFIG', config);
 
-      this.monitorHealth.run({
+      monitorHealth({
         browserWindow,
         stopAndSpawn: async () => {
-          await this.stopAndClearSyncEngineWorker.run({ workspaceId });
+          await stopAndClearSyncEngineWorker({ workspaceId });
           await this.run({ config });
         },
       });
 
-      this.scheduleSync.run({ worker });
+      scheduleSync({ worker });
 
       worker.worker = browserWindow;
     } catch (exc) {
-      this.logger.error({
+      logger.error({
         msg: '[MAIN] Error loading sync engine worker for workspace',
         workspaceId,
         exc,

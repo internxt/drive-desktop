@@ -2,12 +2,12 @@ import { ipcMain } from 'electron';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
-import { StopAndClearSyncEngineWorkerService } from './sync-engine/services/stop-and-clear-sync-engine-worker.service';
 import { getUser } from '../auth/service';
 import { Config } from '@/apps/sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
 import { SpawnSyncEngineWorkerService } from './sync-engine/services/spawn-sync-engine-worker.service';
 import { SpawnWorkspacesService } from './sync-engine/services/spawn-workspaces.service';
+import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker.service';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -61,10 +61,9 @@ export async function sendUpdateFilesInSyncPending(workspaceId: string): Promise
 }
 
 export const stopAndClearAllSyncEngineWatcher = async () => {
-  const service = new StopAndClearSyncEngineWorkerService();
   await Promise.all(
     Object.keys(workers).map(async (workspaceId) => {
-      await service.run({ workspaceId });
+      await stopAndClearSyncEngineWorker({ workspaceId });
     }),
   );
 };

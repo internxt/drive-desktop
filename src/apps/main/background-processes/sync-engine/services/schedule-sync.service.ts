@@ -7,12 +7,10 @@ type TProps = {
   worker: TWorkerConfig;
 };
 
-export class ScheduleSyncService {
-  run({ worker }: TProps) {
-    worker.syncSchedule?.cancel(false);
-    worker.syncSchedule = nodeSchedule.scheduleJob('*/15 * * * *', async () => {
-      logger.debug({ msg: 'Received remote changes event' });
-      debouncedSynchronization();
-    });
-  }
+export function scheduleSync({ worker }: TProps) {
+  worker.syncSchedule?.cancel(false);
+  worker.syncSchedule = nodeSchedule.scheduleJob('*/15 * * * *', async () => {
+    logger.debug({ msg: 'Received remote changes event' });
+    debouncedSynchronization();
+  });
 }
