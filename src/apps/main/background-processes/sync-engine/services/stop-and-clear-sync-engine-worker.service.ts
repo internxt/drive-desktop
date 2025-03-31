@@ -6,8 +6,6 @@ type TProps = {
   workspaceId: string;
 };
 
-const MILLISECONDS_TO_WAIT = 10_000;
-
 export async function stopAndClearSyncEngineWorker({ workspaceId }: TProps) {
   const worker = workers[workspaceId];
 
@@ -32,8 +30,8 @@ export async function stopAndClearSyncEngineWorker({ workspaceId }: TProps) {
     });
 
     setTimeout(() => {
-      reject(new Error(`Timeout waiting for sync engine to stop after ${MILLISECONDS_TO_WAIT} milliseconds`));
-    }, MILLISECONDS_TO_WAIT);
+      reject(new Error('Timeout waiting for sync engine to stop after 10 seconds'));
+    }, 10_000);
   });
 
   try {
