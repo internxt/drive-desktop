@@ -50,7 +50,7 @@ export async function createTokenSchedule(refreshedTokens?: Array<string>) {
 
 export async function checkUserData(): Promise<void> {
   const user = getUser();
-  if (user && user.root_folder_id && user.rootFolderId) {
+  if (user && user.root_folder_id && !user.rootFolderId) {
     const { data: rootFolderMetadata } = await driveServerWipModule.folders.getMetadata({ folderId: user.root_folder_id });
     if (rootFolderMetadata) {
       setUser({
