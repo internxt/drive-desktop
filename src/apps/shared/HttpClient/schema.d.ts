@@ -120,6 +120,25 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+
+  '/files/{bucketId}/{fileId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create Thumbnail */
+    post: never;
+    delete: operations['FileController_deleteFileByFileId'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+
   '/storage/share/domains': {
     parameters: {
       query?: never;
@@ -4393,6 +4412,27 @@ export interface operations {
     };
     responses: {
       /** @description The share of the folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+
+  FileController_deleteFileByFileId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        bucketId: string;
+        fileId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
       200: {
         headers: {
           [name: string]: unknown;

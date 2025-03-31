@@ -1,14 +1,15 @@
+import { clientService } from './../../../../apps/shared/HttpClient/client';
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { Service } from 'diod';
 import { createReadStream } from 'fs';
 import { Stopwatch } from '../../../../apps/shared/types/Stopwatch';
 import { AbsolutePath } from './AbsolutePath';
 import { Environment } from '@internxt/inxt-js';
-import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
+import { ClientWrapperService } from '@/infra/drive-server-wip/in/client-wrapper.service';
 
 @Service()
 export class EnvironmentLocalFileUploader {
@@ -17,7 +18,8 @@ export class EnvironmentLocalFileUploader {
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
-    private readonly httpClient: Axios,
+    private readonly client = clientService,
+    private readonly clientWrapper = new ClientWrapperService(),
   ) {}
 
   upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
@@ -67,12 +69,21 @@ export class EnvironmentLocalFileUploader {
     });
   }
 
-  async delete(contentsId: string): Promise<void> {
-    try {
-      await this.httpClient.delete(`${process.env.API_URL}/storage/bucket/${this.bucket}/file/${contentsId}`);
-    } catch (error) {
-      // Not being able to delete from the bucket is not critical
-      Logger.error(`Could not delete the file ${contentsId} from the bucket`);
-    }
+  async delete(contentsId: string) {
+    const promise = this.client.DELETE('/files/{bucketId}/{fileId}', { params: { path: { bucketId: this.bucket, fileId: contentsId } } });
+
+    return this.clientWrapper.run({
+      promise,
+      loggerBody: {
+        msg: 'Get files request was not successful',
+        context: {
+          contentsId,
+        },
+        attributes: {
+          method: 'DELETE',
+          endpoint: '/files',
+        },
+      },
+    });
   }
 }

@@ -29,15 +29,7 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
 
   builder
     .register(EnvironmentLocalFileUploader)
-    .useFactory(
-      (c) =>
-        new EnvironmentLocalFileUploader(
-          c.get(Environment),
-          user.backupsBucket,
-          //@ts-ignore
-          c.get(AuthorizedClients).drive,
-        ),
-    )
+    .useFactory((c) => new EnvironmentLocalFileUploader(c.get(Environment), user.backupsBucket))
     .private();
 
   builder.register(RendererIpcLocalFileMessenger).useClass(RendererIpcLocalFileMessenger).private().asSingleton();
