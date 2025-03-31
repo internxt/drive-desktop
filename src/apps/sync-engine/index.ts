@@ -9,6 +9,7 @@ import { setConfig, Config, getConfig } from './config';
 import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
 
@@ -115,13 +116,12 @@ async function setUp() {
 }
 
 async function refreshToken() {
-  try {
-    Logger.info('[SYNC ENGINE] Refreshing token');
-    const credential = await FetchWorkspacesService.getCredencials(getConfig().workspaceId);
-    const newToken = credential.tokenHeader;
+  logger.debug({ msg: '[SYNC ENGINE] Refreshing token' });
+  const { data: credentials } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: getConfig().workspaceId });
+
+  if (credentials) {
+    const newToken = credentials.tokenHeader;
     setConfig({ ...getConfig(), workspaceToken: newToken });
-  } catch (exc) {
-    Logger.error('[SYNC ENGINE] Error refreshing token', exc);
   }
 }
 
