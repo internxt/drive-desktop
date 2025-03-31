@@ -25,7 +25,7 @@ export class SpawnWorkspacesService {
       return;
     }
 
-    workspaces.availableWorkspaces.map(async ({ workspace, workspaceUser }) => {
+    workspaces.availableWorkspaces.forEach(async ({ workspace, workspaceUser }) => {
       // if (workspaceUser.removed) {
       //   logger.debug({ msg: 'Unregistering sync engine for workspace', workspace });
       //   await driveFilesCollection.cleanWorkspace(workspace.id);
