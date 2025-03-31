@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 const ENV_SCHEMA = z.object({
   ANALYZE: z.union([z.literal('true'), z.literal('false')]),
-  API_URL: z.string(),
   BRIDGE_URL: z.string(),
   BUG_REPORTING_URL: z.string(),
   CRYPTO_KEY: z.string(),

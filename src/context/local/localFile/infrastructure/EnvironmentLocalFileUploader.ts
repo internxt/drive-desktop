@@ -4,11 +4,11 @@ import { createReadStream } from 'fs';
 import { Stopwatch } from '../../../../apps/shared/types/Stopwatch';
 import { AbsolutePath } from './AbsolutePath';
 import { Environment } from '@internxt/inxt-js';
-import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 @Service()
 export class EnvironmentLocalFileUploader {
@@ -17,7 +17,6 @@ export class EnvironmentLocalFileUploader {
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
-    private readonly httpClient: Axios,
   ) {}
 
   upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
@@ -67,12 +66,7 @@ export class EnvironmentLocalFileUploader {
     });
   }
 
-  async delete(contentsId: string): Promise<void> {
-    try {
-      await this.httpClient.delete(`${process.env.API_URL}/storage/bucket/${this.bucket}/file/${contentsId}`);
-    } catch (error) {
-      // Not being able to delete from the bucket is not critical
-      Logger.error(`Could not delete the file ${contentsId} from the bucket`);
-    }
+  async delete(contentsId: string) {
+    await driveServerWipModule.files.deleteContentFromBucket({ bucketId: this.bucket, contentId: contentsId });
   }
 }
