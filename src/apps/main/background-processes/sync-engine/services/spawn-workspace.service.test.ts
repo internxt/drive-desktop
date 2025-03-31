@@ -1,4 +1,4 @@
-import { mockProps } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { sleep } from '@/apps/main/util';
 import { spawnWorkspace } from './spawn-workspace.service';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -14,11 +14,11 @@ vi.mock('@/apps/shared/logger/logger');
 vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
 
 describe('spawn-workspace.service', () => {
-  const driveServerWipMock = vi.mocked(driveServerWipModule.workspaces);
-  const loggerMock = vi.mocked(logger);
-  const spawnSyncEngineWorkerMock = vi.mocked(spawnSyncEngineWorker);
-  const getUserOrThrowMock = vi.mocked(getUserOrThrow);
+  const getCredentialsMock = deepMocked(driveServerWipModule.workspaces.getCredentials);
   const decryptMessageWithPrivateKeyMock = vi.mocked(decryptMessageWithPrivateKey);
+  const spawnSyncEngineWorkerMock = vi.mocked(spawnSyncEngineWorker);
+  const loggerMock = vi.mocked(logger);
+  const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
   const workspaceId = 'workspaceId';
   const mnemonic = 'mnemonic';
@@ -33,7 +33,7 @@ describe('spawn-workspace.service', () => {
 
   it('If get credentials gives an error, then retry it again', async () => {
     // Given
-    driveServerWipMock.getCredentials
+    getCredentialsMock
       .mockResolvedValueOnce({ error: new Error() })
       .mockResolvedValueOnce({ error: new Error() })
       .mockResolvedValueOnce({ error: new Error() })
@@ -46,7 +46,7 @@ describe('spawn-workspace.service', () => {
     await sleep(50);
 
     // Then
-    expect(driveServerWipMock.getCredentials).toHaveBeenCalledTimes(5);
+    expect(getCredentialsMock).toHaveBeenCalledTimes(5);
     expect(loggerMock.debug).toHaveBeenCalledTimes(5);
     expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 1 });
     expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 2 });
@@ -57,11 +57,9 @@ describe('spawn-workspace.service', () => {
 
   it('If get credentials success, then spawn sync engine worker', async () => {
     // Given
-    // @ts-expect-error TODO: add DeepPartial here
     getUserOrThrowMock.mockReturnValue({});
     decryptMessageWithPrivateKeyMock.mockResolvedValue(mnemonic);
-    driveServerWipMock.getCredentials.mockResolvedValueOnce({
-      // @ts-expect-error TODO: add DeepPartial here
+    getCredentialsMock.mockResolvedValueOnce({
       data: {
         workspaceId,
         credentials: {

@@ -1,4 +1,4 @@
-import { mockAsyncFn, mockProps } from 'tests/vitest/utils.helper.test';
+import { mockProps } from 'tests/vitest/utils.helper.test';
 import configStore from '../config';
 import { BackupFolderUuid } from './backup-folder-uuid';
 import { mockDeep } from 'vitest-mock-extended';
@@ -26,7 +26,7 @@ describe('backup-folder-uuid', () => {
 
     it('should fetch UUIDs for enabled backups without UUIDs', async () => {
       // Given
-      service.getBackupFolderUuid = mockAsyncFn<typeof service.getBackupFolderUuid>('new-uuid-123');
+      vi.spyOn(service, 'getBackupFolderUuid').mockResolvedValue('new-uuid-123');
       const props = mockProps<typeof service.ensureBackupUuidExists>({
         backupsList: {
           '/path/to/backup1': {
