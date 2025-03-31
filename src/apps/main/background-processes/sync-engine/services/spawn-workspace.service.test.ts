@@ -1,9 +1,3 @@
-vi.mock('./spawn-sync-engine-worker.service');
-vi.mock('@/apps/main/auth/service');
-vi.mock('@/apps/shared/crypto/service');
-vi.mock('@/apps/shared/logger/logger');
-vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
-
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { sleep } from '@/apps/main/util';
 import { spawnWorkspace } from './spawn-workspace.service';
@@ -12,6 +6,12 @@ import { logger } from '@/apps/shared/logger/logger';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker.service';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+
+vi.mock('./spawn-sync-engine-worker.service');
+vi.mock('@/apps/main/auth/service');
+vi.mock('@/apps/shared/crypto/service');
+vi.mock('@/apps/shared/logger/logger');
+vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
 
 describe('spawn-workspace.service', () => {
   const driveServerWipMock = vi.mocked(driveServerWipModule.workspaces);
@@ -55,7 +55,7 @@ describe('spawn-workspace.service', () => {
     expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspace', workspaceId, retry: 5 });
   });
 
-  it.only('If get credentials success, then spawn sync engine worker', async () => {
+  it('If get credentials success, then spawn sync engine worker', async () => {
     // Given
     // @ts-expect-error TODO: add DeepPartial here
     getUserOrThrowMock.mockReturnValue({});

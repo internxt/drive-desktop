@@ -1,13 +1,13 @@
-vi.mock('./spawn-workspace.service');
-vi.mock('@/apps/shared/logger/logger');
-vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
-
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { logger } from '@/apps/shared/logger/logger';
 import { sleep } from '@/apps/main/util';
 import { spawnWorkspace } from './spawn-workspace.service';
 import { spawnWorkspaces } from './spawn-workspaces.service';
+
+vi.mock('./spawn-workspace.service');
+vi.mock('@/apps/shared/logger/logger');
+vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
 
 describe('spawn-workspaces.service', () => {
   const driveServerWipMock = vi.mocked(driveServerWipModule.workspaces);

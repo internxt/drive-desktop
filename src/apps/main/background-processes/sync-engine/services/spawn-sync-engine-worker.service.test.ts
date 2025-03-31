@@ -1,8 +1,3 @@
-vi.mock('./stop-and-clear-sync-engine-worker.service');
-vi.mock('./monitor-health.service');
-vi.mock('./schedule-sync.service');
-vi.mock('@/apps/shared/logger/logger');
-
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker.service';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { workers } from '../store';
@@ -10,6 +5,11 @@ import { BrowserWindow } from 'electron';
 import { monitorHealth } from './monitor-health.service';
 import { logger } from '@/apps/shared/logger/logger';
 import { scheduleSync } from './schedule-sync.service';
+
+vi.mock('./stop-and-clear-sync-engine-worker.service');
+vi.mock('./monitor-health.service');
+vi.mock('./schedule-sync.service');
+vi.mock('@/apps/shared/logger/logger');
 
 describe('spawn-sync-engine-worker.service', () => {
   const monitorHealthMock = vi.mocked(monitorHealth);
