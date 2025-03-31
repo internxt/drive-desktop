@@ -1,5 +1,5 @@
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { mockProps } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { logger } from '@/apps/shared/logger/logger';
 import { sleep } from '@/apps/main/util';
 import { spawnWorkspace } from './spawn-workspace.service';
@@ -10,7 +10,7 @@ vi.mock('@/apps/shared/logger/logger');
 vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
 
 describe('spawn-workspaces.service', () => {
-  const driveServerWipMock = vi.mocked(driveServerWipModule.workspaces);
+  const getWorkspacesMock = deepMocked(driveServerWipModule.workspaces.getWorkspaces);
   const loggerMock = vi.mocked(logger);
   const spawnWorkspaceMock = vi.mocked(spawnWorkspace);
 
@@ -24,7 +24,7 @@ describe('spawn-workspaces.service', () => {
 
   it('If get workspaces gives an error, then retry it again', async () => {
     // Given
-    driveServerWipMock.getWorkspaces
+    getWorkspacesMock
       .mockResolvedValueOnce({ error: new Error() })
       .mockResolvedValueOnce({ error: new Error() })
       .mockResolvedValueOnce({ error: new Error() })
@@ -37,7 +37,7 @@ describe('spawn-workspaces.service', () => {
     await sleep(50);
 
     // Then
-    expect(driveServerWipMock.getWorkspaces).toHaveBeenCalledTimes(5);
+    expect(getWorkspacesMock).toHaveBeenCalledTimes(5);
     expect(loggerMock.debug).toHaveBeenCalledTimes(5);
     expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspaces', retry: 1 });
     expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Spawn workspaces', retry: 2 });
@@ -48,15 +48,13 @@ describe('spawn-workspaces.service', () => {
 
   it('If get workspaces success, then spawn workspaces', async () => {
     // Given
-    driveServerWipMock.getWorkspaces.mockResolvedValue({
+    getWorkspacesMock.mockResolvedValue({
       data: {
         availableWorkspaces: [
           {
-            // @ts-expect-error TODO add DeepPartial
             workspace: {
               id: 'workspaceId',
             },
-            // @ts-expect-error TODO add DeepPartial
             workspaceUser: {
               key: 'key',
               rootFolderId: 'rootFolderId',
@@ -73,7 +71,7 @@ describe('spawn-workspaces.service', () => {
     await sleep(50);
 
     // Then
-    expect(driveServerWipMock.getWorkspaces).toHaveBeenCalledTimes(1);
+    expect(getWorkspacesMock).toHaveBeenCalledTimes(1);
     expect(spawnWorkspaceMock).toHaveBeenCalledTimes(1);
     expect(spawnWorkspaceMock).toHaveBeenCalledWith({
       workspace: {
