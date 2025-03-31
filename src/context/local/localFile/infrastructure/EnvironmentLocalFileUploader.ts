@@ -10,6 +10,7 @@ import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
 import { ClientWrapperService } from '@/infra/drive-server-wip/in/client-wrapper.service';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 @Service()
 export class EnvironmentLocalFileUploader {
@@ -70,20 +71,6 @@ export class EnvironmentLocalFileUploader {
   }
 
   async delete(contentsId: string) {
-    const promise = this.client.DELETE('/files/{bucketId}/{fileId}', { params: { path: { bucketId: this.bucket, fileId: contentsId } } });
-
-    return this.clientWrapper.run({
-      promise,
-      loggerBody: {
-        msg: 'Get files request was not successful',
-        context: {
-          contentsId,
-        },
-        attributes: {
-          method: 'DELETE',
-          endpoint: '/files',
-        },
-      },
-    });
+    await driveServerWipModule.files.deleteContentFromBucket({ bucketId: this.bucket, contentId: contentsId });
   }
 }

@@ -1,6 +1,7 @@
 import { clientService } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { ClientWrapperService } from '../in/client-wrapper.service';
+import { noContentWrapper } from '../in/no-content-wrapper.service';
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
@@ -42,6 +43,28 @@ export class FilesService {
         attributes: {
           method: 'POST',
           endpoint: '/files/thumbnail',
+        },
+      },
+    });
+  }
+
+  async deleteContentFromBucket({ bucketId, contentId }: { bucketId: string; contentId: string }) {
+    const promise = noContentWrapper({
+      request: this.client.DELETE('/files/{bucketId}/{fileId}', {
+        params: { path: { bucketId, fileId: contentId } },
+      }),
+    });
+
+    return this.clientWrapper.run({
+      promise,
+      loggerBody: {
+        msg: 'Delete file content from bucket request was not successful',
+        context: {
+          contentId,
+        },
+        attributes: {
+          method: 'DELETE',
+          endpoint: '/files',
         },
       },
     });

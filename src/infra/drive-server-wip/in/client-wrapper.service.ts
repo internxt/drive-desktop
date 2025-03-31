@@ -2,7 +2,7 @@ import { logger, loggerService, TLoggerBody } from '@/apps/shared/logger/logger'
 
 type TProps<T> = {
   loggerBody: TLoggerBody;
-  promise: Promise<{ data: T; error: undefined; response: Response } | { data?: undefined; error: unknown; response: Response }>;
+  promise: Promise<{ data: T; error: undefined; response: Response } | { data: undefined; error: unknown; response: Response }>;
 };
 
 export class ClientWrapperService {
