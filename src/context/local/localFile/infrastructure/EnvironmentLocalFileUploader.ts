@@ -1,4 +1,3 @@
-import { clientService } from './../../../../apps/shared/HttpClient/client';
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { Service } from 'diod';
 import { createReadStream } from 'fs';
@@ -9,7 +8,6 @@ import Logger from 'electron-log';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
-import { ClientWrapperService } from '@/infra/drive-server-wip/in/client-wrapper.service';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 @Service()
@@ -19,8 +17,6 @@ export class EnvironmentLocalFileUploader {
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
-    private readonly client = clientService,
-    private readonly clientWrapper = new ClientWrapperService(),
   ) {}
 
   upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {

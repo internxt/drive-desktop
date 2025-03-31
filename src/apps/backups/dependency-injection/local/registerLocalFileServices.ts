@@ -6,7 +6,6 @@ import { EnvironmentLocalFileUploader } from '../../../../context/local/localFil
 import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { Environment } from '@internxt/inxt-js';
 import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-injection/DependencyInjectionMnemonicProvider';
-import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 import { getConfig } from '@/apps/sync-engine/config';
 
