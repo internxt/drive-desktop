@@ -64,7 +64,7 @@ export class FilesService {
         },
         attributes: {
           method: 'DELETE',
-          endpoint: '/files',
+          endpoint: '/files/{bucketId}/{fileId}',
         },
       },
     });
