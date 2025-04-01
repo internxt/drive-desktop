@@ -23,6 +23,7 @@ import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/Remote
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { OfflineFolder } from '@/context/virtual-drive/folders/domain/OfflineFolder';
+import { NetworkFacade } from '../main/network/NetworkFacade';
 
 @Service()
 export class Backup {
@@ -34,7 +35,99 @@ export class Backup {
     private readonly remoteFileDeleter: FileDeleter,
     private readonly remoteFolderDeleter: FolderDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
+    private readonly networkFacade: NetworkFacade,
   ) {}
+
+  async isFileDownloadable({
+    fileContentsId,
+    folderUuid,
+    mnemonic,
+  }: {
+    fileContentsId: string;
+    folderId: string;
+    folderUuid: string;
+    mnemonic: string;
+  }): Promise<boolean> {
+    try {
+      return await new Promise<boolean>((resolve, reject) => {
+        const abortController = new AbortController();
+        const timeoutId = setTimeout(() => {
+          abortController.abort();
+          Logger.error(`[DOWNLOAD CHECK] Timeout checking file ${fileContentsId}`);
+          resolve(false);
+        }, 10000);
+
+        this.networkFacade
+          .download(folderUuid, fileContentsId, mnemonic, {
+            abortController,
+          })
+          .then((stream) => {
+            let dataReceived = false;
+
+            const reader = stream.getReader();
+
+            const readChunk = () => {
+              reader
+                .read()
+                .then(({ done, value }) => {
+                  if (done) {
+                    clearTimeout(timeoutId);
+                    if (!dataReceived) {
+                      Logger.error(`[DOWNLOAD CHECK] No data received for file ${fileContentsId}`);
+                      resolve(false);
+                    }
+                    return;
+                  }
+
+                  if (!dataReceived && value) {
+                    dataReceived = true;
+                    clearTimeout(timeoutId);
+
+                    try {
+                      abortController.abort();
+                      reader.cancel();
+                    } catch (e) {}
+
+                    Logger.info(`[DOWNLOAD] File ${fileContentsId} is downloadable (data received)`);
+                    resolve(true);
+                    return;
+                  }
+
+                  if (!abortController.signal.aborted) {
+                    readChunk();
+                  }
+                })
+                .catch((err) => {
+                  clearTimeout(timeoutId);
+                  Logger.error(`[DOWNLOAD] Stream read error for file ${fileContentsId}: ${err}`);
+
+                  if (err.message?.includes('Object not found') || err.message?.includes('404')) {
+                    resolve(false);
+                  } else {
+                    reject(err);
+                  }
+                });
+            };
+
+            readChunk();
+          })
+          .catch((err) => {
+            clearTimeout(timeoutId);
+
+            if (err.message?.includes('Object not found') || err.message?.includes('404')) {
+              Logger.error(`[DOWNLOAD CHECK] File not found ${fileContentsId}`);
+              resolve(false);
+            } else {
+              Logger.error(`[DOWNLOAD] Error initiating download for file ${fileContentsId}: ${err}`);
+              reject(err instanceof Error ? err : new Error(String(err)));
+            }
+          });
+      });
+    } catch (error) {
+      Logger.error(`[DOWNLOAD] Unexpected error checking file ${fileContentsId}: ${error}`);
+      return false;
+    }
+  }
 
   private backed = 0;
 
