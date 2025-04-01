@@ -21,10 +21,8 @@ import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/applic
 import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/RemoteTree';
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
-import { OfflineFolder } from '@/context/virtual-drive/folders/domain/OfflineFolder';
 import { logger } from '../shared/logger/logger';
-import { randomUUID } from 'crypto';
-import { FolderStatuses } from '@/context/virtual-drive/folders/domain/FolderStatus';
+import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 
 @Service()
 export class Backup {
@@ -286,17 +284,14 @@ export class Backup {
       }
 
       try {
-        const offlineFolder = OfflineFolder.from({
-          uuid: randomUUID(),
+        const path = new FolderPath(relativePath);
+
+        const folder = await this.simpleFolderCreator.run({
           parentId: parent.id,
           parentUuid: parent.uuid,
-          path: relativePath,
-          updatedAt: new Date().toISOString(),
-          createdAt: new Date().toISOString(),
-          status: FolderStatuses.EXISTS,
+          path: path.value,
+          basename: path.basename(),
         });
-
-        const folder = await this.simpleFolderCreator.run(offlineFolder);
 
         tree.addFolder(parent, folder);
       } catch (error) {
