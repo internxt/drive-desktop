@@ -1,7 +1,6 @@
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { OfflineFolder } from '../domain/OfflineFolder';
 import { PersistFolderDto, PersistFolderInWorkspaceDto, PersistFolderResponseDto, UpdateFolderMetaDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
@@ -9,8 +8,8 @@ import { logger } from '@/apps/shared/logger/logger';
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId?: string) {}
 
-  async persist(offline: OfflineFolder): Promise<FolderAttributes> {
-    if (!offline.name || !offline.basename) {
+  async persist(offline: { basename: string; parentUuid: string; path: string }): Promise<FolderAttributes> {
+    if (!offline.basename) {
       throw new Error('Bad folder name');
     }
 
@@ -27,7 +26,7 @@ export class HttpRemoteFolderSystem {
         uuid: result.uuid,
         parentId: result.parentId,
         parentUuid: result.parentUuid,
-        path: offline.path.value,
+        path: offline.path,
         updatedAt: result.updatedAt,
         createdAt: result.createdAt,
         status: FolderStatuses.EXISTS,
@@ -93,12 +92,12 @@ export class HttpRemoteFolderSystem {
     }
   }
 
-  private async existFolder(offline: OfflineFolder): Promise<FolderAttributes> {
+  private async existFolder(offline: { parentUuid: string; basename: string; path: string }): Promise<FolderAttributes> {
     try {
       const response = await client.POST('/folders/content/{uuid}/folders/existence', {
         params: {
           path: {
-            uuid: offline.uuid,
+            uuid: offline.parentUuid,
           },
         },
         body: {
@@ -130,7 +129,7 @@ export class HttpRemoteFolderSystem {
         parentUuid: data.parentUuid,
         updatedAt: data.updatedAt,
         createdAt: data.createdAt,
-        path: offline.path.value,
+        path: offline.path,
         status: data.status,
       };
     } catch (error) {

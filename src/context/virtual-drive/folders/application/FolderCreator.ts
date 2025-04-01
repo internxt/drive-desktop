@@ -22,7 +22,11 @@ export class FolderCreator {
       name: offlineFolder.basename,
     });
 
-    const attributes = await this.remote.persist(offlineFolder);
+    const attributes = await this.remote.persist({
+      parentUuid: offlineFolder.parentUuid,
+      basename: offlineFolder.basename,
+      path: offlineFolder.path.value,
+    });
 
     const folder = Folder.from(attributes);
 
