@@ -24,7 +24,8 @@ export async function spawnWorkspace({ workspace, retry = 1 }: TProps) {
 
   if (error) {
     await sleep(5000);
-    return await spawnWorkspace({ workspace, retry: retry + 1 });
+    await spawnWorkspace({ workspace, retry: retry + 1 });
+    return;
   }
 
   const user = getUserOrThrow();

@@ -6,7 +6,16 @@ type TProps = {
   retry?: number;
 };
 
-export async function getWorkspaces({ retry = 1 }: TProps) {
+type TReturn = Promise<
+  Array<{
+    id: string;
+    providerId: string;
+    mnemonic: string;
+    rootFolderId: string;
+  }>
+>;
+
+export async function getWorkspaces({ retry = 1 }: TProps): TReturn {
   logger.debug({ msg: 'Get workspaces', retry });
 
   const { data: workspaces, error } = await driveServerWipModule.workspaces.getWorkspaces();

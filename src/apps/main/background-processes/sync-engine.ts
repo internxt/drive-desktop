@@ -98,7 +98,7 @@ export const spawnAllSyncEngineWorker = async () => {
 
   unregisterVirtualDrives({ providerId, workspaceProviderIds });
 
-  const spawnWorkspaces = workspaces.map(async (workspace) => {
+  const spawnWorkspaces = workspaces.forEach(async (workspace) => {
     // initializeRemoteSyncManager({ workspaceId: workspace.id });
     await spawnWorkspace({ workspace });
   });
