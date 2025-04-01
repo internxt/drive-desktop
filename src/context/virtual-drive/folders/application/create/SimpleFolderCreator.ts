@@ -13,21 +13,19 @@ import { OfflineFolder } from '../../domain/OfflineFolder';
 export class SimpleFolderCreator {
   constructor(private readonly rfs: HttpRemoteFolderSystem) {}
 
-  async run(offlineFolder: OfflineFolder): Promise<Folder> {
-    Logger.debug('Creating folder', offlineFolder.path.value, 'with parent', offlineFolder.parentId);
-    const folderPath = new FolderPath(offlineFolder.path.value);
+  async run(offline: { basename: string; parentUuid: string; path: string; parentId: number }): Promise<Folder> {
+    Logger.debug('Creating folder', offline.path, 'with parent', offline.parentId);
+    const folderPath = new FolderPath(offline.path);
     Logger.debug('Creating folder', folderPath);
 
-    // const offlineFolder = OfflineFolder
-
-    const response = await this.rfs.persist(offlineFolder);
+    const response = await this.rfs.persist(offline);
 
     const folder = Folder.create({
       id: new FolderId(response.id),
       uuid: new FolderUuid(response.uuid),
       path: folderPath,
-      parentId: new FolderId(offlineFolder.parentId),
-      parentUuid: new FolderUuid(offlineFolder.parentUuid),
+      parentId: new FolderId(offline.parentId),
+      parentUuid: new FolderUuid(offline.parentUuid),
       createdAt: FolderCreatedAt.fromString(response.createdAt),
       updatedAt: FolderUpdatedAt.fromString(response.updatedAt),
     });

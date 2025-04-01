@@ -8,6 +8,7 @@ import {
   QueryFoldersInWorkspace,
   QueryWorkspace,
 } from './fetch-folders.service.interface';
+import { FETCH_LIMIT } from '../store';
 
 export class FetchWorkspaceFoldersService implements FetchFoldersService {
   async run({ self, offset, folderUuid }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
@@ -15,7 +16,7 @@ export class FetchWorkspaceFoldersService implements FetchFoldersService {
       throw new Error('Workspace id is required to fetch folders');
     }
     const query: QueryWorkspace = {
-      limit: self.config.fetchFilesLimitPerRequest,
+      limit: FETCH_LIMIT,
       offset,
       order: 'DESC',
       sort: 'updatedAt',
@@ -32,7 +33,7 @@ export class FetchWorkspaceFoldersService implements FetchFoldersService {
     const result = await promise;
 
     if (result.data) {
-      const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
+      const hasMore = result.data.length === FETCH_LIMIT;
       return { hasMore, result: result.data };
     }
 

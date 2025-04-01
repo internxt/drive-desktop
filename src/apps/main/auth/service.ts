@@ -148,6 +148,12 @@ export function getUser(): User | null {
   return user && Object.keys(user).length ? user : null;
 }
 
+export function getUserOrThrow(): User {
+  const user = getUser();
+  if (!user) throw new Error('User not found');
+  return user;
+}
+
 export function obtainTokens(): Array<string> {
   return tokensKeys.map(obtainToken);
 }

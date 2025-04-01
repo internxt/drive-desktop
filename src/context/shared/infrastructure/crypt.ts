@@ -6,11 +6,6 @@ import Logger from 'electron-log';
 // eslint-disable-next-line prefer-destructuring
 const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
 
-if (!CRYPTO_KEY) {
-  Logger.error('No encryption key provided');
-  throw Error('No encryption key provided');
-}
-
 function deterministicDecryption(cipherText: string, salt: string) {
   try {
     const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY);

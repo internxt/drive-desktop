@@ -61,21 +61,9 @@ export function getRootVirtualDrive(): string {
   return current;
 }
 
-export function getRootWorkspace(workspaceId: string): string {
-  const user = getUser();
-  if (!user) {
-    throw new Error('User not found');
-  }
-
-  const key = `${user.uuid}-${workspaceId}`;
-
-  const current = configStore.get('workspacesPath');
-  if (!current[key]) {
-    const pathName = path.join(HOME_FOLDER_PATH, `${ROOT_FOLDER_NAME} - ${key}`);
-    configStore.set('workspacesPath', { ...current, [key]: pathName });
-    return pathName;
-  }
-  return current[key];
+export function getRootWorkspace(workspaceProviderId: string): string {
+  const pathName = path.join(HOME_FOLDER_PATH, `${ROOT_FOLDER_NAME} - ${workspaceProviderId}`);
+  return pathName;
 }
 
 export interface LoggersPaths {

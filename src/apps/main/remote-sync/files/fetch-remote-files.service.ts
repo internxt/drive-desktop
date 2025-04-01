@@ -1,15 +1,16 @@
+import { FETCH_LIMIT } from '../store';
 import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export class FetchRemoteFilesService implements FetchFilesService {
   constructor(private readonly driveServerWip = driveServerWipModule) {}
 
-  async run({ self, updatedAtCheckpoint, offset, status, folderUuid }: FetchFilesServiceParams) {
+  async run({ updatedAtCheckpoint, offset, status, folderUuid }: FetchFilesServiceParams) {
     const promise = folderUuid
       ? this.driveServerWip.folders.getFiles({
           folderUuid,
           query: {
-            limit: self.config.fetchFilesLimitPerRequest,
+            limit: FETCH_LIMIT,
             offset,
             sort: 'updatedAt',
             order: 'DESC',
@@ -17,7 +18,7 @@ export class FetchRemoteFilesService implements FetchFilesService {
         })
       : this.driveServerWip.files.getFiles({
           query: {
-            limit: self.config.fetchFilesLimitPerRequest,
+            limit: FETCH_LIMIT,
             offset,
             status,
             updatedAt: updatedAtCheckpoint?.toISOString(),
@@ -28,7 +29,7 @@ export class FetchRemoteFilesService implements FetchFilesService {
 
     if (error) throw error;
 
-    const hasMore = data.length === self.config.fetchFilesLimitPerRequest;
+    const hasMore = data.length === FETCH_LIMIT;
     return { hasMore, result: data };
   }
 }

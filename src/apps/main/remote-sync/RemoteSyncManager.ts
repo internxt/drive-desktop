@@ -1,7 +1,4 @@
-import { RemoteSyncStatus, rewind, WAITING_AFTER_SYNCING_DEFAULT, FIVETEEN_MINUTES_IN_MILLISECONDS } from './helpers';
-import { DatabaseCollectionAdapter } from '../database/adapters/base';
-import { DriveFolder } from '../database/entities/DriveFolder';
-import { DriveFile } from '../database/entities/DriveFile';
+import { RemoteSyncStatus, rewind, FIVETEEN_MINUTES_IN_MILLISECONDS } from './helpers';
 import { logger } from '../../shared/logger/logger';
 import { SyncRemoteFoldersService } from './folders/sync-remote-folders.service';
 import { FetchRemoteFoldersService } from './folders/fetch-remote-folders.service';
@@ -9,28 +6,26 @@ import { SyncRemoteFilesService } from './files/sync-remote-files.service';
 import { Nullable } from '@/apps/shared/types/Nullable';
 import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.service';
 import { QueryFolders } from './folders/fetch-folders.service.interface';
+import { driveFilesCollection, driveFoldersCollection } from './store';
+import { setTrayStatus } from '../tray/tray';
+import { broadcastToWindows } from '../windows';
 
 export class RemoteSyncManager {
   foldersSyncStatus: RemoteSyncStatus = 'IDLE';
   filesSyncStatus: RemoteSyncStatus = 'IDLE';
   private _placeholdersStatus: RemoteSyncStatus = 'IDLE';
   status: RemoteSyncStatus = 'IDLE';
-  private onStatusChangeCallbacks: Array<(newStatus: RemoteSyncStatus) => void> = [];
   totalFilesSynced = 0;
   private totalFilesUnsynced: string[] = [];
   totalFoldersSynced = 0;
   private lastSyncingFinishedTimestamp: Date | null = null;
 
-  constructor(
-    public db: {
-      files: DatabaseCollectionAdapter<DriveFile>;
-      folders: DatabaseCollectionAdapter<DriveFolder>;
-    },
-    public config: {
-      fetchFilesLimitPerRequest: number;
-      fetchFoldersLimitPerRequest: number;
-    },
+  public db = {
+    files: driveFilesCollection,
+    folders: driveFoldersCollection,
+  };
 
+  constructor(
     public workspaceId?: string,
     private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),
@@ -40,11 +35,6 @@ export class RemoteSyncManager {
   set placeholderStatus(status: RemoteSyncStatus) {
     this._placeholdersStatus = status;
     this.checkRemoteSyncStatus();
-  }
-
-  onStatusChange(callback: (newStatus: RemoteSyncStatus) => void) {
-    if (typeof callback !== 'function') return;
-    this.onStatusChangeCallbacks.push(callback);
   }
 
   getSyncStatus(): RemoteSyncStatus {
@@ -66,8 +56,9 @@ export class RemoteSyncManager {
    * @param milliseconds Time in milliseconds to check if the RemoteSyncManager was syncing
    */
   recentlyWasSyncing(milliseconds: number) {
-    const passedTime = Date.now() - (this.lastSyncingFinishedTimestamp?.getTime() ?? Date.now());
-    return passedTime < (milliseconds ?? WAITING_AFTER_SYNCING_DEFAULT);
+    const lastSyncingFinishedTimestamp = this.lastSyncingFinishedTimestamp ?? new Date();
+    const passedTime = Date.now() - lastSyncingFinishedTimestamp.getTime();
+    return passedTime < milliseconds;
   }
 
   resetRemoteSync() {
@@ -137,10 +128,17 @@ export class RemoteSyncManager {
     });
 
     this.status = newStatus;
-    this.onStatusChangeCallbacks.forEach((callback) => {
-      if (typeof callback !== 'function') return;
-      callback(newStatus);
-    });
+
+    broadcastToWindows('remote-sync-status-change', this.status);
+
+    switch (newStatus) {
+      case 'SYNCING':
+        return setTrayStatus('SYNCING');
+      case 'SYNC_FAILED':
+        return setTrayStatus('ALERT');
+      case 'SYNCED':
+        return setTrayStatus('IDLE');
+    }
   }
 
   checkRemoteSyncStatus() {
