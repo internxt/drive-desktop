@@ -33,9 +33,9 @@ async function initializeClamAV() {
     const isAntivirusEnabled = availableProducts.antivirus;
 
     if (isAntivirusEnabled) {
-      await clamAVServer.startClamdServer();
-      await clamAVServer.waitForClamd();
-      scheduleDailyScan();
+      // await clamAVServer.startClamdServer();
+      // await clamAVServer.waitForClamd();
+      // scheduleDailyScan();
 
       isClamAVRunning = true;
       clamAVInitializationPromise = null;

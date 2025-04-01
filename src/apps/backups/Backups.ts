@@ -22,9 +22,10 @@ import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/Remote
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { NetworkFacade } from '../main/network/NetworkFacade';
-import { Readable } from 'stream';
-import { getConfig } from '../sync-engine/config';
+// import { Readable } from 'stream';
+// import { getConfig } from '../sync-engine/config';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
+import { logger } from '@/apps/shared/logger/logger';
 
 @Service()
 export class Backup {
@@ -39,106 +40,114 @@ export class Backup {
     private readonly networkFacade: NetworkFacade,
   ) {}
 
-  async isFileDownloadable({
-    bucketId,
-    fileContentsId,
-    mnemonic,
-  }: {
-    bucketId: string;
-    fileContentsId: string;
-    mnemonic: string;
-  }): Promise<boolean> {
-    try {
-      const abortController = new AbortController();
+  // async isFileDownloadable({
+  //   bucketId,
+  //   fileContentsId,
+  //   mnemonic,
+  // }: {
+  //   bucketId: string;
+  //   fileContentsId: string;
+  //   mnemonic: string;
+  // }): Promise<boolean> {
+  //   try {
+  //     const abortController = new AbortController();
 
-      const webStream = await this.networkFacade.download(bucketId, fileContentsId, mnemonic, {
-        abortController,
-      });
+  //     const webStream = await this.networkFacade.download(bucketId, fileContentsId, mnemonic, {
+  //       abortController,
+  //     });
 
-      const nodeStream = this.webStreamToNodeStream(webStream);
+  //     const nodeStream = this.webStreamToNodeStream(webStream);
 
-      return await new Promise<boolean>((resolve) => {
-        let isDownloadable = false;
+  //     return await new Promise<boolean>((resolve) => {
+  //       let isDownloadable = false;
 
-        nodeStream.on('data', () => {
-          isDownloadable = true;
-          Logger.info(`[DOWNLOAD] File ${fileContentsId} is downloadable, stopping download...`);
-          abortController.abort();
-          nodeStream.destroy();
-          resolve(true);
-        });
+  //       nodeStream.on('data', () => {
+  //         isDownloadable = true;
+  //         logger.info({ msg: `[DOWNLOAD] File ${fileContentsId} is downloadable, stopping download...` });
+  //         abortController.abort();
+  //         nodeStream.destroy();
+  //         resolve(true);
+  //       });
 
-        nodeStream.on('end', () => {
-          if (!isDownloadable) {
-            Logger.error(`[DOWNLOAD CHECK] No data received for file ${fileContentsId}`);
-            nodeStream.destroy();
-            resolve(false);
-          }
-        });
+  //       nodeStream.on('end', () => {
+  //         if (!isDownloadable) {
+  //           logger.error({
+  //             msg: `[DOWNLOAD CHECK] No data received for file ${fileContentsId}`,
+  //           });
+  //           nodeStream.destroy();
+  //           resolve(false);
+  //         }
+  //       });
 
-        nodeStream.on('error', (err) => {
-          if (err.message?.includes('Object not found') || err.message?.includes('404')) {
-            Logger.error(`[DOWNLOAD CHECK] File not found ${fileContentsId}: ${err.message}`);
-            resolve(false);
-          } else {
-            Logger.error(`[DOWNLOAD CHECK] Error downloading file ${fileContentsId}: ${err.message}`);
-            resolve(false);
-          }
-          nodeStream.destroy();
-        });
+  //       nodeStream.on('error', (err) => {
+  //         if (err.message?.includes('Object not found') || err.message?.includes('404')) {
+  //           logger.error({
+  //             msg: `[DOWNLOAD CHECK] File ${fileContentsId} not found`,
+  //           });
+  //           resolve(false);
+  //         } else {
+  //           logger.error({
+  //             msg: `[DOWNLOAD CHECK] Error downloading file ${fileContentsId}: ${err.message}`,
+  //           });
+  //           resolve(false);
+  //         }
+  //         nodeStream.destroy();
+  //       });
 
-        setTimeout(() => {
-          if (!isDownloadable) {
-            Logger.warn(`[DOWNLOAD] Timeout reached for file ${fileContentsId}, stopping download.`);
-            abortController.abort();
-            nodeStream.destroy();
-            resolve(false);
-          }
-        }, 10000);
-      });
-    } catch (error) {
-      Logger.error(`[DOWNLOAD] Error checking file ${fileContentsId}: ${error}`);
-      return false;
-    }
-  }
+  //       setTimeout(() => {
+  //         if (!isDownloadable) {
+  //           logger.warn({
+  //             msg: `[DOWNLOAD CHECK] Timeout for file ${fileContentsId}, stopping download...`,
+  //           });
+  //           abortController.abort();
+  //           nodeStream.destroy();
+  //           resolve(false);
+  //         }
+  //       }, 10000);
+  //     });
+  //   } catch (error) {
+  //     logger.error({
+  //       msg: '[DOWNLOAD CHECK] Error checking file downloadability',
+  //       error,
+  //     });
+  //     return false;
+  //   }
+  // }
 
-  private webStreamToNodeStream(webStream: any): Readable {
-    const nodeStream = new Readable({
-      read() {},
-    });
+  // private webStreamToNodeStream(webStream: any): Readable {
+  //   const nodeStream = new Readable();
 
-    const reader = webStream.getReader();
+  //   const reader = webStream.getReader();
 
-    const pump = async () => {
-      try {
-        const { done, value } = await reader.read();
+  //   const pump = async () => {
+  //     try {
+  //       const { done, value } = await reader.read();
 
-        if (done) {
-          nodeStream.push(null);
-          return;
-        }
+  //       if (done) {
+  //         nodeStream.push(null);
+  //         return;
+  //       }
 
-        nodeStream.push(value);
-        pump();
-      } catch (err) {
-        nodeStream.emit('error', err);
-        nodeStream.push(null);
-      }
-    };
+  //       nodeStream.push(value);
+  //       pump();
+  //     } catch (err) {
+  //       nodeStream.emit('error', err);
+  //       nodeStream.push(null);
+  //     }
+  //   };
 
-    pump();
+  //   pump();
 
-    nodeStream.on('close', () => {
-      reader.cancel();
-    });
+  //   nodeStream.on('close', () => {
+  //     reader.cancel();
+  //   });
 
-    return nodeStream;
-  }
+  //   return nodeStream;
+  // }
 
   private backed = 0;
 
   async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
-    
     const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
 
     if (localTreeEither.isLeft()) {
@@ -158,19 +167,18 @@ export class Backup {
 
     const filesDiff = await DiffFilesCalculator.calculate(local, remote);
 
-    
     for (const [localFile, remoteFile] of filesDiff.dangled.entries()) {
       if (!remoteFile) continue;
-      
-      const isDownloadable = await this.isFileDownloadable({
-        bucketId: info.backupsBucket, 
-        fileContentsId: remoteFile.contentsId, 
-        mnemonic: getConfig().mnemonic
-      });
-      
-      if (!isDownloadable) {
-        filesDiff.modified.set(localFile, remoteFile);
-      }
+
+      // const isDownloadable = await this.isFileDownloadable({
+      //   bucketId: info.backupsBucket,
+      //   fileContentsId: remoteFile.contentsId,
+      //   mnemonic: getConfig().mnemonic,
+      // });
+
+      // if (!isDownloadable) {
+      //   filesDiff.modified.set(localFile, remoteFile);
+      // }
     }
 
     const alreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;

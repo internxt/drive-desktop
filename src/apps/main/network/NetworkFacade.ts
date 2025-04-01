@@ -7,6 +7,7 @@ import { buildProgressStream, DownloadProgressCallback, getDecryptedStream } fro
 import fetch from 'electron-fetch';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
+import { Service } from 'diod';
 
 interface DownloadOptions {
   key?: Buffer;
@@ -18,6 +19,8 @@ interface DownloadOptions {
 /**
  * The entry point for interacting with the network
  */
+
+@Service()
 export class NetworkFacade {
   private readonly cryptoLib: NetworkModule.Crypto;
 

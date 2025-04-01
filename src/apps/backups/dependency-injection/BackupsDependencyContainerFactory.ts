@@ -1,4 +1,4 @@
-import { Container } from 'diod';
+import { Container, Service } from 'diod';
 import Logger from 'electron-log';
 import { backgroundProcessSharedInfraBuilder } from '../../shared/dependency-injection/background/backgroundProcessSharedInfraBuilder';
 import { registerFilesServices } from './virtual-drive/registerFilesServices';
@@ -13,6 +13,9 @@ import { Network } from '@internxt/sdk/dist/network';
 import packageJson from '../../../../package.json';
 import { getConfig } from '@/apps/sync-engine/config';
 
+@Service()
+class MockNetwork extends Network {}
+
 export class BackupsDependencyContainerFactory {
   static async build(): Promise<Container> {
     Logger.info('[BackupsDependencyContainerFactory] Starting to build the container.');
@@ -26,24 +29,25 @@ export class BackupsDependencyContainerFactory {
         throw new Error('User not found');
       }
       Logger.info('[BackupsDependencyContainerFactory] Registering network services.');
+      const { name: clientName, version: clientVersion } = packageJson;
+      const network = MockNetwork.client(
+        process.env.BRIDGE_URL as string,
+        {
+          clientName,
+          clientVersion,
+        },
+        {
+          bridgeUser: config.bridgeUser,
+          userId: config.bridgePass,
+        },
+      );
+
+      builder.register(Network).useInstance(network).private();
+
       builder
         .register(NetworkFacade)
-        .useFactory(() => {
-          const { name: clientName, version: clientVersion } = packageJson;
-          const network = Network.client(
-            process.env.BRIDGE_URL as string,
-            {
-              clientName,
-              clientVersion,
-            },
-            {
-              bridgeUser: config.bridgeUser,
-              userId: config.bridgePass,
-            },
-          );
-          return new NetworkFacade(network);
-        })
-        .asSingleton();
+        .useFactory((c) => new NetworkFacade(c.get(Network)))
+        .public(); // Changed from private to public to ensure it's accessible
 
       Logger.info('[BackupsDependencyContainerFactory] Registering file services.');
       await registerFilesServices(builder);
