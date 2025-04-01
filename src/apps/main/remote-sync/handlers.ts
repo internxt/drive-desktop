@@ -23,18 +23,16 @@ import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/P
 import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
-import { DriveWorkspaceCollection } from '../database/collections/DriveWorkspaceCollection';
-import { SyncRemoteWorkspaceService } from './workspace/sync-remote-workspace';
 import Queue from '@/apps/shared/Queue/Queue';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 const SYNC_DEBOUNCE_DELAY = 500;
 
 let initialSyncReady = false;
 export const driveFilesCollection = new DriveFilesCollection();
 export const driveFoldersCollection = new DriveFoldersCollection();
-const driveWorkspaceCollection = new DriveWorkspaceCollection();
 const remoteSyncManagers = new Map<string, RemoteSyncManager>();
-export const syncWorkspaceService = new SyncRemoteWorkspaceService(driveWorkspaceCollection, driveFoldersCollection);
+
 remoteSyncManagers.set(
   '',
   new RemoteSyncManager(
@@ -49,8 +47,13 @@ remoteSyncManagers.set(
   ),
 );
 async function initializeRemoteSyncManagers() {
-  const workspaces = await syncWorkspaceService.run();
-  workspaces.forEach((workspace) => {
+  const { data: workspaces, error } = await driveServerWipModule.workspaces.getWorkspaces();
+
+  // TODO: We should call getWorkspaces just one time
+  // In the moment that we spawn sync engines
+  if (error) return;
+
+  workspaces.availableWorkspaces.forEach(({ workspace }) => {
     remoteSyncManagers.set(
       workspace.id,
       new RemoteSyncManager(

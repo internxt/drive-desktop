@@ -32,3 +32,27 @@ export class ClientWrapperService {
     }
   }
 }
+
+export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
+  try {
+    const res = await promise;
+
+    if (!res.data) {
+      return {
+        error: logger.error({
+          ...loggerBody,
+          exc: res.error,
+        }),
+      };
+    }
+
+    return { data: res.data };
+  } catch (exc) {
+    return {
+      error: logger.error({
+        ...loggerBody,
+        exc,
+      }),
+    };
+  }
+}
