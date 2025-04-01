@@ -14,6 +14,7 @@ export type FilesDiff = {
   deleted: Array<File>;
   modified: Map<LocalFile, File>;
   unmodified: Array<LocalFile>;
+  dangled: Map<LocalFile, File>;
   total: number;
 };
 
@@ -24,6 +25,7 @@ export class DiffFilesCalculator {
   static calculate(local: LocalTree, remote: RemoteTree): FilesDiff {
     const added: Array<LocalFile> = [];
     const modified: Map<LocalFile, File> = new Map();
+    const dangled: Map<LocalFile, File> = new Map();
     const unmodified: Array<LocalFile> = [];
 
     const rootPath = local.root.path;
@@ -52,9 +54,10 @@ export class DiffFilesCalculator {
       const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
       const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
-      if (!store.get(IS_PATCH_2_5_1_APPLIED, false) && createdAt >= startDate && createdAt <= endDate) {
+
+      if ( true || !store.get( IS_PATCH_2_5_1_APPLIED, false) && createdAt >= startDate && createdAt <= endDate) {
         logger.debug({ msg: 'Possible Dangled File', remoteNodeName: remoteNode.name });
-        modified.set(local, remoteNode);
+        dangled.set(local, remoteNode);
         return;
       }
 
@@ -83,6 +86,7 @@ export class DiffFilesCalculator {
     return {
       added,
       modified,
+      dangled,
       deleted,
       unmodified,
       total,

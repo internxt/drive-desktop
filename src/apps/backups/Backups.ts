@@ -23,8 +23,10 @@ import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/Remote
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { OfflineFolder } from '@/context/virtual-drive/folders/domain/OfflineFolder';
-import { logger } from '../shared/logger/logger';
 import { NetworkFacade } from '../main/network/NetworkFacade';
+import { Readable } from 'stream';
+import { getUser } from '../main/auth/service';
+import { getConfig } from '../sync-engine/config';
 
 @Service()
 export class Backup {
@@ -40,99 +42,105 @@ export class Backup {
   ) {}
 
   async isFileDownloadable({
+    bucketId,
     fileContentsId,
-    folderUuid,
     mnemonic,
   }: {
+    bucketId: string;
     fileContentsId: string;
-    folderId: string;
-    folderUuid: string;
     mnemonic: string;
   }): Promise<boolean> {
     try {
-      return await new Promise<boolean>((resolve, reject) => {
-        const abortController = new AbortController();
-        const timeoutId = setTimeout(() => {
+      const abortController = new AbortController();
+
+      const webStream = await this.networkFacade.download(bucketId, fileContentsId, mnemonic, {
+        abortController,
+      });
+
+      const nodeStream = this.webStreamToNodeStream(webStream);
+
+      return await new Promise<boolean>((resolve) => {
+        let isDownloadable = false;
+
+        nodeStream.on('data', () => {
+          isDownloadable = true;
+          Logger.info(`[DOWNLOAD] File ${fileContentsId} is downloadable, stopping download...`);
           abortController.abort();
-          Logger.error(`[DOWNLOAD CHECK] Timeout checking file ${fileContentsId}`);
-          resolve(false);
+          nodeStream.destroy();
+          resolve(true);
+        });
+
+        nodeStream.on('end', () => {
+          if (!isDownloadable) {
+            Logger.error(`[DOWNLOAD CHECK] No data received for file ${fileContentsId}`);
+            nodeStream.destroy();
+            resolve(false);
+          }
+        });
+
+        nodeStream.on('error', (err) => {
+          if (err.message?.includes('Object not found') || err.message?.includes('404')) {
+            Logger.error(`[DOWNLOAD CHECK] File not found ${fileContentsId}: ${err.message}`);
+            resolve(false);
+          } else {
+            Logger.error(`[DOWNLOAD CHECK] Error downloading file ${fileContentsId}: ${err.message}`);
+            resolve(false);
+          }
+          nodeStream.destroy();
+        });
+
+        setTimeout(() => {
+          if (!isDownloadable) {
+            Logger.warn(`[DOWNLOAD] Timeout reached for file ${fileContentsId}, stopping download.`);
+            abortController.abort();
+            nodeStream.destroy();
+            resolve(false);
+          }
         }, 10000);
-
-        this.networkFacade
-          .download(folderUuid, fileContentsId, mnemonic, {
-            abortController,
-          })
-          .then((stream) => {
-            let dataReceived = false;
-
-            const reader = stream.getReader();
-
-            const readChunk = () => {
-              reader
-                .read()
-                .then(({ done, value }) => {
-                  if (done) {
-                    clearTimeout(timeoutId);
-                    if (!dataReceived) {
-                      Logger.error(`[DOWNLOAD CHECK] No data received for file ${fileContentsId}`);
-                      resolve(false);
-                    }
-                    return;
-                  }
-
-                  if (!dataReceived && value) {
-                    dataReceived = true;
-                    clearTimeout(timeoutId);
-
-                    try {
-                      abortController.abort();
-                      reader.cancel();
-                    } catch (e) {}
-
-                    Logger.info(`[DOWNLOAD] File ${fileContentsId} is downloadable (data received)`);
-                    resolve(true);
-                    return;
-                  }
-
-                  if (!abortController.signal.aborted) {
-                    readChunk();
-                  }
-                })
-                .catch((err) => {
-                  clearTimeout(timeoutId);
-                  Logger.error(`[DOWNLOAD] Stream read error for file ${fileContentsId}: ${err}`);
-
-                  if (err.message?.includes('Object not found') || err.message?.includes('404')) {
-                    resolve(false);
-                  } else {
-                    reject(err);
-                  }
-                });
-            };
-
-            readChunk();
-          })
-          .catch((err) => {
-            clearTimeout(timeoutId);
-
-            if (err.message?.includes('Object not found') || err.message?.includes('404')) {
-              Logger.error(`[DOWNLOAD CHECK] File not found ${fileContentsId}`);
-              resolve(false);
-            } else {
-              Logger.error(`[DOWNLOAD] Error initiating download for file ${fileContentsId}: ${err}`);
-              reject(err instanceof Error ? err : new Error(String(err)));
-            }
-          });
       });
     } catch (error) {
-      Logger.error(`[DOWNLOAD] Unexpected error checking file ${fileContentsId}: ${error}`);
+      Logger.error(`[DOWNLOAD] Error checking file ${fileContentsId}: ${error}`);
       return false;
     }
+  }
+
+  private webStreamToNodeStream(webStream: any): Readable {
+    const nodeStream = new Readable({
+      read() {},
+    });
+
+    const reader = webStream.getReader();
+
+    const pump = async () => {
+      try {
+        const { done, value } = await reader.read();
+
+        if (done) {
+          nodeStream.push(null);
+          return;
+        }
+
+        nodeStream.push(value);
+        pump();
+      } catch (err) {
+        nodeStream.emit('error', err);
+        nodeStream.push(null);
+      }
+    };
+
+    pump();
+
+    nodeStream.on('close', () => {
+      reader.cancel();
+    });
+
+    return nodeStream;
   }
 
   private backed = 0;
 
   async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
+    
     const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
 
     if (localTreeEither.isLeft()) {
@@ -151,7 +159,22 @@ export class Backup {
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
 
-    const filesDiff = DiffFilesCalculator.calculate(local, remote);
+    const filesDiff = await DiffFilesCalculator.calculate(local, remote);
+
+    
+    for (const [localFile, remoteFile] of filesDiff.dangled.entries()) {
+      if (!remoteFile) continue;
+      
+      const isDownloadable = await this.isFileDownloadable({
+        bucketId: info.backupsBucket, 
+        fileContentsId: remoteFile.contentsId, 
+        mnemonic: getConfig().mnemonic
+      });
+      
+      if (!isDownloadable) {
+        filesDiff.modified.set(localFile, remoteFile);
+      }
+    }
 
     const alreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;
 

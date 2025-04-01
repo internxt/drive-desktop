@@ -11,6 +11,7 @@ import { registerUserUsageServices } from './user/registerUsageServices';
 import { NetworkFacade } from '../../main/network/NetworkFacade';
 import { Network } from '@internxt/sdk/dist/network';
 import packageJson from '../../../../package.json';
+import { getConfig } from '@/apps/sync-engine/config';
 
 export class BackupsDependencyContainerFactory {
   static async build(): Promise<Container> {
@@ -20,6 +21,10 @@ export class BackupsDependencyContainerFactory {
     Logger.info('[BackupsDependencyContainerFactory] Shared infrastructure builder created.');
 
     try {
+      const config = getConfig();
+      if (!config) {
+        throw new Error('User not found');
+      }
       Logger.info('[BackupsDependencyContainerFactory] Registering network services.');
       builder
         .register(NetworkFacade)
@@ -32,8 +37,8 @@ export class BackupsDependencyContainerFactory {
               clientVersion,
             },
             {
-              bridgeUser: '',
-              userId: '',
+              bridgeUser: config.bridgeUser,
+              userId: config.bridgePass,
             },
           );
           return new NetworkFacade(network);
