@@ -59,8 +59,8 @@ export function cleanAndStartRemoteNotifications() {
     Logger.log('❌ Remote notifications disconnected, reason: ', reason);
   });
 
-  socket.on('connect_error', (error) => {
-    Logger.error('❌ Remote notifications connect error: ', error);
+  socket.on('connect_error', () => {
+    Logger.error('❌ Remote notifications connect error: ');
   });
 
   socket.on('event', async (data) => {

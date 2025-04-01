@@ -6,6 +6,7 @@ const HEADERS = {
   'content-type': 'application/json',
   'internxt-client': 'drive-desktop',
   'internxt-version': INTERNXT_VERSION,
+  'x-internxt-desktop-header': process.env.DESKTOP_HEADER,
 };
 
 export class AuthService {
