@@ -5,6 +5,7 @@ import { FetchRemoteFilesService } from './fetch-remote-files.service';
 import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
 import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
 import { loggerService } from '@/apps/shared/logger/logger';
+import { FETCH_LIMIT } from '../store';
 
 const MAX_RETRIES = 3;
 
@@ -71,7 +72,7 @@ export class SyncRemoteFilesService {
 
         allResults.push(...result);
         hasMore = newHasMore;
-        offset += self.config.fetchFilesLimitPerRequest;
+        offset += FETCH_LIMIT;
       }
 
       return allResults;
