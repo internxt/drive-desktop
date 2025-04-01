@@ -1,10 +1,11 @@
 import { Config } from '@/apps/sync-engine/config';
 import { getLoggersPaths, getRootWorkspace } from '@/apps/main/virtual-root-folder/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
-import { spawnSyncEngineWorker } from './spawn-sync-engine-worker.service';
+import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getUserOrThrow } from '@/apps/main/auth/service';
+import { sleep } from '@/apps/main/util';
 
 type TProps = {
   retry?: number;
@@ -12,6 +13,7 @@ type TProps = {
     id: string;
     mnemonic: string;
     rootFolderId: string;
+    providerId: string;
   };
 };
 
@@ -21,10 +23,8 @@ export async function spawnWorkspace({ workspace, retry = 1 }: TProps) {
   const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: workspace.id });
 
   if (error) {
-    setTimeout(async () => {
-      await spawnWorkspace({ workspace, retry: retry + 1 });
-    }, 5000);
-    return;
+    await sleep(5000);
+    return await spawnWorkspace({ workspace, retry: retry + 1 });
   }
 
   const user = getUserOrThrow();
@@ -36,8 +36,8 @@ export async function spawnWorkspace({ workspace, retry = 1 }: TProps) {
 
   const config: Config = {
     mnemonic: mnemonic.toString(),
-    providerId: `{${workspace.id}}`,
-    rootPath: getRootWorkspace(workspace.id),
+    providerId: workspace.providerId,
+    rootPath: getRootWorkspace(workspace.providerId),
     providerName: 'Internxt Drive for Business',
     loggerPath: getLoggersPaths().logWatcherPath,
     workspaceId: workspace.id,

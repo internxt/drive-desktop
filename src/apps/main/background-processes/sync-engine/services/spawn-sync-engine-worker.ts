@@ -3,10 +3,10 @@ import { BrowserWindow } from 'electron';
 import path from 'path';
 import { cwd } from 'process';
 import { workers } from '../store';
-import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worker.service';
-import { monitorHealth } from './monitor-health.service';
+import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worker';
+import { monitorHealth } from './monitor-health';
 import { logger } from '@/apps/shared/logger/logger';
-import { scheduleSync } from './schedule-sync.service';
+import { scheduleSync } from './schedule-sync';
 
 type TProps = {
   config: Config;

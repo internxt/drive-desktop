@@ -5,9 +5,12 @@ import { workers } from './sync-engine/store';
 import { getUser } from '../auth/service';
 import { Config } from '@/apps/sync-engine/config';
 import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
-import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker.service';
-import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker.service';
-import { spawnWorkspaces } from './sync-engine/services/spawn-workspaces.service';
+import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
+import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
+import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
+import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
+import { getWorkspaces } from './sync-engine/services/get-workspaces';
+// import { initializeRemoteSyncManager } from '../remote-sync/handlers';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -75,8 +78,9 @@ export const spawnAllSyncEngineWorker = async () => {
     return;
   }
 
+  const providerId = `{${user.uuid.toUpperCase()}}`;
   const config: Config = {
-    providerId: `{${process.env.PROVIDER_ID}}`,
+    providerId,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
@@ -89,7 +93,17 @@ export const spawnAllSyncEngineWorker = async () => {
     workspaceToken: undefined,
   };
 
-  await Promise.all([spawnSyncEngineWorker({ config }), spawnWorkspaces({})]);
+  const workspaces = await getWorkspaces({});
+  const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
+
+  unregisterVirtualDrives({ providerId, workspaceProviderIds });
+
+  const spawnWorkspaces = workspaces.map(async (workspace) => {
+    // initializeRemoteSyncManager({ workspaceId: workspace.id });
+    await spawnWorkspace({ workspace });
+  });
+
+  await Promise.all([spawnSyncEngineWorker({ config }), spawnWorkspaces]);
 };
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);

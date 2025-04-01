@@ -14,7 +14,6 @@ export const fieldsToSave = [
   'deviceId',
   'deviceUuid',
   'backupList',
-  'workspacesPath',
 ] as const;
 
 export interface AppStore {
@@ -36,7 +35,6 @@ export interface AppStore {
   deviceId: number;
   deviceUuid: string;
   backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
-  workspacesPath: Record<string, string>;
   clientId: string;
   preferedLanguage?: string;
   preferedTheme?: string;
@@ -99,9 +97,6 @@ const schema: Schema<AppStore> = {
   backupList: {
     type: 'object',
   },
-  workspacesPath: {
-    type: 'object',
-  },
   clientId: {
     type: 'string',
   },
@@ -138,7 +133,6 @@ export const defaults: AppStore = {
   deviceId: -1,
   deviceUuid: '',
   backupList: {},
-  workspacesPath: {},
   clientId: uuid.v4(),
   preferedLanguage: '',
   preferedTheme: 'system',
