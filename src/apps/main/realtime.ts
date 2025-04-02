@@ -60,7 +60,7 @@ export function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('connect_error', () => {
-    Logger.error('❌ Remote notifications connect error: ');
+    Logger.error('❌ Remote notifications connect error');
   });
 
   socket.on('event', async (data) => {
