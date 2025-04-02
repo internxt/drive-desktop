@@ -21,11 +21,9 @@ import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/applic
 import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/RemoteTree';
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
-import { NetworkFacade } from '../main/network/NetworkFacade';
-// import { Readable } from 'stream';
-// import { getConfig } from '../sync-engine/config';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
+import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 @Service()
 export class Backup {
@@ -37,82 +35,74 @@ export class Backup {
     private readonly remoteFileDeleter: FileDeleter,
     private readonly remoteFolderDeleter: FolderDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
-    private readonly networkFacade: NetworkFacade,
+    private readonly contentsManagerFactory: EnvironmentRemoteFileContentsManagersFactory,
   ) {}
 
-  // async isFileDownloadable({
-  //   bucketId,
-  //   fileContentsId,
-  //   mnemonic,
-  // }: {
-  //   bucketId: string;
-  //   fileContentsId: string;
-  //   mnemonic: string;
-  // }): Promise<boolean> {
-  //   try {
-  //     const abortController = new AbortController();
+  async isFileDownloadable(file: File): Promise<boolean> {
+    try {
+      const downloader = this.contentsManagerFactory.downloader();
 
-  //     const webStream = await this.networkFacade.download(bucketId, fileContentsId, mnemonic, {
-  //       abortController,
-  //     });
+      logger.debug({
+        msg: '[BACKUPS] Checking if file is downloadable',
+        fileContentsId: file.contentsId,
+        attributes: {
+          tag: 'BACKUPS',
+        },
+      });
 
-  //     const nodeStream = this.webStreamToNodeStream(webStream);
+      const isDownloadable = new Promise<boolean>((resolve) => {
+        downloader.on('start', () => {
+          logger.debug({
+            msg: '[BACKUPS] Downloading file',
+            fileId: file.contentsId,
+            name: file.name,
+            attributes: {
+              tag: 'BACKUPS',
+            },
+          });
 
-  //     return await new Promise<boolean>((resolve) => {
-  //       let isDownloadable = false;
+          resolve(true);
+        });
 
-  //       nodeStream.on('data', () => {
-  //         isDownloadable = true;
-  //         logger.info({ msg: `[DOWNLOAD] File ${fileContentsId} is downloadable, stopping download...` });
-  //         abortController.abort();
-  //         nodeStream.destroy();
-  //         resolve(true);
-  //       });
+        downloader.on('progress', () => {
+          logger.debug({
+            msg: '[BACKUPS] Downloading file force stop',
+            fileId: file.contentsId,
+            name: file.name,
+            attributes: {
+              tag: 'BACKUPS',
+            },
+          });
+          downloader.forceStop();
+          resolve(false);
+        });
 
-  //       nodeStream.on('end', () => {
-  //         if (!isDownloadable) {
-  //           logger.error({
-  //             msg: `[DOWNLOAD CHECK] No data received for file ${fileContentsId}`,
-  //           });
-  //           nodeStream.destroy();
-  //           resolve(false);
-  //         }
-  //       });
-
-  //       nodeStream.on('error', (err) => {
-  //         if (err.message?.includes('Object not found') || err.message?.includes('404')) {
-  //           logger.error({
-  //             msg: `[DOWNLOAD CHECK] File ${fileContentsId} not found`,
-  //           });
-  //           resolve(false);
-  //         } else {
-  //           logger.error({
-  //             msg: `[DOWNLOAD CHECK] Error downloading file ${fileContentsId}: ${err.message}`,
-  //           });
-  //           resolve(false);
-  //         }
-  //         nodeStream.destroy();
-  //       });
-
-  //       setTimeout(() => {
-  //         if (!isDownloadable) {
-  //           logger.warn({
-  //             msg: `[DOWNLOAD CHECK] Timeout for file ${fileContentsId}, stopping download...`,
-  //           });
-  //           abortController.abort();
-  //           nodeStream.destroy();
-  //           resolve(false);
-  //         }
-  //       }, 10000);
-  //     });
-  //   } catch (error) {
-  //     logger.error({
-  //       msg: '[DOWNLOAD CHECK] Error checking file downloadability',
-  //       error,
-  //     });
-  //     return false;
-  //   }
-  // }
+        downloader.on('error', (error: Error) => {
+          logger.debug({
+            msg: '[BACKUPS] Error downloading file',
+            fileId: file.contentsId,
+            name: file.name,
+            error,
+            attributes: {
+              tag: 'BACKUPS',
+            },
+          });
+          resolve(true);
+        });
+      });
+      await downloader.download(file);
+      return await isDownloadable;
+    } catch (error) {
+      logger.warn({
+        msg: '[BACKUPS] Error checking if file is downloadable',
+        error,
+        attributes: {
+          tag: 'BACKUPS',
+        },
+      });
+      return true;
+    }
+  }
 
   // private webStreamToNodeStream(webStream: any): Readable {
   //   const nodeStream = new Readable();
@@ -160,7 +150,7 @@ export class Backup {
     const remote = await this.remoteTreeBuilder.run({
       rootFolderId: info.folderId,
       rootFolderUuid: info.folderUuid,
-      refresh: true,
+      refresh: false,
     });
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
@@ -168,17 +158,27 @@ export class Backup {
     const filesDiff = await DiffFilesCalculator.calculate(local, remote);
 
     for (const [localFile, remoteFile] of filesDiff.dangled.entries()) {
-      if (!remoteFile) continue;
+      const isDownloadable = await this.isFileDownloadable(remoteFile);
 
-      // const isDownloadable = await this.isFileDownloadable({
-      //   bucketId: info.backupsBucket,
-      //   fileContentsId: remoteFile.contentsId,
-      //   mnemonic: getConfig().mnemonic,
-      // });
+      logger.debug({
+        msg: '[BACKUPS] Checking if file is downloadable',
+        fileId: remoteFile.contentsId,
+        name: remoteFile.name,
+        attributes: {
+          tag: 'BACKUPS',
+        },
+      });
 
-      // if (!isDownloadable) {
-      //   filesDiff.modified.set(localFile, remoteFile);
-      // }
+      if (!isDownloadable) {
+        // filesDiff.modified.set(localFile, remoteFile);
+        logger.debug({
+          msg: '[BACKUPS] File is not downloadable',
+          fileId: remoteFile.contentsId,
+          attributes: {
+            tag: 'BACKUPS',
+          },
+        });
+      }
     }
 
     const alreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;
