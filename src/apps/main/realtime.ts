@@ -75,14 +75,14 @@ export function cleanAndStartRemoteNotifications() {
     }
 
     if (data.payload.bucket !== user?.backupsBucket) {
-      logger.debug({ msg: 'Notification received', data });
+      logger.info({ msg: 'Notification received', data });
       await debouncedSynchronization();
       return;
     }
 
     const { event, payload } = data;
 
-    Logger.log('Notification received 2: ', event, payload);
+    logger.info({ msg: 'Notification received 2', event, payload });
   });
 }
 

@@ -17,7 +17,6 @@ describe('sync-remote-folders.service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     remoteSyncManager.foldersSyncStatus = 'IDLE';
-    remoteSyncManager.config.fetchFoldersLimitPerRequest = 10;
     remoteSyncManager.totalFoldersSynced = 0;
   });
 
@@ -92,9 +91,9 @@ describe('sync-remote-folders.service', () => {
     expect(remoteSyncManager.foldersSyncStatus).toBe('SYNC_FAILED');
     expect(remoteSyncManager.checkRemoteSyncStatus).toHaveBeenCalledTimes(1);
     expect(getMockCalls(logger.error)).toStrictEqual([
-      expect.objectContaining({ msg: 'Remote folders sync failed', offset: 10, retry: 1 }),
-      expect.objectContaining({ msg: 'Remote folders sync failed', offset: 10, retry: 2 }),
-      expect.objectContaining({ msg: 'Remote folders sync failed', offset: 10, retry: 3 }),
+      expect.objectContaining({ msg: 'Remote folders sync failed', offset: 50, retry: 1 }),
+      expect.objectContaining({ msg: 'Remote folders sync failed', offset: 50, retry: 2 }),
+      expect.objectContaining({ msg: 'Remote folders sync failed', offset: 50, retry: 3 }),
     ]);
   });
 
@@ -121,7 +120,7 @@ describe('sync-remote-folders.service', () => {
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({
         msg: 'Remote folders sync failed',
-        offset: 10,
+        offset: 50,
         retry: 1,
       }),
     ]);
