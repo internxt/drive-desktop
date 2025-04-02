@@ -16,6 +16,9 @@ export class StorageService {
       promise,
       loggerBody: {
         msg: 'Delete folder request was not successful',
+        context: {
+          folderId,
+        },
         attributes: {
           method: 'DELETE',
           endpoint: '/storage/trash/folder/{folderId}',
@@ -35,6 +38,9 @@ export class StorageService {
       promise,
       loggerBody: {
         msg: 'Delete folder request was not successful',
+        context: {
+          uuid,
+        },
         attributes: {
           method: 'POST',
           endpoint: '/storage/trash/add',
