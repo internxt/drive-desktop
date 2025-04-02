@@ -120,7 +120,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-
   '/files/{bucketId}/{fileId}': {
     parameters: {
       query?: never;
@@ -130,15 +129,14 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Create Thumbnail */
-    post: never;
+    post?: never;
+    /** Delete file from storage by fileId */
     delete: operations['FileController_deleteFileByFileId'];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-
   '/storage/share/domains': {
     parameters: {
       query?: never;
@@ -4244,6 +4242,26 @@ export interface operations {
       };
     };
   };
+  FileController_deleteFileByFileId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        bucketId: string;
+        fileId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
   ShareController_getDomains: {
     parameters: {
       query?: never;
@@ -4412,27 +4430,6 @@ export interface operations {
     };
     responses: {
       /** @description The share of the folder */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-
-  FileController_deleteFileByFileId: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        bucketId: string;
-        fileId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
       200: {
         headers: {
           [name: string]: unknown;
@@ -4892,7 +4889,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
       };
     };
   };
@@ -5009,7 +5008,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
       };
     };
   };

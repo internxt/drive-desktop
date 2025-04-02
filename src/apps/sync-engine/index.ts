@@ -6,7 +6,6 @@ import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
 import { setConfig, Config, getConfig } from './config';
-import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
