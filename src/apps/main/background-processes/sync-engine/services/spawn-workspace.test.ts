@@ -6,12 +6,12 @@ import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 
-vi.mock('./spawn-sync-engine-worker');
-vi.mock('@/apps/main/auth/service');
-vi.mock('@/apps/shared/crypto/service');
-vi.mock('@/apps/shared/logger/logger');
-vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
-vi.mock('@/apps/main/util');
+vi.mock(import('./spawn-sync-engine-worker'));
+vi.mock(import('@/apps/main/auth/service'));
+vi.mock(import('@/apps/shared/crypto/service'));
+vi.mock(import('@/apps/shared/logger/logger'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+vi.mock(import('@/apps/main/util'));
 
 describe('spawn-workspace.service', () => {
   const getCredentialsMock = deepMocked(driveServerWipModule.workspaces.getCredentials);

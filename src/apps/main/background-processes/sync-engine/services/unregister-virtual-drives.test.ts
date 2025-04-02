@@ -2,8 +2,8 @@ import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.t
 import { unregisterVirtualDrives } from './unregister-virtual-drives';
 import { VirtualDrive } from '@internxt/node-win/dist';
 
-vi.mock('@internxt/node-win/dist');
-vi.mock('@/apps/shared/logger/logger');
+vi.mock(import('@internxt/node-win/dist'));
+vi.mock(import('@/apps/shared/logger/logger'));
 
 describe('unregister-virtual-drives', () => {
   const getRegisteredSyncRootsMock = deepMocked(VirtualDrive.getRegisteredSyncRoots);
