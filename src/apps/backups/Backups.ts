@@ -104,37 +104,6 @@ export class Backup {
     }
   }
 
-  // private webStreamToNodeStream(webStream: any): Readable {
-  //   const nodeStream = new Readable();
-
-  //   const reader = webStream.getReader();
-
-  //   const pump = async () => {
-  //     try {
-  //       const { done, value } = await reader.read();
-
-  //       if (done) {
-  //         nodeStream.push(null);
-  //         return;
-  //       }
-
-  //       nodeStream.push(value);
-  //       pump();
-  //     } catch (err) {
-  //       nodeStream.emit('error', err);
-  //       nodeStream.push(null);
-  //     }
-  //   };
-
-  //   pump();
-
-  //   nodeStream.on('close', () => {
-  //     reader.cancel();
-  //   });
-
-  //   return nodeStream;
-  // }
-
   private backed = 0;
 
   async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
@@ -158,6 +127,7 @@ export class Backup {
     const filesDiff = await DiffFilesCalculator.calculate(local, remote);
 
     for (const [localFile, remoteFile] of filesDiff.dangled.entries()) {
+      if (!remoteFile) continue;
       const isDownloadable = await this.isFileDownloadable(remoteFile);
 
       logger.debug({
@@ -170,7 +140,7 @@ export class Backup {
       });
 
       if (!isDownloadable) {
-        // filesDiff.modified.set(localFile, remoteFile);
+        filesDiff.modified.set(localFile, remoteFile);
         logger.debug({
           msg: '[BACKUPS] File is not downloadable',
           fileId: remoteFile.contentsId,
