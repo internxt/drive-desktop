@@ -40,10 +40,4 @@ export class NodeWinLocalFolderSystem {
 
     return this.virtualDrive.convertToPlaceholder(win32AbsolutePath, folder.placeholderId);
   }
-
-  getPlaceholderState(folder: Folder) {
-    const folderPath = `${folder.path}/`;
-
-    return this.virtualDrive.getPlaceholderState(folderPath);
-  }
 }

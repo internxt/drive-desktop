@@ -6,10 +6,10 @@ import { monitorHealth } from './monitor-health';
 import { logger } from '@/apps/shared/logger/logger';
 import { scheduleSync } from './schedule-sync';
 
-vi.mock('./stop-and-clear-sync-engine-worker');
-vi.mock('./monitor-health');
-vi.mock('./schedule-sync');
-vi.mock('@/apps/shared/logger/logger');
+vi.mock(import('./stop-and-clear-sync-engine-worker'));
+vi.mock(import('./monitor-health'));
+vi.mock(import('./schedule-sync'));
+vi.mock(import('@/apps/shared/logger/logger'));
 
 describe('spawn-sync-engine-worker', () => {
   const monitorHealthMock = vi.mocked(monitorHealth);

@@ -3,9 +3,9 @@ import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.t
 import { logger } from '@/apps/shared/logger/logger';
 import { getWorkspaces } from './get-workspaces';
 
-vi.mock('@/apps/shared/logger/logger');
-vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
-vi.mock('@/apps/main/util');
+vi.mock(import('@/apps/shared/logger/logger'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+vi.mock(import('@/apps/main/util'));
 
 describe('get-workspaces', () => {
   const getWorkspacesMock = deepMocked(driveServerWipModule.workspaces.getWorkspaces);

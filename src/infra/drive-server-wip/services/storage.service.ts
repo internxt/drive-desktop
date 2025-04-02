@@ -16,9 +16,34 @@ export class StorageService {
       promise,
       loggerBody: {
         msg: 'Delete folder request was not successful',
+        context: {
+          folderId,
+        },
         attributes: {
           method: 'DELETE',
           endpoint: '/storage/trash/folder/{folderId}',
+        },
+      },
+    });
+  }
+
+  async deleteFolderWithUuid({ uuid }: { uuid: string }) {
+    const promise = noContentWrapper({
+      request: client.POST('/storage/trash/add', {
+        body: { items: [{ type: 'folder', uuid, id: null }] },
+      }),
+    });
+
+    return this.clientWrapper.run({
+      promise,
+      loggerBody: {
+        msg: 'Delete folder request was not successful',
+        context: {
+          uuid,
+        },
+        attributes: {
+          method: 'POST',
+          endpoint: '/storage/trash/add',
         },
       },
     });

@@ -1,9 +1,10 @@
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { PersistFolderDto, PersistFolderInWorkspaceDto, PersistFolderResponseDto, UpdateFolderMetaDto } from './dtos/client.dto';
+import { PersistFolderDto, PersistFolderInWorkspaceDto, PersistFolderResponseDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 @Service()
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId?: string) {}
@@ -93,173 +94,41 @@ export class HttpRemoteFolderSystem {
   }
 
   private async existFolder(offline: { parentUuid: string; basename: string; path: string }): Promise<FolderAttributes> {
-    try {
-      const response = await client.POST('/folders/content/{uuid}/folders/existence', {
-        params: {
-          path: {
-            uuid: offline.parentUuid,
-          },
-        },
-        body: {
-          plainNames: [offline.basename],
-        },
-      });
-      logger.debug({
-        msg: 'Checking folder existence',
-        response,
-      });
-
-      if (!response.data) {
-        logger.error({
-          msg: 'Error getting folder by name',
-          error: response.error,
-        });
-        throw new Error('Error getting file by name');
-      }
-      const data = response.data.existentFolders[0];
-
-      if (!data) {
-        throw new Error('Folder creation failed, no data returned');
-      }
-
-      return {
-        id: data.id,
-        uuid: data.uuid,
-        parentId: data.parentId,
-        parentUuid: data.parentUuid,
-        updatedAt: data.updatedAt,
-        createdAt: data.createdAt,
-        path: offline.path,
-        status: data.status,
-      };
-    } catch (error) {
-      logger.error({
-        msg: 'Error getting folder by name',
-        exc: error,
-      });
-      throw error;
-    }
+    const { data, error } = await driveServerWip.folders.existsFolder({ parentUuid: offline.parentUuid, basename: offline.basename });
+    if (!data) throw error;
+    return {
+      ...data.existentFolders[0],
+      path: offline.path,
+    };
   }
 
   async trash(folder: Folder): Promise<void> {
-    try {
-      const response = await client.POST('/storage/trash/add', {
-        body: {
-          items: [{ type: 'folder', uuid: folder.uuid, id: null }],
-        },
-      });
-      if (response.error) {
-        logger.error({
-          msg: 'Error trashing file',
-          error: response,
-        });
-        throw new Error('Error trashing file');
-      }
-    } catch (error) {
-      logger.error({
-        msg: 'Error trashing file',
-        exc: error,
-      });
-      throw error;
-    }
+    const { error } = await driveServerWip.storage.deleteFolderWithUuid({ uuid: folder.uuid });
+    if (error) throw error;
   }
 
-  async getFolderMetadata(folder: Folder): Promise<PersistFolderResponseDto> {
-    try {
-      const res = await client.GET('/folders/{uuid}/meta', {
-        params: {
-          path: {
-            uuid: folder.uuid,
-          },
-        },
-      });
-
-      if (res.error) {
-        logger.error({
-          msg: 'Error getting folder metadata',
-          error: res,
-        });
-        throw new Error('Error getting folder metadata');
-      }
-
-      const serverFolder = res.data;
-      return serverFolder;
-    } catch (error) {
-      logger.error({
-        msg: 'Error getting folder metadata',
-        exc: error,
-      });
-      throw error;
-    }
+  async getFolderMetadata(folder: Folder) {
+    const { data, error } = await driveServerWip.folders.getMetadataWithUuid({ uuid: folder.uuid });
+    if (!data) throw error;
+    return data;
   }
 
   async rename(folder: Folder): Promise<void> {
-    try {
-      const metadata = await this.getFolderMetadata(folder);
-      if (metadata.plainName === folder.name) return;
+    const metadata = await this.getFolderMetadata(folder);
+    if (metadata.plainName === folder.name) return;
 
-      const body: UpdateFolderMetaDto = {
-        plainName: folder.name,
-      };
-
-      const res = await client.PUT('/folders/{uuid}/meta', {
-        params: {
-          path: {
-            uuid: folder.uuid,
-          },
-        },
-        body,
-      });
-
-      if (res.error) {
-        logger.error({
-          msg: 'Error renaming folder',
-          error: res,
-        });
-        throw new Error('Error renaming folder');
-      }
-    } catch (error) {
-      logger.error({
-        msg: 'Error renaming folder',
-        exc: error,
-      });
-      throw error;
-    }
+    const { error } = await driveServerWip.folders.renameFolder({ uuid: folder.uuid, plainName: folder.name });
+    if (error) throw error;
   }
 
   async move(folder: Folder): Promise<void> {
-    try {
-      if (!folder.parentUuid) {
-        logger.error({
-          msg: 'Error moving folder',
-          error: 'Folder does not have a parent',
-        });
-        throw new Error('Error moving folder');
-      }
-
-      const res = await client.PATCH('/folders/{uuid}', {
-        params: {
-          path: {
-            uuid: folder.uuid,
-          },
-        },
-        body: {
-          destinationFolder: folder.parentUuid,
-        },
+    if (!folder.parentUuid) {
+      throw logger.error({
+        msg: 'Error moving folder, folder does not have a parent',
       });
-      if (res.error) {
-        logger.error({
-          msg: 'Error moving folder',
-          error: res,
-        });
-        throw new Error('Error moving folder');
-      }
-    } catch (error) {
-      logger.error({
-        msg: 'Error moving folder',
-        exc: error,
-      });
-      throw error;
     }
+
+    const { error } = await driveServerWip.folders.moveFolder({ uuid: folder.uuid, parentUuid: folder.parentUuid });
+    if (error) throw error;
   }
 }

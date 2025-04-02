@@ -23,3 +23,4 @@ export class DriveServerWipModule {
 }
 
 export const driveServerWipModule = new DriveServerWipModule();
+export const driveServerWip = driveServerWipModule;
