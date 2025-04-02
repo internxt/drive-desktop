@@ -49,6 +49,7 @@ describe('spawn-workspace.service', () => {
         id: 'workspaceId',
         providerId: '{PROVIDER_ID}',
         mnemonic: 'encryptedMnemonic',
+        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
       },
     });
     await spawnWorkspace(props);
@@ -72,13 +73,7 @@ describe('spawn-workspace.service', () => {
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',
-        rootPath: {
-          lastSavedListing: '/mock/logs',
-          logEnginePath: '/mock/logs',
-          logWatcherPath: '/mock/logs',
-          persistQueueManagerPath: '/mock/logs',
-          syncRoot: '/mock/path',
-        },
+        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
         rootUuid: undefined,
         workspaceId: 'workspaceId',
         workspaceToken: undefined,
