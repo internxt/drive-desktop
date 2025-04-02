@@ -1,5 +1,5 @@
 import { Config } from '@/apps/sync-engine/config';
-import { getLoggersPaths, getRootWorkspace } from '@/apps/main/virtual-root-folder/service';
+import { getLoggersPaths } from '@/apps/main/virtual-root-folder/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { logger } from '@/apps/shared/logger/logger';
@@ -12,8 +12,9 @@ type TProps = {
   workspace: {
     id: string;
     mnemonic: string;
-    rootFolderId: string;
     providerId: string;
+    rootFolderId: string;
+    rootPath: string;
   };
 };
 
@@ -38,7 +39,7 @@ export async function spawnWorkspace({ workspace, retry = 1 }: TProps) {
   const config: Config = {
     mnemonic: mnemonic.toString(),
     providerId: workspace.providerId,
-    rootPath: getRootWorkspace(workspace.providerId),
+    rootPath: workspace.rootPath,
     providerName: 'Internxt Drive for Business',
     loggerPath: getLoggersPaths().logWatcherPath,
     workspaceId: workspace.id,

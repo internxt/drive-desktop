@@ -9,11 +9,10 @@ import eventBus from '../event-bus';
 import { getUser } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
 import { User } from '../types';
+import { PATHS } from '@/core/electron/paths';
 
 const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME;
-const HOME_FOLDER_PATH = app.getPath('home');
-
-const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
+const VIRTUAL_DRIVE_FOLDER = path.join(PATHS.HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
 export function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
@@ -59,11 +58,6 @@ export function getRootVirtualDrive(): string {
   }
 
   return current;
-}
-
-export function getRootWorkspace(workspaceProviderId: string): string {
-  const pathName = path.join(HOME_FOLDER_PATH, `${ROOT_FOLDER_NAME} - ${workspaceProviderId}`);
-  return pathName;
 }
 
 export interface LoggersPaths {
