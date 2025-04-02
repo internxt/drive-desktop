@@ -1,6 +1,10 @@
-import { AuthService } from '@/context/infra/api/auth.service';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export type EmittedEvents = {
-  'renderer.login-access': (props: Parameters<(typeof AuthService)['access']>[0]) => ReturnType<(typeof AuthService)['access']>;
-  'renderer.login': (props: Parameters<(typeof AuthService)['login']>[0]) => ReturnType<(typeof AuthService)['login']>;
+  'renderer.login-access': (
+    props: Parameters<(typeof driveServerWipModule)['auth']['access']>[0],
+  ) => ReturnType<(typeof driveServerWipModule)['auth']['access']>;
+  'renderer.login': (
+    props: Parameters<(typeof driveServerWipModule)['auth']['login']>[0],
+  ) => ReturnType<(typeof driveServerWipModule)['auth']['login']>;
 };
