@@ -119,7 +119,7 @@ export class Backup {
     const remote = await this.remoteTreeBuilder.run({
       rootFolderId: info.folderId,
       rootFolderUuid: info.folderUuid,
-      refresh: false,
+      refresh: true,
     });
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
@@ -141,6 +141,7 @@ export class Backup {
 
       if (!isDownloadable) {
         filesDiff.modified.set(localFile, remoteFile);
+
         logger.debug({
           msg: '[BACKUPS] File is not downloadable',
           fileId: remoteFile.contentsId,

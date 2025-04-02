@@ -61,11 +61,6 @@ export class DiffFilesCalculator {
         dangled.set(local, remoteNode);
         return;
       }
-      // if (createdAt >= startDate && createdAt <= endDate) {
-      //   logger.debug({ msg: 'Possible Dangled File', remoteNodeName: remoteNode.name });
-      //   dangled.set(local, remoteNode);
-      //   return;
-      // }
 
       if (remoteModificationTime < localModificationTime) {
         modified.set(local, remoteNode);
