@@ -23,10 +23,7 @@ npm install -g pnpm
 ## Build Steps
 
 ```bash
-pnpm install
-# if pnpm does not run postinstall scripts, run manually
-node node_modules/electron/install.js
-npm run reload-native-deps
+npm run init:dev
 npm run start
 ```
 
