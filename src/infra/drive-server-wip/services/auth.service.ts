@@ -1,4 +1,5 @@
 import { authClient } from '@/apps/shared/HttpClient/auth-client';
+import { getHeaders } from '@/apps/shared/HttpClient/client';
 import { loggerService } from '@/apps/shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 
@@ -51,6 +52,25 @@ export class AuthService {
         attributes: {
           tag: 'AUTH',
           endpoint: '/auth/login',
+        },
+      });
+    }
+
+    return res.data;
+  }
+
+  async refresh() {
+    const res = await authClient.GET('/users/refresh', {
+      headers: await getHeaders(),
+    });
+
+    if (!res.data) {
+      throw this.logger.error({
+        msg: 'Refresh request was not successful',
+        error: res.error,
+        attributes: {
+          tag: 'AUTH',
+          endpoint: '/users/refresh',
         },
       });
     }
