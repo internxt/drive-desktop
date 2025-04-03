@@ -42,22 +42,7 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', async () => {
-      const stats = fs.statSync(filePath);
-      const fileSizeInBytes = stats.size;
-      const progress = fileSizeInBytes / file.size;
-
       await callback(true, filePath);
-
-      this.ipc.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: {
-          elapsedTime: downloader.elapsedTime(),
-          progress,
-        },
-      });
     });
 
     downloader.on('error', (error: Error) => {

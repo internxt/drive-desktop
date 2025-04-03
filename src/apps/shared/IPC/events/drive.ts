@@ -38,7 +38,6 @@ type UploadEvents = {
 
 type DownloadEvents = {
   FILE_DOWNLOADING: (payload: FileProgressInfo) => void;
-  FILE_PREPARING: (payload: FileProgressInfo) => void;
   FILE_DOWNLOADED: (payload: FileProgressInfo) => void;
   FILE_DOWNLOAD_CANCEL: (payload: Partial<FileProgressInfo>) => void;
   FILE_DOWNLOAD_ERROR: (payload: Partial<FileErrorInfo>) => void;
