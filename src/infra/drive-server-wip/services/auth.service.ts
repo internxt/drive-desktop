@@ -2,6 +2,7 @@ import { authClient } from '@/apps/shared/HttpClient/auth-client';
 import { getHeaders } from '@/apps/shared/HttpClient/client';
 import { loggerService } from '@/apps/shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { clientWrapper } from '../in/client-wrapper.service';
 
 const HEADERS = {
   'content-type': 'application/json',
@@ -60,21 +61,19 @@ export class AuthService {
   }
 
   async refresh() {
-    const res = await authClient.GET('/users/refresh', {
+    const promise = authClient.GET('/users/refresh', {
       headers: await getHeaders(),
     });
 
-    if (!res.data) {
-      throw this.logger.error({
+    return clientWrapper({
+      promise,
+      loggerBody: {
         msg: 'Refresh request was not successful',
-        error: res.error,
         attributes: {
           tag: 'AUTH',
           endpoint: '/users/refresh',
         },
-      });
-    }
-
-    return res.data;
+      },
+    });
   }
 }

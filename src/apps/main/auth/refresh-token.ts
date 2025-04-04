@@ -6,16 +6,15 @@ import { getUser, obtainTokens as obtainStoredTokens, setUser, updateCredentials
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 async function obtainTokens() {
-  try {
-    Logger.debug('[TOKEN] Obtaining new tokens');
-    const res = await driveServerWipModule.auth.refresh();
+  Logger.debug('[TOKEN] Obtaining new tokens');
+  const { data, error } = await driveServerWipModule.auth.refresh();
 
-    return res;
-  } catch (err) {
-    Logger.debug('[TOKEN] Could not obtain tokens: ', err);
-    await onUserUnauthorized();
-    throw err;
+  if (error) {
+    onUserUnauthorized();
+    throw error;
   }
+
+  return data;
 }
 
 async function refreshToken() {
