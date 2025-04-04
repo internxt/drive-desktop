@@ -1,16 +1,26 @@
 import createClient, { Middleware } from 'openapi-fetch';
 import { paths } from './schema';
-import { getNewApiHeaders } from '../../../apps/main/auth/service';
-import { onUserUnauthorized } from './background-process-clients';
+import { getNewApiHeaders, logout } from '../../../apps/main/auth/service';
 import { getConfig } from '../../sync-engine/config';
 import { ipcRendererSyncEngine } from '../../sync-engine/ipcRendererSyncEngine';
+import eventBus from '@/apps/main/event-bus';
 
-const getHeaders = async () => {
+export const getHeaders = async () => {
   const providerId = getConfig().providerId;
   if (providerId) {
     return await ipcRendererSyncEngine.invoke('GET_HEADERS');
   }
   return getNewApiHeaders();
+};
+
+const handleOnUserUnauthorized = () => {
+  const providerId = getConfig().providerId;
+  if (providerId) {
+    ipcRendererSyncEngine.emit('USER_IS_UNAUTHORIZED');
+  } else {
+    eventBus.emit('USER_WAS_UNAUTHORIZED');
+    logout();
+  }
 };
 
 const middleware: Middleware = {
@@ -30,8 +40,7 @@ const middleware: Middleware = {
   },
   onResponse({ response }) {
     if (response.status === 401) {
-      // logger.warn({ msg: 'Request unauthorized' });
-      onUserUnauthorized();
+      handleOnUserUnauthorized();
     }
   },
 };

@@ -1,24 +1,20 @@
 import Logger from 'electron-log';
 
-import { getNewTokenClient } from '../../shared/HttpClient/main-process-client';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { onUserUnauthorized } from './handlers';
 import { getUser, obtainTokens as obtainStoredTokens, setUser, updateCredentials } from './service';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
-const newAuthorizedClient = getNewTokenClient();
-
 async function obtainTokens() {
-  try {
-    Logger.debug('[TOKEN] Obtaining new tokens');
-    const res = await newAuthorizedClient.get(`${process.env.NEW_DRIVE_URL}/users/refresh`);
+  Logger.debug('[TOKEN] Obtaining new tokens');
+  const { data, error } = await driveServerWipModule.auth.refresh();
 
-    return res.data;
-  } catch (err) {
-    Logger.debug('[TOKEN] Could not obtain tokens: ', err);
-    await onUserUnauthorized();
-    return err;
+  if (error) {
+    onUserUnauthorized();
+    throw error;
   }
+
+  return data;
 }
 
 async function refreshToken() {
@@ -32,7 +28,6 @@ async function refreshToken() {
 
   updateCredentials(token, newToken);
 
-  Logger.debug('[TOKEN] Refreshed tokens', token, newToken);
   return [token, newToken];
 }
 
