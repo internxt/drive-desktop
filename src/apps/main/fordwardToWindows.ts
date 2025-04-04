@@ -36,16 +36,6 @@ ipcMainDrive.on('SYNCED', (_, workspacesId) => {
   setIsProcessing(false, workspacesId);
 });
 
-ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
-  const { nameWithExtension, processInfo } = payload;
-  setIsProcessing(true);
-  broadcastToWindows('sync-info-update', {
-    action: 'PREPARING',
-    name: nameWithExtension,
-    progress: processInfo.progress,
-  });
-});
-
 ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
   setIsProcessing(false);
   const { nameWithExtension } = payload;
