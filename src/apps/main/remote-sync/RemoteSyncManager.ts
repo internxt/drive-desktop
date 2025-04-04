@@ -45,10 +45,6 @@ export class RemoteSyncManager {
     return this.totalFilesUnsynced;
   }
 
-  setUnsyncFiles(files: string[]): void {
-    this.totalFilesUnsynced = files;
-  }
-
   /**
    * Consult if recently the RemoteSyncManager was syncing
    * @returns True if the RemoteSyncManager was syncing recently
@@ -110,11 +106,7 @@ export class RemoteSyncManager {
     };
   }
 
-  set isProcessRunning(value: boolean) {
-    this.changeStatus(value ? 'SYNCING' : 'SYNCED');
-  }
-
-  private changeStatus(newStatus: RemoteSyncStatus) {
+  changeStatus(newStatus: RemoteSyncStatus) {
     this.lastSyncingFinishedTimestamp = new Date();
 
     if (newStatus === this.status) return;

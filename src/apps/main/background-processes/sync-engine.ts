@@ -30,36 +30,12 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
 
 export function updateSyncEngine(workspaceId: string) {
   try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker.webContents?.send('UPDATE_SYNC_ENGINE_PROCESS');
+    const browserWindow = workers[workspaceId]?.worker;
+    if (browserWindow && !browserWindow.isDestroyed() && !browserWindow.webContents.isDestroyed()) {
+      browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
     Logger.error(err);
-  }
-}
-
-export function fallbackSyncEngine(workspaceId: string) {
-  try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker?.webContents?.send('FALLBACK_SYNC_ENGINE_PROCESS');
-    }
-  } catch (err) {
-    Logger.error(err);
-  }
-}
-
-export async function sendUpdateFilesInSyncPending(workspaceId: string): Promise<string[]> {
-  try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker?.webContents?.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
-    }
-    return [];
-  } catch (err) {
-    Logger.error(err);
-    return [];
   }
 }
 
