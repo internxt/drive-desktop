@@ -33,7 +33,7 @@ export interface FoldersContainer {
   };
   folderRepositoryInitiator: FolderRepositoryInitiator;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
-  folderPlaceholderDeleter?: FolderPlaceholderDeleter;
+  folderPlaceholderDeleter: FolderPlaceholderDeleter;
   foldersPlaceholderCreator: FoldersPlaceholderCreator;
   folderPlaceholderConverter: FolderPlaceholderConverter;
   folderSyncStatusUpdater: FolderSyncStatusUpdater;

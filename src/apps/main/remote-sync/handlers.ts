@@ -2,17 +2,9 @@ import { In } from 'typeorm';
 /* eslint-disable no-use-before-define */
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
-import { RemoteSyncStatus } from './helpers';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
-import { sleep } from '../util';
-import {
-  updateSyncEngine,
-  fallbackSyncEngine,
-  sendUpdateFilesInSyncPending,
-  spawnAllSyncEngineWorker,
-} from '../background-processes/sync-engine';
-import lodashDebounce from 'lodash.debounce';
+import { spawnAllSyncEngineWorker } from '../background-processes/sync-engine';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
@@ -20,9 +12,9 @@ import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/doma
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
-import { driveFilesCollection, driveFoldersCollection, remoteSyncManagers } from './store';
-
-const SYNC_DEBOUNCE_DELAY = 500;
+import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { startRemoteSync } from './services/start-remote-sync';
+import { updateAllRemoteSync } from './services/update-remote-sync';
 
 remoteSyncManagers.set('', new RemoteSyncManager());
 
@@ -65,20 +57,9 @@ export const deleteFileInBatch = async (itemsIds: string[]) => {
   });
 };
 
-export function setIsProcessing(isProcessing: boolean, workspaceId = '') {
+export function setSynced(workspaceId: string) {
   const manager = remoteSyncManagers.get(workspaceId);
-  if (manager) {
-    manager.isProcessRunning = isProcessing;
-  }
-}
-
-export function checkSyncEngineInProcess(milliSeconds: number, workspaceId = '') {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) return false;
-  const syncingStatus: RemoteSyncStatus = 'SYNCING';
-  const isSyncing = manager.getSyncStatus() === syncingStatus;
-  const recentlySyncing = manager.recentlyWasSyncing(milliSeconds);
-  return isSyncing || recentlySyncing; // syncing or recently was syncing
+  if (manager) manager.changeStatus('SYNCED');
 }
 
 export async function getUpdatedRemoteItems(workspaceId = '') {
@@ -185,137 +166,40 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderUuid: strin
   return getUpdatedRemoteItemsByFolder(folderUuid, workspaceId);
 });
 
-async function populateAllRemoteSync(): Promise<void> {
-  try {
-    await Promise.all(
-      Array.from(remoteSyncManagers.entries()).map(async ([workspaceId]) => {
-        await startRemoteSync(undefined, workspaceId);
-      }),
-    );
-  } catch (error) {
-    throw logger.error({
-      msg: 'Error populating all remote sync',
-      exc: error,
-    });
-  }
-}
-
-async function startRemoteSync(folderUuid?: string, workspaceId = ''): Promise<void> {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  try {
-    const { files, folders } = await manager.startRemoteSync(folderUuid);
-
-    logger.debug({
-      msg: 'Remote sync finished',
-      workspaceId,
-      folderUuid,
-      folders: folders.length,
-      files: files.length,
-    });
-
-    if (folderUuid && folders.length > 0) {
-      await Promise.all(
-        folders.map(async (folder) => {
-          if (!folder.id) return;
-          await sleep(400);
-          await startRemoteSync(folder.uuid, workspaceId);
-        }),
-      );
-    }
-  } catch (error) {
-    throw logger.error({
-      msg: 'Error starting remote sync',
-      exc: error,
-    });
-  }
-}
-
-ipcMain.handle('START_REMOTE_SYNC', async (_, workspaceId = '') => {
-  Logger.info('Received start remote sync event');
-  const isSyncing = await checkSyncEngineInProcess(5_000, workspaceId);
-  if (isSyncing) {
-    Logger.info('Remote sync is already running');
-    return;
-  }
-  setIsProcessing(true, workspaceId);
-  await startRemoteSync(undefined, workspaceId);
-  setIsProcessing(false, workspaceId);
-});
-
 ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string, workspaceId = '') => {
-  await startRemoteSync(folderUuid, workspaceId);
+  await startRemoteSync({ folderUuid, workspaceId });
 });
 
 ipcMain.handle('get-remote-sync-status', (_, workspaceId = '') => {
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
-  return manager.getSyncStatus();
+  return manager.status;
 });
 
-export async function updateRemoteSync(): Promise<void> {
-  remoteSyncManagers.forEach(async (manager, workspaceId) => {
-    await startRemoteSync(undefined, workspaceId);
-    const isSyncing = checkSyncEngineInProcess(5000, workspaceId);
-    Logger.info('Is syncing', isSyncing);
-    if (isSyncing) {
-      Logger.info('Remote sync is already running');
-      return;
-    }
-    updateSyncEngine(workspaceId);
-  });
-}
-
-export async function fallbackRemoteSync(workspaceId = ''): Promise<void> {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  Logger.info('Fallback remote sync');
-  fallbackSyncEngine(workspaceId);
-}
-
-ipcMain.handle('SYNC_MANUALLY', async (_, workspaceId = '') => {
+ipcMain.handle('SYNC_MANUALLY', async () => {
   Logger.info('[Manual Sync] Received manual sync event');
-  const isSyncing = await checkSyncEngineInProcess(5000, workspaceId);
-  if (isSyncing) return;
-  await debouncedSynchronization();
-  await fallbackRemoteSync(workspaceId);
+  await updateAllRemoteSync();
 });
 
 ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', async (_, workspaceId = '') => {
   Logger.info('[Get UnSync] Received Get UnSync File event');
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
-  Logger.info(manager.getUnSyncFiles());
-  return manager.getUnSyncFiles();
-});
-
-ipcMain.handle('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_, workspaceId = '') => {
-  Logger.info('[UPDATE UnSync] Received update UnSync File event');
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  await sendUpdateFilesInSyncPending(workspaceId);
+  Logger.info(manager.totalFilesUnsynced);
+  return manager.totalFilesUnsynced;
 });
 
 ipcMain.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', async (_: unknown, filesPath: string[], workspaceId = '') => {
   Logger.info('[SYNC ENGINE] update unSync files', filesPath);
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
-  manager.setUnsyncFiles(filesPath);
+  manager.totalFilesUnsynced = filesPath;
 });
-
-export const debouncedSynchronization = lodashDebounce(async () => {
-  await updateRemoteSync();
-}, SYNC_DEBOUNCE_DELAY);
 
 export async function initSyncEngine() {
   try {
     await spawnAllSyncEngineWorker();
-
-    remoteSyncManagers.forEach((manager) => {
-      manager.isProcessRunning = true;
-    });
-
-    await populateAllRemoteSync();
+    await updateAllRemoteSync();
   } catch (error) {
     throw logger.error({
       msg: 'Error initializing remote sync managers',
@@ -330,30 +214,14 @@ eventBus.on('USER_LOGGED_OUT', () => {
   });
 });
 
-ipcMain.on('CHECK_SYNC', (event) => {
-  Logger.info('Checking sync');
-  event.sender.send('CHECK_SYNC_ENGINE_RESPONSE', '');
-});
-
-ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates, workspaceId = '') => {
-  Logger.info('[SYNC ENGINE] Changing status', placeholderStates);
-  await sleep(5_000);
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  manager.placeholderStatus = placeholderStates;
-});
-
-export async function checkSyncInProgress(milliSeconds: number, workspaceId = '') {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  const syncingStatus: RemoteSyncStatus = 'SYNCING';
-  const isSyncing = manager.getSyncStatus() === syncingStatus;
-  const recentlySyncing = manager.recentlyWasSyncing(milliSeconds);
-  return isSyncing || recentlySyncing; // syncing or recently was syncing
+export function checkSyncInProgress(workspaceId: string) {
+  const manager = getRemoteSyncManager({ workspaceId });
+  if (!manager) return false;
+  return manager.status === 'SYNCING';
 }
 
-ipcMain.handle('CHECK_SYNC_IN_PROGRESS', async (_, milliSeconds: number, workspaceId = '') => {
-  return await checkSyncInProgress(milliSeconds, workspaceId);
+ipcMain.handle('CHECK_SYNC_IN_PROGRESS', (_, workspaceId: string) => {
+  return checkSyncInProgress(workspaceId);
 });
 
 function parseItemId(itemId: string) {

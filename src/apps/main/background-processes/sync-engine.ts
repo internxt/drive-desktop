@@ -39,30 +39,6 @@ export function updateSyncEngine(workspaceId: string) {
   }
 }
 
-export function fallbackSyncEngine(workspaceId: string) {
-  try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker?.webContents?.send('FALLBACK_SYNC_ENGINE_PROCESS');
-    }
-  } catch (err) {
-    Logger.error(err);
-  }
-}
-
-export async function sendUpdateFilesInSyncPending(workspaceId: string): Promise<string[]> {
-  try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker?.webContents?.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
-    }
-    return [];
-  } catch (err) {
-    Logger.error(err);
-    return [];
-  }
-}
-
 export const stopAndClearAllSyncEngineWatcher = async () => {
   await Promise.all(
     Object.keys(workers).map(async (workspaceId) => {

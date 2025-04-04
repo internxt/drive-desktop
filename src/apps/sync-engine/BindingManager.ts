@@ -26,8 +26,6 @@ export type CallbackDownload = (data: boolean, path: string, errorHandler?: () =
 export class BindingsManager {
   progressBuffer = 0;
   controllers: IControllers;
-
-  private queueManager: QueueManager | null = null;
   lastHydrated = '';
   private lastMoved = '';
 
@@ -63,14 +61,7 @@ export class BindingsManager {
     ]);
 
     const tree = await this.container.existingItemsTreeBuilder.run();
-    await Promise.all([
-      this.container.folderRepositoryInitiator.run(tree.folders),
-      this.container.foldersPlaceholderCreator.run(tree.folders),
-      this.container.repositoryPopulator.run(tree.files),
-      this.container.filesPlaceholderCreator.run(tree.files),
-      this.container.filesPlaceholderDeleter?.run(tree.trashedFilesList),
-      this.container.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
-    ]);
+    await Promise.all([this.container.folderRepositoryInitiator.run(tree.folders), this.container.repositoryPopulator.run(tree.files)]);
   }
 
   async start(version: string) {
@@ -88,7 +79,6 @@ export class BindingsManager {
             Sentry.captureException(error);
             callback(false);
           });
-        ipcRenderer.send('SYNCED');
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
@@ -124,13 +114,10 @@ export class BindingsManager {
         } catch (error) {
           Logger.error('Error during rename or move operation', error);
         }
-        ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
-        ipcRenderer.send('CHECK_SYNC');
       },
       notifyFileAddedCallback: async (absolutePath: string) => {
         Logger.debug('Path received from callback', absolutePath);
         await this.controllers.addFile.execute(absolutePath);
-        ipcRenderer.send('CHECK_SYNC');
       },
       fetchDataCallback: (contentsId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
@@ -154,7 +141,6 @@ export class BindingsManager {
             process: 'SYNC',
             kind: 'LOCAL',
           });
-          ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(error);
           Sentry.captureException(error);
@@ -194,18 +180,12 @@ export class BindingsManager {
       },
     };
 
-    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
-
     await this.stop();
 
     await this.container.virtualDrive.registerSyncRoot(this.PROVIDER_NAME, version, callbacks, this.paths.icon);
-    await this.container.virtualDrive.connectSyncRoot();
+    this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
-    await this.polling();
-    await this.pollingStart();
-
-    ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
   }
 
   async watch() {
@@ -217,8 +197,12 @@ export class BindingsManager {
     };
 
     const notify = {
-      onTaskSuccess: async () => ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId),
-      onTaskProcessing: async () => ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId),
+      onTaskSuccess: async () => {
+        return;
+      },
+      onTaskProcessing: async () => {
+        return;
+      },
     };
 
     const persistQueueManager: string = configStore.get('persistQueueManagerPath');
@@ -226,57 +210,39 @@ export class BindingsManager {
     Logger.debug('persistQueueManager', persistQueueManager);
 
     const queueManager = new QueueManager(callbacks, notify, persistQueueManager);
-    this.queueManager = queueManager;
     const logWatcherPath = DependencyInjectionLogWatcherPath.get();
     this.container.virtualDrive.watchAndWait(this.paths.root, queueManager, logWatcherPath);
     await queueManager.processAll();
   }
 
   async stop() {
-    await this.container.virtualDrive.disconnectSyncRoot();
-    this.container.pollingMonitor.stop();
+    this.container.virtualDrive.disconnectSyncRoot();
   }
 
   async cleanUp() {
-    await this.container.virtualDrive.unregisterSyncRoot();
-  }
-
-  async cleanQueue() {
-    if (this.queueManager) {
-      this.queueManager.clearQueue();
-    }
+    this.container.virtualDrive.unregisterSyncRoot();
   }
 
   async update() {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
-    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
 
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
 
       await Promise.all([
-        // Delete all the placeholders that are not in the tree
-        this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList),
-        this.container?.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
-        // Create all the placeholders that are in the tree
+        this.container.filesPlaceholderDeleter.run(tree.trashedFilesList),
+        this.container.folderPlaceholderDeleter.run(tree.trashedFoldersList),
         this.container.folderPlaceholderUpdater.run(tree.folders),
         this.container.filesPlaceholderUpdater.run(tree.files),
       ]);
-      ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
       Sentry.captureException(error);
     }
   }
 
-  private async pollingStart() {
-    Logger.debug('[SYNC ENGINE] Starting polling');
-    return this.container.pollingMonitor.start(this.polling.bind(this));
-  }
-
   async polling(): Promise<void> {
     try {
-      ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
       Logger.info('[SYNC ENGINE] Monitoring polling...');
       const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
@@ -287,7 +253,6 @@ export class BindingsManager {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);
     }
-    ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
 
     Logger.debug('[SYNC ENGINE] Polling finished');
 
@@ -297,19 +262,5 @@ export class BindingsManager {
         toDelete: input.toDeleteContentsIds,
       });
     });
-  }
-  async getFileInSyncPending(): Promise<string[]> {
-    try {
-      Logger.info('[SYNC ENGINE] Updating unsync files...');
-
-      const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
-      Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
-
-      return fileInPendingPaths;
-    } catch (error) {
-      Logger.error('[SYNC ENGINE]  Updating unsync files error: ', error);
-      Sentry.captureException(error);
-      return [];
-    }
   }
 }

@@ -176,13 +176,11 @@ declare interface Window {
       callback: (event: { status: import('../shared/types/VirtualDriveStatus').VirtualDriveStatus }) => void,
     ): () => void;
     retryVirtualDriveMount(): void;
-    startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     getPreferredAppLanguage: () => Promise<Array<string>>;
     syncManually: () => Promise<void>;
     getRecentlywasSyncing: () => Promise<boolean>;
     getUnsycFileInSyncEngine: () => Promise<string[]>;
-    updateUnsycFileInSyncEngine: () => Promise<void>;
     user: {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
