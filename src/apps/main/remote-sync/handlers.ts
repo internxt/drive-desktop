@@ -6,6 +6,7 @@ import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { sleep } from '../util';
 import { spawnAllSyncEngineWorker, updateSyncEngine } from '../background-processes/sync-engine';
+import lodashDebounce from 'lodash.debounce';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
@@ -14,7 +15,6 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
-import lodashDebounce from 'lodash.debounce';
 
 remoteSyncManagers.set('', new RemoteSyncManager());
 
