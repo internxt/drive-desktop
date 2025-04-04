@@ -88,7 +88,7 @@ export class SyncRemoteFoldersService {
         return [];
       }
 
-      await sleep(1000);
+      await sleep(5000);
       return await this.run({ self, retry: retry + 1, from, offset, allResults });
     }
   }
