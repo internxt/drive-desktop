@@ -1,12 +1,11 @@
 import { Environment } from '@internxt/inxt-js';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
-import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContentFileDownloader';
 import { EnvironmentContentFileUploader } from './upload/EnvironmentContentFileUploader';
 import { LocalFileContents } from '../domain/LocalFileContents';
 
-export class EnvironmentRemoteFileContentsManagersFactory implements ContentsManagersFactory {
+export class EnvironmentRemoteFileContentsManagersFactory {
   private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 5 * 1024 * 1024 * 1024;
 
   constructor(
