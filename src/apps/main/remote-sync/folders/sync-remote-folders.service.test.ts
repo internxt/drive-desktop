@@ -6,6 +6,8 @@ import { LoggerService } from '@/apps/shared/logger/logger';
 import { getMockCalls } from 'tests/vitest/utils.helper.test';
 import { RemoteSyncedFolder } from '../helpers';
 
+vi.mock(import('@/apps/main/util'));
+
 describe('sync-remote-folders.service', () => {
   const workspaceId = 'workspaceId';
 
