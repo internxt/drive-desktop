@@ -203,7 +203,6 @@ export class BindingsManager {
 
     await this.load();
     await this.polling();
-    await this.pollingStart();
 
     ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
   }
@@ -233,12 +232,11 @@ export class BindingsManager {
   }
 
   async stop() {
-    await this.container.virtualDrive.disconnectSyncRoot();
-    this.container.pollingMonitor.stop();
+    this.container.virtualDrive.disconnectSyncRoot();
   }
 
   async cleanUp() {
-    await this.container.virtualDrive.unregisterSyncRoot();
+    this.container.virtualDrive.unregisterSyncRoot();
   }
 
   async cleanQueue() {
@@ -255,23 +253,17 @@ export class BindingsManager {
       const tree = await this.container.existingItemsTreeBuilder.run();
 
       await Promise.all([
-        // Delete all the placeholders that are not in the tree
         this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList),
         this.container?.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
-        // Create all the placeholders that are in the tree
         this.container.folderPlaceholderUpdater.run(tree.folders),
         this.container.filesPlaceholderUpdater.run(tree.files),
       ]);
+
       ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
       Sentry.captureException(error);
     }
-  }
-
-  private async pollingStart() {
-    Logger.debug('[SYNC ENGINE] Starting polling');
-    return this.container.pollingMonitor.start(this.polling.bind(this));
   }
 
   async polling(): Promise<void> {

@@ -76,7 +76,6 @@ export type SyncEngineInvocableFunctions = {
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
-  START_REMOTE_SYNC: () => Promise<void>;
   FORCE_REFRESH_BACKUPS: (folderUuid: string) => Promise<void>;
 
   GET_HEADERS: () => Promise<Record<string, string>>;

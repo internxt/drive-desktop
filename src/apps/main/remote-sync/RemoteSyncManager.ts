@@ -45,17 +45,13 @@ export class RemoteSyncManager {
     return this.totalFilesUnsynced;
   }
 
-  setUnsyncFiles(files: string[]): void {
-    this.totalFilesUnsynced = files;
-  }
-
   /**
    * Consult if recently the RemoteSyncManager was syncing
    * @returns True if the RemoteSyncManager was syncing recently
    * @returns False if the RemoteSyncManager was not syncing recently
    * @param milliseconds Time in milliseconds to check if the RemoteSyncManager was syncing
    */
-  recentlyWasSyncing(milliseconds: number) {
+  recentlyWasSyncing({ milliseconds }: { milliseconds: number }) {
     const lastSyncingFinishedTimestamp = this.lastSyncingFinishedTimestamp ?? new Date();
     const passedTime = Date.now() - lastSyncingFinishedTimestamp.getTime();
     return passedTime < milliseconds;
@@ -110,11 +106,7 @@ export class RemoteSyncManager {
     };
   }
 
-  set isProcessRunning(value: boolean) {
-    this.changeStatus(value ? 'SYNCING' : 'SYNCED');
-  }
-
-  private changeStatus(newStatus: RemoteSyncStatus) {
+  changeStatus(newStatus: RemoteSyncStatus) {
     this.lastSyncingFinishedTimestamp = new Date();
 
     if (newStatus === this.status) return;
