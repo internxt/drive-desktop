@@ -4,6 +4,7 @@ import { getNewApiHeaders, logout } from '../../../apps/main/auth/service';
 import { getConfig } from '../../sync-engine/config';
 import { ipcRendererSyncEngine } from '../../sync-engine/ipcRendererSyncEngine';
 import eventBus from '@/apps/main/event-bus';
+import Bottleneck from 'bottleneck';
 
 export const getHeaders = async () => {
   const providerId = getConfig().providerId;
@@ -45,7 +46,14 @@ const middleware: Middleware = {
   },
 };
 
-export const client = createClient<paths>({ baseUrl: process.env.NEW_DRIVE_URL });
-export const clientService = client;
+const limiter = new Bottleneck({
+  maxConcurrent: 2,
+  minTime: 500,
+});
+
+export const client = createClient<paths>({
+  baseUrl: process.env.NEW_DRIVE_URL,
+  fetch: limiter.wrap(fetch),
+});
 
 client.use(middleware);
