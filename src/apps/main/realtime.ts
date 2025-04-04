@@ -4,7 +4,7 @@ import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 import { logger } from '../shared/logger/logger';
-import { debouncedSynchronization } from './remote-sync/services/update-remote-sync';
+import { debouncedSynchronization } from './remote-sync/handlers';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;

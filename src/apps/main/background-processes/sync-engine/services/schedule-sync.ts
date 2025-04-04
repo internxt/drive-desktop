@@ -1,7 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { TWorkerConfig } from '../store';
 import nodeSchedule from 'node-schedule';
-import { debouncedSynchronization } from '@/apps/main/remote-sync/services/update-remote-sync';
+import { debouncedSynchronization } from '@/apps/main/remote-sync/handlers';
 
 type TProps = {
   worker: TWorkerConfig;

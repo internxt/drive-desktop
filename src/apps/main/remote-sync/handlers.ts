@@ -2,11 +2,10 @@ import { In } from 'typeorm';
 /* eslint-disable no-use-before-define */
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
-import { RemoteSyncStatus } from './helpers';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { sleep } from '../util';
-import { spawnAllSyncEngineWorker } from '../background-processes/sync-engine';
+import { spawnAllSyncEngineWorker, updateSyncEngine } from '../background-processes/sync-engine';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
@@ -14,10 +13,8 @@ import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/doma
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
-import { driveFilesCollection, driveFoldersCollection, remoteSyncManagers } from './store';
-import { checkSyncInProgress } from './services/check-sync-in-progress';
-import { debouncedSynchronization } from './services/update-remote-sync';
-import { startRemoteSync } from './services/start-remote-sync';
+import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import lodashDebounce from 'lodash.debounce';
 
 remoteSyncManagers.set('', new RemoteSyncManager());
 
@@ -171,6 +168,66 @@ ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderUuid: strin
   return getUpdatedRemoteItemsByFolder(folderUuid, workspaceId);
 });
 
+async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
+  const manager = getRemoteSyncManager({ workspaceId });
+  if (!manager) return;
+
+  const isSyncing = checkSyncInProgress({ workspaceId });
+  if (isSyncing) return;
+
+  if (isSyncing) {
+    logger.debug({ msg: 'Remote sync is already running', workspaceId });
+    return;
+  }
+
+  manager.changeStatus('SYNCING');
+  await startRemoteSync({ workspaceId });
+  updateSyncEngine(workspaceId);
+}
+
+async function updateAllRemoteSync() {
+  await Promise.all(
+    Object.entries(remoteSyncManagers).map(async ([workspaceId]) => {
+      await updateRemoteSync({ workspaceId });
+    }),
+  );
+}
+
+export const debouncedSynchronization = lodashDebounce(updateAllRemoteSync, 1000);
+
+async function startRemoteSync({ folderUuid, workspaceId }: { folderUuid?: string; workspaceId: string }): Promise<void> {
+  const manager = remoteSyncManagers.get(workspaceId);
+  if (!manager) throw new Error('RemoteSyncManager not found');
+
+  try {
+    const { files, folders } = await manager.startRemoteSync(folderUuid);
+
+    logger.debug({
+      msg: 'Remote sync finished',
+      workspaceId,
+      folderUuid,
+      folders: folders.length,
+      files: files.length,
+    });
+
+    if (folderUuid && folders.length > 0) {
+      await Promise.all(
+        folders.map(async (folder) => {
+          await startRemoteSync({
+            folderUuid: folder.uuid,
+            workspaceId,
+          });
+        }),
+      );
+    }
+  } catch (error) {
+    throw logger.error({
+      msg: 'Error starting remote sync',
+      exc: error,
+    });
+  }
+}
+
 ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string, workspaceId = '') => {
   await startRemoteSync({ folderUuid, workspaceId });
 });
@@ -224,6 +281,15 @@ ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates, workspaceId 
   if (!manager) throw new Error('RemoteSyncManager not found');
   manager.placeholderStatus = placeholderStates;
 });
+
+function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {
+  const manager = getRemoteSyncManager({ workspaceId });
+  if (!manager) throw new Error('RemoteSyncManager not found');
+
+  const isSyncing = manager.getSyncStatus() === 'SYNCING';
+  const recentlySyncing = manager.recentlyWasSyncing({ milliseconds: 5000 });
+  return isSyncing || recentlySyncing;
+}
 
 ipcMain.handle('CHECK_SYNC_IN_PROGRESS', (_, workspaceId = '') => {
   return checkSyncInProgress({ workspaceId });
