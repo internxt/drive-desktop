@@ -4,17 +4,16 @@ import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exi
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
 import { EventBus } from '../../shared/domain/EventBus';
-import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
-import * as fs from 'fs';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 export class ContentsDownloader {
   constructor(
-    private readonly managerFactory: ContentsManagersFactory,
+    private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,

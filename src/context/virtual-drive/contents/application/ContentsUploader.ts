@@ -1,5 +1,4 @@
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
-import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
 import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { LocalFileContents } from '../domain/LocalFileContents';
@@ -8,9 +7,10 @@ import { RelativePathToAbsoluteConverter } from '../../shared/application/Relati
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 export class ContentsUploader {
   constructor(
-    private readonly remoteContentsManagersFactory: ContentsManagersFactory,
+    private readonly remoteContentsManagersFactory: EnvironmentRemoteFileContentsManagersFactory,
     private readonly contentProvider: LocalContentsProvider,
     private readonly ipc: SyncEngineIpc,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
