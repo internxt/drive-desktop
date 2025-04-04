@@ -6,6 +6,7 @@ import { FetchFoldersService, FetchFoldersServiceParams } from './fetch-folders.
 import { FetchWorkspaceFoldersService } from './fetch-workspace-folders.service';
 import { loggerService } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
+import { sleep } from '../../util';
 
 const MAX_RETRIES = 3;
 
@@ -87,6 +88,7 @@ export class SyncRemoteFoldersService {
         return [];
       }
 
+      await sleep(5000);
       return await this.run({ self, retry: retry + 1, from, offset, allResults });
     }
   }

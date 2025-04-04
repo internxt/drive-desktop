@@ -6,6 +6,7 @@ import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
 import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
 import { loggerService } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
+import { sleep } from '../../util';
 
 const MAX_RETRIES = 3;
 
@@ -85,6 +86,7 @@ export class SyncRemoteFilesService {
         return [];
       }
 
+      await sleep(5000);
       return await this.run({ self, retry: retry + 1, from, offset, allResults });
     }
   }
