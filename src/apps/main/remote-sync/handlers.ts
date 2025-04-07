@@ -187,7 +187,7 @@ async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
 
 async function updateAllRemoteSync() {
   await Promise.all(
-    Object.entries(remoteSyncManagers).map(async ([workspaceId]) => {
+    [...remoteSyncManagers].map(async ([workspaceId]) => {
       await updateRemoteSync({ workspaceId });
     }),
   );
