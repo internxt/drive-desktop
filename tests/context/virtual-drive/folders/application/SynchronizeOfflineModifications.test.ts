@@ -7,15 +7,15 @@ import { FolderRenamedDomainEvent } from '../../../../../src/context/virtual-dri
 import { InMemoryOfflineFolderRepository } from '../../../../../src/context/virtual-drive/folders/infrastructure/InMemoryOfflineFolderRepository';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
-import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventRepository } from '@/context/virtual-drive/shared/domain/EventRepository';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { fail } from 'assert';
+import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 
 describe('Synchronize Offline Modifications', () => {
   const offlineRepository = new InMemoryOfflineFolderRepository();
-  const repository = mockDeep<FolderRepository>();
+  const repository = mockDeep<InMemoryFolderRepository>();
   const folderRemoteFileSystem = mockDeep<HttpRemoteFolderSystem>();
   const syncEngineIpc = mockDeep<SyncEngineIpc>();
   const renamer = new FolderRenamer(repository, folderRemoteFileSystem, syncEngineIpc);

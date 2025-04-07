@@ -4,13 +4,13 @@ import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { FolderRenamedDomainEvent } from '../domain/events/FolderRenamedDomainEvent';
 import { FolderRenamer } from './FolderRenamer';
 import Logger from 'electron-log';
-import { FolderRepository } from '../domain/FolderRepository';
 import { EventRepository } from '../../shared/domain/EventRepository';
 import * as Sentry from '@sentry/electron/renderer';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 export class SynchronizeOfflineModifications {
   constructor(
     private readonly offlineRepository: OfflineFolderRepository,
-    private readonly repository: FolderRepository,
+    private readonly repository: InMemoryFolderRepository,
     private readonly renamer: FolderRenamer,
     private readonly eventsRepository: EventRepository,
   ) {}

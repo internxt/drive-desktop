@@ -15,7 +15,6 @@ import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtua
 import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
 import { FilesPlaceholderCreator } from '../../../../context/virtual-drive/files/application/FilesPlaceholdersCreator';
 import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
-import { RetrieveAllFiles } from '../../../../context/virtual-drive/files/application/RetrieveAllFiles';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
@@ -141,7 +140,6 @@ export async function buildFilesContainer(
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
     createFilePlaceholderOnDeletionFailed: createFilePlaceholderOnDeletionFailed,
     sameFileWasMoved,
-    retrieveAllFiles: new RetrieveAllFiles(repository),
     repositoryPopulator: repositoryPopulator,
     filesPlaceholderCreator,
     filesPlaceholderUpdater,

@@ -7,18 +7,18 @@ import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { FileMother, generateRandomFileId } from '../domain/FileMother';
 import { FolderFinder } from '@/context/virtual-drive/folders/application/FolderFinder';
-import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { v4 } from 'uuid';
+import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 
 describe('File Creator', () => {
   const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
   const fileRepository = mockDeep<InMemoryFileRepository>();
   const fileDeleter = mockDeep<FileDeleter>();
-  const folderRepository = mockDeep<FolderRepository>();
+  const folderRepository = mockDeep<InMemoryFolderRepository>();
   const folderFinder = new FolderFinder(folderRepository);
   const eventBus = mockDeep<EventBus>();
   const ipc = mockDeep<SyncEngineIpc>();

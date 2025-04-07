@@ -4,12 +4,13 @@ import { RelativePathToAbsoluteConverter } from '../../shared/application/Relati
 import Logger from 'electron-log';
 import path from 'path';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { FolderRepository } from '../domain/FolderRepository';
 import * as Sentry from '@sentry/electron/renderer';
 import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
+
 export class FolderPlaceholderUpdater {
   constructor(
-    private readonly repository: FolderRepository,
+    private readonly repository: InMemoryFolderRepository,
     private readonly local: NodeWinLocalFolderSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
