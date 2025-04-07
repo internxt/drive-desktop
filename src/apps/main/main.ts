@@ -51,7 +51,7 @@ import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { clearAntivirusIfAvailable, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
+import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 import { setDefaultConfig } from '../sync-engine/config';
@@ -168,7 +168,7 @@ eventBus.on('USER_LOGGED_OUT', async () => {
     widget.destroy();
   }
 
-  clearAntivirusIfAvailable();
+  clearAntivirus();
 
   await createAuthWindow();
 });
