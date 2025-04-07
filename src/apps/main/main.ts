@@ -28,7 +28,6 @@ import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';
-import './tray/handlers';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';

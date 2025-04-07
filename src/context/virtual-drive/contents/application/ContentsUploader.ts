@@ -44,7 +44,6 @@ export class ContentsUploader {
         nameWithExtension: localFileContents.nameWithExtension,
         error: error.message,
       });
-      ipcRenderer.send('CHECK_SYNC');
     });
 
     uploader.on('finish', () => {
@@ -55,7 +54,6 @@ export class ContentsUploader {
         size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime() },
       });
-      ipcRenderer.send('CHECK_SYNC');
     });
   }
 

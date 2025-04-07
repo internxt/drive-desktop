@@ -83,8 +83,7 @@ export class SyncRemoteFoldersService {
       this.logger.error({ msg: 'Remote folders sync failed', exc, retry, offset });
 
       if (retry >= MAX_RETRIES) {
-        self.foldersSyncStatus = 'SYNC_FAILED';
-        self.checkRemoteSyncStatus();
+        self.changeStatus('SYNC_FAILED');
         return [];
       }
 

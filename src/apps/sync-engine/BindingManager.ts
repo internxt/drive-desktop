@@ -7,8 +7,8 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
-import { ServerFileStatus } from '../../context/shared/domain/ServerFile';
-import { ServerFolderStatus } from '../../context/shared/domain/ServerFolder';
+import { ServerFileStatus } from '@/context/shared/domain/ServerFile';
+import { ServerFolderStatus } from '@/context/shared/domain/ServerFolder';
 import * as Sentry from '@sentry/electron/renderer';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
@@ -63,14 +63,7 @@ export class BindingsManager {
     ]);
 
     const tree = await this.container.existingItemsTreeBuilder.run();
-    await Promise.all([
-      this.container.folderRepositoryInitiator.run(tree.folders),
-      this.container.foldersPlaceholderCreator.run(tree.folders),
-      this.container.repositoryPopulator.run(tree.files),
-      this.container.filesPlaceholderCreator.run(tree.files),
-      this.container.filesPlaceholderDeleter?.run(tree.trashedFilesList),
-      this.container.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
-    ]);
+    await Promise.all([this.container.folderRepositoryInitiator.run(tree.folders), this.container.repositoryPopulator.run(tree.files)]);
   }
 
   async start(version: string) {
@@ -88,7 +81,6 @@ export class BindingsManager {
             Sentry.captureException(error);
             callback(false);
           });
-        ipcRenderer.send('SYNCED');
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
@@ -124,13 +116,10 @@ export class BindingsManager {
         } catch (error) {
           Logger.error('Error during rename or move operation', error);
         }
-        ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
-        ipcRenderer.send('CHECK_SYNC');
       },
       notifyFileAddedCallback: async (absolutePath: string) => {
         Logger.debug('Path received from callback', absolutePath);
         await this.controllers.addFile.execute(absolutePath);
-        ipcRenderer.send('CHECK_SYNC');
       },
       fetchDataCallback: (contentsId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
@@ -154,7 +143,6 @@ export class BindingsManager {
             process: 'SYNC',
             kind: 'LOCAL',
           });
-          ipcRenderer.send('CHECK_SYNC');
         } catch (error) {
           Logger.error(error);
           Sentry.captureException(error);
@@ -194,17 +182,13 @@ export class BindingsManager {
       },
     };
 
-    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
-
     await this.stop();
 
     await this.container.virtualDrive.registerSyncRoot(this.PROVIDER_NAME, version, callbacks, this.paths.icon);
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
-    await this.polling();
-
-    ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
+    await this.updateAndCheckPlaceholders();
   }
 
   async watch() {
@@ -216,8 +200,12 @@ export class BindingsManager {
     };
 
     const notify = {
-      onTaskSuccess: async () => ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId),
-      onTaskProcessing: async () => ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId),
+      onTaskSuccess: async () => {
+        //ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId)
+      },
+      onTaskProcessing: async () => {
+        // ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
+      },
     };
 
     const persistQueueManager: string = configStore.get('persistQueueManagerPath');
@@ -247,19 +235,16 @@ export class BindingsManager {
 
   async update() {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
-    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
 
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
 
       await Promise.all([
-        this.container?.filesPlaceholderDeleter?.run(tree.trashedFilesList),
-        this.container?.folderPlaceholderDeleter?.run(tree.trashedFoldersList),
+        this.container.filesPlaceholderDeleter.run(tree.trashedFilesList),
+        this.container.folderPlaceholderDeleter.run(tree.trashedFoldersList),
         this.container.folderPlaceholderUpdater.run(tree.folders),
         this.container.filesPlaceholderUpdater.run(tree.files),
       ]);
-
-      ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
     } catch (error) {
       Logger.error('[SYNC ENGINE] ', error);
       Sentry.captureException(error);
@@ -268,7 +253,6 @@ export class BindingsManager {
 
   async polling(): Promise<void> {
     try {
-      ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
       Logger.info('[SYNC ENGINE] Monitoring polling...');
       const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
@@ -279,7 +263,6 @@ export class BindingsManager {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);
     }
-    ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
 
     Logger.debug('[SYNC ENGINE] Polling finished');
 
@@ -290,18 +273,23 @@ export class BindingsManager {
       });
     });
   }
-  async getFileInSyncPending(): Promise<string[]> {
+
+  async updateAndCheckPlaceholders(): Promise<void> {
+    const workspaceId = getConfig().workspaceId;
+
     try {
-      Logger.info('[SYNC ENGINE] Updating unsync files...');
+      await this.update();
+      await this.polling();
 
-      const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
-      Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
+      const placeholders = this.container.virtualDrive.getPlaceholderWithStatePending();
 
-      return fileInPendingPaths;
-    } catch (error) {
-      Logger.error('[SYNC ENGINE]  Updating unsync files error: ', error);
-      Sentry.captureException(error);
-      return [];
+      if (placeholders.length === 0) {
+        ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
+      } else {
+        ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNC_PENDING');
+      }
+    } catch {
+      ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNC_FAILED');
     }
   }
 }

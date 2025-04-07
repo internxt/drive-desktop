@@ -81,8 +81,7 @@ export class SyncRemoteFilesService {
       this.logger.error({ msg: 'Remote files sync failed', exc, retry, offset });
 
       if (retry >= MAX_RETRIES) {
-        self.filesSyncStatus = 'SYNC_FAILED';
-        self.checkRemoteSyncStatus();
+        self.changeStatus('SYNC_FAILED');
         return [];
       }
 

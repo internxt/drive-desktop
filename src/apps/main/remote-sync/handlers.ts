@@ -4,7 +4,6 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
-import { sleep } from '../util';
 import { spawnAllSyncEngineWorker, updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { DriveFile } from '../database/entities/DriveFile';
@@ -56,13 +55,6 @@ export const deleteFileInBatch = async (itemsIds: string[]) => {
     fileId: In(itemsIds),
   });
 };
-
-export function setIsProcessing(isProcessing: boolean, workspaceId = '') {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (manager) {
-    manager.changeStatus(isProcessing ? 'SYNCING' : 'SYNCED');
-  }
-}
 
 export async function getUpdatedRemoteItems(workspaceId = '') {
   try {
@@ -173,7 +165,6 @@ async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
   if (!manager) return;
 
   const isSyncing = checkSyncInProgress({ workspaceId });
-  if (isSyncing) return;
 
   if (isSyncing) {
     logger.debug({ msg: 'Remote sync is already running', workspaceId });
@@ -193,7 +184,7 @@ async function updateAllRemoteSync() {
   );
 }
 
-export const debouncedSynchronization = lodashDebounce(updateAllRemoteSync, 1000);
+export const debouncedSynchronization = lodashDebounce(updateAllRemoteSync, 5000);
 
 async function startRemoteSync({ folderUuid, workspaceId }: { folderUuid?: string; workspaceId: string }): Promise<void> {
   const manager = remoteSyncManagers.get(workspaceId);
@@ -269,26 +260,12 @@ eventBus.on('USER_LOGGED_OUT', () => {
   });
 });
 
-ipcMain.on('CHECK_SYNC', (event) => {
-  Logger.info('Checking sync');
-  event.sender.send('CHECK_SYNC_ENGINE_RESPONSE', '');
-});
-
-ipcMain.on('CHECK_SYNC_CHANGE_STATUS', async (_, placeholderStates, workspaceId = '') => {
-  Logger.info('[SYNC ENGINE] Changing status', placeholderStates);
-  await sleep(5_000);
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  manager.placeholderStatus = placeholderStates;
-});
-
 function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {
   const manager = getRemoteSyncManager({ workspaceId });
   if (!manager) throw new Error('RemoteSyncManager not found');
 
   const isSyncing = manager.getSyncStatus() === 'SYNCING';
-  const recentlySyncing = manager.recentlyWasSyncing({ milliseconds: 5000 });
-  return isSyncing || recentlySyncing;
+  return isSyncing;
 }
 
 ipcMain.handle('CHECK_SYNC_IN_PROGRESS', (_, workspaceId = '') => {
