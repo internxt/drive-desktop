@@ -24,6 +24,7 @@ import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder'
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { DangledFilesService } from './dangled-files/DangledFilesService';
 
 @Service()
 export class Backup {
@@ -35,74 +36,8 @@ export class Backup {
     private readonly remoteFileDeleter: FileDeleter,
     private readonly remoteFolderDeleter: FolderDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
-    private readonly contentsManagerFactory: EnvironmentRemoteFileContentsManagersFactory,
+    private readonly dangledFilesService: DangledFilesService,
   ) {}
-
-  async isFileDownloadable(file: File): Promise<boolean> {
-    try {
-      const downloader = this.contentsManagerFactory.downloader();
-
-      logger.debug({
-        msg: '[BACKUPS] Checking if file is downloadable',
-        fileContentsId: file.contentsId,
-        attributes: {
-          tag: 'BACKUPS',
-        },
-      });
-
-      const isDownloadable = new Promise<boolean>((resolve) => {
-        downloader.on('start', () => {
-          logger.debug({
-            msg: '[BACKUPS] Downloading file',
-            fileId: file.contentsId,
-            name: file.name,
-            attributes: {
-              tag: 'BACKUPS',
-            },
-          });
-
-          resolve(true);
-        });
-
-        downloader.on('progress', () => {
-          logger.debug({
-            msg: '[BACKUPS] Downloading file force stop',
-            fileId: file.contentsId,
-            name: file.name,
-            attributes: {
-              tag: 'BACKUPS',
-            },
-          });
-          downloader.forceStop();
-          resolve(false);
-        });
-
-        downloader.on('error', (error: Error) => {
-          logger.debug({
-            msg: '[BACKUPS] Error downloading file',
-            fileId: file.contentsId,
-            name: file.name,
-            error,
-            attributes: {
-              tag: 'BACKUPS',
-            },
-          });
-          resolve(true);
-        });
-      });
-      await downloader.download(file);
-      return await isDownloadable;
-    } catch (error) {
-      logger.warn({
-        msg: '[BACKUPS] Error checking if file is downloadable',
-        error,
-        attributes: {
-          tag: 'BACKUPS',
-        },
-      });
-      return true;
-    }
-  }
 
   private backed = 0;
 
@@ -126,30 +61,28 @@ export class Backup {
 
     const filesDiff = await DiffFilesCalculator.calculate(local, remote);
 
-    for (const [localFile, remoteFile] of filesDiff.dangled.entries()) {
-      if (!remoteFile) continue;
-      const isDownloadable = await this.isFileDownloadable(remoteFile);
-
-      logger.debug({
-        msg: '[BACKUPS] Checking if file is downloadable',
-        fileId: remoteFile.contentsId,
-        name: remoteFile.name,
+    if (filesDiff.dangled.size > 0) {
+      logger.info({
+        msg: '[BACKUPS] Dangling files found, handling them',
         attributes: {
           tag: 'BACKUPS',
         },
       });
 
-      if (!isDownloadable) {
-        filesDiff.modified.set(localFile, remoteFile);
+      const filesToResync = await this.dangledFilesService.handleDangledFile(filesDiff.dangled);
 
+      for (const [localFile, remoteFile] of filesToResync) {
         logger.debug({
-          msg: '[BACKUPS] File is not downloadable',
-          fileId: remoteFile.contentsId,
+          msg: '[BACKUPS] Resyncing dangling file',
+          localPath: localFile.path,
+          remoteId: remoteFile.contentsId,
           attributes: {
             tag: 'BACKUPS',
           },
         });
+        filesDiff.modified.set(localFile, remoteFile);
       }
+      filesDiff.total += filesDiff.dangled.size;
     }
 
     const alreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;
