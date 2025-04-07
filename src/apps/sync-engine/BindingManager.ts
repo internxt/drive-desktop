@@ -194,8 +194,6 @@ export class BindingsManager {
       },
     };
 
-    // ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
-
     await this.stop();
 
     await this.container.virtualDrive.registerSyncRoot(this.PROVIDER_NAME, version, callbacks, this.paths.icon);
@@ -203,8 +201,6 @@ export class BindingsManager {
 
     await this.load();
     await this.polling();
-
-    // ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
   }
 
   async watch() {
@@ -268,7 +264,6 @@ export class BindingsManager {
 
   async polling(): Promise<void> {
     try {
-      ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
       Logger.info('[SYNC ENGINE] Monitoring polling...');
       const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
       Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
@@ -279,7 +274,6 @@ export class BindingsManager {
       Logger.error('[SYNC ENGINE] Polling', error);
       Sentry.captureException(error);
     }
-    ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
 
     Logger.debug('[SYNC ENGINE] Polling finished');
 
