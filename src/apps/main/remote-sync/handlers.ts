@@ -255,9 +255,8 @@ export async function initSyncEngine() {
 }
 
 eventBus.on('USER_LOGGED_OUT', () => {
-  remoteSyncManagers.forEach((manager) => {
-    manager.resetRemoteSync();
-  });
+  remoteSyncManagers.clear();
+  remoteSyncManagers.set('', new RemoteSyncManager());
 });
 
 function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {
