@@ -18,7 +18,6 @@ describe('sync-remote-files.service', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    remoteSyncManager.filesSyncStatus = 'IDLE';
     remoteSyncManager.totalFilesSynced = 0;
   });
 
@@ -32,8 +31,6 @@ describe('sync-remote-files.service', () => {
     // Then
     expect(files.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(1);
-    // TODO: maybe we need to set it to SYNCED?
-    expect(remoteSyncManager.filesSyncStatus).toBe('IDLE');
   });
 
   it('If checkpoint is null, fetch only EXISTS files', async () => {
@@ -70,8 +67,7 @@ describe('sync-remote-files.service', () => {
     // Then
     expect(files.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(3);
-    expect(remoteSyncManager.filesSyncStatus).toBe('SYNC_FAILED');
-    expect(remoteSyncManager.checkRemoteSyncStatus).toHaveBeenCalledTimes(1);
+    expect(remoteSyncManager.changeStatus).toHaveBeenCalledWith('SYNC_FAILED');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 0, retry: 1 }),
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 0, retry: 2 }),
@@ -90,8 +86,7 @@ describe('sync-remote-files.service', () => {
     // Then
     expect(files.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(4);
-    expect(remoteSyncManager.filesSyncStatus).toBe('SYNC_FAILED');
-    expect(remoteSyncManager.checkRemoteSyncStatus).toHaveBeenCalledTimes(1);
+    expect(remoteSyncManager.changeStatus).toHaveBeenCalledWith('SYNC_FAILED');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 50, retry: 1 }),
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 50, retry: 2 }),
@@ -118,7 +113,6 @@ describe('sync-remote-files.service', () => {
     expect(files.length).toBe(2);
     expect(remoteSyncManager.totalFilesSynced).toBe(2);
     expect(fetchFiles.run).toHaveBeenCalledTimes(3);
-    expect(remoteSyncManager.filesSyncStatus).toBe('IDLE');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({
         msg: 'Remote files sync failed',

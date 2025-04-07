@@ -109,7 +109,6 @@ export class FetchDataService {
       Logger.error(error);
       Sentry.captureException(error);
       await callback(false, '');
-      ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
     }
   }
 

@@ -9,6 +9,7 @@ import { setConfig, Config, getConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 
 Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
 
@@ -53,26 +54,8 @@ async function setUp() {
     providerName,
   );
 
-  ipcRenderer.on('CHECK_SYNC_ENGINE_RESPONSE', async (event) => {
-    Logger.info('[SYNC ENGINE] Checking sync engine response');
-    const placeholderStatuses = await container.filesCheckerStatusInRoot.run();
-    const placeholderStates = placeholderStatuses;
-    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates, getConfig().workspaceId);
-  });
-
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    Logger.info('[SYNC ENGINE] Updating sync engine');
-    await bindings.update();
-    await bindings.polling();
-    Logger.info('[SYNC ENGINE] sync engine updated successfully');
-  });
-
-  ipcRenderer.on('FALLBACK_SYNC_ENGINE_PROCESS', async () => {
-    Logger.info('[SYNC ENGINE] Fallback sync engine');
-
-    await bindings.polling();
-
-    Logger.info('[SYNC ENGINE] sync engine fallback successfully');
+    await bindings.updateAndCheckPlaceholders();
   });
 
   ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
@@ -93,12 +76,9 @@ async function setUp() {
   });
 
   await bindings.start(INTERNXT_VERSION);
-
   await bindings.watch();
 
   Logger.info('[SYNC ENGINE] Second sync engine started');
-
-  ipcRenderer.send('CHECK_SYNC');
 }
 
 async function refreshToken() {

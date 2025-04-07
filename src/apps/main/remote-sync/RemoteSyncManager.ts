@@ -9,16 +9,13 @@ import { QueryFolders } from './folders/fetch-folders.service.interface';
 import { driveFilesCollection, driveFoldersCollection } from './store';
 import { setTrayStatus } from '../tray/tray';
 import { broadcastToWindows } from '../windows';
+import { broadcastSyncStatus } from './services/broadcast-sync-status';
 
 export class RemoteSyncManager {
-  foldersSyncStatus: RemoteSyncStatus = 'IDLE';
-  filesSyncStatus: RemoteSyncStatus = 'IDLE';
-  private _placeholdersStatus: RemoteSyncStatus = 'IDLE';
   status: RemoteSyncStatus = 'IDLE';
   totalFilesSynced = 0;
   private totalFilesUnsynced: string[] = [];
   totalFoldersSynced = 0;
-  private lastSyncingFinishedTimestamp: Date | null = null;
 
   public db = {
     files: driveFilesCollection,
@@ -32,11 +29,6 @@ export class RemoteSyncManager {
     private readonly fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService() : new FetchRemoteFoldersService(),
   ) {}
 
-  set placeholderStatus(status: RemoteSyncStatus) {
-    this._placeholdersStatus = status;
-    this.checkRemoteSyncStatus();
-  }
-
   getSyncStatus(): RemoteSyncStatus {
     return this.status;
   }
@@ -45,26 +37,8 @@ export class RemoteSyncManager {
     return this.totalFilesUnsynced;
   }
 
-  /**
-   * Consult if recently the RemoteSyncManager was syncing
-   * @returns True if the RemoteSyncManager was syncing recently
-   * @returns False if the RemoteSyncManager was not syncing recently
-   * @param milliseconds Time in milliseconds to check if the RemoteSyncManager was syncing
-   */
-  recentlyWasSyncing({ milliseconds }: { milliseconds: number }) {
-    if (!this.lastSyncingFinishedTimestamp) return false;
-    const lastSyncingFinishedTimestamp = this.lastSyncingFinishedTimestamp;
-    const passedTime = Date.now() - lastSyncingFinishedTimestamp.getTime();
-
-    return passedTime < milliseconds;
-  }
-
   resetRemoteSync() {
     this.changeStatus('IDLE');
-    this.filesSyncStatus = 'IDLE';
-    this.foldersSyncStatus = 'IDLE';
-    this._placeholdersStatus = 'IDLE';
-    this.lastSyncingFinishedTimestamp = null;
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
     this.totalFoldersSynced = 0;
@@ -109,8 +83,6 @@ export class RemoteSyncManager {
   }
 
   changeStatus(newStatus: RemoteSyncStatus) {
-    this.lastSyncingFinishedTimestamp = new Date();
-
     if (newStatus === this.status) return;
 
     logger.debug({
@@ -118,38 +90,11 @@ export class RemoteSyncManager {
       workspaceId: this.workspaceId,
       current: this.status,
       newStatus,
-      lastSyncingFinishedTimestamp: this.lastSyncingFinishedTimestamp,
     });
 
     this.status = newStatus;
 
-    broadcastToWindows('remote-sync-status-change', this.status);
-
-    switch (newStatus) {
-      case 'SYNCING':
-        return setTrayStatus('SYNCING');
-      case 'SYNC_FAILED':
-        return setTrayStatus('ALERT');
-      case 'SYNCED':
-        return setTrayStatus('IDLE');
-    }
-  }
-
-  checkRemoteSyncStatus() {
-    if (this._placeholdersStatus === 'SYNC_PENDING') {
-      this.changeStatus('SYNC_PENDING');
-      return;
-    }
-
-    if (this.foldersSyncStatus === 'SYNCED' && this.filesSyncStatus === 'SYNCED') {
-      this.changeStatus('SYNCED');
-      return;
-    }
-
-    if (this.foldersSyncStatus === 'SYNC_FAILED' || this.filesSyncStatus === 'SYNC_FAILED') {
-      this.changeStatus('SYNC_FAILED');
-      return;
-    }
+    broadcastSyncStatus();
   }
 
   async getFileCheckpoint(): Promise<Nullable<Date>> {

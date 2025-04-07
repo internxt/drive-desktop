@@ -1,3 +1,4 @@
+import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { ProcessInfoUpdatePayload } from '../../types';
@@ -87,8 +88,7 @@ export type SyncEngineInvocableFunctions = {
 export type ProcessInfoUpdate = {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
   SYNC_PROBLEM: (payload: { key: string; additionalData: Record<string, any> }) => void;
-  SYNCING: (workspacesId: string) => void;
-  SYNCED: (workspacesId: string) => void;
+  CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
 };
 
 export type FromProcess = FilesEvents & FolderEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
