@@ -1,27 +1,11 @@
 import { Environment } from '@internxt/inxt-js';
-import { Storage } from '@internxt/sdk/dist/drive';
 
-import { appInfo } from '../../app-info/app-info';
-import { onUserUnauthorized } from '../../auth/handlers';
-import { getUser, obtainToken } from '../../auth/service';
+import { getUser } from '../../auth/service';
 import { EnvironmentAndStorageThumbnailUploader } from './EnvironmentAndStorageThumbnailUploader';
 import { getConfig } from '@/apps/sync-engine/config';
 
 export class ThumbnailUploaderFactory {
   private static instance: EnvironmentAndStorageThumbnailUploader | null;
-
-  private static createStorageClient() {
-    const { name: clientName, version: clientVersion } = appInfo;
-
-    return Storage.client(
-      process.env.API_URL,
-      { clientName, clientVersion },
-      {
-        token: obtainToken('bearerToken'),
-        unauthorizedCallback: onUserUnauthorized,
-      },
-    );
-  }
 
   static build() {
     if (ThumbnailUploaderFactory.instance) {
@@ -41,9 +25,7 @@ export class ThumbnailUploaderFactory {
       encryptionKey: getConfig().mnemonic,
     });
 
-    const storage = ThumbnailUploaderFactory.createStorageClient();
-
-    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, storage, getConfig().bucket);
+    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, getConfig().bucket);
 
     return ThumbnailUploaderFactory.instance;
   }

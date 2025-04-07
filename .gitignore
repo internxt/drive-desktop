@@ -3,9 +3,9 @@
 /.idea
 /.npmrc
 /.vscode
+/build
 /clamAV
+/coverage
+/dist
 /node_modules
-/release/app/dist
-/release/app/node_modules
-/release/build
-/src/apps/node_modules
+/test/temp-test/

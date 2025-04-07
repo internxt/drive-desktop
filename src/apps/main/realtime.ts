@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { io, Socket } from 'socket.io-client';
 import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
@@ -15,7 +14,7 @@ let socket: Socket | undefined;
 
 let user = getUser();
 
-function cleanAndStartRemoteNotifications() {
+export function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
 
   socket = io(process.env.NOTIFICATIONS_URL, {
@@ -56,11 +55,11 @@ function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('disconnect', (reason) => {
-    Logger.log('❌ Remote notifications disconnected, reason: ', reason);
+    logger.warn({ msg: 'Remote notifications disconnected', reason });
   });
 
-  socket.on('connect_error', (error) => {
-    Logger.error('❌ Remote notifications connect error: ', error);
+  socket.on('connect_error', () => {
+    logger.warn({ msg: 'Remote notifications connect error' });
   });
 
   socket.on('event', async (data) => {
@@ -75,14 +74,14 @@ function cleanAndStartRemoteNotifications() {
     }
 
     if (data.payload.bucket !== user?.backupsBucket) {
-      logger.debug({ msg: 'Notification received', data });
+      logger.info({ msg: 'Notification received', data });
       await debouncedSynchronization();
       return;
     }
 
     const { event, payload } = data;
 
-    Logger.log('Notification received 2: ', event, payload);
+    logger.info({ msg: 'Notification received 2', event, payload });
   });
 }
 
@@ -93,6 +92,5 @@ function stopRemoteNotifications() {
   }
 }
 
-eventBus.on('USER_LOGGED_IN', cleanAndStartRemoteNotifications);
 eventBus.on('USER_LOGGED_OUT', stopRemoteNotifications);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopRemoteNotifications);

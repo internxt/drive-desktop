@@ -2,5 +2,4 @@ import { TreeBuilder } from '../../../../context/virtual-drive/items/application
 
 export interface ItemsContainer {
   existingItemsTreeBuilder: TreeBuilder;
-  allStatusesTreeBuilder: TreeBuilder;
 }

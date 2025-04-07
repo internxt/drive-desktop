@@ -4,7 +4,6 @@ import { DataSource } from 'typeorm';
 import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
 import { ScannedItem } from './entities/ScannedItem';
-import { DriveWorkspace } from './entities/DriveWorkspace';
 import { logger } from '@/apps/shared/logger/logger';
 const dbPath = app.getPath('appData') + '/internxt-drive/internxt_desktop.db';
 export const AppDataSource = new DataSource({
@@ -12,7 +11,7 @@ export const AppDataSource = new DataSource({
   database: dbPath,
   logging: false,
   synchronize: true,
-  entities: [DriveFile, DriveFolder, ScannedItem, DriveWorkspace],
+  entities: [DriveFile, DriveFolder, ScannedItem],
 });
 
 logger.debug({
@@ -20,10 +19,18 @@ logger.debug({
 });
 
 export const destroyDatabase = async () => {
-  AppDataSource.dropDatabase().catch((error) => {
-    reportError(error);
-  });
-  logger.debug({
-    msg: 'Database destroyed',
-  });
+  try {
+    // Clear all tables instead of dropping the database
+    await AppDataSource.getRepository(DriveFile).clear();
+    await AppDataSource.getRepository(DriveFolder).clear();
+
+    logger.debug({
+      msg: 'All table contents cleared',
+    });
+  } catch (error) {
+    logger.warn({
+      msg: 'Error clearing database',
+      exc: error,
+    });
+  }
 };

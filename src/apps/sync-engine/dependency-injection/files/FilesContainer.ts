@@ -32,7 +32,7 @@ export interface FilesContainer {
   repositoryPopulator: RepositoryPopulator;
   filesPlaceholderCreator: FilesPlaceholderCreator;
   filesPlaceholderUpdater: FilesPlaceholderUpdater;
-  filesPlaceholderDeleter?: FilesPlaceholderDeleter;
+  filesPlaceholderDeleter: FilesPlaceholderDeleter;
   filePlaceholderConverter: FilePlaceholderConverter;
   fileSyncStatusUpdater: FileSyncStatusUpdater;
   filesCheckerStatusInRoot: FileCheckerStatusInRoot;

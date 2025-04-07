@@ -1,72 +1,33 @@
-# Windows Application Setup
+# Setup
 
-This guide explains how to set up and build the Windows application, including both the `node-win` and `drive-desktop` projects.
-
----
+This guide explains how to set up and build the `drive-desktop` project.
 
 ## Prerequisites
 
 Before proceeding, ensure you have the following tools installed:
 
-```markdown
-- Python 3.10 (configured correctly).
-- Node.js, yarn and pnpm.
-- node-gyp (global installation):
-  npm install -g node-gyp
+- **Node.js 18**
+
+```bash
+nvm install 18
+```
+
+- **pnpm**
+
+```bash
+npm install -g pnpm
 ```
 
 - **Visual Studio** (not VS Code) for building native dependencies.
 
----
-
-## Directory Structure
-
-Clone the repositories into the following directory structure:
-
-```
-internxt
-   | - node-win
-   | - drive-desktop
-```
-
----
-
 ## Build Steps
 
-### **1. Build the `node-win` Project**
+```bash
+npm run init:dev
+npm run start
+```
 
-1. Open a terminal and navigate to the `node-win` directory.
-2. Run the following command to build the project:
-   ```bash
-   npm run build
-   ```
-   This step compiles the necessary native bindings for `node-win`.
-
----
-
-### **2. Build the `drive-desktop` Project**
-
-1. Open a terminal and navigate to the `drive-desktop` directory.
-2. Run the following command to build and start the project:
-   ```bash
-   pnpm install
-   # if pnpm does not run postinstall scripts, run manually
-   node node_modules/electron/install.js
-   npm run reload-native-deps
-   npm run start
-   ```
-   This will start the desktop application with the updated bindings.
-
----
-
-## Notes
-
-- Ensure all dependencies are installed before running the build commands.
-- If you encounter any issues, verify that your environment matches the prerequisites above.
-
-With these steps, your Windows application setup will be complete and ready to use.
-
----
+This will start the desktop application with the updated bindings.
 
 # How to Manually Sign and Effectively Publish a Release
 
@@ -98,8 +59,7 @@ You need to sign the `.exe` file using either DigiCert tools or the `smctl` CLI.
 - **The `.p12` password**
 - **The API key**
 
-Follow the setup instructions in this guide:
-[smctl Setup Guide](https://docs.digicert.com/en/digicert-keylocker/client-tools/signing-tools/smctl.html).
+Follow the setup instructions in this guide: [smctl Setup Guide](https://docs.digicert.com/en/digicert-keylocker/client-tools/signing-tools/smctl.html).
 
 ### Key Steps:
 
@@ -107,15 +67,13 @@ Follow the setup instructions in this guide:
 
    - The MSI file can be requested from Fran, Sergio, or Jonathan.
 
-2. If the DigiCert application does not open, navigate to:
-   `C:\Program Files\DigiCert\Click to Sign`
+2. If the DigiCert application does not open, navigate to: `C:\Program Files\DigiCert\Click to Sign`
 
 3. Open the **Click to Sign** application to configure the required environment variables.
 
 ### Signing the Application:
 
-Once configured, right-click on the `.exe` file:
-`Show More Options -> DigiCert@ -> Sign Now`.
+Once configured, right-click on the `.exe` file: `Show More Options -> DigiCert@ -> Sign Now`.
 
 This will sign the application.
 
@@ -162,15 +120,13 @@ To validate the new hash, use the following command:
 CertUtil -hashfile ".\Internxt Drive Setup 2.3.5.exe" SHA512
 ```
 
-This will output the new hash.
-You can compare the hash before and after signing to confirm the modification.
+This will output the new hash. You can compare the hash before and after signing to confirm the modification.
 
 ---
 
 ## Step 4: Update the `latest.yml` File
 
-The `latest.yml` file contains the SHA512 hash in Base64 format.
-Here’s an example of the `latest.yml` file structure:
+The `latest.yml` file contains the SHA512 hash in Base64 format. Here’s an example of the `latest.yml` file structure:
 
 ```yaml
 version: 2.3.5
@@ -183,9 +139,7 @@ sha512: 19rbiabrWiNcfIC2l71wuP+boKwCnEFnxbnMry7ymJcOvOosRNqvUB5o3VMeAhubsxV3qdSO
 releaseDate: '2025-01-23T15:42:56.531Z'
 ```
 
-1. **Convert the SHA512 hash to Base64:**
-   Use the script located at:
-   `.erb\scripts\convert-hash.py`.
+1. **Convert the SHA512 hash to Base64:** Use the script located at: `.erb\scripts\convert-hash.py`.
 
 2. **Update the `sha512` field in `latest.yml`** with the new Base64 hash value.
 

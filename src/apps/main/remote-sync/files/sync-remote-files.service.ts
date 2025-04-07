@@ -5,6 +5,8 @@ import { FetchRemoteFilesService } from './fetch-remote-files.service';
 import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
 import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
 import { loggerService } from '@/apps/shared/logger/logger';
+import { FETCH_LIMIT } from '../store';
+import { sleep } from '../../util';
 
 const MAX_RETRIES = 3;
 
@@ -18,7 +20,7 @@ export class SyncRemoteFilesService {
   async run({
     self,
     from,
-    folderId,
+    folderUuid,
     retry = 1,
     offset = 0,
     allResults = [],
@@ -26,32 +28,35 @@ export class SyncRemoteFilesService {
     self: RemoteSyncManager;
     retry?: number;
     from?: Date;
-    folderId?: number | string;
+    folderUuid?: string;
     offset?: number;
     allResults?: RemoteSyncedFile[];
   }): Promise<RemoteSyncedFile[]> {
     let hasMore = true;
 
     try {
-      this.logger.debug({ msg: 'Syncing files', from });
-
       while (hasMore) {
-        this.logger.debug({ msg: 'Retrieving files', offset });
+        this.logger.debug({
+          msg: 'Retrieving files',
+          workspacesId: this.workspaceId,
+          folderUuid,
+          from,
+          offset,
+        });
 
+        /**
+         * We fetch ALL files when we want to synchronize the current state with the web state.
+         * It means that we need to delete or create the files that are not in the web state anymore.
+         * However, if no checkpoint is provided it means that we don't have a local state yet.
+         * In that situation, fetch only EXISTS files.
+         */
         const param: FetchFilesServiceParams = {
           self,
           offset,
           updatedAtCheckpoint: from,
-          status: 'ALL',
+          status: from ? 'ALL' : 'EXISTS',
+          folderUuid,
         };
-
-        if (folderId) {
-          if (typeof folderId === 'string') {
-            param.folderUuid = folderId;
-          } else if (typeof folderId === 'number') {
-            param.folderId = folderId;
-          }
-        }
 
         const { hasMore: newHasMore, result } = await this.fetchRemoteFiles.run(param);
 
@@ -68,7 +73,7 @@ export class SyncRemoteFilesService {
 
         allResults.push(...result);
         hasMore = newHasMore;
-        offset += self.config.fetchFilesLimitPerRequest;
+        offset += FETCH_LIMIT;
       }
 
       return allResults;
@@ -76,11 +81,11 @@ export class SyncRemoteFilesService {
       this.logger.error({ msg: 'Remote files sync failed', exc, retry, offset });
 
       if (retry >= MAX_RETRIES) {
-        self.filesSyncStatus = 'SYNC_FAILED';
-        self.checkRemoteSyncStatus();
+        self.changeStatus('SYNC_FAILED');
         return [];
       }
 
+      await sleep(5000);
       return await this.run({ self, retry: retry + 1, from, offset, allResults });
     }
   }

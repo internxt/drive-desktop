@@ -1,34 +1,35 @@
-import { logger } from '@/apps/shared/logger/logger';
-import { client } from '../../../shared/HttpClient/client';
-import { FetchFilesService, FetchFilesServiceParams, Query, QueryFiles, QueryFilesInFolder } from './fetch-files.service.interface';
+import { FETCH_LIMIT } from '../store';
+import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export class FetchRemoteFilesService implements FetchFilesService {
-  async run({ self, updatedAtCheckpoint, offset, status = 'ALL', folderId }: FetchFilesServiceParams) {
-    const query: Query = {
-      limit: self.config.fetchFilesLimitPerRequest,
-      offset,
-      status,
-      updatedAt: updatedAtCheckpoint?.toISOString(),
-    };
+  constructor(private readonly driveServerWip = driveServerWipModule) {}
 
-    const promise = folderId ? this.getFilesByFolder({ folderId, query }) : this.getFiles({ query });
+  async run({ updatedAtCheckpoint, offset, status, folderUuid }: FetchFilesServiceParams) {
+    const promise = folderUuid
+      ? this.driveServerWip.folders.getFiles({
+          folderUuid,
+          query: {
+            limit: FETCH_LIMIT,
+            offset,
+            sort: 'updatedAt',
+            order: 'DESC',
+          },
+        })
+      : this.driveServerWip.files.getFiles({
+          query: {
+            limit: FETCH_LIMIT,
+            offset,
+            status,
+            updatedAt: updatedAtCheckpoint?.toISOString(),
+          },
+        });
 
-    const result = await promise;
+    const { data, error } = await promise;
 
-    if (result.data) {
-      const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
-      return { hasMore, result: result.data };
-    }
+    if (error) throw error;
 
-    throw logger.error({ msg: 'Fetch files response not ok', query, error: result.error });
-  }
-
-  private getFiles({ query }: { query: QueryFiles }) {
-    return client.GET('/files', { params: { query } });
-  }
-
-  private async getFilesByFolder({ folderId, query }: { folderId: number; query: QueryFilesInFolder }) {
-    const result = await client.GET('/folders/{id}/files', { params: { path: { id: folderId }, query } });
-    return { ...result, data: result.data?.result };
+    const hasMore = data.length === FETCH_LIMIT;
+    return { hasMore, result: data };
   }
 }

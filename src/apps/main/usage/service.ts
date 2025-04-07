@@ -1,21 +1,20 @@
-import { Storage } from '@internxt/sdk/dist/drive';
 import { Usage } from './Usage';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 const INFINITE_SPACE_TRHESHOLD = 108851651149824;
 const OFFER_UPGRADE_TRHESHOLD = 2199023255552;
 
 export class UserUsageService {
-  constructor(private readonly storage: Storage) {}
-
   private async getDriveUsage(): Promise<number> {
-    const usage = await this.storage.spaceUsage();
-    return usage.total;
+    const res = await driveServerWipModule.user.getUsage();
+    if (res.error) throw res.error;
+    return res.data.drive;
   }
 
   private async getLimit(): Promise<number> {
-    const { maxSpaceBytes } = await this.storage.spaceLimit();
-
-    return maxSpaceBytes;
+    const res = await driveServerWipModule.user.getLimit();
+    if (res.error) throw res.error;
+    return res.data.maxSpaceBytes;
   }
 
   async calculateUsage(): Promise<Usage> {

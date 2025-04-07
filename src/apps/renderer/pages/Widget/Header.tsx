@@ -40,15 +40,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     window.electron.quit();
   }
 
-  const wasSyncing = () => {
-    return window.electron.getRecentlywasSyncing();
-  };
-
   async function onSyncClick() {
-    const notAllowed = await wasSyncing();
-    if (notAllowed) {
-      return;
-    }
     window.electron.syncManually();
   }
 

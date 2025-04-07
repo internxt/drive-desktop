@@ -6,10 +6,10 @@ import {
 } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
 import { FileMother } from '../../files/domain/FileMother';
 import { LocalFileWriter } from '@/context/virtual-drive/contents/domain/LocalFileWriter';
-import { ContentsManagersFactory } from '@/context/virtual-drive/contents/domain/ContentsManagersFactory';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { EventEmitter, Readable } from 'stream';
+import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 // Creamos un EventEmitter real
 
@@ -19,7 +19,7 @@ describe('Contents Downloader', () => {
   };
 
   const localWriter = mockDeep<LocalFileWriter>();
-  const factory = mockDeep<ContentsManagersFactory>();
+  const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
   const ipc = mockDeep<SyncEngineIpc>();
   const eventBus = mockDeep<EventBus>();
 

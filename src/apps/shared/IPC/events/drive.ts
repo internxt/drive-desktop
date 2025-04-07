@@ -1,3 +1,5 @@
+import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
+
 type FolderEvents = {
   FOLDER_CREATING: (payload: { name: string }) => void;
   FOLDER_CREATED: (payload: { name: string }) => void;
@@ -32,13 +34,11 @@ type UploadEvents = {
   FILE_UPLOADING: (payload: FileProgressInfo) => void;
   FILE_UPLOADED: (payload: FileProgressInfo) => void;
   FILE_CREATED: (payload: { name: string; extension: string; nameWithExtension: string; fileId: number; path: string }) => void;
-
   FILE_UPLOAD_ERROR: (payload: FileErrorInfo) => void;
 };
 
 type DownloadEvents = {
   FILE_DOWNLOADING: (payload: FileProgressInfo) => void;
-  FILE_PREPARING: (payload: FileProgressInfo) => void;
   FILE_DOWNLOADED: (payload: FileProgressInfo) => void;
   FILE_DOWNLOAD_CANCEL: (payload: Partial<FileProgressInfo>) => void;
   FILE_DOWNLOAD_ERROR: (payload: Partial<FileErrorInfo>) => void;
@@ -65,8 +65,7 @@ type MoveEvents = {
 };
 
 type SyncEvents = {
-  SYNCING: (workspacesId: string) => void;
-  SYNCED: (workspacesId: string) => void;
+  CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
 };
 
 type CloneEvents = {

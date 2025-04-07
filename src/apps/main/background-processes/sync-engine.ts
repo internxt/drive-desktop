@@ -1,26 +1,16 @@
-import fs from 'fs/promises';
-import { BrowserWindow, ipcMain } from 'electron';
-import path from 'path';
+import { ipcMain } from 'electron';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
-import nodeSchedule from 'node-schedule';
-import { monitorHealth } from './sync-engine/monitor-health';
-import { Config } from '../../sync-engine/config';
-import { getLoggersPaths, getRootVirtualDrive, getRootWorkspace } from '../virtual-root-folder/service';
-import { logger } from '../../../apps/shared/logger/logger';
-import { driveFilesCollection, driveFoldersCollection, syncWorkspaceService } from '../remote-sync/handlers';
+import { workers } from './sync-engine/store';
 import { getUser } from '../auth/service';
-import { FetchWorkspacesService } from '../remote-sync/workspace/fetch-workspaces.service';
-import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
-
-interface WorkerConfig {
-  worker: BrowserWindow | null;
-  workerIsRunning: boolean;
-  startingWorker: boolean;
-  syncSchedule: nodeSchedule.Job | null;
-}
-
-export const workers: { [key: string]: WorkerConfig } = {};
+import { Config } from '@/apps/sync-engine/config';
+import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
+import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
+import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
+import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
+import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
+import { getWorkspaces } from './sync-engine/services/get-workspaces';
+import { initializeRemoteSyncManager } from '../remote-sync/handlers';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -38,158 +28,21 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
   }
 });
 
-function scheduleSync(workspaceId: string) {
-  if (workers[workspaceId].syncSchedule) {
-    workers[workspaceId].syncSchedule?.cancel(false);
-  }
-
-  workers[workspaceId].syncSchedule = nodeSchedule.scheduleJob('*/15 * * * *', async () => {
-    eventBus.emit('RECEIVED_REMOTE_CHANGES', workspaceId);
-  });
-}
-
-export async function spawnSyncEngineWorker(config: Config) {
-  const { workspaceId, providerName } = config;
-
-  if (!workers[workspaceId]) {
-    workers[workspaceId] = {
-      worker: null,
-      workerIsRunning: false,
-      startingWorker: false,
-      syncSchedule: null,
-    };
-  }
-
-  if (workers[workspaceId].startingWorker) {
-    Logger.info(`[MAIN] Worker for drive ${providerName}: ${workspaceId} is already starting`);
-    return;
-  }
-
-  if (workers[workspaceId].workerIsRunning) {
-    Logger.info(`[MAIN] Worker for drive ${providerName}: ${workspaceId} is already running`);
-    return;
-  }
-
-  Logger.info(`[MAIN] SPAWNING SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId}...`);
-  workers[workspaceId].startingWorker = true;
-
-  const worker = new BrowserWindow({
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      backgroundThrottling: false,
-    },
-    show: false,
-  });
-
-  try {
-    await worker.loadFile(
-      process.env.NODE_ENV === 'development'
-        ? '../../../release/app/dist/sync-engine/index.html'
-        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`,
-    );
-
-    logger.debug({ msg: `[MAIN] SYNC ENGINE WORKER for workspace ${providerName}: ${workspaceId} LOADED` });
-
-    worker.webContents.send('SET_CONFIG', config);
-
-    monitorHealth({
-      worker,
-      stopAndSpawn: async () => {
-        await stopAndClearSyncEngineWatcher(workspaceId);
-        await spawnSyncEngineWorker(config);
-      },
-    });
-
-    scheduleSync(workspaceId);
-
-    workers[workspaceId].worker = worker;
-  } catch (err) {
-    Logger.error(`[MAIN] Error loading sync engine worker for workspace ${providerName}: ${workspaceId}`, err);
-  }
-}
-
-export async function stopAndClearSyncEngineWatcher(workspaceId = '') {
-  Logger.info(`[MAIN] STOPPING AND CLEARING SYNC ENGINE WORKER for workspace ${workspaceId}...`);
-
-  if (workers[workspaceId] && !workers[workspaceId].workerIsRunning) {
-    Logger.info(`[MAIN] WORKER for workspace ${workspaceId} WAS NOT RUNNING`);
-    workers[workspaceId].worker?.destroy();
-    delete workers[workspaceId];
-
-    return;
-  }
-
-  const response = new Promise<void>((resolve, reject) => {
-    ipcMain.on('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (_, error: Error) => {
-      Logger.error(`[MAIN] Error stopping sync engine worker for workspace ${workspaceId}`, error);
-      reject(error);
-    });
-
-    ipcMain.on('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS', () => {
-      resolve();
-      Logger.info(`[MAIN] Sync engine stopped and cleared for workspace ${workspaceId}`);
-    });
-
-    const millisecondsToWait = 10_000;
-
-    setTimeout(() => {
-      reject(new Error(`Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`));
-    }, millisecondsToWait);
-  });
-
-  try {
-    workers[workspaceId]?.worker?.webContents?.send('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
-
-    await response;
-  } catch (err) {
-    Logger.error(err);
-  } finally {
-    workers[workspaceId]?.worker?.destroy();
-    workers[workspaceId].workerIsRunning = false;
-    workers[workspaceId].worker = null;
-  }
-}
-
 export function updateSyncEngine(workspaceId: string) {
   try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker.webContents?.send('UPDATE_SYNC_ENGINE_PROCESS');
+    const browserWindow = workers[workspaceId]?.worker;
+    if (browserWindow && !browserWindow.isDestroyed() && !browserWindow.webContents.isDestroyed()) {
+      browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
     Logger.error(err);
-  }
-}
-
-export function fallbackSyncEngine(workspaceId: string) {
-  try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker?.webContents?.send('FALLBACK_SYNC_ENGINE_PROCESS');
-    }
-  } catch (err) {
-    Logger.error(err);
-  }
-}
-
-export async function sendUpdateFilesInSyncPending(workspaceId: string): Promise<string[]> {
-  try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker?.webContents?.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
-    }
-    return [];
-  } catch (err) {
-    Logger.error(err);
-    return [];
   }
 }
 
 export const stopAndClearAllSyncEngineWatcher = async () => {
   await Promise.all(
     Object.keys(workers).map(async (workspaceId) => {
-      await stopAndClearSyncEngineWatcher(workspaceId);
+      await stopAndClearSyncEngineWorker({ workspaceId });
     }),
   );
 };
@@ -200,8 +53,10 @@ export const spawnAllSyncEngineWorker = async () => {
   if (!user) {
     return;
   }
-  const values: Config = {
-    providerId: `{${process.env.PROVIDER_ID}}`,
+
+  const providerId = `{${user.uuid.toUpperCase()}}`;
+  const config: Config = {
+    providerId,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
@@ -214,51 +69,17 @@ export const spawnAllSyncEngineWorker = async () => {
     workspaceToken: undefined,
   };
 
-  await spawnSyncEngineWorker(values);
+  const workspaces = await getWorkspaces({});
+  const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
-  const workspaces = await syncWorkspaceService.getWorkspaces();
+  unregisterVirtualDrives({ providerId, workspaceProviderIds });
 
-  await Promise.all(
-    workspaces.map(async (workspace) => {
-      if (workspace.removed) {
-        const rootFolder = await getRootWorkspace(workspace.id);
-        await fs.rm(rootFolder, { recursive: true, force: true });
-        await driveFilesCollection.cleanWorkspace(workspace.id);
-        await driveFoldersCollection.cleanWorkspace(workspace.id);
-        ipcMain.emit('UNREGISTER_SYNC_ENGINE_PROCESS', `{${workspace.id}}`);
-        return;
-      }
+  const spawnWorkspaces = workspaces.forEach(async (workspace) => {
+    initializeRemoteSyncManager({ workspaceId: workspace.id });
+    await spawnWorkspace({ workspace });
+  });
 
-      const workspaceCredential = await FetchWorkspacesService.getCredencials(workspace.id);
-
-      const user = getUser();
-
-      if (!user) {
-        throw new Error('User not found');
-      }
-
-      const mnemonic = await decryptMessageWithPrivateKey({
-        encryptedMessage: Buffer.from(workspace.mnemonic, 'base64').toString(),
-        privateKeyInBase64: user.privateKey,
-      });
-
-      const values: Config = {
-        mnemonic: mnemonic.toString(),
-        providerId: `{${workspace.id}}`,
-        rootPath: getRootWorkspace(workspace.id),
-        providerName: 'Internxt Drive for Business',
-        loggerPath: getLoggersPaths().logWatcherPath,
-        workspaceId: workspace.id,
-        workspaceToken: workspaceCredential.tokenHeader,
-        rootUuid: await syncWorkspaceService.getRootFolderUuid(workspace.id),
-        bucket: workspaceCredential.bucket,
-        bridgeUser: workspaceCredential.credentials.networkUser,
-        bridgePass: workspaceCredential.credentials.networkPass,
-      };
-
-      await spawnSyncEngineWorker(values);
-    }),
-  );
+  await Promise.all([spawnSyncEngineWorker({ config }), spawnWorkspaces]);
 };
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);

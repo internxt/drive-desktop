@@ -1,3 +1,4 @@
+import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { ProcessInfoUpdatePayload } from '../../types';
@@ -46,7 +47,6 @@ export type FilesEvents = {
   FILE_DOWNLOAD_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; error: string }) => void;
 
   FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
-  FILE_PREPARING: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOAD_CANCEL: (payload: Partial<FileUpdatePayload>) => void;
   FILE_UPLOAD_ERROR: (payload: { name?: string; extension?: string; nameWithExtension: string; error: string }) => void;
@@ -71,14 +71,13 @@ export type SyncEngineInvocableFunctions = {
     folders: DriveFolder[];
   }>;
   GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (
-    folderId: number,
+    folderUuid: string,
     workspaceId: string,
   ) => Promise<{
     files: DriveFile[];
     folders: DriveFolder[];
   }>;
-  START_REMOTE_SYNC: () => Promise<void>;
-  FORCE_REFRESH_BACKUPS: (folderId: number) => Promise<void>;
+  FORCE_REFRESH_BACKUPS: (folderUuid: string) => Promise<void>;
 
   GET_HEADERS: () => Promise<Record<string, string>>;
 
@@ -89,8 +88,7 @@ export type SyncEngineInvocableFunctions = {
 export type ProcessInfoUpdate = {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
   SYNC_PROBLEM: (payload: { key: string; additionalData: Record<string, any> }) => void;
-  SYNCING: (workspacesId: string) => void;
-  SYNCED: (workspacesId: string) => void;
+  CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
 };
 
 export type FromProcess = FilesEvents & FolderEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;

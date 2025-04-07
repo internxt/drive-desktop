@@ -17,22 +17,10 @@ class DangledFilesManager {
     return DangledFilesManager.instance;
   }
 
-  public get() {
-    return this.accumulate;
-  }
-
   public add(input: { contentId: string; path: string }): void {
     const { contentId, path } = input;
     Logger.debug(`Adding dangled file: ${contentId} - ${path}`);
     this.accumulate[contentId] = path;
-  }
-
-  public addToDelete(contentId: string): void {
-    this.toDelete.push(contentId);
-  }
-
-  public set(files: Record<string, string>): void {
-    this.accumulate = files;
   }
 
   public async pushAndClean(pushCallback: (input: PushAndCleanInput) => Promise<void>): Promise<void> {

@@ -1,29 +1,20 @@
 import Logger from 'electron-log';
 import { app, dialog, shell } from 'electron';
-import fs from 'fs/promises';
+import fsPromises from 'fs/promises';
+import fs from 'fs';
 import path from 'path';
 
 import configStore from '../config';
 import eventBus from '../event-bus';
 import { getUser } from '../auth/service';
+import { logger } from '@/apps/shared/logger/logger';
+import { User } from '../types';
+import { PATHS } from '@/core/electron/paths';
 
 const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME;
-const HOME_FOLDER_PATH = app.getPath('home');
+const VIRTUAL_DRIVE_FOLDER = path.join(PATHS.HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
-const VIRTUAL_DRIVE_FOLDER = path.join(HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
-
-export async function clearDirectory(pathname: string): Promise<boolean> {
-  try {
-    await fs.rm(pathname, { recursive: true });
-    await fs.mkdir(pathname);
-
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function setSyncRoot(pathname: string): void {
+export function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
   const logEnginePath = path.join(app.getPath('appData'), 'internxt-drive', 'logs', 'node-win.txt');
 
@@ -40,28 +31,33 @@ function setSyncRoot(pathname: string): void {
 
 export function getRootVirtualDrive(): string {
   const current = configStore.get('syncRoot');
-  if (current !== VIRTUAL_DRIVE_FOLDER) {
-    setupRootFolder();
-  }
-
-  return configStore.get('syncRoot');
-}
-
-export function getRootWorkspace(workspaceId: string): string {
   const user = getUser();
   if (!user) {
-    throw new Error('User not found');
+    throw logger.error({
+      msg: 'User not found when getting root virtual drive',
+    });
   }
 
-  const key = `${user.uuid}-${workspaceId}`;
+  logger.debug({
+    msg: 'Current root virtual drive',
+    current,
+  });
 
-  const current = configStore.get('workspacesPath');
-  if (!current[key]) {
-    const pathName = path.join(HOME_FOLDER_PATH, `${ROOT_FOLDER_NAME} - ${key}`);
-    configStore.set('workspacesPath', { ...current, [key]: pathName });
-    return pathName;
+  if (!current.includes(user.uuid)) {
+    logger.debug({
+      msg: 'Root virtual drive not found for user',
+    });
+    setupRootFolder(user);
+    const newRoot = configStore.get('syncRoot');
+
+    logger.debug({
+      msg: 'New root virtual drive',
+      newRoot,
+    });
+    return newRoot;
   }
-  return current[key];
+
+  return current;
 }
 
 export interface LoggersPaths {
@@ -84,23 +80,49 @@ export function getLoggersPaths(): LoggersPaths {
 
 export async function clearRootVirtualDrive(): Promise<void> {
   try {
-    const syncFolderPath = configStore.get('syncRoot');
-
     const queue = path.join(app.getPath('appData'), 'internxt-drive', 'queue-manager.json');
 
-    await fs.rm(queue, { recursive: true, force: true });
-
-    await fs.rm(syncFolderPath, { recursive: true, force: true });
-
-    Logger.info(`Directory contents cleared: ${syncFolderPath}`);
+    await fsPromises.rm(queue, { recursive: true, force: true });
   } catch (err) {
     Logger.error('Error clearing root virtual drive', err);
   }
 }
 
-export async function setupRootFolder(n = 0): Promise<void> {
-  setSyncRoot(VIRTUAL_DRIVE_FOLDER);
-  return;
+export function setupRootFolder(user: User): void {
+  const current = configStore.get('syncRoot');
+
+  const pathNameWithSepInTheEnd = VIRTUAL_DRIVE_FOLDER + path.sep;
+  const syncFolderPath = `${VIRTUAL_DRIVE_FOLDER} - ${user.uuid}`;
+
+  logger.debug({
+    msg: 'Virtual drive folder',
+    pathNameWithSepInTheEnd,
+    current,
+    syncFolderPath,
+  });
+
+  /**
+   * v2.5.1 Jonathan Arce
+   * Previously, the drive name in Explorer was "Internxt Drive" and when you logged out and logged in,
+   * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
+   * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
+   * login called "Internxt Drive - {user.uuid}."
+   * So, we need to rename "Internxt Drive" to "Internxt Drive - { user.uuid}".
+   */
+  if (current === pathNameWithSepInTheEnd) {
+    if (fs.existsSync(syncFolderPath)) {
+      logger.debug({
+        msg: 'Root virtual drive with new name format already exists, do not try to rename it',
+      });
+    } else {
+      logger.debug({
+        msg: 'Renaming root virtual drive',
+      });
+      fs.renameSync(current, syncFolderPath);
+    }
+  }
+
+  setSyncRoot(syncFolderPath);
 }
 
 export async function chooseSyncRootWithDialog(): Promise<string | null> {

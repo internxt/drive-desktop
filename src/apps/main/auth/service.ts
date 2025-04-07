@@ -138,6 +138,7 @@ export function getNewApiHeaders(): Record<string, string> {
     'content-type': 'application/json; charset=utf-8',
     'internxt-client': 'drive-desktop',
     'internxt-version': packageConfig.version,
+    'x-internxt-desktop-header': process.env.DESKTOP_HEADER,
   };
 }
 
@@ -145,6 +146,12 @@ export function getUser(): User | null {
   const user = ConfigStore.get('userData');
 
   return user && Object.keys(user).length ? user : null;
+}
+
+export function getUserOrThrow(): User {
+  const user = getUser();
+  if (!user) throw new Error('User not found');
+  return user;
 }
 
 export function obtainTokens(): Array<string> {

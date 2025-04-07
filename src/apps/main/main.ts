@@ -28,7 +28,6 @@ import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';
-import './tray/handlers';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';
@@ -55,6 +54,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
+import { setDefaultConfig } from '../sync-engine/config';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -106,15 +106,17 @@ app
 
     setupTrayIcon();
     registerUsageHandlers();
+    setUpBackups();
     await checkIfUserIsLoggedIn();
 
     const isLoggedIn = getIsLoggedIn();
-    setUpBackups();
 
     if (!isLoggedIn) {
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
+
+    setDefaultConfig({});
 
     ipcMain.handle('is-dark-mode-active', () => {
       return nativeTheme.shouldUseDarkColors;
