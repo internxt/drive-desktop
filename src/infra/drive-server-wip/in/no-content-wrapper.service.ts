@@ -1,5 +1,6 @@
 type TProps = {
   request: Promise<{
+    data?: undefined;
     response: Response;
     error?: Error;
   }>;
