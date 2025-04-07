@@ -226,9 +226,6 @@ export class BindingsManager {
     try {
       const tree = await this.container.existingItemsTreeBuilder.run();
 
-      logger.debug({ msg: 'TRASHED FILES LIST', trashedFilesList: tree.trashedFilesList });
-      logger.debug({ msg: 'FILES LIST', files: tree.files });
-
       await Promise.all([
         this.container.filesPlaceholderDeleter.run(tree.trashedFilesList),
         this.container.folderPlaceholderDeleter.run(tree.trashedFoldersList),
