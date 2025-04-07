@@ -9,7 +9,6 @@ import { setConfig, Config, getConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 
 Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
 
