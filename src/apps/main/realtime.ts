@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { io, Socket } from 'socket.io-client';
 import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
@@ -56,11 +55,11 @@ export function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('disconnect', (reason) => {
-    Logger.log('❌ Remote notifications disconnected, reason: ', reason);
+    logger.warn({ msg: 'Remote notifications disconnected', reason });
   });
 
   socket.on('connect_error', () => {
-    Logger.error('❌ Remote notifications connect error');
+    logger.warn({ msg: 'Remote notifications connect error' });
   });
 
   socket.on('event', async (data) => {

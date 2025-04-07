@@ -17,7 +17,7 @@ export function buildItemsContainer(): ItemsContainer {
 
   const nameDecryptor = new CryptoJsNameDecrypt();
 
-  const existingItemsTraverser = Traverser.existingItems(nameDecryptor, user.root_folder_id, getConfig().rootUuid);
+  const existingItemsTraverser = new Traverser(nameDecryptor, user.root_folder_id, getConfig().rootUuid);
 
   const existingItemsTreeBuilder = new TreeBuilder(remoteItemsGenerator, existingItemsTraverser);
 

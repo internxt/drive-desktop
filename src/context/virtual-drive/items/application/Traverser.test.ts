@@ -1,12 +1,17 @@
+import { mockDeep } from 'vitest-mock-extended';
 import { ServerFile, ServerFileStatus } from '../../../../../src/context/shared/domain/ServerFile';
 import { ServerFolderStatus, ServerFolder } from '../../../../../src/context/shared/domain/ServerFolder';
-import { Traverser } from '../../../../../src/context/virtual-drive/items/application/Traverser';
-import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
-import { FakeNameDecrypt } from '../infrastructure/FakeNameDecrypt';
 import { v4 } from 'uuid';
+import { ContentsIdMother } from 'tests/context/virtual-drive/contents/domain/ContentsIdMother';
+import { CryptoJsNameDecrypt } from '../infrastructure/CryptoJsNameDecrypt';
+import { Traverser } from './Traverser';
 
 describe('Traverser', () => {
-  const nameDecrypt = new FakeNameDecrypt();
+  const nameDecrypt = mockDeep<CryptoJsNameDecrypt>();
+
+  beforeAll(() => {
+    nameDecrypt.decryptName.mockImplementation((name) => name);
+  });
 
   it('first level files starts with /', () => {
     const baseFolderId = 6;
