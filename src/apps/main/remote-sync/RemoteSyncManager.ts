@@ -52,8 +52,10 @@ export class RemoteSyncManager {
    * @param milliseconds Time in milliseconds to check if the RemoteSyncManager was syncing
    */
   recentlyWasSyncing({ milliseconds }: { milliseconds: number }) {
-    const lastSyncingFinishedTimestamp = this.lastSyncingFinishedTimestamp ?? new Date();
+    if (!this.lastSyncingFinishedTimestamp) return false;
+    const lastSyncingFinishedTimestamp = this.lastSyncingFinishedTimestamp;
     const passedTime = Date.now() - lastSyncingFinishedTimestamp.getTime();
+
     return passedTime < milliseconds;
   }
 

@@ -173,7 +173,6 @@ async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
   if (!manager) return;
 
   const isSyncing = checkSyncInProgress({ workspaceId });
-  if (isSyncing) return;
 
   if (isSyncing) {
     logger.debug({ msg: 'Remote sync is already running', workspaceId });
@@ -287,7 +286,9 @@ function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {
   if (!manager) throw new Error('RemoteSyncManager not found');
 
   const isSyncing = manager.getSyncStatus() === 'SYNCING';
+
   const recentlySyncing = manager.recentlyWasSyncing({ milliseconds: 5000 });
+
   return isSyncing || recentlySyncing;
 }
 

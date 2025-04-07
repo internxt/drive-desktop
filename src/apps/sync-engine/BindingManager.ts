@@ -194,7 +194,7 @@ export class BindingsManager {
       },
     };
 
-    ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
+    // ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
 
     await this.stop();
 
@@ -204,7 +204,7 @@ export class BindingsManager {
     await this.load();
     await this.polling();
 
-    ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
+    // ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
   }
 
   async watch() {
