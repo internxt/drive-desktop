@@ -1,16 +1,16 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { buildPaymentsService } from '../../payments/builder';
 import { PaymentsService } from '../../payments/service';
 import clamAVServer from '../ClamAVDaemon';
 import { clearDailyScan, scheduleDailyScan } from '../scanCronJob';
+import { logger } from '@/apps/shared/logger/logger';
 
 let paymentService: PaymentsService | null = null;
 let isClamAVRunning = false;
-
 let clamAVInitializationPromise: Promise<{ antivirusEnabled: boolean }> | null = null;
 
 export async function initializeAntivirusIfAvailable() {
   isClamAVRunning = await clamAVServer.checkClamdAvailability();
+
   if (isClamAVRunning) {
     return { antivirusEnabled: true };
   }
@@ -32,7 +32,6 @@ async function initializeClamAV() {
 
     if (isAntivirusEnabled) {
       await clamAVServer.startClamdServer();
-
       await clamAVServer.waitForClamd();
 
       logger.debug({ msg: '[INITIALIZING CLAM AV] ClamAV is running. Scheduling daily scan...' });
