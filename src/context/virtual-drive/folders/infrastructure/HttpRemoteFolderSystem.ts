@@ -103,7 +103,7 @@ export class HttpRemoteFolderSystem {
   }
 
   async trash(folder: Folder): Promise<void> {
-    const { error } = await driveServerWip.storage.deleteFolderWithUuid({ uuid: folder.uuid });
+    const { error } = await driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
     if (error) throw error;
   }
 
