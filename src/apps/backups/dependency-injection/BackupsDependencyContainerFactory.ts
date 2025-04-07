@@ -8,14 +8,8 @@ import { Backup } from '../Backups';
 import { registerLocalTreeServices } from './local/registerLocalTreeServices';
 import { registerRemoteTreeServices } from './virtual-drive/registerRemoteTreeServices';
 import { registerUserUsageServices } from './user/registerUsageServices';
-import { NetworkFacade } from '../../main/network/NetworkFacade';
-import { Network } from '@internxt/sdk/dist/network';
-import packageJson from '../../../../package.json';
-import { getConfig } from '@/apps/sync-engine/config';
 
 @Service()
-class MockNetwork extends Network {}
-
 export class BackupsDependencyContainerFactory {
   static async build(): Promise<Container> {
     Logger.info('[BackupsDependencyContainerFactory] Starting to build the container.');
@@ -24,31 +18,6 @@ export class BackupsDependencyContainerFactory {
     Logger.info('[BackupsDependencyContainerFactory] Shared infrastructure builder created.');
 
     try {
-      const config = getConfig();
-      if (!config) {
-        throw new Error('User not found');
-      }
-      Logger.info('[BackupsDependencyContainerFactory] Registering network services.');
-      const { name: clientName, version: clientVersion } = packageJson;
-      const network = MockNetwork.client(
-        process.env.BRIDGE_URL as string,
-        {
-          clientName,
-          clientVersion,
-        },
-        {
-          bridgeUser: config.bridgeUser,
-          userId: config.bridgePass,
-        },
-      );
-
-      builder.register(Network).useInstance(network).private();
-
-      builder
-        .register(NetworkFacade)
-        .useFactory((c) => new NetworkFacade(c.get(Network)))
-        .public(); // Changed from private to public to ensure it's accessible
-
       Logger.info('[BackupsDependencyContainerFactory] Registering file services.');
       await registerFilesServices(builder);
 

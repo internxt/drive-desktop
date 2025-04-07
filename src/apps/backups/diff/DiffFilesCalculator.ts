@@ -54,24 +54,24 @@ export class DiffFilesCalculator {
       const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
       const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
+      // TODO: cuidado con esta condicion al hacer testing
+
       if (!store.get(IS_PATCH_2_5_1_APPLIED, false) && createdAt >= startDate && createdAt <= endDate) {
         logger.debug({ msg: 'Possible Dangled File', remoteNodeName: remoteNode.name });
         dangled.set(local, remoteNode);
         return;
       }
 
-      // if (remoteModificationTime < localModificationTime) {
-      //   modified.set(local, remoteNode);
-      //   return;
-      // }
+      if (remoteModificationTime < localModificationTime) {
+        modified.set(local, remoteNode);
+        return;
+      }
 
-      // unmodified.push(local);
+      unmodified.push(local);
     });
 
     store.set(IS_PATCH_2_5_1_APPLIED, true);
 
-    // si el archivo no existe en local, se marca como eliminado,
-    // pero si tiene un status de deleted, no se marca como eliminado
     const deleted = remote.files.filter((file) => {
       if (file.status !== FileStatus.Exists) {
         return false;
