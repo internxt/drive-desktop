@@ -7,8 +7,6 @@ import { Nullable } from '@/apps/shared/types/Nullable';
 import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.service';
 import { QueryFolders } from './folders/fetch-folders.service.interface';
 import { driveFilesCollection, driveFoldersCollection } from './store';
-import { setTrayStatus } from '../tray/tray';
-import { broadcastToWindows } from '../windows';
 import { broadcastSyncStatus } from './services/broadcast-sync-status';
 
 export class RemoteSyncManager {

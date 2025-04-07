@@ -7,8 +7,6 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
-import { ServerFileStatus } from '@/context/shared/domain/ServerFile';
-import { ServerFolderStatus } from '@/context/shared/domain/ServerFolder';
 import * as Sentry from '@sentry/electron/renderer';
 import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
@@ -20,6 +18,7 @@ import { HandleAddService } from './callbacks/handleAdd.service';
 import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
+import { logger } from '../shared/logger/logger';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -50,18 +49,6 @@ export class BindingsManager {
   }
 
   async load(): Promise<void> {
-    this.container.existingItemsTreeBuilder.setFileStatusesToFilter([
-      ServerFileStatus.EXISTS,
-      ServerFileStatus.TRASHED,
-      ServerFileStatus.DELETED,
-    ]);
-
-    this.container.existingItemsTreeBuilder.setFolderStatusesToFilter([
-      ServerFolderStatus.EXISTS,
-      ServerFolderStatus.TRASHED,
-      ServerFolderStatus.DELETED,
-    ]);
-
     const tree = await this.container.existingItemsTreeBuilder.run();
     await Promise.all([this.container.folderRepositoryInitiator.run(tree.folders), this.container.repositoryPopulator.run(tree.files)]);
   }
@@ -252,19 +239,20 @@ export class BindingsManager {
   }
 
   async polling(): Promise<void> {
+    const workspaceId = getConfig().workspaceId;
+    logger.debug({ msg: '[SYNC ENGINE] Polling', workspaceId });
+
     try {
-      Logger.info('[SYNC ENGINE] Monitoring polling...');
       const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
-      Logger.info('[SYNC ENGINE] fileInPendingPaths', fileInPendingPaths);
+      logger.debug({ msg: 'Files in pending paths', workspaceId, total: fileInPendingPaths.length });
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
       await this.container.fileDangledManager.run();
     } catch (error) {
-      Logger.error('[SYNC ENGINE] Polling', error);
-      Sentry.captureException(error);
+      logger.error({ msg: '[SYNC ENGINE] Polling', workspaceId, error });
     }
 
-    Logger.debug('[SYNC ENGINE] Polling finished');
+    logger.debug({ msg: '[SYNC ENGINE] Polling finished', workspaceId });
 
     DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
       await ipcRenderer.invoke('UPDATE_FIXED_FILES', {

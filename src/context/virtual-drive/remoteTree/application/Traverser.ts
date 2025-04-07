@@ -7,9 +7,9 @@ import { createFolderFromServerFolder } from '../../folders/application/create/F
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { NameDecrypt } from '../domain/NameDecrypt';
 import { RemoteTree } from '../domain/RemoteTree';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
+import { CryptoJsNameDecrypt } from '../../items/infrastructure/CryptoJsNameDecrypt';
 
 type Items = {
   files: Array<ServerFile>;
@@ -18,17 +18,13 @@ type Items = {
 @Service()
 export class Traverser {
   constructor(
-    private readonly decrypt: NameDecrypt,
+    private readonly decrypt: CryptoJsNameDecrypt,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>,
   ) {}
 
-  static existingItems(decrypt: NameDecrypt): Traverser {
+  static existingItems(decrypt: CryptoJsNameDecrypt): Traverser {
     return new Traverser(decrypt, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
-  }
-
-  static allItems(decrypt: NameDecrypt): Traverser {
-    return new Traverser(decrypt, [], []);
   }
 
   private createRootFolder({ id, uuid }: { id: number; uuid: string }): Folder {
