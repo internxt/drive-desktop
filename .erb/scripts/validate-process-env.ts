@@ -8,6 +8,7 @@ const ENV_SCHEMA = z.object({
   CRYPTO_KEY: z.string(),
   NEW_CRYPTO_KEY: z.string(),
   NEW_DRIVE_URL: z.string(),
+  DRIVE_URL: z.string(),
   NODE_ENV: z.union([z.literal('development'), z.literal('production')]),
   NOTIFICATIONS_URL: z.string(),
   PAYMENTS_URL: z.string(),

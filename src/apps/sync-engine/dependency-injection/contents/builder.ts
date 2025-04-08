@@ -21,7 +21,7 @@ export async function buildContentsContainer(sharedContainer: SharedContainer): 
   const eventRepository = DependencyInjectionEventRepository.get();
 
   const environment = new Environment({
-    bridgeUrl: process.env.BRIDGE_URL,
+    bridgeUrl: process.env.DRIVE_URL,
     bridgeUser: getConfig().bridgeUser,
     bridgePass: getConfig().bridgePass,
     encryptionKey: mnemonic,

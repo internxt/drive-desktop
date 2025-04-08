@@ -15,6 +15,7 @@ export function buildPaymentsService() {
     {
       clientName,
       clientVersion,
+      desktopHeader: process.env.DESKTOP_HEADER,
     },
     {
       unauthorizedCallback: onUserUnauthorized,
