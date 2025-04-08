@@ -1,8 +1,8 @@
 import { Folder } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 
 export class FolderContainerDetector {
-  constructor(private readonly repository: FolderRepository) {}
+  constructor(private readonly repository: InMemoryFolderRepository) {}
 
   run(folderContentId: Folder['uuid'], parentFolderContentId: Folder['uuid']): boolean {
     const folder = this.repository.searchByPartial({ uuid: folderContentId });

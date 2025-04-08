@@ -3,15 +3,15 @@ import { Folder } from '../domain/Folder';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
-import { FolderRepository } from '../domain/FolderRepository';
 import { Service } from 'diod';
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
 import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 
 @Service()
 export class FolderDeleter {
   constructor(
-    private readonly repository: FolderRepository,
+    private readonly repository: InMemoryFolderRepository,
     private readonly remote: HttpRemoteFolderSystem,
     private readonly local: NodeWinLocalFolderSystem,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,

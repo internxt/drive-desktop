@@ -49,7 +49,7 @@ export class BindingsManager {
   }
 
   async load(): Promise<void> {
-    const tree = await this.container.existingItemsTreeBuilder.run();
+    const tree = await this.container.treeBuilder.run();
     await Promise.all([this.container.folderRepositoryInitiator.run(tree.folders), this.container.repositoryPopulator.run(tree.files)]);
   }
 
@@ -175,7 +175,6 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
-    await this.updateAndCheckPlaceholders();
   }
 
   async watch() {
@@ -224,7 +223,7 @@ export class BindingsManager {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
 
     try {
-      const tree = await this.container.existingItemsTreeBuilder.run();
+      const tree = await this.container.treeBuilder.run();
 
       await Promise.all([
         this.container.filesPlaceholderDeleter.run(tree.trashedFilesList),

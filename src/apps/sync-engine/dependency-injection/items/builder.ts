@@ -19,7 +19,7 @@ export function buildItemsContainer(): ItemsContainer {
 
   const existingItemsTraverser = new Traverser(nameDecryptor, user.root_folder_id, getConfig().rootUuid);
 
-  const existingItemsTreeBuilder = new TreeBuilder(remoteItemsGenerator, existingItemsTraverser);
+  const treeBuilder = new TreeBuilder(remoteItemsGenerator, existingItemsTraverser);
 
-  return { existingItemsTreeBuilder };
+  return { treeBuilder };
 }
