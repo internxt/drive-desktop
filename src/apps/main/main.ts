@@ -41,7 +41,7 @@ import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
-import { AppDataSource, destroyDatabase } from './database/data-source';
+import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
@@ -55,6 +55,7 @@ import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/util
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 import { setDefaultConfig } from '../sync-engine/config';
+import { migrate } from '@/migrations/migrate';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -105,10 +106,13 @@ app
     }
 
     setupTrayIcon();
+
+    await migrate();
+
     registerUsageHandlers();
     setUpBackups();
-    await checkIfUserIsLoggedIn();
 
+    await checkIfUserIsLoggedIn();
     const isLoggedIn = getIsLoggedIn();
 
     if (!isLoggedIn) {
@@ -133,6 +137,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     }
 
     getAuthWindow()?.hide();
+
+    await migrate();
 
     nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
 
@@ -161,7 +167,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
 eventBus.on('USER_LOGGED_OUT', async () => {
   setTrayStatus('IDLE');
-  await destroyDatabase();
   const widget = getWidget();
   if (widget) {
     widget.hide();

@@ -27,15 +27,14 @@ type UpdateFileInBatchInput = {
 };
 
 export async function getLocalDangledFiles() {
-  const allExisting = await driveFilesCollection.getAllWhere({ status: 'EXISTS', isDangledStatus: true });
-
-  return allExisting.result;
+  const allExisting = await driveFilesCollection.getAll({ status: 'EXISTS', isDangledStatus: true });
+  return allExisting;
 }
 
 export async function setAsNotDangledFiles(filesIds: string[]) {
   await driveFilesCollection.updateInBatch({
     where: { isDangledStatus: true, fileId: In(filesIds) },
-    updatePayload: { isDangledStatus: false },
+    payload: { isDangledStatus: false },
   });
 }
 
@@ -46,7 +45,7 @@ export const updateFileInBatch = async (input: UpdateFileInBatchInput) => {
     where: {
       fileId: In(itemsId),
     },
-    updatePayload: file,
+    payload: file,
   });
 };
 
@@ -58,17 +57,11 @@ export const deleteFileInBatch = async (itemsIds: string[]) => {
 
 export async function getUpdatedRemoteItems(workspaceId = '') {
   try {
-    const promise = Promise.all([driveFilesCollection.getAll(workspaceId), driveFoldersCollection.getAll(workspaceId)]);
+    const promise = Promise.all([driveFilesCollection.getAll({ workspaceId }), driveFoldersCollection.getAll({ workspaceId })]);
 
-    const [allDriveFiles, allDriveFolders] = await promise;
+    const [files, folders] = await promise;
 
-    if (!allDriveFiles.success) throw new Error('Failed to retrieve all the drive files from local db');
-
-    if (!allDriveFolders.success) throw new Error('Failed to retrieve all the drive folders from local db');
-    return {
-      files: allDriveFiles.result,
-      folders: allDriveFolders.result,
-    };
+    return { files, folders };
   } catch (error) {
     throw logger.error({
       msg: 'Error getting updated remote items',
@@ -94,26 +87,18 @@ export async function getUpdatedRemoteItemsByFolder(folderUuid: string, workspac
     };
 
     const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAllByFolder({ folderUuid, workspaceId }),
-      driveFoldersCollection.getAllByFolder({ parentUuid: folderUuid, workspaceId }),
+      driveFilesCollection.getAll({ folderUuid }),
+      driveFoldersCollection.getAll({ parentUuid: folderUuid }),
     ]);
 
-    if (!allDriveFiles.success) {
-      throw new Error(`Failed to retrieve all the drive files from local db for folderUuid: ${folderUuid}`);
-    }
+    result.files.push(...allDriveFiles);
+    result.folders.push(...allDriveFolders);
 
-    if (!allDriveFolders.success) {
-      throw new Error(`Failed to retrieve all the drive folders from local db for folderUuid: ${folderUuid}`);
-    }
-
-    result.files.push(...allDriveFiles.result);
-    result.folders.push(...allDriveFolders.result);
-
-    if (allDriveFolders.result.length === 0) {
+    if (allDriveFolders.length === 0) {
       return result;
     }
 
-    const folderChildrenPromises = allDriveFolders.result.map(async (folder) => {
+    const folderChildrenPromises = allDriveFolders.map(async (folder) => {
       return getUpdatedRemoteItemsByFolder(folder.uuid, workspaceId);
     });
 
@@ -300,12 +285,12 @@ async function deleteFolder(folderId: string): Promise<boolean> {
 
 async function deleteFile(fileId: string): Promise<boolean> {
   try {
-    const item = await driveFilesCollection.searchPartialBy({ fileId });
-    if (!item.result.length) {
+    const item = await driveFilesCollection.getByContentsId(fileId);
+    if (!item) {
       Logger.warn('File not found', { fileId });
       return false;
     }
-    const result = await driveFilesCollection.update(item.result[0].uuid, {
+    const result = await driveFilesCollection.update(item.uuid, {
       status: 'TRASHED',
     });
     return result.success;

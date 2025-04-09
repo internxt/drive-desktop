@@ -36,6 +36,14 @@ export class DriveFile {
   @Column({ nullable: false, type: 'int' })
   userId!: number;
 
+  /**
+   * v2.5.1 Daniel Jiménez
+   * We mark this field as empty to allow the migration to complete.
+   * However, the value is populated by a custom migration on the startup.
+   */
+  @Column({ nullable: false, default: '', type: 'varchar' })
+  userUuid!: string;
+
   @Column({ nullable: false, type: 'varchar' })
   modificationTime!: string;
 
