@@ -87,8 +87,8 @@ export async function getUpdatedRemoteItemsByFolder(folderUuid: string, workspac
     };
 
     const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAll({ folderUuid }),
-      driveFoldersCollection.getAll({ parentUuid: folderUuid }),
+      driveFilesCollection.getAll({ folderUuid, workspaceId }),
+      driveFoldersCollection.getAll({ parentUuid: folderUuid, workspaceId }),
     ]);
 
     result.files.push(...allDriveFiles);
