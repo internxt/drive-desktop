@@ -6,7 +6,7 @@ import { remoteSyncManagers } from '../store';
 
 export function broadcastSyncStatus() {
   const allStatus = [...remoteSyncManagers].map(([, manager]) => manager.status);
-  logger.debug({ msg: 'ALL_STATUS', allStatus });
+  logger.debug({ msg: 'RemoteSyncManagers status', allStatus });
 
   let status: RemoteSyncStatus = 'IDLE';
 
@@ -14,6 +14,8 @@ export function broadcastSyncStatus() {
     status = 'SYNCING';
   } else if (allStatus.some((status) => status === 'SYNC_FAILED')) {
     status = 'SYNC_FAILED';
+  } else if (allStatus.some((status) => status === 'SYNC_PENDING')) {
+    status = 'SYNC_PENDING';
   } else if (allStatus.every((status) => status === 'SYNCED')) {
     status = 'SYNCED';
   }
@@ -24,6 +26,8 @@ export function broadcastSyncStatus() {
     case 'SYNCING':
       return setTrayStatus('SYNCING');
     case 'SYNC_FAILED':
+      return setTrayStatus('ALERT');
+    case 'SYNC_PENDING':
       return setTrayStatus('ALERT');
     case 'SYNCED':
       return setTrayStatus('IDLE');
