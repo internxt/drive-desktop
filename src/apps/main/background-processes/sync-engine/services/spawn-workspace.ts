@@ -1,11 +1,11 @@
 import { Config } from '@/apps/sync-engine/config';
-import { getLoggersPaths } from '@/apps/main/virtual-root-folder/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { sleep } from '@/apps/main/util';
+import { PATHS } from '@/core/electron/paths';
 
 type TProps = {
   retry?: number;
@@ -41,7 +41,7 @@ export async function spawnWorkspace({ workspace, retry = 1 }: TProps) {
     providerId: workspace.providerId,
     rootPath: workspace.rootPath,
     providerName: 'Internxt Drive for Business',
-    loggerPath: getLoggersPaths().logWatcherPath,
+    loggerPath: PATHS.WATCHER_LOGS,
     workspaceId: workspace.id,
     workspaceToken: credentials.tokenHeader,
     rootUuid: workspace.rootFolderId,

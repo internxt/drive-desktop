@@ -148,11 +148,7 @@ vi.mock('@/apps/main/virtual-root-folder/service.ts', () => {
     getLoggersPaths: vi.fn(() => '/mock/logs'),
     getRootVirtualDrive: vi.fn(() => '/mock/path'),
     getRootWorkspace: vi.fn(() => ({
-      logEnginePath: '/mock/logs',
-      logWatcherPath: '/mock/logs',
-      persistQueueManagerPath: '/mock/logs',
       syncRoot: '/mock/path',
-      lastSavedListing: '/mock/logs',
     })),
   };
 });
