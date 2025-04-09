@@ -4,6 +4,7 @@ import { File } from '../domain/File';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import fs from 'fs/promises';
 import Logger from 'electron-log';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class NodeWinLocalFileSystem {
   constructor(
@@ -52,6 +53,12 @@ export class NodeWinLocalFileSystem {
   }
 
   async updateFileIdentity(path: string, newIdentity: `FILE:${string}`): Promise<void> {
+    logger.debug({
+      msg: '[updateFileIdentity] Updating file identity',
+      path,
+      newIdentity,
+    });
+
     const isNotDirectory = true;
     return this.virtualDrive.updateFileIdentity(path, newIdentity, isNotDirectory);
   }

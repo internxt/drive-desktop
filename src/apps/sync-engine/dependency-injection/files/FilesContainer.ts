@@ -3,7 +3,7 @@ import { FileCreator } from '../../../../context/virtual-drive/files/application
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
-import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
+import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
 import { FilesPlaceholderCreator } from '../../../../context/virtual-drive/files/application/FilesPlaceholdersCreator';
 import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
