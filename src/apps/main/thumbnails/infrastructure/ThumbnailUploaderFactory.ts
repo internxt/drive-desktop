@@ -19,7 +19,7 @@ export class ThumbnailUploaderFactory {
     }
 
     const environment = new Environment({
-      bridgeUrl: process.env.BRIDGE_URL,
+      bridgeUrl: process.env.DRIVE_URL,
       bridgeUser: getConfig().bridgeUser,
       bridgePass: getConfig().bridgePass,
       encryptionKey: getConfig().mnemonic,

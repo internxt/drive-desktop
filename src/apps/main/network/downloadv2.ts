@@ -47,6 +47,7 @@ const downloadSharedFile: DownloadSharedFileFunction = (params) => {
       {
         clientName,
         clientVersion,
+        desktopHeader: process.env.DESKTOP_HEADER,
       },
       {
         bridgeUser: '',

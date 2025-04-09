@@ -27,8 +27,8 @@ importers:
         specifier: 1.0.2
         version: 1.0.2
       '@internxt/sdk':
-        specifier: 1.9.9
-        version: 1.9.9
+        specifier: 1.9.12
+        version: 1.9.12
       '@phosphor-icons/react':
         specifier: 2.0.9
         version: 2.0.9(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
@@ -1332,8 +1332,8 @@ packages:
     resolution: {integrity: sha512-AZAPF+JywxfyEWJ9LPk+b3HHJG1c6fDq+x+YX5U5FKilfX43RgM6GdCME/RfuJPLuMy6B0r/W24NWIRs6sQUXQ==, tarball: https://npm.pkg.github.com/download/@internxt/scan/1.0.2/dc85bd75165ff50adfc8b9f607b233398898c60a}
     engines: {node: '>=18.0.0'}
 
-  '@internxt/sdk@1.9.9':
-    resolution: {integrity: sha512-3bhC/WBunAeGLpexEOj84xgZbznwDdTripoLj/fmnPEKW4PpCGP0tS7f58IMDSMkpPMhB6wTSMAXXLW9LfQNNg==, tarball: https://npm.pkg.github.com/download/@internxt/sdk/1.9.9/41aaf713bfa85688a09bcfce35814b831389b9be}
+  '@internxt/sdk@1.9.12':
+    resolution: {integrity: sha512-/GNKYrvrcQvIGaIrg74aeoJq6yjJQaFyO89Af8qZFLbTTpvdVsbQnq3eA17vlTNNEVaTeDllwJQtL4ZMsR6HBQ==, tarball: https://npm.pkg.github.com/download/@internxt/sdk/1.9.12/534488617eac3eea5fb4ad965130e5c2811819d1}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -8964,7 +8964,7 @@ snapshots:
   '@internxt/inxt-js@2.1.0':
     dependencies:
       '@internxt/lib': 1.1.6
-      '@internxt/sdk': 1.9.9
+      '@internxt/sdk': 1.9.12
       async: 3.2.6
       axios: 0.23.0
       bip39: 3.1.0
@@ -8987,7 +8987,7 @@ snapshots:
 
   '@internxt/scan@1.0.2': {}
 
-  '@internxt/sdk@1.9.9':
+  '@internxt/sdk@1.9.12':
     dependencies:
       axios: 0.24.0
       query-string: 7.1.3
