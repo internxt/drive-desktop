@@ -8,7 +8,13 @@ type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFolder>; payload: Par
 export class DriveFolderCollection {
   private repository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
 
-  private parseWhere(where: FindOptionsWhere<DriveFolder>) {
+  parseWhere(where: FindOptionsWhere<DriveFolder>) {
+    /**
+     * v2.5.1 Daniel Jiménez
+     * The database stores workspaceId as null if the file is not in any workspace.
+     * However, because of legacy code we are using also the empty string in some places.
+     * To be careful, we are deleting the workspaceId if it is empty.
+     */
     if (!where.workspaceId) delete where.workspaceId;
     return where;
   }

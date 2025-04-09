@@ -2,14 +2,19 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { logger } from '@/apps/shared/logger/logger';
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; payload: Partial<DriveFile> };
 
 export class DriveFileCollection {
   private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 
-  private parseWhere(where: FindOptionsWhere<DriveFile>) {
+  parseWhere(where: FindOptionsWhere<DriveFile>) {
+    /**
+     * v2.5.1 Daniel Jiménez
+     * The database stores workspaceId as null if the file is not in any workspace.
+     * However, because of legacy code we are using also the empty string in some places.
+     * To be careful, we are deleting the workspaceId if it is empty.
+     */
     if (!where.workspaceId) delete where.workspaceId;
     return where;
   }
