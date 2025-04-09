@@ -3,13 +3,17 @@ import { SyncRemoteFoldersService } from './sync-remote-folders.service';
 import { FetchFoldersService } from './fetch-folders.service.interface';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { LoggerService } from '@/apps/shared/logger/logger';
-import { getMockCalls } from 'tests/vitest/utils.helper.test';
+import { deepMocked, getMockCalls } from 'tests/vitest/utils.helper.test';
 import { RemoteSyncedFolder } from '../helpers';
+import { getUserOrThrow } from '../../auth/service';
 
 vi.mock(import('@/apps/main/util'));
+vi.mock(import('../../auth/service'));
 
 describe('sync-remote-folders.service', () => {
   const workspaceId = 'workspaceId';
+
+  const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
   const remoteSyncManager = mockDeep<RemoteSyncManager>();
   const fetchFolders = mockDeep<FetchFoldersService>();
@@ -18,6 +22,7 @@ describe('sync-remote-folders.service', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    getUserOrThrowMock.mockResolvedValue({ uuid: 'uuid' });
     remoteSyncManager.totalFoldersSynced = 0;
   });
 

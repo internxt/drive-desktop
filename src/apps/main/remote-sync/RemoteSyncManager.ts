@@ -98,9 +98,7 @@ export class RemoteSyncManager {
   async getFileCheckpoint(): Promise<Nullable<Date>> {
     const promise = this.workspaceId ? this.db.files.getLastUpdatedByWorkspace(this.workspaceId) : this.db.files.getLastUpdated();
 
-    const { success, result } = await promise;
-
-    if (!success) return undefined;
+    const result = await promise;
 
     if (!result) return undefined;
 
@@ -112,9 +110,7 @@ export class RemoteSyncManager {
   private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
     const promise = this.workspaceId ? this.db.folders.getLastUpdatedByWorkspace(this.workspaceId) : this.db.folders.getLastUpdated();
 
-    const { success, result } = await promise;
-
-    if (!success) return undefined;
+    const result = await promise;
 
     if (!result) return undefined;
 
