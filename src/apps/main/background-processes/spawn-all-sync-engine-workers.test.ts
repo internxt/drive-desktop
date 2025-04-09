@@ -32,7 +32,7 @@ describe('spawn-all-sync-engine-workers', () => {
           bridgePass: undefined,
           bridgeUser: undefined,
           bucket: undefined,
-          loggerPath: undefined,
+          loggerPath: '\\mock\\logs\\logs\\node-win.log',
           mnemonic: undefined,
           providerId: '{USER_ID}',
           providerName: 'Internxt Drive',
