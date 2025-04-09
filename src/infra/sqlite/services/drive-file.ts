@@ -2,16 +2,22 @@ import { FindOptionsWhere, Repository } from 'typeorm';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { getUserOrThrow } from '@/apps/main/auth/service';
+import { logger } from '@/apps/shared/logger/logger';
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; payload: Partial<DriveFile> };
 
 export class DriveFileCollection {
   private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 
-  async getAll(where: Partial<DriveFile>) {
+  private parseWhere(where: FindOptionsWhere<DriveFile>) {
+    if (!where.workspaceId) delete where.workspaceId;
+    return where;
+  }
+
+  async getAll(where: FindOptionsWhere<DriveFile>) {
     const user = getUserOrThrow();
     const result = await this.repository.findBy({
-      ...where,
+      ...this.parseWhere(where),
       userUuid: user.uuid,
     });
 
@@ -46,7 +52,7 @@ export class DriveFileCollection {
   async updateInBatch(input: UpdateInBatchPayload) {
     const { where, payload } = input;
     const user = getUserOrThrow();
-    const match = await this.repository.update({ ...where, userUuid: user.uuid }, payload);
+    const match = await this.repository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
 
     return {
       success: match.affected ? true : false,
@@ -57,7 +63,7 @@ export class DriveFileCollection {
   async removeInBatch(where: FindOptionsWhere<DriveFile>) {
     const user = getUserOrThrow();
     const match = await this.repository.delete({
-      ...where,
+      ...this.parseWhere(where),
       userUuid: user.uuid,
     });
 

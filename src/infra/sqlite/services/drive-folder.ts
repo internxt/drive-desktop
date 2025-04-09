@@ -8,10 +8,15 @@ type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFolder>; payload: Par
 export class DriveFolderCollection {
   private repository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
 
-  async getAll(where: Partial<DriveFolder>) {
+  private parseWhere(where: FindOptionsWhere<DriveFolder>) {
+    if (!where.workspaceId) delete where.workspaceId;
+    return where;
+  }
+
+  async getAll(where: FindOptionsWhere<DriveFolder>) {
     const user = getUserOrThrow();
     const result = await this.repository.findBy({
-      ...where,
+      ...this.parseWhere(where),
       userUuid: user.uuid,
     });
 
@@ -36,7 +41,7 @@ export class DriveFolderCollection {
   async updateInBatch(input: UpdateInBatchPayload) {
     const { where, payload } = input;
     const user = getUserOrThrow();
-    const match = await this.repository.update({ ...where, userUuid: user.uuid }, payload);
+    const match = await this.repository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
 
     return {
       success: match.affected ? true : false,
@@ -47,7 +52,7 @@ export class DriveFolderCollection {
   async removeInBatch(where: FindOptionsWhere<DriveFolder>) {
     const user = getUserOrThrow();
     const match = await this.repository.delete({
-      ...where,
+      ...this.parseWhere(where),
       userUuid: user.uuid,
     });
 
