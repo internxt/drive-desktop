@@ -4,7 +4,6 @@ import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
 import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';
-import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
 import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
@@ -98,7 +97,7 @@ export class File extends AggregateRoot {
   }
 
   public get placeholderId(): FilePlaceholderId {
-    return createFilePlaceholderId(this.contentsId);
+    return createFilePlaceholderId(this.uuid);
   }
 
   static from(attributes: FileAttributes): File {

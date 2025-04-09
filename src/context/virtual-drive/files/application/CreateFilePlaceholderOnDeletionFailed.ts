@@ -11,6 +11,6 @@ export class CreateFilePlaceholderOnDeletionFailed implements DomainEventSubscri
   }
 
   async on(domainEvent: OptimisticFileDeletionFailed): Promise<void> {
-    this.creator.run(domainEvent.toPrimitives().contentsId);
+    this.creator.run(domainEvent.toPrimitives().uuid);
   }
 }

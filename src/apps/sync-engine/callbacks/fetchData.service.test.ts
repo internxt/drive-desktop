@@ -21,13 +21,13 @@ describe('Fetch Data', () => {
   const self = mockDeep<BindingsManager>();
   const ipcRendererSyncEngine = mockDeep<SyncEngineIpc>();
   const file: DeepPartial<File> = { path: 'path' };
-  const contentsId: FilePlaceholderId = 'FILE:1';
+  const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     self.controllers.downloadFile.execute.mockResolvedValue('path');
-    self.controllers.downloadFile.fileFinderByContentsId.mockReturnValue(file as File);
+    self.controllers.downloadFile.fileFinderByUuid.mockReturnValue(file as File);
   });
 
   describe('When call normalizePath', () => {
@@ -54,7 +54,7 @@ describe('Fetch Data', () => {
       const callback = async () => ({ finished: false, progress: 2 });
 
       // Act
-      await fetchData.run({ self, contentsId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
@@ -66,7 +66,7 @@ describe('Fetch Data', () => {
       const callback = async () => ({ finished: false, progress: -1 });
 
       // Act
-      await fetchData.run({ self, contentsId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
@@ -78,7 +78,7 @@ describe('Fetch Data', () => {
       const callback = async () => ({ finished: true, progress: 0 });
 
       // Act
-      await fetchData.run({ self, contentsId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');

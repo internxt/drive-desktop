@@ -19,8 +19,8 @@ export class FileDeleter {
     private readonly ipc: SyncEngineIpc,
   ) {}
 
-  async run(contentsId: File['contentsId']): Promise<void> {
-    const file = this.repository.searchByPartial({ contentsId });
+  async run(uuid: File['uuid']): Promise<void> {
+    const file = this.repository.searchByPartial({ uuid });
 
     if (!file) {
       return;

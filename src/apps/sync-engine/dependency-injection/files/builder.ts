@@ -9,7 +9,6 @@ import { FilesContainer } from './FilesContainer';
 import { CreateFilePlaceholderOnDeletionFailed } from '../../../../context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
-import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
 import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
@@ -50,8 +49,6 @@ export async function buildFilesContainer(
 
   const repository = new InMemoryFileRepository();
 
-  const fileFinderByContentsId = new FileFinderByContentsId(repository);
-
   const fileDeleter = new FileDeleter(
     remoteFileSystem,
     localFileSystem,
@@ -68,7 +65,6 @@ export async function buildFilesContainer(
     remoteFileSystem,
     localFileSystem,
     repository,
-    fileFinderByContentsId,
     folderContainer.folderFinder,
     ipcRendererSyncEngine,
     eventBus,
@@ -83,7 +79,7 @@ export async function buildFilesContainer(
     ipcRendererSyncEngine,
   );
 
-  const filePlaceholderCreatorFromContentsId = new FilePlaceholderCreatorFromContentsId(fileFinderByContentsId, localFileSystem);
+  const filePlaceholderCreatorFromContentsId = new FilePlaceholderCreatorFromContentsId(repository, localFileSystem);
 
   const createFilePlaceholderOnDeletionFailed = new CreateFilePlaceholderOnDeletionFailed(filePlaceholderCreatorFromContentsId);
 
@@ -131,7 +127,6 @@ export async function buildFilesContainer(
   );
 
   const container: FilesContainer = {
-    fileFinderByContentsId,
     fileDeleter,
     filePathUpdater,
     fileCreator,
@@ -149,6 +144,7 @@ export async function buildFilesContainer(
     filesCheckerStatusInRoot,
     fileIdentityUpdater,
     fileOverwriteContent,
+    fileRepository: repository,
   };
 
   return { container, subscribers: [] };

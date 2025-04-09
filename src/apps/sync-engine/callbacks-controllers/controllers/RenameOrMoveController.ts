@@ -17,8 +17,8 @@ export class RenameOrMoveController extends CallbackController {
     super();
   }
 
-  async execute(absolutePath: string, contentsId: string, callback: (response: boolean) => void) {
-    const trimmedId = this.trim(contentsId);
+  async execute(absolutePath: string, placeholderId: string, callback: (response: boolean) => void) {
+    const trimmedId = this.trim(placeholderId);
 
     try {
       if (absolutePath.startsWith('\\$Recycle.Bin')) {
@@ -31,16 +31,16 @@ export class RenameOrMoveController extends CallbackController {
       const posixRelativePath = PlatformPathConverter.winToPosix(win32RelativePath);
 
       if (this.isFilePlaceholder(trimmedId)) {
-        const [_, contentsId] = trimmedId.split(':');
-        Logger.debug('[RUN File Path Updater]', contentsId, posixRelativePath);
-        await this.filePathUpdater.run(contentsId, posixRelativePath);
-        Logger.debug('[FINISH File Path Updater]', contentsId, posixRelativePath);
+        const [_, filePlaceholderId] = trimmedId.split(':');
+        Logger.debug('[RUN File Path Updater]', filePlaceholderId, posixRelativePath);
+        await this.filePathUpdater.run(filePlaceholderId, posixRelativePath);
+        Logger.debug('[FINISH File Path Updater]', filePlaceholderId, posixRelativePath);
         return callback(true);
       }
 
       if (this.isFolderPlaceholder(trimmedId)) {
         const [_, folderUuid] = trimmedId.split(':');
-        Logger.debug('[RUN Folder Path Updater]', contentsId, posixRelativePath);
+        Logger.debug('[RUN Folder Path Updater]', placeholderId, posixRelativePath);
         await this.folderPathUpdater.run(folderUuid, posixRelativePath);
         return callback(true);
       }

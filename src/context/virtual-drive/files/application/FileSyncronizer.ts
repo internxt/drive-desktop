@@ -30,7 +30,6 @@ export class FileSyncronizer {
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreator,
     private readonly offlineFolderCreator: OfflineFolderCreator,
-    // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
     private readonly contentsUploader: RetryContentsUploader,
   ) {}

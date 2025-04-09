@@ -12,7 +12,7 @@ export class OptimisticFileDeletionFailed extends DomainEvent {
 
   toPrimitives() {
     return {
-      contentsId: this.aggregateId,
+      uuid: this.aggregateId,
     };
   }
 }

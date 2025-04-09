@@ -55,13 +55,13 @@ export class BindingsManager {
 
   async start(version: string) {
     const callbacks: Callbacks = {
-      notifyDeleteCallback: (contentsId: string, callback: (response: boolean) => void) => {
-        Logger.debug('Path received from delete callback', contentsId);
+      notifyDeleteCallback: (placeholderId: string, callback: (response: boolean) => void) => {
+        Logger.debug('Path received from delete callback', placeholderId);
         this.controllers.delete
-          .execute(contentsId)
+          .execute(placeholderId)
           .then(() => {
             callback(true);
-            ipcRenderer.invoke('DELETE_ITEM_DRIVE', contentsId);
+            ipcRenderer.invoke('DELETE_ITEM_DRIVE', placeholderId);
           })
           .catch((error: Error) => {
             Logger.error(error);
@@ -72,7 +72,7 @@ export class BindingsManager {
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: async (absolutePath: string, contentsId: string, callback: (response: boolean) => void) => {
+      notifyRenameCallback: async (absolutePath: string, placeholderId: string, callback: (response: boolean) => void) => {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
 
@@ -87,7 +87,7 @@ export class BindingsManager {
 
           Logger.debug('[isTemporaryFile]', isTempFile);
 
-          if (isTempFile && !contentsId.startsWith('FOLDER')) {
+          if (isTempFile && !placeholderId.startsWith('FOLDER')) {
             Logger.debug('File is temporary, skipping');
             callback(true);
             return;
@@ -97,7 +97,7 @@ export class BindingsManager {
             handler: this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove),
             fallback: this.controllers.offline.renameOrMove.execute.bind(this.controllers.offline.renameOrMove),
           });
-          fn(absolutePath, contentsId, callback);
+          fn(absolutePath, placeholderId, callback);
           Logger.debug('Finish Rename', absolutePath);
           this.lastMoved = absolutePath;
         } catch (error) {
@@ -108,10 +108,10 @@ export class BindingsManager {
         Logger.debug('Path received from callback', absolutePath);
         await this.controllers.addFile.execute(absolutePath);
       },
-      fetchDataCallback: (contentsId: FilePlaceholderId, callback: CallbackDownload) =>
+      fetchDataCallback: (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
           self: this,
-          contentsId,
+          filePlaceholderId,
           callback,
           ipcRendererSyncEngine,
         }),

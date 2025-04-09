@@ -1,5 +1,4 @@
 import { mockDeep } from 'vitest-mock-extended';
-import { FileFinderByContentsId } from '../../../../../src/context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/FilePathUpdater';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
@@ -13,22 +12,13 @@ import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructu
 
 describe('File path updater', () => {
   const repository = mockDeep<InMemoryFileRepository>();
-  const fileFinderByContentsId = new FileFinderByContentsId(repository);
   const folderFinder = mockDeep<FolderFinder>();
   const ipcRenderer = mockDeep<SyncEngineIpc>();
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
   const eventBus = mockDeep<EventBus>();
   const remoteFileSystem = mockDeep<HttpRemoteFileSystem>();
 
-  const SUT = new FilePathUpdater(
-    remoteFileSystem,
-    localFileSystem,
-    repository,
-    fileFinderByContentsId,
-    folderFinder,
-    ipcRenderer,
-    eventBus,
-  );
+  const SUT = new FilePathUpdater(remoteFileSystem, localFileSystem, repository, folderFinder, ipcRenderer, eventBus);
 
   beforeEach(() => {
     vi.resetAllMocks();

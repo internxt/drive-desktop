@@ -10,12 +10,12 @@ export class FileFolderContainerDetector {
     private readonly folderFinder: FolderFinder,
   ) {}
 
-  run(contentId: File['contentsId'], folderContentId: Folder['uuid']): boolean {
+  run(uuid: File['uuid'], folderContentId: Folder['uuid']): boolean {
     const file = this.repository.searchByPartial({
-      contentsId: contentId,
+      uuid,
     });
     if (!file) {
-      throw new FileNotFoundError(contentId);
+      throw new FileNotFoundError(uuid);
     }
     const folder = this.folderFinder.findFromId(file.folderId.value);
     return folder.uuid === folderContentId;

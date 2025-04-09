@@ -1,9 +1,9 @@
+import { FileNotFoundError } from './../domain/errors/FileNotFoundError';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
-import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { EventBus } from '../../shared/domain/EventBus';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
@@ -17,7 +17,6 @@ export class FilePathUpdater {
     private readonly remote: HttpRemoteFileSystem,
     private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
-    private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
     private readonly eventBus: EventBus,
@@ -57,10 +56,16 @@ export class FilePathUpdater {
     this.eventBus.publish(events);
   }
 
-  async run(contentsId: string, posixRelativePath: string) {
+  async run(uuid: string, posixRelativePath: string) {
     try {
       const destination = new FilePath(posixRelativePath);
-      const file = this.fileFinderByContentsId.run(contentsId);
+      const file = this.repository.searchByPartial({
+        uuid,
+      });
+
+      if (!file) {
+        throw new FileNotFoundError(uuid);
+      }
 
       const folderFather = this.folderFinder.findFromUuid(file.folderUuid.value);
 
@@ -102,8 +107,7 @@ export class FilePathUpdater {
       }
 
       Logger.debug('[RUN RENAME]', file.name, destination.value);
-      Logger.debug('[RUN RENAME]', file.name, destination.nameWithExtension());
-      Logger.debug('[RUN RENAME]', file.nameWithExtension, destination.extensionMatch(file.type));
+
       if (destination.extensionMatch(file.type)) {
         this.ipc.send('FILE_RENAMING', {
           oldName: file.name,

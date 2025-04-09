@@ -28,8 +28,8 @@ export class AddController extends CallbackController {
 
   private createFile = async (posixRelativePath: string, attempts = 3): Promise<string> => {
     try {
-      const contentsId = await this.fileCreationOrchestrator.run(posixRelativePath);
-      return createFilePlaceholderId(contentsId);
+      const uuid = await this.fileCreationOrchestrator.run(posixRelativePath);
+      return createFilePlaceholderId(uuid);
     } catch (error: unknown) {
       Logger.error('Error when adding a file: ' + posixRelativePath, error);
       Sentry.captureException(error);

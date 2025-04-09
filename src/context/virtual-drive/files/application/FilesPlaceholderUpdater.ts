@@ -42,6 +42,8 @@ export class FilesPlaceholderUpdater {
   }
 
   private async update(remote: File): Promise<void> {
+    // TODO: TE ID IN THE REPOSITORY IS THE CONTENTS ID
+    // THIS NEED TO BE MIGRATED TO THE FILE UUID
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });

@@ -298,11 +298,11 @@ async function deleteFolder(folderId: string): Promise<boolean> {
   }
 }
 
-async function deleteFile(fileId: string): Promise<boolean> {
+async function deleteFile(uuid: string): Promise<boolean> {
   try {
-    const item = await driveFilesCollection.searchPartialBy({ fileId });
+    const item = await driveFilesCollection.searchPartialBy({ uuid });
     if (!item.result.length) {
-      Logger.warn('File not found', { fileId });
+      Logger.warn('File not found', { uuid });
       return false;
     }
     const result = await driveFilesCollection.update(item.result[0].uuid, {
@@ -310,7 +310,7 @@ async function deleteFile(fileId: string): Promise<boolean> {
     });
     return result.success;
   } catch (error) {
-    Logger.error('Error deleting file', { fileId, error });
+    Logger.error('Error deleting file', { uuid, error });
     throw error;
   }
 }
