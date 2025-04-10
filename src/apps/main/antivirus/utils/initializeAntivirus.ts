@@ -31,11 +31,11 @@ async function initializeClamAV() {
     const isAntivirusEnabled = availableProducts.antivirus;
 
     if (isAntivirusEnabled) {
-      // await clamAVServer.startClamdServer();
-      // await clamAVServer.waitForClamd();
+      await clamAVServer.startClamdServer();
+      await clamAVServer.waitForClamd();
 
-      // logger.debug({ msg: '[INITIALIZING CLAM AV] ClamAV is running. Scheduling daily scan...' });
-      // scheduleDailyScan();
+      logger.debug({ msg: '[INITIALIZING CLAM AV] ClamAV is running. Scheduling daily scan...' });
+      scheduleDailyScan();
 
       isClamAVRunning = true;
       clamAVInitializationPromise = null;
