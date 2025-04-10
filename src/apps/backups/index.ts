@@ -6,6 +6,7 @@ import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDeskt
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
 import { setDefaultConfig } from '../sync-engine/config';
 import { logger } from '../shared/logger/logger';
+import { getUserOrThrow } from '../main/auth/service';
 
 async function obtainBackup(): Promise<BackupInfo> {
   try {
@@ -31,9 +32,12 @@ async function backupFolder() {
     data,
   });
 
+  const user = getUserOrThrow();
+
   setDefaultConfig({
     providerId: 'BACKUPS_PROVIDER_ID',
     rootUuid: data.folderUuid,
+    mnemonic: user.mnemonic,
   });
 
   try {
