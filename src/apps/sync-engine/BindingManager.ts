@@ -8,7 +8,6 @@ import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
 import * as Sentry from '@sentry/electron/renderer';
-import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
@@ -201,8 +200,8 @@ export class BindingsManager {
 
     const queueManager = new QueueManager(callbacks, notify, persistQueueManager);
     this.queueManager = queueManager;
-    const logWatcherPath = DependencyInjectionLogWatcherPath.get();
-    this.container.virtualDrive.watchAndWait(this.paths.root, queueManager, logWatcherPath);
+    // TODO: remove empty strings, not used
+    this.container.virtualDrive.watchAndWait('', queueManager, '');
     await queueManager.processAll();
   }
 

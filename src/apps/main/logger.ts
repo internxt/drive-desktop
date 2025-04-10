@@ -1,6 +1,8 @@
+import { PATHS } from '@/core/electron/paths';
 import { ipcMain, shell } from 'electron';
 import log from 'electron-log';
-import path from 'path';
+
+log.initialize();
 
 log.transports.file.maxSize = 1048576 * 150; // 150MB
 log.transports.console.format = '[{iso}] [{level}] {text}';
@@ -16,7 +18,5 @@ if (process.env.NODE_ENV !== 'development') {
 // Handle open logs
 
 ipcMain.on('open-logs', () => {
-  const logFilePath = log.transports.file.getFile().path;
-  const logFolderPath = path.dirname(logFilePath);
-  shell.openPath(logFolderPath);
+  shell.openPath(PATHS.LOGS);
 });

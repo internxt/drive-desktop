@@ -7,6 +7,7 @@ import { FetchWorkspaceFoldersService } from './fetch-workspace-folders.service'
 import { loggerService } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
 import { sleep } from '../../util';
+import { getUserOrThrow } from '../../auth/service';
 
 const MAX_RETRIES = 3;
 
@@ -37,6 +38,8 @@ export class SyncRemoteFoldersService {
     let hasMore = true;
 
     try {
+      const user = getUserOrThrow();
+
       while (hasMore) {
         this.logger.debug({
           msg: 'Retrieving folders',
@@ -47,7 +50,7 @@ export class SyncRemoteFoldersService {
         });
 
         /**
-         * v2.5.1 Daniel Jiménez
+         * v2.5.0 Daniel Jiménez
          * We fetch ALL folders when we want to synchronize the current state with the web state.
          * It means that we need to delete or create the folders that are not in the web state anymore.
          * However, if no checkpoint is provided it means that we don't have a local state yet.
@@ -67,6 +70,7 @@ export class SyncRemoteFoldersService {
           result.map(async (remoteFolder) => {
             await self.db.folders.create({
               ...remoteFolder,
+              userUuid: user.uuid,
               workspaceId: this.workspaceId,
             });
             self.totalFoldersSynced++;
