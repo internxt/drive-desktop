@@ -175,6 +175,12 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
+    /**
+     * Jonathan Arce v2.5.1
+     * This is a quick fix to populate and update the placeholders
+     * of the files that already exist in the local DB as soon as the sync engine starts.
+     * This should be a continuous process, fetching and updating the placeholders.
+     */
     await this.update();
     await this.polling();
   }

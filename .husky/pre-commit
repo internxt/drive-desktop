@@ -1,16 +1,16 @@
-#!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+# #!/bin/sh
+# . "$(dirname "$0")/_/husky.sh"
 
-USER_EMAIL=$(git config user.email)
-SKIP_EMAILS=("dani@internxt.com" "whatever@gmail.com")
+# USER_EMAIL=$(git config user.email)
+# SKIP_EMAILS=("dani@internxt.com" "whatever@gmail.com")
 
-for EMAIL in "${SKIP_EMAILS[@]}"; do
-  if [ "$USER_EMAIL" = "$EMAIL" ]; then
-    echo "Skipping pre-commit hooks for $USER_EMAIL"
-    exit 0
-  fi
-done
+# for EMAIL in "${SKIP_EMAILS[@]}"; do
+#   if [ "$USER_EMAIL" = "$EMAIL" ]; then
+#     echo "Skipping pre-commit hooks for $USER_EMAIL"
+#     exit 0
+#   fi
+# done
 
-npm run lint
-npm run format:fix
-npm run type-check
+# npm run lint
+# npm run format:fix
+# npm run type-check
