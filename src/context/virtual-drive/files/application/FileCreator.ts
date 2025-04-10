@@ -35,25 +35,18 @@ export class FileCreator {
           await this.fileDeleter.run(existingFile.contentsId);
         }
       }
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 1]' + filePath.value);
       const size = new FileSize(contents.size);
 
       const folder = this.folderFinder.findFromFilePath(filePath);
 
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 2]' + filePath.value);
-
       const offline = OfflineFile.create(contents.id, folder, size, filePath);
-
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 3]' + filePath.value);
 
       const persistedAttributes = await this.remote.persist(offline);
 
       const file = File.from(persistedAttributes);
 
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 5]' + filePath.value);
       await this.repository.add(file);
 
-      Logger.debug('[DEBUG IN FILECREATOR STEEP 6]' + filePath.value);
       await this.eventBus.publish(offline.pullDomainEvents());
       this.ipc.send('FILE_CREATED', {
         name: file.name,

@@ -38,8 +38,6 @@ export class HttpRemoteFileSystem {
 
       logger.debug({
         msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
-        offline,
-        body,
       });
 
       const result = this.workspaceId ? await this.createFileInWorkspace(body, this.workspaceId) : await this.createFile(body);
