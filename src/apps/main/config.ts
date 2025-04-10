@@ -9,7 +9,6 @@ export const fieldsToSave = [
   'backupInterval',
   'lastBackup',
   'syncRoot',
-  'lastSavedListing',
   'lastSync',
   'deviceId',
   'deviceUuid',
@@ -27,8 +26,6 @@ export interface AppStore {
   backupInterval: number;
   lastBackup: number;
   syncRoot: string;
-  logEnginePath: string;
-  lastSavedListing: string;
   lastSync: number;
   savedConfigs: Record<string, Pick<AppStore, (typeof fieldsToSave)[number]>>;
   lastOnboardingShown: string;
@@ -71,12 +68,6 @@ const schema: Schema<AppStore> = {
     type: 'number',
   },
   syncRoot: {
-    type: 'string',
-  },
-  logEnginePath: {
-    type: 'string',
-  },
-  lastSavedListing: {
     type: 'string',
   },
   lastSync: {
@@ -125,8 +116,6 @@ export const defaults: AppStore = {
   backupInterval: 86_400_000, // 24h
   lastBackup: -1,
   syncRoot: '',
-  logEnginePath: '',
-  lastSavedListing: '',
   lastSync: -1,
   savedConfigs: {},
   lastOnboardingShown: '',

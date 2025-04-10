@@ -4,13 +4,14 @@ import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
 import { getUser } from '../auth/service';
 import { Config } from '@/apps/sync-engine/config';
-import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
+import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { initializeRemoteSyncManager } from '../remote-sync/handlers';
+import { PATHS } from '@/core/electron/paths';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -60,7 +61,7 @@ export const spawnAllSyncEngineWorker = async () => {
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
-    loggerPath: getLoggersPaths().logEnginePath,
+    loggerPath: PATHS.NODE_WIN_LOGS,
     rootUuid: user.rootFolderId,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
