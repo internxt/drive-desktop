@@ -8,7 +8,6 @@ import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
 import * as Sentry from '@sentry/electron/renderer';
-import { DependencyInjectionLogWatcherPath } from './dependency-injection/common/logEnginePath';
 import configStore from '../main/config';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
@@ -175,7 +174,14 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
-    await this.updateAndCheckPlaceholders();
+    /**
+     * Jonathan Arce v2.5.1
+     * This is a quick fix to populate and update the placeholders
+     * of the files that already exist in the local DB as soon as the sync engine starts.
+     * This should be a continuous process, fetching and updating the placeholders.
+     */
+    await this.update();
+    await this.polling();
   }
 
   async watch() {
@@ -201,8 +207,8 @@ export class BindingsManager {
 
     const queueManager = new QueueManager(callbacks, notify, persistQueueManager);
     this.queueManager = queueManager;
-    const logWatcherPath = DependencyInjectionLogWatcherPath.get();
-    this.container.virtualDrive.watchAndWait(this.paths.root, queueManager, logWatcherPath);
+    // TODO: remove empty strings, not used
+    this.container.virtualDrive.watchAndWait('', queueManager, '');
     await queueManager.processAll();
   }
 
