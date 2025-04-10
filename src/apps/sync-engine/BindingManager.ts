@@ -175,7 +175,8 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
-    await this.updateAndCheckPlaceholders();
+    await this.update();
+    await this.polling();
   }
 
   async watch() {
