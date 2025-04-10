@@ -176,9 +176,10 @@ export class BindingsManager {
     await this.load();
     /**
      * Jonathan Arce v2.5.1
-     * This is a quick fix to populate and update the placeholders
-     * of the files that already exist in the local DB as soon as the sync engine starts.
-     * This should be a continuous process, fetching and updating the placeholders.
+     * The goal is to create/update/delete placeholders once the sync engine process spawns,
+     * also as we fetch from the backend and after the fetch finish to ensure that all placeholders are right.
+     * This one is for the first case, since maybe the sync engine failed in a previous fetching
+     * and we have some placeholders pending from being created/updated/deleted
      */
     await this.update();
     await this.polling();

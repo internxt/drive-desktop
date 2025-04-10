@@ -4,7 +4,7 @@ import log from 'electron-log';
 
 log.initialize();
 
-log.transports.file.maxSize = 150 * 1024 * 1024; // 120MB
+log.transports.file.maxSize = 150 * 1024 * 1024; // 150MB
 log.transports.console.format = '[{iso}] [{level}] {text}';
 
 if (process.env.NODE_ENV !== 'development') {
