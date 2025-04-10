@@ -174,7 +174,15 @@ export class BindingsManager {
     await this.container.virtualDrive.connectSyncRoot();
 
     await this.load();
-    await this.updateAndCheckPlaceholders();
+    /**
+     * Jonathan Arce v2.5.1
+     * The goal is to create/update/delete placeholders once the sync engine process spawns,
+     * also as we fetch from the backend and after the fetch finish to ensure that all placeholders are right.
+     * This one is for the first case, since maybe the sync engine failed in a previous fetching
+     * and we have some placeholders pending from being created/updated/deleted
+     */
+    await this.update();
+    await this.polling();
   }
 
   async watch() {
