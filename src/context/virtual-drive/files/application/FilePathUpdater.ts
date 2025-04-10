@@ -62,7 +62,9 @@ export class FilePathUpdater {
       const destination = new FilePath(posixRelativePath);
       const file = this.fileFinderByContentsId.run(contentsId);
 
-      const folderFather = this.folderFinder.findFromUuid(file.folderUuid.value);
+      const folderFather = file.folderUuid
+        ? this.folderFinder.findFromUuid(file.folderUuid.value)
+        : this.folderFinder.findFromId(file.folderId.value);
 
       logger.info({
         msg: 'File path updater info',

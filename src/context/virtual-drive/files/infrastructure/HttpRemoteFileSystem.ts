@@ -119,6 +119,9 @@ export class HttpRemoteFileSystem {
     });
   }
   async move(file: File): Promise<void> {
+    if (!file.folderUuid) {
+      throw new Error('File does not have a folder UUID');
+    }
     await driveServerWip.files.moveFile({
       uuid: file.uuid,
       parentUuid: file.folderUuid.value,
