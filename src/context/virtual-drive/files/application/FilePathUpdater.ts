@@ -49,7 +49,10 @@ export class FilePathUpdater {
     }
 
     Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
-    await this.remote.move(file);
+    await this.remote.move({
+      file,
+      parentUuid: destinationFolder.uuid,
+    });
     Logger.debug('[REPOSITORY MOVE]', file.name, destinationFolder.name);
     await this.repository.update(file);
 
