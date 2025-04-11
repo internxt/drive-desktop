@@ -1,11 +1,11 @@
+import { DomainEventSubscriber } from '@/context/shared/domain/DomainEventSubscriber';
 import { DomainEvent } from '../../../shared/domain/DomainEvent';
 import { EventBus } from '../domain/EventBus';
-import { EventRepository } from '../domain/EventRepository';
-import { DomainEventSubscribers } from './DomainEventSubscribers';
+import { InMemoryEventRepository } from './InMemoryEventHistory';
 
 export class EventRecorder implements EventBus {
   constructor(
-    private readonly history: EventRepository,
+    private readonly history: InMemoryEventRepository,
     private readonly bus: EventBus,
   ) {}
 
@@ -16,7 +16,7 @@ export class EventRecorder implements EventBus {
     await this.bus.publish(events);
   }
 
-  addSubscribers(subscribers: DomainEventSubscribers): void {
+  addSubscribers(subscribers: Array<DomainEventSubscriber<DomainEvent>>): void {
     this.bus.addSubscribers(subscribers);
   }
 }

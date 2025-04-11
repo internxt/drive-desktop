@@ -1,4 +1,3 @@
-import { DomainEventSubscribers } from '../../../context/virtual-drive/shared/infrastructure/DomainEventSubscribers';
 import { getUser } from '../../main/auth/service';
 import { DependencyContainer } from './DependencyContainer';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
@@ -12,11 +11,6 @@ import { buildSharedContainer } from './shared/builder';
 
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
-
-  static readonly subscribers: Array<keyof DependencyContainer> = [
-    'createFilePlaceholderOnDeletionFailed',
-    'synchronizeOfflineModificationsOnFolderCreated',
-  ];
 
   async build(): Promise<DependencyContainer> {
     if (DependencyContainerFactory._container !== undefined) {
@@ -49,7 +43,8 @@ export class DependencyContainerFactory {
       virtualDrive,
     };
 
-    bus.addSubscribers(DomainEventSubscribers.from(container));
+    bus.addSubscribers([container.createFilePlaceholderOnDeletionFailed, container.synchronizeOfflineModificationsOnFolderCreated]);
+
     DependencyContainerFactory._container = container;
 
     return container;

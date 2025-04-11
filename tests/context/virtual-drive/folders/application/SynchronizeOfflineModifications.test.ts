@@ -8,10 +8,10 @@ import { InMemoryOfflineFolderRepository } from '../../../../../src/context/virt
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { EventRepository } from '@/context/virtual-drive/shared/domain/EventRepository';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { fail } from 'assert';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
+import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
 describe('Synchronize Offline Modifications', () => {
   const offlineRepository = new InMemoryOfflineFolderRepository();
@@ -19,7 +19,7 @@ describe('Synchronize Offline Modifications', () => {
   const folderRemoteFileSystem = mockDeep<HttpRemoteFolderSystem>();
   const syncEngineIpc = mockDeep<SyncEngineIpc>();
   const renamer = new FolderRenamer(repository, folderRemoteFileSystem, syncEngineIpc);
-  const eventRepositoryMock = mockDeep<EventRepository>();
+  const eventRepositoryMock = mockDeep<InMemoryEventRepository>();
 
   const SUT = new SynchronizeOfflineModifications(offlineRepository, repository, renamer, eventRepositoryMock);
 

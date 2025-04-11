@@ -18,6 +18,7 @@ import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
 import { logger } from '../shared/logger/logger';
+import { Tree } from '@/context/virtual-drive/items/domain/Tree';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -45,11 +46,6 @@ export class BindingsManager {
     Logger.info(`Running sync engine ${paths.root}`);
 
     this.controllers = buildControllers(this.container);
-  }
-
-  async load(): Promise<void> {
-    const tree = await this.container.treeBuilder.run();
-    await Promise.all([this.container.folderRepositoryInitiator.run(tree.folders), this.container.repositoryPopulator.run(tree.files)]);
   }
 
   async start(version: string) {
@@ -173,7 +169,8 @@ export class BindingsManager {
     await this.container.virtualDrive.registerSyncRoot(this.PROVIDER_NAME, version, callbacks, this.paths.icon);
     await this.container.virtualDrive.connectSyncRoot();
 
-    await this.load();
+    const tree = await this.container.treeBuilder.run();
+    await this.load(tree);
     /**
      * Jonathan Arce v2.5.1
      * The goal is to create/update/delete placeholders once the sync engine process spawns,
@@ -181,7 +178,7 @@ export class BindingsManager {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await this.update();
+    await this.update(tree);
     await this.polling();
   }
 
@@ -227,12 +224,14 @@ export class BindingsManager {
     }
   }
 
-  async update() {
+  async load(tree: Tree): Promise<void> {
+    await Promise.all([this.container.folderRepositoryInitiator.run(tree.folders), this.container.repositoryPopulator.run(tree.files)]);
+  }
+
+  async update(tree: Tree) {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
 
     try {
-      const tree = await this.container.treeBuilder.run();
-
       await Promise.all([
         this.container.filesPlaceholderDeleter.run(tree.trashedFilesList),
         this.container.folderPlaceholderDeleter.run(tree.trashedFoldersList),
@@ -273,7 +272,8 @@ export class BindingsManager {
     const workspaceId = getConfig().workspaceId;
 
     try {
-      await this.update();
+      const tree = await this.container.treeBuilder.run();
+      await this.update(tree);
       await this.polling();
 
       const placeholders = this.container.virtualDrive.getPlaceholderWithStatePending();
