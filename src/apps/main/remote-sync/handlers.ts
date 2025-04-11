@@ -14,11 +14,11 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { TWorkerConfig } from '../background-processes/sync-engine/store';
+import { getSyncStatus } from './services/broadcast-sync-status';
 
-remoteSyncManagers.set('', new RemoteSyncManager());
-
-export async function initializeRemoteSyncManager({ workspaceId }: { workspaceId: string }) {
-  remoteSyncManagers.set(workspaceId, new RemoteSyncManager(workspaceId));
+export async function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
+  remoteSyncManagers.set(workspaceId ?? '', new RemoteSyncManager(worker, workspaceId));
 }
 
 type UpdateFileInBatchInput = {
@@ -208,10 +208,8 @@ ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string, workspaceI
   await startRemoteSync({ folderUuid, workspaceId });
 });
 
-ipcMain.handle('get-remote-sync-status', (_, workspaceId = '') => {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  return manager.getSyncStatus();
+ipcMain.handle('get-remote-sync-status', () => {
+  return getSyncStatus();
 });
 
 ipcMain.handle('SYNC_MANUALLY', async () => {
@@ -241,7 +239,6 @@ export async function initSyncEngine() {
 
 eventBus.on('USER_LOGGED_OUT', () => {
   remoteSyncManagers.clear();
-  remoteSyncManagers.set('', new RemoteSyncManager());
 });
 
 function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {

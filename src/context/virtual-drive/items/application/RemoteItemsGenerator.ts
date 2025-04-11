@@ -43,7 +43,6 @@ export class RemoteItemsGenerator {
       plain_name: updatedFolder.plainName ?? null,
       status: updatedFolder.status as ServerFolderStatus,
       uuid: updatedFolder.uuid,
-      removed: updatedFolder.status === 'REMOVED',
     };
   }
 

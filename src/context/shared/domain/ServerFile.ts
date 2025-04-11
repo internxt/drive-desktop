@@ -1,7 +1,6 @@
 export enum ServerFileStatus {
   EXISTS = 'EXISTS',
   TRASHED = 'TRASHED',
-  REMOVED = 'REMOVED',
   DELETED = 'DELETED',
 }
 

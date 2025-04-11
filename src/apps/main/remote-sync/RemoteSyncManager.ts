@@ -8,6 +8,7 @@ import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.
 import { QueryFolders } from './folders/fetch-folders.service.interface';
 import { driveFilesCollection, driveFoldersCollection } from './store';
 import { broadcastSyncStatus } from './services/broadcast-sync-status';
+import { TWorkerConfig } from '../background-processes/sync-engine/store';
 
 export class RemoteSyncManager {
   status: RemoteSyncStatus = 'IDLE';
@@ -21,7 +22,8 @@ export class RemoteSyncManager {
   };
 
   constructor(
-    public workspaceId?: string,
+    public readonly worker: TWorkerConfig,
+    public readonly workspaceId?: string,
     private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),
     private readonly fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService() : new FetchRemoteFoldersService(),
@@ -35,18 +37,6 @@ export class RemoteSyncManager {
     return this.totalFilesUnsynced;
   }
 
-  resetRemoteSync() {
-    this.changeStatus('IDLE');
-    this.totalFilesSynced = 0;
-    this.totalFilesUnsynced = [];
-    this.totalFoldersSynced = 0;
-  }
-  /**
-   * Triggers a remote sync so we can populate the localDB, this sync
-   * is global and starts pulling all the files the user has in remote.
-   *
-   * Throws an error if there's a sync in progress for this class instance
-   */
   async startRemoteSync(folderUuid?: string) {
     logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId, folderUuid });
 
@@ -67,8 +57,8 @@ export class RemoteSyncManager {
         from: await this.getLastFolderSyncAt(),
       });
 
-      const [files, folders] = await Promise.all([syncFilesPromise, syncFoldersPromise]);
-      return { files, folders };
+      const [folders] = await Promise.all([syncFoldersPromise]);
+      return { files: [], folders };
     } catch (error) {
       logger.error({ msg: 'Remote sync failed with error', error });
       this.changeStatus('SYNC_FAILED');

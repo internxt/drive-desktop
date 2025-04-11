@@ -8,6 +8,7 @@ import { loggerService } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
 import { sleep } from '../../util';
 import { getUserOrThrow } from '../../auth/service';
+import { syncRemoteFile } from './sync-remote-file';
 
 const MAX_RETRIES = 3;
 
@@ -66,13 +67,7 @@ export class SyncRemoteFilesService {
 
         await Promise.all(
           result.map(async (remoteFile) => {
-            await self.db.files.create({
-              ...remoteFile,
-              isDangledStatus: false,
-              userUuid: user.uuid,
-              workspaceId: this.workspaceId,
-            });
-            self.totalFilesSynced++;
+            await syncRemoteFile({ self, user, remoteFile });
           }),
         );
 

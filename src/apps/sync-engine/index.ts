@@ -9,6 +9,8 @@ import { setConfig, Config, getConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File';
+import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
 
 Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
 
@@ -72,6 +74,16 @@ async function setUp() {
       Sentry.captureException(error);
       event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
     }
+  });
+
+  ipcRenderer.on('UPDATE_FILE_PLACEHOLDER', async (_, fileAttributes: FileAttributes) => {
+    const file = File.from(fileAttributes);
+    await container.filesPlaceholderUpdater.update(file);
+  });
+
+  ipcRenderer.on('UPDATE_FOLDER_PLACEHOLDER', async (_, folderAttributes: FolderAttributes) => {
+    const folder = Folder.from(folderAttributes);
+    await container.folderPlaceholderUpdater.update(folder);
   });
 
   await bindings.start(INTERNXT_VERSION);

@@ -3,7 +3,7 @@ import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerF
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
-import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
+import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Tree } from '../domain/Tree';
 import { CryptoJsNameDecrypt } from '../infrastructure/CryptoJsNameDecrypt';
 import { logger } from '@/apps/shared/logger/logger';
@@ -47,10 +47,9 @@ export class Traverser {
         return;
       }
 
-      const decryptedName = this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
       const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
 
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
+      const relativeFilePath = `${currentFolder.path}/${serverFile.plainName}${extensionToAdd}`.replaceAll('//', '/');
 
       try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
@@ -65,7 +64,7 @@ export class Traverser {
       }
     });
 
-    foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
+    foldersInThisFolder.forEach((serverFolder) => {
       if (!FOLDER_STATUSES_TO_FILTER.includes(serverFolder.status)) {
         return;
       }
@@ -84,13 +83,7 @@ export class Traverser {
           tree.appendTrashedFolder(folder);
         } else {
           tree.addFolder(currentFolder, folder);
-          if (folder.hasStatus(FolderStatuses.EXISTS)) {
-            // The folders and the files inside trashed or deleted folders
-            // will have the status "EXISTS", to avoid filtering witch folders and files
-            // are in a deleted or trashed folder they not included on the collection.
-            // We cannot perform any action on them either way
-            this.traverse(tree, items, folder);
-          }
+          this.traverse(tree, items, folder);
         }
       } catch (exc) {
         logger.error({ msg: 'Error creating folder from server folder', exc });

@@ -5,7 +5,6 @@ import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
 import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
-import { FilesPlaceholderCreator } from '../../../../context/virtual-drive/files/application/FilesPlaceholdersCreator';
 import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
@@ -28,7 +27,6 @@ export interface FilesContainer {
   createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
   sameFileWasMoved: SameFileWasMoved;
   repositoryPopulator: RepositoryPopulator;
-  filesPlaceholderCreator: FilesPlaceholderCreator;
   filesPlaceholderUpdater: FilesPlaceholderUpdater;
   filesPlaceholderDeleter: FilesPlaceholderDeleter;
   filePlaceholderConverter: FilePlaceholderConverter;

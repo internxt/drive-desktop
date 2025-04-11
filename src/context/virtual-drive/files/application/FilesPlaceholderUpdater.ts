@@ -8,6 +8,7 @@ import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import { FileRenamedDomainEvent } from '../domain/events/FileRenamedDomainEvent';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class FilesPlaceholderUpdater {
   constructor(
@@ -41,9 +42,9 @@ export class FilesPlaceholderUpdater {
     }
   }
 
-  private async update(remote: File): Promise<void> {
+  async update(remote: File): Promise<void> {
     const local = this.repository.searchByPartial({
-      contentsId: remote.contentsId,
+      uuid: remote.uuid,
     });
 
     if (!local) {
@@ -54,8 +55,10 @@ export class FilesPlaceholderUpdater {
       return;
     }
 
+    logger.debug({ msg: 'REMOTEEEEE', remotePath: remote.path, localPath: local.path });
     if (local.path !== remote.path) {
       const trackerId = await this.localFileIdProvider.run(local.path);
+      logger.debug({ msg: 'TRACKER_ID', trackerId });
       if (remote.name !== local.name) {
         const event = new FileRenamedDomainEvent({
           aggregateId: remote.contentsId,
@@ -80,14 +83,10 @@ export class FilesPlaceholderUpdater {
         const newWin32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
         await fs.rename(win32AbsolutePath, newWin32AbsolutePath);
       }
-    }
-
-    if (this.hasToBeDeleted(local, remote)) {
+    } else if (this.hasToBeDeleted(local, remote)) {
       const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
       await fs.rm(win32AbsolutePath);
-    }
-
-    if (await this.hasToBeCreated(remote)) {
+    } else if (await this.hasToBeCreated(remote)) {
       await this.localFileSystem.createPlaceHolder(remote);
       await this.repository.update(remote);
     }
