@@ -13,7 +13,12 @@ export class PaymentsService {
 
     const { featuresPerService } = await this.payments.checkUserAvailableProducts();
 
-    if (featuresPerService?.backups) {
+    /**
+     * v2.5.1 Jonathan Arce
+     * We only need to cache if the user has backups enabled.
+     * We were having an issue with a delay in the request, and the backup feature would disappear and reappear.
+     */
+    if (featuresPerService.backups) {
       this.cachedFeatures = featuresPerService;
     }
 
