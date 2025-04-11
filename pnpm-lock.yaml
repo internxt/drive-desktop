@@ -72,8 +72,8 @@ importers:
         specifier: ^1.7.4
         version: 1.9.1
       electron-log:
-        specifier: ^5.3.3
-        version: 5.3.3
+        specifier: ^4.4.4
+        version: 4.4.8
       electron-store:
         specifier: ^8.0.1
         version: 8.2.0
@@ -3817,9 +3817,8 @@ packages:
   electron-localshortcut@3.2.1:
     resolution: {integrity: sha512-DWvhKv36GsdXKnaFFhEiK8kZZA+24/yFLgtTwJJHc7AFgDjNRIBJZ/jq62Y/dWv9E4ypYwrVWN2bVrCYw1uv7Q==}
 
-  electron-log@5.3.3:
-    resolution: {integrity: sha512-ZOnlgCVfhKC0Nef68L0wDhwhg8nh5QkpEOA+udjpBxcPfTHGgbZbfoCBS6hmAgVHTAWByHNPkHKpSbEOPGZcxA==}
-    engines: {node: '>= 14'}
+  electron-log@4.4.8:
+    resolution: {integrity: sha512-QQ4GvrXO+HkgqqEOYbi+DHL7hj5JM+nHi/j+qrN9zeeXVKy8ZABgbu4CnG+BBqDZ2+tbeq9tUC4DZfIWFU5AZA==}
 
   electron-osx-sign@0.6.0:
     resolution: {integrity: sha512-+hiIEb2Xxk6eDKJ2FFlpofCnemCbjbT5jz+BKGpVBrRNT3kWTGs4DfNX6IzGwgi33hUcXF+kFs9JW+r6Wc1LRg==}
@@ -11895,7 +11894,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  electron-log@5.3.3: {}
+  electron-log@4.4.8: {}
 
   electron-osx-sign@0.6.0:
     dependencies:
