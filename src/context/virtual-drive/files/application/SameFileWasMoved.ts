@@ -1,9 +1,9 @@
-import { EventRepository } from '../../shared/domain/EventRepository';
 import { FilePath } from '../domain/FilePath';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { InMemoryEventRepository } from '../../shared/infrastructure/InMemoryEventHistory';
 
 // TODO: find a better name
 type WasMovedResult = { result: false } | { result: true; contentsId: string };
@@ -12,7 +12,7 @@ export class SameFileWasMoved {
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly localFileSystem: NodeWinLocalFileSystem,
-    private readonly eventHistory: EventRepository,
+    private readonly eventHistory: InMemoryEventRepository,
   ) {}
 
   async run(path: FilePath): Promise<WasMovedResult> {

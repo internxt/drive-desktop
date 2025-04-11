@@ -1,11 +1,11 @@
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import { EventRepository } from '../../shared/domain/EventRepository';
+import { InMemoryEventRepository } from '../../shared/infrastructure/InMemoryEventHistory';
 import { ContentsDownloadedDomainEvent } from '../domain/events/ContentsDownloadedDomainEvent';
 import Logger from 'electron-log';
 
 export class NotifyMainProcessHydrationFinished {
   constructor(
-    private readonly eventRepository: EventRepository,
+    private readonly eventRepository: InMemoryEventRepository,
     private readonly ipc: SyncEngineIpc,
   ) {}
 

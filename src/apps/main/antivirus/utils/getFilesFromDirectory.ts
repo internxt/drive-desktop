@@ -5,7 +5,6 @@ import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { isPermissionError } from '../utils/isPermissionError';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import Logger from 'electron-log';
 
 const execAsync = promisify(exec);
 
@@ -101,6 +100,5 @@ export async function countSystemFiles(folder: string) {
     total += counts.reduce((sum, c) => sum + c, 0);
   }
 
-  Logger.info(`TOTAL NUMBER OF ITEMS TO SCAN in ${folder}: ${total}`);
   return total;
 }

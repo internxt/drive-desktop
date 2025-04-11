@@ -20,8 +20,4 @@ export abstract class AggregateRoot {
   }
 
   abstract attributes(): Record<string, Primitives>;
-
-  toString(): string {
-    return JSON.stringify(this.attributes(), null, 2);
-  }
 }
