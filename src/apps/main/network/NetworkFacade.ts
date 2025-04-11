@@ -3,11 +3,10 @@ import { Network as NetworkModule } from '@internxt/sdk';
 import { createDecipheriv, randomBytes } from 'crypto';
 import { validateMnemonic } from 'bip39';
 import { downloadFile } from '@internxt/sdk/dist/network/download';
-import { buildProgressStream, getDecryptedStream } from './download';
+import { buildProgressStream, DownloadProgressCallback, getDecryptedStream } from './download';
 import fetch from 'electron-fetch';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
-import { DownloadProgressCallback } from '@internxt/inxt-js/build/lib/core';
 
 interface DownloadOptions {
   key?: Buffer;
