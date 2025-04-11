@@ -29,7 +29,6 @@ export default class LocalTreeBuilder {
 
         tree.addFolder(currentFolder, folder);
 
-        // eslint-disable-next-line no-await-in-loop
         await this.traverse(tree, folder);
       }
 

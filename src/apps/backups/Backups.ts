@@ -156,7 +156,6 @@ export class Backup {
         if (abortController.signal.aborted) {
           return;
         }
-        // eslint-disable-next-line no-await-in-loop
         await this.fileBatchUploader.run(localRootPath, tree, batch, abortController.signal, async () => {
           this.backed += 1;
           await BackupsIPCRenderer.send('backups.progress-update', this.backed);
@@ -189,7 +188,6 @@ export class Backup {
         return;
       }
       try {
-        // eslint-disable-next-line no-await-in-loop
         await this.fileBatchUpdater.run(localTree.root, remoteTree, Array.from(batch.keys()), abortController.signal);
       } catch (error) {
         logger.warn({
@@ -214,7 +212,6 @@ export class Backup {
         return;
       }
       try {
-        // eslint-disable-next-line no-await-in-loop
         await this.remoteFileDeleter.run(file);
       } catch (error) {
         logger.warn({
@@ -238,7 +235,6 @@ export class Backup {
       }
 
       try {
-        // eslint-disable-next-line no-await-in-loop
         await this.remoteFolderDeleter.run(folder);
       } catch (error) {
         logger.warn({

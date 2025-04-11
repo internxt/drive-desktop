@@ -3,16 +3,15 @@ import { Network as NetworkModule } from '@internxt/sdk';
 import { createDecipheriv, randomBytes } from 'crypto';
 import { validateMnemonic } from 'bip39';
 import { downloadFile } from '@internxt/sdk/dist/network/download';
-import { buildProgressStream, DownloadProgressCallback, getDecryptedStream } from './download';
+import { buildProgressStream, getDecryptedStream } from './download';
 import fetch from 'electron-fetch';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
+import { DownloadProgressCallback } from '@internxt/inxt-js/build/lib/core';
 
 interface DownloadOptions {
-  key?: Buffer;
-  token?: string;
   abortController?: AbortController;
-  downloadingCallback?: DownloadProgressCallback;
+  notifyProgress: DownloadProgressCallback;
 }
 
 /**
@@ -34,7 +33,7 @@ export class NetworkFacade {
     };
   }
 
-  async download(bucketId: string, fileId: string, mnemonic: string, options?: DownloadOptions): Promise<ReadableStream<Uint8Array>> {
+  async download(bucketId: string, fileId: string, mnemonic: string, options: DownloadOptions): Promise<ReadableStream<Uint8Array>> {
     const encryptedContentStreams: ReadableStream<Uint8Array>[] = [];
     let fileStream: ReadableStream<Uint8Array>;
 
@@ -48,12 +47,12 @@ export class NetworkFacade {
       Buffer.from,
       async (downloadables) => {
         for (const downloadable of downloadables) {
-          if (options?.abortController?.signal.aborted) {
+          if (options.abortController?.signal.aborted) {
             throw new Error('Download aborted');
           }
 
           const encryptedContentStream = await fetch(downloadable.url, {
-            signal: options?.abortController?.signal,
+            signal: options.abortController?.signal,
           }).then((res) => {
             if (!res.body) {
               throw new Error('No content received');
@@ -66,16 +65,12 @@ export class NetworkFacade {
         }
       },
       async (_, key, iv, fileSize) => {
-        const decryptedStream = getDecryptedStream(
-          encryptedContentStreams,
-          createDecipheriv('aes-256-ctr', options?.key || (key as Buffer), iv as Buffer),
-        );
+        const decryptedStream = getDecryptedStream(encryptedContentStreams, createDecipheriv('aes-256-ctr', key, iv));
 
         fileStream = buildProgressStream(decryptedStream, (readBytes) => {
-          options && options.downloadingCallback && options.downloadingCallback(fileSize, readBytes);
+          // options.notifyProgress(readBytes / fileSize, readBytes, fileSize);
         });
       },
-      (options?.token && { token: options.token }) || undefined,
     );
 
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
