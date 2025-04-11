@@ -59,7 +59,7 @@ export class InMemoryFileRepository {
       uuid: file.uuid,
       contentsId: file.contentsId,
       folderId: file.folderId.value,
-      folderUuid: file.folderUuid.value,
+      folderUuid: file.folderUuid?.value,
       path: file.path,
       createdAt: file.createdAt.toISOString(),
       updatedAt: file.updatedAt.toDateString(),

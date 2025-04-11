@@ -118,10 +118,10 @@ export class HttpRemoteFileSystem {
       uuid: file.uuid,
     });
   }
-  async move(file: File): Promise<void> {
+  async move({ file, parentUuid }: { file: File; parentUuid: string }): Promise<void> {
     await driveServerWip.files.moveFile({
       uuid: file.uuid,
-      parentUuid: file.folderUuid.value,
+      parentUuid,
     });
   }
 

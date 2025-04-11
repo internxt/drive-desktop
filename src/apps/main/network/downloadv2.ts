@@ -3,6 +3,7 @@ import { sha256 } from './requests';
 import { NetworkFacade } from './NetworkFacade';
 import { ReadableStream } from 'node:stream/web';
 import { appInfo } from '../app-info/app-info';
+import { logger } from '@/apps/shared/logger/logger';
 
 type DownloadProgressCallback = (totalBytes: number, downloadedBytes: number) => void;
 type FileStream = ReadableStream<Uint8Array>;
@@ -99,6 +100,11 @@ const downloadFileV2: DownloadFileFunction = (params) => {
   } else if (params.creds && params.mnemonic) {
     return downloadOwnFile(params);
   } else {
+    // TODO: this log should be removed when the code is stable
+    logger.debug({
+      msg: 'Download file params are missing',
+      params,
+    });
     throw new Error('DOWNLOAD ERRNO. 0');
   }
 };

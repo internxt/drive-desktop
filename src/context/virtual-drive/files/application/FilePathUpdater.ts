@@ -49,7 +49,10 @@ export class FilePathUpdater {
     }
 
     Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
-    await this.remote.move(file);
+    await this.remote.move({
+      file,
+      parentUuid: destinationFolder.uuid,
+    });
     Logger.debug('[REPOSITORY MOVE]', file.name, destinationFolder.name);
     await this.repository.update(file);
 
@@ -62,7 +65,9 @@ export class FilePathUpdater {
       const destination = new FilePath(posixRelativePath);
       const file = this.fileFinderByContentsId.run(contentsId);
 
-      const folderFather = this.folderFinder.findFromUuid(file.folderUuid.value);
+      const folderFather = file.folderUuid
+        ? this.folderFinder.findFromUuid(file.folderUuid.value)
+        : this.folderFinder.findFromId(file.folderId.value);
 
       logger.info({
         msg: 'File path updater info',

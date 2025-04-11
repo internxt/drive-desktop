@@ -94,6 +94,11 @@ describe('File path updater', () => {
     await SUT.run(fileToMove.contentsId, destination.value);
 
     expect(repository.update).toBeCalledWith(expect.objectContaining(fileToMove));
-    expect(remoteFileSystem.move).toBeCalledWith(expect.objectContaining(fileToMove));
+    expect(remoteFileSystem.move).toBeCalledWith(
+      expect.objectContaining({
+        file: fileToMove,
+        parentUuid: destinationFolder.uuid,
+      }),
+    );
   });
 });
