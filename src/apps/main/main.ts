@@ -54,7 +54,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
-import { setDefaultConfig } from '../sync-engine/config';
+import { clearConfig, setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
 
 const gotTheLock = app.requestSingleInstanceLock();
@@ -136,6 +136,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
       await AppDataSource.initialize();
     }
 
+    setDefaultConfig({});
+
     getAuthWindow()?.hide();
 
     nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
@@ -165,6 +167,9 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
 eventBus.on('USER_LOGGED_OUT', async () => {
   setTrayStatus('IDLE');
+
+  clearConfig();
+
   const widget = getWidget();
   if (widget) {
     widget.hide();
