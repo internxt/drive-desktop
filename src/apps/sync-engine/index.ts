@@ -5,7 +5,7 @@ import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
-import { setConfig, Config, getConfig } from './config';
+import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -86,7 +86,7 @@ async function refreshToken() {
 
   if (credentials) {
     const newToken = credentials.tokenHeader;
-    setConfig({ ...getConfig(), workspaceToken: newToken });
+    setDefaultConfig({ workspaceToken: newToken });
   }
 }
 
