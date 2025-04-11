@@ -1,12 +1,12 @@
 import { DomainEventSubscriber } from '@/context/shared/domain/DomainEventSubscriber';
 import { DomainEvent } from '../../../shared/domain/DomainEvent';
-import { EventBus } from '../domain/EventBus';
 import { InMemoryEventRepository } from './InMemoryEventHistory';
+import { NodeJsEventBus } from './NodeJsEventBus';
 
-export class EventRecorder implements EventBus {
+export class EventRecorder {
   constructor(
     private readonly history: InMemoryEventRepository,
-    private readonly bus: EventBus,
+    private readonly bus: NodeJsEventBus,
   ) {}
 
   async publish(events: Array<DomainEvent>): Promise<void> {

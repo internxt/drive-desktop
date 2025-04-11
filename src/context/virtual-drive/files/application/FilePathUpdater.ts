@@ -4,13 +4,13 @@ import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FileFinderByContentsId } from './FileFinderByContentsId';
-import { EventBus } from '../../shared/domain/EventBus';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { logger } from '../../../../apps/shared/logger/logger';
+import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class FilePathUpdater {
   constructor(
@@ -20,7 +20,7 @@ export class FilePathUpdater {
     private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
-    private readonly eventBus: EventBus,
+    private readonly eventBus: EventRecorder,
   ) {}
 
   private async rename(file: File, path: FilePath) {
