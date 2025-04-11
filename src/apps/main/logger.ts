@@ -2,8 +2,6 @@ import { PATHS } from '@/core/electron/paths';
 import { ipcMain, shell } from 'electron';
 import log from 'electron-log';
 
-log.initialize();
-
 log.transports.file.maxSize = 150 * 1024 * 1024; // 150MB
 log.transports.console.format = '[{iso}] [{level}] {text}';
 
