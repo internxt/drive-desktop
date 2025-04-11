@@ -6,7 +6,6 @@ import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
-import { CreateFilePlaceholderOnDeletionFailed } from '../../../../context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
@@ -85,8 +84,6 @@ export async function buildFilesContainer(
 
   const filePlaceholderCreatorFromContentsId = new FilePlaceholderCreatorFromContentsId(fileFinderByContentsId, localFileSystem);
 
-  const createFilePlaceholderOnDeletionFailed = new CreateFilePlaceholderOnDeletionFailed(filePlaceholderCreatorFromContentsId);
-
   const repositoryPopulator = new RepositoryPopulator(repository);
 
   const filesPlaceholderCreator = new FilesPlaceholderCreator(localFileSystem);
@@ -138,7 +135,6 @@ export async function buildFilesContainer(
     fileFolderContainerDetector,
     fileSyncronizer,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
-    createFilePlaceholderOnDeletionFailed: createFilePlaceholderOnDeletionFailed,
     sameFileWasMoved,
     repositoryPopulator: repositoryPopulator,
     filesPlaceholderCreator,

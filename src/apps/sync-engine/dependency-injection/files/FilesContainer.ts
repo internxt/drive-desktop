@@ -1,4 +1,3 @@
-import { CreateFilePlaceholderOnDeletionFailed } from '../../../../context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
@@ -25,7 +24,6 @@ export interface FilesContainer {
   fileCreator: FileCreator;
   fileSyncronizer: FileSyncronizer;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
-  createFilePlaceholderOnDeletionFailed: CreateFilePlaceholderOnDeletionFailed;
   sameFileWasMoved: SameFileWasMoved;
   repositoryPopulator: RepositoryPopulator;
   filesPlaceholderCreator: FilesPlaceholderCreator;

@@ -1,4 +1,3 @@
-import { getUser } from '../../main/auth/service';
 import { DependencyContainer } from './DependencyContainer';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 import { DependencyInjectionEventBus } from './common/eventBus';
@@ -15,11 +14,6 @@ export class DependencyContainerFactory {
   async build(): Promise<DependencyContainer> {
     if (DependencyContainerFactory._container !== undefined) {
       return DependencyContainerFactory._container;
-    }
-    const user = getUser();
-
-    if (!user) {
-      throw new Error('');
     }
 
     const { bus } = DependencyInjectionEventBus;
@@ -43,7 +37,7 @@ export class DependencyContainerFactory {
       virtualDrive,
     };
 
-    bus.addSubscribers([container.createFilePlaceholderOnDeletionFailed, container.synchronizeOfflineModificationsOnFolderCreated]);
+    bus.addSubscribers([container.synchronizeOfflineModificationsOnFolderCreated]);
 
     DependencyContainerFactory._container = container;
 
