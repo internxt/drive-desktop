@@ -35,18 +35,6 @@ export class RemoteSyncManager {
     return this.totalFilesUnsynced;
   }
 
-  resetRemoteSync() {
-    this.changeStatus('IDLE');
-    this.totalFilesSynced = 0;
-    this.totalFilesUnsynced = [];
-    this.totalFoldersSynced = 0;
-  }
-  /**
-   * Triggers a remote sync so we can populate the localDB, this sync
-   * is global and starts pulling all the files the user has in remote.
-   *
-   * Throws an error if there's a sync in progress for this class instance
-   */
   async startRemoteSync(folderUuid?: string) {
     logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId, folderUuid });
 
