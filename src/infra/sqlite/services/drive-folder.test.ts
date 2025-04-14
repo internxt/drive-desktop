@@ -3,7 +3,7 @@ import { DriveFolderCollection } from './drive-folder';
 describe('drive-folder', () => {
   const collection = new DriveFolderCollection();
 
-  it('If no options are provided, it should return empty options', async () => {
+  it('If no options are provided, it should return empty options', () => {
     // Given
     const where = collection.parseWhere({});
 
@@ -11,7 +11,7 @@ describe('drive-folder', () => {
     expect(where).toStrictEqual({});
   });
 
-  it('If workspaceId is empty, it should return empty options', async () => {
+  it('If workspaceId is empty, it should return empty options', () => {
     // Given
     const where = collection.parseWhere({ workspaceId: '' });
 
@@ -19,7 +19,7 @@ describe('drive-folder', () => {
     expect(where).toStrictEqual({});
   });
 
-  it('If workspaceId is undefined, it should return empty options', async () => {
+  it('If workspaceId is undefined, it should return empty options', () => {
     // Given
     const where = collection.parseWhere({ workspaceId: undefined });
 
@@ -27,7 +27,7 @@ describe('drive-folder', () => {
     expect(where).toStrictEqual({});
   });
 
-  it('If workspaceId is null, it should return empty options', async () => {
+  it('If workspaceId is null, it should return empty options', () => {
     // Given
     const where = collection.parseWhere({ workspaceId: null as unknown as string });
 
@@ -35,7 +35,7 @@ describe('drive-folder', () => {
     expect(where).toStrictEqual({});
   });
 
-  it('If workspaceId has a value, it should return it inside the options', async () => {
+  it('If workspaceId has a value, it should return it inside the options', () => {
     // Given
     const where = collection.parseWhere({ workspaceId: 'uuid' });
 
