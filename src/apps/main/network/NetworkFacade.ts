@@ -65,7 +65,7 @@ export class NetworkFacade {
         }
       },
       async (_, key, iv, fileSize) => {
-        const decryptedStream = getDecryptedStream(encryptedContentStreams, createDecipheriv('aes-256-ctr', key, iv));
+        const decryptedStream = getDecryptedStream(encryptedContentStreams, createDecipheriv('aes-256-ctr', key as Buffer, iv as Buffer));
 
         fileStream = buildProgressStream(decryptedStream, (readBytes) => {
           // options.notifyProgress(readBytes / fileSize, readBytes, fileSize);
