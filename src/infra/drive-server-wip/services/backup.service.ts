@@ -4,7 +4,7 @@ import { ClientWrapperService } from '../in/client-wrapper.service';
 export class BackupService {
   constructor(private readonly clientWrapper = new ClientWrapperService()) {}
 
-  async getDevices() {
+  getDevices() {
     const promise = client.GET('/backup/deviceAsFolder');
 
     return this.clientWrapper.run({
@@ -19,7 +19,7 @@ export class BackupService {
     });
   }
 
-  async getDevice({ deviceUuid }: { deviceUuid: string }) {
+  getDevice({ deviceUuid }: { deviceUuid: string }) {
     const promise = client.GET('/backup/deviceAsFolder/{uuid}', {
       params: { path: { uuid: deviceUuid } },
     });
@@ -39,7 +39,7 @@ export class BackupService {
     });
   }
 
-  async createDevice({ deviceName }: { deviceName: string }) {
+  createDevice({ deviceName }: { deviceName: string }) {
     const promise = client.POST('/backup/deviceAsFolder', {
       body: { deviceName },
     });
@@ -59,7 +59,7 @@ export class BackupService {
     });
   }
 
-  async updateDevice({ deviceUuid, deviceName }: { deviceUuid: string; deviceName: string }) {
+  updateDevice({ deviceUuid, deviceName }: { deviceUuid: string; deviceName: string }) {
     const promise = client.PATCH('/backup/deviceAsFolder/{uuid}', {
       params: { path: { uuid: deviceUuid } },
       body: { deviceName },

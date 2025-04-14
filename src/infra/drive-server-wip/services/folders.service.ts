@@ -9,7 +9,7 @@ type TGetFilesByFolderQuery = paths['/folders/content/{uuid}/files']['get']['par
 export class FoldersService {
   constructor(private readonly clientWrapper = new ClientWrapperService()) {}
 
-  async getMetadata({ folderId }: { folderId: number }) {
+  getMetadata({ folderId }: { folderId: number }) {
     const promise = client.GET('/folders/{id}/metadata', {
       params: { path: { id: folderId } },
     });
@@ -29,7 +29,7 @@ export class FoldersService {
     });
   }
 
-  async getMetadataWithUuid({ uuid }: { uuid: string }) {
+  getMetadataWithUuid({ uuid }: { uuid: string }) {
     const promise = client.GET('/folders/{uuid}/meta', {
       params: { path: { uuid } },
     });
@@ -49,7 +49,7 @@ export class FoldersService {
     });
   }
 
-  async getFolders({ query }: { query: TGetFoldersQuery }) {
+  getFolders({ query }: { query: TGetFoldersQuery }) {
     const promise = client.GET('/folders', { params: { query } });
 
     return this.clientWrapper.run({
@@ -121,7 +121,7 @@ export class FoldersService {
     }
   }
 
-  async moveFolder({ uuid, parentUuid }: { uuid: string; parentUuid: string }) {
+  moveFolder({ uuid, parentUuid }: { uuid: string; parentUuid: string }) {
     const promise = client.PATCH('/folders/{uuid}', {
       params: { path: { uuid } },
       body: { destinationFolder: parentUuid },
@@ -143,7 +143,7 @@ export class FoldersService {
     });
   }
 
-  async renameFolder({ uuid, plainName }: { uuid: string; plainName: string }) {
+  renameFolder({ uuid, plainName }: { uuid: string; plainName: string }) {
     const promise = client.PUT('/folders/{uuid}/meta', {
       params: { path: { uuid } },
       body: { plainName },
@@ -165,7 +165,7 @@ export class FoldersService {
     });
   }
 
-  async existsFolder({ parentUuid, basename }: { parentUuid: string; basename: string }) {
+  existsFolder({ parentUuid, basename }: { parentUuid: string; basename: string }) {
     const promise = client.POST('/folders/content/{uuid}/folders/existence', {
       params: { path: { uuid: parentUuid } },
       body: { plainNames: [basename] },
