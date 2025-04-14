@@ -74,7 +74,6 @@ export async function launchBackupProcesses(
       continue;
     }
 
-    // eslint-disable-next-line no-await-in-loop
     const endReason = await executeBackupWorker(backupInfo, stopController);
 
     if (isSyncError(endReason)) {

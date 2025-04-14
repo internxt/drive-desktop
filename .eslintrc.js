@@ -10,7 +10,7 @@ module.exports = {
     },
   ],
   rules: {
-    'no-await-in-loop': 'warn',
+    'no-await-in-loop': 'off',
     'no-use-before-define': 'warn',
     'array-callback-return': 'warn',
     'no-empty': 'off',
