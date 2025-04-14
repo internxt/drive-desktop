@@ -15,7 +15,7 @@ export function buildBoundaryBridgeContainer(
     filesContainer.sameFileWasMoved,
   );
 
-  const fileSyncOrchestrator = new FileSyncOrchestrator(contentsContainer.contentsUploader, filesContainer.fileSyncronizer);
+  const fileSyncOrchestrator = new FileSyncOrchestrator(filesContainer.fileSyncronizer);
 
   const fileDangledManager = new FileDangledManager(
     contentsContainer.contentsUploader,

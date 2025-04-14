@@ -4,7 +4,6 @@ import { TreeBuilder } from '../../../../context/virtual-drive/items/application
 import { CryptoJsNameDecrypt } from '../../../../context/virtual-drive/items/infrastructure/CryptoJsNameDecrypt';
 import { getUser } from '../../../main/auth/service';
 import { getConfig } from '../../config';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { ItemsContainer } from './ItemsContainer';
 
 export function buildItemsContainer(): ItemsContainer {
@@ -14,18 +13,13 @@ export function buildItemsContainer(): ItemsContainer {
     throw new Error('Could not get user when building Items dependencies');
   }
 
-  const remoteItemsGenerator = new RemoteItemsGenerator(ipcRendererSyncEngine);
+  const remoteItemsGenerator = new RemoteItemsGenerator();
 
   const nameDecryptor = new CryptoJsNameDecrypt();
 
-  const existingItemsTraverser = Traverser.existingItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUuid);
-  const allStatusesTraverser = Traverser.allItems(nameDecryptor, ipcRendererSyncEngine, user.root_folder_id, getConfig().rootUuid);
+  const existingItemsTraverser = new Traverser(nameDecryptor, user.root_folder_id, getConfig().rootUuid);
+
   const treeBuilder = new TreeBuilder(remoteItemsGenerator, existingItemsTraverser);
 
-  const allStatusesTreeBuilder = new TreeBuilder(remoteItemsGenerator, allStatusesTraverser);
-
-  return {
-    existingItemsTreeBuilder: treeBuilder,
-    allStatusesTreeBuilder,
-  };
+  return { treeBuilder };
 }

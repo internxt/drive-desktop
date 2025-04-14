@@ -23,7 +23,7 @@ export type FileAttributes = {
   uuid?: string;
   contentsId: string;
   folderId: number;
-  folderUuid: string;
+  folderUuid?: string;
   createdAt: string;
   modificationTime: string;
   path: string;
@@ -38,8 +38,7 @@ export class File extends AggregateRoot {
     private _uuid: FileUuid,
     private _contentsId: FileContentsId,
     private _folderId: FileFolderId,
-
-    private _folderUuid: FolderUuid,
+    private _folderUuid: FolderUuid | undefined,
     private _path: FilePath,
     private _size: FileSize,
     public createdAt: Date,
@@ -107,7 +106,7 @@ export class File extends AggregateRoot {
       new FileUuid(attributes.uuid ?? ''),
       new FileContentsId(attributes.contentsId),
       new FileFolderId(attributes.folderId),
-      new FolderUuid(attributes.folderUuid),
+      attributes.folderUuid ? new FolderUuid(attributes.folderUuid) : undefined,
       new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
@@ -122,7 +121,7 @@ export class File extends AggregateRoot {
       new FileUuid(attributes.uuid || ''),
       new FileContentsId(attributes.contentsId),
       new FileFolderId(attributes.folderId),
-      new FolderUuid(attributes.folderUuid),
+      attributes.folderUuid ? new FolderUuid(attributes.folderUuid) : undefined,
       new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
@@ -237,7 +236,7 @@ export class File extends AggregateRoot {
       uuid: this._uuid.value,
       contentsId: this.contentsId,
       folderId: Number(this.folderId),
-      folderUuid: this.folderUuid.value,
+      folderUuid: this.folderUuid?.value,
       createdAt: this.createdAt.toISOString(),
       path: this.path,
       size: this.size,

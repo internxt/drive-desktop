@@ -28,7 +28,6 @@ import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';
-import './tray/handlers';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';
@@ -42,7 +41,7 @@ import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
-import { AppDataSource, destroyDatabase } from './database/data-source';
+import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
@@ -52,9 +51,11 @@ import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { clearAntivirusIfAvailable, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
+import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
+import { clearConfig, setDefaultConfig } from '../sync-engine/config';
+import { migrate } from '@/migrations/migrate';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -105,16 +106,21 @@ app
     }
 
     setupTrayIcon();
-    registerUsageHandlers();
-    await checkIfUserIsLoggedIn();
 
-    const isLoggedIn = getIsLoggedIn();
+    await migrate();
+
+    registerUsageHandlers();
     setUpBackups();
+
+    await checkIfUserIsLoggedIn();
+    const isLoggedIn = getIsLoggedIn();
 
     if (!isLoggedIn) {
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
+
+    setDefaultConfig({});
 
     ipcMain.handle('is-dark-mode-active', () => {
       return nativeTheme.shouldUseDarkColors;
@@ -129,6 +135,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
+
+    setDefaultConfig({});
 
     getAuthWindow()?.hide();
 
@@ -159,14 +167,16 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
 eventBus.on('USER_LOGGED_OUT', async () => {
   setTrayStatus('IDLE');
-  await destroyDatabase();
+
+  clearConfig();
+
   const widget = getWidget();
   if (widget) {
     widget.hide();
     widget.destroy();
   }
 
-  clearAntivirusIfAvailable();
+  clearAntivirus();
 
   await createAuthWindow();
 });

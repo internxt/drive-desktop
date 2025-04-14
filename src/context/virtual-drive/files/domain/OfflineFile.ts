@@ -17,7 +17,6 @@ export class OfflineFile extends AggregateRoot {
   private constructor(
     private _contentsId: ContentsId,
     private _folderId: number,
-
     private _folderUuid: string,
     private _path: FilePath,
     private readonly _size: FileSize,

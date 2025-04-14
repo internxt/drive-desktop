@@ -1,3 +1,4 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { app } from 'electron';
 import net from 'net';
@@ -33,7 +34,7 @@ const startClamdServer = (): Promise<void> => {
     });
 
     clamdProcess.on('error', (error) => {
-      console.error('Failed to start clamd server:', error);
+      logger.error({ msg: 'Failed to start clamd server:', error });
       reject();
     });
 

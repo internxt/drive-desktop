@@ -9,12 +9,10 @@ export const fieldsToSave = [
   'backupInterval',
   'lastBackup',
   'syncRoot',
-  'lastSavedListing',
   'lastSync',
   'deviceId',
   'deviceUuid',
   'backupList',
-  'workspacesPath',
 ] as const;
 
 export interface AppStore {
@@ -28,16 +26,12 @@ export interface AppStore {
   backupInterval: number;
   lastBackup: number;
   syncRoot: string;
-  logEnginePath: string;
-  lastSavedListing: string;
   lastSync: number;
   savedConfigs: Record<string, Pick<AppStore, (typeof fieldsToSave)[number]>>;
   lastOnboardingShown: string;
   deviceId: number;
   deviceUuid: string;
   backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
-
-  workspacesPath: Record<string, string>;
   clientId: string;
   preferedLanguage?: string;
   preferedTheme?: string;
@@ -76,12 +70,6 @@ const schema: Schema<AppStore> = {
   syncRoot: {
     type: 'string',
   },
-  logEnginePath: {
-    type: 'string',
-  },
-  lastSavedListing: {
-    type: 'string',
-  },
   lastSync: {
     type: 'number',
   },
@@ -98,9 +86,6 @@ const schema: Schema<AppStore> = {
     type: 'string',
   },
   backupList: {
-    type: 'object',
-  },
-  workspacesPath: {
     type: 'object',
   },
   clientId: {
@@ -131,15 +116,12 @@ export const defaults: AppStore = {
   backupInterval: 86_400_000, // 24h
   lastBackup: -1,
   syncRoot: '',
-  logEnginePath: '',
-  lastSavedListing: '',
   lastSync: -1,
   savedConfigs: {},
   lastOnboardingShown: '',
   deviceId: -1,
   deviceUuid: '',
   backupList: {},
-  workspacesPath: {},
   clientId: uuid.v4(),
   preferedLanguage: '',
   preferedTheme: 'system',

@@ -1,7 +1,7 @@
 import * as path from 'path';
 import Logger from 'electron-log';
 
-export const isTemporaryFile = async (filePath: string): Promise<boolean> => {
+export const isTemporaryFile = (filePath: string): boolean => {
   try {
     // Check if the file name starts with a common temporary prefix
     if (path.basename(filePath).startsWith('~$')) {

@@ -1,9 +1,12 @@
 import { vi } from 'vitest';
 import dotenv from 'dotenv';
+import path from 'path';
 
 dotenv.config();
 
 process.env.NODE_ENV = 'development';
+
+process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
 
 vi.mock('@/apps/main/auth/service', () => {
   const user = {
@@ -51,7 +54,7 @@ vi.mock('@/apps/main/auth/service', () => {
 });
 
 vi.mock('../event-bus', () => {
-  const listeners: Record<string, ((...args: any[]) => void)[]> = {};
+  const listeners: Record<string, ((...args: unknown[]) => void)[]> = {};
 
   return {
     default: {
@@ -62,13 +65,18 @@ vi.mock('../event-bus', () => {
 });
 
 vi.mock('electron', async () => {
-  const ipcMainHandlers: Record<string, (...args: any[]) => void> = {};
+  const ipcMainHandlers: Record<string, (...args: unknown[]) => void> = {};
   const actual = await vi.importActual<typeof import('electron')>('electron');
   return {
     ...actual,
     app: {
       ...actual.app,
-      getPath: vi.fn(() => '/mock/path'),
+      getPath: vi.fn((string) => {
+        if (string === 'home') {
+          return path.join(process.cwd(), 'tests/temp-test');
+        }
+        return '/mock/logs';
+      }),
       on: vi.fn(),
     },
     ipcMain: {
@@ -93,7 +101,7 @@ vi.mock('electron', async () => {
     })),
     ipcRenderer: {
       on: vi.fn(
-        (event, callback) =>
+        (event) =>
           ipcMainHandlers[event] &&
           ipcMainHandlers[event]({
             sender: {
@@ -114,7 +122,7 @@ vi.mock('electron', async () => {
           ),
       ),
       handle: vi.fn(
-        (event, callback) =>
+        (event) =>
           ipcMainHandlers[event] &&
           ipcMainHandlers[event]({
             sender: {
@@ -123,7 +131,7 @@ vi.mock('electron', async () => {
           }),
       ),
       invoke: vi.fn(
-        (event, ...args) =>
+        (event) =>
           ipcMainHandlers[event] &&
           ipcMainHandlers[event]({
             sender: {
@@ -140,11 +148,17 @@ vi.mock('@/apps/main/virtual-root-folder/service.ts', () => {
     getLoggersPaths: vi.fn(() => '/mock/logs'),
     getRootVirtualDrive: vi.fn(() => '/mock/path'),
     getRootWorkspace: vi.fn(() => ({
-      logEnginePath: '/mock/logs',
-      logWatcherPath: '/mock/logs',
-      persistQueueManagerPath: '/mock/logs',
       syncRoot: '/mock/path',
-      lastSavedListing: '/mock/logs',
+    })),
+  };
+});
+
+vi.mock('@/apps/main/windows/widget.ts', () => {
+  return {
+    getWidget: vi.fn(() => ({
+      webContents: {
+        send: vi.fn(),
+      },
     })),
   };
 });

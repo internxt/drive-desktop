@@ -2,12 +2,12 @@ import { mockDeep } from 'vitest-mock-extended';
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderDeleter } from '../../../../../src/context/virtual-drive/folders/application/FolderDeleter';
 import { FolderMother } from '../domain/FolderMother';
-import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
+import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 
 describe('Folder deleter', () => {
-  const repository = mockDeep<FolderRepository>();
+  const repository = mockDeep<InMemoryFolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
   const remote = mockDeep<HttpRemoteFolderSystem>();
   const local = mockDeep<NodeWinLocalFolderSystem>();

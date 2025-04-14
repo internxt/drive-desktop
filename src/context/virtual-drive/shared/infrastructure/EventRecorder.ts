@@ -1,12 +1,12 @@
+import { DomainEventSubscriber } from '@/context/shared/domain/DomainEventSubscriber';
 import { DomainEvent } from '../../../shared/domain/DomainEvent';
-import { EventBus } from '../domain/EventBus';
-import { EventRepository } from '../domain/EventRepository';
-import { DomainEventSubscribers } from './DomainEventSubscribers';
+import { InMemoryEventRepository } from './InMemoryEventHistory';
+import { NodeJsEventBus } from './NodeJsEventBus';
 
-export class EventRecorder implements EventBus {
+export class EventRecorder {
   constructor(
-    private readonly history: EventRepository,
-    private readonly bus: EventBus,
+    private readonly history: InMemoryEventRepository,
+    private readonly bus: NodeJsEventBus,
   ) {}
 
   async publish(events: Array<DomainEvent>): Promise<void> {
@@ -16,7 +16,7 @@ export class EventRecorder implements EventBus {
     await this.bus.publish(events);
   }
 
-  addSubscribers(subscribers: DomainEventSubscribers): void {
+  addSubscribers(subscribers: Array<DomainEventSubscriber<DomainEvent>>): void {
     this.bus.addSubscribers(subscribers);
   }
 }

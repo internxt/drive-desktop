@@ -1,46 +1,35 @@
-import { logger } from '@/apps/shared/logger/logger';
-import { client } from '../../../shared/HttpClient/client';
-import {
-  FetchFoldersService,
-  FetchFoldersServiceParams,
-  FetchFoldersServiceResult,
-  Query,
-  QueryFolders,
-  QueryFoldersInFolder,
-} from './fetch-folders.service.interface';
+import { FETCH_LIMIT } from '../store';
+import { FetchFoldersService, FetchFoldersServiceParams, FetchFoldersServiceResult } from './fetch-folders.service.interface';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export class FetchRemoteFoldersService implements FetchFoldersService {
-  async run({
-    self,
-    updatedAtCheckpoint,
-    folderId,
-    offset,
-    status = 'ALL',
-  }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
-    const query: Query = {
-      limit: self.config.fetchFilesLimitPerRequest,
-      offset,
-      status,
-      updatedAt: updatedAtCheckpoint?.toISOString(),
-    };
+  constructor(private readonly driveServerWip = driveServerWipModule) {}
 
-    const promise = folderId ? this.getFoldersByFolder({ folderId, query }) : this.getFolders({ query });
-    const result = await promise;
+  async run({ updatedAtCheckpoint, folderUuid, offset, status }: FetchFoldersServiceParams): Promise<FetchFoldersServiceResult> {
+    const promise = folderUuid
+      ? this.driveServerWip.folders.getFoldersByFolder({
+          folderUuid,
+          query: {
+            limit: FETCH_LIMIT,
+            offset,
+            order: 'DESC',
+            sort: 'updatedAt',
+          },
+        })
+      : this.driveServerWip.folders.getFolders({
+          query: {
+            limit: FETCH_LIMIT,
+            offset,
+            status,
+            updatedAt: updatedAtCheckpoint?.toISOString(),
+          },
+        });
 
-    if (result.data) {
-      const hasMore = result.data.length === self.config.fetchFilesLimitPerRequest;
-      return { hasMore, result: result.data };
-    }
+    const { data, error } = await promise;
 
-    throw logger.error({ msg: 'Fetch folders response not ok', query, error: result.error });
-  }
+    if (error) throw error;
 
-  private getFolders({ query }: { query: QueryFolders }) {
-    return client.GET('/folders', { params: { query } });
-  }
-
-  private async getFoldersByFolder({ folderId, query }: { folderId: number; query: QueryFoldersInFolder }) {
-    const result = await client.GET('/folders/{id}/folders', { params: { path: { id: folderId }, query } });
-    return { ...result, data: result.data?.result };
+    const hasMore = data.length === FETCH_LIMIT;
+    return { hasMore, result: data };
   }
 }

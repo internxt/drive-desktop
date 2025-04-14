@@ -1,10 +1,10 @@
 import { FilePath } from '../../files/domain/FilePath';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { Folder } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 
 export class FolderFinder {
-  constructor(private readonly repository: FolderRepository) {}
+  constructor(private readonly repository: InMemoryFolderRepository) {}
 
   run(path: string): Folder {
     const folder = this.repository.searchByPartial({ path });

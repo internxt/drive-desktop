@@ -1,11 +1,11 @@
 import { Service } from 'diod';
 import { Folder } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
 import { FolderStatuses } from '../domain/FolderStatus';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 
 @Service()
 export class AllParentFoldersStatusIsExists {
-  constructor(private readonly repository: FolderRepository) {}
+  constructor(private readonly repository: InMemoryFolderRepository) {}
 
   run(id: Folder['id']): boolean {
     const folder = this.repository.searchByPartial({ id });

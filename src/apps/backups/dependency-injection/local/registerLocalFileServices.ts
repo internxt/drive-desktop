@@ -6,7 +6,6 @@ import { EnvironmentLocalFileUploader } from '../../../../context/local/localFil
 import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { Environment } from '@internxt/inxt-js';
 import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-injection/DependencyInjectionMnemonicProvider';
-import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 import { getConfig } from '@/apps/sync-engine/config';
 
@@ -17,7 +16,7 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
   const mnemonic = DependencyInjectionMnemonicProvider.get();
 
   const environment = new Environment({
-    bridgeUrl: process.env.BRIDGE_URL,
+    bridgeUrl: process.env.DRIVE_URL,
     bridgeUser: getConfig().bridgeUser,
     bridgePass: getConfig().bridgePass,
     encryptionKey: mnemonic,
@@ -29,15 +28,7 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
 
   builder
     .register(EnvironmentLocalFileUploader)
-    .useFactory(
-      (c) =>
-        new EnvironmentLocalFileUploader(
-          c.get(Environment),
-          user.backupsBucket,
-          //@ts-ignore
-          c.get(AuthorizedClients).drive,
-        ),
-    )
+    .useFactory((c) => new EnvironmentLocalFileUploader(c.get(Environment), user.backupsBucket))
     .private();
 
   builder.register(RendererIpcLocalFileMessenger).useClass(RendererIpcLocalFileMessenger).private().asSingleton();

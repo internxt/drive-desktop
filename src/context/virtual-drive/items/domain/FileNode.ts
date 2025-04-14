@@ -4,11 +4,11 @@ import { FolderNode } from './FolderNode';
 export class FileNode {
   private constructor(public readonly file: File) {}
 
-  static from(file: File): FileNode {
+  static from(file: File) {
     return new FileNode(file);
   }
 
-  public get id(): string {
+  public get path(): string {
     return this.file.path;
   }
 

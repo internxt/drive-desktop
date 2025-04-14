@@ -1,15 +1,16 @@
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
-import packageJson from '../../../package.json';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
-import { setConfig, Config, getConfig } from './config';
-import { FetchWorkspacesService } from '../main/remote-sync/workspace/fetch-workspaces.service';
+import { setConfig, Config, getConfig, setDefaultConfig } from './config';
+import { logger } from '../shared/logger/logger';
+import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
-Logger.log(`Running sync engine ${packageJson.version}`);
+Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
 
 function initSentry() {
   Sentry.init({
@@ -52,37 +53,8 @@ async function setUp() {
     providerName,
   );
 
-  ipcRenderer.on('USER_LOGGED_OUT', async () => {
-    bindings.cleanQueue();
-  });
-
-  ipcRenderer.on('CHECK_SYNC_ENGINE_RESPONSE', async (event) => {
-    Logger.info('[SYNC ENGINE] Checking sync engine response');
-    const placeholderStatuses = await container.filesCheckerStatusInRoot.run();
-    const placeholderStates = placeholderStatuses;
-    event.sender.send('CHECK_SYNC_CHANGE_STATUS', placeholderStates, getConfig().workspaceId);
-  });
-
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    Logger.info('[SYNC ENGINE] Updating sync engine');
-    await bindings.update();
-    Logger.info('[SYNC ENGINE] sync engine updated successfully');
-  });
-
-  ipcRenderer.on('FALLBACK_SYNC_ENGINE_PROCESS', async () => {
-    Logger.info('[SYNC ENGINE] Fallback sync engine');
-
-    await bindings.polling();
-
-    Logger.info('[SYNC ENGINE] sync engine fallback successfully');
-  });
-
-  ipcRenderer.on('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS', async (event) => {
-    Logger.info('[SYNC ENGINE] updating file unsync');
-
-    const filesPending = await bindings.getFileInSyncPending();
-
-    event.sender.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE', filesPending);
+    await bindings.updateAndCheckPlaceholders();
   });
 
   ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
@@ -102,29 +74,19 @@ async function setUp() {
     }
   });
 
-  ipcRenderer.on('UNREGISTER_SYNC_ENGINE_PROCESS', async (_, providerId: string) => {
-    Logger.info('[SYNC ENGINE] Unregistering sync engine');
-    await bindings.unregisterSyncEngine({ providerId });
-    Logger.info('[SYNC ENGINE] sync engine unregistered successfully');
-  });
-
-  await bindings.start(packageJson.version);
-
+  await bindings.start(INTERNXT_VERSION);
   await bindings.watch();
 
   Logger.info('[SYNC ENGINE] Second sync engine started');
-
-  ipcRenderer.send('CHECK_SYNC');
 }
 
 async function refreshToken() {
-  try {
-    Logger.info('[SYNC ENGINE] Refreshing token');
-    const credential = await FetchWorkspacesService.getCredencials(getConfig().workspaceId);
-    const newToken = credential.tokenHeader;
-    setConfig({ ...getConfig(), workspaceToken: newToken });
-  } catch (exc) {
-    Logger.error('[SYNC ENGINE] Error refreshing token', exc);
+  logger.debug({ msg: '[SYNC ENGINE] Refreshing token' });
+  const { data: credentials } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: getConfig().workspaceId });
+
+  if (credentials) {
+    const newToken = credentials.tokenHeader;
+    setDefaultConfig({ workspaceToken: newToken });
   }
 }
 

@@ -12,17 +12,17 @@ export class FolderNode {
     return new FolderNode(folder, new Map());
   }
 
-  public get id(): string {
+  public get path(): string {
     return this.folder.path;
   }
 
   addChild(node: Node): void {
-    if (this.children.has(node.id)) {
-      Logger.warn(`[New Error] Duplicated node detected: ${node.id}`);
+    if (this.children.has(node.path)) {
+      Logger.warn(`[New Error] Duplicated node detected: ${node.path}`);
       return;
     }
 
-    this.children.set(node.id, node);
+    this.children.set(node.path, node);
   }
 
   public isFile(): this is FileNode {

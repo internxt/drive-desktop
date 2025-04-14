@@ -21,14 +21,14 @@ importers:
         specifier: 1.1.6
         version: 1.1.6
       '@internxt/node-win':
-        specifier: 1.0.4
-        version: 1.0.4
+        specifier: 1.0.8
+        version: 1.0.8
       '@internxt/scan':
         specifier: 1.0.2
         version: 1.0.2
       '@internxt/sdk':
-        specifier: 1.9.9
-        version: 1.9.9
+        specifier: 1.9.12
+        version: 1.9.12
       '@phosphor-icons/react':
         specifier: 2.0.9
         version: 2.0.9(react-dom@17.0.2(react@17.0.2))(react@17.0.2)
@@ -47,6 +47,9 @@ importers:
       better-sqlite3:
         specifier: ^8.3.0
         version: 8.7.0
+      bottleneck:
+        specifier: ^2.19.5
+        version: 2.19.5
       bytes:
         specifier: ^3.1.1
         version: 3.1.2
@@ -231,6 +234,9 @@ importers:
       '@typescript-eslint/parser':
         specifier: ^5.8.1
         version: 5.62.0(eslint@8.57.1)(typescript@4.9.5)
+      '@vitest/coverage-v8':
+        specifier: 3.0.8
+        version: 3.0.8(vitest@3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0))
       autoprefixer:
         specifier: ^10.4.1
         version: 10.4.21(postcss@8.5.3)
@@ -1050,6 +1056,10 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
+  '@bcoe/v8-coverage@1.0.2':
+    resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
+    engines: {node: '>=18'}
+
   '@colors/colors@1.6.0':
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
     engines: {node: '>=0.1.90'}
@@ -1315,15 +1325,15 @@ packages:
   '@internxt/lib@1.1.6':
     resolution: {integrity: sha512-xpnSpDsWr+jemV2aI71B39LGfXnNCsyv2VKND0JAgrOeyHXjnChH+IHxGLq/8f73HT47mpkNXrK4nfpzH4OaaQ==, tarball: https://npm.pkg.github.com/download/@internxt/lib/1.1.6/ea931ba39aa0e715704400603beb8833c73c05e4}
 
-  '@internxt/node-win@1.0.4':
-    resolution: {integrity: sha512-NHFtn8Z8IBc4t57oij84S/Oh0HbrlQqbGb0Avz2zvQAKKvhxCIsCk/JXRqLNHhR76Rp/zqF+EUuxcel3tWmKxw==, tarball: https://npm.pkg.github.com/download/@internxt/node-win/1.0.4/ea4683b803dd4ceac75b31ec0ef8d1efc5f6cbc9}
+  '@internxt/node-win@1.0.8':
+    resolution: {integrity: sha512-gOYzAzjfTg6FOOlvpoORxDwnRru376VteCW0yJXOrTEpGJ5QZBv9Wx9BWxJb3BFq8S49VOa9aCe7a4kmlWDiPQ==, tarball: https://npm.pkg.github.com/download/@internxt/node-win/1.0.8/539b67b824fc1922e8e7d7cb04ab8bc039cc82a2}
 
   '@internxt/scan@1.0.2':
     resolution: {integrity: sha512-AZAPF+JywxfyEWJ9LPk+b3HHJG1c6fDq+x+YX5U5FKilfX43RgM6GdCME/RfuJPLuMy6B0r/W24NWIRs6sQUXQ==, tarball: https://npm.pkg.github.com/download/@internxt/scan/1.0.2/dc85bd75165ff50adfc8b9f607b233398898c60a}
     engines: {node: '>=18.0.0'}
 
-  '@internxt/sdk@1.9.9':
-    resolution: {integrity: sha512-3bhC/WBunAeGLpexEOj84xgZbznwDdTripoLj/fmnPEKW4PpCGP0tS7f58IMDSMkpPMhB6wTSMAXXLW9LfQNNg==, tarball: https://npm.pkg.github.com/download/@internxt/sdk/1.9.9/41aaf713bfa85688a09bcfce35814b831389b9be}
+  '@internxt/sdk@1.9.12':
+    resolution: {integrity: sha512-/GNKYrvrcQvIGaIrg74aeoJq6yjJQaFyO89Af8qZFLbTTpvdVsbQnq3eA17vlTNNEVaTeDllwJQtL4ZMsR6HBQ==, tarball: https://npm.pkg.github.com/download/@internxt/sdk/1.9.12/534488617eac3eea5fb4ad965130e5c2811819d1}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -2521,6 +2531,15 @@ packages:
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
 
+  '@vitest/coverage-v8@3.0.8':
+    resolution: {integrity: sha512-y7SAKsQirsEJ2F8bulBck4DoluhI2EEgTimHd6EEUgJBGKy9tC25cpywh1MH4FvDGoG2Unt7+asVd1kj4qOSAw==}
+    peerDependencies:
+      '@vitest/browser': 3.0.8
+      vitest: 3.0.8
+    peerDependenciesMeta:
+      '@vitest/browser':
+        optional: true
+
   '@vitest/expect@3.0.8':
     resolution: {integrity: sha512-Xu6TTIavTvSSS6LZaA3EebWFr6tsoXPetOWNMOlc7LO88QVVBwq2oQWBoDiLCN6YTvNYsGSjqOO8CAdjom5DCQ==}
 
@@ -2997,6 +3016,9 @@ packages:
   boolean@3.2.0:
     resolution: {integrity: sha512-d0II/GO9uf9lfUHH2BQsjxzRJZBdsjgsBiW4BvhWk/3qoKwQFjIDVN19PfX8F2D/r9PCMTtLWjYVCFrpeYUzsw==}
     deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
+
+  bottleneck@2.19.5:
+    resolution: {integrity: sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==}
 
   brace-expansion@1.1.11:
     resolution: {integrity: sha512-iCuPHDFgrHX7H2vEI/5xpz07zSHB00TpugqhmYtVmMO6518mCuRMoOYFldEBl0g187ufozdaHgWKcYFb61qGiA==}
@@ -4989,6 +5011,10 @@ packages:
     resolution: {integrity: sha512-n3s8EwkdFIJCG3BPKBYvskgXGoy88ARzvegkitk60NxRdwltLOTaH7CUiMRXvwYorl0Q712iEjcWB+fK/MrWVw==}
     engines: {node: '>=10'}
 
+  istanbul-lib-source-maps@5.0.6:
+    resolution: {integrity: sha512-yg2d+Em4KizZC5niWhQaIomgf5WlL4vOOjZ5xGCmF8SnPE/mDWWXgvRExdcpCgh9lLRRa1/fSYp2ymmbJ1pI+A==}
+    engines: {node: '>=10'}
+
   istanbul-reports@3.1.7:
     resolution: {integrity: sha512-BewmUXImeuRk2YY0PVbxgKAysvhRPUQE0h5QRM++nVWyubKGV0l8qQ5op8+B2DOmwSe63Jivj0BjkPQVf8fP5g==}
     engines: {node: '>=8'}
@@ -5407,6 +5433,9 @@ packages:
 
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
+
+  magicast@0.3.5:
+    resolution: {integrity: sha512-L0WhttDl+2BOsybvEOLK7fW3UA0OQ0IQ2d6Zl2x/a6vVRs3bAY0ECOSHHeL5jD+SbOpOCUEi0y1DgHEn9Qn1AQ==}
 
   make-dir@4.0.0:
     resolution: {integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw==}
@@ -7183,6 +7212,10 @@ packages:
     resolution: {integrity: sha512-cAGWPIyOHU6zlmg88jwm7VRyXnMN7iV68OGAbYDk/Mh/xC/pzVPlQtY6ngoIH/5/tciuhGfvESU8GrHrcxD56w==}
     engines: {node: '>=8'}
 
+  test-exclude@7.0.1:
+    resolution: {integrity: sha512-pFYqmTw68LXVjeWJMST4+borgQP2AyMNbg1BpZh9LbyhUeNkeaPF9gzfPGUAnSMV3qPYdWUwDIjjCLiSDOl7vg==}
+    engines: {node: '>=18'}
+
   text-hex@1.0.0:
     resolution: {integrity: sha512-uuVGNWzgJ4yhRaNSiubPY7OjISw4sw4E5Uv0wbjp+OzcbmVU/rsT8ujgcXJhn9ypzsgr5vlzpPqP+MBBKcGvbg==}
 
@@ -8715,6 +8748,8 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
+  '@bcoe/v8-coverage@1.0.2': {}
+
   '@colors/colors@1.6.0': {}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -8929,7 +8964,7 @@ snapshots:
   '@internxt/inxt-js@2.1.0':
     dependencies:
       '@internxt/lib': 1.1.6
-      '@internxt/sdk': 1.9.9
+      '@internxt/sdk': 1.9.12
       async: 3.2.6
       axios: 0.23.0
       bip39: 3.1.0
@@ -8940,7 +8975,7 @@ snapshots:
 
   '@internxt/lib@1.1.6': {}
 
-  '@internxt/node-win@1.0.4':
+  '@internxt/node-win@1.0.8':
     dependencies:
       chokidar: 3.6.0
       lodash.chunk: 4.2.0
@@ -8952,7 +8987,7 @@ snapshots:
 
   '@internxt/scan@1.0.2': {}
 
-  '@internxt/sdk@1.9.9':
+  '@internxt/sdk@1.9.12':
     dependencies:
       axios: 0.24.0
       query-string: 7.1.3
@@ -10351,6 +10386,24 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
+  '@vitest/coverage-v8@3.0.8(vitest@3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0))':
+    dependencies:
+      '@ampproject/remapping': 2.3.0
+      '@bcoe/v8-coverage': 1.0.2
+      debug: 4.4.0
+      istanbul-lib-coverage: 3.2.2
+      istanbul-lib-report: 3.0.1
+      istanbul-lib-source-maps: 5.0.6
+      istanbul-reports: 3.1.7
+      magic-string: 0.30.17
+      magicast: 0.3.5
+      std-env: 3.8.1
+      test-exclude: 7.0.1
+      tinyrainbow: 2.0.0
+      vitest: 3.0.8(@types/debug@4.1.12)(@types/node@17.0.5)(jiti@1.21.7)(sass@1.85.1)(terser@5.39.0)(yaml@2.7.0)
+    transitivePeerDependencies:
+      - supports-color
+
   '@vitest/expect@3.0.8':
     dependencies:
       '@vitest/spy': 3.0.8
@@ -10949,6 +11002,8 @@ snapshots:
 
   boolean@3.2.0:
     optional: true
+
+  bottleneck@2.19.5: {}
 
   brace-expansion@1.1.11:
     dependencies:
@@ -13358,6 +13413,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  istanbul-lib-source-maps@5.0.6:
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.25
+      debug: 4.4.0
+      istanbul-lib-coverage: 3.2.2
+    transitivePeerDependencies:
+      - supports-color
+
   istanbul-reports@3.1.7:
     dependencies:
       html-escaper: 2.0.2
@@ -13941,6 +14004,12 @@ snapshots:
   magic-string@0.30.17:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.0
+
+  magicast@0.3.5:
+    dependencies:
+      '@babel/parser': 7.26.10
+      '@babel/types': 7.26.10
+      source-map-js: 1.2.1
 
   make-dir@4.0.0:
     dependencies:
@@ -15798,6 +15867,12 @@ snapshots:
       '@istanbuljs/schema': 0.1.3
       glob: 7.2.3
       minimatch: 3.1.2
+
+  test-exclude@7.0.1:
+    dependencies:
+      '@istanbuljs/schema': 0.1.3
+      glob: 10.4.5
+      minimatch: 9.0.5
 
   text-hex@1.0.0: {}
 

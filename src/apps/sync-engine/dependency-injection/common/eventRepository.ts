@@ -1,10 +1,9 @@
-import { EventRepository } from '../../../../context/virtual-drive/shared/domain/EventRepository';
 import { InMemoryEventRepository } from '../../../../context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
 export class DependencyInjectionEventRepository {
-  private static history: EventRepository;
+  private static history: InMemoryEventRepository;
 
-  static get(): EventRepository {
+  static get(): InMemoryEventRepository {
     if (DependencyInjectionEventRepository.history) {
       return DependencyInjectionEventRepository.history;
     }

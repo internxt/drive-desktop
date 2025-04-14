@@ -3,6 +3,7 @@ import { sha256 } from './requests';
 import { NetworkFacade } from './NetworkFacade';
 import { ReadableStream } from 'node:stream/web';
 import { appInfo } from '../app-info/app-info';
+import { logger } from '@/apps/shared/logger/logger';
 
 type DownloadProgressCallback = (totalBytes: number, downloadedBytes: number) => void;
 type FileStream = ReadableStream<Uint8Array>;
@@ -43,10 +44,11 @@ const downloadSharedFile: DownloadSharedFileFunction = (params) => {
 
   return new NetworkFacade(
     Network.client(
-      process.env.BRIDGE_URL,
+      process.env.DRIVE_URL,
       {
         clientName,
         clientVersion,
+        desktopHeader: process.env.DESKTOP_HEADER,
       },
       {
         bridgeUser: '',
@@ -75,10 +77,11 @@ const downloadOwnFile: DownloadOwnFileFunction = (params) => {
 
   return new NetworkFacade(
     Network.client(
-      process.env.BRIDGE_URL,
+      process.env.DRIVE_URL,
       {
         clientName,
         clientVersion,
+        desktopHeader: process.env.DESKTOP_HEADER,
       },
       {
         bridgeUser: auth.username,
@@ -97,6 +100,11 @@ const downloadFileV2: DownloadFileFunction = (params) => {
   } else if (params.creds && params.mnemonic) {
     return downloadOwnFile(params);
   } else {
+    // TODO: this log should be removed when the code is stable
+    logger.debug({
+      msg: 'Download file params are missing',
+      params,
+    });
     throw new Error('DOWNLOAD ERRNO. 0');
   }
 };

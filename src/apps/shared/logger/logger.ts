@@ -3,23 +3,29 @@ import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
-export type TRawBody = {
+type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS';
+
+export type TLoggerBody = {
   msg: string;
+  tag?: TTag;
   exc?: Error | unknown;
+  context?: Record<string, unknown>;
   attributes?: {
-    tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
     userId?: string;
+    tag?: TTag;
+    method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
     endpoint?: keyof paths;
   };
   [key: string]: unknown;
 };
 
 export class LoggerService {
-  private prepareBody(rawBody: TRawBody) {
+  private prepareBody(rawBody: TLoggerBody) {
     const user = getUser();
 
     rawBody.attributes = {
       userId: user?.uuid,
+      tag: rawBody.tag,
       ...rawBody.attributes,
     };
 
@@ -28,29 +34,29 @@ export class LoggerService {
     return { attributes, body };
   }
 
-  debug(rawBody: TRawBody) {
+  debug(rawBody: TLoggerBody) {
     const { body } = this.prepareBody(rawBody);
     ElectronLog.debug(body);
   }
 
-  info(rawBody: TRawBody) {
+  info(rawBody: TLoggerBody) {
     const { body } = this.prepareBody(rawBody);
     ElectronLog.info(body);
   }
 
-  warn(rawBody: TRawBody) {
+  warn(rawBody: TLoggerBody) {
     const { body } = this.prepareBody(rawBody);
     ElectronLog.warn(body);
     return new Error(rawBody.msg);
   }
 
-  error(rawBody: TRawBody) {
+  error(rawBody: TLoggerBody) {
     const { body } = this.prepareBody(rawBody);
     ElectronLog.error(body);
     return new Error(rawBody.msg);
   }
 
-  fatal(rawBody: TRawBody) {
+  fatal(rawBody: TLoggerBody) {
     const { body } = this.prepareBody(rawBody);
     ElectronLog.error(body);
     return new Error(rawBody.msg);
