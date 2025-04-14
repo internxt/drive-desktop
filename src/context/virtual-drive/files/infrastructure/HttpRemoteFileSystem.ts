@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';

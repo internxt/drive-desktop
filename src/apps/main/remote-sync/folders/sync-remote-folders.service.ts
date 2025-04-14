@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FetchRemoteFoldersService } from './fetch-remote-folders.service';
