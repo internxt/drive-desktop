@@ -10,7 +10,7 @@ export class OfflineFolderMover {
     private readonly folderFinder: FolderFinder,
   ) {}
 
-  async run(folder: OfflineFolder, destination: FolderPath) {
+  run(folder: OfflineFolder, destination: FolderPath) {
     const resultFolder = this.offlineFolderRepository.searchByPartial({
       path: destination.value,
     });

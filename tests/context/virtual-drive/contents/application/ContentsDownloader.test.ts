@@ -11,11 +11,9 @@ import { EventEmitter, Readable } from 'stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EventRecorder } from '@/context/virtual-drive/shared/infrastructure/EventRecorder';
 
-// Creamos un EventEmitter real
-
 describe('Contents Downloader', () => {
   const temporalFolderProvider = async (): Promise<string> => {
-    return 'C:/temp';
+    return await 'C:/temp';
   };
 
   const localWriter = mockDeep<LocalFileWriter>();
@@ -35,7 +33,7 @@ describe('Contents Downloader', () => {
     eventEmitter.emit('error', new Error('Download stopped'));
   });
   const callbackFunction = async (data: boolean, path: string) => {
-    return {
+    return await {
       finished: data,
       progress: path.length,
     };
