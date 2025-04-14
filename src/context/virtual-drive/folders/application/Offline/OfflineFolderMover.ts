@@ -1,12 +1,12 @@
 import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
-import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { ActionNotPermittedError } from '../../domain/errors/ActionNotPermittedError';
+import { InMemoryOfflineFolderRepository } from '../../infrastructure/InMemoryOfflineFolderRepository';
 import { FolderFinder } from '../FolderFinder';
 
 export class OfflineFolderMover {
   constructor(
-    private readonly offlineFolderRepository: OfflineFolderRepository,
+    private readonly offlineFolderRepository: InMemoryOfflineFolderRepository,
     private readonly folderFinder: FolderFinder,
   ) {}
 
