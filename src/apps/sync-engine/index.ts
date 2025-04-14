@@ -10,7 +10,7 @@ import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
-Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
+logger.debug({ msg: 'Running sync engine' });
 
 function initSentry() {
   Sentry.init({
