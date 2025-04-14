@@ -1,7 +1,6 @@
 import fs from 'fs/promises';
 import { LocalFileIdProvider } from '../../../shared/application/LocalFileIdProvider';
 import { RelativePathToAbsoluteConverter } from '../../../shared/application/RelativePathToAbsoluteConverter';
-import { EventRepository } from '../../../shared/domain/EventRepository';
 import { File } from '../../domain/File';
 import { FileStatuses } from '../../domain/FileStatus';
 import { FileMovedDomainEvent } from '../../domain/events/FileMovedDomainEvent';
@@ -9,6 +8,7 @@ import { FileRenamedDomainEvent } from '../../domain/events/FileRenamedDomainEve
 import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 import { logger } from '@/apps/shared/logger/logger';
+import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
 export class FilesPlaceholderUpdater {
   constructor(
@@ -16,7 +16,7 @@ export class FilesPlaceholderUpdater {
     private readonly localFileSystem: NodeWinLocalFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,
-    private readonly eventHistory: EventRepository,
+    private readonly eventHistory: InMemoryEventRepository,
   ) {}
 
   private hasToBeDeleted(local: File, remote: File): boolean {

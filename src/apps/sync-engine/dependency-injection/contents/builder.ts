@@ -1,5 +1,4 @@
 import { Environment } from '@internxt/inxt-js';
-import { DependencyInjectionMnemonicProvider } from '../common/mnemonic';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
 import { DependencyInjectionEventBus } from '../common/eventBus';
@@ -14,7 +13,7 @@ import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { getConfig } from '../../config';
 
 export async function buildContentsContainer(sharedContainer: SharedContainer): Promise<ContentsContainer> {
-  const mnemonic = DependencyInjectionMnemonicProvider.get();
+  const mnemonic = getConfig().mnemonic;
   const { bus: eventBus } = DependencyInjectionEventBus;
 
   const environment = new Environment({

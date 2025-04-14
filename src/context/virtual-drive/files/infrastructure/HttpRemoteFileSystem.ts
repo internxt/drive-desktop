@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';
@@ -118,10 +117,10 @@ export class HttpRemoteFileSystem {
       uuid: file.uuid,
     });
   }
-  async move(file: File): Promise<void> {
+  async move({ file, parentUuid }: { file: File; parentUuid: string }): Promise<void> {
     await driveServerWip.files.moveFile({
       uuid: file.uuid,
-      parentUuid: file.folderUuid.value,
+      parentUuid,
     });
   }
 

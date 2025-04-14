@@ -1,7 +1,6 @@
 import { OfflineFolder, OfflineFolderAttributes } from '../domain/OfflineFolder';
-import { OfflineFolderRepository } from '../domain/OfflineFolderRepository';
 
-export class InMemoryOfflineFolderRepository implements OfflineFolderRepository {
+export class InMemoryOfflineFolderRepository {
   private foldersByUuid: Record<OfflineFolder['uuid'], OfflineFolderAttributes> = {};
 
   private get values(): Array<OfflineFolderAttributes> {

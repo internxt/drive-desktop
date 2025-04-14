@@ -1,18 +1,19 @@
 import { Folder } from '../domain/Folder';
-import { OfflineFolderRepository } from '../domain/OfflineFolderRepository';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { FolderRenamedDomainEvent } from '../domain/events/FolderRenamedDomainEvent';
 import { FolderRenamer } from './FolderRenamer';
 import Logger from 'electron-log';
-import { EventRepository } from '../../shared/domain/EventRepository';
 import * as Sentry from '@sentry/electron/renderer';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
+import { InMemoryEventRepository } from '../../shared/infrastructure/InMemoryEventHistory';
+import { InMemoryOfflineFolderRepository } from '../infrastructure/InMemoryOfflineFolderRepository';
+
 export class SynchronizeOfflineModifications {
   constructor(
-    private readonly offlineRepository: OfflineFolderRepository,
+    private readonly offlineRepository: InMemoryOfflineFolderRepository,
     private readonly repository: InMemoryFolderRepository,
     private readonly renamer: FolderRenamer,
-    private readonly eventsRepository: EventRepository,
+    private readonly eventsRepository: InMemoryEventRepository,
   ) {}
 
   async run(uuid: Folder['uuid']) {

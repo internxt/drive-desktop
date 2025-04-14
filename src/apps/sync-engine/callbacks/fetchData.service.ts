@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop */
-
 import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
 import { BindingsManager, CallbackDownload } from '../BindingManager';

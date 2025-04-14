@@ -5,12 +5,14 @@ import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { EventBus } from '../../shared/domain/EventBus';
+import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { logger } from '../../../../apps/shared/logger/logger';
+import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class FilePathUpdater {
   constructor(
@@ -19,7 +21,7 @@ export class FilePathUpdater {
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
-    private readonly eventBus: EventBus,
+    private readonly eventBus: EventRecorder,
   ) {}
 
   private async rename(file: File, path: FilePath) {
@@ -48,7 +50,10 @@ export class FilePathUpdater {
     }
 
     Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
-    await this.remote.move(file);
+    await this.remote.move({
+      file,
+      parentUuid: destinationFolder.uuid,
+    });
     Logger.debug('[REPOSITORY MOVE]', file.name, destinationFolder.name);
     await this.repository.update(file);
 
@@ -67,7 +72,9 @@ export class FilePathUpdater {
         throw new FileNotFoundError(uuid);
       }
 
-      const folderFather = this.folderFinder.findFromUuid(file.folderUuid.value);
+      const folderFather = file.folderUuid
+        ? this.folderFinder.findFromUuid(file.folderUuid.value)
+        : this.folderFinder.findFromId(file.folderId.value);
 
       logger.info({
         msg: 'File path updater info',

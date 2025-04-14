@@ -2,7 +2,6 @@ import { FolderCreator } from '@/context/virtual-drive/folders/application/Folde
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { FolderPlaceholderConverter } from '@/context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { mockDeep } from 'vitest-mock-extended';
@@ -10,12 +9,13 @@ import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infras
 import { FolderId } from '@/context/virtual-drive/folders/domain/FolderId';
 import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderUuid';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
+import { EventRecorder } from '@/context/virtual-drive/shared/infrastructure/EventRecorder';
 
 describe('Folder Creator', () => {
   const repository = mockDeep<InMemoryFolderRepository>();
   const remote = mockDeep<HttpRemoteFolderSystem>();
   const syncEngineIpc = mockDeep<SyncEngineIpc>();
-  const eventBus = mockDeep<EventBus>();
+  const eventBus = mockDeep<EventRecorder>();
   const folderPlaceholderConverter = mockDeep<FolderPlaceholderConverter>();
 
   const SUT = new FolderCreator(repository, remote, syncEngineIpc, eventBus, folderPlaceholderConverter);

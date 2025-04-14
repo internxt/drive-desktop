@@ -5,17 +5,17 @@ import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/a
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { FileMother } from '../domain/FileMother';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
+import { EventRecorder } from '@/context/virtual-drive/shared/infrastructure/EventRecorder';
 
 describe('File path updater', () => {
   const repository = mockDeep<InMemoryFileRepository>();
   const folderFinder = mockDeep<FolderFinder>();
   const ipcRenderer = mockDeep<SyncEngineIpc>();
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
-  const eventBus = mockDeep<EventBus>();
+  const eventBus = mockDeep<EventRecorder>();
   const remoteFileSystem = mockDeep<HttpRemoteFileSystem>();
 
   const SUT = new FilePathUpdater(remoteFileSystem, localFileSystem, repository, folderFinder, ipcRenderer, eventBus);
@@ -84,6 +84,11 @@ describe('File path updater', () => {
     await SUT.run(fileToMove.contentsId, destination.value);
 
     expect(repository.update).toBeCalledWith(expect.objectContaining(fileToMove));
-    expect(remoteFileSystem.move).toBeCalledWith(expect.objectContaining(fileToMove));
+    expect(remoteFileSystem.move).toBeCalledWith(
+      expect.objectContaining({
+        file: fileToMove,
+        parentUuid: destinationFolder.uuid,
+      }),
+    );
   });
 });

@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop */
-
 import { logger } from '@/apps/shared/logger/logger';
 import { AddUserUuidToDatabase } from './v2.5.1/add-user-uuid-to-database';
 import Store from 'electron-store';

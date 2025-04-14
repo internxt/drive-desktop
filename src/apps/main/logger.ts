@@ -1,22 +1,15 @@
 import { PATHS } from '@/core/electron/paths';
 import { ipcMain, shell } from 'electron';
-import log from 'electron-log';
+import ElectronLog from 'electron-log';
 
-log.initialize();
+export async function setupElectronLog() {
+  ElectronLog.initialize();
 
-log.transports.file.maxSize = 150 * 1024 * 1024; // 120MB
-log.transports.console.format = '[{iso}] [{level}] {text}';
+  ElectronLog.transports.file.resolvePathFn = () => PATHS.ELECTRON_LOGS;
+  ElectronLog.transports.file.maxSize = 150 * 1024 * 1024; // 150MB
+  ElectronLog.transports.console.format = '[{iso}] [{level}] {text}';
 
-if (process.env.NODE_ENV !== 'development') {
-  log.transports.file.level = 'info';
-  log.transports.console.level = 'error';
-} else {
-  log.transports.file.level = 'silly';
-  log.transports.console.level = 'silly';
+  ipcMain.on('open-logs', () => {
+    shell.openPath(PATHS.LOGS);
+  });
 }
-
-// Handle open logs
-
-ipcMain.on('open-logs', () => {
-  shell.openPath(PATHS.LOGS);
-});
