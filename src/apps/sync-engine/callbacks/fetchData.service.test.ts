@@ -51,7 +51,7 @@ describe('Fetch Data', () => {
   describe('When progress value is wrong', () => {
     it('When progress is greater than 1, then throw an error', async () => {
       // Arrange
-      const callback = async () => ({ finished: false, progress: 2 });
+      const callback = async () => await { finished: false, progress: 2 };
 
       // Act
       await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
@@ -63,7 +63,7 @@ describe('Fetch Data', () => {
 
     it('When progress is less than 0, then throw an error', async () => {
       // Arrange
-      const callback = async () => ({ finished: false, progress: -1 });
+      const callback = async () => await { finished: false, progress: -1 };
 
       // Act
       await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
@@ -75,7 +75,7 @@ describe('Fetch Data', () => {
 
     it('When finished but progress is 0, then throw an error', async () => {
       // Arrange
-      const callback = async () => ({ finished: true, progress: 0 });
+      const callback = async () => await { finished: true, progress: 0 };
 
       // Act
       await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });

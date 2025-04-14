@@ -18,13 +18,13 @@ export class DownloadFileController extends CallbackController {
   private RETRY_DELAY = 100;
 
   private async action(uuid: string, callback: CallbackDownload): Promise<string> {
-    const file = this.fileFinderByUuid(uuid);
+    const file = this.fileFinderByUuid({ uuid });
 
     Logger.info('[Begin] Download: ', file.path);
     return await this.downloader.run(file, callback);
   }
 
-  fileFinderByUuid(uuid: string) {
+  fileFinderByUuid({ uuid }: { uuid: string }) {
     const file = this.repository.searchByPartial({ uuid });
     if (!file) {
       throw new FileNotFoundError(uuid);
@@ -34,7 +34,7 @@ export class DownloadFileController extends CallbackController {
 
   async execute(filePlaceholderId: FilePlaceholderId, callback: CallbackDownload): Promise<string> {
     const trimmedId = this.trim(filePlaceholderId);
-    const [_, uuid] = trimmedId.split(':');
+    const [, uuid] = trimmedId.split(':');
 
     return await this.withRetries(() => this.action(uuid, callback), this.MAX_RETRY, this.RETRY_DELAY);
   }
