@@ -11,7 +11,6 @@ import { v4 } from 'uuid';
 import fs from 'fs/promises';
 import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
-// Mock dependencies
 vi.mock('fs/promises');
 
 const mockRepository = mockDeep<InMemoryFileRepository>();
@@ -106,7 +105,6 @@ describe('FilesPlaceholderUpdater', () => {
 
       expect(result).toBe(false);
     });
-    // SI REMOTO NO EXISTE SIEMPRE DEVUELVE FALSE
 
     it('should return false if local does not exist', async () => {
       const local = FileMother.fromPartial({
