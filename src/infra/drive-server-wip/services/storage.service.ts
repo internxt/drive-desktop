@@ -10,7 +10,7 @@ export class StorageService {
       }),
     });
 
-    return clientWrapper({
+    return await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete file request was not successful',
@@ -30,7 +30,7 @@ export class StorageService {
       }),
     });
 
-    return clientWrapper({
+    return await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete folder request was not successful',
@@ -50,7 +50,7 @@ export class StorageService {
       }),
     });
 
-    return clientWrapper({
+    return await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete file request was not successful',
@@ -70,7 +70,7 @@ export class StorageService {
       }),
     });
 
-    return clientWrapper({
+    return await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete folder request was not successful',

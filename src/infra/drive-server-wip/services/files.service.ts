@@ -14,7 +14,7 @@ export class FilesService {
       params: { query: context.query },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get files request was not successful',
@@ -33,7 +33,7 @@ export class FilesService {
       params: { path: { uuid: context.uuid } },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Move file request was not successful',
@@ -52,7 +52,7 @@ export class FilesService {
       params: { path: { uuid: context.uuid } },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Rename file request was not successful',
@@ -71,7 +71,7 @@ export class FilesService {
       params: { path: { uuid: context.uuid } },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Replace file request was not successful',
@@ -89,7 +89,7 @@ export class FilesService {
       body: context.body,
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get files request was not successful',
@@ -109,7 +109,7 @@ export class FilesService {
       }),
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Delete file content from bucket request was not successful',

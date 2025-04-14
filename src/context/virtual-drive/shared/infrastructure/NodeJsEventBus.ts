@@ -3,7 +3,7 @@ import { DomainEvent } from '../../../shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '@/context/shared/domain/DomainEventSubscriber';
 
 export class NodeJsEventBus extends EventEmitter {
-  async publish(events: Array<DomainEvent>): Promise<void> {
+  publish(events: Array<DomainEvent>) {
     events.forEach((event) => {
       this.emit(event.eventName, event);
     });

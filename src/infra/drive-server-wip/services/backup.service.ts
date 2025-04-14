@@ -7,7 +7,7 @@ export class BackupService {
   async getDevices() {
     const promise = client.GET('/backup/deviceAsFolder');
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get devices as folder request was not successful',
@@ -24,7 +24,7 @@ export class BackupService {
       params: { path: { uuid: deviceUuid } },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get device as folder request was not successful',
@@ -44,7 +44,7 @@ export class BackupService {
       body: { deviceName },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Create device as folder request was not successful',
@@ -65,7 +65,7 @@ export class BackupService {
       body: { deviceName },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Update device as folder request was not successful',

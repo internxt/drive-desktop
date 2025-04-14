@@ -7,7 +7,7 @@ export class UserService {
   async getUsage() {
     const promise = client.GET('/users/usage');
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get usage request was not successful',
@@ -22,7 +22,7 @@ export class UserService {
   async getLimit() {
     const promise = client.GET('/users/limit');
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get limit request was not successful',

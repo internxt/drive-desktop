@@ -4,7 +4,7 @@ import { clientWrapper } from '../in/client-wrapper.service';
 export async function getWorkspaces() {
   const promise = client.GET('/workspaces');
 
-  return clientWrapper({
+  return await clientWrapper({
     promise,
     loggerBody: {
       msg: 'Get workspaces request was not successful',
@@ -21,7 +21,7 @@ export async function getCredentials({ workspaceId }: { workspaceId: string }) {
     params: { path: { workspaceId } },
   });
 
-  return clientWrapper({
+  return await clientWrapper({
     promise,
     loggerBody: {
       msg: 'Get workspace credentials request was not successful',

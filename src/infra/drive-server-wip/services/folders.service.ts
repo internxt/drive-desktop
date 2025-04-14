@@ -14,7 +14,7 @@ export class FoldersService {
       params: { path: { id: folderId } },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get folder metadata request was not successful',
@@ -34,7 +34,7 @@ export class FoldersService {
       params: { path: { uuid } },
     });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get folder metadata request was not successful',
@@ -52,7 +52,7 @@ export class FoldersService {
   async getFolders({ query }: { query: TGetFoldersQuery }) {
     const promise = client.GET('/folders', { params: { query } });
 
-    return this.clientWrapper.run({
+    return await this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get folders request was not successful',
@@ -127,7 +127,7 @@ export class FoldersService {
       body: { destinationFolder: parentUuid },
     });
 
-    return clientWrapper({
+    return await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Move folder request was not successful',
@@ -149,7 +149,7 @@ export class FoldersService {
       body: { plainName },
     });
 
-    return clientWrapper({
+    return await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Rename folder request was not successful',
@@ -171,7 +171,7 @@ export class FoldersService {
       body: { plainNames: [basename] },
     });
 
-    return clientWrapper({
+    return await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Check folder existence request was not successful',

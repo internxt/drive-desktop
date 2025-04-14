@@ -54,7 +54,7 @@ describe('File path updater', () => {
     expect(remoteFileSystem.rename).toBeCalledWith(expect.objectContaining({ path: destination.value }));
   });
 
-  it('does not rename or moves a file when the extension changes', async () => {
+  it('does not rename or moves a file when the extension changes', () => {
     const fileToRename = FileMother.any();
     const fileWithDestinationPath = undefined;
 
