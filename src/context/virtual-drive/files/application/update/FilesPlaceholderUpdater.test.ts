@@ -4,12 +4,12 @@ import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileReposit
 import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
 import { RelativePathToAbsoluteConverter } from '../../../shared/application/RelativePathToAbsoluteConverter';
 import { LocalFileIdProvider } from '../../../shared/application/LocalFileIdProvider';
-import { EventRepository } from '../../../shared/domain/EventRepository';
 import { mockDeep } from 'vitest-mock-extended';
 import { FileMother } from 'tests/context/virtual-drive/files/domain/FileMother';
 import { FileStatuses } from '../../domain/FileStatus';
 import { v4 } from 'uuid';
 import fs from 'fs/promises';
+import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
 // Mock dependencies
 vi.mock('fs/promises');
@@ -24,7 +24,7 @@ const mockPathConverter = mockDeep<RelativePathToAbsoluteConverter>({
 
 const mockFileIdProvider = mockDeep<LocalFileIdProvider>();
 
-const mockEventHistory = mockDeep<EventRepository>();
+const mockEventHistory = mockDeep<InMemoryEventRepository>();
 
 describe('FilesPlaceholderUpdater', () => {
   let updater: FilesPlaceholderUpdater;
@@ -240,7 +240,7 @@ describe('FilesPlaceholderUpdater', () => {
       mockRepository.searchByPartial.mockImplementation(({ contentsId }) => localFiles.find((file) => file.contentsId === contentsId));
 
       mockLocalFileSystem.getFileIdentity.mockImplementation(async (path) =>
-        path === '/remote1' ? `FILE:${oldsUuids[0]}` : `FILE:${newsUuids[1]}`,
+        (await path) === '/remote1' ? `FILE:${oldsUuids[0]}` : `FILE:${newsUuids[1]}`,
       );
 
       await updater.run(remotes);

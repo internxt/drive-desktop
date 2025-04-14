@@ -4,8 +4,6 @@ import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError'
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
-import { EventBus } from '../../shared/domain/EventBus';
-import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
