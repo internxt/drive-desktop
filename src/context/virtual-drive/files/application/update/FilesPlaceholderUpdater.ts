@@ -35,13 +35,6 @@ export class FilesPlaceholderUpdater {
 
     const isDifferentIdentity = systemFileidentity !== remoteIdentity;
 
-    logger.debug({
-      msg: '[FilesPlaceholderUpdater] Checking file identity',
-      systemFileidentity,
-      remoteIdentity,
-      isDifferentIdentity,
-    });
-
     return localExists && remoteExists && isDifferentIdentity;
   }
   private async hasToBeCreated(remote: File): Promise<boolean> {
@@ -75,8 +68,11 @@ export class FilesPlaceholderUpdater {
       return;
     }
 
+    // v 2.5.2 Jonathan Daniel
+    // Validate if the placeholder needs to be updated since we previously used the dynamic contentsId
+    // and now we use the static uuid for file identification.
     if (await this.hasToBeUpdatedIdentity(local, remote)) {
-      await this.localFileSystem.updateFileIdentity(local.path, local.placeholderId);
+      this.localFileSystem.updateFileIdentity(local.path, local.placeholderId);
     }
 
     if (local.path !== remote.path) {

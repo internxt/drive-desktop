@@ -17,9 +17,7 @@ const mockRepository = mockDeep<InMemoryFileRepository>();
 
 const mockLocalFileSystem = mockDeep<NodeWinLocalFileSystem>();
 
-const mockPathConverter = mockDeep<RelativePathToAbsoluteConverter>({
-  run: vi.fn((relativePath: string) => relativePath),
-});
+const mockPathConverter = mockDeep<RelativePathToAbsoluteConverter>();
 
 const mockFileIdProvider = mockDeep<LocalFileIdProvider>();
 

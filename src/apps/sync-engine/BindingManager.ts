@@ -103,7 +103,7 @@ export class BindingsManager {
         Logger.debug('Path received from callback', absolutePath);
         await this.controllers.addFile.execute(absolutePath);
       },
-      fetchDataCallback: async (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
+      fetchDataCallback: (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
           self: this,
           filePlaceholderId,

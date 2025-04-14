@@ -23,8 +23,8 @@ export class FetchDataService {
       const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
       // eslint-disable-next-line no-control-regex
-      const parsedContentsId = filePlaceholderId.replace(/[\x00-\x1F\x7F-\x9F]/g, '').split(':')[1];
-      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid: parsedContentsId });
+      const parsedPlaceholderId = filePlaceholderId.replace(/[\x00-\x1F\x7F-\x9F]/g, '').split(':')[1];
+      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid: parsedPlaceholderId });
 
       Logger.debug('[Fetch Data Callback] Preparing begins', path);
       Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
