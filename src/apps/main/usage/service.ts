@@ -1,3 +1,4 @@
+import { sleep } from '../util';
 import { Usage } from './Usage';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
@@ -5,16 +6,35 @@ const INFINITE_SPACE_TRHESHOLD = 108851651149824;
 const OFFER_UPGRADE_TRHESHOLD = 2199023255552;
 
 export class UserUsageService {
+  private async retry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
+    let attempts = 0;
+    while (attempts < retries) {
+      try {
+        return await fn();
+      } catch (error) {
+        attempts++;
+        if (attempts >= retries) throw error;
+        await sleep(delay);
+        delay *= 2;
+      }
+    }
+    throw new Error('Max retries reached');
+  }
+
   private async getDriveUsage(): Promise<number> {
-    const res = await driveServerWipModule.user.getUsage();
-    if (res.error) throw res.error;
-    return res.data.drive;
+    return this.retry(async () => {
+      const res = await driveServerWipModule.user.getUsage();
+      if (res.error) throw res.error;
+      return res.data.drive;
+    });
   }
 
   private async getLimit(): Promise<number> {
-    const res = await driveServerWipModule.user.getLimit();
-    if (res.error) throw res.error;
-    return res.data.maxSpaceBytes;
+    return this.retry(async () => {
+      const res = await driveServerWipModule.user.getLimit();
+      if (res.error) throw res.error;
+      return res.data.maxSpaceBytes;
+    });
   }
 
   async calculateUsage(): Promise<Usage> {
