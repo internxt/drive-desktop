@@ -1,10 +1,10 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 
-export async function getWorkspaces() {
+export function getWorkspaces() {
   const promise = client.GET('/workspaces');
 
-  return await clientWrapper({
+  return clientWrapper({
     promise,
     loggerBody: {
       msg: 'Get workspaces request was not successful',
@@ -16,12 +16,12 @@ export async function getWorkspaces() {
   });
 }
 
-export async function getCredentials({ workspaceId }: { workspaceId: string }) {
+export function getCredentials({ workspaceId }: { workspaceId: string }) {
   const promise = client.GET('/workspaces/{workspaceId}/credentials', {
     params: { path: { workspaceId } },
   });
 
-  return await clientWrapper({
+  return clientWrapper({
     promise,
     loggerBody: {
       msg: 'Get workspace credentials request was not successful',

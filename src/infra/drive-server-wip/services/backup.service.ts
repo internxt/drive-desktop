@@ -4,10 +4,10 @@ import { ClientWrapperService } from '../in/client-wrapper.service';
 export class BackupService {
   constructor(private readonly clientWrapper = new ClientWrapperService()) {}
 
-  async getDevices() {
+  getDevices() {
     const promise = client.GET('/backup/deviceAsFolder');
 
-    return await this.clientWrapper.run({
+    return this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get devices as folder request was not successful',
@@ -19,12 +19,12 @@ export class BackupService {
     });
   }
 
-  async getDevice({ deviceUuid }: { deviceUuid: string }) {
+  getDevice({ deviceUuid }: { deviceUuid: string }) {
     const promise = client.GET('/backup/deviceAsFolder/{uuid}', {
       params: { path: { uuid: deviceUuid } },
     });
 
-    return await this.clientWrapper.run({
+    return this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get device as folder request was not successful',
@@ -39,12 +39,12 @@ export class BackupService {
     });
   }
 
-  async createDevice({ deviceName }: { deviceName: string }) {
+  createDevice({ deviceName }: { deviceName: string }) {
     const promise = client.POST('/backup/deviceAsFolder', {
       body: { deviceName },
     });
 
-    return await this.clientWrapper.run({
+    return this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Create device as folder request was not successful',
@@ -59,13 +59,13 @@ export class BackupService {
     });
   }
 
-  async updateDevice({ deviceUuid, deviceName }: { deviceUuid: string; deviceName: string }) {
+  updateDevice({ deviceUuid, deviceName }: { deviceUuid: string; deviceName: string }) {
     const promise = client.PATCH('/backup/deviceAsFolder/{uuid}', {
       params: { path: { uuid: deviceUuid } },
       body: { deviceName },
     });
 
-    return await this.clientWrapper.run({
+    return this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Update device as folder request was not successful',

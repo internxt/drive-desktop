@@ -4,10 +4,10 @@ import { ClientWrapperService } from '../in/client-wrapper.service';
 export class UserService {
   constructor(private readonly clientWrapper = new ClientWrapperService()) {}
 
-  async getUsage() {
+  getUsage() {
     const promise = client.GET('/users/usage');
 
-    return await this.clientWrapper.run({
+    return this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get usage request was not successful',
@@ -19,10 +19,10 @@ export class UserService {
     });
   }
 
-  async getLimit() {
+  getLimit() {
     const promise = client.GET('/users/limit');
 
-    return await this.clientWrapper.run({
+    return this.clientWrapper.run({
       promise,
       loggerBody: {
         msg: 'Get limit request was not successful',

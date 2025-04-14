@@ -3,14 +3,14 @@ import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { clientWrapper } from '../in/client-wrapper.service';
 
 export class StorageService {
-  async deleteFile(context: { fileId: string }) {
+  deleteFile(context: { fileId: string }) {
     const promise = noContentWrapper({
       request: client.DELETE('/storage/trash/file/{fileId}', {
         params: { path: { fileId: context.fileId } },
       }),
     });
 
-    return await clientWrapper({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete file request was not successful',
@@ -23,14 +23,14 @@ export class StorageService {
     });
   }
 
-  async deleteFolder(context: { folderId: number }) {
+  deleteFolder(context: { folderId: number }) {
     const promise = noContentWrapper({
       request: client.DELETE('/storage/trash/folder/{folderId}', {
         params: { path: { folderId: context.folderId } },
       }),
     });
 
-    return await clientWrapper({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete folder request was not successful',
@@ -43,14 +43,14 @@ export class StorageService {
     });
   }
 
-  async deleteFileByUuid(context: { uuid: string }) {
+  deleteFileByUuid(context: { uuid: string }) {
     const promise = noContentWrapper({
       request: client.POST('/storage/trash/add', {
         body: { items: [{ type: 'file', uuid: context.uuid, id: null }] },
       }),
     });
 
-    return await clientWrapper({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete file request was not successful',
@@ -63,14 +63,14 @@ export class StorageService {
     });
   }
 
-  async deleteFolderByUuid(context: { uuid: string }) {
+  deleteFolderByUuid(context: { uuid: string }) {
     const promise = noContentWrapper({
       request: client.POST('/storage/trash/add', {
         body: { items: [{ type: 'folder', uuid: context.uuid, id: null }] },
       }),
     });
 
-    return await clientWrapper({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete folder request was not successful',

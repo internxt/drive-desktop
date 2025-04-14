@@ -16,10 +16,10 @@ test.describe('process issues', () => {
   let electronApp: ElectronApplication;
   let page: Page;
 
-  const addSyncErrors = async (errors: Array<ProcessErrorName>) => {
+  const addSyncErrors = (errors: Array<ProcessErrorName>) => {
     const emitEvents = errors.map(createSyncError).map((error) => ipcMainEmit(electronApp, 'SYNC_INFO_UPDATE', error));
 
-    return await Promise.all(emitEvents);
+    return Promise.all(emitEvents);
   };
 
   const addBackupsErrors = async (errorsName: Array<ProcessFatalErrorName>): Promise<void> => {
