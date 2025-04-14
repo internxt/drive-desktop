@@ -1,8 +1,14 @@
 import { Service } from 'diod';
-import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 import { RemoteTree } from '../domain/RemoteTree';
 import { Traverser } from './Traverser';
 import Logger from 'electron-log';
+import { RemoteItemsGenerator } from '../../items/application/RemoteItemsGenerator';
+
+type TProps = {
+  rootFolderId: number;
+  rootFolderUuid: string;
+  refresh: boolean;
+};
 
 @Service()
 export class RemoteTreeBuilder {
@@ -11,14 +17,14 @@ export class RemoteTreeBuilder {
     private readonly traverser: Traverser,
   ) {}
 
-  async run(rootFolderId: number, refresh = false): Promise<RemoteTree> {
+  async run({ rootFolderId, rootFolderUuid, refresh }: TProps): Promise<RemoteTree> {
     if (refresh) {
       Logger.debug('[REMOTE TREE BUILDER] Force refresh');
-      await this.remoteItemsGenerator.forceRefresh(rootFolderId);
+      await this.remoteItemsGenerator.forceRefresh(rootFolderUuid);
     }
 
-    const items = await this.remoteItemsGenerator.getAllItemsByFolderId(rootFolderId);
+    const items = await this.remoteItemsGenerator.getAllItemsByFolderUuid(rootFolderUuid);
 
-    return this.traverser.run(rootFolderId, items);
+    return this.traverser.run({ rootFolderId, rootFolderUuid, items });
   }
 }

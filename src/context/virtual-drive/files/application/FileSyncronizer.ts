@@ -1,4 +1,3 @@
-import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { FilePath } from '../domain/FilePath';
 import { FileStatuses } from '../domain/FileStatus';
@@ -16,6 +15,7 @@ import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
 import { FileContentsUpdater } from './FileContentsUpdater';
 import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
@@ -32,9 +32,10 @@ export class FileSyncronizer {
     private readonly offlineFolderCreator: OfflineFolderCreator,
     // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
+    private readonly contentsUploader: RetryContentsUploader,
   ) {}
 
-  async run(absolutePath: string, upload: (path: string) => Promise<RemoteFileContents>): Promise<void> {
+  async run(absolutePath: string): Promise<void> {
     const win32RelativePath = this.absolutePathToRelativeConverter.run(absolutePath);
 
     const posixRelativePath = PlatformPathConverter.winToPosix(win32RelativePath);
@@ -46,38 +47,27 @@ export class FileSyncronizer {
       status: FileStatuses.EXISTS,
     });
 
-    await this.sync(existingFile, absolutePath, posixRelativePath, path, upload);
+    await this.sync(existingFile, absolutePath, posixRelativePath, path);
   }
 
-  private async sync(
-    existingFile: File | undefined,
-    absolutePath: string,
-    posixRelativePath: string,
-    path: FilePath,
-    upload: (path: string) => Promise<RemoteFileContents>,
-  ) {
+  private async sync(existingFile: File | undefined, absolutePath: string, posixRelativePath: string, path: FilePath) {
     //
     if (existingFile) {
       if (this.hasDifferentSize(existingFile, absolutePath)) {
-        const contents = await upload(posixRelativePath);
+        const contents = await this.contentsUploader.run(posixRelativePath);
         existingFile = await this.fileContentsUpdater.run(existingFile, contents.id, contents.size);
         Logger.info('existingFile ', existingFile);
       }
       await this.convertAndUpdateSyncStatus(existingFile);
       //
     } else {
-      await this.retryCreation(posixRelativePath, path, upload);
+      await this.retryCreation(posixRelativePath, path);
     }
   }
 
-  private retryCreation = async (
-    posixRelativePath: string,
-    filePath: FilePath,
-    upload: (path: string) => Promise<RemoteFileContents>,
-    attemps = 3,
-  ) => {
+  private retryCreation = async (posixRelativePath: string, filePath: FilePath, attemps = 3) => {
     try {
-      const fileContents = await upload(posixRelativePath);
+      const fileContents = await this.contentsUploader.run(posixRelativePath);
       const createdFile = await this.fileCreator.run(filePath, fileContents);
       await this.convertAndUpdateSyncStatus(createdFile);
     } catch (error: unknown) {
@@ -91,7 +81,7 @@ export class FileSyncronizer {
       }
 
       if (attemps > 0) {
-        await this.retryCreation(posixRelativePath, filePath, upload, attemps - 1);
+        await this.retryCreation(posixRelativePath, filePath, attemps - 1);
         return;
       }
     }

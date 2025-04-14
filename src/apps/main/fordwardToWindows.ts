@@ -3,11 +3,16 @@ import { broadcastToWindows } from './windows';
 import { ipcMainDrive } from './ipcs/mainDrive';
 import { ipcMainSyncEngine } from './ipcs/ipcMainSyncEngine';
 import { FileErrorInfo } from '../shared/IPC/events/drive';
-import { setIsProcessing } from './remote-sync/handlers';
 import { createAndUploadThumbnail } from './thumbnails/application/create-and-upload-thumbnail';
 import configStore from './config';
 import path from 'path';
 import { isAbsolutePath } from './util';
+import { getRemoteSyncManager } from './remote-sync/store';
+
+ipcMainDrive.on('CHANGE_SYNC_STATUS', (_, workspaceId, status) => {
+  const manager = getRemoteSyncManager({ workspaceId });
+  manager?.changeStatus(status);
+});
 
 ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;
@@ -20,7 +25,7 @@ ipcMainDrive.on('FILE_DELETED', (_, payload) => {
 
 ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
-  setIsProcessing(true);
+
   broadcastToWindows('sync-info-update', {
     action: 'DOWNLOADING',
     name: nameWithExtension,
@@ -28,35 +33,17 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('SYNCING', (_, workspacesId) => {
-  setIsProcessing(true, workspacesId);
-});
-
-ipcMainDrive.on('SYNCED', (_, workspacesId) => {
-  setIsProcessing(false, workspacesId);
-});
-
-ipcMainDrive.on('FILE_PREPARING', (_, payload) => {
-  const { nameWithExtension, processInfo } = payload;
-  setIsProcessing(true);
-  broadcastToWindows('sync-info-update', {
-    action: 'PREPARING',
-    name: nameWithExtension,
-    progress: processInfo.progress,
-  });
-});
-
 ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
-  setIsProcessing(false);
   const { nameWithExtension } = payload;
+
   broadcastToWindows('sync-info-update', {
     action: 'DOWNLOADED',
     name: nameWithExtension,
   });
 });
 ipcMainDrive.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
-  setIsProcessing(false);
   const { nameWithExtension } = payload;
+
   broadcastToWindows('sync-info-update', {
     action: 'DOWNLOAD_CANCEL',
     name: nameWithExtension,
@@ -83,7 +70,7 @@ ipcMainDrive.on('FILE_OVERWRITED', (_, payload) => {
 
 ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
   const { nameWithExtension, oldName } = payload;
-  setIsProcessing(true);
+
   broadcastToWindows('sync-info-update', {
     action: 'RENAMING',
     name: nameWithExtension,
@@ -93,7 +80,7 @@ ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
 
 ipcMainDrive.on('FILE_RENAMED', (_, payload) => {
   const { nameWithExtension } = payload;
-  setIsProcessing(false);
+
   broadcastToWindows('sync-info-update', {
     action: 'RENAMED',
     name: nameWithExtension,
@@ -111,6 +98,7 @@ ipcMainDrive.on('FILE_CLONNED', (_, payload) => {
 
 ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
+
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADING',
     name: nameWithExtension,
@@ -128,18 +116,14 @@ ipcMainDrive.on('FILE_UPLOADED', async (_, payload) => {
 });
 
 ipcMainDrive.on('FILE_CREATED', async (_, payload) => {
-  Logger.info('FILE_CREATED');
   const { nameWithExtension, fileId } = payload;
 
   let fullPath = payload.path;
 
   if (!isAbsolutePath(fullPath)) {
     const root = configStore.get('syncRoot');
-    Logger.info('FILE_CREATED', root);
     fullPath = path.join(root, fullPath);
   }
-
-  Logger.info('FILE_CREATED', fullPath);
 
   await createAndUploadThumbnail(fileId, nameWithExtension, fullPath);
 

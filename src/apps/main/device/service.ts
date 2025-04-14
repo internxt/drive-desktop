@@ -1,3 +1,6 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable no-use-before-define */
 import { aes } from '@internxt/lib';
 import { app, dialog } from 'electron';
 import fetch from 'electron-fetch';
@@ -6,7 +9,7 @@ import path from 'path';
 import { IpcMainEvent, ipcMain } from 'electron';
 import fs from 'fs';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
-import { getHeaders, getNewApiHeaders, getUser, setUser } from '../auth/service';
+import { getNewApiHeaders, getUser, setUser } from '../auth/service';
 import { addGeneralIssue } from '../background-processes/process-issues';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
@@ -20,21 +23,13 @@ import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
 import { customInspect } from '@/apps/shared/logger/custom-inspect';
 import { getConfig } from '@/apps/sync-engine/config';
+import { BackupFolderUuid } from './backup-folder-uuid';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export type Device = {
   name: string;
   id: number;
   uuid: string;
-  bucket: string;
-  removed: boolean;
-  hasBackups: boolean;
-  lastBackupAt: string;
-};
-
-type DeviceDTO = {
-  id: number;
-  uuid: string;
-  name: string;
   bucket: string;
   removed: boolean;
   hasBackups: boolean;
@@ -73,22 +68,13 @@ export const addUnknownDeviceIssue = (error: Error) => {
 };
 
 function createDevice(deviceName: string) {
-  return fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
-    method: 'POST',
-    headers: getHeaders(true),
-    body: JSON.stringify({ deviceName }),
-  });
+  return driveServerWipModule.backup.createDevice({ deviceName });
 }
 
 export async function getDevices(): Promise<Array<Device>> {
-  const response = await fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
-    method: 'GET',
-    headers: getHeaders(true),
-  });
-
-  const devices = ((await response.json()) as Array<DeviceDTO>) || [];
-
-  return devices?.filter(({ removed, hasBackups }) => !removed && hasBackups).map((device) => decryptDeviceName(device));
+  const { data } = await driveServerWipModule.backup.getDevices();
+  const devices = data ?? [];
+  return devices.filter(({ removed, hasBackups }) => !removed && hasBackups).map((device) => decryptDeviceName(device));
 }
 
 async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
@@ -96,54 +82,46 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
 
   let i = 1;
 
-  while (res.status === 409 && i <= 10) {
+  while (res.error && i <= 10) {
     const deviceName = `${os.hostname()} (${i})`;
     Logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
     res = await createDevice(deviceName);
     i++;
   }
 
-  if (!res.ok) {
+  if (res.error) {
     const deviceName = `${new Date().valueOf() % 1000}`;
     Logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
     res = await createDevice(`${os.hostname()} (${deviceName})`);
   }
 
-  if (res.ok) {
-    return res.json();
+  if (res.data) {
+    return res.data;
   }
   const error = new Error('Could not create device trying different names');
   addUnknownDeviceIssue(error);
   throw error;
 }
 export async function getOrCreateDevice() {
-  const savedDeviceId = configStore.get('deviceId');
+  const savedDeviceUuid = configStore.get('deviceUuid');
 
-  Logger.info(`[DEVICE] Saved device id: ${savedDeviceId}`);
+  logger.debug({ msg: '[DEVICE] Saved device', savedDeviceUuid });
 
-  const deviceIsDefined = savedDeviceId !== -1;
-
-  Logger.info(`[DEVICE] Device is defined: ${deviceIsDefined}`);
+  const deviceIsDefined = savedDeviceUuid !== '';
 
   let newDevice: Device | null = null;
 
   if (deviceIsDefined) {
-    const res = await fetch(`${process.env.API_URL}/backup/deviceAsFolder/${savedDeviceId}`, {
-      method: 'GET',
-      headers: getHeaders(),
-    });
+    const res = await driveServerWipModule.backup.getDevice({ deviceUuid: savedDeviceUuid });
 
-    if (res.ok) {
-      const device = decryptDeviceName(await res.json());
-      Logger.info(`[DEVICE] Found device with name "${device.name}"`);
+    if (res.data) {
+      const device = decryptDeviceName(res.data);
+      logger.debug({ msg: '[DEVICE] Found device', device });
       configStore.set('deviceUuid', device.uuid);
-
-      Logger.info(device);
 
       if (!device.removed) return device;
       newDevice = await tryToCreateDeviceWithDifferentNames();
-    }
-    if (res.status === 404) {
+    } else {
       newDevice = await tryToCreateDeviceWithDifferentNames();
     }
   } else {
@@ -155,9 +133,7 @@ export async function getOrCreateDevice() {
     configStore.set('deviceUuid', newDevice.uuid);
     configStore.set('backupList', {});
     const device = decryptDeviceName(newDevice);
-    Logger.info(`[DEVICE] Created device with name "${device.name}"`);
-
-    Logger.info(device);
+    logger.debug({ msg: '[DEVICE] Created device', device });
     return device;
   }
   const error = new Error('Could not get or create device');
@@ -166,16 +142,14 @@ export async function getOrCreateDevice() {
 }
 
 export async function renameDevice(deviceName: string): Promise<Device> {
-  const deviceId = getDeviceId();
+  const deviceUuid = getDeviceUuid();
 
-  const res = await fetch(`${process.env.API_URL}/backup/deviceAsFolder/${deviceId}`, {
-    method: 'PATCH',
-    headers: getHeaders(true),
-    body: JSON.stringify({ deviceName }),
-  });
-  if (res.ok) {
-    return decryptDeviceName(await res.json());
+  const res = await driveServerWipModule.backup.updateDevice({ deviceUuid, deviceName });
+
+  if (res.data) {
+    return decryptDeviceName(res.data);
   }
+
   throw new Error('Error in the request to rename a device');
 }
 
@@ -190,7 +164,7 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
     nameDevice = aes.decrypt(name, key);
   }
 
-  Logger.info(`[DEVICE] Decrypted device name "${nameDevice}"`);
+  logger.debug({ msg: '[DEVICE] Decrypted device', nameDevice });
 
   return {
     name: nameDevice,
@@ -203,6 +177,8 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
 
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
+
+    await new BackupFolderUuid().ensureBackupUuidExists({ backupsList });
 
     const user = getUser();
 
@@ -333,7 +309,7 @@ async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
 }
 
 async function fetchTreeFromApi(folderUuid: string): Promise<FolderTree> {
-  const res = await fetch(`${process.env.NEW_DRIVE_URL}/drive/folders/${folderUuid}/tree`, {
+  const res = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/tree`, {
     method: 'GET',
     headers: getNewApiHeaders(),
   });
@@ -426,11 +402,9 @@ export async function fetchArrayFolderTree(folderUuids: string[]): Promise<Folde
 }
 
 export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Promise<void> {
-  const res = await fetch(`${process.env.API_URL}/storage/folder/${backup.folderId}`, {
-    method: 'DELETE',
-    headers: getHeaders(true),
-  });
-  if (!res.ok) {
+  const res = await driveServerWipModule.storage.deleteFolder({ folderId: backup.folderId });
+
+  if (res.error) {
     throw new Error('Request to delete backup wasnt succesful');
   }
 
@@ -454,8 +428,6 @@ export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolea
 export async function disableBackup(backup: BackupInfo): Promise<void> {
   const backupsList = configStore.get('backupList');
   const pathname = findBackupPathnameFromId(backup.folderId)!;
-
-  // await deleteBackup(backup);
 
   backupsList[pathname].enabled = false;
 
@@ -486,9 +458,13 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   const newFolderName = path.basename(chosenPath);
 
   if (oldFolderName !== newFolderName) {
-    const res = await client.PATCH('/folders/{uuid}', {
-      params: { path: { uuid: existingBackup.folderUuid } },
-      body: { destinationFolder: newFolderName },
+    logger.info({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
+
+    const folderUuid = await new BackupFolderUuid().getBackupFolderUuid({ backup: existingBackup });
+
+    const res = await client.PUT('/folders/{uuid}/meta', {
+      params: { path: { uuid: folderUuid } },
+      body: { plainName: newFolderName },
     });
 
     if (!res.data) {
@@ -629,16 +605,6 @@ export async function downloadBackup(device: Device, folderUuids?: string[]): Pr
   }
 
   removeListenerIpc.removeListener(listenerName, abortListener);
-}
-
-function getDeviceId(): number {
-  const deviceId = configStore.get('deviceId');
-
-  if (deviceId === -1) {
-    throw new Error('deviceId is not defined');
-  }
-
-  return deviceId;
 }
 
 function getDeviceUuid(): string {

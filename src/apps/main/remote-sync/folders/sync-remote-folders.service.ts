@@ -5,6 +5,9 @@ import { FetchRemoteFoldersService } from './fetch-remote-folders.service';
 import { FetchFoldersService, FetchFoldersServiceParams } from './fetch-folders.service.interface';
 import { FetchWorkspaceFoldersService } from './fetch-workspace-folders.service';
 import { loggerService } from '@/apps/shared/logger/logger';
+import { FETCH_LIMIT } from '../store';
+import { sleep } from '../../util';
+import { getUserOrThrow } from '../../auth/service';
 
 const MAX_RETRIES = 3;
 
@@ -35,16 +38,29 @@ export class SyncRemoteFoldersService {
     let hasMore = true;
 
     try {
-      this.logger.debug({ msg: 'Syncing folders', from });
+      const user = getUserOrThrow();
 
       while (hasMore) {
-        this.logger.debug({ msg: 'Retrieving folders', offset });
+        this.logger.debug({
+          msg: 'Retrieving folders',
+          workspacesId: this.workspaceId,
+          folderUuid,
+          from,
+          offset,
+        });
 
+        /**
+         * v2.5.0 Daniel Jiménez
+         * We fetch ALL folders when we want to synchronize the current state with the web state.
+         * It means that we need to delete or create the folders that are not in the web state anymore.
+         * However, if no checkpoint is provided it means that we don't have a local state yet.
+         * In that situation, fetch only EXISTS folders.
+         */
         const param: FetchFoldersServiceParams = {
           self,
           offset,
           updatedAtCheckpoint: from,
-          status: 'ALL',
+          status: from ? 'ALL' : 'EXISTS',
           folderUuid: folderUuid,
         };
 
@@ -54,6 +70,7 @@ export class SyncRemoteFoldersService {
           result.map(async (remoteFolder) => {
             await self.db.folders.create({
               ...remoteFolder,
+              userUuid: user.uuid,
               workspaceId: this.workspaceId,
             });
             self.totalFoldersSynced++;
@@ -62,7 +79,7 @@ export class SyncRemoteFoldersService {
 
         allResults.push(...result);
         hasMore = newHasMore;
-        offset += self.config.fetchFoldersLimitPerRequest;
+        offset += FETCH_LIMIT;
       }
 
       return allResults;
@@ -70,11 +87,11 @@ export class SyncRemoteFoldersService {
       this.logger.error({ msg: 'Remote folders sync failed', exc, retry, offset });
 
       if (retry >= MAX_RETRIES) {
-        self.foldersSyncStatus = 'SYNC_FAILED';
-        self.checkRemoteSyncStatus();
+        self.changeStatus('SYNC_FAILED');
         return [];
       }
 
+      await sleep(5000);
       return await this.run({ self, retry: retry + 1, from, offset, allResults });
     }
   }

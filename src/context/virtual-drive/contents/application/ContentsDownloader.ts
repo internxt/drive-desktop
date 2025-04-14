@@ -3,22 +3,21 @@ import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
-import { EventBus } from '../../shared/domain/EventBus';
-import { ContentsManagersFactory } from '../domain/ContentsManagersFactory';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
-import * as fs from 'fs';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
+import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class ContentsDownloader {
   constructor(
-    private readonly managerFactory: ContentsManagersFactory,
+    private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
-    private readonly eventBus: EventBus,
+    private readonly eventBus: EventRecorder,
   ) {}
 
   private downloaderIntance: ContentFileDownloader | null = null;
@@ -42,22 +41,7 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', async () => {
-      const stats = fs.statSync(filePath);
-      const fileSizeInBytes = stats.size;
-      const progress = fileSizeInBytes / file.size;
-
       await callback(true, filePath);
-
-      this.ipc.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: {
-          elapsedTime: downloader.elapsedTime(),
-          progress,
-        },
-      });
     });
 
     downloader.on('error', (error: Error) => {

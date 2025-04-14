@@ -17,6 +17,8 @@ import {
   setCredentials,
 } from './service';
 import { logger } from '@/apps/shared/logger/logger';
+import { initSyncEngine } from '../remote-sync/handlers';
+import { cleanAndStartRemoteNotifications } from '../realtime';
 
 let isLoggedIn: boolean;
 
@@ -59,7 +61,7 @@ export async function checkIfUserIsLoggedIn() {
   await checkUserData();
   encryptToken();
   await createTokenSchedule();
-  eventBus.emit('USER_LOGGED_IN');
+  await emitUserLoggedIn();
 }
 
 export function setupAuthIpcHandlers() {
@@ -79,12 +81,12 @@ export function setupAuthIpcHandlers() {
       password: data.password,
     });
     if (!canHisConfigBeRestored(data.user.uuid)) {
-      await setupRootFolder();
+      setupRootFolder(data.user);
     }
     await clearRootVirtualDrive();
 
     setIsLoggedIn(true);
-    eventBus.emit('USER_LOGGED_IN');
+    await emitUserLoggedIn();
   });
 
   ipcMain.on('user-logged-out', () => {
@@ -94,4 +96,10 @@ export function setupAuthIpcHandlers() {
 
     logout();
   });
+}
+
+export async function emitUserLoggedIn() {
+  eventBus.emit('USER_LOGGED_IN');
+  cleanAndStartRemoteNotifications();
+  await initSyncEngine();
 }

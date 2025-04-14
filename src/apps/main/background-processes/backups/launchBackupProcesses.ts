@@ -1,6 +1,5 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
 import Logger from 'electron-log';
-// import { clearBackupsIssues } from '../../issues/virtual-drive';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
 import { BackupFatalErrors } from './BackupFatalErrors/BackupFatalErrors';
@@ -9,7 +8,6 @@ import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTra
 import { BackupsStopController } from './BackupsStopController/BackupsStopController';
 import { isSyncError } from '../../../shared/issues/SyncErrorCause';
 import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
-import { logger } from '@/apps/shared/logger/logger';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;

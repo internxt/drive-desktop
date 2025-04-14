@@ -1,13 +1,13 @@
 import { Environment } from '@internxt/inxt-js';
-import { Storage, StorageTypes } from '@internxt/sdk/dist/drive';
+import { StorageTypes } from '@internxt/sdk/dist/drive';
 import { Readable } from 'stream';
 
 import { ThumbnailProperties } from '../domain/ThumbnailProperties';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export class EnvironmentAndStorageThumbnailUploader {
   constructor(
     private readonly environment: Environment,
-    private readonly storage: Storage,
     private readonly bucket: string,
   ) {}
 
@@ -40,17 +40,17 @@ export class EnvironmentAndStorageThumbnailUploader {
   async upload(fileId: number, thumbnailFile: Buffer): Promise<void> {
     const fileIdOnEnvironment = await this.uploadThumbnail(thumbnailFile);
 
-    const thumbnail: StorageTypes.ThumbnailEntry = {
-      file_id: fileId,
-      max_width: ThumbnailProperties.dimensions as number,
-      max_height: ThumbnailProperties.dimensions as number,
-      type: ThumbnailProperties.type as string,
-      size: thumbnailFile.byteLength,
-      bucket_id: this.bucket,
-      bucket_file: fileIdOnEnvironment,
-      encrypt_version: StorageTypes.EncryptionVersion.Aes03,
-    };
-
-    await this.storage.createThumbnailEntry(thumbnail);
+    await driveServerWipModule.files.createThumbnail({
+      body: {
+        fileId: fileId,
+        maxWidth: ThumbnailProperties.dimensions,
+        maxHeight: ThumbnailProperties.dimensions,
+        type: ThumbnailProperties.type,
+        size: thumbnailFile.byteLength,
+        bucketId: this.bucket,
+        bucketFile: fileIdOnEnvironment,
+        encryptVersion: StorageTypes.EncryptionVersion.Aes03,
+      },
+    });
   }
 }

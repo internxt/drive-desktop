@@ -15,7 +15,7 @@ export default function useGetItems(folderUuid: string): ItemBackup[] {
       setItems(cached.data);
     } else {
       setItems([]);
-      window.electron.getItemByFolderId(folderUuid).then((fetchedItems) => {
+      window.electron.getItemByFolderUuid(folderUuid).then((fetchedItems) => {
         cache.set(folderUuid, { data: fetchedItems, timestamp: Date.now() });
         setItems(fetchedItems);
       });

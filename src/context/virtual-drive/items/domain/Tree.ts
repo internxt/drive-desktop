@@ -64,7 +64,7 @@ export class Tree {
   }
 
   private addNode(node: Node): void {
-    this.tree.set(node.id, node);
+    this.tree.set(node.path, node);
   }
 
   addFile(parentNode: Folder, file: File) {

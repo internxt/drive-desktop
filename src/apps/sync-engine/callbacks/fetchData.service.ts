@@ -53,7 +53,7 @@ export class FetchDataService {
             self.progressBuffer = result.progress;
           }
 
-          ipcRendererSyncEngine.send('FILE_PREPARING', {
+          ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
             name: file.name,
             extension: file.type,
             nameWithExtension: file.nameWithExtension,
@@ -109,7 +109,6 @@ export class FetchDataService {
       Logger.error(error);
       Sentry.captureException(error);
       await callback(false, '');
-      ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
     }
   }
 

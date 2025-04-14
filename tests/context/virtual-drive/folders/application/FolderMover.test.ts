@@ -3,11 +3,11 @@ import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/a
 import { FolderMover } from '../../../../../src/context/virtual-drive/folders/application/FolderMover';
 import { FolderPath } from '../../../../../src/context/virtual-drive/folders/domain/FolderPath';
 import { FolderMother } from '../domain/FolderMother';
-import { FolderRepository } from '@/context/virtual-drive/folders/domain/FolderRepository';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
+import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 
 describe('Folder Mover', () => {
-  const repository = mockDeep<FolderRepository>();
+  const repository = mockDeep<InMemoryFolderRepository>();
   const folderFinder = new FolderFinder(repository);
   const remoteFolderSystem = mockDeep<HttpRemoteFolderSystem>();
   const SUT = new FolderMover(repository, remoteFolderSystem, folderFinder);

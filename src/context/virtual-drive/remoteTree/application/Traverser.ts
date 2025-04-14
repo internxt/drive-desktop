@@ -7,9 +7,9 @@ import { createFolderFromServerFolder } from '../../folders/application/create/F
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
 import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { NameDecrypt } from '../domain/NameDecrypt';
 import { RemoteTree } from '../domain/RemoteTree';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
+import { CryptoJsNameDecrypt } from '../../items/infrastructure/CryptoJsNameDecrypt';
 
 type Items = {
   files: Array<ServerFile>;
@@ -18,25 +18,19 @@ type Items = {
 @Service()
 export class Traverser {
   constructor(
-    private readonly decrypt: NameDecrypt,
+    private readonly decrypt: CryptoJsNameDecrypt,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>,
   ) {}
 
-  static existingItems(decrypt: NameDecrypt): Traverser {
+  static existingItems(decrypt: CryptoJsNameDecrypt): Traverser {
     return new Traverser(decrypt, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
   }
 
-  static allItems(decrypt: NameDecrypt): Traverser {
-    return new Traverser(decrypt, [], []);
-  }
-
-  private createRootFolder(id: number): Folder {
-    const rootFolderUuid = '43711926-15c2-5ebf-8c24-5099fa9af3c3';
-
+  private createRootFolder({ id, uuid }: { id: number; uuid: string }): Folder {
     return Folder.from({
-      id: id,
-      uuid: rootFolderUuid,
+      id,
+      uuid,
       parentId: null,
       parentUuid: null,
       updatedAt: new Date().toISOString(),
@@ -49,11 +43,8 @@ export class Traverser {
   private traverse(tree: RemoteTree, items: Items, currentFolder: Folder) {
     if (!items) return;
 
-    const filesInThisFolder = items.files.filter((file) => file.folderId === currentFolder.id);
-
-    const foldersInThisFolder = items.folders.filter((folder) => {
-      return folder.parentId === currentFolder.id;
-    });
+    const filesInThisFolder = items.files.filter((file) => file.folderUuid === currentFolder.uuid);
+    const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
       if (!this.fileStatusesToFilter.includes(serverFile.status)) {
@@ -116,10 +107,8 @@ export class Traverser {
     });
   }
 
-  public run(rootFolderId: number, items: Items): RemoteTree {
-    const rootFolder = this.createRootFolder(rootFolderId);
-
-    Logger.debug('[Traverser] Root folder', rootFolder);
+  public run({ rootFolderId, rootFolderUuid, items }: { rootFolderId: number; rootFolderUuid: string; items: Items }): RemoteTree {
+    const rootFolder = this.createRootFolder({ id: rootFolderId, uuid: rootFolderUuid });
 
     const tree = new RemoteTree(rootFolder);
 

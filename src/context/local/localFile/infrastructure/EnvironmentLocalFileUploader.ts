@@ -4,10 +4,11 @@ import { createReadStream } from 'fs';
 import { Stopwatch } from '../../../../apps/shared/types/Stopwatch';
 import { AbsolutePath } from './AbsolutePath';
 import { Environment } from '@internxt/inxt-js';
-import { Axios } from 'axios';
 import Logger from 'electron-log';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
+import { logger } from '@/apps/shared/logger/logger';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 @Service()
 export class EnvironmentLocalFileUploader {
@@ -16,7 +17,6 @@ export class EnvironmentLocalFileUploader {
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
-    private readonly httpClient: Axios,
   ) {}
 
   upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
@@ -32,7 +32,7 @@ export class EnvironmentLocalFileUploader {
     stopwatch.start();
 
     return new Promise<Either<DriveDesktopError, string>>((resolve) => {
-      Logger.info(`Uploading file ${path} to the bucket ${this.bucket}`);
+      logger.debug({ msg: 'Uploading file to the bucket', path, bucket: this.bucket });
       const state = fn(this.bucket, {
         source: readable,
         fileSize: size,
@@ -50,7 +50,12 @@ export class EnvironmentLocalFileUploader {
           resolve(right(contentsId));
         },
         progressCallback: (progress: number) => {
-          Logger.info(`Uploading file ${path} to the bucket ${this.bucket} ${progress}%`);
+          logger.debug({
+            msg: 'Uploading file to the bucket',
+            path,
+            bucket: this.bucket,
+            progress: `${Math.ceil(progress * 100)}%`,
+          });
         },
       });
 
@@ -61,12 +66,7 @@ export class EnvironmentLocalFileUploader {
     });
   }
 
-  async delete(contentsId: string): Promise<void> {
-    try {
-      await this.httpClient.delete(`${process.env.API_URL}/storage/bucket/${this.bucket}/file/${contentsId}`);
-    } catch (error) {
-      // Not being able to delete from the bucket is not critical
-      Logger.error(`Could not delete the file ${contentsId} from the bucket`);
-    }
+  async delete(contentsId: string) {
+    await driveServerWipModule.files.deleteContentFromBucket({ bucketId: this.bucket, contentId: contentsId });
   }
 }

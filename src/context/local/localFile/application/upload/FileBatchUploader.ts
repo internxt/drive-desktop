@@ -10,6 +10,7 @@ import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
 import { RendererIpcLocalFileMessenger } from '../../infrastructure/RendererIpcLocalFileMessenger';
 import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
+import { logger } from '@/apps/shared/logger/logger';
 
 @Service()
 export class FileBatchUploader {
@@ -41,7 +42,7 @@ export class FileBatchUploader {
 
             if (uploadEither.isLeft()) {
               const error = uploadEither.getLeft();
-              Logger.error('[Local File Uploader] Error uploading file', localFile.path, error);
+              logger.error({ msg: '[Local File Uploader] Error uploading file', path: localFile.path, error });
 
               if (isFatalError(error.cause)) {
                 throw error;
@@ -57,6 +58,8 @@ export class FileBatchUploader {
 
             const remotePath = relativeV2(localRootPath, localFile.path);
             const parent = remoteTree.getParent(remotePath);
+
+            logger.debug({ msg: 'Uploading file', remotePath, parent });
 
             const either = await this.creator.run({
               contentsId,

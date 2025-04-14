@@ -64,7 +64,8 @@ export interface paths {
     get?: never;
     put: operations['FileController_replaceFile'];
     post?: never;
-    delete?: never;
+    /** Delete file from storage and database */
+    delete: operations['FileController_deleteFileByUuid'];
     options?: never;
     head?: never;
     patch: operations['FileController_moveFile'];
@@ -97,6 +98,40 @@ export interface paths {
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/thumbnail': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create Thumbnail */
+    post: operations['FileController_createThumbnail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{bucketId}/{fileId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete file from storage by fileId */
+    delete: operations['FileController_deleteFileByFileId'];
     options?: never;
     head?: never;
     patch?: never;
@@ -512,7 +547,8 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    delete?: never;
+    /** Delete Folder */
+    delete: operations['FolderController_deleteFolder'];
     options?: never;
     head?: never;
     patch: operations['FolderController_moveFolder'];
@@ -2123,6 +2159,39 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/users/usage': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get User used storage space */
+    get: operations['UserController_getUserUsage'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/limit': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['UserController_limit'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/fuzzy/{search}': {
     parameters: {
       query?: never;
@@ -2135,6 +2204,127 @@ export interface paths {
     put?: never;
     post?: never;
     delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/activate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Activate user backup */
+    post: operations['BackupController_activateBackup'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/deviceAsFolder': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all devices as folder */
+    get: operations['BackupController_getDevicesAsFolder'];
+    put?: never;
+    /** Create a folder using device name */
+    post: operations['BackupController_createDeviceAsFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/deviceAsFolder/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get device as folder by uuid */
+    get: operations['BackupController_getDeviceAsFolder'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update device as folder by uuid */
+    patch: operations['BackupController_updateDeviceAsFolder'];
+    trace?: never;
+  };
+  '/backup/devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all user devices */
+    get: operations['BackupController_getAllDevices'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/devices/{deviceId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete user device */
+    delete: operations['BackupController_deleteDevice'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/{mac}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get backups by mac */
+    get: operations['BackupController_getBackupsByMac'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/{backupId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete backup */
+    delete: operations['BackupController_deleteBackup'];
     options?: never;
     head?: never;
     patch?: never;
@@ -2499,6 +2689,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/gateway/users/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update user plan and storage */
+    patch: operations['GatewayController_updateUser'];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2617,6 +2824,63 @@ export interface components {
        * @example 366be646-6d67-436e-8cb6-4b275dfe1729
        */
       destinationFolder: string;
+    };
+    CreateThumbnailDto: {
+      /**
+       * @description The ID of the file
+       * @example 12345
+       */
+      fileId: number;
+      /**
+       * @description The type of the file
+       * @example text
+       */
+      type: string;
+      /**
+       * @description The size of the file in bytes
+       * @example 123456789
+       */
+      size: number;
+      /**
+       * @description The max width of the file
+       * @example 123456789
+       */
+      maxWidth: number;
+      /**
+       * @description The max height of the file
+       * @example 123456789
+       */
+      maxHeight: number;
+      /**
+       * @description The bucket id where the file is stored
+       * @example my-bucket
+       */
+      bucketId: string;
+      /**
+       * @description The id of file in the bucket
+       * @example my-bucket
+       */
+      bucketFile: string;
+      /**
+       * @description The encryption version used for the file
+       * @example 03-aes
+       */
+      encryptVersion: string;
+    };
+    ThumbnailDto: {
+      id: number;
+      fileId: number;
+      maxWidth: number;
+      maxHeight: number;
+      type: string;
+      size: number;
+      bucketId: string;
+      bucketFile: string;
+      encryptVersion: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
     };
     UpdateShareDto: {
       /**
@@ -3321,6 +3585,18 @@ export interface components {
        */
       email: Record<string, never>;
     };
+    RefreshTokenResponseDto: {
+      /**
+       * @description The old token that has been replaced
+       * @example newToken1234567890
+       */
+      token: string;
+      /**
+       * @description The new token to be used for authentication
+       * @example oldToken1234567890
+       */
+      newToken: string;
+    };
     UpdatePasswordDto: {
       /**
        * @description Current password
@@ -3428,6 +3704,12 @@ export interface components {
        */
       token: string;
     };
+    GetUserUsageDto: {
+      drive: number;
+    };
+    GetUserLimitDto: {
+      maxSpaceBytes: number;
+    };
     FuzzySearchResult: {
       id: string;
       itemId: string;
@@ -3439,6 +3721,38 @@ export interface components {
     };
     FuzzySearchResults: {
       data: components['schemas']['FuzzySearchResult'][];
+    };
+    CreateDeviceAsFolderDto: {
+      deviceName: string;
+    };
+    DeviceDto: {
+      type: string;
+      id: number;
+      parentId: number;
+      parentUuid: string;
+      name: string;
+      parent: components['schemas']['Folder'];
+      bucket: string;
+      userId: number;
+      encryptVersion: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      uuid: string;
+      plainName: string;
+      size: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
+      removed: boolean;
+      deleted: boolean;
+      hasBackups: boolean;
+      /** Format: date-time */
+      lastBackupAt: string;
     };
     ItemToTrash: {
       /**
@@ -3682,6 +3996,13 @@ export interface components {
        */
       ownerId: string;
     };
+    UpdateUserDto: {
+      /**
+       * @description New max storage space in bytes
+       * @example 123456
+       */
+      maxSpaceBytes: number;
+    };
   };
   responses: never;
   parameters: never;
@@ -3801,7 +4122,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
       };
     };
   };
@@ -3819,6 +4142,27 @@ export interface operations {
         'application/json': components['schemas']['ReplaceFileDto'];
       };
     };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_deleteFileByUuid: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {
@@ -3847,7 +4191,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
       };
     };
   };
@@ -3888,6 +4234,49 @@ export interface operations {
         content: {
           'application/json': components['schemas']['FileDto'];
         };
+      };
+    };
+  };
+  FileController_createThumbnail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateThumbnailDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ThumbnailDto'];
+        };
+      };
+    };
+  };
+  FileController_deleteFileByFileId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        bucketId: string;
+        fileId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -4518,7 +4907,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
       };
     };
   };
@@ -4563,7 +4954,9 @@ export interface operations {
     parameters: {
       query?: never;
       header?: never;
-      path?: never;
+      path: {
+        id: number;
+      };
       cookie?: never;
     };
     requestBody?: never;
@@ -4572,7 +4965,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
       };
     };
   };
@@ -4586,6 +4981,25 @@ export interface operations {
     requestBody?: never;
     responses: {
       200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_deleteFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
         headers: {
           [name: string]: unknown;
         };
@@ -4612,7 +5026,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
       };
     };
   };
@@ -6746,7 +7162,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['RefreshTokenResponseDto'];
+        };
       };
     };
   };
@@ -7126,6 +7544,45 @@ export interface operations {
       };
     };
   };
+  UserController_getUserUsage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetUserUsageDto'];
+        };
+      };
+    };
+  };
+  UserController_limit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get user space limit */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetUserLimitDto'];
+        };
+      };
+    };
+  };
   FuzzySearchController_fuzzySearch: {
     parameters: {
       query?: never;
@@ -7145,6 +7602,185 @@ export interface operations {
         content: {
           'application/json': components['schemas']['FuzzySearchResults'];
         };
+      };
+    };
+  };
+  BackupController_activateBackup: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_getDevicesAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'][];
+        };
+      };
+    };
+  };
+  BackupController_createDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAsFolderDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
+  BackupController_getDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
+  BackupController_updateDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAsFolderDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
+  BackupController_getAllDevices: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_deleteDevice: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        deviceId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_getBackupsByMac: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        mac: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_deleteBackup: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        backupId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -7663,6 +8299,30 @@ export interface operations {
       cookie?: never;
     };
     requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_updateUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description User UUID */
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateUserDto'];
+      };
+    };
     responses: {
       200: {
         headers: {

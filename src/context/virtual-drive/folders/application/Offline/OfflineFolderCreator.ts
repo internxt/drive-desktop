@@ -3,14 +3,14 @@ import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
 import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { FolderFinder } from '../FolderFinder';
-import { FolderRepository } from '../../domain/FolderRepository';
 import { FolderStatuses } from '../../domain/FolderStatus';
+import { InMemoryFolderRepository } from '../../infrastructure/InMemoryFolderRepository';
 
 export class OfflineFolderCreator {
   constructor(
     private readonly folderFinder: FolderFinder,
     private readonly offlineRepository: OfflineFolderRepository,
-    private readonly repository: FolderRepository,
+    private readonly repository: InMemoryFolderRepository,
   ) {}
 
   run(posixRelativePath: string): OfflineFolder {

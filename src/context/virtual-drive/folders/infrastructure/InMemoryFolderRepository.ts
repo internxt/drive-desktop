@@ -1,9 +1,8 @@
 import { Service } from 'diod';
 import { Folder, FolderAttributes } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
 
 @Service()
-export class InMemoryFolderRepository implements FolderRepository {
+export class InMemoryFolderRepository {
   private folders: Map<Folder['id'], FolderAttributes>;
 
   constructor() {
@@ -12,22 +11,6 @@ export class InMemoryFolderRepository implements FolderRepository {
 
   private get values(): Array<FolderAttributes> {
     return Array.from(this.folders.values());
-  }
-
-  matchingPartial(partial: Partial<FolderAttributes>): Array<Folder> {
-    const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
-
-    const foldersAttributes = this.values.filter((attributes) => {
-      return keys.every((key: keyof FolderAttributes) => attributes[key] === partial[key]);
-    });
-
-    return foldersAttributes.map((attributes) => Folder.from(attributes));
-  }
-
-  all(): Promise<Folder[]> {
-    const folders = [...this.folders.values()].map((attributes) => Folder.from(attributes));
-
-    return Promise.resolve(folders);
   }
 
   searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined {

@@ -11,10 +11,10 @@ declare interface Window {
     isDarkModeActive(): boolean;
 
     logger: {
-      info: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
-      error: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
-      warn: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
-      debug: (rawBody: import('@/apps/shared/logger/logger').TRawBody) => void;
+      info: (rawBody: import('@/apps/shared/logger/logger').TLoggerBody) => void;
+      error: (rawBody: import('@/apps/shared/logger/logger').TLoggerBody) => void;
+      warn: (rawBody: import('@/apps/shared/logger/logger').TLoggerBody) => void;
+      debug: (rawBody: import('@/apps/shared/logger/logger').TLoggerBody) => void;
     };
 
     getGeneralIssues: () => Promise<import('../../apps/shared/types').GeneralIssue[]>;
@@ -29,7 +29,7 @@ declare interface Window {
 
     onSyncInfoUpdate(func: (value: import('../shared/types').ProcessInfoUpdatePayload) => void): () => void;
 
-    getItemByFolderId(folderUuid: string): Promise<import('../shared/types/items').ItemBackup[]>;
+    getItemByFolderUuid(folderUuid: string): Promise<import('../shared/types/items').ItemBackup[]>;
 
     userIsUnauthorized(): void;
 
@@ -176,13 +176,11 @@ declare interface Window {
       callback: (event: { status: import('../shared/types/VirtualDriveStatus').VirtualDriveStatus }) => void,
     ): () => void;
     retryVirtualDriveMount(): void;
-    startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     getPreferredAppLanguage: () => Promise<Array<string>>;
     syncManually: () => Promise<void>;
     getRecentlywasSyncing: () => Promise<boolean>;
     getUnsycFileInSyncEngine: () => Promise<string[]>;
-    updateUnsycFileInSyncEngine: () => Promise<void>;
     user: {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
@@ -226,12 +224,13 @@ declare interface Window {
     };
     authService: {
       access: (
-        props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['access']>[0],
-      ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['access']>;
+        props: Parameters<(typeof import('../../infra/drive-server-wip/services/auth.service').AuthService)['access']>[0],
+      ) => ReturnType<(typeof import('../../infra/drive-server-wip/services/auth.service').AuthService)['access']>;
       login: (
-        props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>[0],
-      ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>;
+        props: Parameters<(typeof import('../../infra/drive-server-wip/services/auth.service').AuthService)['login']>[0],
+      ) => ReturnType<(typeof import('../../infra/drive-server-wip/services/auth.service').AuthService)['login']>;
     };
     path: import('path');
   };
+  // src\infra\drive-server-wip\services\auth.service.ts
 }

@@ -1,12 +1,12 @@
 import { FolderPath } from '../domain/FolderPath';
 import { Folder } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
+import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 
 export class FolderRenamer {
   constructor(
-    private readonly repository: FolderRepository,
+    private readonly repository: InMemoryFolderRepository,
     private readonly remote: HttpRemoteFolderSystem,
     private readonly ipc: SyncEngineIpc,
   ) {}

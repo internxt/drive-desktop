@@ -7,6 +7,7 @@ import { Service } from 'diod';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { logger } from '@/apps/shared/logger/logger';
 
 @Service()
 export class FileDeleter {
@@ -17,26 +18,6 @@ export class FileDeleter {
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
     private readonly ipc: SyncEngineIpc,
   ) {}
-
-  async runHardDelete(contentsId: File['contentsId']): Promise<void> {
-    try {
-      const file = this.repository.searchByPartial({ contentsId });
-
-      if (!file) {
-        Logger.warn(`File with contentsId ${contentsId} not found. Will ignore...`);
-        return;
-      }
-
-      Logger.info(`Hard deleting file ${file.nameWithExtension}`);
-
-      file.trash();
-
-      await this.remote.hardDelete(file.contentsId);
-      await this.repository.update(file);
-    } catch (error: unknown) {
-      Logger.error('Error deleting the file: ', error);
-    }
-  }
 
   async run(contentsId: File['contentsId']): Promise<void> {
     const file = this.repository.searchByPartial({ contentsId });
@@ -77,7 +58,11 @@ export class FileDeleter {
         size: file.size,
       });
     } catch (error: unknown) {
-      Logger.error(`Error deleting the file ${file.nameWithExtension}: `, error);
+      logger.error({
+        msg: 'Error deleting the file',
+        nameWithExtension: file.nameWithExtension,
+        exc: error,
+      });
 
       const message = error instanceof Error ? error.message : 'Unknown error';
       this.local.createPlaceHolder(file);
