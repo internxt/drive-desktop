@@ -237,8 +237,8 @@ describe('FilesPlaceholderUpdater', () => {
 
       mockRepository.searchByPartial.mockImplementation(({ contentsId }) => localFiles.find((file) => file.contentsId === contentsId));
 
-      mockLocalFileSystem.getFileIdentity.mockImplementation(async (path) =>
-        (await path) === '/remote1' ? `FILE:${oldsUuids[0]}` : `FILE:${newsUuids[1]}`,
+      mockLocalFileSystem.getFileIdentity.mockImplementation((path) =>
+        path === '/remote1' ? `FILE:${oldsUuids[0]}` : `FILE:${newsUuids[1]}`,
       );
 
       await updater.run(remotes);
