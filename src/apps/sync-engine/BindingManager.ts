@@ -210,18 +210,12 @@ export class BindingsManager {
     await queueManager.processAll();
   }
 
-  async stop() {
+  stop() {
     this.container.virtualDrive.disconnectSyncRoot();
   }
 
-  async cleanUp() {
+  cleanUp() {
     this.container.virtualDrive.unregisterSyncRoot();
-  }
-
-  async cleanQueue() {
-    if (this.queueManager) {
-      this.queueManager.clearQueue();
-    }
   }
 
   async load(tree: Tree): Promise<void> {
