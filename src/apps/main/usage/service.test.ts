@@ -44,7 +44,7 @@ describe('UserUsageService', () => {
     driveServerWipModule.user.getUsage.mockImplementation(async () => {
       attempts++;
       if (attempts < 3) throw new Error('Temporary error');
-      return { data: { drive: 5000 }, error: undefined };
+      return await { data: { drive: 5000 }, error: undefined };
     });
     driveServerWipModule.user.getLimit.mockResolvedValue({ data: { maxSpaceBytes: 10000 }, error: undefined });
 

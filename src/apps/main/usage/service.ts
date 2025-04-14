@@ -23,7 +23,7 @@ export class UserUsageService {
   }
 
   private async getDriveUsage(): Promise<number> {
-    return this.retry(async () => {
+    return await this.retry(async () => {
       const res = await this.driveServerWipModule.user.getUsage();
       if (res.error) throw res.error;
       return res.data.drive;
@@ -31,7 +31,7 @@ export class UserUsageService {
   }
 
   private async getLimit(): Promise<number> {
-    return this.retry(async () => {
+    return await this.retry(async () => {
       const res = await this.driveServerWipModule.user.getLimit();
       if (res.error) throw res.error;
       return res.data.maxSpaceBytes;
