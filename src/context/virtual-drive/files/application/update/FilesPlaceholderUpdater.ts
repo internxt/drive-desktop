@@ -67,7 +67,7 @@ export class FilesPlaceholderUpdater {
       return;
     }
 
-    // v 2.5.2 Jonathan Daniel
+    // v2.5.2 Jonathan Daniel
     // Validate if the placeholder needs to be updated since we previously used the dynamic contentsId
     // and now we use the static uuid for file identification.
     if (await this.hasToBeUpdatedIdentity(local, remote)) {

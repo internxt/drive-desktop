@@ -11,7 +11,7 @@ import { v4 } from 'uuid';
 import fs from 'fs/promises';
 import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
-vi.mock('fs/promises');
+vi.mock(import('fs/promises'));
 
 const mockRepository = mockDeep<InMemoryFileRepository>();
 
