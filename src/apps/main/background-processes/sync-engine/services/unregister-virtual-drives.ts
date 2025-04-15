@@ -2,14 +2,12 @@ import { logger } from '@/apps/shared/logger/logger';
 import { VirtualDrive } from '@internxt/node-win/dist';
 
 type TProps = {
-  providerId: string;
-  workspaceProviderIds: string[];
+  currentProviderIds?: string[];
 };
 
-export function unregisterVirtualDrives({ providerId, workspaceProviderIds }: TProps) {
+export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
   const syncRoots = VirtualDrive.getRegisteredSyncRoots();
 
-  const currentProviderIds = workspaceProviderIds.concat([providerId]);
   logger.debug({ msg: 'Current provider ids', currentProviderIds });
 
   syncRoots.forEach((syncRoot) => {

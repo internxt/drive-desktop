@@ -12,7 +12,7 @@ import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/in
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { getConfig } from '../../config';
 
-export async function buildContentsContainer(sharedContainer: SharedContainer): Promise<ContentsContainer> {
+export function buildContentsContainer(sharedContainer: SharedContainer): ContentsContainer {
   const mnemonic = getConfig().mnemonic;
   const { bus: eventBus } = DependencyInjectionEventBus;
 

@@ -81,7 +81,7 @@ export class ContentsDownloader {
     return write;
   }
 
-  async stop() {
+  stop() {
     Logger.info('[Server] Stopping download 1');
     if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 

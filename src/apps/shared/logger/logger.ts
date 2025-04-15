@@ -6,6 +6,7 @@ import { paths } from '../HttpClient/schema';
 type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS';
 
 export type TLoggerBody = {
+  process?: 'main' | 'renderer';
   msg: string;
   tag?: TTag;
   exc?: Error | unknown;
@@ -23,10 +24,14 @@ export class LoggerService {
   private prepareBody(rawBody: TLoggerBody) {
     const user = getUser();
 
-    rawBody.attributes = {
-      userId: user?.uuid,
-      tag: rawBody.tag,
-      ...rawBody.attributes,
+    rawBody = {
+      process: process.type === 'renderer' ? 'renderer' : 'main',
+      ...rawBody,
+      attributes: {
+        userId: user?.uuid,
+        tag: rawBody.tag,
+        ...rawBody.attributes,
+      },
     };
 
     const { attributes, ...rest } = rawBody;

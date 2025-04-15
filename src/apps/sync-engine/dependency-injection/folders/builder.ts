@@ -31,7 +31,7 @@ import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/fo
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 import { getConfig } from '../../config';
 
-export async function buildFoldersContainer(shredContainer: SharedContainer): Promise<FoldersContainer> {
+export function buildFoldersContainer(shredContainer: SharedContainer): FoldersContainer {
   const eventBus = DependencyInjectionEventBus.bus;
   const { virtualDrive } = DependencyInjectionVirtualDrive;
   const eventRepository = DependencyInjectionEventRepository.get();
