@@ -8,7 +8,6 @@ import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
 import * as Sentry from '@sentry/electron/renderer';
-import configStore from '../main/config';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
 import { HandleHydrateService } from './callbacks/handleHydrate.service';
@@ -166,7 +165,12 @@ export class BindingsManager {
 
     await this.stop();
 
-    await this.container.virtualDrive.registerSyncRoot(this.PROVIDER_NAME, version, callbacks, this.paths.icon);
+    await this.container.virtualDrive.registerSyncRoot({
+      providerName: this.PROVIDER_NAME,
+      providerVersion: version,
+      callbacks,
+      logoPath: this.paths.icon,
+    });
     await this.container.virtualDrive.connectSyncRoot();
 
     const tree = await this.container.treeBuilder.run();
@@ -190,23 +194,16 @@ export class BindingsManager {
       handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
     };
 
-    const notify = {
-      onTaskSuccess: async () => {
-        //ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId)
-      },
-      onTaskProcessing: async () => {
-        // ipcRendererSyncEngine.send('SYNCING', getConfig().workspaceId);
-      },
-    };
+    const PATHS = await ipcRenderer.invoke('get-paths', this.PROVIDER_NAME);
 
-    const persistQueueManager: string = configStore.get('persistQueueManagerPath');
-
-    Logger.debug('persistQueueManager', persistQueueManager);
-
-    const queueManager = new QueueManager(callbacks, notify, persistQueueManager);
+    const queueManager = new QueueManager({
+      handlers: callbacks,
+      persistPath: PATHS.QUEUE_MANAGER,
+    });
     this.queueManager = queueManager;
-    // TODO: remove empty strings, not used
-    this.container.virtualDrive.watchAndWait('', queueManager, '');
+    this.container.virtualDrive.watchAndWait({
+      queueManager,
+    });
     await queueManager.processAll();
   }
 
@@ -267,6 +264,8 @@ export class BindingsManager {
       await this.polling();
 
       const placeholders = this.container.virtualDrive.getPlaceholderWithStatePending();
+
+      logger.debug({ msg: '[SYNC ENGINE] Update and check placeholders', workspaceId, total: placeholders.length, placeholders });
 
       if (placeholders.length === 0) {
         ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');

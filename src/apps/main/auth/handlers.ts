@@ -6,19 +6,11 @@ import eventBus from '../event-bus';
 import { clearRootVirtualDrive, setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
 import { checkUserData, createTokenSchedule } from './refresh-token';
-import {
-  canHisConfigBeRestored,
-  encryptToken,
-  getHeaders,
-  getNewApiHeaders,
-  getUser,
-  logout,
-  obtainToken,
-  setCredentials,
-} from './service';
+import { canHisConfigBeRestored, encryptToken, getNewApiHeaders, getUser, logout, obtainToken, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
+import { PATHS } from '@/core/electron/paths';
 
 let isLoggedIn: boolean;
 
@@ -67,10 +59,10 @@ export async function checkIfUserIsLoggedIn() {
 export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
-  ipcMain.handle('get-headers', (_, includeMnemonic) => getHeaders(includeMnemonic));
   ipcMain.handle('GET_HEADERS', () => getNewApiHeaders());
   ipcMain.handle('get-new-token', () => obtainToken('newToken'));
   ipcMain.handle('get-token', () => obtainToken('bearerToken'));
+  ipcMain.handle('get-paths', () => PATHS);
   ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
 
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
