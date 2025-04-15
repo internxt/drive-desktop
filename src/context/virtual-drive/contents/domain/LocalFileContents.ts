@@ -1,7 +1,6 @@
 import { Readable } from 'stream';
 import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { ContentsSize } from './ContentsSize';
-import { ContentsDownloadedDomainEvent } from './events/ContentsDownloadedDomainEvent';
 import { File } from '../../files/domain/File';
 
 export type LocalFileContentsAttributes = {
@@ -61,7 +60,7 @@ export class LocalFileContents extends AggregateRoot {
     return remoteContents;
   }
 
-  static downloadedFrom(file: File, contents: Readable, elapsedTime: number) {
+  static downloadedFrom(file: File, contents: Readable) {
     const remoteContents = new LocalFileContents(
       file.name,
       file.type,
@@ -70,17 +69,6 @@ export class LocalFileContents extends AggregateRoot {
       file.updatedAt.getUTCMilliseconds(),
       contents,
     );
-
-    const contentsDownloadedEvent = new ContentsDownloadedDomainEvent({
-      aggregateId: file.contentsId,
-      name: file.name,
-      extension: file.type,
-      nameWithExtension: file.nameWithExtension,
-      size: file.size,
-      elapsedTime: elapsedTime,
-    });
-
-    remoteContents.record(contentsDownloadedEvent);
 
     return remoteContents;
   }

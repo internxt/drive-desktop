@@ -2,7 +2,6 @@ import { DependencyContainer } from '../dependency-injection/DependencyContainer
 import { AddController } from './controllers/AddController';
 import { DeleteController } from './controllers/DeleteController';
 import { DownloadFileController } from './controllers/DownloadFileController';
-import { NotifyPlaceholderHydrationFinished } from './controllers/NotifyPlaceholderHydrationFinished';
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
 import { OfflineRenameOrMoveController } from './controllers/offline/OfflineRenameOrMoveController';
 
@@ -14,7 +13,6 @@ export interface IControllers {
   offline: {
     renameOrMove: OfflineRenameOrMoveController;
   };
-  notifyPlaceholderHydrationFinished: NotifyPlaceholderHydrationFinished;
 }
 
 export function buildControllers(container: DependencyContainer): IControllers {
@@ -46,8 +44,6 @@ export function buildControllers(container: DependencyContainer): IControllers {
     container.offline.folderPathUpdater,
   );
 
-  const notifyPlaceholderHydrationFinished = new NotifyPlaceholderHydrationFinished(container.notifyMainProcessHydrationFinished);
-
   return {
     addFile: addFileController,
     renameOrMove: renameOrMoveController,
@@ -56,6 +52,5 @@ export function buildControllers(container: DependencyContainer): IControllers {
     offline: {
       renameOrMove: offlineRenameOrMoveController,
     },
-    notifyPlaceholderHydrationFinished,
   } as const;
 }

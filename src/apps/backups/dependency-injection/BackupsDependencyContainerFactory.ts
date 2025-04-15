@@ -1,6 +1,5 @@
-import { Container } from 'diod';
+import { Container, ContainerBuilder } from 'diod';
 import Logger from 'electron-log';
-import { backgroundProcessSharedInfraBuilder } from '../../shared/dependency-injection/background/backgroundProcessSharedInfraBuilder';
 import { registerFilesServices } from './virtual-drive/registerFilesServices';
 import { registerFolderServices } from './virtual-drive/registerFolderServices';
 import { registerLocalFileServices } from './local/registerLocalFileServices';
@@ -12,7 +11,7 @@ export class BackupsDependencyContainerFactory {
   static async build(): Promise<Container> {
     Logger.info('[BackupsDependencyContainerFactory] Starting to build the container.');
 
-    const builder = await backgroundProcessSharedInfraBuilder();
+    const builder = new ContainerBuilder();
     Logger.info('[BackupsDependencyContainerFactory] Shared infrastructure builder created.');
 
     try {
