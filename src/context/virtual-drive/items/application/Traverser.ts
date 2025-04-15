@@ -5,8 +5,9 @@ import { createFolderFromServerFolder } from '../../folders/application/FolderCr
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Tree } from '../domain/Tree';
-import { CryptoJsNameDecrypt } from '../infrastructure/CryptoJsNameDecrypt';
 import { logger } from '@/apps/shared/logger/logger';
+import crypto from '../../../shared/infrastructure/crypt';
+import { File } from '../../files/domain/File';
 
 const FILE_STATUSES_TO_FILTER = [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED, ServerFileStatus.DELETED];
 const FOLDER_STATUSES_TO_FILTER = [ServerFolderStatus.EXISTS, ServerFolderStatus.TRASHED, ServerFolderStatus.DELETED];
@@ -18,7 +19,6 @@ type Items = {
 
 export class Traverser {
   constructor(
-    private readonly decrypt: CryptoJsNameDecrypt,
     private readonly baseFolderId: number,
     private readonly baseFolderUuid: string,
   ) {}
@@ -47,9 +47,14 @@ export class Traverser {
         return;
       }
 
-      const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
+      const decryptedName = File.decryptName({
+        plainName: serverFile.plainName,
+        name: serverFile.name,
+        parentId: serverFile.folderId,
+        type: serverFile.type,
+      });
 
-      const relativeFilePath = `${currentFolder.path}/${serverFile.plainName}${extensionToAdd}`.replaceAll('//', '/');
+      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
 
       try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
@@ -69,12 +74,13 @@ export class Traverser {
         return;
       }
 
-      const plainName =
-        serverFolder.plain_name ||
-        this.decrypt.decryptName(serverFolder.name, (serverFolder.parentId as number).toString(), '03-aes') ||
-        serverFolder.name;
+      const decryptedName = Folder.decryptName({
+        plainName: serverFolder.plain_name,
+        name: serverFolder.name,
+        parentId: serverFolder.parentId,
+      });
 
-      const name = `${currentFolder.path}/${plainName}`;
+      const name = `${currentFolder.path}/${decryptedName}`;
 
       try {
         const folder = createFolderFromServerFolder(serverFolder, name);

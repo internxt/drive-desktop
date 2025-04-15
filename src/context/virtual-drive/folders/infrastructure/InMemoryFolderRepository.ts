@@ -13,11 +13,15 @@ export class InMemoryFolderRepository {
     return Array.from(this.folders.values());
   }
 
+  get({ id }: { id: Folder['id'] }) {
+    return this.folders.get(id);
+  }
+
   searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined {
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
 
     const folder = this.values.find((attributes) => {
-      return keys.every((key: keyof FolderAttributes) => attributes[key] === partial[key]);
+      return keys.every((key) => attributes[key] === partial[key]);
     });
 
     if (folder) {

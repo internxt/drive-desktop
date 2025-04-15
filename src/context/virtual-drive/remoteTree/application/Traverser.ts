@@ -8,8 +8,7 @@ import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
 import { RemoteTree } from '../domain/RemoteTree';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
-import { CryptoJsNameDecrypt } from '../../items/infrastructure/CryptoJsNameDecrypt';
-
+import crypto from '../../../shared/infrastructure/crypt';
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
@@ -17,13 +16,12 @@ type Items = {
 @Service()
 export class Traverser {
   constructor(
-    private readonly decrypt: CryptoJsNameDecrypt,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>,
   ) {}
 
-  static existingItems(decrypt: CryptoJsNameDecrypt): Traverser {
-    return new Traverser(decrypt, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
+  static existingItems(): Traverser {
+    return new Traverser([ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
   }
 
   private createRootFolder({ id, uuid }: { id: number; uuid: string }): Folder {
@@ -50,8 +48,7 @@ export class Traverser {
         return;
       }
 
-      const decryptedName =
-        serverFile.plainName ?? this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
+      const decryptedName = serverFile.plainName ?? crypto.decryptName({ name: serverFile.name, parentId: serverFile.folderId });
       const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
 
       const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
@@ -66,10 +63,7 @@ export class Traverser {
     });
 
     foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
-      const plainName =
-        serverFolder.plain_name ||
-        this.decrypt.decryptName(serverFolder.name, (serverFolder.parentId as number).toString(), '03-aes') ||
-        serverFolder.name;
+      const plainName = serverFolder.plain_name || crypto.decryptName({ name: serverFolder.name, parentId: serverFolder.parentId });
 
       const name = `${currentFolder.path}/${plainName}`;
 

@@ -1,16 +1,17 @@
-import { mockDeep } from 'vitest-mock-extended';
 import { ServerFile } from '../../../../../src/context/shared/domain/ServerFile';
 import { ServerFolder } from '../../../../../src/context/shared/domain/ServerFolder';
 import { v4 } from 'uuid';
 import { ContentsIdMother } from 'tests/context/virtual-drive/contents/domain/ContentsIdMother';
-import { CryptoJsNameDecrypt } from '../infrastructure/CryptoJsNameDecrypt';
 import { Traverser } from './Traverser';
+import crypt from '@/context/shared/infrastructure/crypt';
+
+vi.mock(import('@/context/shared/infrastructure/crypt'));
 
 describe('Traverser', () => {
-  const nameDecrypt = mockDeep<CryptoJsNameDecrypt>();
+  const cryptMock = vi.mocked(crypt);
 
   beforeAll(() => {
-    nameDecrypt.decryptName.mockImplementation((name) => name);
+    cryptMock.decryptName.mockImplementation((name) => name);
   });
 
   it('first level files starts with /', () => {
@@ -30,7 +31,7 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 
@@ -64,7 +65,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 
@@ -88,7 +89,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 
@@ -119,7 +120,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 
@@ -150,7 +151,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 
@@ -193,7 +194,7 @@ describe('Traverser', () => {
       ],
       folders: [],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 
@@ -218,7 +219,7 @@ describe('Traverser', () => {
         {} as ServerFolder,
       ],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 
@@ -253,7 +254,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 
@@ -298,7 +299,7 @@ describe('Traverser', () => {
         } as ServerFolder,
       ],
     };
-    const SUT = new Traverser(nameDecrypt, baseFolderId, baseFolderUuid);
+    const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
     const tree = SUT.run(rawTree);
 

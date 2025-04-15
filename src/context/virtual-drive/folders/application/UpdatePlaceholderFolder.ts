@@ -1,5 +1,5 @@
 import { promises as fs, constants as FsConstants } from 'fs';
-import { Folder } from '../domain/Folder';
+import { Folder, FolderAttributesWithoutPath } from '../domain/Folder';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import Logger from 'electron-log';
 import path from 'path';
@@ -70,6 +70,21 @@ export class FolderPlaceholderUpdater {
     const existsFolder = await this.folderExists(win32AbsolutePath);
 
     return remoteExists && !existsFolder;
+  }
+
+  async updateFromAttributes(folderAttributes: FolderAttributesWithoutPath): Promise<void> {
+    if (!folderAttributes.parentId) {
+      // TODO: check why this can be null
+      return;
+    }
+
+    const local = this.repository.get({ id: folderAttributes.parentId });
+
+    if (local) {
+      const path = `${local.path}/${folderAttributes.plainName}`;
+      const folder = Folder.from({ ...folderAttributes, path });
+      await this.update(folder);
+    }
   }
 
   async update(remote: Folder): Promise<void> {

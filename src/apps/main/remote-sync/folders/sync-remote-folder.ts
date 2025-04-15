@@ -1,4 +1,4 @@
-import { FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
+import { Folder, FolderAttributesWithoutPath } from '@/context/virtual-drive/folders/domain/Folder';
 import { User } from '../../types';
 import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
@@ -21,22 +21,25 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
   self.totalFoldersSynced++;
 
   try {
-    let path = await driveFoldersCollection.getRelativePath(driveFolder.parentUuid!);
-    path = path + '/' + driveFolder.plainName;
+    const plainName = Folder.decryptName({
+      plainName: driveFolder.plainName,
+      name: driveFolder.name,
+      parentId: driveFolder.parentId,
+    });
 
-    const fileAttributes: FolderAttributes = {
+    const folderAttributes: FolderAttributesWithoutPath = {
       createdAt: driveFolder.createdAt,
       uuid: driveFolder.uuid,
-      parentId: driveFolder.parentId!,
-      parentUuid: driveFolder.parentUuid!,
+      parentId: driveFolder.parentId ?? null,
+      parentUuid: driveFolder.parentUuid ?? null,
       id: driveFolder.id,
       status: driveFolder.status,
       updatedAt: driveFolder.updatedAt,
-      path,
+      plainName,
     };
 
     if (remoteFolder.status === 'EXISTS') {
-      self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', fileAttributes);
+      // self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
     }
   } catch (exc) {
     logger.error({

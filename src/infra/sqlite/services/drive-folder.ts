@@ -29,26 +29,6 @@ export class DriveFolderCollection {
     return result;
   }
 
-  async getRelativePath(folderUuid: string): Promise<string> {
-    const query = `
-      WITH RECURSIVE folder_hierarchy AS (
-        SELECT plainName, parentUuid
-        FROM drive_folder
-        WHERE uuid = ?
-        UNION ALL
-        SELECT f.plainName, f.parentUuid
-        FROM drive_folder f
-        INNER JOIN folder_hierarchy fh ON f.uuid = fh.parentUuid
-      )
-      SELECT GROUP_CONCAT(plainName, '/') AS path
-      FROM folder_hierarchy;
-    `;
-
-    const result = await this.repository.query(query, [folderUuid]);
-    const path: string = result[0]?.path || '';
-    return path.split('/').reverse().join('/');
-  }
-
   async createOrUpdate(payload: DriveFolder) {
     const result = await this.repository.save(payload);
     return result;
