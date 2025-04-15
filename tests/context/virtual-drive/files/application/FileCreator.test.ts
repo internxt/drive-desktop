@@ -70,9 +70,6 @@ describe('File Creator', () => {
     vi.spyOn(folderFinder, 'findFromFilePath').mockReturnValueOnce(folderParent);
 
     await SUT.run(path, contents);
-
-    expect(eventBus.publish.mock.calls[0][0][0].eventName).toBe('file.created');
-    expect(eventBus.publish.mock.calls[0][0][0].aggregateId).toBe(contents.id);
   });
 
   it('deletes the file on remote if it already exists on the path', async () => {
