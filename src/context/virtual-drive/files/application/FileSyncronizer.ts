@@ -86,7 +86,7 @@ export class FileSyncronizer {
     }
   };
 
-  private async runFolderCreator(posixRelativePath: string): Promise<Folder> {
+  private runFolderCreator(posixRelativePath: string): Promise<Folder> {
     const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
     return this.folderCreator.run(offlineFolder);
   }

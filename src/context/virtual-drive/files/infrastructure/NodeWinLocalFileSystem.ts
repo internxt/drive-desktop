@@ -4,7 +4,6 @@ import { File } from '../domain/File';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import fs from 'fs/promises';
 import Logger from 'electron-log';
-import { logger } from '@/apps/shared/logger/logger';
 
 export class NodeWinLocalFileSystem {
   constructor(
@@ -39,7 +38,10 @@ export class NodeWinLocalFileSystem {
 
   updateSyncStatus(file: File, status = true) {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.path);
-    return this.virtualDrive.updateSyncStatus(win32AbsolutePath, false, status);
+    const result = this.virtualDrive.updateSyncStatus(win32AbsolutePath, false, status);
+    const folderWin32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.dirname + '/');
+    this.virtualDrive.updateSyncStatus(folderWin32AbsolutePath, true, status);
+    return result;
   }
 
   convertToPlaceholder(file: File) {

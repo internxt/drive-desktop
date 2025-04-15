@@ -17,7 +17,7 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
     this.stopwatch = new Stopwatch();
   }
 
-  async upload(contents: Readable, size: number): Promise<ContentsId> {
+  upload(contents: Readable, size: number): Promise<ContentsId> {
     this.eventEmitter.emit('start');
     this.stopwatch.start();
 

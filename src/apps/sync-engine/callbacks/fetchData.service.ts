@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
 import * as fs from 'fs';
 import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { dirname } from 'path';
@@ -84,19 +83,7 @@ export class FetchDataService {
 
       fs.unlinkSync(path);
 
-      try {
-        await self.container.fileSyncStatusUpdater.run(file);
-
-        const folderPath = this.normalizePath(file.path);
-        const folderParentPath = new FilePath(folderPath);
-        const folderParent = self.container.folderFinder.findFromFilePath(folderParentPath);
-
-        Logger.debug('[Fetch Data Callback] Preparing finish', folderParent);
-
-        await self.container.folderSyncStatusUpdater.run(folderParent);
-      } catch (error) {
-        Logger.error('Error updating sync status', error);
-      }
+      await self.container.fileSyncStatusUpdater.run(file);
 
       Logger.debug('[Fetch Data Callback] Finish', path);
     } catch (error) {
