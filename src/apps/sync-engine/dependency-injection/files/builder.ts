@@ -1,4 +1,3 @@
-import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
@@ -32,19 +31,19 @@ import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { ContentsContainer } from '../contents/ContentsContainer';
 
-export async function buildFilesContainer(
+export function buildFilesContainer(
   folderContainer: FoldersContainer,
   sharedContainer: SharedContainer,
   contentsContainer: ContentsContainer,
-): Promise<{
+): {
   container: FilesContainer;
   subscribers: unknown;
-}> {
+} {
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
   const { virtualDrive } = DependencyInjectionVirtualDrive;
 
-  const remoteFileSystem = new HttpRemoteFileSystem(crypt, getConfig().bucket, getConfig().workspaceId);
+  const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
   const repository = new InMemoryFileRepository();

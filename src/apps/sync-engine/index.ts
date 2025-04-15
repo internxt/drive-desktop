@@ -57,12 +57,11 @@ async function setUp() {
     await bindings.updateAndCheckPlaceholders();
   });
 
-  ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
+  ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
     Logger.info('[SYNC ENGINE] Stopping and clearing sync engine');
 
     try {
-      await bindings.stop();
-      await bindings.cleanUp();
+      bindings.stop();
 
       Logger.info('[SYNC ENGINE] sync engine stopped and cleared successfully');
 

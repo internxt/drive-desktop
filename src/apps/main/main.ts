@@ -59,6 +59,7 @@ import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 import { clearConfig, setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
+import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -180,6 +181,7 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   }
 
   clearAntivirus();
+  unregisterVirtualDrives({});
 
   await createAuthWindow();
 });
