@@ -37,7 +37,7 @@ export class DependencyContainerFactory {
       virtualDrive,
     };
 
-    bus.addSubscribers([container.synchronizeOfflineModificationsOnFolderCreated]);
+    bus.addSubscribers(container.synchronizeOfflineModificationsOnFolderCreated);
 
     DependencyContainerFactory._container = container;
 

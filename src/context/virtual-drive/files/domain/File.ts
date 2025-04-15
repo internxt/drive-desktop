@@ -3,15 +3,11 @@ import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';
 import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
-import { FileDeletedDomainEvent } from './events/FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
-import { FileOverriddenDomainEvent } from './events/FileOverriddenDomainEvent';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
-import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
@@ -128,46 +124,17 @@ export class File extends AggregateRoot {
       FileStatus.Exists,
     );
 
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: file.uuid.toString(),
-        size: file.size,
-        type: file.type,
-        path: file.path,
-      }),
-    );
-
     return file;
   }
 
   changeContents(contentsId: FileContentsId, contentsSize: FileSize) {
-    const previousContentsId = this.contentsId;
-    const previousSize = this.size;
-
     this._contentsId = contentsId;
     this._size = contentsSize;
-
-    this.record(
-      new FileOverriddenDomainEvent({
-        aggregateId: this.uuid.toString(),
-        previousContentsId,
-        previousSize,
-        currentContentsId: contentsId.value,
-        currentSize: contentsSize.value,
-      }),
-    );
   }
 
   trash() {
     this._status = this._status.changeTo(FileStatuses.TRASHED);
     this.updatedAt = new Date();
-
-    this.record(
-      new FileDeletedDomainEvent({
-        aggregateId: this.contentsId,
-        size: this._size.value,
-      }),
-    );
   }
 
   moveTo(folder: Folder, trackerId: string): void {
@@ -197,12 +164,6 @@ export class File extends AggregateRoot {
     }
 
     this._path = this._path.updateName(newPath.nameWithExtension());
-
-    this.record(
-      new FileRenamedDomainEvent({
-        aggregateId: this.contentsId,
-      }),
-    );
   }
 
   hasParent(id: number): boolean {

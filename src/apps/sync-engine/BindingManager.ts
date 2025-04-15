@@ -214,10 +214,6 @@ export class BindingsManager {
     this.container.virtualDrive.disconnectSyncRoot();
   }
 
-  cleanUp() {
-    this.container.virtualDrive.unregisterSyncRoot();
-  }
-
   async load(tree: Tree): Promise<void> {
     await Promise.all([this.container.folderRepositoryInitiator.run(tree.folders), this.container.repositoryPopulator.run(tree.files)]);
   }

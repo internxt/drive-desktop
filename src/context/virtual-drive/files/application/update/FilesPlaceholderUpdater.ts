@@ -4,7 +4,6 @@ import { RelativePathToAbsoluteConverter } from '../../../shared/application/Rel
 import { File } from '../../domain/File';
 import { FileStatuses } from '../../domain/FileStatus';
 import { FileMovedDomainEvent } from '../../domain/events/FileMovedDomainEvent';
-import { FileRenamedDomainEvent } from '../../domain/events/FileRenamedDomainEvent';
 import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
@@ -82,12 +81,6 @@ export class FilesPlaceholderUpdater {
 
     if (local.path !== remote.path) {
       const trackerId = await this.localFileIdProvider.run(local.path);
-      if (remote.name !== local.name) {
-        const event = new FileRenamedDomainEvent({
-          aggregateId: remote.contentsId,
-        });
-        this.eventHistory.store(event);
-      }
       if (remote.folderId !== local.folderId) {
         const event = new FileMovedDomainEvent({
           aggregateId: remote.contentsId,

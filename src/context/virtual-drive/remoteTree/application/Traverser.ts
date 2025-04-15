@@ -6,7 +6,6 @@ import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerF
 import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
-import { EitherTransformer } from '../../shared/application/EitherTransformer';
 import { RemoteTree } from '../domain/RemoteTree';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 import { CryptoJsNameDecrypt } from '../../items/infrastructure/CryptoJsNameDecrypt';
@@ -57,18 +56,13 @@ export class Traverser {
 
       const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
 
-      EitherTransformer.handleWithEither(() => {
+      try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
         tree.addFile(currentFolder, file);
-      }).fold(
-        (error): void => {
-          Logger.warn('[Traverser] Error adding file:', error);
-          Sentry.captureException(error);
-        },
-        () => {
-          //  no-op
-        },
-      );
+      } catch (error) {
+        Logger.warn('[Traverser] Error adding file:', error);
+        Sentry.captureException(error);
+      }
     });
 
     foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
@@ -83,27 +77,22 @@ export class Traverser {
         return;
       }
 
-      EitherTransformer.handleWithEither(() => {
+      try {
         const folder = createFolderFromServerFolder(serverFolder, name);
 
         tree.addFolder(currentFolder, folder);
 
-        return folder;
-      }).fold(
-        (error) => {
-          Logger.warn(`[Traverser] Error adding folder:  ${error} `);
-          Sentry.captureException(error);
-        },
-        (folder) => {
-          if (folder.hasStatus(FolderStatuses.EXISTS)) {
-            // The folders and the files inside trashed or deleted folders
-            // will have the status "EXISTS", to avoid filtering witch folders and files
-            // are in a deleted or trashed folder they not included on the collection.
-            // We cannot perform any action on them either way
-            this.traverse(tree, items, folder);
-          }
-        },
-      );
+        if (folder.hasStatus(FolderStatuses.EXISTS)) {
+          // The folders and the files inside trashed or deleted folders
+          // will have the status "EXISTS", to avoid filtering witch folders and files
+          // are in a deleted or trashed folder they not included on the collection.
+          // We cannot perform any action on them either way
+          this.traverse(tree, items, folder);
+        }
+      } catch (error) {
+        Logger.warn('[Traverser] Error adding folder:', error);
+        Sentry.captureException(error);
+      }
     });
   }
 

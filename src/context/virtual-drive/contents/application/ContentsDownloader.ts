@@ -71,7 +71,7 @@ export class ContentsDownloader {
 
     const readable = await downloader.download(file);
 
-    const localContents = LocalFileContents.downloadedFrom(file, readable, downloader.elapsedTime());
+    const localContents = LocalFileContents.downloadedFrom(file, readable);
 
     const write = await this.localWriter.write(localContents);
 
@@ -81,7 +81,7 @@ export class ContentsDownloader {
     return write;
   }
 
-  async stop() {
+  stop() {
     Logger.info('[Server] Stopping download 1');
     if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 
