@@ -33,8 +33,6 @@ export class FilesPlaceholderUpdater {
 
     const isDifferentIdentity = systemFileidentity !== remoteIdentity;
 
-    return true;
-
     return localExists && remoteExists && isDifferentIdentity && systemFileidentity !== '';
   }
   private async hasToBeCreated(remote: File): Promise<boolean> {
