@@ -3,16 +3,11 @@ import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';
-import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
 import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
-import { FileDeletedDomainEvent } from './events/FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
-import { FileOverriddenDomainEvent } from './events/FileOverriddenDomainEvent';
 import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
-import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
@@ -23,7 +18,7 @@ export type FileAttributes = {
   uuid?: string;
   contentsId: string;
   folderId: number;
-  folderUuid: string;
+  folderUuid?: string;
   createdAt: string;
   modificationTime: string;
   path: string;
@@ -38,8 +33,7 @@ export class File extends AggregateRoot {
     private _uuid: FileUuid,
     private _contentsId: FileContentsId,
     private _folderId: FileFolderId,
-
-    private _folderUuid: FolderUuid,
+    private _folderUuid: FolderUuid | undefined,
     private _path: FilePath,
     private _size: FileSize,
     public createdAt: Date,
@@ -107,7 +101,7 @@ export class File extends AggregateRoot {
       new FileUuid(attributes.uuid ?? ''),
       new FileContentsId(attributes.contentsId),
       new FileFolderId(attributes.folderId),
-      new FolderUuid(attributes.folderUuid),
+      attributes.folderUuid ? new FolderUuid(attributes.folderUuid) : undefined,
       new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
@@ -122,7 +116,7 @@ export class File extends AggregateRoot {
       new FileUuid(attributes.uuid || ''),
       new FileContentsId(attributes.contentsId),
       new FileFolderId(attributes.folderId),
-      new FolderUuid(attributes.folderUuid),
+      attributes.folderUuid ? new FolderUuid(attributes.folderUuid) : undefined,
       new FilePath(attributes.path),
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
@@ -130,46 +124,17 @@ export class File extends AggregateRoot {
       FileStatus.Exists,
     );
 
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: file.uuid.toString(),
-        size: file.size,
-        type: file.type,
-        path: file.path,
-      }),
-    );
-
     return file;
   }
 
   changeContents(contentsId: FileContentsId, contentsSize: FileSize) {
-    const previousContentsId = this.contentsId;
-    const previousSize = this.size;
-
     this._contentsId = contentsId;
     this._size = contentsSize;
-
-    this.record(
-      new FileOverriddenDomainEvent({
-        aggregateId: this.uuid.toString(),
-        previousContentsId,
-        previousSize,
-        currentContentsId: contentsId.value,
-        currentSize: contentsSize.value,
-      }),
-    );
   }
 
   trash() {
     this._status = this._status.changeTo(FileStatuses.TRASHED);
     this.updatedAt = new Date();
-
-    this.record(
-      new FileDeletedDomainEvent({
-        aggregateId: this.contentsId,
-        size: this._size.value,
-      }),
-    );
   }
 
   moveTo(folder: Folder, trackerId: string): void {
@@ -199,12 +164,6 @@ export class File extends AggregateRoot {
     }
 
     this._path = this._path.updateName(newPath.nameWithExtension());
-
-    this.record(
-      new FileRenamedDomainEvent({
-        aggregateId: this.contentsId,
-      }),
-    );
   }
 
   hasParent(id: number): boolean {
@@ -237,7 +196,7 @@ export class File extends AggregateRoot {
       uuid: this._uuid.value,
       contentsId: this.contentsId,
       folderId: Number(this.folderId),
-      folderUuid: this.folderUuid.value,
+      folderUuid: this.folderUuid?.value,
       createdAt: this.createdAt.toISOString(),
       path: this.path,
       size: this.size,

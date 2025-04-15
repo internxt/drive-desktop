@@ -1,15 +1,15 @@
 import Logger from 'electron-log';
 import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
-import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { FolderFinder } from '../FolderFinder';
 import { FolderStatuses } from '../../domain/FolderStatus';
 import { InMemoryFolderRepository } from '../../infrastructure/InMemoryFolderRepository';
+import { InMemoryOfflineFolderRepository } from '../../infrastructure/InMemoryOfflineFolderRepository';
 
 export class OfflineFolderCreator {
   constructor(
     private readonly folderFinder: FolderFinder,
-    private readonly offlineRepository: OfflineFolderRepository,
+    private readonly offlineRepository: InMemoryOfflineFolderRepository,
     private readonly repository: InMemoryFolderRepository,
   ) {}
 

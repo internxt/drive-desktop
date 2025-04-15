@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { broadcastToWindows } from './windows';
 import { ipcMainDrive } from './ipcs/mainDrive';
 import { ipcMainSyncEngine } from './ipcs/ipcMainSyncEngine';
@@ -116,18 +115,14 @@ ipcMainDrive.on('FILE_UPLOADED', async (_, payload) => {
 });
 
 ipcMainDrive.on('FILE_CREATED', async (_, payload) => {
-  Logger.info('FILE_CREATED');
   const { nameWithExtension, fileId } = payload;
 
   let fullPath = payload.path;
 
   if (!isAbsolutePath(fullPath)) {
     const root = configStore.get('syncRoot');
-    Logger.info('FILE_CREATED', root);
     fullPath = path.join(root, fullPath);
   }
-
-  Logger.info('FILE_CREATED', fullPath);
 
   await createAndUploadThumbnail(fileId, nameWithExtension, fullPath);
 

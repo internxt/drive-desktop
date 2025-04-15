@@ -1,9 +1,9 @@
 import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
-import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
+import { InMemoryOfflineFolderRepository } from '../../infrastructure/InMemoryOfflineFolderRepository';
 
 export class OfflineFolderRenamer {
-  constructor(private readonly offlineFiles: OfflineFolderRepository) {}
+  constructor(private readonly offlineFiles: InMemoryOfflineFolderRepository) {}
 
   run(folder: OfflineFolder, destination: FolderPath) {
     folder.rename(destination);

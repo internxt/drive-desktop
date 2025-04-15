@@ -30,8 +30,8 @@ export class DriveFile {
   @Column({ nullable: false, type: 'int' })
   folderId!: number;
 
-  @Column({ nullable: false, type: 'varchar' })
-  folderUuid!: string;
+  @Column({ nullable: true, type: 'varchar' })
+  folderUuid?: string;
 
   @Column({ nullable: false, type: 'int' })
   userId!: number;

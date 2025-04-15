@@ -13,7 +13,7 @@ export class InMemoryFileRepository {
     this.files = new Map();
   }
 
-  async searchByContentsIds(contentsIds: File['contentsId'][]): Promise<Array<File>> {
+  searchByContentsIds(contentsIds: File['contentsId'][]): Array<File> {
     const files = contentsIds
       .map((contentsId) => {
         const file = this.files.get(contentsId);
@@ -45,7 +45,7 @@ export class InMemoryFileRepository {
 
     return undefined;
   }
-  async delete(id: File['contentsId']): Promise<void> {
+  delete(id: File['contentsId']): void {
     const deleted = this.files.delete(id);
 
     if (!deleted) {
@@ -53,13 +53,13 @@ export class InMemoryFileRepository {
     }
   }
 
-  async add(file: File): Promise<void> {
+  add(file: File): void {
     this.files.set(file.contentsId, {
       id: file.id,
       uuid: file.uuid,
       contentsId: file.contentsId,
       folderId: file.folderId.value,
-      folderUuid: file.folderUuid.value,
+      folderUuid: file.folderUuid?.value,
       path: file.path,
       createdAt: file.createdAt.toISOString(),
       updatedAt: file.updatedAt.toDateString(),
@@ -69,7 +69,7 @@ export class InMemoryFileRepository {
     });
   }
 
-  async update(file: File): Promise<void> {
+  update(file: File): void {
     if (!this.files.has(file.contentsId)) {
       throw new Error('File not found');
     }
@@ -77,7 +77,7 @@ export class InMemoryFileRepository {
     return this.add(file);
   }
 
-  async updateContentsAndSize(file: File, newContentsId: File['contentsId'], newSize: File['size']): Promise<File> {
+  updateContentsAndSize(file: File, newContentsId: File['contentsId'], newSize: File['size']): File {
     if (!this.files.has(file.contentsId)) {
       throw new Error('File not found');
     }

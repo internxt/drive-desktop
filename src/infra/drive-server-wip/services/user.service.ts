@@ -4,7 +4,7 @@ import { ClientWrapperService } from '../in/client-wrapper.service';
 export class UserService {
   constructor(private readonly clientWrapper = new ClientWrapperService()) {}
 
-  async getUsage() {
+  getUsage() {
     const promise = client.GET('/users/usage');
 
     return this.clientWrapper.run({
@@ -19,7 +19,7 @@ export class UserService {
     });
   }
 
-  async getLimit() {
+  getLimit() {
     const promise = client.GET('/users/limit');
 
     return this.clientWrapper.run({

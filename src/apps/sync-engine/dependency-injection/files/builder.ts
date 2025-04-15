@@ -1,4 +1,3 @@
-import crypt from '../../../../context/shared/infrastructure/crypt';
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
@@ -6,7 +5,6 @@ import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
-import { CreateFilePlaceholderOnDeletionFailed } from '../../../../context/virtual-drive/files/application/CreateFilePlaceholderOnDeletionFailed';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
 import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
@@ -32,19 +30,19 @@ import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { ContentsContainer } from '../contents/ContentsContainer';
 
-export async function buildFilesContainer(
+export function buildFilesContainer(
   folderContainer: FoldersContainer,
   sharedContainer: SharedContainer,
   contentsContainer: ContentsContainer,
-): Promise<{
+): {
   container: FilesContainer;
   subscribers: unknown;
-}> {
+} {
   const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
   const { virtualDrive } = DependencyInjectionVirtualDrive;
 
-  const remoteFileSystem = new HttpRemoteFileSystem(crypt, getConfig().bucket, getConfig().workspaceId);
+  const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
   const localFileSystem = new NodeWinLocalFileSystem(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
   const repository = new InMemoryFileRepository();
@@ -83,8 +81,6 @@ export async function buildFilesContainer(
   );
 
   const filePlaceholderCreatorFromContentsId = new FilePlaceholderCreatorFromContentsId(fileFinderByContentsId, localFileSystem);
-
-  const createFilePlaceholderOnDeletionFailed = new CreateFilePlaceholderOnDeletionFailed(filePlaceholderCreatorFromContentsId);
 
   const repositoryPopulator = new RepositoryPopulator(repository);
 
@@ -135,7 +131,6 @@ export async function buildFilesContainer(
     fileFolderContainerDetector,
     fileSyncronizer,
     filePlaceholderCreatorFromContentsId: filePlaceholderCreatorFromContentsId,
-    createFilePlaceholderOnDeletionFailed: createFilePlaceholderOnDeletionFailed,
     sameFileWasMoved,
     repositoryPopulator: repositoryPopulator,
     filesPlaceholderUpdater,

@@ -3,13 +3,13 @@ import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
-import { EventBus } from '../../shared/domain/EventBus';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class ContentsDownloader {
   constructor(
@@ -17,7 +17,7 @@ export class ContentsDownloader {
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
-    private readonly eventBus: EventBus,
+    private readonly eventBus: EventRecorder,
   ) {}
 
   private downloaderIntance: ContentFileDownloader | null = null;
@@ -71,7 +71,7 @@ export class ContentsDownloader {
 
     const readable = await downloader.download(file);
 
-    const localContents = LocalFileContents.downloadedFrom(file, readable, downloader.elapsedTime());
+    const localContents = LocalFileContents.downloadedFrom(file, readable);
 
     const write = await this.localWriter.write(localContents);
 
@@ -81,7 +81,7 @@ export class ContentsDownloader {
     return write;
   }
 
-  async stop() {
+  stop() {
     Logger.info('[Server] Stopping download 1');
     if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 

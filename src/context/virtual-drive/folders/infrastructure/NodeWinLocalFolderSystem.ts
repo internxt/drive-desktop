@@ -9,7 +9,7 @@ export class NodeWinLocalFolderSystem {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  async createPlaceHolder(folder: Folder): Promise<void> {
+  createPlaceHolder(folder: Folder) {
     if (!folder.hasStatus(FolderStatuses.EXISTS)) {
       return;
     }
@@ -19,21 +19,21 @@ export class NodeWinLocalFolderSystem {
     this.virtualDrive.createFolderByPath(folderPath, folder.placeholderId, 0, folder.createdAt.getTime(), folder.updatedAt.getTime());
   }
 
-  async updateSyncStatus(folder: Folder, status = true) {
+  updateSyncStatus(folder: Folder, status = true) {
     const folderPath = `${folder.path}/`;
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
 
     return this.virtualDrive.updateSyncStatus(win32AbsolutePath, true, status);
   }
 
-  async getFileIdentity(path: Folder['path']) {
+  getFileIdentity(path: Folder['path']) {
     return this.virtualDrive.getFileIdentity(path);
   }
   async deleteFileSyncRoot(path: Folder['path']) {
     await this.virtualDrive.deleteFileSyncRoot(path);
   }
 
-  async convertToPlaceholder(folder: Folder) {
+  convertToPlaceholder(folder: Folder) {
     const folderPath = `${folder.path}/`;
 
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);

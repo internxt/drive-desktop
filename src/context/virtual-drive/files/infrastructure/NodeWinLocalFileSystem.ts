@@ -21,7 +21,7 @@ export class NodeWinLocalFileSystem {
     return `${dev}-${ino}`;
   }
 
-  async createPlaceHolder(file: File): Promise<void> {
+  createPlaceHolder(file: File): void {
     if (!file.hasStatus(FileStatuses.EXISTS)) {
       return;
     }
@@ -29,19 +29,19 @@ export class NodeWinLocalFileSystem {
     this.virtualDrive.createFileByPath(file.path, file.placeholderId, file.size, file.createdAt.getTime(), file.updatedAt.getTime());
   }
 
-  async getFileIdentity(path: File['path']): Promise<string> {
+  getFileIdentity(path: File['path']): string {
     return this.virtualDrive.getFileIdentity(path);
   }
   async deleteFileSyncRoot(path: File['path']): Promise<void> {
     await this.virtualDrive.deleteFileSyncRoot(path);
   }
 
-  async updateSyncStatus(file: File, status = true) {
+  updateSyncStatus(file: File, status = true) {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.path);
     return this.virtualDrive.updateSyncStatus(win32AbsolutePath, false, status);
   }
 
-  async convertToPlaceholder(file: File) {
+  convertToPlaceholder(file: File) {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.path);
 
     return this.virtualDrive.convertToPlaceholder(win32AbsolutePath, file.placeholderId);
@@ -51,7 +51,7 @@ export class NodeWinLocalFileSystem {
     return this.virtualDrive.getPlaceholderState(relativePath);
   }
 
-  async updateFileIdentity(path: string, newIdentity: `FILE:${string}`): Promise<void> {
+  updateFileIdentity(path: string, newIdentity: `FILE:${string}`): void {
     const isNotDirectory = true;
     return this.virtualDrive.updateFileIdentity(path, newIdentity, isNotDirectory);
   }

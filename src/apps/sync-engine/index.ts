@@ -5,14 +5,14 @@ import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
-import { setConfig, Config, getConfig } from './config';
+import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File';
 import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
 
-Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
+logger.debug({ msg: 'Running sync engine' });
 
 function initSentry() {
   Sentry.init({
@@ -59,12 +59,11 @@ async function setUp() {
     await bindings.updateAndCheckPlaceholders();
   });
 
-  ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
+  ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
     Logger.info('[SYNC ENGINE] Stopping and clearing sync engine');
 
     try {
-      await bindings.stop();
-      await bindings.cleanUp();
+      bindings.stop();
 
       Logger.info('[SYNC ENGINE] sync engine stopped and cleared successfully');
 
@@ -98,7 +97,7 @@ async function refreshToken() {
 
   if (credentials) {
     const newToken = credentials.tokenHeader;
-    setConfig({ ...getConfig(), workspaceToken: newToken });
+    setDefaultConfig({ workspaceToken: newToken });
   }
 }
 

@@ -9,7 +9,7 @@ type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['con
 export class FilesService {
   constructor(private readonly clientWrapper = new ClientWrapperService()) {}
 
-  async getFiles(context: { query: TGetFilesQuery }) {
+  getFiles(context: { query: TGetFilesQuery }) {
     const promise = client.GET('/files', {
       params: { query: context.query },
     });
@@ -27,7 +27,7 @@ export class FilesService {
     });
   }
 
-  async moveFile(context: { uuid: string; parentUuid: string }) {
+  moveFile(context: { uuid: string; parentUuid: string }) {
     const promise = client.PATCH('/files/{uuid}', {
       body: { destinationFolder: context.parentUuid },
       params: { path: { uuid: context.uuid } },
@@ -46,7 +46,7 @@ export class FilesService {
     });
   }
 
-  async renameFile(context: { uuid: string; name: string; type: string }) {
+  renameFile(context: { uuid: string; name: string; type: string }) {
     const promise = client.PUT('/files/{uuid}/meta', {
       body: { plainName: context.name, type: context.type },
       params: { path: { uuid: context.uuid } },
@@ -65,7 +65,7 @@ export class FilesService {
     });
   }
 
-  async replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
+  replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
     const promise = client.PUT('/files/{uuid}', {
       body: { fileId: context.newContentId, size: context.newSize },
       params: { path: { uuid: context.uuid } },
@@ -84,7 +84,7 @@ export class FilesService {
     });
   }
 
-  async createThumbnail(context: { body: TCreateThumnailBody }) {
+  createThumbnail(context: { body: TCreateThumnailBody }) {
     const promise = client.POST('/files/thumbnail', {
       body: context.body,
     });
@@ -102,7 +102,7 @@ export class FilesService {
     });
   }
 
-  async deleteContentFromBucket(context: { bucketId: string; contentId: string }) {
+  deleteContentFromBucket(context: { bucketId: string; contentId: string }) {
     const promise = noContentWrapper({
       request: client.DELETE('/files/{bucketId}/{fileId}', {
         params: { path: { bucketId: context.bucketId, fileId: context.contentId } },

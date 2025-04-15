@@ -7,21 +7,19 @@ import {
 import { FileMother } from '../../files/domain/FileMother';
 import { LocalFileWriter } from '@/context/virtual-drive/contents/domain/LocalFileWriter';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { EventBus } from '@/context/virtual-drive/shared/domain/EventBus';
 import { EventEmitter, Readable } from 'stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-
-// Creamos un EventEmitter real
+import { EventRecorder } from '@/context/virtual-drive/shared/infrastructure/EventRecorder';
 
 describe('Contents Downloader', () => {
   const temporalFolderProvider = async (): Promise<string> => {
-    return 'C:/temp';
+    return await 'C:/temp';
   };
 
   const localWriter = mockDeep<LocalFileWriter>();
   const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
   const ipc = mockDeep<SyncEngineIpc>();
-  const eventBus = mockDeep<EventBus>();
+  const eventBus = mockDeep<EventRecorder>();
 
   const environmentContentFileDownloader = mockDeep<ContentFileDownloader>();
   const eventEmitter = new EventEmitter();
@@ -35,7 +33,7 @@ describe('Contents Downloader', () => {
     eventEmitter.emit('error', new Error('Download stopped'));
   });
   const callbackFunction = async (data: boolean, path: string) => {
-    return {
+    return await {
       finished: data,
       progress: path.length,
     };

@@ -72,7 +72,9 @@ export const spawnAllSyncEngineWorker = async () => {
   const workspaces = await getWorkspaces({});
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
-  unregisterVirtualDrives({ providerId, workspaceProviderIds });
+  const currentProviderIds = workspaceProviderIds.concat([providerId]);
+
+  unregisterVirtualDrives({ currentProviderIds });
 
   const spawnWorkspaces = workspaces.forEach(async (workspace) => {
     await spawnWorkspace({ workspace });

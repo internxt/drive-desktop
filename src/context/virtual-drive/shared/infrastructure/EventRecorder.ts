@@ -1,22 +1,22 @@
-import { DomainEvent } from '../../../shared/domain/DomainEvent';
-import { EventBus } from '../domain/EventBus';
-import { EventRepository } from '../domain/EventRepository';
-import { DomainEventSubscribers } from './DomainEventSubscribers';
+import { SynchronizeOfflineModificationsOnFolderCreated } from '../../folders/application/SynchronizeOfflineModificationsOnFolderCreated';
+import { AllowedEvents } from './AllowedEvents';
+import { InMemoryEventRepository } from './InMemoryEventHistory';
+import { NodeJsEventBus } from './NodeJsEventBus';
 
-export class EventRecorder implements EventBus {
+export class EventRecorder {
   constructor(
-    private readonly history: EventRepository,
-    private readonly bus: EventBus,
+    private readonly history: InMemoryEventRepository,
+    private readonly bus: NodeJsEventBus,
   ) {}
 
-  async publish(events: Array<DomainEvent>): Promise<void> {
+  async publish(events: Array<AllowedEvents>): Promise<void> {
     const stored = events.map((event) => this.history.store(event));
     await Promise.all(stored);
 
     await this.bus.publish(events);
   }
 
-  addSubscribers(subscribers: DomainEventSubscribers): void {
-    this.bus.addSubscribers(subscribers);
+  addSubscribers(subscriber: SynchronizeOfflineModificationsOnFolderCreated): void {
+    this.bus.addSubscribers(subscriber);
   }
 }

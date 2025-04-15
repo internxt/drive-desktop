@@ -2,7 +2,6 @@ import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FileSize } from '../domain/FileSize';
-import { EventBus } from '../../shared/domain/EventBus';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
@@ -12,6 +11,7 @@ import { FileStatuses } from '../domain/FileStatus';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class FileCreator {
   constructor(
@@ -19,7 +19,7 @@ export class FileCreator {
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
-    private readonly eventBus: EventBus,
+    private readonly eventBus: EventRecorder,
     private readonly ipc: SyncEngineIpc,
   ) {}
 

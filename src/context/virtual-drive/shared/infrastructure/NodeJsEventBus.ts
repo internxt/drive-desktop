@@ -1,20 +1,17 @@
 import EventEmitter from 'events';
-import { DomainEvent } from '../../../shared/domain/DomainEvent';
-import { EventBus } from '../domain/EventBus';
-import { DomainEventSubscribers } from './DomainEventSubscribers';
+import { SynchronizeOfflineModificationsOnFolderCreated } from '../../folders/application/SynchronizeOfflineModificationsOnFolderCreated';
+import { AllowedEvents } from './AllowedEvents';
 
-export class NodeJsEventBus extends EventEmitter implements EventBus {
-  async publish(events: Array<DomainEvent>): Promise<void> {
+export class NodeJsEventBus extends EventEmitter {
+  publish(events: Array<AllowedEvents>): void {
     events.forEach((event) => {
       this.emit(event.eventName, event);
     });
   }
 
-  addSubscribers(subscribers: DomainEventSubscribers): void {
-    subscribers.items.forEach((subscriber) => {
-      subscriber.subscribedTo().forEach((event) => {
-        this.on(`${event.EVENT_NAME}`, subscriber.on.bind(subscriber));
-      });
+  addSubscribers(subscriber: SynchronizeOfflineModificationsOnFolderCreated): void {
+    subscriber.subscribedTo().forEach((event) => {
+      this.on(event.EVENT_NAME, subscriber.on.bind(subscriber));
     });
   }
 }

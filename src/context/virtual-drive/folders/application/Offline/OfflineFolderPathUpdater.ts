@@ -1,14 +1,14 @@
 import { OfflineFolder } from '../../domain/OfflineFolder';
 import { ActionNotPermittedError } from '../../domain/errors/ActionNotPermittedError';
 import { OfflineFolderMover } from './OfflineFolderMover';
-import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { OfflineFolderRenamer } from './OfflineFolderRenamer';
 import { FolderPath } from '../../domain/FolderPath';
+import { InMemoryOfflineFolderRepository } from '../../infrastructure/InMemoryOfflineFolderRepository';
 
 // TODO: Can be unified with FolderPathUpdater
 export class OfflineFolderPathUpdater {
   constructor(
-    private readonly offlineFoldersRepository: OfflineFolderRepository,
+    private readonly offlineFoldersRepository: InMemoryOfflineFolderRepository,
     private readonly offlineFolderMover: OfflineFolderMover,
     private readonly offlineFolderRenamer: OfflineFolderRenamer,
   ) {}

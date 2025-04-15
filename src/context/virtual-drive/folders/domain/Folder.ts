@@ -9,7 +9,6 @@ import { FolderId } from './FolderId';
 import { FolderCreatedAt } from './FolderCreatedAt';
 import { FolderUpdatedAt } from './FolderUpdatedAt';
 import { FolderAlreadyTrashed } from './errors/FolderAlreadyTrashed';
-import { FolderMovedDomainEvent } from './events/FolderMovedDomainEvent';
 
 export type FolderAttributes = {
   id: number;
@@ -163,19 +162,9 @@ export class Folder extends AggregateRoot {
       throw new Error('Cannot move a folder to its current folder');
     }
 
-    const before = this.path;
-
     this._path = this._path.changeFolder(folder.path);
     this._parentId = new FolderId(folder.id);
     this._parentUuid = new FolderUuid(folder.uuid);
-
-    this.record(
-      new FolderMovedDomainEvent({
-        aggregateId: this.uuid,
-        from: before,
-        to: this.path,
-      }),
-    );
   }
 
   rename(newPath: FolderPath) {

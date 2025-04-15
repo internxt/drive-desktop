@@ -1,6 +1,4 @@
-/* eslint-disable no-await-in-loop */
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
-import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
@@ -9,18 +7,18 @@ import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import crypt from '@/context/shared/infrastructure/crypt';
 
 @Service()
 export class HttpRemoteFileSystem {
   constructor(
-    private readonly crypt: Crypt,
     private readonly bucket: string,
     private readonly workspaceId?: string | null,
   ) {}
 
   async persist(offline: OfflineFile): Promise<FileAttributes> {
     try {
-      const encryptedName = this.crypt.encryptName(offline.name, offline.folderId.toString());
+      const encryptedName = crypt.encryptName(offline.name, offline.folderId.toString());
 
       if (!encryptedName) {
         throw new Error('Failed to encrypt name');
@@ -118,10 +116,10 @@ export class HttpRemoteFileSystem {
       uuid: file.uuid,
     });
   }
-  async move(file: File): Promise<void> {
+  async move({ file, parentUuid }: { file: File; parentUuid: string }): Promise<void> {
     await driveServerWip.files.moveFile({
       uuid: file.uuid,
-      parentUuid: file.folderUuid.value,
+      parentUuid,
     });
   }
 

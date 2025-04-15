@@ -14,24 +14,29 @@ export type Config = {
   bridgePass: string;
 };
 
-let config: Config = {
-  providerId: '',
-  rootPath: '',
-  providerName: '',
-  loggerPath: '',
-  workspaceId: '',
-  rootUuid: '',
-  bucket: '',
-  mnemonic: '',
-  bridgePass: '',
-  bridgeUser: '',
-  workspaceToken: undefined,
+const emptyValues = (): Config => {
+  return {
+    providerId: '',
+    rootPath: '',
+    providerName: '',
+    loggerPath: '',
+    workspaceId: '',
+    rootUuid: '',
+    bucket: '',
+    mnemonic: '',
+    bridgePass: '',
+    bridgeUser: '',
+    workspaceToken: undefined,
+  };
 };
+
+let config: Config = emptyValues();
 
 const defaultValues = (): Config => {
   const user = getUser();
+
   if (!user) {
-    return config;
+    return emptyValues();
   }
 
   return {
@@ -50,7 +55,7 @@ const defaultValues = (): Config => {
 };
 
 export function setConfig(newConfig: Config) {
-  config = { ...defaultValues(), ...newConfig };
+  config = newConfig;
 }
 
 export function setDefaultConfig(newConfig: Partial<Config>) {
@@ -58,4 +63,8 @@ export function setDefaultConfig(newConfig: Partial<Config>) {
 }
 export function getConfig(): Config {
   return config;
+}
+
+export function clearConfig() {
+  config = emptyValues();
 }
