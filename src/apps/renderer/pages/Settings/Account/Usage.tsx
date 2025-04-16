@@ -15,7 +15,7 @@ export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInB
     } else {
       const amount = bytes.format(limitInBytes)?.match(/\d+/g)?.[0] ?? '';
       const unit = bytes.format(limitInBytes)?.match(/[a-zA-Z]+/g)?.[0] ?? '';
-      return { amount: amount, unit: unit };
+      return { amount, unit };
     }
   };
 

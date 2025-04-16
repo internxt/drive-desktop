@@ -12,6 +12,7 @@ import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
 import { FileUuid } from './FileUuid';
+import crypt from '@/context/shared/infrastructure/crypt';
 
 export type FileAttributes = {
   id: number;
@@ -26,6 +27,8 @@ export type FileAttributes = {
   updatedAt: string;
   status: string;
 };
+
+export type FileAttributesWithoutPath = Omit<FileAttributes, 'path'> & { plainName: string };
 
 export class File extends AggregateRoot {
   private constructor(
@@ -125,6 +128,22 @@ export class File extends AggregateRoot {
     );
 
     return file;
+  }
+
+  static decryptName({
+    plainName,
+    name,
+    parentId,
+    type,
+  }: {
+    plainName?: string | null;
+    name: string;
+    parentId: number | null;
+    type: string | null;
+  }) {
+    const decryptedName = plainName || crypt.decryptName({ name, parentId });
+    if (type) return `${decryptedName}.${type}`;
+    return decryptedName;
   }
 
   changeContents(contentsId: FileContentsId, contentsSize: FileSize) {

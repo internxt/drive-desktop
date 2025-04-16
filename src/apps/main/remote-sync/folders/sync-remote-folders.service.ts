@@ -60,7 +60,7 @@ export class SyncRemoteFoldersService {
           offset,
           updatedAtCheckpoint: from,
           status: from ? 'ALL' : 'EXISTS',
-          folderUuid: folderUuid,
+          folderUuid,
         };
 
         const { hasMore: newHasMore, result } = await this.fetchRemoteFolders.run(param);

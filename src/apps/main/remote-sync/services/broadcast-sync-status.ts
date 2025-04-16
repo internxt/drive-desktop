@@ -4,7 +4,7 @@ import { broadcastToWindows } from '../../windows';
 import { RemoteSyncStatus } from '../helpers';
 import { remoteSyncManagers } from '../store';
 
-export function broadcastSyncStatus() {
+export function getSyncStatus() {
   const allStatus = [...remoteSyncManagers].map(([, manager]) => manager.status);
   logger.debug({ msg: 'RemoteSyncManagers status', allStatus });
 
@@ -19,6 +19,12 @@ export function broadcastSyncStatus() {
   } else if (allStatus.every((status) => status === 'SYNCED')) {
     status = 'SYNCED';
   }
+
+  return status;
+}
+
+export function broadcastSyncStatus() {
+  const status = getSyncStatus();
 
   broadcastToWindows('remote-sync-status-change', status);
 
