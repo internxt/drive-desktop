@@ -41,7 +41,7 @@ export class FetchWorkspaceFoldersService implements FetchFoldersService {
   }
 
   private async getFoldersInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryFoldersInWorkspace }) {
-    const result = await client.GET('/workspaces/{workspaceId}/folders', { params: { path: { workspaceId: workspaceId }, query } });
+    const result = await client.GET('/workspaces/{workspaceId}/folders', { params: { path: { workspaceId }, query } });
     return { ...result, data: result.data };
   }
 
