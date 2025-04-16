@@ -169,7 +169,7 @@
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/inxt-js": "2.1.0",
     "@internxt/lib": "1.1.6",
-    "@internxt/node-win": "1.0.8",
+    "@internxt/node-win": "1.0.9",
     "@internxt/scan": "1.0.2",
     "@internxt/sdk": "1.9.12",
     "@phosphor-icons/react": "2.0.9",

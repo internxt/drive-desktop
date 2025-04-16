@@ -16,21 +16,31 @@ export class NodeWinLocalFolderSystem {
 
     const folderPath = `${folder.path}/`;
 
-    this.virtualDrive.createFolderByPath(folderPath, folder.placeholderId, 0, folder.createdAt.getTime(), folder.updatedAt.getTime());
+    this.virtualDrive.createFolderByPath({
+      relativePath: folderPath,
+      itemId: folder.placeholderId,
+      size: 0,
+      creationTime: folder.createdAt.getTime(),
+      lastWriteTime: folder.updatedAt.getTime(),
+    });
   }
 
   updateSyncStatus(folder: Folder, status = true) {
     const folderPath = `${folder.path}/`;
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
 
-    return this.virtualDrive.updateSyncStatus(win32AbsolutePath, true, status);
+    return this.virtualDrive.updateSyncStatus({
+      itemPath: win32AbsolutePath,
+      isDirectory: true,
+      sync: status,
+    });
   }
 
   getFileIdentity(path: Folder['path']) {
-    return this.virtualDrive.getFileIdentity(path);
+    return this.virtualDrive.getFileIdentity({ path });
   }
   async deleteFileSyncRoot(path: Folder['path']) {
-    await this.virtualDrive.deleteFileSyncRoot(path);
+    await this.virtualDrive.deleteFileSyncRoot({ path });
   }
 
   convertToPlaceholder(folder: Folder) {
@@ -38,6 +48,9 @@ export class NodeWinLocalFolderSystem {
 
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
 
-    return this.virtualDrive.convertToPlaceholder(win32AbsolutePath, folder.placeholderId);
+    return this.virtualDrive.convertToPlaceholder({
+      itemPath: win32AbsolutePath,
+      id: folder.placeholderId,
+    });
   }
 }

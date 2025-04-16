@@ -3,7 +3,7 @@ import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
-type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS';
+type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN';
 
 export type TLoggerBody = {
   process?: 'main' | 'renderer';

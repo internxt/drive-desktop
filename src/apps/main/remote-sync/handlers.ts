@@ -18,7 +18,7 @@ import { getSyncStatus } from './services/broadcast-sync-status';
 
 remoteSyncManagers.set('', new RemoteSyncManager());
 
-export async function initializeRemoteSyncManager({ workspaceId }: { workspaceId: string }) {
+export function initializeRemoteSyncManager({ workspaceId }: { workspaceId: string }) {
   remoteSyncManagers.set(workspaceId, new RemoteSyncManager(workspaceId));
 }
 
