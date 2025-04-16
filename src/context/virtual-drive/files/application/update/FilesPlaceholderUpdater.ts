@@ -24,11 +24,11 @@ export class FilesPlaceholderUpdater {
     return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
-  private async hasToBeUpdatedIdentity(local: File, remote: File): Promise<boolean> {
+  private hasToBeUpdatedIdentity(local: File, remote: File): boolean {
     const localExists = local.status.is(FileStatuses.EXISTS);
     const remoteExists = remote.status.is(FileStatuses.EXISTS);
 
-    const systemFileidentity = await this.localFileSystem.getFileIdentity(local.path);
+    const systemFileidentity = this.localFileSystem.getFileIdentity(local.path);
     const remoteIdentity = remote.placeholderId;
 
     const isDifferentIdentity = systemFileidentity !== remoteIdentity;
@@ -60,8 +60,8 @@ export class FilesPlaceholderUpdater {
 
     if (!local) {
       if (remote.status.is(FileStatuses.EXISTS)) {
-        await this.repository.add(remote);
-        await this.localFileSystem.createPlaceHolder(remote);
+        this.repository.add(remote);
+        this.localFileSystem.createPlaceHolder(remote);
       }
       return;
     }
@@ -69,7 +69,7 @@ export class FilesPlaceholderUpdater {
     // v2.5.2 Jonathan Daniel
     // Validate if the placeholder needs to be updated since we previously used the dynamic contentsId
     // and now we use the static uuid for file identification.
-    if (await this.hasToBeUpdatedIdentity(local, remote)) {
+    if (this.hasToBeUpdatedIdentity(local, remote)) {
       this.localFileSystem.updateFileIdentity(local.path, local.placeholderId);
       this.localFileSystem.updateSyncStatus(local);
     }
@@ -81,10 +81,10 @@ export class FilesPlaceholderUpdater {
           aggregateId: remote.contentsId,
           trackerId,
         });
-        this.eventHistory.store(event);
+        await this.eventHistory.store(event);
       }
 
-      await this.repository.update(remote);
+      this.repository.update(remote);
 
       try {
         await fs.stat(remote.path);
@@ -102,8 +102,8 @@ export class FilesPlaceholderUpdater {
     }
 
     if (await this.hasToBeCreated(remote)) {
-      await this.localFileSystem.createPlaceHolder(remote);
-      await this.repository.update(remote);
+      this.localFileSystem.createPlaceHolder(remote);
+      this.repository.update(remote);
     }
   }
 
