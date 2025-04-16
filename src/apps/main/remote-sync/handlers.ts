@@ -14,6 +14,7 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { getSyncStatus } from './services/broadcast-sync-status';
 
 remoteSyncManagers.set('', new RemoteSyncManager());
 
@@ -208,10 +209,8 @@ ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string, workspaceI
   await startRemoteSync({ folderUuid, workspaceId });
 });
 
-ipcMain.handle('get-remote-sync-status', (_, workspaceId = '') => {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  return manager.getSyncStatus();
+ipcMain.handle('get-remote-sync-status', () => {
+  return getSyncStatus();
 });
 
 ipcMain.handle('SYNC_MANUALLY', async () => {

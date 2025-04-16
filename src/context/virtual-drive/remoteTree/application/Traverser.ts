@@ -8,22 +8,22 @@ import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
 import { RemoteTree } from '../domain/RemoteTree';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
-import { CryptoJsNameDecrypt } from '../../items/infrastructure/CryptoJsNameDecrypt';
+import { File } from '../../files/domain/File';
 
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
 };
+
 @Service()
 export class Traverser {
   constructor(
-    private readonly decrypt: CryptoJsNameDecrypt,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>,
   ) {}
 
-  static existingItems(decrypt: CryptoJsNameDecrypt): Traverser {
-    return new Traverser(decrypt, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
+  static existingItems(): Traverser {
+    return new Traverser([ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
   }
 
   private createRootFolder({ id, uuid }: { id: number; uuid: string }): Folder {
@@ -50,11 +50,14 @@ export class Traverser {
         return;
       }
 
-      const decryptedName =
-        serverFile.plainName ?? this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
-      const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
+      const decryptedName = File.decryptName({
+        plainName: serverFile.plainName,
+        name: serverFile.name,
+        parentId: serverFile.folderId,
+        type: serverFile.type,
+      });
 
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
+      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
 
       try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
@@ -66,12 +69,13 @@ export class Traverser {
     });
 
     foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
-      const plainName =
-        serverFolder.plain_name ||
-        this.decrypt.decryptName(serverFolder.name, (serverFolder.parentId as number).toString(), '03-aes') ||
-        serverFolder.name;
+      const decryptedName = Folder.decryptName({
+        plainName: serverFolder.plain_name,
+        name: serverFolder.name,
+        parentId: serverFolder.parentId,
+      });
 
-      const name = `${currentFolder.path}/${plainName}`;
+      const name = `${currentFolder.path}/${decryptedName}`;
 
       if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;

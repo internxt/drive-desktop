@@ -18,7 +18,7 @@ export class HttpRemoteFileSystem {
 
   async persist(offline: OfflineFile): Promise<FileAttributes> {
     try {
-      const encryptedName = crypt.encryptName(offline.name, offline.folderId.toString());
+      const encryptedName = crypt.encryptName({ name: offline.name, parentId: offline.folderId });
 
       if (!encryptedName) {
         throw new Error('Failed to encrypt name');
