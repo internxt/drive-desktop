@@ -1,10 +1,18 @@
+import { logger } from '@/apps/shared/logger/logger';
 import crypt from './crypt';
 
+vi.mock(import('@/apps/shared/logger/logger'));
+
 describe('crypt', () => {
+  const loggerMock = vi.mocked(logger);
+
+  const encryptedName =
+    '9u+sGySbQbFq1JOg26ssR/qfjMfTGvz3TXLy2uRIK1/4lOlfoZfpaNM0+kH8+Re+LCeW5q7PXCDXBfmV/p+tee3vBaddvXqkxMKm8LQbc/WzS+6+cIpryXsRC9Q/CIUwPSJNfxGK';
+
   describe('decryptName', () => {
     it('When decrypt successfully it gives the name without the extension', () => {
       const name = crypt.decryptName({
-        name: 'ONzgORtJ77qI28jDnr+GjwJn6xELsAEqsn3FKlKNYbHR7Z129AD/WOMkAChEKx6rm7hOER2drdmXmC296dvSXtE5y5os0XCS554YYc+dcCMXISx1jupcfu5cf5NfzRZF4giI3Tcv',
+        name: encryptedName,
         parentId: 107892578,
       });
 
@@ -12,11 +20,8 @@ describe('crypt', () => {
     });
 
     it('When no parentId is provided it throws an error', () => {
-      expect(() =>
-        crypt.decryptName({
-          name: 'ONzgORtJ77qI28jDnr+GjwJn6xELsAEqsn3FKlKNYbHR7Z129AD/WOMkAChEKx6rm7hOER2drdmXmC296dvSXtE5y5os0XCS554YYc+dcCMXISx1jupcfu5cf5NfzRZF4giI3Tcv',
-        }),
-      ).toThrowError();
+      expect(() => crypt.decryptName({ name: encryptedName })).toThrowError();
+      expect(loggerMock.error).toHaveBeenCalledWith;
     });
 
     it('When decrypt fails it throws an error', () => {
