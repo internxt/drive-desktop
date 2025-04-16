@@ -8,11 +8,13 @@ import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
 import { RemoteTree } from '../domain/RemoteTree';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
-import crypto from '../../../shared/infrastructure/crypt';
+import { File } from '../../files/domain/File';
+
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
 };
+
 @Service()
 export class Traverser {
   constructor(
@@ -48,10 +50,14 @@ export class Traverser {
         return;
       }
 
-      const decryptedName = serverFile.plainName ?? crypto.decryptName({ name: serverFile.name, parentId: serverFile.folderId });
-      const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
+      const decryptedName = File.decryptName({
+        plainName: serverFile.plainName,
+        name: serverFile.name,
+        parentId: serverFile.folderId,
+        type: serverFile.type,
+      });
 
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
+      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
 
       try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
@@ -63,9 +69,13 @@ export class Traverser {
     });
 
     foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
-      const plainName = serverFolder.plain_name || crypto.decryptName({ name: serverFolder.name, parentId: serverFolder.parentId });
+      const decryptedName = Folder.decryptName({
+        plainName: serverFolder.plain_name,
+        name: serverFolder.name,
+        parentId: serverFolder.parentId,
+      });
 
-      const name = `${currentFolder.path}/${plainName}`;
+      const name = `${currentFolder.path}/${decryptedName}`;
 
       if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;

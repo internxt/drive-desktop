@@ -11,7 +11,7 @@ describe('Traverser', () => {
   const cryptMock = vi.mocked(crypt);
 
   beforeAll(() => {
-    cryptMock.decryptName.mockImplementation((name) => name);
+    cryptMock.decryptName.mockImplementation(({ name }) => name);
   });
 
   it('first level files starts with /', () => {

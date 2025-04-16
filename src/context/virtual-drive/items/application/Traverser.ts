@@ -6,7 +6,6 @@ import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Tree } from '../domain/Tree';
 import { logger } from '@/apps/shared/logger/logger';
-import crypto from '../../../shared/infrastructure/crypt';
 import { File } from '../../files/domain/File';
 
 const FILE_STATUSES_TO_FILTER = [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED, ServerFileStatus.DELETED];
