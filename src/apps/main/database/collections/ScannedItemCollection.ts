@@ -34,7 +34,7 @@ export class ScannedItemCollection {
       const result = await this.repository.find();
       return {
         success: true,
-        result: result,
+        result,
       };
     } catch (error) {
       Sentry.captureException(error);

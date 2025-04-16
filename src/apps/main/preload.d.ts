@@ -75,8 +75,6 @@ declare interface Window {
 
     getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
 
-    getHeaders(includeMnemonic?: boolean): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
-
     startSyncProcess(): void;
 
     stopSyncProcess(): void;

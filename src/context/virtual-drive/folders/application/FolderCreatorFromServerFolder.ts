@@ -11,7 +11,7 @@ export function createFolderFromServerFolder(server: ServerFolder, relativePath:
     parentUuid: server.parentUuid || null,
     updatedAt: server.updatedAt,
     createdAt: server.createdAt,
-    path: path,
+    path,
     status: server.status,
   });
 }

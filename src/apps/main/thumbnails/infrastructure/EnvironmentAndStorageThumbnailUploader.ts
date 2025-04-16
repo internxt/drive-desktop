@@ -42,7 +42,7 @@ export class EnvironmentAndStorageThumbnailUploader {
 
     await driveServerWipModule.files.createThumbnail({
       body: {
-        fileId: fileId,
+        fileId,
         maxWidth: ThumbnailProperties.dimensions,
         maxHeight: ThumbnailProperties.dimensions,
         type: ThumbnailProperties.type,

@@ -96,7 +96,7 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
     folderFinder,
     folderDeleter,
     retryFolderDeleter,
-    allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
+    allParentFoldersStatusIsExists,
     folderPathUpdater,
     folderContainerDetector,
     synchronizeOfflineModificationsOnFolderCreated,

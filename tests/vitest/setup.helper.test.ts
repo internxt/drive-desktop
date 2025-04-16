@@ -1,11 +1,7 @@
 import { vi } from 'vitest';
-import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config();
-
 process.env.NODE_ENV = 'development';
-
 process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
 
 vi.mock('@/apps/main/auth/service', () => {

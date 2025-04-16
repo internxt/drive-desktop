@@ -11,6 +11,7 @@ import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtu
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { PATHS } from '@/core/electron/paths';
+import { join } from 'path';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -60,7 +61,7 @@ export const spawnAllSyncEngineWorker = async () => {
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
-    loggerPath: PATHS.NODE_WIN_LOGS,
+    loggerPath: join(PATHS.LOGS, 'node-win.log'),
     rootUuid: user.rootFolderId,
     mnemonic: user.mnemonic,
     bucket: user.bucket,

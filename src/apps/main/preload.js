@@ -67,9 +67,6 @@ contextBridge.exposeInMainWorld('electron', {
   getUser() {
     return ipcRenderer.invoke('get-user');
   },
-  getHeaders(includeMnemonic = false) {
-    return ipcRenderer.invoke('get-headers', includeMnemonic);
-  },
   startSyncProcess() {
     return ipcRenderer.send('start-sync-process');
   },

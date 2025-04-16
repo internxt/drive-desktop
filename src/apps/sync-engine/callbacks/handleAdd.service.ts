@@ -38,8 +38,15 @@ export class HandleAddService {
         return;
       }
 
-      await drive.convertToPlaceholder(task.path, itemId);
-      await drive.updateSyncStatus(task.path, task.isFolder, true);
+      await drive.convertToPlaceholder({
+        itemPath: task.path,
+        id: itemId,
+      });
+      await drive.updateSyncStatus({
+        itemPath: task.path,
+        isDirectory: task.isFolder,
+        sync: true,
+      });
     } catch (error) {
       throw logger.error({
         msg: `Error adding file ${task.path}`,
