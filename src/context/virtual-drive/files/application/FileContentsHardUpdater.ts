@@ -21,7 +21,7 @@ export class FileContentsHardUpdater {
       const newContentsId = content.id;
 
       if (newContentsId) {
-        await this.remote.deleteAndPersist({ attributes: attributes, newContentsId });
+        await this.remote.deleteAndPersist({ attributes, newContentsId });
         Logger.info('Persisted new contents id', newContentsId, ' path: ', attributes.path);
       } else {
         throw new Error('Failed to upload file in hardUpdate');

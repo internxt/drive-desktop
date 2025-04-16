@@ -120,7 +120,7 @@ export class BindingsManager {
           callback(true);
           ipcRendererSyncEngine.send('SYNC_INFO_UPDATE', {
             name: message,
-            action: action,
+            action,
             errorName,
             process: 'SYNC',
             kind: 'LOCAL',
