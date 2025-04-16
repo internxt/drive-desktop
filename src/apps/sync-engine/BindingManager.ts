@@ -265,7 +265,15 @@ export class BindingsManager {
 
       const placeholders = this.container.virtualDrive.getPlaceholderWithStatePending();
 
-      logger.debug({ msg: '[SYNC ENGINE] Update and check placeholders', workspaceId, total: placeholders.length, placeholders });
+      logger.debug({
+        msg: 'Update and check placeholders',
+        workspaceId,
+        total: placeholders.length,
+        placeholders,
+        attributes: {
+          tag: 'SYNC-ENGINE',
+        },
+      });
 
       if (placeholders.length === 0) {
         ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
