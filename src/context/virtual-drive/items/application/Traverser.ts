@@ -3,10 +3,10 @@ import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerF
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
-import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
+import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Tree } from '../domain/Tree';
-import { CryptoJsNameDecrypt } from '../infrastructure/CryptoJsNameDecrypt';
 import { logger } from '@/apps/shared/logger/logger';
+import { File } from '../../files/domain/File';
 
 const FILE_STATUSES_TO_FILTER = [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED, ServerFileStatus.DELETED];
 const FOLDER_STATUSES_TO_FILTER = [ServerFolderStatus.EXISTS, ServerFolderStatus.TRASHED, ServerFolderStatus.DELETED];
@@ -18,7 +18,6 @@ type Items = {
 
 export class Traverser {
   constructor(
-    private readonly decrypt: CryptoJsNameDecrypt,
     private readonly baseFolderId: number,
     private readonly baseFolderUuid: string,
   ) {}
@@ -47,10 +46,14 @@ export class Traverser {
         return;
       }
 
-      const decryptedName = this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
-      const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
+      const decryptedName = File.decryptName({
+        plainName: serverFile.plainName,
+        name: serverFile.name,
+        parentId: serverFile.folderId,
+        type: serverFile.type,
+      });
 
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
+      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
 
       try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
@@ -65,17 +68,18 @@ export class Traverser {
       }
     });
 
-    foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
+    foldersInThisFolder.forEach((serverFolder) => {
       if (!FOLDER_STATUSES_TO_FILTER.includes(serverFolder.status)) {
         return;
       }
 
-      const plainName =
-        serverFolder.plain_name ||
-        this.decrypt.decryptName(serverFolder.name, (serverFolder.parentId as number).toString(), '03-aes') ||
-        serverFolder.name;
+      const decryptedName = Folder.decryptName({
+        plainName: serverFolder.plain_name,
+        name: serverFolder.name,
+        parentId: serverFolder.parentId,
+      });
 
-      const name = `${currentFolder.path}/${plainName}`;
+      const name = `${currentFolder.path}/${decryptedName}`;
 
       try {
         const folder = createFolderFromServerFolder(serverFolder, name);
@@ -84,13 +88,7 @@ export class Traverser {
           tree.appendTrashedFolder(folder);
         } else {
           tree.addFolder(currentFolder, folder);
-          if (folder.hasStatus(FolderStatuses.EXISTS)) {
-            // The folders and the files inside trashed or deleted folders
-            // will have the status "EXISTS", to avoid filtering witch folders and files
-            // are in a deleted or trashed folder they not included on the collection.
-            // We cannot perform any action on them either way
-            this.traverse(tree, items, folder);
-          }
+          this.traverse(tree, items, folder);
         }
       } catch (exc) {
         logger.error({ msg: 'Error creating folder from server folder', exc });

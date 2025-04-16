@@ -26,36 +26,56 @@ export class NodeWinLocalFileSystem {
       return;
     }
 
-    this.virtualDrive.createFileByPath(file.path, file.placeholderId, file.size, file.createdAt.getTime(), file.updatedAt.getTime());
+    this.virtualDrive.createFileByPath({
+      relativePath: file.path,
+      itemId: file.placeholderId,
+      size: file.size,
+      creationTime: file.createdAt.getTime(),
+      lastWriteTime: file.updatedAt.getTime(),
+    });
   }
 
   getFileIdentity(path: File['path']): string {
-    return this.virtualDrive.getFileIdentity(path);
+    return this.virtualDrive.getFileIdentity({ path });
   }
   async deleteFileSyncRoot(path: File['path']): Promise<void> {
-    await this.virtualDrive.deleteFileSyncRoot(path);
+    await this.virtualDrive.deleteFileSyncRoot({ path });
   }
 
   updateSyncStatus(file: File, status = true) {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.path);
-    const result = this.virtualDrive.updateSyncStatus(win32AbsolutePath, false, status);
+    const result = this.virtualDrive.updateSyncStatus({
+      itemPath: win32AbsolutePath,
+      isDirectory: false,
+      sync: status,
+    });
     const folderWin32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.dirname + '/');
-    this.virtualDrive.updateSyncStatus(folderWin32AbsolutePath, true, status);
+    this.virtualDrive.updateSyncStatus({
+      itemPath: folderWin32AbsolutePath,
+      isDirectory: true,
+      sync: status,
+    });
     return result;
   }
 
   convertToPlaceholder(file: File) {
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.path);
 
-    return this.virtualDrive.convertToPlaceholder(win32AbsolutePath, file.placeholderId);
+    return this.virtualDrive.convertToPlaceholder({
+      itemPath: win32AbsolutePath,
+      id: file.placeholderId,
+    });
   }
 
   getPlaceholderStateByRelativePath(relativePath: string) {
-    return this.virtualDrive.getPlaceholderState(relativePath);
+    return this.virtualDrive.getPlaceholderState({ path: relativePath });
   }
 
   updateFileIdentity(path: string, newIdentity: `FILE:${string}`): void {
-    const isNotDirectory = true;
-    return this.virtualDrive.updateFileIdentity(path, newIdentity, isNotDirectory);
+    this.virtualDrive.updateFileIdentity({
+      itemPath: path,
+      id: newIdentity,
+      isDirectory: false,
+    });
   }
 }

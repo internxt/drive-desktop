@@ -18,7 +18,7 @@ export class FileMother {
       folderUuid: v4(),
       createdAt: new Date().toISOString(),
       modificationTime: new Date().toISOString(),
-      path: path,
+      path,
       size: 893924973,
       updatedAt: new Date().toISOString(),
       status: FileStatuses.EXISTS,

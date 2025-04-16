@@ -46,7 +46,7 @@ export class FetchWorkspaceFilesService implements FetchFilesService {
   }
 
   private async getFileInWorkspace({ query, workspaceId }: { workspaceId: string; query: QueryFilesInWorkspace }) {
-    const result = await client.GET('/workspaces/{workspaceId}/files', { params: { path: { workspaceId: workspaceId }, query } });
+    const result = await client.GET('/workspaces/{workspaceId}/files', { params: { path: { workspaceId }, query } });
     return { ...result, data: result.data };
   }
 

@@ -6,6 +6,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { sleep } from '@/apps/main/util';
 import { PATHS } from '@/core/electron/paths';
+import { join } from 'path';
 
 type TProps = {
   retry?: number;
@@ -41,7 +42,7 @@ export async function spawnWorkspace({ workspace, retry = 1 }: TProps) {
     providerId: workspace.providerId,
     rootPath: workspace.rootPath,
     providerName: 'Internxt Drive for Business',
-    loggerPath: PATHS.WATCHER_LOGS,
+    loggerPath: join(PATHS.LOGS, `node-win-workspace-${workspace.id}.log`),
     workspaceId: workspace.id,
     workspaceToken: credentials.tokenHeader,
     rootUuid: workspace.rootFolderId,
