@@ -235,7 +235,8 @@ describe('FilesPlaceholderUpdater', () => {
 
       mockRepository.searchByPartial.mockImplementation(({ contentsId }) => localFiles.find((file) => file.contentsId === contentsId));
 
-      mockLocalFileSystem.getFileIdentity.mockImplementation((path) =>
+      // eslint-disable-next-line require-await
+      mockLocalFileSystem.getFileIdentity.mockImplementation(async (path) =>
         path === '/remote1' ? `FILE:${oldsUuids[0]}` : `FILE:${newsUuids[1]}`,
       );
 

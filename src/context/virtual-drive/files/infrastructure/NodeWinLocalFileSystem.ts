@@ -35,8 +35,11 @@ export class NodeWinLocalFileSystem {
     });
   }
 
-  getFileIdentity(path: File['path']): string {
-    return this.virtualDrive.getFileIdentity({ path });
+  async getFileIdentity(path: File['path']): Promise<string> {
+    // v2.5.2 Jonathan Daniel
+    // really needs this to be awaited
+    // eslint-disable-next-line @typescript-eslint/await-thenable
+    return await this.virtualDrive.getFileIdentity({ path });
   }
   async deleteFileSyncRoot(path: File['path']): Promise<void> {
     await this.virtualDrive.deleteFileSyncRoot({ path });

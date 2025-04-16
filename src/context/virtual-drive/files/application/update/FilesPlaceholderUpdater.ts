@@ -7,6 +7,7 @@ import { FileMovedDomainEvent } from '../../domain/events/FileMovedDomainEvent';
 import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class FilesPlaceholderUpdater {
   constructor(
@@ -24,14 +25,20 @@ export class FilesPlaceholderUpdater {
     return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
-  private hasToBeUpdatedIdentity(local: File, remote: File): boolean {
+  private async hasToBeUpdatedIdentity(local: File, remote: File): Promise<boolean> {
     const localExists = local.status.is(FileStatuses.EXISTS);
     const remoteExists = remote.status.is(FileStatuses.EXISTS);
 
-    const systemFileidentity = this.localFileSystem.getFileIdentity(local.path);
+    const systemFileidentity = await this.localFileSystem.getFileIdentity(local.path);
     const remoteIdentity = remote.placeholderId;
 
     const isDifferentIdentity = systemFileidentity !== remoteIdentity;
+
+    logger.debug({
+      msg: '[FilesPlaceholderUpdater] Updating file identity',
+      systemFileidentity,
+      remoteIdentity,
+    });
 
     return localExists && remoteExists && isDifferentIdentity && systemFileidentity !== '';
   }
@@ -69,7 +76,7 @@ export class FilesPlaceholderUpdater {
     // v2.5.2 Jonathan Daniel
     // Validate if the placeholder needs to be updated since we previously used the dynamic contentsId
     // and now we use the static uuid for file identification.
-    if (this.hasToBeUpdatedIdentity(local, remote)) {
+    if (await this.hasToBeUpdatedIdentity(local, remote)) {
       this.localFileSystem.updateFileIdentity(local.path, local.placeholderId);
       this.localFileSystem.updateSyncStatus(local);
     }
