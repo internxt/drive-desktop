@@ -15,6 +15,7 @@ import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/fold
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
 import { FolderPlaceholderDeleter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
+import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -30,6 +31,7 @@ export interface FoldersContainer {
     folderPathUpdater: OfflineFolderPathUpdater;
     synchronizeOfflineModifications: SynchronizeOfflineModifications;
   };
+  folderRepository: InMemoryFolderRepository;
   folderRepositoryInitiator: FolderRepositoryInitiator;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
   folderPlaceholderDeleter: FolderPlaceholderDeleter;

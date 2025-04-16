@@ -92,6 +92,7 @@ export function buildFilesContainer(
     sharedContainer.relativePathToAbsoluteConverter,
     localFileIdProvider,
     eventHistory,
+    folderContainer.folderRepository,
   );
 
   const filesPlaceholderDeleter = new FilesPlaceholderDeleter(localFileSystem);

@@ -7,6 +7,7 @@ import { FolderStatuses } from '../domain/FolderStatus';
 import * as Sentry from '@sentry/electron/renderer';
 import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class FolderPlaceholderUpdater {
   constructor(
@@ -73,8 +74,15 @@ export class FolderPlaceholderUpdater {
   }
 
   async updateFromAttributes(folderAttributes: FolderAttributesWithoutPath): Promise<void> {
+    /**
+     * v2.5.2 Daniel Jiménez
+     * parentId can only be null for the root folder, so it should never reach here
+     */
     if (!folderAttributes.parentId) {
-      // TODO: check why this can be null
+      logger.error({
+        msg: 'Folder has no parent id',
+        folderAttributes,
+      });
       return;
     }
 

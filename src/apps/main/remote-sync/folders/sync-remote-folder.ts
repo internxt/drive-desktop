@@ -39,11 +39,11 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
     };
 
     if (remoteFolder.status === 'EXISTS') {
-      // self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
+      self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
     }
   } catch (exc) {
     logger.error({
-      msg: 'Error creating folder placeholder',
+      msg: 'Error creating remote folder in sqlite',
       workspaceId: self.workspaceId,
       uuid: driveFolder.uuid,
       exc,

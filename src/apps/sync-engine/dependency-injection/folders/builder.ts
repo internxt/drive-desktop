@@ -106,6 +106,7 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
       synchronizeOfflineModifications,
     },
     folderPlaceholderDeleter,
+    folderRepository: repository,
     folderRepositoryInitiator,
     foldersPlaceholderCreator,
     folderPlaceholderUpdater,

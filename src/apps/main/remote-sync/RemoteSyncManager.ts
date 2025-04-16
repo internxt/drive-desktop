@@ -57,8 +57,8 @@ export class RemoteSyncManager {
         from: await this.getLastFolderSyncAt(),
       });
 
-      const [folders] = await Promise.all([syncFoldersPromise]);
-      return { files: [], folders };
+      const [files, folders] = await Promise.all([syncFilesPromise, syncFoldersPromise]);
+      return { files, folders };
     } catch (error) {
       logger.error({ msg: 'Remote sync failed with error', error });
       this.changeStatus('SYNC_FAILED');
