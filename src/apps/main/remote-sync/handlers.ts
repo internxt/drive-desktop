@@ -17,7 +17,7 @@ import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, rem
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 
-export async function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
+export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
   remoteSyncManagers.set(workspaceId ?? '', new RemoteSyncManager(worker, workspaceId));
 }
 
