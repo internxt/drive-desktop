@@ -194,7 +194,7 @@ export class BindingsManager {
       handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
     };
 
-    const PATHS = await ipcRenderer.invoke('get-paths', this.PROVIDER_NAME);
+    const PATHS = await ipcRenderer.invoke('get-paths');
 
     const queueManager = new QueueManager({
       handlers: callbacks,
