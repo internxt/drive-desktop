@@ -125,7 +125,7 @@ ipcMain.handle('FIND_DANGLED_FILES', async () => {
 });
 
 ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
-  Queue.enqueue(() => setAsNotDangledFiles(inputData));
+  await Queue.enqueue(() => setAsNotDangledFiles(inputData));
 });
 
 ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
