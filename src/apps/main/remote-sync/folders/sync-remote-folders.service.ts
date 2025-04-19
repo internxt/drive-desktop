@@ -43,7 +43,7 @@ export class SyncRemoteFoldersService {
       while (hasMore) {
         this.logger.debug({
           msg: 'Retrieving folders',
-          workspacesId: this.workspaceId,
+          workspaceId: this.workspaceId,
           folderUuid,
           from,
           offset,

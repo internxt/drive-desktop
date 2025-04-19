@@ -1,14 +1,12 @@
 import fs from 'fs/promises';
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { File, FileAttributes } from '../domain/File';
+import { File } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { InMemoryEventRepository } from '../../shared/infrastructure/InMemoryEventHistory';
-import { logger } from '@/apps/shared/logger/logger';
-import { InMemoryFolderRepository } from '../../folders/infrastructure/InMemoryFolderRepository';
 
 export class FilesPlaceholderUpdater {
   constructor(
@@ -17,7 +15,6 @@ export class FilesPlaceholderUpdater {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,
     private readonly eventHistory: InMemoryEventRepository,
-    private readonly folderRepository: InMemoryFolderRepository,
   ) {}
 
   private hasToBeDeleted(local: File, remote: File): boolean {
@@ -40,16 +37,6 @@ export class FilesPlaceholderUpdater {
       return true;
     } catch {
       return false;
-    }
-  }
-
-  async updateFromAttributes(fileAttributes: Omit<FileAttributes, 'path'> & { plainName: string }): Promise<void> {
-    const local = this.folderRepository.get({ id: fileAttributes.folderId });
-
-    if (local) {
-      const path = `${local.path}/${fileAttributes.plainName}`;
-      const file = File.from({ ...fileAttributes, path });
-      await this.update(file);
     }
   }
 

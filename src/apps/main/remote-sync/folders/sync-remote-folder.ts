@@ -12,40 +12,19 @@ type TProps = {
 };
 
 export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
-  const driveFolder = await driveFoldersCollection.createOrUpdate({
-    ...remoteFolder,
-    userUuid: user.uuid,
-    workspaceId: self.workspaceId,
-  });
-
-  self.totalFoldersSynced++;
-
   try {
-    const plainName = Folder.decryptName({
-      plainName: driveFolder.plainName,
-      name: driveFolder.name,
-      parentId: driveFolder.parentId,
+    await driveFoldersCollection.createOrUpdate({
+      ...remoteFolder,
+      userUuid: user.uuid,
+      workspaceId: self.workspaceId,
     });
 
-    const folderAttributes: FolderAttributesWithoutPath = {
-      createdAt: driveFolder.createdAt,
-      uuid: driveFolder.uuid,
-      parentId: driveFolder.parentId ?? null,
-      parentUuid: driveFolder.parentUuid ?? null,
-      id: driveFolder.id,
-      status: driveFolder.status,
-      updatedAt: driveFolder.updatedAt,
-      plainName,
-    };
-
-    if (remoteFolder.status === 'EXISTS') {
-      // self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
-    }
+    self.totalFoldersSynced++;
   } catch (exc) {
     logger.error({
       msg: 'Error creating remote folder in sqlite',
       workspaceId: self.workspaceId,
-      uuid: driveFolder.uuid,
+      uuid: remoteFolder.uuid,
       exc,
     });
   }

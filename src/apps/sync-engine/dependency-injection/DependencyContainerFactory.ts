@@ -11,7 +11,7 @@ import { buildSharedContainer } from './shared/builder';
 export class DependencyContainerFactory {
   private static _container: DependencyContainer | undefined;
 
-  build(): DependencyContainer {
+  async build(): Promise<DependencyContainer> {
     if (DependencyContainerFactory._container !== undefined) {
       return DependencyContainerFactory._container;
     }
@@ -21,9 +21,9 @@ export class DependencyContainerFactory {
 
     const sharedContainer = buildSharedContainer();
     const itemsContainer = buildItemsContainer();
-    const contentsContainer = buildContentsContainer(sharedContainer);
-    const foldersContainer = buildFoldersContainer(sharedContainer);
-    const { container: filesContainer } = buildFilesContainer(foldersContainer, sharedContainer, contentsContainer);
+    const contentsContainer = await buildContentsContainer(sharedContainer);
+    const foldersContainer = await buildFoldersContainer(sharedContainer);
+    const { container: filesContainer } = await buildFilesContainer(foldersContainer, sharedContainer, contentsContainer);
     const boundaryBridgeContainer = buildBoundaryBridgeContainer(contentsContainer, filesContainer);
 
     const container = {
