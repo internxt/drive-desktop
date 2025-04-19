@@ -213,6 +213,7 @@ export class BindingsManager {
     const addFilePromises = tree.files.map((file) => this.container.fileRepository.add(file));
     const addFolderPromises = tree.folders.map((folder) => this.container.folderRepository.add(folder));
     await Promise.all([addFolderPromises, addFilePromises]);
+    logger.debug({ msg: 'In memory repositories loaded', workspaceId: getConfig().workspaceId });
   }
 
   async update(tree: Tree) {

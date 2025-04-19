@@ -39,7 +39,7 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
     };
 
     if (remoteFolder.status === 'EXISTS') {
-      self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
+      // self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
     }
   } catch (exc) {
     logger.error({

@@ -44,7 +44,7 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
     };
 
     if (remoteFile.status === 'EXISTS') {
-      self.worker.worker?.webContents.send('UPDATE_FILE_PLACEHOLDER', fileAttributes);
+      // self.worker.worker?.webContents.send('UPDATE_FILE_PLACEHOLDER', fileAttributes);
     }
   } catch (exc) {
     logger.error({

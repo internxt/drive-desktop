@@ -66,7 +66,6 @@ export class FilesPlaceholderUpdater {
       return;
     }
 
-    // logger.debug({ msg: 'REMOTEEEEE', remotePath: remote.path, localPath: local.path });
     if (local.path !== remote.path) {
       if (remote.folderId !== local.folderId) {
         const trackerId = await this.localFileIdProvider.run(local.path);
