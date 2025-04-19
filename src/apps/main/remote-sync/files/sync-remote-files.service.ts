@@ -41,7 +41,7 @@ export class SyncRemoteFilesService {
       while (hasMore) {
         this.logger.debug({
           msg: 'Retrieving files',
-          workspacesId: this.workspaceId,
+          workspaceId: this.workspaceId,
           folderUuid,
           from,
           offset,

@@ -11,7 +11,6 @@ import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
 import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
-import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
@@ -82,8 +81,6 @@ export function buildFilesContainer(
 
   const filePlaceholderCreatorFromContentsId = new FilePlaceholderCreatorFromContentsId(fileFinderByContentsId, localFileSystem);
 
-  const repositoryPopulator = new RepositoryPopulator(repository);
-
   const localFileIdProvider = new LocalFileIdProvider(sharedContainer.relativePathToAbsoluteConverter);
 
   const filesPlaceholderUpdater = new FilesPlaceholderUpdater(
@@ -125,6 +122,7 @@ export function buildFilesContainer(
   );
 
   const container: FilesContainer = {
+    fileRepository: repository,
     fileFinderByContentsId,
     fileDeleter,
     filePathUpdater,
@@ -133,7 +131,6 @@ export function buildFilesContainer(
     fileSyncronizer,
     filePlaceholderCreatorFromContentsId,
     sameFileWasMoved,
-    repositoryPopulator,
     filesPlaceholderUpdater,
     filesPlaceholderDeleter,
     filePlaceholderConverter,

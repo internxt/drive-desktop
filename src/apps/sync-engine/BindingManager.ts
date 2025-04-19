@@ -17,7 +17,7 @@ import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
 import { logger } from '../shared/logger/logger';
-import { Tree } from '@/context/virtual-drive/items/domain/Tree';
+import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -25,7 +25,6 @@ export class BindingsManager {
   progressBuffer = 0;
   controllers: IControllers;
 
-  private queueManager: QueueManager | null = null;
   lastHydrated = '';
   private lastMoved = '';
 
@@ -173,7 +172,7 @@ export class BindingsManager {
     });
     await this.container.virtualDrive.connectSyncRoot();
 
-    const tree = await this.container.treeBuilder.run();
+    const tree = await this.container.traverser.run();
     await this.load(tree);
     /**
      * Jonathan Arce v2.5.1
@@ -200,7 +199,6 @@ export class BindingsManager {
       handlers: callbacks,
       persistPath: PATHS.QUEUE_MANAGER,
     });
-    this.queueManager = queueManager;
     this.container.virtualDrive.watchAndWait({
       queueManager,
     });
@@ -212,7 +210,9 @@ export class BindingsManager {
   }
 
   async load(tree: Tree): Promise<void> {
-    await Promise.all([this.container.folderRepositoryInitiator.run(tree.folders), this.container.repositoryPopulator.run(tree.files)]);
+    const addFilePromises = tree.files.map((file) => this.container.fileRepository.add(file));
+    const addFolderPromises = tree.folders.map((folder) => this.container.folderRepository.add(folder));
+    await Promise.all([addFolderPromises, addFilePromises]);
   }
 
   async update(tree: Tree) {
@@ -220,8 +220,8 @@ export class BindingsManager {
 
     try {
       await Promise.all([
-        this.container.filesPlaceholderDeleter.run(tree.trashedFilesList),
-        this.container.folderPlaceholderDeleter.run(tree.trashedFoldersList),
+        this.container.filesPlaceholderDeleter.run(tree.trashedFiles),
+        this.container.folderPlaceholderDeleter.run(tree.trashedFolders),
         this.container.folderPlaceholderUpdater.run(tree.folders),
         this.container.filesPlaceholderUpdater.run(tree.files),
       ]);
@@ -259,7 +259,7 @@ export class BindingsManager {
     const workspaceId = getConfig().workspaceId;
 
     try {
-      const tree = await this.container.treeBuilder.run();
+      const tree = await this.container.traverser.run();
       await this.update(tree);
       await this.polling();
 

@@ -1,5 +1,5 @@
-import { TreeBuilder } from '../../../../context/virtual-drive/items/application/TreeBuilder';
+import { Traverser } from '@/context/virtual-drive/items/application/Traverser';
 
 export interface ItemsContainer {
-  treeBuilder: TreeBuilder;
+  traverser: Traverser;
 }

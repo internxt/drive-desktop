@@ -66,10 +66,10 @@ export class FilesPlaceholderUpdater {
       return;
     }
 
-    logger.debug({ msg: 'REMOTEEEEE', remotePath: remote.path, localPath: local.path });
+    // logger.debug({ msg: 'REMOTEEEEE', remotePath: remote.path, localPath: local.path });
     if (local.path !== remote.path) {
-      const trackerId = await this.localFileIdProvider.run(local.path);
       if (remote.folderId !== local.folderId) {
+        const trackerId = await this.localFileIdProvider.run(local.path);
         const event = new FileMovedDomainEvent({
           aggregateId: remote.contentsId,
           trackerId,
