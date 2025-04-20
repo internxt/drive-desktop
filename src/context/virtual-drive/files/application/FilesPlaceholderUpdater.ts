@@ -1,13 +1,12 @@
 import fs from 'fs/promises';
 import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { EventRepository } from '../../shared/domain/EventRepository';
 import { File } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
-import { FileRenamedDomainEvent } from '../domain/events/FileRenamedDomainEvent';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
+import { InMemoryEventRepository } from '../../shared/infrastructure/InMemoryEventHistory';
 
 export class FilesPlaceholderUpdater {
   constructor(
@@ -15,7 +14,7 @@ export class FilesPlaceholderUpdater {
     private readonly localFileSystem: NodeWinLocalFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
     private readonly localFileIdProvider: LocalFileIdProvider,
-    private readonly eventHistory: EventRepository,
+    private readonly eventHistory: InMemoryEventRepository,
   ) {}
 
   private hasToBeDeleted(local: File, remote: File): boolean {
@@ -56,12 +55,6 @@ export class FilesPlaceholderUpdater {
 
     if (local.path !== remote.path) {
       const trackerId = await this.localFileIdProvider.run(local.path);
-      if (remote.name !== local.name) {
-        const event = new FileRenamedDomainEvent({
-          aggregateId: remote.contentsId,
-        });
-        this.eventHistory.store(event);
-      }
       if (remote.folderId !== local.folderId) {
         const event = new FileMovedDomainEvent({
           aggregateId: remote.contentsId,

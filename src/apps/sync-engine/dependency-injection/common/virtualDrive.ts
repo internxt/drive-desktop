@@ -1,5 +1,6 @@
 import { VirtualDrive } from '@internxt/node-win/dist';
 import { getConfig } from '../../config';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class DependencyInjectionVirtualDrive {
   private static _vd: VirtualDrive;
@@ -9,8 +10,27 @@ export class DependencyInjectionVirtualDrive {
       return DependencyInjectionVirtualDrive._vd;
     }
 
-    const { rootPath, loggerPath, providerId } = getConfig();
-    const vd = new VirtualDrive(rootPath, providerId, loggerPath);
+    const { rootPath, loggerPath, providerId, workspaceId } = getConfig();
+
+    const vd = new VirtualDrive({
+      syncRootPath: rootPath,
+      providerId,
+      loggerPath,
+      logger: {
+        debug(body) {
+          logger.debug({ tag: 'NODE-WIN', ...body, workspaceId });
+        },
+        info(body) {
+          logger.info({ tag: 'NODE-WIN', ...body, workspaceId });
+        },
+        warn(body) {
+          logger.warn({ tag: 'NODE-WIN', ...body, workspaceId });
+        },
+        error(body) {
+          logger.error({ tag: 'NODE-WIN', ...body, workspaceId });
+        },
+      },
+    });
 
     DependencyInjectionVirtualDrive._vd = vd;
 

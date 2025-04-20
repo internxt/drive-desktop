@@ -1,15 +1,16 @@
-import * as Sentry from '@sentry/electron/renderer';
-import Logger from 'electron-log';
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
-import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
-import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { NameDecrypt } from '../domain/NameDecrypt';
+import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { Tree } from '../domain/Tree';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { logger } from '@/apps/shared/logger/logger';
+import { File } from '../../files/domain/File';
+
+const FILE_STATUSES_TO_FILTER = [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED, ServerFileStatus.DELETED];
+const FOLDER_STATUSES_TO_FILTER = [ServerFolderStatus.EXISTS, ServerFolderStatus.TRASHED, ServerFolderStatus.DELETED];
+
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
@@ -17,25 +18,9 @@ type Items = {
 
 export class Traverser {
   constructor(
-    private readonly decrypt: NameDecrypt,
     private readonly baseFolderId: number,
     private readonly baseFolderUuid: string,
-    private fileStatusesToFilter: Array<ServerFileStatus>,
-    private folderStatusesToFilter: Array<ServerFolderStatus>,
-    private readonly ipc = ipcRendererSyncEngine,
   ) {}
-
-  static existingItems(decrypt: NameDecrypt, baseFolderId: number, baseFolderUuid: string): Traverser {
-    return new Traverser(decrypt, baseFolderId, baseFolderUuid, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
-  }
-
-  public setFileStatusesToFilter(statuses: Array<ServerFileStatus>): void {
-    this.fileStatusesToFilter = statuses;
-  }
-
-  public setFolderStatusesToFilter(statuses: Array<ServerFolderStatus>): void {
-    this.folderStatusesToFilter = statuses;
-  }
 
   private createRootFolder(): Folder {
     return Folder.from({
@@ -53,102 +38,61 @@ export class Traverser {
   private traverse(tree: Tree, items: Items, currentFolder: Folder) {
     if (!items) return;
 
-    const filesInThisFolder = items.files.filter((file) => {
-      return file.folderUuid === currentFolder.uuid;
-    });
-
-    const foldersInThisFolder = items.folders.filter((folder) => {
-      return folder.parentUuid === currentFolder.uuid;
-    });
+    const filesInThisFolder = items.files.filter((file) => file.folderUuid === currentFolder.uuid);
+    const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
-      if (!this.fileStatusesToFilter.includes(serverFile.status)) {
+      if (!FILE_STATUSES_TO_FILTER.includes(serverFile.status)) {
         return;
       }
 
-      const decryptedName = this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
-      const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
+      const decryptedName = File.decryptName({
+        plainName: serverFile.plainName,
+        name: serverFile.name,
+        parentId: serverFile.folderId,
+        type: serverFile.type,
+      });
 
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
+      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
 
-      if (serverFile.status === ServerFileStatus.DELETED || serverFile.status === ServerFileStatus.TRASHED) {
-        try {
-          tree.appendTrashedFile(createFileFromServerFile(serverFile, relativeFilePath));
-          return;
-        } catch (error) {
-          return;
-        }
-      }
-
-      EitherTransformer.handleWithEither(() => {
+      try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
-        tree.addFile(currentFolder, file);
-      }).fold(
-        (error): void => {
-          Logger.warn('[Traverser] Error adding file:', error);
-          Sentry.captureException(error);
-          this.ipc.send('SYNC_PROBLEM', {
-            key: 'node-duplicated',
-            additionalData: {
-              name: serverFile.plainName,
-            },
-          });
-        },
-        () => {
-          //  no-op
-        },
-      );
+
+        if (serverFile.status === ServerFileStatus.DELETED || serverFile.status === ServerFileStatus.TRASHED) {
+          tree.appendTrashedFile(file);
+        } else {
+          tree.addFile(currentFolder, file);
+        }
+      } catch (exc) {
+        logger.error({ msg: 'Error creating file from server file', exc });
+      }
     });
 
-    foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
-      const plainName =
-        serverFolder.plain_name ||
-        this.decrypt.decryptName(serverFolder.name, (serverFolder.parentId as number).toString(), '03-aes') ||
-        serverFolder.name;
-
-      const name = `${currentFolder.path}/${plainName}`;
-
-      if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
+    foldersInThisFolder.forEach((serverFolder) => {
+      if (!FOLDER_STATUSES_TO_FILTER.includes(serverFolder.status)) {
         return;
       }
 
-      if (serverFolder.status === ServerFolderStatus.DELETED || serverFolder.status === ServerFolderStatus.TRASHED) {
-        try {
-          tree.appendTrashedFolder(createFolderFromServerFolder(serverFolder, name));
-          return;
-        } catch (error) {
-          Logger.warn(`[Traverser] Error adding folder to delete queue: ${error}`);
-          return;
-        }
-      }
+      const decryptedName = Folder.decryptName({
+        plainName: serverFolder.plain_name,
+        name: serverFolder.name,
+        parentId: serverFolder.parentId,
+      });
 
-      EitherTransformer.handleWithEither(() => {
+      const name = `${currentFolder.path}/${decryptedName}`;
+
+      try {
         const folder = createFolderFromServerFolder(serverFolder, name);
 
-        tree.addFolder(currentFolder, folder);
-
-        return folder;
-      }).fold(
-        (error) => {
-          Logger.warn(`[Traverser] :  ${error} `);
-          Sentry.captureException(error);
-          this.ipc.send('SYNC_PROBLEM', {
-            key: 'node-duplicated',
-            additionalData: {
-              name,
-            },
-          });
-        },
-        (folder) => {
-          if (folder.hasStatus(FolderStatuses.EXISTS)) {
-            // The folders and the files inside trashed or deleted folders
-            // will have the status "EXISTS", to avoid filtering witch folders and files
-            // are in a deleted or trashed folder they not included on the collection.
-            // We cannot perform any action on them either way
-            this.traverse(tree, items, folder);
-          }
-        },
-      );
+        if (serverFolder.status === ServerFolderStatus.DELETED || serverFolder.status === ServerFolderStatus.TRASHED) {
+          tree.appendTrashedFolder(folder);
+        } else {
+          tree.addFolder(currentFolder, folder);
+          this.traverse(tree, items, folder);
+        }
+      } catch (exc) {
+        logger.error({ msg: 'Error creating folder from server folder', exc });
+      }
     });
   }
 

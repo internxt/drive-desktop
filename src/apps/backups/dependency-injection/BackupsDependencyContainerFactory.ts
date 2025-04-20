@@ -1,13 +1,11 @@
-import { Container, Service } from 'diod';
+import { Container, Service, ContainerBuilder } from 'diod';
 import Logger from 'electron-log';
-import { backgroundProcessSharedInfraBuilder } from '../../shared/dependency-injection/background/backgroundProcessSharedInfraBuilder';
 import { registerFilesServices } from './virtual-drive/registerFilesServices';
 import { registerFolderServices } from './virtual-drive/registerFolderServices';
 import { registerLocalFileServices } from './local/registerLocalFileServices';
 import { Backup } from '../Backups';
 import { registerLocalTreeServices } from './local/registerLocalTreeServices';
 import { registerRemoteTreeServices } from './virtual-drive/registerRemoteTreeServices';
-import { registerUserUsageServices } from './user/registerUsageServices';
 import { DangledFilesService } from '../dangled-files/DangledFilesService';
 
 @Service()
@@ -15,7 +13,7 @@ export class BackupsDependencyContainerFactory {
   static async build(): Promise<Container> {
     Logger.info('[BackupsDependencyContainerFactory] Starting to build the container.');
 
-    const builder = await backgroundProcessSharedInfraBuilder();
+    const builder = new ContainerBuilder();
     Logger.info('[BackupsDependencyContainerFactory] Shared infrastructure builder created.');
 
     try {
@@ -33,10 +31,6 @@ export class BackupsDependencyContainerFactory {
 
       Logger.info('[BackupsDependencyContainerFactory] Registering local tree services.');
       await registerLocalTreeServices(builder);
-
-      Logger.info('[BackupsDependencyContainerFactory] Registering user usage services.');
-      await registerUserUsageServices(builder);
-
       Logger.info('[BackupsDependencyContainerFactory] Registering dangled files service.');
       builder.registerAndUse(DangledFilesService);
 

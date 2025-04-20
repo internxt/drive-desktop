@@ -1,9 +1,8 @@
 import { Service } from 'diod';
 import { Folder, FolderAttributes } from '../domain/Folder';
-import { FolderRepository } from '../domain/FolderRepository';
 
 @Service()
-export class InMemoryFolderRepository implements FolderRepository {
+export class InMemoryFolderRepository {
   private folders: Map<Folder['id'], FolderAttributes>;
 
   constructor() {
@@ -12,22 +11,6 @@ export class InMemoryFolderRepository implements FolderRepository {
 
   private get values(): Array<FolderAttributes> {
     return Array.from(this.folders.values());
-  }
-
-  matchingPartial(partial: Partial<FolderAttributes>): Array<Folder> {
-    const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
-
-    const foldersAttributes = this.values.filter((attributes) => {
-      return keys.every((key: keyof FolderAttributes) => attributes[key] === partial[key]);
-    });
-
-    return foldersAttributes.map((attributes) => Folder.from(attributes));
-  }
-
-  all(): Promise<Folder[]> {
-    const folders = [...this.folders.values()].map((attributes) => Folder.from(attributes));
-
-    return Promise.resolve(folders);
   }
 
   searchByPartial(partial: Partial<FolderAttributes>): Folder | undefined {
@@ -44,11 +27,11 @@ export class InMemoryFolderRepository implements FolderRepository {
     return undefined;
   }
 
-  async add(folder: Folder): Promise<void> {
+  add(folder: Folder): void {
     this.folders.set(folder.id, folder.attributes());
   }
 
-  async delete(id: number): Promise<void> {
+  delete(id: number): void {
     const deleted = this.folders.delete(id);
 
     if (!deleted) {
@@ -56,7 +39,7 @@ export class InMemoryFolderRepository implements FolderRepository {
     }
   }
 
-  async update(folder: Folder): Promise<void> {
+  update(folder: Folder): void {
     if (!this.folders.has(folder.id)) {
       throw new Error('Folder not found');
     }

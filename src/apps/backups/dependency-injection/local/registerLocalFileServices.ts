@@ -17,7 +17,7 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
   const mnemonic = DependencyInjectionMnemonicProvider.get();
 
   const environment = new Environment({
-    bridgeUrl: process.env.BRIDGE_URL,
+    bridgeUrl: process.env.DRIVE_URL,
     bridgeUser: getConfig().bridgeUser,
     bridgePass: getConfig().bridgePass,
     encryptionKey: mnemonic,

@@ -3,11 +3,17 @@ import { SyncRemoteFilesService } from './sync-remote-files.service';
 import { FetchFilesService } from './fetch-files.service.interface';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { LoggerService } from '@/apps/shared/logger/logger';
-import { getMockCalls } from 'tests/vitest/utils.helper.test';
+import { deepMocked, getMockCalls } from 'tests/vitest/utils.helper.test';
 import { RemoteSyncedFile } from '../helpers';
+import { getUserOrThrow } from '../../auth/service';
+
+vi.mock(import('@/apps/main/util'));
+vi.mock(import('../../auth/service'));
 
 describe('sync-remote-files.service', () => {
   const workspaceId = 'workspaceId';
+
+  const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
   const remoteSyncManager = mockDeep<RemoteSyncManager>();
   const fetchFiles = mockDeep<FetchFilesService>();
@@ -16,7 +22,7 @@ describe('sync-remote-files.service', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    remoteSyncManager.filesSyncStatus = 'IDLE';
+    getUserOrThrowMock.mockResolvedValue({ uuid: 'uuid' });
     remoteSyncManager.totalFilesSynced = 0;
   });
 
@@ -30,8 +36,6 @@ describe('sync-remote-files.service', () => {
     // Then
     expect(files.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(1);
-    // TODO: maybe we need to set it to SYNCED?
-    expect(remoteSyncManager.filesSyncStatus).toBe('IDLE');
   });
 
   it('If checkpoint is null, fetch only EXISTS files', async () => {
@@ -68,8 +72,7 @@ describe('sync-remote-files.service', () => {
     // Then
     expect(files.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(3);
-    expect(remoteSyncManager.filesSyncStatus).toBe('SYNC_FAILED');
-    expect(remoteSyncManager.checkRemoteSyncStatus).toHaveBeenCalledTimes(1);
+    expect(remoteSyncManager.changeStatus).toHaveBeenCalledWith('SYNC_FAILED');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 0, retry: 1 }),
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 0, retry: 2 }),
@@ -88,8 +91,7 @@ describe('sync-remote-files.service', () => {
     // Then
     expect(files.length).toBe(0);
     expect(fetchFiles.run).toHaveBeenCalledTimes(4);
-    expect(remoteSyncManager.filesSyncStatus).toBe('SYNC_FAILED');
-    expect(remoteSyncManager.checkRemoteSyncStatus).toHaveBeenCalledTimes(1);
+    expect(remoteSyncManager.changeStatus).toHaveBeenCalledWith('SYNC_FAILED');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 50, retry: 1 }),
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 50, retry: 2 }),
@@ -116,7 +118,6 @@ describe('sync-remote-files.service', () => {
     expect(files.length).toBe(2);
     expect(remoteSyncManager.totalFilesSynced).toBe(2);
     expect(fetchFiles.run).toHaveBeenCalledTimes(3);
-    expect(remoteSyncManager.filesSyncStatus).toBe('IDLE');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({
         msg: 'Remote files sync failed',

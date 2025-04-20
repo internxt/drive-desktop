@@ -4,13 +4,15 @@ import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
 import { getUser } from '../auth/service';
 import { Config } from '@/apps/sync-engine/config';
-import { getLoggersPaths, getRootVirtualDrive } from '../virtual-root-folder/service';
+import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { initializeRemoteSyncManager } from '../remote-sync/handlers';
+import { PATHS } from '@/core/electron/paths';
+import { join } from 'path';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -30,36 +32,12 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
 
 export function updateSyncEngine(workspaceId: string) {
   try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker.webContents?.send('UPDATE_SYNC_ENGINE_PROCESS');
+    const browserWindow = workers[workspaceId]?.worker;
+    if (browserWindow && !browserWindow.isDestroyed() && !browserWindow.webContents.isDestroyed()) {
+      browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
     Logger.error(err);
-  }
-}
-
-export function fallbackSyncEngine(workspaceId: string) {
-  try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker?.webContents?.send('FALLBACK_SYNC_ENGINE_PROCESS');
-    }
-  } catch (err) {
-    Logger.error(err);
-  }
-}
-
-export async function sendUpdateFilesInSyncPending(workspaceId: string): Promise<string[]> {
-  try {
-    const worker = workers[workspaceId]?.worker;
-    if (worker && !worker.isDestroyed() && worker.webContents && !worker.webContents.isDestroyed()) {
-      worker?.webContents?.send('UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE_PROCESS');
-    }
-    return [];
-  } catch (err) {
-    Logger.error(err);
-    return [];
   }
 }
 
@@ -84,7 +62,7 @@ export const spawnAllSyncEngineWorker = async () => {
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
-    loggerPath: getLoggersPaths().logEnginePath,
+    loggerPath: join(PATHS.LOGS, 'node-win.log'),
     rootUuid: user.rootFolderId,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
@@ -96,7 +74,9 @@ export const spawnAllSyncEngineWorker = async () => {
   const workspaces = await getWorkspaces({});
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
-  unregisterVirtualDrives({ providerId, workspaceProviderIds });
+  const currentProviderIds = workspaceProviderIds.concat([providerId]);
+
+  unregisterVirtualDrives({ currentProviderIds });
 
   const spawnWorkspaces = workspaces.forEach(async (workspace) => {
     initializeRemoteSyncManager({ workspaceId: workspace.id });

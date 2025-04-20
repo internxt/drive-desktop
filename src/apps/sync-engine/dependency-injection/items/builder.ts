@@ -1,7 +1,6 @@
 import { RemoteItemsGenerator } from '../../../../context/virtual-drive/items/application/RemoteItemsGenerator';
 import { Traverser } from '../../../../context/virtual-drive/items/application/Traverser';
 import { TreeBuilder } from '../../../../context/virtual-drive/items/application/TreeBuilder';
-import { CryptoJsNameDecrypt } from '../../../../context/virtual-drive/items/infrastructure/CryptoJsNameDecrypt';
 import { getUser } from '../../../main/auth/service';
 import { getConfig } from '../../config';
 import { ItemsContainer } from './ItemsContainer';
@@ -15,11 +14,9 @@ export function buildItemsContainer(): ItemsContainer {
 
   const remoteItemsGenerator = new RemoteItemsGenerator();
 
-  const nameDecryptor = new CryptoJsNameDecrypt();
+  const existingItemsTraverser = new Traverser(user.root_folder_id, getConfig().rootUuid);
 
-  const existingItemsTraverser = Traverser.existingItems(nameDecryptor, user.root_folder_id, getConfig().rootUuid);
+  const treeBuilder = new TreeBuilder(remoteItemsGenerator, existingItemsTraverser);
 
-  const existingItemsTreeBuilder = new TreeBuilder(remoteItemsGenerator, existingItemsTraverser);
-
-  return { existingItemsTreeBuilder };
+  return { treeBuilder };
 }

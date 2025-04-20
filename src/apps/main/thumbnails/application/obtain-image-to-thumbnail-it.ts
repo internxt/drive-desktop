@@ -69,8 +69,6 @@ function getExtension(pathLike: string) {
 export async function obtainImageToThumbnailIt(filePath: string): Promise<Buffer | undefined> {
   const ext = getExtension(filePath);
 
-  Logger.info(`[THUMBNAIL] Extension: ${ext}`);
-
   if (isImageThumbnailable(ext)) {
     return await generateImageThumbnail(filePath);
   }

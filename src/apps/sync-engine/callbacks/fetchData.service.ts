@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop */
-
 import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
@@ -8,7 +6,6 @@ import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
 import * as fs from 'fs';
 import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { dirname } from 'path';
-import { getConfig } from '../config';
 
 type TProps = {
   self: BindingsManager;
@@ -53,7 +50,7 @@ export class FetchDataService {
             self.progressBuffer = result.progress;
           }
 
-          ipcRendererSyncEngine.send('FILE_PREPARING', {
+          ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
             name: file.name,
             extension: file.type,
             nameWithExtension: file.nameWithExtension,
@@ -109,7 +106,6 @@ export class FetchDataService {
       Logger.error(error);
       Sentry.captureException(error);
       await callback(false, '');
-      ipcRendererSyncEngine.send('SYNCED', getConfig().workspaceId);
     }
   }
 

@@ -1,6 +1,4 @@
-/* eslint-disable no-await-in-loop */
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
-import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
@@ -8,19 +6,19 @@ import { Service } from 'diod';
 import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import crypt from '@/context/shared/infrastructure/crypt';
 
 @Service()
 export class HttpRemoteFileSystem {
   constructor(
-    private readonly crypt: Crypt,
     private readonly bucket: string,
-
     private readonly workspaceId?: string | null,
   ) {}
 
   async persist(offline: OfflineFile): Promise<FileAttributes> {
     try {
-      const encryptedName = this.crypt.encryptName(offline.name, offline.folderId.toString());
+      const encryptedName = crypt.encryptName({ name: offline.name, parentId: offline.folderId });
 
       if (!encryptedName) {
         throw new Error('Failed to encrypt name');
@@ -38,8 +36,6 @@ export class HttpRemoteFileSystem {
 
       logger.debug({
         msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
-        offline,
-        body,
       });
 
       const result = this.workspaceId ? await this.createFileInWorkspace(body, this.workspaceId) : await this.createFile(body);
@@ -110,95 +106,38 @@ export class HttpRemoteFileSystem {
     return response.data;
   }
   async delete(file: File): Promise<void> {
-    const response = await client.POST('/storage/trash/add', {
-      body: {
-        items: [{ type: 'file', uuid: file.uuid, id: null }],
-      },
-    });
-
-    if (!response.data) {
-      throw logger.error({
-        msg: 'Error trashing file',
-        error: response.error,
-      });
-    }
+    await driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
   }
 
   async rename(file: File): Promise<void> {
-    const response = await client.PUT('/files/{uuid}/meta', {
-      body: { plainName: file.name, type: file.type },
-      params: {
-        path: {
-          uuid: file.uuid,
-        },
-      },
+    await driveServerWip.files.renameFile({
+      name: file.name,
+      type: file.type,
+      uuid: file.uuid,
     });
-
-    if (!response.data) {
-      throw logger.error({
-        msg: 'Error renaming file',
-        error: response.error,
-      });
-    }
   }
-  async move(file: File): Promise<void> {
-    const response = await client.PATCH('/files/{uuid}', {
-      body: { destinationFolder: file.folderUuid.value },
-      params: {
-        path: {
-          uuid: file.uuid,
-        },
-      },
+  async move({ file, parentUuid }: { file: File; parentUuid: string }): Promise<void> {
+    await driveServerWip.files.moveFile({
+      uuid: file.uuid,
+      parentUuid,
     });
-
-    if (!response.data) {
-      throw logger.error({
-        msg: 'Error moving file',
-        error: response.error,
-      });
-    }
   }
 
-  async replace(file: File, newContentsId: File['contentsId'], newSize: File['size']): Promise<void> {
-    const response = await client.PUT('/files/{uuid}', {
-      body: {
-        fileId: newContentsId,
-        size: newSize,
-      },
-      params: {
-        path: {
-          uuid: file.uuid,
-        },
-      },
+  // TODO: this is duplicated
+  async replace(file: File, newContentId: File['contentsId'], newSize: File['size']): Promise<void> {
+    await driveServerWip.files.replaceFile({
+      uuid: file.uuid,
+      newContentId,
+      newSize,
     });
-
-    if (!response.data) {
-      throw logger.error({
-        msg: 'Error moving file',
-        error: response.error,
-      });
-    }
   }
 
   async override(file: File): Promise<void> {
-    const response = await client.PUT('/files/{uuid}', {
-      body: {
-        fileId: file.contentsId,
-        size: file.size,
-      },
-      params: {
-        path: {
-          uuid: file.uuid,
-        },
-      },
+    await driveServerWip.files.replaceFile({
+      uuid: file.uuid,
+      newContentId: file.contentsId,
+      newSize: file.size,
     });
-
-    if (!response.data) {
-      throw logger.error({
-        msg: 'Error moving file',
-        error: response.error,
-      });
-    }
   }
 
   async getFileByPath(filePath: string): Promise<null | FileAttributes> {
@@ -236,22 +175,6 @@ export class HttpRemoteFileSystem {
 
     return attributes;
   }
-  async hardDelete(fileId: string): Promise<void> {
-    const result = await client.DELETE('/storage/trash/file/{fileId}', {
-      params: {
-        path: {
-          fileId,
-        },
-      },
-    });
-
-    if (result.error) {
-      logger.error({
-        msg: 'Error hard deleting file',
-        exc: result as unknown,
-      });
-    }
-  }
 
   async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }) {
     const { attributes, newContentsId } = input;
@@ -262,7 +185,7 @@ export class HttpRemoteFileSystem {
     logger.info({
       msg: `New contents id generated ${newContentsId}, path: ${attributes.path}`,
     });
-    await this.hardDelete(attributes.contentsId);
+    await driveServerWip.storage.deleteFile({ fileId: attributes.contentsId });
 
     logger.info({
       msg: `Deleted file with contents id ${attributes.contentsId}, path: ${attributes.path}`,

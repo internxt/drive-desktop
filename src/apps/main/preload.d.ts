@@ -75,8 +75,6 @@ declare interface Window {
 
     getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
 
-    getHeaders(includeMnemonic?: boolean): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
-
     startSyncProcess(): void;
 
     stopSyncProcess(): void;
@@ -176,13 +174,11 @@ declare interface Window {
       callback: (event: { status: import('../shared/types/VirtualDriveStatus').VirtualDriveStatus }) => void,
     ): () => void;
     retryVirtualDriveMount(): void;
-    startRemoteSync: () => Promise<void>;
     openUrl: (url: string) => Promise<void>;
     getPreferredAppLanguage: () => Promise<Array<string>>;
     syncManually: () => Promise<void>;
     getRecentlywasSyncing: () => Promise<boolean>;
     getUnsycFileInSyncEngine: () => Promise<string[]>;
-    updateUnsycFileInSyncEngine: () => Promise<void>;
     user: {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
@@ -226,12 +222,13 @@ declare interface Window {
     };
     authService: {
       access: (
-        props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['access']>[0],
-      ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['access']>;
+        props: Parameters<(typeof import('../../infra/drive-server-wip/services/auth.service').AuthService)['access']>[0],
+      ) => ReturnType<(typeof import('../../infra/drive-server-wip/services/auth.service').AuthService)['access']>;
       login: (
-        props: Parameters<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>[0],
-      ) => ReturnType<(typeof import('../../context/infra/api/auth.service').AuthService)['login']>;
+        props: Parameters<(typeof import('../../infra/drive-server-wip/services/auth.service').AuthService)['login']>[0],
+      ) => ReturnType<(typeof import('../../infra/drive-server-wip/services/auth.service').AuthService)['login']>;
     };
     path: import('path');
   };
+  // src\infra\drive-server-wip\services\auth.service.ts
 }

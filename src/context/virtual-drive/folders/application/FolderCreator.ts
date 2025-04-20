@@ -1,11 +1,11 @@
 import { Service } from 'diod';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import { EventBus } from '../../shared/domain/EventBus';
 import { Folder } from '../domain/Folder';
 import { OfflineFolder } from '../domain/OfflineFolder';
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 import { FolderPlaceholderConverter } from './FolderPlaceholderConverter';
+import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 @Service()
 export class FolderCreator {
@@ -13,7 +13,7 @@ export class FolderCreator {
     private readonly repository: InMemoryFolderRepository,
     private readonly remote: HttpRemoteFolderSystem,
     private readonly ipc: SyncEngineIpc,
-    private readonly eventBus: EventBus,
+    private readonly eventBus: EventRecorder,
     private readonly folderPlaceholderConverter: FolderPlaceholderConverter,
   ) {}
 

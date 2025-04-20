@@ -2,10 +2,11 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
 import { logger } from '@/apps/shared/logger/logger';
 import { getWorkspaces } from './get-workspaces';
+import { PATHS } from '@/core/electron/paths';
 
-vi.mock('@/apps/shared/logger/logger');
-vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
-vi.mock('@/apps/main/util');
+vi.mock(import('@/apps/shared/logger/logger'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+vi.mock(import('@/apps/main/util'));
 
 describe('get-workspaces', () => {
   const getWorkspacesMock = deepMocked(driveServerWipModule.workspaces.getWorkspaces);
@@ -41,6 +42,7 @@ describe('get-workspaces', () => {
 
   it('If get workspaces success, then spawn workspaces', async () => {
     // Given
+    PATHS.HOME_FOLDER_PATH = 'C:\\Users\\user';
     getWorkspacesMock.mockResolvedValue({
       data: {
         availableWorkspaces: [
@@ -68,6 +70,7 @@ describe('get-workspaces', () => {
         providerId: '{PROVIDER_ID}',
         mnemonic: 'mnemonic',
         rootFolderId: 'rootFolderId',
+        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
       },
     ]);
   });

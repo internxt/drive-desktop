@@ -11,6 +11,6 @@ export function scheduleSync({ worker }: TProps) {
   worker.syncSchedule?.cancel(false);
   worker.syncSchedule = nodeSchedule.scheduleJob('*/15 * * * *', async () => {
     logger.debug({ msg: 'Received remote changes event' });
-    debouncedSynchronization();
+    await debouncedSynchronization();
   });
 }

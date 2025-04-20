@@ -94,6 +94,7 @@ export class FileOverwriteContent {
 
       Logger.info('hydratedDangledRemoteFile ', { id: hydratedDangledRemoteFile.contentsId, path: hydratedDangledRemoteFile.path });
 
+      if (!hydratedDangledRemoteFile.folderUuid) return;
       await this.fileContentsHardUpdater.run({
         attributes: {
           contentsId: hydratedDangledRemoteFile.contentsId,

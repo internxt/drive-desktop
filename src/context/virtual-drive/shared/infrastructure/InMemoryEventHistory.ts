@@ -1,7 +1,6 @@
 import { DomainEvent } from '../../../shared/domain/DomainEvent';
-import { EventRepository } from '../domain/EventRepository';
 
-export class InMemoryEventRepository implements EventRepository {
+export class InMemoryEventRepository {
   private static readonly MAX_EVENTS_STORED = 3_000;
   private events: Array<DomainEvent> = [];
 

@@ -9,41 +9,48 @@ export class NodeWinLocalFolderSystem {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  async createPlaceHolder(folder: Folder): Promise<void> {
+  createPlaceHolder(folder: Folder) {
     if (!folder.hasStatus(FolderStatuses.EXISTS)) {
       return;
     }
 
     const folderPath = `${folder.path}/`;
 
-    this.virtualDrive.createFolderByPath(folderPath, folder.placeholderId, 0, folder.createdAt.getTime(), folder.updatedAt.getTime());
+    this.virtualDrive.createFolderByPath({
+      relativePath: folderPath,
+      itemId: folder.placeholderId,
+      size: 0,
+      creationTime: folder.createdAt.getTime(),
+      lastWriteTime: folder.updatedAt.getTime(),
+    });
   }
 
-  async updateSyncStatus(folder: Folder, status = true) {
+  updateSyncStatus(folder: Folder, status = true) {
     const folderPath = `${folder.path}/`;
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
 
-    return this.virtualDrive.updateSyncStatus(win32AbsolutePath, true, status);
+    return this.virtualDrive.updateSyncStatus({
+      itemPath: win32AbsolutePath,
+      isDirectory: true,
+      sync: status,
+    });
   }
 
-  async getFileIdentity(path: Folder['path']) {
-    return this.virtualDrive.getFileIdentity(path);
+  getFileIdentity(path: Folder['path']) {
+    return this.virtualDrive.getFileIdentity({ path });
   }
   async deleteFileSyncRoot(path: Folder['path']) {
-    await this.virtualDrive.deleteFileSyncRoot(path);
+    await this.virtualDrive.deleteFileSyncRoot({ path });
   }
 
-  async convertToPlaceholder(folder: Folder) {
+  convertToPlaceholder(folder: Folder) {
     const folderPath = `${folder.path}/`;
 
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
 
-    return this.virtualDrive.convertToPlaceholder(win32AbsolutePath, folder.placeholderId);
-  }
-
-  getPlaceholderState(folder: Folder) {
-    const folderPath = `${folder.path}/`;
-
-    return this.virtualDrive.getPlaceholderState(folderPath);
+    return this.virtualDrive.convertToPlaceholder({
+      itemPath: win32AbsolutePath,
+      id: folder.placeholderId,
+    });
   }
 }

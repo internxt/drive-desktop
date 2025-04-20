@@ -1,19 +1,21 @@
 import { Config } from '@/apps/sync-engine/config';
-import { getLoggersPaths, getRootWorkspace } from '@/apps/main/virtual-root-folder/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { sleep } from '@/apps/main/util';
+import { PATHS } from '@/core/electron/paths';
+import { join } from 'path';
 
 type TProps = {
   retry?: number;
   workspace: {
     id: string;
     mnemonic: string;
-    rootFolderId: string;
     providerId: string;
+    rootFolderId: string;
+    rootPath: string;
   };
 };
 
@@ -38,9 +40,9 @@ export async function spawnWorkspace({ workspace, retry = 1 }: TProps) {
   const config: Config = {
     mnemonic: mnemonic.toString(),
     providerId: workspace.providerId,
-    rootPath: getRootWorkspace(workspace.providerId),
+    rootPath: workspace.rootPath,
     providerName: 'Internxt Drive for Business',
-    loggerPath: getLoggersPaths().logWatcherPath,
+    loggerPath: join(PATHS.LOGS, `node-win-workspace-${workspace.id}.log`),
     workspaceId: workspace.id,
     workspaceToken: credentials.tokenHeader,
     rootUuid: workspace.rootFolderId,

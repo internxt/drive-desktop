@@ -67,9 +67,6 @@ contextBridge.exposeInMainWorld('electron', {
   getUser() {
     return ipcRenderer.invoke('get-user');
   },
-  getHeaders(includeMnemonic = false) {
-    return ipcRenderer.invoke('get-headers', includeMnemonic);
-  },
   startSyncProcess() {
     return ipcRenderer.send('start-sync-process');
   },
@@ -318,9 +315,6 @@ contextBridge.exposeInMainWorld('electron', {
   getRemoteSyncStatus() {
     return ipcRenderer.invoke('get-remote-sync-status');
   },
-  startRemoteSync() {
-    return ipcRenderer.invoke('START_REMOTE_SYNC');
-  },
   getVirtualDriveStatus() {
     return ipcRenderer.invoke('get-virtual-drive-status');
   },
@@ -348,12 +342,8 @@ contextBridge.exposeInMainWorld('electron', {
   getUnsycFileInSyncEngine() {
     return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
   },
-  updateUnsycFileInSyncEngine() {
-    return ipcRenderer.invoke('SEND_UPDATE_UNSYNC_FILE_IN_SYNC_ENGINE');
-  },
   getRecentlywasSyncing() {
-    const FIVE_SECONDS = 5000;
-    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS', FIVE_SECONDS);
+    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS');
   },
 
   user: {

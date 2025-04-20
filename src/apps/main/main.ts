@@ -15,9 +15,12 @@ import 'regenerator-runtime/runtime';
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
+import { setupElectronLog } from './logger';
+
+setupElectronLog();
+
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
-import './logger';
 import { setupBugReportHandlers } from './bug-report/handlers';
 import { checkIfUserIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
@@ -28,7 +31,6 @@ import './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';
-import './tray/handlers';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';
@@ -42,7 +44,7 @@ import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
-import { AppDataSource, destroyDatabase } from './database/data-source';
+import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
@@ -52,10 +54,12 @@ import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from '../shared/types/Theme';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
-import { clearAntivirusIfAvailable, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
+import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
-import { setDefaultConfig } from '../sync-engine/config';
+import { clearConfig, setDefaultConfig } from '../sync-engine/config';
+import { migrate } from '@/migrations/migrate';
+import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -106,10 +110,13 @@ app
     }
 
     setupTrayIcon();
+
+    await migrate();
+
     registerUsageHandlers();
     setUpBackups();
-    await checkIfUserIsLoggedIn();
 
+    await checkIfUserIsLoggedIn();
     const isLoggedIn = getIsLoggedIn();
 
     if (!isLoggedIn) {
@@ -132,6 +139,8 @@ eventBus.on('USER_LOGGED_IN', async () => {
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
+
+    setDefaultConfig({});
 
     getAuthWindow()?.hide();
 
@@ -162,14 +171,17 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
 eventBus.on('USER_LOGGED_OUT', async () => {
   setTrayStatus('IDLE');
-  await destroyDatabase();
+
+  clearConfig();
+
   const widget = getWidget();
   if (widget) {
     widget.hide();
     widget.destroy();
   }
 
-  clearAntivirusIfAvailable();
+  clearAntivirus();
+  unregisterVirtualDrives({});
 
   await createAuthWindow();
 });

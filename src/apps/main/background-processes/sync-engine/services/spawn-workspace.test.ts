@@ -6,12 +6,12 @@ import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 
-vi.mock('./spawn-sync-engine-worker');
-vi.mock('@/apps/main/auth/service');
-vi.mock('@/apps/shared/crypto/service');
-vi.mock('@/apps/shared/logger/logger');
-vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
-vi.mock('@/apps/main/util');
+vi.mock(import('./spawn-sync-engine-worker'));
+vi.mock(import('@/apps/main/auth/service'));
+vi.mock(import('@/apps/shared/crypto/service'));
+vi.mock(import('@/apps/shared/logger/logger'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+vi.mock(import('@/apps/main/util'));
 
 describe('spawn-workspace.service', () => {
   const getCredentialsMock = deepMocked(driveServerWipModule.workspaces.getCredentials);
@@ -49,6 +49,7 @@ describe('spawn-workspace.service', () => {
         id: 'workspaceId',
         providerId: '{PROVIDER_ID}',
         mnemonic: 'encryptedMnemonic',
+        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
       },
     });
     await spawnWorkspace(props);
@@ -68,17 +69,11 @@ describe('spawn-workspace.service', () => {
         bridgePass: 'pass',
         bridgeUser: 'user',
         bucket: undefined,
-        loggerPath: undefined,
+        loggerPath: '\\mock\\logs\\internxt-drive\\logs\\node-win-workspace-workspaceId.log',
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',
-        rootPath: {
-          lastSavedListing: '/mock/logs',
-          logEnginePath: '/mock/logs',
-          logWatcherPath: '/mock/logs',
-          persistQueueManagerPath: '/mock/logs',
-          syncRoot: '/mock/path',
-        },
+        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
         rootUuid: undefined,
         workspaceId: 'workspaceId',
         workspaceToken: undefined,

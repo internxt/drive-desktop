@@ -6,29 +6,24 @@ import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerF
 import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
-import { EitherTransformer } from '../../shared/application/EitherTransformer';
-import { NameDecrypt } from '../domain/NameDecrypt';
 import { RemoteTree } from '../domain/RemoteTree';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
+import { File } from '../../files/domain/File';
 
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
 };
+
 @Service()
 export class Traverser {
   constructor(
-    private readonly decrypt: NameDecrypt,
     private readonly fileStatusesToFilter: Array<ServerFileStatus>,
     private readonly folderStatusesToFilter: Array<ServerFolderStatus>,
   ) {}
 
-  static existingItems(decrypt: NameDecrypt): Traverser {
-    return new Traverser(decrypt, [ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
-  }
-
-  static allItems(decrypt: NameDecrypt): Traverser {
-    return new Traverser(decrypt, [], []);
+  static existingItems(): Traverser {
+    return new Traverser([ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
   }
 
   private createRootFolder({ id, uuid }: { id: number; uuid: string }): Folder {
@@ -55,59 +50,53 @@ export class Traverser {
         return;
       }
 
-      const decryptedName =
-        serverFile.plainName ?? this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
-      const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
+      const decryptedName = File.decryptName({
+        plainName: serverFile.plainName,
+        name: serverFile.name,
+        parentId: serverFile.folderId,
+        type: serverFile.type,
+      });
 
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');
+      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
 
-      EitherTransformer.handleWithEither(() => {
+      try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
         tree.addFile(currentFolder, file);
-      }).fold(
-        (error): void => {
-          Logger.warn('[Traverser] Error adding file:', error);
-          Sentry.captureException(error);
-        },
-        () => {
-          //  no-op
-        },
-      );
+      } catch (error) {
+        Logger.warn('[Traverser] Error adding file:', error);
+        Sentry.captureException(error);
+      }
     });
 
     foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
-      const plainName =
-        serverFolder.plain_name ||
-        this.decrypt.decryptName(serverFolder.name, (serverFolder.parentId as number).toString(), '03-aes') ||
-        serverFolder.name;
+      const decryptedName = Folder.decryptName({
+        plainName: serverFolder.plain_name,
+        name: serverFolder.name,
+        parentId: serverFolder.parentId,
+      });
 
-      const name = `${currentFolder.path}/${plainName}`;
+      const name = `${currentFolder.path}/${decryptedName}`;
 
       if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
         return;
       }
 
-      EitherTransformer.handleWithEither(() => {
+      try {
         const folder = createFolderFromServerFolder(serverFolder, name);
 
         tree.addFolder(currentFolder, folder);
 
-        return folder;
-      }).fold(
-        (error) => {
-          Logger.warn(`[Traverser] Error adding folder:  ${error} `);
-          Sentry.captureException(error);
-        },
-        (folder) => {
-          if (folder.hasStatus(FolderStatuses.EXISTS)) {
-            // The folders and the files inside trashed or deleted folders
-            // will have the status "EXISTS", to avoid filtering witch folders and files
-            // are in a deleted or trashed folder they not included on the collection.
-            // We cannot perform any action on them either way
-            this.traverse(tree, items, folder);
-          }
-        },
-      );
+        if (folder.hasStatus(FolderStatuses.EXISTS)) {
+          // The folders and the files inside trashed or deleted folders
+          // will have the status "EXISTS", to avoid filtering witch folders and files
+          // are in a deleted or trashed folder they not included on the collection.
+          // We cannot perform any action on them either way
+          this.traverse(tree, items, folder);
+        }
+      } catch (error) {
+        Logger.warn('[Traverser] Error adding folder:', error);
+        Sentry.captureException(error);
+      }
     });
   }
 

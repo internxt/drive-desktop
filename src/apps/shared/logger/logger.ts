@@ -3,13 +3,17 @@ import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
+type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN';
+
 export type TLoggerBody = {
+  process?: 'main' | 'renderer';
   msg: string;
+  tag?: TTag;
   exc?: Error | unknown;
   context?: Record<string, unknown>;
   attributes?: {
-    tag?: 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE';
     userId?: string;
+    tag?: TTag;
     method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
     endpoint?: keyof paths;
   };
@@ -20,9 +24,14 @@ export class LoggerService {
   private prepareBody(rawBody: TLoggerBody) {
     const user = getUser();
 
-    rawBody.attributes = {
-      userId: user?.uuid,
-      ...rawBody.attributes,
+    rawBody = {
+      process: process.type === 'renderer' ? 'renderer' : 'main',
+      ...rawBody,
+      attributes: {
+        userId: user?.uuid,
+        tag: rawBody.tag,
+        ...rawBody.attributes,
+      },
     };
 
     const { attributes, ...rest } = rawBody;

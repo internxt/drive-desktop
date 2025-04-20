@@ -14,7 +14,6 @@ import { SynchronizeOfflineModificationsOnFolderCreated } from '../../../../cont
 import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/folders/application/UpdatePlaceholderFolder';
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
-import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FoldersFatherSyncStatusUpdater';
 import { FolderPlaceholderDeleter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
 
 export interface FoldersContainer {
@@ -33,9 +32,8 @@ export interface FoldersContainer {
   };
   folderRepositoryInitiator: FolderRepositoryInitiator;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
-  folderPlaceholderDeleter?: FolderPlaceholderDeleter;
+  folderPlaceholderDeleter: FolderPlaceholderDeleter;
   foldersPlaceholderCreator: FoldersPlaceholderCreator;
   folderPlaceholderConverter: FolderPlaceholderConverter;
   folderSyncStatusUpdater: FolderSyncStatusUpdater;
-  foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater;
 }

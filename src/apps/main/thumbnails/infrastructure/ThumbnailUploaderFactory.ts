@@ -1,6 +1,4 @@
 import { Environment } from '@internxt/inxt-js';
-
-import { getUser } from '../../auth/service';
 import { EnvironmentAndStorageThumbnailUploader } from './EnvironmentAndStorageThumbnailUploader';
 import { getConfig } from '@/apps/sync-engine/config';
 
@@ -12,14 +10,8 @@ export class ThumbnailUploaderFactory {
       return ThumbnailUploaderFactory.instance;
     }
 
-    const user = getUser();
-
-    if (!user) {
-      throw new Error('[THUMBNAIL] Thumbnail uploader could not be created: user missing');
-    }
-
     const environment = new Environment({
-      bridgeUrl: process.env.BRIDGE_URL,
+      bridgeUrl: process.env.DRIVE_URL,
       bridgeUser: getConfig().bridgeUser,
       bridgePass: getConfig().bridgePass,
       encryptionKey: getConfig().mnemonic,

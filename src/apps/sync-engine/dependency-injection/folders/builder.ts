@@ -27,12 +27,11 @@ import { RetryFolderDeleter } from '../../../../context/virtual-drive/folders/ap
 import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
-import { FoldersFatherSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FoldersFatherSyncStatusUpdater';
 import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 import { getConfig } from '../../config';
 
-export async function buildFoldersContainer(shredContainer: SharedContainer): Promise<FoldersContainer> {
+export function buildFoldersContainer(shredContainer: SharedContainer): FoldersContainer {
   const eventBus = DependencyInjectionEventBus.bus;
   const { virtualDrive } = DependencyInjectionVirtualDrive;
   const eventRepository = DependencyInjectionEventRepository.get();
@@ -88,21 +87,16 @@ export async function buildFoldersContainer(shredContainer: SharedContainer): Pr
     shredContainer.relativePathToAbsoluteConverter,
   );
 
-  const folderPlaceholderDeleter = new FolderPlaceholderDeleter(
-    shredContainer.relativePathToAbsoluteConverter,
-    remoteFolderSystem,
-    localFolderSystem,
-  );
+  const folderPlaceholderDeleter = new FolderPlaceholderDeleter(localFolderSystem);
 
   const folderContainerDetector = new FolderContainerDetector(repository);
-  const foldersFatherSyncStatusUpdater = new FoldersFatherSyncStatusUpdater(localFolderSystem, repository);
 
   return {
     folderCreator,
     folderFinder,
     folderDeleter,
     retryFolderDeleter,
-    allParentFoldersStatusIsExists: allParentFoldersStatusIsExists,
+    allParentFoldersStatusIsExists,
     folderPathUpdater,
     folderContainerDetector,
     synchronizeOfflineModificationsOnFolderCreated,
@@ -117,6 +111,5 @@ export async function buildFoldersContainer(shredContainer: SharedContainer): Pr
     folderPlaceholderUpdater,
     folderPlaceholderConverter,
     folderSyncStatusUpdater,
-    foldersFatherSyncStatusUpdater,
   };
 }

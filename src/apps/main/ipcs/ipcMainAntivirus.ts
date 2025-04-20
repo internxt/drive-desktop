@@ -32,9 +32,7 @@ ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
 
 export async function isAvailableBackups(): Promise<boolean> {
   try {
-    if (!paymentService) {
-      paymentService = buildPaymentsService();
-    }
+    paymentService = buildPaymentsService();
 
     const availableProducts = await paymentService.getAvailableProducts();
 

@@ -16,7 +16,7 @@ test.describe('process issues', () => {
   let electronApp: ElectronApplication;
   let page: Page;
 
-  const addSyncErrors = async (errors: Array<ProcessErrorName>) => {
+  const addSyncErrors = (errors: Array<ProcessErrorName>) => {
     const emitEvents = errors.map(createSyncError).map((error) => ipcMainEmit(electronApp, 'SYNC_INFO_UPDATE', error));
 
     return Promise.all(emitEvents);

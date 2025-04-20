@@ -120,7 +120,6 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-
   '/files/{bucketId}/{fileId}': {
     parameters: {
       query?: never;
@@ -130,15 +129,14 @@ export interface paths {
     };
     get?: never;
     put?: never;
-    /** Create Thumbnail */
-    post: never;
+    post?: never;
+    /** Delete file from storage by fileId */
     delete: operations['FileController_deleteFileByFileId'];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-
   '/storage/share/domains': {
     parameters: {
       query?: never;
@@ -3587,6 +3585,18 @@ export interface components {
        */
       email: Record<string, never>;
     };
+    RefreshTokenResponseDto: {
+      /**
+       * @description The old token that has been replaced
+       * @example newToken1234567890
+       */
+      token: string;
+      /**
+       * @description The new token to be used for authentication
+       * @example oldToken1234567890
+       */
+      newToken: string;
+    };
     UpdatePasswordDto: {
       /**
        * @description Current password
@@ -4112,7 +4122,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
       };
     };
   };
@@ -4135,7 +4147,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
       };
     };
   };
@@ -4177,7 +4191,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
       };
     };
   };
@@ -4241,6 +4257,26 @@ export interface operations {
         content: {
           'application/json': components['schemas']['ThumbnailDto'];
         };
+      };
+    };
+  };
+  FileController_deleteFileByFileId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        bucketId: string;
+        fileId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
       };
     };
   };
@@ -4412,27 +4448,6 @@ export interface operations {
     };
     responses: {
       /** @description The share of the folder */
-      200: {
-        headers: {
-          [name: string]: unknown;
-        };
-        content?: never;
-      };
-    };
-  };
-
-  FileController_deleteFileByFileId: {
-    parameters: {
-      query?: never;
-      header?: never;
-      path: {
-        bucketId: string;
-        fileId: string;
-      };
-      cookie?: never;
-    };
-    requestBody?: never;
-    responses: {
       200: {
         headers: {
           [name: string]: unknown;
@@ -4892,7 +4907,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
       };
     };
   };
@@ -5009,7 +5026,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
       };
     };
   };
@@ -7143,7 +7162,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['RefreshTokenResponseDto'];
+        };
       };
     };
   };

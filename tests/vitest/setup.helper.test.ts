@@ -1,11 +1,7 @@
 import { vi } from 'vitest';
-import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config();
-
 process.env.NODE_ENV = 'development';
-
 process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
 
 vi.mock('@/apps/main/auth/service', () => {
@@ -148,11 +144,7 @@ vi.mock('@/apps/main/virtual-root-folder/service.ts', () => {
     getLoggersPaths: vi.fn(() => '/mock/logs'),
     getRootVirtualDrive: vi.fn(() => '/mock/path'),
     getRootWorkspace: vi.fn(() => ({
-      logEnginePath: '/mock/logs',
-      logWatcherPath: '/mock/logs',
-      persistQueueManagerPath: '/mock/logs',
       syncRoot: '/mock/path',
-      lastSavedListing: '/mock/logs',
     })),
   };
 });
