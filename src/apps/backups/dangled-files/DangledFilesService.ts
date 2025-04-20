@@ -44,7 +44,7 @@ export class DangledFilesService {
             },
           });
           downloader.forceStop();
-          resolve(false);
+          resolve(true);
         });
 
         downloader.on('error', (error: Error) => {
@@ -57,7 +57,7 @@ export class DangledFilesService {
               tag: 'BACKUPS',
             },
           });
-          resolve(true);
+          resolve(false);
         });
       });
       await downloader.download(file);
@@ -70,39 +70,46 @@ export class DangledFilesService {
           tag: 'BACKUPS',
         },
       });
-      return true;
+      return false;
     }
   }
 
   async handleDangledFile(danglingFiles: Map<LocalFile, File>): Promise<Map<LocalFile, File>> {
-    const filesToResync = new Map<LocalFile, File>();
+  const filesToResync = new Map<LocalFile, File>();
 
-    for (const [localFile, remoteFile] of danglingFiles.entries()) {
-      if (!remoteFile) continue;
-      const isDownloadable = await this.isFileDownloadable(remoteFile);
+  for (const [localFile, remoteFile] of danglingFiles.entries()) {
+    if (!remoteFile) continue;
 
-      logger.debug({
-        msg: '[BACKUPS] Checking if file is downloadable',
+    let isDownloadable: boolean;
+    try {
+      isDownloadable = await this.isFileDownloadable(remoteFile);
+    } catch (error) {
+      logger.warn({
+        msg: '[BACKUPS] Error checking if file is downloadable in handleDangledFile',
         fileId: remoteFile.contentsId,
-        name: remoteFile.name,
-        attributes: {
-          tag: 'BACKUPS',
-        },
+        error,
+        attributes: { tag: 'BACKUPS' },
       });
-
-      if (!isDownloadable) {
-        filesToResync.set(localFile, remoteFile);
-
-        logger.debug({
-          msg: '[BACKUPS] File is not downloadable',
-          fileId: remoteFile.contentsId,
-          attributes: {
-            tag: 'BACKUPS',
-          },
-        });
-      }
+      continue;
     }
 
-    return filesToResync;
+    logger.debug({
+      msg: '[BACKUPS] Checking if file is downloadable',
+      fileId: remoteFile.contentsId,
+      name: remoteFile.name,
+      attributes: { tag: 'BACKUPS' },
+    });
+
+    if (!isDownloadable) {
+      filesToResync.set(localFile, remoteFile);
+      logger.debug({
+        msg: '[BACKUPS] File is not downloadable',
+        fileId: remoteFile.contentsId,
+        attributes: { tag: 'BACKUPS' },
+      });
+    }
   }
+
+  return filesToResync;
+}
 }
