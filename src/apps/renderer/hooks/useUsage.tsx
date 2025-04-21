@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { Usage } from '../../main/usage/Usage';
+import { debounce } from 'lodash';
 
 export default function useUsage() {
   const [usage, setUsage] = useState<Usage>();
   const [status, setStatus] = useState<'loading' | 'error' | 'ready'>('loading');
-  async function updateUsage() {
+
+  const updateUsage = useCallback(async () => {
     try {
       const userIsLoggedIn = await window.electron.isUserLoggedIn();
 
@@ -18,14 +20,18 @@ export default function useUsage() {
     } catch (err) {
       setStatus('error');
     }
-  }
+  }, []);
+
+  const debouncedUpdateUsage = useCallback(debounce(updateUsage, 500), []);
 
   useEffect(() => {
     setStatus('loading');
-    updateUsage();
-    const listener = window.electron.onRemoteChanges(updateUsage);
+    // The 'void' operator explicitly ignores the Promise returned by this async function,
+    // preventing unhandled promise warnings and indicating we don't need to await its result
+    void debouncedUpdateUsage();
+    const listener = window.electron.onRemoteChanges(debouncedUpdateUsage);
     return listener;
-  }, []);
+  }, [updateUsage, debouncedUpdateUsage]);
 
-  return { usage, refreshUsage: updateUsage, status };
+  return { usage, refreshUsage: debouncedUpdateUsage, status };
 }
