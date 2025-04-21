@@ -13,11 +13,14 @@ export default function AccountSection({ active }: { active: boolean }) {
   const { usage, status, refreshUsage } = useUsage();
 
   useEffect(() => {
-    window.electron.getUser().then(setUser);
+    window.electron
+      .getUser()
+      .then(setUser)
+      .catch(() => setUser(null));
   }, []);
 
   useEffect(() => {
-    if (active) refreshUsage();
+    if (active) void refreshUsage();
   }, [active]);
 
   return (
