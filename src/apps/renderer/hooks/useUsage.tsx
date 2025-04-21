@@ -26,8 +26,6 @@ export default function useUsage() {
 
   useEffect(() => {
     setStatus('loading');
-    // The 'void' operator explicitly ignores the Promise returned by this async function,
-    // preventing unhandled promise warnings and indicating we don't need to await its result
     void debouncedUpdateUsage();
     const listener = window.electron.onRemoteChanges(debouncedUpdateUsage);
     return listener;
