@@ -3,18 +3,13 @@ import { readdir } from 'fs/promises';
 import { resolve } from 'path';
 import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { isPermissionError } from '../utils/isPermissionError';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import Logger from 'electron-log';
-
-const execAsync = promisify(exec);
 
 export const getFilesFromDirectory = async (dir: string, cb: (file: string) => Promise<void>): Promise<void | null> => {
   let items: Dirent[];
   const isFile = await PathTypeChecker.isFile(dir);
 
   if (isFile) {
-    cb(dir);
+    void cb(dir);
     return;
   }
 
@@ -24,7 +19,6 @@ export const getFilesFromDirectory = async (dir: string, cb: (file: string) => P
     const error = err;
 
     if (isPermissionError(error)) {
-      console.warn(`Skipping directory "${dir}" due to permission error.`);
       return null;
     }
     throw err;
@@ -48,10 +42,9 @@ export const getFilesFromDirectory = async (dir: string, cb: (file: string) => P
         if (!isPermissionError(err)) {
           throw err;
         }
-        console.warn(`Skipping subdirectory "${fullPath}" due to permission error.`);
       }
     } else {
-      cb(fullPath);
+      void cb(fullPath);
     }
   }
 };
@@ -66,7 +59,6 @@ export async function countSystemFiles(folder: string) {
     items = await readdir(folder, { withFileTypes: true });
   } catch (err) {
     if (isPermissionError(err)) {
-      console.warn(`Skipping directory "${folder}" due to permission error.`);
       return 0;
     }
     throw err;
@@ -90,7 +82,6 @@ export async function countSystemFiles(folder: string) {
             return await countSystemFiles(fullPath);
           } catch (err) {
             if (!isPermissionError(err)) throw err;
-            console.warn(`Skipping subdirectory "${fullPath}" due to permission error.`);
             return 0;
           }
         } else {
@@ -101,6 +92,5 @@ export async function countSystemFiles(folder: string) {
     total += counts.reduce((sum, c) => sum + c, 0);
   }
 
-  Logger.info(`TOTAL NUMBER OF ITEMS TO SCAN in ${folder}: ${total}`);
   return total;
 }
