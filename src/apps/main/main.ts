@@ -1,7 +1,7 @@
 import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 
-app.whenReady().then(() => {
+void app.whenReady().then(() => {
   app.setAppUserModelId('com.internxt.app');
 });
 
@@ -86,9 +86,9 @@ Sentry.init({
 Sentry.captureMessage('Main process started');
 Logger.log('Sentry is ready for main process');
 
-function checkForUpdates() {
+async function checkForUpdates() {
   autoUpdater.logger = Logger;
-  autoUpdater.checkForUpdatesAndNotify();
+  await autoUpdater.checkForUpdatesAndNotify();
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -114,7 +114,7 @@ app
     await migrate();
 
     registerUsageHandlers();
-    setUpBackups();
+    await setUpBackups();
 
     await checkIfUserIsLoggedIn();
     const isLoggedIn = getIsLoggedIn();
@@ -130,7 +130,7 @@ app
       return nativeTheme.shouldUseDarkColors;
     });
 
-    checkForUpdates();
+    await checkForUpdates();
   })
   .catch(Logger.error);
 
@@ -180,7 +180,7 @@ eventBus.on('USER_LOGGED_OUT', async () => {
     widget.destroy();
   }
 
-  clearAntivirus();
+  await clearAntivirus();
   unregisterVirtualDrives({});
 
   await createAuthWindow();
