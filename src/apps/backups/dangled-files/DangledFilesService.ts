@@ -74,7 +74,7 @@ export class DangledFilesService {
     }
   }
 
-  async handleDangledFile(danglingFiles: Map<LocalFile, File>): Promise<Map<LocalFile, File>> {
+  async handleDangledFile(danglingFiles: Map<LocalFile, File>) {
   const filesToResync = new Map<LocalFile, File>();
 
   for (const [localFile, remoteFile] of danglingFiles.entries()) {

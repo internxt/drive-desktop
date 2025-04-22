@@ -8,13 +8,6 @@ import { logger } from '@/apps/shared/logger/logger';
 import { ContentFileDownloader } from '@/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
 import { Readable } from 'stream';
 
-vi.mock('@/apps/shared/logger/logger', () => ({
-  logger: {
-    debug: vi.fn(),
-    warn: vi.fn(),
-  },
-}));
-
 describe('DangledFilesService', () => {
   let service: DangledFilesService;
   let contentsManagerFactory: DeepMockProxy<EnvironmentRemoteFileContentsManagersFactory>;
