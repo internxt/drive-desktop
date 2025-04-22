@@ -75,41 +75,41 @@ export class DangledFilesService {
   }
 
   async handleDangledFile(danglingFiles: Map<LocalFile, File>) {
-  const filesToResync = new Map<LocalFile, File>();
+    const filesToResync = new Map<LocalFile, File>();
 
-  for (const [localFile, remoteFile] of danglingFiles.entries()) {
-    if (!remoteFile) continue;
+    for (const [localFile, remoteFile] of danglingFiles.entries()) {
+      if (!remoteFile) continue;
 
-    let isDownloadable: boolean;
-    try {
-      isDownloadable = await this.isFileDownloadable(remoteFile);
-    } catch (error) {
-      logger.warn({
-        msg: '[BACKUPS] Error checking if file is downloadable in handleDangledFile',
-        fileId: remoteFile.contentsId,
-        error,
-        attributes: { tag: 'BACKUPS' },
-      });
-      continue;
-    }
+      let isDownloadable: boolean;
+      try {
+        isDownloadable = await this.isFileDownloadable(remoteFile);
+      } catch (error) {
+        logger.warn({
+          msg: '[BACKUPS] Error checking if file is downloadable in handleDangledFile',
+          fileId: remoteFile.contentsId,
+          error,
+          attributes: { tag: 'BACKUPS' },
+        });
+        continue;
+      }
 
-    logger.debug({
-      msg: '[BACKUPS] Checking if file is downloadable',
-      fileId: remoteFile.contentsId,
-      name: remoteFile.name,
-      attributes: { tag: 'BACKUPS' },
-    });
-
-    if (!isDownloadable) {
-      filesToResync.set(localFile, remoteFile);
       logger.debug({
-        msg: '[BACKUPS] File is not downloadable',
+        msg: '[BACKUPS] Checking if file is downloadable',
         fileId: remoteFile.contentsId,
+        name: remoteFile.name,
         attributes: { tag: 'BACKUPS' },
       });
-    }
-  }
 
-  return filesToResync;
-}
+      if (!isDownloadable) {
+        filesToResync.set(localFile, remoteFile);
+        logger.debug({
+          msg: '[BACKUPS] File is not downloadable',
+          fileId: remoteFile.contentsId,
+          attributes: { tag: 'BACKUPS' },
+        });
+      }
+    }
+
+    return filesToResync;
+  }
 }

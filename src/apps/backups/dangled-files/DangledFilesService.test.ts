@@ -86,9 +86,7 @@ describe('DangledFilesService', () => {
         [local1, remote1],
         [local2, remote2],
       ]);
-      vi.spyOn(service, 'isFileDownloadable')
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(true);
+      vi.spyOn(service, 'isFileDownloadable').mockResolvedValueOnce(false).mockResolvedValueOnce(true);
 
       const result = await service.handleDangledFile(danglings);
       expect(result.size).toBe(1);
