@@ -63,19 +63,10 @@ export class Backup {
     this.backed = alreadyBacked;
 
     logger.info({
-      msg: '[BACKUPS] Total items to backup',
+      tag: 'BACKUPS',
+      msg: 'Total items to backup',
       total: filesDiff.total + foldersDiff.total,
-      attributes: {
-        tag: 'BACKUPS',
-      },
-    });
-
-    logger.info({
-      msg: '[BACKUPS] Total items already backed',
-      total: alreadyBacked,
-      attributes: {
-        tag: 'BACKUPS',
-      },
+      alreadyBacked,
     });
 
     BackupsIPCRenderer.send('backups.total-items-calculated', filesDiff.total + foldersDiff.total, alreadyBacked);
@@ -89,11 +80,9 @@ export class Backup {
 
   private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
     logger.info({
-      msg: '[BACKUPS] Backing folders',
+      tag: 'BACKUPS',
+      msg: 'Backing folders',
       total: diff.total,
-      attributes: {
-        tag: 'BACKUPS',
-      },
     });
 
     const { added, deleted } = diff;
@@ -125,20 +114,16 @@ export class Backup {
     await this.uploadAndCreateFile(local.root.path, added, remote, abortController);
 
     logger.debug({
-      msg: '[BACKUPS] Files modified',
+      tag: 'BACKUPS',
+      msg: 'Files modified',
       modified: modified.size,
-      attributes: {
-        tag: 'BACKUPS',
-      },
     });
     await this.uploadAndUpdate(modified, local, remote, abortController);
 
     logger.debug({
-      msg: '[BACKUPS] Files deleted',
+      tag: 'BACKUPS',
+      msg: 'Files deleted',
       deleted: deleted.length,
-      attributes: {
-        tag: 'BACKUPS',
-      },
     });
     await this.deleteRemoteFiles(deleted, abortController);
   }

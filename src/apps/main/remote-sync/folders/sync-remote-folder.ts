@@ -1,9 +1,10 @@
-import { Folder, FolderAttributesWithoutPath } from '@/context/virtual-drive/folders/domain/Folder';
 import { User } from '../../types';
 import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { driveFoldersCollection } from '../store';
 import { logger } from '@/apps/shared/logger/logger';
+import { FolderStore } from './folder-store';
+import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
 
 type TProps = {
   self: RemoteSyncManager;
@@ -19,7 +20,46 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
       workspaceId: self.workspaceId,
     });
 
+    FolderStore.addFolder({
+      workspaceId: self.workspaceId ?? '',
+      folderId: remoteFolder.id,
+      parentId: remoteFolder.parentId,
+      parentUuid: remoteFolder.parentUuid,
+      plainName: remoteFolder.plainName,
+      name: remoteFolder.name,
+    });
+
     self.totalFoldersSynced++;
+
+    if (remoteFolder.status === 'EXISTS') {
+      try {
+        const plainName = Folder.decryptName({
+          name: remoteFolder.name,
+          parentId: remoteFolder.parentId,
+          plainName: remoteFolder.plainName,
+        });
+
+        const { relativePath } = FolderStore.getFolderPath({
+          workspaceId: self.workspaceId ?? '',
+          parentId: remoteFolder.parentId,
+          parentUuid: remoteFolder.parentUuid,
+          plainName,
+        });
+
+        const folderAttributes: FolderAttributes = {
+          uuid: remoteFolder.uuid,
+          id: remoteFolder.id,
+          parentId: remoteFolder.parentId,
+          parentUuid: remoteFolder.parentUuid,
+          createdAt: remoteFolder.createdAt,
+          updatedAt: remoteFolder.updatedAt,
+          status: remoteFolder.status,
+          path: relativePath,
+        };
+
+        self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
+      } catch {}
+    }
   } catch (exc) {
     logger.error({
       msg: 'Error creating remote folder in sqlite',

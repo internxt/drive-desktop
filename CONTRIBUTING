@@ -34,13 +34,13 @@ main (electron/main)
 
 https://github.com/internxt/drive-desktop/issues/545
 
-```typescript
+```ts
 // old way
 function connect(host: string, port: number) {}
 // new way
-function connect({ host, port }: { host: string, port: number }) {}
+function connect({ host, port }: { host: string; port: number }) {}
 // default parameters
-function connect({ host, port = 5432 }: { host: string, port?: number }) {}
+function connect({ host, port = 5432 }: { host: string; port?: number }) {}
 ```
 
 ### Use explicit return types in functions just for primitive types
@@ -50,12 +50,12 @@ function connect({ host, port = 5432 }: { host: string, port?: number }) {}
 - Using return types for primitive types can help in code reviews to check whether, for example, something can be undefined or not.
 - Using return types for complex objects introduces the problem of naming elements and maintaining those types, and it also doesn't help in code reviews, since the return type can be anything (it's not a common type).
 
-```typescript
+```ts
 // Good
 function getAccessToken(): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
-    resolve("");
-  })
+    resolve('');
+  });
 }
 ```
 
@@ -78,3 +78,17 @@ We are going to start open telemetry and store the logs in S3 has a cost. That's
 
 - Use logger.debug and logger.warn for anything that shouldn't be stored in S3 (most logs).
 - Use logger.info, logger.error, and logger.fatal for a small number of logs (only the most important ones).
+
+### Comments
+
+---
+
+```ts
+/**
+ * vX.X.X Author
+ * Explain why it's done that way, not what it does.
+ * We should be able to understand what it does by reading the code, but not why we did it that way; that's the point of the comment.
+ * Also, don't delete these comments. The plan is for it to function as an Architecture Decision Record.
+ * Whenever we change something, we should retain the comments from the previous version to see the history of the decision.
+ */
+```
