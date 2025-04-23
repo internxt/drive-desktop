@@ -2,29 +2,29 @@ import { logger } from '@/apps/shared/logger/logger';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { posix } from 'path';
 
-export let folderStore: Record<
-  string,
-  {
-    rootId: number | null;
-    rootUuid: string;
-    folders: Record<
-      number,
-      {
-        parentId: number;
-        parentUuid: string | null;
-        plainName: string;
-      }
-    >;
-  }
-> = {};
-
 export class FolderStore {
+  private static store: Record<
+    string,
+    {
+      rootId: number | null;
+      rootUuid: string;
+      folders: Record<
+        number,
+        {
+          parentId: number;
+          parentUuid: string | null;
+          plainName: string;
+        }
+      >;
+    }
+  > = {};
+
   static clear() {
-    folderStore = {};
+    FolderStore.store = {};
   }
 
   static addWorkspace({ workspaceId, rootId, rootUuid }: { workspaceId: string; rootId: number | null; rootUuid: string }) {
-    folderStore[workspaceId] = { rootId, rootUuid, folders: {} };
+    FolderStore.store[workspaceId] = { rootId, rootUuid, folders: {} };
     logger.debug({
       msg: 'Add workspace to the folder store',
       workspaceId,
@@ -49,7 +49,7 @@ export class FolderStore {
     plainName?: string;
   }) {
     const decryptedName = Folder.decryptName({ plainName, name, parentId });
-    folderStore[workspaceId].folders[folderId] = { parentId, parentUuid, plainName: decryptedName };
+    FolderStore.store[workspaceId].folders[folderId] = { parentId, parentUuid, plainName: decryptedName };
   }
 
   static getFolderPath({
@@ -64,7 +64,7 @@ export class FolderStore {
     plainName: string;
   }) {
     const paths: string[] = [];
-    const workspace = folderStore[workspaceId];
+    const workspace = FolderStore.store[workspaceId];
 
     let folder = workspace.folders[parentId];
 
