@@ -16,8 +16,7 @@ import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
-import { FolderStore, folderStore } from './folders/folder-store';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
+import { FolderStore } from './folders/folder-store';
 
 export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
   remoteSyncManagers.set(workspaceId ?? '', new RemoteSyncManager(worker, workspaceId));
