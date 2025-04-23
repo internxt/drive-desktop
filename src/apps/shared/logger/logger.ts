@@ -7,8 +7,9 @@ type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN';
 
 export type TLoggerBody = {
   process?: 'main' | 'renderer';
-  msg: string;
   tag?: TTag;
+  msg: string;
+  workspaceId?: string;
   exc?: Error | unknown;
   context?: Record<string, unknown>;
   attributes?: {
@@ -24,18 +25,23 @@ export class LoggerService {
   private prepareBody(rawBody: TLoggerBody) {
     const user = getUser();
 
+    const { tag, msg, workspaceId, ...rest1 } = rawBody;
+
     rawBody = {
       process: process.type === 'renderer' ? 'renderer' : 'main',
-      ...rawBody,
+      ...(tag && { tag }),
+      msg,
+      ...(workspaceId && { workspaceId }),
+      ...rest1,
       attributes: {
         userId: user?.uuid,
-        tag: rawBody.tag,
-        ...rawBody.attributes,
+        ...(tag && { tag }),
+        ...rest1.attributes,
       },
     };
 
-    const { attributes, ...rest } = rawBody;
-    const body = inspect(rest, { colors: true, depth: Infinity, breakLength: Infinity });
+    const { attributes, ...rest2 } = rawBody;
+    const body = inspect(rest2, { colors: true, depth: Infinity, breakLength: Infinity });
     return { attributes, body };
   }
 

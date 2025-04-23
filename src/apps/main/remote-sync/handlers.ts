@@ -16,6 +16,8 @@ import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
+import { FolderStore, folderStore } from './folders/folder-store';
+import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 
 export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
   remoteSyncManagers.set(workspaceId ?? '', new RemoteSyncManager(worker, workspaceId));
@@ -149,16 +151,37 @@ async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
   const manager = getRemoteSyncManager({ workspaceId });
   if (!manager) return;
 
-  const isSyncing = checkSyncInProgress({ workspaceId });
+  try {
+    const isSyncing = checkSyncInProgress({ workspaceId });
 
-  if (isSyncing) {
-    logger.debug({ msg: 'Remote sync is already running', workspaceId });
-    return;
+    if (isSyncing) {
+      logger.debug({ msg: 'Remote sync is already running', workspaceId });
+      return;
+    }
+
+    const folders = await driveFoldersCollection.getAll({ workspaceId });
+
+    folders.forEach((folder) => {
+      FolderStore.addFolder({
+        workspaceId,
+        folderId: folder.id,
+        parentId: folder.parentId!,
+        parentUuid: folder.parentUuid ?? null,
+        plainName: folder.plainName,
+        name: folder.name,
+      });
+    });
+
+    manager.changeStatus('SYNCING');
+    await startRemoteSync({ workspaceId });
+    updateSyncEngine(workspaceId);
+  } catch (exc) {
+    manager.changeStatus('SYNC_FAILED');
+    logger.error({
+      msg: 'Error updating remote sync',
+      exc,
+    });
   }
-
-  manager.changeStatus('SYNCING');
-  await startRemoteSync({ workspaceId });
-  updateSyncEngine(workspaceId);
 }
 
 async function updateAllRemoteSync() {
