@@ -7,6 +7,7 @@ import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worke
 import { monitorHealth } from './monitor-health';
 import { logger } from '@/apps/shared/logger/logger';
 import { scheduleSync } from './schedule-sync';
+import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
 
 type TProps = {
   config: Config;
@@ -38,18 +39,19 @@ export async function spawnSyncEngineWorker({ config }: TProps) {
 
   logger.debug({ msg: '[MAIN] Spawn sync engine worker', workspaceId });
 
-  worker.startingWorker = true;
-
-  const browserWindow = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      backgroundThrottling: false,
-    },
-  });
-
   try {
+    const browserWindow = new BrowserWindow({
+      show: false,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        backgroundThrottling: false,
+      },
+    });
+
+    worker.startingWorker = true;
+    worker.worker = browserWindow;
+
     await browserWindow.loadFile(
       process.env.NODE_ENV === 'development'
         ? path.join(cwd(), 'dist', 'sync-engine', 'index.html')
@@ -70,7 +72,7 @@ export async function spawnSyncEngineWorker({ config }: TProps) {
 
     scheduleSync({ worker });
 
-    worker.worker = browserWindow;
+    addRemoteSyncManager({ workspaceId, worker });
   } catch (exc) {
     logger.error({
       msg: '[MAIN] Error loading sync engine worker for workspace',

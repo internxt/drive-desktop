@@ -7,6 +7,7 @@ import { loggerService } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
 import { sleep } from '../../util';
 import { getUserOrThrow } from '../../auth/service';
+import { syncRemoteFolder } from './sync-remote-folder';
 
 const MAX_RETRIES = 3;
 
@@ -42,7 +43,7 @@ export class SyncRemoteFoldersService {
       while (hasMore) {
         this.logger.debug({
           msg: 'Retrieving folders',
-          workspacesId: this.workspaceId,
+          workspaceId: this.workspaceId,
           folderUuid,
           from,
           offset,
@@ -67,12 +68,7 @@ export class SyncRemoteFoldersService {
 
         await Promise.all(
           result.map(async (remoteFolder) => {
-            await self.db.folders.create({
-              ...remoteFolder,
-              userUuid: user.uuid,
-              workspaceId: this.workspaceId,
-            });
-            self.totalFoldersSynced++;
+            await syncRemoteFolder({ self, user, remoteFolder });
           }),
         );
 

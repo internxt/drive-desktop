@@ -10,7 +10,6 @@ import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
-import { initializeRemoteSyncManager } from '../remote-sync/handlers';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
 
@@ -79,7 +78,6 @@ export const spawnAllSyncEngineWorker = async () => {
   unregisterVirtualDrives({ currentProviderIds });
 
   const spawnWorkspaces = workspaces.forEach(async (workspace) => {
-    initializeRemoteSyncManager({ workspaceId: workspace.id });
     await spawnWorkspace({ workspace });
   });
 

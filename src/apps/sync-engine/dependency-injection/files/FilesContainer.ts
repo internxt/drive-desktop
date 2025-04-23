@@ -4,7 +4,6 @@ import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
 import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
-import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
@@ -14,8 +13,10 @@ import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
+import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 
 export interface FilesContainer {
+  fileRepository: InMemoryFileRepository;
   fileFinderByContentsId: FileFinderByContentsId;
   fileDeleter: FileDeleter;
   fileFolderContainerDetector: FileFolderContainerDetector;
@@ -24,7 +25,6 @@ export interface FilesContainer {
   fileSyncronizer: FileSyncronizer;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   sameFileWasMoved: SameFileWasMoved;
-  repositoryPopulator: RepositoryPopulator;
   filesPlaceholderUpdater: FilesPlaceholderUpdater;
   filesPlaceholderDeleter: FilesPlaceholderDeleter;
   filePlaceholderConverter: FilePlaceholderConverter;

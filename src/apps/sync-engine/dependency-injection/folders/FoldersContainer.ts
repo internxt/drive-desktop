@@ -4,7 +4,6 @@ import { FolderCreator } from '../../../../context/virtual-drive/folders/applica
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
-import { FolderRepositoryInitiator } from '../../../../context/virtual-drive/folders/application/FolderRepositoryInitiator';
 import { FoldersPlaceholderCreator } from '../../../../context/virtual-drive/folders/application/FoldersPlaceholderCreator';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
 import { OfflineFolderPathUpdater } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderPathUpdater';
@@ -15,6 +14,7 @@ import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/fold
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
 import { FolderPlaceholderDeleter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
+import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -30,7 +30,7 @@ export interface FoldersContainer {
     folderPathUpdater: OfflineFolderPathUpdater;
     synchronizeOfflineModifications: SynchronizeOfflineModifications;
   };
-  folderRepositoryInitiator: FolderRepositoryInitiator;
+  folderRepository: InMemoryFolderRepository;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
   folderPlaceholderDeleter: FolderPlaceholderDeleter;
   foldersPlaceholderCreator: FoldersPlaceholderCreator;

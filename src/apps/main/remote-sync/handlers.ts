@@ -14,12 +14,11 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 
-remoteSyncManagers.set('', new RemoteSyncManager());
-
-export function initializeRemoteSyncManager({ workspaceId }: { workspaceId: string }) {
-  remoteSyncManagers.set(workspaceId, new RemoteSyncManager(workspaceId));
+export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
+  remoteSyncManagers.set(workspaceId ?? '', new RemoteSyncManager(worker, workspaceId));
 }
 
 type UpdateFileInBatchInput = {
@@ -126,7 +125,7 @@ ipcMain.handle('FIND_DANGLED_FILES', async () => {
 });
 
 ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
-  Queue.enqueue(() => setAsNotDangledFiles(inputData));
+  await Queue.enqueue(() => setAsNotDangledFiles(inputData));
 });
 
 ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
@@ -240,7 +239,6 @@ export async function initSyncEngine() {
 
 eventBus.on('USER_LOGGED_OUT', () => {
   remoteSyncManagers.clear();
-  remoteSyncManagers.set('', new RemoteSyncManager());
 });
 
 function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {
