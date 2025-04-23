@@ -32,7 +32,7 @@ describe('folder-store', () => {
     expect(path3.relativePath).toBe('/folder/folder2/file.png');
   });
 
-  it.only('Should return path if all folders exist using parentUuid', () => {
+  it('Should return path if all folders exist using parentUuid', () => {
     FolderStore.addWorkspace({ workspaceId, rootId: null, rootUuid: 'c133cad4-4bf4-4b03-86eb-794aeed82302' });
 
     FolderStore.addFolder({

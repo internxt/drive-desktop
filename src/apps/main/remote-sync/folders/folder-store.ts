@@ -25,7 +25,6 @@ export class FolderStore {
 
   static addWorkspace({ workspaceId, rootId, rootUuid }: { workspaceId: string; rootId: number | null; rootUuid: string }) {
     folderStore[workspaceId] = { rootId, rootUuid, folders: {} };
-    console.log('🚀 ~ FolderStore ~ addWorkspace ~ folderStore:', folderStore);
     logger.debug({
       msg: 'Add workspace to the folder store',
       workspaceId,
