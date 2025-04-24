@@ -14,7 +14,7 @@ type TProps = {
 
 export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
   try {
-    await driveFilesCollection.createOrUpdate({
+    const driveFile = await driveFilesCollection.createOrUpdate({
       ...remoteFile,
       isDangledStatus: false,
       userUuid: user.uuid,
@@ -26,30 +26,30 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
     if (remoteFile.status === 'EXISTS') {
       try {
         const plainName = File.decryptName({
-          name: remoteFile.name,
-          parentId: remoteFile.folderId,
-          type: remoteFile.type,
-          plainName: remoteFile.plainName,
+          name: driveFile.name,
+          parentId: driveFile.folderId,
+          type: driveFile.type,
+          plainName: driveFile.plainName,
         });
 
         const { relativePath } = FolderStore.getFolderPath({
           workspaceId: self.workspaceId ?? '',
-          parentId: remoteFile.folderId,
-          parentUuid: remoteFile.folderUuid,
+          parentId: driveFile.folderId,
+          parentUuid: driveFile.folderUuid ?? null,
           plainName,
         });
 
         const fileAttributes: FileAttributes = {
-          uuid: remoteFile.uuid,
-          id: remoteFile.id,
-          contentsId: remoteFile.fileId,
-          folderId: remoteFile.folderId,
-          folderUuid: remoteFile.folderUuid,
-          createdAt: remoteFile.createdAt,
-          updatedAt: remoteFile.updatedAt,
-          status: remoteFile.status,
-          modificationTime: remoteFile.modificationTime,
-          size: remoteFile.size,
+          uuid: driveFile.uuid,
+          id: driveFile.id,
+          contentsId: driveFile.fileId,
+          folderId: driveFile.folderId,
+          folderUuid: driveFile.folderUuid,
+          createdAt: driveFile.createdAt,
+          updatedAt: driveFile.updatedAt,
+          status: driveFile.status,
+          modificationTime: driveFile.modificationTime,
+          size: driveFile.size,
           path: relativePath,
         };
 
