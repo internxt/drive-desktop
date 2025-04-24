@@ -58,9 +58,7 @@ export class FilesPlaceholderUpdater {
     }
   }
 
-  private async update(remote: File): Promise<void> {
-    // TODO: TE ID IN THE REPOSITORY IS THE CONTENTS ID
-    // THIS NEED TO BE MIGRATED TO THE FILE UUID
+  async update(remote: File): Promise<void> {
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });
@@ -82,8 +80,8 @@ export class FilesPlaceholderUpdater {
     }
 
     if (local.path !== remote.path) {
-      const trackerId = await this.localFileIdProvider.run(local.path);
       if (remote.folderId !== local.folderId) {
+        const trackerId = await this.localFileIdProvider.run(local.path);
         const event = new FileMovedDomainEvent({
           aggregateId: remote.contentsId,
           trackerId,

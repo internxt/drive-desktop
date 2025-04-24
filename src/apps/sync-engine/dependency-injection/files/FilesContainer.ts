@@ -2,8 +2,6 @@ import { FileCreator } from '../../../../context/virtual-drive/files/application
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
-import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
-import { RepositoryPopulator } from '../../../../context/virtual-drive/files/application/RepositoryPopulator';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
@@ -14,8 +12,10 @@ import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { FilesPlaceholderUpdater } from '@/context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
 
 export interface FilesContainer {
+  fileRepository: InMemoryFileRepository;
   fileDeleter: FileDeleter;
   fileFolderContainerDetector: FileFolderContainerDetector;
   filePathUpdater: FilePathUpdater;
@@ -23,7 +23,6 @@ export interface FilesContainer {
   fileSyncronizer: FileSyncronizer;
   filePlaceholderCreatorFromContentsId: FilePlaceholderCreatorFromContentsId;
   sameFileWasMoved: SameFileWasMoved;
-  repositoryPopulator: RepositoryPopulator;
   filesPlaceholderUpdater: FilesPlaceholderUpdater;
   filesPlaceholderDeleter: FilesPlaceholderDeleter;
   filePlaceholderConverter: FilePlaceholderConverter;
@@ -31,5 +30,4 @@ export interface FilesContainer {
   filesCheckerStatusInRoot: FileCheckerStatusInRoot;
   fileIdentityUpdater: FileIdentityUpdater;
   fileOverwriteContent: FileOverwriteContent;
-  fileRepository: InMemoryFileRepository;
 }

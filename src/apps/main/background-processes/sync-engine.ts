@@ -10,9 +10,9 @@ import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
-import { initializeRemoteSyncManager } from '../remote-sync/handlers';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
+import { FolderStore } from '../remote-sync/folders/folder-store';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -71,6 +71,12 @@ export const spawnAllSyncEngineWorker = async () => {
     workspaceToken: undefined,
   };
 
+  FolderStore.addWorkspace({
+    workspaceId: '',
+    rootId: user.root_folder_id,
+    rootUuid: user.rootFolderId,
+  });
+
   const workspaces = await getWorkspaces({});
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
@@ -79,7 +85,12 @@ export const spawnAllSyncEngineWorker = async () => {
   unregisterVirtualDrives({ currentProviderIds });
 
   const spawnWorkspaces = workspaces.forEach(async (workspace) => {
-    initializeRemoteSyncManager({ workspaceId: workspace.id });
+    FolderStore.addWorkspace({
+      workspaceId: workspace.id,
+      rootId: null,
+      rootUuid: workspace.rootFolderId,
+    });
+
     await spawnWorkspace({ workspace });
   });
 

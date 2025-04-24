@@ -8,6 +8,7 @@ import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.
 import { QueryFolders } from './folders/fetch-folders.service.interface';
 import { driveFilesCollection, driveFoldersCollection } from './store';
 import { broadcastSyncStatus } from './services/broadcast-sync-status';
+import { TWorkerConfig } from '../background-processes/sync-engine/store';
 
 export class RemoteSyncManager {
   status: RemoteSyncStatus = 'IDLE';
@@ -21,7 +22,8 @@ export class RemoteSyncManager {
   };
 
   constructor(
-    public workspaceId?: string,
+    public readonly worker: TWorkerConfig,
+    public readonly workspaceId?: string,
     private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),
     private readonly fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService() : new FetchRemoteFoldersService(),

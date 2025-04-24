@@ -39,7 +39,7 @@ export class DriveFileCollection {
     return result;
   }
 
-  async create(payload: DriveFile) {
+  async createOrUpdate(payload: DriveFile) {
     const result = await this.repository.save(payload);
     return result;
   }

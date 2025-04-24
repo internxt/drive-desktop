@@ -6,14 +6,17 @@ import { LoggerService } from '@/apps/shared/logger/logger';
 import { deepMocked, getMockCalls } from 'tests/vitest/utils.helper.test';
 import { RemoteSyncedFile } from '../helpers';
 import { getUserOrThrow } from '../../auth/service';
+import { syncRemoteFile } from './sync-remote-file';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('../../auth/service'));
+vi.mock(import('./sync-remote-file'));
 
 describe('sync-remote-files.service', () => {
   const workspaceId = 'workspaceId';
 
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
+  const syncRemoteFileMock = deepMocked(syncRemoteFile);
 
   const remoteSyncManager = mockDeep<RemoteSyncManager>();
   const fetchFiles = mockDeep<FetchFilesService>();
@@ -23,7 +26,6 @@ describe('sync-remote-files.service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getUserOrThrowMock.mockResolvedValue({ uuid: 'uuid' });
-    remoteSyncManager.totalFilesSynced = 0;
   });
 
   it('If hasMore is false, then do not fetch again', async () => {
@@ -116,7 +118,7 @@ describe('sync-remote-files.service', () => {
 
     // Then
     expect(files.length).toBe(2);
-    expect(remoteSyncManager.totalFilesSynced).toBe(2);
+    expect(syncRemoteFileMock).toHaveBeenCalledTimes(2);
     expect(fetchFiles.run).toHaveBeenCalledTimes(3);
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({
