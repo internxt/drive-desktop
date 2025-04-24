@@ -9,7 +9,6 @@ import { FileCreator } from '../../../../context/virtual-drive/files/application
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
 import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
-import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
@@ -27,6 +26,7 @@ import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/in
 import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { ContentsContainer } from '../contents/ContentsContainer';
+import { FilesPlaceholderUpdater } from '@/context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
 
 export function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -118,7 +118,6 @@ export function buildFilesContainer(
 
   const container: FilesContainer = {
     fileRepository: repository,
-    fileFinderByContentsId,
     fileDeleter,
     filePathUpdater,
     fileCreator,
@@ -133,7 +132,6 @@ export function buildFilesContainer(
     filesCheckerStatusInRoot,
     fileIdentityUpdater,
     fileOverwriteContent,
-    fileRepository: repository,
   };
 
   return { container, subscribers: [] };
