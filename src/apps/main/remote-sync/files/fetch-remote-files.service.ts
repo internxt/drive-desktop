@@ -30,6 +30,17 @@ export class FetchRemoteFilesService implements FetchFilesService {
     if (error) throw error;
 
     const hasMore = data.length === FETCH_LIMIT;
-    return { hasMore, result: data };
+    return {
+      hasMore,
+      result: data.map((file) => ({
+        ...file,
+        /**
+         * v2.5.2 Daniel Jiménez
+         * In drive-server-wip they are working with bigint and fetch converts it to string.
+         * We need to convert it to a number.
+         */
+        size: Number(file.size),
+      })),
+    };
   }
 }

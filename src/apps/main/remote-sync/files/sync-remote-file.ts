@@ -44,6 +44,7 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
           id: remoteFile.id,
           contentsId: remoteFile.fileId,
           folderId: remoteFile.folderId,
+          folderUuid: remoteFile.folderUuid,
           createdAt: remoteFile.createdAt,
           updatedAt: remoteFile.updatedAt,
           status: remoteFile.status,
