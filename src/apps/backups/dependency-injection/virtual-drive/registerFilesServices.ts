@@ -4,6 +4,7 @@ import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/in
 import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/delete/FileDeleter';
 import { SimpleFileCreator } from '../../../../context/virtual-drive/files/application/create/SimpleFileCreator';
+import { getConfig } from '@/apps/sync-engine/config';
 
 export function registerFilesServices(builder: ContainerBuilder) {
   // Infra
@@ -11,7 +12,7 @@ export function registerFilesServices(builder: ContainerBuilder) {
 
   builder
     .register(HttpRemoteFileSystem)
-    .useFactory((c) => new HttpRemoteFileSystem(user.backupsBucket))
+    .useFactory((c) => new HttpRemoteFileSystem(getConfig().bucket))
     .private();
 
   // Services
