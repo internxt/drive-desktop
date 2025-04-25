@@ -1,4 +1,3 @@
-import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FetchRemoteFoldersService } from './fetch-remote-folders.service';
 import { FetchFoldersService, FetchFoldersServiceParams } from './fetch-folders.service.interface';
@@ -8,6 +7,7 @@ import { FETCH_LIMIT } from '../store';
 import { sleep } from '../../util';
 import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFolder } from './sync-remote-folder';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 const MAX_RETRIES = 3;
 
@@ -33,8 +33,8 @@ export class SyncRemoteFoldersService {
     from?: Date;
     folderUuid?: string;
     offset?: number;
-    allResults?: RemoteSyncedFolder[];
-  }): Promise<RemoteSyncedFolder[]> {
+    allResults?: FolderDto[];
+  }): Promise<FolderDto[]> {
     let hasMore = true;
 
     try {

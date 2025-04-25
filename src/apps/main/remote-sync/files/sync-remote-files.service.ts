@@ -1,20 +1,19 @@
-import { RemoteSyncedFile } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { FetchRemoteFilesService } from './fetch-remote-files.service';
-import { FetchWorkspaceFilesService } from './fetch-workspace-files.service';
-import { FetchFilesService, FetchFilesServiceParams } from './fetch-files.service.interface';
+import { FetchFilesServiceParams } from './fetch-files.service.interface';
 import { loggerService } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
 import { sleep } from '../../util';
 import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFile } from './sync-remote-file';
+import { fetchRemoteFiles } from './fetch-remote-files.service';
+import { fetchWorkspaceFiles } from './fetch-workspace-files.service';
+import { FileDto } from '@/infra/drive-server-wip/out/dto';
 
 const MAX_RETRIES = 3;
 
 export class SyncRemoteFilesService {
   constructor(
     private readonly workspaceId?: string,
-    private readonly fetchRemoteFiles: FetchFilesService = workspaceId ? new FetchWorkspaceFilesService() : new FetchRemoteFilesService(),
     private readonly logger = loggerService,
   ) {}
 
@@ -31,8 +30,8 @@ export class SyncRemoteFilesService {
     from?: Date;
     folderUuid?: string;
     offset?: number;
-    allResults?: RemoteSyncedFile[];
-  }): Promise<RemoteSyncedFile[]> {
+    allResults?: FileDto[];
+  }): Promise<FileDto[]> {
     let hasMore = true;
 
     try {
@@ -62,7 +61,9 @@ export class SyncRemoteFilesService {
           folderUuid,
         };
 
-        const { hasMore: newHasMore, result } = await this.fetchRemoteFiles.run(param);
+        const promise = this.workspaceId ? fetchWorkspaceFiles(param) : fetchRemoteFiles(param);
+
+        const { hasMore: newHasMore, result } = await promise;
 
         await Promise.all(
           result.map(async (remoteFile) => {

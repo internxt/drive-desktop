@@ -1,5 +1,4 @@
 import { Readable } from 'stream';
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { ContentsSize } from './ContentsSize';
 import { File } from '../../files/domain/File';
 
@@ -12,7 +11,7 @@ export type LocalFileContentsAttributes = {
   contents: Readable;
 };
 
-export class LocalFileContents extends AggregateRoot {
+export class LocalFileContents {
   private constructor(
     private readonly _name: string,
     private readonly _extension: string,
@@ -20,9 +19,7 @@ export class LocalFileContents extends AggregateRoot {
     private readonly _birthTime: number,
     private readonly _modifiedTime: number,
     public readonly stream: Readable,
-  ) {
-    super();
-  }
+  ) {}
 
   public get name(): string {
     return this._name;
@@ -71,15 +68,5 @@ export class LocalFileContents extends AggregateRoot {
     );
 
     return remoteContents;
-  }
-
-  attributes(): Omit<LocalFileContentsAttributes, 'contents'> {
-    return {
-      name: this.name,
-      extension: this.extension,
-      size: this.size,
-      birthTime: this.birthTime,
-      modifiedTime: this.modifiedTime,
-    };
   }
 }

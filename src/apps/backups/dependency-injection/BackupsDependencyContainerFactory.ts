@@ -1,4 +1,4 @@
-import { Container, ContainerBuilder } from 'diod';
+import { Container, Service, ContainerBuilder } from 'diod';
 import Logger from 'electron-log';
 import { registerFilesServices } from './virtual-drive/registerFilesServices';
 import { registerFolderServices } from './virtual-drive/registerFolderServices';
@@ -6,7 +6,9 @@ import { registerLocalFileServices } from './local/registerLocalFileServices';
 import { Backup } from '../Backups';
 import { registerLocalTreeServices } from './local/registerLocalTreeServices';
 import { registerRemoteTreeServices } from './virtual-drive/registerRemoteTreeServices';
+import { DangledFilesService } from '../dangled-files/DangledFilesService';
 
+@Service()
 export class BackupsDependencyContainerFactory {
   static async build(): Promise<Container> {
     Logger.info('[BackupsDependencyContainerFactory] Starting to build the container.');
@@ -29,6 +31,8 @@ export class BackupsDependencyContainerFactory {
 
       Logger.info('[BackupsDependencyContainerFactory] Registering local tree services.');
       await registerLocalTreeServices(builder);
+      Logger.info('[BackupsDependencyContainerFactory] Registering dangled files service.');
+      builder.registerAndUse(DangledFilesService);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering Backup service.');
       await builder.registerAndUse(Backup);

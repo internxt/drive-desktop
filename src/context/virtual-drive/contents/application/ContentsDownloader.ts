@@ -9,7 +9,6 @@ import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDown
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class ContentsDownloader {
   constructor(
@@ -17,7 +16,6 @@ export class ContentsDownloader {
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
-    private readonly eventBus: EventRecorder,
   ) {}
 
   private downloaderIntance: ContentFileDownloader | null = null;
@@ -74,9 +72,6 @@ export class ContentsDownloader {
     const localContents = LocalFileContents.downloadedFrom(file, readable);
 
     const write = await this.localWriter.write(localContents);
-
-    const events = localContents.pullDomainEvents();
-    await this.eventBus.publish(events);
 
     return write;
   }

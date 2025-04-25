@@ -1,15 +1,15 @@
 import { User } from '../../types';
-import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { driveFoldersCollection } from '../store';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderStore } from './folder-store';
 import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 type TProps = {
   self: RemoteSyncManager;
   user: User;
-  remoteFolder: RemoteSyncedFolder;
+  remoteFolder: FolderDto;
 };
 
 export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {

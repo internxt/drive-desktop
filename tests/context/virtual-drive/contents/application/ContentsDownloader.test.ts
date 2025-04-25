@@ -9,7 +9,6 @@ import { LocalFileWriter } from '@/context/virtual-drive/contents/domain/LocalFi
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventEmitter, Readable } from 'stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { EventRecorder } from '@/context/virtual-drive/shared/infrastructure/EventRecorder';
 
 describe('Contents Downloader', () => {
   const temporalFolderProvider = async (): Promise<string> => {
@@ -19,7 +18,6 @@ describe('Contents Downloader', () => {
   const localWriter = mockDeep<LocalFileWriter>();
   const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
   const ipc = mockDeep<SyncEngineIpc>();
-  const eventBus = mockDeep<EventRecorder>();
 
   const environmentContentFileDownloader = mockDeep<ContentFileDownloader>();
   const eventEmitter = new EventEmitter();
@@ -39,7 +37,7 @@ describe('Contents Downloader', () => {
     };
   };
 
-  const SUT = new ContentsDownloader(factory, localWriter, ipc, temporalFolderProvider, eventBus);
+  const SUT = new ContentsDownloader(factory, localWriter, ipc, temporalFolderProvider);
 
   beforeEach(() => {
     vi.resetAllMocks();

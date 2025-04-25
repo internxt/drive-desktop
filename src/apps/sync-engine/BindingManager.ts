@@ -76,7 +76,7 @@ export class BindingsManager {
             return;
           }
 
-          const isTempFile = await isTemporaryFile(absolutePath);
+          const isTempFile = isTemporaryFile(absolutePath);
 
           Logger.debug('[isTemporaryFile]', isTempFile);
 
@@ -86,11 +86,8 @@ export class BindingsManager {
             return;
           }
 
-          const fn = executeControllerWithFallback({
-            handler: this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove),
-            fallback: this.controllers.offline.renameOrMove.execute.bind(this.controllers.offline.renameOrMove),
-          });
-          fn(absolutePath, placeholderId, callback);
+          const fn = this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove);
+          await fn(absolutePath, placeholderId, callback);
           Logger.debug('Finish Rename', absolutePath);
           this.lastMoved = absolutePath;
         } catch (error) {

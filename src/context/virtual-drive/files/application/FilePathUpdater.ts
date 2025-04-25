@@ -6,20 +6,16 @@ import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
-import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { logger } from '../../../../apps/shared/logger/logger';
-import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class FilePathUpdater {
   constructor(
     private readonly remote: HttpRemoteFileSystem,
-    private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
-    private readonly eventBus: EventRecorder,
   ) {}
 
   private async rename(file: File, path: FilePath) {
@@ -27,9 +23,6 @@ export class FilePathUpdater {
 
     await this.remote.rename(file);
     await this.repository.update(file);
-
-    const events = file.pullDomainEvents();
-    this.eventBus.publish(events);
   }
 
   private async move(file: File, destination: FilePath) {
@@ -38,8 +31,7 @@ export class FilePathUpdater {
 
     Logger.debug('[MOVE TO]', file.path, destinationFolder.name);
     try {
-      const trackerId = await this.local.getFileIdentity(file.path);
-      file.moveTo(destinationFolder, trackerId);
+      file.moveTo(destinationFolder);
     } catch (exc: unknown) {
       throw logger.error({
         msg: 'Error in FilePathUpdater.move',
@@ -54,9 +46,6 @@ export class FilePathUpdater {
     });
     Logger.debug('[REPOSITORY MOVE]', file.name, destinationFolder.name);
     await this.repository.update(file);
-
-    const events = file.pullDomainEvents();
-    this.eventBus.publish(events);
   }
 
   async run(uuid: string, posixRelativePath: string) {
@@ -107,8 +96,7 @@ export class FilePathUpdater {
       }
 
       if (folderFather.path !== file.dirname) {
-        const trackerId = await this.local.getFileIdentity(destination.value);
-        file.moveTo(folderFather, trackerId);
+        file.moveTo(folderFather);
       }
 
       Logger.debug('[RUN RENAME]', file.name, destination.value);

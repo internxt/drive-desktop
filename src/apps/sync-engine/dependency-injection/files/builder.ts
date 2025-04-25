@@ -1,5 +1,4 @@
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
-import { DependencyInjectionEventBus } from '../common/eventBus';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
@@ -8,7 +7,6 @@ import { FilesContainer } from './FilesContainer';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
-import { FilePlaceholderCreatorFromContentsId } from '../../../../context/virtual-drive/files/application/FilePlaceholderCreatorFromContentsId';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
@@ -36,7 +34,6 @@ export function buildFilesContainer(
   container: FilesContainer;
   subscribers: unknown;
 } {
-  const { bus: eventBus } = DependencyInjectionEventBus;
   const eventHistory = DependencyInjectionEventRepository.get();
   const { virtualDrive } = DependencyInjectionVirtualDrive;
 
@@ -57,25 +54,9 @@ export function buildFilesContainer(
 
   const sameFileWasMoved = new SameFileWasMoved(repository, localFileSystem, eventHistory);
 
-  const filePathUpdater = new FilePathUpdater(
-    remoteFileSystem,
-    localFileSystem,
-    repository,
-    folderContainer.folderFinder,
-    ipcRendererSyncEngine,
-    eventBus,
-  );
+  const filePathUpdater = new FilePathUpdater(remoteFileSystem, repository, folderContainer.folderFinder, ipcRendererSyncEngine);
 
-  const fileCreator = new FileCreator(
-    remoteFileSystem,
-    repository,
-    folderContainer.folderFinder,
-    fileDeleter,
-    eventBus,
-    ipcRendererSyncEngine,
-  );
-
-  const filePlaceholderCreatorFromContentsId = new FilePlaceholderCreatorFromContentsId(repository, localFileSystem);
+  const fileCreator = new FileCreator(remoteFileSystem, repository, folderContainer.folderFinder, fileDeleter, ipcRendererSyncEngine);
 
   const localFileIdProvider = new LocalFileIdProvider(sharedContainer.relativePathToAbsoluteConverter);
 
@@ -123,7 +104,6 @@ export function buildFilesContainer(
     fileCreator,
     fileFolderContainerDetector,
     fileSyncronizer,
-    filePlaceholderCreatorFromContentsId,
     sameFileWasMoved,
     filesPlaceholderUpdater,
     filesPlaceholderDeleter,

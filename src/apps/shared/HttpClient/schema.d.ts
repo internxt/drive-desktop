@@ -2773,8 +2773,14 @@ export interface components {
       fileId: string;
       name: string;
       type: string;
-      /** Format: int64 */
-      size: number;
+      /**
+       * v2.5.2 Daniel Jiménez
+       * In drive-server-wip they work with size being a bigint.
+       * However, when we fetch it, size is converted to string, but openapi marks it as number.
+       * This issue is related with how sequelize converts bigint to number.
+       * https://github.com/internxt/drive-server-wip/pull/334
+       */
+      size: string;
       bucket: string;
       folderId: number;
       folder: Record<string, never>;
