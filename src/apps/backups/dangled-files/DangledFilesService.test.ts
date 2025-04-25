@@ -45,7 +45,7 @@ describe('DangledFilesService', () => {
       });
       downloader.download.mockImplementation(async () => {
         progressCallback();
-        return new Readable();
+        return Promise.resolve(new Readable());
       });
 
       const result = await service.isFileDownloadable(file);
@@ -60,7 +60,7 @@ describe('DangledFilesService', () => {
       });
       downloader.download.mockImplementation(async () => {
         errorCallback(new Error('download failed'));
-        return new Readable();
+        return Promise.resolve(new Readable());
       });
 
       const result = await service.isFileDownloadable(file);

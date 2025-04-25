@@ -15,9 +15,7 @@ export class DangledFilesService {
       logger.debug({
         msg: 'Checking if file is downloadable',
         fileContentsId: file.contentsId,
-        attributes: {
-          tag: 'BACKUPS',
-        },
+        tag: 'BACKUPS',
       });
 
       const isDownloadable = new Promise<boolean>((resolve) => {
@@ -26,9 +24,7 @@ export class DangledFilesService {
             msg: 'Downloading file',
             fileId: file.contentsId,
             name: file.name,
-            attributes: {
-              tag: 'BACKUPS',
-            },
+            tag: 'BACKUPS',
           });
 
           resolve(true);
@@ -39,9 +35,7 @@ export class DangledFilesService {
             msg: 'Downloading file force stop',
             fileId: file.contentsId,
             name: file.name,
-            attributes: {
-              tag: 'BACKUPS',
-            },
+            tag: 'BACKUPS',
           });
           downloader.forceStop();
           resolve(true);
@@ -53,9 +47,7 @@ export class DangledFilesService {
             fileId: file.contentsId,
             name: file.name,
             error,
-            attributes: {
-              tag: 'BACKUPS',
-            },
+            tag: 'BACKUPS',
           });
           resolve(false);
         });
@@ -66,9 +58,7 @@ export class DangledFilesService {
       logger.warn({
         msg: 'Error checking if file is downloadable',
         error,
-        attributes: {
-          tag: 'BACKUPS',
-        },
+        tag: 'BACKUPS',
       });
       return false;
     }
@@ -88,7 +78,7 @@ export class DangledFilesService {
           msg: 'Error checking if file is downloadable in handleDangledFile',
           fileId: remoteFile.contentsId,
           error,
-          attributes: { tag: 'BACKUPS' },
+          tag: 'BACKUPS',
         });
         continue;
       }
@@ -97,7 +87,7 @@ export class DangledFilesService {
         msg: 'Checking if file is downloadable',
         fileId: remoteFile.contentsId,
         name: remoteFile.name,
-        attributes: { tag: 'BACKUPS' },
+        tag: 'BACKUPS',
       });
 
       if (!isDownloadable) {
@@ -105,7 +95,7 @@ export class DangledFilesService {
         logger.debug({
           msg: 'File is not downloadable',
           fileId: remoteFile.contentsId,
-          attributes: { tag: 'BACKUPS' },
+          tag: 'BACKUPS',
         });
       }
     }
