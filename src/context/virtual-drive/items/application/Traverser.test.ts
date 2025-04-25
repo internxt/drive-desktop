@@ -4,20 +4,35 @@ import { v4 } from 'uuid';
 import { ContentsIdMother } from 'tests/context/virtual-drive/contents/domain/ContentsIdMother';
 import { Traverser } from './Traverser';
 import crypt from '@/context/shared/infrastructure/crypt';
+import { mockDeep } from 'vitest-mock-extended';
+import { RemoteItemsGenerator } from './RemoteItemsGenerator';
+import { File } from '../../files/domain/File';
+import { Folder } from '../../folders/domain/Folder';
 
 vi.mock(import('@/context/shared/infrastructure/crypt'));
 
 describe('Traverser', () => {
   const cryptMock = vi.mocked(crypt);
+  const remoteItemsGenerateMock = mockDeep<RemoteItemsGenerator>();
+
+  const baseFolderId = 6;
+  const baseFolderUuid = v4();
+  const SUT = new Traverser(baseFolderId, baseFolderUuid, remoteItemsGenerateMock);
 
   beforeAll(() => {
     cryptMock.decryptName.mockImplementation(({ name }) => name);
   });
 
-  it('first level files starts with /', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-    const rawTree = {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function extractPaths(items: File[] | Folder[]) {
+    return items.map((item) => item.path);
+  }
+
+  it('first level files starts with /', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [
         {
           name: 'file A',
@@ -30,19 +45,16 @@ describe('Traverser', () => {
         } as ServerFile,
       ],
       folders: [],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.filePaths).toEqual(['/file A']);
-    expect(tree.folderPaths).toEqual(['/']);
+    expect(extractPaths(tree.files)).toStrictEqual(['/file A']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/']);
   });
 
-  it('second level files starts with /', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-    const rawTree = {
+  it('second level files starts with /', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [
         {
           name: 'file A',
@@ -64,19 +76,16 @@ describe('Traverser', () => {
           uuid: '87c76c58-717d-5fee-ab8d-0ab4b94bb708',
         } as ServerFolder,
       ],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.filePaths).toEqual(['/folder A/file A']);
-    expect(tree.folderPaths).toEqual(['/', '/folder A']);
+    expect(extractPaths(tree.files)).toStrictEqual(['/folder A/file A']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A']);
   });
 
-  it('first level folder starts with /', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-    const rawTree = {
+  it('first level folder starts with /', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [],
       folders: [
         {
@@ -88,18 +97,15 @@ describe('Traverser', () => {
           uuid: '35d8c70c-36eb-5761-8340-cf632a86334b',
         } as ServerFolder,
       ],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.folderPaths).toEqual(['/', '/folder A']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A']);
   });
 
-  it('second level folder starts with /', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-    const rawTree = {
+  it('second level folder starts with /', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [],
       folders: [
         {
@@ -119,18 +125,15 @@ describe('Traverser', () => {
           uuid: '56fdacd4-384e-558c-9442-bb032f4b9123',
         } as ServerFolder,
       ],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.folderPaths).toEqual(['/', '/folder A', '/folder A/folder B']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A', '/folder A/folder B']);
   });
 
-  it('root folder should exist', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-    const rawTree = {
+  it('root folder should exist', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [],
       folders: [
         {
@@ -150,19 +153,15 @@ describe('Traverser', () => {
           uuid: 'd600cb02-ad9c-570f-8977-eb87b7e95ef5',
         } as ServerFolder,
       ],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.folderPaths).toEqual(['/', '/folder A', '/folder A/folder B']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A', '/folder A/folder B']);
   });
 
-  it('when a file data is invalid ignore it and continue', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-
-    const rawTree = {
+  it('when a file data is invalid ignore it and continue', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [
         {
           name: 'invalid file',
@@ -193,19 +192,15 @@ describe('Traverser', () => {
         } as unknown as ServerFile,
       ],
       folders: [],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.filePaths).toEqual(['/valid_name']);
+    expect(extractPaths(tree.files)).toStrictEqual(['/valid_name']);
   });
 
-  it('when a folder data is invalid ignore it and continue', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-
-    const rawTree = {
+  it('when a folder data is invalid ignore it and continue', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [],
       folders: [
         {
@@ -218,20 +213,16 @@ describe('Traverser', () => {
         } as ServerFolder,
         {} as ServerFolder,
       ],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.filePaths).toEqual([]);
-    expect(tree.folderPaths).toEqual(['/', '/folder A']);
+    expect(extractPaths(tree.files)).toStrictEqual([]);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A']);
   });
 
-  it('filters the files and folders depending on the filters set', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-
-    const rawTree = {
+  it('filters the files and folders depending on the filters set', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [
         {
           name: 'file A',
@@ -253,19 +244,16 @@ describe('Traverser', () => {
           uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
         } as ServerFolder,
       ],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.filePaths).toEqual(['/file A']);
-    expect(tree.folderPaths).toEqual(['/']);
+    expect(extractPaths(tree.files)).toStrictEqual(['/file A']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/']);
   });
 
-  it('filters the files and folders depending on the filters set', () => {
-    const baseFolderId = 6;
-    const baseFolderUuid = v4();
-    const rawTree = {
+  it('filters the files and folders depending on the filters set', async () => {
+    remoteItemsGenerateMock.getAll.mockResolvedValue({
       files: [
         {
           name: 'file A',
@@ -298,12 +286,11 @@ describe('Traverser', () => {
           uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
         } as ServerFolder,
       ],
-    };
-    const SUT = new Traverser(baseFolderId, baseFolderUuid);
+    });
 
-    const tree = SUT.run(rawTree);
+    const tree = await SUT.run();
 
-    expect(tree.filePaths).toEqual(['/file A.png']);
-    expect(tree.folderPaths).toEqual(['/']);
+    expect(extractPaths(tree.files)).toStrictEqual(['/file A.png']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/']);
   });
 });

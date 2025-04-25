@@ -28,8 +28,6 @@ export type FileAttributes = {
   status: string;
 };
 
-export type FileAttributesWithoutPath = Omit<FileAttributes, 'path'> & { plainName: string };
-
 export class File extends AggregateRoot {
   private constructor(
     private _id: number,

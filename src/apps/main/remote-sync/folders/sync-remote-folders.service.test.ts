@@ -4,16 +4,19 @@ import { FetchFoldersService } from './fetch-folders.service.interface';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { LoggerService } from '@/apps/shared/logger/logger';
 import { deepMocked, getMockCalls } from 'tests/vitest/utils.helper.test';
-import { RemoteSyncedFolder } from '../helpers';
 import { getUserOrThrow } from '../../auth/service';
+import { syncRemoteFolder } from './sync-remote-folder';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('../../auth/service'));
+vi.mock(import('./sync-remote-folder'));
 
 describe('sync-remote-folders.service', () => {
   const workspaceId = 'workspaceId';
 
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
+  const syncRemoteFolderMock = deepMocked(syncRemoteFolder);
 
   const remoteSyncManager = mockDeep<RemoteSyncManager>();
   const fetchFolders = mockDeep<FetchFoldersService>();
@@ -23,7 +26,6 @@ describe('sync-remote-folders.service', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getUserOrThrowMock.mockResolvedValue({ uuid: 'uuid' });
-    remoteSyncManager.totalFoldersSynced = 0;
   });
 
   it('If hasMore is false, then do not fetch again', async () => {
@@ -103,12 +105,12 @@ describe('sync-remote-folders.service', () => {
     // Given
     fetchFolders.run.mockResolvedValueOnce({
       hasMore: true,
-      result: [{ uuid: 'folder1' } as unknown as RemoteSyncedFolder],
+      result: [{ uuid: 'folder1' } as unknown as FolderDto],
     });
     fetchFolders.run.mockRejectedValueOnce(new Error());
     fetchFolders.run.mockResolvedValueOnce({
       hasMore: false,
-      result: [{ uuid: 'folder2' } as unknown as RemoteSyncedFolder],
+      result: [{ uuid: 'folder2' } as unknown as FolderDto],
     });
 
     // When
@@ -116,7 +118,7 @@ describe('sync-remote-folders.service', () => {
 
     // Then
     expect(folders.length).toBe(2);
-    expect(remoteSyncManager.totalFoldersSynced).toBe(2);
+    expect(syncRemoteFolderMock).toHaveBeenCalledTimes(2);
     expect(fetchFolders.run).toHaveBeenCalledTimes(3);
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({

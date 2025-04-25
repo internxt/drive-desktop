@@ -29,7 +29,7 @@ export class DriveFolderCollection {
     return result;
   }
 
-  async create(payload: DriveFolder) {
+  async createOrUpdate(payload: DriveFolder) {
     const result = await this.repository.save(payload);
     return result;
   }

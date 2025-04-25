@@ -14,12 +14,12 @@ import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
+import { FolderStore } from './folders/folder-store';
 
-remoteSyncManagers.set('', new RemoteSyncManager());
-
-export function initializeRemoteSyncManager({ workspaceId }: { workspaceId: string }) {
-  remoteSyncManagers.set(workspaceId, new RemoteSyncManager(workspaceId));
+export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
+  remoteSyncManagers.set(workspaceId ?? '', new RemoteSyncManager(worker, workspaceId));
 }
 
 type UpdateFileInBatchInput = {
@@ -126,7 +126,7 @@ ipcMain.handle('FIND_DANGLED_FILES', async () => {
 });
 
 ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
-  Queue.enqueue(() => setAsNotDangledFiles(inputData));
+  await Queue.enqueue(() => setAsNotDangledFiles(inputData));
 });
 
 ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
@@ -150,16 +150,37 @@ async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
   const manager = getRemoteSyncManager({ workspaceId });
   if (!manager) return;
 
-  const isSyncing = checkSyncInProgress({ workspaceId });
+  try {
+    const isSyncing = checkSyncInProgress({ workspaceId });
 
-  if (isSyncing) {
-    logger.debug({ msg: 'Remote sync is already running', workspaceId });
-    return;
+    if (isSyncing) {
+      logger.debug({ msg: 'Remote sync is already running', workspaceId });
+      return;
+    }
+
+    const folders = await driveFoldersCollection.getAll({ workspaceId });
+
+    folders.forEach((folder) => {
+      FolderStore.addFolder({
+        workspaceId,
+        folderId: folder.id,
+        parentId: folder.parentId!,
+        parentUuid: folder.parentUuid ?? null,
+        plainName: folder.plainName,
+        name: folder.name,
+      });
+    });
+
+    manager.changeStatus('SYNCING');
+    await startRemoteSync({ workspaceId });
+    updateSyncEngine(workspaceId);
+  } catch (exc) {
+    manager.changeStatus('SYNC_FAILED');
+    logger.error({
+      msg: 'Error updating remote sync',
+      exc,
+    });
   }
-
-  manager.changeStatus('SYNCING');
-  await startRemoteSync({ workspaceId });
-  updateSyncEngine(workspaceId);
 }
 
 async function updateAllRemoteSync() {
@@ -240,7 +261,6 @@ export async function initSyncEngine() {
 
 eventBus.on('USER_LOGGED_OUT', () => {
   remoteSyncManagers.clear();
-  remoteSyncManagers.set('', new RemoteSyncManager());
 });
 
 function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {

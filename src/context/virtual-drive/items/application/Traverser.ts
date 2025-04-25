@@ -4,9 +4,9 @@ import { createFileFromServerFile } from '../../files/application/FileCreatorFro
 import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
-import { Tree } from '../domain/Tree';
 import { logger } from '@/apps/shared/logger/logger';
 import { File } from '../../files/domain/File';
+import { RemoteItemsGenerator } from './RemoteItemsGenerator';
 
 const FILE_STATUSES_TO_FILTER = [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED, ServerFileStatus.DELETED];
 const FOLDER_STATUSES_TO_FILTER = [ServerFolderStatus.EXISTS, ServerFolderStatus.TRASHED, ServerFolderStatus.DELETED];
@@ -16,10 +16,18 @@ type Items = {
   folders: Array<ServerFolder>;
 };
 
+export type Tree = {
+  files: Array<File>;
+  folders: Array<Folder>;
+  trashedFiles: Array<File>;
+  trashedFolders: Array<Folder>;
+};
+
 export class Traverser {
   constructor(
     private readonly baseFolderId: number,
     private readonly baseFolderUuid: string,
+    private readonly remoteItemsGenerator: RemoteItemsGenerator,
   ) {}
 
   private createRootFolder(): Folder {
@@ -59,9 +67,9 @@ export class Traverser {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
 
         if (serverFile.status === ServerFileStatus.DELETED || serverFile.status === ServerFileStatus.TRASHED) {
-          tree.appendTrashedFile(file);
+          tree.trashedFiles.push(file);
         } else {
-          tree.addFile(currentFolder, file);
+          tree.files.push(file);
         }
       } catch (exc) {
         logger.error({ msg: 'Error creating file from server file', exc });
@@ -85,9 +93,9 @@ export class Traverser {
         const folder = createFolderFromServerFolder(serverFolder, name);
 
         if (serverFolder.status === ServerFolderStatus.DELETED || serverFolder.status === ServerFolderStatus.TRASHED) {
-          tree.appendTrashedFolder(folder);
+          tree.trashedFolders.push(folder);
         } else {
-          tree.addFolder(currentFolder, folder);
+          tree.folders.push(folder);
           this.traverse(tree, items, folder);
         }
       } catch (exc) {
@@ -96,10 +104,16 @@ export class Traverser {
     });
   }
 
-  public run(items: Items): Tree {
+  async run() {
     const rootFolder = this.createRootFolder();
+    const items = await this.remoteItemsGenerator.getAll();
 
-    const tree = new Tree(rootFolder);
+    const tree: Tree = {
+      files: [],
+      folders: [rootFolder],
+      trashedFiles: [],
+      trashedFolders: [],
+    };
 
     this.traverse(tree, items, rootFolder);
 

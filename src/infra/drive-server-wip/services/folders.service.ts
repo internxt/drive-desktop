@@ -1,20 +1,18 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
-import { clientWrapper, ClientWrapperService } from '../in/client-wrapper.service';
+import { clientWrapper } from '../in/client-wrapper.service';
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
 type TGetFilesByFolderQuery = paths['/folders/content/{uuid}/files']['get']['parameters']['query'];
 
 export class FoldersService {
-  constructor(private readonly clientWrapper = new ClientWrapperService()) {}
-
   getMetadata({ folderId }: { folderId: number }) {
     const promise = client.GET('/folders/{id}/metadata', {
       params: { path: { id: folderId } },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get folder metadata request was not successful',
@@ -34,7 +32,7 @@ export class FoldersService {
       params: { path: { uuid } },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get folder metadata request was not successful',
@@ -52,7 +50,7 @@ export class FoldersService {
   getFolders({ query }: { query: TGetFoldersQuery }) {
     const promise = client.GET('/folders', { params: { query } });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get folders request was not successful',
@@ -72,7 +70,7 @@ export class FoldersService {
       params: { path: { uuid: folderUuid }, query },
     });
 
-    const res = await this.clientWrapper.run({
+    const res = await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get folders by folder request was not successful',
@@ -99,7 +97,7 @@ export class FoldersService {
       params: { path: { uuid: folderUuid }, query },
     });
 
-    const res = await this.clientWrapper.run({
+    const res = await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get files by folder request was not successful',

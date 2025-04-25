@@ -40,7 +40,7 @@ export class FilesPlaceholderUpdater {
     }
   }
 
-  private async update(remote: File): Promise<void> {
+  async update(remote: File): Promise<void> {
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });
@@ -54,8 +54,8 @@ export class FilesPlaceholderUpdater {
     }
 
     if (local.path !== remote.path) {
-      const trackerId = await this.localFileIdProvider.run(local.path);
       if (remote.folderId !== local.folderId) {
+        const trackerId = await this.localFileIdProvider.run(local.path);
         const event = new FileMovedDomainEvent({
           aggregateId: remote.contentsId,
           trackerId,

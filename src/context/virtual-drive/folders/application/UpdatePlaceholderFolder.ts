@@ -72,7 +72,7 @@ export class FolderPlaceholderUpdater {
     return remoteExists && !existsFolder;
   }
 
-  private async update(remote: Folder): Promise<void> {
+  async update(remote: Folder): Promise<void> {
     if (remote.path === path.posix.sep) {
       return;
     }

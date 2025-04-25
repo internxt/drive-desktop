@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { MouseEventHandler, useEffect, useState } from 'react';
 import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
 import { Menu, Transition } from '@headlessui/react';
 import bytes from 'bytes';
@@ -30,18 +30,12 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
 
   const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
 
-  /* Electron on MacOS kept focusing the first focusable
-  element on start so we had to create a dummy element
-  to get that focus, remove it and make itself
-  non-focusable */
-  const dummyRef = useRef<HTMLDivElement>(null);
-
   function onQuitClick() {
     window.electron.quit();
   }
 
-  async function onSyncClick() {
-    window.electron.syncManually();
+  function onSyncClick() {
+    void window.electron.syncManually();
   }
 
   const handleOpenURL = async (URL: string) => {
@@ -61,7 +55,12 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-      window.electron.getUser().then(setUser);
+      window.electron
+        .getUser()
+        .then(setUser)
+        .catch(() => {
+          setUser(null);
+        });
     }, []);
 
     const { usage, status } = useUsage();
@@ -104,7 +103,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   }: {
     children: JSX.Element;
     active?: boolean;
-    onClick?: any;
+    onClick?: MouseEventHandler<HTMLDivElement>;
     disabled?: boolean;
   }) => {
     return (
