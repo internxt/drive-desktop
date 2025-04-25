@@ -4,7 +4,6 @@ import { DangledFilesService } from './DangledFilesService';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
-import { logger } from '@/apps/shared/logger/logger';
 import { ContentFileDownloader } from '@/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
 import { Readable } from 'stream';
 
@@ -30,9 +29,9 @@ describe('DangledFilesService', () => {
       downloader.on.mockImplementation((event, cb) => {
         if (event === 'start') startCallback = cb as () => void;
       });
-      downloader.download.mockImplementation(async () => {
+      downloader.download.mockImplementation(() => {
         startCallback();
-        return new Readable();
+        return Promise.resolve(new Readable());
       });
 
       const result = await service.isFileDownloadable(file);
@@ -98,7 +97,7 @@ describe('DangledFilesService', () => {
       const local = {} as LocalFile;
       const danglings = new Map<LocalFile, File | undefined>([[local, undefined]]);
 
-      const result = await service.handleDangledFile(danglings as any);
+      const result = await service.handleDangledFile(danglings as Map<LocalFile, File>);
       expect(result.size).toBe(0);
     });
 

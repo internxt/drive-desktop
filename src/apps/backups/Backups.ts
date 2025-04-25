@@ -23,7 +23,6 @@ import { FolderDeleter } from '../../context/virtual-drive/folders/application/d
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
-import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
 
 @Service()
@@ -45,7 +44,7 @@ export class Backup {
     const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
 
     if (localTreeEither.isLeft()) {
-      logger.warn({ msg: '[BACKUPS] Error building local tree', error: localTreeEither.getLeft() });
+      logger.warn({ msg: 'Error building local tree', error: localTreeEither.getLeft() });
       return localTreeEither.getLeft();
     }
 
@@ -59,11 +58,11 @@ export class Backup {
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
 
-    const filesDiff = await DiffFilesCalculator.calculate(local, remote);
+    const filesDiff = DiffFilesCalculator.calculate(local, remote);
 
     if (filesDiff.dangled.size > 0) {
       logger.info({
-        msg: '[BACKUPS] Dangling files found, handling them',
+        msg: 'Dangling files found, handling them',
         attributes: {
           tag: 'BACKUPS',
         },
@@ -73,7 +72,7 @@ export class Backup {
 
       for (const [localFile, remoteFile] of filesToResync) {
         logger.debug({
-          msg: '[BACKUPS] Resyncing dangling file',
+          msg: 'Resyncing dangling file',
           localPath: localFile.path,
           remoteId: remoteFile.contentsId,
           attributes: {
@@ -90,7 +89,7 @@ export class Backup {
     this.backed = alreadyBacked;
 
     logger.info({
-      msg: '[BACKUPS] Total items to backup',
+      msg: 'Total items to backup',
       total: filesDiff.total + foldersDiff.total,
       attributes: {
         tag: 'BACKUPS',
@@ -98,7 +97,7 @@ export class Backup {
     });
 
     logger.info({
-      msg: '[BACKUPS] Total items already backed',
+      msg: 'Total items already backed',
       total: alreadyBacked,
       attributes: {
         tag: 'BACKUPS',
@@ -116,7 +115,7 @@ export class Backup {
 
   private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
     logger.info({
-      msg: '[BACKUPS] Backing folders',
+      msg: 'Backing folders',
       total: diff.total,
       attributes: {
         tag: 'BACKUPS',
@@ -128,7 +127,7 @@ export class Backup {
     const deleteFolder = this.deleteRemoteFolders(deleted, abortController);
 
     logger.debug({
-      msg: '[BACKUPS] Folders added',
+      msg: 'Folders added',
       added: added.length,
       attributes: {
         tag: 'BACKUPS',
@@ -143,7 +142,7 @@ export class Backup {
     const { added, modified, deleted } = filesDiff;
 
     logger.debug({
-      msg: '[BACKUPS] Files added',
+      msg: 'Files added',
       added: added.length,
       attributes: {
         tag: 'BACKUPS',
@@ -152,7 +151,7 @@ export class Backup {
     await this.uploadAndCreateFile(local.root.path, added, remote, abortController);
 
     logger.debug({
-      msg: '[BACKUPS] Files modified',
+      msg: 'Files modified',
       modified: modified.size,
       attributes: {
         tag: 'BACKUPS',
@@ -161,7 +160,7 @@ export class Backup {
     await this.uploadAndUpdate(modified, local, remote, abortController);
 
     logger.debug({
-      msg: '[BACKUPS] Files deleted',
+      msg: 'Files deleted',
       deleted: deleted.length,
       attributes: {
         tag: 'BACKUPS',
@@ -185,11 +184,11 @@ export class Backup {
         }
         await this.fileBatchUploader.run(localRootPath, tree, batch, abortController.signal, async () => {
           this.backed += 1;
-          await BackupsIPCRenderer.send('backups.progress-update', this.backed);
+          BackupsIPCRenderer.send('backups.progress-update', this.backed);
         });
       } catch (error) {
         logger.warn({
-          msg: '[BACKUPS] Error uploading files',
+          msg: 'Error uploading files',
           error,
           attributes: {
             tag: 'BACKUPS',
@@ -218,7 +217,7 @@ export class Backup {
         await this.fileBatchUpdater.run(localTree.root, remoteTree, Array.from(batch.keys()), abortController.signal);
       } catch (error) {
         logger.warn({
-          msg: '[BACKUPS] Error updating files',
+          msg: 'Error updating files',
           error,
           attributes: {
             tag: 'BACKUPS',
@@ -242,7 +241,7 @@ export class Backup {
         await this.remoteFileDeleter.run(file);
       } catch (error) {
         logger.warn({
-          msg: '[BACKUPS] Error deleting file',
+          msg: 'Error deleting file',
           error,
           attributes: {
             tag: 'BACKUPS',
@@ -265,7 +264,7 @@ export class Backup {
         await this.remoteFolderDeleter.run(folder);
       } catch (error) {
         logger.warn({
-          msg: '[BACKUPS] Error deleting folder',
+          msg: 'Error deleting folder',
           error,
           attributes: {
             tag: 'BACKUPS',
@@ -288,14 +287,14 @@ export class Backup {
       const remoteParentPath = getParentDirectory(localRootPath, localFolder.path);
 
       logger.debug({
-        msg: '[BACKUPS] Uploading and creating folder',
+        msg: 'Uploading and creating folder',
         relativePath,
       });
 
       const parentExists = tree.has(remoteParentPath);
 
       if (!parentExists) {
-        logger.debug({ msg: '[BACKUPS] Parent folder does not exist' });
+        logger.debug({ msg: 'Parent folder does not exist' });
         continue;
       }
 
@@ -319,7 +318,7 @@ export class Backup {
         tree.addFolder(parent, folder);
       } catch (error) {
         logger.warn({
-          msg: '[BACKUPS] Error creating folder',
+          msg: 'Error creating folder',
           error,
           attributes: {
             tag: 'BACKUPS',

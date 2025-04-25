@@ -13,7 +13,7 @@ export class DangledFilesService {
       const downloader = this.contentsManagerFactory.downloader();
 
       logger.debug({
-        msg: '[BACKUPS] Checking if file is downloadable',
+        msg: 'Checking if file is downloadable',
         fileContentsId: file.contentsId,
         attributes: {
           tag: 'BACKUPS',
@@ -23,7 +23,7 @@ export class DangledFilesService {
       const isDownloadable = new Promise<boolean>((resolve) => {
         downloader.on('start', () => {
           logger.debug({
-            msg: '[BACKUPS] Downloading file',
+            msg: 'Downloading file',
             fileId: file.contentsId,
             name: file.name,
             attributes: {
@@ -36,7 +36,7 @@ export class DangledFilesService {
 
         downloader.on('progress', () => {
           logger.debug({
-            msg: '[BACKUPS] Downloading file force stop',
+            msg: 'Downloading file force stop',
             fileId: file.contentsId,
             name: file.name,
             attributes: {
@@ -49,7 +49,7 @@ export class DangledFilesService {
 
         downloader.on('error', (error: Error) => {
           logger.debug({
-            msg: '[BACKUPS] Error downloading file',
+            msg: 'Error downloading file',
             fileId: file.contentsId,
             name: file.name,
             error,
@@ -64,7 +64,7 @@ export class DangledFilesService {
       return await isDownloadable;
     } catch (error) {
       logger.warn({
-        msg: '[BACKUPS] Error checking if file is downloadable',
+        msg: 'Error checking if file is downloadable',
         error,
         attributes: {
           tag: 'BACKUPS',
@@ -85,7 +85,7 @@ export class DangledFilesService {
         isDownloadable = await this.isFileDownloadable(remoteFile);
       } catch (error) {
         logger.warn({
-          msg: '[BACKUPS] Error checking if file is downloadable in handleDangledFile',
+          msg: 'Error checking if file is downloadable in handleDangledFile',
           fileId: remoteFile.contentsId,
           error,
           attributes: { tag: 'BACKUPS' },
@@ -94,7 +94,7 @@ export class DangledFilesService {
       }
 
       logger.debug({
-        msg: '[BACKUPS] Checking if file is downloadable',
+        msg: 'Checking if file is downloadable',
         fileId: remoteFile.contentsId,
         name: remoteFile.name,
         attributes: { tag: 'BACKUPS' },
@@ -103,7 +103,7 @@ export class DangledFilesService {
       if (!isDownloadable) {
         filesToResync.set(localFile, remoteFile);
         logger.debug({
-          msg: '[BACKUPS] File is not downloadable',
+          msg: 'File is not downloadable',
           fileId: remoteFile.contentsId,
           attributes: { tag: 'BACKUPS' },
         });
