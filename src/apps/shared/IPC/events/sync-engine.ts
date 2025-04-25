@@ -16,14 +16,6 @@ type FileUpdatePayload = {
   processInfo: ProcessInfo;
 };
 
-export type FolderEvents = {
-  FOLDER_CREATING: (payload: { name: string }) => void;
-  FOLDER_CREATED: (payload: { name: string }) => void;
-
-  FOLDER_RENAMING: (payload: { oldName: string; newName: string }) => void;
-  FOLDER_RENAMED: (payload: { oldName: string; newName: string }) => void;
-};
-
 export type FilesEvents = {
   FILE_UPLOADING: (payload: FileUpdatePayload) => void;
   FILE_UPLOADED: (payload: FileUpdatePayload) => void;
@@ -63,7 +55,7 @@ export type ProcessInfoUpdate = {
   CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
 };
 
-export type FromProcess = FilesEvents & FolderEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
+export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
 
 export type FromMain = {
   [key: string]: (...args: Array<unknown>) => unknown;

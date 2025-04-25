@@ -11,7 +11,6 @@ import { FileStatuses } from '../domain/FileStatus';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
-import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class FileCreator {
   constructor(
@@ -19,7 +18,6 @@ export class FileCreator {
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
-    private readonly eventBus: EventRecorder,
     private readonly ipc: SyncEngineIpc,
   ) {}
 
@@ -47,7 +45,6 @@ export class FileCreator {
 
       await this.repository.add(file);
 
-      await this.eventBus.publish(offline.pullDomainEvents());
       this.ipc.send('FILE_CREATED', {
         name: file.name,
         extension: file.type,

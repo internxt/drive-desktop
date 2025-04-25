@@ -86,11 +86,8 @@ export class BindingsManager {
             return;
           }
 
-          const fn = executeControllerWithFallback({
-            handler: this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove),
-            fallback: this.controllers.offline.renameOrMove.execute.bind(this.controllers.offline.renameOrMove),
-          });
-          fn(absolutePath, contentsId, callback);
+          const fn = this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove);
+          await fn(absolutePath, contentsId, callback);
           Logger.debug('Finish Rename', absolutePath);
           this.lastMoved = absolutePath;
         } catch (error) {

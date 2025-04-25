@@ -1,7 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
-import { DependencyInjectionEventBus } from '../common/eventBus';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
 import { RetryContentsUploader } from '../../../../context/virtual-drive/contents/application/RetryContentsUploader';
@@ -14,7 +13,6 @@ import { getConfig } from '../../config';
 
 export function buildContentsContainer(sharedContainer: SharedContainer): ContentsContainer {
   const mnemonic = getConfig().mnemonic;
-  const { bus: eventBus } = DependencyInjectionEventBus;
 
   const environment = new Environment({
     bridgeUrl: process.env.DRIVE_URL,
@@ -37,13 +35,7 @@ export function buildContentsContainer(sharedContainer: SharedContainer): Conten
 
   const localWriter = new FSLocalFileWriter(temporalFolderProvider);
 
-  const contentsDownloader = new ContentsDownloader(
-    contentsManagerFactory,
-    localWriter,
-    ipcRendererSyncEngine,
-    temporalFolderProvider,
-    eventBus,
-  );
+  const contentsDownloader = new ContentsDownloader(contentsManagerFactory, localWriter, ipcRendererSyncEngine, temporalFolderProvider);
 
   return {
     contentsUploader: retryContentsUploader,
