@@ -22,9 +22,9 @@ export class FolderCreator {
 
     const folder = Folder.from(attributes);
 
-    await this.repository.add(folder);
+    this.repository.add(folder);
 
-    await this.folderPlaceholderConverter.run(folder);
+    this.folderPlaceholderConverter.run(folder);
 
     return folder;
   }

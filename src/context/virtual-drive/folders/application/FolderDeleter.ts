@@ -42,7 +42,7 @@ export class FolderDeleter {
       folder.trash();
 
       await this.remote.trash(folder);
-      await this.repository.update(folder);
+      this.repository.update(folder);
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
       this.local.createPlaceHolder(folder);

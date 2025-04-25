@@ -4,7 +4,7 @@ import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem
 export class FileSyncStatusUpdater {
   constructor(private readonly localFileSystem: NodeWinLocalFileSystem) {}
 
-  async run(file: File) {
-    await this.localFileSystem.updateSyncStatus(file);
+  run(file: File) {
+    this.localFileSystem.updateSyncStatus(file);
   }
 }

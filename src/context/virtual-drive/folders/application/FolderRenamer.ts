@@ -13,6 +13,6 @@ export class FolderRenamer {
     folder.rename(destination);
 
     await this.remote.rename(folder);
-    await this.repository.update(folder);
+    this.repository.update(folder);
   }
 }

@@ -6,11 +6,11 @@ import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSy
 export class FolderPlaceholderDeleter {
   constructor(private readonly local: NodeWinLocalFolderSystem) {}
 
-  private async hasToBeDeleted(remote: Folder): Promise<boolean> {
+  private hasToBeDeleted(remote: Folder): boolean {
     if (!remote.path) {
       return false;
     }
-    const localUUID = await this.local.getFileIdentity(remote.path);
+    const localUUID = this.local.getFileIdentity(remote.path);
 
     if (!localUUID) {
       return false;
@@ -25,7 +25,7 @@ export class FolderPlaceholderDeleter {
   }
 
   private async delete(remote: Folder): Promise<void> {
-    const hasToBeDeleted = await this.hasToBeDeleted(remote);
+    const hasToBeDeleted = this.hasToBeDeleted(remote);
 
     if (hasToBeDeleted) {
       await this.local.deleteFileSyncRoot(remote.path);

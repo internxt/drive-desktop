@@ -1,3 +1,4 @@
+/* eslint-disable require-await */
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
 import {
@@ -12,7 +13,7 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-
 
 describe('Contents Downloader', () => {
   const temporalFolderProvider = async (): Promise<string> => {
-    return await 'C:/temp';
+    return 'C:/temp';
   };
 
   const localWriter = mockDeep<LocalFileWriter>();
@@ -31,7 +32,7 @@ describe('Contents Downloader', () => {
     eventEmitter.emit('error', new Error('Download stopped'));
   });
   const callbackFunction = async (data: boolean, path: string) => {
-    return await {
+    return {
       finished: data,
       progress: path.length,
     };
