@@ -4,9 +4,9 @@ import { FetchFoldersService } from './fetch-folders.service.interface';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { LoggerService } from '@/apps/shared/logger/logger';
 import { deepMocked, getMockCalls } from 'tests/vitest/utils.helper.test';
-import { RemoteSyncedFolder } from '../helpers';
 import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFolder } from './sync-remote-folder';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('../../auth/service'));
@@ -105,12 +105,12 @@ describe('sync-remote-folders.service', () => {
     // Given
     fetchFolders.run.mockResolvedValueOnce({
       hasMore: true,
-      result: [{ uuid: 'folder1' } as unknown as RemoteSyncedFolder],
+      result: [{ uuid: 'folder1' } as unknown as FolderDto],
     });
     fetchFolders.run.mockRejectedValueOnce(new Error());
     fetchFolders.run.mockResolvedValueOnce({
       hasMore: false,
-      result: [{ uuid: 'folder2' } as unknown as RemoteSyncedFolder],
+      result: [{ uuid: 'folder2' } as unknown as FolderDto],
     });
 
     // When

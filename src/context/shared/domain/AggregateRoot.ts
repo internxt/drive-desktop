@@ -1,5 +1,5 @@
+import { Primitives } from '@/apps/shared/types/Primitives';
 import { AllowedEvents } from '@/context/virtual-drive/shared/infrastructure/AllowedEvents';
-import { Primitives } from './value-objects/ValueObject';
 
 export abstract class AggregateRoot {
   private domainEvents: Array<AllowedEvents>;

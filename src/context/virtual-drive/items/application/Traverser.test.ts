@@ -50,7 +50,7 @@ describe('Traverser', () => {
     const tree = await SUT.run();
 
     expect(extractPaths(tree.files)).toStrictEqual(['/file A']);
-    expect(extractPaths(tree.folders)).toStrictEqual([]);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/']);
   });
 
   it('second level files starts with /', async () => {
@@ -81,7 +81,7 @@ describe('Traverser', () => {
     const tree = await SUT.run();
 
     expect(extractPaths(tree.files)).toStrictEqual(['/folder A/file A']);
-    expect(extractPaths(tree.folders)).toStrictEqual(['/folder A']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A']);
   });
 
   it('first level folder starts with /', async () => {
@@ -101,7 +101,7 @@ describe('Traverser', () => {
 
     const tree = await SUT.run();
 
-    expect(extractPaths(tree.folders)).toStrictEqual(['/folder A']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A']);
   });
 
   it('second level folder starts with /', async () => {
@@ -129,7 +129,7 @@ describe('Traverser', () => {
 
     const tree = await SUT.run();
 
-    expect(extractPaths(tree.folders)).toStrictEqual(['/folder A', '/folder A/folder B']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A', '/folder A/folder B']);
   });
 
   it('root folder should exist', async () => {
@@ -157,7 +157,7 @@ describe('Traverser', () => {
 
     const tree = await SUT.run();
 
-    expect(extractPaths(tree.folders)).toStrictEqual(['/folder A', '/folder A/folder B']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A', '/folder A/folder B']);
   });
 
   it('when a file data is invalid ignore it and continue', async () => {
@@ -218,7 +218,7 @@ describe('Traverser', () => {
     const tree = await SUT.run();
 
     expect(extractPaths(tree.files)).toStrictEqual([]);
-    expect(extractPaths(tree.folders)).toStrictEqual(['/folder A']);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A']);
   });
 
   it('filters the files and folders depending on the filters set', async () => {
@@ -249,7 +249,7 @@ describe('Traverser', () => {
     const tree = await SUT.run();
 
     expect(extractPaths(tree.files)).toStrictEqual(['/file A']);
-    expect(extractPaths(tree.folders)).toStrictEqual([]);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/']);
   });
 
   it('filters the files and folders depending on the filters set', async () => {
@@ -291,6 +291,6 @@ describe('Traverser', () => {
     const tree = await SUT.run();
 
     expect(extractPaths(tree.files)).toStrictEqual(['/file A.png']);
-    expect(extractPaths(tree.folders)).toStrictEqual([]);
+    expect(extractPaths(tree.folders)).toStrictEqual(['/']);
   });
 });

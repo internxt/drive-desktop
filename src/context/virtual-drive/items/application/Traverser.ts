@@ -110,7 +110,7 @@ export class Traverser {
 
     const tree: Tree = {
       files: [],
-      folders: [],
+      folders: [rootFolder],
       trashedFiles: [],
       trashedFolders: [],
     };

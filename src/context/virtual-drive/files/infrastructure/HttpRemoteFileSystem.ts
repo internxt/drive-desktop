@@ -49,7 +49,7 @@ export class HttpRemoteFileSystem {
         createdAt: result.createdAt,
         modificationTime: result.updatedAt,
         path: offline.path,
-        size: result.size,
+        size: Number(result.size),
         updatedAt: result.updatedAt,
         status: FileStatuses.EXISTS,
       };
@@ -168,7 +168,7 @@ export class HttpRemoteFileSystem {
       createdAt: data.createdAt,
       modificationTime: data.modificationTime,
       path: filePath,
-      size: data.size,
+      size: Number(data.size),
       status: FileStatuses.EXISTS,
       updatedAt: data.updatedAt,
     };
