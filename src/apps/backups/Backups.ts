@@ -63,9 +63,7 @@ export class Backup {
     if (filesDiff.dangled.size > 0) {
       logger.info({
         msg: 'Dangling files found, handling them',
-        attributes: {
-          tag: 'BACKUPS',
-        },
+        tag: 'BACKUPS',
       });
 
       const filesToResync = await this.dangledFilesService.handleDangledFile(filesDiff.dangled);
@@ -75,9 +73,7 @@ export class Backup {
           msg: 'Resyncing dangling file',
           localPath: localFile.path,
           remoteId: remoteFile.contentsId,
-          attributes: {
-            tag: 'BACKUPS',
-          },
+          tag: 'BACKUPS',
         });
         filesDiff.modified.set(localFile, remoteFile);
       }
@@ -118,9 +114,7 @@ export class Backup {
     logger.debug({
       msg: 'Folders added',
       added: added.length,
-      attributes: {
-        tag: 'BACKUPS',
-      },
+      tag: 'BACKUPS',
     });
     const uploadFolder = this.uploadAndCreateFolder(local.root.path, added, remote);
 
@@ -133,9 +127,7 @@ export class Backup {
     logger.debug({
       msg: 'Files added',
       added: added.length,
-      attributes: {
-        tag: 'BACKUPS',
-      },
+      tag: 'BACKUPS',
     });
     await this.uploadAndCreateFile(local.root.path, added, remote, abortController);
 
@@ -175,9 +167,7 @@ export class Backup {
         logger.warn({
           msg: 'Error uploading files',
           error,
-          attributes: {
-            tag: 'BACKUPS',
-          },
+          tag: 'BACKUPS',
         });
         if (error instanceof DriveDesktopError) {
           throw error;
@@ -204,9 +194,7 @@ export class Backup {
         logger.warn({
           msg: 'Error updating files',
           error,
-          attributes: {
-            tag: 'BACKUPS',
-          },
+          tag: 'BACKUPS',
         });
         if (error instanceof DriveDesktopError) {
           throw error;
@@ -228,9 +216,7 @@ export class Backup {
         logger.warn({
           msg: 'Error deleting file',
           error,
-          attributes: {
-            tag: 'BACKUPS',
-          },
+          tag: 'BACKUPS',
         });
         if (error instanceof DriveDesktopError) {
           throw error;
@@ -251,9 +237,7 @@ export class Backup {
         logger.warn({
           msg: 'Error deleting folder',
           error,
-          attributes: {
-            tag: 'BACKUPS',
-          },
+          tag: 'BACKUPS',
         });
         if (error instanceof DriveDesktopError) {
           throw error;
@@ -305,9 +289,7 @@ export class Backup {
         logger.warn({
           msg: 'Error creating folder',
           error,
-          attributes: {
-            tag: 'BACKUPS',
-          },
+          tag: 'BACKUPS',
         });
         if (error instanceof DriveDesktopError) {
           throw error;
