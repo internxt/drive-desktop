@@ -3,7 +3,6 @@ import { SyncRemoteFilesService } from './sync-remote-files.service';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { LoggerService } from '@/apps/shared/logger/logger';
 import { deepMocked, getMockCalls } from 'tests/vitest/utils.helper.test';
-import { RemoteSyncedFile } from '../helpers';
 import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFile } from './sync-remote-file';
 import { fetchWorkspaceFiles } from './fetch-workspace-files.service';
@@ -106,12 +105,12 @@ describe('sync-remote-files.service', () => {
     // Given
     fetchWorkspaceFilesMock.mockResolvedValueOnce({
       hasMore: true,
-      result: [{ uuid: 'file1' } as unknown as RemoteSyncedFile],
+      result: [{ uuid: 'file1' }],
     });
     fetchWorkspaceFilesMock.mockRejectedValueOnce(new Error());
     fetchWorkspaceFilesMock.mockResolvedValueOnce({
       hasMore: false,
-      result: [{ uuid: 'file2' } as unknown as RemoteSyncedFile],
+      result: [{ uuid: 'file2' }],
     });
 
     // When
