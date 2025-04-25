@@ -1,9 +1,6 @@
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
 import { FolderStatus, FolderStatuses } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
-import { FolderCreatedDomainEvent } from './events/FolderCreatedDomainEvent';
-import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
 import { createFolderPlaceholderId } from './FolderPlaceholderId';
 import { FolderId } from './FolderId';
 import { FolderCreatedAt } from './FolderCreatedAt';
@@ -22,9 +19,7 @@ export type FolderAttributes = {
   status: string;
 };
 
-export type FolderAttributesWithoutPath = Omit<FolderAttributes, 'path'> & { plainName: string };
-
-export class Folder extends AggregateRoot {
+export class Folder {
   private constructor(
     private _id: FolderId,
     private _uuid: FolderUuid,
@@ -34,9 +29,7 @@ export class Folder extends AggregateRoot {
     public _createdAt: FolderCreatedAt,
     public _updatedAt: FolderUpdatedAt,
     private _status: FolderStatus,
-  ) {
-    super();
-  }
+  ) {}
 
   public get id(): number {
     return this._id?.value;
@@ -114,9 +107,6 @@ export class Folder extends AggregateRoot {
   }): Folder {
     const folder = new Folder(id, uuid, path, parentId, parentUuid, createdAt, updatedAt, FolderStatus.Exists);
 
-    const folderCreatedEvent = new FolderCreatedDomainEvent({ aggregateId: folder.uuid });
-    folder.record(folderCreatedEvent);
-
     return folder;
   }
 
@@ -139,17 +129,8 @@ export class Folder extends AggregateRoot {
   }
 
   rename(newPath: FolderPath) {
-    const oldPath = this._path;
     this._path = this._path.updateName(newPath.name());
     this._updatedAt = FolderUpdatedAt.now();
-
-    const event = new FolderRenamedDomainEvent({
-      aggregateId: this.uuid,
-      previousPath: oldPath.name(),
-      nextPath: this._path.name(),
-    });
-
-    this.record(event);
   }
 
   trash() {

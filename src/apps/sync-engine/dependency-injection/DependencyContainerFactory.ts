@@ -1,6 +1,5 @@
 import { DependencyContainer } from './DependencyContainer';
 import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
-import { DependencyInjectionEventBus } from './common/eventBus';
 import { DependencyInjectionVirtualDrive } from './common/virtualDrive';
 import { buildContentsContainer } from './contents/builder';
 import { buildFilesContainer } from './files/builder';
@@ -16,7 +15,6 @@ export class DependencyContainerFactory {
       return DependencyContainerFactory._container;
     }
 
-    const { bus } = DependencyInjectionEventBus;
     const { virtualDrive } = DependencyInjectionVirtualDrive;
 
     const sharedContainer = buildSharedContainer();
@@ -36,8 +34,6 @@ export class DependencyContainerFactory {
 
       virtualDrive,
     };
-
-    bus.addSubscribers(container.synchronizeOfflineModificationsOnFolderCreated);
 
     DependencyContainerFactory._container = container;
 

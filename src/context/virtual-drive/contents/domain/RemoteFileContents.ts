@@ -1,4 +1,3 @@
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { ContentsId } from './ContentsId';
 import { ContentsSize } from './ContentsSize';
 
@@ -7,13 +6,11 @@ export type RemoteFileContentsAttributes = {
   size: number;
 };
 
-export class RemoteFileContents extends AggregateRoot {
+export class RemoteFileContents {
   private constructor(
     private readonly _id: ContentsId,
     private readonly _size: ContentsSize,
-  ) {
-    super();
-  }
+  ) {}
 
   public get id(): string {
     return this._id.value;
@@ -29,12 +26,5 @@ export class RemoteFileContents extends AggregateRoot {
 
   static from(attributes: RemoteFileContentsAttributes): RemoteFileContents {
     return new RemoteFileContents(new ContentsId(attributes.id), new ContentsSize(attributes.size));
-  }
-
-  attributes() {
-    return {
-      contentsId: this.id,
-      size: this.size,
-    };
   }
 }

@@ -1,5 +1,4 @@
 import { FolderUuid } from './../../folders/domain/FolderUuid';
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
@@ -7,7 +6,6 @@ import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCan
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
 import { FileStatus, FileStatuses } from './FileStatus';
-import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
@@ -28,7 +26,7 @@ export type FileAttributes = {
   status: string;
 };
 
-export class File extends AggregateRoot {
+export class File {
   private constructor(
     private _id: number,
     private _uuid: FileUuid,
@@ -40,9 +38,7 @@ export class File extends AggregateRoot {
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FileStatus,
-  ) {
-    super();
-  }
+  ) {}
 
   public get id(): number {
     return this._id;
@@ -154,17 +150,10 @@ export class File extends AggregateRoot {
     this.updatedAt = new Date();
   }
 
-  moveTo(folder: Folder, trackerId: string): void {
+  moveTo(folder: Folder): void {
     this._folderId = new FileFolderId(folder.id);
     this._folderUuid = new FolderUuid(folder.uuid);
     this._path = this._path.changeFolder(folder.path);
-
-    this.record(
-      new FileMovedDomainEvent({
-        aggregateId: this._contentsId.value,
-        trackerId,
-      }),
-    );
   }
 
   rename(newPath: FilePath) {

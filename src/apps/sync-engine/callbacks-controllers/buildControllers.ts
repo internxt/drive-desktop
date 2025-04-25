@@ -3,16 +3,12 @@ import { AddController } from './controllers/AddController';
 import { DeleteController } from './controllers/DeleteController';
 import { DownloadFileController } from './controllers/DownloadFileController';
 import { RenameOrMoveController } from './controllers/RenameOrMoveController';
-import { OfflineRenameOrMoveController } from './controllers/offline/OfflineRenameOrMoveController';
 
 export interface IControllers {
   addFile: AddController;
   renameOrMove: RenameOrMoveController;
   delete: DeleteController;
   downloadFile: DownloadFileController;
-  offline: {
-    renameOrMove: OfflineRenameOrMoveController;
-  };
 }
 
 export function buildControllers(container: DependencyContainer): IControllers {
@@ -39,18 +35,10 @@ export function buildControllers(container: DependencyContainer): IControllers {
 
   const downloadFileController = new DownloadFileController(container.fileFinderByContentsId, container.contentsDownloader);
 
-  const offlineRenameOrMoveController = new OfflineRenameOrMoveController(
-    container.absolutePathToRelativeConverter,
-    container.offline.folderPathUpdater,
-  );
-
   return {
     addFile: addFileController,
     renameOrMove: renameOrMoveController,
     delete: deleteController,
     downloadFile: downloadFileController,
-    offline: {
-      renameOrMove: offlineRenameOrMoveController,
-    },
   } as const;
 }
