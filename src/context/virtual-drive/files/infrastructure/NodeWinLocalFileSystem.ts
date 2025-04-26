@@ -36,8 +36,10 @@ export class NodeWinLocalFileSystem {
   }
 
   async getFileIdentity(path: File['path']): Promise<string> {
-    // v2.5.2 Jonathan Daniel
-    // really needs this to be awaited
+    /*
+     * v2.5.2 Jonathan Daniel
+     * really needs this to be awaited
+     */
     // eslint-disable-next-line @typescript-eslint/await-thenable
     return await this.virtualDrive.getFileIdentity({ path });
   }

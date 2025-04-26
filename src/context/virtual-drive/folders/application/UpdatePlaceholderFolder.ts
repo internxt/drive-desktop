@@ -46,9 +46,9 @@ export class FolderPlaceholderUpdater {
     }
   }
 
-  private canWrite(win32AbsolutePath: string) {
+  private async canWrite(win32AbsolutePath: string) {
     try {
-      void fs.access(win32AbsolutePath, FsConstants.R_OK | FsConstants.W_OK);
+      await fs.access(win32AbsolutePath, FsConstants.R_OK | FsConstants.W_OK);
       return true;
     } catch {
       return false;
@@ -101,7 +101,7 @@ export class FolderPlaceholderUpdater {
       } catch {
         const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
 
-        const canBeWritten = this.canWrite(win32AbsolutePath);
+        const canBeWritten = await this.canWrite(win32AbsolutePath);
 
         if (!canBeWritten) {
           Logger.warn(`Cannot modify the folder placeholder ${local.path}`);

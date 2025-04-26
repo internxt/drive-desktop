@@ -28,6 +28,9 @@ describe('FilesPlaceholderUpdater', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  beforeAll(() => {
     updater = new FilesPlaceholderUpdater(mockRepository, mockLocalFileSystem, mockPathConverter, mockFileIdProvider, mockEventHistory);
   });
 
