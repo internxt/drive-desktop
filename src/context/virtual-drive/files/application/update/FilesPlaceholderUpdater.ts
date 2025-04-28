@@ -7,7 +7,6 @@ import { FileMovedDomainEvent } from '../../domain/events/FileMovedDomainEvent';
 import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
-import { logger } from '@/apps/shared/logger/logger';
 
 export class FilesPlaceholderUpdater {
   constructor(
