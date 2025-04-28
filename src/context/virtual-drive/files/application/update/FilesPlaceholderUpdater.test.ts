@@ -68,7 +68,7 @@ describe('FilesPlaceholderUpdater', () => {
   });
 
   describe('hasToBeUpdatedIdentity', () => {
-    it('should return true if identities are different', async () => {
+    it('should return true if identities are different', () => {
       const local = FileMother.fromPartial({
         status: FileStatuses.EXISTS,
         path: '/localPath/file.txt',
@@ -81,13 +81,13 @@ describe('FilesPlaceholderUpdater', () => {
 
       mockLocalFileSystem.getFileIdentity.mockResolvedValue('localId');
 
-      const result = await updater['hasToBeUpdatedIdentity'](local, remote);
+      const result = updater['hasToBeUpdatedIdentity'](local, remote);
 
       expect(result).toBe(true);
       expect(mockLocalFileSystem.getFileIdentity).toHaveBeenCalledWith('/localPath/file.txt');
     });
 
-    it('should return false if identities are the same', async () => {
+    it('should return false if identities are the same', () => {
       const sameUuid = v4();
 
       const local = FileMother.fromPartial({
@@ -102,12 +102,12 @@ describe('FilesPlaceholderUpdater', () => {
 
       mockLocalFileSystem.getFileIdentity.mockResolvedValue('FILE:' + sameUuid);
 
-      const result = await updater['hasToBeUpdatedIdentity'](local, remote);
+      const result = updater['hasToBeUpdatedIdentity'](local, remote);
 
       expect(result).toBe(false);
     });
 
-    it('should return false if local does not exist', async () => {
+    it('should return false if local does not exist', () => {
       const local = FileMother.fromPartial({
         status: FileStatuses.TRASHED,
       });
@@ -115,11 +115,11 @@ describe('FilesPlaceholderUpdater', () => {
         status: FileStatuses.EXISTS,
       });
 
-      const result = await updater['hasToBeUpdatedIdentity'](local, remote);
+      const result = updater['hasToBeUpdatedIdentity'](local, remote);
 
       expect(result).toBe(false);
     });
-    it('should return false if remote does not exist', async () => {
+    it('should return false if remote does not exist', () => {
       const local = FileMother.fromPartial({
         status: FileStatuses.EXISTS,
       });
@@ -127,7 +127,7 @@ describe('FilesPlaceholderUpdater', () => {
         status: FileStatuses.TRASHED,
       });
 
-      const result = await updater['hasToBeUpdatedIdentity'](local, remote);
+      const result = updater['hasToBeUpdatedIdentity'](local, remote);
 
       expect(result).toBe(false);
     });
@@ -238,8 +238,7 @@ describe('FilesPlaceholderUpdater', () => {
 
       mockRepository.searchByPartial.mockImplementation(({ contentsId }) => localFiles.find((file) => file.contentsId === contentsId));
 
-      // eslint-disable-next-line require-await
-      mockLocalFileSystem.getFileIdentity.mockImplementation(async (path) =>
+      mockLocalFileSystem.getFileIdentity.mockImplementation((path) =>
         path === '/remote1' ? `FILE:${oldsUuids[0]}` : `FILE:${newsUuids[1]}`,
       );
 

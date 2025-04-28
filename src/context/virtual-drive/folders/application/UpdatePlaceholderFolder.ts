@@ -127,10 +127,8 @@ export class FolderPlaceholderUpdater {
       return;
     }
 
-    if (await this.hasToBeCreated(remote)) {
-      this.local.createPlaceHolder(remote);
-      this.repository.update(remote);
-    }
+    this.local.createPlaceHolder(remote);
+    this.repository.update(remote);
   }
 
   async run(remotes: Array<Folder>): Promise<void> {

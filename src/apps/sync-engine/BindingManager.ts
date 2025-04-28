@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import { QueueItem, QueueManager, Callbacks } from '@internxt/node-win/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
-import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
@@ -54,7 +53,7 @@ export class BindingsManager {
           .execute(placeholderId)
           .then(() => {
             callback(true);
-            ipcRenderer.invoke('DELETE_ITEM_DRIVE', placeholderId);
+            void ipcRenderer.invoke('DELETE_ITEM_DRIVE', placeholderId);
           })
           .catch((error: Error) => {
             Logger.error(error);
@@ -159,7 +158,7 @@ export class BindingsManager {
       },
     };
 
-    await this.stop();
+    this.stop();
 
     await this.container.virtualDrive.registerSyncRoot({
       providerName: this.PROVIDER_NAME,
@@ -167,7 +166,7 @@ export class BindingsManager {
       callbacks,
       logoPath: this.paths.icon,
     });
-    await this.container.virtualDrive.connectSyncRoot();
+    this.container.virtualDrive.connectSyncRoot();
 
     const tree = await this.container.traverser.run();
     await this.load(tree);
@@ -245,7 +244,7 @@ export class BindingsManager {
 
     logger.debug({ msg: '[SYNC ENGINE] Polling finished', workspaceId });
 
-    DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
+    void DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
       await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
         toUpdate: input.toUpdateContentsIds,
         toDelete: input.toDeleteContentsIds,
