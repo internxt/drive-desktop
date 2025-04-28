@@ -100,7 +100,7 @@ describe('FilesPlaceholderUpdater', () => {
         uuid: sameUuid,
       });
 
-      mockLocalFileSystem.getFileIdentity.mockResolvedValue('FILE:' + sameUuid);
+      mockLocalFileSystem.getFileIdentity.mockReturnValue('FILE:' + sameUuid);
 
       const result = updater['hasToBeUpdatedIdentity'](local, remote);
 
