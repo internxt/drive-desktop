@@ -16,7 +16,7 @@ describe('spawn-workspace-sync-engine-workers', () => {
   const spawnWorkspaceMock = vi.mocked(spawnWorkspace);
   const unregisterVirtualDrivesMock = vi.mocked(unregisterVirtualDrives);
 
-  it('Spawn workspaces and main sync engine worker', async () => {
+  it('Spawn workspace sync engine workers', async () => {
     // Given
     getUserOrThrowMock.mockReturnValue({ uuid: 'user_id' });
     getWorkspacesMock.mockResolvedValue([{ providerId: '{WORKSPACE_PROVIDER_ID}' }]);

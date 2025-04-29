@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
-import { getUser, getUserOrThrow } from '../auth/service';
+import { getUserOrThrow } from '../auth/service';
 import { Config } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
