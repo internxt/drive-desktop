@@ -6,7 +6,7 @@ type TProps = {
   stopAndSpawn: () => Promise<void>;
 };
 
-export async function monitorHealth({ browserWindow, stopAndSpawn }: TProps) {
+export function monitorHealth({ browserWindow, stopAndSpawn }: TProps) {
   const pid = browserWindow.webContents.getOSProcessId();
 
   const checkWorkerHealth = async () => {
@@ -26,8 +26,8 @@ export async function monitorHealth({ browserWindow, stopAndSpawn }: TProps) {
   //   await stopAndSpawn();
   // });
 
-  browserWindow.webContents.on('render-process-gone', async () => {
-    logger.warn({ msg: '[MAIN] Sync engine worker process gone' });
+  browserWindow.webContents.on('render-process-gone', async (_, details) => {
+    logger.warn({ msg: '[MAIN] Sync engine worker process gone', details });
     await stopAndSpawn();
   });
 
