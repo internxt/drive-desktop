@@ -1,7 +1,7 @@
 import lodashChunk from 'lodash.chunk';
 import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
 
-export type Chucks = Array<Array<LocalFile>>;
+type Chucks = Array<Array<LocalFile>>;
 
 const NUMBER_OF_PARALLEL_QUEUES_FOR_SMALL_FILES = 16;
 

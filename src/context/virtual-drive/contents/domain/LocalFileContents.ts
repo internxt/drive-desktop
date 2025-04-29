@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 import { ContentsSize } from './ContentsSize';
 import { File } from '../../files/domain/File';
 
-export type LocalFileContentsAttributes = {
+type LocalFileContentsAttributes = {
   name: string;
   extension: string;
   size: number;

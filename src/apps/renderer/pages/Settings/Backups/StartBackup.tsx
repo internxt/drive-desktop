@@ -17,12 +17,12 @@ export function StartBackup({ className }: StartBackupProps) {
     setAskConfirmation(!askConfirmation);
   }
 
-  async function stopBackupsProcess() {
+  function stopBackupsProcess() {
     window.electron.stopBackupsProcess();
     toggleConfirmation();
   }
 
-  async function startBackupsProcess() {
+  function startBackupsProcess() {
     clearLastBackupExitReason();
     window.electron.startBackupsProcess();
   }
@@ -40,7 +40,12 @@ export function StartBackup({ className }: StartBackupProps) {
             setAvalaibleAlert(true);
             return;
           }
-          backupStatus === 'STANDBY' ? startBackupsProcess() : toggleConfirmation();
+
+          if (backupStatus === 'STANDBY') {
+            startBackupsProcess();
+          } else {
+            toggleConfirmation();
+          }
         }}
         disabled={backups.length === 0 || thereIsDownloadProgress}>
         {translate(`settings.backups.action.${backupStatus === 'STANDBY' ? 'start' : 'stop'}`)}

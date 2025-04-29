@@ -1,6 +1,6 @@
 import packageJson from '../../../../package.json';
 
-export type AppInfo = {
+type AppInfo = {
   name: 'drive-desktop';
   version: string;
 };

@@ -1,5 +1,5 @@
+import { PinState } from '@internxt/node-win/dist';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
-import { PinState } from './PlaceholderTypes';
 
 export class FileCheckerStatusInRoot {
   constructor(private readonly localFileSystem: NodeWinLocalFileSystem) {}

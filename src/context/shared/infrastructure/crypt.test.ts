@@ -21,7 +21,10 @@ describe('crypt', () => {
 
     it('When no parentId is provided it throws an error', () => {
       expect(() => crypt.decryptName({ name: encryptedName })).toThrowError();
-      expect(loggerMock.error).toHaveBeenCalledWith;
+      expect(loggerMock.error).toHaveBeenCalledWith({
+        msg: 'AES Decrypt failed because parentId is null',
+        name: encryptedName,
+      });
     });
 
     it('When decrypt fails it throws an error', () => {
