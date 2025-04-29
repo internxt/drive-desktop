@@ -8,7 +8,9 @@ import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFi
 import { getConfig } from '@/apps/sync-engine/config';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
-export function registerLocalFileServices(builder: ContainerBuilder) {
+export async function registerLocalFileServices(builder: ContainerBuilder) {
+  // Infra
+
   const mnemonic = getConfig().mnemonic;
 
   const environment = new Environment({
