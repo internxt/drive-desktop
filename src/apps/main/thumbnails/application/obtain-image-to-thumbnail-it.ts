@@ -1,9 +1,8 @@
-import Logger from 'electron-log';
 import path from 'path';
 import { isImageThumbnailable } from '../domain/ThumbnableExtension';
 import { nativeImage } from 'electron';
 
-export const ThumbnailConfig = {
+const ThumbnailConfig = {
   MaxWidth: 300,
   MaxHeight: 300,
   Quality: 100,

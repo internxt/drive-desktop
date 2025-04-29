@@ -6,4 +6,5 @@ const config: PlaywrightTestConfig = {
   workers: 1, // disables test parallelism
 };
 
+// ts-prune-ignore-next
 export default config;

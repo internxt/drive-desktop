@@ -1,6 +1,6 @@
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 
-export type LocalFolderAttributes = {
+type LocalFolderAttributes = {
   path: AbsolutePath;
   modificationTime: number;
 };

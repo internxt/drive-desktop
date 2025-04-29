@@ -14,7 +14,7 @@ import { PATHS } from '@/core/electron/paths';
 const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME;
 const VIRTUAL_DRIVE_FOLDER = path.join(PATHS.HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
-export function setSyncRoot(pathname: string): void {
+function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
 
   configStore.set('syncRoot', pathNameWithSepInTheEnd);
@@ -49,10 +49,6 @@ export function getRootVirtualDrive(): string {
   }
 
   return current;
-}
-
-export interface LoggersPaths {
-  syncRoot: string;
 }
 
 export async function clearRootVirtualDrive(): Promise<void> {

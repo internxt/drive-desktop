@@ -1,6 +1,6 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 
-export type FileInfo = {
+type FileInfo = {
   name: string;
   extension: string;
   nameWithExtension: string;
@@ -8,7 +8,7 @@ export type FileInfo = {
   size: number;
 };
 
-export type FileProgressInfo = FileInfo & {
+type FileProgressInfo = FileInfo & {
   processInfo: {
     elapsedTime: number;
     progress?: number;

@@ -3,7 +3,7 @@ import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
 import { CloudSlash } from '@phosphor-icons/react';
 
-export interface SyncFailedProps {
+interface SyncFailedProps {
   onRetrySync: () => void;
 }
 

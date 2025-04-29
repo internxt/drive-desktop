@@ -1,7 +1,7 @@
 import { ContentsId } from './ContentsId';
 import { ContentsSize } from './ContentsSize';
 
-export type RemoteFileContentsAttributes = {
+type RemoteFileContentsAttributes = {
   id: string;
   size: number;
 };

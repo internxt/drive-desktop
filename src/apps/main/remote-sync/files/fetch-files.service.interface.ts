@@ -1,7 +1,7 @@
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { paths } from '@/apps/shared/HttpClient/schema';
 
-export type QueryFiles = paths['/files']['get']['parameters']['query'];
+type QueryFiles = paths['/files']['get']['parameters']['query'];
 export interface FetchFilesServiceParams {
   self: RemoteSyncManager;
   folderUuid?: string;

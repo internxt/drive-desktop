@@ -2,14 +2,14 @@ import { User } from '@/apps/main/types';
 import { aes } from '@internxt/lib';
 const MINIMAL_ENCRYPTED_KEY_LEN = 129;
 
-export class CorruptedEncryptedPrivateKeyError extends Error {
+class CorruptedEncryptedPrivateKeyError extends Error {
   constructor() {
     super('Key is corrupted');
 
     Object.setPrototypeOf(this, CorruptedEncryptedPrivateKeyError.prototype);
   }
 }
-export function decryptPrivateKey(privateKey: string, password: string): string {
+function decryptPrivateKey(privateKey: string, password: string): string {
   if (!privateKey || privateKey.length <= MINIMAL_ENCRYPTED_KEY_LEN) return '';
   else {
     try {

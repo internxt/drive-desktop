@@ -34,7 +34,7 @@ export type Device = {
   lastBackupAt: string;
 };
 
-export interface FolderTreeResponse {
+interface FolderTreeResponse {
   tree: FolderTree;
   folderDecryptedNames: Record<number, string>;
   fileDecryptedNames: Record<number, string>;
@@ -676,7 +676,7 @@ export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenD
   };
 }
 
-export async function openFileSystemAndGetPaths(
+async function openFileSystemAndGetPaths(
   dialogPropertiesOptions?: Electron.OpenDialogOptions['properties'],
 ): Promise<string[] | undefined> {
   const dialogProperties = dialogPropertiesOptions ?? ['openDirectory'];

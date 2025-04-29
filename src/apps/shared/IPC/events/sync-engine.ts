@@ -16,7 +16,7 @@ type FileUpdatePayload = {
   processInfo: ProcessInfo;
 };
 
-export type FilesEvents = {
+type FilesEvents = {
   FILE_UPLOADING: (payload: FileUpdatePayload) => void;
   FILE_UPLOADED: (payload: FileUpdatePayload) => void;
   FILE_UPLOAD_ERROR: (payload: { name?: string; extension?: string; nameWithExtension: string; error: string }) => void;
@@ -40,7 +40,7 @@ export type FilesEvents = {
   FILE_MOVED: (payload: { nameWithExtension: string; folderName: string }) => void;
 };
 
-export type SyncEngineInvocableFunctions = {
+type SyncEngineInvocableFunctions = {
   GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: DriveFile[]; folders: DriveFolder[] }>;
   GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (folderUuid: string, workspaceId: string) => Promise<{ files: DriveFile[]; folders: DriveFolder[] }>;
   FORCE_REFRESH_BACKUPS: (folderUuid: string) => Promise<void>;
@@ -49,7 +49,7 @@ export type SyncEngineInvocableFunctions = {
 };
 
 // TODO: change how errors are reported to the ui
-export type ProcessInfoUpdate = {
+type ProcessInfoUpdate = {
   SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
   SYNC_PROBLEM: (payload: { key: string; additionalData: Record<string, unknown> }) => void;
   CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;

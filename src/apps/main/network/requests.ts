@@ -52,12 +52,6 @@ function getFileInfo(networkApiUrl: string, bucketId: string, fileId: string, op
     });
 }
 
-export function getFileInfoWithToken(networkApiUrl: string, bucketId: string, fileId: string, token: string): Promise<FileInfo> {
-  return getFileInfo(networkApiUrl, bucketId, fileId, {
-    headers: { 'x-token': token },
-  });
-}
-
 export function getFileInfoWithAuth(networkApiUrl: string, bucketId: string, fileId: string, creds: NetworkCredentials): Promise<FileInfo> {
   return getFileInfo(networkApiUrl, bucketId, fileId, {
     auth: getAuthFromCredentials(creds),

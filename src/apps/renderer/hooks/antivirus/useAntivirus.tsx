@@ -1,11 +1,6 @@
 import { useEffect, useState } from 'react';
 
 export type ScanType = 'files' | 'folders';
-export interface ScannedItemsProps {
-  file: string;
-  isInfected: boolean | null;
-  viruses: string[];
-}
 export type Views = 'locked' | 'chooseItems' | 'scan' | 'loading';
 
 export interface UseAntivirusReturn {
