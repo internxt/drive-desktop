@@ -53,13 +53,13 @@ import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from '../shared/types/Theme';
-import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 import { clearConfig, setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
 import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
+import { setUpBackups } from './background-processes/backups/setUpBackups';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -124,8 +124,6 @@ app
       setTrayStatus('IDLE');
     }
 
-    setDefaultConfig({});
-
     ipcMain.handle('is-dark-mode-active', () => {
       return nativeTheme.shouldUseDarkColors;
     });
@@ -136,10 +134,6 @@ app
 
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-
     setDefaultConfig({});
 
     getAuthWindow()?.hide();

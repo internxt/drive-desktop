@@ -4,7 +4,7 @@ import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import Logger from 'electron-log';
 import { ipcMain } from 'electron';
-import { spawnAllSyncEngineWorker, updateSyncEngine } from '../background-processes/sync-engine';
+import { spawnDefaultSyncEngineWorker, spawnWorkspaceSyncEngineWorkers, updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { DriveFile } from '../database/entities/DriveFile';
 import { DriveFolder } from '../database/entities/DriveFolder';
@@ -249,7 +249,8 @@ ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', async (_, workspaceId = '') => 
 
 export async function initSyncEngine() {
   try {
-    await spawnAllSyncEngineWorker();
+    const { providerId } = await spawnDefaultSyncEngineWorker();
+    await spawnWorkspaceSyncEngineWorkers({ providerId });
     await debouncedSynchronization();
   } catch (error) {
     throw logger.error({

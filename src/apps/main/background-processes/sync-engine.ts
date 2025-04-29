@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
-import { getUser } from '../auth/service';
+import { getUserOrThrow } from '../auth/service';
 import { Config } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
@@ -49,12 +49,8 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-export const spawnAllSyncEngineWorker = async () => {
-  const user = getUser();
-
-  if (!user) {
-    return;
-  }
+export async function spawnDefaultSyncEngineWorker() {
+  const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
   const config: Config = {
@@ -77,6 +73,12 @@ export const spawnAllSyncEngineWorker = async () => {
     rootUuid: user.rootFolderId,
   });
 
+  await spawnSyncEngineWorker({ config });
+
+  return { providerId };
+}
+
+export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { providerId: string }) {
   const workspaces = await getWorkspaces({});
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
@@ -84,7 +86,7 @@ export const spawnAllSyncEngineWorker = async () => {
 
   unregisterVirtualDrives({ currentProviderIds });
 
-  const spawnWorkspaces = workspaces.forEach(async (workspace) => {
+  const spawnWorkspaces = workspaces.map(async (workspace) => {
     FolderStore.addWorkspace({
       workspaceId: workspace.id,
       rootId: null,
@@ -94,8 +96,8 @@ export const spawnAllSyncEngineWorker = async () => {
     await spawnWorkspace({ workspace });
   });
 
-  await Promise.all([spawnSyncEngineWorker({ config }), spawnWorkspaces]);
-};
+  await Promise.all(spawnWorkspaces);
+}
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearAllSyncEngineWatcher);
