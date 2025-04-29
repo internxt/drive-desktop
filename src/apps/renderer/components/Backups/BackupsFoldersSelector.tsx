@@ -8,7 +8,7 @@ export type BackupFolder = {
   path: string;
   itemName: string;
 };
-export interface BackupsFoldersSelectorProps {
+interface BackupsFoldersSelectorProps {
   onFinish: (backupFolders: BackupFolder[]) => void;
   onCancel: () => void;
 }

@@ -3,9 +3,7 @@ import React from 'react';
 import { OnboardingSlideProps, getPlatformPhraseTranslationKey } from '../helpers';
 import { useTranslationContext } from '../../../context/LocalContext';
 
-export type OnboardingCompletedSlideProps = OnboardingSlideProps;
-
-export const OnboardingCompletedSlide: React.FC<OnboardingCompletedSlideProps> = (props) => {
+export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = (props) => {
   const { translate } = useTranslationContext();
 
   return (

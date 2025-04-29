@@ -2,7 +2,7 @@ import path from 'path';
 import { AbsolutePath } from '../infrastructure/AbsolutePath';
 import { LocalFileSize } from './LocalFileSize';
 
-export type LocalFileAttributes = {
+type LocalFileAttributes = {
   path: AbsolutePath;
   modificationTime: number;
   size: number;

@@ -5,13 +5,6 @@ type DomainEventAttributes = any;
 export abstract class DomainEvent {
   static EVENT_NAME: string;
 
-  static fromPrimitives: (params: {
-    aggregateId: string;
-    eventId: string;
-    occurredOn: Date;
-    attributes: DomainEventAttributes;
-  }) => DomainEvent;
-
   readonly aggregateId: string;
   readonly eventId: string;
   readonly eventName: string;
@@ -27,8 +20,3 @@ export abstract class DomainEvent {
 
   abstract toPrimitives(): DomainEventAttributes;
 }
-
-export type DomainEventClass = {
-  EVENT_NAME: string;
-  fromPrimitives(params: { aggregateId: string; eventId: string; occurredOn: Date; attributes: DomainEventAttributes }): DomainEvent;
-};

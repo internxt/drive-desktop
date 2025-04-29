@@ -4,9 +4,7 @@ import { XCircle } from 'phosphor-react';
 import { SideTextAnimation } from '../../Onboarding/helpers';
 import Button from '../../../components/Button';
 
-export type MigrationFailedSlideProps = MigrationSlideProps;
-
-export const MigrationFailedSlide: React.FC<MigrationFailedSlideProps> = (props) => {
+export const MigrationFailedSlide: React.FC<MigrationSlideProps> = (props) => {
   return (
     <div className="flex h-full w-full">
       <SideTextAnimation display>

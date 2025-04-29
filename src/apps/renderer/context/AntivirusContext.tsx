@@ -3,7 +3,7 @@ import { useAntivirus, UseAntivirusReturn } from '../hooks/antivirus/useAntiviru
 
 type AntivirusContext = UseAntivirusReturn;
 
-export const AntivirusContext = createContext<AntivirusContext>({} as AntivirusContext);
+const AntivirusContext = createContext<AntivirusContext>({} as AntivirusContext);
 
 export function AntivirusProvider({ children }: { children: ReactNode }) {
   const antivirus = useAntivirus();

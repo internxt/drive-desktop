@@ -52,4 +52,5 @@ const configuration: webpack.Configuration = {
   ],
 };
 
+// ts-prune-ignore-next
 export default merge(baseConfig, configuration);

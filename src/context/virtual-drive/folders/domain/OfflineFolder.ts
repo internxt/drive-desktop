@@ -2,7 +2,7 @@ import { FolderPath } from './FolderPath';
 import { FolderStatus } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
 
-export type OfflineFolderAttributes = {
+type OfflineFolderAttributes = {
   uuid: string;
   parentId: number;
   parentUuid: string;

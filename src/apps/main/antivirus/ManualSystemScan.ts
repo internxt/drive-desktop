@@ -27,7 +27,7 @@ export async function getManualScanMonitorInstance() {
   return fileSystemMonitorInstanceManual;
 }
 
-export class ManualSystemScan {
+class ManualSystemScan {
   private dbConnection: DBScannerConnection;
   private manualQueue: QueueObject<string> | null;
   private progressEvents: ProgressData[];

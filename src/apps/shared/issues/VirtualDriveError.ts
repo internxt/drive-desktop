@@ -9,6 +9,6 @@ const virtualDriveFileErrors = [
 
 const virtualDriveFolderErrors = ['FOLDER_RENAME_ERROR', 'FOLDER_CREATE_ERROR', 'FOLDER_TRASH_ERROR'] as const;
 
-export type VirtualDriveFileError = (typeof virtualDriveFileErrors)[number];
-export type VirtualDriveFolderError = (typeof virtualDriveFolderErrors)[number];
+type VirtualDriveFileError = (typeof virtualDriveFileErrors)[number];
+type VirtualDriveFolderError = (typeof virtualDriveFolderErrors)[number];
 export type VirtualDriveError = VirtualDriveFileError | VirtualDriveFolderError;
