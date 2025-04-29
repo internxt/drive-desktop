@@ -11,7 +11,6 @@ import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
 import { PATHS } from '@/core/electron/paths';
-import { setUpBackups } from '../background-processes/backups/setUpBackups';
 
 let isLoggedIn: boolean;
 
@@ -95,5 +94,4 @@ async function emitUserLoggedIn() {
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
   await initSyncEngine();
-  await setUpBackups();
 }

@@ -4,13 +4,12 @@ import { FileBatchUpdater } from '../../../../context/local/localFile/applicatio
 import { FileBatchUploader } from '../../../../context/local/localFile/application/upload/FileBatchUploader';
 import { EnvironmentLocalFileUploader } from '../../../../context/local/localFile/infrastructure/EnvironmentLocalFileUploader';
 import { Environment } from '@internxt/inxt-js';
-import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-injection/DependencyInjectionMnemonicProvider';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 import { getConfig } from '@/apps/sync-engine/config';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 export function registerLocalFileServices(builder: ContainerBuilder) {
-  const mnemonic = DependencyInjectionMnemonicProvider.get();
+  const mnemonic = getConfig().mnemonic;
 
   const environment = new Environment({
     bridgeUrl: process.env.DRIVE_URL,
