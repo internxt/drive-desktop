@@ -77,6 +77,8 @@ export const spawnAllSyncEngineWorker = async () => {
     rootUuid: user.rootFolderId,
   });
 
+  await spawnSyncEngineWorker({ config });
+
   const workspaces = await getWorkspaces({});
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
@@ -84,7 +86,7 @@ export const spawnAllSyncEngineWorker = async () => {
 
   unregisterVirtualDrives({ currentProviderIds });
 
-  const spawnWorkspaces = workspaces.forEach(async (workspace) => {
+  const spawnWorkspaces = workspaces.map(async (workspace) => {
     FolderStore.addWorkspace({
       workspaceId: workspace.id,
       rootId: null,
@@ -94,7 +96,7 @@ export const spawnAllSyncEngineWorker = async () => {
     await spawnWorkspace({ workspace });
   });
 
-  await Promise.all([spawnSyncEngineWorker({ config }), spawnWorkspaces]);
+  await Promise.all(spawnWorkspaces);
 };
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
