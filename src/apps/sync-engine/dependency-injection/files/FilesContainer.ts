@@ -1,8 +1,6 @@
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
-import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
-import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
@@ -13,10 +11,10 @@ import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files
 import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { FilesPlaceholderUpdater } from '@/context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
 
 export interface FilesContainer {
   fileRepository: InMemoryFileRepository;
-  fileFinderByContentsId: FileFinderByContentsId;
   fileDeleter: FileDeleter;
   fileFolderContainerDetector: FileFolderContainerDetector;
   filePathUpdater: FilePathUpdater;

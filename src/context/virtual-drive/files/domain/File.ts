@@ -89,7 +89,7 @@ export class File {
   }
 
   public get placeholderId(): FilePlaceholderId {
-    return createFilePlaceholderId(this.contentsId);
+    return createFilePlaceholderId(this.uuid);
   }
 
   static from(attributes: FileAttributes): File {

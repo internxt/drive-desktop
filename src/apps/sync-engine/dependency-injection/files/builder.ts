@@ -6,9 +6,7 @@ import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
-import { FileFinderByContentsId } from '../../../../context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../context/virtual-drive/files/application/FilePathUpdater';
-import { FilesPlaceholderUpdater } from '../../../../context/virtual-drive/files/application/FilesPlaceholderUpdater';
 import { SameFileWasMoved } from '../../../../context/virtual-drive/files/application/SameFileWasMoved';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
@@ -26,6 +24,7 @@ import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/in
 import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { ContentsContainer } from '../contents/ContentsContainer';
+import { FilesPlaceholderUpdater } from '@/context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
 
 export function buildFilesContainer(
   folderContainer: FoldersContainer,
@@ -43,8 +42,6 @@ export function buildFilesContainer(
 
   const repository = new InMemoryFileRepository();
 
-  const fileFinderByContentsId = new FileFinderByContentsId(repository);
-
   const fileDeleter = new FileDeleter(
     remoteFileSystem,
     localFileSystem,
@@ -57,13 +54,7 @@ export function buildFilesContainer(
 
   const sameFileWasMoved = new SameFileWasMoved(repository, localFileSystem, eventHistory);
 
-  const filePathUpdater = new FilePathUpdater(
-    remoteFileSystem,
-    repository,
-    fileFinderByContentsId,
-    folderContainer.folderFinder,
-    ipcRendererSyncEngine,
-  );
+  const filePathUpdater = new FilePathUpdater(remoteFileSystem, repository, folderContainer.folderFinder, ipcRendererSyncEngine);
 
   const fileCreator = new FileCreator(remoteFileSystem, repository, folderContainer.folderFinder, fileDeleter, ipcRendererSyncEngine);
 
@@ -108,7 +99,6 @@ export function buildFilesContainer(
 
   const container: FilesContainer = {
     fileRepository: repository,
-    fileFinderByContentsId,
     fileDeleter,
     filePathUpdater,
     fileCreator,

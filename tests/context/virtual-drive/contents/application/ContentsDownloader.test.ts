@@ -11,8 +11,8 @@ import { EventEmitter, Readable } from 'stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 describe('Contents Downloader', () => {
-  const temporalFolderProvider = async (): Promise<string> => {
-    return await 'C:/temp';
+  const temporalFolderProvider = (): Promise<string> => {
+    return Promise.resolve('C:/temp');
   };
 
   const localWriter = mockDeep<LocalFileWriter>();
@@ -30,11 +30,11 @@ describe('Contents Downloader', () => {
   environmentContentFileDownloader.forceStop.mockImplementation(() => {
     eventEmitter.emit('error', new Error('Download stopped'));
   });
-  const callbackFunction = async (data: boolean, path: string) => {
-    return await {
+  const callbackFunction = (data: boolean, path: string) => {
+    return Promise.resolve({
       finished: data,
       progress: path.length,
-    };
+    });
   };
 
   const SUT = new ContentsDownloader(factory, localWriter, ipc, temporalFolderProvider);

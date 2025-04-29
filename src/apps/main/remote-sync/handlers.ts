@@ -302,11 +302,11 @@ async function deleteFolder(folderId: string): Promise<boolean> {
   }
 }
 
-async function deleteFile(fileId: string): Promise<boolean> {
+async function deleteFile(uuid: string): Promise<boolean> {
   try {
-    const item = await driveFilesCollection.getByContentsId(fileId);
+    const item = await driveFilesCollection.getBy({ uuid });
     if (!item) {
-      Logger.warn('File not found', { fileId });
+      Logger.warn('File not found', { uuid });
       return false;
     }
     const result = await driveFilesCollection.update(item.uuid, {
@@ -314,7 +314,7 @@ async function deleteFile(fileId: string): Promise<boolean> {
     });
     return result.success;
   } catch (error) {
-    Logger.error('Error deleting file', { fileId, error });
+    Logger.error('Error deleting file', { uuid, error });
     throw error;
   }
 }

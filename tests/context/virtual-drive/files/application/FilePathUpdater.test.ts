@@ -1,5 +1,4 @@
 import { mockDeep } from 'vitest-mock-extended';
-import { FileFinderByContentsId } from '../../../../../src/context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/FilePathUpdater';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
@@ -11,12 +10,11 @@ import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructu
 
 describe('File path updater', () => {
   const repository = mockDeep<InMemoryFileRepository>();
-  const fileFinderByContentsId = new FileFinderByContentsId(repository);
   const folderFinder = mockDeep<FolderFinder>();
   const ipcRenderer = mockDeep<SyncEngineIpc>();
   const remoteFileSystem = mockDeep<HttpRemoteFileSystem>();
 
-  const SUT = new FilePathUpdater(remoteFileSystem, repository, fileFinderByContentsId, folderFinder, ipcRenderer);
+  const SUT = new FilePathUpdater(remoteFileSystem, repository, folderFinder, ipcRenderer);
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -50,7 +48,7 @@ describe('File path updater', () => {
 
     const destination = new FilePath(`${fileToRename.dirname}/_${fileToRename.nameWithExtension}n`);
 
-    expect(async () => {
+    void expect(async () => {
       await SUT.run(fileToRename.contentsId, destination.value);
     }).rejects.toThrow();
   });

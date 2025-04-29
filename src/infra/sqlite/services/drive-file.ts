@@ -29,10 +29,10 @@ export class DriveFileCollection {
     return result;
   }
 
-  async getByContentsId(contentsId: DriveFile['fileId']) {
+  async getBy(where: FindOptionsWhere<DriveFile>) {
     const user = getUserOrThrow();
     const result = await this.repository.findOneBy({
-      fileId: contentsId,
+      ...this.parseWhere(where),
       userUuid: user.uuid,
     });
 

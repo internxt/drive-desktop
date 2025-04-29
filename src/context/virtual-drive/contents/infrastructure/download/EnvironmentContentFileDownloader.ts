@@ -43,7 +43,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
             progressCallback: (progress: number) => {
               this.eventEmitter.emit('progress', progress);
             },
-            finishedCallback: async (err: Error, stream: Readable) => {
+            finishedCallback: (err: Error, stream: Readable) => {
               logger.debug({ msg: '[FinishedCallback] Stream is ready' });
               this.stopwatch.finish();
 

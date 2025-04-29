@@ -22,7 +22,7 @@ export class FSLocalFileProvider implements LocalContentsProvider {
   private async untilIsNotBusy(filePath: string, retriesLeft = 5): Promise<void> {
     let isResolved = false;
 
-    const attemptRead = async () => {
+    const attemptRead = () => {
       try {
         const readable = createReadStream(filePath);
 
@@ -33,7 +33,7 @@ export class FSLocalFileProvider implements LocalContentsProvider {
             resolve();
           });
 
-          readable.on('error', async (err: NodeJS.ErrnoException) => {
+          readable.on('error', (err: NodeJS.ErrnoException) => {
             if (err.code === 'EBUSY' && retriesLeft > 0 && !isResolved) {
               Logger.debug(
                 `File is busy, will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,

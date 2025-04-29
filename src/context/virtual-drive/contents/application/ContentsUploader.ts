@@ -62,8 +62,6 @@ export class ContentsUploader {
 
       const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath);
 
-      Logger.debug('[DEBUG UPLOAD]:', posixRelativePath, absolutePath);
-
       const { contents, abortSignal } = await this.contentProvider.provide(absolutePath);
 
       const uploader = this.remoteContentsManagersFactory.uploader(contents, abortSignal);

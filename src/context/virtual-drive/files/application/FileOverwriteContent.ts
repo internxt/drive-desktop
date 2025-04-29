@@ -54,7 +54,7 @@ export class FileOverwriteContent {
       Logger.info(`Downloading file start${file.path}...`);
     });
 
-    downloader.on('progress', async () => {
+    downloader.on('progress', () => {
       Logger.info(`Downloading file force stop${file.path}...`);
       downloader.forceStop();
     });
