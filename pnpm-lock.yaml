@@ -21,8 +21,8 @@ importers:
         specifier: 1.1.6
         version: 1.1.6
       '@internxt/node-win':
-        specifier: 1.0.10
-        version: 1.0.10
+        specifier: 1.0.11
+        version: 1.0.11
       '@internxt/scan':
         specifier: 1.0.2
         version: 1.0.2
@@ -378,6 +378,9 @@ importers:
       ts-node:
         specifier: ^10.4.0
         version: 10.9.2(@types/node@17.0.5)(typescript@4.9.5)
+      ts-prune:
+        specifier: ^0.10.3
+        version: 0.10.3
       tsconfig-paths:
         specifier: ^4.2.0
         version: 4.2.0
@@ -1342,8 +1345,8 @@ packages:
   '@internxt/lib@1.1.6':
     resolution: {integrity: sha512-xpnSpDsWr+jemV2aI71B39LGfXnNCsyv2VKND0JAgrOeyHXjnChH+IHxGLq/8f73HT47mpkNXrK4nfpzH4OaaQ==, tarball: https://npm.pkg.github.com/download/@internxt/lib/1.1.6/ea931ba39aa0e715704400603beb8833c73c05e4}
 
-  '@internxt/node-win@1.0.10':
-    resolution: {integrity: sha512-VhjXrrV+eO+4zvQfFMAwvr/lIrjw+Jv49t9azSTbYcqQ8Rs3oii3btD/S/9GG2nAUf8IoYxhgmFqLY2qfLs8Cg==, tarball: https://npm.pkg.github.com/download/@internxt/node-win/1.0.10/a972b1f7c8dba1c07a404e7609b3c50724fcd35c}
+  '@internxt/node-win@1.0.11':
+    resolution: {integrity: sha512-uHtj1D01XDcS2knL4Zjsf9oBlKM0rnFndFnHEn13QghE5ygTZHOJK4aa+RsfokXLGERN/SIl1YOhFdstda3MMg==, tarball: https://npm.pkg.github.com/download/@internxt/node-win/1.0.11/6d112107e9a1e4cb6ecd8e961e4ad4cd9923fe17}
 
   '@internxt/scan@1.0.2':
     resolution: {integrity: sha512-AZAPF+JywxfyEWJ9LPk+b3HHJG1c6fDq+x+YX5U5FKilfX43RgM6GdCME/RfuJPLuMy6B0r/W24NWIRs6sQUXQ==, tarball: https://npm.pkg.github.com/download/@internxt/scan/1.0.2/dc85bd75165ff50adfc8b9f607b233398898c60a}
@@ -2183,6 +2186,9 @@ packages:
   '@trysound/sax@0.2.0':
     resolution: {integrity: sha512-L7z9BgrNEcYyUYtF+HaEfiS5ebkh9jXqbszz7pC0hRBPaatV0XjSD3+eHrpqFemQfgwiFF0QPIarnIihIDn7OA==}
     engines: {node: '>=10.13.0'}
+
+  '@ts-morph/common@0.12.3':
+    resolution: {integrity: sha512-4tUmeLyXJnJWvTFOKtcNJ1yh0a3SsTLi2MUoyj8iUNznFRN1ZquaNe7Oukqrnki2FzZkm0J9adCNLDZxUzvj+w==}
 
   '@tsconfig/node10@1.0.11':
     resolution: {integrity: sha512-DcRjDCujK/kCk/cUe8Xz8ZSpm8mS3mNNpta+jGCA6USEDfktlNvm1+IuZ9eTcDbNk41BHwpHHeW+N1lKCz4zOw==}
@@ -3260,6 +3266,9 @@ packages:
     resolution: {integrity: sha512-QVb0dM5HvG+uaxitm8wONl7jltx8dqhfU33DcqtOZcLSVIKSDDLDi7+0LbAKiyI8hD9u42m2YxXSkMGWThaecQ==}
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
 
+  code-block-writer@11.0.3:
+    resolution: {integrity: sha512-NiujjUFB4SwScJq2bwbYUtXbZhBSlY6vYzm++3Q6oC+U+injTqfPYFK8wS9COOmb2lueqp0ZRB4nK1VYeHgNyw==}
+
   collect-v8-coverage@1.0.2:
     resolution: {integrity: sha512-lHl4d5/ONEbLlJvaJNtsF/Lz+WvB07u2ycqTYbdrq7UypDXailES4valYb2eWiJFxZlVmpGekfqoxQhzyFdT4Q==}
 
@@ -3319,6 +3328,10 @@ packages:
 
   commander@5.1.0:
     resolution: {integrity: sha512-P0CysNDQ7rtVw4QIQtm+MRxV66vKFSvlsQvGYXZWR3qFU0jlMKHZZZgw8e+8DSah4UDKMqnknRDQz+xuQXQ/Zg==}
+    engines: {node: '>= 6'}
+
+  commander@6.2.1:
+    resolution: {integrity: sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA==}
     engines: {node: '>= 6'}
 
   commander@7.2.0:
@@ -5944,6 +5957,9 @@ packages:
   pascal-case@3.1.2:
     resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
 
+  path-browserify@1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
+
   path-exists@3.0.0:
     resolution: {integrity: sha512-bpC7GYwiDYQ4wYLe+FA8lhRjhQCMcQGuSgGGqDkg/QerRWw9CmGRT0iSOVRSZJ29NMLZgIzqaljJ63oaL4NIJQ==}
     engines: {node: '>=4'}
@@ -7313,6 +7329,10 @@ packages:
     resolution: {integrity: sha512-aZbgViZrg1QNcG+LULa7nhZpJTZSLm/mXnHXnbAbjmN5aSa0y7V+wvv6+4WaBtpISJzThKy+PIPxc1Nq1EJ9mg==}
     engines: {node: '>= 14.0.0'}
 
+  true-myth@4.1.1:
+    resolution: {integrity: sha512-rqy30BSpxPznbbTcAcci90oZ1YR4DqvKcNXNerG5gQBU2v4jk0cygheiul5J6ExIMrgDVuanv/MkGfqZbKrNNg==}
+    engines: {node: 10.* || >= 12.*}
+
   truncate-utf8-bytes@1.0.2:
     resolution: {integrity: sha512-95Pu1QXQvruGEhv62XCMO3Mm90GscOCClvrIUwCM0PYOXK3kaF3l3sIHxx71ThJfcbM2O5Au6SO3AWCSEfW4mQ==}
 
@@ -7340,6 +7360,9 @@ packages:
       typescript: '*'
       webpack: ^5.0.0
 
+  ts-morph@13.0.3:
+    resolution: {integrity: sha512-pSOfUMx8Ld/WUreoSzvMFQG5i9uEiWIsBYjpU9+TTASOeUa89j5HykomeqVULm1oqWtBdleI3KEFRLrlA3zGIw==}
+
   ts-node@10.9.2:
     resolution: {integrity: sha512-f0FFpIdcHgn8zcPSbf1dRevwt047YMnaiJM3u2w2RewrB+fob/zePZcrOyQoLMMO7aBIddLcQIEK5dYjkLnGrQ==}
     hasBin: true
@@ -7353,6 +7376,10 @@ packages:
         optional: true
       '@swc/wasm':
         optional: true
+
+  ts-prune@0.10.3:
+    resolution: {integrity: sha512-iS47YTbdIcvN8Nh/1BFyziyUqmjXz7GVzWu02RaZXqb+e/3Qe1B7IQ4860krOeCGUeJmterAlaM2FRH0Ue0hjw==}
+    hasBin: true
 
   tsconfck@3.1.5:
     resolution: {integrity: sha512-CLDfGgUp7XPswWnezWwsCRxNmgQjhYq3VXHM0/XIRxhVrKw0M1if9agzryh1QS3nxjCROvV+xWxoJO1YctzzWg==}
@@ -9020,7 +9047,7 @@ snapshots:
 
   '@internxt/lib@1.1.6': {}
 
-  '@internxt/node-win@1.0.10':
+  '@internxt/node-win@1.0.11':
     dependencies:
       chokidar: 3.6.0
       lodash.chunk: 4.2.0
@@ -9955,6 +9982,13 @@ snapshots:
       - supports-color
 
   '@trysound/sax@0.2.0': {}
+
+  '@ts-morph/common@0.12.3':
+    dependencies:
+      fast-glob: 3.3.3
+      minimatch: 3.1.2
+      mkdirp: 1.0.4
+      path-browserify: 1.0.1
 
   '@tsconfig/node10@1.0.11': {}
 
@@ -11321,6 +11355,8 @@ snapshots:
 
   co@4.6.0: {}
 
+  code-block-writer@11.0.3: {}
+
   collect-v8-coverage@1.0.2: {}
 
   color-convert@1.9.3:
@@ -11373,6 +11409,8 @@ snapshots:
   commander@4.1.1: {}
 
   commander@5.1.0: {}
+
+  commander@6.2.1: {}
 
   commander@7.2.0: {}
 
@@ -14567,6 +14605,8 @@ snapshots:
       no-case: 3.0.4
       tslib: 2.8.1
 
+  path-browserify@1.0.1: {}
+
   path-exists@3.0.0: {}
 
   path-exists@4.0.0: {}
@@ -15967,6 +16007,8 @@ snapshots:
 
   triple-beam@1.4.1: {}
 
+  true-myth@4.1.1: {}
+
   truncate-utf8-bytes@1.0.2:
     dependencies:
       utf8-byte-length: 1.0.5
@@ -15991,6 +16033,11 @@ snapshots:
       typescript: 4.9.5
       webpack: 5.98.0(webpack-cli@4.10.0)
 
+  ts-morph@13.0.3:
+    dependencies:
+      '@ts-morph/common': 0.12.3
+      code-block-writer: 11.0.3
+
   ts-node@10.9.2(@types/node@17.0.5)(typescript@4.9.5):
     dependencies:
       '@cspotcode/source-map-support': 0.8.1
@@ -16008,6 +16055,15 @@ snapshots:
       typescript: 4.9.5
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
+
+  ts-prune@0.10.3:
+    dependencies:
+      commander: 6.2.1
+      cosmiconfig: 7.1.0
+      json5: 2.2.3
+      lodash: 4.17.21
+      true-myth: 4.1.1
+      ts-morph: 13.0.3
 
   tsconfck@3.1.5(typescript@4.9.5):
     optionalDependencies:

@@ -1,5 +1,4 @@
-export type FolderPlaceholderIdPrefixType = 'FOLDER:';
-export const FolderPlaceholderIdPrefix = 'FOLDER:';
+type FolderPlaceholderIdPrefixType = 'FOLDER:';
 
 export type FolderPlaceholderId = `${FolderPlaceholderIdPrefixType}${string}`;
 

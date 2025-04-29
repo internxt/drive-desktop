@@ -2,13 +2,7 @@ import { SyncError } from '../../../../shared/issues/SyncErrorCause';
 
 export type ProcessFatalErrorName = SyncError;
 
-export type BackupFatalError = {
-  path: string;
-  folderId: number;
-  errorName: ProcessFatalErrorName;
-};
-
-export type BackupError = {
+type BackupError = {
   name: string;
   error: SyncError;
 };

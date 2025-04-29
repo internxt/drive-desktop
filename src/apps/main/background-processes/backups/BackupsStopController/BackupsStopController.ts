@@ -4,7 +4,7 @@ export type ForcedByUser = 'forced-by-user';
 export type BackupCompleted = 'backup-completed';
 type BackupFailed = 'failed';
 
-export type StopReason = ForcedByUser | BackupCompleted | BackupFailed;
+type StopReason = ForcedByUser | BackupCompleted | BackupFailed;
 
 type StopReasonPayload = {
   'forced-by-user': (payload: undefined) => void;

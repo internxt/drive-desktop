@@ -14,7 +14,7 @@ import { PATHS } from '@/core/electron/paths';
 
 let isLoggedIn: boolean;
 
-export function setIsLoggedIn(value: boolean) {
+function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
 
   getWidget()?.webContents?.send('user-logged-in-changed', value);
@@ -90,7 +90,7 @@ export function setupAuthIpcHandlers() {
   });
 }
 
-export async function emitUserLoggedIn() {
+async function emitUserLoggedIn() {
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
   await initSyncEngine();
