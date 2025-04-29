@@ -33,7 +33,7 @@ export function buildControllers(container: DependencyContainer): IControllers {
     deleteController,
   );
 
-  const downloadFileController = new DownloadFileController(container.fileFinderByContentsId, container.contentsDownloader);
+  const downloadFileController = new DownloadFileController(container.contentsDownloader, container.fileRepository);
 
   return {
     addFile: addFileController,

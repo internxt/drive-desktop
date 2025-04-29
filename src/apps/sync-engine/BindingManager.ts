@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import { QueueItem, QueueManager, Callbacks } from '@internxt/node-win/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
-import { executeControllerWithFallback } from './callbacks-controllers/middlewares/executeControllerWithFallback';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
@@ -48,13 +47,13 @@ export class BindingsManager {
 
   async start(version: string) {
     const callbacks: Callbacks = {
-      notifyDeleteCallback: (contentsId: string, callback: (response: boolean) => void) => {
-        Logger.debug('Path received from delete callback', contentsId);
+      notifyDeleteCallback: (placeholderId: string, callback: (response: boolean) => void) => {
+        Logger.debug('Path received from delete callback', placeholderId);
         this.controllers.delete
-          .execute(contentsId)
+          .execute(placeholderId)
           .then(() => {
             callback(true);
-            ipcRenderer.invoke('DELETE_ITEM_DRIVE', contentsId);
+            void ipcRenderer.invoke('DELETE_ITEM_DRIVE', placeholderId);
           })
           .catch((error: Error) => {
             Logger.error(error);
@@ -65,7 +64,7 @@ export class BindingsManager {
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: async (absolutePath: string, contentsId: string, callback: (response: boolean) => void) => {
+      notifyRenameCallback: async (absolutePath: string, placeholderId: string, callback: (response: boolean) => void) => {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
 
@@ -76,18 +75,18 @@ export class BindingsManager {
             return;
           }
 
-          const isTempFile = await isTemporaryFile(absolutePath);
+          const isTempFile = isTemporaryFile(absolutePath);
 
           Logger.debug('[isTemporaryFile]', isTempFile);
 
-          if (isTempFile && !contentsId.startsWith('FOLDER')) {
+          if (isTempFile && !placeholderId.startsWith('FOLDER')) {
             Logger.debug('File is temporary, skipping');
             callback(true);
             return;
           }
 
           const fn = this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove);
-          await fn(absolutePath, contentsId, callback);
+          await fn(absolutePath, placeholderId, callback);
           Logger.debug('Finish Rename', absolutePath);
           this.lastMoved = absolutePath;
         } catch (error) {
@@ -98,10 +97,10 @@ export class BindingsManager {
         Logger.debug('Path received from callback', absolutePath);
         await this.controllers.addFile.execute(absolutePath);
       },
-      fetchDataCallback: (contentsId: FilePlaceholderId, callback: CallbackDownload) =>
+      fetchDataCallback: (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
           self: this,
-          contentsId,
+          filePlaceholderId,
           callback,
           ipcRendererSyncEngine,
         }),
@@ -159,7 +158,7 @@ export class BindingsManager {
       },
     };
 
-    await this.stop();
+    this.stop();
 
     await this.container.virtualDrive.registerSyncRoot({
       providerName: this.PROVIDER_NAME,
@@ -167,7 +166,7 @@ export class BindingsManager {
       callbacks,
       logoPath: this.paths.icon,
     });
-    await this.container.virtualDrive.connectSyncRoot();
+    this.container.virtualDrive.connectSyncRoot();
 
     const tree = await this.container.traverser.run();
     await this.load(tree);
@@ -245,7 +244,7 @@ export class BindingsManager {
 
     logger.debug({ msg: '[SYNC ENGINE] Polling finished', workspaceId });
 
-    DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
+    void DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
       await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
         toUpdate: input.toUpdateContentsIds,
         toDelete: input.toDeleteContentsIds,

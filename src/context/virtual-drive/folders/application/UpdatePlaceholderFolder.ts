@@ -46,9 +46,9 @@ export class FolderPlaceholderUpdater {
     }
   }
 
-  private canWrite(win32AbsolutePath: string) {
+  private async canWrite(win32AbsolutePath: string) {
     try {
-      fs.access(win32AbsolutePath, FsConstants.R_OK | FsConstants.W_OK);
+      await fs.access(win32AbsolutePath, FsConstants.R_OK | FsConstants.W_OK);
       return true;
     } catch {
       return false;
@@ -84,7 +84,7 @@ export class FolderPlaceholderUpdater {
     if (!local) {
       if (remote.status === FolderStatuses.EXISTS) {
         Logger.debug('Creating folder placeholder: ', remote.path);
-        await this.repository.add(remote);
+        this.repository.add(remote);
         this.local.createPlaceHolder(remote);
       }
       return;
@@ -92,7 +92,7 @@ export class FolderPlaceholderUpdater {
 
     if (remote.name !== local.name || remote.parentId !== local.parentId) {
       Logger.debug('Updating folder placeholder: ', remote.path);
-      await this.repository.update(remote);
+      this.repository.update(remote);
 
       try {
         const stat = await fs.stat(remote.path);
@@ -101,7 +101,7 @@ export class FolderPlaceholderUpdater {
       } catch {
         const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
 
-        const canBeWritten = this.canWrite(win32AbsolutePath);
+        const canBeWritten = await this.canWrite(win32AbsolutePath);
 
         if (!canBeWritten) {
           Logger.warn(`Cannot modify the folder placeholder ${local.path}`);
@@ -127,10 +127,8 @@ export class FolderPlaceholderUpdater {
       return;
     }
 
-    if (await this.hasToBeCreated(remote)) {
-      await this.local.createPlaceHolder(remote);
-      await this.repository.update(remote);
-    }
+    this.local.createPlaceHolder(remote);
+    this.repository.update(remote);
   }
 
   async run(remotes: Array<Folder>): Promise<void> {

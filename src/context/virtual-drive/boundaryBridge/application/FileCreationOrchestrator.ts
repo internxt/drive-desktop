@@ -11,7 +11,7 @@ export class FileCreationOrchestrator {
     private readonly sameFileWasMoved: SameFileWasMoved,
   ) {}
 
-  async run(posixRelativePath: string): Promise<File['contentsId']> {
+  async run(posixRelativePath: string): Promise<File['uuid']> {
     const path = new FilePath(posixRelativePath);
 
     const wasMoved = await this.sameFileWasMoved.run(path);
@@ -25,6 +25,6 @@ export class FileCreationOrchestrator {
 
     const createdFile = await this.fileCreator.run(path, fileContents);
 
-    return createdFile.contentsId;
+    return createdFile.uuid;
   }
 }

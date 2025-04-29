@@ -1,12 +1,12 @@
 import fs from 'fs/promises';
-import { LocalFileIdProvider } from '../../shared/application/LocalFileIdProvider';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { File } from '../domain/File';
-import { FileStatuses } from '../domain/FileStatus';
-import { FileMovedDomainEvent } from '../domain/events/FileMovedDomainEvent';
-import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
-import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { InMemoryEventRepository } from '../../shared/infrastructure/InMemoryEventHistory';
+import { LocalFileIdProvider } from '../../../shared/application/LocalFileIdProvider';
+import { RelativePathToAbsoluteConverter } from '../../../shared/application/RelativePathToAbsoluteConverter';
+import { File } from '../../domain/File';
+import { FileStatuses } from '../../domain/FileStatus';
+import { FileMovedDomainEvent } from '../../domain/events/FileMovedDomainEvent';
+import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
+import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
+import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
 export class FilesPlaceholderUpdater {
   constructor(
@@ -24,6 +24,17 @@ export class FilesPlaceholderUpdater {
     return localExists && (remoteIsTrashed || remoteIsDeleted);
   }
 
+  private hasToBeUpdatedIdentity(local: File, remote: File): boolean {
+    const localExists = local.status.is(FileStatuses.EXISTS);
+    const remoteExists = remote.status.is(FileStatuses.EXISTS);
+
+    const systemFileidentity = this.localFileSystem.getFileIdentity(local.path);
+    const remoteIdentity = remote.placeholderId;
+
+    const isDifferentIdentity = systemFileidentity !== remoteIdentity;
+
+    return localExists && remoteExists && isDifferentIdentity && systemFileidentity !== '';
+  }
   private async hasToBeCreated(remote: File): Promise<boolean> {
     const remoteExists = remote.status.is(FileStatuses.EXISTS);
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
@@ -47,10 +58,20 @@ export class FilesPlaceholderUpdater {
 
     if (!local) {
       if (remote.status.is(FileStatuses.EXISTS)) {
-        await this.repository.add(remote);
-        await this.localFileSystem.createPlaceHolder(remote);
+        this.repository.add(remote);
+        this.localFileSystem.createPlaceHolder(remote);
       }
       return;
+    }
+    /*
+     * v2.5.2 Jonathan Daniel
+     * Validate if the placeholder needs to be updated since we previously used the dynamic contentsId
+     * and now we use the static uuid for file identification.
+     */
+
+    if (this.hasToBeUpdatedIdentity(local, remote)) {
+      this.localFileSystem.updateFileIdentity(local.path, local.placeholderId);
+      this.localFileSystem.updateSyncStatus(local);
     }
 
     if (local.path !== remote.path) {
@@ -63,7 +84,7 @@ export class FilesPlaceholderUpdater {
         this.eventHistory.store(event);
       }
 
-      await this.repository.update(remote);
+      this.repository.update(remote);
 
       try {
         await fs.stat(remote.path);
@@ -81,8 +102,8 @@ export class FilesPlaceholderUpdater {
     }
 
     if (await this.hasToBeCreated(remote)) {
-      await this.localFileSystem.createPlaceHolder(remote);
-      await this.repository.update(remote);
+      this.localFileSystem.createPlaceHolder(remote);
+      this.repository.update(remote);
     }
   }
 

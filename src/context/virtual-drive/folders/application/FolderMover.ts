@@ -16,7 +16,7 @@ export class FolderMover {
     folder.moveTo(parentFolder);
 
     await this.remote.move(folder);
-    await this.repository.update(folder);
+    this.repository.update(folder);
   }
 
   async run(folder: Folder, destination: FolderPath): Promise<void> {
