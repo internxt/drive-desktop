@@ -9,7 +9,7 @@ import { getConfig } from '@/apps/sync-engine/config';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 export async function registerLocalFileServices(builder: ContainerBuilder) {
-  // Infra
+  //Infra
 
   const mnemonic = getConfig().mnemonic;
 
