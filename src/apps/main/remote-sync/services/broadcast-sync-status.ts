@@ -4,6 +4,12 @@ import { broadcastToWindows } from '../../windows';
 import { RemoteSyncStatus } from '../helpers';
 import { remoteSyncManagers } from '../store';
 
+export function getUnsyncedFiles() {
+  const files = [...remoteSyncManagers].map(([, manager]) => manager.totalFilesUnsynced).flat();
+  logger.debug({ msg: 'RemoteSyncManagers unsynced files', files });
+  return files;
+}
+
 export function getSyncStatus() {
   const allStatus = [...remoteSyncManagers].map(([, manager]) => manager.status);
   logger.debug({ msg: 'RemoteSyncManagers status', allStatus });

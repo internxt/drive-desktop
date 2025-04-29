@@ -15,10 +15,10 @@ export class DriveFile {
   })
   uuid!: string;
 
-  @Column({ nullable: true, type: 'varchar' })
-  workspaceId?: string;
+  @Column({ nullable: false, default: '', type: 'varchar' })
+  workspaceId!: string;
 
-  @Column({ nullable: true, default: '', type: 'varchar' })
+  @Column({ nullable: false, default: '', type: 'varchar' })
   type!: string;
 
   @Column({ nullable: false, type: 'int' })

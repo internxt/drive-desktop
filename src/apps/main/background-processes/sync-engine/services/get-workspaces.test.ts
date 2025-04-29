@@ -5,7 +5,6 @@ import { getWorkspaces } from './get-workspaces';
 import { PATHS } from '@/core/electron/paths';
 
 vi.mock(import('@/apps/shared/logger/logger'));
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 vi.mock(import('@/apps/main/util'));
 
 describe('get-workspaces', () => {

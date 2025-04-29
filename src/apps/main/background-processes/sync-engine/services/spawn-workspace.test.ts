@@ -10,7 +10,6 @@ vi.mock(import('./spawn-sync-engine-worker'));
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/apps/shared/crypto/service'));
 vi.mock(import('@/apps/shared/logger/logger'));
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 vi.mock(import('@/apps/main/util'));
 
 describe('spawn-workspace.service', () => {

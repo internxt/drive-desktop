@@ -55,30 +55,7 @@ export class DriveFolderCollection {
     };
   }
 
-  async removeInBatch(where: FindOptionsWhere<DriveFolder>) {
-    const user = getUserOrThrow();
-    const match = await this.repository.delete({
-      ...this.parseWhere(where),
-      userUuid: user.uuid,
-    });
-
-    return {
-      success: match.affected ? true : false,
-      affected: match.affected as number,
-    };
-  }
-
-  async getLastUpdated() {
-    const user = getUserOrThrow();
-    const result = await this.repository.findOne({
-      where: { userUuid: user.uuid },
-      order: { updatedAt: 'DESC' },
-    });
-
-    return result;
-  }
-
-  async getLastUpdatedByWorkspace(workspaceId: string) {
+  async getLastUpdated({ workspaceId }: { workspaceId: string }) {
     const user = getUserOrThrow();
     const result = await this.repository.findOne({
       where: { userUuid: user.uuid, workspaceId },

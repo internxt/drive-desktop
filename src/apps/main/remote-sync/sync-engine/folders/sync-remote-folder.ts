@@ -1,27 +1,28 @@
-import { User } from '../../types';
-import { RemoteSyncManager } from '../RemoteSyncManager';
-import { driveFoldersCollection } from '../store';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderStore } from './folder-store';
 import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
 import { FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { BrowserWindow } from 'electron';
+import { driveFoldersCollection } from '../../store';
+import { User } from '@/apps/main/types';
 
 type TProps = {
-  self: RemoteSyncManager;
+  workspaceId: string;
   user: User;
   remoteFolder: FolderDto;
+  browserWindow: BrowserWindow | null;
 };
 
-export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
+export async function syncRemoteFolder({ workspaceId, user, remoteFolder, browserWindow }: TProps) {
   try {
     await driveFoldersCollection.createOrUpdate({
       ...remoteFolder,
       userUuid: user.uuid,
-      workspaceId: self.workspaceId,
+      workspaceId,
     });
 
     FolderStore.addFolder({
-      workspaceId: self.workspaceId ?? '',
+      workspaceId,
       folderId: remoteFolder.id,
       parentId: remoteFolder.parentId,
       parentUuid: remoteFolder.parentUuid,
@@ -29,9 +30,7 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
       name: remoteFolder.name,
     });
 
-    self.totalFoldersSynced++;
-
-    if (remoteFolder.status === 'EXISTS') {
+    if (remoteFolder.status === 'EXISTS' && browserWindow) {
       try {
         const plainName = Folder.decryptName({
           name: remoteFolder.name,
@@ -40,7 +39,7 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
         });
 
         const { relativePath } = FolderStore.getFolderPath({
-          workspaceId: self.workspaceId ?? '',
+          workspaceId,
           parentId: remoteFolder.parentId,
           parentUuid: remoteFolder.parentUuid,
           plainName,
@@ -57,13 +56,13 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
           path: relativePath,
         };
 
-        self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
+        browserWindow.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
       } catch {}
     }
   } catch (exc) {
     logger.error({
       msg: 'Error creating remote folder in sqlite',
-      workspaceId: self.workspaceId,
+      workspaceId,
       uuid: remoteFolder.uuid,
       exc,
     });

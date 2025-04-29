@@ -1,30 +1,29 @@
-import { User } from '../../types';
-import { RemoteSyncManager } from '../RemoteSyncManager';
-import { driveFilesCollection } from '../store';
 import { logger } from '@/apps/shared/logger/logger';
 import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File';
 import { FolderStore } from '../folders/folder-store';
 import { FileDto } from '@/infra/drive-server-wip/out/dto';
+import { BrowserWindow } from 'electron';
+import { driveFilesCollection } from '../../store';
+import { User } from '@/apps/main/types';
 
 type TProps = {
-  self: RemoteSyncManager;
+  workspaceId: string;
   user: User;
   remoteFile: FileDto;
+  browserWindow: BrowserWindow | null;
 };
 
-export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
+export async function syncRemoteFile({ workspaceId, user, remoteFile, browserWindow }: TProps) {
   try {
     const driveFile = await driveFilesCollection.createOrUpdate({
       ...remoteFile,
       size: Number(remoteFile.size),
       isDangledStatus: false,
       userUuid: user.uuid,
-      workspaceId: self.workspaceId,
+      workspaceId,
     });
 
-    self.totalFilesSynced++;
-
-    if (remoteFile.status === 'EXISTS') {
+    if (remoteFile.status === 'EXISTS' && browserWindow) {
       try {
         const plainName = File.decryptName({
           name: driveFile.name,
@@ -34,7 +33,7 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
         });
 
         const { relativePath } = FolderStore.getFolderPath({
-          workspaceId: self.workspaceId ?? '',
+          workspaceId,
           parentId: driveFile.folderId,
           parentUuid: driveFile.folderUuid ?? null,
           plainName,
@@ -54,13 +53,13 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
           path: relativePath,
         };
 
-        self.worker.worker?.webContents.send('UPDATE_FILE_PLACEHOLDER', fileAttributes);
+        browserWindow.webContents.send('UPDATE_FILE_PLACEHOLDER', fileAttributes);
       } catch {}
     }
   } catch (exc) {
     logger.error({
       msg: 'Error creating remote file in sqlite',
-      workspaceId: self.workspaceId,
+      workspaceId,
       uuid: remoteFile.uuid,
       exc,
     });

@@ -4,6 +4,9 @@ import path from 'path';
 process.env.NODE_ENV = 'development';
 process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
 
+// We do not want to make network calls
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+
 vi.mock('@/apps/main/auth/service', () => {
   const user = {
     email: 'jonathandanielarce9@gmail.com',

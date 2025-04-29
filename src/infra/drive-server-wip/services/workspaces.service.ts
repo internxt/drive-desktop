@@ -3,7 +3,7 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
-type QueryFilesInFolderInWorkspace = paths['/workspaces/{workspaceId}/folders/{folderUuid}/files']['get']['parameters']['query'];
+type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
 
 export function getWorkspaces() {
   const promise = client.GET('/workspaces');
@@ -59,33 +59,23 @@ export function getFilesInWorkspace(context: { workspaceId: string; query: Query
   });
 }
 
-export async function getFilesByFolderInWorkspace(context: {
-  workspaceId: string;
-  folderUuid: string;
-  query: QueryFilesInFolderInWorkspace;
-}) {
-  const promise = client.GET('/workspaces/{workspaceId}/folders/{folderUuid}/files', {
+export function getFoldersInWorkspace(context: { workspaceId: string; query: QueryFoldersInWorkspace }) {
+  const promise = client.GET('/workspaces/{workspaceId}/folders', {
     params: {
-      path: { workspaceId: context.workspaceId, folderUuid: context.folderUuid },
+      path: { workspaceId: context.workspaceId },
       query: context.query,
     },
   });
 
-  const res = await clientWrapper({
+  return clientWrapper({
     promise,
     loggerBody: {
-      msg: 'Get workspace files by folder request was not successful',
+      msg: 'Get workspace folders request was not successful',
       context,
       attributes: {
         method: 'GET',
-        endpoint: '/workspaces/{workspaceId}/folders/{folderUuid}/files',
+        endpoint: '/workspaces/{workspaceId}/folders',
       },
     },
   });
-
-  if (res.data) {
-    return { data: res.data.result };
-  } else {
-    return { error: res.error };
-  }
 }

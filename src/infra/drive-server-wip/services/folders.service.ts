@@ -92,7 +92,7 @@ export class FoldersService {
     }
   }
 
-  async getFiles({ folderUuid, query }: { folderUuid: string; query: TGetFilesByFolderQuery }) {
+  async getFilesByFolder({ folderUuid, query }: { folderUuid: string; query: TGetFilesByFolderQuery }) {
     const promise = client.GET('/folders/content/{uuid}/files', {
       params: { path: { uuid: folderUuid }, query },
     });
