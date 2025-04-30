@@ -1,14 +1,14 @@
 import * as Sentry from '@sentry/electron/renderer';
 import { Service } from 'diod';
 import Logger from 'electron-log';
-import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
-import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
+import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
-import { FolderStatus, FolderStatuses } from '../../folders/domain/FolderStatus';
+import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { RemoteTree } from '../domain/RemoteTree';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 import { File } from '../../files/domain/File';
+import { ServerFile } from '@/context/shared/domain/ServerFile';
 
 type Items = {
   files: Array<ServerFile>;
@@ -17,15 +17,6 @@ type Items = {
 
 @Service()
 export class Traverser {
-  constructor(
-    private readonly fileStatusesToFilter: Array<ServerFileStatus>,
-    private readonly folderStatusesToFilter: Array<ServerFolderStatus>,
-  ) {}
-
-  static existingItems(): Traverser {
-    return new Traverser([ServerFileStatus.EXISTS], [ServerFolderStatus.EXISTS]);
-  }
-
   private createRootFolder({ id, uuid }: { id: number; uuid: string }): Folder {
     return Folder.from({
       id,
@@ -46,10 +37,6 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
-      if (!this.fileStatusesToFilter.includes(serverFile.status)) {
-        return;
-      }
-
       const decryptedName = File.decryptName({
         plainName: serverFile.plainName,
         name: serverFile.name,
@@ -68,7 +55,7 @@ export class Traverser {
       }
     });
 
-    foldersInThisFolder.forEach((serverFolder: ServerFolder) => {
+    foldersInThisFolder.forEach((serverFolder) => {
       const decryptedName = Folder.decryptName({
         plainName: serverFolder.plain_name,
         name: serverFolder.name,
@@ -77,22 +64,12 @@ export class Traverser {
 
       const name = `${currentFolder.path}/${decryptedName}`;
 
-      if (!this.folderStatusesToFilter.includes(serverFolder.status)) {
-        return;
-      }
-
       try {
         const folder = createFolderFromServerFolder(serverFolder, name);
 
         tree.addFolder(currentFolder, folder);
 
-        if (folder.hasStatus(FolderStatuses.EXISTS)) {
-          // The folders and the files inside trashed or deleted folders
-          // will have the status "EXISTS", to avoid filtering witch folders and files
-          // are in a deleted or trashed folder they not included on the collection.
-          // We cannot perform any action on them either way
-          this.traverse(tree, items, folder);
-        }
+        this.traverse(tree, items, folder);
       } catch (error) {
         Logger.warn('[Traverser] Error adding folder:', error);
         Sentry.captureException(error);

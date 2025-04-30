@@ -5,6 +5,7 @@ import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile'
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { Service } from 'diod';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { logger } from '@/apps/shared/logger/logger';
 
 @Service()
 export class RemoteItemsGenerator {
@@ -57,16 +58,21 @@ export class RemoteItemsGenerator {
   }
 
   async getAllItemsByFolderUuid(folderUuid: string): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', folderUuid, getConfig().workspaceId ?? '');
+    const updatedRemoteItems = await this.ipc.invoke('FORCE_REFRESH_BACKUPS', folderUuid);
 
-    const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
+    const files = updatedRemoteItems.files.map((file) => ({
+      ...file,
+      encrypt_version: '03-aes',
+      size: Number(file.size),
+      status: file.status as ServerFileStatus,
+    }));
 
-    const folders = updatedRemoteItems.folders.map<ServerFolder>(this.mapFolder);
+    const folders = updatedRemoteItems.folders.map((folder) => ({
+      ...folder,
+      status: folder.status as ServerFolderStatus,
+      plain_name: folder.plainName ?? null,
+    }));
 
     return { files, folders };
-  }
-
-  async forceRefresh(folderUuid: string): Promise<void> {
-    await this.ipc.invoke('FORCE_REFRESH_BACKUPS', folderUuid);
   }
 }

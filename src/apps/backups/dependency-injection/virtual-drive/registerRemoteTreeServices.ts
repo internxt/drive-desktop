@@ -14,7 +14,7 @@ export function registerRemoteTreeServices(builder: ContainerBuilder) {
   builder
     .register(Traverser)
     .useFactory(() => {
-      return Traverser.existingItems();
+      return new Traverser();
     })
     .asSingleton()
     .private();

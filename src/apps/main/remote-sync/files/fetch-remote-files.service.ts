@@ -4,7 +4,7 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 
 export async function fetchRemoteFiles({ updatedAtCheckpoint, offset, status, folderUuid }: FetchFilesServiceParams) {
   const promise = folderUuid
-    ? driveServerWip.folders.getFiles({
+    ? driveServerWip.folders.getFilesByFolder({
         folderUuid,
         query: {
           limit: FETCH_LIMIT,
