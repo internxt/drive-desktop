@@ -11,7 +11,7 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
   constructor(
     private readonly fn: UploadStrategyFunction,
     private readonly bucket: string,
-    private readonly abortSignal?: AbortSignal,
+    private readonly abortSignal: AbortSignal,
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
@@ -40,12 +40,10 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
         },
       });
 
-      if (this.abortSignal) {
-        this.abortSignal.addEventListener('abort', () => {
-          state.stop();
-          contents.destroy();
-        });
-      }
+      this.abortSignal.addEventListener('abort', () => {
+        state.stop();
+        contents.destroy();
+      });
     });
   }
 
