@@ -83,7 +83,7 @@ export class Backup {
 
     this.backed = alreadyBacked;
 
-    logger.info({
+    logger.debug({
       tag: 'BACKUPS',
       msg: 'Total items to backup',
       total: filesDiff.total + foldersDiff.total,
@@ -102,7 +102,7 @@ export class Backup {
   private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
     const { added, deleted } = diff;
 
-    logger.info({
+    logger.debug({
       tag: 'BACKUPS',
       msg: 'Backing folders',
       total: diff.total,
