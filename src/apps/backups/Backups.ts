@@ -119,7 +119,7 @@ export class Backup {
   private async backupFiles(diff: FilesDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
     const { added, modified, deleted } = diff;
 
-    logger.info({
+    logger.debug({
       tag: 'BACKUPS',
       msg: 'Backing files',
       total: diff.total,
