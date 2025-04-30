@@ -6,10 +6,11 @@ type TProps = {
   folderUuid: string;
   allFolders: FolderDto[];
   allFiles: FileDto[];
+  skipFiles: boolean;
 };
 
-export async function fetchItemsByFolder({ folderUuid, allFolders, allFiles }: TProps): Promise<void> {
-  const filesPromise = fetchFilesByFolder({ folderUuid, allFiles });
+export async function fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles }: TProps): Promise<void> {
+  const filesPromise = skipFiles ? Promise.resolve() : fetchFilesByFolder({ folderUuid, allFiles });
   const foldersPromise = fetchFoldersByFolder({ folderUuid, allFolders });
 
   const [, { newFolders }] = await Promise.all([filesPromise, foldersPromise]);
@@ -20,6 +21,7 @@ export async function fetchItemsByFolder({ folderUuid, allFolders, allFiles }: T
         folderUuid: folder.uuid,
         allFolders,
         allFiles,
+        skipFiles,
       });
     }),
   );

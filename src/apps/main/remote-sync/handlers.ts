@@ -161,7 +161,7 @@ async function startRemoteSync({ workspaceId }: { workspaceId: string }): Promis
 }
 
 ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string) => {
-  return await fetchItems({ folderUuid });
+  return await fetchItems({ folderUuid, skipFiles: false });
 });
 
 ipcMain.handle('get-remote-sync-status', () => {
@@ -269,28 +269,10 @@ ipcMain.handle('DELETE_ITEM_DRIVE', async (_, itemId: FilePlaceholderId | Folder
   }
 });
 
-ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid, workspaceId = ''): Promise<ItemBackup[]> => {
+ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
   Logger.info('Getting items by folder uuid', folderUuid);
 
-  let offset = 0;
-  let hasMore = true;
-  const folders = [];
-
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-
-  do {
-    const response = await manager.fetchFoldersByFolderFromRemote({
-      offset,
-      folderUuid,
-      updatedAtCheckpoint: new Date(),
-      status: 'EXISTS',
-    });
-
-    hasMore = response.hasMore;
-    offset += response.result.length;
-    folders.push(...response.result);
-  } while (hasMore);
+  const { folders } = await fetchItems({ folderUuid, skipFiles: true });
 
   return folders.map((folder) => ({
     id: folder.id,

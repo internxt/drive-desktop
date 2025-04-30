@@ -24,7 +24,7 @@ describe('fetch-items-by-folder', () => {
     fetchFoldersByFolderMock.mockResolvedValueOnce({ newFolders: [] });
 
     // When
-    await fetchItemsByFolder({ folderUuid, allFolders, allFiles });
+    await fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles: false });
 
     // Then
     expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders });
@@ -39,7 +39,7 @@ describe('fetch-items-by-folder', () => {
     fetchFoldersByFolderMock.mockResolvedValue({ newFolders: [] });
 
     // When
-    await fetchItemsByFolder({ folderUuid, allFolders, allFiles });
+    await fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles: false });
 
     // Then
     expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders });
@@ -48,5 +48,21 @@ describe('fetch-items-by-folder', () => {
     expect(fetchFilesByFolderMock).toHaveBeenCalledWith({ folderUuid, allFiles });
     expect(fetchFoldersByFolderMock).toHaveBeenCalledTimes(3);
     expect(fetchFilesByFolderMock).toHaveBeenCalledTimes(3);
+  });
+
+  it('If skip files is true then do not fetch files', async () => {
+    // Given
+    fetchFoldersByFolderMock.mockResolvedValueOnce({ newFolders: [{ uuid: 'uuid1' }, { uuid: 'uuid2' }] });
+    fetchFoldersByFolderMock.mockResolvedValue({ newFolders: [] });
+
+    // When
+    await fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles: true });
+
+    // Then
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid1', allFolders });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid2', allFolders });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledTimes(3);
+    expect(fetchFilesByFolderMock).toHaveBeenCalledTimes(0);
   });
 });
