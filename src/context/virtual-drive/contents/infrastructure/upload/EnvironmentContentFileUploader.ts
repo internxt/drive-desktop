@@ -3,6 +3,7 @@ import { EventEmitter, Readable } from 'stream';
 import { ContentFileUploader, FileUploadEvents } from '../../domain/contentHandlers/ContentFileUploader';
 import { ContentsId } from '../../domain/ContentsId';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class EnvironmentContentFileUploader implements ContentFileUploader {
   private eventEmitter: EventEmitter;
@@ -29,6 +30,10 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
           this.stopwatch.finish();
 
           if (err) {
+            logger.error({
+              msg: 'Error while uploading file',
+              exc: err,
+            });
             this.eventEmitter.emit('error', err);
             return reject(err);
           }
