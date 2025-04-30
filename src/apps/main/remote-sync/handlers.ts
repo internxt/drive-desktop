@@ -17,6 +17,7 @@ import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, rem
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { FolderStore } from './folders/folder-store';
+import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
 
 export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
   remoteSyncManagers.set(workspaceId ?? '', new RemoteSyncManager(worker, workspaceId));
@@ -71,56 +72,6 @@ export async function getUpdatedRemoteItems(workspaceId = '') {
   }
 }
 
-export async function getUpdatedRemoteItemsByFolder(folderUuid: string, workspaceId = '') {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  if (!folderUuid) {
-    throw new Error('Invalid folderUuid provided');
-  }
-
-  try {
-    const result: {
-      files: DriveFile[];
-      folders: DriveFolder[];
-    } = {
-      files: [],
-      folders: [],
-    };
-
-    const [allDriveFiles, allDriveFolders] = await Promise.all([
-      driveFilesCollection.getAll({ folderUuid, workspaceId }),
-      driveFoldersCollection.getAll({ parentUuid: folderUuid, workspaceId }),
-    ]);
-
-    result.files.push(...allDriveFiles);
-    result.folders.push(...allDriveFolders);
-
-    if (allDriveFolders.length === 0) {
-      return result;
-    }
-
-    const folderChildrenPromises = allDriveFolders.map(async (folder) => {
-      return getUpdatedRemoteItemsByFolder(folder.uuid, workspaceId);
-    });
-
-    const folderChildrenResults = await Promise.all(folderChildrenPromises);
-
-    for (const folderChildren of folderChildrenResults) {
-      if (folderChildren) {
-        result.files.push(...folderChildren.files);
-        result.folders.push(...folderChildren.folders);
-      }
-    }
-
-    return result;
-  } catch (error) {
-    throw logger.error({
-      msg: 'Error getting updated remote items by folder',
-      exc: error,
-    });
-  }
-}
-
 ipcMain.handle('FIND_DANGLED_FILES', async () => {
   return await getLocalDangledFiles();
 });
@@ -139,11 +90,6 @@ ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId = '') => {
   Logger.debug('[MAIN] Getting updated remote file items ' + workspaceId);
   return getUpdatedRemoteItems(workspaceId);
-});
-
-ipcMain.handle('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', async (_, folderUuid: string, workspaceId = '') => {
-  Logger.debug('[MAIN] Getting updated remote items');
-  return getUpdatedRemoteItemsByFolder(folderUuid, workspaceId);
 });
 
 async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
@@ -193,31 +139,19 @@ async function updateAllRemoteSync() {
 
 export const debouncedSynchronization = lodashDebounce(updateAllRemoteSync, 5000);
 
-async function startRemoteSync({ folderUuid, workspaceId }: { folderUuid?: string; workspaceId: string }): Promise<void> {
+async function startRemoteSync({ workspaceId }: { workspaceId: string }): Promise<void> {
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
 
   try {
-    const { files, folders } = await manager.startRemoteSync(folderUuid);
+    const { files, folders } = await manager.startRemoteSync();
 
     logger.debug({
       msg: 'Remote sync finished',
       workspaceId,
-      folderUuid,
       folders: folders.length,
       files: files.length,
     });
-
-    if (folderUuid && folders.length > 0) {
-      await Promise.all(
-        folders.map(async (folder) => {
-          await startRemoteSync({
-            folderUuid: folder.uuid,
-            workspaceId,
-          });
-        }),
-      );
-    }
   } catch (error) {
     throw logger.error({
       msg: 'Error starting remote sync',
@@ -226,8 +160,8 @@ async function startRemoteSync({ folderUuid, workspaceId }: { folderUuid?: strin
   }
 }
 
-ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string, workspaceId = '') => {
-  await startRemoteSync({ folderUuid, workspaceId });
+ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string) => {
+  return await fetchItems({ folderUuid });
 });
 
 ipcMain.handle('get-remote-sync-status', () => {

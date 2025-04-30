@@ -53,7 +53,6 @@ export class Backup {
     const remote = await this.remoteTreeBuilder.run({
       rootFolderId: info.folderId,
       rootFolderUuid: info.folderUuid,
-      refresh: true,
     });
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);

@@ -37,8 +37,8 @@ export class RemoteSyncManager {
     return this.totalFilesUnsynced;
   }
 
-  async startRemoteSync(folderUuid?: string) {
-    logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId, folderUuid });
+  async startRemoteSync() {
+    logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId });
 
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
@@ -47,13 +47,11 @@ export class RemoteSyncManager {
     try {
       const syncFilesPromise = this.syncRemoteFiles.run({
         self: this,
-        folderUuid,
         from: await this.getFileCheckpoint(),
       });
 
       const syncFoldersPromise = this.syncRemoteFolders.run({
         self: this,
-        folderUuid,
         from: await this.getLastFolderSyncAt(),
       });
 
