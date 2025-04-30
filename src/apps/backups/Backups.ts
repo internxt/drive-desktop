@@ -101,49 +101,39 @@ export class Backup {
   }
 
   private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
+    const { added, deleted } = diff;
+
     logger.info({
       tag: 'BACKUPS',
       msg: 'Backing folders',
       total: diff.total,
-    });
-
-    const { added, deleted } = diff;
-
-    const deleteFolder = this.deleteRemoteFolders(deleted, abortController);
-
-    logger.debug({
-      msg: 'Folders added',
       added: added.length,
-      tag: 'BACKUPS',
-    });
-    const uploadFolder = this.uploadAndCreateFolder(local.root.path, added, remote);
-
-    return await Promise.all([deleteFolder, uploadFolder]);
-  }
-
-  private async backupFiles(filesDiff: FilesDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
-    const { added, modified, deleted } = filesDiff;
-
-    logger.debug({
-      msg: 'Files added',
-      added: added.length,
-      tag: 'BACKUPS',
-    });
-    await this.uploadAndCreateFile(local.root.path, added, remote, abortController);
-
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Files modified',
-      modified: modified.size,
-    });
-    await this.uploadAndUpdate(modified, local, remote, abortController);
-
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Files deleted',
       deleted: deleted.length,
     });
-    await this.deleteRemoteFiles(deleted, abortController);
+
+    return await Promise.all([
+      this.deleteRemoteFolders(deleted, abortController),
+      this.uploadAndCreateFolder(local.root.path, added, remote),
+    ]);
+  }
+
+  private async backupFiles(diff: FilesDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
+    const { added, modified, deleted } = diff;
+
+    logger.info({
+      tag: 'BACKUPS',
+      msg: 'Backing files',
+      total: diff.total,
+      added: added.length,
+      deleted: deleted.length,
+      modified: modified.size,
+    });
+
+    await Promise.all([
+      this.uploadAndCreateFile(local.root.path, added, remote, abortController),
+      this.uploadAndUpdate(modified, local, remote, abortController),
+      this.deleteRemoteFiles(deleted, abortController),
+    ]);
   }
 
   private async uploadAndCreateFile(
