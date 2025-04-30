@@ -6,6 +6,7 @@ import { ContentsIdMother } from '../../domain/ContentsIdMother';
 describe('Environment Content File Uploader', () => {
   const validFileSize = 1926506743;
   const bucket = 'c7d4d5e7-0850-52f4-8cbe-c3f746fb7d3f';
+  const abortSignal = new AbortController().signal;
 
   describe('event emitter', () => {
     it('emits an event on start', async () => {
@@ -13,7 +14,7 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
 
       const handler = vi.fn();
 
@@ -30,7 +31,7 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, uploadedFileId);
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
 
       uploader.on('finish', (fileId: string) => {
         expect(fileId).toBe(uploadedFileId);
@@ -47,7 +48,7 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
 
       const handler = vi.fn();
 
@@ -64,7 +65,7 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
 
       const progressHandler = vi.fn();
       const finishHandler = vi.fn();
@@ -85,7 +86,7 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback({ message: errorMsg } as unknown as Error, null);
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
 
       uploader.on('error', (error: Error) => {
         expect(error.message).toBe(errorMsg);
@@ -104,7 +105,7 @@ describe('Environment Content File Uploader', () => {
         setTimeout(() => opts.finishedCallback(null, ContentsIdMother.raw()), 100);
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
 
       uploader.on('progress', () => {
         expect(uploader.elapsedTime()).toBeGreaterThan(-1);
@@ -121,7 +122,7 @@ describe('Environment Content File Uploader', () => {
         setTimeout(() => opts.finishedCallback(null, ContentsIdMother.raw()), delay);
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
 
       await uploader.upload(Readable.from(''), validFileSize);
 
