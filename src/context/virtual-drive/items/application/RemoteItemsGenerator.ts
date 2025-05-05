@@ -5,7 +5,6 @@ import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile'
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { Service } from 'diod';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { logger } from '@/apps/shared/logger/logger';
 
 @Service()
 export class RemoteItemsGenerator {

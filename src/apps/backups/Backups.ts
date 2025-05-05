@@ -148,7 +148,7 @@ export class Backup {
         if (abortController.signal.aborted) {
           return;
         }
-        await this.fileBatchUploader.run(localRootPath, tree, batch, abortController.signal, async () => {
+        await this.fileBatchUploader.run(localRootPath, tree, batch, abortController.signal, () => {
           this.backed += 1;
           BackupsIPCRenderer.send('backups.progress-update', this.backed);
         });

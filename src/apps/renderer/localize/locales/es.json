@@ -295,7 +295,7 @@
       "selected-folder_one": "{{count}} carpeta",
       "selected-folder_other": "{{count}} carpetas",
       "activate": "Hacer copia de seguridad de tus carpetas",
-      "view-backups": "Explorar archivos",
+      "view-backups": "Explorar backups",
       "selected-folders-title": "Carpetas seleccionadas",
       "select-folders": "Cambiar carpetas",
       "last-backup-had-issues": "La última copia de seguridad tuvo algunos problemas",

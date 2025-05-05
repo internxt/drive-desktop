@@ -6,7 +6,6 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
-import * as Sentry from '@sentry/electron/renderer';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
 import { HandleHydrateService } from './callbacks/handleHydrate.service';
@@ -57,7 +56,6 @@ export class BindingsManager {
           })
           .catch((error: Error) => {
             Logger.error(error);
-            Sentry.captureException(error);
             callback(false);
           });
       },
@@ -121,15 +119,14 @@ export class BindingsManager {
           });
         } catch (error) {
           Logger.error(error);
-          Sentry.captureException(error);
           callback(false);
         }
       },
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');
       },
-      cancelFetchDataCallback: async () => {
-        await this.controllers.downloadFile.cancel();
+      cancelFetchDataCallback: () => {
+        this.controllers.downloadFile.cancel();
         Logger.debug('cancelFetchDataCallback');
       },
       fetchPlaceholdersCallback: () => {
@@ -185,7 +182,7 @@ export class BindingsManager {
     const callbacks = {
       handleAdd: (task: QueueItem) => this.handleAdd.run({ self: this, task, drive: this.container.virtualDrive }),
       handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task, drive: this.container.virtualDrive }),
-      handleDehydrate: (task: QueueItem) => this.handleDehydrate.run({ task, drive: this.container.virtualDrive }),
+      handleDehydrate: (task: QueueItem) => Promise.resolve(this.handleDehydrate.run({ task, drive: this.container.virtualDrive })),
       handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
     };
 
@@ -214,18 +211,12 @@ export class BindingsManager {
 
   async update(tree: Tree) {
     Logger.info('[SYNC ENGINE]: Updating placeholders');
-
-    try {
-      await Promise.all([
-        this.container.filesPlaceholderDeleter.run(tree.trashedFiles),
-        this.container.folderPlaceholderDeleter.run(tree.trashedFolders),
-        this.container.folderPlaceholderUpdater.run(tree.folders),
-        this.container.filesPlaceholderUpdater.run(tree.files),
-      ]);
-    } catch (error) {
-      Logger.error('[SYNC ENGINE] ', error);
-      Sentry.captureException(error);
-    }
+    await Promise.all([
+      this.container.filesPlaceholderDeleter.run(tree.trashedFiles),
+      this.container.folderPlaceholderDeleter.run(tree.trashedFolders),
+      this.container.folderPlaceholderUpdater.run(tree.folders),
+      this.container.filesPlaceholderUpdater.run(tree.files),
+    ]);
   }
 
   async polling(): Promise<void> {

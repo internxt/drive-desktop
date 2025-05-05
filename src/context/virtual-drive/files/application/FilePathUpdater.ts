@@ -22,7 +22,7 @@ export class FilePathUpdater {
     file.rename(path);
 
     await this.remote.rename(file);
-    await this.repository.update(file);
+    this.repository.update(file);
   }
 
   private async move(file: File, destination: FilePath) {
@@ -45,7 +45,7 @@ export class FilePathUpdater {
       parentUuid: destinationFolder.uuid,
     });
     Logger.debug('[REPOSITORY MOVE]', file.name, destinationFolder.name);
-    await this.repository.update(file);
+    this.repository.update(file);
   }
 
   async run(uuid: string, posixRelativePath: string) {

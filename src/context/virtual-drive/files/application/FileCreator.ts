@@ -43,7 +43,7 @@ export class FileCreator {
 
       const file = File.from(persistedAttributes);
 
-      await this.repository.add(file);
+      this.repository.add(file);
 
       this.ipc.send('FILE_CREATED', {
         name: file.name,

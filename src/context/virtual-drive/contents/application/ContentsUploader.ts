@@ -77,6 +77,7 @@ export class ContentsUploader {
       Logger.error('[ERROR DEBUG]', error);
       const fileName = posixRelativePath.split('/').pop() || posixRelativePath;
       if (error instanceof Error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (error as any).fileName = fileName;
       }
       throw error;

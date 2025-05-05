@@ -296,7 +296,7 @@
       "selected-folder_other": "{{count}} folders",
       "add-folders": "Click + to select the folders\n you want to back up",
       "activate": "Back up your folders and files",
-      "view-backups": "Browse files",
+      "view-backups": "Browse Backups",
       "selected-folders-title": "Selected folders",
       "select-folders": "Change folders",
       "last-backup-had-issues": "Last backup had some issues",

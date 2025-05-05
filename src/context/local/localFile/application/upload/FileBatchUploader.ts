@@ -47,7 +47,7 @@ export class FileBatchUploader {
                 throw error;
               }
 
-              await this.messenger.creationFailed(localFile, error);
+              this.messenger.creationFailed(localFile, error);
               return; // Continuar con el siguiente archivo en paralelo
             }
 
@@ -77,7 +77,7 @@ export class FileBatchUploader {
               }
 
               if (error.cause === 'BAD_RESPONSE') {
-                await this.messenger.creationFailed(localFile, error);
+                this.messenger.creationFailed(localFile, error);
                 return; // Continuar con el siguiente archivo en paralelo
               }
 
@@ -88,7 +88,7 @@ export class FileBatchUploader {
 
             Logger.info('[File created]', file);
 
-            await ipcRenderer.send('FILE_CREATED', {
+            ipcRenderer.send('FILE_CREATED', {
               name: file.name,
               extension: file.type,
               nameWithExtension: file.nameWithExtension,
@@ -104,9 +104,9 @@ export class FileBatchUploader {
               throw error;
             }
 
-            await this.messenger.creationFailed(localFile, error);
+            this.messenger.creationFailed(localFile, error);
           } finally {
-            await updateProgress();
+            updateProgress();
           }
         }),
       );

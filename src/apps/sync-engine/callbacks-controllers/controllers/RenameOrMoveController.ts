@@ -31,7 +31,7 @@ export class RenameOrMoveController extends CallbackController {
       const posixRelativePath = PlatformPathConverter.winToPosix(win32RelativePath);
 
       if (this.isFilePlaceholder(trimmedId)) {
-        const [_, filePlaceholderId] = trimmedId.split(':');
+        const [, filePlaceholderId] = trimmedId.split(':');
         Logger.debug('[RUN File Path Updater]', filePlaceholderId, posixRelativePath);
         await this.filePathUpdater.run(filePlaceholderId, posixRelativePath);
         Logger.debug('[FINISH File Path Updater]', filePlaceholderId, posixRelativePath);
@@ -39,7 +39,7 @@ export class RenameOrMoveController extends CallbackController {
       }
 
       if (this.isFolderPlaceholder(trimmedId)) {
-        const [_, folderUuid] = trimmedId.split(':');
+        const [, folderUuid] = trimmedId.split(':');
         Logger.debug('[RUN Folder Path Updater]', placeholderId, posixRelativePath);
         await this.folderPathUpdater.run(folderUuid, posixRelativePath);
         return callback(true);

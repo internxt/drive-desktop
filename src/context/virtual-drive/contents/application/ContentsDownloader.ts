@@ -60,6 +60,7 @@ export class ContentsDownloader {
   }
 
   async run(file: File, callback: CallbackDownload): Promise<string> {
+    // TODO: If we remove the wait, the tests fail
     const downloader = await this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
@@ -82,7 +83,7 @@ export class ContentsDownloader {
 
     Logger.info('[Server] Stopping download 2');
     this.downloaderIntance.forceStop();
-    this.downloaderIntanceCB(false, '');
+    void this.downloaderIntanceCB(false, '');
 
     this.ipc.send('FILE_DOWNLOAD_CANCEL', {
       name: this.downloaderFile.name,

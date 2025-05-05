@@ -9,3 +9,4 @@
 /dist
 /node_modules
 /test/temp-test/
+.github/copilot-instructions.md
