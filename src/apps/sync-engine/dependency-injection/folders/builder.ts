@@ -5,9 +5,7 @@ import { FolderFinder } from '../../../../context/virtual-drive/folders/applicat
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../../../context/virtual-drive/folders/application/FolderRenamer';
-import { FoldersPlaceholderCreator } from '../../../../context/virtual-drive/folders/application/FoldersPlaceholderCreator';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
-import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/folders/application/UpdatePlaceholderFolder';
 import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
@@ -16,10 +14,10 @@ import { FoldersContainer } from './FoldersContainer';
 import { RetryFolderDeleter } from '../../../../context/virtual-drive/folders/application/RetryFolderDeleter';
 import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
-import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
 import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 import { getConfig } from '../../config';
+import { FolderPlaceholderUpdater } from '@/context/virtual-drive/folders/application/update/UpdatePlaceholderFolder';
 
 export function buildFoldersContainer(shredContainer: SharedContainer): FoldersContainer {
   const { virtualDrive } = DependencyInjectionVirtualDrive;
@@ -30,8 +28,6 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
   const remoteFolderSystem = new HttpRemoteFolderSystem(getConfig().workspaceId ?? null);
 
   const folderPlaceholderConverter = new FolderPlaceholderConverter(localFolderSystem);
-
-  const folderSyncStatusUpdater = new FolderSyncStatusUpdater(localFolderSystem);
 
   const folderFinder = new FolderFinder(repository);
 
@@ -49,8 +45,6 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
   const folderPathUpdater = new FolderPathUpdater(repository, folderMover, folderRenamer);
 
   const offlineFolderCreator = new OfflineFolderCreator(folderFinder, repository);
-
-  const foldersPlaceholderCreator = new FoldersPlaceholderCreator(localFolderSystem);
 
   const folderPlaceholderUpdater = new FolderPlaceholderUpdater(
     repository,
@@ -75,9 +69,7 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
     },
     folderPlaceholderDeleter,
     folderRepository: repository,
-    foldersPlaceholderCreator,
     folderPlaceholderUpdater,
     folderPlaceholderConverter,
-    folderSyncStatusUpdater,
   };
 }

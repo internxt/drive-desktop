@@ -1,12 +1,12 @@
 import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
-import { createFolderFromServerFolder } from '../../folders/application/FolderCreatorFromServerFolder';
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { File } from '../../files/domain/File';
 import { RemoteItemsGenerator } from './RemoteItemsGenerator';
+import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
 
 const FILE_STATUSES_TO_FILTER = [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED, ServerFileStatus.DELETED];
 const FOLDER_STATUSES_TO_FILTER = [ServerFolderStatus.EXISTS, ServerFolderStatus.TRASHED, ServerFolderStatus.DELETED];

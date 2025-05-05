@@ -1,12 +1,12 @@
 import { promises as fs, constants as FsConstants } from 'fs';
-import { Folder } from '../domain/Folder';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import Logger from 'electron-log';
 import path from 'path';
-import { FolderStatuses } from '../domain/FolderStatus';
 import * as Sentry from '@sentry/electron/renderer';
-import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
-import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
+import { InMemoryFolderRepository } from '../../infrastructure/InMemoryFolderRepository';
+import { NodeWinLocalFolderSystem } from '../../infrastructure/NodeWinLocalFolderSystem';
+import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
+import { Folder } from '../../domain/Folder';
+import { FolderStatuses } from '../../domain/FolderStatus';
 
 export class FolderPlaceholderUpdater {
   constructor(
