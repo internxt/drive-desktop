@@ -83,7 +83,7 @@ export class FetchDataService {
 
       fs.unlinkSync(path);
 
-      await self.container.fileSyncStatusUpdater.run(file);
+      self.container.fileSyncStatusUpdater.run(file);
 
       Logger.debug('[Fetch Data Callback] Finish', path);
     } catch (error) {

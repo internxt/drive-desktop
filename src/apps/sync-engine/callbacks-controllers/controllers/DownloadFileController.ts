@@ -58,7 +58,7 @@ export class DownloadFileController extends CallbackController {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async cancel() {
-    await this.downloader.stop();
+  cancel() {
+    this.downloader.stop();
   }
 }

@@ -17,7 +17,7 @@ export class HandleAddService {
         path: task.path,
       });
 
-      const tempFile = await isTemporaryFile(task.path);
+      const tempFile = isTemporaryFile(task.path);
 
       logger.debug({
         msg: '[isTemporaryFile]',
@@ -38,11 +38,11 @@ export class HandleAddService {
         return;
       }
 
-      await drive.convertToPlaceholder({
+      drive.convertToPlaceholder({
         itemPath: task.path,
         id: itemId,
       });
-      await drive.updateSyncStatus({
+      drive.updateSyncStatus({
         itemPath: task.path,
         isDirectory: task.isFolder,
         sync: true,

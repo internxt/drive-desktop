@@ -60,7 +60,7 @@ export class ContentsDownloader {
   }
 
   async run(file: File, callback: CallbackDownload): Promise<string> {
-    const downloader = await this.managerFactory.downloader();
+    const downloader = this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
     this.downloaderIntanceCB = callback;
@@ -82,7 +82,7 @@ export class ContentsDownloader {
 
     Logger.info('[Server] Stopping download 2');
     this.downloaderIntance.forceStop();
-    this.downloaderIntanceCB(false, '');
+    void this.downloaderIntanceCB(false, '');
 
     this.ipc.send('FILE_DOWNLOAD_CANCEL', {
       name: this.downloaderFile.name,

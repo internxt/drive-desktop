@@ -21,7 +21,11 @@ export class CLSFsLocalItemsGenerator {
         path: dir as AbsolutePath,
         modificationTime: stat.mtime.getTime(),
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (!(err instanceof Error)) {
+        return left(new DriveDesktopError('UNKNOWN', `An unknown error happened when reading ${dir}`));
+      }
+
       const { code } = err as { code?: string };
 
       if (err?.message?.includes('ENOENT')) {
