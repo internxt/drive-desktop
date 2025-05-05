@@ -72,8 +72,10 @@ export class CLSFsLocalItemsGenerator {
               modificationTime: stat.mtime.getTime(),
             });
           }
-        } catch (error: any) {
-          // Capturar error relacionado con permisos (EPERM) o cualquier otro error
+        } catch (error: unknown) {
+          if (!(error instanceof Error)) {
+            throw new DriveDesktopError('UNKNOWN', `Unexpected error while accessing ${absolutePath}: ${error}`);
+          }
 
           if (error?.message?.includes('ENOENT')) {
             throw new DriveDesktopError('BASE_DIRECTORY_DOES_NOT_EXIST', `${dir} does not exist`);
@@ -87,8 +89,11 @@ export class CLSFsLocalItemsGenerator {
 
         return acc;
       }, accumulator);
-    } catch (error: any) {
-      // Capturar errores relacionados con la lectura del directorio base
+    } catch (error: unknown) {
+      if (!(error instanceof Error)) {
+        throw new DriveDesktopError('UNKNOWN', `Unexpected error while reading directory ${dir}: ${error}`);
+      }
+
       if (error instanceof DriveDesktopError) {
         throw error;
       }
