@@ -60,7 +60,8 @@ export class ContentsDownloader {
   }
 
   async run(file: File, callback: CallbackDownload): Promise<string> {
-    const downloader = this.managerFactory.downloader();
+    // TODO: If we remove the wait, the tests fail
+    const downloader = await this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
     this.downloaderIntanceCB = callback;
