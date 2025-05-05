@@ -2,6 +2,7 @@ import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { ProcessInfoUpdatePayload } from '../../types';
+import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 type ProcessInfo = {
   elapsedTime: number;
@@ -42,8 +43,7 @@ type FilesEvents = {
 
 type SyncEngineInvocableFunctions = {
   GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: DriveFile[]; folders: DriveFolder[] }>;
-  GET_UPDATED_REMOTE_ITEMS_BY_FOLDER: (folderUuid: string, workspaceId: string) => Promise<{ files: DriveFile[]; folders: DriveFolder[] }>;
-  FORCE_REFRESH_BACKUPS: (folderUuid: string) => Promise<void>;
+  FORCE_REFRESH_BACKUPS: (folderUuid: string) => Promise<{ files: FileDto[]; folders: FolderDto[] }>;
   GET_HEADERS: () => Promise<Record<string, string>>;
   USER_IS_UNAUTHORIZED: () => void;
 };

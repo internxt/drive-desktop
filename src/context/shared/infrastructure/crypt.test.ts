@@ -1,11 +1,7 @@
-import { logger } from '@/apps/shared/logger/logger';
+import { loggerMock } from 'tests/vitest/mocks.helper.test';
 import crypt from './crypt';
 
-vi.mock(import('@/apps/shared/logger/logger'));
-
 describe('crypt', () => {
-  const loggerMock = vi.mocked(logger);
-
   const encryptedName =
     '9u+sGySbQbFq1JOg26ssR/qfjMfTGvz3TXLy2uRIK1/4lOlfoZfpaNM0+kH8+Re+LCeW5q7PXCDXBfmV/p+tee3vBaddvXqkxMKm8LQbc/WzS+6+cIpryXsRC9Q/CIUwPSJNfxGK';
 

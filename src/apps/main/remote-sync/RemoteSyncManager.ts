@@ -1,11 +1,8 @@
 import { RemoteSyncStatus, rewind, FIVETEEN_MINUTES_IN_MILLISECONDS } from './helpers';
 import { logger } from '../../shared/logger/logger';
 import { SyncRemoteFoldersService } from './folders/sync-remote-folders.service';
-import { FetchRemoteFoldersService } from './folders/fetch-remote-folders.service';
 import { SyncRemoteFilesService } from './files/sync-remote-files.service';
 import { Nullable } from '@/apps/shared/types/Nullable';
-import { FetchWorkspaceFoldersService } from './folders/fetch-workspace-folders.service';
-import { QueryFolders } from './folders/fetch-folders.service.interface';
 import { driveFilesCollection, driveFoldersCollection } from './store';
 import { broadcastSyncStatus } from './services/broadcast-sync-status';
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
@@ -26,7 +23,6 @@ export class RemoteSyncManager {
     public readonly workspaceId?: string,
     private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
     private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),
-    private readonly fetchRemoteFolders = workspaceId ? new FetchWorkspaceFoldersService() : new FetchRemoteFoldersService(),
   ) {}
 
   getSyncStatus(): RemoteSyncStatus {
@@ -37,8 +33,8 @@ export class RemoteSyncManager {
     return this.totalFilesUnsynced;
   }
 
-  async startRemoteSync(folderUuid?: string) {
-    logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId, folderUuid });
+  async startRemoteSync() {
+    logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId });
 
     this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
@@ -47,13 +43,11 @@ export class RemoteSyncManager {
     try {
       const syncFilesPromise = this.syncRemoteFiles.run({
         self: this,
-        folderUuid,
         from: await this.getFileCheckpoint(),
       });
 
       const syncFoldersPromise = this.syncRemoteFolders.run({
         self: this,
-        folderUuid,
         from: await this.getLastFolderSyncAt(),
       });
 
@@ -107,19 +101,5 @@ export class RemoteSyncManager {
     const updatedAt = new Date(result.updatedAt);
 
     return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
-  }
-
-  async fetchFoldersByFolderFromRemote({
-    folderUuid,
-    offset,
-    updatedAtCheckpoint,
-    status,
-  }: {
-    folderUuid: string;
-    offset: number;
-    updatedAtCheckpoint: Date;
-    status: QueryFolders['status'];
-  }) {
-    return this.fetchRemoteFolders.run({ self: this, offset, folderUuid, updatedAtCheckpoint, status });
   }
 }

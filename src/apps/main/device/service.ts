@@ -114,7 +114,7 @@ export async function getOrCreateDevice() {
 
     if (res.data) {
       const device = decryptDeviceName(res.data);
-      logger.debug({ msg: '[DEVICE] Found device', device });
+      logger.debug({ msg: '[DEVICE] Found device', device: device.name });
       configStore.set('deviceUuid', device.uuid);
 
       if (!device.removed) return device;
