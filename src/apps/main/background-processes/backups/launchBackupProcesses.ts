@@ -1,6 +1,5 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
 import Logger from 'electron-log';
-import { clearBackupsIssues } from '../../issues/virtual-drive';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
 import { BackupFatalErrors } from './BackupFatalErrors/BackupFatalErrors';
@@ -26,13 +25,13 @@ export async function launchBackupProcesses(
     return;
   }
 
+  Logger.debug('[BACKUPS] Launching backups process');
   status.set('RUNNING');
 
   const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
 
   const backups = await backupsConfig.obtainBackupsInfo();
 
-  clearBackupsIssues();
   errors.clear();
 
   tracker.track(backups);
@@ -85,7 +84,6 @@ export async function launchBackupProcesses(
 
   tracker.reset();
   stopController.reset();
-  backupsConfig.backupFinished();
 
   ipcMain.removeAllListeners('stop-backups-process');
 

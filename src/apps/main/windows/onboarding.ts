@@ -3,6 +3,7 @@ import { BrowserWindow, ipcMain } from 'electron';
 import configStore from '../config';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
+import isDev from '../../../core/isDev/isDev';
 
 let onboardingWindow: BrowserWindow | null = null;
 export const getOnboardingWindow = () =>
@@ -24,6 +25,7 @@ export const openOnboardingWindow = () => {
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,
+      devTools: isDev(),
     },
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     frame: process.platform !== 'darwin' ? false : undefined,

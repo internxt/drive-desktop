@@ -2,7 +2,7 @@ import { Container } from 'diod';
 import Logger from 'electron-log';
 import { StorageClearer } from '../../../context/storage/StorageFiles/application/delete/StorageClearer';
 import { FileRepositorySynchronizer } from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
-import { FolderRepositorySynchronizer } from '../../../context/virtual-drive/folders/application/FolderRepositorySynchronizer';
+import { FolderRepositorySynchronizer } from '../../../context/virtual-drive/folders/application/FolderRepositorySynchronizer/FolderRepositorySynchronizer';
 import { RemoteTreeBuilder } from '../../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
 import { VirtualDrive } from '../virtual-drive/VirtualDrive';
 import { FuseDriveStatus } from './FuseDriveStatus';

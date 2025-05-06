@@ -1,0 +1,13 @@
+// @no-log
+### POST request to /auth/login/access
+POST {{NEW_DRIVE_URL}}/auth/login/access
+Content-Type: application/json
+internxt-client: drive-desktop
+internxt-version: '2.4.8'
+x-internxt-desktop-header: {{INTERNXT_DESKTOP_HEADER_KEY}}
+
+{
+  "email": "{{USER_EMAIL}}",
+  "password": "{{USER_PASSWORD}}",
+  "tfa": "{{USER_TFA}}"
+}

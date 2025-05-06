@@ -37,3 +37,6 @@ src/test/screenshots
 *.db
 
 clamAV/**
+
+# Http Client
+/http/*.env.json

@@ -1,8 +1,12 @@
-import Select from '../../../components/Select';
-import { useTranslationContext } from '../../../context/LocalContext';
-import { useBackupsInterval } from '../../../hooks/backups/useBackupsInterval';
-import { SectionHeader } from '../../../components/SectionHeader';
-import { useUserAvailableProducts } from '../../../hooks/useUserAvailableProducts/useUserAvailableProducts';
+import Select from '../../../../components/Select';
+import { useTranslationContext } from '../../../../context/LocalContext';
+import { useBackupsInterval } from '../../../../hooks/backups/useBackupsInterval/useBackupsInterval';
+import { SectionHeader } from '../../../../components/SectionHeader';
+import { useUserAvailableProducts } from '../../../../hooks/useUserAvailableProducts/useUserAvailableProducts';
+const BACKUP_MANUAL_INTERVAL = -1;
+const BACKUP_6H_INTERVAL = 6 * 3600 * 1000;
+const BACKUP_12H_INTERVAL = 12 * 3600 * 1000;
+const BACKUP_24H_INTERVAL = 24 * 3600 * 1000;
 
 export function Frequency() {
   const { backupsInterval, updateBackupsInterval } = useBackupsInterval();
@@ -12,22 +16,22 @@ export function Frequency() {
   const userCanBackup = products?.backups;
   const intervals = [
     {
-      value: 6 * 3600 * 1000,
+      value: BACKUP_6H_INTERVAL.toString(),
       name: translate('settings.backups.frequency.options.6h'),
     },
     {
-      value: 12 * 3600 * 1000,
+      value: BACKUP_12H_INTERVAL.toString(),
       name: translate('settings.backups.frequency.options.12h'),
     },
     {
-      value: 24 * 3600 * 1000,
+      value: BACKUP_24H_INTERVAL.toString(),
       name: translate('settings.backups.frequency.options.24h'),
     },
     {
-      value: -1,
+      value: BACKUP_MANUAL_INTERVAL.toString(),
       name: translate('settings.backups.frequency.options.manually'),
     },
-  ].map(({ value, name }) => ({ value: value.toString(), name }));
+  ];
 
   const onStringValueChange = (value: string) => {
     updateBackupsInterval(Number(value));
@@ -44,10 +48,9 @@ export function Frequency() {
         onValueChange={onStringValueChange}
         disabled={!userCanBackup}
       />
-      {backupsInterval < 0 && (
+      {backupsInterval === BACKUP_MANUAL_INTERVAL && (
         <p className="mt-1 text-xs text-gray-50">
-          Folders won't automatically backup until you click “Backup now”. This
-          mode is not recommended.
+          {translate('settings.backups.frequency.manual-warning')}
         </p>
       )}
     </section>

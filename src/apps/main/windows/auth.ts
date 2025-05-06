@@ -3,6 +3,7 @@ import { BrowserWindow } from 'electron';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';
+import isDev from '../../../core/isDev/isDev';
 
 let authWindow: BrowserWindow | null = null;
 export const getAuthWindow = () => {
@@ -17,6 +18,7 @@ export const createAuthWindow = async () => {
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,
+      devTools: isDev(),
     },
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     frame: process.platform !== 'darwin' ? false : undefined,

@@ -40,7 +40,7 @@ export class AllFilesInFolderAreAvailableOffline {
     });
 
     if (files.length === 0) {
-      return true;
+      return false;
     }
 
     for (const file of files) {

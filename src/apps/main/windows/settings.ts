@@ -4,7 +4,7 @@ import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import eventBus from '../event-bus';
 import { ProgressData } from '../antivirus/ManualSystemScan';
-import Logger from 'electron-log';
+import isDev from '../../../core/isDev/isDev';
 
 let settingsWindow: BrowserWindow | null = null;
 export const getSettingsWindow = () =>
@@ -34,6 +34,7 @@ async function openSettingsWindow(section?: string) {
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,
+      devTools: isDev(),
     },
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     frame: process.platform !== 'darwin' ? false : undefined,

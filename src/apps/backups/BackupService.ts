@@ -15,7 +15,10 @@ import { BackupInfo } from './BackupInfo';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
 import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
-import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
+import {
+  DiffFilesCalculatorService,
+  FilesDiff,
+} from './diff/DiffFilesCalculatorService';
 import {
   FoldersDiff,
   FoldersDiffCalculator,
@@ -26,6 +29,7 @@ import { UserAvaliableSpaceValidator } from '../../context/user/usage/applicatio
 import { Either, left, right } from '../../context/shared/domain/Either';
 import { RetryOptions } from '../shared/retry/types';
 import { RetryHandler } from '../shared/retry/RetryHandler';
+import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
 
 @Service()
 export class BackupService {
@@ -36,7 +40,8 @@ export class BackupService {
     private readonly fileBatchUpdater: FileBatchUpdater,
     private readonly remoteFileDeleter: FileDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
-    private readonly userAvaliableSpaceValidator: UserAvaliableSpaceValidator
+    private readonly userAvaliableSpaceValidator: UserAvaliableSpaceValidator,
+    private readonly backupsDanglingFilesService: BackupsDanglingFilesService
   ) {}
 
   private backed = 0;
@@ -72,21 +77,34 @@ export class BackupService {
       Logger.info('[BACKUPS] Folder differences calculated');
 
       Logger.info('[BACKUPS] Calculating file differences');
-      const filesDiff = DiffFilesCalculator.calculate(local, remote);
+      const filesDiff = DiffFilesCalculatorService.calculate(local, remote);
+
+      if (filesDiff.dangling.size > 0) {
+        Logger.info('[BACKUPS] Dangling files found, handling them');
+        const filesToResync =
+          await this.backupsDanglingFilesService.handleDanglingFilesOnBackup(
+            filesDiff.dangling
+          );
+        for (const [localFile, remoteFile] of filesToResync) {
+          filesDiff.modified.set(localFile, remoteFile);
+        }
+        Logger.info(`[BACKUPS] ${filesToResync.size} dangling files to resync`);
+        filesDiff.total += filesDiff.dangling.size;
+      }
       Logger.info('[BACKUPS] File differences calculated');
 
       Logger.info('[BACKUPS] Checking available space');
       await this.isThereEnoughSpace(filesDiff);
       Logger.info('[BACKUPS] Space check completed');
 
-      const alreadyBacked =
+      const itemsAlreadyBacked =
         filesDiff.unmodified.length + foldersDiff.unmodified.length;
-      this.backed = alreadyBacked;
+      this.backed = itemsAlreadyBacked;
 
       BackupsIPCRenderer.send(
         'backups.total-items-calculated',
         filesDiff.total + foldersDiff.total,
-        alreadyBacked
+        itemsAlreadyBacked
       );
 
       Logger.info('[BACKUPS] Starting folder backup');
@@ -118,19 +136,23 @@ export class BackupService {
       initialDelay: 5000,
       backoffFactor: 2,
       jitter: true,
-      signal: abortController.signal
+      signal: abortController.signal,
     };
     const run = () => this.run(info, abortController);
-    return await RetryHandler.execute(run,options);
+    return await RetryHandler.execute(run, options);
   }
 
-  async getBackupInfo(): Promise<Either<Error, BackupInfo>>{
+  async getBackupInfo(): Promise<Either<Error, BackupInfo>> {
     try {
       const backupInfo = await BackupsIPCRenderer.invoke('backups.get-backup');
       return right(backupInfo);
     } catch (error: unknown) {
       this.logAndReportError(error);
-      return left(error instanceof Error ? error : new Error('Uncontrolled error while getting backup info'));
+      return left(
+        error instanceof Error
+          ? error
+          : new Error('Uncontrolled error while getting backup info')
+      );
     }
   }
 

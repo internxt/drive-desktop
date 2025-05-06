@@ -18,9 +18,6 @@ export function clearSyncIssues() {
   virtualDriveIssues = [];
   onProcessIssuesChanged();
 }
-export function clearBackupsIssues() {
-  // no-op
-}
 
 export function addVirtualDriveIssue(issue: VirtualDriveIssue) {
   virtualDriveIssues.push(issue);
@@ -69,10 +66,8 @@ ipcMain.handle('get.issues.virtual-drive', getVirtualDriveIssues);
 
 eventBus.on('USER_LOGGED_OUT', () => {
   clearSyncIssues();
-  clearBackupsIssues();
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', () => {
   clearSyncIssues();
-  clearBackupsIssues();
 });

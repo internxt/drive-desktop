@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import packageJson from '../../../../../package.json';
 import { useTranslationContext } from '../../context/LocalContext';
 import ErrorBanner from './ErrorBanner';
-import { accessRequest, hashPassword, loginRequest } from './service';
+import { accessRequest, hashPassword } from './service';
 import TwoFA from './TwoFA';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
@@ -71,13 +71,19 @@ export default function Login() {
     }
 
     try {
-      const body = await loginRequest(email);
-      sKey.current = body.sKey;
-      if (body.tfa) {
-        setState('ready');
-        setPhase('2fa');
+      const response = await window.electron.login(email);
+      if (response.success) {
+        const body = response.data;
+        sKey.current = body.sKey;
+        if (body.tfa) {
+          setState('ready');
+          setPhase('2fa');
+        } else {
+          access();
+        }
       } else {
-        access();
+        setState('error');
+        setErrorDetails(response.error);
       }
     } catch (err) {
       setState('error');

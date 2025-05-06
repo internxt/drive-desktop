@@ -13,6 +13,7 @@
     "pretty": true,
     "sourceMap": true,
     "rootDir": ".",
+    "baseUrl": "./",
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -42,5 +43,6 @@
     "src/workers/backups/process.ts",
     "src/workers/backups",
     "src/workers/filesystems",
-  ]
+  ],
+  "include": ["src"]
 }

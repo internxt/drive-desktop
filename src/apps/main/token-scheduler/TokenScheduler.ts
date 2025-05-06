@@ -46,7 +46,7 @@ export class TokenScheduler {
     return date;
   }
 
-  public schedule(fn: () => void) {
+  public schedule(refreshCallback: () => void) {
     const expiration = this.nearestExpiration();
 
     if (expiration === TokenScheduler.MAX_TIME) {
@@ -69,7 +69,7 @@ export class TokenScheduler {
       renewDate.toLocaleDateString()
     );
 
-    return nodeSchedule.scheduleJob(renewDate, fn);
+    return nodeSchedule.scheduleJob(renewDate, refreshCallback);
   }
 
   public cancelAll(): void {

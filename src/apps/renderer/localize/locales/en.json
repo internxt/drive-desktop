@@ -279,6 +279,7 @@
       }
     },
     "backups": {
+      "backup-name": "Backup",
       "featureLocked": {
         "title": "Feature locked",
         "subtitle": "Please upgrade your plan to use this feature.",
@@ -295,6 +296,9 @@
       "last-backup-had-issues": "Last backup had some issues",
       "see-issues": "See issues",
       "backing-up": "Backing up...",
+      "backups-help": "Backups Help",
+      "this-device": "This device",
+      "devices": "Devices",
       "action": {
         "start": "Backup now",
         "stop": "Stop backup",
@@ -308,7 +312,8 @@
           "12h": "Every 12 hours",
           "24h": "Every day",
           "manually": "Backup manually"
-        }
+        },
+        "manual-warning": "Folders won't automatically backup until you click “Backup now”. This mode is not recommended."
       },
       "folders": {
         "no-folders": "No backups yet",
@@ -326,7 +331,8 @@
           "confirm": "Yes, delete",
           "cancel": "Cancel"
         }
-      }
+      },
+      "error-loading-backups": "There was an error loading your backups"
     },
     "antivirus": {
       "featureLocked": {

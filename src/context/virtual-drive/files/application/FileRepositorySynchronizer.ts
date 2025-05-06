@@ -3,45 +3,57 @@ import { File } from '../domain/File';
 import { FileRepository } from '../domain/FileRepository';
 import Logger from 'electron-log';
 import { RemoteFileSystem } from '../domain/file-systems/RemoteFileSystem';
-import {
-  StorageFileDownloader
-} from '../../../storage/StorageFiles/application/download/StorageFileDownloader/StorageFileDownloader';
+import { StorageFileService } from '../../../storage/StorageFiles/StorageFileService';
 
 @Service()
 export class FileRepositorySynchronizer {
   constructor(
     private readonly repository: FileRepository,
-    private readonly storageFileDownloader: StorageFileDownloader,
-    private readonly remoteFileSystem: RemoteFileSystem,
+    private readonly storageFileService: StorageFileService,
+    private readonly remoteFileSystem: RemoteFileSystem
   ) {}
 
-  async fixDanglingFiles(contentsIds: Array<File['contentsId']>): Promise<boolean> {
+  async fixDanglingFiles(
+    contentsIds: Array<File['contentsId']>
+  ): Promise<boolean> {
     let allDanglingFilesFixed = true;
     try {
-      const files = await this.repository.searchByArrayOfContentsId(contentsIds);
+      const files = await this.repository.searchByArrayOfContentsId(
+        contentsIds
+      );
       if (files.length === 0) {
         Logger.info('[DANGLING FILE] No files found to check.');
         return allDanglingFilesFixed;
       }
 
-      Logger.info(`[DANGLING FILE] Checking ${files.length} files for corruption.`);
+      Logger.info(
+        `[DANGLING FILE] Checking ${files.length} files for corruption.`
+      );
 
       for (const file of files) {
         try {
-          const resultEither = await this.storageFileDownloader.isFileDownloadable(file.contentsId);
+          const resultEither = await this.storageFileService.isFileDownloadable(
+            file.contentsId
+          );
           if (resultEither.isRight()) {
             const isFileDownloadable = resultEither.getRight();
             if (!isFileDownloadable) {
-              Logger.warn(`[DANGLING FILE] File ${file.contentsId} is not downloadable, deleting...`);
+              Logger.warn(
+                `[DANGLING FILE] File ${file.contentsId} is not downloadable, deleting...`
+              );
               await this.remoteFileSystem.hardDelete(file.contentsId);
             }
           } else {
             const error = resultEither.getLeft();
-            Logger.error(`[DANGLING FILE] Error checking file ${file.contentsId}: ${error.message}`);
+            Logger.error(
+              `[DANGLING FILE] Error checking file ${file.contentsId}: ${error.message}`
+            );
             allDanglingFilesFixed = false;
           }
         } catch (error) {
-          Logger.error(`[DANGLING FILE] Unexpected error processing file ${file.contentsId}: ${error}`);
+          Logger.error(
+            `[DANGLING FILE] Unexpected error processing file ${file.contentsId}: ${error}`
+          );
           allDanglingFilesFixed = false;
         }
       }

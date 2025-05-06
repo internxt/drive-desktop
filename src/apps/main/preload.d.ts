@@ -1,4 +1,5 @@
 import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
+import { AuthLoginResponseViewModel } from '../../infra/drive-server/services/auth/auth.types';
 
 declare interface Window {
   electron: {
@@ -273,11 +274,13 @@ declare interface Window {
     };
 
     userAvailableProducts: {
-      get: () => AvailableProducts['featuresPerService'] | undefined;
+      get: () => Promise<AvailableProducts['featuresPerService'] | undefined>;
       subscribe: () => void;
       onUpdated: (
         callback: (products: AvailableProducts['featuresPerService']) => void
       ) => void;
     }
+
+    login(email: string): Promise<AuthLoginResponseViewModel>
   };
 }

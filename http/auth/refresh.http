@@ -1,0 +1,8 @@
+// @no-log
+### GET request to /users/refresh
+GET {{NEW_DRIVE_URL}}/users/refresh
+Authorization: Bearer {{USER_TOKEN}}
+Content-Type: application/json
+internxt-client: drive-desktop
+internxt-version: '2.4.8'
+x-internxt-desktop-header: {{INTERNXT_DESKTOP_HEADER_KEY}}

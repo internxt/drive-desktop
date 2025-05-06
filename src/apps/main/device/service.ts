@@ -16,6 +16,8 @@ import { ipcMain } from 'electron';
 import { DependencyInjectionUserProvider } from '../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { BackupError } from '../../backups/BackupError';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
+import { driveServerModule } from '../../../infra/drive-server/drive-server.module';
+import Logger from 'electron-log';
 
 export type Device = {
   id: number;
@@ -39,24 +41,19 @@ export const addUnknownDeviceIssue = (error: Error) => {
 };
 
 function createDevice(deviceName: string) {
-  return fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
-    method: 'POST',
-    headers: getHeaders(true),
-    body: JSON.stringify({ deviceName }),
-  });
+  return driveServerModule.backup.createDevice(deviceName);
 }
 
 export async function getDevices(): Promise<Array<Device>> {
-  const response = await fetch(`${process.env.API_URL}/backup/deviceAsFolder`, {
-    method: 'GET',
-    headers: getHeaders(true),
-  });
-
-  const devices = (await response.json()) as Array<Device>;
-
-  return devices
-    .filter(({ removed, hasBackups }) => !removed && hasBackups)
-    .map((device) => decryptDeviceName(device));
+  const response = await driveServerModule.backup.getDevices();
+  if (response.isLeft()) {
+    return [];
+  } else {
+    const devices = response.getRight();
+    return devices
+      .filter(({ removed, hasBackups }) => !removed && hasBackups)
+      .map((device) => decryptDeviceName(device));
+  }
 }
 
 async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
@@ -64,21 +61,21 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
 
   let i = 1;
 
-  while (res.status === 409 && i <= 10) {
+  while (res.isLeft() && i <= 10) {
     const deviceName = `${os.hostname()} (${i})`;
     logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
     res = await createDevice(deviceName);
     i++;
   }
 
-  if (!res.ok) {
+  if (res.isLeft()) {
     const deviceName = `${new Date().valueOf() % 1000}`;
     logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
     res = await createDevice(`${os.hostname()} (${deviceName})`);
   }
 
-  if (res.ok) {
-    return res.json();
+  if (res.isRight()) {
+    return res.getRight();
   }
   const error = new Error('Could not create device trying different names');
   addUnknownDeviceIssue(error);
@@ -86,21 +83,45 @@ async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
 }
 
 export async function getOrCreateDevice() {
-  const savedDeviceId = configStore.get('deviceId');
+  const legacyId = configStore.get('deviceId'); // This is the legacy way of story the deviceId, we are now using the uuid
+  const savedUUID = configStore.get('deviceUUID');
 
-  const deviceIsDefined = savedDeviceId !== -1;
+  Logger.debug({
+    msg: '[DEVICE] Saved device with legacy deviceId',
+    savedDeviceId: legacyId,
+  });
+  Logger.debug({
+    msg: '[DEVICE] Saved device with UUID',
+    savedDeviceId: savedUUID,
+  });
 
-  if (deviceIsDefined) {
-    const res = await fetch(
-      `${process.env.API_URL}/backup/deviceAsFolder/${savedDeviceId}`,
-      {
-        method: 'GET',
-        headers: getHeaders(),
+  const hasLegacyId = legacyId !== -1;
+  const hasUuid = savedUUID !== '';
+
+  const onlyLegacy = hasLegacyId && !hasUuid;
+  const onlyUuid = !hasLegacyId && hasUuid;
+
+  if (onlyLegacy) {
+    /* eventually, this whole if section is going to be replaced
+    when all the users naturaly migrated to the new uuid */
+    const response = await driveServerModule.backup.getDeviceById(legacyId.toString());
+
+    if (response.isRight()) {
+      const device = response.getRight();
+      if (!device.removed) {
+        configStore.set('deviceUUID', device.uuid);
+        configStore.set('deviceId', -1);
+
+        return decryptDeviceName(device);
       }
-    );
+    }
+  }
 
-    if (res.ok) {
-      const device = (await res.json()) as Device;
+  if (onlyUuid) {
+    const response = await driveServerModule.backup.getDevice(savedUUID);
+
+    if (response.isRight()) {
+      const device = response.getRight();
       if (!device.removed) {
         return decryptDeviceName(device);
       }
@@ -109,7 +130,8 @@ export async function getOrCreateDevice() {
 
   const newDevice = await tryToCreateDeviceWithDifferentNames();
 
-  configStore.set('deviceId', newDevice.id);
+  configStore.set('deviceUUID', newDevice.uuid);
+  configStore.set('deviceId', -1);
   configStore.set('backupList', {});
   const device = decryptDeviceName(newDevice);
   const user = DependencyInjectionUserProvider.get();
@@ -128,21 +150,29 @@ export async function getOrCreateDevice() {
   return device;
 }
 
-export async function renameDevice(deviceName: string): Promise<Device> {
-  const deviceId = (await getOrCreateDevice()).id;
+function getDeviceUUID(): string {
+  const deviceUuid = configStore.get('deviceUUID');
 
-  const res = await fetch(
-    `${process.env.API_URL}/backup/deviceAsFolder/${deviceId}`,
-    {
-      method: 'PATCH',
-      headers: getHeaders(true),
-      body: JSON.stringify({ deviceName }),
-    }
-  );
-  if (res.ok) {
-    return decryptDeviceName(await res.json());
+  if (deviceUuid === '') {
+    throw new Error('deviceUuid is not defined');
   }
-  throw new Error('Error in the request to rename a device');
+
+  return deviceUuid;
+}
+
+export async function renameDevice(deviceName: string): Promise<Device> {
+  const deviceUUID = getDeviceUUID();
+
+  const response = await driveServerModule.backup.updateDevice(
+    deviceUUID,
+    deviceName
+  );
+  if (response.isRight()) {
+    const device = response.getRight();
+    return decryptDeviceName(device);
+  } else {
+    throw new Error('Error in the request to rename a device');
+  }
 }
 
 function decryptDeviceName({ name, ...rest }: Device): Device {

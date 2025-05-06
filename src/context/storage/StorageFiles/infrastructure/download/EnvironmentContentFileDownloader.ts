@@ -8,6 +8,7 @@ import {
   DownloadEvents,
   DownloaderHandler,
 } from '../../domain/download/DownloaderHandler';
+import Logger from 'electron-log';
 
 export class EnvironmentContentFileDownloader implements DownloaderHandler {
   private eventEmitter: EventEmitter;
@@ -45,33 +46,39 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
     this.stopwatch.start();
     this.eventEmitter.emit('start');
     return new Promise((resolve, reject) => {
-      this.state = this.fn(
-        this.bucket,
-        fileId,
-        {
-          progressCallback: (progress: number) => {
-            this.eventEmitter.emit('progress', progress, this.elapsedTime());
-          },
-          finishedCallback: async (err: Error, stream: Readable) => {
-            this.stopwatch.finish();
+      try {
+        this.state = this.fn(
+          this.bucket,
+          fileId,
+          {
+            progressCallback: (progress: number) => {
+              this.eventEmitter.emit('progress', progress, this.elapsedTime());
+            },
+            finishedCallback: async (err: Error, stream: Readable) => {
+              this.stopwatch.finish();
 
-            if (err) {
-              this.eventEmitter.emit('error', err);
-              return reject(err);
-            }
-            this.eventEmitter.emit('finish', this.elapsedTime());
+              if (err) {
+                this.eventEmitter.emit('error', err);
+                return reject(err);
+              }
+              this.eventEmitter.emit('finish', this.elapsedTime());
 
-            resolve(stream);
+              resolve(stream);
+            },
           },
-        },
-        {
-          label: 'Dynamic',
-          params: {
-            useProxy: false,
-            chunkSize: 4096 * 1024,
-          },
-        }
-      );
+          {
+            label: 'Dynamic',
+            params: {
+              useProxy: false,
+              chunkSize: 4096 * 1024,
+            },
+          }
+        );
+      } catch (err) {
+        Logger.error('Error in downloader:', err);
+        this.eventEmitter.emit('error', err);
+        return reject(err);
+      }
     });
   }
 

@@ -6,12 +6,18 @@ import { BackupsIPCRenderer } from './BackupsIPCRenderer';
 import { BackupsDependencyContainerFactory } from './dependency-injection/BackupsDependencyContainerFactory';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 
-
-function handleAbortAndOfflineEvents(abortController: AbortController, backupInfo: BackupInfo) {
+function handleAbortAndOfflineEvents(
+  abortController: AbortController,
+  backupInfo: BackupInfo
+) {
   window.addEventListener('offline', () => {
     Logger.log('[BACKUPS] Internet connection lost');
     abortController.abort('CONNECTION_LOST');
-    BackupsIPCRenderer.send('backups.backup-failed', backupInfo.folderId, 'NO_INTERNET');
+    BackupsIPCRenderer.send(
+      'backups.backup-failed',
+      backupInfo.folderId,
+      'NO_INTERNET'
+    );
   });
 
   BackupsIPCRenderer.on('backups.abort', () => {
@@ -21,12 +27,11 @@ function handleAbortAndOfflineEvents(abortController: AbortController, backupInf
   });
 }
 
-function handleBackupFailed(folderId: number, cause: DriveDesktopError['cause']) {
-  BackupsIPCRenderer.send(
-    'backups.backup-failed',
-    folderId,
-    cause
-  );
+function handleBackupFailed(
+  folderId: number,
+  cause: DriveDesktopError['cause']
+) {
+  BackupsIPCRenderer.send('backups.backup-failed', folderId, cause);
 }
 
 /**
@@ -39,7 +44,10 @@ export async function backupFolder(): Promise<void> {
   const backupInfoResult = await backupService.getBackupInfo();
 
   if (backupInfoResult.isLeft()) {
-    Logger.error('[BACKUPS] Error getting backup info:', backupInfoResult.getLeft().cause);
+    Logger.error(
+      '[BACKUPS] Error getting backup info:',
+      backupInfoResult.getLeft().cause
+    );
     const error = backupInfoResult.getLeft();
     handleBackupFailed(
       0,
@@ -66,6 +74,7 @@ export async function backupFolder(): Promise<void> {
     BackupsIPCRenderer.send('backups.backup-completed', backupInfo.folderId);
   }
 }
+
 async function reinitializeBackups() {
   await BackupsDependencyContainerFactory.reinitialize();
   Logger.info('[BACKUPS] Reinitialized');

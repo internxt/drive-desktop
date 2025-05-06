@@ -1,45 +1,19 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { useUserAvailableProducts } from './useUserAvailableProducts';
+import {
+  mockElectron,
+  mockUserAvailableProductsGet as mockGet,
+  mockUserAvailableProductsSubscribe as mockSubscribe,
+  mockUserAvailableProductsOnUpdate as mockOnUpdate,
+} from '../../../__mocks__/mockElectron';
 
-declare global {
-  interface Window {
-    electron: {
-      userAvailableProducts: {
-        get: () => Promise<any>;
-        subscribe: () => void;
-        onUpdate: (callback: (data: any) => void) => () => void;
-      };
-    };
-  }
-}
-
-const mockGet = jest.fn();
-const mockSubscribe = jest.fn();
-const mockOnUpdate = jest.fn();
 const mockListener = jest.fn();
 
-beforeAll(() => {
-  const originalElectron = window.electron;
-
-  window.electron = {
-    userAvailableProducts: {
-      get: mockGet,
-      subscribe: mockSubscribe,
-      onUpdate: mockOnUpdate,
-    },
-  };
-
-  return () => {
-    if (originalElectron) {
-      window.electron = originalElectron;
-    } else {
-      // @ts-ignore (to avoid TypeScript complaints about deleting a required property)
-      delete window.electron;
-    }
-  };
-});
-
 describe('useUserAvailableProducts', () => {
+  beforeAll(() => {
+    window.electron = mockElectron;
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
 
@@ -50,6 +24,11 @@ describe('useUserAvailableProducts', () => {
 
     mockGet.mockResolvedValue(products);
     mockOnUpdate.mockReturnValue(mockListener);
+  });
+
+  afterAll(() => {
+    // @ts-ignore
+    delete window.electron;
   });
 
   it('should initialize with undefined products', () => {
@@ -65,7 +44,9 @@ describe('useUserAvailableProducts', () => {
     };
     mockGet.mockResolvedValue(mockProducts);
 
-    const { result, waitForNextUpdate } = renderHook(() => useUserAvailableProducts());
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useUserAvailableProducts()
+    );
 
     await waitForNextUpdate();
 
@@ -87,7 +68,9 @@ describe('useUserAvailableProducts', () => {
   });
 
   it('should update products when listener is triggered', async () => {
-    const { result, waitForNextUpdate } = renderHook(() => useUserAvailableProducts());
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useUserAvailableProducts()
+    );
 
     await waitForNextUpdate();
 
@@ -122,9 +105,7 @@ describe('useUserAvailableProducts', () => {
 
     const { result } = renderHook(() => useUserAvailableProducts());
 
-
     expect(result.current.products).toBeUndefined();
-
 
     consoleErrorSpy.mockRestore();
   });

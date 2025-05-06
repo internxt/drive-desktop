@@ -4,9 +4,14 @@ import { Device } from '../../../main/device/service';
 export function useDevices() {
   const [devices, setDevices] = useState<Array<Device>>([]);
 
+  const getDevices = async () => {
+    const devices = await window.electron.devices.getDevices();
+    setDevices(devices);
+  };
+
   useEffect(() => {
-    window.electron.devices.getDevices().then(setDevices);
+    getDevices();
   }, []);
 
-  return { devices };
+  return { devices, getDevices };
 }

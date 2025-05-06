@@ -5,6 +5,7 @@ import { TrayMenu } from '../tray/tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
 import { getIsLoggedIn } from '../auth/handlers';
+import isDev from '../../../core/isDev/isDev';
 
 const widgetConfig: { width: number; height: number; placeUnderTray: boolean } =
   { width: 330, height: 392, placeUnderTray: true };
@@ -33,6 +34,7 @@ export const createWidget = async () => {
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,
+      devTools: isDev(),
     },
     movable: false,
     frame: false,

@@ -1,19 +1,11 @@
 import { BrowserWindow } from 'electron';
 import Logger from 'electron-log';
 import path from 'path';
+import isDev from '../../../../../core/isDev/isDev';
 
 export class BackupWorker {
-  private static readonly DEV_PATH =
-    '../../../release/app/dist/backups/index.html';
-
-  private static readonly PROD_PATH = `${path.join(
-    __dirname,
-    '..',
-    'backups'
-  )}/index.html`;
-
   private constructor(
-    public readonly id: number,
+    public readonly id: number, // <- This id is never used
     private readonly worker: BrowserWindow
   ) {}
 
@@ -30,26 +22,32 @@ export class BackupWorker {
       webPreferences: {
         nodeIntegration: true,
         contextIsolation: false,
+        devTools: isDev(),
       },
       show: false,
     });
 
-    worker
-      .loadFile(
-        process.env.NODE_ENV === 'development'
-          ? BackupWorker.DEV_PATH
-          : BackupWorker.PROD_PATH
-      )
-      .catch(Logger.error);
+    worker.loadFile(this.getPath()).catch(Logger.error);
 
     return new BackupWorker(id, worker);
   }
 
   destroy(): void {
-    if (!this.worker) {
-      return;
+    if (this.worker) {
+      this.worker.destroy();
     }
+  }
 
-    this.worker.destroy();
+  private static getPath(): string {
+    return isDev()
+      ? path.resolve(
+          process.cwd(),
+          'release',
+          'app',
+          'dist',
+          'backups',
+          'index.html'
+        )
+      : `${path.join(__dirname, '..', 'backups')}/index.html`;
   }
 }

@@ -9,7 +9,7 @@ import { DeviceContext } from '../../../context/DeviceContext';
 
 export function DeleteBackups() {
   const { backups, deleteBackups } = useContext(BackupContext);
-  const { selected, current } = useContext(DeviceContext);
+  const { selected, current, getDevices } = useContext(DeviceContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
   const { translate } = useTranslationContext();
@@ -19,8 +19,11 @@ export function DeleteBackups() {
   }
 
   async function deleteBackupsFromDevice() {
-    await deleteBackups(selected!, selected === current);
     toggleConfirmation();
+    const successfullDelete = await deleteBackups(selected!, selected === current);
+    if (successfullDelete) {
+      getDevices();
+    }
   }
 
   return (

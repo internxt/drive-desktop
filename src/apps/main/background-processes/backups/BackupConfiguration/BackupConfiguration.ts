@@ -2,8 +2,8 @@ import { app, ipcMain } from 'electron';
 import configStore from '../../../config';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import {
-  getOrCreateDevice,
   getBackupsFromDevice,
+  getOrCreateDevice,
 } from '../../../device/service';
 
 type OnIntervalChangedListener = (interval: number) => void;
@@ -28,10 +28,6 @@ class BackupConfiguration {
     return configStore.get('lastBackup');
   }
 
-  backupFinished() {
-    configStore.set('lastBackup', Date.now());
-  }
-
   get enabled(): boolean {
     return configStore.get('backupsEnabled');
   }
@@ -47,19 +43,9 @@ class BackupConfiguration {
 
   async obtainBackupsInfo(): Promise<Array<BackupInfo>> {
     const device = await getOrCreateDevice();
-
     const enabledBackupEntries = await getBackupsFromDevice(device, true);
 
-    const backups: BackupInfo[] = enabledBackupEntries.map((backup) => ({
-      folderUuid: backup.folderUuid,
-      pathname: backup.pathname,
-      folderId: backup.folderId,
-      tmpPath: app.getPath('temp'),
-      backupsBucket: device.bucket,
-      name: backup.name,
-    }));
-
-    return backups;
+    return this.map(enabledBackupEntries, device.bucket);
   }
 
   hasDiscoveredBackups(): boolean {
@@ -70,6 +56,25 @@ class BackupConfiguration {
 
   backupsDiscovered(): void {
     configStore.set('discoveredBackup', Date.now());
+  }
+
+  get shouldFixBackupDanglingFiles(): boolean {
+    return configStore.get('shouldFixBackupDanglingFiles');
+  }
+
+  set shouldFixBackupDanglingFiles(value: boolean) {
+    configStore.set('shouldFixBackupDanglingFiles', value);
+  }
+
+  map(backups: Array<BackupInfo>, deviceBucket: string): Array<BackupInfo> {
+    return backups.map((backup) => ({
+      folderUuid: backup.folderUuid,
+      pathname: backup.pathname,
+      folderId: backup.folderId,
+      tmpPath: app.getPath('temp'),
+      backupsBucket: deviceBucket,
+      name: backup.name,
+    }));
   }
 }
 

@@ -1,6 +1,4 @@
 import CryptoJS from 'crypto-js';
-
-import packageConfig from '../../../../../package.json';
 import { User } from '../../../main/types';
 
 export function hashPassword(password: string, sKey: string): string {
@@ -41,68 +39,16 @@ export async function accessRequest(
 ): Promise<AccessResponse> {
   const fallbackErrorMessage = 'Error while logging in';
 
-  let accessRes;
-  try {
-    accessRes = await fetch(`${process.env.API_URL}/access`, {
-      method: 'POST',
-      body: JSON.stringify({
-        email: email.toLowerCase(),
-        password: hashedPassword,
-        tfa,
-      }),
-      headers: {
-        'content-type': 'application/json',
-        'internxt-client': 'drive-desktop',
-        'internxt-version': packageConfig.version,
-      },
-    });
-  } catch {
-    throw new Error(fallbackErrorMessage);
-  }
-  if (!accessRes.ok) {
-    const body = await accessRes.json();
-    const errorMessage = body.error ?? fallbackErrorMessage;
+  const response = await window.electron.access({ email, password: hashedPassword, tfa });
+  if (!response.success) {
+    const errorMessage = response.error ?? fallbackErrorMessage;
     throw new Error(errorMessage);
+  } else {
+    const { data } = response;
+    data.user.mnemonic = CryptoJS.AES.decrypt(
+      CryptoJS.enc.Hex.parse(data.user.mnemonic).toString(CryptoJS.enc.Base64),
+      password
+    ).toString(CryptoJS.enc.Utf8);
+    return data;
   }
-
-  const res: AccessResponse = await accessRes.json();
-
-  res.user.mnemonic = CryptoJS.AES.decrypt(
-    CryptoJS.enc.Hex.parse(res.user.mnemonic).toString(CryptoJS.enc.Base64),
-    password
-  ).toString(CryptoJS.enc.Utf8);
-
-  return res;
-}
-
-export async function loginRequest(email: string): Promise<{
-  sKey: string;
-  tfa: boolean;
-}> {
-  const fallbackErrorMessage = 'Error while logging in';
-
-  let loginRes;
-
-  try {
-    loginRes = await fetch(`${process.env.API_URL}/login`, {
-      method: 'POST',
-      body: JSON.stringify({ email }),
-      headers: {
-        'content-type': 'application/json',
-        'internxt-client': 'drive-desktop',
-        'internxt-version': packageConfig.version,
-      },
-    });
-  } catch {
-    throw new Error(fallbackErrorMessage);
-  }
-
-  const body = await loginRes.json();
-
-  if (!loginRes.ok) {
-    const errorMessage = body.error ?? 'Error while logging in';
-    throw new Error(errorMessage);
-  }
-
-  return body;
 }

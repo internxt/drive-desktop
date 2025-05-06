@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from 'react';
 import { BackupInfo } from '../../../backups/BackupInfo';
 import { DeviceContext } from '../../context/DeviceContext';
 import { Device } from '../../../main/device/service';
-import { useDevices } from '../devices/useDevices';
 
 export type BackupsState = 'LOADING' | 'ERROR' | 'SUCCESS';
 
@@ -11,18 +10,17 @@ export interface BackupContextProps {
   backups: BackupInfo[];
   disableBackup: (backup: BackupInfo) => Promise<void>;
   addBackup: () => Promise<void>;
-  deleteBackups: (device: Device, isCurrent?: boolean) => Promise<void>;
+  deleteBackups: (device: Device, isCurrent?: boolean) => Promise<boolean>;
   downloadBackups: (device: Device) => Promise<void>;
   abortDownloadBackups: (device: Device) => void;
   hasExistingBackups: boolean;
 }
 
 export function useBackups(): BackupContextProps {
-  const { selected, current } = useContext(DeviceContext);
+  const { selected, current, devices } = useContext(DeviceContext);
   const [backupsState, setBackupsState] = useState<BackupsState>('LOADING');
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
   const [hasExistingBackups, setHasExistingBackups] = useState(false);
-  const { devices } = useDevices();
 
   async function fetchBackups(): Promise<void> {
     if (!selected) return;
@@ -74,15 +72,17 @@ export function useBackups(): BackupContextProps {
     await loadBackups();
   }
 
-  async function deleteBackups(device: Device, isCurrent?: boolean) {
+  async function deleteBackups(device: Device, isCurrent?: boolean): Promise<boolean> {
     setBackupsState('LOADING');
     try {
       await window.electron.deleteBackupsFromDevice(device, isCurrent);
       await fetchBackups();
       setBackupsState('SUCCESS');
+      return true;
     } catch (err) {
       console.log(err);
       setBackupsState('ERROR');
+      return false;
     }
   }
 

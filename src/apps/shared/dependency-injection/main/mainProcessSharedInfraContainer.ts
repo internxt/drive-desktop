@@ -4,8 +4,6 @@ import { AuthorizedClients } from '../../HttpClient/Clients';
 import { MainProcessDownloadProgressTracker } from '../../../../context/shared/infrastructure/MainProcess/MainProcessDownloadProgressTracker';
 import { DownloadProgressTracker } from '../../../../context/shared/domain/DownloadProgressTracker';
 import { baseInfra } from '../baseInfra';
-import PhotosSubmodule from '@internxt/sdk/dist/photos/photos';
-import { DependencyInjectionMainProcessPhotosProviderPhotos } from './DependencyInjectionMainProcessPhotosProviderPhotos';
 import { UploadProgressTracker } from '../../../../context/shared/domain/UploadProgressTracker';
 import { MainProcessUploadProgressTracker } from '../../../../context/shared/infrastructure/MainProcess/MainProcessUploadProgressTracker';
 import { RemoteItemsGenerator } from '../../../../context/virtual-drive/remoteTree/domain/RemoteItemsGenerator';
@@ -30,11 +28,6 @@ export async function mainProcessSharedInfraBuilder(): Promise<ContainerBuilder>
   builder
     .register(UploadProgressTracker)
     .use(MainProcessUploadProgressTracker)
-    .private();
-
-  builder
-    .register(PhotosSubmodule)
-    .useInstance(DependencyInjectionMainProcessPhotosProviderPhotos.photos)
     .private();
 
   builder

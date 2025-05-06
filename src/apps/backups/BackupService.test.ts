@@ -1,30 +1,39 @@
-import { BackupService } from '../../../src/apps/backups/BackupService';
-import LocalTreeBuilder from '../../../src/context/local/localTree/application/LocalTreeBuilder';
-import { RemoteTreeBuilder } from '../../../src/context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
-import { FileBatchUploader } from '../../../src/context/local/localFile/application/upload/FileBatchUploader';
-import { FileBatchUpdater } from '../../../src/context/local/localFile/application/update/FileBatchUpdater';
-import { FileDeleter } from '../../../src/context/virtual-drive/files/application/delete/FileDeleter';
-import { SimpleFolderCreator } from '../../../src/context/virtual-drive/folders/application/create/SimpleFolderCreator';
-import { UserAvaliableSpaceValidator } from '../../../src/context/user/usage/application/UserAvaliableSpaceValidator';
-import { BackupInfo } from '../../../src/apps/backups/BackupInfo';
-import { DriveDesktopError } from '../../../src/context/shared/domain/errors/DriveDesktopError';
-import { LocalTreeMother } from '../../context/local/tree/domain/LocalTreeMother';
-import { RemoteTreeMother } from '../../context/virtual-drive/tree/domain/RemoteTreeMother';
-import { left, right } from '../../../src/context/shared/domain/Either';
-import { RemoteTree } from '../../../src/context/virtual-drive/remoteTree/domain/RemoteTree';
+import { BackupService } from './BackupService';
+import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
+import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
+import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
+import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
+import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
+import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
+import { UserAvaliableSpaceValidator } from '../../context/user/usage/application/UserAvaliableSpaceValidator';
+import { BackupInfo } from './BackupInfo';
+import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
+import { LocalTreeMother } from '../../../tests/context/local/tree/domain/LocalTreeMother';
+import { RemoteTreeMother } from '../../../tests/context/virtual-drive/tree/domain/RemoteTreeMother';
+import { left, right } from '../../context/shared/domain/Either';
+import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/RemoteTree';
 import { jest } from '@jest/globals';
-import { BackupsIPCRenderer } from '../../../src/apps/backups/BackupsIPCRenderer';
-import { FolderMother } from '../../context/virtual-drive/folders/domain/FolderMother';
-import { Folder } from '../../../src/context/virtual-drive/folders/domain/Folder';
+import { BackupsIPCRenderer } from './BackupsIPCRenderer';
+import { FolderMother } from '../../../tests/context/virtual-drive/folders/domain/FolderMother';
+import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
+import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
+import { DiffFilesCalculatorService } from './diff/DiffFilesCalculatorService';
 
 // Mock the BackupsIPCRenderer module
-jest.mock('../../../src/apps/backups/BackupsIPCRenderer', () => ({
+jest.mock('./BackupsIPCRenderer', () => ({
   BackupsIPCRenderer: {
     send: jest.fn(), // Mock the send method
   },
 }));
 
-describe('Backup', () => {
+// Mock the Environment module
+jest.mock('@internxt/inxt-js', () => ({
+  Environment: {
+    get: jest.fn(),
+  },
+}));
+
+describe('BackupService', () => {
   let backupService: BackupService;
   let localTreeBuilder: jest.Mocked<LocalTreeBuilder>;
   let remoteTreeBuilder: jest.Mocked<RemoteTreeBuilder>;
@@ -33,6 +42,7 @@ describe('Backup', () => {
   let remoteFileDeleter: jest.Mocked<FileDeleter>;
   let simpleFolderCreator: jest.Mocked<SimpleFolderCreator>;
   let userAvaliableSpaceValidator: jest.Mocked<UserAvaliableSpaceValidator>;
+  let backupsDanglingFilesService: jest.Mocked<BackupsDanglingFilesService>;
 
   beforeEach(() => {
     localTreeBuilder = {
@@ -65,6 +75,10 @@ describe('Backup', () => {
       repository: {},
     } as unknown as jest.Mocked<UserAvaliableSpaceValidator>;
 
+    backupsDanglingFilesService = {
+      handleDanglingFilesOnBackup: jest.fn(),
+    } as unknown as jest.Mocked<BackupsDanglingFilesService>;
+
     simpleFolderCreator = {
       run: jest
         .fn<Promise<Folder>, [string, number]>()
@@ -80,7 +94,8 @@ describe('Backup', () => {
       fileBatchUpdater,
       remoteFileDeleter,
       simpleFolderCreator,
-      userAvaliableSpaceValidator
+      userAvaliableSpaceValidator,
+      backupsDanglingFilesService
     );
 
     // Clear the mock before each test
@@ -207,5 +222,57 @@ describe('Backup', () => {
 
     expect(result).toBeInstanceOf(DriveDesktopError);
     expect(result?.message).toBe('An unknown error occurred');
+  });
+
+  it('should properly handle dangled files when found while calculating diff in files', async () => {
+    const info: BackupInfo = {
+      pathname: '/path/to/backup',
+      folderId: 123,
+      folderUuid: 'uuid',
+      tmpPath: '/tmp/path',
+      backupsBucket: 'backups-bucket',
+      name: 'backup-name',
+    };
+    const abortController = new AbortController();
+    const localTree = LocalTreeMother.oneLevel(1);
+    const remoteTree = RemoteTreeMother.oneLevel(1);
+
+    // Simular archivos dangling
+    const danglingFile = localTree.files[0];
+    const remoteFile = remoteTree.files[0];
+
+    const fakeDiff = {
+      added: [],
+      modified: new Map(),
+      deleted: [],
+      unmodified: [],
+      dangling: new Map([[danglingFile, remoteFile]]),
+      total: 0,
+    };
+
+    localTreeBuilder.run.mockResolvedValueOnce(right(localTree));
+    remoteTreeBuilder.run.mockResolvedValueOnce(remoteTree);
+    userAvaliableSpaceValidator.run.mockResolvedValueOnce(true);
+    backupsDanglingFilesService.handleDanglingFilesOnBackup.mockResolvedValueOnce(
+      new Map([[danglingFile, remoteFile]])
+    );
+
+    const originalCalculate = DiffFilesCalculatorService.calculate;
+    DiffFilesCalculatorService.calculate = jest.fn(() => fakeDiff);
+
+    const result = await backupService.run(info, abortController);
+
+    DiffFilesCalculatorService.calculate = originalCalculate;
+
+    expect(result).toBeUndefined();
+    expect(
+      backupsDanglingFilesService.handleDanglingFilesOnBackup
+    ).toHaveBeenCalledWith(fakeDiff.dangling);
+    expect(fileBatchUpdater.run).toHaveBeenCalledWith(
+      localTree.root,
+      remoteTree,
+      [danglingFile],
+      abortController.signal
+    );
   });
 });

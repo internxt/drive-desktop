@@ -61,12 +61,14 @@ import dns from 'node:dns';
 import { setupAntivirusIpc } from './background-processes/antivirus/setupAntivirusIPC';
 import { registerAvailableUserProductsHandlers } from './payments/ipc/AvailableUserProductsIPCHandler';
 import { getAntivirusManager } from './antivirus/antivirusManager';
+import { registerAuthIPCHandlers } from '../../infra/ipc/auth-ipc-handlers';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
   app.quit();
 }
+registerAuthIPCHandlers();
 
 Logger.log(`Running ${packageJson.version}`);
 

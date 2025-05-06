@@ -41,7 +41,7 @@ export default function Select(props: SelectProps) {
   return (
     <RadixSelect.Root
       onValueChange={props.onValueChange}
-      defaultValue={props.value}
+      value={props.value}
       disabled={props.disabled}
     >
       <RadixSelect.Trigger

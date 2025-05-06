@@ -2,6 +2,7 @@ import { BrowserWindow, ipcMain } from 'electron';
 
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
+import isDev from '../../../core/isDev/isDev';
 
 let feedbackWindow: BrowserWindow | null = null;
 export const getFeedbackWindow = () =>
@@ -21,6 +22,7 @@ export const openFeedbackWindow = () => {
     webPreferences: {
       preload: preloadPath,
       nodeIntegration: true,
+      devTools: isDev(),
     },
     titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
     resizable: false,

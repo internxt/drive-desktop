@@ -1,5 +1,6 @@
 import { getIsLoggedIn } from '../../../auth/handlers';
 import configStore from '../../../config';
+import { BACKUP_MANUAL_INTERVAL } from '../types/types';
 
 export class BackupScheduler {
   private static schedule: null | ReturnType<typeof setTimeout> = null;
@@ -11,70 +12,53 @@ export class BackupScheduler {
   ) {}
 
   async start(): Promise<void> {
-    if (!this.lastBackupIsSet()) {
-      return;
+    if (this.lastBackupIsSet() && this.intervalIsSet()) {
+      if (this.shouldDoBackup()) {
+        await this.runAndScheduleNext();
+      } else {
+        BackupScheduler.schedule = setTimeout(
+          () => this.runAndScheduleNext(),
+          this.millisecondsToNextBackup()
+        );
+      }
     }
-
-    if (!this.intervalIsSet()) {
-      return;
-    }
-
-    const millisecondsToNextBackup = this.millisecondsToNextBackup();
-
-    if (millisecondsToNextBackup <= 0) {
-      await this.runAndScheduleNext();
-      return;
-    }
-
-    BackupScheduler.schedule = setTimeout(
-      () => this.runAndScheduleNext(),
-      millisecondsToNextBackup
-    );
   }
 
-  private millisecondsToNextBackup(): number {
+  millisecondsToNextBackup(): number {
     const currentTimestamp = new Date().valueOf();
+    const nextBackupAt = this.lastBackup() + this.interval();
+    return nextBackupAt - currentTimestamp;
+  }
 
-    return this.lastBackup() + this.interval() - currentTimestamp;
+  shouldDoBackup(): boolean {
+    return this.millisecondsToNextBackup() <= 0;
   }
 
   private async runAndScheduleNext(): Promise<void> {
     await this.task();
     this.updateLastBackup();
 
-    if (!this.lastBackupIsSet()) {
-      return;
+    if (getIsLoggedIn() && this.lastBackupIsSet() && this.intervalIsSet()) {
+      BackupScheduler.schedule = setTimeout(() => this.task(), this.interval());
     }
-
-    if (!this.intervalIsSet()) {
-      return;
-    }
-
-    if (!getIsLoggedIn()) {
-      return;
-    }
-
-    BackupScheduler.schedule = setTimeout(() => this.task(), this.interval());
   }
 
   private lastBackupIsSet(): boolean {
-    return this.lastBackup() !== -1;
+    return this.lastBackup() !== BACKUP_MANUAL_INTERVAL;
   }
 
   private intervalIsSet(): boolean {
-    return this.interval() !== -1;
+    return this.interval() !== BACKUP_MANUAL_INTERVAL;
   }
 
-  private updateLastBackup() {
-    const currentTimestamp = Date.now();
-
-    configStore.set('lastBackup', currentTimestamp);
+  private updateLastBackup(): void {
+    configStore.set('lastBackup', Date.now());
   }
 
   stop(): void {
-    if (!BackupScheduler.schedule) return;
-
-    clearTimeout(BackupScheduler.schedule);
+    if (BackupScheduler.schedule) {
+      clearTimeout(BackupScheduler.schedule);
+    }
   }
 
   isScheduled(): boolean {

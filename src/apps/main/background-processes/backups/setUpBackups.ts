@@ -9,6 +9,7 @@ import { BackupsStopController } from './BackupsStopController/BackupsStopContro
 import { launchBackupProcesses } from './launchBackupProcesses';
 import Logger from 'electron-log';
 import configStore from '../../config';
+import { BACKUP_MANUAL_INTERVAL } from './types/types';
 
 function userCanBackup(): boolean {
   const availableUserProducts = configStore.get('availableUserProducts');
@@ -35,15 +36,15 @@ export async function setUpBackups() {
   );
 
   backupConfiguration.onBackupIntervalChanged = (interval: number) => {
-    if (interval === -1) {
+    if (interval === BACKUP_MANUAL_INTERVAL) {
       scheduler.stop();
       Logger.info('[BACKUPS] The backups schedule stopped');
       return;
-    }
-
-    if (userHasBackupFeatureAvailable) {
-      scheduler.reschedule();
-      Logger.debug('[BACKUPS] The backups has been rescheduled');
+    } else {
+      if (userHasBackupFeatureAvailable) {
+        scheduler.reschedule();
+        Logger.debug('[BACKUPS] The backups has been rescheduled');
+      }
     }
   };
 
@@ -52,6 +53,8 @@ export async function setUpBackups() {
     scheduler.stop();
     errors.clear();
     tracker.reset();
+    stopController.reset();
+    status.set('STANDBY');
   }
 
   eventBus.on('USER_LOGGED_OUT', stopAndClearBackups);
@@ -82,6 +85,16 @@ export async function setUpBackups() {
         stopController
       );
     }
+  });
+
+  ipcMain.on('BACKUP_PROCESS_FINISHED', (event) => {
+
+    if (event?.lastExitReason === 'FORCED_BY_USER') {
+      Logger.debug('[BACKUPS] Backups process finished by user');
+    } else {
+      Logger.debug('[BACKUPS] Backups process finished');
+    }
+    stopAndClearBackups();
   });
 
   if (userHasBackupFeatureAvailable) {

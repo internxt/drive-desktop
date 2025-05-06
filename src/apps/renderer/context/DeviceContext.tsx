@@ -7,8 +7,9 @@ import {
   useState,
 } from 'react';
 import { Device } from '../../main/device/service';
+import { useDevices } from '../hooks/devices/useDevices';
 
-type DeviceState =
+export type DeviceState =
   | { status: 'LOADING' | 'ERROR' }
   | { status: 'SUCCESS'; device: Device };
 
@@ -16,11 +17,13 @@ const defaultState = { status: 'LOADING' } as const;
 
 interface DeviceContextProps {
   deviceState: DeviceState;
+  devices: Array<Device>;
   deviceRename: (deviceName: string) => Promise<void>;
   selected: Device | undefined;
   setSelected: Dispatch<SetStateAction<Device | undefined>>;
   current: Device | undefined;
   setCurrent: Dispatch<SetStateAction<Device | undefined>>;
+  getDevices: () => Promise<void>;
 }
 
 export const DeviceContext = createContext<DeviceContextProps>(
@@ -31,6 +34,7 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   const [deviceState, setDeviceState] = useState<DeviceState>(defaultState);
   const [current, setCurrent] = useState<Device>();
   const [selected, setSelected] = useState<Device>();
+  const { devices, getDevices } = useDevices();
 
   useEffect(() => {
     refreshDevice();
@@ -82,11 +86,13 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
     <DeviceContext.Provider
       value={{
         deviceState,
+        devices,
         deviceRename,
         current,
         setCurrent,
         selected,
         setSelected,
+        getDevices,
       }}
     >
       {children}

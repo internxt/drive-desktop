@@ -6,7 +6,7 @@ import { applicationOpened } from '../analytics/service';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
-import { createTokenSchedule } from './refresh-token';
+import { createTokenSchedule } from './refresh-token/refresh-token';
 import {
   canHisConfigBeRestored,
   encryptToken,
@@ -88,13 +88,11 @@ ipcMain.on('user-logged-out', () => {
   logout();
 });
 
-eventBus.on('APP_IS_READY', async () => {
-  if (!isLoggedIn) {
-    return;
+eventBus.on('APP_IS_READY', async (): Promise<void> => {
+  if (isLoggedIn) {
+    encryptToken();
+    applicationOpened();
+    await createTokenSchedule();
+    eventBus.emit('USER_LOGGED_IN');
   }
-
-  encryptToken();
-  applicationOpened();
-  await createTokenSchedule();
-  eventBus.emit('USER_LOGGED_IN');
 });

@@ -10,7 +10,7 @@ export type MainProcessAvailableUserProductsMessages = {
    * @returns AvailableProducts['featuresPerService'] The available products
    *  or undefined if there are no available products object
    */
-  'get-available-user-products': () => AvailableProducts['featuresPerService'] | undefined;
+  'get-available-user-products': () => Promise<AvailableProducts['featuresPerService'] | undefined>;
 
   /**
    * Subscribe to available user products changes

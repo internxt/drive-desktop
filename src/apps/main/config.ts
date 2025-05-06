@@ -36,7 +36,9 @@ export interface AppStore {
   lastSync: number;
   savedConfigs: Record<string, Pick<AppStore, (typeof fieldsToSave)[number]>>;
   lastOnboardingShown: string;
+  /* deviceId is deprecated use deviceUUID instead*/
   deviceId: number;
+  deviceUUID: string;
   backupList: Record<string, { enabled: boolean; folderId: number }>;
   clientId: string;
   preferedLanguage?: string;
@@ -96,8 +98,12 @@ const schema: Schema<AppStore> = {
   lastOnboardingShown: {
     type: 'string',
   },
+  /* deviceId is deprecated use deviceUUID instead*/
   deviceId: {
     type: 'number',
+  },
+  deviceUUID : {
+    type: 'string'
   },
   backupList: {
     type: 'object',
@@ -138,7 +144,9 @@ export const defaults: AppStore = {
   lastSync: -1,
   savedConfigs: {},
   lastOnboardingShown: '',
+  /* deviceId is deprecated use deviceUUID instead*/
   deviceId: -1,
+  deviceUUID: '',
   backupList: {},
   clientId: uuid.v4(),
   preferedLanguage: '',
