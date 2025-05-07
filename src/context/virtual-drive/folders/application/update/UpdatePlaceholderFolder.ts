@@ -7,6 +7,7 @@ import { NodeWinLocalFolderSystem } from '../../infrastructure/NodeWinLocalFolde
 import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { Folder } from '../../domain/Folder';
 import { FolderStatuses } from '../../domain/FolderStatus';
+import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 
 export class FolderPlaceholderUpdater {
   constructor(
@@ -80,6 +81,9 @@ export class FolderPlaceholderUpdater {
     const local = this.repository.searchByPartial({
       uuid: remote.uuid,
     });
+
+    const { isValid } = validateWindowsName({ name: remote.name, type: 'folder' });
+    if (!isValid) return;
 
     if (!local) {
       if (remote.status === FolderStatuses.EXISTS) {

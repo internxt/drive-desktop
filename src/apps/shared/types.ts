@@ -76,22 +76,22 @@ export type GeneralIssue = {
     stack: string;
   };
 };
-export type ProcessIssue = ProcessInfoBase & {
-  action: 'UPLOAD_ERROR' | 'DOWNLOAD_ERROR' | 'RENAME_ERROR' | 'DELETE_ERROR' | 'METADATA_READ_ERROR' | 'GENERATE_TREE';
 
+type ProcessInfo = ProcessInfoBase &
+  (
+    | {
+        action: 'UPLOADING' | 'DOWNLOADING' | 'PREPARING' | 'RENAMING' | 'DELETING';
+        progress: number;
+      }
+    | {
+        action: 'UPLOADED' | 'DOWNLOADED' | 'RENAMED' | 'DELETED' | 'DOWNLOAD_CANCEL';
+      }
+  );
+
+export type ProcessIssue = ProcessInfoBase & {
+  action: 'UPLOAD_ERROR' | 'DOWNLOAD_ERROR' | 'RENAME_ERROR' | 'DELETE_ERROR' | 'METADATA_READ_ERROR';
   errorName: ProcessErrorName;
   process: 'SYNC' | 'BACKUPS';
 };
 
-export type ProcessInfoUpdatePayload =
-  | (ProcessInfoBase &
-      (
-        | {
-            action: 'UPLOADING' | 'DOWNLOADING' | 'PREPARING' | 'RENAMING' | 'DELETING';
-            progress: number;
-          }
-        | {
-            action: 'UPLOADED' | 'DOWNLOADED' | 'RENAMED' | 'DELETED' | 'DOWNLOAD_CANCEL';
-          }
-      ))
-  | ProcessIssue;
+export type ProcessInfoUpdatePayload = ProcessInfo | ProcessIssue;

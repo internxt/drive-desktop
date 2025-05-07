@@ -2,7 +2,7 @@ import Logger from 'electron-log';
 import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
 import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { Service } from 'diod';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
@@ -16,7 +16,7 @@ export class FileDeleter {
     private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
-    private readonly ipc: SyncEngineIpc,
+    private readonly ipc = ipcRendererSyncEngine,
   ) {}
 
   async run(uuid: File['uuid']): Promise<void> {

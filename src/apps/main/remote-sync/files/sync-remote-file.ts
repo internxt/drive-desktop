@@ -24,7 +24,7 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
 
     self.totalFilesSynced++;
 
-    if (remoteFile.status === 'EXISTS') {
+    if (remoteFile.status === 'EXISTS' && self.worker.worker) {
       try {
         const plainName = File.decryptName({
           name: driveFile.name,
@@ -54,7 +54,7 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
           path: relativePath,
         };
 
-        self.worker.worker?.webContents.send('UPDATE_FILE_PLACEHOLDER', fileAttributes);
+        self.worker.worker.webContents.send('UPDATE_FILE_PLACEHOLDER', fileAttributes);
       } catch {}
     }
   } catch (exc) {

@@ -11,11 +11,13 @@ import { CallbackController } from './CallbackController';
 import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 import * as Sentry from '@sentry/electron/renderer';
+import { sleep } from '@/apps/main/util';
 export class AddController extends CallbackController {
   // Gets called when:
-  //  - a file has been added
-  //  -a file has been saved
-  //  - after a file has been moved to a folder
+  // - a file has been added
+  // - a folder has been added
+  // - a file has been saved
+  // - after a file has been moved to a folder
 
   constructor(
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
@@ -73,7 +75,7 @@ export class AddController extends CallbackController {
     Logger.info('posixRelativePath', posixRelativePath);
     const posixDir = PlatformPathConverter.getFatherPathPosix(posixRelativePath);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await sleep(1000);
       await this.runFolderCreator(posixDir);
     } catch (error) {
       Logger.error('Error creating folder father creation:', error);

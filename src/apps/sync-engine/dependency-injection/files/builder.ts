@@ -42,13 +42,7 @@ export function buildFilesContainer(
 
   const repository = new InMemoryFileRepository();
 
-  const fileDeleter = new FileDeleter(
-    remoteFileSystem,
-    localFileSystem,
-    repository,
-    folderContainer.allParentFoldersStatusIsExists,
-    ipcRendererSyncEngine,
-  );
+  const fileDeleter = new FileDeleter(remoteFileSystem, localFileSystem, repository, folderContainer.allParentFoldersStatusIsExists);
 
   const fileFolderContainerDetector = new FileFolderContainerDetector(repository, folderContainer.folderFinder);
 

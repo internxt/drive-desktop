@@ -1,6 +1,6 @@
+import { ProcessIssue } from '@/apps/shared/types';
 import { BackupErrorsCollection } from '../../../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors';
 import { AppIssue } from '../../../shared/issues/AppIssue';
-import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
 import { BackupsIssues } from './BackupErrors';
 import { GeneralIssuesByErrorAccordion } from './GeneralIssuesByErrorAccordion';
 import { NoIssues } from './NoIssues';
@@ -11,7 +11,7 @@ type IssuesAccordionsProps = {
   selectedTab: Section;
   issues: {
     app: AppIssue[];
-    virtualDrive: VirtualDriveIssue[];
+    virtualDrive: ProcessIssue[];
     backups: BackupErrorsCollection;
   };
 };
