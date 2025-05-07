@@ -7,6 +7,7 @@ import { FileMovedDomainEvent } from '../../domain/events/FileMovedDomainEvent';
 import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
+import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 
 export class FilesPlaceholderUpdater {
   constructor(
@@ -55,6 +56,9 @@ export class FilesPlaceholderUpdater {
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });
+
+    const { isValid } = validateWindowsName({ name: remote.nameWithExtension, type: 'file' });
+    if (!isValid) return;
 
     if (!local) {
       if (remote.status.is(FileStatuses.EXISTS)) {

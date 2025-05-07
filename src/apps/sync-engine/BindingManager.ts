@@ -4,7 +4,6 @@ import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/Plac
 import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-import { ProcessIssue } from '../shared/types';
 import { ipcRenderer } from 'electron';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
@@ -91,10 +90,6 @@ export class BindingsManager {
           Logger.error('Error during rename or move operation', error);
         }
       },
-      notifyFileAddedCallback: async (absolutePath: string) => {
-        Logger.debug('Path received from callback', absolutePath);
-        await this.controllers.addFile.execute(absolutePath);
-      },
       fetchDataCallback: (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
           self: this,
@@ -102,26 +97,6 @@ export class BindingsManager {
           callback,
           ipcRendererSyncEngine,
         }),
-      notifyMessageCallback: (
-        message: string,
-        action: ProcessIssue['action'],
-        errorName: ProcessIssue['errorName'],
-        callback: (response: boolean) => void,
-      ) => {
-        try {
-          callback(true);
-          ipcRendererSyncEngine.send('SYNC_INFO_UPDATE', {
-            name: message,
-            action,
-            errorName,
-            process: 'SYNC',
-            kind: 'LOCAL',
-          });
-        } catch (error) {
-          Logger.error(error);
-          callback(false);
-        }
-      },
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');
       },

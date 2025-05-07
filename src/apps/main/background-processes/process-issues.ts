@@ -88,20 +88,6 @@ ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
   }
 });
 
-ipcMain.on('SYNC_PROBLEM', (_, payload) => {
-  addProcessIssue({
-    action: 'GENERATE_TREE',
-    process: 'SYNC',
-    errorName: 'DUPLICATED_NODE',
-    kind: 'LOCAL',
-    name: payload.additionalData.name,
-  });
-});
-
-ipcMain.on('BACKUP_ISSUE', (_, issue: ProcessIssue) => {
-  addProcessIssue(issue);
-});
-
 eventBus.on('USER_LOGGED_OUT', () => {
   clearSyncIssues();
   clearBackupsIssues();

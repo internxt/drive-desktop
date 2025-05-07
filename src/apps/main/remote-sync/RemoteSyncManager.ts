@@ -13,11 +13,6 @@ export class RemoteSyncManager {
   private totalFilesUnsynced: string[] = [];
   totalFoldersSynced = 0;
 
-  public db = {
-    files: driveFilesCollection,
-    folders: driveFoldersCollection,
-  };
-
   constructor(
     public readonly worker: TWorkerConfig,
     public readonly workspaceId?: string,
@@ -80,7 +75,9 @@ export class RemoteSyncManager {
   }
 
   async getFileCheckpoint(): Promise<Nullable<Date>> {
-    const promise = this.workspaceId ? this.db.files.getLastUpdatedByWorkspace(this.workspaceId) : this.db.files.getLastUpdated();
+    const promise = this.workspaceId
+      ? driveFilesCollection.getLastUpdatedByWorkspace(this.workspaceId)
+      : driveFilesCollection.getLastUpdated();
 
     const result = await promise;
 
@@ -92,7 +89,9 @@ export class RemoteSyncManager {
   }
 
   private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
-    const promise = this.workspaceId ? this.db.folders.getLastUpdatedByWorkspace(this.workspaceId) : this.db.folders.getLastUpdated();
+    const promise = this.workspaceId
+      ? driveFoldersCollection.getLastUpdatedByWorkspace(this.workspaceId)
+      : driveFoldersCollection.getLastUpdated();
 
     const result = await promise;
 
