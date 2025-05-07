@@ -22,8 +22,8 @@ export function Item({
 
   if (action === 'DOWNLOADING') {
     description = progress
-      ? translate('widget.body.activity.operation.downloading')
-      : translate('widget.body.activity.operation.decrypting');
+      ? translate('widget.body.activity.operation.decrypting')
+      : translate('widget.body.activity.operation.downloading');
   } else if (action === 'PREPARING') {
     description = translate('widget.body.activity.operation.preparing');
   } else if (action === 'UPLOADING') {
