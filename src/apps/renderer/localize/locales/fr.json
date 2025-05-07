@@ -291,7 +291,7 @@
       "selected-folder_one": "{{count}} dossier",
       "selected-folder_other": "{{count}} dossiers",
       "activate": "Sauvegarder vos dossiers",
-      "view-backups": "Parcourir les fichiers",
+      "view-backups": "Parcourir les backups",
       "selected-folders-title": "Dossiers sélectionnés",
       "select-folders": "Changer les dossiers",
       "last-backup-had-issues": "La dernière sauvegarde a rencontré quelques problèmes",

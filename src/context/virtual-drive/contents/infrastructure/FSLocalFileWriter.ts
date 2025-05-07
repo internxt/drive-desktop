@@ -4,7 +4,7 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
 import path from 'path';
 
-export type LocationProvider = () => Promise<string>;
+type LocationProvider = () => Promise<string>;
 
 export class FSLocalFileWriter implements LocalFileWriter {
   constructor(private readonly getLocation: LocationProvider) {}

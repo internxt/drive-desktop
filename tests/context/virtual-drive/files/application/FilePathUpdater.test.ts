@@ -1,34 +1,20 @@
 import { mockDeep } from 'vitest-mock-extended';
-import { FileFinderByContentsId } from '../../../../../src/context/virtual-drive/files/application/FileFinderByContentsId';
 import { FilePathUpdater } from '../../../../../src/context/virtual-drive/files/application/FilePathUpdater';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { FolderFinder } from '../../../../../src/context/virtual-drive/folders/application/FolderFinder';
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { FileMother } from '../domain/FileMother';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
-import { EventRecorder } from '@/context/virtual-drive/shared/infrastructure/EventRecorder';
 
 describe('File path updater', () => {
   const repository = mockDeep<InMemoryFileRepository>();
-  const fileFinderByContentsId = new FileFinderByContentsId(repository);
   const folderFinder = mockDeep<FolderFinder>();
   const ipcRenderer = mockDeep<SyncEngineIpc>();
-  const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
-  const eventBus = mockDeep<EventRecorder>();
   const remoteFileSystem = mockDeep<HttpRemoteFileSystem>();
 
-  const SUT = new FilePathUpdater(
-    remoteFileSystem,
-    localFileSystem,
-    repository,
-    fileFinderByContentsId,
-    folderFinder,
-    ipcRenderer,
-    eventBus,
-  );
+  const SUT = new FilePathUpdater(remoteFileSystem, repository, folderFinder, ipcRenderer);
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -54,7 +40,7 @@ describe('File path updater', () => {
     expect(remoteFileSystem.rename).toBeCalledWith(expect.objectContaining({ path: destination.value }));
   });
 
-  it('does not rename or moves a file when the extension changes', async () => {
+  it('does not rename or moves a file when the extension changes', () => {
     const fileToRename = FileMother.any();
     const fileWithDestinationPath = undefined;
 
@@ -62,7 +48,7 @@ describe('File path updater', () => {
 
     const destination = new FilePath(`${fileToRename.dirname}/_${fileToRename.nameWithExtension}n`);
 
-    expect(async () => {
+    void expect(async () => {
       await SUT.run(fileToRename.contentsId, destination.value);
     }).rejects.toThrow();
   });
@@ -70,7 +56,6 @@ describe('File path updater', () => {
   it('moves a file when the folder changes', async () => {
     const fileToMove = FileMother.any();
     const fileInDestination = undefined;
-    const localFileId = '1-2';
 
     const folderFather = FolderMother.fromPartial({
       path: fileToMove.dirname,
@@ -79,8 +64,6 @@ describe('File path updater', () => {
     folderFinder.findFromUuid.mockReturnValueOnce(folderFather);
 
     repository.searchByPartial.mockReturnValueOnce(fileToMove).mockReturnValueOnce(fileInDestination);
-
-    localFileSystem.getLocalFileId.mockResolvedValueOnce(localFileId);
 
     const destination = new FilePath(`${fileToMove.dirname}_/${fileToMove.nameWithExtension}`);
 

@@ -1,33 +1,29 @@
-/* eslint-disable no-await-in-loop */
-
 import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import { FilePath } from '../../../context/virtual-drive/files/domain/FilePath';
 import * as fs from 'fs';
 import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { dirname } from 'path';
-import { getConfig } from '../config';
 
 type TProps = {
   self: BindingsManager;
-  contentsId: FilePlaceholderId;
+  filePlaceholderId: FilePlaceholderId;
   callback: CallbackDownload;
   ipcRendererSyncEngine: SyncEngineIpc;
 };
 
 export class FetchDataService {
-  async run({ self, contentsId, callback, ipcRendererSyncEngine }: TProps) {
+  async run({ self, filePlaceholderId, callback, ipcRendererSyncEngine }: TProps) {
     try {
       Logger.debug('[Fetch Data Callback] Donwloading begins');
 
       const startTime = Date.now();
-      const path = await self.controllers.downloadFile.execute(contentsId, callback);
+      const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
       // eslint-disable-next-line no-control-regex
-      const parsedContentsId = contentsId.replace(/[\x00-\x1F\x7F-\x9F]/g, '').split(':')[1];
-      const file = self.controllers.downloadFile.fileFinderByContentsId(parsedContentsId);
+      const parsedPlaceholderId = filePlaceholderId.replace(/[\x00-\x1F\x7F-\x9F]/g, '').split(':')[1];
+      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid: parsedPlaceholderId });
 
       Logger.debug('[Fetch Data Callback] Preparing begins', path);
       Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
@@ -66,9 +62,6 @@ export class FetchDataService {
         }
 
         self.progressBuffer = 0;
-        // await self.controllers.notifyPlaceholderHydrationFinished.execute(
-        //   contentsId
-        // );
 
         const finishTime = Date.now();
 
@@ -90,19 +83,7 @@ export class FetchDataService {
 
       fs.unlinkSync(path);
 
-      try {
-        await self.container.fileSyncStatusUpdater.run(file);
-
-        const folderPath = this.normalizePath(file.path);
-        const folderParentPath = new FilePath(folderPath);
-        const folderParent = self.container.folderFinder.findFromFilePath(folderParentPath);
-
-        Logger.debug('[Fetch Data Callback] Preparing finish', folderParent);
-
-        await self.container.folderSyncStatusUpdater.run(folderParent);
-      } catch (error) {
-        Logger.error('Error updating sync status', error);
-      }
+      self.container.fileSyncStatusUpdater.run(file);
 
       Logger.debug('[Fetch Data Callback] Finish', path);
     } catch (error) {

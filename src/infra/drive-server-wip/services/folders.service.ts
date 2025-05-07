@@ -1,26 +1,22 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
-import { clientWrapper, ClientWrapperService } from '../in/client-wrapper.service';
+import { clientWrapper } from '../in/client-wrapper.service';
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
 type TGetFilesByFolderQuery = paths['/folders/content/{uuid}/files']['get']['parameters']['query'];
 
 export class FoldersService {
-  constructor(private readonly clientWrapper = new ClientWrapperService()) {}
-
-  async getMetadata({ folderId }: { folderId: number }) {
+  getMetadata(context: { folderId: number }) {
     const promise = client.GET('/folders/{id}/metadata', {
-      params: { path: { id: folderId } },
+      params: { path: { id: context.folderId } },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get folder metadata request was not successful',
-        context: {
-          folderId,
-        },
+        context,
         attributes: {
           method: 'GET',
           endpoint: '/folders/{id}/metadata',
@@ -29,18 +25,16 @@ export class FoldersService {
     });
   }
 
-  async getMetadataWithUuid({ uuid }: { uuid: string }) {
+  getMetadataWithUuid(context: { uuid: string }) {
     const promise = client.GET('/folders/{uuid}/meta', {
-      params: { path: { uuid } },
+      params: { path: { uuid: context.uuid } },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get folder metadata request was not successful',
-        context: {
-          uuid,
-        },
+        context,
         attributes: {
           method: 'GET',
           endpoint: '/folders/{uuid}/meta',
@@ -49,16 +43,14 @@ export class FoldersService {
     });
   }
 
-  async getFolders({ query }: { query: TGetFoldersQuery }) {
-    const promise = client.GET('/folders', { params: { query } });
+  getFolders(context: { query: TGetFoldersQuery }) {
+    const promise = client.GET('/folders', { params: { query: context.query } });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get folders request was not successful',
-        context: {
-          query,
-        },
+        context,
         attributes: {
           method: 'GET',
           endpoint: '/folders',
@@ -67,19 +59,16 @@ export class FoldersService {
     });
   }
 
-  async getFoldersByFolder({ folderUuid, query }: { folderUuid: string; query: TGetFoldersByFolderQuery }) {
+  async getFoldersByFolder(context: { folderUuid: string; query: TGetFoldersByFolderQuery }) {
     const promise = client.GET('/folders/content/{uuid}/folders', {
-      params: { path: { uuid: folderUuid }, query },
+      params: { path: { uuid: context.folderUuid }, query: context.query },
     });
 
-    const res = await this.clientWrapper.run({
+    const res = await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get folders by folder request was not successful',
-        context: {
-          folderUuid,
-          query,
-        },
+        context,
         attributes: {
           method: 'GET',
           endpoint: '/folders/content/{uuid}/folders',
@@ -94,19 +83,16 @@ export class FoldersService {
     }
   }
 
-  async getFiles({ folderUuid, query }: { folderUuid: string; query: TGetFilesByFolderQuery }) {
+  async getFilesByFolder(context: { folderUuid: string; query: TGetFilesByFolderQuery }) {
     const promise = client.GET('/folders/content/{uuid}/files', {
-      params: { path: { uuid: folderUuid }, query },
+      params: { path: { uuid: context.folderUuid }, query: context.query },
     });
 
-    const res = await this.clientWrapper.run({
+    const res = await clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get files by folder request was not successful',
-        context: {
-          folderUuid,
-          query,
-        },
+        context,
         attributes: {
           method: 'GET',
           endpoint: '/folders/content/{uuid}/files',
@@ -121,20 +107,17 @@ export class FoldersService {
     }
   }
 
-  async moveFolder({ uuid, parentUuid }: { uuid: string; parentUuid: string }) {
+  moveFolder(context: { uuid: string; parentUuid: string }) {
     const promise = client.PATCH('/folders/{uuid}', {
-      params: { path: { uuid } },
-      body: { destinationFolder: parentUuid },
+      params: { path: { uuid: context.uuid } },
+      body: { destinationFolder: context.parentUuid },
     });
 
     return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Move folder request was not successful',
-        context: {
-          uuid,
-          parentUuid,
-        },
+        context,
         attributes: {
           method: 'PATCH',
           endpoint: '/folders/{uuid}',
@@ -143,20 +126,17 @@ export class FoldersService {
     });
   }
 
-  async renameFolder({ uuid, plainName }: { uuid: string; plainName: string }) {
+  renameFolder(context: { uuid: string; plainName: string }) {
     const promise = client.PUT('/folders/{uuid}/meta', {
-      params: { path: { uuid } },
-      body: { plainName },
+      params: { path: { uuid: context.uuid } },
+      body: { plainName: context.plainName },
     });
 
     return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Rename folder request was not successful',
-        context: {
-          uuid,
-          plainName,
-        },
+        context,
         attributes: {
           method: 'PUT',
           endpoint: '/folders/{uuid}/meta',
@@ -165,20 +145,17 @@ export class FoldersService {
     });
   }
 
-  async existsFolder({ parentUuid, basename }: { parentUuid: string; basename: string }) {
+  existsFolder(context: { parentUuid: string; basename: string }) {
     const promise = client.POST('/folders/content/{uuid}/folders/existence', {
-      params: { path: { uuid: parentUuid } },
-      body: { plainNames: [basename] },
+      params: { path: { uuid: context.parentUuid } },
+      body: { plainNames: [context.basename] },
     });
 
     return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Check folder existence request was not successful',
-        context: {
-          parentUuid,
-          basename,
-        },
+        context,
         attributes: {
           method: 'POST',
           endpoint: '/folders/content/{uuid}/folders/existence',

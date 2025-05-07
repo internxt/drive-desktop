@@ -30,7 +30,6 @@ export class FileSyncronizer {
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreator,
     private readonly offlineFolderCreator: OfflineFolderCreator,
-    // private readonly foldersFatherSyncStatusUpdater: FoldersFatherSyncStatusUpdater
     private readonly fileContentsUpdater: FileContentsUpdater,
     private readonly contentsUploader: RetryContentsUploader,
   ) {}
@@ -87,7 +86,7 @@ export class FileSyncronizer {
     }
   };
 
-  private async runFolderCreator(posixRelativePath: string): Promise<Folder> {
+  private runFolderCreator(posixRelativePath: string): Promise<Folder> {
     const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
     return this.folderCreator.run(offlineFolder);
   }

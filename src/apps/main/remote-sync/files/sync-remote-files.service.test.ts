@@ -1,41 +1,43 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { SyncRemoteFilesService } from './sync-remote-files.service';
-import { FetchFilesService } from './fetch-files.service.interface';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { LoggerService } from '@/apps/shared/logger/logger';
 import { deepMocked, getMockCalls } from 'tests/vitest/utils.helper.test';
-import { RemoteSyncedFile } from '../helpers';
 import { getUserOrThrow } from '../../auth/service';
+import { syncRemoteFile } from './sync-remote-file';
+import { fetchWorkspaceFiles } from './fetch-workspace-files.service';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('../../auth/service'));
+vi.mock(import('./sync-remote-file'));
+vi.mock(import('./fetch-workspace-files.service'));
 
 describe('sync-remote-files.service', () => {
   const workspaceId = 'workspaceId';
 
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
+  const syncRemoteFileMock = deepMocked(syncRemoteFile);
+  const fetchWorkspaceFilesMock = deepMocked(fetchWorkspaceFiles);
 
   const remoteSyncManager = mockDeep<RemoteSyncManager>();
-  const fetchFiles = mockDeep<FetchFilesService>();
   const logger = mockDeep<LoggerService>();
-  const service = new SyncRemoteFilesService(workspaceId, fetchFiles, logger);
+  const service = new SyncRemoteFilesService(workspaceId, logger);
 
   beforeEach(() => {
     vi.clearAllMocks();
     getUserOrThrowMock.mockResolvedValue({ uuid: 'uuid' });
-    remoteSyncManager.totalFilesSynced = 0;
   });
 
   it('If hasMore is false, then do not fetch again', async () => {
     // Given
-    fetchFiles.run.mockResolvedValueOnce({ hasMore: false, result: [] });
+    fetchWorkspaceFilesMock.mockResolvedValueOnce({ hasMore: false, result: [] });
 
     // When
     const files = await service.run({ self: remoteSyncManager });
 
     // Then
     expect(files.length).toBe(0);
-    expect(fetchFiles.run).toHaveBeenCalledTimes(1);
+    expect(fetchWorkspaceFilesMock).toHaveBeenCalledTimes(1);
   });
 
   it('If checkpoint is null, fetch only EXISTS files', async () => {
@@ -43,7 +45,7 @@ describe('sync-remote-files.service', () => {
     await service.run({ self: remoteSyncManager });
 
     // Then
-    expect(fetchFiles.run).toHaveBeenCalledWith(
+    expect(fetchWorkspaceFilesMock).toHaveBeenCalledWith(
       expect.objectContaining({
         status: 'EXISTS',
       }),
@@ -55,7 +57,7 @@ describe('sync-remote-files.service', () => {
     await service.run({ self: remoteSyncManager, from: new Date() });
 
     // Then
-    expect(fetchFiles.run).toHaveBeenCalledWith(
+    expect(fetchWorkspaceFilesMock).toHaveBeenCalledWith(
       expect.objectContaining({
         status: 'ALL',
       }),
@@ -64,14 +66,14 @@ describe('sync-remote-files.service', () => {
 
   it('If fetch always throws an error, retry it 3 times with offset 0', async () => {
     // Given
-    fetchFiles.run.mockRejectedValue(new Error());
+    fetchWorkspaceFilesMock.mockRejectedValue(new Error());
 
     // When
     const files = await service.run({ self: remoteSyncManager });
 
     // Then
     expect(files.length).toBe(0);
-    expect(fetchFiles.run).toHaveBeenCalledTimes(3);
+    expect(fetchWorkspaceFilesMock).toHaveBeenCalledTimes(3);
     expect(remoteSyncManager.changeStatus).toHaveBeenCalledWith('SYNC_FAILED');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 0, retry: 1 }),
@@ -82,15 +84,15 @@ describe('sync-remote-files.service', () => {
 
   it('If fetch always throws an error, retry it 3 times with offset 0', async () => {
     // Given
-    fetchFiles.run.mockRejectedValue(new Error());
-    fetchFiles.run.mockResolvedValueOnce({ hasMore: true, result: [] });
+    fetchWorkspaceFilesMock.mockRejectedValue(new Error());
+    fetchWorkspaceFilesMock.mockResolvedValueOnce({ hasMore: true, result: [] });
 
     // When
     const files = await service.run({ self: remoteSyncManager });
 
     // Then
     expect(files.length).toBe(0);
-    expect(fetchFiles.run).toHaveBeenCalledTimes(4);
+    expect(fetchWorkspaceFilesMock).toHaveBeenCalledTimes(4);
     expect(remoteSyncManager.changeStatus).toHaveBeenCalledWith('SYNC_FAILED');
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({ msg: 'Remote files sync failed', offset: 50, retry: 1 }),
@@ -101,14 +103,14 @@ describe('sync-remote-files.service', () => {
 
   it('If fails in the middle, keep previous files', async () => {
     // Given
-    fetchFiles.run.mockResolvedValueOnce({
+    fetchWorkspaceFilesMock.mockResolvedValueOnce({
       hasMore: true,
-      result: [{ uuid: 'file1' } as unknown as RemoteSyncedFile],
+      result: [{ uuid: 'file1' }],
     });
-    fetchFiles.run.mockRejectedValueOnce(new Error());
-    fetchFiles.run.mockResolvedValueOnce({
+    fetchWorkspaceFilesMock.mockRejectedValueOnce(new Error());
+    fetchWorkspaceFilesMock.mockResolvedValueOnce({
       hasMore: false,
-      result: [{ uuid: 'file2' } as unknown as RemoteSyncedFile],
+      result: [{ uuid: 'file2' }],
     });
 
     // When
@@ -116,8 +118,8 @@ describe('sync-remote-files.service', () => {
 
     // Then
     expect(files.length).toBe(2);
-    expect(remoteSyncManager.totalFilesSynced).toBe(2);
-    expect(fetchFiles.run).toHaveBeenCalledTimes(3);
+    expect(syncRemoteFileMock).toHaveBeenCalledTimes(2);
+    expect(fetchWorkspaceFilesMock).toHaveBeenCalledTimes(3);
     expect(getMockCalls(logger.error)).toStrictEqual([
       expect.objectContaining({
         msg: 'Remote files sync failed',

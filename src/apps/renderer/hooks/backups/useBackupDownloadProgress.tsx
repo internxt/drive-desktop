@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { DeviceContext } from '../../context/DeviceContext';
 
-export interface DownloadBackupProgress {
+interface DownloadBackupProgress {
   [key: string]: number | undefined;
 }
 

@@ -3,17 +3,15 @@ import { mockProps } from 'tests/vitest/utils.helper.test';
 import { workers } from '../store';
 import { BrowserWindow } from 'electron';
 import { monitorHealth } from './monitor-health';
-import { logger } from '@/apps/shared/logger/logger';
 import { scheduleSync } from './schedule-sync';
+import { loggerMock } from 'tests/vitest/mocks.helper.test';
 
 vi.mock(import('./stop-and-clear-sync-engine-worker'));
 vi.mock(import('./monitor-health'));
 vi.mock(import('./schedule-sync'));
-vi.mock(import('@/apps/shared/logger/logger'));
 
 describe('spawn-sync-engine-worker', () => {
   const monitorHealthMock = vi.mocked(monitorHealth);
-  const loggerMock = vi.mocked(logger);
   const scheduleSyncMock = vi.mocked(scheduleSync);
 
   const workspaceId = 'workspaceId';

@@ -1,23 +1,20 @@
 import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
 import { spawnWorkspace } from './spawn-workspace';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { logger } from '@/apps/shared/logger/logger';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+import { loggerMock } from 'tests/vitest/mocks.helper.test';
 
 vi.mock(import('./spawn-sync-engine-worker'));
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/apps/shared/crypto/service'));
-vi.mock(import('@/apps/shared/logger/logger'));
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 vi.mock(import('@/apps/main/util'));
 
 describe('spawn-workspace.service', () => {
   const getCredentialsMock = deepMocked(driveServerWipModule.workspaces.getCredentials);
   const decryptMessageWithPrivateKeyMock = vi.mocked(decryptMessageWithPrivateKey);
   const spawnSyncEngineWorkerMock = vi.mocked(spawnSyncEngineWorker);
-  const loggerMock = vi.mocked(logger);
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
   beforeEach(() => {
@@ -69,7 +66,7 @@ describe('spawn-workspace.service', () => {
         bridgePass: 'pass',
         bridgeUser: 'user',
         bucket: undefined,
-        loggerPath: '\\mock\\logs\\internxt-drive\\logs\\watcher-win.log',
+        loggerPath: '\\mock\\logs\\internxt-drive\\logs\\node-win-workspace-workspaceId.log',
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',

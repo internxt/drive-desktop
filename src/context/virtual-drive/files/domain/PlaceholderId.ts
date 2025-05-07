@@ -1,5 +1,4 @@
-export type FilePlaceholderIdPrefixType = 'FILE:';
-export const FilePlaceholderIdPrefix = 'FILE:';
+type FilePlaceholderIdPrefixType = 'FILE:';
 
 export type FilePlaceholderId = `${FilePlaceholderIdPrefixType}${string}`;
 

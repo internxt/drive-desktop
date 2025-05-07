@@ -1,13 +1,6 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 
-type FolderEvents = {
-  FOLDER_CREATING: (payload: { name: string }) => void;
-  FOLDER_CREATED: (payload: { name: string }) => void;
-  FOLDER_RENAMING: (payload: { oldName: string; newName: string }) => void;
-  FOLDER_RENAMED: (payload: { oldName: string; newName: string }) => void;
-};
-
-export type FileInfo = {
+type FileInfo = {
   name: string;
   extension: string;
   nameWithExtension: string;
@@ -15,7 +8,7 @@ export type FileInfo = {
   size: number;
 };
 
-export type FileProgressInfo = FileInfo & {
+type FileProgressInfo = FileInfo & {
   processInfo: {
     elapsedTime: number;
     progress?: number;
@@ -74,4 +67,4 @@ type CloneEvents = {
 
 type FileEvents = UploadEvents & DownloadEvents & TrashEvents & RenameEvents & OverwriteEvents & MoveEvents & CloneEvents & SyncEvents;
 
-export type DriveEvents = FolderEvents & FileEvents;
+export type DriveEvents = FileEvents;

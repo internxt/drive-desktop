@@ -1,7 +1,6 @@
 export enum ServerFolderStatus {
   EXISTS = 'EXISTS',
   TRASHED = 'TRASHED',
-  REMOVED = 'REMOVED',
   DELETED = 'DELETED',
 }
 
@@ -16,5 +15,4 @@ export type ServerFolder = {
   plain_name: string | null;
   status: ServerFolderStatus;
   uuid: string;
-  removed: boolean;
 };

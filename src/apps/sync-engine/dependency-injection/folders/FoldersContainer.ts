@@ -4,17 +4,12 @@ import { FolderCreator } from '../../../../context/virtual-drive/folders/applica
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
-import { FolderRepositoryInitiator } from '../../../../context/virtual-drive/folders/application/FolderRepositoryInitiator';
-import { FoldersPlaceholderCreator } from '../../../../context/virtual-drive/folders/application/FoldersPlaceholderCreator';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
-import { OfflineFolderPathUpdater } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderPathUpdater';
 import { RetryFolderDeleter } from '../../../../context/virtual-drive/folders/application/RetryFolderDeleter';
-import { SynchronizeOfflineModifications } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModifications';
-import { SynchronizeOfflineModificationsOnFolderCreated } from '../../../../context/virtual-drive/folders/application/SynchronizeOfflineModificationsOnFolderCreated';
-import { FolderPlaceholderUpdater } from '../../../../context/virtual-drive/folders/application/UpdatePlaceholderFolder';
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
-import { FolderSyncStatusUpdater } from '../../../../context/virtual-drive/folders/application/FolderSyncStatusUpdater';
 import { FolderPlaceholderDeleter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
+import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
+import { FolderPlaceholderUpdater } from '@/context/virtual-drive/folders/application/update/UpdatePlaceholderFolder';
 
 export interface FoldersContainer {
   folderCreator: FolderCreator;
@@ -24,16 +19,11 @@ export interface FoldersContainer {
   retryFolderDeleter: RetryFolderDeleter;
   allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists;
   folderPathUpdater: FolderPathUpdater;
-  synchronizeOfflineModificationsOnFolderCreated: SynchronizeOfflineModificationsOnFolderCreated;
   offline: {
     folderCreator: OfflineFolderCreator;
-    folderPathUpdater: OfflineFolderPathUpdater;
-    synchronizeOfflineModifications: SynchronizeOfflineModifications;
   };
-  folderRepositoryInitiator: FolderRepositoryInitiator;
+  folderRepository: InMemoryFolderRepository;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
   folderPlaceholderDeleter: FolderPlaceholderDeleter;
-  foldersPlaceholderCreator: FoldersPlaceholderCreator;
   folderPlaceholderConverter: FolderPlaceholderConverter;
-  folderSyncStatusUpdater: FolderSyncStatusUpdater;
 }

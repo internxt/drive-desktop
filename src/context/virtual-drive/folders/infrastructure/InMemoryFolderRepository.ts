@@ -17,7 +17,7 @@ export class InMemoryFolderRepository {
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
 
     const folder = this.values.find((attributes) => {
-      return keys.every((key: keyof FolderAttributes) => attributes[key] === partial[key]);
+      return keys.every((key) => attributes[key] === partial[key]);
     });
 
     if (folder) {
@@ -27,11 +27,11 @@ export class InMemoryFolderRepository {
     return undefined;
   }
 
-  async add(folder: Folder): Promise<void> {
+  add(folder: Folder): void {
     this.folders.set(folder.id, folder.attributes());
   }
 
-  async delete(id: number): Promise<void> {
+  delete(id: number): void {
     const deleted = this.folders.delete(id);
 
     if (!deleted) {
@@ -39,7 +39,7 @@ export class InMemoryFolderRepository {
     }
   }
 
-  async update(folder: Folder): Promise<void> {
+  update(folder: Folder): void {
     if (!this.folders.has(folder.id)) {
       throw new Error('Folder not found');
     }

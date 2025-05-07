@@ -6,7 +6,7 @@ const FatalErrors = [
   'BASE_DIRECTORY_DOES_NOT_EXIST',
 ] as const;
 
-export type FatalError = (typeof FatalErrors)[number];
+type FatalError = (typeof FatalErrors)[number];
 
 const NonFatalErrors = [
   'NOT_EXISTS',

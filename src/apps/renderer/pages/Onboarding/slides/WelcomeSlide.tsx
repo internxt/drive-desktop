@@ -2,9 +2,7 @@ import React from 'react';
 import { OnboardingSlideProps } from '../helpers';
 import { useTranslationContext } from '../../../context/LocalContext';
 
-export type WelcomeSlideProps = OnboardingSlideProps;
-
-export const WelcomeSlide: React.FC<WelcomeSlideProps> = () => {
+export const WelcomeSlide: React.FC<OnboardingSlideProps> = () => {
   const { translate } = useTranslationContext();
 
   return (

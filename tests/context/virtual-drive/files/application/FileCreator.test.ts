@@ -12,7 +12,6 @@ import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructu
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { v4 } from 'uuid';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
-import { EventRecorder } from '@/context/virtual-drive/shared/infrastructure/EventRecorder';
 
 describe('File Creator', () => {
   const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
@@ -20,10 +19,9 @@ describe('File Creator', () => {
   const fileDeleter = mockDeep<FileDeleter>();
   const folderRepository = mockDeep<InMemoryFolderRepository>();
   const folderFinder = new FolderFinder(folderRepository);
-  const eventBus = mockDeep<EventRecorder>();
   const ipc = mockDeep<SyncEngineIpc>();
 
-  const SUT = new FileCreator(remoteFileSystemMock, fileRepository, folderFinder, fileDeleter, eventBus, ipc);
+  const SUT = new FileCreator(remoteFileSystemMock, fileRepository, folderFinder, fileDeleter, ipc);
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -70,9 +68,6 @@ describe('File Creator', () => {
     vi.spyOn(folderFinder, 'findFromFilePath').mockReturnValueOnce(folderParent);
 
     await SUT.run(path, contents);
-
-    expect(eventBus.publish.mock.calls[0][0][0].eventName).toBe('file.created');
-    expect(eventBus.publish.mock.calls[0][0][0].aggregateId).toBe(contents.id);
   });
 
   it('deletes the file on remote if it already exists on the path', async () => {

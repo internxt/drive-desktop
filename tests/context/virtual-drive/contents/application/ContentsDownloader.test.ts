@@ -9,19 +9,15 @@ import { LocalFileWriter } from '@/context/virtual-drive/contents/domain/LocalFi
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { EventEmitter, Readable } from 'stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { EventRecorder } from '@/context/virtual-drive/shared/infrastructure/EventRecorder';
-
-// Creamos un EventEmitter real
 
 describe('Contents Downloader', () => {
-  const temporalFolderProvider = async (): Promise<string> => {
-    return 'C:/temp';
+  const temporalFolderProvider = (): Promise<string> => {
+    return Promise.resolve('C:/temp');
   };
 
   const localWriter = mockDeep<LocalFileWriter>();
   const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
   const ipc = mockDeep<SyncEngineIpc>();
-  const eventBus = mockDeep<EventRecorder>();
 
   const environmentContentFileDownloader = mockDeep<ContentFileDownloader>();
   const eventEmitter = new EventEmitter();
@@ -34,14 +30,14 @@ describe('Contents Downloader', () => {
   environmentContentFileDownloader.forceStop.mockImplementation(() => {
     eventEmitter.emit('error', new Error('Download stopped'));
   });
-  const callbackFunction = async (data: boolean, path: string) => {
-    return {
+  const callbackFunction = (data: boolean, path: string) => {
+    return Promise.resolve({
       finished: data,
       progress: path.length,
-    };
+    });
   };
 
-  const SUT = new ContentsDownloader(factory, localWriter, ipc, temporalFolderProvider, eventBus);
+  const SUT = new ContentsDownloader(factory, localWriter, ipc, temporalFolderProvider);
 
   beforeEach(() => {
     vi.resetAllMocks();

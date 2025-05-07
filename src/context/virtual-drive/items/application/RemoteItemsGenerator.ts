@@ -43,7 +43,6 @@ export class RemoteItemsGenerator {
       plain_name: updatedFolder.plainName ?? null,
       status: updatedFolder.status as ServerFolderStatus,
       uuid: updatedFolder.uuid,
-      removed: updatedFolder.status === 'REMOVED',
     };
   }
 
@@ -58,16 +57,21 @@ export class RemoteItemsGenerator {
   }
 
   async getAllItemsByFolderUuid(folderUuid: string): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-    const updatedRemoteItems = await this.ipc.invoke('GET_UPDATED_REMOTE_ITEMS_BY_FOLDER', folderUuid, getConfig().workspaceId ?? '');
+    const updatedRemoteItems = await this.ipc.invoke('FORCE_REFRESH_BACKUPS', folderUuid);
 
-    const files = updatedRemoteItems.files.map<ServerFile>(this.mapFile);
+    const files = updatedRemoteItems.files.map((file) => ({
+      ...file,
+      encrypt_version: '03-aes',
+      size: Number(file.size),
+      status: file.status as ServerFileStatus,
+    }));
 
-    const folders = updatedRemoteItems.folders.map<ServerFolder>(this.mapFolder);
+    const folders = updatedRemoteItems.folders.map((folder) => ({
+      ...folder,
+      status: folder.status as ServerFolderStatus,
+      plain_name: folder.plainName ?? null,
+    }));
 
     return { files, folders };
-  }
-
-  async forceRefresh(folderUuid: string): Promise<void> {
-    await this.ipc.invoke('FORCE_REFRESH_BACKUPS', folderUuid);
   }
 }

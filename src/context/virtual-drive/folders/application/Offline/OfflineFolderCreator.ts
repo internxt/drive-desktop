@@ -1,7 +1,6 @@
 import Logger from 'electron-log';
 import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
-import { OfflineFolderRepository } from '../../domain/OfflineFolderRepository';
 import { FolderFinder } from '../FolderFinder';
 import { FolderStatuses } from '../../domain/FolderStatus';
 import { InMemoryFolderRepository } from '../../infrastructure/InMemoryFolderRepository';
@@ -9,7 +8,6 @@ import { InMemoryFolderRepository } from '../../infrastructure/InMemoryFolderRep
 export class OfflineFolderCreator {
   constructor(
     private readonly folderFinder: FolderFinder,
-    private readonly offlineRepository: OfflineFolderRepository,
     private readonly repository: InMemoryFolderRepository,
   ) {}
 
@@ -32,8 +30,6 @@ export class OfflineFolderCreator {
     Logger.debug(parent);
 
     const folder = OfflineFolder.create(folderPath, parent.id, parent.uuid);
-
-    this.offlineRepository.update(folder);
 
     return folder;
   }

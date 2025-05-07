@@ -1,10 +1,8 @@
 import { Readable } from 'stream';
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { ContentsSize } from './ContentsSize';
-import { ContentsDownloadedDomainEvent } from './events/ContentsDownloadedDomainEvent';
 import { File } from '../../files/domain/File';
 
-export type LocalFileContentsAttributes = {
+type LocalFileContentsAttributes = {
   name: string;
   extension: string;
   size: number;
@@ -13,7 +11,7 @@ export type LocalFileContentsAttributes = {
   contents: Readable;
 };
 
-export class LocalFileContents extends AggregateRoot {
+export class LocalFileContents {
   private constructor(
     private readonly _name: string,
     private readonly _extension: string,
@@ -21,9 +19,7 @@ export class LocalFileContents extends AggregateRoot {
     private readonly _birthTime: number,
     private readonly _modifiedTime: number,
     public readonly stream: Readable,
-  ) {
-    super();
-  }
+  ) {}
 
   public get name(): string {
     return this._name;
@@ -61,7 +57,7 @@ export class LocalFileContents extends AggregateRoot {
     return remoteContents;
   }
 
-  static downloadedFrom(file: File, contents: Readable, elapsedTime: number) {
+  static downloadedFrom(file: File, contents: Readable) {
     const remoteContents = new LocalFileContents(
       file.name,
       file.type,
@@ -71,27 +67,6 @@ export class LocalFileContents extends AggregateRoot {
       contents,
     );
 
-    const contentsDownloadedEvent = new ContentsDownloadedDomainEvent({
-      aggregateId: file.contentsId,
-      name: file.name,
-      extension: file.type,
-      nameWithExtension: file.nameWithExtension,
-      size: file.size,
-      elapsedTime: elapsedTime,
-    });
-
-    remoteContents.record(contentsDownloadedEvent);
-
     return remoteContents;
-  }
-
-  attributes(): Omit<LocalFileContentsAttributes, 'contents'> {
-    return {
-      name: this.name,
-      extension: this.extension,
-      size: this.size,
-      birthTime: this.birthTime,
-      modifiedTime: this.modifiedTime,
-    };
   }
 }

@@ -34,6 +34,7 @@ async function backupFolder() {
   setDefaultConfig({
     providerId: 'BACKUPS_PROVIDER_ID',
     rootUuid: data.folderUuid,
+    bucket: data.backupsBucket,
   });
 
   try {

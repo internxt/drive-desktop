@@ -5,13 +5,11 @@ import { File } from '../../../files/domain/File';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
-import Logger from 'electron-log';
-import { customInspect } from '@/apps/shared/logger/custom-inspect';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class EnvironmentContentFileDownloader implements ContentFileDownloader {
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
-
   private state: ActionState | null;
 
   constructor(
@@ -45,11 +43,12 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
             progressCallback: (progress: number) => {
               this.eventEmitter.emit('progress', progress);
             },
-            finishedCallback: async (err: Error, stream: Readable) => {
-              Logger.debug('[FinishedCallback] Stream is ready', customInspect(err));
+            finishedCallback: (err: Error, stream: Readable) => {
+              logger.debug({ msg: '[FinishedCallback] Stream is ready' });
               this.stopwatch.finish();
 
               if (err) {
+                logger.debug({ msg: '[FinishedCallback] Stream has error', err });
                 this.eventEmitter.emit('error', err);
                 return reject(err);
               }
@@ -57,7 +56,7 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
               this.eventEmitter.emit('finish');
 
               stream.on('close', () => {
-                Logger.debug('[FinishedCallback] Stream closed');
+                logger.debug({ msg: '[FinishedCallback] Stream closed' });
                 this.removeListeners();
               });
 
@@ -73,9 +72,9 @@ export class EnvironmentContentFileDownloader implements ContentFileDownloader {
           },
         );
       });
-    } catch (error) {
-      Logger.error('Error downloading file', customInspect(error));
-      return Promise.reject(error);
+    } catch (exc) {
+      logger.error({ msg: 'Error downloading file', exc });
+      return Promise.reject(exc);
     }
   }
 

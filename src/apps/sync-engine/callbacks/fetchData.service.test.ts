@@ -21,13 +21,13 @@ describe('Fetch Data', () => {
   const self = mockDeep<BindingsManager>();
   const ipcRendererSyncEngine = mockDeep<SyncEngineIpc>();
   const file: DeepPartial<File> = { path: 'path' };
-  const contentsId: FilePlaceholderId = 'FILE:1';
+  const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     self.controllers.downloadFile.execute.mockResolvedValue('path');
-    self.controllers.downloadFile.fileFinderByContentsId.mockReturnValue(file as File);
+    self.controllers.downloadFile.fileFinderByUuid.mockReturnValue(file as File);
   });
 
   describe('When call normalizePath', () => {
@@ -51,10 +51,10 @@ describe('Fetch Data', () => {
   describe('When progress value is wrong', () => {
     it('When progress is greater than 1, then throw an error', async () => {
       // Arrange
-      const callback = async () => ({ finished: false, progress: 2 });
+      const callback = async () => await Promise.resolve({ finished: false, progress: 2 });
 
       // Act
-      await fetchData.run({ self, contentsId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
@@ -63,10 +63,10 @@ describe('Fetch Data', () => {
 
     it('When progress is less than 0, then throw an error', async () => {
       // Arrange
-      const callback = async () => ({ finished: false, progress: -1 });
+      const callback = async () => await Promise.resolve({ finished: false, progress: -1 });
 
       // Act
-      await fetchData.run({ self, contentsId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
@@ -75,10 +75,10 @@ describe('Fetch Data', () => {
 
     it('When finished but progress is 0, then throw an error', async () => {
       // Arrange
-      const callback = async () => ({ finished: true, progress: 0 });
+      const callback = async () => await Promise.resolve({ finished: true, progress: 0 });
 
       // Act
-      await fetchData.run({ self, contentsId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');

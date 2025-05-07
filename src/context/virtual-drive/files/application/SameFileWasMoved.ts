@@ -24,7 +24,7 @@ export class SameFileWasMoved {
       return { result: false };
     }
 
-    const events = await this.eventHistory.search(fileInDestination.contentsId);
+    const events = this.eventHistory.search(fileInDestination.contentsId);
 
     if (events.length === 0) {
       return { result: false };

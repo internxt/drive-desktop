@@ -9,8 +9,10 @@ import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File';
+import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
 
-Logger.log(`Running sync engine ${INTERNXT_VERSION}`);
+logger.debug({ msg: 'Running sync engine' });
 
 function initSentry() {
   Sentry.init({
@@ -57,12 +59,11 @@ async function setUp() {
     await bindings.updateAndCheckPlaceholders();
   });
 
-  ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', async (event) => {
+  ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
     Logger.info('[SYNC ENGINE] Stopping and clearing sync engine');
 
     try {
-      await bindings.stop();
-      await bindings.cleanUp();
+      bindings.stop();
 
       Logger.info('[SYNC ENGINE] sync engine stopped and cleared successfully');
 
@@ -71,6 +72,30 @@ async function setUp() {
       Logger.error('[SYNC ENGINE] Error stopping and cleaning: ', error);
       Sentry.captureException(error);
       event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
+    }
+  });
+
+  ipcRenderer.on('UPDATE_FILE_PLACEHOLDER', async (_, fileAttributes: FileAttributes) => {
+    try {
+      const file = File.from(fileAttributes);
+      await container.filesPlaceholderUpdater.update(file);
+    } catch (exc) {
+      logger.error({
+        msg: 'Error updating file placeholder',
+        exc,
+      });
+    }
+  });
+
+  ipcRenderer.on('UPDATE_FOLDER_PLACEHOLDER', async (_, folderAttributes: FolderAttributes) => {
+    try {
+      const folder = Folder.from(folderAttributes);
+      await container.folderPlaceholderUpdater.update(folder);
+    } catch (exc) {
+      logger.error({
+        msg: 'Error updating folder placeholder',
+        exc,
+      });
     }
   });
 

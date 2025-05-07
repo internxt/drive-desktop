@@ -1,9 +1,7 @@
 import { ContentsId } from '../../contents/domain/ContentsId';
 import { Folder } from '../../folders/domain/Folder';
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';
 
 export type OfflineFileAttributes = {
   contentsId: string;
@@ -13,16 +11,14 @@ export type OfflineFileAttributes = {
   folderUuid: string;
 };
 
-export class OfflineFile extends AggregateRoot {
+export class OfflineFile {
   private constructor(
     private _contentsId: ContentsId,
     private _folderId: number,
     private _folderUuid: string,
     private _path: FilePath,
     private readonly _size: FileSize,
-  ) {
-    super();
-  }
+  ) {}
 
   public get contentsId() {
     return this._contentsId.value;
@@ -72,15 +68,6 @@ export class OfflineFile extends AggregateRoot {
 
   static create(contentsId: string, folder: Folder, size: FileSize, path: FilePath): OfflineFile {
     const file = new OfflineFile(new ContentsId(contentsId), folder.id, folder.uuid, path, size);
-
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: contentsId,
-        size: file.size,
-        type: path.extension(),
-        path: path.value,
-      }),
-    );
 
     return file;
   }

@@ -3,17 +3,15 @@ import { ContainerBuilder } from 'diod';
 import { FileBatchUpdater } from '../../../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../../../context/local/localFile/application/upload/FileBatchUploader';
 import { EnvironmentLocalFileUploader } from '../../../../context/local/localFile/infrastructure/EnvironmentLocalFileUploader';
-import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { Environment } from '@internxt/inxt-js';
-import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-injection/DependencyInjectionMnemonicProvider';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 import { getConfig } from '@/apps/sync-engine/config';
+import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 
 export async function registerLocalFileServices(builder: ContainerBuilder) {
   //Infra
-  const user = DependencyInjectionUserProvider.get();
 
-  const mnemonic = DependencyInjectionMnemonicProvider.get();
+  const mnemonic = getConfig().mnemonic;
 
   const environment = new Environment({
     bridgeUrl: process.env.DRIVE_URL,
@@ -26,9 +24,15 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
 
   builder.register(Environment).useInstance(environment).private();
 
+  Logger.info('[BackupsDependencyContainerFactory] Registering network services.');
+
+  builder.register(EnvironmentRemoteFileContentsManagersFactory).useFactory((c) => {
+    return new EnvironmentRemoteFileContentsManagersFactory(c.get(Environment), getConfig().bucket);
+  });
+
   builder
     .register(EnvironmentLocalFileUploader)
-    .useFactory((c) => new EnvironmentLocalFileUploader(c.get(Environment), user.backupsBucket))
+    .useFactory((c) => new EnvironmentLocalFileUploader(c.get(Environment), getConfig().bucket))
     .private();
 
   builder.register(RendererIpcLocalFileMessenger).useClass(RendererIpcLocalFileMessenger).private().asSingleton();

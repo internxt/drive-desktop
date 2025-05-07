@@ -1,12 +1,13 @@
 import { vi } from 'vitest';
-import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config();
-
 process.env.NODE_ENV = 'development';
-
 process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
+
+// We do not want to log anything
+vi.mock(import('@/apps/shared/logger/logger'));
+// We do not want to make network calls
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 vi.mock('@/apps/main/auth/service', () => {
   const user = {

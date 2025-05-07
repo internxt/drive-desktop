@@ -112,24 +112,6 @@ export function updateCredentials(bearerToken: string, newBearerToken?: string) 
   ConfigStore.set('newTokenEncrypted', isSafeStorageAvailable);
 }
 
-export function getHeaders(includeMnemonic = false): Record<string, string> {
-  const token = obtainToken('bearerToken');
-
-  const header = {
-    Authorization: `Bearer ${token}`,
-    'content-type': 'application/json; charset=utf-8',
-    'internxt-client': 'drive-desktop',
-    'internxt-version': packageConfig.version,
-    ...(includeMnemonic
-      ? {
-          'internxt-mnemonic': ConfigStore.get('mnemonic'),
-        }
-      : {}),
-  };
-
-  return header;
-}
-
 export function getNewApiHeaders(): Record<string, string> {
   const token = obtainToken('newToken');
 

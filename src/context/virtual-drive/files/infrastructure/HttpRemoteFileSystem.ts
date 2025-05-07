@@ -1,6 +1,4 @@
-/* eslint-disable no-await-in-loop */
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
-import { Crypt } from '../../shared/domain/Crypt';
 import { File, FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
@@ -9,18 +7,18 @@ import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import crypt from '@/context/shared/infrastructure/crypt';
 
 @Service()
 export class HttpRemoteFileSystem {
   constructor(
-    private readonly crypt: Crypt,
     private readonly bucket: string,
     private readonly workspaceId?: string | null,
   ) {}
 
   async persist(offline: OfflineFile): Promise<FileAttributes> {
     try {
-      const encryptedName = this.crypt.encryptName(offline.name, offline.folderId.toString());
+      const encryptedName = crypt.encryptName({ name: offline.name, parentId: offline.folderId });
 
       if (!encryptedName) {
         throw new Error('Failed to encrypt name');
@@ -51,7 +49,7 @@ export class HttpRemoteFileSystem {
         createdAt: result.createdAt,
         modificationTime: result.updatedAt,
         path: offline.path,
-        size: result.size,
+        size: Number(result.size),
         updatedAt: result.updatedAt,
         status: FileStatuses.EXISTS,
       };
@@ -170,7 +168,7 @@ export class HttpRemoteFileSystem {
       createdAt: data.createdAt,
       modificationTime: data.modificationTime,
       path: filePath,
-      size: data.size,
+      size: Number(data.size),
       status: FileStatuses.EXISTS,
       updatedAt: data.updatedAt,
     };

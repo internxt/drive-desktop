@@ -1,22 +1,19 @@
 import path from 'path';
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { AbsolutePath } from '../infrastructure/AbsolutePath';
 import { LocalFileSize } from './LocalFileSize';
 
-export type LocalFileAttributes = {
+type LocalFileAttributes = {
   path: AbsolutePath;
   modificationTime: number;
   size: number;
 };
 
-export class LocalFile extends AggregateRoot {
+export class LocalFile {
   private constructor(
     private _path: AbsolutePath,
     private _modificationTime: number,
     private _size: LocalFileSize,
-  ) {
-    super();
-  }
+  ) {}
 
   get path(): AbsolutePath {
     return this._path;

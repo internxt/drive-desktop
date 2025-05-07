@@ -1,6 +1,6 @@
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { RemoteSyncedFolder } from '../helpers';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 export type QueryFolders = paths['/folders']['get']['parameters']['query'];
 export type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
@@ -16,7 +16,7 @@ export interface FetchFoldersServiceParams {
 
 export interface FetchFoldersServiceResult {
   hasMore: boolean;
-  result: RemoteSyncedFolder[];
+  result: FolderDto[];
 }
 
 export interface FetchFoldersService {

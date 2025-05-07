@@ -1,86 +1,60 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { aes } from '@internxt/lib';
-import CryptoJS from 'crypto-js';
-import Logger from 'electron-log';
 
 // Webpack dotenv plugin won't replace if you destructure
 // eslint-disable-next-line prefer-destructuring
 const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
 
-function deterministicDecryption(cipherText: string, salt: string) {
+function decryptName({ name, parentId }: { name: string; parentId?: number | null }) {
+  /**
+   * v2.5.2 Daniel Jiménez
+   * parentId can only be null for the root folder, so it should never reach here
+   */
+  if (!parentId) {
+    throw logger.error({
+      msg: 'AES Decrypt failed because parentId is null',
+      name,
+    });
+  }
+
   try {
-    const key = CryptoJS.enc.Hex.parse(CRYPTO_KEY);
-    const iv = salt ? CryptoJS.enc.Hex.parse(salt.toString()) : key;
-
-    const reb64 = CryptoJS.enc.Hex.parse(cipherText);
-    const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.AES.decrypt(bytes, key, { iv });
-    const plain = decrypt.toString(CryptoJS.enc.Utf8);
-
-    return plain;
-  } catch (e) {
-    return null;
+    const salt = parentId.toString();
+    const password = `${CRYPTO_KEY}-${salt}`;
+    return aes.decrypt(name, password);
+  } catch (exc) {
+    throw logger.error({
+      msg: 'AES Decrypt failed',
+      name,
+      parentId,
+      exc,
+    });
   }
 }
 
-function decryptName(cipherText: string, salt: string, encryptVersion: string) {
-  if (!salt) {
-    // If no salt, something is trying to use legacy decryption
-    return probabilisticDecryption(cipherText);
+function encryptName({ name, parentId }: { name: string; parentId?: number | null }) {
+  /**
+   * v2.5.2 Daniel Jiménez
+   * parentId can only be null for the root folder, so it should never reach here
+   */
+  if (!parentId) {
+    throw logger.error({
+      msg: 'AES Encrypt failed because parentId is null',
+      name,
+    });
   }
+
   try {
-    const possibleAesResult = aes.decrypt(cipherText, `${CRYPTO_KEY}-${salt}`);
-
-    return possibleAesResult;
-  } catch (e) {
-    Logger.warn(
-      `AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${(e as Error).message}, encryptVersion: ${encryptVersion}`,
-    );
-    Logger.warn((e as Error).stack);
+    const salt = parentId.toString();
+    const password = `${CRYPTO_KEY}-${salt}`;
+    return aes.encrypt(name, password);
+  } catch (exc) {
+    throw logger.error({
+      msg: 'AES Encrypt failed',
+      name,
+      parentId,
+      exc,
+    });
   }
-  const decrypted = deterministicDecryption(cipherText, salt);
-
-  if (!decrypted) {
-    Logger.warn('Error decrypting on a deterministic way');
-
-    return probabilisticDecryption(cipherText);
-  }
-
-  return decrypted;
-}
-
-function probabilisticDecryption(cipherText: string) {
-  try {
-    const reb64 = CryptoJS.enc.Hex.parse(cipherText);
-    const bytes = reb64.toString(CryptoJS.enc.Base64);
-    const decrypt = CryptoJS.AES.decrypt(bytes, CRYPTO_KEY);
-    const plain = decrypt.toString(CryptoJS.enc.Utf8);
-
-    return plain;
-  } catch (error) {
-    return null;
-  }
-}
-
-function probabilisticEncryption(content: string) {
-  try {
-    const b64 = CryptoJS.AES.encrypt(content, CRYPTO_KEY).toString();
-    const e64 = CryptoJS.enc.Base64.parse(b64);
-    const eHex = e64.toString(CryptoJS.enc.Hex);
-
-    return eHex;
-  } catch (error) {
-    return null;
-  }
-}
-
-function encryptName(name: string, salt: string) {
-  if (!salt) {
-    // If no salt, somewhere is trying to use legacy encryption
-    return probabilisticEncryption(name);
-  }
-
-  // If salt is provided, use new deterministic encryption
-  return aes.encrypt(name, `${CRYPTO_KEY}-${salt}`);
 }
 
 export default {

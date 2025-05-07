@@ -2,9 +2,7 @@ import React from 'react';
 import { MigrationSlideProps } from '../helpers';
 import { SideTextAnimation, getPlatformPhraseTranslationKey } from '../../Onboarding/helpers';
 
-export type DeleteOldDriveFolderSlideProps = MigrationSlideProps;
-
-export const DeleteOldDriveFolderSlide: React.FC<DeleteOldDriveFolderSlideProps> = (props) => {
+export const DeleteOldDriveFolderSlide: React.FC<MigrationSlideProps> = (props) => {
   return (
     <div className="flex h-full w-full">
       <SideTextAnimation display>

@@ -4,7 +4,7 @@ import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSy
 export class FolderPlaceholderConverter {
   constructor(private readonly localFileSystem: NodeWinLocalFolderSystem) {}
 
-  async run(folder: Folder) {
-    await this.localFileSystem.convertToPlaceholder(folder);
+  run(folder: Folder) {
+    this.localFileSystem.convertToPlaceholder(folder);
   }
 }

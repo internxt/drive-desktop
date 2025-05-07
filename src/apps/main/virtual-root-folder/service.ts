@@ -14,7 +14,7 @@ import { PATHS } from '@/core/electron/paths';
 const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME;
 const VIRTUAL_DRIVE_FOLDER = path.join(PATHS.HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
-export function setSyncRoot(pathname: string): void {
+function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
 
   configStore.set('syncRoot', pathNameWithSepInTheEnd);
@@ -51,10 +51,6 @@ export function getRootVirtualDrive(): string {
   return current;
 }
 
-export interface LoggersPaths {
-  syncRoot: string;
-}
-
 export async function clearRootVirtualDrive(): Promise<void> {
   try {
     await fsPromises.rm(PATHS.QUEUE_MANAGER, { recursive: true, force: true });
@@ -84,16 +80,29 @@ export function setupRootFolder(user: User): void {
    * login called "Internxt Drive - {user.uuid}."
    * So, we need to rename "Internxt Drive" to "Internxt Drive - { user.uuid}".
    */
+  // If the current path doesn't match the default path format, we'll still update the sync root
   if (current === pathNameWithSepInTheEnd) {
-    if (fs.existsSync(syncFolderPath)) {
+    // Check if we need to migrate to the new format with UUID
+    const oldFormatExists = fs.existsSync(current);
+    const newFormatExists = fs.existsSync(syncFolderPath);
+
+    if (newFormatExists) {
       logger.debug({
-        msg: 'Root virtual drive with new name format already exists, do not try to rename it',
+        msg: 'Root virtual drive with new name format already exists',
+        path: syncFolderPath,
       });
-    } else {
+    } else if (oldFormatExists) {
       logger.debug({
-        msg: 'Renaming root virtual drive',
+        msg: 'Migrating root virtual drive to new format with UUID',
+        from: current,
+        to: syncFolderPath,
       });
       fs.renameSync(current, syncFolderPath);
+    } else {
+      logger.debug({
+        msg: 'Neither old nor new format of virtual drive exists yet',
+        path: syncFolderPath,
+      });
     }
   }
 

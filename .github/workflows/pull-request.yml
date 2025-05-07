@@ -7,7 +7,7 @@ on:
 jobs:
   pull_request:
     runs-on: windows-latest
-    timeout-minutes: 5
+    timeout-minutes: 7
 
     permissions:
       contents: read
@@ -51,6 +51,9 @@ jobs:
 
       - name: Run Eslint
         run: npm run lint
+
+      - name: Find deadcode
+        run: npm run find-deadcode
 
       - name: Run tests
         run: npm run test:cov

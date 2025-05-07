@@ -7,7 +7,6 @@ import { FolderCreatedAt } from '../../domain/FolderCreatedAt';
 import { FolderUpdatedAt } from '../../domain/FolderUpdatedAt';
 import Logger from 'electron-log';
 import { HttpRemoteFolderSystem } from '../../infrastructure/HttpRemoteFolderSystem';
-import { OfflineFolder } from '../../domain/OfflineFolder';
 
 @Service()
 export class SimpleFolderCreator {

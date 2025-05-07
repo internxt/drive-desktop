@@ -1,11 +1,8 @@
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { FolderPath } from './FolderPath';
-import { FolderStatus, FolderStatuses } from './FolderStatus';
+import { FolderStatus } from './FolderStatus';
 import { FolderUuid } from './FolderUuid';
-import { Folder } from './Folder';
-import { FolderRenamedDomainEvent } from './events/FolderRenamedDomainEvent';
 
-export type OfflineFolderAttributes = {
+type OfflineFolderAttributes = {
   uuid: string;
   parentId: number;
   parentUuid: string;
@@ -15,7 +12,7 @@ export type OfflineFolderAttributes = {
   status: string;
 };
 
-export class OfflineFolder extends AggregateRoot {
+export class OfflineFolder {
   private constructor(
     private _uuid: FolderUuid,
     private _path: FolderPath,
@@ -24,9 +21,7 @@ export class OfflineFolder extends AggregateRoot {
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FolderStatus,
-  ) {
-    super();
-  }
+  ) {}
 
   public get uuid(): string {
     return this._uuid.value;
@@ -36,20 +31,8 @@ export class OfflineFolder extends AggregateRoot {
     return this._path;
   }
 
-  public get name() {
-    return this._path.name();
-  }
-
   public get basename() {
     return this._path.basename();
-  }
-
-  public get dirname() {
-    return this._path.dirname();
-  }
-
-  public get parentId() {
-    return this._parentId;
   }
 
   public get parentUuid() {
@@ -60,9 +43,8 @@ export class OfflineFolder extends AggregateRoot {
     return this._status;
   }
 
-  public get size() {
-    // Currently we cannot acquire the folder size.
-    return 0;
+  static create(path: FolderPath, parentId: number, parentUuid: string): OfflineFolder {
+    return new OfflineFolder(FolderUuid.random(), path, parentId, new FolderUuid(parentUuid), new Date(), new Date(), FolderStatus.Exists);
   }
 
   static from(attributes: OfflineFolderAttributes): OfflineFolder {
@@ -75,51 +57,6 @@ export class OfflineFolder extends AggregateRoot {
       new Date(attributes.createdAt),
       FolderStatus.fromValue(attributes.status),
     );
-  }
-
-  static create(path: FolderPath, parentId: number, parentUuid: string): OfflineFolder {
-    return new OfflineFolder(
-      FolderUuid.random(),
-      path,
-      parentId,
-      new FolderUuid(parentUuid),
-      new Date(),
-
-      new Date(),
-      FolderStatus.Exists,
-    );
-  }
-
-  moveTo(destinationFolder: Folder) {
-    this._parentId = destinationFolder.id;
-    this._parentUuid = new FolderUuid(destinationFolder.uuid);
-  }
-
-  rename(destination: FolderPath) {
-    const oldPath = this._path;
-
-    this._path = this._path.updateName(destination.name());
-    this.updatedAt = new Date();
-
-    const event = new FolderRenamedDomainEvent({
-      aggregateId: this.uuid,
-      previousPath: oldPath.value,
-      nextPath: this._path.value,
-    });
-
-    this.record(event);
-  }
-
-  isFolder(): this is OfflineFolder {
-    return true;
-  }
-
-  isFile(): this is File {
-    return false;
-  }
-
-  hasStatus(status: FolderStatuses): boolean {
-    return this._status.value === status;
   }
 
   attributes(): OfflineFolderAttributes {

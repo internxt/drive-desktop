@@ -1,5 +1,3 @@
-/* eslint-disable no-await-in-loop */
-import { RemoteSyncedFolder } from '../helpers';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FetchRemoteFoldersService } from './fetch-remote-folders.service';
 import { FetchFoldersService, FetchFoldersServiceParams } from './fetch-folders.service.interface';
@@ -8,6 +6,8 @@ import { loggerService } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
 import { sleep } from '../../util';
 import { getUserOrThrow } from '../../auth/service';
+import { syncRemoteFolder } from './sync-remote-folder';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 const MAX_RETRIES = 3;
 
@@ -33,8 +33,8 @@ export class SyncRemoteFoldersService {
     from?: Date;
     folderUuid?: string;
     offset?: number;
-    allResults?: RemoteSyncedFolder[];
-  }): Promise<RemoteSyncedFolder[]> {
+    allResults?: FolderDto[];
+  }): Promise<FolderDto[]> {
     let hasMore = true;
 
     try {
@@ -43,7 +43,7 @@ export class SyncRemoteFoldersService {
       while (hasMore) {
         this.logger.debug({
           msg: 'Retrieving folders',
-          workspacesId: this.workspaceId,
+          workspaceId: this.workspaceId,
           folderUuid,
           from,
           offset,
@@ -61,19 +61,14 @@ export class SyncRemoteFoldersService {
           offset,
           updatedAtCheckpoint: from,
           status: from ? 'ALL' : 'EXISTS',
-          folderUuid: folderUuid,
+          folderUuid,
         };
 
         const { hasMore: newHasMore, result } = await this.fetchRemoteFolders.run(param);
 
         await Promise.all(
           result.map(async (remoteFolder) => {
-            await self.db.folders.create({
-              ...remoteFolder,
-              userUuid: user.uuid,
-              workspaceId: this.workspaceId,
-            });
-            self.totalFoldersSynced++;
+            await syncRemoteFolder({ self, user, remoteFolder });
           }),
         );
 

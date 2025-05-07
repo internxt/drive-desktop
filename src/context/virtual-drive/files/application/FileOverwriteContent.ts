@@ -29,7 +29,9 @@ export class FileOverwriteContent {
     if (this.processingErrorQueue) return;
     this.processingErrorQueue = true;
     while (this.errorQueue.length > 0) {
-      const { file, callback } = this.errorQueue.shift()!;
+      const shiftedItem = this.errorQueue.shift();
+      if (!shiftedItem) continue;
+      const { file, callback } = shiftedItem;
       await callback(file.contentsId);
     }
     this.processingErrorQueue = false;
@@ -38,7 +40,7 @@ export class FileOverwriteContent {
   private enqueueError(input: { file: File; callback: (remoteDangledFile: string) => Promise<void> }) {
     const { file, callback } = input;
     this.errorQueue.push({ file, callback });
-    this.processErrorQueue();
+    void this.processErrorQueue();
   }
 
   private async registerEvents(input: {
@@ -54,7 +56,7 @@ export class FileOverwriteContent {
       Logger.info(`Downloading file start${file.path}...`);
     });
 
-    downloader.on('progress', async () => {
+    downloader.on('progress', () => {
       Logger.info(`Downloading file force stop${file.path}...`);
       downloader.forceStop();
     });
@@ -76,7 +78,7 @@ export class FileOverwriteContent {
   }) {
     const { contentsIds, upload, downloaderManger } = input;
     Logger.debug('Inside overrideDangledFiles');
-    const files = await this.repository.searchByContentsIds(contentsIds);
+    const files = this.repository.searchByContentsIds(contentsIds);
 
     Logger.info('files fetched in overrideDangledFiles', files);
 
@@ -110,7 +112,7 @@ export class FileOverwriteContent {
     for (const file of files) {
       if (filesWithContentLocally[file.path]) {
         const downloader = downloaderManger.downloader();
-        this.registerEvents({ downloader, file, callback: asynchronousFixingOfDangledFiles });
+        void this.registerEvents({ downloader, file, callback: asynchronousFixingOfDangledFiles });
 
         Logger.debug('Trying to download file ', file.uuid, ' ', file.name);
         await downloader.download(file);

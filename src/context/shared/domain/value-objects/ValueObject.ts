@@ -1,6 +1,5 @@
+import { Primitives } from '@/apps/shared/types/Primitives';
 import { InvalidArgumentError } from '../errors/InvalidArgumentError';
-
-export type Primitives = string | number | boolean | Date | undefined;
 
 export abstract class ValueObject<T extends Primitives> {
   readonly value: T;

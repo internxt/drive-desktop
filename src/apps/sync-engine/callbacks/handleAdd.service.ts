@@ -17,7 +17,7 @@ export class HandleAddService {
         path: task.path,
       });
 
-      const tempFile = await isTemporaryFile(task.path);
+      const tempFile = isTemporaryFile(task.path);
 
       logger.debug({
         msg: '[isTemporaryFile]',
@@ -38,8 +38,15 @@ export class HandleAddService {
         return;
       }
 
-      await drive.convertToPlaceholder(task.path, itemId);
-      await drive.updateSyncStatus(task.path, task.isFolder, true);
+      drive.convertToPlaceholder({
+        itemPath: task.path,
+        id: itemId,
+      });
+      drive.updateSyncStatus({
+        itemPath: task.path,
+        isDirectory: task.isFolder,
+        sync: true,
+      });
     } catch (error) {
       throw logger.error({
         msg: `Error adding file ${task.path}`,

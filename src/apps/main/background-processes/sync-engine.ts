@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
-import { getUser } from '../auth/service';
+import { getUserOrThrow } from '../auth/service';
 import { Config } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
@@ -10,8 +10,9 @@ import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
-import { initializeRemoteSyncManager } from '../remote-sync/handlers';
 import { PATHS } from '@/core/electron/paths';
+import { join } from 'path';
+import { FolderStore } from '../remote-sync/folders/folder-store';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -48,12 +49,8 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-export const spawnAllSyncEngineWorker = async () => {
-  const user = getUser();
-
-  if (!user) {
-    return;
-  }
+export async function spawnDefaultSyncEngineWorker() {
+  const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
   const config: Config = {
@@ -61,7 +58,7 @@ export const spawnAllSyncEngineWorker = async () => {
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
-    loggerPath: PATHS.NODE_WIN_LOGS,
+    loggerPath: join(PATHS.LOGS, 'node-win.log'),
     rootUuid: user.rootFolderId,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
@@ -70,18 +67,37 @@ export const spawnAllSyncEngineWorker = async () => {
     workspaceToken: undefined,
   };
 
+  FolderStore.addWorkspace({
+    workspaceId: '',
+    rootId: user.root_folder_id,
+    rootUuid: user.rootFolderId,
+  });
+
+  await spawnSyncEngineWorker({ config });
+
+  return { providerId };
+}
+
+export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { providerId: string }) {
   const workspaces = await getWorkspaces({});
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
-  unregisterVirtualDrives({ providerId, workspaceProviderIds });
+  const currentProviderIds = workspaceProviderIds.concat([providerId]);
 
-  const spawnWorkspaces = workspaces.forEach(async (workspace) => {
-    initializeRemoteSyncManager({ workspaceId: workspace.id });
+  unregisterVirtualDrives({ currentProviderIds });
+
+  const spawnWorkspaces = workspaces.map(async (workspace) => {
+    FolderStore.addWorkspace({
+      workspaceId: workspace.id,
+      rootId: null,
+      rootUuid: workspace.rootFolderId,
+    });
+
     await spawnWorkspace({ workspace });
   });
 
-  await Promise.all([spawnSyncEngineWorker({ config }), spawnWorkspaces]);
-};
+  await Promise.all(spawnWorkspaces);
+}
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
 eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearAllSyncEngineWatcher);

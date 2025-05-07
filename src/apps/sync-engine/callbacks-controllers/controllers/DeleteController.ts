@@ -47,13 +47,13 @@ export class DeleteController extends CallbackController {
     this.filesQueue = new DelayQueue('files', deleteFile, canDeleteFiles);
   }
 
-  async execute(contentsId: string) {
-    const trimmedId = this.trim(contentsId);
+  async execute(placeholderId: string) {
+    const trimmedId = this.trim(placeholderId);
 
     if (this.isFilePlaceholder(trimmedId)) {
-      const [_, contentsId] = trimmedId.split(':');
-      Logger.debug(`Adding file: ${contentsId} to the trash queue`);
-      this.filesQueue.push(contentsId);
+      const [_, placeholderId] = trimmedId.split(':');
+      Logger.debug(`Adding file: ${placeholderId} to the trash queue`);
+      this.filesQueue.push(placeholderId);
       return;
     }
 

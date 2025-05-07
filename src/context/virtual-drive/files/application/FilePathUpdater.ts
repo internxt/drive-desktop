@@ -1,36 +1,28 @@
+import { FileNotFoundError } from './../domain/errors/FileNotFoundError';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
-import { FileFinderByContentsId } from './FileFinderByContentsId';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
-import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { logger } from '../../../../apps/shared/logger/logger';
-import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class FilePathUpdater {
   constructor(
     private readonly remote: HttpRemoteFileSystem,
-    private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
-    private readonly fileFinderByContentsId: FileFinderByContentsId,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
-    private readonly eventBus: EventRecorder,
   ) {}
 
   private async rename(file: File, path: FilePath) {
     file.rename(path);
 
     await this.remote.rename(file);
-    await this.repository.update(file);
-
-    const events = file.pullDomainEvents();
-    this.eventBus.publish(events);
+    this.repository.update(file);
   }
 
   private async move(file: File, destination: FilePath) {
@@ -39,8 +31,7 @@ export class FilePathUpdater {
 
     Logger.debug('[MOVE TO]', file.path, destinationFolder.name);
     try {
-      const trackerId = await this.local.getFileIdentity(file.path);
-      file.moveTo(destinationFolder, trackerId);
+      file.moveTo(destinationFolder);
     } catch (exc: unknown) {
       throw logger.error({
         msg: 'Error in FilePathUpdater.move',
@@ -54,16 +45,19 @@ export class FilePathUpdater {
       parentUuid: destinationFolder.uuid,
     });
     Logger.debug('[REPOSITORY MOVE]', file.name, destinationFolder.name);
-    await this.repository.update(file);
-
-    const events = file.pullDomainEvents();
-    this.eventBus.publish(events);
+    this.repository.update(file);
   }
 
-  async run(contentsId: string, posixRelativePath: string) {
+  async run(uuid: string, posixRelativePath: string) {
     try {
       const destination = new FilePath(posixRelativePath);
-      const file = this.fileFinderByContentsId.run(contentsId);
+      const file = this.repository.searchByPartial({
+        uuid,
+      });
+
+      if (!file) {
+        throw new FileNotFoundError(uuid);
+      }
 
       const folderFather = file.folderUuid
         ? this.folderFinder.findFromUuid(file.folderUuid.value)
@@ -102,13 +96,11 @@ export class FilePathUpdater {
       }
 
       if (folderFather.path !== file.dirname) {
-        const trackerId = await this.local.getFileIdentity(destination.value);
-        file.moveTo(folderFather, trackerId);
+        file.moveTo(folderFather);
       }
 
       Logger.debug('[RUN RENAME]', file.name, destination.value);
-      Logger.debug('[RUN RENAME]', file.name, destination.nameWithExtension());
-      Logger.debug('[RUN RENAME]', file.nameWithExtension, destination.extensionMatch(file.type));
+
       if (destination.extensionMatch(file.type)) {
         this.ipc.send('FILE_RENAMING', {
           oldName: file.name,

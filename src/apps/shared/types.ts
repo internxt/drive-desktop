@@ -1,4 +1,4 @@
-export type FileSystemKind = 'LOCAL' | 'REMOTE';
+type FileSystemKind = 'LOCAL' | 'REMOTE';
 
 export type ProcessFatalErrorName =
   | 'NO_INTERNET'

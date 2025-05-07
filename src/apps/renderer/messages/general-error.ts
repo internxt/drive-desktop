@@ -2,11 +2,11 @@ import { GeneralErrorName } from '../../shared/types';
 
 type GeneralErrorMessages = Record<GeneralErrorName, string>;
 
-export const shortMessages: GeneralErrorMessages = {
+const shortMessages: GeneralErrorMessages = {
   UNKNOWN_DEVICE_NAME: 'Could not retrieve your device’s name.',
 };
 
-export const longMessages: GeneralErrorMessages = {
+const longMessages: GeneralErrorMessages = {
   UNKNOWN_DEVICE_NAME: 'Please restart the app.',
 };
 

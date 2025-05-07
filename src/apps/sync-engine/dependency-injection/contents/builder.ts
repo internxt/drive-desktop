@@ -1,11 +1,8 @@
 import { Environment } from '@internxt/inxt-js';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
-import { DependencyInjectionEventBus } from '../common/eventBus';
-import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
-import { NotifyMainProcessHydrationFinished } from '../../../../context/virtual-drive/contents/application/NotifyMainProcessHydrationFinished';
 import { RetryContentsUploader } from '../../../../context/virtual-drive/contents/application/RetryContentsUploader';
 import { temporalFolderProvider } from '../../../../context/virtual-drive/contents/application/temporalFolderProvider';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
@@ -14,10 +11,8 @@ import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/in
 import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { getConfig } from '../../config';
 
-export async function buildContentsContainer(sharedContainer: SharedContainer): Promise<ContentsContainer> {
+export function buildContentsContainer(sharedContainer: SharedContainer): ContentsContainer {
   const mnemonic = getConfig().mnemonic;
-  const { bus: eventBus } = DependencyInjectionEventBus;
-  const eventRepository = DependencyInjectionEventRepository.get();
 
   const environment = new Environment({
     bridgeUrl: process.env.DRIVE_URL,
@@ -40,21 +35,12 @@ export async function buildContentsContainer(sharedContainer: SharedContainer): 
 
   const localWriter = new FSLocalFileWriter(temporalFolderProvider);
 
-  const contentsDownloader = new ContentsDownloader(
-    contentsManagerFactory,
-    localWriter,
-    ipcRendererSyncEngine,
-    temporalFolderProvider,
-    eventBus,
-  );
-
-  const notifyMainProcessHydrationFinished = new NotifyMainProcessHydrationFinished(eventRepository, ipcRendererSyncEngine);
+  const contentsDownloader = new ContentsDownloader(contentsManagerFactory, localWriter, ipcRendererSyncEngine, temporalFolderProvider);
 
   return {
     contentsUploader: retryContentsUploader,
     contentsDownloader,
     temporalFolderProvider,
-    notifyMainProcessHydrationFinished,
     contentsManagerFactory,
   };
 }

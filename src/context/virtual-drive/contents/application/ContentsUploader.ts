@@ -5,7 +5,6 @@ import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 export class ContentsUploader {
@@ -63,8 +62,6 @@ export class ContentsUploader {
 
       const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath);
 
-      Logger.debug('[DEBUG UPLOAD]:', posixRelativePath, absolutePath);
-
       const { contents, abortSignal } = await this.contentProvider.provide(absolutePath);
 
       const uploader = this.remoteContentsManagersFactory.uploader(contents, abortSignal);
@@ -80,6 +77,7 @@ export class ContentsUploader {
       Logger.error('[ERROR DEBUG]', error);
       const fileName = posixRelativePath.split('/').pop() || posixRelativePath;
       if (error instanceof Error) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (error as any).fileName = fileName;
       }
       throw error;

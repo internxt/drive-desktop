@@ -34,7 +34,7 @@ export class HandleHydrateService {
 
       self.lastHydrated = normalizedTaskPath;
 
-      await drive.hydrateFile(task.path);
+      await drive.hydrateFile({ itemPath: task.path });
 
       const finish = Date.now();
 

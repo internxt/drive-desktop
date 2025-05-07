@@ -1,22 +1,16 @@
 import { FolderUuid } from './../../folders/domain/FolderUuid';
-import { AggregateRoot } from '../../../shared/domain/AggregateRoot';
 import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileCreatedDomainEvent } from './events/FileCreatedDomainEvent';
-import { FileCannotBeMovedToTheOriginalFolderError } from './errors/FileCannotBeMovedToTheOriginalFolderError';
 import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
 import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
 import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
-import { FileDeletedDomainEvent } from './events/FileDeletedDomainEvent';
 import { FileStatus, FileStatuses } from './FileStatus';
-import { FileOverriddenDomainEvent } from './events/FileOverriddenDomainEvent';
-import { FileMovedDomainEvent } from './events/FileMovedDomainEvent';
-import { FileRenamedDomainEvent } from './events/FileRenamedDomainEvent';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
 import { FileUuid } from './FileUuid';
+import crypt from '@/context/shared/infrastructure/crypt';
 
 export type FileAttributes = {
   id: number;
@@ -32,7 +26,7 @@ export type FileAttributes = {
   status: string;
 };
 
-export class File extends AggregateRoot {
+export class File {
   private constructor(
     private _id: number,
     private _uuid: FileUuid,
@@ -44,9 +38,7 @@ export class File extends AggregateRoot {
     public createdAt: Date,
     public updatedAt: Date,
     private _status: FileStatus,
-  ) {
-    super();
-  }
+  ) {}
 
   public get id(): number {
     return this._id;
@@ -97,7 +89,7 @@ export class File extends AggregateRoot {
   }
 
   public get placeholderId(): FilePlaceholderId {
-    return createFilePlaceholderId(this.contentsId);
+    return createFilePlaceholderId(this.uuid);
   }
 
   static from(attributes: FileAttributes): File {
@@ -129,59 +121,39 @@ export class File extends AggregateRoot {
       FileStatus.Exists,
     );
 
-    file.record(
-      new FileCreatedDomainEvent({
-        aggregateId: file.uuid.toString(),
-        size: file.size,
-        type: file.type,
-        path: file.path,
-      }),
-    );
-
     return file;
   }
 
-  changeContents(contentsId: FileContentsId, contentsSize: FileSize) {
-    const previousContentsId = this.contentsId;
-    const previousSize = this.size;
+  static decryptName({
+    plainName,
+    name,
+    parentId,
+    type,
+  }: {
+    plainName?: string | null;
+    name: string;
+    parentId: number | null;
+    type: string | null;
+  }) {
+    const decryptedName = plainName || crypt.decryptName({ name, parentId });
+    if (type) return `${decryptedName}.${type}`;
+    return decryptedName;
+  }
 
+  changeContents(contentsId: FileContentsId, contentsSize: FileSize) {
     this._contentsId = contentsId;
     this._size = contentsSize;
-
-    this.record(
-      new FileOverriddenDomainEvent({
-        aggregateId: this.uuid.toString(),
-        previousContentsId,
-        previousSize,
-        currentContentsId: contentsId.value,
-        currentSize: contentsSize.value,
-      }),
-    );
   }
 
   trash() {
     this._status = this._status.changeTo(FileStatuses.TRASHED);
     this.updatedAt = new Date();
-
-    this.record(
-      new FileDeletedDomainEvent({
-        aggregateId: this.contentsId,
-        size: this._size.value,
-      }),
-    );
   }
 
-  moveTo(folder: Folder, trackerId: string): void {
+  moveTo(folder: Folder): void {
     this._folderId = new FileFolderId(folder.id);
     this._folderUuid = new FolderUuid(folder.uuid);
     this._path = this._path.changeFolder(folder.path);
-
-    this.record(
-      new FileMovedDomainEvent({
-        aggregateId: this._contentsId.value,
-        trackerId,
-      }),
-    );
   }
 
   rename(newPath: FilePath) {
@@ -198,12 +170,6 @@ export class File extends AggregateRoot {
     }
 
     this._path = this._path.updateName(newPath.nameWithExtension());
-
-    this.record(
-      new FileRenamedDomainEvent({
-        aggregateId: this.contentsId,
-      }),
-    );
   }
 
   hasParent(id: number): boolean {

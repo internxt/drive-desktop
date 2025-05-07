@@ -4,6 +4,7 @@ import path from 'path';
 import { Readable } from 'stream';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalContentsProvider } from '../domain/LocalFileProvider';
+import { logger } from '@/apps/shared/logger/logger';
 
 function extractNameAndExtension(nameWithExtension: string): [string, string] {
   if (nameWithExtension.startsWith('.')) {
@@ -22,7 +23,7 @@ export class FSLocalFileProvider implements LocalContentsProvider {
   private async untilIsNotBusy(filePath: string, retriesLeft = 5): Promise<void> {
     let isResolved = false;
 
-    const attemptRead = async () => {
+    const attemptRead = () => {
       try {
         const readable = createReadStream(filePath);
 
@@ -33,7 +34,7 @@ export class FSLocalFileProvider implements LocalContentsProvider {
             resolve();
           });
 
-          readable.on('error', async (err: NodeJS.ErrnoException) => {
+          readable.on('error', (err: NodeJS.ErrnoException) => {
             if (err.code === 'EBUSY' && retriesLeft > 0 && !isResolved) {
               Logger.debug(
                 `File is busy, will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
@@ -78,7 +79,6 @@ export class FSLocalFileProvider implements LocalContentsProvider {
 
   async provide(absoluteFilePath: string) {
     try {
-      // Creación del stream con posibilidad de aborto
       const { readable, controller } = await this.createAbortableStream(absoluteFilePath);
 
       const { size, mtimeMs, birthtimeMs } = await fs.stat(absoluteFilePath);
@@ -86,13 +86,42 @@ export class FSLocalFileProvider implements LocalContentsProvider {
       const absoluteFolderPath = path.dirname(absoluteFilePath);
       const nameWithExtension = path.basename(absoluteFilePath);
 
-      const watcher = watch(absoluteFolderPath, (_, filename) => {
+      const watcher = watch(absoluteFolderPath, async (event, filename) => {
         if (filename !== nameWithExtension) {
           return;
         }
-        Logger.warn(filename, ' has been changed during read, it will be aborted');
 
-        controller.abort();
+        try {
+          const { mtimeMs: newMtimeMs, size: newSize } = await fs.stat(absoluteFilePath);
+
+          if (newMtimeMs !== mtimeMs || newSize !== size) {
+            logger.debug({
+              msg: 'File changed, aborting read stream',
+              filePath: absoluteFilePath,
+              filename,
+              nameWithExtension,
+              event,
+              newMtimeMs,
+              newSize,
+            });
+
+            controller.abort();
+          } else {
+            logger.debug({
+              msg: 'File event detected, but no real changes found',
+              filePath: absoluteFilePath,
+              filename,
+              nameWithExtension,
+              event,
+            });
+          }
+        } catch (error) {
+          logger.error({
+            msg: 'Error while checking file changes',
+            exc: error,
+            filePath: absoluteFilePath,
+          });
+        }
       });
 
       readable.on('end', () => {

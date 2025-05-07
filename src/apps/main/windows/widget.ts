@@ -24,7 +24,7 @@ ipcMain.on('FILE_DOWNLOADING', (_, payload) => {
   }
 });
 
-export const createWidget = async () => {
+const createWidget = async () => {
   widget = new BrowserWindow({
     width: widgetConfig.width,
     height: widgetConfig.height,

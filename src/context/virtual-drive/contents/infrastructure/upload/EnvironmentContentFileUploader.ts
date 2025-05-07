@@ -3,6 +3,7 @@ import { EventEmitter, Readable } from 'stream';
 import { ContentFileUploader, FileUploadEvents } from '../../domain/contentHandlers/ContentFileUploader';
 import { ContentsId } from '../../domain/ContentsId';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class EnvironmentContentFileUploader implements ContentFileUploader {
   private eventEmitter: EventEmitter;
@@ -11,13 +12,13 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
   constructor(
     private readonly fn: UploadStrategyFunction,
     private readonly bucket: string,
-    private readonly abortSignal?: AbortSignal,
+    private readonly abortSignal: AbortSignal,
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
   }
 
-  async upload(contents: Readable, size: number): Promise<ContentsId> {
+  upload(contents: Readable, size: number): Promise<ContentsId> {
     this.eventEmitter.emit('start');
     this.stopwatch.start();
 
@@ -40,12 +41,13 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
         },
       });
 
-      if (this.abortSignal) {
-        this.abortSignal.addEventListener('abort', () => {
-          state.stop();
-          contents.destroy();
+      this.abortSignal.addEventListener('abort', () => {
+        logger.info({
+          msg: 'Upload aborted here',
         });
-      }
+        state.stop();
+        contents.destroy();
+      });
     });
   }
 

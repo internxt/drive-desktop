@@ -1,7 +1,7 @@
 import { app, ipcMain, nativeTheme } from 'electron';
 import Logger from 'electron-log';
 
-app.whenReady().then(() => {
+void app.whenReady().then(() => {
   app.setAppUserModelId('com.internxt.app');
 });
 
@@ -15,9 +15,12 @@ import 'regenerator-runtime/runtime';
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
+import { setupElectronLog } from './logger';
+
+setupElectronLog();
+
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
-import './logger';
 import { setupBugReportHandlers } from './bug-report/handlers';
 import { checkIfUserIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
@@ -50,12 +53,13 @@ import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { reportError } from './bug-report/service';
 import { Theme } from '../shared/types/Theme';
-import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 import { clearConfig, setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
+import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
+import { setUpBackups } from './background-processes/backups/setUpBackups';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -82,9 +86,9 @@ Sentry.init({
 Sentry.captureMessage('Main process started');
 Logger.log('Sentry is ready for main process');
 
-function checkForUpdates() {
+async function checkForUpdates() {
   autoUpdater.logger = Logger;
-  autoUpdater.checkForUpdatesAndNotify();
+  await autoUpdater.checkForUpdatesAndNotify();
 }
 
 if (process.env.NODE_ENV === 'production') {
@@ -110,7 +114,7 @@ app
     await migrate();
 
     registerUsageHandlers();
-    setUpBackups();
+    await setUpBackups();
 
     await checkIfUserIsLoggedIn();
     const isLoggedIn = getIsLoggedIn();
@@ -120,22 +124,16 @@ app
       setTrayStatus('IDLE');
     }
 
-    setDefaultConfig({});
-
     ipcMain.handle('is-dark-mode-active', () => {
       return nativeTheme.shouldUseDarkColors;
     });
 
-    checkForUpdates();
+    await checkForUpdates();
   })
   .catch(Logger.error);
 
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
-    if (!AppDataSource.isInitialized) {
-      await AppDataSource.initialize();
-    }
-
     setDefaultConfig({});
 
     getAuthWindow()?.hide();
@@ -176,7 +174,8 @@ eventBus.on('USER_LOGGED_OUT', async () => {
     widget.destroy();
   }
 
-  clearAntivirus();
+  await clearAntivirus();
+  unregisterVirtualDrives({});
 
   await createAuthWindow();
 });

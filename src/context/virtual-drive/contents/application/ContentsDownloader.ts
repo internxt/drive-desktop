@@ -9,7 +9,6 @@ import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDown
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { EventRecorder } from '../../shared/infrastructure/EventRecorder';
 
 export class ContentsDownloader {
   constructor(
@@ -17,7 +16,6 @@ export class ContentsDownloader {
     private readonly localWriter: LocalFileWriter,
     private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
-    private readonly eventBus: EventRecorder,
   ) {}
 
   private downloaderIntance: ContentFileDownloader | null = null;
@@ -62,6 +60,7 @@ export class ContentsDownloader {
   }
 
   async run(file: File, callback: CallbackDownload): Promise<string> {
+    // TODO: If we remove the wait, the tests fail
     const downloader = await this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
@@ -71,23 +70,20 @@ export class ContentsDownloader {
 
     const readable = await downloader.download(file);
 
-    const localContents = LocalFileContents.downloadedFrom(file, readable, downloader.elapsedTime());
+    const localContents = LocalFileContents.downloadedFrom(file, readable);
 
     const write = await this.localWriter.write(localContents);
-
-    const events = localContents.pullDomainEvents();
-    await this.eventBus.publish(events);
 
     return write;
   }
 
-  async stop() {
+  stop() {
     Logger.info('[Server] Stopping download 1');
     if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 
     Logger.info('[Server] Stopping download 2');
     this.downloaderIntance.forceStop();
-    this.downloaderIntanceCB(false, '');
+    void this.downloaderIntanceCB(false, '');
 
     this.ipc.send('FILE_DOWNLOAD_CANCEL', {
       name: this.downloaderFile.name,

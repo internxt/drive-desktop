@@ -1,16 +1,12 @@
 import * as uuid from 'uuid';
 
-type DomainEventAttributes = any;
+type DomainEventAttributes = {
+  contentsId: string;
+  trackerId: string;
+};
 
 export abstract class DomainEvent {
   static EVENT_NAME: string;
-
-  static fromPrimitives: (params: {
-    aggregateId: string;
-    eventId: string;
-    occurredOn: Date;
-    attributes: DomainEventAttributes;
-  }) => DomainEvent;
 
   readonly aggregateId: string;
   readonly eventId: string;
@@ -27,8 +23,3 @@ export abstract class DomainEvent {
 
   abstract toPrimitives(): DomainEventAttributes;
 }
-
-export type DomainEventClass = {
-  EVENT_NAME: string;
-  fromPrimitives(params: { aggregateId: string; eventId: string; occurredOn: Date; attributes: DomainEventAttributes }): DomainEvent;
-};

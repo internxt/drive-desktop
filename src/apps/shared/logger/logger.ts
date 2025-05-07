@@ -3,11 +3,13 @@ import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
-type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS';
+type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN';
 
 export type TLoggerBody = {
-  msg: string;
+  process?: 'main' | 'renderer';
   tag?: TTag;
+  msg: string;
+  workspaceId?: string;
   exc?: Error | unknown;
   context?: Record<string, unknown>;
   attributes?: {
@@ -23,14 +25,23 @@ export class LoggerService {
   private prepareBody(rawBody: TLoggerBody) {
     const user = getUser();
 
-    rawBody.attributes = {
-      userId: user?.uuid,
-      tag: rawBody.tag,
-      ...rawBody.attributes,
+    const { tag, msg, workspaceId, ...rest1 } = rawBody;
+
+    rawBody = {
+      process: process.type === 'renderer' ? 'renderer' : 'main',
+      ...(tag && { tag }),
+      msg,
+      ...(workspaceId && { workspaceId }),
+      ...rest1,
+      attributes: {
+        userId: user?.uuid,
+        ...(tag && { tag }),
+        ...rest1.attributes,
+      },
     };
 
-    const { attributes, ...rest } = rawBody;
-    const body = inspect(rest, { colors: true, depth: Infinity, breakLength: Infinity });
+    const { attributes, ...rest2 } = rawBody;
+    const body = inspect(rest2, { colors: true, depth: Infinity, breakLength: Infinity });
     return { attributes, body };
   }
 

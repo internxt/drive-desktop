@@ -1,4 +1,3 @@
-/* eslint-disable no-await-in-loop */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-use-before-define */
 import { aes } from '@internxt/lib';
@@ -21,7 +20,6 @@ import { randomUUID } from 'crypto';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
-import { customInspect } from '@/apps/shared/logger/custom-inspect';
 import { getConfig } from '@/apps/sync-engine/config';
 import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -36,7 +34,7 @@ export type Device = {
   lastBackupAt: string;
 };
 
-export interface FolderTreeResponse {
+interface FolderTreeResponse {
   tree: FolderTree;
   folderDecryptedNames: Record<number, string>;
   fileDecryptedNames: Record<number, string>;
@@ -116,7 +114,7 @@ export async function getOrCreateDevice() {
 
     if (res.data) {
       const device = decryptDeviceName(res.data);
-      logger.debug({ msg: '[DEVICE] Found device', device });
+      logger.debug({ msg: '[DEVICE] Found device', device: device.name });
       configStore.set('deviceUuid', device.uuid);
 
       if (!device.removed) return device;
@@ -468,7 +466,11 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
     });
 
     if (!res.data) {
-      throw new Error(`Error in the request to rename a backup: ${customInspect(res.error)}`);
+      throw logger.error({
+        tag: 'BACKUPS',
+        msg: 'Error in the request to rename a backup',
+        exc: res.error,
+      });
     }
   }
 
@@ -674,7 +676,7 @@ export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenD
   };
 }
 
-export async function openFileSystemAndGetPaths(
+async function openFileSystemAndGetPaths(
   dialogPropertiesOptions?: Electron.OpenDialogOptions['properties'],
 ): Promise<string[] | undefined> {
   const dialogProperties = dialogPropertiesOptions ?? ['openDirectory'];
