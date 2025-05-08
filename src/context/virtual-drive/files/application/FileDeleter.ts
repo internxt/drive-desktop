@@ -73,12 +73,10 @@ export class FileDeleter {
         error: message,
       });
 
-      this.ipc.send('SYNC_INFO_UPDATE', {
-        kind: 'REMOTE',
-        name: file.nameWithExtension,
-        action: 'DELETE_ERROR',
-        errorName: 'BAD_RESPONSE',
-        process: 'SYNC',
+      this.ipc.send('ADD_ISSUE', {
+        tab: 'sync',
+        name: file.path,
+        error: 'DELETE_ERROR',
       });
     }
   }

@@ -28,7 +28,9 @@ export type ProcessErrorName =
   | 'INSUFFICIENT_PERMISSION'
   | 'COULD_NOT_ENCRYPT_NAME'
   | 'NOT_ENOUGH_SPACE'
-  | 'ACTION_NOT_PERMITTED';
+  | 'ACTION_NOT_PERMITTED'
+  | 'INVALID_WINDOWS_NAME'
+  | 'DELETE_ERROR';
 
 /**
  * Only for error reporting purposes, should not be used

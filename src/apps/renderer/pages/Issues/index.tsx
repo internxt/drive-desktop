@@ -3,14 +3,14 @@ import WindowTopBar from '../../components/WindowTopBar';
 import { useTranslationContext } from '../../context/LocalContext';
 import useBackupErrors from '../../hooks/backups/useBackupErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
-import useVirtualDriveIssues from '../../hooks/ProcessIssues';
 import IssuesAccordions from './IssuesAccordions';
 import { IssuesTabs } from './IssuesTabs';
 import { Section } from './Section';
+import { useIssues } from '../../hooks/useIssues';
 
 export default function IssuesPage() {
   const { translate } = useTranslationContext();
-  const virtualDriveIssues = useVirtualDriveIssues();
+  const { issues } = useIssues();
   const { generalIssues } = useGeneralIssues();
   const { backupErrors } = useBackupErrors();
 
@@ -21,18 +21,18 @@ export default function IssuesPage() {
       setActiveSection('app');
       return;
     }
-    if (virtualDriveIssues.length) {
+    if (issues.length) {
       setActiveSection('virtualDrive');
       return;
     }
 
     if (backupErrors.length) {
-      setActiveSection('virtualDrive');
+      setActiveSection('backups');
       return;
     }
 
     setActiveSection('app');
-  }, [virtualDriveIssues, generalIssues, backupErrors]);
+  }, [issues, generalIssues, backupErrors]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
@@ -46,7 +46,7 @@ export default function IssuesPage() {
         selectedTab={activeSection}
         issues={{
           app: generalIssues,
-          virtualDrive: virtualDriveIssues,
+          virtualDrive: issues,
           backups: backupErrors,
         }}
       />

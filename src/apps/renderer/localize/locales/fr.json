@@ -427,7 +427,9 @@
       "folder-does-not-exist": "Le dossier n'existe pas",
       "file-too-big": "La taille maximale de téléchargement est de 20 GB. Veuillez essayer des fichiers plus petits.",
       "duplicated-node": "Il y a un conflit avec l'élément.",
-      "not-enough-space": "Vous n'avez pas assez d'espace pour compléter l'opération."
+      "not-enough-space": "Vous n'avez pas assez d'espace pour compléter l'opération.",
+      "invalid-windows-name": "Windows ne permet pas les noms contenant les caractères \\ / : * ? \" < > |",
+      "delete-error": "Impossible de supprimer l'élément"
     },
     "error-messages": {
       "no-internet": "Il semble que vous ne soyez pas connecté à l'internet, nous réessayerons plus tard",

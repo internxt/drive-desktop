@@ -449,7 +449,9 @@
       "file-too-big": "Max upload size is 20GB. Please try smaller files.",
       "file-non-extension": "Files without extensions are not supported.",
       "duplicated-node": "It appears that there are duplicate file or folder names in this directory. Please rename one of them to ensure synchronization",
-      "not-enough-space": "You have not enough space to complete the operation"
+      "not-enough-space": "You have not enough space to complete the operation",
+      "invalid-windows-name": "Windows does not allow names that include the characters \\ / : * ? \" < > |",
+      "delete-error": "Cannot delete item"
     },
     "error-messages": {
       "no-internet": "Looks like you are not connected to the internet, we'll try again later",

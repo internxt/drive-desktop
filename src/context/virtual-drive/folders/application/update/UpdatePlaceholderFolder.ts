@@ -82,7 +82,11 @@ export class FolderPlaceholderUpdater {
       uuid: remote.uuid,
     });
 
-    const { isValid } = validateWindowsName({ name: remote.name, type: 'folder' });
+    const { isValid } = validateWindowsName({
+      path: remote.path,
+      name: remote.name,
+    });
+
     if (!isValid) return;
 
     if (!local) {

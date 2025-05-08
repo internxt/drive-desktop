@@ -57,7 +57,11 @@ export class FilesPlaceholderUpdater {
       contentsId: remote.contentsId,
     });
 
-    const { isValid } = validateWindowsName({ name: remote.nameWithExtension, type: 'file' });
+    const { isValid } = validateWindowsName({
+      path: remote.path,
+      name: remote.nameWithExtension,
+    });
+
     if (!isValid) return;
 
     if (!local) {

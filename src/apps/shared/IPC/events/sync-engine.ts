@@ -3,6 +3,7 @@ import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { ProcessInfoUpdatePayload } from '../../types';
 import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { Issue } from '@/apps/main/background-processes/issues';
 
 type ProcessInfo = {
   elapsedTime: number;
@@ -50,7 +51,7 @@ type SyncEngineInvocableFunctions = {
 
 // TODO: change how errors are reported to the ui
 type ProcessInfoUpdate = {
-  SYNC_INFO_UPDATE: (payload: ProcessInfoUpdatePayload) => void;
+  ADD_ISSUE: (payload: Issue) => void;
   CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
 };
 

@@ -432,7 +432,9 @@
       "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
       "file-non-extension": "Archivos sin extensión no son soportados",
       "duplicated-node": "Hay un conflicto con el elemento",
-      "not-enough-space": "No tienes suficiente espacio para completar la operación."
+      "not-enough-space": "No tienes suficiente espacio para completar la operación.",
+      "invalid-windows-name": "Windows no permite nombres que incluyen los caracteres \\ / : * ? \" < > |",
+      "delete-error": "No se pudo eliminar el elemento"
     },
     "error-messages": {
       "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
