@@ -78,16 +78,6 @@ export class DriveFileCollection {
     };
   }
 
-  async getLastUpdated() {
-    const user = getUserOrThrow();
-    const result = await this.repository.findOne({
-      where: { userUuid: user.uuid },
-      order: { updatedAt: 'DESC' },
-    });
-
-    return result;
-  }
-
   async getLastUpdatedByWorkspace(workspaceId: string) {
     const user = getUserOrThrow();
     const result = await this.repository.findOne({

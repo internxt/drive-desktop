@@ -21,7 +21,7 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
     });
 
     FolderStore.addFolder({
-      workspaceId: self.workspaceId ?? '',
+      workspaceId: self.workspaceId,
       folderId: remoteFolder.id,
       parentId: remoteFolder.parentId,
       parentUuid: remoteFolder.parentUuid,
@@ -29,9 +29,7 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
       name: remoteFolder.name,
     });
 
-    self.totalFoldersSynced++;
-
-    if (remoteFolder.status === 'EXISTS') {
+    if (remoteFolder.status === 'EXISTS' && self.worker.worker) {
       try {
         const plainName = Folder.decryptName({
           name: remoteFolder.name,
@@ -40,7 +38,7 @@ export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
         });
 
         const { relativePath } = FolderStore.getFolderPath({
-          workspaceId: self.workspaceId ?? '',
+          workspaceId: self.workspaceId,
           parentId: remoteFolder.parentId,
           parentUuid: remoteFolder.parentUuid,
           plainName,

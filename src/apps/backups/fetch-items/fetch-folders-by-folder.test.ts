@@ -30,7 +30,7 @@ describe('fetch-folders-by-folder', () => {
 
   it('If we fetch less than 50 folders, then do not fetch again', async () => {
     // Given
-    getFoldersByFolderMock.mockResolvedValueOnce({ data: [{}] });
+    getFoldersByFolderMock.mockResolvedValueOnce({ data: [] });
 
     // When
     const { newFolders } = await fetchFoldersByFolder({ folderUuid, allFolders });
