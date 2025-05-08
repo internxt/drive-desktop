@@ -28,6 +28,10 @@ export function showNotEnoughSpaceNotification() {
     Logger.info('The users clicked on the notification');
   });
 
+  /**
+   * v2.5.3 Daniel Jiménez
+   * TODO: Notification is not working
+   */
   notification.show();
 }
 
