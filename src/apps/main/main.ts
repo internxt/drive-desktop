@@ -60,6 +60,7 @@ import { clearConfig, setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
 import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
+import { setupIssueHandlers } from './background-processes/issues';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -73,6 +74,7 @@ setupAuthIpcHandlers();
 setupSettingsIPCHandlers();
 setupVirtualDriveHandlers();
 setupQuitHandlers();
+setupIssueHandlers();
 
 Logger.log(`Running ${packageJson.version}`);
 Logger.log(`App is packaged: ${app.isPackaged}`);

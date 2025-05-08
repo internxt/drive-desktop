@@ -1,65 +1,63 @@
 import { useTranslationContext } from '../../context/LocalContext';
-import { getBaseName } from '../../utils/path';
 import { useState } from 'react';
 import { Accordion } from './Accordion';
-import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
-import { SyncError } from '../../../shared/issues/SyncErrorCause';
 import { shortMessages } from '../../messages/process-error';
-import { ProcessIssue } from '@/apps/shared/types';
+import { Issue } from '@/apps/main/background-processes/issues';
 
-function groupAppIssuesByErrorName(issues: ProcessIssue[]) {
-  const appIssuesGroupedByErrorName = issues.reduce(
-    (acc, current) => {
-      const key = current.action;
+function groupAppIssuesByErrorName(issues: Issue[]) {
+  return issues.reduce(
+    (acc, issue) => {
+      const key = issue.error;
 
       if (!acc[key]) {
         acc[key] = [];
       }
 
-      acc[key].push({ cause: key, error: current.errorName, name: current.name });
+      acc[key].push(issue);
 
       return acc;
     },
-    {} as Record<ProcessIssue['action'], VirtualDriveIssue[]>,
+    {} as Record<Issue['error'], Issue[]>,
   );
-
-  return Object.entries(appIssuesGroupedByErrorName) as Array<[SyncError, Array<VirtualDriveIssue>]>;
 }
 
 type VirtualDriveIssuesByErrorAccordionProps = {
-  readonly issues: Array<ProcessIssue>;
+  readonly issues: Array<Issue>;
 };
 
 export function SyncIssuesByError({ issues }: VirtualDriveIssuesByErrorAccordionProps) {
   const { translate } = useTranslationContext();
-  const [selected, setSelected] = useState<SyncError | null>(null);
+  const [selected, setSelected] = useState<Issue['error'] | null>(null);
 
   const issuesByCauseArray = groupAppIssuesByErrorName(issues);
 
-  const isSelected = (cause: SyncError) => {
+  const isSelected = (cause: Issue['error']) => {
     return cause === selected;
   };
 
-  const toggleOrSelectCause = (clickedCause: SyncError) => () => {
+  const toggleOrSelectCause = (clickedCause: Issue['error']) => () => {
     if (clickedCause === selected) {
       setSelected(null);
-      return;
+    } else {
+      setSelected(clickedCause);
     }
-
-    setSelected(clickedCause);
   };
 
   return (
     <ul>
-      {issuesByCauseArray.map(([cause, issues]) => (
-        <li className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5" onClick={toggleOrSelectCause(cause)} key={cause} role="button">
-          <Accordion
-            title={translate(shortMessages[cause])}
-            collapsed={!isSelected(cause)}
-            elements={issues.map((issue) => getBaseName(issue.name))}
-          />
-        </li>
-      ))}
+      {Object.entries(issuesByCauseArray).map(([rawError, issues]) => {
+        const error = rawError as Issue['error'];
+
+        return (
+          <li className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5" onClick={toggleOrSelectCause(error)} key={error} role="button">
+            <Accordion
+              title={translate(shortMessages[error])}
+              collapsed={!isSelected(error)}
+              elements={issues.map((issue) => issue.name)}
+            />
+          </li>
+        );
+      })}
     </ul>
   );
 }

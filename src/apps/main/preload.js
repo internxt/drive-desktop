@@ -103,11 +103,11 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  getProcessIssues() {
-    return ipcRenderer.invoke('get-process-issues');
+  getIssues() {
+    return ipcRenderer.invoke('get-issues');
   },
-  onProcessIssuesChanged(func) {
-    const eventName = 'process-issues-changed';
+  onIssuesChanged(func) {
+    const eventName = 'issues-changed';
     const callback = (_, v) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);

@@ -3,12 +3,13 @@ import Logger from 'electron-log';
 
 import eventBus from '../event-bus';
 import { broadcastToWindows } from '../windows';
-import { ProcessIssue, GeneralIssue, ProcessInfoUpdatePayload } from '../../shared/types';
+import { GeneralIssue } from '../../shared/types';
 import path from 'path';
+import { clearIssues } from './issues';
 
 let lastDialogTime = 0;
 
-function showNotification(issue: ProcessIssue) {
+export function showNotEnoughSpaceNotification() {
   const now = Date.now();
   const TWO_MINUTES = 2 * 60 * 1000;
 
@@ -27,41 +28,23 @@ function showNotification(issue: ProcessIssue) {
     Logger.info('The users clicked on the notification');
   });
 
+  /**
+   * v2.5.3 Daniel Jiménez
+   * TODO: Notification is not working
+   */
   notification.show();
 }
 
-let processIssues: ProcessIssue[] = [];
 let generalIssues: GeneralIssue[] = [];
 
 export function getGeneralIssues() {
   return generalIssues;
 }
-function getProcessIssues() {
-  return processIssues;
-}
 
-ipcMain.handle('get-process-issues', getProcessIssues);
 ipcMain.handle('get-general-issues', getGeneralIssues);
-
-function onProcessIssuesChanged() {
-  broadcastToWindows('process-issues-changed', processIssues);
-}
 
 function onGeneralIssuesChanged() {
   broadcastToWindows('general-issues-changed', generalIssues);
-}
-
-export function getSyncIssues() {
-  return processIssues.filter((issue) => issue.process === 'SYNC');
-}
-
-export function clearSyncIssues() {
-  processIssues = processIssues.filter((issue) => issue.process === 'BACKUPS');
-  onProcessIssuesChanged();
-}
-export function clearBackupsIssues() {
-  processIssues = processIssues.filter((issue) => issue.process === 'SYNC');
-  onProcessIssuesChanged();
 }
 
 export function clearGeneralIssues() {
@@ -69,33 +52,17 @@ export function clearGeneralIssues() {
   onGeneralIssuesChanged();
 }
 
-export function addProcessIssue(issue: ProcessIssue) {
-  if (issue.errorName === 'NOT_ENOUGH_SPACE') {
-    showNotification(issue);
-  }
-  processIssues.push(issue);
-  onProcessIssuesChanged();
-}
-
 export function addGeneralIssue(issue: GeneralIssue) {
   generalIssues.push(issue);
   onGeneralIssuesChanged();
 }
 
-ipcMain.on('SYNC_INFO_UPDATE', (_, payload: ProcessInfoUpdatePayload) => {
-  if (['PULL_ERROR', 'RENAME_ERROR', 'DELETE_ERROR', 'METADATA_READ_ERROR', 'UPLOAD_ERROR'].includes(payload.action)) {
-    addProcessIssue(payload as ProcessIssue);
-  }
-});
-
 eventBus.on('USER_LOGGED_OUT', () => {
-  clearSyncIssues();
-  clearBackupsIssues();
   clearGeneralIssues();
+  clearIssues();
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', () => {
-  clearSyncIssues();
-  clearBackupsIssues();
   clearGeneralIssues();
+  clearIssues();
 });

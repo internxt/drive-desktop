@@ -20,4 +20,6 @@ export const shortMessages: ProcessErrorMessages = {
   INSUFFICIENT_PERMISSION: 'issues.short-error-messages.no-permission',
   NOT_ENOUGH_SPACE: 'issues.short-error-messages.not-enough-space',
   ACTION_NOT_PERMITTED: '',
+  INVALID_WINDOWS_NAME: 'issues.short-error-messages.invalid-windows-name',
+  DELETE_ERROR: 'issues.short-error-messages.delete-error',
 };

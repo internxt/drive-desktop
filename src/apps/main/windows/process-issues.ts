@@ -21,8 +21,8 @@ async function openProcessIssuesWindow() {
   }
 
   processIssuesWindow = new BrowserWindow({
-    width: 500,
-    height: 384,
+    width: 600,
+    height: 484,
     show: false,
     webPreferences: {
       preload: preloadPath,

@@ -23,9 +23,9 @@ declare interface Window {
 
     onSyncStopped: (func: (value: import('../../context/desktop/sync/domain/SyncStoppedPayload').SyncStoppedPayload) => void) => () => void;
 
-    getProcessIssues(): Promise<import('../shared/types').ProcessIssue[]>;
+    getIssues(): Promise<import('./background-processes/issues').Issue[]>;
 
-    onProcessIssuesChanged(func: (value: import('../shared/types').ProcessIssue[]) => void): () => void;
+    onIssuesChanged(func: (value: import('./background-processes/issues').Issue[]) => void): () => void;
 
     onSyncInfoUpdate(func: (value: import('../shared/types').ProcessInfoUpdatePayload) => void): () => void;
 
