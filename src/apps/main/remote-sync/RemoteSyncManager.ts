@@ -1,62 +1,42 @@
 import { RemoteSyncStatus, rewind, FIVETEEN_MINUTES_IN_MILLISECONDS } from './helpers';
 import { logger } from '../../shared/logger/logger';
-import { SyncRemoteFoldersService } from './folders/sync-remote-folders.service';
-import { SyncRemoteFilesService } from './files/sync-remote-files.service';
 import { Nullable } from '@/apps/shared/types/Nullable';
 import { driveFilesCollection, driveFoldersCollection } from './store';
 import { broadcastSyncStatus } from './services/broadcast-sync-status';
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
+import { syncRemoteFiles } from './files/sync-remote-files';
+import { syncRemoteFolders } from './folders/sync-remote-folders';
 
 export class RemoteSyncManager {
   status: RemoteSyncStatus = 'IDLE';
-  totalFilesSynced = 0;
-  private totalFilesUnsynced: string[] = [];
-  totalFoldersSynced = 0;
+  totalFilesUnsynced: string[] = [];
 
   constructor(
     public readonly worker: TWorkerConfig,
-    public readonly workspaceId?: string,
-    private readonly syncRemoteFiles = new SyncRemoteFilesService(workspaceId),
-    private readonly syncRemoteFolders = new SyncRemoteFoldersService(workspaceId),
+    public readonly workspaceId: string,
   ) {}
-
-  getSyncStatus(): RemoteSyncStatus {
-    return this.status;
-  }
-
-  getUnSyncFiles(): string[] {
-    return this.totalFilesUnsynced;
-  }
 
   async startRemoteSync() {
     logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId });
 
-    this.totalFilesSynced = 0;
     this.totalFilesUnsynced = [];
-    this.totalFoldersSynced = 0;
 
     try {
-      const syncFilesPromise = this.syncRemoteFiles.run({
+      const syncFilesPromise = syncRemoteFiles({
         self: this,
         from: await this.getFileCheckpoint(),
       });
 
-      const syncFoldersPromise = this.syncRemoteFolders.run({
+      const syncFoldersPromise = syncRemoteFolders({
         self: this,
         from: await this.getLastFolderSyncAt(),
       });
 
-      const [files, folders] = await Promise.all([syncFilesPromise, syncFoldersPromise]);
-      return { files, folders };
+      await Promise.all([syncFilesPromise, syncFoldersPromise]);
     } catch (error) {
       logger.error({ msg: 'Remote sync failed with error', error });
       this.changeStatus('SYNC_FAILED');
     }
-
-    return {
-      files: [],
-      folders: [],
-    };
   }
 
   changeStatus(newStatus: RemoteSyncStatus) {
@@ -75,11 +55,7 @@ export class RemoteSyncManager {
   }
 
   async getFileCheckpoint(): Promise<Nullable<Date>> {
-    const promise = this.workspaceId
-      ? driveFilesCollection.getLastUpdatedByWorkspace(this.workspaceId)
-      : driveFilesCollection.getLastUpdated();
-
-    const result = await promise;
+    const result = await driveFilesCollection.getLastUpdatedByWorkspace(this.workspaceId);
 
     if (!result) return undefined;
 
@@ -89,11 +65,7 @@ export class RemoteSyncManager {
   }
 
   private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
-    const promise = this.workspaceId
-      ? driveFoldersCollection.getLastUpdatedByWorkspace(this.workspaceId)
-      : driveFoldersCollection.getLastUpdated();
-
-    const result = await promise;
+    const result = await driveFoldersCollection.getLastUpdatedByWorkspace(this.workspaceId);
 
     if (!result) return undefined;
 

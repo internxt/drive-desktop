@@ -29,13 +29,14 @@ describe('fetch-files-by-folder', () => {
 
   it('If we fetch less than 50 files, then do not fetch again', async () => {
     // Given
-    getFilesByFolderMock.mockResolvedValueOnce({ data: [{}] });
+    getFilesByFolderMock.mockResolvedValueOnce({ data: [] });
 
     // When
     await fetchFilesByFolder({ folderUuid, allFiles });
 
     // Then
     expect(allFiles).toStrictEqual([{ uuid: 'previous' }]);
+    expect(getFilesByFolderMock).toHaveBeenCalledTimes(1);
   });
 
   it('If we fetch 50 files, then fetch again', async () => {

@@ -7,7 +7,6 @@ import { ipcMain } from 'electron';
 import { spawnDefaultSyncEngineWorker, spawnWorkspaceSyncEngineWorkers, updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { DriveFile } from '../database/entities/DriveFile';
-import { DriveFolder } from '../database/entities/DriveFolder';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { ItemBackup } from '../../shared/types/items';
@@ -19,8 +18,8 @@ import { getSyncStatus } from './services/broadcast-sync-status';
 import { FolderStore } from './folders/folder-store';
 import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
 
-export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId?: string; worker: TWorkerConfig }) {
-  remoteSyncManagers.set(workspaceId ?? '', new RemoteSyncManager(worker, workspaceId));
+export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId: string; worker: TWorkerConfig }) {
+  remoteSyncManagers.set(workspaceId, new RemoteSyncManager(worker, workspaceId));
 }
 
 type UpdateFileInBatchInput = {
@@ -144,13 +143,11 @@ async function startRemoteSync({ workspaceId }: { workspaceId: string }): Promis
   if (!manager) throw new Error('RemoteSyncManager not found');
 
   try {
-    const { files, folders } = await manager.startRemoteSync();
+    await manager.startRemoteSync();
 
     logger.debug({
       msg: 'Remote sync finished',
       workspaceId,
-      folders: folders.length,
-      files: files.length,
     });
   } catch (error) {
     throw logger.error({
@@ -177,8 +174,8 @@ ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', async (_, workspaceId = '') => 
   Logger.info('[Get UnSync] Received Get UnSync File event');
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
-  Logger.info(manager.getUnSyncFiles());
-  return manager.getUnSyncFiles();
+  Logger.info(manager.totalFilesUnsynced);
+  return manager.totalFilesUnsynced;
 });
 
 export async function initSyncEngine() {
@@ -202,7 +199,7 @@ function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {
   const manager = getRemoteSyncManager({ workspaceId });
   if (!manager) throw new Error('RemoteSyncManager not found');
 
-  const isSyncing = manager.getSyncStatus() === 'SYNCING';
+  const isSyncing = manager.status === 'SYNCING';
   return isSyncing;
 }
 

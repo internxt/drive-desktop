@@ -14,8 +14,8 @@ export class DriveFolder {
   @Column({ nullable: false, unique: true, type: 'int' })
   id!: number;
 
-  @Column({ nullable: true, type: 'varchar' })
-  workspaceId?: string;
+  @Column({ nullable: false, default: '', type: 'varchar' })
+  workspaceId!: string;
 
   @Column({ nullable: true, type: 'int' })
   parentId?: number;

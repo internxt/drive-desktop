@@ -22,8 +22,6 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
       workspaceId: self.workspaceId,
     });
 
-    self.totalFilesSynced++;
-
     if (remoteFile.status === 'EXISTS' && self.worker.worker) {
       try {
         const plainName = File.decryptName({
