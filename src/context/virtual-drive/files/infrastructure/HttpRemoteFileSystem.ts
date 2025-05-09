@@ -1,9 +1,8 @@
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
-import { File, FileAttributes } from '../domain/File';
+import { FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { Service } from 'diod';
-import { PersistFileDto, PersistFileResponseDto } from './dtos/client.dto';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -24,7 +23,7 @@ export class HttpRemoteFileSystem {
         throw new Error('Failed to encrypt name');
       }
 
-      const body: PersistFileDto = {
+      const body = {
         bucket: this.bucket,
         fileId: offline.contentsId,
         encryptVersion: EncryptionVersion.Aes03,
@@ -38,19 +37,23 @@ export class HttpRemoteFileSystem {
         msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
       });
 
-      const result = this.workspaceId ? await this.createFileInWorkspace(body, this.workspaceId) : await this.createFile(body);
+      const { data, error } = this.workspaceId
+        ? await driveServerWip.workspaces.createFileInWorkspace({ body, workspaceId: this.workspaceId })
+        : await driveServerWip.files.createFile({ body });
+
+      if (!data) throw error;
 
       return {
-        id: result.id,
-        uuid: result.uuid,
-        contentsId: result.fileId,
-        folderId: result.folderId,
-        folderUuid: result.folderUuid,
-        createdAt: result.createdAt,
-        modificationTime: result.updatedAt,
+        id: data.id,
+        uuid: data.uuid,
+        contentsId: data.fileId,
+        folderId: data.folderId,
+        folderUuid: data.folderUuid,
+        createdAt: data.createdAt,
+        modificationTime: data.updatedAt,
         path: offline.path,
-        size: Number(result.size),
-        updatedAt: result.updatedAt,
+        size: Number(data.size),
+        updatedAt: data.updatedAt,
         status: FileStatuses.EXISTS,
       };
     } catch (error) {
@@ -71,73 +74,6 @@ export class HttpRemoteFileSystem {
         msg: 'Failed to persist file and no existing file found',
       });
     }
-  }
-  private async createFile(body: PersistFileDto): Promise<PersistFileResponseDto> {
-    const response = await client.POST('/files', {
-      body,
-    });
-
-    if (!response.data) {
-      throw logger.error({
-        msg: 'Error creating file entry',
-        exc: response.error,
-      });
-    }
-
-    return response.data;
-  }
-  private async createFileInWorkspace(body: PersistFileDto, workspaceId: string): Promise<PersistFileResponseDto> {
-    const response = await client.POST('/workspaces/{workspaceId}/files', {
-      params: {
-        path: {
-          workspaceId,
-        },
-      },
-      body,
-    });
-
-    if (!response.data) {
-      throw logger.error({
-        msg: 'Error creating file entry in workspaces',
-        error: response.error,
-      });
-    }
-
-    return response.data;
-  }
-  async delete(file: File): Promise<void> {
-    await driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
-  }
-
-  async rename(file: File): Promise<void> {
-    await driveServerWip.files.renameFile({
-      name: file.name,
-      type: file.type,
-      uuid: file.uuid,
-    });
-  }
-  async move({ file, parentUuid }: { file: File; parentUuid: string }): Promise<void> {
-    await driveServerWip.files.moveFile({
-      uuid: file.uuid,
-      parentUuid,
-    });
-  }
-
-  // TODO: this is duplicated
-  async replace(file: File, newContentId: File['contentsId'], newSize: File['size']): Promise<void> {
-    await driveServerWip.files.replaceFile({
-      uuid: file.uuid,
-      newContentId,
-      newSize,
-    });
-  }
-
-  async override(file: File): Promise<void> {
-    await driveServerWip.files.replaceFile({
-      uuid: file.uuid,
-      newContentId: file.contentsId,
-      newSize: file.size,
-    });
   }
 
   async getFileByPath(filePath: string): Promise<null | FileAttributes> {

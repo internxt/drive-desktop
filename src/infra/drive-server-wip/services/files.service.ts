@@ -4,6 +4,7 @@ import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { client } from '@/apps/shared/HttpClient/client';
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
+type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 export class FilesService {
@@ -21,6 +22,24 @@ export class FilesService {
         context,
         attributes: {
           method: 'GET',
+          endpoint: '/files',
+        },
+      },
+    });
+  }
+
+  createFile(context: { body: TCreateFileBody }) {
+    const promise = client.POST('/files', {
+      body: context.body,
+    });
+
+    return this.clientWrapper.run({
+      promise,
+      loggerBody: {
+        msg: 'Create file request was not successful',
+        context,
+        attributes: {
+          method: 'POST',
           endpoint: '/files',
         },
       },

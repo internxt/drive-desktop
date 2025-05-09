@@ -1,5 +1,4 @@
 import { ContentsId } from '../../contents/domain/ContentsId';
-import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
 
@@ -44,14 +43,6 @@ export class OfflineFile {
     return this._path.name();
   }
 
-  public get nameWithExtension() {
-    return this._path.nameWithExtension();
-  }
-
-  public get dirname() {
-    return this._path.dirname();
-  }
-
   public get size(): number {
     return this._size.value;
   }
@@ -64,33 +55,5 @@ export class OfflineFile {
       new FilePath(attributes.path),
       new FileSize(attributes.size),
     );
-  }
-
-  static create(contentsId: string, folder: Folder, size: FileSize, path: FilePath): OfflineFile {
-    const file = new OfflineFile(new ContentsId(contentsId), folder.id, folder.uuid, path, size);
-
-    return file;
-  }
-
-  hasParent(id: number): boolean {
-    return this.folderId === id;
-  }
-
-  isFolder(): this is Folder {
-    return false;
-  }
-
-  isFile(): this is File {
-    return true;
-  }
-
-  attributes(): OfflineFileAttributes {
-    return {
-      contentsId: this.contentsId,
-      folderId: this.folderId,
-      path: this._path.value,
-      folderUuid: this.folderUuid,
-      size: this._size.value,
-    };
   }
 }

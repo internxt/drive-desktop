@@ -60,31 +60,13 @@ export class FileBatchUploader {
 
             logger.debug({ msg: 'Uploading file', remotePath, parent });
 
-            const either = await this.creator.run({
+            const file = await this.creator.run({
               contentsId,
               folderId: parent.id,
               folderUuid: parent.uuid,
               path: remotePath,
               size: localFile.size,
             });
-
-            if (either.isLeft()) {
-              await this.localHandler.delete(contentsId);
-              const error = either.getLeft();
-
-              if (error.cause === 'FILE_ALREADY_EXISTS') {
-                return; // Continuar con el siguiente archivo en paralelo
-              }
-
-              if (error.cause === 'BAD_RESPONSE') {
-                this.messenger.creationFailed(localFile, error);
-                return; // Continuar con el siguiente archivo en paralelo
-              }
-
-              throw error;
-            }
-
-            const file = either.getRight();
 
             Logger.info('[File created]', file);
 

@@ -42,13 +42,13 @@ export function buildFilesContainer(
 
   const repository = new InMemoryFileRepository();
 
-  const fileDeleter = new FileDeleter(remoteFileSystem, localFileSystem, repository, folderContainer.allParentFoldersStatusIsExists);
+  const fileDeleter = new FileDeleter(localFileSystem, repository, folderContainer.allParentFoldersStatusIsExists);
 
   const fileFolderContainerDetector = new FileFolderContainerDetector(repository, folderContainer.folderFinder);
 
   const sameFileWasMoved = new SameFileWasMoved(repository, localFileSystem, eventHistory);
 
-  const filePathUpdater = new FilePathUpdater(remoteFileSystem, repository, folderContainer.folderFinder, ipcRendererSyncEngine);
+  const filePathUpdater = new FilePathUpdater(repository, folderContainer.folderFinder, ipcRendererSyncEngine);
 
   const fileCreator = new FileCreator(remoteFileSystem, repository, folderContainer.folderFinder, fileDeleter, ipcRendererSyncEngine);
 
@@ -68,7 +68,7 @@ export function buildFilesContainer(
 
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
-  const fileContentsUpdater = new FileContentsUpdater(repository, remoteFileSystem);
+  const fileContentsUpdater = new FileContentsUpdater(repository);
 
   const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem);
 

@@ -1,16 +1,14 @@
-import { Service } from 'diod';
 import { FileSize } from '../../domain/FileSize';
 import { File } from '../../domain/File';
 import { FileContentsId } from '../../domain/FileContentsId';
-import { HttpRemoteFileSystem } from '../../infrastructure/HttpRemoteFileSystem';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
-@Service()
-export class SimpleFileOverrider {
-  constructor(private readonly rfs: HttpRemoteFileSystem) {}
+export async function simpleFileOverride(file: File, contentsId: string, size: number): Promise<void> {
+  file.changeContents(new FileContentsId(contentsId), new FileSize(size));
 
-  async run(file: File, contentsId: string, size: number): Promise<void> {
-    file.changeContents(new FileContentsId(contentsId), new FileSize(size));
-
-    await this.rfs.override(file);
-  }
+  await driveServerWip.files.replaceFile({
+    uuid: file.uuid,
+    newContentId: file.contentsId,
+    newSize: file.size,
+  });
 }

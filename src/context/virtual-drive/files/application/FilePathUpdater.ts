@@ -7,12 +7,11 @@ import { FolderFinder } from '../../folders/application/FolderFinder';
 import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { logger } from '../../../../apps/shared/logger/logger';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export class FilePathUpdater {
   constructor(
-    private readonly remote: HttpRemoteFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly ipc: SyncEngineIpc,
@@ -21,7 +20,12 @@ export class FilePathUpdater {
   private async rename(file: File, path: FilePath) {
     file.rename(path);
 
-    await this.remote.rename(file);
+    await driveServerWip.files.renameFile({
+      name: file.name,
+      type: file.type,
+      uuid: file.uuid,
+    });
+
     this.repository.update(file);
   }
 
@@ -40,8 +44,8 @@ export class FilePathUpdater {
     }
 
     Logger.debug('[REMOTE MOVE]', file.name, destinationFolder.name);
-    await this.remote.move({
-      file,
+    await driveServerWip.files.moveFile({
+      uuid: file.uuid,
       parentUuid: destinationFolder.uuid,
     });
     Logger.debug('[REPOSITORY MOVE]', file.name, destinationFolder.name);

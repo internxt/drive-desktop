@@ -7,18 +7,19 @@ import { mockDeep } from 'vitest-mock-extended';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
+import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 describe('File Deleter', () => {
   const repository = mockDeep<InMemoryFileRepository>();
   const folderRepository = mockDeep<InMemoryFolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(folderRepository);
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
-  const remoteFileSystem = mockDeep<HttpRemoteFileSystem>();
+  const deleteFileByUuidMock = deepMocked(driveServerWip.storage.deleteFileByUuid);
   const ipc = mockDeep<SyncEngineIpc>();
 
-  const SUT = new FileDeleter(remoteFileSystem, localFileSystem, repository, allParentFoldersStatusIsExists, ipc);
+  const SUT = new FileDeleter(localFileSystem, repository, allParentFoldersStatusIsExists, ipc);
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -54,7 +55,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(remoteFileSystem.delete).toBeCalled();
+    expect(deleteFileByUuidMock).toBeCalled();
   });
 
   it('trashes the file with the status trashed', async () => {
@@ -65,7 +66,7 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(remoteFileSystem.delete).toBeCalledWith(file);
+    expect(deleteFileByUuidMock).toBeCalledWith({ uuid: file.uuid });
     expect(repository.update).toBeCalledWith(expect.objectContaining({ status: FileStatus.Trashed }));
   });
 });

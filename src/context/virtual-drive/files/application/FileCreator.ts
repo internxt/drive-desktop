@@ -1,7 +1,6 @@
 import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
-import { FileSize } from '../domain/FileSize';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
@@ -33,11 +32,16 @@ export class FileCreator {
           await this.fileDeleter.run(existingFile.contentsId);
         }
       }
-      const size = new FileSize(contents.size);
 
       const folder = this.folderFinder.findFromFilePath(filePath);
 
-      const offline = OfflineFile.create(contents.id, folder, size, filePath);
+      const offline = OfflineFile.from({
+        contentsId: contents.id,
+        folderId: folder.id,
+        folderUuid: folder.uuid,
+        path: filePath.value,
+        size: contents.size,
+      });
 
       const persistedAttributes = await this.remote.persist(offline);
 
