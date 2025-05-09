@@ -1,7 +1,6 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
-import { ProcessInfoUpdatePayload } from '../../types';
 import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { Issue } from '@/apps/main/background-processes/issues';
 

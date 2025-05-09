@@ -1,4 +1,4 @@
-import { Folder } from '../../folders/domain/Folder';
+import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 import { FileNode } from './FileNode';
 import { Node } from './Node';
 

@@ -17,19 +17,18 @@ import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator
 import { getParentDirectory, relativeV2 } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
-import { RemoteTreeBuilder } from '../../context/virtual-drive/remoteTree/application/RemoteTreeBuilder';
-import { RemoteTree } from '../../context/virtual-drive/remoteTree/domain/RemoteTree';
+import { RemoteTree } from './remote-tree/domain/RemoteTree';
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
+import { Traverser } from './remote-tree/traverser';
 
 @Service()
 export class Backup {
   constructor(
     private readonly localTreeBuilder: LocalTreeBuilder,
-    private readonly remoteTreeBuilder: RemoteTreeBuilder,
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
     private readonly remoteFileDeleter: FileDeleter,
@@ -50,7 +49,7 @@ export class Backup {
 
     const local = localTreeEither.getRight();
 
-    const remote = await this.remoteTreeBuilder.run({
+    const remote = await new Traverser().run({
       rootFolderId: info.folderId,
       rootFolderUuid: info.folderUuid,
     });

@@ -2,7 +2,7 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
-import { RemoteTree } from '../../../../virtual-drive/remoteTree/domain/RemoteTree';
+import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
 import { relativeV2 } from '../../../../../apps/backups/utils/relative';
 import { isFatalError } from '../../../../../apps/shared/issues/SyncErrorCause';
 import Logger from 'electron-log';

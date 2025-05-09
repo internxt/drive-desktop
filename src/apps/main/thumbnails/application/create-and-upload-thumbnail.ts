@@ -11,6 +11,7 @@ export async function createAndUploadThumbnail(fileId: number, name: string, pat
       return;
     }
 
+    logger.debug({ msg: 'Create thumbnail', path });
     await uploader.upload(fileId, image);
   } catch (exc) {
     logger.error({ msg: '[THUMBNAIL] Error processing thumbnail', exc });

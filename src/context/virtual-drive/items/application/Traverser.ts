@@ -5,11 +5,8 @@ import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { File } from '../../files/domain/File';
-import { RemoteItemsGenerator } from './RemoteItemsGenerator';
 import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
-
-const FILE_STATUSES_TO_FILTER = [ServerFileStatus.EXISTS, ServerFileStatus.TRASHED, ServerFileStatus.DELETED];
-const FOLDER_STATUSES_TO_FILTER = [ServerFolderStatus.EXISTS, ServerFolderStatus.TRASHED, ServerFolderStatus.DELETED];
+import { getAllItems } from './RemoteItemsGenerator';
 
 type Items = {
   files: Array<ServerFile>;
@@ -27,7 +24,6 @@ export class Traverser {
   constructor(
     private readonly baseFolderId: number,
     private readonly baseFolderUuid: string,
-    private readonly remoteItemsGenerator: RemoteItemsGenerator,
   ) {}
 
   private createRootFolder(): Folder {
@@ -50,10 +46,6 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
-      if (!FILE_STATUSES_TO_FILTER.includes(serverFile.status)) {
-        return;
-      }
-
       const decryptedName = File.decryptName({
         plainName: serverFile.plainName,
         name: serverFile.name,
@@ -77,10 +69,6 @@ export class Traverser {
     });
 
     foldersInThisFolder.forEach((serverFolder) => {
-      if (!FOLDER_STATUSES_TO_FILTER.includes(serverFolder.status)) {
-        return;
-      }
-
       const decryptedName = Folder.decryptName({
         plainName: serverFolder.plain_name,
         name: serverFolder.name,
@@ -106,7 +94,7 @@ export class Traverser {
 
   async run() {
     const rootFolder = this.createRootFolder();
-    const items = await this.remoteItemsGenerator.getAll();
+    const items = await getAllItems();
 
     const tree: Tree = {
       files: [],

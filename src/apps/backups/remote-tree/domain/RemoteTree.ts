@@ -1,6 +1,6 @@
 import path from 'path';
-import { File } from '../../files/domain/File';
-import { Folder } from '../../folders/domain/Folder';
+import { File } from '../../../../context/virtual-drive/files/domain/File';
+import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 import { FileNode } from './FileNode';
 import { FolderNode } from './FolderNode';
 import { Node } from './Node';

@@ -3,7 +3,7 @@ import { AbsolutePath } from '../../../context/local/localFile/infrastructure/Ab
 import { LocalFolder } from '../../../context/local/localFolder/domain/LocalFolder';
 import { LocalTree } from '../../../context/local/localTree/domain/LocalTree';
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
-import { RemoteTree } from '../../../context/virtual-drive/remoteTree/domain/RemoteTree';
+import { RemoteTree } from '../remote-tree/domain/RemoteTree';
 import { relative } from '../utils/relative';
 import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
 
