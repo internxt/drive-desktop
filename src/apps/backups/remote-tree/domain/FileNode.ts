@@ -1,4 +1,4 @@
-import { File } from '../../files/domain/File';
+import { File } from '../../../../context/virtual-drive/files/domain/File';
 import { FolderNode } from './FolderNode';
 
 export class FileNode {

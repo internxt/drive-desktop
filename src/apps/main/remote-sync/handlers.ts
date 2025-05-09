@@ -167,7 +167,7 @@ ipcMain.handle('get-remote-sync-status', () => {
 
 ipcMain.handle('SYNC_MANUALLY', async () => {
   Logger.info('[Manual Sync] Received manual sync event');
-  await debouncedSynchronization();
+  await updateAllRemoteSync();
 });
 
 ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', async (_, workspaceId = '') => {

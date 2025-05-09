@@ -4,20 +4,21 @@ import { v4 } from 'uuid';
 import { ContentsIdMother } from 'tests/context/virtual-drive/contents/domain/ContentsIdMother';
 import { Traverser } from './Traverser';
 import crypt from '@/context/shared/infrastructure/crypt';
-import { mockDeep } from 'vitest-mock-extended';
-import { RemoteItemsGenerator } from './RemoteItemsGenerator';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
+import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { getAllItems } from './RemoteItemsGenerator';
 
 vi.mock(import('@/context/shared/infrastructure/crypt'));
+vi.mock(import('./RemoteItemsGenerator'));
 
 describe('Traverser', () => {
   const cryptMock = vi.mocked(crypt);
-  const remoteItemsGenerateMock = mockDeep<RemoteItemsGenerator>();
+  const getAllItemsMock = deepMocked(getAllItems);
 
   const baseFolderId = 6;
   const baseFolderUuid = v4();
-  const SUT = new Traverser(baseFolderId, baseFolderUuid, remoteItemsGenerateMock);
+  const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
   beforeAll(() => {
     cryptMock.decryptName.mockImplementation(({ name }) => name);
@@ -32,7 +33,7 @@ describe('Traverser', () => {
   }
 
   it('first level files starts with /', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [
         {
           name: 'file A',
@@ -54,7 +55,7 @@ describe('Traverser', () => {
   });
 
   it('second level files starts with /', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [
         {
           name: 'file A',
@@ -85,7 +86,7 @@ describe('Traverser', () => {
   });
 
   it('first level folder starts with /', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [],
       folders: [
         {
@@ -105,7 +106,7 @@ describe('Traverser', () => {
   });
 
   it('second level folder starts with /', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [],
       folders: [
         {
@@ -133,7 +134,7 @@ describe('Traverser', () => {
   });
 
   it('root folder should exist', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [],
       folders: [
         {
@@ -161,7 +162,7 @@ describe('Traverser', () => {
   });
 
   it('when a file data is invalid ignore it and continue', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [
         {
           name: 'invalid file',
@@ -200,7 +201,7 @@ describe('Traverser', () => {
   });
 
   it('when a folder data is invalid ignore it and continue', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [],
       folders: [
         {
@@ -222,7 +223,7 @@ describe('Traverser', () => {
   });
 
   it('filters the files and folders depending on the filters set', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [
         {
           name: 'file A',
@@ -253,7 +254,7 @@ describe('Traverser', () => {
   });
 
   it('filters the files and folders depending on the filters set', async () => {
-    remoteItemsGenerateMock.getAll.mockResolvedValue({
+    getAllItemsMock.mockResolvedValue({
       files: [
         {
           name: 'file A',

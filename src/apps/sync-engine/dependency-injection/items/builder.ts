@@ -1,4 +1,3 @@
-import { RemoteItemsGenerator } from '../../../../context/virtual-drive/items/application/RemoteItemsGenerator';
 import { Traverser } from '../../../../context/virtual-drive/items/application/Traverser';
 import { getUser } from '../../../main/auth/service';
 import { getConfig } from '../../config';
@@ -11,9 +10,7 @@ export function buildItemsContainer(): ItemsContainer {
     throw new Error('Could not get user when building Items dependencies');
   }
 
-  const remoteItemsGenerator = new RemoteItemsGenerator();
-
-  const traverser = new Traverser(user.root_folder_id, getConfig().rootUuid, remoteItemsGenerator);
+  const traverser = new Traverser(user.root_folder_id, getConfig().rootUuid);
 
   return { traverser };
 }

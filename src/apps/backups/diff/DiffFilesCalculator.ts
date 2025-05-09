@@ -3,7 +3,7 @@ import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
 import { AbsolutePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
 import { LocalTree } from '../../../context/local/localTree/domain/LocalTree';
 import { File } from '../../../context/virtual-drive/files/domain/File';
-import { RemoteTree } from '../../../context/virtual-drive/remoteTree/domain/RemoteTree';
+import { RemoteTree } from '../remote-tree/domain/RemoteTree';
 import { relativeV2 } from '../utils/relative';
 import { FileStatus } from '../../../context/virtual-drive/files/domain/FileStatus';
 import Store from 'electron-store';

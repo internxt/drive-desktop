@@ -1,21 +1,20 @@
-import * as Sentry from '@sentry/electron/renderer';
-import { Service } from 'diod';
-import Logger from 'electron-log';
-import { ServerFolder } from '../../../shared/domain/ServerFolder';
-import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
-import { Folder } from '../../folders/domain/Folder';
-import { FolderStatus } from '../../folders/domain/FolderStatus';
-import { RemoteTree } from '../domain/RemoteTree';
-import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
-import { File } from '../../files/domain/File';
 import { ServerFile } from '@/context/shared/domain/ServerFile';
+import { ServerFolder } from '@/context/shared/domain/ServerFolder';
+import { createFileFromServerFile } from '@/context/virtual-drive/files/application/FileCreatorFromServerFile';
+import { File } from '@/context/virtual-drive/files/domain/File';
+import { createFolderFromServerFolder } from '@/context/virtual-drive/folders/application/create/FolderCreatorFromServerFolder';
+import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
+import { FolderStatus } from '@/context/virtual-drive/folders/domain/FolderStatus';
+import { RemoteTree } from '@/apps/backups/remote-tree/domain/RemoteTree';
+import * as Sentry from '@sentry/electron/renderer';
+import Logger from 'electron-log';
+import { getAllItemsByFolderUuid } from './get-all-items-by-folder-uuid';
 
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
 };
 
-@Service()
 export class Traverser {
   private createRootFolder({ id, uuid }: { id: number; uuid: string }): Folder {
     return Folder.from({
@@ -77,7 +76,9 @@ export class Traverser {
     });
   }
 
-  public run({ rootFolderId, rootFolderUuid, items }: { rootFolderId: number; rootFolderUuid: string; items: Items }): RemoteTree {
+  async run({ rootFolderId, rootFolderUuid }: { rootFolderId: number; rootFolderUuid: string }): Promise<RemoteTree> {
+    const items = await getAllItemsByFolderUuid(rootFolderUuid);
+
     const rootFolder = this.createRootFolder({ id: rootFolderId, uuid: rootFolderUuid });
 
     const tree = new RemoteTree(rootFolder);
