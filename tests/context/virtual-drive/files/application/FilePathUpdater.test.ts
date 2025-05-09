@@ -6,15 +6,17 @@ import { FolderMother } from '../../folders/domain/FolderMother';
 import { FileMother } from '../domain/FileMother';
 import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
-import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { deepMocked } from 'tests/vitest/utils.helper.test';
 
 describe('File path updater', () => {
   const repository = mockDeep<InMemoryFileRepository>();
   const folderFinder = mockDeep<FolderFinder>();
   const ipcRenderer = mockDeep<SyncEngineIpc>();
-  const remoteFileSystem = mockDeep<HttpRemoteFileSystem>();
+  const renameFileMock = deepMocked(driveServerWip.files.renameFile);
+  const moveFileMock = deepMocked(driveServerWip.files.moveFile);
 
-  const SUT = new FilePathUpdater(remoteFileSystem, repository, folderFinder, ipcRenderer);
+  const SUT = new FilePathUpdater(repository, folderFinder, ipcRenderer);
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -37,7 +39,7 @@ describe('File path updater', () => {
     await SUT.run(fileToRename.contentsId, destination.value);
 
     expect(repository.update).toBeCalledWith(expect.objectContaining({ path: destination.value }));
-    expect(remoteFileSystem.rename).toBeCalledWith(expect.objectContaining({ path: destination.value }));
+    expect(renameFileMock).toBeCalledWith(expect.objectContaining({ name: fileToRename.name }));
   });
 
   it('does not rename or moves a file when the extension changes', () => {
@@ -77,9 +79,9 @@ describe('File path updater', () => {
     await SUT.run(fileToMove.contentsId, destination.value);
 
     expect(repository.update).toBeCalledWith(expect.objectContaining(fileToMove));
-    expect(remoteFileSystem.move).toBeCalledWith(
+    expect(moveFileMock).toBeCalledWith(
       expect.objectContaining({
-        file: fileToMove,
+        uuid: fileToMove.uuid,
         parentUuid: destinationFolder.uuid,
       }),
     );

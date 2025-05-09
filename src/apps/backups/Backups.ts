@@ -16,7 +16,6 @@ import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
 import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator';
 import { getParentDirectory, relativeV2 } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
-import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
 import { RemoteTree } from './remote-tree/domain/RemoteTree';
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
@@ -24,6 +23,7 @@ import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
 import { Traverser } from './remote-tree/traverser';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 @Service()
 export class Backup {
@@ -31,7 +31,6 @@ export class Backup {
     private readonly localTreeBuilder: LocalTreeBuilder,
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
-    private readonly remoteFileDeleter: FileDeleter,
     private readonly remoteFolderDeleter: FolderDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
     private readonly dangledFilesService: DangledFilesService,
@@ -199,7 +198,7 @@ export class Backup {
         return;
       }
       try {
-        await this.remoteFileDeleter.run(file);
+        await driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
       } catch (error) {
         logger.warn({
           msg: 'Error deleting file',

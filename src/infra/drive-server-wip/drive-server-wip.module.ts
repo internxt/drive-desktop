@@ -4,15 +4,10 @@ import { FilesService } from './services/files.service';
 import { FoldersService } from './services/folders.service';
 import { StorageService } from './services/storage.service';
 import { UserService } from './services/user.service';
-import { getCredentials, getFilesInWorkspace, getFoldersInWorkspace, getWorkspaces } from './services/workspaces.service';
+import * as workspaces from './services/workspaces.service';
 
 export class DriveServerWipModule {
-  public workspaces = {
-    getWorkspaces,
-    getCredentials,
-    getFilesInWorkspace,
-    getFoldersInWorkspace,
-  };
+  public workspaces = workspaces;
 
   constructor(
     public auth = new AuthService(),

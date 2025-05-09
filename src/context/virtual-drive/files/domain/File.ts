@@ -107,23 +107,6 @@ export class File {
     );
   }
 
-  static create(attributes: Omit<FileAttributes, 'status'>): File {
-    const file = new File(
-      attributes.id,
-      new FileUuid(attributes.uuid || ''),
-      new FileContentsId(attributes.contentsId),
-      new FileFolderId(attributes.folderId),
-      attributes.folderUuid ? new FolderUuid(attributes.folderUuid) : undefined,
-      new FilePath(attributes.path),
-      new FileSize(attributes.size),
-      new Date(attributes.createdAt),
-      new Date(attributes.updatedAt),
-      FileStatus.Exists,
-    );
-
-    return file;
-  }
-
   static decryptName({
     plainName,
     name,

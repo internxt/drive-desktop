@@ -1,8 +1,6 @@
 import { Folder, FolderAttributes } from '../domain/Folder';
 import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { PersistFolderDto, PersistFolderInWorkspaceDto, PersistFolderResponseDto } from './dtos/client.dto';
-import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 @Service()
@@ -19,17 +17,22 @@ export class HttpRemoteFolderSystem {
       name: offline.basename,
       parentFolderUuid: offline.parentUuid,
     };
+
     try {
-      const result = this.workspaceId ? await this.createFolderInWorkspace(body, this.workspaceId) : await this.createFolder(body);
+      const { data, error } = this.workspaceId
+        ? await driveServerWip.workspaces.createFolderInWorkspace({ body, workspaceId: this.workspaceId })
+        : await driveServerWip.folders.createFolder({ body });
+
+      if (!data) throw error;
 
       return {
-        id: result.id,
-        uuid: result.uuid,
-        parentId: result.parentId,
-        parentUuid: result.parentUuid,
+        id: data.id,
+        uuid: data.uuid,
+        parentId: data.parentId,
+        parentUuid: data.parentUuid,
         path: offline.path,
-        updatedAt: result.updatedAt,
-        createdAt: result.createdAt,
+        updatedAt: data.updatedAt,
+        createdAt: data.createdAt,
         status: FolderStatuses.EXISTS,
       };
     } catch (error: unknown) {
@@ -40,56 +43,6 @@ export class HttpRemoteFolderSystem {
 
       const existing = await this.existFolder(offline);
       return existing.status !== FolderStatuses.EXISTS ? Promise.reject(error) : existing;
-    }
-  }
-
-  private async createFolder(body: PersistFolderDto): Promise<PersistFolderResponseDto> {
-    try {
-      const response = await client.POST('/folders', {
-        body,
-      });
-
-      if (!response.data) {
-        logger.error({
-          msg: 'Error creating file entry',
-          error: response.error,
-        });
-
-        throw new Error('Error creating file entry');
-      }
-
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to create file and no existing file found');
-    }
-  }
-
-  private async createFolderInWorkspace(body: PersistFolderInWorkspaceDto, workspaceId: string): Promise<PersistFolderResponseDto> {
-    try {
-      const response = await client.POST('/workspaces/{workspaceId}/folders', {
-        params: {
-          path: {
-            workspaceId,
-          },
-        },
-        body,
-      });
-
-      if (response.error) {
-        logger.error({
-          msg: 'Error creating file entry',
-          error: response,
-        });
-        throw new Error('Error creating file entry');
-      }
-
-      return response.data;
-    } catch (error) {
-      logger.error({
-        msg: 'Error creating file entry',
-        exc: error,
-      });
-      throw new Error('Failed to create file and no existing file found');
     }
   }
 
