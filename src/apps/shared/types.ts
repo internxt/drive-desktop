@@ -54,7 +54,7 @@ export type ErrorDetails = {
   // System call name
   syscall?: string;
   // Extra details about the error
-  info?: Record<string, any>;
+  info?: Record<string, unknown>;
 
   // Aditional info that could be helpful
   // to debug

@@ -6,6 +6,39 @@ import { getBaseName, getExtension } from '../../utils/path';
 import { ProcessInfoUpdatePayload, ProcessErrorName } from '../../../shared/types';
 import { fileIcon } from '../../assets/icons/getIcon';
 
+function getDescription({
+  action,
+  errorName,
+  progress,
+}: {
+  action: string | undefined;
+  errorName?: ProcessErrorName;
+  progress?: number;
+}): string {
+  const { translate } = useTranslationContext();
+
+  const actionDescriptions: Record<string, string> = {
+    DOWNLOADING: 'widget.body.activity.operation.downloading',
+    PREPARING: 'widget.body.activity.operation.preparing',
+    UPLOADING: progress ? 'widget.body.activity.operation.uploading' : 'widget.body.activity.operation.encrypting',
+    DOWNLOADED: 'widget.body.activity.operation.downloaded',
+    DOWNLOAD_CANCEL: 'widget.body.activity.operation.cancel_downloaded',
+    UPLOADED: 'widget.body.activity.operation.uploaded',
+    DELETING: 'widget.body.activity.operation.deleting',
+    DELETED: 'widget.body.activity.operation.deleted',
+    RENAMING: 'widget.body.activity.operation.renaming',
+    RENAMED: 'widget.body.activity.operation.renamed',
+  };
+
+  if (action) {
+    return translate(actionDescriptions[action] ?? '');
+  }
+  if (errorName) {
+    return translate(shortMessages[errorName] ?? '');
+  }
+  return '';
+}
+
 export function Item({
   name,
   action,
@@ -15,36 +48,9 @@ export function Item({
   progress?: number;
   errorName?: ProcessErrorName;
 }) {
-  const { translate } = useTranslationContext();
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 
-  let description = '';
-
-  if (action === 'DOWNLOADING') {
-    description = progress
-      ? translate('widget.body.activity.operation.decrypting')
-      : translate('widget.body.activity.operation.downloading');
-  } else if (action === 'PREPARING') {
-    description = translate('widget.body.activity.operation.preparing');
-  } else if (action === 'UPLOADING') {
-    description = progress ? translate('widget.body.activity.operation.uploading') : translate('widget.body.activity.operation.encrypting');
-  } else if (action === 'DOWNLOADED') {
-    description = translate('widget.body.activity.operation.downloaded');
-  } else if (action === 'DOWNLOAD_CANCEL') {
-    description = translate('widget.body.activity.operation.cancel_downloaded');
-  } else if (action === 'UPLOADED') {
-    description = translate('widget.body.activity.operation.uploaded');
-  } else if (action === 'DELETING') {
-    description = translate('widget.body.activity.operation.deleting');
-  } else if (action === 'DELETED') {
-    description = translate('widget.body.activity.operation.deleted');
-  } else if (action === 'RENAMING') {
-    description = translate('widget.body.activity.operation.renaming');
-  } else if (action === 'RENAMED') {
-    description = translate('widget.body.activity.operation.renamed');
-  } else if (errorName) {
-    description = shortMessages[errorName];
-  }
+  const description = getDescription({ action, errorName });
 
   return (
     <div className="flex h-14 w-full px-3">

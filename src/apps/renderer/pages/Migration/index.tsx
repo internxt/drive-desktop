@@ -26,7 +26,6 @@ export default function Migration() {
     try {
       await window.electron.openMigrationFailedFolder();
     } catch (error) {
-      console.error('Error opening migration failed folder: ', error);
       reportError(error, {
         description: 'Open folder with items that we failed to move',
       });
@@ -100,7 +99,6 @@ export default function Migration() {
 
       finishMigrationSuccess()
         .catch((error) => {
-          console.error('Error moving sync folder to desktop: ', error);
           reportError(error, {
             description: 'Failed to move sync folder to desktop location',
           });

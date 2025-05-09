@@ -37,7 +37,7 @@ function LoggedInWrapper({ children }: { children: JSX.Element }) {
   }
   useEffect(() => {
     window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
-    window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
+    void window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
   }, []);
 
   return children;
