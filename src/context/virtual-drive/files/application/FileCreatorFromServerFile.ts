@@ -1,8 +1,9 @@
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ServerFile } from '../../../shared/domain/ServerFile';
 import { File } from '../../files/domain/File';
 import { FileStatuses } from '../../files/domain/FileStatus';
 
-export function createFileFromServerFile(server: ServerFile, relativePath: string): File {
+export function createFileFromServerFile(server: ServerFile, relativePath: RelativePath): File {
   return File.from({
     id: server.id,
     uuid: server.uuid,

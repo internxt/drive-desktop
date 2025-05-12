@@ -3,8 +3,7 @@ import { FileBatchUpdater } from '../../context/local/localFile/application/upda
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
 import { AbsolutePath } from '../../context/local/localFile/infrastructure/AbsolutePath';
-import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
-import { LocalTree } from '../../context/local/localTree/domain/LocalTree';
+import LocalTreeBuilder, { LocalTree } from '../../context/local/localTree/application/LocalTreeBuilder';
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
@@ -12,23 +11,21 @@ import { BackupInfo } from './BackupInfo';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
 import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
-import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
-import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator';
+import { calculateFilesDiff, FilesDiff } from './diff/DiffFilesCalculator';
+import { calculateFoldersDiff, FoldersDiff } from './diff/FoldersDiffCalculator';
 import { getParentDirectory, relativeV2 } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
-import { RemoteTree } from './remote-tree/domain/RemoteTree';
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
-import { Traverser } from './remote-tree/traverser';
+import { RemoteTree, Traverser } from './remote-tree/traverser';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 @Service()
 export class Backup {
   constructor(
-    private readonly localTreeBuilder: LocalTreeBuilder,
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
     private readonly remoteFolderDeleter: FolderDeleter,
@@ -39,7 +36,7 @@ export class Backup {
   private backed = 0;
 
   async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
-    const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
+    const localTreeEither = await LocalTreeBuilder.run(info.pathname as AbsolutePath);
 
     if (localTreeEither.isLeft()) {
       logger.warn({ msg: 'Error building local tree', error: localTreeEither.getLeft() });
@@ -47,15 +44,19 @@ export class Backup {
     }
 
     const local = localTreeEither.getRight();
+    logger.debug({ msg: 'ENTRAMOSSSSSSSSSSSS', local });
 
     const remote = await new Traverser().run({
       rootFolderId: info.folderId,
       rootFolderUuid: info.folderUuid,
     });
 
-    const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
+    const foldersDiff = calculateFoldersDiff({ local, remote });
 
-    const filesDiff = DiffFilesCalculator.calculate(local, remote);
+    const filesDiff = calculateFilesDiff({ local, remote });
+
+    logger.debug({ msg: 'FOLDERS', foldersDiff });
+    logger.debug({ msg: 'FILES', filesDiff });
 
     if (filesDiff.dangled.size > 0) {
       logger.info({
@@ -88,6 +89,7 @@ export class Backup {
       alreadyBacked,
     });
 
+    return;
     BackupsIPCRenderer.send('backups.total-items-calculated', filesDiff.total + foldersDiff.total, alreadyBacked);
 
     await this.backupFolders(foldersDiff, local, remote, abortController);
@@ -236,10 +238,6 @@ export class Backup {
     for (const localFolder of added) {
       const relativePath = relativeV2(localRootPath, localFolder.path);
 
-      if (relativePath === '/') {
-        continue; // ingore root folder
-      }
-
       const remoteParentPath = getParentDirectory(localRootPath, localFolder.path);
 
       logger.debug({
@@ -247,15 +245,15 @@ export class Backup {
         relativePath,
       });
 
-      const parentExists = tree.has(remoteParentPath);
+      const parent = tree.folders[remoteParentPath];
 
-      if (!parentExists) {
+      if (!parent) {
         logger.debug({ msg: 'Parent folder does not exist' });
         continue;
       }
 
-      const parent = tree.getParent(relativePath);
-      const existingItems = tree.has(relativePath);
+      // Some regex to test if any file starts with the path
+      const existingItems = Object.keys(tree.files).some((file) => file.startsWith(relativePath));
 
       if (existingItems) {
         continue;

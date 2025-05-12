@@ -1,3 +1,4 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { BrowserWindow } from 'electron';
 import Logger from 'electron-log';
 import path from 'path';
@@ -22,6 +23,7 @@ export class BackupWorker {
   }
 
   static spawn(id: number): BackupWorker {
+    logger.debug({ msg: 'LLEGAMOSSSSSSSSSS' });
     const worker = new BrowserWindow({
       webPreferences: {
         nodeIntegration: true,

@@ -1,8 +1,9 @@
 import path from 'path';
-import { AbsolutePath } from '../infrastructure/AbsolutePath';
+import { AbsolutePath, RelativePath } from '../infrastructure/AbsolutePath';
 import { LocalFileSize } from './LocalFileSize';
 
 type LocalFileAttributes = {
+  relativePath: RelativePath;
   path: AbsolutePath;
   modificationTime: number;
   size: number;
@@ -13,6 +14,7 @@ export class LocalFile {
     private _path: AbsolutePath,
     private _modificationTime: number,
     private _size: LocalFileSize,
+    public readonly relativePath: RelativePath,
   ) {}
 
   get path(): AbsolutePath {
@@ -59,14 +61,6 @@ export class LocalFile {
   }
 
   static from(attributes: LocalFileAttributes): LocalFile {
-    return new LocalFile(attributes.path, attributes.modificationTime, new LocalFileSize(attributes.size));
-  }
-
-  attributes(): LocalFileAttributes {
-    return {
-      path: this.path,
-      modificationTime: this.modificationTime,
-      size: this.size,
-    };
+    return new LocalFile(attributes.path, attributes.modificationTime, new LocalFileSize(attributes.size), attributes.relativePath);
   }
 }

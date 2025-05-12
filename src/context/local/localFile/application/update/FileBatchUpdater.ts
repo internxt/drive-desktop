@@ -1,10 +1,10 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
-import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
 import { LocalFolder } from '../../../localFolder/domain/LocalFolder';
 import { relativeV2 } from '../../../../../apps/backups/utils/relative';
 import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 import { simpleFileOverride } from '@/context/virtual-drive/files/application/override/SimpleFileOverrider';
+import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 
 @Service()
 export class FileBatchUpdater {
@@ -22,11 +22,7 @@ export class FileBatchUpdater {
 
       const remotePath = relativeV2(localRoot.path, localFile.path);
 
-      const file = remoteTree.get(remotePath);
-
-      if (file.isFolder()) {
-        throw new Error(`Expected file, found folder on ${file.path}`);
-      }
+      const file = remoteTree.files[remotePath];
 
       await simpleFileOverride(file, contentsId, localFile.size);
     }

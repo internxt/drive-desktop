@@ -2,7 +2,6 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
-import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
 import { relativeV2 } from '../../../../../apps/backups/utils/relative';
 import { isFatalError } from '../../../../../apps/shared/issues/SyncErrorCause';
 import Logger from 'electron-log';
@@ -10,6 +9,7 @@ import { ipcRenderer } from 'electron';
 import { RendererIpcLocalFileMessenger } from '../../infrastructure/RendererIpcLocalFileMessenger';
 import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 import { logger } from '@/apps/shared/logger/logger';
+import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 
 @Service()
 export class FileBatchUploader {

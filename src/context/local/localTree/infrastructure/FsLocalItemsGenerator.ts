@@ -1,4 +1,3 @@
-import { Service } from 'diod';
 import fs from 'fs/promises';
 import path from 'path';
 import { Either, left, right } from '../../../shared/domain/Either';
@@ -7,9 +6,8 @@ import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFileDTO } from './LocalFileDTO';
 import { LocalFolderDTO } from './LocalFolderDTO';
 
-@Service()
 export class CLSFsLocalItemsGenerator {
-  async root(dir: string): Promise<Either<DriveDesktopError, LocalFolderDTO>> {
+  static async root(dir: string): Promise<Either<DriveDesktopError, LocalFolderDTO>> {
     try {
       const stat = await fs.stat(dir);
 
@@ -39,7 +37,7 @@ export class CLSFsLocalItemsGenerator {
     }
   }
 
-  async getAll(dir: string): Promise<{ files: LocalFileDTO[]; folders: LocalFolderDTO[] }> {
+  static async getAll(dir: string): Promise<{ files: LocalFileDTO[]; folders: LocalFolderDTO[] }> {
     const accumulator = Promise.resolve({
       files: [] as LocalFileDTO[],
       folders: [] as LocalFolderDTO[],

@@ -155,18 +155,6 @@ export class File {
     this._path = this._path.updateName(newPath.nameWithExtension());
   }
 
-  hasParent(id: number): boolean {
-    return this.folderId === new FileFolderId(id);
-  }
-
-  isFolder(): this is Folder {
-    return false;
-  }
-
-  isFile(): this is File {
-    return true;
-  }
-
   hasStatus(status: FileStatuses): boolean {
     return this._status.is(status);
   }

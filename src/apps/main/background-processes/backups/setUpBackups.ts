@@ -17,6 +17,7 @@ export async function setUpBackups() {
   const errors = listenForBackupsErrors();
   const status = handleBackupsStatusMessages();
   const stopController = new BackupsStopController();
+  await launchBackupProcesses(false, tracker, status, errors, stopController);
   const scheduler = new BackupScheduler(
     () => backupConfiguration.lastBackup,
     () => backupConfiguration.backupInterval,

@@ -5,14 +5,18 @@ import { File } from '@/context/virtual-drive/files/domain/File';
 import { createFolderFromServerFolder } from '@/context/virtual-drive/folders/application/create/FolderCreatorFromServerFolder';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { FolderStatus } from '@/context/virtual-drive/folders/domain/FolderStatus';
-import { RemoteTree } from '@/apps/backups/remote-tree/domain/RemoteTree';
-import * as Sentry from '@sentry/electron/renderer';
-import Logger from 'electron-log';
 import { getAllItemsByFolderUuid } from './get-all-items-by-folder-uuid';
+import { logger } from '@/apps/shared/logger/logger';
+import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type Items = {
   files: Array<ServerFile>;
   folders: Array<ServerFolder>;
+};
+
+export type RemoteTree = {
+  files: Record<RelativePath, File>;
+  folders: Record<RelativePath, Folder>;
 };
 
 export class Traverser {
@@ -43,14 +47,13 @@ export class Traverser {
         type: serverFile.type,
       });
 
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
+      const relativePath = createRelativePath(currentFolder.path, decryptedName);
 
       try {
-        const file = createFileFromServerFile(serverFile, relativeFilePath);
-        tree.addFile(currentFolder, file);
-      } catch (error) {
-        Logger.warn('[Traverser] Error adding file:', error);
-        Sentry.captureException(error);
+        const file = createFileFromServerFile(serverFile, relativePath);
+        tree.files[relativePath] = file;
+      } catch (exc) {
+        logger.error({ msg: 'Error creating file from server file', exc });
       }
     });
 
@@ -61,27 +64,29 @@ export class Traverser {
         parentId: serverFolder.parentId,
       });
 
-      const name = `${currentFolder.path}/${decryptedName}`;
+      const relativePath = createRelativePath(currentFolder.path, decryptedName);
 
       try {
-        const folder = createFolderFromServerFolder(serverFolder, name);
+        const folder = createFolderFromServerFolder(serverFolder, relativePath);
 
-        tree.addFolder(currentFolder, folder);
+        tree.folders[relativePath] = folder;
 
         this.traverse(tree, items, folder);
-      } catch (error) {
-        Logger.warn('[Traverser] Error adding folder:', error);
-        Sentry.captureException(error);
+      } catch (exc) {
+        logger.error({ msg: 'Error creating folder from server folder', exc });
       }
     });
   }
 
-  async run({ rootFolderId, rootFolderUuid }: { rootFolderId: number; rootFolderUuid: string }): Promise<RemoteTree> {
+  async run({ rootFolderId, rootFolderUuid }: { rootFolderId: number; rootFolderUuid: string }) {
     const items = await getAllItemsByFolderUuid(rootFolderUuid);
 
     const rootFolder = this.createRootFolder({ id: rootFolderId, uuid: rootFolderUuid });
 
-    const tree = new RemoteTree(rootFolder);
+    const tree: RemoteTree = {
+      files: {},
+      folders: {},
+    };
 
     this.traverse(tree, items, rootFolder);
 

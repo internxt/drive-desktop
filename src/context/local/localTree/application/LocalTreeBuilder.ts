@@ -1,33 +1,47 @@
-import { Service } from 'diod';
 import { LocalFile } from '../../localFile/domain/LocalFile';
-import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
-import { LocalTree } from '../domain/LocalTree';
+import { AbsolutePath, createRelativePath, RelativePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { Either, left, right } from '../../../shared/domain/Either';
 import Logger from 'electron-log';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
+import { relative } from 'path';
 
-@Service()
+export type LocalTree = {
+  root: LocalFolder;
+  files: Record<RelativePath, LocalFile>;
+  folders: Record<RelativePath, LocalFolder>;
+};
+
 export default class LocalTreeBuilder {
-  constructor(private readonly generator: CLSFsLocalItemsGenerator) {}
-
-  private async traverse(tree: LocalTree, currentFolder: LocalFolder): Promise<LocalTree> {
+  private static async traverse(tree: LocalTree, currentFolder: LocalFolder): Promise<LocalTree> {
     try {
-      const { files, folders } = await this.generator.getAll(currentFolder.path);
+      const { files, folders } = await CLSFsLocalItemsGenerator.getAll(currentFolder.path);
 
       files.forEach((fileAttributes) => {
         if (fileAttributes.size === 0) {
           return;
         }
-        const file = LocalFile.from(fileAttributes);
-        tree.addFile(currentFolder, file);
+
+        const relativePath = createRelativePath(relative(tree.root.path, fileAttributes.path));
+
+        const file = LocalFile.from({
+          ...fileAttributes,
+          relativePath,
+        });
+
+        tree.files[relativePath] = file;
       });
 
       for (const folderAttributes of folders) {
-        const folder = LocalFolder.from(folderAttributes);
+        const relativePath = createRelativePath(relative(tree.root.path, folderAttributes.path));
 
-        tree.addFolder(currentFolder, folder);
+        const folder = LocalFolder.from({
+          ...folderAttributes,
+          relativePath,
+        });
+
+        tree.folders[relativePath] = folder;
 
         await this.traverse(tree, folder);
       }
@@ -42,8 +56,8 @@ export default class LocalTreeBuilder {
     }
   }
 
-  async run(folder: AbsolutePath): Promise<Either<DriveDesktopError, LocalTree>> {
-    const rootEither = await this.generator.root(folder);
+  static async run(folder: AbsolutePath): Promise<Either<DriveDesktopError, LocalTree>> {
+    const rootEither = await CLSFsLocalItemsGenerator.root(folder);
 
     if (rootEither.isLeft()) {
       return left(rootEither.getLeft());
@@ -51,11 +65,21 @@ export default class LocalTreeBuilder {
 
     const root = rootEither.getRight();
 
-    const rootFolder = LocalFolder.from(root);
+    const rootFolder = LocalFolder.from({
+      ...root,
+      relativePath: createRelativePath('/'),
+    });
 
-    const tree = new LocalTree(rootFolder);
+    const tree: LocalTree = {
+      root: rootFolder,
+      files: {},
+      folders: {},
+    };
 
     await this.traverse(tree, rootFolder);
+
+    tree.files = Object.fromEntries(Object.entries(tree.files).sort((a, b) => a[0].localeCompare(b[0])));
+    tree.folders = Object.fromEntries(Object.entries(tree.folders).sort((a, b) => a[0].localeCompare(b[0])));
 
     return right(tree);
   }

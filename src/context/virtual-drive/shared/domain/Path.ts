@@ -5,7 +5,7 @@ import { ValueObject } from '../../../shared/domain/ValueObject';
 const isWindowsRootDirectory = /[a-zA-Z]:[\\/]/;
 const containsNullCharacter = /\0/g;
 
-export abstract class Path extends ValueObject<string> {
+export class Path extends ValueObject<string> {
   private static readonly maliciousPathValidations = [
     (name: string) => name.includes('../'),
     (name: string) => name.startsWith('..'),
