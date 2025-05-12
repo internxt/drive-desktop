@@ -1,5 +1,7 @@
 import { vi } from 'vitest';
 import path from 'path';
+import { mkdirSync } from 'fs';
+import { TEST_FILES } from './mocks.helper.test';
 
 process.env.NODE_ENV = 'development';
 process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
@@ -163,3 +165,5 @@ vi.mock('@/apps/main/windows/widget.ts', () => {
     })),
   };
 });
+
+mkdirSync(TEST_FILES, { recursive: true });
