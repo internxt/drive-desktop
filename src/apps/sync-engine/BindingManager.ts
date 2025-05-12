@@ -162,6 +162,7 @@ export class BindingsManager {
     };
 
     const PATHS = await ipcRenderer.invoke('get-paths');
+    logger.debug({ msg: 'Paths', paths: PATHS });
 
     const queueManager = new QueueManager({
       handlers: callbacks,
