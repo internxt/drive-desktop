@@ -23,7 +23,7 @@
     "format": "prettier src --check",
     "format:fix": "prettier src --write",
     "type-check": "tsc --noEmit",
-    "find-deadcode": "ts-prune -i schema.d.ts",
+    "find-deadcode": "ts-prune -i schema.d.ts -e",
     "========== Start ==========": "",
     "start": "npm run start:renderer",
     "start:nodemon": "nodemon",

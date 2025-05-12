@@ -1,3 +1,4 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/internxt/drive-desktop)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
