@@ -30,12 +30,14 @@ export class DiffFilesCalculator {
     const isPatchApplied = store.get(PATCH_2_5_1, false);
 
     Object.values(local.files).forEach((local) => {
-      const remoteNode = remote.get(local.relativePath);
+      const remoteNodeExists = remote.has(local.relativePath);
 
-      if (!remoteNode) {
+      if (!remoteNodeExists) {
         added.push(local);
         return;
       }
+
+      const remoteNode = remote.get(local.relativePath);
 
       if (remoteNode.isFolder()) {
         logger.debug({ msg: 'Folder should be a file', remoteNodeName: remoteNode.name });
