@@ -1,13 +1,5 @@
 import path from 'path';
 
-export function relative(root: string, to: string): string {
-  const normalizedTo = to.replace(/^[/\\]+/, '');
-
-  // Unir 'root' con la ruta normalizada
-  const resolvedPath = path.resolve(root, normalizedTo);
-
-  return resolvedPath;
-}
 export function relativeV2(root: string, to: string): string {
   // Obtener la ruta relativa de 'to' respecto a 'root'
   const relativePath = path.relative(root, to);

@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import { broadcastToWindows } from '../windows';
 import { showNotEnoughSpaceNotification } from './process-issues';
 
-export type SyncIssue = {
+type SyncIssue = {
   tab: 'sync';
   name: string;
   error: 'INVALID_WINDOWS_NAME' | 'DELETE_ERROR' | 'NOT_ENOUGH_SPACE';
