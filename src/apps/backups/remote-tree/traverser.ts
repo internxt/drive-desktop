@@ -9,6 +9,7 @@ import { RemoteTree } from '@/apps/backups/remote-tree/domain/RemoteTree';
 import * as Sentry from '@sentry/electron/renderer';
 import Logger from 'electron-log';
 import { getAllItemsByFolderUuid } from './get-all-items-by-folder-uuid';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type Items = {
   files: Array<ServerFile>;
@@ -43,7 +44,7 @@ export class Traverser {
         type: serverFile.type,
       });
 
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
+      const relativeFilePath = createRelativePath(currentFolder.path, decryptedName);
 
       try {
         const file = createFileFromServerFile(serverFile, relativeFilePath);
@@ -61,7 +62,7 @@ export class Traverser {
         parentId: serverFolder.parentId,
       });
 
-      const name = `${currentFolder.path}/${decryptedName}`;
+      const name = createRelativePath(currentFolder.path, decryptedName);
 
       try {
         const folder = createFolderFromServerFolder(serverFolder, name);

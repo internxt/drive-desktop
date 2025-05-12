@@ -28,7 +28,6 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 @Service()
 export class Backup {
   constructor(
-    private readonly localTreeBuilder: LocalTreeBuilder,
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
     private readonly remoteFolderDeleter: FolderDeleter,
@@ -39,7 +38,7 @@ export class Backup {
   private backed = 0;
 
   async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
-    const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
+    const localTreeEither = await LocalTreeBuilder.run(info.pathname as AbsolutePath);
 
     if (localTreeEither.isLeft()) {
       logger.warn({ msg: 'Error building local tree', error: localTreeEither.getLeft() });

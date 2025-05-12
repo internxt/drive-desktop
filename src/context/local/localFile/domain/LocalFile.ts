@@ -1,11 +1,12 @@
 import path from 'path';
-import { AbsolutePath } from '../infrastructure/AbsolutePath';
+import { AbsolutePath, RelativePath } from '../infrastructure/AbsolutePath';
 import { LocalFileSize } from './LocalFileSize';
 
 type LocalFileAttributes = {
   path: AbsolutePath;
   modificationTime: number;
   size: number;
+  relativePath: RelativePath;
 };
 
 export class LocalFile {
@@ -13,6 +14,7 @@ export class LocalFile {
     private _path: AbsolutePath,
     private _modificationTime: number,
     private _size: LocalFileSize,
+    public readonly relativePath: RelativePath,
   ) {}
 
   get path(): AbsolutePath {
@@ -27,10 +29,6 @@ export class LocalFile {
     return this._size.value;
   }
 
-  holdsSubpath(otherPath: string): boolean {
-    return this._path.endsWith(otherPath);
-  }
-
   isSmall(): boolean {
     return this._size.isSmall();
   }
@@ -43,15 +41,6 @@ export class LocalFile {
     return this._size.isBig();
   }
 
-  basedir(): string {
-    const dirname = path.posix.dirname(this._path);
-    if (dirname === '.') {
-      return path.posix.sep;
-    }
-
-    return dirname;
-  }
-
   nameWithExtension() {
     const basename = path.posix.basename(this._path);
     const { base } = path.posix.parse(basename);
@@ -59,7 +48,7 @@ export class LocalFile {
   }
 
   static from(attributes: LocalFileAttributes): LocalFile {
-    return new LocalFile(attributes.path, attributes.modificationTime, new LocalFileSize(attributes.size));
+    return new LocalFile(attributes.path, attributes.modificationTime, new LocalFileSize(attributes.size), attributes.relativePath);
   }
 
   attributes(): LocalFileAttributes {
@@ -67,6 +56,7 @@ export class LocalFile {
       path: this.path,
       modificationTime: this.modificationTime,
       size: this.size,
+      relativePath: this.relativePath,
     };
   }
 }

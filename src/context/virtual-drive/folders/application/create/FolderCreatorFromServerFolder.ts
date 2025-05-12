@@ -7,7 +7,7 @@ export function createFolderFromServerFolder(server: ServerFolder, relativePath:
   return Folder.from({
     id: server.id,
     uuid: server.uuid,
-    parentId: server.parentId as number,
+    parentId: server.parentId,
     parentUuid: server.parentUuid || null,
     updatedAt: server.updatedAt,
     createdAt: server.createdAt,

@@ -4,7 +4,7 @@ import { LocalFolder } from '../../../context/local/localFolder/domain/LocalFold
 import { LocalTree } from '../../../context/local/localTree/domain/LocalTree';
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
 import { RemoteTree } from '../remote-tree/domain/RemoteTree';
-import { relative } from '../utils/relative';
+import { relativeV2 } from '../utils/relative';
 import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
 
 export type FoldersDiff = {
@@ -22,14 +22,13 @@ export class FoldersDiffCalculator {
     const unmodified: Array<LocalFolder> = [];
 
     local.folders.forEach((folder) => {
-      const remotePath = relative(rootPath, folder.path);
+      const remotePath = relativeV2(rootPath, folder.path);
 
       if (remote.has(remotePath)) {
         unmodified.push(folder);
-        return;
+      } else {
+        added.push(folder);
       }
-
-      added.push(folder);
     });
 
     const deleted = remote.foldersWithOutRoot.filter((folder) => {
