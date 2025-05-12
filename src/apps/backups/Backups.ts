@@ -3,8 +3,7 @@ import { FileBatchUpdater } from '../../context/local/localFile/application/upda
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
 import { AbsolutePath } from '../../context/local/localFile/infrastructure/AbsolutePath';
-import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
-import { LocalTree } from '../../context/local/localTree/domain/LocalTree';
+import LocalTreeBuilder, { LocalTree } from '../../context/local/localTree/application/LocalTreeBuilder';
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';

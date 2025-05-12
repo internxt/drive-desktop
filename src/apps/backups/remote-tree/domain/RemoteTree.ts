@@ -93,7 +93,7 @@ export class RemoteTree {
     return this.tree.has(id);
   }
 
-  public get(id: string): File | Folder {
+  public get(id: string) {
     const node = this.tree.get(id);
 
     if (!node) {
