@@ -1,13 +1,11 @@
-import path from 'path';
 import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
-import { AbsolutePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
-import { LocalTree } from '../../../context/local/localTree/domain/LocalTree';
+import { RelativePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { RemoteTree } from '../remote-tree/domain/RemoteTree';
-import { relativeV2 } from '../utils/relative';
 import { FileStatus } from '../../../context/virtual-drive/files/domain/FileStatus';
 import Store from 'electron-store';
 import { logger } from '@/apps/shared/logger/logger';
+import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 
 export type FilesDiff = {
   added: Array<LocalFile>;
@@ -19,7 +17,7 @@ export type FilesDiff = {
 };
 
 const store = new Store();
-const IS_PATCH_2_5_1_APPLIED = 'patch-executed-2-5-1';
+const PATCH_2_5_1 = 'patch-executed-2-5-1';
 
 export class DiffFilesCalculator {
   static calculate(local: LocalTree, remote: RemoteTree): FilesDiff {
@@ -27,20 +25,19 @@ export class DiffFilesCalculator {
     const modified: Map<LocalFile, File> = new Map();
     const dangled: Map<LocalFile, File> = new Map();
     const unmodified: Array<LocalFile> = [];
+    const deleted: Array<File> = [];
 
-    const rootPath = local.root.path;
+    const isPatchApplied = store.get(PATCH_2_5_1, false);
 
-    local.files.forEach((local) => {
-      const remotePath = relativeV2(rootPath, local.path);
+    Object.values(local.files).forEach((local) => {
+      const remoteNodeExists = remote.has(local.relativePath);
 
-      const remoteExists = remote.has(remotePath);
-
-      if (!remoteExists) {
+      if (!remoteNodeExists) {
         added.push(local);
         return;
       }
 
-      const remoteNode = remote.get(remotePath);
+      const remoteNode = remote.get(local.relativePath);
 
       if (remoteNode.isFolder()) {
         logger.debug({ msg: 'Folder should be a file', remoteNodeName: remoteNode.name });
@@ -54,7 +51,7 @@ export class DiffFilesCalculator {
       const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
       const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
-      if (!store.get(IS_PATCH_2_5_1_APPLIED, false) && createdAt >= startDate && createdAt <= endDate) {
+      if (!isPatchApplied && createdAt >= startDate && createdAt <= endDate) {
         logger.debug({ msg: 'Possible Dangled File', remoteNodeName: remoteNode.name });
         dangled.set(local, remoteNode);
         return;
@@ -68,15 +65,16 @@ export class DiffFilesCalculator {
       unmodified.push(local);
     });
 
-    store.set(IS_PATCH_2_5_1_APPLIED, true);
+    Object.values(remote.files).forEach((remoteFile) => {
+      // Already deleted
+      if (remoteFile.status.value !== FileStatus.Exists.value) return;
 
-    const deleted = remote.files.filter((file) => {
-      if (file.status !== FileStatus.Exists) {
-        return false;
+      if (!local.files[remoteFile.path as RelativePath]) {
+        deleted.push(remoteFile);
       }
-      logger.debug({ msg: 'Checking if file is deleted', path: file.path });
-      return !local.has(path.join(rootPath, file.path) as AbsolutePath);
     });
+
+    store.set(PATCH_2_5_1, true);
 
     const total = added.length + modified.size + deleted.length + unmodified.length;
 

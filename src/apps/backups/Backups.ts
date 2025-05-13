@@ -3,8 +3,7 @@ import { FileBatchUpdater } from '../../context/local/localFile/application/upda
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
 import { AbsolutePath } from '../../context/local/localFile/infrastructure/AbsolutePath';
-import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
-import { LocalTree } from '../../context/local/localTree/domain/LocalTree';
+import LocalTreeBuilder, { LocalTree } from '../../context/local/localTree/application/LocalTreeBuilder';
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
@@ -14,7 +13,7 @@ import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
 import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
 import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator';
-import { getParentDirectory, relativeV2 } from './utils/relative';
+import { getParentDirectory } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { RemoteTree } from './remote-tree/domain/RemoteTree';
 import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
@@ -127,7 +126,7 @@ export class Backup {
 
     await Promise.all([
       this.uploadAndCreateFile(local.root.path, added, remote, abortController),
-      this.uploadAndUpdate(modified, local, remote, abortController),
+      this.uploadAndUpdate(modified, remote, abortController),
       this.deleteRemoteFiles(deleted, abortController),
     ]);
   }
@@ -162,12 +161,7 @@ export class Backup {
     }
   }
 
-  private async uploadAndUpdate(
-    modified: Map<LocalFile, File>,
-    localTree: LocalTree,
-    remoteTree: RemoteTree,
-    abortController: AbortController,
-  ): Promise<void> {
+  private async uploadAndUpdate(modified: Map<LocalFile, File>, remoteTree: RemoteTree, abortController: AbortController): Promise<void> {
     const batches = ModifiedFilesBatchCreator.run(modified);
 
     for (const batch of batches) {
@@ -175,7 +169,7 @@ export class Backup {
         return;
       }
       try {
-        await this.fileBatchUpdater.run(localTree.root, remoteTree, Array.from(batch.keys()), abortController.signal);
+        await this.fileBatchUpdater.run(remoteTree, Array.from(batch.keys()), abortController.signal);
       } catch (error) {
         logger.warn({
           msg: 'Error updating files',
@@ -233,9 +227,7 @@ export class Backup {
   }
   private async uploadAndCreateFolder(localRootPath: string, added: Array<LocalFolder>, tree: RemoteTree): Promise<void> {
     for (const localFolder of added) {
-      const relativePath = relativeV2(localRootPath, localFolder.path);
-
-      if (relativePath === '/') {
+      if (localFolder.relativePath === '/') {
         continue; // ingore root folder
       }
 
@@ -243,7 +235,7 @@ export class Backup {
 
       logger.debug({
         msg: 'Uploading and creating folder',
-        relativePath,
+        relativePath: localFolder.relativePath,
       });
 
       const parentExists = tree.has(remoteParentPath);
@@ -253,15 +245,15 @@ export class Backup {
         continue;
       }
 
-      const parent = tree.getParent(relativePath);
-      const existingItems = tree.has(relativePath);
+      const parent = tree.getParent(localFolder.relativePath);
+      const existingItems = tree.has(localFolder.relativePath);
 
       if (existingItems) {
         continue;
       }
 
       try {
-        const path = new FolderPath(relativePath);
+        const path = new FolderPath(localFolder.relativePath);
 
         const folder = await this.simpleFolderCreator.run({
           parentId: parent.id,

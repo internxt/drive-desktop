@@ -1,12 +1,17 @@
 import { LocalFile } from '../../localFile/domain/LocalFile';
-import { AbsolutePath, createRelativePath } from '../../localFile/infrastructure/AbsolutePath';
-import { LocalTree } from '../domain/LocalTree';
+import { AbsolutePath, createRelativePath, RelativePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { Either, left, right } from '../../../shared/domain/Either';
 import Logger from 'electron-log';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 import { relative } from 'path';
+
+export type LocalTree = {
+  root: LocalFolder;
+  files: Record<RelativePath, LocalFile>;
+  folders: Record<RelativePath, LocalFolder>;
+};
 
 export default class LocalTreeBuilder {
   private static async traverse(tree: LocalTree, currentFolder: LocalFolder): Promise<LocalTree> {
@@ -25,7 +30,7 @@ export default class LocalTreeBuilder {
           relativePath,
         });
 
-        tree.addFile(currentFolder, file);
+        tree.files[relativePath] = file;
       });
 
       for (const folderAttributes of folders) {
@@ -36,7 +41,7 @@ export default class LocalTreeBuilder {
           relativePath,
         });
 
-        tree.addFolder(currentFolder, folder);
+        tree.folders[relativePath] = folder;
 
         await this.traverse(tree, folder);
       }
@@ -65,9 +70,18 @@ export default class LocalTreeBuilder {
       relativePath: createRelativePath('/'),
     });
 
-    const tree = new LocalTree(rootFolder);
+    const tree: LocalTree = {
+      root: rootFolder,
+      files: {},
+      folders: {
+        [rootFolder.relativePath]: rootFolder,
+      },
+    };
 
     await this.traverse(tree, rootFolder);
+
+    tree.files = Object.fromEntries(Object.entries(tree.files).sort((a, b) => a[0].localeCompare(b[0])));
+    tree.folders = Object.fromEntries(Object.entries(tree.folders).sort((a, b) => a[0].localeCompare(b[0])));
 
     return right(tree);
   }

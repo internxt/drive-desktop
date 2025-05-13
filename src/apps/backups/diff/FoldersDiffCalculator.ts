@@ -1,11 +1,9 @@
-import path from 'path';
-import { AbsolutePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
+import { RelativePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
 import { LocalFolder } from '../../../context/local/localFolder/domain/LocalFolder';
-import { LocalTree } from '../../../context/local/localTree/domain/LocalTree';
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
 import { RemoteTree } from '../remote-tree/domain/RemoteTree';
-import { relativeV2 } from '../utils/relative';
 import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
+import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 
 export type FoldersDiff = {
   added: Array<LocalFolder>;
@@ -16,27 +14,25 @@ export type FoldersDiff = {
 
 export class FoldersDiffCalculator {
   static calculate(local: LocalTree, remote: RemoteTree): FoldersDiff {
-    const rootPath = local.root.path;
-
     const added: Array<LocalFolder> = [];
     const unmodified: Array<LocalFolder> = [];
+    const deleted: Array<Folder> = [];
 
-    local.folders.forEach((folder) => {
-      const remotePath = relativeV2(rootPath, folder.path);
-
-      if (remote.has(remotePath)) {
+    Object.values(local.folders).forEach((folder) => {
+      if (remote.has(folder.relativePath)) {
         unmodified.push(folder);
       } else {
         added.push(folder);
       }
     });
 
-    const deleted = remote.foldersWithOutRoot.filter((folder) => {
-      if (folder.status !== FolderStatuses.EXISTS) {
-        return false;
-      }
+    Object.values(remote.folders).forEach((folder) => {
+      // Already deleted
+      if (folder.status !== FolderStatuses.EXISTS) return;
 
-      return !local.has(path.join(rootPath, folder.path) as AbsolutePath);
+      if (!local.folders[folder.path as RelativePath]) {
+        deleted.push(folder);
+      }
     });
 
     const total = added.length + unmodified.length;
