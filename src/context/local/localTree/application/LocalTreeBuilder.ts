@@ -73,7 +73,9 @@ export default class LocalTreeBuilder {
     const tree: LocalTree = {
       root: rootFolder,
       files: {},
-      folders: {},
+      folders: {
+        [rootFolder.relativePath]: rootFolder,
+      },
     };
 
     await this.traverse(tree, rootFolder);

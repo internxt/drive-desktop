@@ -3,7 +3,6 @@ import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
 import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
-import { relativeV2 } from '../../../../../apps/backups/utils/relative';
 import { isFatalError } from '../../../../../apps/shared/issues/SyncErrorCause';
 import Logger from 'electron-log';
 import { ipcRenderer } from 'electron';
@@ -55,16 +54,15 @@ export class FileBatchUploader {
 
             Logger.info('[Local File Uploader] Uploading file', localRootPath);
 
-            const remotePath = relativeV2(localRootPath, localFile.path);
-            const parent = remoteTree.getParent(remotePath);
+            const parent = remoteTree.getParent(localFile.relativePath);
 
-            logger.debug({ msg: 'Uploading file', remotePath, parent });
+            logger.debug({ msg: 'Uploading file', remotePath: localFile.relativePath, parent });
 
             const file = await this.creator.run({
               contentsId,
               folderId: parent.id,
               folderUuid: parent.uuid,
-              path: remotePath,
+              path: localFile.relativePath,
               size: localFile.size,
             });
 
