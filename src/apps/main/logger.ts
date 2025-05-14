@@ -17,6 +17,11 @@ export function setupElectronLog() {
   ElectronLog.transports.file.maxSize = 150 * 1024 * 1024; // 150MB
   ElectronLog.transports.file.format = '[{iso}] {text}';
   ElectronLog.transports.console.format = '[{iso}] {text}';
+  ElectronLog.transports.console.writeFn = ({ message }) => {
+    if (message.level === 'debug') {
+      console.log(`${message.data}`);
+    }
+  };
 
   ipcMain.on('open-logs', () => {
     void shell.openPath(PATHS.LOGS);
