@@ -22,12 +22,13 @@ export type TLoggerBody = {
 };
 
 export class LoggerService {
-  private prepareBody(rawBody: TLoggerBody) {
+  private prepareBody(level: 'debug' | 'info' | 'warn' | 'error' | 'fatal', rawBody: TLoggerBody) {
     const user = getUser();
 
     const { tag, msg, workspaceId, ...rest1 } = rawBody;
 
     rawBody = {
+      level,
       process: process.type === 'renderer' ? 'renderer' : 'main',
       ...(tag && { tag }),
       msg,
@@ -46,30 +47,33 @@ export class LoggerService {
   }
 
   debug(rawBody: TLoggerBody) {
-    const { body } = this.prepareBody(rawBody);
+    const { body } = this.prepareBody('debug', rawBody);
     ElectronLog.debug(body);
   }
 
   info(rawBody: TLoggerBody) {
-    const { body } = this.prepareBody(rawBody);
+    const { body } = this.prepareBody('info', rawBody);
+    ElectronLog.debug(body);
     ElectronLog.info(body);
   }
 
   warn(rawBody: TLoggerBody) {
-    const { body } = this.prepareBody(rawBody);
-    ElectronLog.warn(body);
+    const { body } = this.prepareBody('warn', rawBody);
+    ElectronLog.debug(body);
     return new Error(rawBody.msg);
   }
 
   error(rawBody: TLoggerBody) {
-    const { body } = this.prepareBody(rawBody);
-    ElectronLog.error(body);
+    const { body } = this.prepareBody('error', rawBody);
+    ElectronLog.debug(body);
+    ElectronLog.info(body);
     return new Error(rawBody.msg);
   }
 
   fatal(rawBody: TLoggerBody) {
-    const { body } = this.prepareBody(rawBody);
-    ElectronLog.error(body);
+    const { body } = this.prepareBody('fatal', rawBody);
+    ElectronLog.debug(body);
+    ElectronLog.info(body);
     return new Error(rawBody.msg);
   }
 }
