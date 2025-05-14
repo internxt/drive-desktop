@@ -6,7 +6,7 @@ export function setupElectronLog() {
   ElectronLog.initialize();
 
   ElectronLog.transports.file.resolvePathFn = (_, message) => {
-    if (message?.level === 'info' || message?.level === 'error') {
+    if (message?.level === 'info') {
       return PATHS.ELECTRON_IMPORTANT_LOGS;
     } else {
       return PATHS.ELECTRON_LOGS;
