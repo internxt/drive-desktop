@@ -6,8 +6,7 @@ export function setupElectronLog() {
   ElectronLog.initialize();
 
   ElectronLog.transports.file.resolvePathFn = (_, message) => {
-    const level = message?.level;
-    if (level === 'info' || level === 'error') {
+    if (message?.level === 'info' || message?.level === 'error') {
       return PATHS.ELECTRON_IMPORTANT_LOGS;
     } else {
       return PATHS.ELECTRON_LOGS;
@@ -19,6 +18,7 @@ export function setupElectronLog() {
   ElectronLog.transports.console.format = '[{iso}] {text}';
   ElectronLog.transports.console.writeFn = ({ message }) => {
     if (message.level === 'debug') {
+      // eslint-disable-next-line no-console
       console.log(`${message.data}`);
     }
   };
