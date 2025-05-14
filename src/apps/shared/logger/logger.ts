@@ -59,7 +59,6 @@ export class LoggerService {
 
   warn(rawBody: TLoggerBody) {
     const { body } = this.prepareBody('warn', rawBody);
-    ElectronLog.debug(body);
     ElectronLog.warn(body);
     return new Error(rawBody.msg);
   }
