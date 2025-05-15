@@ -3,12 +3,12 @@ import { ContainerBuilder } from 'diod';
 import { FileBatchUpdater } from '../../../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../../../context/local/localFile/application/upload/FileBatchUploader';
 import { EnvironmentLocalFileUploader } from '../../../../context/local/localFile/infrastructure/EnvironmentLocalFileUploader';
-import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 import { Environment } from '@internxt/inxt-js/build';
 import { getConfig } from '@/apps/sync-engine/config';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { BackupInfo } from '../../BackupInfo';
 
-export async function registerLocalFileServices(builder: ContainerBuilder) {
+export async function registerLocalFileServices(builder: ContainerBuilder, data: BackupInfo) {
   //Infra
 
   const mnemonic = getConfig().mnemonic;
@@ -27,15 +27,13 @@ export async function registerLocalFileServices(builder: ContainerBuilder) {
   Logger.info('[BackupsDependencyContainerFactory] Registering network services.');
 
   builder.register(EnvironmentRemoteFileContentsManagersFactory).useFactory((c) => {
-    return new EnvironmentRemoteFileContentsManagersFactory(c.get(Environment), getConfig().bucket);
+    return new EnvironmentRemoteFileContentsManagersFactory(c.get(Environment), data.backupsBucket);
   });
 
   builder
     .register(EnvironmentLocalFileUploader)
-    .useFactory((c) => new EnvironmentLocalFileUploader(c.get(Environment), getConfig().bucket))
+    .useFactory((c) => new EnvironmentLocalFileUploader(c.get(Environment), data.backupsBucket))
     .private();
-
-  builder.register(RendererIpcLocalFileMessenger).useClass(RendererIpcLocalFileMessenger).private().asSingleton();
 
   // Services
   builder.registerAndUse(FileBatchUpdater);

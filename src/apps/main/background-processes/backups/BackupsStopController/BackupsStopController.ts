@@ -22,7 +22,6 @@ const listenerNotSet = () => {
 
 export class BackupsStopController {
   private controller = new AbortController();
-  private stopReason: StopReason | undefined = undefined;
 
   private end: Array<(reason: StopReason) => void> = [];
 
@@ -37,7 +36,6 @@ export class BackupsStopController {
   }
 
   reset() {
-    this.stopReason = undefined;
     this.controller = new AbortController();
 
     this.controller.signal.addEventListener('abort', () => {
@@ -56,26 +54,11 @@ export class BackupsStopController {
     });
   }
 
-  hasStopped(): boolean {
-    return this.stopReason !== undefined;
-  }
-
-  userCancelledBackup() {
-    this.stop('forced-by-user');
-  }
-
-  backupCompleted() {
-    this.stop('backup-completed');
-  }
-
-  private stop(reason: StopReason) {
-    this.stopReason = reason;
+  stop(reason: StopReason) {
     this.controller.abort({ reason });
   }
 
   failed(cause: ProcessFatalErrorName) {
-    this.stopReason = 'failed';
-
     this.controller.abort({
       reason: 'failed',
       payload: { errorName: cause },
@@ -84,9 +67,5 @@ export class BackupsStopController {
 
   on<Reason extends StopReason>(reason: Reason, handler: StopReasonPayload[Reason]) {
     this.handlers[reason].push(handler);
-  }
-
-  onFinished(handler: (reason: StopReason) => void) {
-    this.end.push(handler);
   }
 }

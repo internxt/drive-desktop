@@ -1,11 +1,11 @@
-import { Environment } from '@internxt/inxt-js';
+import { Environment } from '@internxt/inxt-js/build';
 import { EnvironmentAndStorageThumbnailUploader } from './EnvironmentAndStorageThumbnailUploader';
 import { getConfig } from '@/apps/sync-engine/config';
 
 export class ThumbnailUploaderFactory {
   private static instance: EnvironmentAndStorageThumbnailUploader | null;
 
-  static build() {
+  static build(bucket: string) {
     if (ThumbnailUploaderFactory.instance) {
       return ThumbnailUploaderFactory.instance;
     }
@@ -17,7 +17,7 @@ export class ThumbnailUploaderFactory {
       encryptionKey: getConfig().mnemonic,
     });
 
-    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, getConfig().bucket);
+    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, bucket);
 
     return ThumbnailUploaderFactory.instance;
   }

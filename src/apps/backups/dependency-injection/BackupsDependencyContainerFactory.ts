@@ -5,10 +5,11 @@ import { registerFolderServices } from './virtual-drive/registerFolderServices';
 import { registerLocalFileServices } from './local/registerLocalFileServices';
 import { Backup } from '../Backups';
 import { DangledFilesService } from '../dangled-files/DangledFilesService';
+import { BackupInfo } from '../BackupInfo';
 
 @Service()
 export class BackupsDependencyContainerFactory {
-  static async build(): Promise<Container> {
+  static async build(data: BackupInfo): Promise<Container> {
     Logger.info('[BackupsDependencyContainerFactory] Starting to build the container.');
 
     const builder = new ContainerBuilder();
@@ -16,13 +17,13 @@ export class BackupsDependencyContainerFactory {
 
     try {
       Logger.info('[BackupsDependencyContainerFactory] Registering file services.');
-      await registerFilesServices(builder);
+      await registerFilesServices(builder, data);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering folder services.');
       await registerFolderServices(builder);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering local file services.');
-      await registerLocalFileServices(builder);
+      await registerLocalFileServices(builder, data);
 
       Logger.info('[BackupsDependencyContainerFactory] Registering dangled files service.');
       builder.registerAndUse(DangledFilesService);

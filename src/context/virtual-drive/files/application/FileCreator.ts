@@ -10,6 +10,7 @@ import { FileStatuses } from '../domain/FileStatus';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { getConfig } from '@/apps/sync-engine/config';
 
 export class FileCreator {
   constructor(
@@ -50,6 +51,7 @@ export class FileCreator {
       this.repository.add(file);
 
       this.ipc.send('FILE_CREATED', {
+        bucket: getConfig().bucket,
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,

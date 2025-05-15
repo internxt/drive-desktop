@@ -7,8 +7,7 @@ import LocalTreeBuilder, { LocalTree } from '../../context/local/localTree/appli
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
-import { BackupInfo } from './BackupInfo';
-import { BackupsIPCRenderer } from './BackupsIPCRenderer';
+import { BackupsContext } from './BackupInfo';
 import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
 import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
@@ -23,6 +22,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
 import { Traverser } from './remote-tree/traverser';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 
 @Service()
 export class Backup {
@@ -36,8 +36,8 @@ export class Backup {
 
   private backed = 0;
 
-  async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
-    const localTreeEither = await LocalTreeBuilder.run(info.pathname as AbsolutePath);
+  async run(tracker: BackupsProcessTracker, context: BackupsContext): Promise<DriveDesktopError | undefined> {
+    const localTreeEither = await LocalTreeBuilder.run(context.pathname as AbsolutePath);
 
     if (localTreeEither.isLeft()) {
       logger.warn({ msg: 'Error building local tree', error: localTreeEither.getLeft() });
@@ -46,10 +46,7 @@ export class Backup {
 
     const local = localTreeEither.getRight();
 
-    const remote = await new Traverser().run({
-      rootFolderId: info.folderId,
-      rootFolderUuid: info.folderUuid,
-    });
+    const remote = await new Traverser().run({ context });
 
     const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
 
@@ -86,16 +83,23 @@ export class Backup {
       alreadyBacked,
     });
 
-    BackupsIPCRenderer.send('backups.total-items-calculated', filesDiff.total + foldersDiff.total, alreadyBacked);
+    tracker.currentTotal(filesDiff.total + foldersDiff.total);
+    tracker.currentProcessed(alreadyBacked);
 
-    await this.backupFolders(foldersDiff, local, remote, abortController);
+    await this.backupFolders(context, tracker, foldersDiff, local, remote);
 
-    await this.backupFiles(filesDiff, local, remote, abortController);
+    await this.backupFiles(context, tracker, filesDiff, local, remote);
 
     return undefined;
   }
 
-  private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
+  private async backupFolders(
+    context: BackupsContext,
+    tracker: BackupsProcessTracker,
+    diff: FoldersDiff,
+    local: LocalTree,
+    remote: RemoteTree,
+  ) {
     const { added, deleted } = diff;
 
     logger.debug({
@@ -107,12 +111,18 @@ export class Backup {
     });
 
     return await Promise.all([
-      this.deleteRemoteFolders(deleted, abortController),
-      this.uploadAndCreateFolder(local.root.path, added, remote),
+      this.deleteRemoteFolders(context, deleted),
+      this.uploadAndCreateFolder(context, tracker, local.root.path, added, remote),
     ]);
   }
 
-  private async backupFiles(diff: FilesDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
+  private async backupFiles(
+    context: BackupsContext,
+    tracker: BackupsProcessTracker,
+    diff: FilesDiff,
+    local: LocalTree,
+    remote: RemoteTree,
+  ) {
     const { added, modified, deleted } = diff;
 
     logger.debug({
@@ -125,28 +135,30 @@ export class Backup {
     });
 
     await Promise.all([
-      this.uploadAndCreateFile(local.root.path, added, remote, abortController),
-      this.uploadAndUpdate(modified, remote, abortController),
-      this.deleteRemoteFiles(deleted, abortController),
+      this.uploadAndCreateFile(context, tracker, local.root.path, added, remote),
+      this.uploadAndUpdate(context, tracker, modified, remote),
+      this.deleteRemoteFiles(context, deleted),
     ]);
   }
 
   private async uploadAndCreateFile(
+    context: BackupsContext,
+    tracker: BackupsProcessTracker,
     localRootPath: string,
     added: Array<LocalFile>,
     tree: RemoteTree,
-    abortController: AbortController,
   ): Promise<void> {
     const batches = AddedFilesBatchCreator.run(added);
 
     for (const batch of batches) {
       try {
-        if (abortController.signal.aborted) {
+        if (context.abortController.signal.aborted) {
           return;
         }
-        await this.fileBatchUploader.run(localRootPath, tree, batch, abortController.signal, () => {
+
+        await this.fileBatchUploader.run(context, localRootPath, tree, batch, () => {
           this.backed += 1;
-          BackupsIPCRenderer.send('backups.progress-update', this.backed);
+          tracker.currentProcessed(this.backed);
         });
       } catch (error) {
         logger.warn({
@@ -161,15 +173,21 @@ export class Backup {
     }
   }
 
-  private async uploadAndUpdate(modified: Map<LocalFile, File>, remoteTree: RemoteTree, abortController: AbortController): Promise<void> {
+  private async uploadAndUpdate(
+    context: BackupsContext,
+    tracker: BackupsProcessTracker,
+    modified: Map<LocalFile, File>,
+    remoteTree: RemoteTree,
+  ): Promise<void> {
     const batches = ModifiedFilesBatchCreator.run(modified);
 
     for (const batch of batches) {
-      if (abortController.signal.aborted) {
+      if (context.abortController.signal.aborted) {
         return;
       }
+
       try {
-        await this.fileBatchUpdater.run(remoteTree, Array.from(batch.keys()), abortController.signal);
+        await this.fileBatchUpdater.run(context, remoteTree, Array.from(batch.keys()));
       } catch (error) {
         logger.warn({
           msg: 'Error updating files',
@@ -181,15 +199,16 @@ export class Backup {
         }
       }
       this.backed += batch.size;
-      BackupsIPCRenderer.send('backups.progress-update', this.backed);
+      tracker.currentProcessed(this.backed);
     }
   }
 
-  private async deleteRemoteFiles(deleted: Array<File>, abortController: AbortController) {
+  private async deleteRemoteFiles(context: BackupsContext, deleted: Array<File>) {
     for (const file of deleted) {
-      if (abortController.signal.aborted) {
+      if (context.abortController.signal.aborted) {
         return;
       }
+
       try {
         await driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
       } catch (error) {
@@ -205,9 +224,9 @@ export class Backup {
     }
   }
 
-  private async deleteRemoteFolders(deleted: Array<Folder>, abortController: AbortController) {
+  private async deleteRemoteFolders(context: BackupsContext, deleted: Array<Folder>) {
     for (const folder of deleted) {
-      if (abortController.signal.aborted) {
+      if (context.abortController.signal.aborted) {
         return;
       }
 
@@ -225,8 +244,18 @@ export class Backup {
       }
     }
   }
-  private async uploadAndCreateFolder(localRootPath: string, added: Array<LocalFolder>, tree: RemoteTree): Promise<void> {
+  private async uploadAndCreateFolder(
+    context: BackupsContext,
+    tracker: BackupsProcessTracker,
+    localRootPath: string,
+    added: Array<LocalFolder>,
+    tree: RemoteTree,
+  ): Promise<void> {
     for (const localFolder of added) {
+      if (context.abortController.signal.aborted) {
+        return;
+      }
+
       if (localFolder.relativePath === '/') {
         continue; // ingore root folder
       }
@@ -275,7 +304,7 @@ export class Backup {
       }
 
       this.backed++;
-      BackupsIPCRenderer.send('backups.progress-update', this.backed);
+      tracker.currentProcessed(this.backed);
     }
   }
 }

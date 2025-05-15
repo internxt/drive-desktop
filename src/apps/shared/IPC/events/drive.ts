@@ -26,7 +26,14 @@ export type FileErrorInfo = {
 type UploadEvents = {
   FILE_UPLOADING: (payload: FileProgressInfo) => void;
   FILE_UPLOADED: (payload: FileProgressInfo) => void;
-  FILE_CREATED: (payload: { name: string; extension: string; nameWithExtension: string; fileId: number; path: string }) => void;
+  FILE_CREATED: (payload: {
+    bucket: string;
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    fileId: number;
+    path: string;
+  }) => void;
   FILE_UPLOAD_ERROR: (payload: FileErrorInfo) => void;
 };
 

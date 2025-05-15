@@ -1,9 +1,9 @@
 import { ServerFile, ServerFileStatus } from '@/context/shared/domain/ServerFile';
 import { ServerFolder, ServerFolderStatus } from '@/context/shared/domain/ServerFolder';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { fetchItems } from '../fetch-items/fetch-items';
 
 export async function getAllItemsByFolderUuid(folderUuid: string): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-  const updatedRemoteItems = await ipcRendererSyncEngine.invoke('FORCE_REFRESH_BACKUPS', folderUuid);
+  const updatedRemoteItems = await fetchItems({ folderUuid, skipFiles: false });
 
   const files = updatedRemoteItems.files.map((file) => ({
     ...file,
