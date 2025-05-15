@@ -29,6 +29,8 @@
     "types": ["vitest/globals"],
     "paths": {
       "@/*": ["./src/*"]
+      // "@internxt/inxt-js/build": ["../inxt-js/build"],
+      // "@internxt/inxt-js/build/*": ["../inxt-js/build/*"],
       // "@internxt/node-win/dist": ["../node-win/dist"]
     }
   },

@@ -3,8 +3,7 @@ import { Service } from 'diod';
 import { createReadStream } from 'fs';
 import { Stopwatch } from '../../../../apps/shared/types/Stopwatch';
 import { AbsolutePath } from './AbsolutePath';
-import { Environment } from '@internxt/inxt-js';
-import Logger from 'electron-log';
+import { Environment } from '@internxt/inxt-js/build';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
@@ -19,11 +18,20 @@ export class EnvironmentLocalFileUploader {
     private readonly bucket: string,
   ) {}
 
-  upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
-    const fn: UploadStrategyFunction =
-      size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD
-        ? this.environment.uploadMultipartFile.bind(this.environment)
-        : this.environment.upload;
+  upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string | null>> {
+    const useMultipartUpload = size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD;
+
+    logger.debug({
+      tag: 'BACKUPS',
+      msg: 'Uploading file to the bucket',
+      path,
+      bucket: this.bucket,
+      useMultipartUpload,
+    });
+
+    const fn: UploadStrategyFunction = useMultipartUpload
+      ? this.environment.uploadMultipartFile.bind(this.environment)
+      : this.environment.upload;
 
     const readable = createReadStream(path);
 
@@ -31,8 +39,7 @@ export class EnvironmentLocalFileUploader {
 
     stopwatch.start();
 
-    return new Promise<Either<DriveDesktopError, string>>((resolve) => {
-      logger.debug({ msg: 'Uploading file to the bucket', path, bucket: this.bucket });
+    return new Promise<Either<DriveDesktopError, string | null>>((resolve) => {
       const state = fn(this.bucket, {
         source: readable,
         fileSize: size,
@@ -40,17 +47,27 @@ export class EnvironmentLocalFileUploader {
           stopwatch.finish();
 
           if (err) {
-            Logger.error(err);
-            if (err.message === 'Max space used') {
+            if (err.message === 'Process killed by user') {
+              return resolve(right(null));
+            } else if (err.message === 'Max space used') {
               return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
+            } else {
+              logger.error({
+                msg: 'Failed to upload file to the bucket',
+                path,
+                bucket: this.bucket,
+                error: err,
+              });
+
+              return resolve(left(new DriveDesktopError('UNKNOWN')));
             }
-            return resolve(left(new DriveDesktopError('UNKNOWN')));
           }
 
           resolve(right(contentsId));
         },
         progressCallback: (progress: number) => {
           logger.debug({
+            tag: 'BACKUPS',
             msg: 'Uploading file to the bucket',
             path,
             bucket: this.bucket,
@@ -60,6 +77,12 @@ export class EnvironmentLocalFileUploader {
       });
 
       abortSignal.addEventListener('abort', () => {
+        logger.debug({
+          tag: 'BACKUPS',
+          msg: 'Aborting upload',
+          path,
+        });
+
         state.stop();
         readable.destroy();
       });

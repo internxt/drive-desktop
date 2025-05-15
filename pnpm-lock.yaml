@@ -15,8 +15,8 @@ importers:
         specifier: ^1.1.6
         version: 1.1.6(react@17.0.2)
       '@internxt/inxt-js':
-        specifier: 2.1.0
-        version: 2.1.0
+        specifier: 2.1.1
+        version: 2.1.1
       '@internxt/lib':
         specifier: 1.1.6
         version: 1.1.6
@@ -1339,8 +1339,8 @@ packages:
     peerDependencies:
       eslint: '>=0.8.0'
 
-  '@internxt/inxt-js@2.1.0':
-    resolution: {integrity: sha512-Xx65Li3wRvXtDvXkTe44cM5l5DLMpvCkIFzNu0c78hi6xWlMXpl1JrMRiO0PHP+I3tOyRh/KAzUDQ92jRbzbBQ==, tarball: https://npm.pkg.github.com/download/@internxt/inxt-js/2.1.0/cb76e567f3d2144d9877166572cdf614c4c69277}
+  '@internxt/inxt-js@2.1.1':
+    resolution: {integrity: sha512-yd4I4epRpHuYsOCj1pb7B7hcRyTozd5j0zv5AgP2HIYsEiL2gD1jV+RbKVhc6BNbc8Y/uT3nwGRx/cS3cTeWzQ==, tarball: https://npm.pkg.github.com/download/@internxt/inxt-js/2.1.1/33371ac8358e3429b5a965337410f894e6513cf9}
 
   '@internxt/lib@1.1.6':
     resolution: {integrity: sha512-xpnSpDsWr+jemV2aI71B39LGfXnNCsyv2VKND0JAgrOeyHXjnChH+IHxGLq/8f73HT47mpkNXrK4nfpzH4OaaQ==, tarball: https://npm.pkg.github.com/download/@internxt/lib/1.1.6/ea931ba39aa0e715704400603beb8833c73c05e4}
@@ -9033,7 +9033,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@internxt/inxt-js@2.1.0':
+  '@internxt/inxt-js@2.1.1':
     dependencies:
       '@internxt/lib': 1.1.6
       '@internxt/sdk': 1.9.12

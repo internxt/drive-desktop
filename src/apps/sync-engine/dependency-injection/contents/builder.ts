@@ -1,4 +1,4 @@
-import { Environment } from '@internxt/inxt-js';
+import { Environment } from '@internxt/inxt-js/build';
 import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';

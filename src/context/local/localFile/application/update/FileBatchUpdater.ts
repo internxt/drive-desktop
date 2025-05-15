@@ -19,6 +19,10 @@ export class FileBatchUpdater {
 
       const contentsId = upload.getRight();
 
+      if (!contentsId) {
+        return;
+      }
+
       const file = remoteTree.get(localFile.relativePath);
 
       if (file.isFolder()) {
