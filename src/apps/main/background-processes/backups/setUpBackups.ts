@@ -5,7 +5,6 @@ import { listenForBackupsErrors } from './BackupFatalErrors/listenForBackupError
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 import { handleBackupsStatusMessages } from './BackupsProcessStatus/handlers';
 import { initiateBackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { BackupsStopController } from './BackupsStopController/BackupsStopController';
 import { launchBackupProcesses } from './launchBackupProcesses';
 import Logger from 'electron-log';
 import { logger } from '@/apps/shared/logger/logger';
@@ -17,11 +16,10 @@ export async function setUpBackups() {
   const tracker = initiateBackupsProcessTracker();
   const errors = listenForBackupsErrors();
   const status = handleBackupsStatusMessages();
-  const stopController = new BackupsStopController();
   const scheduler = new BackupScheduler(
     () => backupConfiguration.lastBackup,
     () => backupConfiguration.backupInterval,
-    () => launchBackupProcesses(true, tracker, status, errors, stopController),
+    () => launchBackupProcesses(true, tracker, status, errors),
   );
 
   backupConfiguration.onBackupIntervalChanged = (interval: number) => {
@@ -48,7 +46,7 @@ export async function setUpBackups() {
   ipcMain.on('start-backups-process', async () => {
     Logger.debug('Backups started manually');
 
-    await launchBackupProcesses(false, tracker, status, errors, stopController);
+    await launchBackupProcesses(false, tracker, status, errors);
   });
 
   Logger.debug('[BACKUPS] Start service');

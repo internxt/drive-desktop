@@ -90,7 +90,7 @@ export class Backup {
 
     await this.backupFiles(context, tracker, filesDiff, local, remote);
 
-    return undefined;
+    return;
   }
 
   private async backupFolders(

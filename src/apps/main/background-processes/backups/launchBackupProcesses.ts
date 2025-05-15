@@ -5,7 +5,6 @@ import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
 import { BackupFatalErrors } from './BackupFatalErrors/BackupFatalErrors';
 import { BackupsProcessStatus } from './BackupsProcessStatus/BackupsProcessStatus';
 import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { BackupsStopController } from './BackupsStopController/BackupsStopController';
 import { isSyncError } from '../../../shared/issues/SyncErrorCause';
 import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
@@ -20,7 +19,6 @@ export async function launchBackupProcesses(
   tracker: BackupsProcessTracker,
   status: BackupsProcessStatus,
   errors: BackupFatalErrors,
-  stopController: BackupsStopController,
 ): Promise<void> {
   if (!backupsCanRun(status)) {
     Logger.debug('[BACKUPS] Already running');
@@ -42,29 +40,11 @@ export async function launchBackupProcesses(
 
   logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', scheduled, backups });
 
-  stopController.on('forced-by-user', () => {
-    Logger.debug('[BACKUPS] Stopping backups');
-
-    ipcMain.emit('BACKUP_PROCESS_FINISHED', {
-      scheduled,
-      foldersToBackup: tracker.totalBackups(),
-      lastExitReason: 'FORCED_BY_USER',
-    });
-  });
-
-  stopController.on('backup-completed', () => {
-    ipcMain.emit('BACKUP_PROCESS_FINISHED', {
-      scheduled,
-      foldersToBackup: tracker.totalBackups(),
-      lastExitReason: 'PROCESS_FINISHED',
-    });
-  });
+  const abortController = new AbortController();
 
   ipcMain.once('stop-backups-process', () => {
-    stopController.stop('forced-by-user');
+    abortController.abort();
   });
-
-  const abortController = new AbortController();
 
   // clearBackupsIssues();
   errors.clear();
@@ -86,11 +66,11 @@ export async function launchBackupProcesses(
     tracker.backing();
 
     if (abortController.signal.aborted) {
-      logger.debug({ tag: 'BACKUPS', msg: 'Stop controller stopped' });
+      logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
       continue;
     }
 
-    const endReason = await executeBackupWorker(tracker, context, stopController);
+    const endReason = await executeBackupWorker(tracker, context);
 
     if (isSyncError(endReason)) {
       errors.add({ name: backupInfo.plainName, error: endReason });
@@ -104,12 +84,9 @@ export async function launchBackupProcesses(
   status.set('STANDBY');
 
   tracker.reset();
-  stopController.reset();
   backupsConfig.backupFinished();
 
   ipcMain.removeAllListeners('stop-backups-process');
 
   powerSaveBlocker.stop(suspensionBlockId);
-
-  ipcMain.emit('BACKUPS:PROCESS_FINISHED');
 }
