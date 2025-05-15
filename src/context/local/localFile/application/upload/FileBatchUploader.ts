@@ -52,6 +52,10 @@ export class FileBatchUploader {
 
             const contentsId = uploadEither.getRight();
 
+            if (!contentsId) {
+              return;
+            }
+
             Logger.info('[Local File Uploader] Uploading file', localRootPath);
 
             const parent = remoteTree.getParent(localFile.relativePath);

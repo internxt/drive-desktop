@@ -18,7 +18,7 @@ export class EnvironmentLocalFileUploader {
     private readonly bucket: string,
   ) {}
 
-  upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
+  upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string | null>> {
     const useMultipartUpload = size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
     logger.debug({
@@ -39,7 +39,7 @@ export class EnvironmentLocalFileUploader {
 
     stopwatch.start();
 
-    return new Promise<Either<DriveDesktopError, string>>((resolve) => {
+    return new Promise<Either<DriveDesktopError, string | null>>((resolve) => {
       const state = fn(this.bucket, {
         source: readable,
         fileSize: size,
@@ -47,14 +47,10 @@ export class EnvironmentLocalFileUploader {
           stopwatch.finish();
 
           if (err) {
-            if (err.message === 'Max space used') {
+            if (err.message === 'Process killed by user') {
+              return resolve(right(null));
+            } else if (err.message === 'Max space used') {
               return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
-            } else if (err.message === 'Process killed by user') {
-              /**
-               * v2.5.3 Daniel Jiménez
-               * TODO: This should not be tracked as an error.
-               */
-              return resolve(left(new DriveDesktopError('USER_ABORT')));
             } else {
               logger.error({
                 msg: 'Failed to upload file to the bucket',
