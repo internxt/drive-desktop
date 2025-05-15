@@ -1,3 +1,5 @@
+import { BackupFatalErrors } from '../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors';
+
 export type BackupInfo = {
   folderUuid: string;
   folderId: number;
@@ -5,4 +7,9 @@ export type BackupInfo = {
   backupsBucket: string;
   pathname: string;
   plainName: string;
+};
+
+export type BackupsContext = BackupInfo & {
+  abortController: AbortController;
+  errors: BackupFatalErrors;
 };

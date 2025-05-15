@@ -8,9 +8,10 @@ import { initiateBackupsProcessTracker } from './BackupsProcessTracker/BackupsPr
 import { BackupsStopController } from './BackupsStopController/BackupsStopController';
 import { launchBackupProcesses } from './launchBackupProcesses';
 import Logger from 'electron-log';
+import { logger } from '@/apps/shared/logger/logger';
 
 export async function setUpBackups() {
-  Logger.debug('[BACKUPS] Setting up backups');
+  logger.debug({ tag: 'BACKUPS', msg: 'Setting up backups' });
 
   const backupConfiguration = setupBackupConfig();
   const tracker = initiateBackupsProcessTracker();

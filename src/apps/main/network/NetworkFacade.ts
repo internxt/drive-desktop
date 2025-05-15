@@ -1,4 +1,4 @@
-import { Environment } from '@internxt/inxt-js';
+import { Environment } from '@internxt/inxt-js/build';
 import { Network as NetworkModule } from '@internxt/sdk';
 import { createDecipheriv, randomBytes } from 'crypto';
 import { validateMnemonic } from 'bip39';

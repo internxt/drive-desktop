@@ -1,4 +1,4 @@
-import { Environment } from '@internxt/inxt-js';
+import { Environment } from '@internxt/inxt-js/build';
 import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContentFileDownloader';

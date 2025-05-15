@@ -1,4 +1,4 @@
-import { Environment } from '@internxt/inxt-js';
+import { Environment } from '@internxt/inxt-js/build';
 import { StorageTypes } from '@internxt/sdk/dist/drive';
 import { Readable } from 'stream';
 

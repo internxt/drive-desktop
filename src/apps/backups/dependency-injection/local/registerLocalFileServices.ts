@@ -3,8 +3,8 @@ import { ContainerBuilder } from 'diod';
 import { FileBatchUpdater } from '../../../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../../../context/local/localFile/application/upload/FileBatchUploader';
 import { EnvironmentLocalFileUploader } from '../../../../context/local/localFile/infrastructure/EnvironmentLocalFileUploader';
-import { Environment } from '@internxt/inxt-js';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
+import { Environment } from '@internxt/inxt-js/build';
 import { getConfig } from '@/apps/sync-engine/config';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 

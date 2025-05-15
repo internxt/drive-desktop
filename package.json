@@ -18,7 +18,7 @@
     "package": "ts-node .erb/scripts/clean.js && npm run build && electron-builder build --publish never",
     "init:dev": "pnpm install && node node_modules/electron/install.js && npm run build:dll && npm run reload-native-deps",
     "========== Code style ==========": "",
-    "lint": "eslint . --ext .ts,.tsx --max-warnings 202",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 201",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier src --check",
     "format:fix": "prettier src --write",
@@ -169,7 +169,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/inxt-js": "2.1.0",
+    "@internxt/inxt-js": "2.1.1",
     "@internxt/lib": "1.1.6",
     "@internxt/node-win": "1.0.11",
     "@internxt/scan": "1.0.2",

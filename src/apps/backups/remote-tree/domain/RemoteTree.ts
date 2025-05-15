@@ -11,7 +11,6 @@ export class RemoteTree {
 
   constructor(rootFolder: Folder) {
     const node = FolderNode.createRoot(rootFolder);
-    Logger.debug('[REMOTE TREE] Creating root node', rootFolder);
     this.tree.set('/', node);
   }
 
