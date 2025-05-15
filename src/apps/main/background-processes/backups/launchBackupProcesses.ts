@@ -8,6 +8,8 @@ import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTra
 import { BackupsStopController } from './BackupsStopController/BackupsStopController';
 import { isSyncError } from '../../../shared/issues/SyncErrorCause';
 import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
+import { logger } from '@/apps/shared/logger/logger';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -27,7 +29,10 @@ export async function launchBackupProcesses(
 
   const isAvailable = await isAvailableBackups();
 
-  if (!isAvailable) return;
+  if (!isAvailable) {
+    logger.debug({ msg: 'Backups not available' });
+    return;
+  }
 
   status.set('RUNNING');
 
@@ -35,14 +40,7 @@ export async function launchBackupProcesses(
 
   const backups = await backupsConfig.obtainBackupsInfo();
 
-  Logger.debug(`[BACKUPS] Launching ${backups?.length} backups`);
-  Logger.debug(`[BACKUPS] Scheduled: ${scheduled}`);
-  Logger.debug(backups);
-
-  // clearBackupsIssues();
-  errors.clear();
-
-  tracker.track(backups);
+  logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', scheduled, backups });
 
   stopController.on('forced-by-user', () => {
     Logger.debug('[BACKUPS] Stopping backups');
@@ -63,18 +61,36 @@ export async function launchBackupProcesses(
   });
 
   ipcMain.once('stop-backups-process', () => {
-    stopController.userCancelledBackup();
+    stopController.stop('forced-by-user');
   });
 
-  for (const backupInfo of backups) {
-    tracker.backing(backupInfo);
+  const abortController = new AbortController();
 
-    if (stopController.hasStopped()) {
-      Logger.debug('[BACKUPS] Stop controller stopped');
+  // clearBackupsIssues();
+  errors.clear();
+  tracker.track(backups, abortController);
+
+  for (const backupInfo of backups) {
+    logger.debug({
+      tag: 'BACKUPS',
+      msg: 'Backup folder',
+      backupInfo,
+    });
+
+    const context: BackupsContext = {
+      ...backupInfo,
+      abortController,
+      errors,
+    };
+
+    tracker.backing();
+
+    if (abortController.signal.aborted) {
+      logger.debug({ tag: 'BACKUPS', msg: 'Stop controller stopped' });
       continue;
     }
 
-    const endReason = await executeBackupWorker(backupInfo, stopController);
+    const endReason = await executeBackupWorker(tracker, context, stopController);
 
     if (isSyncError(endReason)) {
       errors.add({ name: backupInfo.plainName, error: endReason });

@@ -10,6 +10,7 @@ import * as Sentry from '@sentry/electron/renderer';
 import Logger from 'electron-log';
 import { getAllItemsByFolderUuid } from './get-all-items-by-folder-uuid';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { BackupsContext } from '../BackupInfo';
 
 type Items = {
   files: Array<ServerFile>;
@@ -30,8 +31,9 @@ export class Traverser {
     });
   }
 
-  private traverse(tree: RemoteTree, items: Items, currentFolder: Folder) {
+  private traverse(context: BackupsContext, tree: RemoteTree, items: Items, currentFolder: Folder) {
     if (!items) return;
+    if (context.abortController.signal.aborted) return;
 
     const filesInThisFolder = items.files.filter((file) => file.folderUuid === currentFolder.uuid);
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
@@ -69,7 +71,7 @@ export class Traverser {
 
         tree.addFolder(currentFolder, folder);
 
-        this.traverse(tree, items, folder);
+        this.traverse(context, tree, items, folder);
       } catch (error) {
         Logger.warn('[Traverser] Error adding folder:', error);
         Sentry.captureException(error);
@@ -77,14 +79,14 @@ export class Traverser {
     });
   }
 
-  async run({ rootFolderId, rootFolderUuid }: { rootFolderId: number; rootFolderUuid: string }): Promise<RemoteTree> {
-    const items = await getAllItemsByFolderUuid(rootFolderUuid);
+  async run({ context }: { context: BackupsContext }): Promise<RemoteTree> {
+    const items = await getAllItemsByFolderUuid(context.folderUuid);
 
-    const rootFolder = this.createRootFolder({ id: rootFolderId, uuid: rootFolderUuid });
+    const rootFolder = this.createRootFolder({ id: context.folderId, uuid: context.folderUuid });
 
     const tree = new RemoteTree(rootFolder);
 
-    this.traverse(tree, items, rootFolder);
+    this.traverse(context, tree, items, rootFolder);
 
     return tree;
   }

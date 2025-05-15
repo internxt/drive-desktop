@@ -113,8 +113,15 @@ ipcMainDrive.on('FILE_UPLOADED', async (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_CREATED', async (_, payload) => {
-  const { nameWithExtension, fileId } = payload;
+export async function onFileCreated(payload: {
+  bucket: string;
+  name: string;
+  extension: string;
+  nameWithExtension: string;
+  fileId: number;
+  path: string;
+}) {
+  const { bucket, nameWithExtension, fileId } = payload;
 
   let fullPath = payload.path;
 
@@ -123,13 +130,15 @@ ipcMainDrive.on('FILE_CREATED', async (_, payload) => {
     fullPath = path.join(root, fullPath);
   }
 
-  await createAndUploadThumbnail(fileId, nameWithExtension, fullPath);
+  await createAndUploadThumbnail(bucket, fileId, nameWithExtension, fullPath);
 
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADED',
     name: nameWithExtension,
   });
-});
+}
+
+ipcMainDrive.on('FILE_CREATED', (_, payload) => onFileCreated(payload));
 
 ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;

@@ -5,24 +5,23 @@ import { SimpleFileCreator } from '../../../../virtual-drive/files/application/c
 import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
 import { isFatalError } from '../../../../../apps/shared/issues/SyncErrorCause';
 import Logger from 'electron-log';
-import { ipcRenderer } from 'electron';
-import { RendererIpcLocalFileMessenger } from '../../infrastructure/RendererIpcLocalFileMessenger';
 import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 import { logger } from '@/apps/shared/logger/logger';
+import { onFileCreated } from '@/apps/main/fordwardToWindows';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 
 @Service()
 export class FileBatchUploader {
   constructor(
     private readonly localHandler: EnvironmentLocalFileUploader,
     private readonly creator: SimpleFileCreator,
-    protected readonly messenger: RendererIpcLocalFileMessenger,
   ) {}
 
   async run(
+    context: BackupsContext,
     localRootPath: string,
     remoteTree: RemoteTree,
     batch: Array<LocalFile>,
-    signal: AbortSignal,
     updateProgress: () => void,
   ): Promise<void> {
     const MAX_CONCURRENT_TASKS = 5;
@@ -35,7 +34,7 @@ export class FileBatchUploader {
       await Promise.all(
         chunk.map(async (localFile) => {
           try {
-            const uploadEither = await this.localHandler.upload(localFile.path, localFile.size, signal);
+            const uploadEither = await this.localHandler.upload(localFile.path, localFile.size, context.abortController.signal);
             Logger.info(localFile.path);
 
             if (uploadEither.isLeft()) {
@@ -46,7 +45,7 @@ export class FileBatchUploader {
                 throw error;
               }
 
-              this.messenger.creationFailed(localFile, error);
+              context.errors.add({ error: error.cause, name: localFile.nameWithExtension() });
               return; // Continuar con el siguiente archivo en paralelo
             }
 
@@ -70,9 +69,10 @@ export class FileBatchUploader {
               size: localFile.size,
             });
 
-            Logger.info('[File created]', file);
+            logger.info({ tag: 'BACKUPS', msg: 'File created', file });
 
-            ipcRenderer.send('FILE_CREATED', {
+            await onFileCreated({
+              bucket: context.backupsBucket,
               name: file.name,
               extension: file.type,
               nameWithExtension: file.nameWithExtension,
@@ -88,7 +88,7 @@ export class FileBatchUploader {
               throw error;
             }
 
-            this.messenger.creationFailed(localFile, error);
+            context.errors.add({ error: error.cause, name: localFile.nameWithExtension() });
           } finally {
             updateProgress();
           }

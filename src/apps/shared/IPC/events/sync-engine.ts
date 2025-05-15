@@ -35,7 +35,14 @@ type FilesEvents = {
   FILE_RENAMED: (payload: { nameWithExtension: string; oldName: string }) => void;
   FILE_RENAME_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; error: string }) => void;
 
-  FILE_CREATED: (payload: { name: string; extension: string; nameWithExtension: string; fileId: number; path: string }) => void;
+  FILE_CREATED: (payload: {
+    bucket: string;
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    fileId: number;
+    path: string;
+  }) => void;
   FILE_OVERWRITTEN: (payload: { nameWithExtension: string }) => void;
   FILE_CLONED: (payload: FileUpdatePayload) => void;
   FILE_MOVED: (payload: { nameWithExtension: string; folderName: string }) => void;
@@ -43,7 +50,6 @@ type FilesEvents = {
 
 type SyncEngineInvocableFunctions = {
   GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: DriveFile[]; folders: DriveFolder[] }>;
-  FORCE_REFRESH_BACKUPS: (folderUuid: string) => Promise<{ files: FileDto[]; folders: FolderDto[] }>;
   GET_HEADERS: () => Promise<Record<string, string>>;
   USER_IS_UNAUTHORIZED: () => void;
 };

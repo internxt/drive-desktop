@@ -157,10 +157,6 @@ async function startRemoteSync({ workspaceId }: { workspaceId: string }): Promis
   }
 }
 
-ipcMain.handle('FORCE_REFRESH_BACKUPS', async (_, folderUuid: string) => {
-  return await fetchItems({ folderUuid, skipFiles: false });
-});
-
 ipcMain.handle('get-remote-sync-status', () => {
   return getSyncStatus();
 });

@@ -2,9 +2,9 @@ import { ThumbnailUploaderFactory } from '../infrastructure/ThumbnailUploaderFac
 import { obtainImageToThumbnailIt } from './obtain-image-to-thumbnail-it';
 import { logger } from '@/apps/shared/logger/logger';
 
-export async function createAndUploadThumbnail(fileId: number, name: string, path: string) {
+export async function createAndUploadThumbnail(bucket: string, fileId: number, name: string, path: string) {
   try {
-    const uploader = ThumbnailUploaderFactory.build();
+    const uploader = ThumbnailUploaderFactory.build(bucket);
 
     const image = await obtainImageToThumbnailIt(path);
     if (!image) {

@@ -1,17 +1,17 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
-import { LocalFolder } from '../../../localFolder/domain/LocalFolder';
 import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 import { simpleFileOverride } from '@/context/virtual-drive/files/application/override/SimpleFileOverrider';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 
 @Service()
 export class FileBatchUpdater {
   constructor(private readonly uploader: EnvironmentLocalFileUploader) {}
 
-  async run(remoteTree: RemoteTree, batch: Array<LocalFile>, signal: AbortSignal): Promise<void> {
+  async run(context: BackupsContext, remoteTree: RemoteTree, batch: Array<LocalFile>): Promise<void> {
     for (const localFile of batch) {
-      const upload = await this.uploader.upload(localFile.path, localFile.size, signal);
+      const upload = await this.uploader.upload(localFile.path, localFile.size, context.abortController.signal);
 
       if (upload.isLeft()) {
         throw upload.getLeft();

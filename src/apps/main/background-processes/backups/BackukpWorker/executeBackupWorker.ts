@@ -1,64 +1,52 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
-import { BackupInfo } from '../../../../backups/BackupInfo';
-import { BackupWorker } from './BackupWorker';
+import { BackupsContext } from '../../../../backups/BackupInfo';
 import { BackupsStopController } from '../BackupsStopController/BackupsStopController';
-import { BackupsIPCMain } from '../BackupsIpc';
-import { WorkerExitCause } from '../BackupsProcessTracker/BackupsProcessTracker';
+import { BackupsProcessTracker, WorkerExitCause } from '../BackupsProcessTracker/BackupsProcessTracker';
+import { backupFolder } from '@/apps/backups';
+import { DriveDesktopError } from '@/context/shared/domain/errors/DriveDesktopError';
+import { logger } from '@/apps/shared/logger/logger';
 
-function addMessagesHandlers(info: BackupInfo, stopController: BackupsStopController) {
-  BackupsIPCMain.handleOnce('backups.get-backup', () => info);
+export async function executeBackupWorker(
+  tracker: BackupsProcessTracker,
+  context: BackupsContext,
+  stopController: BackupsStopController,
+): Promise<WorkerExitCause> {
+  const finished = new Promise<WorkerExitCause>(async (resolve) => {
+    const promise = backupFolder(tracker, context);
 
-  BackupsIPCMain.on('backups.backup-completed', (_, folderId) => {
-    ipcMain.emit('BACKUP_COMPLETED', folderId);
-  });
+    try {
+      stopController.on('forced-by-user', () => {
+        context.abortController.abort();
+        resolve('forced-by-user');
+      });
 
-  BackupsIPCMain.on('backups.backup-failed', (_, _folderId, error) => {
-    Logger.error(`[Backup] error: ${error}`);
-    stopController.failed(error);
-  });
-}
+      const error = await promise;
 
-function removeMessagesHandlers() {
-  BackupsIPCMain.removeHandler('backups.get-backup');
-  BackupsIPCMain.removeAllListeners('backups.backup-completed');
-  BackupsIPCMain.removeAllListeners('backups.backup-failed');
-}
+      if (error) {
+        stopController.failed(error.cause);
+        resolve(error.cause);
+      }
 
-function listenForBackupFinalization(): Promise<WorkerExitCause> {
-  const finished = new Promise<WorkerExitCause>((resolve) => {
-    BackupsIPCMain.on('backups.backup-completed', () => {
+      ipcMain.emit('BACKUP_COMPLETED', context.folderId);
       resolve('backup-completed');
-    });
+    } catch (error) {
+      logger.error({
+        tag: 'BACKUPS',
+        msg: 'Error executing backup folder',
+        error,
+      });
 
-    BackupsIPCMain.on('backups.stopped', () => {
-      resolve('forced-by-user');
-    });
-
-    BackupsIPCMain.on('backups.backup-failed', (_, _folderId, error) => {
-      resolve(error);
-    });
-  });
-
-  return finished;
-}
-
-export async function executeBackupWorker(info: BackupInfo, stopController: BackupsStopController): Promise<WorkerExitCause> {
-  addMessagesHandlers(info, stopController);
-
-  const finished = listenForBackupFinalization();
-
-  const worker = BackupWorker.spawn(info.folderId);
-
-  stopController.on('forced-by-user', () => {
-    worker.send('backups.abort');
+      if (error instanceof DriveDesktopError) {
+        stopController.failed(error.cause);
+        resolve(error.cause);
+      } else {
+        stopController.failed('UNKNOWN');
+        resolve('UNKNOWN');
+      }
+    }
   });
 
   const reason = await finished;
-
-  removeMessagesHandlers();
-
-  worker.destroy();
 
   return reason;
 }
