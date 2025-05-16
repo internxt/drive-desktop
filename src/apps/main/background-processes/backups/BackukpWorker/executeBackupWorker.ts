@@ -1,27 +1,23 @@
-import { ipcMain } from 'electron';
 import { BackupsContext } from '../../../../backups/BackupInfo';
 import { BackupsProcessTracker, WorkerExitCause } from '../BackupsProcessTracker/BackupsProcessTracker';
 import { backupFolder } from '@/apps/backups';
 import { DriveDesktopError } from '@/context/shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
 
-export async function executeBackupWorker(tracker: BackupsProcessTracker, context: BackupsContext): Promise<WorkerExitCause> {
-  const finished = new Promise<WorkerExitCause>(async (resolve) => {
-    const promise = backupFolder(tracker, context);
-
+export function executeBackupWorker(tracker: BackupsProcessTracker, context: BackupsContext): Promise<WorkerExitCause> {
+  const promise = new Promise<WorkerExitCause>(async (resolve) => {
     try {
       context.abortController.signal.addEventListener('abort', () => {
         resolve('forced-by-user');
       });
 
-      const error = await promise;
+      const error = await backupFolder(tracker, context);
 
       if (error) {
         context.abortController.abort();
         resolve(error.cause);
       }
 
-      ipcMain.emit('BACKUP_COMPLETED', context.folderId);
       resolve('backup-completed');
     } catch (error) {
       logger.error({
@@ -38,7 +34,5 @@ export async function executeBackupWorker(tracker: BackupsProcessTracker, contex
     }
   });
 
-  const reason = await finished;
-
-  return reason;
+  return promise;
 }

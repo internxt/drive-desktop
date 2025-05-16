@@ -21,7 +21,7 @@ export async function launchBackupProcesses(
   errors: BackupFatalErrors,
 ): Promise<void> {
   if (!backupsCanRun(status)) {
-    Logger.debug('[BACKUPS] Already running');
+    logger.debug({ tag: 'BACKUPS', msg: 'Already running' });
     return;
   }
 
@@ -43,6 +43,7 @@ export async function launchBackupProcesses(
   const abortController = new AbortController();
 
   ipcMain.once('stop-backups-process', () => {
+    logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
     abortController.abort();
   });
 
@@ -63,12 +64,11 @@ export async function launchBackupProcesses(
       errors,
     };
 
-    tracker.backing();
-
     if (abortController.signal.aborted) {
-      logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
       continue;
     }
+
+    tracker.backing();
 
     const endReason = await executeBackupWorker(tracker, context);
 
