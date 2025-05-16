@@ -1,23 +1,24 @@
+import { VirtualDrive } from '@internxt/node-win/dist';
 import { File } from '../domain/File';
-import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 
 export class FilesPlaceholderDeleter {
-  constructor(private readonly local: NodeWinLocalFileSystem) {}
+  constructor(private readonly virtualDrive: VirtualDrive) {}
 
   private hasToBeDeleted(remote: File): boolean {
-    const localUUID = this.local.getFileIdentity(remote.path);
+    const placeholderId = this.virtualDrive.getFileIdentity({ path: remote.path });
+    const uuid = placeholderId?.split(':')[1]?.trim();
 
-    if (!localUUID) {
+    if (!uuid) {
       return false;
     }
 
-    return localUUID.split(':')[1]?.trim() === remote.uuid.trim();
+    return uuid === remote.uuid.trim();
   }
 
   private async delete(remote: File): Promise<void> {
     const hasToBeDeleted = this.hasToBeDeleted(remote);
     if (hasToBeDeleted) {
-      await this.local.deleteFileSyncRoot(remote.path);
+      await this.virtualDrive.deleteFileSyncRoot({ path: remote.path });
     }
   }
 

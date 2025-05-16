@@ -62,7 +62,7 @@ export function buildFilesContainer(
     eventHistory,
   );
 
-  const filesPlaceholderDeleter = new FilesPlaceholderDeleter(localFileSystem);
+  const filesPlaceholderDeleter = new FilesPlaceholderDeleter(virtualDrive);
 
   const filePlaceholderConverter = new FilePlaceholderConverter(localFileSystem);
 
