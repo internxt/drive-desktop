@@ -2,14 +2,13 @@ import { ipcMain } from 'electron';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
 import { BackupsIPCMain } from '../BackupsIpc';
-import { BackupCompleted, ForcedByUser } from '../BackupsStopController/BackupsStopController';
 import { BackupsProgress } from '../types/BackupsProgress';
 import { IndividualBackupProgress } from '../types/IndividualBackupProgress';
 import { ProcessFatalErrorName } from '../BackupFatalErrors/BackupFatalErrors';
 import { isSyncError } from '../../../../shared/issues/SyncErrorCause';
 import { logger } from '@/apps/shared/logger/logger';
 
-export type WorkerExitCause = ForcedByUser | BackupCompleted | ProcessFatalErrorName;
+export type WorkerExitCause = 'forced-by-user' | 'backup-completed' | ProcessFatalErrorName;
 
 export class BackupsProcessTracker {
   private processed = 0;
