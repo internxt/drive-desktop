@@ -4,7 +4,7 @@ import LanguagePicker from './LanguagePicker';
 import ThemePicker from './ThemePicker';
 import StartAutomatically from './StartAutomatically';
 
-export default function GeneralSection({ active }: { active: boolean }) {
+export default function GeneralSection({ active }: { readonly active: boolean }) {
   return (
     <div className={active ? 'block' : 'hidden'}>
       <DeviceName onChangeView={active} />
