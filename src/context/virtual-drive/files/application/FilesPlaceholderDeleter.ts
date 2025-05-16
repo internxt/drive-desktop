@@ -7,11 +7,6 @@ export class FilesPlaceholderDeleter {
   private hasToBeDeleted(remote: File): boolean {
     const placeholderId = this.virtualDrive.getFileIdentity({ path: remote.path });
     const uuid = placeholderId?.split(':')[1]?.trim();
-
-    if (!uuid) {
-      return false;
-    }
-
     return uuid === remote.uuid.trim();
   }
 
