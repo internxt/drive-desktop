@@ -24,10 +24,10 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
 
   const repository = new InMemoryFolderRepository();
 
-  const localFolderSystem = new NodeWinLocalFolderSystem(virtualDrive, shredContainer.relativePathToAbsoluteConverter);
+  const localFolderSystem = new NodeWinLocalFolderSystem(virtualDrive);
   const remoteFolderSystem = new HttpRemoteFolderSystem(getConfig().workspaceId ?? null);
 
-  const folderPlaceholderConverter = new FolderPlaceholderConverter(localFolderSystem);
+  const folderPlaceholderConverter = new FolderPlaceholderConverter(virtualDrive);
 
   const folderFinder = new FolderFinder(repository);
 
@@ -52,7 +52,7 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
     shredContainer.relativePathToAbsoluteConverter,
   );
 
-  const folderPlaceholderDeleter = new FolderPlaceholderDeleter(localFolderSystem);
+  const folderPlaceholderDeleter = new FolderPlaceholderDeleter(virtualDrive);
 
   const folderContainerDetector = new FolderContainerDetector(repository);
 
