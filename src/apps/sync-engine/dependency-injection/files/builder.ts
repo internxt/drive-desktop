@@ -64,7 +64,7 @@ export function buildFilesContainer(
 
   const filesPlaceholderDeleter = new FilesPlaceholderDeleter(virtualDrive);
 
-  const filePlaceholderConverter = new FilePlaceholderConverter(localFileSystem);
+  const filePlaceholderConverter = new FilePlaceholderConverter(virtualDrive);
 
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
@@ -74,7 +74,7 @@ export function buildFilesContainer(
 
   const fileIdentityUpdater = new FileIdentityUpdater(localFileSystem);
 
-  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(localFileSystem);
+  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(virtualDrive);
 
   const fileOverwriteContent = new FileOverwriteContent(repository, filesCheckerStatusInRoot, fileContentsHardUpdate);
 

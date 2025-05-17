@@ -1,13 +1,12 @@
-import { PinState } from '@internxt/node-win/dist';
-import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { PinState, VirtualDrive } from '@internxt/node-win/dist';
 
 export class FileCheckerStatusInRoot {
-  constructor(private readonly localFileSystem: NodeWinLocalFileSystem) {}
+  constructor(private readonly virtualDrive: VirtualDrive) {}
 
   public isHydrated(paths: string[]): Record<string, boolean> {
     const fileOnlineOnly: Record<string, boolean> = {};
     for (const path of paths) {
-      const placeholderStatus = this.localFileSystem.getPlaceholderStateByRelativePath(path);
+      const placeholderStatus = this.virtualDrive.getPlaceholderState({ path });
 
       if (placeholderStatus.pinState == PinState.OnlineOnly) {
         fileOnlineOnly[path] = false;
