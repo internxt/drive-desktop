@@ -69,6 +69,14 @@ export class FolderPlaceholderUpdater {
   private async hasToBeCreated(remote: Folder): Promise<boolean> {
     const remoteExists = remote.status === FolderStatuses.EXISTS;
 
+    /**
+     * v2.5.3 Daniel Jiménez
+     * When we unregister the virtual drive it happens two things:
+     * 1. All file placeholders that are OnlineOnly are deleted.
+     * 2. All folder placeholders that are OnlineOnly are not deleted but the state becomes NotSync.
+     * We need to create the placeholder if the folder does not exist yet (first time)
+     * or if it is not synced (everytime we unregister the drive).
+     */
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
     const existsFolder = await this.folderExists(win32AbsolutePath);
 
