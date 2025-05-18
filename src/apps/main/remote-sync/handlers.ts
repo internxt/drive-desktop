@@ -56,7 +56,7 @@ export const deleteFileInBatch = async (itemsIds: string[]) => {
   });
 };
 
-export async function getUpdatedRemoteItems(workspaceId = '') {
+export async function getUpdatedRemoteItems(workspaceId: string) {
   try {
     const promise = Promise.all([driveFilesCollection.getAll({ workspaceId }), driveFoldersCollection.getAll({ workspaceId })]);
 
@@ -86,8 +86,13 @@ ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
   return;
 });
 
-ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId = '') => {
-  Logger.debug('[MAIN] Getting updated remote file items ' + workspaceId);
+ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId: string) => {
+  logger.debug({
+    tag: 'SYNC-ENGINE',
+    msg: 'Getting updated remote items',
+    workspaceId,
+  });
+
   return getUpdatedRemoteItems(workspaceId);
 });
 

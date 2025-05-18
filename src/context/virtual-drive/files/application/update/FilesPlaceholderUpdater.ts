@@ -53,16 +53,18 @@ export class FilesPlaceholderUpdater {
   }
 
   async update(remote: File): Promise<void> {
+    if (remote.status.is(FileStatuses.EXISTS)) {
+      const { isValid } = validateWindowsName({
+        path: remote.path,
+        name: remote.name,
+      });
+
+      if (!isValid) return;
+    }
+
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });
-
-    const { isValid } = validateWindowsName({
-      path: remote.path,
-      name: remote.nameWithExtension,
-    });
-
-    if (!isValid) return;
 
     if (!local) {
       if (remote.status.is(FileStatuses.EXISTS)) {

@@ -21,8 +21,8 @@ importers:
         specifier: 1.1.6
         version: 1.1.6
       '@internxt/node-win':
-        specifier: 1.0.11
-        version: 1.0.11
+        specifier: 1.0.12
+        version: 1.0.12
       '@internxt/scan':
         specifier: 1.0.2
         version: 1.0.2
@@ -1345,8 +1345,8 @@ packages:
   '@internxt/lib@1.1.6':
     resolution: {integrity: sha512-xpnSpDsWr+jemV2aI71B39LGfXnNCsyv2VKND0JAgrOeyHXjnChH+IHxGLq/8f73HT47mpkNXrK4nfpzH4OaaQ==, tarball: https://npm.pkg.github.com/download/@internxt/lib/1.1.6/ea931ba39aa0e715704400603beb8833c73c05e4}
 
-  '@internxt/node-win@1.0.11':
-    resolution: {integrity: sha512-uHtj1D01XDcS2knL4Zjsf9oBlKM0rnFndFnHEn13QghE5ygTZHOJK4aa+RsfokXLGERN/SIl1YOhFdstda3MMg==, tarball: https://npm.pkg.github.com/download/@internxt/node-win/1.0.11/6d112107e9a1e4cb6ecd8e961e4ad4cd9923fe17}
+  '@internxt/node-win@1.0.12':
+    resolution: {integrity: sha512-aVKYIxeqtqRUrcqk3WwhbX725Vzghix2nIzfN9VzZuSKXjgbp2WcOxboljI3gkFQEIzovouI31YlVIcicH14bw==, tarball: https://npm.pkg.github.com/download/@internxt/node-win/1.0.12/fbde098c5cb1d2b04a7cb38ddf143329711b0c23}
 
   '@internxt/scan@1.0.2':
     resolution: {integrity: sha512-AZAPF+JywxfyEWJ9LPk+b3HHJG1c6fDq+x+YX5U5FKilfX43RgM6GdCME/RfuJPLuMy6B0r/W24NWIRs6sQUXQ==, tarball: https://npm.pkg.github.com/download/@internxt/scan/1.0.2/dc85bd75165ff50adfc8b9f607b233398898c60a}
@@ -9047,7 +9047,7 @@ snapshots:
 
   '@internxt/lib@1.1.6': {}
 
-  '@internxt/node-win@1.0.11':
+  '@internxt/node-win@1.0.12':
     dependencies:
       chokidar: 3.6.0
       lodash.chunk: 4.2.0

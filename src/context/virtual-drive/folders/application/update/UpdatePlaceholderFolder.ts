@@ -8,12 +8,15 @@ import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/
 import { Folder } from '../../domain/Folder';
 import { FolderStatuses } from '../../domain/FolderStatus';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
+import { logger } from '@/apps/shared/logger/logger';
+import { SyncState, VirtualDrive } from '@internxt/node-win/dist';
 
 export class FolderPlaceholderUpdater {
   constructor(
     private readonly repository: InMemoryFolderRepository,
     private readonly local: NodeWinLocalFolderSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
+    private readonly virtualDrive: VirtualDrive,
   ) {}
 
   private async renameFolderRecursive(currentWin32AbsolutePath: string, newWin32AbsolutePath: string) {
@@ -67,10 +70,12 @@ export class FolderPlaceholderUpdater {
     const remoteExists = remote.status === FolderStatuses.EXISTS;
 
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
-
     const existsFolder = await this.folderExists(win32AbsolutePath);
 
-    return remoteExists && !existsFolder;
+    const { syncState } = this.virtualDrive.getPlaceholderState({ path: remote.path });
+    const isSynced = syncState === SyncState.InSync;
+
+    return remoteExists && (!existsFolder || !isSynced);
   }
 
   async update(remote: Folder): Promise<void> {
@@ -78,20 +83,22 @@ export class FolderPlaceholderUpdater {
       return;
     }
 
+    if (remote.status === FolderStatuses.EXISTS) {
+      const { isValid } = validateWindowsName({
+        path: remote.path,
+        name: remote.name,
+      });
+
+      if (!isValid) return;
+    }
+
     const local = this.repository.searchByPartial({
       uuid: remote.uuid,
     });
 
-    const { isValid } = validateWindowsName({
-      path: remote.path,
-      name: remote.name,
-    });
-
-    if (!isValid) return;
-
     if (!local) {
       if (remote.status === FolderStatuses.EXISTS) {
-        Logger.debug('Creating folder placeholder: ', remote.path);
+        logger.debug({ msg: 'Creating folder placeholder', path: remote.path });
         this.repository.add(remote);
         this.local.createPlaceHolder(remote);
       }
@@ -135,8 +142,10 @@ export class FolderPlaceholderUpdater {
       return;
     }
 
-    this.local.createPlaceHolder(remote);
-    this.repository.update(remote);
+    if (await this.hasToBeCreated(remote)) {
+      this.local.createPlaceHolder(remote);
+      this.repository.update(remote);
+    }
   }
 
   async run(remotes: Array<Folder>): Promise<void> {
