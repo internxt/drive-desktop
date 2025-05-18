@@ -38,30 +38,13 @@ export class NodeWinLocalFileSystem {
   getFileIdentity(path: File['path']): string {
     return this.virtualDrive.getFileIdentity({ path });
   }
-  async deleteFileSyncRoot(path: File['path']): Promise<void> {
-    await this.virtualDrive.deleteFileSyncRoot({ path });
-  }
 
   updateSyncStatus(file: File, status = true) {
-    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.path);
     return this.virtualDrive.updateSyncStatus({
-      itemPath: win32AbsolutePath,
+      itemPath: file.path,
       isDirectory: false,
       sync: status,
     });
-  }
-
-  convertToPlaceholder(file: File) {
-    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.path);
-
-    return this.virtualDrive.convertToPlaceholder({
-      itemPath: win32AbsolutePath,
-      id: file.placeholderId,
-    });
-  }
-
-  getPlaceholderStateByRelativePath(relativePath: string) {
-    return this.virtualDrive.getPlaceholderState({ path: relativePath });
   }
 
   updateFileIdentity(path: string, newIdentity: `FILE:${string}`): void {

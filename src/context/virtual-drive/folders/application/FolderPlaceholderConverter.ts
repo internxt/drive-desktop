@@ -1,10 +1,13 @@
+import { VirtualDrive } from '@internxt/node-win/dist';
 import { Folder } from '../domain/Folder';
-import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 
 export class FolderPlaceholderConverter {
-  constructor(private readonly localFileSystem: NodeWinLocalFolderSystem) {}
+  constructor(private readonly virtualDrive: VirtualDrive) {}
 
   run(folder: Folder) {
-    this.localFileSystem.convertToPlaceholder(folder);
+    this.virtualDrive.convertToPlaceholder({
+      itemPath: folder.path,
+      id: folder.placeholderId,
+    });
   }
 }

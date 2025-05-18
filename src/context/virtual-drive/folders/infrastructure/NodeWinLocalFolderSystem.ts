@@ -1,56 +1,21 @@
 import { VirtualDrive } from '@internxt/node-win/dist';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 
 export class NodeWinLocalFolderSystem {
-  constructor(
-    private readonly virtualDrive: VirtualDrive,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-  ) {}
+  constructor(private readonly virtualDrive: VirtualDrive) {}
 
   createPlaceHolder(folder: Folder) {
     if (!folder.hasStatus(FolderStatuses.EXISTS)) {
       return;
     }
 
-    const folderPath = `${folder.path}/`;
-
     this.virtualDrive.createFolderByPath({
-      relativePath: folderPath,
+      relativePath: folder.path,
       itemId: folder.placeholderId,
       size: 0,
       creationTime: folder.createdAt.getTime(),
       lastWriteTime: folder.updatedAt.getTime(),
-    });
-  }
-
-  updateSyncStatus(folder: Folder, status = true) {
-    const folderPath = `${folder.path}/`;
-    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
-
-    return this.virtualDrive.updateSyncStatus({
-      itemPath: win32AbsolutePath,
-      isDirectory: true,
-      sync: status,
-    });
-  }
-
-  getFileIdentity(path: Folder['path']) {
-    return this.virtualDrive.getFileIdentity({ path });
-  }
-  async deleteFileSyncRoot(path: Folder['path']) {
-    await this.virtualDrive.deleteFileSyncRoot({ path });
-  }
-
-  convertToPlaceholder(folder: Folder) {
-    const folderPath = `${folder.path}/`;
-
-    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(folderPath);
-
-    return this.virtualDrive.convertToPlaceholder({
-      itemPath: win32AbsolutePath,
-      id: folder.placeholderId,
     });
   }
 }

@@ -1,16 +1,16 @@
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
 import Logger from 'electron-log';
-import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
+import { VirtualDrive } from '@internxt/node-win/dist';
 
 export class FolderPlaceholderDeleter {
-  constructor(private readonly local: NodeWinLocalFolderSystem) {}
+  constructor(private readonly virtualDrive: VirtualDrive) {}
 
   private hasToBeDeleted(remote: Folder): boolean {
     if (!remote.path) {
       return false;
     }
-    const localUUID = this.local.getFileIdentity(remote.path);
+    const localUUID = this.virtualDrive.getFileIdentity({ path: remote.path });
 
     if (!localUUID) {
       return false;
@@ -28,7 +28,7 @@ export class FolderPlaceholderDeleter {
     const hasToBeDeleted = this.hasToBeDeleted(remote);
 
     if (hasToBeDeleted) {
-      await this.local.deleteFileSyncRoot(remote.path);
+      await this.virtualDrive.deleteFileSyncRoot({ path: remote.path });
     }
   }
 
