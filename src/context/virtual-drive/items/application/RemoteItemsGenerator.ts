@@ -4,7 +4,7 @@ import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerF
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 export async function getAllItems(): Promise<{ files: ServerFile[]; folders: ServerFolder[] }> {
-  const updatedRemoteItems = await ipcRendererSyncEngine.invoke('GET_UPDATED_REMOTE_ITEMS', getConfig().workspaceId ?? '');
+  const updatedRemoteItems = await ipcRendererSyncEngine.invoke('GET_UPDATED_REMOTE_ITEMS', getConfig().workspaceId);
 
   const files = updatedRemoteItems.files.map((file) => ({
     ...file,

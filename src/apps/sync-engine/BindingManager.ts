@@ -135,10 +135,10 @@ export class BindingsManager {
     await this.container.virtualDrive.registerSyncRoot({
       providerName: this.PROVIDER_NAME,
       providerVersion: version,
-      callbacks,
       logoPath: this.paths.icon,
     });
-    this.container.virtualDrive.connectSyncRoot();
+
+    this.container.virtualDrive.connectSyncRoot({ callbacks });
 
     const tree = await this.container.traverser.run();
     await this.load(tree);

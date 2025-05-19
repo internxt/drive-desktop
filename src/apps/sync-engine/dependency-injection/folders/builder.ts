@@ -50,6 +50,7 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
     repository,
     localFolderSystem,
     shredContainer.relativePathToAbsoluteConverter,
+    virtualDrive,
   );
 
   const folderPlaceholderDeleter = new FolderPlaceholderDeleter(virtualDrive);
