@@ -16,8 +16,8 @@ describe('File Deleter', () => {
   const folderRepository = mockDeep<InMemoryFolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(folderRepository);
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
-  const deleteFileByUuidMock = deepMocked(driveServerWip.storage.deleteFileByUuid);
   const ipc = mockDeep<SyncEngineIpc>();
+  const deleteFileByUuidMock = deepMocked(driveServerWip.storage.deleteFileByUuid);
 
   const SUT = new FileDeleter(localFileSystem, repository, allParentFoldersStatusIsExists, ipc);
 
@@ -61,6 +61,7 @@ describe('File Deleter', () => {
   it('trashes the file with the status trashed', async () => {
     const file = FileMother.any();
 
+    deleteFileByUuidMock.mockResolvedValue({ data: true });
     repository.searchByPartial.mockReturnValueOnce(file);
     vi.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
 

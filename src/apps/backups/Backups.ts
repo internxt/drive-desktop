@@ -15,7 +15,6 @@ import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator
 import { getParentDirectory } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { RemoteTree } from './remote-tree/domain/RemoteTree';
-import { FolderDeleter } from '../../context/virtual-drive/folders/application/delete/FolderDeleter';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
@@ -23,13 +22,13 @@ import { DangledFilesService } from './dangled-files/DangledFilesService';
 import { Traverser } from './remote-tree/traverser';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 
 @Service()
 export class Backup {
   constructor(
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
-    private readonly remoteFolderDeleter: FolderDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
     private readonly dangledFilesService: DangledFilesService,
   ) {}
@@ -209,18 +208,16 @@ export class Backup {
         return;
       }
 
-      try {
-        await driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
-      } catch (error) {
-        logger.warn({
-          msg: 'Error deleting file',
-          error,
+      const promise = () => driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
+      const { error } = await retryWrapper({
+        promise,
+        loggerBody: {
           tag: 'BACKUPS',
-        });
-        if (error instanceof DriveDesktopError) {
-          throw error;
-        }
-      }
+          msg: 'Retry deleting file',
+        },
+      });
+
+      if (error) throw error;
     }
   }
 
@@ -230,18 +227,16 @@ export class Backup {
         return;
       }
 
-      try {
-        await this.remoteFolderDeleter.run(folder);
-      } catch (error) {
-        logger.warn({
-          msg: 'Error deleting folder',
-          error,
+      const promise = () => driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
+      const { error } = await retryWrapper({
+        promise,
+        loggerBody: {
           tag: 'BACKUPS',
-        });
-        if (error instanceof DriveDesktopError) {
-          throw error;
-        }
-      }
+          msg: 'Retry deleting folder',
+        },
+      });
+
+      if (error) throw error;
     }
   }
   private async uploadAndCreateFolder(

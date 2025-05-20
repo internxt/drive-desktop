@@ -43,7 +43,15 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
         ? driveServerWip.workspaces.getFoldersInWorkspace({ workspaceId: self.workspaceId, query })
         : driveServerWip.folders.getFolders({ query });
 
-    const data = await retryWrapper({ promise });
+    const { data, error } = await retryWrapper({
+      promise,
+      loggerBody: {
+        tag: 'SYNC-ENGINE',
+        msg: 'Retry fetching folders',
+      },
+    });
+
+    if (!data) throw error;
 
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;

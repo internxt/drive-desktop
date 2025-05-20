@@ -1,9 +1,8 @@
 import { ContainerBuilder } from 'diod';
 import { SimpleFolderCreator } from '../../../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
 import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
-import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/delete/FolderDeleter';
 
-export async function registerFolderServices(builder: ContainerBuilder) {
+export function registerFolderServices(builder: ContainerBuilder) {
   builder
     .register(HttpRemoteFolderSystem)
     .useFactory(() => {
@@ -12,5 +11,4 @@ export async function registerFolderServices(builder: ContainerBuilder) {
     .private();
 
   builder.registerAndUse(SimpleFolderCreator);
-  builder.registerAndUse(FolderDeleter);
 }

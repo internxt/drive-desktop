@@ -208,61 +208,19 @@ ipcMain.handle('CHECK_SYNC_IN_PROGRESS', (_, workspaceId = '') => {
   return checkSyncInProgress({ workspaceId });
 });
 
-function parseItemId(itemId: string) {
-  const [type, id] = itemId
-    .replace(
-      // eslint-disable-next-line no-control-regex
-      /[\x00-\x1F\x7F-\x9F]/g,
-      '',
-    )
-    .normalize()
-    .split(':');
-  if (!type || !id) {
-    throw new Error(`Invalid itemId format: ${itemId}`);
-  }
-  return { type, id };
-}
-
-async function deleteFolder(folderId: string): Promise<boolean> {
+ipcMain.handle('DELETE_ITEM_DRIVE', async (_, itemId: FilePlaceholderId | FolderPlaceholderId): Promise<boolean> => {
   try {
-    const result = await driveFoldersCollection.update(folderId, {
-      status: 'TRASHED',
-    });
-    return result.success;
-  } catch (error) {
-    Logger.error('Error deleting folder', { folderId, error });
-    throw error;
-  }
-}
-
-async function deleteFile(uuid: string): Promise<boolean> {
-  try {
-    const item = await driveFilesCollection.getBy({ uuid });
-    if (!item) {
-      Logger.warn('File not found', { uuid });
-      return false;
-    }
-    const result = await driveFilesCollection.update(item.uuid, {
-      status: 'TRASHED',
-    });
-    return result.success;
-  } catch (error) {
-    Logger.error('Error deleting file', { uuid, error });
-    throw error;
-  }
-}
-
-ipcMain.handle('DELETE_ITEM_DRIVE', async (_, itemId: FilePlaceholderId | FolderPlaceholderId, workspaceId = ''): Promise<boolean> => {
-  try {
-    const { type, id } = parseItemId(itemId);
-    Logger.info('Deleting item in handler', { type, id });
+    const [type, uuid] = itemId.split(':');
+    logger.debug({ msg: 'Deleting item in handler', type, uuid });
 
     const isFolder = type === 'FOLDER';
-    const result = isFolder ? await deleteFolder(id) : await deleteFile(id);
+    const result = isFolder
+      ? await driveFoldersCollection.update(uuid, { status: 'TRASHED' })
+      : await driveFilesCollection.update(uuid, { status: 'TRASHED' });
 
-    return result;
+    return result.success;
   } catch (error) {
-    Logger.error('Error deleting item in handler', { error });
+    logger.error({ msg: 'Error deleting item in handler', exc: error });
     return false;
   }
 });

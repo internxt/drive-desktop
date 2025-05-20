@@ -5,12 +5,15 @@ import { FolderMother } from '../domain/FolderMother';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 describe('Folder deleter', () => {
   const repository = mockDeep<InMemoryFolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
   const remote = mockDeep<HttpRemoteFolderSystem>();
   const local = mockDeep<NodeWinLocalFolderSystem>();
+  const deleteFolderByUuid = vi.mocked(driveServerWip.storage.deleteFolderByUuid);
+
   const SUT = new FolderDeleter(repository, remote, local, allParentFoldersStatusIsExists);
 
   beforeEach(() => {
@@ -20,6 +23,7 @@ describe('Folder deleter', () => {
   it('trashes an existing folder', async () => {
     const folder = FolderMother.exists();
 
+    deleteFolderByUuid.mockResolvedValue({ data: true });
     repository.searchByPartial.mockReturnValueOnce(folder);
     vi.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
 

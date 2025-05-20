@@ -1,35 +1,37 @@
 import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
-import { RetryFolderDeleter } from '../../../../context/virtual-drive/folders/application/RetryFolderDeleter';
 import { DelayQueue } from '../../../../context/virtual-drive/shared/domain/DelayQueue';
 import { CallbackController } from './CallbackController';
-import Logger from 'electron-log';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
-import * as Sentry from '@sentry/electron/renderer';
+import { FolderDeleter } from '@/context/virtual-drive/folders/application/FolderDeleter';
+import { logger } from '@/apps/shared/logger/logger';
+
 export class DeleteController extends CallbackController {
   private readonly filesQueue: DelayQueue;
   private readonly foldersQueue: DelayQueue;
 
   constructor(
     private readonly fileDeleter: FileDeleter,
-    private readonly retryFolderDeleter: RetryFolderDeleter,
+    private readonly folderDeleter: FolderDeleter,
     private readonly fileFolderContainerDetector: FileFolderContainerDetector,
     private readonly folderContainerDetector: FolderContainerDetector,
   ) {
     super();
 
     const deleteFile = async (file: string) => {
-      await this.fileDeleter.run(file);
+      try {
+        await this.fileDeleter.run(file);
+      } catch (exc) {
+        logger.error({ msg: 'Error deleting file', exc });
+      }
     };
 
     const deleteFolder = async (folder: string) => {
       try {
-        await this.retryFolderDeleter.run(folder);
-      } catch (error) {
-        Logger.error('Error deleting folder: ', error);
-        Sentry.captureException(error);
-        // TODO: create tree of placeholders that are not deleted
+        await this.folderDeleter.run(folder);
+      } catch (exc) {
+        logger.error({ msg: 'Error deleting folder', exc });
       }
     };
 
@@ -47,25 +49,20 @@ export class DeleteController extends CallbackController {
     this.filesQueue = new DelayQueue('files', deleteFile, canDeleteFiles);
   }
 
-  async execute(placeholderId: string) {
+  execute(placeholderId: string) {
     const trimmedId = this.trim(placeholderId);
+    const uuid = trimmedId.split(':')[1];
 
     if (this.isFilePlaceholder(trimmedId)) {
-      const [_, placeholderId] = trimmedId.split(':');
-      Logger.debug(`Adding file: ${placeholderId} to the trash queue`);
-      this.filesQueue.push(placeholderId);
-      return;
+      logger.debug({ msg: 'Adding file to the trash queue', uuid });
+      this.filesQueue.push(uuid);
+    } else if (this.isFolderPlaceholder(trimmedId)) {
+      logger.debug({ msg: 'Adding folder to the trash queue', uuid });
+      this.CleanQueuesByFolder(uuid);
+      this.foldersQueue.push(uuid);
+    } else {
+      throw logger.error({ msg: 'PlaceholderId not identified', trimmedId });
     }
-
-    if (this.isFolderPlaceholder(trimmedId)) {
-      const [_, folderUuid] = trimmedId.split(':');
-      Logger.debug(`Adding folder: ${folderUuid} to the trash queue`);
-      this.CleanQueuesByFolder(folderUuid);
-      this.foldersQueue.push(folderUuid);
-      return;
-    }
-
-    throw new Error(`Placeholder Id not identified:  ${trimmedId}`);
   }
 
   private CleanQueuesByFolder(folderUuid: Folder['uuid']) {

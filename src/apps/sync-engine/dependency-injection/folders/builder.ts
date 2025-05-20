@@ -11,7 +11,6 @@ import { InMemoryFolderRepository } from '../../../../context/virtual-drive/fold
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
-import { RetryFolderDeleter } from '../../../../context/virtual-drive/folders/application/RetryFolderDeleter';
 import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
 import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
@@ -34,8 +33,6 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
 
   const folderDeleter = new FolderDeleter(repository, remoteFolderSystem, localFolderSystem, allParentFoldersStatusIsExists);
-
-  const retryFolderDeleter = new RetryFolderDeleter(folderDeleter);
 
   const folderCreator = new FolderCreator(repository, remoteFolderSystem, folderPlaceholderConverter);
 
@@ -61,7 +58,6 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
     folderCreator,
     folderFinder,
     folderDeleter,
-    retryFolderDeleter,
     allParentFoldersStatusIsExists,
     folderPathUpdater,
     folderContainerDetector,
