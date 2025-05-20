@@ -43,7 +43,15 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
         ? driveServerWip.workspaces.getFilesInWorkspace({ workspaceId: self.workspaceId, query })
         : driveServerWip.files.getFiles({ query });
 
-    const data = await retryWrapper({ promise });
+    const { data, error } = await retryWrapper({
+      promise,
+      loggerBody: {
+        tag: 'SYNC-ENGINE',
+        msg: 'Retry fetching files',
+      },
+    });
+
+    if (!data) throw error;
 
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;

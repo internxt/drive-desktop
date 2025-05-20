@@ -21,7 +21,7 @@ export function buildControllers(container: DependencyContainer): IControllers {
 
   const deleteController = new DeleteController(
     container.fileDeleter,
-    container.retryFolderDeleter,
+    container.folderDeleter,
     container.fileFolderContainerDetector,
     container.folderContainerDetector,
   );

@@ -8,6 +8,7 @@ import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 
 @Service()
 export class FileDeleter {
@@ -47,7 +48,17 @@ export class FileDeleter {
     try {
       file.trash();
 
-      await driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
+      const promise = () => driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
+      const { error } = await retryWrapper({
+        promise,
+        loggerBody: {
+          tag: 'SYNC-ENGINE',
+          msg: 'Retry deleting file',
+        },
+      });
+
+      if (error) throw error;
+
       this.repository.update(file);
 
       this.ipc.send('FILE_DELETED', {
@@ -56,7 +67,7 @@ export class FileDeleter {
         nameWithExtension: file.nameWithExtension,
         size: file.size,
       });
-    } catch (error: unknown) {
+    } catch (error) {
       logger.error({
         msg: 'Error deleting the file',
         nameWithExtension: file.nameWithExtension,

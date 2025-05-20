@@ -31,7 +31,15 @@ export async function fetchFilesByFolder({ folderUuid, allFiles, offset = 0 }: T
         },
       });
 
-    const data = await retryWrapper({ promise });
+    const { data, error } = await retryWrapper({
+      promise,
+      loggerBody: {
+        tag: 'BACKUPS',
+        msg: 'Retry fetching files by folder',
+      },
+    });
+
+    if (!data) throw error;
 
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;
