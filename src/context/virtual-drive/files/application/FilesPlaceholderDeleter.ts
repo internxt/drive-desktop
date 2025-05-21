@@ -1,4 +1,4 @@
-import { VirtualDrive } from '@internxt/node-win/dist';
+import VirtualDrive from '@/node-win/virtual-drive';
 import { File } from '../domain/File';
 
 export class FilesPlaceholderDeleter {

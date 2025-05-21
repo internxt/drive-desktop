@@ -1,3 +1,4 @@
+.github/copilot-instructions.md
 /.env
 /.erb/dll
 /.idea
@@ -7,6 +8,7 @@
 /clamAV
 /coverage
 /dist
+/examples/tmp
 /node_modules
-/test/temp-test/
-.github/copilot-instructions.md
+/test-files
+/test/temp-test

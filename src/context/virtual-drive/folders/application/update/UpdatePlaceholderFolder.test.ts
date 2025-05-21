@@ -7,9 +7,10 @@ import { FolderStatuses } from '../../domain/FolderStatus';
 import { mockDeep } from 'vitest-mock-extended';
 import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderMother';
 import { v4 } from 'uuid';
-import { PinState, SyncState, VirtualDrive } from '@internxt/node-win/dist';
+import VirtualDrive from '@/node-win/virtual-drive';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 
 vi.mock(import('fs'));
 vi.mock(import('@/context/virtual-drive/items/validate-windows-name'));

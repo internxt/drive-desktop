@@ -1,7 +1,7 @@
 import Logger from 'electron-log';
 import * as Sentry from '@sentry/electron/renderer';
-import { QueueItem } from '@internxt/node-win/dist';
 import { BindingsManager } from '../BindingManager';
+import { QueueItem } from '@/node-win/queue/queueManager';
 
 type TProps = {
   self: BindingsManager;

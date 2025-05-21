@@ -1,5 +1,4 @@
 import Logger from 'electron-log';
-import { QueueItem, QueueManager, Callbacks } from '@internxt/node-win/dist';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
@@ -15,6 +14,9 @@ import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/
 import { getConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { Tree } from '@/context/virtual-drive/items/application/Traverser';
+import { Callbacks } from '@/node-win/types/callbacks.type';
+import { QueueItem } from '@/node-win/queue/queueManager';
+import { QueueManager } from '@/node-win/queue/queue-manager';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 

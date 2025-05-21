@@ -1,8 +1,8 @@
 import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
 import { unregisterVirtualDrives } from './unregister-virtual-drives';
-import { VirtualDrive } from '@internxt/node-win/dist';
+import VirtualDrive from '@/node-win/virtual-drive';
 
-vi.mock(import('@internxt/node-win/dist'));
+vi.mock(import('@/node-win/virtual-drive'));
 vi.mock(import('@/apps/shared/logger/logger'));
 
 describe('unregister-virtual-drives', () => {
