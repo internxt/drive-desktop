@@ -56,6 +56,9 @@ export class Addon {
     return this.parseAddonZod('getPlaceholderState', result);
   }
 
+  /**
+   * @deprecated
+   */
   getPlaceholderWithStatePending() {
     const result = addon.getPlaceholderWithStatePending(this.syncRootPath);
     return this.parseAddonZod('getPlaceholderWithStatePending', result);

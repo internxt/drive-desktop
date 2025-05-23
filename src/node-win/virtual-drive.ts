@@ -14,7 +14,7 @@ const PLACEHOLDER_ATTRIBUTES = {
   FILE_ATTRIBUTE_NORMAL: 0x1,
 };
 
-class VirtualDrive {
+export class VirtualDrive {
   syncRootPath: string;
   providerId: string;
   callbacks?: Callbacks;
@@ -71,6 +71,9 @@ class VirtualDrive {
     return this.addon.getPlaceholderState({ path: this.fixPath(path) });
   }
 
+  /**
+   * @deprecated
+   */
   getPlaceholderWithStatePending() {
     return this.addon.getPlaceholderWithStatePending();
   }
