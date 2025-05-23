@@ -22,10 +22,9 @@ export class Watcher {
     private readonly onRaw: OnRawService = new OnRawService(),
   ) {}
 
-  init(queueManager: QueueManager, syncRootPath: string, options: WatchOptions, logger: TLogger, addon: Addon) {
+  init(queueManager: QueueManager, syncRootPath: string, logger: TLogger, addon: Addon) {
     this.queueManager = queueManager;
     this.syncRootPath = syncRootPath;
-    this.options = options;
     this.logger = logger;
     this.addon = addon;
   }
@@ -43,17 +42,25 @@ export class Watcher {
   };
 
   public watchAndWait() {
-    try {
-      this.chokidar = watch(this.syncRootPath, this.options);
-      this.chokidar
-        .on('add', (path, stats) => this.onAdd.execute({ self: this, path, stats: stats! }))
-        .on('change', this.onChange)
-        .on('addDir', (path, stats) => this.onAddDir.execute({ self: this, path, stats: stats! }))
-        .on('error', this.onError)
-        .on('raw', (event, path, details) => this.onRaw.execute({ self: this, event, path, details }))
-        .on('ready', this.onReady);
-    } catch (exc) {
-      this.logger.error({ msg: 'watchAndWait', exc });
-    }
+    this.chokidar = watch(this.syncRootPath, {
+      // awaitWriteFinish: {
+      //   stabilityThreshold: 2000,
+      //   pollInterval: 100,
+      // },
+      depth: undefined,
+      followSymlinks: true,
+      // Ignores dotfiles and dotfolders (.git, .env)
+      ignored: /(^|[/\\])\../,
+      ignoreInitial: true,
+      persistent: true,
+    });
+
+    this.chokidar
+      .on('add', (path, stats) => this.onAdd.execute({ self: this, path, stats: stats! }))
+      .on('change', this.onChange)
+      .on('addDir', (path, stats) => this.onAddDir.execute({ self: this, path, stats: stats! }))
+      .on('error', this.onError)
+      .on('raw', (event, path, details) => this.onRaw.execute({ self: this, event, path, details }))
+      .on('ready', this.onReady);
   }
 }
