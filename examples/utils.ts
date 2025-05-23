@@ -42,5 +42,3 @@ function createFilesWithSize(sourceFolder: string, destFolder: string): void {
     fs.writeFileSync(destFilePath, Buffer.alloc(file.size));
   });
 }
-
-export { createFilesWithSize };

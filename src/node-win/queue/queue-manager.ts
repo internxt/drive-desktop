@@ -13,14 +13,6 @@ export type QueueHandler = {
   handleChangeSize: HandleAction;
 };
 
-/**
- * * @deprecated
- */
-export type QueueManagerCallback = {
-  onTaskSuccess: () => Promise<void>;
-  onTaskProcessing: () => Promise<void>;
-};
-
 export class QueueManager {
   private queues: { [key: string]: QueueItem[] } = {
     add: [],

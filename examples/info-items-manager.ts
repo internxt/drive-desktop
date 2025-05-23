@@ -17,7 +17,7 @@ export const initInfoItems = () => {
   }
 };
 
-export const getInfoItems = () => {
+const getInfoItems = () => {
   return JSON.parse(readFileSync(infoItemsPath, 'utf8'));
 };
 

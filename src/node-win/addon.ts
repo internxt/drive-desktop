@@ -4,9 +4,7 @@ import { addonZod } from './addon/addon-zod';
 import { InputSyncCallbacks } from './types/callbacks.type';
 import { addon as rawAddon } from '@internxt/node-win/dist';
 
-export const addon: TAddon = rawAddon;
-
-export type TAddon = {
+type TAddon = {
   addLoggerPath(path: string): z.infer<typeof addonZod.addLoggerPath>;
   createPlaceholderFile(
     fileName: string,
@@ -56,3 +54,5 @@ export type TAddon = {
   updateFileIdentity(itemPath: string, id: string, isDirectory: boolean): any;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
 };
+
+export const addon: TAddon = rawAddon;

@@ -1,8 +1,8 @@
-export type NapiCallbackFunction = (...args: any[]) => any;
+type NapiCallbackFunction = (...args: any[]) => any;
 
-export type FilePlaceholderIdPrefixType = 'FILE:';
+type FilePlaceholderIdPrefixType = 'FILE:';
 
-export type FilePlaceholderId = `${FilePlaceholderIdPrefixType}${string}`;
+type FilePlaceholderId = `${FilePlaceholderIdPrefixType}${string}`;
 
 export type TFetchDataCallback = (
   id: FilePlaceholderId,

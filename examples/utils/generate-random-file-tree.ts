@@ -94,4 +94,3 @@ async function generateRandomFilesAndFolders(drive: VirtualDrive, options: Gener
 }
 
 export { generateRandomFilesAndFolders };
-export type { GenerateOptions };
