@@ -9,7 +9,8 @@ import { Folder } from '../../domain/Folder';
 import { FolderStatuses } from '../../domain/FolderStatus';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { logger } from '@/apps/shared/logger/logger';
-import { SyncState, VirtualDrive } from '@internxt/node-win/dist';
+import VirtualDrive from '@/node-win/virtual-drive';
+import { SyncState } from '@/node-win/types/placeholder.type';
 
 export class FolderPlaceholderUpdater {
   constructor(

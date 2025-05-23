@@ -1,4 +1,5 @@
-import { PinState, VirtualDrive } from '@internxt/node-win/dist';
+import { PinState } from '@/node-win/types/placeholder.type';
+import VirtualDrive from '@/node-win/virtual-drive';
 
 export class FileCheckerStatusInRoot {
   constructor(private readonly virtualDrive: VirtualDrive) {}

@@ -1,5 +1,6 @@
 import Logger from 'electron-log';
-import { QueueItem, VirtualDrive } from '@internxt/node-win/dist';
+import VirtualDrive from '@/node-win/virtual-drive';
+import { QueueItem } from '@/node-win/queue/queueManager';
 
 type TProps = {
   drive: VirtualDrive;

@@ -1,7 +1,7 @@
+import VirtualDrive from '@/node-win/virtual-drive';
 import { Folder } from '../domain/Folder';
 import { FolderStatuses } from '../domain/FolderStatus';
 import Logger from 'electron-log';
-import { VirtualDrive } from '@internxt/node-win/dist';
 
 export class FolderPlaceholderDeleter {
   constructor(private readonly virtualDrive: VirtualDrive) {}

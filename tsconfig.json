@@ -11,7 +11,7 @@
     "pretty": true,
     "sourceMap": true,
     "rootDir": ".",
-    "noImplicitReturns": true,
+    "noImplicitReturns": false,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,
@@ -31,8 +31,7 @@
       "@/*": ["./src/*"]
       // "@internxt/inxt-js/build": ["../inxt-js/build"],
       // "@internxt/inxt-js/build/*": ["../inxt-js/build/*"],
-      // "@internxt/node-win/dist": ["../node-win/dist"]
     }
   },
-  "include": ["src", "tests", ".erb/configs", ".erb/scripts"]
+  "include": ["src", "examples", "tests", ".erb/configs", ".erb/scripts"]
 }

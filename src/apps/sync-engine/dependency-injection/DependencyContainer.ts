@@ -1,4 +1,4 @@
-import { VirtualDrive } from '@internxt/node-win/dist';
+import VirtualDrive from '@/node-win/virtual-drive';
 import { ContentsContainer } from './contents/ContentsContainer';
 import { FilesContainer } from './files/FilesContainer';
 import { FoldersContainer } from './folders/FoldersContainer';

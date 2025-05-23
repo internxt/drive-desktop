@@ -1,4 +1,4 @@
-import { VirtualDrive } from '@internxt/node-win';
+import VirtualDrive from '@/node-win/virtual-drive';
 import { mockDeep } from 'vitest-mock-extended';
 import { FilesPlaceholderDeleter } from './FilesPlaceholderDeleter';
 import { mockProps } from 'tests/vitest/utils.helper.test';
