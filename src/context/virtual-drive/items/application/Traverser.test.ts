@@ -1,5 +1,3 @@
-import { ServerFile } from '../../../../../src/context/shared/domain/ServerFile';
-import { ServerFolder } from '../../../../../src/context/shared/domain/ServerFolder';
 import { v4 } from 'uuid';
 import { ContentsIdMother } from 'tests/context/virtual-drive/contents/domain/ContentsIdMother';
 import { Traverser } from './Traverser';
@@ -43,7 +41,7 @@ describe('Traverser', () => {
           uuid: v4(),
           size: 67,
           status: 'EXISTS',
-        } as ServerFile,
+        },
       ],
       folders: [],
     });
@@ -65,17 +63,17 @@ describe('Traverser', () => {
           uuid: v4(),
           size: 200,
           status: 'EXISTS',
-        } as ServerFile,
+        },
       ],
       folders: [
         {
           id: 22491,
           parentId: baseFolderId,
           parentUuid: baseFolderUuid,
-          plain_name: 'folder A',
+          plainName: 'folder A',
           status: 'EXISTS',
           uuid: '87c76c58-717d-5fee-ab8d-0ab4b94bb708',
-        } as ServerFolder,
+        },
       ],
     });
 
@@ -93,10 +91,10 @@ describe('Traverser', () => {
           id: 22491,
           parentId: baseFolderId,
           parentUuid: baseFolderUuid,
-          plain_name: 'folder A',
+          plainName: 'folder A',
           status: 'EXISTS',
           uuid: '35d8c70c-36eb-5761-8340-cf632a86334b',
-        } as ServerFolder,
+        },
       ],
     });
 
@@ -113,18 +111,18 @@ describe('Traverser', () => {
           id: 22491,
           parentId: baseFolderId,
           parentUuid: baseFolderUuid,
-          plain_name: 'folder A',
+          plainName: 'folder A',
           status: 'EXISTS',
           uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
-        } as ServerFolder,
+        },
         {
           id: 89181879209463,
           parentId: 22491,
           parentUuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
-          plain_name: 'folder B',
+          plainName: 'folder B',
           status: 'EXISTS',
           uuid: '56fdacd4-384e-558c-9442-bb032f4b9123',
-        } as ServerFolder,
+        },
       ],
     });
 
@@ -141,18 +139,18 @@ describe('Traverser', () => {
           id: 22491,
           parentId: baseFolderId,
           parentUuid: baseFolderUuid,
-          plain_name: 'folder A',
+          plainName: 'folder A',
           status: 'EXISTS',
           uuid: '6a17069e-5473-5101-b3ab-66f710043f3e',
-        } as ServerFolder,
+        },
         {
           id: 89181879209463,
           parentId: 22491,
           parentUuid: '6a17069e-5473-5101-b3ab-66f710043f3e',
-          plain_name: 'folder B',
+          plainName: 'folder B',
           status: 'EXISTS',
           uuid: 'd600cb02-ad9c-570f-8977-eb87b7e95ef5',
-        } as ServerFolder,
+        },
       ],
     });
 
@@ -172,7 +170,7 @@ describe('Traverser', () => {
           folderId: baseFolderId,
           size: 67,
           status: 'EXISTS',
-        } as ServerFile,
+        },
         {
           name: 'valid_name',
           uuid: v4(),
@@ -181,16 +179,14 @@ describe('Traverser', () => {
           folderId: baseFolderId,
           size: 67,
           status: 'EXISTS',
-        } as ServerFile,
+        },
         {
           name: 'valid_name_2',
           uuid: v4(),
           folderUuid: baseFolderUuid,
           fileId: ContentsIdMother.raw(),
-          folderId: baseFolderId,
           size: 67,
-          status: 'INVALID_STATUS',
-        } as unknown as ServerFile,
+        },
       ],
       folders: [],
     });
@@ -208,11 +204,11 @@ describe('Traverser', () => {
           id: 22491,
           parentId: baseFolderId,
           parentUuid: baseFolderUuid,
-          plain_name: 'folder A',
+          plainName: 'folder A',
           status: 'EXISTS',
           uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
-        } as ServerFolder,
-        {} as ServerFolder,
+        },
+        {},
       ],
     });
 
@@ -233,17 +229,17 @@ describe('Traverser', () => {
           folderUuid: baseFolderUuid,
           size: 67,
           status: 'EXISTS',
-        } as ServerFile,
+        },
       ],
       folders: [
         {
           id: 22491,
           parentId: baseFolderId,
           parentUuid: baseFolderUuid,
-          plain_name: 'folder A',
+          plainName: 'folder A',
           status: 'TRASHED',
           uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
-        } as ServerFolder,
+        },
       ],
     });
 
@@ -265,7 +261,7 @@ describe('Traverser', () => {
           uuid: v4(),
           status: 'EXISTS',
           type: 'png',
-        } as ServerFile,
+        },
         {
           name: 'file B',
           fileId: ContentsIdMother.raw(),
@@ -275,17 +271,17 @@ describe('Traverser', () => {
           size: 67,
           status: 'TRASHED',
           type: 'png',
-        } as ServerFile,
+        },
       ],
       folders: [
         {
           id: 22491,
           parentId: baseFolderId,
           parentUuid: baseFolderUuid,
-          plain_name: 'folder A',
+          plainName: 'folder A',
           status: 'TRASHED',
           uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
-        } as ServerFolder,
+        },
       ],
     });
 

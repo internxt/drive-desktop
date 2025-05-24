@@ -1,20 +1,20 @@
-import { ServerFile } from '@/context/shared/domain/ServerFile';
-import { ServerFolder } from '@/context/shared/domain/ServerFolder';
-import { createFileFromServerFile } from '@/context/virtual-drive/files/application/FileCreatorFromServerFile';
 import { File } from '@/context/virtual-drive/files/domain/File';
-import { createFolderFromServerFolder } from '@/context/virtual-drive/folders/application/create/FolderCreatorFromServerFolder';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { FolderStatus } from '@/context/virtual-drive/folders/domain/FolderStatus';
-import { RemoteTree } from '@/apps/backups/remote-tree/domain/RemoteTree';
-import * as Sentry from '@sentry/electron/renderer';
-import Logger from 'electron-log';
-import { getAllItemsByFolderUuid } from './get-all-items-by-folder-uuid';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
+import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { fetchItems } from '../fetch-items/fetch-items';
+import { logger } from '@/apps/shared/logger/logger';
 
 type Items = {
-  files: Array<ServerFile>;
-  folders: Array<ServerFolder>;
+  files: Array<FileDto>;
+  folders: Array<FolderDto>;
+};
+
+export type RemoteTree = {
+  files: Record<RelativePath, File>;
+  folders: Record<RelativePath, Folder>;
 };
 
 export class Traverser {
@@ -39,52 +39,86 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
-      const decryptedName = File.decryptName({
-        plainName: serverFile.plainName,
-        name: serverFile.name,
-        parentId: serverFile.folderId,
-        type: serverFile.type,
-      });
-
-      const relativeFilePath = createRelativePath(currentFolder.path, decryptedName);
-
       try {
-        const file = createFileFromServerFile(serverFile, relativeFilePath);
-        tree.addFile(currentFolder, file);
-      } catch (error) {
-        Logger.warn('[Traverser] Error adding file:', error);
-        Sentry.captureException(error);
+        const decryptedName = File.decryptName({
+          plainName: serverFile.plainName,
+          name: serverFile.name,
+          parentId: serverFile.folderId,
+          type: serverFile.type,
+        });
+
+        const relativePath = createRelativePath(currentFolder.path, decryptedName);
+
+        const file = File.from({
+          ...serverFile,
+          contentsId: serverFile.fileId,
+          path: relativePath,
+          size: Number(serverFile.size),
+        });
+
+        tree.files[relativePath] = file;
+      } catch (exc) {
+        /*
+         * v2.5.3 Daniel Jiménez
+         * Add issue to backups
+         */
+
+        logger.warn({
+          tag: 'BACKUPS',
+          msg: 'Failed to add remote file to tree',
+          exc,
+        });
       }
     });
 
     foldersInThisFolder.forEach((serverFolder) => {
-      const decryptedName = Folder.decryptName({
-        plainName: serverFolder.plain_name,
-        name: serverFolder.name,
-        parentId: serverFolder.parentId,
-      });
-
-      const name = createRelativePath(currentFolder.path, decryptedName);
-
       try {
-        const folder = createFolderFromServerFolder(serverFolder, name);
+        const decryptedName = Folder.decryptName({
+          plainName: serverFolder.plainName,
+          name: serverFolder.name,
+          parentId: serverFolder.parentId,
+        });
 
-        tree.addFolder(currentFolder, folder);
+        const relativePath = createRelativePath(currentFolder.path, decryptedName);
+
+        const folder = Folder.from({
+          ...serverFolder,
+          parentUuid: serverFolder.parentUuid || null,
+          path: relativePath,
+        });
+
+        tree.folders[relativePath] = folder;
 
         this.traverse(context, tree, items, folder);
-      } catch (error) {
-        Logger.warn('[Traverser] Error adding folder:', error);
-        Sentry.captureException(error);
+      } catch (exc) {
+        /*
+         * v2.5.3 Daniel Jiménez
+         * Add issue to backups
+         */
+
+        logger.warn({
+          tag: 'BACKUPS',
+          msg: 'Failed to add remote folder to tree',
+          exc,
+        });
       }
     });
   }
 
   async run({ context }: { context: BackupsContext }): Promise<RemoteTree> {
-    const items = await getAllItemsByFolderUuid(context.folderUuid);
+    const items = await fetchItems({
+      folderUuid: context.folderUuid,
+      skipFiles: false,
+    });
 
     const rootFolder = this.createRootFolder({ id: context.folderId, uuid: context.folderUuid });
 
-    const tree = new RemoteTree(rootFolder);
+    const tree: RemoteTree = {
+      files: {},
+      folders: {
+        [rootFolder.path]: rootFolder,
+      },
+    };
 
     this.traverse(context, tree, items, rootFolder);
 

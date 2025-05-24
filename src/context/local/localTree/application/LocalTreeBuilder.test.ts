@@ -32,11 +32,11 @@ describe('LocalTreeBuilder', () => {
     await rm(folder, { recursive: true });
   });
 
-  it('It should add files, folders and sort them', async () => {
+  it('It should add files and folders', async () => {
     const resEither = await LocalTreeBuilder.run(folder as AbsolutePath);
     const res = resEither.getRight();
 
-    expect(Object.keys(res.files)).toStrictEqual(['/file1', '/file2', '/folder1/file3', '/folder1/folder3/file4']);
     expect(Object.keys(res.folders)).toStrictEqual(['/', '/folder1', '/folder1/folder3', '/folder2']);
+    expect(Object.keys(res.files)).toStrictEqual(['/file1', '/file2', '/folder1/file3', '/folder1/folder3/file4']);
   });
 });

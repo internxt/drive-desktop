@@ -3,6 +3,7 @@ import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 @Service()
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId?: string) {}
@@ -19,9 +20,17 @@ export class HttpRemoteFolderSystem {
     };
 
     try {
-      const { data, error } = this.workspaceId
-        ? await driveServerWip.workspaces.createFolderInWorkspace({ body, workspaceId: this.workspaceId })
-        : await driveServerWip.folders.createFolder({ body });
+      const promise = () =>
+        this.workspaceId
+          ? driveServerWip.workspaces.createFolderInWorkspace({ body, workspaceId: this.workspaceId })
+          : driveServerWip.folders.createFolder({ body });
+
+      const { data, error } = await retryWrapper({
+        promise,
+        loggerBody: {
+          msg: 'Error creating folder',
+        },
+      });
 
       if (!data) throw error;
 
@@ -35,7 +44,7 @@ export class HttpRemoteFolderSystem {
         createdAt: data.createdAt,
         status: FolderStatuses.EXISTS,
       };
-    } catch (error: unknown) {
+    } catch (error) {
       logger.error({
         msg: 'Error creating folder',
         exc: error,

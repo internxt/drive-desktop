@@ -14,7 +14,7 @@ import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
 import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator';
 import { getParentDirectory } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
-import { RemoteTree } from './remote-tree/domain/RemoteTree';
+import { RemoteTree } from './remote-tree/traverser';
 import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
