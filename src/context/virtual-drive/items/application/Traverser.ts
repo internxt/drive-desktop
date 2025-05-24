@@ -1,16 +1,15 @@
-import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
-import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
-import { createFileFromServerFile } from '../../files/application/FileCreatorFromServerFile';
 import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { File } from '../../files/domain/File';
-import { createFolderFromServerFolder } from '../../folders/application/create/FolderCreatorFromServerFolder';
 import { getAllItems } from './RemoteItemsGenerator';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { DriveFile } from '@/apps/main/database/entities/DriveFile';
+import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 
 type Items = {
-  files: Array<ServerFile>;
-  folders: Array<ServerFolder>;
+  files: Array<DriveFile>;
+  folders: Array<DriveFolder>;
 };
 
 export type Tree = {
@@ -46,19 +45,24 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
-      const decryptedName = File.decryptName({
-        plainName: serverFile.plainName,
-        name: serverFile.name,
-        parentId: serverFile.folderId,
-        type: serverFile.type,
-      });
-
-      const relativeFilePath = `${currentFolder.path}/${decryptedName}`.replaceAll('//', '/');
-
       try {
-        const file = createFileFromServerFile(serverFile, relativeFilePath);
+        const decryptedName = File.decryptName({
+          plainName: serverFile.plainName,
+          name: serverFile.name,
+          parentId: serverFile.folderId,
+          type: serverFile.type,
+        });
 
-        if (serverFile.status === ServerFileStatus.DELETED || serverFile.status === ServerFileStatus.TRASHED) {
+        const relativePath = createRelativePath(currentFolder.path, decryptedName);
+
+        const file = File.from({
+          ...serverFile,
+          path: relativePath,
+          contentsId: serverFile.fileId,
+          size: Number(serverFile.size),
+        });
+
+        if (serverFile.status === 'DELETED' || serverFile.status === 'TRASHED') {
           tree.trashedFiles.push(file);
         } else {
           tree.files.push(file);
@@ -69,18 +73,23 @@ export class Traverser {
     });
 
     foldersInThisFolder.forEach((serverFolder) => {
-      const decryptedName = Folder.decryptName({
-        plainName: serverFolder.plain_name,
-        name: serverFolder.name,
-        parentId: serverFolder.parentId,
-      });
-
-      const name = `${currentFolder.path}/${decryptedName}`;
-
       try {
-        const folder = createFolderFromServerFolder(serverFolder, name);
+        const decryptedName = Folder.decryptName({
+          plainName: serverFolder.plainName,
+          name: serverFolder.name,
+          parentId: serverFolder.parentId,
+        });
 
-        if (serverFolder.status === ServerFolderStatus.DELETED || serverFolder.status === ServerFolderStatus.TRASHED) {
+        const relativePath = createRelativePath(currentFolder.path, decryptedName);
+
+        const folder = Folder.from({
+          ...serverFolder,
+          parentId: serverFolder.parentId || null,
+          parentUuid: serverFolder.parentUuid || null,
+          path: relativePath,
+        });
+
+        if (serverFolder.status === 'DELETED' || serverFolder.status === 'TRASHED') {
           tree.trashedFolders.push(folder);
         } else {
           tree.folders.push(folder);

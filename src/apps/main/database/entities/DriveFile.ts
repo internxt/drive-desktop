@@ -60,7 +60,7 @@ export class DriveFile {
   name!: string;
 
   @Column({ nullable: false, type: 'varchar' })
-  status!: string;
+  status!: 'EXISTS' | 'TRASHED' | 'DELETED';
 
   @Column({ nullable: false, default: true, type: 'boolean' })
   isDangledStatus!: boolean;

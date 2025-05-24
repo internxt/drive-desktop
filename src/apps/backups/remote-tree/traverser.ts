@@ -1,6 +1,3 @@
-import { ServerFile } from '@/context/shared/domain/ServerFile';
-import { ServerFolder } from '@/context/shared/domain/ServerFolder';
-import { createFileFromServerFile } from '@/context/virtual-drive/files/application/FileCreatorFromServerFile';
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { createFolderFromServerFolder } from '@/context/virtual-drive/folders/application/create/FolderCreatorFromServerFolder';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
@@ -8,13 +5,14 @@ import { FolderStatus } from '@/context/virtual-drive/folders/domain/FolderStatu
 import { RemoteTree } from '@/apps/backups/remote-tree/domain/RemoteTree';
 import * as Sentry from '@sentry/electron/renderer';
 import Logger from 'electron-log';
-import { getAllItemsByFolderUuid } from './get-all-items-by-folder-uuid';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
+import { fetchItems } from '../fetch-items/fetch-items';
+import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 type Items = {
-  files: Array<ServerFile>;
-  folders: Array<ServerFolder>;
+  files: Array<FileDto>;
+  folders: Array<FolderDto>;
 };
 
 export class Traverser {
@@ -39,17 +37,23 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
-      const decryptedName = File.decryptName({
-        plainName: serverFile.plainName,
-        name: serverFile.name,
-        parentId: serverFile.folderId,
-        type: serverFile.type,
-      });
-
-      const relativeFilePath = createRelativePath(currentFolder.path, decryptedName);
-
       try {
-        const file = createFileFromServerFile(serverFile, relativeFilePath);
+        const decryptedName = File.decryptName({
+          plainName: serverFile.plainName,
+          name: serverFile.name,
+          parentId: serverFile.folderId,
+          type: serverFile.type,
+        });
+
+        const relativePath = createRelativePath(currentFolder.path, decryptedName);
+
+        const file = File.from({
+          ...serverFile,
+          path: relativePath,
+          contentsId: serverFile.fileId,
+          size: Number(serverFile.size),
+        });
+
         tree.addFile(currentFolder, file);
       } catch (error) {
         Logger.warn('[Traverser] Error adding file:', error);
@@ -58,16 +62,20 @@ export class Traverser {
     });
 
     foldersInThisFolder.forEach((serverFolder) => {
-      const decryptedName = Folder.decryptName({
-        plainName: serverFolder.plain_name,
-        name: serverFolder.name,
-        parentId: serverFolder.parentId,
-      });
-
-      const name = createRelativePath(currentFolder.path, decryptedName);
-
       try {
-        const folder = createFolderFromServerFolder(serverFolder, name);
+        const decryptedName = Folder.decryptName({
+          plainName: serverFolder.plainName,
+          name: serverFolder.name,
+          parentId: serverFolder.parentId,
+        });
+
+        const relativePath = createRelativePath(currentFolder.path, decryptedName);
+
+        const folder = Folder.from({
+          ...serverFolder,
+          parentUuid: serverFolder.parentUuid || null,
+          path: relativePath,
+        });
 
         tree.addFolder(currentFolder, folder);
 
@@ -80,7 +88,10 @@ export class Traverser {
   }
 
   async run({ context }: { context: BackupsContext }): Promise<RemoteTree> {
-    const items = await getAllItemsByFolderUuid(context.folderUuid);
+    const items = await fetchItems({
+      folderUuid: context.folderUuid,
+      skipFiles: false,
+    });
 
     const rootFolder = this.createRootFolder({ id: context.folderId, uuid: context.folderUuid });
 
