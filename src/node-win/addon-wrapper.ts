@@ -1,3 +1,4 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { addon } from './addon';
 import { addonZod } from './addon/addon-zod';
 import { Callbacks } from './types/callbacks.type';
@@ -8,7 +9,15 @@ export class Addon {
   private parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
     const schema = addonZod[fn];
     const result = schema.safeParse(data);
-    if (result.error) console.error(fn, result.error);
+
+    if (result.error) {
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: `Error parsing ${fn}`,
+        error: result.error,
+      });
+    }
+
     return data;
   }
 

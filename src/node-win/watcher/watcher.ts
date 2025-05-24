@@ -1,7 +1,7 @@
-import { watch, WatchOptions, FSWatcher } from 'chokidar';
+import { watch, FSWatcher } from 'chokidar';
 
 import { OnAddDirService } from './events/on-add-dir.service';
-import { OnAddService } from './events/on-add.service';
+import { onAdd } from './events/on-add.service';
 import { OnRawService } from './events/on-raw.service';
 import { Addon } from '../addon-wrapper';
 import { QueueManager } from '../queue/queue-manager';
@@ -9,7 +9,6 @@ import { TLogger } from '../logger';
 
 export class Watcher {
   syncRootPath!: string;
-  options!: WatchOptions;
   addon!: Addon;
   queueManager!: QueueManager;
   logger!: TLogger;
@@ -17,7 +16,6 @@ export class Watcher {
   chokidar?: FSWatcher;
 
   constructor(
-    private readonly onAdd: OnAddService = new OnAddService(),
     private readonly onAddDir: OnAddDirService = new OnAddDirService(),
     private readonly onRaw: OnRawService = new OnRawService(),
   ) {}
@@ -56,7 +54,7 @@ export class Watcher {
     });
 
     this.chokidar
-      .on('add', (path, stats) => this.onAdd.execute({ self: this, path, stats: stats! }))
+      .on('add', (path, stats) => onAdd({ self: this, path, stats: stats! }))
       .on('change', this.onChange)
       .on('addDir', (path, stats) => this.onAddDir.execute({ self: this, path, stats: stats! }))
       .on('error', this.onError)

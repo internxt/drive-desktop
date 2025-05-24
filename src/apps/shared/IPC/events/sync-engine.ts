@@ -1,8 +1,8 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
-import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { Issue } from '@/apps/main/background-processes/issues';
+import type { TPaths } from '@/core/electron/paths';
 
 type ProcessInfo = {
   elapsedTime: number;
@@ -58,6 +58,8 @@ type SyncEngineInvocableFunctions = {
 type ProcessInfoUpdate = {
   ADD_ISSUE: (payload: Issue) => void;
   CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
+  FIND_DANGLED_FILES: () => Promise<DriveFile[]>;
+  GET_PATHS: () => Promise<TPaths>;
 };
 
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;

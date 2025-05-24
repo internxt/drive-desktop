@@ -7,7 +7,6 @@ import { beforeEach } from 'vitest';
 import { mockDeep } from 'vitest-mock-extended';
 
 import { OnAddDirService } from './events/on-add-dir.service';
-import { OnAddService } from './events/on-add.service';
 import { OnRawService } from './events/on-raw.service';
 import { Watcher } from './watcher';
 import { Addon } from '../addon-wrapper';
@@ -15,6 +14,8 @@ import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { sleep } from '@/apps/main/util';
+
+vi.mock(import('./events/on-add.service'));
 
 describe('Watcher', () => {
   let watcher: Watcher | undefined;
@@ -24,7 +25,6 @@ describe('Watcher', () => {
   const logger = mockDeep<TLogger>();
 
   const onAll = vi.fn();
-  const onAdd = mockDeep<OnAddService>();
   const onAddDir = mockDeep<OnAddDirService>();
   const onRaw = mockDeep<OnRawService>();
 
@@ -33,7 +33,7 @@ describe('Watcher', () => {
       await mkdir(syncRootPath);
     }
 
-    watcher = new Watcher(onAdd, onAddDir, onRaw);
+    watcher = new Watcher(onAddDir, onRaw);
     watcher.init(queueManager, syncRootPath, logger, addon);
     watcher.watchAndWait();
     watcher.chokidar?.on('all', (event, path) => onAll({ event, path }));
