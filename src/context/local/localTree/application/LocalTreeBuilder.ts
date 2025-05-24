@@ -6,6 +6,7 @@ import { Either, left, right } from '../../../shared/domain/Either';
 import Logger from 'electron-log';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 import { relative } from 'path';
+import { LocalFileSize } from '../../localFile/domain/LocalFileSize';
 
 export type LocalTree = {
   root: LocalFolder;
@@ -16,30 +17,30 @@ export type LocalTree = {
 export default class LocalTreeBuilder {
   private static async traverse(tree: LocalTree, currentFolder: LocalFolder): Promise<LocalTree> {
     try {
-      const { files, folders } = await CLSFsLocalItemsGenerator.getAll(currentFolder.path);
+      const { files, folders } = await CLSFsLocalItemsGenerator.getAll(currentFolder.absolutePath);
 
       files.forEach((fileAttributes) => {
         if (fileAttributes.size === 0) {
           return;
         }
 
-        const relativePath = createRelativePath(relative(tree.root.path, fileAttributes.path));
+        const relativePath = createRelativePath(relative(tree.root.absolutePath, fileAttributes.path));
 
-        const file = LocalFile.from({
-          ...fileAttributes,
+        tree.files[relativePath] = {
+          absolutePath: fileAttributes.path,
           relativePath,
-        });
-
-        tree.files[relativePath] = file;
+          size: new LocalFileSize(fileAttributes.size),
+          modificationTime: fileAttributes.modificationTime,
+        };
       });
 
       for (const folderAttributes of folders) {
-        const relativePath = createRelativePath(relative(tree.root.path, folderAttributes.path));
+        const relativePath = createRelativePath(relative(tree.root.absolutePath, folderAttributes.path));
 
-        const folder = LocalFolder.from({
-          ...folderAttributes,
+        const folder: LocalFolder = {
+          absolutePath: folderAttributes.path,
           relativePath,
-        });
+        };
 
         tree.folders[relativePath] = folder;
 
@@ -65,10 +66,10 @@ export default class LocalTreeBuilder {
 
     const root = rootEither.getRight();
 
-    const rootFolder = LocalFolder.from({
-      ...root,
+    const rootFolder: LocalFolder = {
+      absolutePath: root.path,
       relativePath: createRelativePath('/'),
-    });
+    };
 
     const tree: LocalTree = {
       root: rootFolder,
@@ -79,9 +80,6 @@ export default class LocalTreeBuilder {
     };
 
     await this.traverse(tree, rootFolder);
-
-    tree.files = Object.fromEntries(Object.entries(tree.files).sort((a, b) => a[0].localeCompare(b[0])));
-    tree.folders = Object.fromEntries(Object.entries(tree.folders).sort((a, b) => a[0].localeCompare(b[0])));
 
     return right(tree);
   }
