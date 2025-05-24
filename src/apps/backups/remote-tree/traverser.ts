@@ -8,6 +8,12 @@ import { createRelativePath } from '@/context/local/localFile/infrastructure/Abs
 import { BackupsContext } from '../BackupInfo';
 import { fetchItems } from '../fetch-items/fetch-items';
 import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+
+export type NewRemoteTree = {
+  files: Record<RelativePath, File>;
+  folders: Record<RelativePath, Folder>;
+};
 
 type Items = {
   files: Array<FileDto>;
