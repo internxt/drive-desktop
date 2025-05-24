@@ -62,7 +62,7 @@ export class Backup {
       for (const [localFile, remoteFile] of filesToResync) {
         logger.debug({
           msg: 'Resyncing dangling file',
-          localPath: localFile.path,
+          localPath: localFile.absolutePath,
           remoteId: remoteFile.contentsId,
           tag: 'BACKUPS',
         });
@@ -111,7 +111,7 @@ export class Backup {
 
     return await Promise.all([
       this.deleteRemoteFolders(context, deleted),
-      this.uploadAndCreateFolder(context, tracker, local.root.path, added, remote),
+      this.uploadAndCreateFolder(context, tracker, local.root.absolutePath, added, remote),
     ]);
   }
 
@@ -134,7 +134,7 @@ export class Backup {
     });
 
     await Promise.all([
-      this.uploadAndCreateFile(context, tracker, local.root.path, added, remote),
+      this.uploadAndCreateFile(context, tracker, local.root.absolutePath, added, remote),
       this.uploadAndUpdate(context, tracker, modified, remote),
       this.deleteRemoteFiles(context, deleted),
     ]);
@@ -255,7 +255,7 @@ export class Backup {
         continue; // ingore root folder
       }
 
-      const remoteParentPath = getParentDirectory(localRootPath, localFolder.path);
+      const remoteParentPath = getParentDirectory(localRootPath, localFolder.absolutePath);
 
       logger.debug({
         msg: 'Uploading and creating folder',

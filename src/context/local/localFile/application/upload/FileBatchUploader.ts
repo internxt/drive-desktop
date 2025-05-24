@@ -34,18 +34,28 @@ export class FileBatchUploader {
       await Promise.all(
         chunk.map(async (localFile) => {
           try {
-            const uploadEither = await this.localHandler.upload(localFile.path, localFile.size, context.abortController.signal);
-            Logger.info(localFile.path);
+            const uploadEither = await this.localHandler.upload(
+              localFile.absolutePath,
+              localFile.size.value,
+              context.abortController.signal,
+            );
+
+            Logger.info(localFile.absolutePath);
 
             if (uploadEither.isLeft()) {
               const error = uploadEither.getLeft();
-              logger.error({ msg: '[Local File Uploader] Error uploading file', path: localFile.path, error });
+              logger.error({
+                tag: 'BACKUPS',
+                msg: '[Local File Uploader] Error uploading file',
+                path: localFile.absolutePath,
+                error,
+              });
 
               if (isFatalError(error.cause)) {
                 throw error;
               }
 
-              context.errors.add({ error: error.cause, name: localFile.nameWithExtension() });
+              context.errors.add({ error: error.cause, name: localFile.relativePath });
               return; // Continuar con el siguiente archivo en paralelo
             }
 
@@ -66,7 +76,7 @@ export class FileBatchUploader {
               folderId: parent.id,
               folderUuid: parent.uuid,
               path: localFile.relativePath,
-              size: localFile.size,
+              size: localFile.size.value,
             });
 
             logger.info({ tag: 'BACKUPS', msg: 'File created', file });
@@ -77,18 +87,23 @@ export class FileBatchUploader {
               extension: file.type,
               nameWithExtension: file.nameWithExtension,
               fileId: file.id,
-              path: localFile.path,
+              path: localFile.absolutePath,
             });
 
             remoteTree.addFile(parent, file);
           } catch (error: any) {
-            Logger.error('[Local File Uploader] Error uploading file', localFile.path, error);
+            logger.error({
+              tag: 'BACKUPS',
+              msg: '[Local File Uploader] Error uploading file',
+              path: localFile.relativePath,
+              error,
+            });
 
             if (isFatalError(error.cause)) {
               throw error;
             }
 
-            context.errors.add({ error: error.cause, name: localFile.nameWithExtension() });
+            context.errors.add({ error: error.cause, name: localFile.relativePath });
           } finally {
             updateProgress();
           }

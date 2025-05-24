@@ -11,7 +11,7 @@ export class FileBatchUpdater {
 
   async run(context: BackupsContext, remoteTree: RemoteTree, batch: Array<LocalFile>): Promise<void> {
     for (const localFile of batch) {
-      const upload = await this.uploader.upload(localFile.path, localFile.size, context.abortController.signal);
+      const upload = await this.uploader.upload(localFile.absolutePath, localFile.size.value, context.abortController.signal);
 
       if (upload.isLeft()) {
         throw upload.getLeft();
@@ -29,7 +29,7 @@ export class FileBatchUpdater {
         throw new Error(`Expected file, found folder on ${file.path}`);
       }
 
-      await simpleFileOverride(file, contentsId, localFile.size);
+      await simpleFileOverride(file, contentsId, localFile.size.value);
     }
   }
 }
