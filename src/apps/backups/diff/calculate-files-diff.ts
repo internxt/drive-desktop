@@ -4,14 +4,23 @@ import { File } from '../../../context/virtual-drive/files/domain/File';
 import { FileStatus } from '../../../context/virtual-drive/files/domain/FileStatus';
 import Store from 'electron-store';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
-import { NewRemoteTree } from '../remote-tree/traverser';
+import { RemoteTree } from '../remote-tree/traverser';
 
 const store = new Store();
 const PATCH_2_5_1 = 'patch-executed-2-5-1';
 
+export type FilesDiff = {
+  added: Array<LocalFile>;
+  deleted: Array<File>;
+  modified: Map<LocalFile, File>;
+  unmodified: Array<LocalFile>;
+  dangled: Map<LocalFile, File>;
+  total: number;
+};
+
 type TProps = {
   local: LocalTree;
-  remote: NewRemoteTree;
+  remote: RemoteTree;
 };
 
 export function calculateFilesDiff({ local, remote }: TProps) {
