@@ -67,12 +67,10 @@ export class FileBatchUploader {
               return;
             }
 
-            Logger.info('[Local File Uploader] Uploading file', localRootPath);
-
             const parentPath = dirname(localFile.relativePath) as RelativePath;
             const parent = remoteTree.folders[parentPath];
 
-            logger.debug({ msg: 'Uploading file', remotePath: localFile.relativePath, parent });
+            logger.debug({ msg: 'Uploading file', remotePath: localFile.relativePath });
 
             const file = await this.creator.run({
               contentsId,
@@ -82,7 +80,12 @@ export class FileBatchUploader {
               size: localFile.size.value,
             });
 
-            logger.info({ tag: 'BACKUPS', msg: 'File created', file });
+            logger.info({
+              tag: 'BACKUPS',
+              msg: 'File created',
+              relativePath: file.path,
+              contentsId: file.contentsId,
+            });
 
             await onFileCreated({
               bucket: context.backupsBucket,
