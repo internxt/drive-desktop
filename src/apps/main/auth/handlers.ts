@@ -93,5 +93,5 @@ export function setupAuthIpcHandlers() {
 async function emitUserLoggedIn() {
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  // await initSyncEngine();
+  await initSyncEngine();
 }
