@@ -40,6 +40,13 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
         parentPath,
       });
 
+      /**
+       * v2.5.3 Daniel Jiménez
+       * TODO: add issue
+       */
+
+      self.backed++;
+      tracker.currentProcessed(self.backed);
       continue;
     }
 
@@ -62,6 +69,11 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
         ...data,
         path: localFolder.relativePath,
       });
+    } else {
+      /**
+       * v2.5.3 Daniel Jiménez
+       * TODO: add issue
+       */
     }
 
     self.backed++;
