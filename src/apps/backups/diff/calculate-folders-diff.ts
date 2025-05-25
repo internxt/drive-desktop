@@ -3,11 +3,18 @@ import { LocalFolder } from '../../../context/local/localFolder/domain/LocalFold
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
 import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
-import { NewRemoteTree } from '../remote-tree/traverser';
+import { RemoteTree } from '../remote-tree/traverser';
+
+export type FoldersDiff = {
+  added: Array<LocalFolder>;
+  deleted: Array<Folder>;
+  unmodified: Array<LocalFolder>;
+  total: number;
+};
 
 type TProps = {
   local: LocalTree;
-  remote: NewRemoteTree;
+  remote: RemoteTree;
 };
 
 export function calculateFoldersDiff({ local, remote }: TProps) {

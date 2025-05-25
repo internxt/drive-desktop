@@ -2,13 +2,15 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
-import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
 import { isFatalError } from '../../../../../apps/shared/issues/SyncErrorCause';
 import Logger from 'electron-log';
 import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 import { logger } from '@/apps/shared/logger/logger';
 import { onFileCreated } from '@/apps/main/fordwardToWindows';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
+import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
+import { dirname } from 'path';
+import { RelativePath } from '../../infrastructure/AbsolutePath';
 
 @Service()
 export class FileBatchUploader {
@@ -67,7 +69,8 @@ export class FileBatchUploader {
 
             Logger.info('[Local File Uploader] Uploading file', localRootPath);
 
-            const parent = remoteTree.getParent(localFile.relativePath);
+            const parentPath = dirname(localFile.relativePath) as RelativePath;
+            const parent = remoteTree.folders[parentPath];
 
             logger.debug({ msg: 'Uploading file', remotePath: localFile.relativePath, parent });
 
@@ -89,8 +92,6 @@ export class FileBatchUploader {
               fileId: file.id,
               path: localFile.absolutePath,
             });
-
-            remoteTree.addFile(parent, file);
           } catch (error: any) {
             logger.error({
               tag: 'BACKUPS',

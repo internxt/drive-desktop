@@ -4,7 +4,7 @@ import { BackupsDependencyContainerFactory } from './dependency-injection/Backup
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 
 export async function backupFolder(tracker: BackupsProcessTracker, context: BackupsContext) {
-  const container = await BackupsDependencyContainerFactory.build(context);
+  const container = BackupsDependencyContainerFactory.build(context);
 
   // window.addEventListener('offline', () => {
   //   Logger.log('[BACKUPS] Internet connection lost');

@@ -1,6 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
+import { retryWrapper } from '../out/retry-wrapper';
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
@@ -85,21 +86,22 @@ export class FoldersService {
   }
 
   createFolder(context: { body: TCreateFolderBody }) {
-    const promise = client.POST('/folders', {
-      body: context.body,
-    });
-
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Create folder request was not successful',
-        context,
-        attributes: {
-          method: 'POST',
-          endpoint: '/folders',
+    const promise = () =>
+      clientWrapper({
+        promise: client.POST('/folders', {
+          body: context.body,
+        }),
+        loggerBody: {
+          msg: 'Create folder request was not successful',
+          context,
+          attributes: {
+            method: 'POST',
+            endpoint: '/folders',
+          },
         },
-      },
-    });
+      });
+
+    return retryWrapper({ promise });
   }
 
   async getFilesByFolder(context: { folderUuid: string; query: TGetFilesByFolderQuery }) {

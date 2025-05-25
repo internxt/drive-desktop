@@ -6,34 +6,29 @@ import { AbsolutePath } from '../../context/local/localFile/infrastructure/Absol
 import LocalTreeBuilder, { LocalTree } from '../../context/local/localTree/application/LocalTreeBuilder';
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
-import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
 import { BackupsContext } from './BackupInfo';
 import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
-import { DiffFilesCalculator, FilesDiff } from './diff/DiffFilesCalculator';
-import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator';
-import { getParentDirectory } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
-import { RemoteTree } from './remote-tree/domain/RemoteTree';
-import { LocalFolder } from '../../context/local/localFolder/domain/LocalFolder';
-import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
-import { Traverser } from './remote-tree/traverser';
+import { RemoteTree, Traverser } from './remote-tree/traverser';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
+import { calculateFilesDiff, FilesDiff } from './diff/calculate-files-diff';
+import { calculateFoldersDiff, FoldersDiff } from './diff/calculate-folders-diff';
+import { createFolders } from './folders/create-folders';
 
 @Service()
 export class Backup {
   constructor(
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
-    private readonly simpleFolderCreator: SimpleFolderCreator,
     private readonly dangledFilesService: DangledFilesService,
   ) {}
 
-  private backed = 0;
+  backed = 0;
 
   async run(tracker: BackupsProcessTracker, context: BackupsContext): Promise<DriveDesktopError | undefined> {
     const localTreeEither = await LocalTreeBuilder.run(context.pathname as AbsolutePath);
@@ -47,9 +42,28 @@ export class Backup {
 
     const remote = await new Traverser().run({ context });
 
-    const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
+    const foldersDiff = calculateFoldersDiff({ local, remote });
+    const filesDiff = calculateFilesDiff({ local, remote });
 
-    const filesDiff = DiffFilesCalculator.calculate(local, remote);
+    logger.debug({
+      tag: 'BACKUPS',
+      msg: 'Files diff',
+      added: filesDiff.added.length,
+      modified: filesDiff.modified.size,
+      deleted: filesDiff.deleted.length,
+      dangled: filesDiff.dangled.size,
+      unmodified: filesDiff.unmodified.length,
+      total: filesDiff.total,
+    });
+
+    logger.debug({
+      tag: 'BACKUPS',
+      msg: 'Folders diff',
+      added: foldersDiff.added.length,
+      deleted: foldersDiff.deleted.length,
+      unmodified: foldersDiff.unmodified.length,
+      total: foldersDiff.total,
+    });
 
     if (filesDiff.dangled.size > 0) {
       logger.info({
@@ -101,17 +115,9 @@ export class Backup {
   ) {
     const { added, deleted } = diff;
 
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Backing folders',
-      total: diff.total,
-      added: added.length,
-      deleted: deleted.length,
-    });
-
     return await Promise.all([
       this.deleteRemoteFolders(context, deleted),
-      this.uploadAndCreateFolder(context, tracker, local.root.absolutePath, added, remote),
+      createFolders({ self: this, context, added, tree: remote, tracker }),
     ]);
   }
 
@@ -123,15 +129,6 @@ export class Backup {
     remote: RemoteTree,
   ) {
     const { added, modified, deleted } = diff;
-
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Backing files',
-      total: diff.total,
-      added: added.length,
-      deleted: deleted.length,
-      modified: modified.size,
-    });
 
     await Promise.all([
       this.uploadAndCreateFile(context, tracker, local.root.absolutePath, added, remote),
@@ -237,69 +234,6 @@ export class Backup {
       });
 
       if (error) throw error;
-    }
-  }
-  private async uploadAndCreateFolder(
-    context: BackupsContext,
-    tracker: BackupsProcessTracker,
-    localRootPath: string,
-    added: Array<LocalFolder>,
-    tree: RemoteTree,
-  ): Promise<void> {
-    for (const localFolder of added) {
-      if (context.abortController.signal.aborted) {
-        return;
-      }
-
-      if (localFolder.relativePath === '/') {
-        continue; // ingore root folder
-      }
-
-      const remoteParentPath = getParentDirectory(localRootPath, localFolder.absolutePath);
-
-      logger.debug({
-        msg: 'Uploading and creating folder',
-        relativePath: localFolder.relativePath,
-      });
-
-      const parentExists = tree.has(remoteParentPath);
-
-      if (!parentExists) {
-        logger.debug({ msg: 'Parent folder does not exist' });
-        continue;
-      }
-
-      const parent = tree.getParent(localFolder.relativePath);
-      const existingItems = tree.has(localFolder.relativePath);
-
-      if (existingItems) {
-        continue;
-      }
-
-      try {
-        const path = new FolderPath(localFolder.relativePath);
-
-        const folder = await this.simpleFolderCreator.run({
-          parentId: parent.id,
-          parentUuid: parent.uuid,
-          path: path.value,
-          basename: path.basename(),
-        });
-
-        tree.addFolder(parent, folder);
-      } catch (error) {
-        logger.warn({
-          msg: 'Error creating folder',
-          error,
-          tag: 'BACKUPS',
-        });
-        if (error instanceof DriveDesktopError) {
-          throw error;
-        }
-      }
-
-      this.backed++;
-      tracker.currentProcessed(this.backed);
     }
   }
 }

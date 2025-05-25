@@ -2,6 +2,7 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { ClientWrapperService } from '../in/client-wrapper.service';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { client } from '@/apps/shared/HttpClient/client';
+import { retryWrapper } from '../out/retry-wrapper';
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
@@ -85,22 +86,23 @@ export class FilesService {
   }
 
   replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
-    const promise = client.PUT('/files/{uuid}', {
-      body: { fileId: context.newContentId, size: context.newSize },
-      params: { path: { uuid: context.uuid } },
-    });
-
-    return this.clientWrapper.run({
-      promise,
-      loggerBody: {
-        msg: 'Replace file request was not successful',
-        context,
-        attributes: {
-          method: 'PUT',
-          endpoint: '/files/{uuid}',
+    const promise = () =>
+      this.clientWrapper.run({
+        promise: client.PUT('/files/{uuid}', {
+          body: { fileId: context.newContentId, size: context.newSize },
+          params: { path: { uuid: context.uuid } },
+        }),
+        loggerBody: {
+          msg: 'Replace file request was not successful',
+          context,
+          attributes: {
+            method: 'PUT',
+            endpoint: '/files/{uuid}',
+          },
         },
-      },
-    });
+      });
+
+    return retryWrapper({ promise });
   }
 
   createThumbnail(context: { body: TCreateThumnailBody }) {
