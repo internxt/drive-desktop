@@ -41,15 +41,15 @@ describe('Watcher', () => {
   };
 
   const getEvents = () => {
-    return onAll.mock.calls.map((call) => ({ event: call[0].event, path: call[0].path }));
+    return onAll.mock.calls.map((call) => ({ ...call[0] }));
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    watcher?.chokidar?.close();
+  afterEach(async () => {
+    await watcher?.chokidar?.close();
   });
 
   describe('[Watcher] When call watchAndWait', () => {
@@ -72,7 +72,7 @@ describe('Watcher', () => {
       const syncRootPath = join(TEST_FILES, v4());
       const file = join(syncRootPath, v4());
       await mkdir(syncRootPath);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
 
       // Act
       await sleep(50);
@@ -118,7 +118,7 @@ describe('Watcher', () => {
 
       // Act
       await sleep(50);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
       await sleep(50);
 
       // Assert
@@ -138,10 +138,17 @@ describe('Watcher', () => {
 
       // Act
       await sleep(50);
-      await writeFile(file, Buffer.alloc(0));
+      await writeFile(file, '');
       await sleep(50);
 
       // Assert
+      expect(onAdd.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          path: file,
+          stats: expect.objectContaining({ size: 0 }),
+        }),
+      );
+
       expect(getEvents()).toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
@@ -160,7 +167,7 @@ describe('Watcher', () => {
       // Act
       await sleep(50);
       await mkdir(folder);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
       await sleep(50);
 
       // Assert
@@ -181,11 +188,11 @@ describe('Watcher', () => {
       const fileName = v4();
       const file = join(syncRootPath, fileName);
       await setupWatcher(syncRootPath);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
 
       // Act
       await sleep(50);
-      await appendFile(file, Buffer.alloc(1000));
+      await appendFile(file, 'content');
       await sleep(50);
 
       // Assert
@@ -208,7 +215,7 @@ describe('Watcher', () => {
       const file1 = join(syncRootPath, fileName1);
       const file2 = join(syncRootPath, fileName2);
       await setupWatcher(syncRootPath);
-      await writeFile(file1, Buffer.alloc(1000));
+      await writeFile(file1, 'content');
 
       // Act
       await sleep(50);
@@ -260,7 +267,7 @@ describe('Watcher', () => {
       const movedFile = join(folder, fileName);
       await setupWatcher(syncRootPath);
       await mkdir(folder);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
 
       // Act
       await sleep(50);
@@ -313,7 +320,7 @@ describe('Watcher', () => {
       const syncRootPath = join(TEST_FILES, v4());
       const file = join(syncRootPath, v4());
       await setupWatcher(syncRootPath);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
 
       // Act
       await sleep(50);
@@ -360,7 +367,7 @@ describe('Watcher', () => {
       const fileName = v4();
       const file = join(syncRootPath, fileName);
       await setupWatcher(syncRootPath);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
 
       // Act
       await sleep(50);
@@ -406,7 +413,7 @@ describe('Watcher', () => {
       const fileName = v4();
       const file = join(syncRootPath, fileName);
       await setupWatcher(syncRootPath);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
 
       // Act
       await sleep(50);
@@ -457,7 +464,7 @@ describe('Watcher', () => {
       const fileName = v4();
       const file = join(syncRootPath, fileName);
       await setupWatcher(syncRootPath);
-      await writeFile(file, Buffer.alloc(1000));
+      await writeFile(file, 'content');
 
       // Act
       await sleep(50);
