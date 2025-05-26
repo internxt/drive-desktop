@@ -68,7 +68,15 @@ export class Traverser {
           tree.files.push(file);
         }
       } catch (exc) {
-        logger.error({ msg: 'Error creating file from server file', exc });
+        /**
+         * v2.5.3 Daniel Jiménez
+         * TODO: Add issue to sync
+         */
+        logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Error adding file to tree',
+          exc,
+        });
       }
     });
 
@@ -96,7 +104,15 @@ export class Traverser {
           this.traverse(tree, items, folder);
         }
       } catch (exc) {
-        logger.error({ msg: 'Error creating folder from server folder', exc });
+        /**
+         * v2.5.3 Daniel Jiménez
+         * TODO: Add issue to sync
+         */
+        logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Error adding folder to tree',
+          exc,
+        });
       }
     });
   }

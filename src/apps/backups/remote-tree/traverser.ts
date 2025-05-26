@@ -4,6 +4,7 @@ import { FolderStatus } from '@/context/virtual-drive/folders/domain/FolderStatu
 import { RemoteTree } from '@/apps/backups/remote-tree/domain/RemoteTree';
 import * as Sentry from '@sentry/electron/renderer';
 import Logger from 'electron-log';
+import { getAllItemsByFolderUuid } from './get-all-items-by-folder-uuid';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
 import { fetchItems } from '../fetch-items/fetch-items';
@@ -49,6 +50,13 @@ export class Traverser {
           parentId: serverFile.folderId,
           type: serverFile.type,
         });
+      try {
+        const decryptedName = File.decryptName({
+          plainName: serverFile.plainName,
+          name: serverFile.name,
+          parentId: serverFile.folderId,
+          type: serverFile.type,
+        });
 
         const relativePath = createRelativePath(currentFolder.path, decryptedName);
 
@@ -60,13 +68,26 @@ export class Traverser {
         });
 
         tree.addFile(currentFolder, file);
-      } catch (error) {
-        Logger.warn('[Traverser] Error adding file:', error);
-        Sentry.captureException(error);
+      } catch (exc) {
+        /**
+         * v2.5.3 Daniel Jiménez
+         * TODO: Add issue to backups
+         */
+        logger.error({
+          tag: 'BACKUPS',
+          msg: 'Error adding file to tree',
+          exc,
+        });
       }
     });
 
     foldersInThisFolder.forEach((serverFolder) => {
+      try {
+        const decryptedName = Folder.decryptName({
+          plainName: serverFolder.plainName,
+          name: serverFolder.name,
+          parentId: serverFolder.parentId,
+        });
       try {
         const decryptedName = Folder.decryptName({
           plainName: serverFolder.plainName,
@@ -85,14 +106,25 @@ export class Traverser {
         tree.addFolder(currentFolder, folder);
 
         this.traverse(context, tree, items, folder);
-      } catch (error) {
-        Logger.warn('[Traverser] Error adding folder:', error);
-        Sentry.captureException(error);
+      } catch (exc) {
+        /**
+         * v2.5.3 Daniel Jiménez
+         * TODO: Add issue to backups
+         */
+        logger.error({
+          tag: 'BACKUPS',
+          msg: 'Error adding folder to tree',
+          exc,
+        });
       }
     });
   }
 
   async run({ context }: { context: BackupsContext }): Promise<RemoteTree> {
+    const items = await fetchItems({
+      folderUuid: context.folderUuid,
+      skipFiles: false,
+    });
     const items = await fetchItems({
       folderUuid: context.folderUuid,
       skipFiles: false,
