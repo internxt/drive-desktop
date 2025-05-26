@@ -2,8 +2,8 @@ import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/
 import { BackupsContext } from '../BackupInfo';
 import { LocalFolder } from '@/context/local/localFolder/domain/LocalFolder';
 import { RemoteTree } from '../remote-tree/traverser';
-import { basename, dirname } from 'path';
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { basename } from 'path';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@/apps/shared/logger/logger';
 import type { Backup } from '../Backups';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -29,7 +29,7 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
       continue; // Ignore root folder
     }
 
-    const parentPath = dirname(localFolder.relativePath) as RelativePath;
+    const parentPath = pathUtils.dirname(localFolder.relativePath);
     const parent = tree.folders[parentPath];
 
     if (!parent) {
@@ -44,36 +44,32 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
        * v2.5.3 Daniel Jiménez
        * TODO: add issue
        */
-
-      self.backed++;
-      tracker.currentProcessed(self.backed);
-      continue;
-    }
-
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Creating folder',
-      relativePath: localFolder.relativePath,
-      parentPath,
-    });
-
-    const { data } = await driveServerWip.folders.createFolder({
-      body: {
-        plainName: basename(localFolder.relativePath),
-        parentFolderUuid: parent.uuid,
-      },
-    });
-
-    if (data) {
-      tree.folders[localFolder.relativePath] = Folder.from({
-        ...data,
-        path: localFolder.relativePath,
-      });
     } else {
-      /**
-       * v2.5.3 Daniel Jiménez
-       * TODO: add issue
-       */
+      logger.debug({
+        tag: 'BACKUPS',
+        msg: 'Creating folder',
+        relativePath: localFolder.relativePath,
+        parentPath,
+      });
+
+      const { data } = await driveServerWip.folders.createFolder({
+        body: {
+          plainName: basename(localFolder.relativePath),
+          parentFolderUuid: parent.uuid,
+        },
+      });
+
+      if (data) {
+        tree.folders[localFolder.relativePath] = Folder.from({
+          ...data,
+          path: localFolder.relativePath,
+        });
+      } else {
+        /**
+         * v2.5.3 Daniel Jiménez
+         * TODO: add issue
+         */
+      }
     }
 
     self.backed++;
