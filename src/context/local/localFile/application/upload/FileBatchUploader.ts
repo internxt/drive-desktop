@@ -9,8 +9,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { onFileCreated } from '@/apps/main/fordwardToWindows';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
-import { dirname } from 'path';
-import { RelativePath } from '../../infrastructure/AbsolutePath';
+import { pathUtils } from '../../infrastructure/AbsolutePath';
 
 @Service()
 export class FileBatchUploader {
@@ -67,7 +66,7 @@ export class FileBatchUploader {
               return;
             }
 
-            const parentPath = dirname(localFile.relativePath) as RelativePath;
+            const parentPath = pathUtils.dirname(localFile.relativePath);
             const parent = remoteTree.folders[parentPath];
 
             logger.debug({ msg: 'Uploading file', remotePath: localFile.relativePath });

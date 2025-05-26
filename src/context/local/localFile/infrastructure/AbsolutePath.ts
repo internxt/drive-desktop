@@ -10,3 +10,12 @@ export function createRelativePath(...parts: string[]): RelativePath {
   path = posix.normalize(path);
   return path as RelativePath;
 }
+
+function dirname(path: RelativePath): RelativePath {
+  return posix.dirname(path) as RelativePath;
+}
+
+export const pathUtils = {
+  dirname,
+  createRelativePath,
+};
