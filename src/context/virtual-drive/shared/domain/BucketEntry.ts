@@ -10,11 +10,11 @@ export class BucketEntry extends ValueObject<number> {
 
   private ensureIsValid(value: number) {
     if (value > BucketEntry.MAX_SIZE) {
-      throw new Error('File size to big');
+      throw new Error(`File size to big: ${value}`);
     }
 
     if (value < 0) {
-      throw new Error('File size cannot be negative');
+      throw new Error(`File size cannot be negative: ${value}`);
     }
   }
 }
