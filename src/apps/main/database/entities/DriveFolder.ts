@@ -50,5 +50,5 @@ export class DriveFolder {
   name!: string;
 
   @Column({ nullable: false, type: 'varchar' })
-  status!: string;
+  status!: 'EXISTS' | 'TRASHED' | 'DELETED';
 }
