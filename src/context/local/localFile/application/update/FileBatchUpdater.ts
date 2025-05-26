@@ -20,10 +20,15 @@ export class FileBatchUpdater {
       const contentsId = upload.getRight();
 
       if (!contentsId) {
-        return;
+        continue;
       }
 
       const file = remoteTree.files[localFile.relativePath];
+
+      /**
+       * v2.5.3 Daniel Jiménez
+       * TODO: Check file can be null or contentsId maybe continue???
+       */
 
       await simpleFileOverride(file, contentsId, localFile.size.value);
     }
