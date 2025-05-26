@@ -8,7 +8,7 @@ import { Stopwatch } from '@/apps/shared/types/Stopwatch';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
-export class EnvironmentFileUploaderError extends Error {
+class EnvironmentFileUploaderError extends Error {
   constructor(
     public readonly cause: 'KILLED_BY_USER' | 'NOT_ENOUGH_SPACE' | 'UNKNOWN',
     public readonly originalError?: unknown,
