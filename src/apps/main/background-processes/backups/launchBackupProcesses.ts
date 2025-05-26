@@ -9,6 +9,7 @@ import { isSyncError } from '../../../shared/issues/SyncErrorCause';
 import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
+import { clearBackupsIssues } from '../issues';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -47,7 +48,7 @@ export async function launchBackupProcesses(
     abortController.abort();
   });
 
-  // clearBackupsIssues();
+  clearBackupsIssues();
   errors.clear();
   tracker.track(backups, abortController);
 

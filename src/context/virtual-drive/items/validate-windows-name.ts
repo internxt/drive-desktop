@@ -20,8 +20,7 @@ export function validateWindowsName({ path, name }: TProps) {
       path,
     });
 
-    ipcRendererSyncEngine.send('ADD_ISSUE', {
-      tab: 'sync',
+    ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', {
       name: path,
       error: 'INVALID_WINDOWS_NAME',
     });
