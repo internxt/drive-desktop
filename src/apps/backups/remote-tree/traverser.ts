@@ -1,6 +1,7 @@
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { FolderStatus } from '@/context/virtual-drive/folders/domain/FolderStatus';
+import { RemoteTree } from '@/apps/backups/remote-tree/domain/RemoteTree';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
 import { fetchItems } from '../fetch-items/fetch-items';
@@ -8,7 +9,7 @@ import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@/apps/shared/logger/logger';
 
-export type RemoteTree = {
+export type NewRemoteTree = {
   files: Record<RelativePath, File>;
   folders: Record<RelativePath, Folder>;
 };
@@ -57,16 +58,15 @@ export class Traverser {
           size: Number(serverFile.size),
         });
 
-        tree.files[relativePath] = file;
+        tree.addFile(currentFolder, file);
       } catch (exc) {
-        /*
+        /**
          * v2.5.3 Daniel Jiménez
-         * Add issue to backups
+         * TODO: Add issue to backups
          */
-
-        logger.warn({
+        logger.error({
           tag: 'BACKUPS',
-          msg: 'Failed to add remote file to tree',
+          msg: 'Error adding file to tree',
           exc,
         });
       }
@@ -88,18 +88,17 @@ export class Traverser {
           path: relativePath,
         });
 
-        tree.folders[relativePath] = folder;
+        tree.addFolder(currentFolder, folder);
 
         this.traverse(context, tree, items, folder);
       } catch (exc) {
-        /*
+        /**
          * v2.5.3 Daniel Jiménez
-         * Add issue to backups
+         * TODO: Add issue to backups
          */
-
-        logger.warn({
+        logger.error({
           tag: 'BACKUPS',
-          msg: 'Failed to add remote file to tree',
+          msg: 'Error adding folder to tree',
           exc,
         });
       }
@@ -114,12 +113,7 @@ export class Traverser {
 
     const rootFolder = this.createRootFolder({ id: context.folderId, uuid: context.folderUuid });
 
-    const tree: RemoteTree = {
-      files: {},
-      folders: {
-        [rootFolder.path]: rootFolder,
-      },
-    };
+    const tree = new RemoteTree(rootFolder);
 
     this.traverse(context, tree, items, rootFolder);
 
