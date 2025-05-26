@@ -31,7 +31,7 @@ function DownloadingBackup() {
 export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const { thereIsProgress, percentualProgress, clearProgress } = useBackupProgress();
   const { current, selected } = useContext(DeviceContext);
-  const { lastBackupHadIssues, backups, backupStatus, downloadProgress, thereIsDownloadProgress } = useContext(BackupContext);
+  const { backups, backupStatus, downloadProgress, thereIsDownloadProgress } = useContext(BackupContext);
 
   useEffect(() => {
     if (backupStatus === 'STANDBY') {
@@ -39,7 +39,7 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
     }
   }, [backupStatus]);
 
-  const displayIssues = backups.length !== 0 && lastBackupHadIssues;
+  const displayIssues = backups.length !== 0;
 
   return (
     <div className="rounded-lg  border border-gray-10 bg-surface px-6 py-4 shadow-sm dark:bg-gray-5">

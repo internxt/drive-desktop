@@ -21,11 +21,11 @@ function groupAppIssuesByErrorName(issues: Issue[]) {
   );
 }
 
-type VirtualDriveIssuesByErrorAccordionProps = {
+type IssuesTabProps = {
   readonly issues: Array<Issue>;
 };
 
-export function SyncIssuesByError({ issues }: VirtualDriveIssuesByErrorAccordionProps) {
+export function IssuesTab({ issues }: IssuesTabProps) {
   const { translate } = useTranslationContext();
   const [selected, setSelected] = useState<Issue['error'] | null>(null);
 

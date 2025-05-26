@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import WindowTopBar from '../../components/WindowTopBar';
 import { useTranslationContext } from '../../context/LocalContext';
-import useBackupErrors from '../../hooks/backups/useBackupErrors';
 import useGeneralIssues from '../../hooks/GeneralIssues';
 import IssuesAccordions from './IssuesAccordions';
 import { IssuesTabs } from './IssuesTabs';
@@ -12,27 +11,28 @@ export default function IssuesPage() {
   const { translate } = useTranslationContext();
   const { issues } = useIssues();
   const { generalIssues } = useGeneralIssues();
-  const { backupErrors } = useBackupErrors();
 
   const [activeSection, setActiveSection] = useState<Section>('virtualDrive');
 
+  const parsedIssues = useMemo(() => {
+    return {
+      app: generalIssues,
+      virtualDrive: issues.filter((issue) => issue.tab === 'sync'),
+      backups: issues.filter((issue) => issue.tab === 'backups'),
+    };
+  }, [generalIssues, issues]);
+
   useEffect(() => {
-    if (generalIssues.length) {
+    if (parsedIssues.app.length) {
       setActiveSection('app');
-      return;
-    }
-    if (issues.length) {
+    } else if (parsedIssues.virtualDrive.length) {
       setActiveSection('virtualDrive');
-      return;
-    }
-
-    if (backupErrors.length) {
+    } else if (parsedIssues.backups.length) {
       setActiveSection('backups');
-      return;
+    } else {
+      setActiveSection('app');
     }
-
-    setActiveSection('app');
-  }, [issues, generalIssues, backupErrors]);
+  }, [parsedIssues]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
@@ -42,14 +42,7 @@ export default function IssuesPage() {
         <IssuesTabs active={activeSection} onChangeTab={setActiveSection} />
       </div>
 
-      <IssuesAccordions
-        selectedTab={activeSection}
-        issues={{
-          app: generalIssues,
-          virtualDrive: issues,
-          backups: backupErrors,
-        }}
-      />
+      <IssuesAccordions selectedTab={activeSection} issues={parsedIssues} />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import type { Backup } from '../Backups';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
+import { addBackupsIssue } from '@/apps/main/background-processes/issues';
 
 type TProps = {
   self: Backup;
@@ -40,10 +41,10 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
         parentPath,
       });
 
-      /**
-       * v2.5.3 Daniel Jiménez
-       * TODO: add issue
-       */
+      addBackupsIssue({
+        error: 'PARENT_FOLDER_DOES_NOT_EXIST',
+        name: localFolder.relativePath,
+      });
     } else {
       logger.debug({
         tag: 'BACKUPS',
@@ -65,10 +66,10 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
           path: localFolder.relativePath,
         });
       } else {
-        /**
-         * v2.5.3 Daniel Jiménez
-         * TODO: add issue
-         */
+        addBackupsIssue({
+          error: 'CREATE_FOLDER_FAILED',
+          name: localFolder.relativePath,
+        });
       }
     }
 

@@ -23,7 +23,7 @@ export function useBackupFatalIssue(backup: BackupInfo) {
   const [action, setAction] = useState<FixAction | undefined>(undefined);
   const [name, setName] = useState(backup.plainName);
 
-  const { refreshBackups, refreshLastExitReason } = useContext(BackupContext);
+  const { refreshBackups } = useContext(BackupContext);
 
   async function findBackupFolder(backup: BackupInfo) {
     const result = await window.electron.changeBackupPath(backup.pathname);
@@ -35,7 +35,6 @@ export function useBackupFatalIssue(backup: BackupInfo) {
       // window.electron.startBackupsProcess();
       window.electron.clearBackupFatalIssue(backup.folderId);
       refreshBackups();
-      refreshLastExitReason();
     }
   }
 
@@ -62,10 +61,6 @@ export function useBackupFatalIssue(backup: BackupInfo) {
   };
 
   const { translate } = useTranslationContext();
-
-  useEffect(() => {
-    window.electron.getBackupFatalIssue(backup.folderId).then(setIssue);
-  }, []);
 
   useEffect(() => {
     if (!issue) {

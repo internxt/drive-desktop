@@ -14,7 +14,7 @@ interface BackupFolderSelectorProps {
 export default function BackupFolderSelector({ onClose }: BackupFolderSelectorProps) {
   const { translate } = useTranslationContext();
 
-  const { backups, backupsState, addBackup, disableBackup, refreshBackups, refreshLastExitReason } = useContext(BackupContext);
+  const { backups, backupsState, addBackup, disableBackup, refreshBackups } = useContext(BackupContext);
 
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
 
@@ -71,7 +71,6 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
                 return;
               }
               await window.electron.clearBackupFatalIssue(selectedBackup[0].id);
-              refreshLastExitReason();
               disableBackup({
                 folderId: selectedBackup[0].id,
                 plainName: selectedBackup[0].plainName,

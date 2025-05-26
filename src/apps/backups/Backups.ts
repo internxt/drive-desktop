@@ -9,7 +9,6 @@ import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { BackupsContext } from './BackupInfo';
 import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
-import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
 import { RemoteTree, Traverser } from './remote-tree/traverser';
@@ -30,16 +29,8 @@ export class Backup {
 
   backed = 0;
 
-  async run(tracker: BackupsProcessTracker, context: BackupsContext): Promise<DriveDesktopError | undefined> {
-    const localTreeEither = await LocalTreeBuilder.run(context.pathname as AbsolutePath);
-
-    if (localTreeEither.isLeft()) {
-      logger.warn({ msg: 'Error building local tree', error: localTreeEither.getLeft() });
-      return localTreeEither.getLeft();
-    }
-
-    const local = localTreeEither.getRight();
-
+  async run(tracker: BackupsProcessTracker, context: BackupsContext) {
+    const local = await LocalTreeBuilder.run(context.pathname as AbsolutePath);
     const remote = await new Traverser().run({ context });
 
     const foldersDiff = calculateFoldersDiff({ local, remote });
@@ -100,10 +91,7 @@ export class Backup {
     tracker.currentProcessed(alreadyBacked);
 
     await this.backupFolders(context, tracker, foldersDiff, local, remote);
-
     await this.backupFiles(context, tracker, filesDiff, local, remote);
-
-    return;
   }
 
   private async backupFolders(
@@ -131,7 +119,7 @@ export class Backup {
     const { added, modified, deleted } = diff;
 
     await Promise.all([
-      this.uploadAndCreateFile(context, tracker, local.root.absolutePath, added, remote),
+      this.uploadAndCreateFile(context, tracker, added, remote),
       this.uploadAndUpdate(context, tracker, modified, remote),
       this.deleteRemoteFiles(context, deleted),
     ]);
@@ -140,7 +128,6 @@ export class Backup {
   private async uploadAndCreateFile(
     context: BackupsContext,
     tracker: BackupsProcessTracker,
-    localRootPath: string,
     added: Array<LocalFile>,
     tree: RemoteTree,
   ): Promise<void> {
@@ -152,7 +139,7 @@ export class Backup {
           return;
         }
 
-        await this.fileBatchUploader.run(context, localRootPath, tree, batch, () => {
+        await this.fileBatchUploader.run(context, tree, batch, () => {
           this.backed += 1;
           tracker.currentProcessed(this.backed);
         });
@@ -162,9 +149,6 @@ export class Backup {
           error,
           tag: 'BACKUPS',
         });
-        if (error instanceof DriveDesktopError) {
-          throw error;
-        }
       }
     }
   }
@@ -190,9 +174,6 @@ export class Backup {
           error,
           tag: 'BACKUPS',
         });
-        if (error instanceof DriveDesktopError) {
-          throw error;
-        }
       }
       this.backed += batch.size;
       tracker.currentProcessed(this.backed);

@@ -10,7 +10,6 @@ import useGeneralIssues from '../../hooks/GeneralIssues';
 import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/sentry';
-import useBackupErrors from '../../hooks/backups/useBackupErrors';
 import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
 import { useIssues } from '../../hooks/useIssues';
 
@@ -24,9 +23,8 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
 
   const { issues } = useIssues();
   const { generalIssues } = useGeneralIssues();
-  const { backupErrors } = useBackupErrors();
 
-  const numberOfIssues: number = issues.length + backupErrors.length + generalIssues.length;
+  const numberOfIssues: number = issues.length + generalIssues.length;
 
   const numberOfIssuesDisplay = numberOfIssues > 99 ? '99+' : numberOfIssues;
 

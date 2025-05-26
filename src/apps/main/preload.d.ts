@@ -33,21 +33,11 @@ declare interface Window {
 
     userIsUnauthorized(): void;
 
-    getBackupFatalIssue(id: number): Promise<import('../shared/issues/SyncErrorCause').SyncError>;
-
     clearBackupFatalIssue(id: number): Promise<void>;
-
-    getBackupFatalErrors(): Promise<
-      import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
-    >;
 
     onBackupFatalErrorsChanged(
       fn: (value: import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection) => void,
     ): () => void;
-
-    getLastBackupExitReason: () => Promise<
-      import('../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker').WorkerExitCause
-    >;
 
     downloadBackup: typeof import('../main/device/service').downloadBackup;
 

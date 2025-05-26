@@ -5,9 +5,13 @@ import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderM
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
+import { addBackupsIssue } from '@/apps/main/background-processes/issues';
+
+vi.mock(import('@/apps/main/background-processes/issues'));
 
 describe('create-folders', () => {
   const createFolderMock = deepMocked(driveServerWip.folders.createFolder);
+  const addBackupsIssueMock = vi.mocked(addBackupsIssue);
 
   const rootFolderUuid = v4();
   const baseProps = mockProps<typeof createFolders>({
@@ -80,10 +84,6 @@ describe('create-folders', () => {
     await createFolders(props);
 
     // Then
-    /**
-     * v2.5.3 Daniel Jiménez
-     * TODO: check issue
-     */
     expect(createFolderMock).not.toHaveBeenCalled();
     expect(getMockCalls(loggerMock.error)).toStrictEqual([
       {
@@ -93,6 +93,10 @@ describe('create-folders', () => {
         tag: 'BACKUPS',
       },
     ]);
+    expect(addBackupsIssueMock).toHaveBeenCalledWith({
+      error: 'PARENT_FOLDER_DOES_NOT_EXIST',
+      name: '/folder1/folder2/folder3',
+    });
   });
 
   it('If create folder fails then add issue', async () => {
@@ -111,10 +115,10 @@ describe('create-folders', () => {
     expect(createFolderMock).toHaveBeenCalledTimes(1);
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toHaveBeenCalledWith(1);
-    /**
-     * v2.5.3 Daniel Jiménez
-     * TODO: check issue
-     */
+    expect(addBackupsIssueMock).toHaveBeenCalledWith({
+      error: 'CREATE_FOLDER_FAILED',
+      name: '/folder1',
+    });
   });
 
   it('If create folder success then add to the remote tree', async () => {

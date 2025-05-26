@@ -1,11 +1,8 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
-import Logger from 'electron-log';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
-import { BackupFatalErrors } from './BackupFatalErrors/BackupFatalErrors';
 import { BackupsProcessStatus } from './BackupsProcessStatus/BackupsProcessStatus';
 import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { isSyncError } from '../../../shared/issues/SyncErrorCause';
 import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
@@ -18,7 +15,6 @@ export async function launchBackupProcesses(
   scheduled: boolean,
   tracker: BackupsProcessTracker,
   status: BackupsProcessStatus,
-  errors: BackupFatalErrors,
 ): Promise<void> {
   if (!backupsCanRun(status)) {
     logger.debug({ tag: 'BACKUPS', msg: 'Already running' });
@@ -47,8 +43,6 @@ export async function launchBackupProcesses(
     abortController.abort();
   });
 
-  // clearBackupsIssues();
-  errors.clear();
   tracker.track(backups, abortController);
 
   for (const backupInfo of backups) {
@@ -58,27 +52,18 @@ export async function launchBackupProcesses(
       backupInfo,
     });
 
-    const context: BackupsContext = {
-      ...backupInfo,
-      abortController,
-      errors,
-    };
-
     if (abortController.signal.aborted) {
       continue;
     }
 
+    const context: BackupsContext = {
+      ...backupInfo,
+      abortController,
+    };
+
     tracker.backing();
 
-    const endReason = await executeBackupWorker(tracker, context);
-
-    if (isSyncError(endReason)) {
-      errors.add({ name: backupInfo.plainName, error: endReason });
-    }
-
-    Logger.info(`Backup process for ${backupInfo.folderId} ended with ${endReason}`);
-
-    tracker.backupFinished(backupInfo.folderId, endReason);
+    await executeBackupWorker(tracker, context);
   }
 
   status.set('STANDBY');
