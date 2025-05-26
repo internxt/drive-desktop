@@ -1,7 +1,18 @@
+import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { DriveFileCollection } from './drive-file';
+import { getUserOrThrow } from '@/apps/main/auth/service';
+import { AppDataSource } from '@/apps/main/database/data-source';
+
+vi.mock(import('@/apps/main/auth/service'));
 
 describe('drive-file', () => {
   const collection = new DriveFileCollection();
+
+  const getUserOrThrowMock = deepMocked(getUserOrThrow);
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('If no options are provided, it should return empty options', () => {
     // Given
@@ -41,5 +52,13 @@ describe('drive-file', () => {
 
     // Then
     expect(where).toStrictEqual({ workspaceId: 'uuid' });
+  });
+
+  it.only('', async () => {
+    // Given
+    await AppDataSource.initialize();
+    getUserOrThrowMock.mockResolvedValue({ uuid: 'uuid' });
+
+    await collection.getAll({});
   });
 });
