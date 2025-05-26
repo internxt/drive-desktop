@@ -55,7 +55,7 @@ type SyncEngineInvocableFunctions = {
 
 // TODO: change how errors are reported to the ui
 type ProcessInfoUpdate = {
-  ADD_SYNC_ISSUE: (payload: SyncIssue) => void;
+  ADD_SYNC_ISSUE: (payload: Omit<SyncIssue, 'tab'>) => void;
   CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
 };
 
