@@ -2,12 +2,11 @@ import { File } from '@/context/virtual-drive/files/domain/File';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { FolderStatus } from '@/context/virtual-drive/folders/domain/FolderStatus';
 import { RemoteTree } from '@/apps/backups/remote-tree/domain/RemoteTree';
-import * as Sentry from '@sentry/electron/renderer';
-import Logger from 'electron-log';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
 import { fetchItems } from '../fetch-items/fetch-items';
 import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { logger } from '@/apps/shared/logger/logger';
 
 type Items = {
   files: Array<FileDto>;
@@ -54,9 +53,16 @@ export class Traverser {
         });
 
         tree.addFile(currentFolder, file);
-      } catch (error) {
-        Logger.warn('[Traverser] Error adding file:', error);
-        Sentry.captureException(error);
+      } catch (exc) {
+        /**
+         * v2.5.3 Daniel Jiménez
+         * TODO: Add issue to backups
+         */
+        logger.error({
+          tag: 'BACKUPS',
+          msg: 'Error adding file to tree',
+          exc,
+        });
       }
     });
 
@@ -79,9 +85,16 @@ export class Traverser {
         tree.addFolder(currentFolder, folder);
 
         this.traverse(context, tree, items, folder);
-      } catch (error) {
-        Logger.warn('[Traverser] Error adding folder:', error);
-        Sentry.captureException(error);
+      } catch (exc) {
+        /**
+         * v2.5.3 Daniel Jiménez
+         * TODO: Add issue to backups
+         */
+        logger.error({
+          tag: 'BACKUPS',
+          msg: 'Error adding folder to tree',
+          exc,
+        });
       }
     });
   }
