@@ -50,11 +50,11 @@ describe('calculate-files-diff', () => {
     const diff = calculateFilesDiff(props);
 
     // Then
-    expect(diff.unmodified.map((file) => file.relativePath)).toEqual(['/file1']);
-    expect(diff.added.map((file) => file.relativePath)).toEqual(['/file2']);
-    expect(diff.deleted.map((file) => file.path)).toEqual(['/file3']);
-    expect(Array.from(diff.modified.values()).map((file) => file.path)).toEqual(['/file6']);
-    expect(Array.from(diff.dangled.values()).map((file) => file.path)).toEqual(['/file7']);
+    expect(diff.unmodified.map((file) => file.relativePath)).toStrictEqual(['/file1']);
+    expect(diff.added.map((file) => file.relativePath)).toStrictEqual(['/file2']);
+    expect(diff.deleted.map((file) => file.path)).toStrictEqual(['/file3']);
+    expect(Array.from(diff.modified.values()).map((file) => file.path)).toStrictEqual(['/file6']);
+    expect(Array.from(diff.dangled.values()).map((file) => file.path)).toStrictEqual(['/file7']);
     expect(applyDangledMock).toHaveBeenCalledTimes(1);
   });
 
@@ -66,7 +66,7 @@ describe('calculate-files-diff', () => {
     const diff = calculateFilesDiff(props);
 
     // Then
-    expect(Array.from(diff.dangled.values()).map((file) => file.path)).toEqual([]);
+    expect(Array.from(diff.dangled.values()).map((file) => file.path)).toStrictEqual([]);
     expect(applyDangledMock).toHaveBeenCalledTimes(1);
   });
 });
