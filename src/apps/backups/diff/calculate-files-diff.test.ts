@@ -38,6 +38,26 @@ describe('calculate-files-diff', () => {
     },
   });
 
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('It should calculate files diff', () => {
+    // Given
+    isDangledAppliedMock.mockReturnValue({ isApplied: false });
+
+    // When
+    const diff = calculateFilesDiff(props);
+
+    // Then
+    expect(diff.unmodified.map((file) => file.relativePath)).toEqual(['/file1']);
+    expect(diff.added.map((file) => file.relativePath)).toEqual(['/file2']);
+    expect(diff.deleted.map((file) => file.path)).toEqual(['/file3']);
+    expect(Array.from(diff.modified.values()).map((file) => file.path)).toEqual(['/file6']);
+    expect(Array.from(diff.dangled.values()).map((file) => file.path)).toEqual(['/file7']);
+    expect(applyDangledMock).toHaveBeenCalledTimes(1);
+  });
+
   it('It should not add dangled files if patch is applied', () => {
     // Given
     isDangledAppliedMock.mockReturnValue({ isApplied: true });
