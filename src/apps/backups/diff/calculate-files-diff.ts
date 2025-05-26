@@ -3,12 +3,21 @@ import { RelativePath } from '../../../context/local/localFile/infrastructure/Ab
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { FileStatus } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
-import { NewRemoteTree } from '../remote-tree/traverser';
+import { RemoteTree } from '../remote-tree/traverser';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
+
+export type FilesDiff = {
+  added: Array<LocalFile>;
+  deleted: Array<File>;
+  modified: Map<LocalFile, File>;
+  unmodified: Array<LocalFile>;
+  dangled: Map<LocalFile, File>;
+  total: number;
+};
 
 type TProps = {
   local: LocalTree;
-  remote: NewRemoteTree;
+  remote: RemoteTree;
 };
 
 export function calculateFilesDiff({ local, remote }: TProps) {

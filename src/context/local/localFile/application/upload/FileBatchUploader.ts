@@ -2,13 +2,14 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
-import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
 import { isFatalError } from '../../../../../apps/shared/issues/SyncErrorCause';
 import Logger from 'electron-log';
 import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 import { logger } from '@/apps/shared/logger/logger';
 import { onFileCreated } from '@/apps/main/fordwardToWindows';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
+import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
+import { pathUtils } from '../../infrastructure/AbsolutePath';
 
 @Service()
 export class FileBatchUploader {
@@ -65,11 +66,10 @@ export class FileBatchUploader {
               return;
             }
 
-            Logger.info('[Local File Uploader] Uploading file', localRootPath);
+            const parentPath = pathUtils.dirname(localFile.relativePath);
+            const parent = remoteTree.folders[parentPath];
 
-            const parent = remoteTree.getParent(localFile.relativePath);
-
-            logger.debug({ msg: 'Uploading file', remotePath: localFile.relativePath, parent });
+            logger.debug({ msg: 'Uploading file', remotePath: localFile.relativePath });
 
             const file = await this.creator.run({
               contentsId,
@@ -79,7 +79,12 @@ export class FileBatchUploader {
               size: localFile.size.value,
             });
 
-            logger.info({ tag: 'BACKUPS', msg: 'File created', file });
+            logger.info({
+              tag: 'BACKUPS',
+              msg: 'File created',
+              relativePath: file.path,
+              contentsId: file.contentsId,
+            });
 
             await onFileCreated({
               bucket: context.backupsBucket,
@@ -89,8 +94,6 @@ export class FileBatchUploader {
               fileId: file.id,
               path: localFile.absolutePath,
             });
-
-            remoteTree.addFile(parent, file);
           } catch (error: any) {
             logger.error({
               tag: 'BACKUPS',

@@ -5,7 +5,7 @@ type TPromise<T> = Promise<{ data: T; error?: undefined } | { data?: undefined; 
 
 type TProps<T> = {
   promise: () => TPromise<T>;
-  loggerBody: TLoggerBody;
+  loggerBody?: TLoggerBody;
   maxRetries?: number;
   sleepMs?: number;
   retry?: number;
@@ -18,7 +18,9 @@ export async function retryWrapper<T>({ promise, loggerBody, maxRetries = 3, sle
 
   if (retry >= maxRetries) return { error };
 
-  logger.debug({ ...loggerBody, retry });
+  if (loggerBody) {
+    logger.debug({ ...loggerBody, retry });
+  }
 
   await sleep(sleepMs);
   return await retryWrapper({

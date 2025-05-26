@@ -1,6 +1,6 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
-import { RemoteTree } from '../../../../../apps/backups/remote-tree/domain/RemoteTree';
+import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { EnvironmentLocalFileUploader } from '../../infrastructure/EnvironmentLocalFileUploader';
 import { simpleFileOverride } from '@/context/virtual-drive/files/application/override/SimpleFileOverrider';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
@@ -20,14 +20,15 @@ export class FileBatchUpdater {
       const contentsId = upload.getRight();
 
       if (!contentsId) {
-        return;
+        continue;
       }
 
-      const file = remoteTree.get(localFile.relativePath);
+      const file = remoteTree.files[localFile.relativePath];
 
-      if (file.isFolder()) {
-        throw new Error(`Expected file, found folder on ${file.path}`);
-      }
+      /**
+       * v2.5.3 Daniel Jiménez
+       * TODO: Check file can be null or contentsId maybe continue???
+       */
 
       await simpleFileOverride(file, contentsId, localFile.size.value);
     }
