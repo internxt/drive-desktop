@@ -4,6 +4,7 @@ import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 import { logger } from '../shared/logger/logger';
 import { debouncedSynchronization } from './remote-sync/handlers';
+import { addGeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -52,6 +53,10 @@ export function cleanAndStartRemoteNotifications() {
 
   socket.on('connect', () => {
     logger.debug({ msg: 'Remote notifications connected' });
+    removeGeneralIssue({
+      error: 'WEBSOCKET_CONECTION_ERROR',
+      name: 'Remote notifications',
+    });
   });
 
   socket.on('disconnect', (reason) => {
@@ -60,6 +65,10 @@ export function cleanAndStartRemoteNotifications() {
 
   socket.on('connect_error', () => {
     logger.warn({ msg: 'Remote notifications connect error' });
+    addGeneralIssue({
+      error: 'WEBSOCKET_CONECTION_ERROR',
+      name: 'Remote notifications',
+    });
   });
 
   socket.on('event', async (data) => {
