@@ -51,7 +51,7 @@ export class BindingsManager {
       notifyDeleteCallback: (placeholderId: string, callback: (response: boolean) => void) => {
         try {
           logger.debug({ msg: 'Path received in notifyDeleteCallback', placeholderId });
-          this.controllers.delete.execute(placeholderId);
+          void this.controllers.delete.execute(placeholderId);
           void ipcRenderer.invoke('DELETE_ITEM_DRIVE', placeholderId);
           callback(true);
         } catch (error) {
