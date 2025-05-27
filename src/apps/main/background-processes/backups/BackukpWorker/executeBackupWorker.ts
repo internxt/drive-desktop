@@ -11,12 +11,7 @@ export function executeBackupWorker(tracker: BackupsProcessTracker, context: Bac
         resolve('forced-by-user');
       });
 
-      const error = await backupFolder(tracker, context);
-
-      if (error) {
-        context.abortController.abort();
-        resolve(error.cause);
-      }
+      await backupFolder(tracker, context);
 
       resolve('backup-completed');
     } catch (error) {
