@@ -13,7 +13,7 @@ export type QueueItem = {
   fileId?: string;
 };
 
-export type HandleAction = (task: QueueItem) => Promise<void>;
+export type HandleAction = (task: QueueItem) => Promise<void> | void;
 
 export type HandleActions = {
   [key in typeQueue]: HandleAction;
