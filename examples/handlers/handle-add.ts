@@ -4,7 +4,7 @@ import { v4 } from 'uuid';
 
 import { QueueItem } from '@/node-win/queue/queueManager';
 
-export const handleAdd =  (task: QueueItem) => {
+export const handleAdd = (task: QueueItem) => {
   try {
     logger.debug({ msg: 'handleAdd', task });
     const id = task.isFolder ? v4() : addInfoItem(task.path);
