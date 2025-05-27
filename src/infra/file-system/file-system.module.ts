@@ -1,6 +1,5 @@
-import { stat, StatError } from './services/stat';
+import { stat } from './services/stat';
 
 export const fileSystem = {
   stat,
-  StatError,
 };
