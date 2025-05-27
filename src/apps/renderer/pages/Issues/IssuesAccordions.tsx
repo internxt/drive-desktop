@@ -1,16 +1,15 @@
-import { BackupErrorsCollection } from '../../../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors';
-import { AppIssue } from '../../../shared/issues/AppIssue';
 import { BackupsIssues } from './BackupErrors';
 import { GeneralIssuesByErrorAccordion } from './GeneralIssuesByErrorAccordion';
 import { NoIssues } from './NoIssues';
 import { Section } from './Section';
 import { SyncIssuesByError } from './SyncIssuesByError';
-import { Issue } from '@/apps/main/background-processes/issues';
+import { GeneralIssue, Issue } from '../../../main/background-processes/issues';
+import { BackupErrorsCollection } from '../../../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors';
 
 type IssuesAccordionsProps = {
   selectedTab: Section;
   issues: {
-    app: AppIssue[];
+    app: GeneralIssue[];
     virtualDrive: Issue[];
     backups: BackupErrorsCollection;
   };
