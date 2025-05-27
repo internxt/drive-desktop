@@ -24,7 +24,7 @@ const handlers = { handleAdd, handleHydrate, handleDehydrate, handleChangeSize }
 
 const queueManager = new QueueManager({ handlers, persistPath: settings.queuePersistPath });
 
-drive.registerSyncRoot({
+void drive.registerSyncRoot({
   providerName: settings.driveName,
   providerVersion: settings.driveVersion,
   logoPath: settings.iconPath,
