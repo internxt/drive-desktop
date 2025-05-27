@@ -1,11 +1,9 @@
-import { ipcMain, Notification } from 'electron';
+import { Notification } from 'electron';
 import Logger from 'electron-log';
 
 import eventBus from '../event-bus';
-import { broadcastToWindows } from '../windows';
-import { GeneralIssue } from '../../shared/types';
 import path from 'path';
-import { clearIssues } from './issues';
+import { clearGeneralIssues, clearIssues } from './issues';
 
 let lastDialogTime = 0;
 
@@ -33,28 +31,6 @@ export function showNotEnoughSpaceNotification() {
    * TODO: Notification is not working
    */
   notification.show();
-}
-
-let generalIssues: GeneralIssue[] = [];
-
-export function getGeneralIssues() {
-  return generalIssues;
-}
-
-ipcMain.handle('get-general-issues', getGeneralIssues);
-
-function onGeneralIssuesChanged() {
-  broadcastToWindows('general-issues-changed', generalIssues);
-}
-
-export function clearGeneralIssues() {
-  generalIssues = [];
-  onGeneralIssuesChanged();
-}
-
-export function addGeneralIssue(issue: GeneralIssue) {
-  generalIssues.push(issue);
-  onGeneralIssuesChanged();
 }
 
 eventBus.on('USER_LOGGED_OUT', () => {

@@ -17,10 +17,9 @@ declare interface Window {
       debug: (rawBody: import('@/apps/shared/logger/logger').TLoggerBody) => void;
     };
 
-    getGeneralIssues: () => Promise<import('../../apps/shared/types').GeneralIssue[]>;
+    getGeneralIssues: () => Promise<import('../main/background-processes/issues').GeneralIssue[]>;
 
-    onGeneralIssuesChanged: (func: (value: import('../../apps/shared/types').GeneralIssue[]) => void) => () => void;
-
+    onGeneralIssuesChanged: (func: (value: import('../main/background-processes/issues').GeneralIssue[]) => void) => () => void;
     onSyncStopped: (func: (value: import('../../context/desktop/sync/domain/SyncStoppedPayload').SyncStoppedPayload) => void) => () => void;
 
     getIssues(): Promise<import('./background-processes/issues').Issue[]>;
