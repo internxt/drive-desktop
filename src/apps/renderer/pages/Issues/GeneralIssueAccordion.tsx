@@ -1,5 +1,5 @@
 import { type FC } from 'react';
-import { GeneralIssue, GeneralIssueError } from 'src/apps/main/background-processes/issues';
+import { GeneralIssue } from 'src/apps/main/background-processes/issues';
 import WarnIcon from 'src/apps/renderer/assets/warn.svg';
 import { generalErrors } from 'src/apps/renderer/messages/general-error';
 import { CaretDown } from 'phosphor-react';
@@ -7,12 +7,12 @@ import FileIcon from 'src/apps/renderer/assets/file.svg';
 import { AnimatePresence, motion } from 'framer-motion';
 
 interface Props {
-  errorName: GeneralIssueError;
+  errorName: GeneralIssue['error'];
   extend: boolean;
   issues: Array<GeneralIssue>;
 }
 
-const GeneralIssueAccordion: FC<Props> = ({ extend, errorName, issues }) => {
+export const GeneralIssueAccordion: FC<Props> = ({ extend, errorName, issues }) => {
   return (
     <>
       <div className="flex space-x-2.5" key={errorName}>
@@ -49,5 +49,3 @@ const GeneralIssueAccordion: FC<Props> = ({ extend, errorName, issues }) => {
     </>
   );
 };
-
-export default GeneralIssueAccordion;

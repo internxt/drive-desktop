@@ -1,18 +1,13 @@
 import { useState } from 'react';
 
-import { GeneralIssue, GeneralIssueError } from '../../../main/background-processes/issues';
+import { GeneralIssue } from '../../../main/background-processes/issues';
 
-import GeneralIssueAccordion from '../Issues/GeneralIssueAccordion';
+import { GeneralIssueAccordion } from '../Issues/GeneralIssueAccordion';
 
 type AppIssueElementProps = {
   issues: Array<GeneralIssue>;
 };
-/*
- * v2.5.3 Alexis Mora
- * This function has to be here because it we add it to issues
- * the app tries to import it from the main process
- * which is not possible
- * */
+
 export function groupGeneralIssuesByErrorName(issues: GeneralIssue[]) {
   const generalIssuesGroupedByError = issues.reduce(
     (acc, current) => {
@@ -26,22 +21,22 @@ export function groupGeneralIssuesByErrorName(issues: GeneralIssue[]) {
 
       return acc;
     },
-    {} as Record<GeneralIssueError, GeneralIssue[]>,
+    {} as Record<GeneralIssue['error'], GeneralIssue[]>,
   );
 
-  return Object.entries(generalIssuesGroupedByError) as Array<[GeneralIssueError, Array<GeneralIssue>]>;
+  return Object.entries(generalIssuesGroupedByError) as Array<[GeneralIssue['error'], Array<GeneralIssue>]>;
 }
 
 export function GeneralIssuesByErrorAccordion({ issues }: AppIssueElementProps) {
-  const [selected, setSelected] = useState<GeneralIssueError | null>(null);
+  const [selected, setSelected] = useState<GeneralIssue['error'] | null>(null);
 
   const issuesByErrorNameArray = groupGeneralIssuesByErrorName(issues);
 
-  const isSelected = (errorName: GeneralIssueError) => {
+  const isSelected = (errorName: GeneralIssue['error']) => {
     return errorName === selected;
   };
 
-  const toggleOrSelectError = (clickedError: GeneralIssueError) => () => {
+  const toggleOrSelectError = (clickedError: GeneralIssue['error']) => () => {
     setSelected(clickedError === selected ? null : clickedError);
   };
 

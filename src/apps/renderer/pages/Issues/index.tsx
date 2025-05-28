@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import WindowTopBar from '../../components/WindowTopBar';
 import { useTranslationContext } from '../../context/LocalContext';
 import useBackupErrors from '../../hooks/backups/useBackupErrors';
-import useGeneralIssues from '../../hooks/GeneralIssues';
+import { useGeneralIssues } from '../../hooks/GeneralIssues';
 import IssuesAccordions from './IssuesAccordions';
 import { IssuesTabs } from './IssuesTabs';
 import { Section } from './Section';

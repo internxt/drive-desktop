@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { GeneralIssue } from '../../shared/types';
+import { GeneralIssue } from '@/apps/main/background-processes/issues';
 
-export default function useGeneralIssues() {
+export function useGeneralIssues() {
   const [generalIssues, setGeneralIssues] = useState<GeneralIssue[]>([]);
 
   useEffect(() => {

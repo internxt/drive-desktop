@@ -3,7 +3,7 @@ import {
   ProcessErrorName,
   ProcessIssue,
 } from '@/apps/shared/types';
-import { GeneralIssue, GeneralIssueError } from '@/apps/main/background-processes/issues';
+import { GeneralIssue} from '@/apps/main/background-processes/issues';
 
 export const createBackupFatalError = (errorName: ProcessFatalErrorName) => ({
   path: `folder/file${Date.now()}.txt`,
@@ -22,7 +22,7 @@ export const createSyncError = (
 });
 
 export const createGeneralIssueFixture = (
-  name: GeneralIssueError
+  name: GeneralIssue['error']
 ): GeneralIssue => ({
   tab: 'general',
   error: name,

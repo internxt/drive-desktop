@@ -22,19 +22,13 @@ export type BackupsIssue = {
     | 'UNKNOWN';
 };
 
-export type GeneralIssueError = 'UNKNOWN_DEVICE_NAME' | 'WEBSOCKET_CONECTION_ERROR';
-
 export type GeneralIssue = {
   tab: 'general';
   name: string;
-  error: GeneralIssueError;
+  error: 'UNKNOWN_DEVICE_NAME' | 'WEBSOCKET_CONNECTION_ERROR';
 };
 
 export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
-
-export function isGeneralIssue(issue: Issue): issue is GeneralIssue {
-  return issue.tab === 'general';
-}
 
 export let issues: Issue[] = [];
 
@@ -80,8 +74,8 @@ export function clearBackupsIssues() {
   onIssuesChanged();
 }
 
-export function getGeneralIssues(): Array<GeneralIssue> {
-  return issues.filter(isGeneralIssue);
+export function getGeneralIssues() {
+  return issues.filter((issue) => issue.tab === 'general');
 }
 
 export function onGeneralIssuesChanged() {
@@ -89,7 +83,7 @@ export function onGeneralIssuesChanged() {
 }
 
 export function clearGeneralIssues() {
-  issues = issues.filter((i) => !isGeneralIssue(i));
+  issues = issues.filter((i) => i.tab !== 'general');
   onGeneralIssuesChanged();
 }
 
@@ -107,7 +101,7 @@ export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
   const initialLength = issues.length;
 
   issues = issues.filter((i) => {
-    return !(isGeneralIssue(i) && i.error === issue.error);
+    return !(i.tab === 'general' && i.error === issue.error);
   });
 
   if (issues.length < initialLength) {

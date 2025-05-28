@@ -54,7 +54,7 @@ export function cleanAndStartRemoteNotifications() {
   socket.on('connect', () => {
     logger.debug({ msg: 'Remote notifications connected' });
     removeGeneralIssue({
-      error: 'WEBSOCKET_CONECTION_ERROR',
+      error: 'WEBSOCKET_CONNECTION_ERROR',
       name: 'Remote notifications',
     });
   });
@@ -66,7 +66,7 @@ export function cleanAndStartRemoteNotifications() {
   socket.on('connect_error', () => {
     logger.warn({ msg: 'Remote notifications connect error' });
     addGeneralIssue({
-      error: 'WEBSOCKET_CONECTION_ERROR',
+      error: 'WEBSOCKET_CONNECTION_ERROR',
       name: 'Remote notifications',
     });
   });
