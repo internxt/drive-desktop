@@ -28,7 +28,7 @@ export class FolderPlaceholderDeleter {
     const hasToBeDeleted = this.hasToBeDeleted(remote);
 
     if (hasToBeDeleted) {
-      await this.virtualDrive.deleteFileSyncRoot({ path: remote.path });
+      this.virtualDrive.deleteFileSyncRoot({ path: remote.path });
     }
   }
 
