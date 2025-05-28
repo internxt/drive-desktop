@@ -3,7 +3,7 @@ import { v4 } from 'uuid';
 
 import { QueueItem } from '@/node-win/queue/queueManager';
 
-export const handleChangeSize = async (task: QueueItem) => {
+export const handleChangeSize = (task: QueueItem) => {
   try {
     logger.debug({ msg: 'handleChangeSize', path: task.path });
     const id = v4();

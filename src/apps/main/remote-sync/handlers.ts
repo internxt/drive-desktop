@@ -83,10 +83,9 @@ ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
   Logger.info('Updating fixed files', inputData);
   await updateFileInBatch({ itemsId: inputData.toUpdate, file: { isDangledStatus: false } });
   await deleteFileInBatch(inputData.toDelete);
-  return;
 });
 
-ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async (_, workspaceId: string) => {
+ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', (_, workspaceId: string) => {
   logger.debug({
     tag: 'SYNC-ENGINE',
     msg: 'Getting updated remote items',
@@ -171,7 +170,7 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
   await updateAllRemoteSync();
 });
 
-ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', async (_, workspaceId = '') => {
+ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', (_, workspaceId = '') => {
   Logger.info('[Get UnSync] Received Get UnSync File event');
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');

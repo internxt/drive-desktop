@@ -133,7 +133,7 @@ export class BindingsManager {
 
     this.stop();
 
-    await this.container.virtualDrive.registerSyncRoot({
+    this.container.virtualDrive.registerSyncRoot({
       providerName: this.PROVIDER_NAME,
       providerVersion: version,
       logoPath: this.paths.icon,
