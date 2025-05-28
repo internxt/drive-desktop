@@ -1,7 +1,7 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
-import { Issue } from '@/apps/main/background-processes/issues';
+import { SyncIssue } from '@/apps/main/background-processes/issues';
 
 type ProcessInfo = {
   elapsedTime: number;
@@ -53,9 +53,8 @@ type SyncEngineInvocableFunctions = {
   USER_IS_UNAUTHORIZED: () => void;
 };
 
-// TODO: change how errors are reported to the ui
 type ProcessInfoUpdate = {
-  ADD_ISSUE: (payload: Issue) => void;
+  ADD_SYNC_ISSUE: (payload: Omit<SyncIssue, 'tab'>) => void;
   CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
 };
 

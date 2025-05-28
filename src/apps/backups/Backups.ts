@@ -30,16 +30,8 @@ export class Backup {
 
   backed = 0;
 
-  async run(tracker: BackupsProcessTracker, context: BackupsContext): Promise<DriveDesktopError | undefined> {
-    const localTreeEither = await LocalTreeBuilder.run(context.pathname as AbsolutePath);
-
-    if (localTreeEither.isLeft()) {
-      logger.warn({ msg: 'Error building local tree', error: localTreeEither.getLeft() });
-      return localTreeEither.getLeft();
-    }
-
-    const local = localTreeEither.getRight();
-
+  async run(tracker: BackupsProcessTracker, context: BackupsContext) {
+    const local = await LocalTreeBuilder.run(context.pathname as AbsolutePath);
     const remote = await new Traverser().run({ context });
 
     const foldersDiff = calculateFoldersDiff({ local, remote });
@@ -100,10 +92,7 @@ export class Backup {
     tracker.currentProcessed(alreadyBacked);
 
     await this.backupFolders(context, tracker, foldersDiff, local, remote);
-
     await this.backupFiles(context, tracker, filesDiff, local, remote);
-
-    return;
   }
 
   private async backupFolders(

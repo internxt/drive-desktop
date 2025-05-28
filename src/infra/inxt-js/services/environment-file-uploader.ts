@@ -1,28 +1,43 @@
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { Service } from 'diod';
 import { createReadStream } from 'fs';
-import { Stopwatch } from '../../../../apps/shared/types/Stopwatch';
-import { AbsolutePath } from './AbsolutePath';
 import { Environment } from '@internxt/inxt-js/build';
-import { Either, left, right } from '../../../shared/domain/Either';
-import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
-import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { Stopwatch } from '@/apps/shared/types/Stopwatch';
+
+const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
+
+class EnvironmentFileUploaderError extends Error {
+  constructor(
+    public readonly cause: 'KILLED_BY_USER' | 'NOT_ENOUGH_SPACE' | 'UNKNOWN',
+    public readonly originalError?: unknown,
+  ) {
+    super();
+  }
+}
+
+type TProps = {
+  path: AbsolutePath;
+  size: number;
+  abortSignal: AbortSignal;
+};
 
 @Service()
-export class EnvironmentLocalFileUploader {
-  private static MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
-
+export class EnvironmentFileUploader {
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
   ) {}
 
-  upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string | null>> {
-    const useMultipartUpload = size > EnvironmentLocalFileUploader.MULTIPART_UPLOAD_SIZE_THRESHOLD;
+  upload({
+    path,
+    size,
+    abortSignal,
+  }: TProps): Promise<{ data: string; error?: undefined } | { data?: undefined; error: EnvironmentFileUploaderError }> {
+    const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
     logger.debug({
-      tag: 'BACKUPS',
       msg: 'Uploading file to the bucket',
       path,
       bucket: this.bucket,
@@ -39,7 +54,7 @@ export class EnvironmentLocalFileUploader {
 
     stopwatch.start();
 
-    return new Promise<Either<DriveDesktopError, string | null>>((resolve) => {
+    return new Promise((resolve) => {
       const state = fn(this.bucket, {
         source: readable,
         fileSize: size,
@@ -48,9 +63,16 @@ export class EnvironmentLocalFileUploader {
 
           if (err) {
             if (err.message === 'Process killed by user') {
-              return resolve(right(null));
+              return resolve({ error: new EnvironmentFileUploaderError('KILLED_BY_USER', err) });
             } else if (err.message === 'Max space used') {
-              return resolve(left(new DriveDesktopError('NOT_ENOUGH_SPACE')));
+              logger.warn({
+                msg: 'Failed to upload file to the bucket. Not enough space',
+                path,
+                bucket: this.bucket,
+                error: err,
+              });
+
+              return resolve({ error: new EnvironmentFileUploaderError('NOT_ENOUGH_SPACE', err) });
             } else {
               logger.error({
                 msg: 'Failed to upload file to the bucket',
@@ -59,15 +81,14 @@ export class EnvironmentLocalFileUploader {
                 error: err,
               });
 
-              return resolve(left(new DriveDesktopError('UNKNOWN')));
+              return resolve({ error: new EnvironmentFileUploaderError('UNKNOWN', err) });
             }
           }
 
-          resolve(right(contentsId));
+          resolve({ data: contentsId });
         },
         progressCallback: (progress: number) => {
           logger.debug({
-            tag: 'BACKUPS',
             msg: 'Uploading file to the bucket',
             path,
             bucket: this.bucket,
@@ -78,7 +99,6 @@ export class EnvironmentLocalFileUploader {
 
       abortSignal.addEventListener('abort', () => {
         logger.debug({
-          tag: 'BACKUPS',
           msg: 'Aborting upload',
           path,
         });
@@ -87,9 +107,5 @@ export class EnvironmentLocalFileUploader {
         readable.destroy();
       });
     });
-  }
-
-  async delete(contentsId: string) {
-    await driveServerWipModule.files.deleteContentFromBucket({ bucketId: this.bucket, contentId: contentsId });
   }
 }
