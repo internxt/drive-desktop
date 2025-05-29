@@ -17,9 +17,6 @@ declare interface Window {
       debug: (rawBody: import('@/apps/shared/logger/logger').TLoggerBody) => void;
     };
 
-    getGeneralIssues: () => Promise<import('../main/background-processes/issues').GeneralIssue[]>;
-
-    onGeneralIssuesChanged: (func: (value: import('../main/background-processes/issues').GeneralIssue[]) => void) => () => void;
     onSyncStopped: (func: (value: import('../../context/desktop/sync/domain/SyncStoppedPayload').SyncStoppedPayload) => void) => () => void;
 
     getIssues(): Promise<import('./background-processes/issues').Issue[]>;
@@ -31,22 +28,6 @@ declare interface Window {
     getItemByFolderUuid(folderUuid: string): Promise<import('../shared/types/items').ItemBackup[]>;
 
     userIsUnauthorized(): void;
-
-    getBackupFatalIssue(id: number): Promise<import('../shared/issues/SyncErrorCause').SyncError>;
-
-    clearBackupFatalIssue(id: number): Promise<void>;
-
-    getBackupFatalErrors(): Promise<
-      import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
-    >;
-
-    onBackupFatalErrorsChanged(
-      fn: (value: import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection) => void,
-    ): () => void;
-
-    getLastBackupExitReason: () => Promise<
-      import('../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker').WorkerExitCause
-    >;
 
     downloadBackup: typeof import('../main/device/service').downloadBackup;
 

@@ -1,14 +1,9 @@
-import { ipcMain } from 'electron';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
 import { BackupsIPCMain } from '../BackupsIpc';
 import { BackupsProgress } from '../types/BackupsProgress';
 import { IndividualBackupProgress } from '../types/IndividualBackupProgress';
-import { ProcessFatalErrorName } from '../BackupFatalErrors/BackupFatalErrors';
-import { isSyncError } from '../../../../shared/issues/SyncErrorCause';
 import { logger } from '@/apps/shared/logger/logger';
-
-export type WorkerExitCause = 'forced-by-user' | 'backup-completed' | ProcessFatalErrorName;
 
 export class BackupsProcessTracker {
   private processed = 0;
@@ -19,8 +14,6 @@ export class BackupsProcessTracker {
     processed: 0,
   };
 
-  private lastExistReason: WorkerExitCause | undefined;
-  private exitReasons: Map<number, WorkerExitCause> = new Map();
   private abortController: AbortController | undefined;
 
   private notify() {
@@ -57,10 +50,6 @@ export class BackupsProcessTracker {
     this.notify();
   }
 
-  getLastExistReason() {
-    return this.lastExistReason;
-  }
-
   backing() {
     this.processed++;
 
@@ -80,20 +69,6 @@ export class BackupsProcessTracker {
     return this.total;
   }
 
-  backupFinished(id: number, reason: WorkerExitCause) {
-    this.exitReasons.set(id, reason);
-    this.lastExistReason = reason;
-  }
-
-  getExitReason(id: number): WorkerExitCause | undefined {
-    return this.exitReasons.get(id);
-  }
-
-  clearExistReason(id: number) {
-    this.lastExistReason = undefined;
-    this.exitReasons.delete(id);
-  }
-
   reset() {
     this.processed = 0;
     this.total = 0;
@@ -109,26 +84,6 @@ export class BackupsProcessTracker {
 export function initiateBackupsProcessTracker(): BackupsProcessTracker {
   const tracker = new BackupsProcessTracker();
 
-  ipcMain.handle('get-last-backup-exit-reason', () => {
-    return tracker.getLastExistReason();
-  });
-
-  void BackupsIPCMain.handle('backups.get-backup-issues', (_: unknown, id: number) => {
-    const reason = tracker.getExitReason(id);
-
-    if (reason !== undefined && isSyncError(reason)) {
-      return reason;
-    }
-
-    return undefined;
-  });
-  BackupsIPCMain.on('backups.clear-backup-issues', (_: unknown, id: number) => {
-    const reason = tracker.getExitReason(id);
-
-    if (reason !== undefined && isSyncError(reason)) {
-      tracker.clearExistReason(id);
-    }
-  });
   BackupsIPCMain.on('backups.get-last-progress', () => {
     // si hat un backup en progreso entonces notificar el progreso
     if (tracker.currentIndex() > 0) {
