@@ -4,6 +4,7 @@ import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
 import { logger } from '../shared/logger/logger';
 import { debouncedSynchronization } from './remote-sync/handlers';
+import { NOTIFICATION_SCHEMA } from './notification-schema';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -73,15 +74,19 @@ export function cleanAndStartRemoteNotifications() {
       user = getUser();
     }
 
-    if (data.payload.bucket !== user?.backupsBucket) {
+    const parsedData = await NOTIFICATION_SCHEMA.safeParseAsync(data);
+
+    if (parsedData.success && parsedData.data.clientId === 'drive-desktop') {
+      const { data } = parsedData;
+      logger.debug({
+        msg: 'Notification received',
+        event: data.event,
+        clientId: data.clientId,
+      });
+    } else {
       logger.info({ msg: 'Notification received', data });
       await debouncedSynchronization();
-      return;
     }
-
-    const { event, payload } = data;
-
-    logger.info({ msg: 'Notification received 2', event, payload });
   });
 }
 
