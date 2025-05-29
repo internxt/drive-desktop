@@ -13,8 +13,5 @@ export async function backupFolder(tracker: BackupsProcessTracker, context: Back
   // });
 
   const backup = container.get(Backup);
-
-  const error = await backup.run(tracker, context);
-
-  return error;
+  await backup.run(tracker, context);
 }

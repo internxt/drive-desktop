@@ -69,7 +69,7 @@ export class Addon {
     return this.parseAddonZod('getFileIdentity', result);
   }
 
-  async deleteFileSyncRoot({ path }: { path: string }) {
+  deleteFileSyncRoot({ path }: { path: string }) {
     return addon.deleteFileSyncRoot(path);
   }
 

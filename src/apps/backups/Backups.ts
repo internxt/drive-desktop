@@ -30,7 +30,7 @@ export class Backup {
 
   backed = 0;
 
-  async run(tracker: BackupsProcessTracker, context: BackupsContext): Promise<DriveDesktopError | undefined> {
+  async run(tracker: BackupsProcessTracker, context: BackupsContext) {
     const local = await LocalTreeBuilder.run(context.pathname as AbsolutePath);
     const remote = await new Traverser().run({ context });
 
@@ -92,10 +92,7 @@ export class Backup {
     tracker.currentProcessed(alreadyBacked);
 
     await this.backupFolders(context, tracker, foldersDiff, local, remote);
-
     await this.backupFiles(context, tracker, filesDiff, local, remote);
-
-    return;
   }
 
   private async backupFolders(

@@ -4,7 +4,30 @@ import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFileDTO } from './LocalFileDTO';
 import { LocalFolderDTO } from './LocalFolderDTO';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { addBackupsIssue } from '@/apps/main/background-processes/issues';
+import { addBackupsIssue, BackupsIssue } from '@/apps/main/background-processes/issues';
+import { StatError } from '@/infra/file-system/services/stat';
+
+function parseRootStatError({ error }: { error: StatError }): BackupsIssue['error'] {
+  switch (error.cause) {
+    case 'NON_EXISTS':
+      return 'ROOT_FOLDER_DOES_NOT_EXIST';
+    case 'NO_ACCESS':
+      return 'ROOT_FOLDER_DOES_NOT_EXIST';
+    default:
+      return error.cause;
+  }
+}
+
+function parseItemStatError({ error }: { error: StatError }): BackupsIssue['error'] {
+  switch (error.cause) {
+    case 'NON_EXISTS':
+      return 'FOLDER_DOES_NOT_EXIST';
+    case 'NO_ACCESS':
+      return 'FOLDER_ACCESS_DENIED';
+    default:
+      return error.cause;
+  }
+}
 
 export class CLSFsLocalItemsGenerator {
   static async root(absolutePath: string) {
@@ -13,8 +36,7 @@ export class CLSFsLocalItemsGenerator {
     if (error) {
       addBackupsIssue({
         name: absolutePath,
-        error:
-          error.cause === 'NON_EXISTS' ? 'ROOT_FOLDER_DOES_NOT_EXIST' : error.cause === 'NO_ACCESS' ? 'FOLDER_ACCESS_DENIED' : error.cause,
+        error: parseRootStatError({ error }),
       });
 
       throw error;
@@ -46,8 +68,7 @@ export class CLSFsLocalItemsGenerator {
       if (error) {
         addBackupsIssue({
           name: absolutePath,
-          error:
-            error.cause === 'NON_EXISTS' ? 'FOLDER_DOES_NOT_EXIST' : error.cause === 'NO_ACCESS' ? 'FOLDER_ACCESS_DENIED' : error.cause,
+          error: parseItemStatError({ error }),
         });
 
         return acc;
