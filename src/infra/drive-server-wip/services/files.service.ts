@@ -113,7 +113,7 @@ export class FilesService {
     return this.clientWrapper.run({
       promise,
       loggerBody: {
-        msg: 'Get files request was not successful',
+        msg: 'Create thumbnail request was not successful',
         context,
         attributes: {
           method: 'POST',
