@@ -43,7 +43,7 @@ export default function IssuesPage() {
         issues={{
           app: generalIssues,
           virtualDrive: syncIssues,
-          backups: backupIssues,
+          backups: backupIssues as any,
         }}
       />
     </div>
