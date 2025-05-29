@@ -6,7 +6,7 @@ import bytes from 'bytes';
 import { User } from '../../../main/types';
 import { useTranslationContext } from '../../context/LocalContext';
 // import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
-import useGeneralIssues from '../../hooks/GeneralIssues';
+import { useGeneralIssues } from '../../hooks/GeneralIssues';
 import useUsage from '../../hooks/useUsage';
 import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/sentry';
