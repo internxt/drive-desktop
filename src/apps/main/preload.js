@@ -94,15 +94,6 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  getGeneralIssues() {
-    return ipcRenderer.invoke('get-general-issues');
-  },
-  onGeneralIssuesChanged(func) {
-    const eventName = 'general-issues-changed';
-    const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-    return () => ipcRenderer.removeListener(eventName, callback);
-  },
   getIssues() {
     return ipcRenderer.invoke('get-issues');
   },
@@ -195,12 +186,6 @@ contextBridge.exposeInMainWorld('electron', {
   getBackups() {
     return ipcRenderer.invoke('get-backups');
   },
-  getBackupFatalIssue(id) {
-    return ipcRenderer.invoke('backups.get-backup-issues', id);
-  },
-  clearBackupFatalIssue(id) {
-    return ipcRenderer.send('backups.clear-backup-issues', id);
-  },
   devices: {
     getDevices: () => {
       return ipcRenderer.invoke('devices.get-all');
@@ -253,24 +238,12 @@ contextBridge.exposeInMainWorld('electron', {
   abortDownloadBackups(deviceUuid) {
     return ipcRenderer.send('abort-download-backups-' + deviceUuid, deviceUuid);
   },
-  getBackupFatalErrors() {
-    return ipcRenderer.invoke('get-backup-fatal-errors');
-  },
   getItemByFolderUuid(folderUuid) {
     return ipcRenderer.invoke('get-item-by-folder-uuid', folderUuid);
   },
 
   deleteBackupError(folderId) {
     return ipcRenderer.invoke('delete-backup-error', folderId);
-  },
-  onBackupFatalErrorsChanged(func) {
-    const eventName = 'backup-fatal-errors-changed';
-    const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-    return () => ipcRenderer.removeListener(eventName, callback);
-  },
-  getLastBackupExitReason() {
-    return ipcRenderer.invoke('get-last-backup-exit-reason');
   },
   downloadBackup(backup, folderUuids) {
     return ipcRenderer.invoke('download-backup', backup, folderUuids);

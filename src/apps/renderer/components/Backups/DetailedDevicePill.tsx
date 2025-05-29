@@ -7,6 +7,7 @@ import { LastBackupMade } from './LastBackupMade';
 import { ShowBackupsIssues } from './ShowBackupsIssues';
 import { DeviceContext } from '../../context/DeviceContext';
 import { BackupContext } from '../../context/BackupContext';
+import { useIssues } from '../../hooks/useIssues';
 
 interface DetailedDevicePillProps {
   showIssues: () => void;
@@ -31,7 +32,8 @@ function DownloadingBackup() {
 export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const { thereIsProgress, percentualProgress, clearProgress } = useBackupProgress();
   const { current, selected } = useContext(DeviceContext);
-  const { lastBackupHadIssues, backups, backupStatus, downloadProgress, thereIsDownloadProgress } = useContext(BackupContext);
+  const { backupStatus, downloadProgress, thereIsDownloadProgress } = useContext(BackupContext);
+  const { backupIssues } = useIssues();
 
   useEffect(() => {
     if (backupStatus === 'STANDBY') {
@@ -39,7 +41,7 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
     }
   }, [backupStatus]);
 
-  const displayIssues = backups.length !== 0 && lastBackupHadIssues;
+  const displayIssues = backupIssues.length > 0;
 
   return (
     <div className="rounded-lg  border border-gray-10 bg-surface px-6 py-4 shadow-sm dark:bg-gray-5">
