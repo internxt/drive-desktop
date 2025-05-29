@@ -3,15 +3,15 @@ import { CLSFsLocalItemsGenerator } from './FsLocalItemsGenerator';
 import { join } from 'path';
 import { v4 } from 'uuid';
 import { mkdir, rm, writeFile } from 'fs/promises';
-import { addBackupsIssue } from '@/apps/main/background-processes/issues';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
+import { mockDeep } from 'vitest-mock-extended';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 
 vi.mock(import('@/apps/main/background-processes/issues'));
 vi.mock(import('@/infra/file-system/file-system.module'));
 
 describe('CLSFsLocalItemsGenerator', () => {
-  const addBackupsIssueMock = vi.mocked(addBackupsIssue);
   const statMock = deepMocked(fileSystem.stat);
 
   const folder = join(TEST_FILES, v4());
@@ -24,6 +24,9 @@ describe('CLSFsLocalItemsGenerator', () => {
   const file2 = join(folder, 'file2');
   const file3 = join(folder1, 'file3');
   const file4 = join(folder3, 'file4');
+
+  const context = mockDeep<BackupsContext>();
+  const props = mockProps<typeof CLSFsLocalItemsGenerator.getAll>({ dir: folder, context });
 
   beforeAll(async () => {
     await mkdir(folder);
@@ -49,7 +52,7 @@ describe('CLSFsLocalItemsGenerator', () => {
     statMock.mockResolvedValue({ data: { mtime: new Date(), size: 7 } });
 
     // When
-    const res = await CLSFsLocalItemsGenerator.getAll(folder);
+    const res = await CLSFsLocalItemsGenerator.getAll(props);
 
     // Then
     expect(res).toStrictEqual({
@@ -70,10 +73,10 @@ describe('CLSFsLocalItemsGenerator', () => {
     statMock.mockResolvedValueOnce({ error: { cause: 'NON_EXISTS' } });
 
     // When
-    const res = await CLSFsLocalItemsGenerator.getAll(folder);
+    const res = await CLSFsLocalItemsGenerator.getAll(props);
 
     // Then
-    expect(addBackupsIssueMock).toHaveBeenCalledWith({ name: file1, error: 'FOLDER_DOES_NOT_EXIST' });
+    expect(context.addIssue).toHaveBeenCalledWith({ name: file1, error: 'FOLDER_DOES_NOT_EXIST' });
     expect(res).toStrictEqual({
       files: [{ path: file2, modificationTime: expect.any(Number), size: 7 }],
       folders: [

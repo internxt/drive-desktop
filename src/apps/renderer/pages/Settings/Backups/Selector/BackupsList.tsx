@@ -41,7 +41,7 @@ export function BackupsList({ items, selected, setSelected, onDobleClick }: Back
             }
           }}
           tabIndex={0}
-          className={`flex w-full items-center overflow-hidden p-2 transition-colors duration-75 ${
+          className={`flex w-full items-center overflow-hidden px-2 pt-2 transition-colors duration-75 ${
             selected.find((item) => item.id === backup.id)
               ? 'bg-primary text-white'
               : index % 2 !== 0

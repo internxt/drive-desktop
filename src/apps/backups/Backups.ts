@@ -2,14 +2,12 @@ import { Service } from 'diod';
 import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
-import { AbsolutePath } from '../../context/local/localFile/infrastructure/AbsolutePath';
 import LocalTreeBuilder, { LocalTree } from '../../context/local/localTree/application/LocalTreeBuilder';
 import { File } from '../../context/virtual-drive/files/domain/File';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { BackupsContext } from './BackupInfo';
 import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
-import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
 import { RemoteTree, Traverser } from './remote-tree/traverser';
@@ -31,7 +29,7 @@ export class Backup {
   backed = 0;
 
   async run(tracker: BackupsProcessTracker, context: BackupsContext) {
-    const local = await LocalTreeBuilder.run(context.pathname as AbsolutePath);
+    const local = await LocalTreeBuilder.run({ context });
     const remote = await new Traverser().run({ context });
 
     const foldersDiff = calculateFoldersDiff({ local, remote });
@@ -147,13 +145,10 @@ export class Backup {
         });
       } catch (error) {
         logger.warn({
+          tag: 'BACKUPS',
           msg: 'Error uploading files',
           error,
-          tag: 'BACKUPS',
         });
-        if (error instanceof DriveDesktopError) {
-          throw error;
-        }
       }
     }
   }
@@ -175,14 +170,12 @@ export class Backup {
         await this.fileBatchUpdater.run(context, remoteTree, Array.from(batch.keys()));
       } catch (error) {
         logger.warn({
+          tag: 'BACKUPS',
           msg: 'Error updating files',
           error,
-          tag: 'BACKUPS',
         });
-        if (error instanceof DriveDesktopError) {
-          throw error;
-        }
       }
+
       this.backed += batch.size;
       tracker.currentProcessed(this.backed);
     }
