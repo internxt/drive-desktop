@@ -1,6 +1,7 @@
 import { addon } from './addon';
 import { addonZod } from './addon/addon-zod';
 import { Callbacks } from './types/callbacks.type';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class Addon {
   syncRootPath!: string;
@@ -92,7 +93,11 @@ export class Addon {
     lastAccessTime: string;
     basePath: string;
   }) {
-    return addon.createPlaceholderFile(fileName, fileId, fileSize, fileAttributes, creationTime, lastWriteTime, lastAccessTime, basePath);
+    const result = addon.createPlaceholderFile(fileName, fileId, fileSize, fileAttributes, creationTime, lastWriteTime, lastAccessTime, basePath);
+    if (!result.success) {
+      logger.error({ msg: 'Failed to create placeholder file', fileName, fileId, basePath, error: result.errorMessage, tag: 'NODE-WIN' });
+    }
+    return result.success;
   }
 
   createPlaceholderDirectory({
@@ -116,7 +121,11 @@ export class Addon {
     lastAccessTime: string;
     path: string;
   }) {
-    return addon.createEntry(itemName, itemId, isDirectory, itemSize, folderAttributes, creationTime, lastWriteTime, lastAccessTime, path);
+    const result = addon.createEntry(itemName, itemId, isDirectory, itemSize, folderAttributes, creationTime, lastWriteTime, lastAccessTime, path);
+    if (!result.success) {
+      logger.error({ msg: 'Failed to create placeholder directory', itemName, itemId, path, error: result.errorMessage, tag: 'NODE-WIN' });
+    }
+    return result.success;
   }
 
   /**
@@ -129,7 +138,11 @@ export class Addon {
 
   convertToPlaceholder({ path, id }: { path: string; id: string }) {
     const result = addon.convertToPlaceholder(path, id);
-    return this.parseAddonZod('convertToPlaceholder', result);
+    logger.debug({ msg: JSON.stringify(result), path, id, tag: 'NODE-WIN' }); 
+    if (!result.success) {
+      logger.error({ msg: 'Failed to convert to placeholder', path, id, error: result.errorMessage, tag: 'NODE-WIN' });
+    }
+    return result.success;
   }
 
   updateFileIdentity({ path, id, isDirectory }: { path: string; id: string; isDirectory: boolean }) {
