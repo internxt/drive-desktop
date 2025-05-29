@@ -5,9 +5,9 @@ import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 export const addonZod = {
   addLoggerPath: z.boolean(),
   connectSyncRoot: z.object({ hr: z.literal(0), connectionKey: z.string() }),
-  convertToPlaceholder: z.object({ 
+  convertToPlaceholder: z.object({
     success: z.boolean(),
-    errorMessage: z.string().optional()
+    errorMessage: z.string().optional(),
   }),
   dehydrateFile: z.boolean(),
   getFileIdentity: z.string(),
