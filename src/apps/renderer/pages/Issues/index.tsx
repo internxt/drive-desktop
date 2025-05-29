@@ -1,18 +1,14 @@
 import { useEffect, useState } from 'react';
 import WindowTopBar from '../../components/WindowTopBar';
 import { useTranslationContext } from '../../context/LocalContext';
-import useBackupErrors from '../../hooks/backups/useBackupErrors';
-import { useGeneralIssues } from '../../hooks/GeneralIssues';
-import IssuesAccordions from './IssuesAccordions';
 import { IssuesTabs } from './IssuesTabs';
 import { Section } from './Section';
 import { useIssues } from '../../hooks/useIssues';
+import IssuesAccordions from './IssuesAccordions';
 
 export default function IssuesPage() {
   const { translate } = useTranslationContext();
-  const { issues } = useIssues();
-  const { generalIssues } = useGeneralIssues();
-  const { backupErrors } = useBackupErrors();
+  const { backupIssues, syncIssues, generalIssues } = useIssues();
 
   const [activeSection, setActiveSection] = useState<Section>('virtualDrive');
 
@@ -21,18 +17,18 @@ export default function IssuesPage() {
       setActiveSection('app');
       return;
     }
-    if (issues.length) {
+    if (syncIssues.length) {
       setActiveSection('virtualDrive');
       return;
     }
 
-    if (backupErrors.length) {
+    if (backupIssues.length) {
       setActiveSection('backups');
       return;
     }
 
     setActiveSection('app');
-  }, [issues, generalIssues, backupErrors]);
+  }, [syncIssues, generalIssues, backupIssues]);
 
   return (
     <div className="flex h-screen flex-col overflow-hidden">
@@ -46,8 +42,8 @@ export default function IssuesPage() {
         selectedTab={activeSection}
         issues={{
           app: generalIssues,
-          virtualDrive: issues,
-          backups: backupErrors,
+          virtualDrive: syncIssues,
+          backups: backupIssues as any,
         }}
       />
     </div>

@@ -1,15 +1,12 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
-import Logger from 'electron-log';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
-import { BackupFatalErrors } from './BackupFatalErrors/BackupFatalErrors';
 import { BackupsProcessStatus } from './BackupsProcessStatus/BackupsProcessStatus';
 import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
-import { isSyncError } from '../../../shared/issues/SyncErrorCause';
 import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { clearBackupsIssues } from '../issues';
+import { addBackupsIssue, clearBackupsIssues } from '../issues';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -19,7 +16,6 @@ export async function launchBackupProcesses(
   scheduled: boolean,
   tracker: BackupsProcessTracker,
   status: BackupsProcessStatus,
-  errors: BackupFatalErrors,
 ): Promise<void> {
   if (!backupsCanRun(status)) {
     logger.debug({ tag: 'BACKUPS', msg: 'Already running' });
@@ -49,7 +45,6 @@ export async function launchBackupProcesses(
   });
 
   clearBackupsIssues();
-  errors.clear();
   tracker.track(backups, abortController);
 
   for (const backupInfo of backups) {
@@ -62,7 +57,12 @@ export async function launchBackupProcesses(
     const context: BackupsContext = {
       ...backupInfo,
       abortController,
-      errors,
+      addIssue: (issue) => {
+        addBackupsIssue({
+          ...issue,
+          folderUuid: backupInfo.folderUuid,
+        });
+      },
     };
 
     if (abortController.signal.aborted) {
@@ -71,15 +71,7 @@ export async function launchBackupProcesses(
 
     tracker.backing();
 
-    const endReason = await executeBackupWorker(tracker, context);
-
-    if (isSyncError(endReason)) {
-      errors.add({ name: backupInfo.plainName, error: endReason });
-    }
-
-    Logger.info(`Backup process for ${backupInfo.folderId} ended with ${endReason}`);
-
-    tracker.backupFinished(backupInfo.folderId, endReason);
+    await executeBackupWorker(tracker, context);
   }
 
   status.set('STANDBY');

@@ -12,6 +12,7 @@ export type SyncIssue = {
 export type BackupsIssue = {
   tab: 'backups';
   name: string;
+  folderUuid: string;
   error:
     | 'FOLDER_ACCESS_DENIED'
     | 'CREATE_FOLDER_FAILED'
