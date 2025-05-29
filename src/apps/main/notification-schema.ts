@@ -6,7 +6,7 @@ const EVENT = z.object({
   userId: z.string(),
 });
 
-export const ITEMS_TO_TRASH = EVENT.extend({
+const ITEMS_TO_TRASH = EVENT.extend({
   event: z.literal('ITEMS_TO_TRASH'),
   payload: z.array(
     z.object({
@@ -16,7 +16,7 @@ export const ITEMS_TO_TRASH = EVENT.extend({
   ),
 });
 
-export const FILE_CREATED = EVENT.extend({
+const FILE_CREATED = EVENT.extend({
   event: z.literal('FILE_CREATED'),
   payload: z.object({
     id: z.number(),
@@ -30,7 +30,7 @@ export const FILE_CREATED = EVENT.extend({
   }),
 });
 
-export const FOLDER_CREATED = EVENT.extend({
+const FOLDER_CREATED = EVENT.extend({
   event: z.literal('FOLDER_CREATED'),
   payload: z.object({
     id: z.number(),
