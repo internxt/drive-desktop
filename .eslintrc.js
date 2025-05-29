@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['@internxt/eslint-config-internxt'],
+  extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended'],
   plugins: ['import'],
   overrides: [
     {
