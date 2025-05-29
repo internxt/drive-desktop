@@ -8,7 +8,7 @@ type AppIssueElementProps = {
   issues: Array<GeneralIssue>;
 };
 
-export function groupGeneralIssuesByErrorName(issues: GeneralIssue[]) {
+function groupGeneralIssuesByErrorName(issues: GeneralIssue[]) {
   const generalIssuesGroupedByError = issues.reduce(
     (acc, current) => {
       const key = current.error;
