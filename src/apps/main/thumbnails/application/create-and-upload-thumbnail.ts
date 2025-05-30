@@ -12,7 +12,11 @@ export async function createAndUploadThumbnail(bucket: string, fileId: number, n
     }
 
     logger.debug({ msg: 'Create thumbnail', path });
-    return await uploader.upload(fileId, image);
+    const result = await uploader.upload(fileId, image);
+    if (result instanceof Error) {
+      logger.error({ msg: '[THUMBNAIL] Error uploading thumbnail', exc: result });
+      return;
+    }
   } catch (exc) {
     logger.error({ msg: '[THUMBNAIL] Error processing thumbnail', exc });
   }
