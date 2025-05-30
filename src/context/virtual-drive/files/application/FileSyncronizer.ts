@@ -11,11 +11,11 @@ import { Folder } from '../../folders/domain/Folder';
 import * as fs from 'fs';
 import { File } from '../domain/File';
 import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
-import { FilePlaceholderConverter } from './FIlePlaceholderConverter';
 import { FileContentsUpdater } from './FileContentsUpdater';
 import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
+import { VirtualDrive } from '@/node-win/virtual-drive';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
@@ -24,7 +24,7 @@ export class FileSyncronizer {
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
-    private readonly filePlaceholderConverter: FilePlaceholderConverter,
+    private readonly virtualDrive: VirtualDrive,
     private readonly fileIdentityUpdater: FileIdentityUpdater,
     private readonly fileCreator: FileCreator,
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
@@ -118,7 +118,14 @@ export class FileSyncronizer {
   }
 
   private async convertAndUpdateSyncStatus(file: File) {
-    await Promise.all([this.filePlaceholderConverter.run(file), this.fileIdentityUpdater.run(file), this.fileSyncStatusUpdater.run(file)]);
+    await Promise.all([
+      this.virtualDrive.convertToPlaceholder({
+        itemPath: file.path,
+        id: file.placeholderId,
+      }),
+      this.fileIdentityUpdater.run(file),
+      this.fileSyncStatusUpdater.run(file),
+    ]);
   }
 
   private retryFolderCreation = async (posixDir: string, attemps = 3) => {
