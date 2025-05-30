@@ -12,6 +12,8 @@ type Translations =
   | 'ROOT_FOLDER_DOES_NOT_EXIST'
   | 'UNKNOWN_DEVICE_NAME'
   | 'WEBSOCKET_CONNECTION_ERROR'
+  | 'NETWORK_CONNECTIVITY_ERROR'
+  | 'SERVER_INTERNAL_ERROR'
   | 'UNKNOWN';
 
 const translations: Record<TLanguage, Record<Translations, string>> = {
