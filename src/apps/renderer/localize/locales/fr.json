@@ -81,9 +81,7 @@
       "continue": "Continuer",
       "skip": "Sauter",
       "platform-phrase": {
-        "windows": "navigateur de fichiers",
-        "linux": "navigateur de fichiers",
-        "macos": "Finder"
+        "windows": "navigateur de fichiers"
       }
     }
   },

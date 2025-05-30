@@ -81,9 +81,7 @@
       "skip": "Skip",
       "open-drive": "Open Internxt",
       "platform-phrase": {
-        "windows": "file explorer",
-        "linux": "file browser",
-        "macos": "Finder"
+        "windows": "file explorer"
       }
     }
   },

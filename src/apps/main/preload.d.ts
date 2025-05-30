@@ -141,8 +141,6 @@ declare interface Window {
 
     getUsage: () => Promise<import('./usage/Usage').Usage>;
 
-    getPlatform: () => Promise<import('../main/platform/DesktopPlatform').DesktopPlatform>;
-
     userLogginFailed: (email: string) => void;
 
     startMigration: () => Promise<void>;

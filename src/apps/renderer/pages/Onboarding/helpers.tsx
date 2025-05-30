@@ -10,9 +10,6 @@ import AvailableOfflineImageEnglish from '../../assets/onboarding/folder-with-ov
 import AvailableOfflineImageFrench from '../../assets/onboarding/folder-with-overlay-icons/offline/fr.svg';
 
 // Finder images
-import MacOSFinderImage from '../../assets/onboarding/finder/macos.svg';
-import LinuxFinderImage from '../../assets/onboarding/finder/linux.svg';
-import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
 
 export type OnboardingSlideProps = {
@@ -36,28 +33,6 @@ export const getOfflineImageSvg = (language: string) => {
   if (language === 'es') return AvailableOfflineImageSpanish;
   if (language === 'fr') return AvailableOfflineImageFrench;
   return AvailableOfflineImageEnglish;
-};
-
-export const getFinderImage = (platform: string) => {
-  if (platform === 'win32') return WindowsFinderImage;
-  if (platform === 'linux') return LinuxFinderImage;
-  return MacOSFinderImage;
-};
-
-export const getPlatformName = (platform: string) => {
-  if (platform === 'win32') return 'Windows';
-  if (platform === 'linux') return 'Linux';
-  if (platform === 'darwin') return 'MacOS';
-
-  return '';
-};
-
-export const getPlatformPhraseTranslationKey = (platform: string) => {
-  if (platform === 'win32') return 'onboarding.common.platform-phrase.windows';
-  if (platform === 'linux') return 'onboarding.common.platform-phrase.linux';
-  if (platform === 'darwin') return 'onboarding.common.platform-phrase.macos';
-
-  return 'onboarding.common.platform-phrase.macos';
 };
 
 export type OnboardingSlide = {
