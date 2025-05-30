@@ -2,7 +2,7 @@
 . "$(dirname "$0")/_/husky.sh"
 
 USER_EMAIL=$(git config user.email)
-SKIP_EMAILS=("dani@internxt.com" "whatever@gmail.com")
+SKIP_EMAILS=("dani@internxt.com" "alexis@internxt.com" "whatever@gmail.com")
 
 for EMAIL in "${SKIP_EMAILS[@]}"; do
   if [ "$USER_EMAIL" = "$EMAIL" ]; then

@@ -12,6 +12,8 @@ type Translations =
   | 'ROOT_FOLDER_DOES_NOT_EXIST'
   | 'UNKNOWN_DEVICE_NAME'
   | 'WEBSOCKET_CONNECTION_ERROR'
+  | 'NETWORK_CONNECTIVITY_ERROR'
+  | 'SERVER_INTERNAL_ERROR'
   | 'UNKNOWN';
 
 const translations: Record<TLanguage, Record<Translations, string>> = {
@@ -27,6 +29,8 @@ const translations: Record<TLanguage, Record<Translations, string>> = {
     UNKNOWN_DEVICE_NAME: "Could not retrieve your device's name",
     UNKNOWN: 'Unknown error',
     WEBSOCKET_CONNECTION_ERROR: 'WebSocket connection error',
+    NETWORK_CONNECTIVITY_ERROR: 'Network connectivity error.',
+    SERVER_INTERNAL_ERROR: 'Server internal error.',
   },
   es: {
     CREATE_FOLDER_FAILED: 'Error al crear la carpeta',
@@ -40,6 +44,8 @@ const translations: Record<TLanguage, Record<Translations, string>> = {
     UNKNOWN_DEVICE_NAME: 'No se pudo obtener el nombre de tu dispositivo',
     UNKNOWN: 'Error desconocido',
     WEBSOCKET_CONNECTION_ERROR: 'Error de conexión WebSocket',
+    NETWORK_CONNECTIVITY_ERROR: 'Error de conectividad de red',
+    SERVER_INTERNAL_ERROR: 'Error interno del servidor',
   },
   fr: {
     CREATE_FOLDER_FAILED: 'Erreur lors de la création de la dossier',
@@ -53,6 +59,8 @@ const translations: Record<TLanguage, Record<Translations, string>> = {
     UNKNOWN_DEVICE_NAME: "Impossible d'obtenir le nom de votre appareil",
     UNKNOWN: 'Erreur inconnue',
     WEBSOCKET_CONNECTION_ERROR: 'Erreur de connexion WebSocket',
+    NETWORK_CONNECTIVITY_ERROR: 'Erreur de connectivité réseau',
+    SERVER_INTERNAL_ERROR: 'Erreur de serveur interne',
   },
 };
 
