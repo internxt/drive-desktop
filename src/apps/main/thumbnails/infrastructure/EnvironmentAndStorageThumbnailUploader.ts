@@ -11,7 +11,7 @@ export class EnvironmentAndStorageThumbnailUploader {
     private readonly bucket: string,
   ) {}
 
-  private async uploadThumbnail(thumbnail: Buffer) {
+  private uploadThumbnail(thumbnail: Buffer) {
     const thumbnailStream = new Readable({
       read() {
         this.push(thumbnail);

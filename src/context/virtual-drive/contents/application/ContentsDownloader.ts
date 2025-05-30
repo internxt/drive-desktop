@@ -39,7 +39,24 @@ export class ContentsDownloader {
     });
 
     downloader.on('progress', async () => {
-      await callback(true, filePath);
+      const { finished, progress } = await callback(true, filePath);
+
+      if (progress > 1 || progress < 0) {
+        throw new Error('Result progress is not between 0 and 1');
+      } else if (finished && progress === 0) {
+        throw new Error('Result progress is 0');
+      }
+
+      this.ipc.send('FILE_DOWNLOADING', {
+        name: file.name,
+        extension: file.type,
+        nameWithExtension: file.nameWithExtension,
+        size: file.size,
+        processInfo: {
+          elapsedTime: 0,
+          progress,
+        },
+      });
     });
 
     downloader.on('error', (error: Error) => {
@@ -61,6 +78,7 @@ export class ContentsDownloader {
 
   async run(file: File, callback: CallbackDownload): Promise<string> {
     // TODO: If we remove the wait, the tests fail
+    // eslint-disable-next-line @typescript-eslint/await-thenable
     const downloader = await this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
