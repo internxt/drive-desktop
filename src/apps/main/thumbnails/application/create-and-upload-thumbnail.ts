@@ -12,7 +12,7 @@ export async function createAndUploadThumbnail(bucket: string, fileId: number, n
     }
 
     logger.debug({ msg: 'Create thumbnail', path });
-    await uploader.upload(fileId, image);
+    return await uploader.upload(fileId, image);
   } catch (exc) {
     logger.error({ msg: '[THUMBNAIL] Error processing thumbnail', exc });
   }

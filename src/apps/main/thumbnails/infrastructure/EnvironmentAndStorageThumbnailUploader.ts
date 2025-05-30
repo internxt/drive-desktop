@@ -11,36 +11,38 @@ export class EnvironmentAndStorageThumbnailUploader {
     private readonly bucket: string,
   ) {}
 
-  private async uploadThumbnail(thumbnail: Buffer) {
+  async uploadThumbnailToEnvironment(thumbnail: Buffer) {
     const thumbnailStream = new Readable({
       read() {
         this.push(thumbnail);
         this.push(null);
       },
     });
+    try {
+      const promise = new Promise<string>((resolve, reject) => {
+        this.environment.upload(this.bucket, {
+          progressCallback: () => {
+            // no op
+          },
+          finishedCallback: (err: unknown, id: string) => {
+            if (err && !id) {
+              reject(err);
+            }
 
-    return new Promise<string>((resolve, reject) => {
-      this.environment.upload(this.bucket, {
-        progressCallback: () => {
-          // no op
-        },
-        finishedCallback: (err: unknown, id: string) => {
-          if (err && !id) {
-            reject(err);
-          }
-
-          resolve(id);
-        },
-        fileSize: thumbnail.byteLength,
-        source: thumbnailStream,
+            resolve(id);
+          },
+          fileSize: thumbnail.byteLength,
+          source: thumbnailStream,
+        });
       });
-    });
+      return await promise;
+    } catch (error) {
+      return new Error(`Error uploading thumbnail to environment: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
-  async upload(fileId: number, thumbnailFile: Buffer): Promise<void> {
-    const fileIdOnEnvironment = await this.uploadThumbnail(thumbnailFile);
-
-    await driveServerWipModule.files.createThumbnail({
+  async uploadThumbnailToStorage(fileIdOnEnvironment: string, fileId: number, thumbnailFile: Buffer) {
+    const { error } = await driveServerWipModule.files.createThumbnail({
       body: {
         fileId,
         maxWidth: ThumbnailProperties.dimensions,
@@ -52,5 +54,16 @@ export class EnvironmentAndStorageThumbnailUploader {
         encryptVersion: StorageTypes.EncryptionVersion.Aes03,
       },
     });
+    return error ? error : true;
+  }
+
+  async upload(fileId: number, thumbnailFile: Buffer): Promise<Error | true> {
+    const uploadToEnvironmentResult = await this.uploadThumbnailToEnvironment(thumbnailFile);
+    if (uploadToEnvironmentResult instanceof Error) {
+      return uploadToEnvironmentResult;
+    }
+
+    const uploadToStorageResult = await this.uploadThumbnailToStorage(uploadToEnvironmentResult, fileId, thumbnailFile);
+    return uploadToStorageResult instanceof Error ? uploadToStorageResult : true;
   }
 }
