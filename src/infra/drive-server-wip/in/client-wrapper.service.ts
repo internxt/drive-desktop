@@ -1,4 +1,5 @@
 import { logger, loggerService, TLoggerBody } from '@/apps/shared/logger/logger';
+import { handleError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 type TProps<T> = {
   loggerBody: TLoggerBody;
@@ -13,6 +14,7 @@ export class ClientWrapperService {
       const res = await promise;
 
       if (!res.data) {
+        handleError(res.error);
         return {
           error: this.logger.error({
             ...loggerBody,
@@ -23,6 +25,7 @@ export class ClientWrapperService {
 
       return { data: res.data };
     } catch (exc) {
+      handleError(exc);
       return {
         error: logger.error({
           ...loggerBody,
@@ -33,26 +36,7 @@ export class ClientWrapperService {
   }
 }
 
-export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
-  try {
-    const res = await promise;
-
-    if (!res.data) {
-      return {
-        error: logger.error({
-          ...loggerBody,
-          exc: res.error,
-        }),
-      };
-    }
-
-    return { data: res.data };
-  } catch (exc) {
-    return {
-      error: logger.error({
-        ...loggerBody,
-        exc,
-      }),
-    };
-  }
+export function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
+  const service = new ClientWrapperService();
+  return service.run<T>({ loggerBody, promise });
 }
