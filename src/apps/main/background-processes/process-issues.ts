@@ -3,7 +3,7 @@ import Logger from 'electron-log';
 
 import eventBus from '../event-bus';
 import path from 'path';
-import { clearGeneralIssues, clearIssues } from './issues';
+import { clearIssues } from './issues';
 
 let lastDialogTime = 0;
 
@@ -34,11 +34,9 @@ export function showNotEnoughSpaceNotification() {
 }
 
 eventBus.on('USER_LOGGED_OUT', () => {
-  clearGeneralIssues();
   clearIssues();
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', () => {
-  clearGeneralIssues();
   clearIssues();
 });

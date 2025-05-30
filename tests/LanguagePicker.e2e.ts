@@ -1,8 +1,5 @@
 import { ElectronApplication, expect, Page, test } from '@playwright/test';
-import {
-  ipcMainCallFirstListener,
-  ipcMainEmit,
-} from 'electron-playwright-helpers';
+import { ipcMainCallFirstListener, ipcMainEmit } from 'electron-playwright-helpers';
 import { _electron as electron } from 'playwright';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';

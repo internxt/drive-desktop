@@ -9,7 +9,6 @@ import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { pathUtils } from '../../infrastructure/AbsolutePath';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/services/environment-file-uploader';
-import { addBackupsIssue } from '@/apps/main/background-processes/issues';
 
 @Service()
 export class FileBatchUploader {
@@ -52,7 +51,7 @@ export class FileBatchUploader {
                   error,
                 });
 
-                addBackupsIssue({
+                context.addIssue({
                   error: error.cause,
                   name: localFile.relativePath,
                 });
@@ -95,7 +94,7 @@ export class FileBatchUploader {
               error,
             });
 
-            addBackupsIssue({
+            context.addIssue({
               error: 'UNKNOWN',
               name: localFile.relativePath,
             });

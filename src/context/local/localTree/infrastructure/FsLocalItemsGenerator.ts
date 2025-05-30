@@ -4,8 +4,9 @@ import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFileDTO } from './LocalFileDTO';
 import { LocalFolderDTO } from './LocalFolderDTO';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { addBackupsIssue, BackupsIssue } from '@/apps/main/background-processes/issues';
+import { BackupsIssue } from '@/apps/main/background-processes/issues';
 import { StatError } from '@/infra/file-system/services/stat';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
 
 function parseRootStatError({ error }: { error: StatError }): BackupsIssue['error'] {
   switch (error.cause) {
@@ -30,11 +31,11 @@ function parseItemStatError({ error }: { error: StatError }): BackupsIssue['erro
 }
 
 export class CLSFsLocalItemsGenerator {
-  static async root(absolutePath: string) {
+  static async root({ context, absolutePath }: { context: BackupsContext; absolutePath: string }) {
     const { data, error } = await fileSystem.stat({ absolutePath });
 
     if (error) {
-      addBackupsIssue({
+      context.addIssue({
         name: absolutePath,
         error: parseRootStatError({ error }),
       });
@@ -48,7 +49,7 @@ export class CLSFsLocalItemsGenerator {
     };
   }
 
-  static async getAll(dir: string) {
+  static async getAll({ context, dir }: { context: BackupsContext; dir: string }) {
     const accumulator = Promise.resolve({
       files: [] as LocalFileDTO[],
       folders: [] as LocalFolderDTO[],
@@ -66,7 +67,7 @@ export class CLSFsLocalItemsGenerator {
       const { data, error } = await fileSystem.stat({ absolutePath });
 
       if (error) {
-        addBackupsIssue({
+        context.addIssue({
           name: absolutePath,
           error: parseItemStatError({ error }),
         });

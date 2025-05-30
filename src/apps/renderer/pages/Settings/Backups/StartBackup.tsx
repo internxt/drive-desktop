@@ -9,7 +9,7 @@ type StartBackupProps = {
 };
 
 export function StartBackup({ className }: StartBackupProps) {
-  const { backups, backupStatus, thereIsDownloadProgress, clearLastBackupExitReason, isBackupAvailable } = useContext(BackupContext);
+  const { backups, backupStatus, thereIsDownloadProgress, isBackupAvailable } = useContext(BackupContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
   const [avalaibleAlert, setAvalaibleAlert] = useState(false);
 
@@ -23,7 +23,6 @@ export function StartBackup({ className }: StartBackupProps) {
   }
 
   function startBackupsProcess() {
-    clearLastBackupExitReason();
     window.electron.startBackupsProcess();
   }
 

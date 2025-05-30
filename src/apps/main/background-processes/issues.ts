@@ -12,6 +12,7 @@ export type SyncIssue = {
 export type BackupsIssue = {
   tab: 'backups';
   name: string;
+  folderUuid: string;
   error:
     | 'FOLDER_ACCESS_DENIED'
     | 'CREATE_FOLDER_FAILED'
@@ -32,28 +33,23 @@ export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
 
 export let issues: Issue[] = [];
 
-function addIssueWithCallback(issue: Issue, callback?: () => void) {
+function onIssuesChanged() {
+  broadcastToWindows('issues-changed', issues);
+}
+
+function addIssue(issue: Issue) {
   const exists = issues.some((i) => {
     return i.tab === issue.tab && i.name === issue.name && i.error === issue.error;
   });
 
   if (!exists) {
     issues.push(issue);
-    if (callback) callback();
-  }
-}
-
-function onIssuesChanged() {
-  broadcastToWindows('issues-changed', issues);
-}
-
-function addIssue(issue: Issue) {
-  addIssueWithCallback(issue, () => {
     onIssuesChanged();
+
     if (issue.error === 'NOT_ENOUGH_SPACE') {
       showNotEnoughSpaceNotification();
     }
-  });
+  }
 }
 
 export function addBackupsIssue(issue: Omit<BackupsIssue, 'tab'>) {
@@ -62,6 +58,10 @@ export function addBackupsIssue(issue: Omit<BackupsIssue, 'tab'>) {
 
 export function addSyncIssue(issue: Omit<SyncIssue, 'tab'>) {
   addIssue({ tab: 'sync', ...issue });
+}
+
+export function addGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
+  addIssue({ tab: 'general', ...issue });
 }
 
 export function clearIssues() {
@@ -74,27 +74,9 @@ export function clearBackupsIssues() {
   onIssuesChanged();
 }
 
-export function getGeneralIssues() {
-  return issues.filter((issue) => issue.tab === 'general');
-}
-
-export function onGeneralIssuesChanged() {
-  broadcastToWindows('general-issues-changed', getGeneralIssues());
-}
-
-export function clearGeneralIssues() {
-  issues = issues.filter((i) => i.tab !== 'general');
-  onGeneralIssuesChanged();
-}
-
 export function setupIssueHandlers() {
   ipcMainSyncEngine.on('ADD_SYNC_ISSUE', (_, issue) => addSyncIssue(issue));
   ipcMain.handle('get-issues', () => issues);
-  ipcMain.handle('get-general-issues', getGeneralIssues);
-}
-
-export function addGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
-  addIssueWithCallback({ tab: 'general', ...issue }, onGeneralIssuesChanged);
 }
 
 export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
@@ -105,6 +87,6 @@ export function removeGeneralIssue(issue: Omit<GeneralIssue, 'tab'>) {
   });
 
   if (issues.length < initialLength) {
-    onGeneralIssuesChanged();
+    onIssuesChanged();
   }
 }

@@ -1,8 +1,9 @@
 import { WarningCircle } from '@phosphor-icons/react';
 import FolderIcon from '../../../../assets/folder.svg';
-import { useBackupFatalIssue } from '../../../../hooks/backups/useBackupFatalIssue';
 import Button from '../../../../components/Button';
 import { ItemBackup } from '../../../../../shared/types/items';
+import { useIssues } from '@/apps/renderer/hooks/useIssues';
+import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
 
 interface BackupListItemProps {
   backup: ItemBackup;
@@ -10,34 +11,34 @@ interface BackupListItemProps {
 }
 
 export function BackupListItem({ backup, selected }: BackupListItemProps) {
-  const { issue, message, action, name } = useBackupFatalIssue({
-    folderId: backup.id,
-    folderUuid: backup.uuid,
-    tmpPath: backup.tmpPath,
-    pathname: backup.pathname,
-    backupsBucket: backup.backupsBucket,
-    plainName: backup.plainName,
-  });
+  const { translate } = useTranslationContext();
+
+  const { backupIssues } = useIssues();
+  const numberOfIssues = backupIssues.filter((issue) => issue.folderUuid === backup.uuid).length;
+
+  async function findBackupFolder() {
+    await window.electron.changeBackupPath(backup.pathname);
+  }
 
   return (
     <div className="flex w-full justify-between">
       <span className="flex-grow">
         <FolderIcon className="inline h-4 w-4 flex-shrink-0" />
         <p className="relative ml-1 inline select-none truncate leading-none" style={{ top: '1px' }}>
-          {name}
+          {backup.plainName}
         </p>
       </span>
-      {issue && (
-        <span className={`${selected ? 'text-white' : 'text-red'}`}>
-          <WarningCircle size={18} weight="fill" className="mr-1 inline" />
-          {message}
-          {action !== undefined && (
-            <Button variant="secondary" className="ml-2" onClick={action.fn}>
-              {action.name}
-            </Button>
-          )}
-        </span>
-      )}
+      <span className={`${selected ? 'text-white' : 'text-red'} flex items-center`}>
+        {numberOfIssues > 0 && (
+          <>
+            <WarningCircle size={18} weight="fill" className="mr-1 inline" />
+            {numberOfIssues} issues
+          </>
+        )}
+        <Button variant="secondary" className="ml-2" onClick={findBackupFolder}>
+          {translate('issues.actions.find-folder')}
+        </Button>
+      </span>
     </div>
   );
 }

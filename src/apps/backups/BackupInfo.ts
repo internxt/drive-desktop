@@ -1,4 +1,4 @@
-import { BackupFatalErrors } from '../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors';
+import { BackupsIssue } from '../main/background-processes/issues';
 
 export type BackupInfo = {
   folderUuid: string;
@@ -11,5 +11,5 @@ export type BackupInfo = {
 
 export type BackupsContext = BackupInfo & {
   abortController: AbortController;
-  errors: BackupFatalErrors;
+  addIssue: (issue: Omit<BackupsIssue, 'tab' | 'folderUuid'>) => void;
 };
