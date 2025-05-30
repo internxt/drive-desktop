@@ -31,14 +31,7 @@ export type GeneralIssue = {
 
 export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
 
-export let issues: Issue[] = [
-  {
-    tab: 'backups',
-    error: 'CREATE_FOLDER_FAILED',
-    folderUuid: '1',
-    name: 'Test',
-  },
-];
+export let issues: Issue[] = [];
 
 function onIssuesChanged() {
   broadcastToWindows('issues-changed', issues);
