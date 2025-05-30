@@ -2,8 +2,8 @@ import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 
 export function isNetworkConnectivityError(error: any): boolean {
   return !!(
-    ['ENOTFOUND', 'ECONNREFUSED', 'ETIMEDOUT', 'ENETUNREACH', 'EHOSTUNREACH', 'ECONNRESET', 'EPIPE'].includes(error?.code)
-    || error?.message?.includes('Failed to fetch')
+    ['ENOTFOUND', 'ECONNREFUSED', 'ETIMEDOUT', 'ENETUNREACH', 'EHOSTUNREACH', 'ECONNRESET', 'EPIPE'].includes(error?.code) ||
+    error?.message?.includes('Failed to fetch')
   );
 }
 

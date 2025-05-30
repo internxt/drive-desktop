@@ -1,10 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { isNetworkConnectivityError, isServerError, handleError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
+import { deepMocked } from '../../../../../tests/vitest/utils.helper.test';
 
-vi.mock('@/apps/main/background-processes/issues', () => ({
-  addGeneralIssue: vi.fn()
-}));
+vi.mock('@/apps/main/background-processes/issues');
 
 describe('error-helpers', () => {
   describe('isNetworkConnectivityError', () => {
@@ -68,8 +67,7 @@ describe('error-helpers', () => {
   });
 
   describe('handleError', () => {
-    const addGeneralIssueMock = addGeneralIssue as ReturnType<typeof vi.fn>;
-
+    const addGeneralIssueMock = deepMocked(addGeneralIssue);
     beforeEach(() => {
       vi.clearAllMocks();
     });
@@ -79,7 +77,7 @@ describe('error-helpers', () => {
 
       expect(addGeneralIssueMock).toHaveBeenCalledWith({
         name: 'Connection Error',
-        error: 'NETWORK_CONNECTIVITY_ERROR'
+        error: 'NETWORK_CONNECTIVITY_ERROR',
       });
     });
 
@@ -88,7 +86,7 @@ describe('error-helpers', () => {
 
       expect(addGeneralIssueMock).toHaveBeenCalledWith({
         name: 'Server Error',
-        error: 'SERVER_INTERNAL_ERROR'
+        error: 'SERVER_INTERNAL_ERROR',
       });
     });
 
