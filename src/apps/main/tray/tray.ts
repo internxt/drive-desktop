@@ -32,19 +32,15 @@ export class TrayMenu {
       await this.onClick();
       this.tray.setContextMenu(null);
     });
-    if (process.platform !== 'linux') {
-      this.tray.on('right-click', () => {
-        this.updateContextMenu();
-        this.tray.popUpContextMenu();
-      });
-    }
+
+    this.tray.on('right-click', () => {
+      this.updateContextMenu();
+      this.tray.popUpContextMenu();
+    });
   }
 
   getIconPath(state: TrayMenuState) {
-    const isDarwin = process.platform === 'darwin';
-    const templatePart = isDarwin ? 'Template' : '';
-
-    return path.join(this.iconsPath, `${state.toLowerCase()}${templatePart}.png`);
+    return path.join(this.iconsPath, `${state.toLowerCase()}.png`);
   }
 
   generateContextMenu() {

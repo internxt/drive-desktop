@@ -7,12 +7,12 @@ import { WelcomeSlide } from './slides/WelcomeSlide';
 import { FilesOrganizationSlide } from './slides/FilesOrganizationSlide';
 import AntivirusSvg from '../../assets/onboarding/scanner.svg';
 import AntivirusDarkSvg from '../../assets/onboarding/scanner-dark.svg';
+import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import {
   // BackupsSVG,
   OnboardingSlide,
   SideImageAnimation,
   SideTextAnimation,
-  getFinderImage,
   getOfflineImageSvg,
   getOnlineImageSvg,
 } from './helpers';
@@ -53,11 +53,10 @@ export const SLIDES: OnboardingSlide[] = [
         </div>
       );
     },
-    image: (props) => {
-      const FinderImage = getFinderImage(props.platform);
+    image: () => {
       return (
         <div className="relative ml-20 mt-20">
-          <FinderImage />
+          <WindowsFinderImage />
         </div>
       );
     },
@@ -89,11 +88,10 @@ export const SLIDES: OnboardingSlide[] = [
         </div>
       );
     },
-    image: (props) => {
-      const FinderImage = getFinderImage(props.platform);
+    image: () => {
       return (
         <div className="relative ml-20 mt-20">
-          <FinderImage />
+          <WindowsFinderImage />
         </div>
       );
     },
@@ -322,12 +320,11 @@ export const SLIDES: OnboardingSlide[] = [
         </div>
       );
     },
-    image: (props) => {
-      const Image = getFinderImage(props.platform);
+    image: () => {
       return (
         <div className="relative ml-20 mt-20 ">
           <SideImageAnimation display>
-            <Image />
+            <WindowsFinderImage />
           </SideImageAnimation>
         </div>
       );

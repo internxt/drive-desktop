@@ -1,1 +1,1 @@
-export type DesktopPlatform = 'linux' | 'win32' | 'darwin';
+export type DesktopPlatform = 'win32';
