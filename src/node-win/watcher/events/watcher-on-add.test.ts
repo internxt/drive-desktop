@@ -5,8 +5,13 @@ import { v4 } from 'uuid';
 import { setupWatcher, getEvents } from '../watcher.helper.test';
 import { sleep } from '@/apps/main/util';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { onAdd } from './on-add.service';
+
+vi.mock(import('./on-add.service'));
 
 describe('[Watcher] When add items', () => {
+  const onAddMock = vi.mocked(onAdd);
+
   it('When add an empty folder, then emit one addDir event', async () => {
     // Arrange
     const syncRootPath = join(TEST_FILES, v4());
@@ -30,7 +35,7 @@ describe('[Watcher] When add items', () => {
 
     // Act
     await sleep(50);
-    await writeFile(file, Buffer.alloc(1000));
+    await writeFile(file, 'content');
     await sleep(50);
 
     // Assert
@@ -45,11 +50,17 @@ describe('[Watcher] When add items', () => {
 
     // Act
     await sleep(50);
-    await writeFile(file, Buffer.alloc(0));
+    await writeFile(file, '');
     await sleep(50);
 
     // Assert
     expect(getEvents()).toStrictEqual([{ event: 'add', path: file }]);
+    expect(onAddMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        path: file,
+        stats: expect.objectContaining({ size: 0 }),
+      }),
+    );
   });
 
   it('When add a folder and a file inside, then emit one addDir and one add event', async () => {
@@ -62,7 +73,7 @@ describe('[Watcher] When add items', () => {
     // Act
     await sleep(50);
     await mkdir(folder);
-    await writeFile(file, Buffer.alloc(1000));
+    await writeFile(file, 'content');
     await sleep(50);
 
     // Assert
