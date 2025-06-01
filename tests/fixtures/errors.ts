@@ -1,10 +1,5 @@
-import {
-  ProcessFatalErrorName,
-  ProcessErrorName,
-  ProcessIssue,
-  GeneralErrorName,
-  GeneralIssue,
-} from '../../src/apps/shared/types';
+import { ProcessFatalErrorName, ProcessErrorName, ProcessIssue } from '@/apps/shared/types';
+import { GeneralIssue } from '@/apps/main/background-processes/issues';
 
 export const createBackupFatalError = (errorName: ProcessFatalErrorName) => ({
   path: `folder/file${Date.now()}.txt`,
@@ -12,9 +7,7 @@ export const createBackupFatalError = (errorName: ProcessFatalErrorName) => ({
   errorName,
 });
 
-export const createSyncError = (
-  processErrorName: ProcessErrorName
-): ProcessIssue => ({
+export const createSyncError = (processErrorName: ProcessErrorName): ProcessIssue => ({
   kind: 'LOCAL',
   name: 'name',
   action: 'DELETE_ERROR',
@@ -22,15 +15,8 @@ export const createSyncError = (
   process: 'SYNC',
 });
 
-export const createGeneralIssueFixture = (
-  name: GeneralErrorName
-): GeneralIssue => ({
-  action: 'GET_DEVICE_NAME_ERROR',
-  errorName: name,
-  process: 'GENERAL',
-  errorDetails: {
-    name: 'Device name could not be retrived',
-    message: 'Error retriving the device name',
-    stack: '',
-  },
+export const createGeneralIssueFixture = (name: GeneralIssue['error']): GeneralIssue => ({
+  tab: 'general',
+  error: name,
+  name: 'Error retriving the device name',
 });

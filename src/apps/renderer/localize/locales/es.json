@@ -81,9 +81,7 @@
       "open-drive": "Abrir Internxt",
       "skip": "Saltar",
       "platform-phrase": {
-        "windows": "explorador de archivos",
-        "linux": "buscador de archivos",
-        "macos": "Finder"
+        "windows": "explorador de archivos"
       }
     }
   },

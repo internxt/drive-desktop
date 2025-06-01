@@ -19,6 +19,7 @@ import { QueueItem } from '@/node-win/queue/queueManager';
 import { QueueManager } from '@/node-win/queue/queue-manager';
 import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -129,7 +130,7 @@ export class BindingsManager {
 
     this.stop();
 
-    await this.container.virtualDrive.registerSyncRoot({
+    this.container.virtualDrive.registerSyncRoot({
       providerName: getConfig().providerName,
       providerVersion: INTERNXT_VERSION,
       logoPath: iconPath,
@@ -200,7 +201,10 @@ export class BindingsManager {
     logger.debug({ msg: '[SYNC ENGINE] Polling', workspaceId });
 
     try {
-      const fileInPendingPaths = this.container.virtualDrive.getPlaceholderWithStatePending();
+      const fileInPendingPaths = await getPlaceholdersWithPendingState({
+        virtualDrive: this.container.virtualDrive,
+        path: this.container.virtualDrive.syncRootPath,
+      });
       logger.debug({ msg: 'Files in pending paths', workspaceId, total: fileInPendingPaths.length });
 
       await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
@@ -227,7 +231,10 @@ export class BindingsManager {
       await this.update(tree);
       await this.polling();
 
-      const placeholders = this.container.virtualDrive.getPlaceholderWithStatePending();
+      const placeholders = await getPlaceholdersWithPendingState({
+        virtualDrive: this.container.virtualDrive,
+        path: this.container.virtualDrive.syncRootPath,
+      });
 
       logger.debug({
         msg: 'Update and check placeholders',

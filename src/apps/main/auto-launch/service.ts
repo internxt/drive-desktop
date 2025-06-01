@@ -5,8 +5,8 @@ const appFolder = Path.dirname(process.execPath);
 const appExe = Path.resolve(appFolder, 'Internxt.exe');
 const exeName = Path.basename(process.execPath);
 
-const path = process.platform === 'win32' ? appExe : undefined;
-const args = process.platform === 'win32' ? ['--processStart', `"${exeName}"`, '--process-start-args', '"--hidden"'] : undefined;
+const path = appExe;
+const args = ['--processStart', `"${exeName}"`, '--process-start-args', '"--hidden"'];
 
 export function isAutoLaunchEnabled() {
   const loginItem = app.getLoginItemSettings({ path, args });

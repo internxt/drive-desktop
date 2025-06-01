@@ -1,8 +1,1 @@
-src/apps/main/background-processes/sync-engine.ts @dajimenezriv-internxt
-src/apps/main/background-processes/sync-engine/ @dajimenezriv-internxt
-src/apps/main/remote-sync/ @dajimenezriv-internxt
-src/apps/main/sync-engine/ @dajimenezriv-internxt
-src/apps/main/virtual-root-folder/ @dajimenezriv-internxt
-src/apps/sync-engine/ @dajimenezriv-internxt
-src/context/virtual-drive/ @dajimenezriv-internxt
-src/infra/ @dajimenezriv-internxt
+* @dajimenezriv-internxt

@@ -22,7 +22,7 @@ export function BackupsList({ items, selected, setSelected, onDobleClick }: Back
   };
 
   return (
-    <ul>
+    <ul className="px-1 py-1">
       {items.map((backup, index) => (
         <li
           role="row"
@@ -41,7 +41,7 @@ export function BackupsList({ items, selected, setSelected, onDobleClick }: Back
             }
           }}
           tabIndex={0}
-          className={`flex w-full items-center overflow-hidden p-2 transition-colors duration-75 ${
+          className={`flex w-full items-center overflow-hidden px-1 py-1 transition-colors duration-75 rounded ${
             selected.find((item) => item.id === backup.id)
               ? 'bg-primary text-white'
               : index % 2 !== 0

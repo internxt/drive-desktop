@@ -1,5 +1,6 @@
 module.exports = {
-  extends: ['@internxt/eslint-config-internxt'],
+  extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended'],
+  plugins: ['import'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
@@ -15,6 +16,7 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/no-unused-expressions': 'error',
     'array-callback-return': 'warn',
+    'import/no-default-export': 'warn',
     'max-len': ['error', { code: 140, ignoreStrings: true, ignoreTemplateLiterals: true }],
     'no-async-promise-executor': 'warn',
     'no-await-in-loop': 'off',

@@ -4,6 +4,7 @@ import LocalTreeBuilder from './LocalTreeBuilder';
 import { v4 } from 'uuid';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { join } from 'path';
+import { mockProps } from 'tests/vitest/utils.helper.test';
 
 describe('LocalTreeBuilder', () => {
   const folder = join(TEST_FILES, v4());
@@ -32,9 +33,9 @@ describe('LocalTreeBuilder', () => {
     await rm(folder, { recursive: true });
   });
 
-  it('It should add files, folders and sort them', async () => {
-    const resEither = await LocalTreeBuilder.run(folder as AbsolutePath);
-    const res = resEither.getRight();
+  it('It should add files and folders', async () => {
+    const props = mockProps<typeof LocalTreeBuilder.run>({ context: { pathname: folder } });
+    const res = await LocalTreeBuilder.run(props);
 
     expect(Object.keys(res.files)).toStrictEqual(['/file1', '/file2', '/folder1/file3', '/folder1/folder3/file4']);
     expect(Object.keys(res.folders)).toStrictEqual(['/', '/folder1', '/folder1/folder3', '/folder2']);

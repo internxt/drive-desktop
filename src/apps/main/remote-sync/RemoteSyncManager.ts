@@ -1,4 +1,4 @@
-import { RemoteSyncStatus, rewind, FIVETEEN_MINUTES_IN_MILLISECONDS } from './helpers';
+import { RemoteSyncStatus, rewind, TWO_MINUTES_IN_MILLISECONDS } from './helpers';
 import { logger } from '../../shared/logger/logger';
 import { Nullable } from '@/apps/shared/types/Nullable';
 import { driveFilesCollection, driveFoldersCollection } from './store';
@@ -61,7 +61,7 @@ export class RemoteSyncManager {
 
     const updatedAt = new Date(result.updatedAt);
 
-    return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
+    return rewind(updatedAt, TWO_MINUTES_IN_MILLISECONDS);
   }
 
   private async getLastFolderSyncAt(): Promise<Nullable<Date>> {
@@ -71,6 +71,6 @@ export class RemoteSyncManager {
 
     const updatedAt = new Date(result.updatedAt);
 
-    return rewind(updatedAt, FIVETEEN_MINUTES_IN_MILLISECONDS);
+    return rewind(updatedAt, TWO_MINUTES_IN_MILLISECONDS);
   }
 }

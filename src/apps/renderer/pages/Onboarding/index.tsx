@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { SLIDES } from './config';
 import { BackupFolder, BackupsFoldersSelector } from '../../components/Backups/BackupsFoldersSelector';
-import useClientPlatform from '../../hooks/ClientPlatform';
+import { DesktopPlatform } from '@/apps/main/platform/DesktopPlatform';
 
 // Slide 1 is welcome slide, last slide is summary, doesn't count
 const totalSlides = SLIDES.length - 2;
@@ -10,7 +10,7 @@ export default function Onboarding() {
   const [backupFolders, setBackupFolders] = useState<BackupFolder[]>([]);
   const [slideIndex, setSlideIndex] = useState<number>(0);
   const [backupsModalOpen, setBackupsModalOpen] = useState(false);
-  const desktopPlatform = useClientPlatform();
+  const desktopPlatform: DesktopPlatform = 'win32';
 
   const finish = () => {
     if (backupFolders?.length) {

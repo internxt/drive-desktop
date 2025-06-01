@@ -43,7 +43,7 @@ describe('DangledFilesService', () => {
       downloader.on.mockImplementation((event, cb) => {
         if (event === 'progress') progressCallback = cb as () => void;
       });
-      downloader.download.mockImplementation(async () => {
+      downloader.download.mockImplementation(() => {
         progressCallback();
         return Promise.resolve(new Readable());
       });
@@ -58,7 +58,7 @@ describe('DangledFilesService', () => {
       downloader.on.mockImplementation((event, cb) => {
         if (event === 'error') errorCallback = cb as (err: Error) => void;
       });
-      downloader.download.mockImplementation(async () => {
+      downloader.download.mockImplementation(() => {
         errorCallback(new Error('download failed'));
         return Promise.resolve(new Readable());
       });

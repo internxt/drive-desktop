@@ -1,4 +1,4 @@
-export const FIVETEEN_MINUTES_IN_MILLISECONDS = 30 * 60 * 1000;
+export const TWO_MINUTES_IN_MILLISECONDS = 2 * 60 * 1000;
 
 export type RemoteSyncStatus = 'IDLE' | 'SYNCED' | 'SYNCING' | 'SYNC_FAILED' | 'SYNC_PENDING';
 

@@ -5,7 +5,6 @@ import { FolderDeleter } from '../../../../context/virtual-drive/folders/applica
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
-import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderPlaceholderDeleter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { FolderPlaceholderUpdater } from '@/context/virtual-drive/folders/application/update/UpdatePlaceholderFolder';
@@ -23,5 +22,4 @@ export interface FoldersContainer {
   folderRepository: InMemoryFolderRepository;
   folderPlaceholderUpdater: FolderPlaceholderUpdater;
   folderPlaceholderDeleter: FolderPlaceholderDeleter;
-  folderPlaceholderConverter: FolderPlaceholderConverter;
 }

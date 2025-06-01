@@ -2,13 +2,13 @@ import Logger from 'electron-log';
 import { ContainerBuilder } from 'diod';
 import { FileBatchUpdater } from '../../../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../../../context/local/localFile/application/upload/FileBatchUploader';
-import { EnvironmentLocalFileUploader } from '../../../../context/local/localFile/infrastructure/EnvironmentLocalFileUploader';
 import { Environment } from '@internxt/inxt-js/build';
 import { getConfig } from '@/apps/sync-engine/config';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { BackupInfo } from '../../BackupInfo';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/services/environment-file-uploader';
 
-export async function registerLocalFileServices(builder: ContainerBuilder, data: BackupInfo) {
+export function registerLocalFileServices(builder: ContainerBuilder, data: BackupInfo) {
   //Infra
 
   const mnemonic = getConfig().mnemonic;
@@ -31,8 +31,8 @@ export async function registerLocalFileServices(builder: ContainerBuilder, data:
   });
 
   builder
-    .register(EnvironmentLocalFileUploader)
-    .useFactory((c) => new EnvironmentLocalFileUploader(c.get(Environment), data.backupsBucket))
+    .register(EnvironmentFileUploader)
+    .useFactory((c) => new EnvironmentFileUploader(c.get(Environment), data.backupsBucket))
     .private();
 
   // Services

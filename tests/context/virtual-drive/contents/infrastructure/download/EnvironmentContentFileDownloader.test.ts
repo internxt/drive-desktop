@@ -62,10 +62,7 @@ describe('Environment Content File Downloader', () => {
     it('emits an event when there is an error', async () => {
       const errorMsg = 'Error uploading file';
       const strategy = createDownloadStrategy((callbacks) => {
-        callbacks.finishedCallback(
-          { message: errorMsg } as unknown as Error,
-          Readable.from('')
-        );
+        callbacks.finishedCallback({ message: errorMsg } as unknown as Error, Readable.from(''));
       });
 
       const downloader = new EnvironmentContentFileDownloader(strategy, bucket);

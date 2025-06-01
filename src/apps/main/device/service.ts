@@ -9,7 +9,6 @@ import { IpcMainEvent, ipcMain } from 'electron';
 import fs from 'fs';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { getNewApiHeaders, getUser, setUser } from '../auth/service';
-import { addGeneralIssue } from '../background-processes/process-issues';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { PathLike } from 'fs';
@@ -23,6 +22,7 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { getConfig } from '@/apps/sync-engine/config';
 import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 
 export type Device = {
   name: string;
@@ -44,24 +44,8 @@ interface FolderTreeResponse {
 
 export const addUnknownDeviceIssue = (error: Error) => {
   addGeneralIssue({
-    errorName: 'UNKNOWN_DEVICE_NAME',
-    action: 'GET_DEVICE_NAME_ERROR',
-    process: 'GENERAL',
-    errorDetails: {
-      name: error.name,
-      message: error.message,
-      stack: error.stack || '',
-    },
-  });
-  addGeneralIssue({
-    errorName: 'UNKNOWN_DEVICE_NAME',
-    action: 'GET_DEVICE_NAME_ERROR',
-    process: 'GENERAL',
-    errorDetails: {
-      name: error.name,
-      message: error.message,
-      stack: error.stack || '',
-    },
+    name: error.name,
+    error: 'UNKNOWN_DEVICE_NAME',
   });
 };
 

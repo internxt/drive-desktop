@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { SLIDES } from './config';
 import { MigrationSlideProps } from './helpers';
 import { useTranslationContext } from '../../context/LocalContext';
-import useClientPlatform from '../../hooks/ClientPlatform';
 import { reportError } from '../../utils/sentry';
+import { DesktopPlatform } from '@/apps/main/platform/DesktopPlatform';
 
 const totalSlides = SLIDES.length - 3;
 
@@ -15,7 +15,7 @@ export default function Migration() {
   });
   const { translate } = useTranslationContext();
   const [slideIndex, setSlideIndex] = useState<number>(0);
-  const desktopPlatform = useClientPlatform();
+  const desktopPlatform: DesktopPlatform = 'win32';
 
   const finish = () => {
     window.electron.openVirtualDrive();
@@ -125,7 +125,6 @@ export default function Migration() {
 
   const currentSlide = slideIndex - 2;
 
-  if (!desktopPlatform) return <></>;
   return (
     <div className="relative flex h-screen w-full select-none flex-row">
       <div className="flex w-1/2 flex-col px-6 pb-6 pt-16">

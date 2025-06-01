@@ -1,11 +1,12 @@
 import { MigrationSlide, UploadSuccessAnimation } from './helpers';
-import { SideImageAnimation, SideTextAnimation, getFinderImage, getOfflineImageSvg, getOnlineImageSvg } from '../Onboarding/helpers';
+import { SideImageAnimation, SideTextAnimation, getOfflineImageSvg, getOnlineImageSvg } from '../Onboarding/helpers';
 import Spinner from '../../assets/spinner.svg';
 import WidgetSvg from '../../assets/migration/widget.svg';
 
 import { MigrationFailedSlide } from './slides/MigrationFailedSlide';
 import UploadErrorSvg from '../../assets/migration/upload-error.svg';
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
+import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import { DeleteOldDriveFolderSlide } from './slides/DeleteOldDriveFolderSlide';
 import { AvailableOnlineSlide } from '../Onboarding/slides/AvailableOnlineSlide';
 import { ContextMenuSlide } from '../Onboarding/slides/ContextMenuSlide';
@@ -49,11 +50,10 @@ export const SLIDES: MigrationSlide[] = [
       );
     },
     image: (props) => {
-      const FinderImage = getFinderImage(props.platform);
       return (
         <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
-            <FinderImage />
+            <WindowsFinderImage />
           </SideImageAnimation>
         </div>
       );
@@ -160,11 +160,10 @@ export const SLIDES: MigrationSlide[] = [
       );
     },
     image: (props) => {
-      const FinderImage = getFinderImage(props.platform);
       return (
         <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
-            <FinderImage />
+            <WindowsFinderImage />
           </SideImageAnimation>
         </div>
       );

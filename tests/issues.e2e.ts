@@ -6,7 +6,8 @@ import AccessResponseFixtures from './fixtures/AccessResponse.json';
 import { createBackupFatalError, createGeneralIssueFixture, createSyncError } from './fixtures/errors';
 import { wait } from './utils';
 import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
-import { ProcessErrorName, ProcessFatalErrorName, GeneralIssue } from '../src/apps/shared/types';
+import { ProcessErrorName, ProcessFatalErrorName } from '../src/apps/shared/types';
+import { GeneralIssue } from '@/apps/main/background-processes/issues';
 
 const activeTabSelector = 'button.text-neutral-500';
 const tabSelector = (name: 'Sync' | 'Backups' | 'General') => `button.text-m-neutral-80:has-text("${name}")`;

@@ -8,7 +8,7 @@ export class ContentsSizeMother {
       chance.integer({
         min: 1,
         max: ContentsSize.MAX_SIZE,
-      })
+      }),
     );
   }
 }

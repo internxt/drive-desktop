@@ -85,9 +85,9 @@ function readLog(): Promise<string> {
 
     const stream = createReadStream(logPath, { start });
 
-    const rawFile: string[] = [];
+    const rawFile: Array<string | Buffer<ArrayBufferLike>> = [];
 
-    stream.on('data', (buf: string) => rawFile.push(buf));
+    stream.on('data', (buf) => rawFile.push(buf));
     stream.on('close', () => {
       resolve(rawFile.join());
     });

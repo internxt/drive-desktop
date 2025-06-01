@@ -13,7 +13,6 @@ import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
-import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsUpdater } from '../../../../context/virtual-drive/files/application/FileContentsUpdater';
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
@@ -64,8 +63,6 @@ export function buildFilesContainer(
 
   const filesPlaceholderDeleter = new FilesPlaceholderDeleter(virtualDrive);
 
-  const filePlaceholderConverter = new FilePlaceholderConverter(virtualDrive);
-
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
   const fileContentsUpdater = new FileContentsUpdater(repository);
@@ -81,7 +78,7 @@ export function buildFilesContainer(
   const fileSyncronizer = new FileSyncronizer(
     repository,
     fileSyncStatusUpdater,
-    filePlaceholderConverter,
+    virtualDrive,
     fileIdentityUpdater,
     fileCreator,
     sharedContainer.absolutePathToRelativeConverter,
@@ -101,7 +98,6 @@ export function buildFilesContainer(
     sameFileWasMoved,
     filesPlaceholderUpdater,
     filesPlaceholderDeleter,
-    filePlaceholderConverter,
     fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
     fileIdentityUpdater,

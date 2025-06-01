@@ -83,8 +83,7 @@ export class FileDeleter {
         error: message,
       });
 
-      this.ipc.send('ADD_ISSUE', {
-        tab: 'sync',
+      this.ipc.send('ADD_SYNC_ISSUE', {
         name: file.path,
         error: 'DELETE_ERROR',
       });

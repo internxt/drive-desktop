@@ -152,7 +152,7 @@ describe('VirtualDrive', () => {
   });
 
   describe('When call registerSyncRoot', () => {
-    it('Then it assigns callbacks and calls addon.registerSyncRoot', async () => {
+    it('Then it assigns callbacks and calls addon.registerSyncRoot', () => {
       // Arrange
       const providerId = v4();
       const drive = new VirtualDrive({ syncRootPath, providerId, loggerPath, logger: loggerMock });
@@ -161,7 +161,7 @@ describe('VirtualDrive', () => {
       const logoPath = 'C:\\iconPath';
 
       // Act
-      await drive.registerSyncRoot({ providerName, providerVersion, logoPath });
+      drive.registerSyncRoot({ providerName, providerVersion, logoPath });
 
       // Assert
       expect(addon.registerSyncRoot).toHaveBeenCalledWith(syncRootPath, providerName, providerVersion, providerId, logoPath);

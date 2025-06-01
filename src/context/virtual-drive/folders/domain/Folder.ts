@@ -5,7 +5,6 @@ import { createFolderPlaceholderId } from './FolderPlaceholderId';
 import { FolderId } from './FolderId';
 import { FolderCreatedAt } from './FolderCreatedAt';
 import { FolderUpdatedAt } from './FolderUpdatedAt';
-import { FolderAlreadyTrashed } from './errors/FolderAlreadyTrashed';
 import crypt from '@/context/shared/infrastructure/crypt';
 
 export type FolderAttributes = {
@@ -135,7 +134,7 @@ export class Folder {
 
   trash() {
     if (!this._status.is(FolderStatuses.EXISTS)) {
-      throw new FolderAlreadyTrashed(this.name);
+      throw new Error(`Folder ${this.name} is already in the trash`);
     }
 
     this._status = this._status.changeTo(FolderStatuses.TRASHED);

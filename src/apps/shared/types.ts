@@ -10,7 +10,6 @@ export type ProcessFatalErrorName =
   | 'CANNOT_GET_CURRENT_LISTINGS'
   | 'UNKNOWN';
 
-export type GeneralErrorName = 'UNKNOWN_DEVICE_NAME';
 export type ProcessErrorName =
   | 'NOT_EXISTS'
   | 'NO_PERMISSION'
@@ -66,17 +65,6 @@ export type ErrorDetails = {
 type ProcessInfoBase = {
   kind: FileSystemKind;
   name: string;
-};
-
-export type GeneralIssue = {
-  action: 'GET_DEVICE_NAME_ERROR';
-  errorName: GeneralErrorName;
-  process: 'GENERAL';
-  errorDetails: {
-    name: string;
-    message: string;
-    stack: string;
-  };
 };
 
 type ProcessInfo = ProcessInfoBase &

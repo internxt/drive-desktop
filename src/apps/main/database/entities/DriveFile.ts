@@ -15,8 +15,8 @@ export class DriveFile {
   })
   uuid!: string;
 
-  @Column({ nullable: false, default: '', type: 'varchar' })
-  workspaceId!: string;
+  @Column({ nullable: true, default: '', type: 'varchar' })
+  workspaceId?: string;
 
   @Column({ nullable: true, default: '', type: 'varchar' })
   type!: string;
@@ -60,7 +60,7 @@ export class DriveFile {
   name!: string;
 
   @Column({ nullable: false, type: 'varchar' })
-  status!: string;
+  status!: 'EXISTS' | 'TRASHED' | 'DELETED';
 
   @Column({ nullable: false, default: true, type: 'boolean' })
   isDangledStatus!: boolean;

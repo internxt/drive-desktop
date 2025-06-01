@@ -1,106 +1,94 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { Either, left, right } from '../../../shared/domain/Either';
-import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFileDTO } from './LocalFileDTO';
 import { LocalFolderDTO } from './LocalFolderDTO';
+import { fileSystem } from '@/infra/file-system/file-system.module';
+import { BackupsIssue } from '@/apps/main/background-processes/issues';
+import { StatError } from '@/infra/file-system/services/stat';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
+
+function parseRootStatError({ error }: { error: StatError }): BackupsIssue['error'] {
+  switch (error.cause) {
+    case 'NON_EXISTS':
+      return 'ROOT_FOLDER_DOES_NOT_EXIST';
+    case 'NO_ACCESS':
+      return 'ROOT_FOLDER_DOES_NOT_EXIST';
+    default:
+      return error.cause;
+  }
+}
+
+function parseItemStatError({ error }: { error: StatError }): BackupsIssue['error'] {
+  switch (error.cause) {
+    case 'NON_EXISTS':
+      return 'FOLDER_DOES_NOT_EXIST';
+    case 'NO_ACCESS':
+      return 'FOLDER_ACCESS_DENIED';
+    default:
+      return error.cause;
+  }
+}
 
 export class CLSFsLocalItemsGenerator {
-  static async root(dir: string): Promise<Either<DriveDesktopError, LocalFolderDTO>> {
-    try {
-      const stat = await fs.stat(dir);
+  static async root({ context, absolutePath }: { context: BackupsContext; absolutePath: string }) {
+    const { data, error } = await fileSystem.stat({ absolutePath });
 
-      if (stat.isFile()) {
-        throw new Error('A file cannot be the root of a tree');
-      }
-
-      return right({
-        path: dir as AbsolutePath,
-        modificationTime: stat.mtime.getTime(),
+    if (error) {
+      context.addIssue({
+        name: absolutePath,
+        error: parseRootStatError({ error }),
       });
-    } catch (err: unknown) {
-      if (!(err instanceof Error)) {
-        return left(new DriveDesktopError('UNKNOWN', `An unknown error happened when reading ${dir}`));
-      }
 
-      const { code } = err as { code?: string };
-
-      if (err?.message?.includes('ENOENT')) {
-        return left(new DriveDesktopError('BASE_DIRECTORY_DOES_NOT_EXIST', `${dir} does not exist`));
-      }
-      if (err?.message?.includes('EACCES')) {
-        return left(new DriveDesktopError('INSUFFICIENT_PERMISSION', `Cannot read stats of ${dir}`));
-      }
-
-      return left(new DriveDesktopError('UNKNOWN', `An unknown error with code ${code} happened when reading ${dir}`));
+      throw error;
     }
+
+    return {
+      path: absolutePath as AbsolutePath,
+      modificationTime: data.mtime.getTime(),
+    };
   }
 
-  static async getAll(dir: string): Promise<{ files: LocalFileDTO[]; folders: LocalFolderDTO[] }> {
+  static async getAll({ context, dir }: { context: BackupsContext; dir: string }) {
     const accumulator = Promise.resolve({
       files: [] as LocalFileDTO[],
       folders: [] as LocalFolderDTO[],
     });
 
-    try {
-      const dirents = await fs.readdir(dir, {
-        withFileTypes: true,
-      });
+    const dirents = await fs.readdir(dir, {
+      withFileTypes: true,
+    });
 
-      return dirents.reduce(async (promise, dirent) => {
-        const acc = await promise;
+    return dirents.reduce(async (promise, dirent) => {
+      const acc = await promise;
 
-        const absolutePath = path.join(dir, dirent.name) as AbsolutePath;
+      const absolutePath = path.join(dir, dirent.name) as AbsolutePath;
 
-        try {
-          const stat = await fs.stat(absolutePath);
+      const { data, error } = await fileSystem.stat({ absolutePath });
 
-          if (dirent.isFile()) {
-            acc.files.push({
-              path: absolutePath,
-              modificationTime: stat.mtime.getTime(),
-              size: stat.size,
-            });
-          }
-
-          if (dirent.isDirectory()) {
-            acc.folders.push({
-              path: absolutePath,
-              modificationTime: stat.mtime.getTime(),
-            });
-          }
-        } catch (error: unknown) {
-          if (!(error instanceof Error)) {
-            throw new DriveDesktopError('UNKNOWN', `Unexpected error while accessing ${absolutePath}: ${error}`);
-          }
-
-          if (error?.message?.includes('ENOENT')) {
-            throw new DriveDesktopError('BASE_DIRECTORY_DOES_NOT_EXIST', `${dir} does not exist`);
-          }
-
-          if (error.message.includes('EPERM')) {
-            throw new DriveDesktopError('INSUFFICIENT_PERMISSION', `Cannot read stats of ${absolutePath}`);
-          }
-          throw new DriveDesktopError('UNKNOWN', `Unexpected error while accessing ${absolutePath}: ${error.message}`);
-        }
+      if (error) {
+        context.addIssue({
+          name: absolutePath,
+          error: parseItemStatError({ error }),
+        });
 
         return acc;
-      }, accumulator);
-    } catch (error: unknown) {
-      if (!(error instanceof Error)) {
-        throw new DriveDesktopError('UNKNOWN', `Unexpected error while reading directory ${dir}: ${error}`);
       }
 
-      if (error instanceof DriveDesktopError) {
-        throw error;
+      if (dirent.isFile()) {
+        acc.files.push({
+          path: absolutePath,
+          modificationTime: data.mtime.getTime(),
+          size: data.size,
+        });
+      } else if (dirent.isDirectory()) {
+        acc.folders.push({
+          path: absolutePath,
+          modificationTime: data.mtime.getTime(),
+        });
       }
 
-      if (error.message.includes('EPERM')) {
-        throw new DriveDesktopError('INSUFFICIENT_PERMISSION', `Cannot read directory ${dir}`);
-      } else {
-        throw new DriveDesktopError('UNKNOWN', `Unexpected error while accessing directory ${dir}: ${error.message}`);
-      }
-    }
+      return acc;
+    }, accumulator);
   }
 }

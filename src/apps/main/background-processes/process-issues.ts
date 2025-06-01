@@ -1,9 +1,7 @@
-import { ipcMain, Notification } from 'electron';
+import { Notification } from 'electron';
 import Logger from 'electron-log';
 
 import eventBus from '../event-bus';
-import { broadcastToWindows } from '../windows';
-import { GeneralIssue } from '../../shared/types';
 import path from 'path';
 import { clearIssues } from './issues';
 
@@ -35,34 +33,10 @@ export function showNotEnoughSpaceNotification() {
   notification.show();
 }
 
-let generalIssues: GeneralIssue[] = [];
-
-export function getGeneralIssues() {
-  return generalIssues;
-}
-
-ipcMain.handle('get-general-issues', getGeneralIssues);
-
-function onGeneralIssuesChanged() {
-  broadcastToWindows('general-issues-changed', generalIssues);
-}
-
-export function clearGeneralIssues() {
-  generalIssues = [];
-  onGeneralIssuesChanged();
-}
-
-export function addGeneralIssue(issue: GeneralIssue) {
-  generalIssues.push(issue);
-  onGeneralIssuesChanged();
-}
-
 eventBus.on('USER_LOGGED_OUT', () => {
-  clearGeneralIssues();
   clearIssues();
 });
 
 eventBus.on('USER_WAS_UNAUTHORIZED', () => {
-  clearGeneralIssues();
   clearIssues();
 });

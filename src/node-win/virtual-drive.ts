@@ -71,6 +71,9 @@ export class VirtualDrive {
     return this.addon.getPlaceholderState({ path: this.fixPath(path) });
   }
 
+  /**
+   * @deprecated
+   */
   getPlaceholderWithStatePending() {
     return this.addon.getPlaceholderWithStatePending();
   }
@@ -85,7 +88,7 @@ export class VirtualDrive {
     return this.addon.getFileIdentity({ path: this.fixPath(path) });
   }
 
-  async deleteFileSyncRoot({ path }: { path: string }) {
+  deleteFileSyncRoot({ path }: { path: string }) {
     return this.addon.deleteFileSyncRoot({ path: this.fixPath(path) });
   }
 
@@ -118,7 +121,7 @@ export class VirtualDrive {
     lastWriteTime: number;
     lastAccessTime: number;
     basePath?: string;
-  }): any {
+  }) {
     const creationTimeStr = this.convertToWindowsTime(creationTime).toString();
     const lastWriteTimeStr = this.convertToWindowsTime(lastWriteTime).toString();
     const lastAccessTimeStr = this.convertToWindowsTime(lastAccessTime).toString();
@@ -173,15 +176,7 @@ export class VirtualDrive {
     });
   }
 
-  async registerSyncRoot({
-    providerName,
-    providerVersion,
-    logoPath,
-  }: {
-    providerName: string;
-    providerVersion: string;
-    logoPath: string;
-  }): Promise<any> {
+  registerSyncRoot({ providerName, providerVersion, logoPath }: { providerName: string; providerVersion: string; logoPath: string }) {
     this.logger.debug({ msg: 'Registering sync root', syncRootPath: this.syncRootPath });
     return this.addon.registerSyncRoot({
       providerName,
