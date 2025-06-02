@@ -1,19 +1,35 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
-import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 
 vi.mock(import('@/apps/main/util'));
 
 describe('fetch-folders-by-folder', () => {
   const getFoldersByFolderMock = deepMocked(driveServerWip.folders.getFoldersByFolder);
 
-  const folderUuid = 'folderUuid';
-  let allFolders: FolderDto[];
+  let props: Parameters<typeof fetchFoldersByFolder>[0];
 
   beforeEach(() => {
     vi.clearAllMocks();
-    allFolders = [{ uuid: 'previous' }] as FolderDto[];
+
+    props = mockProps<typeof fetchFoldersByFolder>({
+      allFolders: [{ uuid: 'previous' }],
+      folderUuid: 'folderUuid',
+      abortSignal: {
+        aborted: false,
+      },
+    });
+  });
+
+  it('If signal is aborted then do nothing', async () => {
+    // Given
+    props.abortSignal = { aborted: true } as AbortSignal;
+
+    // When
+    await fetchFoldersByFolder(props);
+
+    // Then
+    expect(getFoldersByFolderMock).toHaveBeenCalledTimes(0);
   });
 
   it('Add only folders with status EXISTS', async () => {
@@ -21,11 +37,11 @@ describe('fetch-folders-by-folder', () => {
     getFoldersByFolderMock.mockResolvedValueOnce({ data: [{ status: 'EXISTS' }, { status: 'DELETED' }] });
 
     // When
-    const { newFolders } = await fetchFoldersByFolder({ folderUuid, allFolders });
+    const { newFolders } = await fetchFoldersByFolder(props);
 
     // Then
     expect(newFolders).toStrictEqual([{ status: 'EXISTS' }]);
-    expect(allFolders).toStrictEqual([{ uuid: 'previous' }, { status: 'EXISTS' }]);
+    expect(props.allFolders).toStrictEqual([{ uuid: 'previous' }, { status: 'EXISTS' }]);
   });
 
   it('If we fetch less than 50 folders, then do not fetch again', async () => {
@@ -33,11 +49,11 @@ describe('fetch-folders-by-folder', () => {
     getFoldersByFolderMock.mockResolvedValueOnce({ data: [] });
 
     // When
-    const { newFolders } = await fetchFoldersByFolder({ folderUuid, allFolders });
+    const { newFolders } = await fetchFoldersByFolder(props);
 
     // Then
     expect(newFolders).toStrictEqual([]);
-    expect(allFolders).toStrictEqual([{ uuid: 'previous' }]);
+    expect(props.allFolders).toStrictEqual([{ uuid: 'previous' }]);
   });
 
   it('If we fetch 50 folders, then fetch again', async () => {
@@ -46,11 +62,11 @@ describe('fetch-folders-by-folder', () => {
     getFoldersByFolderMock.mockResolvedValueOnce({ data: [] });
 
     // When
-    const { newFolders } = await fetchFoldersByFolder({ folderUuid, allFolders });
+    const { newFolders } = await fetchFoldersByFolder(props);
 
     // Then
     expect(newFolders).toHaveLength(50);
-    expect(allFolders).toHaveLength(51);
+    expect(props.allFolders).toHaveLength(51);
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(2);
   });
 
@@ -64,7 +80,7 @@ describe('fetch-folders-by-folder', () => {
     getFoldersByFolderMock.mockResolvedValueOnce({ error: new Error() });
 
     // When
-    await expect(() => fetchFoldersByFolder({ folderUuid, allFolders: [] })).rejects.toThrowError();
+    await expect(() => fetchFoldersByFolder(props)).rejects.toThrowError();
 
     // Then
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(6);

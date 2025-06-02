@@ -1,1 +1,1 @@
-export type BackupsStatus = 'STANDBY' | 'RUNNING';
+export type BackupsStatus = 'STANDBY' | 'RUNNING' | 'STOPPING';
