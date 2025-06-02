@@ -62,7 +62,7 @@ export function setupAuthIpcHandlers() {
   ipcMain.handle('GET_HEADERS', () => getNewApiHeaders());
   ipcMain.handle('get-new-token', () => obtainToken('newToken'));
   ipcMain.handle('get-token', () => obtainToken('bearerToken'));
-  ipcMain.handle('get-paths', () => PATHS);
+  ipcMain.handle('GET_PATHS', () => PATHS);
   ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
 
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {

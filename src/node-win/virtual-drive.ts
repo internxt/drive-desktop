@@ -203,19 +203,6 @@ export class VirtualDrive {
     this.watcher.queueManager = queueManager;
     this.watcher.logger = this.logger;
     this.watcher.syncRootPath = this.syncRootPath;
-    this.watcher.options = {
-      ignored: /(^|[/\\])\../,
-      persistent: true,
-      ignoreInitial: true,
-      followSymlinks: true,
-      depth: undefined,
-      awaitWriteFinish: {
-        stabilityThreshold: 2000,
-        pollInterval: 100,
-      },
-      usePolling: true,
-    };
-
     this.watcher.watchAndWait();
   }
 

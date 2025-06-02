@@ -11,7 +11,7 @@ export class BucketEntryId extends ValueObject<string> {
 
   private ensureIsValid(value: string) {
     if (value.length !== BucketEntryId.VALID_LENGTH) {
-      throw new InvalidArgumentError('Invalid content id');
+      throw new InvalidArgumentError(`Invalid content id: ${value}`);
     }
   }
 }
