@@ -7,11 +7,12 @@ type TProps = {
   allFolders: FolderDto[];
   allFiles: FileDto[];
   skipFiles: boolean;
+  abortSignal: AbortSignal;
 };
 
-export async function fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles }: TProps): Promise<void> {
-  const filesPromise = skipFiles ? Promise.resolve() : fetchFilesByFolder({ folderUuid, allFiles });
-  const foldersPromise = fetchFoldersByFolder({ folderUuid, allFolders });
+export async function fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles, abortSignal }: TProps): Promise<void> {
+  const filesPromise = skipFiles ? Promise.resolve() : fetchFilesByFolder({ folderUuid, allFiles, abortSignal });
+  const foldersPromise = fetchFoldersByFolder({ folderUuid, allFolders, abortSignal });
 
   const [, { newFolders }] = await Promise.all([filesPromise, foldersPromise]);
 
@@ -22,6 +23,7 @@ export async function fetchItemsByFolder({ folderUuid, allFolders, allFiles, ski
         allFolders,
         allFiles,
         skipFiles,
+        abortSignal,
       });
     }),
   );

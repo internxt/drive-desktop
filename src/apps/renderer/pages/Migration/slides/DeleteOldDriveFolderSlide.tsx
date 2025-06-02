@@ -1,6 +1,6 @@
 import React from 'react';
 import { MigrationSlideProps } from '../helpers';
-import { SideTextAnimation, getPlatformPhraseTranslationKey } from '../../Onboarding/helpers';
+import { SideTextAnimation } from '../../Onboarding/helpers';
 
 export const DeleteOldDriveFolderSlide: React.FC<MigrationSlideProps> = (props) => {
   return (
@@ -11,7 +11,7 @@ export const DeleteOldDriveFolderSlide: React.FC<MigrationSlideProps> = (props) 
           <div className="flex flex-row">
             <h3 className="text-lg leading-tight text-gray-100">
               {props.translate('migration.slides.delete-old-drive-folder.message', {
-                platform_app: props.translate(getPlatformPhraseTranslationKey(props.platform)),
+                platform_app: props.translate('onboarding.common.platform-phrase.windows'),
               })}
             </h3>
           </div>

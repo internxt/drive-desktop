@@ -31,7 +31,7 @@ export function StartBackup({ className }: StartBackupProps) {
   return (
     <>
       <Button
-        className={`${className} hover:cursor-pointer`}
+        className={className}
         variant={backupStatus === 'STANDBY' ? 'primary' : 'danger'}
         size="md"
         onClick={() => {
@@ -46,7 +46,7 @@ export function StartBackup({ className }: StartBackupProps) {
             toggleConfirmation();
           }
         }}
-        disabled={backups.length === 0 || thereIsDownloadProgress}>
+        disabled={backups.length === 0 || thereIsDownloadProgress || backupStatus === 'STOPPING'}>
         {translate(`settings.backups.action.${backupStatus === 'STANDBY' ? 'start' : 'stop'}`)}
       </Button>
       <ConfirmationModal

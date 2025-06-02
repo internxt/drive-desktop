@@ -108,6 +108,7 @@ export class Traverser {
     const items = await fetchItems({
       folderUuid: context.folderUuid,
       skipFiles: false,
+      abortSignal: context.abortController.signal,
     });
 
     const rootFolder = this.createRootFolder({ id: context.folderId, uuid: context.folderUuid });

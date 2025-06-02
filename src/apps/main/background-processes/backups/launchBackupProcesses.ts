@@ -18,7 +18,7 @@ export async function launchBackupProcesses(
   status: BackupsProcessStatus,
 ): Promise<void> {
   if (!backupsCanRun(status)) {
-    logger.debug({ tag: 'BACKUPS', msg: 'Already running' });
+    logger.debug({ tag: 'BACKUPS', msg: 'Already running', status });
     return;
   }
 
@@ -42,6 +42,7 @@ export async function launchBackupProcesses(
   ipcMain.once('stop-backups-process', () => {
     logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
     abortController.abort();
+    status.set('STOPPING');
   });
 
   clearBackupsIssues();
@@ -54,6 +55,10 @@ export async function launchBackupProcesses(
       backupInfo,
     });
 
+    if (abortController.signal.aborted) {
+      continue;
+    }
+
     const context: BackupsContext = {
       ...backupInfo,
       abortController,
@@ -64,10 +69,6 @@ export async function launchBackupProcesses(
         });
       },
     };
-
-    if (abortController.signal.aborted) {
-      continue;
-    }
 
     tracker.backing();
 

@@ -5,11 +5,13 @@ import { fetchItemsByFolder } from './fetch-items-by-folder';
 type TProps = {
   folderUuid: string;
   skipFiles: boolean;
+  abortSignal: AbortSignal;
 };
 
-export async function fetchItems({ folderUuid, skipFiles }: TProps) {
+export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps) {
   try {
     logger.debug({
+      tag: 'BACKUPS',
       msg: 'Fetch backup items started',
       folderUuid,
     });
@@ -22,9 +24,11 @@ export async function fetchItems({ folderUuid, skipFiles }: TProps) {
       allFolders,
       allFiles,
       skipFiles,
+      abortSignal,
     });
 
     logger.debug({
+      tag: 'BACKUPS',
       msg: 'Fetch backup items finished',
       folderUuid,
       files: allFiles.length,
@@ -34,6 +38,7 @@ export async function fetchItems({ folderUuid, skipFiles }: TProps) {
     return { folders: allFolders, files: allFiles };
   } catch (error) {
     throw logger.error({
+      tag: 'BACKUPS',
       msg: 'Fetch backup items failed',
       folderUuid,
       exc: error,
