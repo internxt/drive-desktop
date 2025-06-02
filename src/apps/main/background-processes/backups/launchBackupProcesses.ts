@@ -42,6 +42,7 @@ export async function launchBackupProcesses(
   ipcMain.once('stop-backups-process', () => {
     logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
     abortController.abort();
+    status.set('STANDBY');
   });
 
   clearBackupsIssues();

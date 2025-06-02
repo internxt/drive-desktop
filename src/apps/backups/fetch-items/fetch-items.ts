@@ -5,9 +5,10 @@ import { fetchItemsByFolder } from './fetch-items-by-folder';
 type TProps = {
   folderUuid: string;
   skipFiles: boolean;
+  abortSignal: AbortSignal;
 };
 
-export async function fetchItems({ folderUuid, skipFiles }: TProps) {
+export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps) {
   try {
     logger.debug({
       msg: 'Fetch backup items started',
@@ -22,6 +23,7 @@ export async function fetchItems({ folderUuid, skipFiles }: TProps) {
       allFolders,
       allFiles,
       skipFiles,
+      abortSignal,
     });
 
     logger.debug({

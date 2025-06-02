@@ -227,7 +227,13 @@ ipcMain.handle('DELETE_ITEM_DRIVE', async (_, itemId: FilePlaceholderId | Folder
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
   Logger.info('Getting items by folder uuid', folderUuid);
 
-  const { folders } = await fetchItems({ folderUuid, skipFiles: true });
+  const abortController = new AbortController();
+
+  const { folders } = await fetchItems({
+    folderUuid,
+    skipFiles: true,
+    abortSignal: abortController.signal,
+  });
 
   return folders.map((folder) => ({
     id: folder.id,
