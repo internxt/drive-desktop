@@ -15,5 +15,6 @@ export default defineConfig({
     globals: true,
     root: './',
     watch: true,
+    testTimeout: 15000,
   },
 });

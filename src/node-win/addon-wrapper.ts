@@ -2,7 +2,6 @@ import { logger } from '@/apps/shared/logger/logger';
 import { addon } from './addon';
 import { addonZod } from './addon/addon-zod';
 import { Callbacks } from './types/callbacks.type';
-import { logger } from '@/apps/shared/logger/logger';
 
 export class Addon {
   syncRootPath!: string;
