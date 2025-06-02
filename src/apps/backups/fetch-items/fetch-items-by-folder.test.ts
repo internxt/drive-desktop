@@ -1,4 +1,4 @@
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
 import { fetchItemsByFolder } from './fetch-items-by-folder';
@@ -14,9 +14,20 @@ describe('fetch-items-by-folder', () => {
   const folderUuid = 'folderUuid';
   const allFolders: FolderDto[] = [];
   const allFiles: FileDto[] = [];
+  const abortSignal = { aborted: false };
+
+  let props: Parameters<typeof fetchItemsByFolder>[0];
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    props = mockProps<typeof fetchItemsByFolder>({
+      folderUuid,
+      allFolders,
+      allFiles,
+      abortSignal,
+      skipFiles: false,
+    });
   });
 
   it('If no new folders are fetched then do not call fetch recursively', async () => {
@@ -24,11 +35,11 @@ describe('fetch-items-by-folder', () => {
     fetchFoldersByFolderMock.mockResolvedValueOnce({ newFolders: [] });
 
     // When
-    await fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles: false });
+    await fetchItemsByFolder(props);
 
     // Then
-    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders });
-    expect(fetchFilesByFolderMock).toHaveBeenCalledWith({ folderUuid, allFiles });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders, abortSignal });
+    expect(fetchFilesByFolderMock).toHaveBeenCalledWith({ folderUuid, allFiles, abortSignal });
     expect(fetchFoldersByFolderMock).toHaveBeenCalledTimes(1);
     expect(fetchFilesByFolderMock).toHaveBeenCalledTimes(1);
   });
@@ -39,29 +50,30 @@ describe('fetch-items-by-folder', () => {
     fetchFoldersByFolderMock.mockResolvedValue({ newFolders: [] });
 
     // When
-    await fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles: false });
+    await fetchItemsByFolder(props);
 
     // Then
-    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders });
-    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid1', allFolders });
-    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid2', allFolders });
-    expect(fetchFilesByFolderMock).toHaveBeenCalledWith({ folderUuid, allFiles });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders, abortSignal });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid1', allFolders, abortSignal });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid2', allFolders, abortSignal });
+    expect(fetchFilesByFolderMock).toHaveBeenCalledWith({ folderUuid, allFiles, abortSignal });
     expect(fetchFoldersByFolderMock).toHaveBeenCalledTimes(3);
     expect(fetchFilesByFolderMock).toHaveBeenCalledTimes(3);
   });
 
   it('If skip files is true then do not fetch files', async () => {
     // Given
+    props.skipFiles = true;
     fetchFoldersByFolderMock.mockResolvedValueOnce({ newFolders: [{ uuid: 'uuid1' }, { uuid: 'uuid2' }] });
     fetchFoldersByFolderMock.mockResolvedValue({ newFolders: [] });
 
     // When
-    await fetchItemsByFolder({ folderUuid, allFolders, allFiles, skipFiles: true });
+    await fetchItemsByFolder(props);
 
     // Then
-    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders });
-    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid1', allFolders });
-    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid2', allFolders });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid, allFolders, abortSignal });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid1', allFolders, abortSignal });
+    expect(fetchFoldersByFolderMock).toHaveBeenCalledWith({ folderUuid: 'uuid2', allFolders, abortSignal });
     expect(fetchFoldersByFolderMock).toHaveBeenCalledTimes(3);
     expect(fetchFilesByFolderMock).toHaveBeenCalledTimes(0);
   });

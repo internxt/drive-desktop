@@ -1,19 +1,35 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
-import { FileDto } from '@/infra/drive-server-wip/out/dto';
 
 vi.mock(import('@/apps/main/util'));
 
 describe('fetch-files-by-folder', () => {
   const getFilesByFolderMock = deepMocked(driveServerWip.folders.getFilesByFolder);
 
-  const folderUuid = 'folderUuid';
-  let allFiles: FileDto[];
+  let props: Parameters<typeof fetchFilesByFolder>[0];
 
   beforeEach(() => {
     vi.clearAllMocks();
-    allFiles = [{ uuid: 'previous' }] as FileDto[];
+
+    props = mockProps<typeof fetchFilesByFolder>({
+      allFiles: [{ uuid: 'previous' }],
+      folderUuid: 'folderUuid',
+      abortSignal: {
+        aborted: false,
+      },
+    });
+  });
+
+  it('If signal is aborted then do nothing', async () => {
+    // Given
+    props.abortSignal = { aborted: true } as AbortSignal;
+
+    // When
+    await fetchFilesByFolder(props);
+
+    // Then
+    expect(getFilesByFolderMock).toHaveBeenCalledTimes(0);
   });
 
   it('Add only files with status EXISTS', async () => {
@@ -21,10 +37,10 @@ describe('fetch-files-by-folder', () => {
     getFilesByFolderMock.mockResolvedValueOnce({ data: [{ status: 'EXISTS' }, { status: 'DELETED' }] });
 
     // When
-    await fetchFilesByFolder({ folderUuid, allFiles });
+    await fetchFilesByFolder(props);
 
     // Then
-    expect(allFiles).toStrictEqual([{ uuid: 'previous' }, { status: 'EXISTS' }]);
+    expect(props.allFiles).toStrictEqual([{ uuid: 'previous' }, { status: 'EXISTS' }]);
   });
 
   it('If we fetch less than 50 files, then do not fetch again', async () => {
@@ -32,10 +48,10 @@ describe('fetch-files-by-folder', () => {
     getFilesByFolderMock.mockResolvedValueOnce({ data: [] });
 
     // When
-    await fetchFilesByFolder({ folderUuid, allFiles });
+    await fetchFilesByFolder(props);
 
     // Then
-    expect(allFiles).toStrictEqual([{ uuid: 'previous' }]);
+    expect(props.allFiles).toStrictEqual([{ uuid: 'previous' }]);
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(1);
   });
 
@@ -45,10 +61,10 @@ describe('fetch-files-by-folder', () => {
     getFilesByFolderMock.mockResolvedValueOnce({ data: [] });
 
     // When
-    await fetchFilesByFolder({ folderUuid, allFiles });
+    await fetchFilesByFolder(props);
 
     // Then
-    expect(allFiles).toHaveLength(51);
+    expect(props.allFiles).toHaveLength(51);
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(2);
   });
 
@@ -62,7 +78,7 @@ describe('fetch-files-by-folder', () => {
     getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
 
     // When
-    await expect(() => fetchFilesByFolder({ folderUuid, allFiles: [] })).rejects.toThrowError();
+    await expect(() => fetchFilesByFolder(props)).rejects.toThrowError();
 
     // Then
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(6);
