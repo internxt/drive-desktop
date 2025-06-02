@@ -3,7 +3,14 @@ import { handleError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 type TProps<T> = {
   loggerBody: TLoggerBody;
-  promise: Promise<{ data: T; error: undefined; response: Response } | { data: undefined; error: unknown; response: Response }>;
+  promise: Promise<
+    | { data: T; error: undefined; response: Response }
+    | {
+        data: undefined;
+        error: unknown;
+        response: Response;
+      }
+  >;
 };
 
 export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {

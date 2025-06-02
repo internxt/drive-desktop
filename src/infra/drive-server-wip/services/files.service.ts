@@ -84,7 +84,8 @@ export class FilesService {
   }
 
   replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
-    const promise = () => clientWrapper({
+    const promise = () =>
+      clientWrapper({
         promise: client.PUT('/files/{uuid}', {
           body: { fileId: context.newContentId, size: context.newSize },
           params: { path: { uuid: context.uuid } },
