@@ -104,6 +104,8 @@ export class Addon {
       basePath,
     );
 
+    this.parseAddonZod('createPlaceholderFile', result);
+
     if (!result.success) {
       logger.error({
         msg: 'Failed to create placeholder file',
@@ -150,6 +152,8 @@ export class Addon {
       lastAccessTime,
       path,
     );
+
+    this.parseAddonZod('createEntry', result);
 
     if (!result.success) {
       logger.error({
