@@ -16,6 +16,7 @@ export async function fetchFilesByFolder({ folderUuid, allFiles, abortSignal, of
 
   while (hasMore && !abortSignal.aborted) {
     logger.debug({
+      tag: 'BACKUPS',
       msg: 'Fetching backup files',
       folderUuid,
       offset,

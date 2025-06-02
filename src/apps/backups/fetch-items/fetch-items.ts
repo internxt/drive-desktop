@@ -11,6 +11,7 @@ type TProps = {
 export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps) {
   try {
     logger.debug({
+      tag: 'BACKUPS',
       msg: 'Fetch backup items started',
       folderUuid,
     });
@@ -27,6 +28,7 @@ export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps)
     });
 
     logger.debug({
+      tag: 'BACKUPS',
       msg: 'Fetch backup items finished',
       folderUuid,
       files: allFiles.length,
@@ -36,6 +38,7 @@ export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps)
     return { folders: allFolders, files: allFiles };
   } catch (error) {
     throw logger.error({
+      tag: 'BACKUPS',
       msg: 'Fetch backup items failed',
       folderUuid,
       exc: error,
