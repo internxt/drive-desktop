@@ -56,6 +56,10 @@ export async function launchBackupProcesses(
       backupInfo,
     });
 
+    if (abortController.signal.aborted) {
+      continue;
+    }
+
     const context: BackupsContext = {
       ...backupInfo,
       abortController,
@@ -66,10 +70,6 @@ export async function launchBackupProcesses(
         });
       },
     };
-
-    if (abortController.signal.aborted) {
-      continue;
-    }
 
     tracker.backing();
 
