@@ -7,7 +7,6 @@ import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
-import { sleep } from '../../util';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
