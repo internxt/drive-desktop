@@ -19,7 +19,7 @@ export function SelectedFoldersSection({ className, onGoToList }: SelectedFolder
   return (
     <section className={`${className}`}>
       <SectionHeader>{translate('settings.backups.selected-folders-title')}</SectionHeader>
-      <Button variant="secondary" disabled={!isBackupAvailable || backupStatus === 'RUNNING'} onClick={onGoToList} size="md">
+      <Button variant="secondary" disabled={!isBackupAvailable || backupStatus !== 'STANDBY'} onClick={onGoToList} size="md">
         {translate('settings.backups.select-folders')}
       </Button>
       <SecondaryText className="ml-2 inline">

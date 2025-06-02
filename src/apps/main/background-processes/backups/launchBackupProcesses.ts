@@ -7,6 +7,7 @@ import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
+import { sleep } from '../../util';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -18,7 +19,7 @@ export async function launchBackupProcesses(
   status: BackupsProcessStatus,
 ): Promise<void> {
   if (!backupsCanRun(status)) {
-    logger.debug({ tag: 'BACKUPS', msg: 'Already running' });
+    logger.debug({ tag: 'BACKUPS', msg: 'Already running', status });
     return;
   }
 
@@ -42,7 +43,7 @@ export async function launchBackupProcesses(
   ipcMain.once('stop-backups-process', () => {
     logger.debug({ tag: 'BACKUPS', msg: 'Backups aborted' });
     abortController.abort();
-    status.set('STANDBY');
+    status.set('STOPPING');
   });
 
   clearBackupsIssues();
