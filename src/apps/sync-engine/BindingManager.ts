@@ -18,6 +18,8 @@ import { Callbacks } from '@/node-win/types/callbacks.type';
 import { QueueItem } from '@/node-win/queue/queueManager';
 import { QueueManager } from '@/node-win/queue/queue-manager';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
+import { iconPath } from '../utils/icon';
+import { INTERNXT_VERSION } from '@/core/utils/utils';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -30,10 +32,6 @@ export class BindingsManager {
 
   constructor(
     public readonly container: DependencyContainer,
-    private readonly paths: {
-      root: string;
-      icon: string;
-    },
     private readonly PROVIDER_NAME: string,
     private readonly fetchData = new FetchDataService(),
     private readonly handleHydrate = new HandleHydrateService(),
@@ -41,12 +39,12 @@ export class BindingsManager {
     private readonly handleAdd = new HandleAddService(),
     private readonly handleChangeSize = new HandleChangeSizeService(),
   ) {
-    Logger.info(`Running sync engine ${paths.root}`);
+    logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
 
     this.controllers = buildControllers(this.container);
   }
 
-  async start(version: string) {
+  async start() {
     const callbacks: Callbacks = {
       notifyDeleteCallback: (placeholderId: string, callback: (response: boolean) => void) => {
         try {
@@ -134,9 +132,9 @@ export class BindingsManager {
     this.stop();
 
     this.container.virtualDrive.registerSyncRoot({
-      providerName: this.PROVIDER_NAME,
-      providerVersion: version,
-      logoPath: this.paths.icon,
+      providerName: getConfig().providerName,
+      providerVersion: INTERNXT_VERSION,
+      logoPath: iconPath,
     });
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
@@ -162,7 +160,7 @@ export class BindingsManager {
       handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
     };
 
-    const PATHS = await ipcRenderer.invoke('get-paths');
+    const PATHS = await ipcRendererSyncEngine.invoke('GET_PATHS');
     logger.debug({ msg: 'Paths', paths: PATHS });
 
     const queueManager = new QueueManager({

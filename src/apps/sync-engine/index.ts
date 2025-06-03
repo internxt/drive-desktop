@@ -3,11 +3,9 @@ import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
-import { iconPath } from '../utils/icon';
 import * as Sentry from '@sentry/electron/renderer';
 import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
-import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File';
 import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
@@ -42,18 +40,9 @@ async function setUp() {
 
   await ensureTheFolderExist(rootPath);
 
-  const factory = new DependencyContainerFactory();
+  const container = DependencyContainerFactory.build();
 
-  const container = await factory.build();
-
-  const bindings = new BindingsManager(
-    container,
-    {
-      root: rootPath,
-      icon: iconPath,
-    },
-    providerName,
-  );
+  const bindings = new BindingsManager(container, providerName);
 
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await bindings.updateAndCheckPlaceholders();
@@ -99,7 +88,7 @@ async function setUp() {
     }
   });
 
-  await bindings.start(INTERNXT_VERSION);
+  await bindings.start();
   await bindings.watch();
 
   Logger.info('[SYNC ENGINE] Second sync engine started');
