@@ -4,6 +4,8 @@ import Button from '../../../../components/Button';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { useIssues } from '@/apps/renderer/hooks/useIssues';
 import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
+import { useContext } from 'react';
+import { DeviceContext } from '@/apps/renderer/context/DeviceContext';
 
 interface BackupListItemProps {
   backup: ItemBackup;
@@ -12,6 +14,7 @@ interface BackupListItemProps {
 
 export function BackupListItem({ backup, selected }: BackupListItemProps) {
   const { translate } = useTranslationContext();
+  const { current: currentDevice, selected: selectedDevice } = useContext(DeviceContext);
 
   const { backupIssues } = useIssues();
   const numberOfIssues = backupIssues.filter((issue) => issue.folderUuid === backup.uuid).length;
@@ -35,9 +38,11 @@ export function BackupListItem({ backup, selected }: BackupListItemProps) {
             {numberOfIssues} issues
           </>
         )}
-        <Button variant="secondary" className="ml-2" onClick={findBackupFolder}>
-          {translate('issues.actions.find-folder')}
-        </Button>
+        {selectedDevice === currentDevice && (
+          <Button variant="secondary" className="ml-2" onClick={findBackupFolder}>
+            {translate('issues.actions.find-folder')}
+          </Button>
+        )}
       </span>
     </div>
   );
