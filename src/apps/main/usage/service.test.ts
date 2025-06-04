@@ -1,8 +1,5 @@
 import { calculateUsage } from './service';
-import { driveServerWip, DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { mockDeep } from 'vitest-mock-extended';
-
-const driveServerWipModule = mockDeep<DriveServerWipModule>();
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 describe('UserUsageService', () => {
   const getUsageMock = vi.mocked(driveServerWip.user.getUsage);
