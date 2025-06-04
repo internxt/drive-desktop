@@ -66,11 +66,11 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
   });
 
   describe('upload', () => {
-    it('returns true when both environment and storage uploads succeed', async () => {
+    it('returns error as undefined when both environment and storage uploads succeed', async () => {
       createThumbnailMock.mockResolvedValue({ error: undefined });
 
-      const result = await sut.upload(mockFileId, mockThumbnail);
-      expect(result).toBe(true);
+      const { error } = await sut.upload(mockFileId, mockThumbnail);
+      expect(error).toBe(undefined);
     });
 
     it('returns Error if environment upload fails', async () => {
@@ -80,17 +80,17 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
       });
       loggerMock.error.mockReturnValue(new Error('Error uploading thumbnail to environment'));
 
-      const result = await sut.upload(mockFileId, mockThumbnail);
-      expect(result).toBeInstanceOf(Error);
-      expect((result as Error).message).toContain('Error uploading thumbnail to environment');
+      const { error } = await sut.upload(mockFileId, mockThumbnail);
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toContain('Error uploading thumbnail to environment');
     });
 
     it('returns Error if storage upload fails', async () => {
       createThumbnailMock.mockResolvedValue({ error: new Error('Create thumbnail request was not successful') });
 
-      const result = await sut.upload(mockFileId, mockThumbnail);
-      expect(result).toBeInstanceOf(Error);
-      expect((result as Error).message).toContain('Create thumbnail request was not successful');
+      const { error } = await sut.upload(mockFileId, mockThumbnail);
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toContain('Create thumbnail request was not successful');
     });
   });
 });

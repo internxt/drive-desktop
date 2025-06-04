@@ -1,4 +1,6 @@
 import { addGeneralIssue, GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
+import { z } from 'zod';
+
 /*
  * v2.5.3
  * Alexis Mora
@@ -12,6 +14,16 @@ import { addGeneralIssue, GeneralIssue, removeGeneralIssue } from '@/apps/main/b
  * 2. The request is made successfully, but the server responds with an error status code
  *  - For this case, the error will be in the response.error and the response.status will be set to the error status code.
  * */
+
+const fetchErrorSchema = z.object({
+  code: z.string().optional(),
+  message: z.string().optional(),
+  cause: z
+    .object({
+      code: z.string().optional(),
+    })
+    .optional(),
+});
 
 const errorCodes = [
   'ENOTFOUND',
@@ -39,19 +51,19 @@ const serverErrorIssue: Omit<GeneralIssue, 'tab'> = {
 };
 
 export function isNetworkConnectivityError(error: unknown): boolean {
-  if (typeof error !== 'object' || error === null) {
-    return false;
+  const parsedError = fetchErrorSchema.safeParse(error);
+  if (!parsedError.success) return false;
+
+  const { code, message, cause } = parsedError.data;
+
+  if (typeof code === 'string' && errorCodes.includes(code)) {
+    return true;
   }
 
-  const err = error as any;
-  if (typeof err.code === 'string') {
-    return errorCodes.includes(err?.code);
+  if (typeof cause?.code === 'string' && errorCodes.includes(cause.code)) {
+    return true;
   }
-  if (err.cause !== undefined && typeof err.cause.code === 'string') {
-    return errorCodes.includes(err?.cause?.code);
-  }
-
-  return !!(typeof err.message === 'string' && err.message.includes('Failed to fetch'));
+  return typeof message === 'string' && message.includes('Failed to fetch');
 }
 
 export function isServerError(error: any): boolean {

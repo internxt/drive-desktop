@@ -58,13 +58,13 @@ export class EnvironmentAndStorageThumbnailUploader {
     });
   }
 
-  async upload(fileId: number, thumbnailFile: Buffer) {
+  async upload(fileId: number, thumbnailFile: Buffer): Promise<{ error: Error | undefined }> {
     const uploadToEnvironmentResult = await this.uploadThumbnailToEnvironment(thumbnailFile);
     if (uploadToEnvironmentResult.error) {
-      return uploadToEnvironmentResult.error;
+      return { error: uploadToEnvironmentResult.error };
     }
 
     const { error } = await this.uploadThumbnailToStorage(uploadToEnvironmentResult.data, fileId, thumbnailFile);
-    return error ? error : true;
+    return { error };
   }
 }
