@@ -11,7 +11,7 @@ import { TLogger } from '../logger';
 
 vi.mock(import('./events/on-add.service'));
 
-export let watcher: Watcher | undefined;
+let watcher: Watcher | undefined;
 
 const addon = mockDeep<Addon>();
 const queueManager = mockDeep<QueueManager>();
