@@ -32,7 +32,6 @@ export class BindingsManager {
 
   constructor(
     public readonly container: DependencyContainer,
-    private readonly PROVIDER_NAME: string,
     private readonly fetchData = new FetchDataService(),
     private readonly handleHydrate = new HandleHydrateService(),
     private readonly handleDehydrate = new HandleDehydrateService(),

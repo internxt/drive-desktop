@@ -34,7 +34,7 @@ async function ensureTheFolderExist(path: string) {
 async function setUp() {
   Logger.info('[SYNC ENGINE] Starting sync engine process');
 
-  const { rootPath, providerName } = getConfig();
+  const { rootPath } = getConfig();
 
   Logger.info('[SYNC ENGINE] Going to use root folder: ', rootPath);
 
@@ -42,7 +42,7 @@ async function setUp() {
 
   const container = DependencyContainerFactory.build();
 
-  const bindings = new BindingsManager(container, providerName);
+  const bindings = new BindingsManager(container);
 
   ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await bindings.updateAndCheckPlaceholders();
