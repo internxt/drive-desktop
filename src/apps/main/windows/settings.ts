@@ -24,8 +24,8 @@ async function openSettingsWindow(section?: string) {
       preload: preloadPath,
       nodeIntegration: true,
     },
-    titleBarStyle: process.platform === 'darwin' ? 'hidden' : undefined,
-    frame: process.platform !== 'darwin' ? false : undefined,
+    titleBarStyle: undefined,
+    frame: false,
     resizable: false,
     maximizable: false,
   });

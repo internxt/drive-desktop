@@ -5,12 +5,12 @@ import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { OfflineFile } from '../domain/OfflineFile';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { FileStatuses } from '../domain/FileStatus';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '@/apps/sync-engine/config';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 export class FileCreator {
   constructor(
@@ -18,7 +18,6 @@ export class FileCreator {
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
     private readonly fileDeleter: FileDeleter,
-    private readonly ipc: SyncEngineIpc,
   ) {}
 
   async run(filePath: FilePath, contents: RemoteFileContents, existingFileAlreadyEvaluated = false): Promise<File> {
@@ -50,7 +49,7 @@ export class FileCreator {
 
       this.repository.add(file);
 
-      this.ipc.send('FILE_CREATED', {
+      ipcRendererSyncEngine.send('FILE_CREATED', {
         bucket: getConfig().bucket,
         name: file.name,
         extension: file.type,
@@ -65,7 +64,7 @@ export class FileCreator {
 
       Logger.debug('[DEBUG ERROR IN FILECREATOR]' + filePath.value, error);
 
-      this.ipc.send('FILE_UPLOAD_ERROR', {
+      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
         name: filePath.name(),
         extension: filePath.extension(),
         nameWithExtension: filePath.nameWithExtension(),

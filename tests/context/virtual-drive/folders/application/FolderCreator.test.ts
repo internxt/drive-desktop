@@ -1,20 +1,20 @@
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderMother } from '../domain/FolderMother';
 import { OfflineFolderMother } from '../domain/OfflineFolderMother';
-import { FolderPlaceholderConverter } from '@/context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { mockDeep } from 'vitest-mock-extended';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { FolderId } from '@/context/virtual-drive/folders/domain/FolderId';
 import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderUuid';
 import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
+import VirtualDrive from '@/node-win/virtual-drive';
 
 describe('Folder Creator', () => {
   const repository = mockDeep<InMemoryFolderRepository>();
   const remote = mockDeep<HttpRemoteFolderSystem>();
-  const folderPlaceholderConverter = mockDeep<FolderPlaceholderConverter>();
+  const virtualDrive = mockDeep<VirtualDrive>();
 
-  const SUT = new FolderCreator(repository, remote, folderPlaceholderConverter);
+  const SUT = new FolderCreator(repository, remote, virtualDrive);
 
   beforeEach(() => {
     vi.resetAllMocks();

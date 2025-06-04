@@ -1,6 +1,6 @@
 import { CheckCircle } from 'phosphor-react';
 import React from 'react';
-import { OnboardingSlideProps, getPlatformPhraseTranslationKey } from '../helpers';
+import { OnboardingSlideProps } from '../helpers';
 import { useTranslationContext } from '../../../context/LocalContext';
 
 export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = (props) => {
@@ -36,7 +36,7 @@ export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = (props) 
           </h3>
           <h4 className="font-regular text-base leading-[19px] text-gray-50">
             {translate('onboarding.slides.onboarding-completed.desktop-ready.description', {
-              platform_phrase: translate(getPlatformPhraseTranslationKey(props.platform)),
+              platform_phrase: translate('onboarding.common.platform-phrase.windows'),
             })}
           </h4>
         </div>

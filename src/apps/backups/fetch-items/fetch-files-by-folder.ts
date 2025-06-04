@@ -7,14 +7,16 @@ import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 type TProps = {
   folderUuid: string;
   allFiles: FileDto[];
+  abortSignal: AbortSignal;
   offset?: number;
 };
 
-export async function fetchFilesByFolder({ folderUuid, allFiles, offset = 0 }: TProps) {
+export async function fetchFilesByFolder({ folderUuid, allFiles, abortSignal, offset = 0 }: TProps) {
   let hasMore = true;
 
-  while (hasMore) {
+  while (hasMore && !abortSignal.aborted) {
     logger.debug({
+      tag: 'BACKUPS',
       msg: 'Fetching backup files',
       folderUuid,
       offset,

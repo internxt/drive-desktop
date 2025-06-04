@@ -11,10 +11,10 @@ export default defineConfig({
     },
     reporters: ['verbose'],
     setupFiles: './tests/vitest/setup.helper.test.ts',
-    exclude: ['**/*.helper.test.ts', '**/*.infra.test.ts', '**/node_modules'],
+    exclude: ['**/*.helper.test.ts', '**/node_modules'],
     globals: true,
     root: './',
-    watch: true,
-    testTimeout: 5000,
+    watch: false,
+    testTimeout: 20000,
   },
 });

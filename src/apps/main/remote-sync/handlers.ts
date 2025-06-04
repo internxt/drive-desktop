@@ -17,6 +17,7 @@ import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { FolderStore } from './folders/folder-store';
 import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
+import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 
 export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId: string; worker: TWorkerConfig }) {
   remoteSyncManagers.set(workspaceId, new RemoteSyncManager(worker, workspaceId));
@@ -71,11 +72,11 @@ export async function getUpdatedRemoteItems(workspaceId: string) {
   }
 }
 
-ipcMain.handle('FIND_DANGLED_FILES', async () => {
+void ipcMainSyncEngine.handle('FIND_DANGLED_FILES', async () => {
   return await getLocalDangledFiles();
 });
 
-ipcMain.handle('SET_HEALTHY_FILES', async (_, inputData) => {
+void ipcMainSyncEngine.handle('SET_HEALTHY_FILES', async (_, inputData) => {
   await Queue.enqueue(() => setAsNotDangledFiles(inputData));
 });
 
@@ -227,7 +228,13 @@ ipcMain.handle('DELETE_ITEM_DRIVE', async (_, itemId: FilePlaceholderId | Folder
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
   Logger.info('Getting items by folder uuid', folderUuid);
 
-  const { folders } = await fetchItems({ folderUuid, skipFiles: true });
+  const abortController = new AbortController();
+
+  const { folders } = await fetchItems({
+    folderUuid,
+    skipFiles: true,
+    abortSignal: abortController.signal,
+  });
 
   return folders.map((folder) => ({
     id: folder.id,

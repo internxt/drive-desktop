@@ -1,4 +1,3 @@
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
@@ -13,7 +12,6 @@ import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/
 import { LocalFileIdProvider } from '../../../../context/virtual-drive/shared/application/LocalFileIdProvider';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { FileSyncronizer } from '../../../../context/virtual-drive/files/application/FileSyncronizer';
-import { FilePlaceholderConverter } from '../../../../context/virtual-drive/files/application/FIlePlaceholderConverter';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsUpdater } from '../../../../context/virtual-drive/files/application/FileContentsUpdater';
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
@@ -48,9 +46,9 @@ export function buildFilesContainer(
 
   const sameFileWasMoved = new SameFileWasMoved(repository, localFileSystem, eventHistory);
 
-  const filePathUpdater = new FilePathUpdater(repository, folderContainer.folderFinder, ipcRendererSyncEngine);
+  const filePathUpdater = new FilePathUpdater(repository, folderContainer.folderFinder);
 
-  const fileCreator = new FileCreator(remoteFileSystem, repository, folderContainer.folderFinder, fileDeleter, ipcRendererSyncEngine);
+  const fileCreator = new FileCreator(remoteFileSystem, repository, folderContainer.folderFinder, fileDeleter);
 
   const localFileIdProvider = new LocalFileIdProvider(sharedContainer.relativePathToAbsoluteConverter);
 
@@ -63,8 +61,6 @@ export function buildFilesContainer(
   );
 
   const filesPlaceholderDeleter = new FilesPlaceholderDeleter(virtualDrive);
-
-  const filePlaceholderConverter = new FilePlaceholderConverter(virtualDrive);
 
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
@@ -81,7 +77,7 @@ export function buildFilesContainer(
   const fileSyncronizer = new FileSyncronizer(
     repository,
     fileSyncStatusUpdater,
-    filePlaceholderConverter,
+    virtualDrive,
     fileIdentityUpdater,
     fileCreator,
     sharedContainer.absolutePathToRelativeConverter,
@@ -101,7 +97,6 @@ export function buildFilesContainer(
     sameFileWasMoved,
     filesPlaceholderUpdater,
     filesPlaceholderDeleter,
-    filePlaceholderConverter,
     fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
     fileIdentityUpdater,

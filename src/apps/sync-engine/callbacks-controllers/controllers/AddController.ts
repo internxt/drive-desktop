@@ -12,6 +12,7 @@ import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/d
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';
 import * as Sentry from '@sentry/electron/renderer';
 import { sleep } from '@/apps/main/util';
+import { logger } from '@/apps/shared/logger/logger';
 export class AddController extends CallbackController {
   // Gets called when:
   // - a file has been added
@@ -130,7 +131,7 @@ export class AddController extends CallbackController {
         return;
       }
     } else {
-      Logger.debug('[Is File]', posixRelativePath);
+      logger.debug({ tag: 'SYNC-ENGINE', msg: '[Is File]', posixRelativePath });
       try {
         return await this.createFile(posixRelativePath, attempts);
       } catch (error) {

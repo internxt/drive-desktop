@@ -267,9 +267,6 @@ contextBridge.exposeInMainWorld('electron', {
   getUsage() {
     return ipcRenderer.invoke('get-usage');
   },
-  getPlatform() {
-    return ipcRenderer.invoke('get-platform');
-  },
   resizeWindow(dimensions) {
     return ipcRenderer.invoke('resize-focused-window', dimensions);
   },

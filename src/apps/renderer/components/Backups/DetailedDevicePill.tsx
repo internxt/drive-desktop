@@ -8,15 +8,16 @@ import { ShowBackupsIssues } from './ShowBackupsIssues';
 import { DeviceContext } from '../../context/DeviceContext';
 import { BackupContext } from '../../context/BackupContext';
 import { useIssues } from '../../hooks/useIssues';
+import { BackupsStatus } from '@/apps/main/background-processes/backups/BackupsProcessStatus/BackupsStatus';
 
 interface DetailedDevicePillProps {
   showIssues: () => void;
 }
 
-function BackingUp() {
+function BackingUp({ backupStatus }: { backupStatus: BackupsStatus }) {
   return (
     <span className="flex flex-row items-center text-primary">
-      <ArrowCircleUp className="mr-2 text-primary" /> Backing up...
+      <ArrowCircleUp className="mr-2 text-primary" /> {backupStatus === 'STOPPING' ? 'Stopping backup...' : 'Backing up...'}
     </span>
   );
 }
@@ -49,7 +50,7 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
         <div className="grow">
           {selected?.name}
           <br />
-          {selected?.id === current?.id && thereIsProgress ? <BackingUp /> : <LastBackupMade />}
+          {selected?.id === current?.id && thereIsProgress ? <BackingUp backupStatus={backupStatus} /> : <LastBackupMade />}
         </div>
         {selected === current && thereIsProgress && <BackupsProgressPercentage progress={percentualProgress} />}
       </div>

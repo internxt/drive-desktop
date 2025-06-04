@@ -15,7 +15,7 @@ type TAddon = {
     lastWriteTime: string,
     lastAccessTime: string,
     path: string,
-  ): any;
+  ): z.infer<typeof addonZod.createPlaceholderFile>;
   createEntry(
     itemName: string,
     itemId: string,
@@ -26,7 +26,7 @@ type TAddon = {
     lastWriteTime: string,
     lastAccessTime: string,
     path: string,
-  ): any;
+  ): z.infer<typeof addonZod.createEntry>;
   hydrateFile(path: string): Promise<z.infer<typeof addonZod.hydrateFile>>;
   dehydrateFile(path: string): z.infer<typeof addonZod.dehydrateFile>;
   connectSyncRoot(path: string, callbacks: InputSyncCallbacks): z.infer<typeof addonZod.connectSyncRoot>;

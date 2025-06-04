@@ -9,7 +9,15 @@ export class Addon {
   private parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
     const schema = addonZod[fn];
     const result = schema.safeParse(data);
-    if (result.error) console.error(fn, result.error);
+
+    if (result.error) {
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: `Error parsing ${fn}`,
+        error: result.error,
+      });
+    }
+
     return data;
   }
 
@@ -103,9 +111,20 @@ export class Addon {
       lastAccessTime,
       basePath,
     );
+
+    this.parseAddonZod('createPlaceholderFile', result);
+
     if (!result.success) {
-      logger.error({ msg: 'Failed to create placeholder file', fileName, fileId, basePath, error: result.errorMessage, tag: 'NODE-WIN' });
+      logger.error({
+        msg: 'Failed to create placeholder file',
+        fileName,
+        fileId,
+        basePath,
+        error: result.errorMessage,
+        tag: 'NODE-WIN',
+      });
     }
+
     return result.success;
   }
 
@@ -141,9 +160,20 @@ export class Addon {
       lastAccessTime,
       path,
     );
+
+    this.parseAddonZod('createEntry', result);
+
     if (!result.success) {
-      logger.error({ msg: 'Failed to create placeholder directory', itemName, itemId, path, error: result.errorMessage, tag: 'NODE-WIN' });
+      logger.error({
+        msg: 'Failed to create placeholder directory',
+        itemName,
+        itemId,
+        path,
+        error: result.errorMessage,
+        tag: 'NODE-WIN',
+      });
     }
+
     return result.success;
   }
 
@@ -157,10 +187,27 @@ export class Addon {
 
   convertToPlaceholder({ path, id }: { path: string; id: string }) {
     const result = addon.convertToPlaceholder(path, id);
-    logger.debug({ msg: JSON.stringify(result), path, id, tag: 'NODE-WIN' });
+
+    this.parseAddonZod('convertToPlaceholder', result);
+
+    logger.debug({
+      msg: 'Convert to placeholder',
+      result,
+      path,
+      id,
+      tag: 'NODE-WIN',
+    });
+
     if (!result.success) {
-      logger.error({ msg: 'Failed to convert to placeholder', path, id, error: result.errorMessage, tag: 'NODE-WIN' });
+      logger.error({
+        msg: 'Failed to convert to placeholder',
+        path,
+        id,
+        error: result.errorMessage,
+        tag: 'NODE-WIN',
+      });
     }
+
     return result.success;
   }
 

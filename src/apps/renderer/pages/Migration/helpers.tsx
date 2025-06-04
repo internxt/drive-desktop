@@ -1,3 +1,4 @@
+import { DesktopPlatform } from '@/apps/main/platform/DesktopPlatform';
 import { LocalContextProps } from '../../context/LocalContext';
 
 export type MigrationSlideProps = {
@@ -6,7 +7,7 @@ export type MigrationSlideProps = {
   onStartMigration: () => void;
   onCancelMigration: () => void;
   onShowFailedItems: () => void;
-  platform: string;
+  platform: DesktopPlatform;
   currentSlide: number;
   totalSlides: number;
   translate: LocalContextProps['translate'];

@@ -2,6 +2,7 @@ import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine'
 import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { ContentsUploader } from './ContentsUploader';
 import Logger from 'electron-log';
+import { logger } from '@/apps/shared/logger/logger';
 
 function getFormattedFileSize(error: { context?: { fileSize?: number } }): string {
   const fileSize = error?.context?.fileSize;
@@ -74,6 +75,12 @@ export class RetryContentsUploader {
   async run(posixRelativePath: string): Promise<RemoteFileContents> {
     await new Promise((resolve) => {
       setTimeout(resolve, RetryContentsUploader.INITIAL_DELAY);
+    });
+
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Upload file',
+      posixRelativePath,
     });
 
     const upload = () => this.uploader.run(posixRelativePath);

@@ -12,7 +12,6 @@ import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FoldersContainer } from './FoldersContainer';
 import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
-import { FolderPlaceholderConverter } from '../../../../context/virtual-drive/folders/application/FolderPlaceholderConverter';
 import { FolderPlaceholderDeleter } from './../../../../context/virtual-drive/folders/application/FolderPlaceholderDeleter';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 import { getConfig } from '../../config';
@@ -26,15 +25,13 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
   const localFolderSystem = new NodeWinLocalFolderSystem(virtualDrive);
   const remoteFolderSystem = new HttpRemoteFolderSystem(getConfig().workspaceId ?? null);
 
-  const folderPlaceholderConverter = new FolderPlaceholderConverter(virtualDrive);
-
   const folderFinder = new FolderFinder(repository);
 
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
 
   const folderDeleter = new FolderDeleter(repository, remoteFolderSystem, localFolderSystem, allParentFoldersStatusIsExists);
 
-  const folderCreator = new FolderCreator(repository, remoteFolderSystem, folderPlaceholderConverter);
+  const folderCreator = new FolderCreator(repository, remoteFolderSystem, virtualDrive);
 
   const folderMover = new FolderMover(repository, remoteFolderSystem, folderFinder);
   const folderRenamer = new FolderRenamer(repository, remoteFolderSystem);
@@ -67,6 +64,5 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
     folderPlaceholderDeleter,
     folderRepository: repository,
     folderPlaceholderUpdater,
-    folderPlaceholderConverter,
   };
 }

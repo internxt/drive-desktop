@@ -1,59 +1,27 @@
-import { sleep } from '../util';
-import { Usage } from './Usage';
-import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 const INFINITE_SPACE_TRHESHOLD = 108851651149824;
 const OFFER_UPGRADE_TRHESHOLD = 2199023255552;
 
-export class UserUsageService {
-  constructor(private driveServerWip = driveServerWipModule) {}
-  private async retry<T>(fn: () => Promise<T>, retries = 3, delay = 1000): Promise<T> {
-    let attempts = 0;
-    while (attempts < retries) {
-      try {
-        return await fn();
-      } catch (error) {
-        attempts++;
-        if (attempts >= retries) throw error;
-        await sleep(delay);
-        delay *= 2;
-      }
-    }
-    throw new Error('Max retries reached');
-  }
+async function getUsage() {
+  const res = await driveServerWip.user.getUsage();
+  if (!res.data) throw res.error;
+  return res.data.drive;
+}
 
-  private async getDriveUsage(): Promise<number> {
-    return await this.retry(async () => {
-      const res = await this.driveServerWip.user.getUsage();
-      if (res.error) throw res.error;
-      return res.data.drive;
-    });
-  }
+async function getLimit() {
+  const res = await driveServerWip.user.getLimit();
+  if (!res.data) throw res.error;
+  return res.data.maxSpaceBytes;
+}
 
-  private async getLimit(): Promise<number> {
-    return await this.retry(async () => {
-      const res = await this.driveServerWip.user.getLimit();
-      if (res.error) throw res.error;
-      return res.data.maxSpaceBytes;
-    });
-  }
+export async function calculateUsage() {
+  const [usageInBytes, limitInBytes] = await Promise.all([getUsage(), getLimit()]);
 
-  async calculateUsage(): Promise<Usage> {
-    const [driveUsage, limitInBytes] = await Promise.all([this.getDriveUsage(), this.getLimit()]);
-
-    return {
-      usageInBytes: driveUsage,
-      limitInBytes,
-      isInfinite: limitInBytes >= INFINITE_SPACE_TRHESHOLD,
-      offerUpgrade: limitInBytes < OFFER_UPGRADE_TRHESHOLD,
-    };
-  }
-  async raw() {
-    const [driveUsage, limitInBytes] = await Promise.all([this.getDriveUsage(), this.getLimit()]);
-
-    return {
-      driveUsage,
-      limitInBytes,
-    };
-  }
+  return {
+    usageInBytes,
+    limitInBytes,
+    isInfinite: limitInBytes >= INFINITE_SPACE_TRHESHOLD,
+    offerUpgrade: limitInBytes < OFFER_UPGRADE_TRHESHOLD,
+  };
 }

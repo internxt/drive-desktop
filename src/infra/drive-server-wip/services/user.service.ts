@@ -1,34 +1,39 @@
 import { client } from '@/apps/shared/HttpClient/client';
-import { clientWrapper } from '../in/client-wrapper.service';
+import { ClientWrapperService } from '../in/client-wrapper.service';
+import { retryWrapper } from '../out/retry-wrapper';
 
 export class UserService {
-  getUsage() {
-    const promise = client.GET('/users/usage');
+  constructor(private readonly clientWrapper = new ClientWrapperService()) {}
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get usage request was not successful',
-        attributes: {
-          method: 'GET',
-          endpoint: '/users/usage',
+  getUsage() {
+    const promise = () =>
+      this.clientWrapper.run({
+        promise: client.GET('/users/usage'),
+        loggerBody: {
+          msg: 'Get usage request was not successful',
+          attributes: {
+            method: 'GET',
+            endpoint: '/users/usage',
+          },
         },
-      },
-    });
+      });
+
+    return retryWrapper({ promise });
   }
 
   getLimit() {
-    const promise = client.GET('/users/limit');
-
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get limit request was not successful',
-        attributes: {
-          method: 'GET',
-          endpoint: '/users/limit',
+    const promise = () =>
+      this.clientWrapper.run({
+        promise: client.GET('/users/limit'),
+        loggerBody: {
+          msg: 'Get limit request was not successful',
+          attributes: {
+            method: 'GET',
+            endpoint: '/users/limit',
+          },
         },
-      },
-    });
+      });
+
+    return retryWrapper({ promise });
   }
 }
