@@ -42,7 +42,7 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
 
       const result = await sut.uploadThumbnailToEnvironment(mockThumbnail);
       expect(result.error).toBeInstanceOf(Error);
-      expect((result.error as Error).message).toContain('Error uploading thumbnail to environment');
+      expect(result.error?.message).toContain('Error uploading thumbnail to environment');
     });
   });
 
@@ -82,7 +82,7 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
 
       const { error } = await sut.upload(mockFileId, mockThumbnail);
       expect(error).toBeInstanceOf(Error);
-      expect((error as Error).message).toContain('Error uploading thumbnail to environment');
+      expect(error?.message).toContain('Error uploading thumbnail to environment');
     });
 
     it('returns Error if storage upload fails', async () => {
@@ -90,7 +90,7 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
 
       const { error } = await sut.upload(mockFileId, mockThumbnail);
       expect(error).toBeInstanceOf(Error);
-      expect((error as Error).message).toContain('Create thumbnail request was not successful');
+      expect(error?.message).toContain('Create thumbnail request was not successful');
     });
   });
 });
