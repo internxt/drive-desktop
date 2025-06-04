@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Usage } from '../../main/usage/Usage';
-import { debounce } from 'lodash';
+import lodashDebounce from 'lodash.debounce';
 
 export default function useUsage() {
   const [usage, setUsage] = useState<Usage>();
@@ -22,7 +22,7 @@ export default function useUsage() {
     }
   }, []);
 
-  const debouncedUpdateUsage = useCallback(debounce(updateUsage, 500), []);
+  const debouncedUpdateUsage = useCallback(lodashDebounce(updateUsage, 500), []);
 
   useEffect(() => {
     setStatus('loading');

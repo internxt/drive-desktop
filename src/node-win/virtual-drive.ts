@@ -17,7 +17,6 @@ const PLACEHOLDER_ATTRIBUTES = {
 export class VirtualDrive {
   syncRootPath: string;
   providerId: string;
-  callbacks?: Callbacks;
   watcher = new Watcher();
   logger: TLogger;
 
