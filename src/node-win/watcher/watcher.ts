@@ -1,4 +1,4 @@
-import { watch, WatchOptions, FSWatcher } from 'chokidar';
+import { watch, ChokidarOptions, FSWatcher } from 'chokidar';
 
 import { OnAddDirService } from './events/on-add-dir.service';
 import { OnRawService } from './events/on-raw.service';
@@ -9,7 +9,7 @@ import { onAdd } from './events/on-add.service';
 
 export class Watcher {
   syncRootPath!: string;
-  options!: WatchOptions;
+  options!: ChokidarOptions;
   addon!: Addon;
   queueManager!: QueueManager;
   logger!: TLogger;
@@ -21,7 +21,7 @@ export class Watcher {
     private readonly onRaw: OnRawService = new OnRawService(),
   ) {}
 
-  init(queueManager: QueueManager, syncRootPath: string, options: WatchOptions, logger: TLogger, addon: Addon) {
+  init(queueManager: QueueManager, syncRootPath: string, options: ChokidarOptions, logger: TLogger, addon: Addon) {
     this.queueManager = queueManager;
     this.syncRootPath = syncRootPath;
     this.options = options;
@@ -33,7 +33,7 @@ export class Watcher {
     this.logger.debug({ msg: 'onChange', path });
   };
 
-  private onError = (error: Error) => {
+  private onError = (error: unknown) => {
     this.logger.error({ msg: 'onError', error });
   };
 
