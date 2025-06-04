@@ -5,11 +5,8 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { deepMocked } from '../../../../../tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { ActionState } from '@internxt/inxt-js/build/api';
-import { logger } from '@/apps/shared/logger/logger';
-
-vi.mock('@/infra/drive-server-wip/drive-server-wip.module');
+import { loggerMock } from 'tests/vitest/mocks.helper.test';
 vi.mock('@internxt/inxt-js/build');
-vi.mock('@/apps/shared/logger/logger');
 
 describe('EnvironmentAndStorageThumbnailUploader', () => {
   const createThumbnailMock = deepMocked(driveServerWipModule.files.createThumbnail);
@@ -17,7 +14,6 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
   const mockFileId = 123;
   const mockThumbnail = Buffer.from('mock-thumbnail');
   const environmentMocked = mockDeep<Environment>();
-  const loggerMocked = deepMocked(logger.error);
   let sut: EnvironmentAndStorageThumbnailUploader;
 
   beforeEach(() => {
@@ -42,11 +38,11 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
         options.finishedCallback(new Error('upload error'), '');
         return {} as ActionState;
       });
-      loggerMocked.mockReturnValue(new Error('upload error'));
+      loggerMock.error.mockReturnValue(new Error('Error uploading thumbnail to environment'));
 
       const result = await sut.uploadThumbnailToEnvironment(mockThumbnail);
       expect(result.error).toBeInstanceOf(Error);
-      expect((result.error as Error).message).toContain('upload error');
+      expect((result.error as Error).message).toContain('Error uploading thumbnail to environment');
     });
   });
 
@@ -59,12 +55,13 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
     });
 
     it('returns Error if thumbnail creation fails', async () => {
-      const error = new Error('thumbnail error');
+      const error = new Error('Create thumbnail request was not successful');
       createThumbnailMock.mockResolvedValue({ error });
-      loggerMocked.mockReturnValue(error);
+      loggerMock.error.mockReturnValue(error);
 
       const result = await sut.uploadThumbnailToStorage('env-id', mockFileId, mockThumbnail);
       expect(result.error).toBe(error);
+      expect(result.error?.message).toContain('Create thumbnail request was not successful');
     });
   });
 
@@ -81,19 +78,19 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
         options.finishedCallback(new Error('env error'), '');
         return {} as ActionState;
       });
-      loggerMocked.mockReturnValue(new Error('env error'));
+      loggerMock.error.mockReturnValue(new Error('Error uploading thumbnail to environment'));
 
       const result = await sut.upload(mockFileId, mockThumbnail);
       expect(result).toBeInstanceOf(Error);
-      expect((result as Error).message).toContain('env error');
+      expect((result as Error).message).toContain('Error uploading thumbnail to environment');
     });
 
     it('returns Error if storage upload fails', async () => {
-      createThumbnailMock.mockResolvedValue({ error: new Error('storage fail') });
+      createThumbnailMock.mockResolvedValue({ error: new Error('Create thumbnail request was not successful') });
 
       const result = await sut.upload(mockFileId, mockThumbnail);
       expect(result).toBeInstanceOf(Error);
-      expect((result as Error).message).toContain('storage fail');
+      expect((result as Error).message).toContain('Create thumbnail request was not successful');
     });
   });
 });
