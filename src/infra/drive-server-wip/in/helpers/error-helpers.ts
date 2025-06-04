@@ -60,10 +60,10 @@ export function isNetworkConnectivityError(error: unknown): boolean {
     return true;
   }
 
-  if (cause?.code === 'string' && errorCodes.includes(cause.code)) {
+  if (cause?.code && errorCodes.includes(cause.code)) {
     return true;
   }
-  return typeof message === 'string' && message.includes('Failed to fetch');
+  return !!(message && message.includes('Failed to fetch'));
 }
 
 export function isServerError(error: any): boolean {
