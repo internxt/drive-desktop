@@ -4,17 +4,16 @@ import { FileAlreadyExistsError } from '../domain/errors/FileAlreadyExistsError'
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { FolderFinder } from '../../folders/application/FolderFinder';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { logger } from '../../../../apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 export class FilePathUpdater {
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly folderFinder: FolderFinder,
-    private readonly ipc: SyncEngineIpc,
   ) {}
 
   private async rename(file: File, path: FilePath) {
@@ -90,7 +89,7 @@ export class FilePathUpdater {
       });
 
       if (destinationFile) {
-        this.ipc.send('FILE_RENAME_ERROR', {
+        ipcRendererSyncEngine.send('FILE_RENAME_ERROR', {
           name: file.name,
           extension: file.type,
           nameWithExtension: file.nameWithExtension,
@@ -106,12 +105,12 @@ export class FilePathUpdater {
       Logger.debug('[RUN RENAME]', file.name, destination.value);
 
       if (destination.extensionMatch(file.type)) {
-        this.ipc.send('FILE_RENAMING', {
+        ipcRendererSyncEngine.send('FILE_RENAMING', {
           oldName: file.name,
           nameWithExtension: destination.nameWithExtension(),
         });
         await this.rename(file, destination);
-        this.ipc.send('FILE_RENAMED', {
+        ipcRendererSyncEngine.send('FILE_RENAMED', {
           oldName: file.name,
           nameWithExtension: destination.nameWithExtension(),
         });

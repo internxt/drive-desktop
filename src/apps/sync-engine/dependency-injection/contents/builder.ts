@@ -8,34 +8,26 @@ import { temporalFolderProvider } from '../../../../context/virtual-drive/conten
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { getConfig } from '../../config';
 
 export function buildContentsContainer(sharedContainer: SharedContainer): ContentsContainer {
-  const mnemonic = getConfig().mnemonic;
-
   const environment = new Environment({
     bridgeUrl: process.env.DRIVE_URL,
     bridgeUser: getConfig().bridgeUser,
     bridgePass: getConfig().bridgePass,
-    encryptionKey: mnemonic,
+    encryptionKey: getConfig().mnemonic,
   });
 
   const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, getConfig().bucket);
 
   const contentsProvider = new FSLocalFileProvider();
-  const contentsUploader = new ContentsUploader(
-    contentsManagerFactory,
-    contentsProvider,
-    ipcRendererSyncEngine,
-    sharedContainer.relativePathToAbsoluteConverter,
-  );
+  const contentsUploader = new ContentsUploader(contentsManagerFactory, contentsProvider, sharedContainer.relativePathToAbsoluteConverter);
 
   const retryContentsUploader = new RetryContentsUploader(contentsUploader);
 
   const localWriter = new FSLocalFileWriter(temporalFolderProvider);
 
-  const contentsDownloader = new ContentsDownloader(contentsManagerFactory, localWriter, ipcRendererSyncEngine, temporalFolderProvider);
+  const contentsDownloader = new ContentsDownloader(contentsManagerFactory, localWriter, temporalFolderProvider);
 
   return {
     contentsUploader: retryContentsUploader,

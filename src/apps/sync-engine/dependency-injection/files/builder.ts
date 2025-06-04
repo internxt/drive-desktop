@@ -1,4 +1,3 @@
-import { ipcRendererSyncEngine } from '../../ipcRendererSyncEngine';
 import { DependencyInjectionEventRepository } from '../common/eventRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { FoldersContainer } from '../folders/FoldersContainer';
@@ -47,9 +46,9 @@ export function buildFilesContainer(
 
   const sameFileWasMoved = new SameFileWasMoved(repository, localFileSystem, eventHistory);
 
-  const filePathUpdater = new FilePathUpdater(repository, folderContainer.folderFinder, ipcRendererSyncEngine);
+  const filePathUpdater = new FilePathUpdater(repository, folderContainer.folderFinder);
 
-  const fileCreator = new FileCreator(remoteFileSystem, repository, folderContainer.folderFinder, fileDeleter, ipcRendererSyncEngine);
+  const fileCreator = new FileCreator(remoteFileSystem, repository, folderContainer.folderFinder, fileDeleter);
 
   const localFileIdProvider = new LocalFileIdProvider(sharedContainer.relativePathToAbsoluteConverter);
 

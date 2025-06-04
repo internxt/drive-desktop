@@ -1,23 +1,22 @@
 import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
-import { LocalContentsProvider } from '../domain/LocalFileProvider';
 import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import Logger from 'electron-log';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { FSLocalFileProvider } from '../infrastructure/FSLocalFileProvider';
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: EnvironmentRemoteFileContentsManagersFactory,
-    private readonly contentProvider: LocalContentsProvider,
-    private readonly ipc: SyncEngineIpc,
+    private readonly contentProvider: FSLocalFileProvider,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
   private registerEvents(uploader: ContentFileUploader, localFileContents: LocalFileContents) {
     uploader.on('start', () => {
-      this.ipc.send('FILE_UPLOADING', {
+      ipcRendererSyncEngine.send('FILE_UPLOADING', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
@@ -27,7 +26,7 @@ export class ContentsUploader {
     });
 
     uploader.on('progress', (progress: number) => {
-      this.ipc.send('FILE_UPLOADING', {
+      ipcRendererSyncEngine.send('FILE_UPLOADING', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
@@ -37,7 +36,7 @@ export class ContentsUploader {
     });
 
     uploader.on('error', (error: Error) => {
-      this.ipc.send('FILE_UPLOAD_ERROR', {
+      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
@@ -46,7 +45,7 @@ export class ContentsUploader {
     });
 
     uploader.on('finish', () => {
-      this.ipc.send('FILE_UPLOADED', {
+      ipcRendererSyncEngine.send('FILE_UPLOADED', {
         name: localFileContents.name,
         extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
@@ -69,6 +68,7 @@ export class ContentsUploader {
       this.registerEvents(uploader, contents);
 
       const contentsId = await uploader.upload(contents.stream, contents.size);
+      console.log('🚀 ~ ContentsUploader ~ run ~ contentsId:', contentsId);
 
       const fileContents = RemoteFileContents.create(contentsId, contents.size);
 
