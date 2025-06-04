@@ -68,7 +68,6 @@ export class ContentsUploader {
       this.registerEvents(uploader, contents);
 
       const contentsId = await uploader.upload(contents.stream, contents.size);
-      console.log('🚀 ~ ContentsUploader ~ run ~ contentsId:', contentsId);
 
       const fileContents = RemoteFileContents.create(contentsId, contents.size);
 
