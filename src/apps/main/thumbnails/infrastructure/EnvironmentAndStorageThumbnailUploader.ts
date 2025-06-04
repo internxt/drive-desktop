@@ -4,6 +4,7 @@ import { Readable } from 'stream';
 
 import { ThumbnailProperties } from '../domain/ThumbnailProperties';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class EnvironmentAndStorageThumbnailUploader {
   constructor(
@@ -35,14 +36,15 @@ export class EnvironmentAndStorageThumbnailUploader {
           source: thumbnailStream,
         });
       });
-      return await promise;
+      const data = await promise;
+      return { data };
     } catch (error) {
-      return new Error(`Error uploading thumbnail to environment: ${error instanceof Error ? error.message : String(error)}`);
+      return { error: logger.error({ msg: 'Error uploading thumbnail to environment', error }) };
     }
   }
 
   async uploadThumbnailToStorage(fileIdOnEnvironment: string, fileId: number, thumbnailFile: Buffer) {
-    const { error } = await driveServerWipModule.files.createThumbnail({
+    return await driveServerWipModule.files.createThumbnail({
       body: {
         fileId,
         maxWidth: ThumbnailProperties.dimensions,
@@ -54,16 +56,15 @@ export class EnvironmentAndStorageThumbnailUploader {
         encryptVersion: StorageTypes.EncryptionVersion.Aes03,
       },
     });
-    return error ? error : true;
   }
 
-  async upload(fileId: number, thumbnailFile: Buffer): Promise<Error | true> {
+  async upload(fileId: number, thumbnailFile: Buffer) {
     const uploadToEnvironmentResult = await this.uploadThumbnailToEnvironment(thumbnailFile);
-    if (uploadToEnvironmentResult instanceof Error) {
-      return uploadToEnvironmentResult;
+    if (uploadToEnvironmentResult.error) {
+      return uploadToEnvironmentResult.error;
     }
 
-    const uploadToStorageResult = await this.uploadThumbnailToStorage(uploadToEnvironmentResult, fileId, thumbnailFile);
-    return uploadToStorageResult instanceof Error ? uploadToStorageResult : true;
+    const { error } = await this.uploadThumbnailToStorage(uploadToEnvironmentResult.data, fileId, thumbnailFile);
+    return error ? error : true;
   }
 }
