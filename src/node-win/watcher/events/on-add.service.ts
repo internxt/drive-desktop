@@ -4,40 +4,44 @@ import { Watcher } from '../watcher';
 import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 import { typeQueue } from '@/node-win/queue/queueManager';
 
-export class OnAddService {
-  execute({ self, path, stats }: { self: Watcher; path: string; stats: Stats }) {
-    try {
-      const { size, birthtime, mtime } = stats;
+type TProps = {
+  self: Watcher;
+  path: string;
+  stats: Stats;
+};
 
-      if (size === 0 || size > 20 * 1024 * 1024 * 1024) return;
+export function onAdd({ self, path, stats }: TProps) {
+  try {
+    const { size, birthtime, mtime } = stats;
 
-      const itemId = self.addon.getFileIdentity({ path });
-      const status = self.addon.getPlaceholderState({ path });
+    if (size === 0 || size > 20 * 1024 * 1024 * 1024) return;
 
-      const creationTime = new Date(birthtime).getTime();
-      const modificationTime = new Date(mtime).getTime();
+    const itemId = self.addon.getFileIdentity({ path });
+    const status = self.addon.getPlaceholderState({ path });
 
-      let isNewFile = false;
-      let isMovedFile = false;
+    const creationTime = new Date(birthtime).getTime();
+    const modificationTime = new Date(mtime).getTime();
 
-      if (!itemId) {
-        isNewFile = true;
-      } else if (creationTime !== modificationTime) {
-        isMovedFile = true;
-      }
+    let isNewFile = false;
+    let isMovedFile = false;
 
-      if (status.pinState === PinState.AlwaysLocal || status.pinState === PinState.OnlineOnly || status.syncState === SyncState.InSync) {
-        return;
-      }
-
-      if (isNewFile) {
-        self.fileInDevice.add(path);
-        self.queueManager.enqueue({ path, type: typeQueue.add, isFolder: false });
-      } else if (isMovedFile) {
-        self.logger.debug({ msg: 'File moved', path });
-      }
-    } catch (error) {
-      self.logger.error({ msg: 'onAddService', error });
+    if (!itemId) {
+      isNewFile = true;
+    } else if (creationTime !== modificationTime) {
+      isMovedFile = true;
     }
+
+    if (status.pinState === PinState.AlwaysLocal || status.pinState === PinState.OnlineOnly || status.syncState === SyncState.InSync) {
+      return;
+    }
+
+    if (isNewFile) {
+      self.fileInDevice.add(path);
+      self.queueManager.enqueue({ path, type: typeQueue.add, isFolder: false });
+    } else if (isMovedFile) {
+      self.logger.debug({ msg: 'File moved', path });
+    }
+  } catch (error) {
+    self.logger.error({ msg: 'onAddService', error });
   }
 }
