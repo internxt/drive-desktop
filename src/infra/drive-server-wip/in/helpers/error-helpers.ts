@@ -56,11 +56,11 @@ export function isNetworkConnectivityError(error: unknown): boolean {
 
   const { code, message, cause } = parsedError.data;
 
-  if (typeof code === 'string' && errorCodes.includes(code)) {
+  if (code && errorCodes.includes(code)) {
     return true;
   }
 
-  if (typeof cause?.code === 'string' && errorCodes.includes(cause.code)) {
+  if (cause?.code === 'string' && errorCodes.includes(cause.code)) {
     return true;
   }
   return typeof message === 'string' && message.includes('Failed to fetch');
