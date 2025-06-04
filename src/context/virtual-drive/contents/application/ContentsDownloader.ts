@@ -1,7 +1,7 @@
 import Logger from 'electron-log';
 import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
-import { SyncEngineIpc } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
+import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
@@ -14,7 +14,6 @@ export class ContentsDownloader {
   constructor(
     private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory,
     private readonly localWriter: LocalFileWriter,
-    private readonly ipc: SyncEngineIpc,
     private readonly temporalFolderProvider: TemporalFolderProvider,
   ) {}
 
@@ -29,7 +28,7 @@ export class ContentsDownloader {
     const filePath = path.join(location, file.nameWithExtension);
 
     downloader.on('start', () => {
-      this.ipc.send('FILE_DOWNLOADING', {
+      ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
@@ -47,7 +46,7 @@ export class ContentsDownloader {
         throw new Error('Result progress is 0');
       }
 
-      this.ipc.send('FILE_DOWNLOADING', {
+      ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
@@ -61,7 +60,7 @@ export class ContentsDownloader {
 
     downloader.on('error', (error: Error) => {
       Logger.error('[Server] Error downloading file', error);
-      this.ipc.send('FILE_DOWNLOAD_ERROR', {
+      ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', {
         name: file.name,
         extension: file.type,
         nameWithExtension: file.nameWithExtension,
@@ -103,7 +102,7 @@ export class ContentsDownloader {
     this.downloaderIntance.forceStop();
     void this.downloaderIntanceCB(false, '');
 
-    this.ipc.send('FILE_DOWNLOAD_CANCEL', {
+    ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', {
       name: this.downloaderFile.name,
       extension: this.downloaderFile.type,
       nameWithExtension: this.downloaderFile.nameWithExtension,

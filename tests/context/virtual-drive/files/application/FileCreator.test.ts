@@ -3,7 +3,6 @@ import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/
 import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileContentsMother } from '../../contents/domain/FileContentsMother';
 import { mockDeep } from 'vitest-mock-extended';
-import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { FileMother, generateRandomFileId } from '../domain/FileMother';
 import { FolderFinder } from '@/context/virtual-drive/folders/application/FolderFinder';
 import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
@@ -19,9 +18,8 @@ describe('File Creator', () => {
   const fileDeleter = mockDeep<FileDeleter>();
   const folderRepository = mockDeep<InMemoryFolderRepository>();
   const folderFinder = new FolderFinder(folderRepository);
-  const ipc = mockDeep<SyncEngineIpc>();
 
-  const SUT = new FileCreator(remoteFileSystemMock, fileRepository, folderFinder, fileDeleter, ipc);
+  const SUT = new FileCreator(remoteFileSystemMock, fileRepository, folderFinder, fileDeleter);
 
   beforeEach(() => {
     vi.resetAllMocks();

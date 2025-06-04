@@ -1,3 +1,4 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { FileCreator } from '../../files/application/FileCreator';
 import { SameFileWasMoved } from '../../files/application/SameFileWasMoved';
@@ -22,6 +23,13 @@ export class FileCreationOrchestrator {
       throw new Error('File was moved here');
     }
     const fileContents = await this.contentsUploader.run(posixRelativePath);
+
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'File uploaded',
+      contentsId: fileContents.id,
+      size: fileContents.size,
+    });
 
     const createdFile = await this.fileCreator.run(path, fileContents);
 

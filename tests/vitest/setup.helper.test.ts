@@ -11,51 +11,6 @@ vi.mock(import('@/apps/shared/logger/logger'));
 // We do not want to make network calls
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
-vi.mock('@/apps/main/auth/service', () => {
-  const user = {
-    email: 'jonathandanielarce9@gmail.com',
-    userId: '$2a$08$qagrvGIzPiL0Qm2/zSqEf.RwaHuGbYcEcooch.RDhZm/NkH7pOdna',
-    mnemonic:
-      'strategy thought bleak mouse water couch dinosaur orchard syrup into toilet dice squirrel hotel mass wasp camp enhance prevent avocado foam purse cotton royal',
-    root_folder_id: 76977090,
-    rootFolderId: '928cddab-db8d-4393-8887-22af95bf36df',
-    name: 'My',
-    lastname: 'Internxt',
-    uuid: '53630301-0faa-4b41-816e-600bac2b2aa5',
-    credit: 0,
-    createdAt: '2024-02-29T13:40:15.000Z',
-    privateKey: 'privateKey',
-    publicKey: 'publicKey',
-    revocateKey: 'revocateKey',
-    keys: {
-      ecc: {
-        publicKey: 'publicKey',
-        privateKey: 'privateKey',
-      },
-      kyber: {
-        publicKey: 'publicKey',
-        privateKey: 'privateKey',
-      },
-    },
-    bucket: '6fe364ed7c9a3022c1c8decd',
-    registerCompleted: true,
-    teams: false,
-    username: 'jonathandanielarce9@gmail.com',
-    bridgeUser: 'jonathandanielarce9@gmail.com',
-    sharedWorkspace: false,
-    appSumoDetails: null,
-    hasReferralsProgram: false,
-    backupsBucket: '7642d392264c616acbe62ace',
-    avatar: null,
-    emailVerified: true,
-    lastPasswordChangedAt: '2025-02-17T14:48:24.000Z',
-  };
-
-  return {
-    getUser: vi.fn(() => user),
-  };
-});
-
 vi.mock('../event-bus', () => {
   const listeners: Record<string, ((...args: unknown[]) => void)[]> = {};
 

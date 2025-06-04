@@ -1,6 +1,4 @@
 import { Environment } from '@internxt/inxt-js/build';
-import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
-import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { EnvironmentContentFileDownloader } from './download/EnvironmentContentFileDownloader';
 import { EnvironmentContentFileUploader } from './upload/EnvironmentContentFileUploader';
 import { LocalFileContents } from '../domain/LocalFileContents';
@@ -13,11 +11,11 @@ export class EnvironmentRemoteFileContentsManagersFactory {
     private readonly bucket: string,
   ) {}
 
-  downloader(): ContentFileDownloader {
+  downloader() {
     return new EnvironmentContentFileDownloader(this.environment.download, this.bucket);
   }
 
-  uploader(contents: LocalFileContents, abortSignal: AbortSignal): ContentFileUploader {
+  uploader(contents: LocalFileContents, abortSignal: AbortSignal) {
     const fn =
       contents.size > EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile.bind(this.environment)
