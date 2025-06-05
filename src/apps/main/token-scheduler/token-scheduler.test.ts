@@ -15,7 +15,7 @@ const dataSet = [
   { daysBefore: 10, day: calculateDayFromToday('20 days') },
 ];
 
-function createToken(expiresIn: string) {
+function createToken(expiresIn: StringValue) {
   const email = 'test@inxternxt.com';
 
   return jwt.sign({ email }, 'JWT_SECRET', { expiresIn });
