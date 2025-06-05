@@ -4,6 +4,7 @@ import { Readable } from 'stream';
 
 import { ThumbnailProperties } from '../domain/ThumbnailProperties';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class EnvironmentAndStorageThumbnailUploader {
   constructor(
@@ -11,36 +12,39 @@ export class EnvironmentAndStorageThumbnailUploader {
     private readonly bucket: string,
   ) {}
 
-  private uploadThumbnail(thumbnail: Buffer) {
+  async uploadThumbnailToEnvironment(thumbnail: Buffer) {
     const thumbnailStream = new Readable({
       read() {
         this.push(thumbnail);
         this.push(null);
       },
     });
+    try {
+      const promise = new Promise<string>((resolve, reject) => {
+        this.environment.upload(this.bucket, {
+          progressCallback: () => {
+            // no op
+          },
+          finishedCallback: (err: unknown, id: string) => {
+            if (err && !id) {
+              reject(err);
+            }
 
-    return new Promise<string>((resolve, reject) => {
-      this.environment.upload(this.bucket, {
-        progressCallback: () => {
-          // no op
-        },
-        finishedCallback: (err: unknown, id: string) => {
-          if (err && !id) {
-            reject(err);
-          }
-
-          resolve(id);
-        },
-        fileSize: thumbnail.byteLength,
-        source: thumbnailStream,
+            resolve(id);
+          },
+          fileSize: thumbnail.byteLength,
+          source: thumbnailStream,
+        });
       });
-    });
+      const data = await promise;
+      return { data };
+    } catch (error) {
+      return { error: logger.error({ msg: 'Error uploading thumbnail to environment', error }) };
+    }
   }
 
-  async upload(fileId: number, thumbnailFile: Buffer): Promise<void> {
-    const fileIdOnEnvironment = await this.uploadThumbnail(thumbnailFile);
-
-    await driveServerWipModule.files.createThumbnail({
+  async uploadThumbnailToStorage(fileIdOnEnvironment: string, fileId: number, thumbnailFile: Buffer) {
+    return await driveServerWipModule.files.createThumbnail({
       body: {
         fileId,
         maxWidth: ThumbnailProperties.dimensions,
@@ -52,5 +56,15 @@ export class EnvironmentAndStorageThumbnailUploader {
         encryptVersion: StorageTypes.EncryptionVersion.Aes03,
       },
     });
+  }
+
+  async upload(fileId: number, thumbnailFile: Buffer): Promise<{ error: Error | undefined }> {
+    const uploadToEnvironmentResult = await this.uploadThumbnailToEnvironment(thumbnailFile);
+    if (uploadToEnvironmentResult.error) {
+      return { error: uploadToEnvironmentResult.error };
+    }
+
+    const { error } = await this.uploadThumbnailToStorage(uploadToEnvironmentResult.data, fileId, thumbnailFile);
+    return { error };
   }
 }

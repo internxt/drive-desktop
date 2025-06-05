@@ -1,5 +1,5 @@
 import { paths } from '@/apps/shared/HttpClient/schema';
-import { ClientWrapperService } from '../in/client-wrapper.service';
+import { clientWrapper } from '../in/client-wrapper.service';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { client } from '@/apps/shared/HttpClient/client';
 import { retryWrapper } from '../out/retry-wrapper';
@@ -9,14 +9,12 @@ type TCreateFileBody = paths['/files']['post']['requestBody']['content']['applic
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 export class FilesService {
-  constructor(private readonly clientWrapper = new ClientWrapperService()) {}
-
   getFiles(context: { query: TGetFilesQuery }) {
     const promise = client.GET('/files', {
       params: { query: context.query },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get files request was not successful',
@@ -34,7 +32,7 @@ export class FilesService {
       body: context.body,
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Create file request was not successful',
@@ -53,7 +51,7 @@ export class FilesService {
       params: { path: { uuid: context.uuid } },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Move file request was not successful',
@@ -72,7 +70,7 @@ export class FilesService {
       params: { path: { uuid: context.uuid } },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Rename file request was not successful',
@@ -87,7 +85,7 @@ export class FilesService {
 
   replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
     const promise = () =>
-      this.clientWrapper.run({
+      clientWrapper({
         promise: client.PUT('/files/{uuid}', {
           body: { fileId: context.newContentId, size: context.newSize },
           params: { path: { uuid: context.uuid } },
@@ -110,10 +108,10 @@ export class FilesService {
       body: context.body,
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
-        msg: 'Get files request was not successful',
+        msg: 'Create thumbnail request was not successful',
         context,
         attributes: {
           method: 'POST',
@@ -130,7 +128,7 @@ export class FilesService {
       }),
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Delete file content from bucket request was not successful',

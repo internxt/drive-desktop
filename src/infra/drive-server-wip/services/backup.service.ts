@@ -1,13 +1,11 @@
 import { client } from '@/apps/shared/HttpClient/client';
-import { ClientWrapperService } from '../in/client-wrapper.service';
+import { clientWrapper } from '../in/client-wrapper.service';
 
 export class BackupService {
-  constructor(private readonly clientWrapper = new ClientWrapperService()) {}
-
   getDevices() {
     const promise = client.GET('/backup/deviceAsFolder');
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get devices as folder request was not successful',
@@ -24,7 +22,7 @@ export class BackupService {
       params: { path: { uuid: deviceUuid } },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Get device as folder request was not successful',
@@ -44,7 +42,7 @@ export class BackupService {
       body: { deviceName },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Create device as folder request was not successful',
@@ -65,7 +63,7 @@ export class BackupService {
       body: { deviceName },
     });
 
-    return this.clientWrapper.run({
+    return clientWrapper({
       promise,
       loggerBody: {
         msg: 'Update device as folder request was not successful',
