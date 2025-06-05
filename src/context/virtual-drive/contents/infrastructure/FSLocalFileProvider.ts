@@ -3,7 +3,6 @@ import { createReadStream, promises as fs, watch } from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { LocalContentsProvider } from '../domain/LocalFileProvider';
 import { logger } from '@/apps/shared/logger/logger';
 
 function extractNameAndExtension(nameWithExtension: string): [string, string] {
@@ -16,7 +15,7 @@ function extractNameAndExtension(nameWithExtension: string): [string, string] {
   return [name, extension];
 }
 
-export class FSLocalFileProvider implements LocalContentsProvider {
+export class FSLocalFileProvider {
   private static readonly TIMEOUT_BUSY_CHECK = 10_000;
   private reading = new Map<string, AbortController>();
 

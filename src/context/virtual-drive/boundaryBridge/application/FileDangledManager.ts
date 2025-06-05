@@ -5,6 +5,8 @@ import { ipcRenderer } from 'electron';
 import { FileOverwriteContent } from '../../files/application/FileOverwriteContent';
 import Logger from 'electron-log';
 import { DangledFilesManager, PushAndCleanInput } from '../../shared/domain/DangledFilesManager';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class FileDangledManager {
   constructor(
@@ -20,9 +22,9 @@ export class FileDangledManager {
         toDelete: input.toDeleteContentsIds,
       });
     });
-    const filesToCheck: DriveFile[] = await ipcRenderer.invoke('FIND_DANGLED_FILES');
+    const filesToCheck: DriveFile[] = await ipcRendererSyncEngine.invoke('FIND_DANGLED_FILES');
 
-    Logger.debug('Dangled files checking');
+    logger.debug({ msg: 'Dangled files checking', total: filesToCheck.length });
 
     const dangledFilesIds = [];
     const healthyFilesIds: string[] = [];
@@ -41,11 +43,11 @@ export class FileDangledManager {
       }
     }
 
-    Logger.debug(`Dangled files: ${dangledFilesIds}`);
+    logger.debug({ msg: 'Dangled files', total: dangledFilesIds.length });
+    logger.debug({ msg: 'Healthy files', total: healthyFilesIds.length });
 
-    Logger.debug(`Healthy files: ${healthyFilesIds}`);
     if (healthyFilesIds.length) {
-      await ipcRenderer.invoke('SET_HEALTHY_FILES', healthyFilesIds);
+      await ipcRendererSyncEngine.invoke('SET_HEALTHY_FILES', healthyFilesIds);
     }
 
     if (dangledFilesIds.length > 0) {

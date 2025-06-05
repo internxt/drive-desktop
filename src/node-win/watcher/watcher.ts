@@ -1,15 +1,15 @@
-import { watch, WatchOptions, FSWatcher } from 'chokidar';
+import { watch, ChokidarOptions, FSWatcher } from 'chokidar';
 
 import { OnAddDirService } from './events/on-add-dir.service';
-import { OnAddService } from './events/on-add.service';
 import { OnRawService } from './events/on-raw.service';
 import { Addon } from '../addon-wrapper';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
+import { onAdd } from './events/on-add.service';
 
 export class Watcher {
   syncRootPath!: string;
-  options!: WatchOptions;
+  options!: ChokidarOptions;
   addon!: Addon;
   queueManager!: QueueManager;
   logger!: TLogger;
@@ -17,12 +17,11 @@ export class Watcher {
   chokidar?: FSWatcher;
 
   constructor(
-    private readonly onAdd: OnAddService = new OnAddService(),
     private readonly onAddDir: OnAddDirService = new OnAddDirService(),
     private readonly onRaw: OnRawService = new OnRawService(),
   ) {}
 
-  init(queueManager: QueueManager, syncRootPath: string, options: WatchOptions, logger: TLogger, addon: Addon) {
+  init(queueManager: QueueManager, syncRootPath: string, options: ChokidarOptions, logger: TLogger, addon: Addon) {
     this.queueManager = queueManager;
     this.syncRootPath = syncRootPath;
     this.options = options;
@@ -34,7 +33,7 @@ export class Watcher {
     this.logger.debug({ msg: 'onChange', path });
   };
 
-  private onError = (error: Error) => {
+  private onError = (error: unknown) => {
     this.logger.error({ msg: 'onError', error });
   };
 
@@ -46,7 +45,7 @@ export class Watcher {
     try {
       this.chokidar = watch(this.syncRootPath, this.options);
       this.chokidar
-        .on('add', (path, stats) => this.onAdd.execute({ self: this, path, stats: stats! }))
+        .on('add', (path, stats) => onAdd({ self: this, path, stats: stats! }))
         .on('change', this.onChange)
         .on('addDir', (path, stats) => this.onAddDir.execute({ self: this, path, stats: stats! }))
         .on('error', this.onError)

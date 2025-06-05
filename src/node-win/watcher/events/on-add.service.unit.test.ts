@@ -2,13 +2,12 @@ import { Stats } from 'fs';
 import { mockDeep } from 'vitest-mock-extended';
 
 import { Watcher } from '../watcher';
-import { OnAddService } from './on-add.service';
 import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 import { typeQueue } from '@/node-win/queue/queueManager';
+import { onAdd } from './on-add.service';
 
 describe('Watcher onAdd', () => {
   const watcher = mockDeep<Watcher>();
-  const onAdd = new OnAddService();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -26,7 +25,7 @@ describe('Watcher onAdd', () => {
     const stats = { size: 1024, birthtime: new Date(), mtime: new Date() };
 
     // Act
-    onAdd.execute({ self: watcher, path, stats: stats as unknown as Stats });
+    onAdd({ self: watcher, path, stats: stats as unknown as Stats });
 
     // Assert
     expect(watcher.addon.getFileIdentity).toHaveBeenCalledWith({ path });
@@ -46,7 +45,7 @@ describe('Watcher onAdd', () => {
     const stats = { size: 2048, birthtime: new Date(), mtime: new Date() };
 
     // Act
-    onAdd.execute({ self: watcher, path, stats: stats as unknown as Stats });
+    onAdd({ self: watcher, path, stats: stats as unknown as Stats });
 
     // Assert
     expect(watcher.queueManager.enqueue).not.toHaveBeenCalled();

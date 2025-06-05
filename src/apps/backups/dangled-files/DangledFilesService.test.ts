@@ -4,18 +4,18 @@ import { DangledFilesService } from './DangledFilesService';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { LocalFile } from '@/context/local/localFile/domain/LocalFile';
-import { ContentFileDownloader } from '@/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
 import { Readable } from 'stream';
+import { EnvironmentContentFileDownloader } from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
 
 describe('DangledFilesService', () => {
   let service: DangledFilesService;
   let contentsManagerFactory: DeepMockProxy<EnvironmentRemoteFileContentsManagersFactory>;
-  let downloader: MockProxy<ContentFileDownloader>;
+  let downloader: MockProxy<EnvironmentContentFileDownloader>;
 
   beforeEach(() => {
     vi.clearAllMocks();
     contentsManagerFactory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
-    downloader = mockDeep<ContentFileDownloader>();
+    downloader = mockDeep<EnvironmentContentFileDownloader>();
     downloader.download.mockResolvedValue(new Readable());
     contentsManagerFactory.downloader.mockReturnValue(downloader);
     service = new DangledFilesService(contentsManagerFactory);

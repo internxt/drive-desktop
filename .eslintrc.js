@@ -21,6 +21,7 @@ module.exports = {
     'no-async-promise-executor': 'warn',
     'no-await-in-loop': 'off',
     'no-empty': 'off',
+    'no-throw-literal': 'error',
     'no-unused-expressions': 'off',
     'no-use-before-define': 'warn',
     'object-shorthand': 'error',

@@ -91,6 +91,7 @@ export function cleanAndStartRemoteNotifications() {
         msg: 'Notification received',
         event: data.event,
         clientId: data.clientId,
+        payload: data.payload,
       });
     } else {
       logger.info({ msg: 'Notification received', data });

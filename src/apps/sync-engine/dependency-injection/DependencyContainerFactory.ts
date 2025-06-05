@@ -8,13 +8,7 @@ import { buildItemsContainer } from './items/builder';
 import { buildSharedContainer } from './shared/builder';
 
 export class DependencyContainerFactory {
-  private static _container: DependencyContainer | undefined;
-
-  build(): DependencyContainer {
-    if (DependencyContainerFactory._container !== undefined) {
-      return DependencyContainerFactory._container;
-    }
-
+  static build(): DependencyContainer {
     const { virtualDrive } = DependencyInjectionVirtualDrive;
 
     const sharedContainer = buildSharedContainer();
@@ -34,8 +28,6 @@ export class DependencyContainerFactory {
 
       virtualDrive,
     };
-
-    DependencyContainerFactory._container = container;
 
     return container;
   }

@@ -21,7 +21,7 @@ describe('sync-remote-folders.service', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    getUserOrThrowMock.mockResolvedValue({ uuid: 'uuid' });
+    getUserOrThrowMock.mockReturnValue({ uuid: 'uuid' });
   });
 
   it('If we fetch less than 50 files, then do not fetch again', async () => {

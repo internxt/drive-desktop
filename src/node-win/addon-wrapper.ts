@@ -9,7 +9,15 @@ export class Addon {
   private parseAddonZod<T>(fn: keyof typeof addonZod, data: T) {
     const schema = addonZod[fn];
     const result = schema.safeParse(data);
-    if (result.error) console.error(fn, result.error);
+
+    if (result.error) {
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: `Error parsing ${fn}`,
+        error: result.error,
+      });
+    }
+
     return data;
   }
 
@@ -104,6 +112,8 @@ export class Addon {
       basePath,
     );
 
+    this.parseAddonZod('createPlaceholderFile', result);
+
     if (!result.success) {
       logger.error({
         msg: 'Failed to create placeholder file',
@@ -150,6 +160,8 @@ export class Addon {
       lastAccessTime,
       path,
     );
+
+    this.parseAddonZod('createEntry', result);
 
     if (!result.success) {
       logger.error({
