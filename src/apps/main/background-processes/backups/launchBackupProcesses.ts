@@ -29,14 +29,6 @@ export async function launchBackupProcesses(
     return;
   }
 
-  status.set('RUNNING');
-
-  const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
-
-  const backups = await backupsConfig.obtainBackupsInfo();
-
-  logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', scheduled, backups });
-
   const abortController = new AbortController();
 
   ipcMain.once('stop-backups-process', () => {
@@ -44,6 +36,14 @@ export async function launchBackupProcesses(
     abortController.abort();
     status.set('STOPPING');
   });
+
+  status.set('RUNNING');
+
+  const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
+
+  const backups = await backupsConfig.obtainBackupsInfo();
+
+  logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', scheduled, backups });
 
   clearBackupsIssues();
   tracker.track(backups, abortController);
@@ -56,7 +56,7 @@ export async function launchBackupProcesses(
     });
 
     if (abortController.signal.aborted) {
-      continue;
+      break;
     }
 
     const context: BackupsContext = {
