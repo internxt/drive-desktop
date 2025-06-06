@@ -25,6 +25,17 @@ const fetchErrorSchema = z.object({
     .optional(),
 });
 
+export const fetchErrorWithHttpResponseSchema = z.object({
+  response: z.object({
+    status: z.number(),
+    statusText: z.string().optional(),
+  }),
+  code: z.string().optional(),
+  message: z.string().optional(),
+});
+
+export type FetchErrorWithHttpResponse = z.infer<typeof fetchErrorWithHttpResponseSchema>;
+
 const errorCodes = [
   'ENOTFOUND',
   'ECONNREFUSED',
@@ -88,4 +99,12 @@ export function handleError(error: unknown) {
 export function handleRemoveErrors() {
   removeGeneralIssue(serverErrorIssue);
   removeGeneralIssue(networkErrorIssue);
+}
+
+export function isFetchErrorWithHttpResponse(error: unknown): error is FetchErrorWithHttpResponse {
+  return fetchErrorWithHttpResponseSchema.safeParse(error).success;
+}
+
+export function isErrorWithStatusCode(error: unknown, code: number): boolean {
+  return isFetchErrorWithHttpResponse(error) && error.response.status === code;
 }

@@ -3,7 +3,7 @@ import { getUser } from '@/apps/main/auth/service';
 import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
-type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN';
+type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN' | 'DEVICE';
 
 export type TLoggerBody = {
   process?: 'main' | 'renderer';
@@ -63,11 +63,16 @@ export class LoggerService {
     return new Error(rawBody.msg);
   }
 
+  /*
+   * v2.5.3
+   * Alexis Mora
+   * We could enhance the error handling by passing specific error types like NotFoundError, BadRequestError, etc.
+   * */
   error(rawBody: TLoggerBody) {
     const { body } = this.prepareBody('error', rawBody);
     ElectronLog.debug(body);
     ElectronLog.info(body);
-    return new Error(rawBody.msg);
+    return new Error(rawBody.msg, { cause: rawBody.exc });
   }
 
   fatal(rawBody: TLoggerBody) {

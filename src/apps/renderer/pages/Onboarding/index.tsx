@@ -19,7 +19,8 @@ export default function Onboarding() {
        * if this fails, the user can fix this
        * from the Desktop settings
        */
-      window.electron.addBackupsFromLocalPaths(backupFolders.map((backupFolder) => backupFolder.path)).catch((err) => {
+      const backupFolderPaths = backupFolders.map((backupFolder) => backupFolder.path);
+      window.electron.addBackupsFromLocalPaths(backupFolderPaths).catch((err) => {
         reportError(err);
       });
     }

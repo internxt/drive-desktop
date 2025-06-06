@@ -24,10 +24,13 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     window.electron
       .getOrCreateDevice()
-      .then((device) => {
-        setDeviceState({ status: 'SUCCESS', device });
-        setCurrent(device);
-        setSelected(device);
+      .then(({ data: device }) => {
+        if (device) {
+          setDeviceState({ status: 'SUCCESS', device });
+          setCurrent(device);
+          setSelected(device);
+        }
+        setDeviceState({ status: 'ERROR' });
       })
       .catch(() => {
         setDeviceState({ status: 'ERROR' });
