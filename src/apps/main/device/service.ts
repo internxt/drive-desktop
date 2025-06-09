@@ -147,7 +147,7 @@ export async function getOrCreateDevice() {
     return { data };
   }
 
-  if (data == null) {
+  if (data == null && !error) {
     logger.debug({ tag: 'DEVICE', msg: 'Device not found, creating a new one' });
     return createNewDevice();
   }

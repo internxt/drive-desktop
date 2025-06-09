@@ -26,10 +26,14 @@ const fetchErrorSchema = z.object({
 });
 
 export const fetchErrorWithHttpResponseSchema = z.object({
-  response: z.object({
-    status: z.number(),
-    statusText: z.string().optional(),
-  }),
+  response: z
+    .object({
+      status: z.number(),
+      statusText: z.string().optional(),
+    })
+    .optional(),
+  error: z.string().optional(),
+  statusCode: z.number().optional(),
   code: z.string().optional(),
   message: z.string().optional(),
 });
@@ -106,5 +110,5 @@ export function isFetchErrorWithHttpResponse(error: unknown): error is FetchErro
 }
 
 export function isErrorWithStatusCode(error: unknown, code: number): boolean {
-  return isFetchErrorWithHttpResponse(error) && error.response.status === code;
+  return isFetchErrorWithHttpResponse(error) && ((error.response && error.response.status === code) || error.statusCode === code);
 }

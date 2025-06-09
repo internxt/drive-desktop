@@ -29,8 +29,9 @@ export function DeviceProvider({ children }: { children: ReactNode }) {
           setDeviceState({ status: 'SUCCESS', device });
           setCurrent(device);
           setSelected(device);
+        } else {
+          setDeviceState({ status: 'ERROR' });
         }
-        setDeviceState({ status: 'ERROR' });
       })
       .catch(() => {
         setDeviceState({ status: 'ERROR' });
