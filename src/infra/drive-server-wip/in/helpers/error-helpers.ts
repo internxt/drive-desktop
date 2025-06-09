@@ -25,7 +25,7 @@ const fetchErrorSchema = z.object({
     .optional(),
 });
 
-export const fetchErrorWithHttpResponseSchema = z.object({
+const fetchErrorWithHttpResponseSchema = z.object({
   response: z
     .object({
       status: z.number(),
@@ -38,7 +38,7 @@ export const fetchErrorWithHttpResponseSchema = z.object({
   message: z.string().optional(),
 });
 
-export type FetchErrorWithHttpResponse = z.infer<typeof fetchErrorWithHttpResponseSchema>;
+type FetchErrorWithHttpResponse = z.infer<typeof fetchErrorWithHttpResponseSchema>;
 
 const errorCodes = [
   'ENOTFOUND',
@@ -105,7 +105,7 @@ export function handleRemoveErrors() {
   removeGeneralIssue(networkErrorIssue);
 }
 
-export function isFetchErrorWithHttpResponse(error: unknown): error is FetchErrorWithHttpResponse {
+function isFetchErrorWithHttpResponse(error: unknown): error is FetchErrorWithHttpResponse {
   return fetchErrorWithHttpResponseSchema.safeParse(error).success;
 }
 

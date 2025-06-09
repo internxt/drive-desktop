@@ -124,7 +124,7 @@ export async function createUniqueDevice() {
   return { error: finalError };
 }
 
-export async function createNewDevice() {
+async function createNewDevice() {
   const { data, error } = await createUniqueDevice();
   if (data) {
     saveDeviceToConfig(data);
