@@ -110,7 +110,7 @@ function isFetchErrorWithHttpResponse(error: unknown): error is FetchErrorWithHt
   return fetchErrorWithHttpResponseSchema.safeParse(error).success;
 }
 
-export function isErrorWithStatusCode(error: unknown, code: number): boolean {
+function isErrorWithStatusCode(error: unknown, code: number): boolean {
   return isFetchErrorWithHttpResponse(error) && ((error.response && error.response.status === code) || error.statusCode === code);
 }
 
