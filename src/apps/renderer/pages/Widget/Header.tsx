@@ -7,7 +7,6 @@ import { User } from '../../../main/types';
 import { useTranslationContext } from '../../context/LocalContext';
 // import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useUsage from '../../hooks/useUsage';
-import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import { reportError } from '../../utils/sentry';
 import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
 import { useIssues } from '../../hooks/useIssues';
@@ -18,7 +17,6 @@ interface HeadersProps {
 
 const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   const { translate } = useTranslationContext();
-  const { virtualDriveCanBeOpened } = useVirtualDriveStatus();
 
   const { issues } = useIssues();
 
@@ -133,7 +131,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         <Globe size={22} />
       </HeaderItemWrapper>
 
-      <HeaderItemWrapper disabled={!virtualDriveCanBeOpened()} onClick={window.electron.openVirtualDriveFolder}>
+      <HeaderItemWrapper onClick={window.electron.openVirtualDriveFolder}>
         <FolderSimple size={22} />
       </HeaderItemWrapper>
 

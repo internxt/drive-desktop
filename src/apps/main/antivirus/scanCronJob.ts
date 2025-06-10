@@ -6,6 +6,7 @@ import { queue, QueueObject } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { isPermissionError } from './utils/isPermissionError';
+import { logger } from '@/apps/shared/logger/logger';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const BACKGROUND_MAX_CONCURRENCY = 5;
@@ -42,6 +43,13 @@ const scanInBackground = async (): Promise<void> => {
   const antivirus = await Antivirus.createInstance();
 
   const userSystemPath = await getUserSystemPath();
+
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: 'User system path',
+    userSystemPath,
+  });
+
   if (!userSystemPath) return;
 
   console.time('scan-background');

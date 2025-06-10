@@ -99,8 +99,6 @@ declare interface Window {
 
     stopBackupsProcess(): void;
 
-    getVirtualDriveRoot(): Promise<string>;
-
     chooseSyncRootWithDialog: typeof import('./virtual-root-folder/service').chooseSyncRootWithDialog;
 
     getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
@@ -147,7 +145,6 @@ declare interface Window {
     openMigrationFailedFolder: () => Promise<void>;
     onRemoteSyncStatusChange(callback: (status: import('./remote-sync/helpers').RemoteSyncStatus) => void): () => void;
     getRemoteSyncStatus(): Promise<import('./remote-sync/helpers').RemoteSyncStatus>;
-    getVirtualDriveStatus(): Promise<import('../shared/types/VirtualDriveStatus').VirtualDriveStatus>;
     onVirtualDriveStatusChange(
       callback: (event: { status: import('../shared/types/VirtualDriveStatus').VirtualDriveStatus }) => void,
     ): () => void;

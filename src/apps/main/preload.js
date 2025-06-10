@@ -171,9 +171,6 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  getVirtualDriveRoot() {
-    return ipcRenderer.invoke('get-virtual-drive-root');
-  },
   chooseSyncRootWithDialog() {
     return ipcRenderer.invoke('choose-sync-root-with-dialog');
   },
@@ -284,9 +281,6 @@ contextBridge.exposeInMainWorld('electron', {
   },
   getRemoteSyncStatus() {
     return ipcRenderer.invoke('get-remote-sync-status');
-  },
-  getVirtualDriveStatus() {
-    return ipcRenderer.invoke('get-virtual-drive-status');
   },
   retryVirtualDriveMount() {
     return ipcRenderer.invoke('retry-virtual-drive-mount');

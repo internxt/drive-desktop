@@ -3,7 +3,6 @@ import { SyncStatus } from '../../../../context/desktop/sync/domain/SyncStatus';
 import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
-import useVirtualDriveStatus from '../../hooks/VirtualDriveStatus';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import useUsage from '../../hooks/useUsage';
 import { WarningCircle } from 'phosphor-react';
@@ -14,10 +13,9 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
 
   const { isOnline } = useNetworkRetry(3000, 5);
   const { usage, status } = useUsage();
-  const { virtualDriveStatus } = useVirtualDriveStatus();
   const { syncStatus } = useSyncStatus();
 
-  const isSyncStopped = virtualDriveStatus && syncStatus && syncStatus === 'FAILED';
+  const isSyncStopped = syncStatus === 'FAILED';
 
   const handleOpenUpgrade = async () => {
     try {

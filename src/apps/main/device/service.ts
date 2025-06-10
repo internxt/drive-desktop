@@ -613,14 +613,7 @@ export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   await Promise.all(operations);
 }
 
-export async function getUserSystemPath(): Promise<
-  | {
-      path: string;
-      itemName: string;
-      isDirectory: boolean;
-    }
-  | undefined
-> {
+export async function getUserSystemPath() {
   const filePath = os.homedir();
   if (!filePath) return;
 

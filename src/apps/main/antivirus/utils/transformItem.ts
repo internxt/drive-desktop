@@ -4,6 +4,7 @@ import { stat } from 'fs/promises';
 import { extname } from 'path';
 import { ScannedItem } from '../../database/entities/ScannedItem';
 import { pipeline } from 'stream/promises';
+import { logger } from '@/apps/shared/logger/logger';
 
 const hashItem = async (filePath: string): Promise<string> => {
   try {
@@ -13,7 +14,7 @@ const hashItem = async (filePath: string): Promise<string> => {
     await pipeline(stream, hasher);
     return hasher.digest('hex');
   } catch (error) {
-    console.log('ERROR HASHING ITEM ');
+    logger.warn({ tag: 'ANTIVIRUS', msg: 'Error hashing item', filePath });
     throw error;
   }
 };
