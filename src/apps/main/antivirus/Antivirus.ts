@@ -1,7 +1,8 @@
 import path from 'path';
 import NodeClam from '@internxt/scan';
-import clamAVServer from './ClamAVDaemon';
+import * as clamAVServer from './ClamAVDaemon';
 import { app } from 'electron';
+import { cwd } from 'process';
 
 export interface SelectedItemToScanProps {
   path: string;
@@ -9,7 +10,7 @@ export interface SelectedItemToScanProps {
   isDirectory: boolean;
 }
 
-const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(__dirname, '../../../../clamAV');
+const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(cwd(), 'clamAV');
 
 export class Antivirus {
   private clamAv: NodeClam | null = null;

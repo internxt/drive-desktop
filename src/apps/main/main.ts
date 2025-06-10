@@ -107,6 +107,8 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
+    setDefaultConfig({});
+
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }
