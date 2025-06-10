@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, beforeEach, describe, vi } from 'vitest';
-// import * as service from '@/apps/main/device/service';
 import os from 'os';
 import { aes } from '@internxt/lib';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
@@ -7,6 +6,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import configStore from '../config';
 import { createUniqueDevice, decryptDeviceName, fetchDevice, saveDeviceToConfig } from './service';
 import { loggerMock } from '../../../../tests/vitest/mocks.helper.test';
+import { NotFoundError } from '@/infra/drive-server-wip/out/error.types';
 
 vi.mock('@internxt/lib');
 vi.mock('os');
@@ -55,7 +55,7 @@ describe('Device Service', () => {
       expect(error).toBe(undefined);
     });
     it('should return null if the device is not found', async () => {
-      const http404Error = new Error('Device not found', {
+      const http404Error = new NotFoundError('Device not found', {
         cause: {
           response: {
             status: 404,
@@ -133,7 +133,8 @@ describe('Device Service', () => {
       });
       expect(error).toBe(undefined);
     });
-    it('should try no more than 10 times to create a unique device with the name of the hostname plus the number of try', async () => {
+    it('should try multiple times to create a unique device with the name of the hostname plus the number of try', async () => {
+      const attempts = 10;
       osMock.mockReturnValue(hostname);
 
       // Mock attempts 1-10 failing (basename + (basename + number))
@@ -150,7 +151,7 @@ describe('Device Service', () => {
       createDeviceMock.mockResolvedValueOnce({
         data: { ...deviceMock, name: `${hostname} (10)` },
       });
-      const { data, error } = await createUniqueDevice();
+      const { data, error } = await createUniqueDevice(attempts);
 
       expect(createDeviceMock).toHaveBeenNthCalledWith(1, {
         deviceName: hostname,
@@ -171,45 +172,11 @@ describe('Device Service', () => {
       expect(createDeviceMock).toHaveBeenCalledTimes(11);
       expect(error).toBe(undefined);
     });
-    it('should try one last time with the hostname and the current timestamp divided by 1000 if all previous attempts failed', async () => {
-      osMock.mockReturnValue(hostname);
-      // Initial + 10 retries
-      for (let i = 1; i <= 11; i++) {
-        const error = new Error('Device already exists', {
-          cause: {
-            response: { status: 409, statusText: 'Device already exists' },
-          },
-        });
-        createDeviceMock.mockResolvedValueOnce({ error });
-      }
-
-      vi.useFakeTimers();
-      vi.setSystemTime(new Date(1000)); // Date.valueOf() === 1000
-      const deviceName = `${hostname} (0)`; // 1000 % 1000 = 0
-      createDeviceMock.mockResolvedValueOnce({
-        data: { ...deviceMock, name: deviceName },
-      });
-
-      const { data, error } = await createUniqueDevice();
-
-      // Verify the 12th call has the correct device name with timestamp
-      expect(createDeviceMock).toHaveBeenNthCalledWith(12, {
-        deviceName,
-      });
-
-      expect(data).toStrictEqual({
-        ...deviceMock,
-        name: deviceName,
-      });
-
-      // Initial + 10 retries + final attempt
-      expect(createDeviceMock).toHaveBeenCalledTimes(12);
-      expect(error).toBe(undefined);
-    });
     it('should return an error if the device creation fails', async () => {
+      const attempts = 11;
       osMock.mockReturnValue(hostname);
 
-      // Initial + 10 + final attempt
+      // Initial + 11 attempts failing
       for (let i = 1; i <= 12; i++) {
         const error = new Error('Device already exists', {
           cause: {
@@ -220,7 +187,7 @@ describe('Device Service', () => {
       }
       loggerMock.error.mockReturnValue(new Error('Could not create device trying different names'));
 
-      const { data, error } = await createUniqueDevice();
+      const { data, error } = await createUniqueDevice(attempts);
 
       expect(createDeviceMock).toHaveBeenCalledTimes(12);
       expect(error).toBeInstanceOf(Error);

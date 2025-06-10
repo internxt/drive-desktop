@@ -1,5 +1,6 @@
 import { addGeneralIssue, GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 import { z } from 'zod';
+import { AlreadyExistsError, InfraError, NetworkError, NotFoundError } from '@/infra/drive-server-wip/out/error.types';
 
 /*
  * v2.5.3
@@ -111,4 +112,19 @@ function isFetchErrorWithHttpResponse(error: unknown): error is FetchErrorWithHt
 
 export function isErrorWithStatusCode(error: unknown, code: number): boolean {
   return isFetchErrorWithHttpResponse(error) && ((error.response && error.response.status === code) || error.statusCode === code);
+}
+
+export function getSpecificInfraError(error: unknown) {
+  switch (true) {
+    case isNetworkConnectivityError(error):
+      return new NetworkError('Network connectivity error occurred. Please check your internet connection.', error);
+    case isServerError(error):
+      return new NetworkError('Server error occurred. Please try again later.', error);
+    case isErrorWithStatusCode(error, 404):
+      return new NotFoundError('Resource not found. Please check the URL or resource identifier.', error);
+    case isErrorWithStatusCode(error, 409):
+      return new AlreadyExistsError('Conflict error occurred. The resource may already exist or be in use.', error);
+    default:
+      return new InfraError('Unknown error in the infrastructure layer.', error);
+  }
 }

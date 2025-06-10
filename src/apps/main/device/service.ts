@@ -22,7 +22,7 @@ import { getConfig } from '@/apps/sync-engine/config';
 import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
-import { isErrorWithStatusCode } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { AlreadyExistsError, NotFoundError } from '@/infra/drive-server-wip/out/error.types';
 
 export type Device = {
   name: string;
@@ -42,6 +42,12 @@ interface FolderTreeResponse {
   totalItems: number;
 }
 
+/**
+ * V2.5.5
+ * Alexis Mora
+ * TODO: Change this to accept an errorMessage instead of an Error object,
+ * since this function only uses the message from the error
+ */
 export const addUnknownDeviceIssue = (error: Error) => {
   addGeneralIssue({
     name: error.name,
@@ -69,7 +75,7 @@ export async function fetchDevice(deviceUuid: string) {
     logger.info({ tag: 'DEVICE', msg: 'Found device', device: device.name });
     return { data: device };
   }
-  if (isErrorWithStatusCode(error.cause, 404)) {
+  if (error instanceof NotFoundError) {
     const msg = `Device not found for deviceUuid: ${deviceUuid}`;
     logger.info({ tag: 'DEVICE', msg });
     addUnknownDeviceIssue(new Error(msg));
@@ -89,7 +95,7 @@ async function tryCreateDevice(deviceName: string) {
   const { data, error } = await driveServerWipModule.backup.createDevice({ deviceName });
   if (data) return { data };
 
-  if (isErrorWithStatusCode(error?.cause, 409)) {
+  if (error instanceof AlreadyExistsError) {
     const msg = 'Device name already exists';
     logger.info({ tag: 'DEVICE', msg });
     return { error: new Error(msg) };
@@ -102,14 +108,11 @@ async function tryCreateDevice(deviceName: string) {
  * Creates a new device with a unique name
  * @returns The an object with the created device or
  * an object with the error if device creation fails after multiple attempts
+ * @param attempts The number of attempts to create a device with a unique name, defaults to 1000
  */
-export async function createUniqueDevice() {
+export async function createUniqueDevice(attempts = 1000) {
   const baseName = os.hostname();
-  const nameVariants = [
-    baseName,
-    ...Array.from({ length: 10 }, (_, i) => `${baseName} (${i + 1})`),
-    `${baseName} (${new Date().valueOf() % 1000})`,
-  ];
+  const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
 
   for (const name of nameVariants) {
     logger.info({ tag: 'DEVICE', msg: `Trying to create device with name "${name}"` });
@@ -436,6 +439,7 @@ export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Pro
     configStore.set('backupList', backupListFiltered);
   }
 }
+
 export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<void> {
   const backups = await getBackupsFromDevice(device, isCurrent);
 

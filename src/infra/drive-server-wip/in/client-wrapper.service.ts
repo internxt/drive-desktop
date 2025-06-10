@@ -1,5 +1,5 @@
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
-import { handleError, handleRemoveErrors } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { getSpecificInfraError, handleError, handleRemoveErrors } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 type TProps<T> = {
   loggerBody: TLoggerBody;
@@ -19,22 +19,24 @@ export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
 
     if (!res.data) {
       handleError({ response: res.response, body: res.error });
-      return {
-        error: logger.error({
-          ...loggerBody,
-          exc: res.error,
-        }),
-      };
+      const loggedError = logger.error({
+        ...loggerBody,
+        exc: res.error,
+      });
+      const infraError = getSpecificInfraError({ response: res.response, cause: loggedError });
+      return { error: infraError };
     }
     handleRemoveErrors();
     return { data: res.data };
   } catch (exc) {
     handleError(exc);
+    const loggedError = logger.error({
+      ...loggerBody,
+      exc,
+    });
+    const infraError = getSpecificInfraError(loggedError);
     return {
-      error: logger.error({
-        ...loggerBody,
-        exc,
-      }),
+      error: infraError,
     };
   }
 }
