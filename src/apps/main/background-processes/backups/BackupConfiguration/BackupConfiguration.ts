@@ -43,7 +43,9 @@ class BackupConfiguration {
   }
 
   async obtainBackupsInfo(): Promise<Array<BackupInfo>> {
-    const device = await getOrCreateDevice();
+    const { data: device } = await getOrCreateDevice();
+
+    if (!device) return [];
 
     const enabledBackupEntries = await getBackupsFromDevice(device, true);
 

@@ -1,4 +1,4 @@
-import { addGeneralIssue, GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
+import { GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 import { z } from 'zod';
 
 /*
@@ -11,10 +11,17 @@ import { z } from 'zod';
  * an Error request can be "resolved" in two ways:
  * 1. The request fails due to network connectivity issues (e.g., DNS resolution failure, connection refused, timeout).
  *  - For this case, the error will not be in the response.error but rather this error will be thrown by the fetch API.
- * 2. The request is made successfully, but the server responds with an error status code
+ * 2. The request is made successfully, but the server responds with an error status code.
  *  - For this case, the error will be in the response.error and the response.status will be set to the error status code.
- * */
+ */
 
+/**
+ * v2.5.4 Daniel Jiménez
+ * Examples:
+ * error: TypeError: fetch failed
+ *   cause: Error: getaddrinfo ENOTFOUND gateway.internxt.com
+ *     code: 'ENOTFOUND'
+ */
 const fetchErrorSchema = z.object({
   code: z.string().optional(),
   message: z.string().optional(),
@@ -23,6 +30,17 @@ const fetchErrorSchema = z.object({
       code: z.string().optional(),
     })
     .optional(),
+});
+
+/**
+ * v2.5.4 Daniel Jiménez
+ * Examples:
+ * { message: 'workspaceId should be a valid uuid!', error: 'Bad Request', statusCode: 400 }
+ */
+const fetchErrorWithHttpResponseSchema = z.object({
+  message: z.string().optional(),
+  error: z.string().optional(),
+  statusCode: z.number().optional(),
 });
 
 const errorCodes = [
@@ -40,17 +58,17 @@ const errorCodes = [
   'UND_ERR_CONNECT_TIMEOUT',
 ];
 
-const networkErrorIssue: Omit<GeneralIssue, 'tab'> = {
+export const networkErrorIssue: Omit<GeneralIssue, 'tab'> = {
   name: 'Connection Error',
   error: 'NETWORK_CONNECTIVITY_ERROR',
 };
 
-const serverErrorIssue: Omit<GeneralIssue, 'tab'> = {
+export const serverErrorIssue: Omit<GeneralIssue, 'tab'> = {
   name: 'Server Error',
   error: 'SERVER_INTERNAL_ERROR',
 };
 
-export function isNetworkConnectivityError(error: unknown): boolean {
+export function isNetworkConnectivityError({ error }: { error: unknown }): boolean {
   const parsedError = fetchErrorSchema.safeParse(error);
   if (!parsedError.success) return false;
 
@@ -63,29 +81,26 @@ export function isNetworkConnectivityError(error: unknown): boolean {
   if (cause?.code && errorCodes.includes(cause.code)) {
     return true;
   }
+
   return !!(message && message.includes('Failed to fetch'));
 }
 
-export function isServerError(error: any): boolean {
-  const status = error?.status || error?.response?.status;
-  const statusText = error?.response?.statusText;
+export function isServerError({ response, error }: { response: Response; error: unknown }): boolean {
+  const parsedError = fetchErrorWithHttpResponseSchema.safeParse(error);
+  if (!parsedError.success) return false;
 
-  return !!(
-    (status >= 500 && status < 600) ||
-    statusText?.includes('Internal Server Error') ||
-    statusText?.includes('Service Unavailable')
-  );
-}
+  const status = parsedError.data.statusCode ?? response.status;
+  const statusText = response.statusText;
 
-export function handleError(error: unknown) {
-  if (isNetworkConnectivityError(error)) {
-    addGeneralIssue(networkErrorIssue);
-  } else if (isServerError(error)) {
-    addGeneralIssue(serverErrorIssue);
-  }
+  return (status >= 500 && status < 600) || statusText.includes('Internal Server Error') || statusText.includes('Service Unavailable');
 }
 
 export function handleRemoveErrors() {
   removeGeneralIssue(serverErrorIssue);
   removeGeneralIssue(networkErrorIssue);
+}
+
+export function isErrorWithStatusCode({ error, code }: { error: unknown; code: number }): boolean {
+  const parsedData = fetchErrorWithHttpResponseSchema.safeParse(error).data;
+  return parsedData?.statusCode === code;
 }
