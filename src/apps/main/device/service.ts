@@ -22,7 +22,6 @@ import { getConfig } from '@/apps/sync-engine/config';
 import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
-import { AlreadyExistsError, NotFoundError } from '@/infra/drive-server-wip/out/error.types';
 
 export type Device = {
   name: string;
@@ -75,7 +74,8 @@ export async function fetchDevice(deviceUuid: string) {
     logger.info({ tag: 'DEVICE', msg: 'Found device', device: device.name });
     return { data: device };
   }
-  if (error instanceof NotFoundError) {
+
+  if (error?.code === 'NOT_FOUND') {
     const msg = `Device not found for deviceUuid: ${deviceUuid}`;
     logger.info({ tag: 'DEVICE', msg });
     addUnknownDeviceIssue(new Error(msg));
@@ -95,10 +95,14 @@ async function tryCreateDevice(deviceName: string) {
   const { data, error } = await driveServerWipModule.backup.createDevice({ deviceName });
   if (data) return { data };
 
-  if (error instanceof AlreadyExistsError) {
-    const msg = 'Device name already exists';
-    logger.info({ tag: 'DEVICE', msg });
-    return { error: new Error(msg) };
+  if (error?.code === 'ALREADY_EXISTS') {
+    return {
+      error: logger.info({
+        tag: 'DEVICE',
+        msg: 'Device name already exists',
+        deviceName,
+      }),
+    };
   }
 
   return { error: logger.error({ tag: 'DEVICE', msg: 'Error creating device', error }) };

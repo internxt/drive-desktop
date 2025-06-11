@@ -1,5 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
+import { createDevice } from './backup/create-device';
+import { getDevice } from './backup/get-device';
 
 export class BackupService {
   getDevices() {
@@ -17,45 +19,8 @@ export class BackupService {
     });
   }
 
-  getDevice({ deviceUuid }: { deviceUuid: string }) {
-    const promise = client.GET('/backup/deviceAsFolder/{uuid}', {
-      params: { path: { uuid: deviceUuid } },
-    });
-
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get device as folder request was not successful',
-        context: {
-          deviceUuid,
-        },
-        attributes: {
-          method: 'GET',
-          endpoint: '/backup/deviceAsFolder/{uuid}',
-        },
-      },
-    });
-  }
-
-  createDevice({ deviceName }: { deviceName: string }) {
-    const promise = client.POST('/backup/deviceAsFolder', {
-      body: { deviceName },
-    });
-
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Create device as folder request was not successful',
-        context: {
-          deviceName,
-        },
-        attributes: {
-          method: 'POST',
-          endpoint: '/backup/deviceAsFolder',
-        },
-      },
-    });
-  }
+  getDevice = getDevice;
+  createDevice = createDevice;
 
   updateDevice({ deviceUuid, deviceName }: { deviceUuid: string; deviceName: string }) {
     const promise = client.PATCH('/backup/deviceAsFolder/{uuid}', {

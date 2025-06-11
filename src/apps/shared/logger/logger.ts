@@ -49,18 +49,20 @@ export class LoggerService {
   debug(rawBody: TLoggerBody) {
     const { body } = this.prepareBody('debug', rawBody);
     ElectronLog.debug(body);
+    return new Error(rawBody.msg, { cause: rawBody.exc });
   }
 
   info(rawBody: TLoggerBody) {
     const { body } = this.prepareBody('info', rawBody);
     ElectronLog.debug(body);
     ElectronLog.info(body);
+    return new Error(rawBody.msg, { cause: rawBody.exc });
   }
 
   warn(rawBody: TLoggerBody) {
     const { body } = this.prepareBody('warn', rawBody);
     ElectronLog.debug(body);
-    return new Error(rawBody.msg);
+    return new Error(rawBody.msg, { cause: rawBody.exc });
   }
 
   error(rawBody: TLoggerBody) {

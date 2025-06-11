@@ -1,27 +1,13 @@
-export class InfraError extends Error {
-  constructor(message: string, cause?: unknown) {
-    super(message);
-    this.name = 'InfraError';
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type TDriveServerWipError = 'UNKNOWN' | 'NETWORK' | 'SERVER' | (string & {});
+
+export class DriveServerWipError extends Error {
+  constructor(
+    public readonly code: TDriveServerWipError,
+    cause: unknown,
+  ) {
+    super(code);
+    this.name = 'DriveServerWipError';
     this.cause = cause;
-  }
-}
-export class NetworkError extends InfraError {
-  constructor(message: string, cause?: unknown) {
-    super(message, cause);
-    this.name = 'NetworkError';
-  }
-}
-
-export class AlreadyExistsError extends InfraError {
-  constructor(message: string, cause?: unknown) {
-    super(message, cause);
-    this.name = 'AlreadyExistsError';
-  }
-}
-
-export class NotFoundError extends InfraError {
-  constructor(message: string, cause?: unknown) {
-    super(message, cause);
-    this.name = 'NotFoundError';
   }
 }
