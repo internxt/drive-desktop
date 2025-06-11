@@ -7,6 +7,7 @@ import { fetchItems } from '../fetch-items/fetch-items';
 import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@/apps/shared/logger/logger';
+import { FileErrorHandler } from '@/context/virtual-drive/files/domain/FileError';
 
 export type RemoteTree = {
   files: Record<RelativePath, File>;
@@ -40,6 +41,8 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
+      let relativePath: RelativePath | undefined;
+
       try {
         const decryptedName = File.decryptName({
           plainName: serverFile.plainName,
@@ -48,7 +51,7 @@ export class Traverser {
           type: serverFile.type,
         });
 
-        const relativePath = createRelativePath(currentFolder.path, decryptedName);
+        relativePath = createRelativePath(currentFolder.path, decryptedName);
 
         const file = File.from({
           ...serverFile,
@@ -59,10 +62,14 @@ export class Traverser {
 
         tree.files[relativePath] = file;
       } catch (exc) {
-        /**
-         * v2.5.3 Daniel Jiménez
-         * TODO: Add issue to backups
-         */
+        if (relativePath) {
+          const name = relativePath;
+          FileErrorHandler.handle({
+            exc,
+            addIssue: ({ code }) => context.addIssue({ error: code, name }),
+          });
+        }
+
         logger.error({
           tag: 'BACKUPS',
           msg: 'Error adding file to tree',

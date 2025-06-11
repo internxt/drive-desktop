@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
@@ -46,21 +45,27 @@ export class FileBatchUploader {
               if (error.cause !== 'KILLED_BY_USER') {
                 logger.error({
                   tag: 'BACKUPS',
-                  msg: '[Local File Uploader] Error uploading file',
+                  msg: 'Error uploading file',
                   path: localFile.absolutePath,
                   error,
                 });
 
-                context.addIssue({
-                  error: error.cause,
-                  name: localFile.relativePath,
-                });
+                if (error.cause !== 'UNKNOWN') {
+                  context.addIssue({
+                    error: error.cause,
+                    name: localFile.relativePath,
+                  });
+                }
               }
             } else {
               const parentPath = pathUtils.dirname(localFile.relativePath);
               const parent = remoteTree.folders[parentPath];
 
-              logger.debug({ msg: 'Uploading file', remotePath: localFile.relativePath });
+              logger.debug({
+                tag: 'BACKUPS',
+                msg: 'Uploading file',
+                remotePath: localFile.relativePath,
+              });
 
               const file = await this.creator.run({
                 contentsId,
@@ -86,17 +91,12 @@ export class FileBatchUploader {
                 path: localFile.absolutePath,
               });
             }
-          } catch (error: any) {
+          } catch (error) {
             logger.error({
               tag: 'BACKUPS',
-              msg: '[Local File Uploader] Error uploading file',
+              msg: 'Error uploading file',
               path: localFile.relativePath,
               error,
-            });
-
-            context.addIssue({
-              error: 'UNKNOWN',
-              name: localFile.relativePath,
             });
           } finally {
             updateProgress();
