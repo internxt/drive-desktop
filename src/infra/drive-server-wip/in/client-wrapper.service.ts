@@ -18,7 +18,7 @@ export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
   try {
     const res = await promise;
 
-    if (res.error) {
+    if (!res.data) {
       return {
         error: errorWrapper({
           loggerBody,
@@ -30,7 +30,7 @@ export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
 
     handleRemoveErrors();
 
-    return { data: res.data as NonNullable<T> };
+    return { data: res.data };
   } catch (exc) {
     return {
       error: errorWrapper({
