@@ -31,10 +31,8 @@ export async function getDevice(context: { deviceUuid: string }) {
     switch (true) {
       case isErrorWithStatusCode({ error, code: 404 }):
         return { error: new GetDeviceError('NOT_FOUND', error) };
-      default:
-        return { error: new GetDeviceError('UNKNOWN', error) };
     }
   }
 
-  return { data };
+  return { data, error };
 }

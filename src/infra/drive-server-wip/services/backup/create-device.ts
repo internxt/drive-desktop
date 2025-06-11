@@ -31,10 +31,8 @@ export async function createDevice(context: { deviceName: string }) {
     switch (true) {
       case isErrorWithStatusCode({ error, code: 409 }):
         return { error: new CreateDeviceError('ALREADY_EXISTS', error) };
-      default:
-        return { error: new CreateDeviceError('UNKNOWN', error) };
     }
   }
 
-  return { data };
+  return { data, error };
 }
