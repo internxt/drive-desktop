@@ -35,7 +35,7 @@ async function initializeClamAV() {
       await clamAVServer.waitForClamd();
 
       logger.debug({ msg: '[INITIALIZING CLAM AV] ClamAV is running. Scheduling daily scan...' });
-      // scheduleDailyScan();
+      scheduleDailyScan();
 
       isClamAVRunning = true;
       clamAVInitializationPromise = null;
