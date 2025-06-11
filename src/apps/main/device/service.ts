@@ -71,17 +71,17 @@ export async function fetchDevice(deviceUuid: string) {
 
   if (data) {
     const device = decryptDeviceName(data);
-    logger.info({ tag: 'DEVICE', msg: 'Found device', device: device.name });
+    logger.info({ tag: 'BACKUPS', msg: 'Found device', device: device.name });
     return { data: device };
   }
 
   if (error?.code === 'NOT_FOUND') {
     const msg = `Device not found for deviceUuid: ${deviceUuid}`;
-    logger.info({ tag: 'DEVICE', msg });
+    logger.info({ tag: 'BACKUPS', msg });
     addUnknownDeviceIssue(new Error(msg));
     return { data: null };
   } else {
-    return { error: logger.error({ tag: 'DEVICE', msg: 'Error fetching device', error }) };
+    return { error: logger.error({ tag: 'BACKUPS', msg: 'Error fetching device', error }) };
   }
 }
 
@@ -98,14 +98,14 @@ async function tryCreateDevice(deviceName: string) {
   if (error?.code === 'ALREADY_EXISTS') {
     return {
       error: logger.info({
-        tag: 'DEVICE',
+        tag: 'BACKUPS',
         msg: 'Device name already exists',
         deviceName,
       }),
     };
   }
 
-  return { error: logger.error({ tag: 'DEVICE', msg: 'Error creating device', error }) };
+  return { error: logger.error({ tag: 'BACKUPS', msg: 'Error creating device', error }) };
 }
 
 /**
@@ -119,14 +119,14 @@ export async function createUniqueDevice(attempts = 1000) {
   const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
 
   for (const name of nameVariants) {
-    logger.info({ tag: 'DEVICE', msg: `Trying to create device with name "${name}"` });
+    logger.info({ tag: 'BACKUPS', msg: `Trying to create device with name "${name}"` });
     const { data, error } = await tryCreateDevice(name);
 
     if (data) return { data };
     if (error.message == 'Error creating device') return { error };
   }
 
-  const finalError = logger.error({ tag: 'DEVICE', msg: 'Could not create device trying different names' });
+  const finalError = logger.error({ tag: 'BACKUPS', msg: 'Could not create device trying different names' });
   addUnknownDeviceIssue(finalError);
   return { error: finalError };
 }
@@ -143,10 +143,10 @@ async function createNewDevice() {
 export async function getOrCreateDevice() {
   const savedDeviceUuid = configStore.get('deviceUuid');
   const deviceIsStored = savedDeviceUuid !== '';
-  logger.debug({ tag: 'DEVICE', msg: 'Saved device', savedDeviceUuid });
+  logger.debug({ tag: 'BACKUPS', msg: 'Saved device', savedDeviceUuid });
 
   if (!deviceIsStored) {
-    logger.debug({ tag: 'DEVICE', msg: 'No saved device, creating a new one' });
+    logger.debug({ tag: 'BACKUPS', msg: 'No saved device, creating a new one' });
     return createNewDevice();
   }
   const { data, error } = await fetchDevice(savedDeviceUuid);
@@ -155,15 +155,15 @@ export async function getOrCreateDevice() {
   }
 
   if (data == null && !error) {
-    logger.debug({ tag: 'DEVICE', msg: 'Device not found, creating a new one' });
+    logger.debug({ tag: 'BACKUPS', msg: 'Device not found, creating a new one' });
     return createNewDevice();
   }
 
   if (error) {
-    logger.error({ tag: 'DEVICE', msg: 'Error fetching device', error });
+    logger.error({ tag: 'BACKUPS', msg: 'Error fetching device', error });
     return { error };
   }
-  return { error: logger.error({ tag: 'DEVICE', msg: 'Unknown error: Device not found or removed' }) };
+  return { error: logger.error({ tag: 'BACKUPS', msg: 'Unknown error: Device not found or removed' }) };
 }
 
 export async function renameDevice(deviceName: string): Promise<Device> {
@@ -189,7 +189,7 @@ export function decryptDeviceName({ name, ...rest }: Device): Device {
     nameDevice = aes.decrypt(name, key);
   }
 
-  logger.debug({ msg: '[DEVICE] Decrypted device', nameDevice });
+  logger.debug({tag: 'BACKUPS', msg: 'Decrypted device', nameDevice });
 
   return {
     name: nameDevice,
