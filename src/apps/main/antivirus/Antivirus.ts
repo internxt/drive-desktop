@@ -16,10 +16,6 @@ export class Antivirus {
   private clamAv: NodeClam | null = null;
   private isInitialized = false;
 
-  private constructor() {
-    //
-  }
-
   static async createInstance(): Promise<Antivirus> {
     const instance = new Antivirus();
     await instance.initialize();
@@ -54,7 +50,7 @@ export class Antivirus {
     }
   }
 
-  async scanFile(filePath: string): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
+  async scanFile(filePath: string) {
     if (!this.clamAv || !this.isInitialized) {
       throw new Error('ClamAV is not initialized');
     }
@@ -73,9 +69,5 @@ export class Antivirus {
       this.isInitialized = false;
       await this.clamAv.closeAllSockets();
     }
-  }
-
-  async stopServer() {
-    clamAVServer.stopClamdServer();
   }
 }

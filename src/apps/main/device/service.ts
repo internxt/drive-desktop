@@ -672,11 +672,7 @@ export async function getUserSystemPath() {
   };
 }
 
-export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']): Promise<{
-  path: string;
-  itemName: string;
-  isDirectory?: boolean;
-} | null> {
+export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']) {
   const dialogProperties = dialogPropertiesOptions ?? ['openDirectory'];
 
   const result = await dialog.showOpenDialog({
@@ -714,14 +710,7 @@ async function openFileSystemAndGetPaths(
   return result.filePaths;
 }
 
-export async function getMultiplePathsFromDialog(getFiles?: boolean): Promise<
-  | {
-      path: string;
-      itemName: string;
-      isDirectory: boolean;
-    }[]
-  | undefined
-> {
+export async function getMultiplePathsFromDialog(getFiles?: boolean) {
   const fileSelection = getFiles ? 'openFile' : 'openDirectory';
 
   const chosenItem = await openFileSystemAndGetPaths(['multiSelections', fileSelection]);
