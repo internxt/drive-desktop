@@ -3,7 +3,7 @@ import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
 import { isErrorWithStatusCode } from '../../in/helpers/error-helpers';
 
-class GetDeviceError extends DriveServerWipError {
+export class GetDeviceError extends DriveServerWipError {
   constructor(
     public readonly code: TDriveServerWipError | 'NOT_FOUND',
     cause: unknown,

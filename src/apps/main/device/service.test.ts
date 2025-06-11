@@ -6,7 +6,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import configStore from '../config';
 import { createUniqueDevice, decryptDeviceName, fetchDevice, saveDeviceToConfig } from './service';
 import { loggerMock } from '../../../../tests/vitest/mocks.helper.test';
-import { NotFoundError } from '@/infra/drive-server-wip/out/error.types';
+import { GetDeviceError } from '@/infra/drive-server-wip/services/backup/get-device';
 
 vi.mock('@internxt/lib');
 vi.mock('os');
@@ -55,7 +55,7 @@ describe('Device Service', () => {
       expect(error).toBe(undefined);
     });
     it('should return null if the device is not found', async () => {
-      const http404Error = new NotFoundError('Device not found', {
+      const http404Error = new GetDeviceError('NOT_FOUND', {
         cause: {
           response: {
             status: 404,

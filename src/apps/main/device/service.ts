@@ -189,7 +189,7 @@ export function decryptDeviceName({ name, ...rest }: Device): Device {
     nameDevice = aes.decrypt(name, key);
   }
 
-  logger.debug({tag: 'BACKUPS', msg: 'Decrypted device', nameDevice });
+  logger.debug({ tag: 'BACKUPS', msg: 'Decrypted device', nameDevice });
 
   return {
     name: nameDevice,
