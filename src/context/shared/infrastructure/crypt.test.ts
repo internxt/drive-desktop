@@ -1,5 +1,5 @@
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
-import crypt from './crypt';
+import * as crypt from './crypt';
 
 describe('crypt', () => {
   const encryptedName =

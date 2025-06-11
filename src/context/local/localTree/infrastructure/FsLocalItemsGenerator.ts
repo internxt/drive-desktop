@@ -8,25 +8,25 @@ import { BackupsIssue } from '@/apps/main/background-processes/issues';
 import { StatError } from '@/infra/file-system/services/stat';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 
-function parseRootStatError({ error }: { error: StatError }): BackupsIssue['error'] {
-  switch (error.cause) {
+function parseRootStatError({ cause }: { cause: Exclude<StatError['cause'], 'UNKNOWN'> }): BackupsIssue['error'] {
+  switch (cause) {
     case 'NON_EXISTS':
       return 'ROOT_FOLDER_DOES_NOT_EXIST';
     case 'NO_ACCESS':
       return 'ROOT_FOLDER_DOES_NOT_EXIST';
     default:
-      return error.cause;
+      return cause;
   }
 }
 
-function parseItemStatError({ error }: { error: StatError }): BackupsIssue['error'] {
-  switch (error.cause) {
+function parseItemStatError({ cause }: { cause: Exclude<StatError['cause'], 'UNKNOWN'> }): BackupsIssue['error'] {
+  switch (cause) {
     case 'NON_EXISTS':
       return 'FOLDER_DOES_NOT_EXIST';
     case 'NO_ACCESS':
       return 'FOLDER_ACCESS_DENIED';
     default:
-      return error.cause;
+      return cause;
   }
 }
 
@@ -35,10 +35,12 @@ export class CLSFsLocalItemsGenerator {
     const { data, error } = await fileSystem.stat({ absolutePath });
 
     if (error) {
-      context.addIssue({
-        name: absolutePath,
-        error: parseRootStatError({ error }),
-      });
+      if (error.cause !== 'UNKNOWN') {
+        context.addIssue({
+          name: absolutePath,
+          error: parseRootStatError({ cause: error.cause }),
+        });
+      }
 
       throw error;
     }
@@ -67,10 +69,12 @@ export class CLSFsLocalItemsGenerator {
       const { data, error } = await fileSystem.stat({ absolutePath });
 
       if (error) {
-        context.addIssue({
-          name: absolutePath,
-          error: parseItemStatError({ error }),
-        });
+        if (error.cause !== 'UNKNOWN') {
+          context.addIssue({
+            name: absolutePath,
+            error: parseItemStatError({ cause: error.cause }),
+          });
+        }
 
         return acc;
       }

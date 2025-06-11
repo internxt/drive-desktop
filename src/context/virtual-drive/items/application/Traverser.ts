@@ -3,9 +3,11 @@ import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { File } from '../../files/domain/File';
 import { getAllItems } from './RemoteItemsGenerator';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { FileErrorHandler } from '../../files/domain/FileError';
+import { addSyncIssue } from '@/apps/main/background-processes/issues';
 
 type Items = {
   files: Array<DriveFile>;
@@ -45,6 +47,8 @@ export class Traverser {
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
     filesInThisFolder.forEach((serverFile) => {
+      let relativePath: RelativePath | undefined;
+
       try {
         const decryptedName = File.decryptName({
           plainName: serverFile.plainName,
@@ -53,7 +57,7 @@ export class Traverser {
           type: serverFile.type,
         });
 
-        const relativePath = createRelativePath(currentFolder.path, decryptedName);
+        relativePath = createRelativePath(currentFolder.path, decryptedName);
 
         const file = File.from({
           ...serverFile,
@@ -68,10 +72,14 @@ export class Traverser {
           tree.files.push(file);
         }
       } catch (exc) {
-        /**
-         * v2.5.3 Daniel Jiménez
-         * TODO: Add issue to sync
-         */
+        if (relativePath) {
+          const name = relativePath;
+          FileErrorHandler.handle({
+            exc,
+            addIssue: ({ code }) => addSyncIssue({ error: code, name }),
+          });
+        }
+
         logger.error({
           tag: 'SYNC-ENGINE',
           msg: 'Error adding file to tree',

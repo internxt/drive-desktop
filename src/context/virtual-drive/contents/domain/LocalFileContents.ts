@@ -36,14 +36,6 @@ export class LocalFileContents {
     return this._size.value;
   }
 
-  public get birthTime(): number {
-    return this._birthTime;
-  }
-
-  public get modifiedTime(): number {
-    return this._modifiedTime;
-  }
-
   static from(attributes: LocalFileContentsAttributes): LocalFileContents {
     const remoteContents = new LocalFileContents(
       attributes.name,

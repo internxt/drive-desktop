@@ -5,7 +5,7 @@ import { aes } from '@internxt/lib';
 // eslint-disable-next-line prefer-destructuring
 const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
 
-function decryptName({ name, parentId }: { name: string; parentId?: number | null }) {
+export function decryptName({ name, parentId }: { name: string; parentId?: number | null }) {
   /**
    * v2.5.2 Daniel Jiménez
    * parentId can only be null for the root folder, so it should never reach here
@@ -31,7 +31,7 @@ function decryptName({ name, parentId }: { name: string; parentId?: number | nul
   }
 }
 
-function encryptName({ name, parentId }: { name: string; parentId?: number | null }) {
+export function encryptName({ name, parentId }: { name: string; parentId?: number | null }) {
   /**
    * v2.5.2 Daniel Jiménez
    * parentId can only be null for the root folder, so it should never reach here
@@ -56,8 +56,3 @@ function encryptName({ name, parentId }: { name: string; parentId?: number | nul
     });
   }
 }
-
-export default {
-  decryptName,
-  encryptName,
-};

@@ -6,7 +6,7 @@ import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 export type SyncIssue = {
   tab: 'sync';
   name: string;
-  error: 'INVALID_WINDOWS_NAME' | 'DELETE_ERROR' | 'NOT_ENOUGH_SPACE';
+  error: 'INVALID_WINDOWS_NAME' | 'DELETE_ERROR' | 'NOT_ENOUGH_SPACE' | 'FILE_SIZE_TOO_BIG';
 };
 
 export type BackupsIssue = {
@@ -14,13 +14,13 @@ export type BackupsIssue = {
   name: string;
   folderUuid: string;
   error:
-    | 'FOLDER_ACCESS_DENIED'
     | 'CREATE_FOLDER_FAILED'
+    | 'FILE_SIZE_TOO_BIG'
+    | 'FOLDER_ACCESS_DENIED'
     | 'FOLDER_DOES_NOT_EXIST'
-    | 'PARENT_FOLDER_DOES_NOT_EXIST'
-    | 'ROOT_FOLDER_DOES_NOT_EXIST'
     | 'NOT_ENOUGH_SPACE'
-    | 'UNKNOWN';
+    | 'PARENT_FOLDER_DOES_NOT_EXIST'
+    | 'ROOT_FOLDER_DOES_NOT_EXIST';
 };
 
 export type GeneralIssue = {
