@@ -6,7 +6,7 @@ import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/
 import { OfflineFolder } from '../../../../context/virtual-drive/folders/domain/OfflineFolder';
 import { AbsolutePathToRelativeConverter } from '../../../../context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
 import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/application/PlatformPathConverter';
-import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
+import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker';
 import { CallbackController } from './CallbackController';
 import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder';

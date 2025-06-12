@@ -90,9 +90,7 @@ const scanInBackground = async (): Promise<void> => {
   try {
     const backgroundQueue = queue(scan, BACKGROUND_MAX_CONCURRENCY);
 
-    const filePaths: string[] = [];
-
-    await getFilesFromDirectory({ filePaths, folder: userSystemPath.path });
+    const filePaths = await getFilesFromDirectory({ rootFolder: userSystemPath.path });
 
     logger.debug({
       tag: 'ANTIVIRUS',

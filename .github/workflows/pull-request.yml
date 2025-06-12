@@ -7,7 +7,7 @@ on:
 jobs:
   pull_request:
     runs-on: windows-latest
-    timeout-minutes: 7
+    timeout-minutes: 10
 
     permissions:
       contents: read
