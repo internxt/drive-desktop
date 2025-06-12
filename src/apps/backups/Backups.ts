@@ -10,13 +10,14 @@ import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
 import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
-import { RemoteTree, Traverser } from './remote-tree/traverser';
+import { RemoteTree } from './remote-tree/traverse';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 import { calculateFilesDiff, FilesDiff } from './diff/calculate-files-diff';
 import { calculateFoldersDiff, FoldersDiff } from './diff/calculate-folders-diff';
 import { createFolders } from './folders/create-folders';
+import { traverser } from './remote-tree/traverser';
 
 @Service()
 export class Backup {
@@ -30,7 +31,7 @@ export class Backup {
 
   async run(tracker: BackupsProcessTracker, context: BackupsContext) {
     const local = await LocalTreeBuilder.run({ context });
-    const remote = await new Traverser().run({ context });
+    const remote = await traverser({ context });
 
     const foldersDiff = calculateFoldersDiff({ local, remote });
     const filesDiff = calculateFilesDiff({ local, remote });

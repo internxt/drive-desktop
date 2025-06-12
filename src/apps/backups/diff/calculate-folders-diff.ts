@@ -3,7 +3,7 @@ import { LocalFolder } from '../../../context/local/localFolder/domain/LocalFold
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
 import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
-import { RemoteTree } from '../remote-tree/traverser';
+import { RemoteTree } from '../remote-tree/traverse';
 
 export type FoldersDiff = {
   added: Array<LocalFolder>;
