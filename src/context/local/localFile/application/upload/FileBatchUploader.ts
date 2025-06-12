@@ -5,7 +5,7 @@ import Logger from 'electron-log';
 import { logger } from '@/apps/shared/logger/logger';
 import { onFileCreated } from '@/apps/main/fordwardToWindows';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
+import { RemoteTree } from '@/apps/backups/remote-tree/traverse';
 import { pathUtils } from '../../infrastructure/AbsolutePath';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/services/environment-file-uploader';
 

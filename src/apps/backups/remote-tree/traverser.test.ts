@@ -1,8 +1,8 @@
 import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
-import { Traverser } from './traverser';
 import { fetchItems } from '../fetch-items/fetch-items';
 import { v4 } from 'uuid';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
+import { traverser } from './traverser';
 
 vi.mock(import('../fetch-items/fetch-items'));
 vi.mock(import('@/apps/main/util'));
@@ -11,7 +11,6 @@ describe('traverser', () => {
   const fetchItemsMock = deepMocked(fetchItems);
 
   const folder = v4();
-
   const folder1 = v4();
   const folder2 = v4();
   const folder3 = v4();
@@ -33,8 +32,7 @@ describe('traverser', () => {
     });
   });
 
-  const traverser = new Traverser();
-  const props = mockProps<typeof traverser.run>({
+  const props = mockProps<typeof traverser>({
     context: {
       abortController: { signal: { aborted: false } },
       folderId: 1,
@@ -44,7 +42,7 @@ describe('traverser', () => {
 
   it('If signal is aborted then do not traverse', async () => {
     // Given
-    const props = mockProps<typeof traverser.run>({
+    const props = mockProps<typeof traverser>({
       context: {
         abortController: { signal: { aborted: true } },
         folderId: 1,
@@ -53,7 +51,7 @@ describe('traverser', () => {
     });
 
     // When
-    const res = await traverser.run(props);
+    const res = await traverser(props);
 
     // Then
     expect(Object.keys(res.folders)).toStrictEqual(['/']);
@@ -62,10 +60,10 @@ describe('traverser', () => {
 
   it('It should add files and folders', async () => {
     // When
-    const res = await traverser.run(props);
+    const res = await traverser(props);
 
     // Then
-    expect(Object.keys(res.folders)).toStrictEqual(['/', '/folder1', '/folder1/folder3', '/folder2']);
+    expect(Object.keys(res.folders)).toStrictEqual(['/', '/folder1', '/folder2', '/folder1/folder3']);
     expect(Object.keys(res.files)).toStrictEqual(['/file1', '/file2', '/folder1/file3', '/folder1/folder3/file4']);
   });
 
@@ -77,7 +75,7 @@ describe('traverser', () => {
     });
 
     // When
-    const res = await traverser.run(props);
+    const res = await traverser(props);
 
     // Then
     expect(Object.keys(res.folders)).toStrictEqual(['/']);
@@ -99,7 +97,7 @@ describe('traverser', () => {
     });
 
     // When
-    const res = await traverser.run(props);
+    const res = await traverser(props);
 
     // Then
     expect(Object.keys(res.folders)).toStrictEqual(['/']);
