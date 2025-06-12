@@ -190,18 +190,19 @@ class ManualSystemScan {
         pathNames = [userSystemPath.path];
       }
 
-      const filePaths: string[] = [];
+      const allFilePaths: string[] = [];
 
       for (const p of pathNames) {
-        await getFilesFromDirectory({ filePaths, folder: p });
+        const filePaths = await getFilesFromDirectory({ rootFolder: p });
+        allFilePaths.push(...filePaths);
       }
 
-      this.totalItemsToScan = filePaths.length;
+      this.totalItemsToScan = allFilePaths.length;
 
       logger.debug({
         tag: 'ANTIVIRUS',
         msg: 'Retrieved all files',
-        totalFiles: filePaths.length,
+        totalFiles: allFilePaths.length,
       });
 
       eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
@@ -214,7 +215,7 @@ class ManualSystemScan {
       this.manualQueue = queue(scan, 10);
 
       if (this.totalItemsToScan > 0) {
-        await this.manualQueue.pushAsync(filePaths);
+        await this.manualQueue.pushAsync(allFilePaths);
         await this.manualQueue.drain();
       }
 
