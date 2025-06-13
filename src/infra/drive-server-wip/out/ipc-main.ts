@@ -3,7 +3,7 @@ import { ipcMain } from 'electron';
 import { FromMain, FromProcess } from './ipc';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
-export const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
+const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupIpcDriveServerWip() {
   void ipcMainDriveServerWip.handle('storageDeleteFileByUuid', (event, props) => {
