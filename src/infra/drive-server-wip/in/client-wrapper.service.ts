@@ -1,6 +1,6 @@
 import { TLoggerBody } from '@/apps/shared/logger/logger';
 import { handleRemoveErrors } from '@/infra/drive-server-wip/in/helpers/error-helpers';
-import { errorWrapper } from './error-wrapper';
+import { errorWrapper, exceptionWrapper } from './error-wrapper';
 
 type TProps<T> = {
   loggerBody: TLoggerBody;
@@ -33,9 +33,9 @@ export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
     return { data: res.data };
   } catch (exc) {
     return {
-      error: errorWrapper({
+      error: exceptionWrapper({
         loggerBody,
-        error: exc,
+        exc,
       }),
     };
   }

@@ -10,6 +10,7 @@ process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
 vi.mock(import('@/apps/shared/logger/logger'));
 // We do not want to make network calls
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+vi.mock(import('@/apps/shared/HttpClient/client'));
 
 vi.mock('../event-bus', () => {
   const listeners: Record<string, ((...args: unknown[]) => void)[]> = {};

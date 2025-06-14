@@ -7,7 +7,7 @@ import { createRelativePath, RelativePath } from '@/context/local/localFile/infr
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { FileErrorHandler } from '../../files/domain/FileError';
-import { addSyncIssue } from '@/apps/main/background-processes/issues';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 type Items = {
   files: Array<DriveFile>;
@@ -76,7 +76,7 @@ export class Traverser {
           const name = relativePath;
           FileErrorHandler.handle({
             exc,
-            addIssue: ({ code }) => addSyncIssue({ error: code, name }),
+            addIssue: ({ code }) => ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: code, name }),
           });
         }
 

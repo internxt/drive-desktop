@@ -22,14 +22,10 @@ import { z } from 'zod';
  *   cause: Error: getaddrinfo ENOTFOUND gateway.internxt.com
  *     code: 'ENOTFOUND'
  */
-const fetchErrorSchema = z.object({
+const fetchExceptionSchema = z.object({
   code: z.string().optional(),
   message: z.string().optional(),
-  cause: z
-    .object({
-      code: z.string().optional(),
-    })
-    .optional(),
+  cause: z.object({ code: z.string().optional() }).optional(),
 });
 
 /**
@@ -37,11 +33,13 @@ const fetchErrorSchema = z.object({
  * Examples:
  * { message: 'workspaceId should be a valid uuid!', error: 'Bad Request', statusCode: 400 }
  */
-const fetchErrorWithHttpResponseSchema = z.object({
+export const fetchErrorSchema = z.object({
   message: z.string().optional(),
   error: z.string().optional(),
   statusCode: z.number().optional(),
 });
+
+export type FetchError = z.infer<typeof fetchErrorSchema>;
 
 const errorCodes = [
   'ENOTFOUND',
@@ -68,8 +66,8 @@ export const serverErrorIssue: Omit<GeneralIssue, 'tab'> = {
   error: 'SERVER_INTERNAL_ERROR',
 };
 
-export function isNetworkConnectivityError({ error }: { error: unknown }): boolean {
-  const parsedError = fetchErrorSchema.safeParse(error);
+export function isNetworkConnectivityError({ exc }: { exc: unknown }): boolean {
+  const parsedError = fetchExceptionSchema.safeParse(exc);
   if (!parsedError.success) return false;
 
   const { code, message, cause } = parsedError.data;
@@ -85,11 +83,8 @@ export function isNetworkConnectivityError({ error }: { error: unknown }): boole
   return !!(message && message.includes('Failed to fetch'));
 }
 
-export function isServerError({ response, error }: { response: Response; error: unknown }): boolean {
-  const parsedError = fetchErrorWithHttpResponseSchema.safeParse(error);
-  if (!parsedError.success) return false;
-
-  const status = parsedError.data.statusCode ?? response.status;
+export function isServerError({ error, response }: { error: FetchError | undefined; response: Response }): boolean {
+  const status = error?.statusCode ?? response.status;
   const statusText = response.statusText;
 
   return (status >= 500 && status < 600) || statusText.includes('Internal Server Error') || statusText.includes('Service Unavailable');
@@ -98,9 +93,4 @@ export function isServerError({ response, error }: { response: Response; error: 
 export function handleRemoveErrors() {
   removeGeneralIssue(serverErrorIssue);
   removeGeneralIssue(networkErrorIssue);
-}
-
-export function isErrorWithStatusCode({ error, code }: { error: unknown; code: number }): boolean {
-  const parsedData = fetchErrorWithHttpResponseSchema.safeParse(error).data;
-  return parsedData?.statusCode === code;
 }
