@@ -6,7 +6,7 @@ import eventBus from '../event-bus';
 import { clearRootVirtualDrive, setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
 import { checkUserData, createTokenSchedule } from './refresh-token';
-import { canHisConfigBeRestored, encryptToken, getUser, logout, obtainToken, setCredentials } from './service';
+import { canHisConfigBeRestored, encryptToken, getUser, logout, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
