@@ -28,7 +28,7 @@ export async function getDevice(context: { deviceUuid: string }) {
 
   if (error?.code === 'UNKNOWN') {
     switch (true) {
-      case error.fetchError?.statusCode === 404:
+      case error.response?.status === 404:
         return { error: new GetDeviceError('NOT_FOUND', error.cause) };
     }
   }

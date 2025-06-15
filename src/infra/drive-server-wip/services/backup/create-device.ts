@@ -28,7 +28,7 @@ export async function createDevice(context: { deviceName: string }) {
 
   if (error?.code === 'UNKNOWN') {
     switch (true) {
-      case error.fetchError?.statusCode === 409:
+      case error.response?.status === 409:
         return { error: new CreateDeviceError('ALREADY_EXISTS', error.cause) };
     }
   }

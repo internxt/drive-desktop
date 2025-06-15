@@ -28,19 +28,6 @@ const fetchExceptionSchema = z.object({
   cause: z.object({ code: z.string().optional() }).optional(),
 });
 
-/**
- * v2.5.4 Daniel Jiménez
- * Examples:
- * { message: 'workspaceId should be a valid uuid!', error: 'Bad Request', statusCode: 400 }
- */
-export const fetchErrorSchema = z.object({
-  message: z.string().optional(),
-  error: z.string().optional(),
-  statusCode: z.number().optional(),
-});
-
-export type FetchError = z.infer<typeof fetchErrorSchema>;
-
 const errorCodes = [
   'ENOTFOUND',
   'ECONNREFUSED',
@@ -83,11 +70,8 @@ export function isNetworkConnectivityError({ exc }: { exc: unknown }): boolean {
   return !!(message && message.includes('Failed to fetch'));
 }
 
-export function isServerError({ error, response }: { error: FetchError | undefined; response: Response }): boolean {
-  const status = error?.statusCode ?? response.status;
-  const statusText = response.statusText;
-
-  return (status >= 500 && status < 600) || statusText.includes('Internal Server Error') || statusText.includes('Service Unavailable');
+export function isServerError({ response }: { response: Response }): boolean {
+  return response.status >= 500 && response.status < 600;
 }
 
 export function handleRemoveErrors() {

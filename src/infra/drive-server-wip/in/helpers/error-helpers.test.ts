@@ -53,38 +53,27 @@ describe('error-helpers', () => {
   describe('isServerError', () => {
     it('should return true for a top-level status code 500', () => {
       const response = { status: 500 } as Response;
-      const error = new Error('internal server error');
-      expect(isServerError({ error, response })).toBe(true);
+      expect(isServerError({ response })).toBe(true);
     });
 
     it('should return true for status code 503 inside response', () => {
       const response = { status: 503 } as Response;
-      const error = new Error('Service Unavailable');
-      expect(isServerError({ error, response })).toBe(true);
+      expect(isServerError({ response })).toBe(true);
     });
 
-    it('should return true for statusText containing "Internal Server Error"', () => {
-      const response = { statusText: 'Internal Server Error' } as Response;
-      const error = new Error('Server error occurred');
-      expect(isServerError({ error, response })).toBe(true);
-    });
-
-    it('should return true for statusText containing "Service Unavailable"', () => {
-      const response = { statusText: 'Service Unavailable' } as Response;
-      const error = new Error('Service Unavailable');
-      expect(isServerError({ error, response })).toBe(true);
+    it('should return true for status code 600 inside response', () => {
+      const response = { status: 600 } as Response;
+      expect(isServerError({ response })).toBe(false);
     });
 
     it('should return false for a 400 status (top-level)', () => {
-      const response = { status: 400, statusText: 'Bad Request' } as Response;
-      const error = new Error('Bad Request');
-      expect(isServerError({ error, response })).toBe(false);
+      const response = { status: 400 } as Response;
+      expect(isServerError({ response })).toBe(false);
     });
 
     it('should return false for a non-error status inside response (e.g. 200)', () => {
-      const response = { status: 200, statusText: 'Ok' } as Response;
-      const error = new Error('OK');
-      expect(isServerError({ error, response })).toBe(false);
+      const response = { status: 200 } as Response;
+      expect(isServerError({ response })).toBe(false);
     });
   });
 });
