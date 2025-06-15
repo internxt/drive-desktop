@@ -7,7 +7,7 @@ import eventBus from '@/apps/main/event-bus';
 import Bottleneck from 'bottleneck';
 import { getAuthHeaders } from '@/apps/main/auth/headers';
 
-const getHeaders = async () => {
+export const getHeaders = async () => {
   if (process.type === 'renderer') return await ipcRendererSyncEngine.invoke('GET_HEADERS');
   return getAuthHeaders();
 };

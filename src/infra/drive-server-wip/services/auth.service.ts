@@ -1,4 +1,5 @@
 import { authClient } from '@/apps/shared/HttpClient/auth-client';
+import { getHeaders } from '@/apps/shared/HttpClient/client';
 import { loggerService } from '@/apps/shared/logger/logger';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { HEADERS } from '@/apps/main/auth/headers';
@@ -52,8 +53,10 @@ export class AuthService {
     return res.data;
   }
 
-  refresh() {
-    const promise = authClient.GET('/users/refresh');
+  async refresh() {
+    const promise = authClient.GET('/users/refresh', {
+      headers: await getHeaders(),
+    });
 
     return clientWrapper({
       promise,
