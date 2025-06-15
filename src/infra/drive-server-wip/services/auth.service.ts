@@ -1,15 +1,8 @@
 import { authClient } from '@/apps/shared/HttpClient/auth-client';
 import { getHeaders } from '@/apps/shared/HttpClient/client';
 import { loggerService } from '@/apps/shared/logger/logger';
-import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { clientWrapper } from '../in/client-wrapper.service';
-
-const HEADERS = {
-  'content-type': 'application/json',
-  'internxt-client': 'drive-desktop',
-  'internxt-version': INTERNXT_VERSION,
-  'x-internxt-desktop-header': process.env.DESKTOP_HEADER,
-};
+import { HEADERS } from '@/apps/main/auth/headers';
 
 export class AuthService {
   constructor(private readonly logger = loggerService) {}

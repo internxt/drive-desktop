@@ -59,7 +59,6 @@ describe('Device Service', () => {
         cause: {
           response: {
             status: 404,
-            statusText: 'Not Found',
           },
         },
       });
@@ -76,7 +75,6 @@ describe('Device Service', () => {
         cause: {
           response: {
             status: 500,
-            statusText: 'Internal Server Error',
           },
         },
       });
@@ -141,7 +139,7 @@ describe('Device Service', () => {
       for (let i = 1; i <= 10; i++) {
         const error = new Error('Device already exists', {
           cause: {
-            response: { status: 409, statusText: 'Device already exists' },
+            response: { status: 409 },
           },
         });
         createDeviceMock.mockResolvedValueOnce({ error });
@@ -180,7 +178,7 @@ describe('Device Service', () => {
       for (let i = 1; i <= 12; i++) {
         const error = new Error('Device already exists', {
           cause: {
-            response: { status: 409, statusText: 'Device already exists' },
+            response: { status: 409 },
           },
         });
         createDeviceMock.mockResolvedValueOnce({ error });

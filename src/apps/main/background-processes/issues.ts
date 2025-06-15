@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
-import { broadcastToWindows } from '../windows';
 import { showNotEnoughSpaceNotification } from './process-issues';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
+import eventBus from '../event-bus';
 
 export type SyncIssue = {
   tab: 'sync';
@@ -34,7 +34,7 @@ export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
 export let issues: Issue[] = [];
 
 function onIssuesChanged() {
-  broadcastToWindows('issues-changed', issues);
+  eventBus.emit('BROADCAST_TO_WINDOWS', 'issues-changed', issues);
 }
 
 function addIssue(issue: Issue) {
@@ -76,6 +76,7 @@ export function clearBackupsIssues() {
 
 export function setupIssueHandlers() {
   ipcMainSyncEngine.on('ADD_SYNC_ISSUE', (_, issue) => addSyncIssue(issue));
+  ipcMainSyncEngine.on('ADD_GENERAL_ISSUE', (_, issue) => addGeneralIssue(issue));
   ipcMain.handle('get-issues', () => issues);
 }
 

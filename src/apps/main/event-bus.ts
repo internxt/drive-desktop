@@ -23,6 +23,7 @@ interface Events {
 
   // Get the scan progress
   ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
+  BROADCAST_TO_WINDOWS: (eventName: string, data: unknown) => void;
 }
 
 declare interface EventBus {

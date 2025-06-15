@@ -7,7 +7,7 @@ import os from 'os';
 import path from 'path';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
-import { getNewApiHeaders, getUser, setUser } from '../auth/service';
+import { getUser, setUser } from '../auth/service';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import fs, { PathLike } from 'fs';
@@ -22,6 +22,7 @@ import { getConfig } from '@/apps/sync-engine/config';
 import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
+import { getAuthHeaders } from '../auth/headers';
 
 export type Device = {
   name: string;
@@ -336,7 +337,7 @@ async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
 async function fetchTreeFromApi(folderUuid: string): Promise<FolderTree> {
   const res = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/tree`, {
     method: 'GET',
-    headers: getNewApiHeaders(),
+    headers: getAuthHeaders(),
   });
 
   if (!res.ok) {

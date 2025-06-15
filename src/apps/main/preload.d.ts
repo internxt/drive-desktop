@@ -27,8 +27,6 @@ declare interface Window {
 
     getItemByFolderUuid(folderUuid: string): Promise<import('../shared/types/items').ItemBackup[]>;
 
-    userIsUnauthorized(): void;
-
     downloadBackup: typeof import('../main/device/service').downloadBackup;
 
     userLoggedIn(data: import('../renderer/pages/Login/service').AccessResponse): void;

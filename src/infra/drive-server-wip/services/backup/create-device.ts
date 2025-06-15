@@ -1,7 +1,6 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
-import { isErrorWithStatusCode } from '../../in/helpers/error-helpers';
 
 class CreateDeviceError extends DriveServerWipError {
   constructor(
@@ -29,8 +28,8 @@ export async function createDevice(context: { deviceName: string }) {
 
   if (error?.code === 'UNKNOWN') {
     switch (true) {
-      case isErrorWithStatusCode({ error, code: 409 }):
-        return { error: new CreateDeviceError('ALREADY_EXISTS', error) };
+      case error.response?.status === 409:
+        return { error: new CreateDeviceError('ALREADY_EXISTS', error.cause) };
     }
   }
 
