@@ -3,7 +3,7 @@ import { RelativePath } from '../../../context/local/localFile/infrastructure/Ab
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { FileStatus } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
-import { RemoteTree } from '../remote-tree/traverser';
+import { RemoteTree } from '../remote-tree/traverse';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
 
 export type FilesDiff = {

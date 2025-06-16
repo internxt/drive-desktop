@@ -1,6 +1,6 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
-import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
+import { RemoteTree } from '@/apps/backups/remote-tree/traverse';
 import { simpleFileOverride } from '@/context/virtual-drive/files/application/override/SimpleFileOverrider';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/services/environment-file-uploader';
