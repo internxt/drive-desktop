@@ -187,14 +187,7 @@ export class Backup {
         return;
       }
 
-      const promise = () => driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
-      const { error } = await retryWrapper({
-        promise,
-        loggerBody: {
-          tag: 'BACKUPS',
-          msg: 'Retry deleting file',
-        },
-      });
+      const { error } = await driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid, workspaceToken: '' });
 
       if (error) throw error;
     }

@@ -1,6 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { clientWrapper } from '../in/client-wrapper.service';
+import { retryWrapper } from '../out/retry-wrapper';
 
 export class StorageService {
   deleteFile(context: { fileId: string }) {
@@ -43,24 +44,28 @@ export class StorageService {
     });
   }
 
-  deleteFileByUuid(context: { uuid: string }) {
-    const promise = noContentWrapper({
+  deleteFileByUuid(context: { uuid: string; workspaceToken: string }) {
+    const promise1 = noContentWrapper({
       request: client.POST('/storage/trash/add', {
+        headers: { 'x-internxt-workspace': context.workspaceToken },
         body: { items: [{ type: 'file', uuid: context.uuid, id: null }] },
       }),
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Delete file by uuid request was not successful',
-        context,
-        attributes: {
-          method: 'POST',
-          endpoint: '/storage/trash/add',
+    const promise2 = () =>
+      clientWrapper({
+        promise: promise1,
+        loggerBody: {
+          msg: 'Delete file by uuid request was not successful',
+          context,
+          attributes: {
+            method: 'POST',
+            endpoint: '/storage/trash/add',
+          },
         },
-      },
-    });
+      });
+
+    return retryWrapper({ promise: promise2 });
   }
 
   deleteFolderByUuid(context: { uuid: string }) {

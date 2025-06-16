@@ -1,6 +1,6 @@
 module.exports = {
   extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended'],
-  plugins: ['import'],
+  plugins: ['import', 'unicorn'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
@@ -27,6 +27,7 @@ module.exports = {
     'no-use-before-define': 'warn',
     'object-shorthand': 'error',
     'require-await': 'warn',
+    'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
   },
   parser: '@typescript-eslint/parser',
   settings: {
