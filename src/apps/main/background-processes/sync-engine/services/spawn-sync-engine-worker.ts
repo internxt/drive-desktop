@@ -13,6 +13,8 @@ type TProps = {
   config: Config;
 };
 
+let hasPrinted = false;
+
 export async function spawnSyncEngineWorker({ config }: TProps) {
   const workspaceId = config.workspaceId;
 
@@ -47,6 +49,30 @@ export async function spawnSyncEngineWorker({ config }: TProps) {
         contextIsolation: false,
         backgroundThrottling: false,
       },
+    });
+
+    /**
+     * v2.5.4 Daniel Jiménez
+     * We want to print just the first console message of the renderer process.
+     * If we print all of them, then we fill the console and the log with duplicated messages.
+     * If we do not print any of them and there is an error in the renderer process we do
+     * not have any way of knowing what went wrong. Usually the error is printed in the
+     * first message.
+     */
+    browserWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
+      if (!hasPrinted) {
+        logger.debug({
+          tag: 'SYNC-ENGINE',
+          msg: 'Sync engine worker console message',
+          workspaceId,
+          level,
+          message,
+          line,
+          sourceId,
+        });
+
+        hasPrinted = true;
+      }
     });
 
     worker.startingWorker = true;
