@@ -1,7 +1,7 @@
 import { sleep } from '@/apps/main/util';
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 
-type TPromise<T> = Promise<{ data: T; error?: undefined } | { data?: undefined; error: unknown }>;
+type TPromise<T> = Promise<{ data: NonNullable<T>; error?: undefined } | { data?: undefined; error: unknown }>;
 
 type TProps<T> = {
   promise: () => TPromise<T>;

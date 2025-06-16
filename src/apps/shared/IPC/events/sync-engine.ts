@@ -3,6 +3,7 @@ import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
 import type { TPaths } from '@/core/electron/paths';
+import type { FileErrorInfo } from './drive';
 
 type ProcessInfo = {
   elapsedTime: number;
@@ -20,20 +21,20 @@ type FileUpdatePayload = {
 type FilesEvents = {
   FILE_UPLOADING: (payload: FileUpdatePayload) => void;
   FILE_UPLOADED: (payload: FileUpdatePayload) => void;
-  FILE_UPLOAD_ERROR: (payload: { name?: string; extension?: string; nameWithExtension: string; error: string }) => void;
+  FILE_UPLOAD_ERROR: (payload: FileErrorInfo) => void;
 
   FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
   FILE_DOWNLOAD_CANCEL: (payload: Partial<FileUpdatePayload>) => void;
-  FILE_DOWNLOAD_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; error: string }) => void;
+  FILE_DOWNLOAD_ERROR: (payload: FileErrorInfo) => void;
 
   FILE_DELETING: (payload: { name: string; extension: string; nameWithExtension: string; size: number }) => void;
   FILE_DELETED: (payload: { name: string; extension: string; nameWithExtension: string; size: number }) => void;
-  FILE_DELETION_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; error: string }) => void;
+  FILE_DELETION_ERROR: (payload: FileErrorInfo) => void;
 
   FILE_RENAMING: (payload: { nameWithExtension: string; oldName: string }) => void;
   FILE_RENAMED: (payload: { nameWithExtension: string; oldName: string }) => void;
-  FILE_RENAME_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; error: string }) => void;
+  FILE_RENAME_ERROR: (payload: FileErrorInfo) => void;
 
   FILE_CREATED: (payload: {
     bucket: string;

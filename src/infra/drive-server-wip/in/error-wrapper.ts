@@ -1,47 +1,56 @@
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { DriveServerWipError } from '../out/error.types';
-import { isNetworkConnectivityError, isServerError, networkErrorIssue, serverErrorIssue } from './helpers/error-helpers';
+import {
+  fetchExceptionSchema,
+  isNetworkConnectivityError,
+  isServerError,
+  networkErrorIssue,
+  serverErrorIssue,
+} from './helpers/error-helpers';
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 export function errorWrapper({ loggerBody, error, response }: { loggerBody: TLoggerBody; error: unknown; response: Response }) {
-  const loggedError = logger.error({
+  const isKnownError = isServerError({ response });
+  const exc = isKnownError ? 'Server error' : error;
+
+  logger.error({
     ...loggerBody,
-    error,
+    exc,
     response: {
       status: response.status,
       statusText: response.statusText,
     },
   });
 
-  if (isServerError({ response })) {
+  if (isKnownError) {
     if (process.type === 'renderer') {
       ipcRendererSyncEngine.send('ADD_GENERAL_ISSUE', serverErrorIssue);
     } else {
       addGeneralIssue(serverErrorIssue);
     }
 
-    return new DriveServerWipError('SERVER', loggedError);
+    return new DriveServerWipError('SERVER');
   } else {
-    return new DriveServerWipError('UNKNOWN', loggedError, response);
+    return new DriveServerWipError('UNKNOWN', response);
   }
 }
 
 export function exceptionWrapper({ loggerBody, exc }: { loggerBody: TLoggerBody; exc: unknown }) {
-  const loggedError = logger.error({
-    ...loggerBody,
-    exc,
-  });
+  const isKnownError = isNetworkConnectivityError({ exc });
+  exc = isKnownError ? fetchExceptionSchema.safeParse(exc).data : exc;
 
-  if (isNetworkConnectivityError({ exc })) {
+  logger.error({ ...loggerBody, exc });
+
+  if (isKnownError) {
     if (process.type === 'renderer') {
       ipcRendererSyncEngine.send('ADD_GENERAL_ISSUE', networkErrorIssue);
     } else {
       addGeneralIssue(networkErrorIssue);
     }
 
-    return new DriveServerWipError('NETWORK', loggedError);
+    return new DriveServerWipError('NETWORK');
   } else {
-    return new DriveServerWipError('UNKNOWN', loggedError);
+    return new DriveServerWipError('UNKNOWN');
   }
 }

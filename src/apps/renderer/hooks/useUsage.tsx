@@ -1,35 +1,14 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Usage } from '../../main/usage/Usage';
-import lodashDebounce from 'lodash.debounce';
+import { useMemo } from 'react';
+import { useApiUsage } from '../api/get-usage';
 
 export default function useUsage() {
-  const [usage, setUsage] = useState<Usage>();
-  const [status, setStatus] = useState<'loading' | 'error' | 'ready'>('loading');
+  const { data: usage, isLoading, isError, refetch } = useApiUsage();
 
-  const updateUsage = useCallback(async () => {
-    try {
-      const userIsLoggedIn = await window.electron.isUserLoggedIn();
+  const status = useMemo(() => {
+    if (isLoading) return 'loading';
+    if (isError) return 'error';
+    return 'ready';
+  }, [usage, isLoading, isError]);
 
-      if (!userIsLoggedIn) {
-        return;
-      }
-      const usage = await window.electron.getUsage();
-
-      setUsage(usage);
-      setStatus('ready');
-    } catch (err) {
-      setStatus('error');
-    }
-  }, []);
-
-  const debouncedUpdateUsage = useCallback(lodashDebounce(updateUsage, 500), []);
-
-  useEffect(() => {
-    setStatus('loading');
-    void debouncedUpdateUsage();
-    const listener = window.electron.onRemoteChanges(debouncedUpdateUsage);
-    return listener;
-  }, [updateUsage, debouncedUpdateUsage]);
-
-  return { usage, refreshUsage: debouncedUpdateUsage, status };
+  return { usage, refreshUsage: refetch, status };
 }

@@ -7,6 +7,7 @@ import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererS
 import Logger from 'electron-log';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileProvider } from '../infrastructure/FSLocalFileProvider';
+import { logger } from '@/apps/shared/logger/logger';
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: EnvironmentRemoteFileContentsManagersFactory,
@@ -72,8 +73,13 @@ export class ContentsUploader {
       const fileContents = RemoteFileContents.create(contentsId, contents.size);
 
       return fileContents;
-    } catch (error: unknown) {
-      Logger.error('[ERROR DEBUG]', error);
+    } catch (error) {
+      logger.error({
+        msg: 'Contents uploader error',
+        posixRelativePath,
+        error,
+      });
+
       const fileName = posixRelativePath.split('/').pop() || posixRelativePath;
       if (error instanceof Error) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
