@@ -6,8 +6,7 @@ export class DriveServerWipError extends Error {
     cause: unknown,
     public readonly response?: Response,
   ) {
-    super(code);
+    super(code, { cause });
     this.name = 'DriveServerWipError';
-    this.cause = cause;
   }
 }

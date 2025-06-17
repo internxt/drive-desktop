@@ -248,13 +248,6 @@ contextBridge.exposeInMainWorld('electron', {
   getFolderPath() {
     return ipcRenderer.invoke('get-folder-path');
   },
-  onRemoteChanges(func) {
-    const eventName = 'remote-changes';
-    const callback = () => func();
-    ipcRenderer.on(eventName, callback);
-
-    return () => ipcRenderer.removeListener(eventName, callback);
-  },
   startMigration() {
     return ipcRenderer.invoke('open-migration-window');
   },

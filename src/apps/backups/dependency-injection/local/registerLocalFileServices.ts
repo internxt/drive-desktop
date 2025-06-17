@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { ContainerBuilder } from 'diod';
 import { FileBatchUpdater } from '../../../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../../../context/local/localFile/application/upload/FileBatchUploader';
@@ -7,24 +6,23 @@ import { getConfig } from '@/apps/sync-engine/config';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { BackupInfo } from '../../BackupInfo';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/services/environment-file-uploader';
+import { logger } from '@/apps/shared/logger/logger';
 
 export function registerLocalFileServices(builder: ContainerBuilder, data: BackupInfo) {
   //Infra
-
-  const mnemonic = getConfig().mnemonic;
 
   const environment = new Environment({
     bridgeUrl: process.env.DRIVE_URL,
     bridgeUser: getConfig().bridgeUser,
     bridgePass: getConfig().bridgePass,
-    encryptionKey: mnemonic,
+    encryptionKey: getConfig().mnemonic,
   });
 
-  Logger.info('Registering local file services');
+  logger.debug({ tag: 'BACKUPS', msg: 'Registering local file services' });
 
   builder.register(Environment).useInstance(environment).private();
 
-  Logger.info('[BackupsDependencyContainerFactory] Registering network services.');
+  logger.debug({ tag: 'BACKUPS', msg: 'Registering network services.' });
 
   builder.register(EnvironmentRemoteFileContentsManagersFactory).useFactory((c) => {
     return new EnvironmentRemoteFileContentsManagersFactory(c.get(Environment), data.backupsBucket);
