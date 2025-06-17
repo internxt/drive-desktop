@@ -133,8 +133,6 @@ declare interface Window {
 
     getFolderPath: typeof import('../main/device/service').getPathFromDialog;
 
-    onRemoteChanges(func: () => void): () => void;
-
     getUsage: () => Promise<import('./usage/Usage').Usage>;
 
     userLogginFailed: (email: string) => void;

@@ -1,6 +1,6 @@
 module.exports = {
-  extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended'],
-  plugins: ['import', 'unicorn'],
+  extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended', 'plugin:@tanstack/eslint-plugin-query/recommended'],
+  plugins: ['import', 'unicorn', '@tanstack/query'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
