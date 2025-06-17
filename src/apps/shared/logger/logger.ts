@@ -27,10 +27,10 @@ export class LoggerService {
 
     const { tag, msg, workspaceId, ...rest1 } = rawBody;
 
+    const header = `${level.padEnd(5)} - ${process.type.padEnd(8)} - ${(tag ?? '').padEnd(11)}`;
+
     rawBody = {
-      level,
-      process: process.type === 'renderer' ? 'renderer' : 'main',
-      ...(tag && { tag }),
+      header,
       msg,
       ...(workspaceId && { workspaceId }),
       ...rest1,

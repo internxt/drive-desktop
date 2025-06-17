@@ -2,10 +2,10 @@ import fs from 'fs/promises';
 
 export class StatError extends Error {
   constructor(
-    public readonly cause: 'NON_EXISTS' | 'NO_ACCESS' | 'UNKNOWN',
-    public readonly originalError?: unknown,
+    public readonly code: 'NON_EXISTS' | 'NO_ACCESS' | 'UNKNOWN',
+    cause?: unknown,
   ) {
-    super();
+    super(code, { cause });
   }
 }
 

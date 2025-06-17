@@ -8,25 +8,25 @@ import { BackupsIssue } from '@/apps/main/background-processes/issues';
 import { StatError } from '@/infra/file-system/services/stat';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 
-function parseRootStatError({ cause }: { cause: Exclude<StatError['cause'], 'UNKNOWN'> }): BackupsIssue['error'] {
-  switch (cause) {
+function parseRootStatError({ code }: { code: Exclude<StatError['code'], 'UNKNOWN'> }): BackupsIssue['error'] {
+  switch (code) {
     case 'NON_EXISTS':
       return 'ROOT_FOLDER_DOES_NOT_EXIST';
     case 'NO_ACCESS':
       return 'ROOT_FOLDER_DOES_NOT_EXIST';
     default:
-      return cause;
+      return code;
   }
 }
 
-function parseItemStatError({ cause }: { cause: Exclude<StatError['cause'], 'UNKNOWN'> }): BackupsIssue['error'] {
-  switch (cause) {
+function parseItemStatError({ code }: { code: Exclude<StatError['code'], 'UNKNOWN'> }): BackupsIssue['error'] {
+  switch (code) {
     case 'NON_EXISTS':
       return 'FOLDER_DOES_NOT_EXIST';
     case 'NO_ACCESS':
       return 'FOLDER_ACCESS_DENIED';
     default:
-      return cause;
+      return code;
   }
 }
 
@@ -35,10 +35,10 @@ export class CLSFsLocalItemsGenerator {
     const { data, error } = await fileSystem.stat({ absolutePath });
 
     if (error) {
-      if (error.cause !== 'UNKNOWN') {
+      if (error.code !== 'UNKNOWN') {
         context.addIssue({
           name: absolutePath,
-          error: parseRootStatError({ cause: error.cause }),
+          error: parseRootStatError({ code: error.code }),
         });
       }
 
@@ -69,10 +69,10 @@ export class CLSFsLocalItemsGenerator {
       const { data, error } = await fileSystem.stat({ absolutePath });
 
       if (error) {
-        if (error.cause !== 'UNKNOWN') {
+        if (error.code !== 'UNKNOWN') {
           context.addIssue({
             name: absolutePath,
-            error: parseItemStatError({ cause: error.cause }),
+            error: parseItemStatError({ code: error.code }),
           });
         }
 
