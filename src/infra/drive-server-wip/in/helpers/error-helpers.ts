@@ -22,7 +22,7 @@ import { z } from 'zod';
  *   cause: Error: getaddrinfo ENOTFOUND gateway.internxt.com
  *     code: 'ENOTFOUND'
  */
-const fetchExceptionSchema = z.object({
+export const fetchExceptionSchema = z.object({
   code: z.string().optional(),
   message: z.string().optional(),
   cause: z.object({ code: z.string().optional() }).optional(),
