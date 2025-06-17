@@ -5,6 +5,7 @@ import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerato
 import { relative } from 'path';
 import { LocalFileSize } from '../../localFile/domain/LocalFileSize';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
+import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 
 export type LocalTree = {
   root: LocalFolder;
@@ -13,20 +14,21 @@ export type LocalTree = {
 };
 
 export default class LocalTreeBuilder {
-  private static async traverse({
-    context,
-    tree,
-    currentFolder,
-  }: {
-    context: BackupsContext;
-    tree: LocalTree;
-    currentFolder: LocalFolder;
-  }) {
+  static async traverse({ context, tree, currentFolder }: { context: BackupsContext; tree: LocalTree; currentFolder: LocalFolder }) {
     const { files, folders } = await CLSFsLocalItemsGenerator.getAll({ context, dir: currentFolder.absolutePath });
 
-    files.forEach((fileAttributes) => {
+    for (const fileAttributes of files) {
       if (fileAttributes.size === 0) {
-        return;
+        continue;
+      }
+
+      if (fileAttributes.size >= BucketEntry.MAX_SIZE) {
+        context.addIssue({
+          error: 'FILE_SIZE_TOO_BIG',
+          name: fileAttributes.path,
+        });
+
+        continue;
       }
 
       const relativePath = createRelativePath(relative(tree.root.absolutePath, fileAttributes.path));
@@ -37,7 +39,7 @@ export default class LocalTreeBuilder {
         modificationTime: fileAttributes.modificationTime,
         size: new LocalFileSize(fileAttributes.size),
       };
-    });
+    }
 
     for (const folderAttributes of folders) {
       const relativePath = createRelativePath(relative(tree.root.absolutePath, folderAttributes.path));
@@ -51,8 +53,6 @@ export default class LocalTreeBuilder {
 
       await this.traverse({ context, tree, currentFolder: folder });
     }
-
-    return tree;
   }
 
   static async run({ context }: { context: BackupsContext }) {

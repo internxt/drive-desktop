@@ -1,12 +1,21 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
-import { LocalFileDTO } from './LocalFileDTO';
-import { LocalFolderDTO } from './LocalFolderDTO';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { BackupsIssue } from '@/apps/main/background-processes/issues';
 import { StatError } from '@/infra/file-system/services/stat';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
+
+type LocalFileDTO = {
+  path: AbsolutePath;
+  modificationTime: number;
+  size: number;
+};
+
+type LocalFolderDTO = {
+  path: AbsolutePath;
+  modificationTime: number;
+};
 
 function parseRootStatError({ cause }: { cause: Exclude<StatError['cause'], 'UNKNOWN'> }): BackupsIssue['error'] {
   switch (cause) {
