@@ -55,7 +55,13 @@ describe('Device Service', () => {
       expect(error).toBe(undefined);
     });
     it('should return null if the device is not found', async () => {
-      const http404Error = new GetDeviceError('NOT_FOUND');
+      const http404Error = new GetDeviceError('NOT_FOUND', {
+        cause: {
+          response: {
+            status: 404,
+          },
+        },
+      });
 
       getDeviceMock.mockResolvedValueOnce({ error: http404Error });
 
