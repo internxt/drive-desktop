@@ -68,7 +68,10 @@ describe('File Deleter', () => {
 
     await SUT.run(file.contentsId);
 
-    expect(ipcRendererDriveServerWipMock.invoke).toBeCalledWith('storageDeleteFileByUuid', { uuid: file.uuid });
+    expect(ipcRendererDriveServerWipMock.invoke).toBeCalledWith('storageDeleteFileByUuid', {
+      uuid: file.uuid,
+      workspaceToken: '',
+    });
     expect(repository.update).toBeCalledWith(expect.objectContaining({ status: FileStatus.Trashed }));
   });
 });

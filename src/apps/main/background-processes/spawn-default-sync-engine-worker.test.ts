@@ -31,7 +31,7 @@ describe('spawn-default-sync-engine-worker', () => {
           rootPath: '/mock/path',
           rootUuid: undefined,
           workspaceId: '',
-          workspaceToken: undefined,
+          workspaceToken: '',
         },
       },
     ]);
