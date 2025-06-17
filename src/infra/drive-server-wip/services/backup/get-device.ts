@@ -3,8 +3,11 @@ import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
 
 export class GetDeviceError extends DriveServerWipError {
-  constructor(public readonly code: TDriveServerWipError | 'NOT_FOUND') {
-    super(code);
+  constructor(
+    public readonly code: TDriveServerWipError | 'NOT_FOUND',
+    cause: unknown,
+  ) {
+    super(code, cause);
   }
 }
 
@@ -26,7 +29,7 @@ export async function getDevice(context: { deviceUuid: string }) {
   if (error?.code === 'UNKNOWN') {
     switch (true) {
       case error.response?.status === 404:
-        return { error: new GetDeviceError('NOT_FOUND') };
+        return { error: new GetDeviceError('NOT_FOUND', error.cause) };
     }
   }
 

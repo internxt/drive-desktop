@@ -20,7 +20,7 @@ describe('stat', () => {
     const { error } = await stat({ absolutePath: 'not_existing_file' });
 
     // Then
-    expect(error?.cause).toEqual('NON_EXISTS');
+    expect(error?.code).toEqual('NON_EXISTS');
   });
 
   it('If file access is denied (EPERM)', async () => {
@@ -37,6 +37,6 @@ describe('stat', () => {
     const { error } = await stat({ absolutePath: file });
 
     // Then
-    expect(error?.cause).toEqual('NO_ACCESS');
+    expect(error?.code).toEqual('NO_ACCESS');
   });
 });

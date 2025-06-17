@@ -14,7 +14,7 @@ export function errorWrapper({ loggerBody, error, response }: { loggerBody: TLog
   const isKnownError = isServerError({ response });
   const exc = isKnownError ? 'Server error' : error;
 
-  logger.error({
+  const loggedError = logger.error({
     ...loggerBody,
     exc,
     response: {
@@ -30,9 +30,9 @@ export function errorWrapper({ loggerBody, error, response }: { loggerBody: TLog
       addGeneralIssue(serverErrorIssue);
     }
 
-    return new DriveServerWipError('SERVER');
+    return new DriveServerWipError('SERVER', loggedError);
   } else {
-    return new DriveServerWipError('UNKNOWN', response);
+    return new DriveServerWipError('UNKNOWN', loggedError, response);
   }
 }
 
@@ -40,7 +40,7 @@ export function exceptionWrapper({ loggerBody, exc }: { loggerBody: TLoggerBody;
   const isKnownError = isNetworkConnectivityError({ exc });
   exc = isKnownError ? fetchExceptionSchema.safeParse(exc).data : exc;
 
-  logger.error({ ...loggerBody, exc });
+  const loggedError = logger.error({ ...loggerBody, exc });
 
   if (isKnownError) {
     if (process.type === 'renderer') {
@@ -49,8 +49,8 @@ export function exceptionWrapper({ loggerBody, exc }: { loggerBody: TLoggerBody;
       addGeneralIssue(networkErrorIssue);
     }
 
-    return new DriveServerWipError('NETWORK');
+    return new DriveServerWipError('NETWORK', loggedError);
   } else {
-    return new DriveServerWipError('UNKNOWN');
+    return new DriveServerWipError('UNKNOWN', loggedError);
   }
 }

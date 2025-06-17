@@ -142,6 +142,7 @@ export class AddController extends CallbackController {
         posixRelativePath,
         exc: error,
       });
+
       if (error instanceof FolderNotFoundError) {
         // father created
         await this.createFolderFather(posixRelativePath);
@@ -161,7 +162,11 @@ export class AddController extends CallbackController {
     const isFolder = await PathTypeChecker.isFolder(absolutePath);
 
     if (isFolder) {
-      logger.debug({ tag: 'SYNC-ENGINE', msg: '[Is Folder]', posixRelativePath });
+      logger.debug({
+        tag: 'SYNC-ENGINE',
+        msg: '[Is Folder]',
+        posixRelativePath,
+      });
 
       try {
         const offlineFolder = await this.createOfflineFolder(posixRelativePath);
