@@ -60,10 +60,7 @@ describe('CLSFsLocalItemsGenerator', () => {
         { path: file1, modificationTime: expect.any(Number), size: 7 },
         { path: file2, modificationTime: expect.any(Number), size: 7 },
       ],
-      folders: [
-        { path: folder1, modificationTime: expect.any(Number) },
-        { path: folder2, modificationTime: expect.any(Number) },
-      ],
+      folders: [{ path: folder1 }, { path: folder2 }],
     });
   });
 
@@ -79,10 +76,7 @@ describe('CLSFsLocalItemsGenerator', () => {
     expect(context.addIssue).toHaveBeenCalledWith({ name: file1, error: 'FOLDER_DOES_NOT_EXIST' });
     expect(res).toStrictEqual({
       files: [{ path: file2, modificationTime: expect.any(Number), size: 7 }],
-      folders: [
-        { path: folder1, modificationTime: expect.any(Number) },
-        { path: folder2, modificationTime: expect.any(Number) },
-      ],
+      folders: [{ path: folder1 }, { path: folder2 }],
     });
   });
 });

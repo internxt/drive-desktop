@@ -1,12 +1,20 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
-import { LocalFileDTO } from './LocalFileDTO';
-import { LocalFolderDTO } from './LocalFolderDTO';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { BackupsIssue } from '@/apps/main/background-processes/issues';
 import { StatError } from '@/infra/file-system/services/stat';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
+
+type LocalFileDTO = {
+  path: AbsolutePath;
+  modificationTime: number;
+  size: number;
+};
+
+type LocalFolderDTO = {
+  path: AbsolutePath;
+};
 
 function parseRootStatError({ code }: { code: Exclude<StatError['code'], 'UNKNOWN'> }): BackupsIssue['error'] {
   switch (code) {
@@ -32,7 +40,7 @@ function parseItemStatError({ code }: { code: Exclude<StatError['code'], 'UNKNOW
 
 export class CLSFsLocalItemsGenerator {
   static async root({ context, absolutePath }: { context: BackupsContext; absolutePath: string }) {
-    const { data, error } = await fileSystem.stat({ absolutePath });
+    const { error } = await fileSystem.stat({ absolutePath });
 
     if (error) {
       if (error.code !== 'UNKNOWN') {
@@ -47,23 +55,20 @@ export class CLSFsLocalItemsGenerator {
 
     return {
       path: absolutePath as AbsolutePath,
-      modificationTime: data.mtime.getTime(),
     };
   }
 
   static async getAll({ context, dir }: { context: BackupsContext; dir: string }) {
-    const accumulator = Promise.resolve({
+    const res = {
       files: [] as LocalFileDTO[],
       folders: [] as LocalFolderDTO[],
-    });
+    };
 
     const dirents = await fs.readdir(dir, {
       withFileTypes: true,
     });
 
-    return dirents.reduce(async (promise, dirent) => {
-      const acc = await promise;
-
+    for (const dirent of dirents) {
       const absolutePath = path.join(dir, dirent.name) as AbsolutePath;
 
       const { data, error } = await fileSystem.stat({ absolutePath });
@@ -76,23 +81,22 @@ export class CLSFsLocalItemsGenerator {
           });
         }
 
-        return acc;
+        continue;
       }
 
       if (dirent.isFile()) {
-        acc.files.push({
+        res.files.push({
           path: absolutePath,
           modificationTime: data.mtime.getTime(),
           size: data.size,
         });
       } else if (dirent.isDirectory()) {
-        acc.folders.push({
+        res.folders.push({
           path: absolutePath,
-          modificationTime: data.mtime.getTime(),
         });
       }
+    }
 
-      return acc;
-    }, accumulator);
+    return res;
   }
 }
