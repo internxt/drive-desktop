@@ -28,6 +28,17 @@ main (electron/main)
 
 ## Code
 
+### Use const instead of function by default
+
+By default we encourage the usage of arrow functions, since its a more flexible way of writing functions, unless it is strictly necessary the usage of functions, then it is allowed.
+
+```ts
+// bad
+function connect() {}
+// good
+const connect = () => {}
+```
+
 ### Use object props instead of multiple props
 
 ---
@@ -35,12 +46,12 @@ main (electron/main)
 https://github.com/internxt/drive-desktop/issues/545
 
 ```ts
-// old way
-function connect(host: string, port: number) {}
-// new way
-function connect({ host, port }: { host: string; port: number }) {}
+// bad
+const connect = (host: string, port: number) => {}
+// good
+const connect = ({ host, port }: { host: string; port: number }) => {}
 // default parameters
-function connect({ host, port = 5432 }: { host: string; port?: number }) {}
+const connect = ({ host, port = 5432 }: { host: string; port?: number }) => {}
 ```
 
 ### Use explicit return types in functions just for primitive types
@@ -51,8 +62,8 @@ function connect({ host, port = 5432 }: { host: string; port?: number }) {}
 - Using return types for complex objects introduces the problem of naming elements and maintaining those types, and it also doesn't help in code reviews, since the return type can be anything (it's not a common type).
 
 ```ts
-// Good
-function getAccessToken(): Promise<string | undefined> {
+// good
+const getAccessToken = (): Promise<string | undefined> => {
   return new Promise((resolve, reject) => {
     resolve('');
   });

@@ -7,7 +7,7 @@ export type Config = {
   providerName: string;
   loggerPath: string;
   workspaceId: string;
-  workspaceToken: string | undefined;
+  workspaceToken: string;
   bucket: string;
   mnemonic: string;
   bridgeUser: string;
@@ -26,7 +26,7 @@ const emptyValues = (): Config => {
     mnemonic: '',
     bridgePass: '',
     bridgeUser: '',
-    workspaceToken: undefined,
+    workspaceToken: '',
   };
 };
 
