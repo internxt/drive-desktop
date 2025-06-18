@@ -64,7 +64,7 @@ export async function spawnDefaultSyncEngineWorker() {
     bucket: user.bucket,
     bridgeUser: user.bridgeUser,
     bridgePass: user.userId,
-    workspaceToken: undefined,
+    workspaceToken: '',
   };
 
   FolderStore.addWorkspace({

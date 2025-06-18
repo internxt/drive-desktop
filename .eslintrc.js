@@ -1,6 +1,6 @@
 module.exports = {
   extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended', 'plugin:@tanstack/eslint-plugin-query/recommended'],
-  plugins: ['import', '@tanstack/query'],
+  plugins: ['import', 'unicorn', '@tanstack/query'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
@@ -27,6 +27,7 @@ module.exports = {
     'no-use-before-define': 'warn',
     'object-shorthand': 'error',
     'require-await': 'warn',
+    'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
   },
   parser: '@typescript-eslint/parser',
   settings: {
