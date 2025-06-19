@@ -15,7 +15,7 @@ import { downloadFolder } from '../network/download';
 import Logger from 'electron-log';
 import { broadcastToWindows } from '../windows';
 import { randomUUID } from 'crypto';
-import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
+import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
 import { getConfig } from '@/apps/sync-engine/config';

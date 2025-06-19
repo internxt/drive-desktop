@@ -1,47 +1,47 @@
 import { readdir } from 'fs/promises';
 import { resolve } from 'path';
-import { PathTypeChecker } from '@/apps/shared/fs/PathTypeChecker ';
+import { PathTypeChecker } from '@/apps/shared/fs/PathTypeChecker';
 import { logger } from '@/apps/shared/logger/logger';
 
 type TProps = {
-  filePaths: string[];
-  folder: string;
+  rootFolder: string;
 };
 
-async function _getFilesFromDirectory({ filePaths, folder }: TProps) {
-  try {
-    const items = await readdir(folder, { withFileTypes: true });
+export async function getFilesFromDirectory({ rootFolder }: TProps) {
+  const isFolder = await PathTypeChecker.isFolder(rootFolder);
+  if (!isFolder) return [];
 
-    const promises = items.map(async (item) => {
-      const name = item.name.toLowerCase();
+  const folders: string[] = [rootFolder];
+  const files: string[] = [];
 
-      if (name.includes('temp')) return;
-      if (name.includes('tmp')) return;
+  while (folders.length > 0) {
+    const folder = folders.shift();
+    if (!folder) continue;
 
-      const fullPath = resolve(folder, item.name);
+    try {
+      const items = await readdir(folder, { withFileTypes: true });
 
-      if (item.isFile()) {
-        filePaths.push(fullPath);
-      } else if (item.isDirectory()) {
-        await _getFilesFromDirectory({
-          filePaths,
-          folder: fullPath,
-        });
+      for (const item of items) {
+        const name = item.name.toLowerCase();
+
+        if (name.includes('temp') || name.includes('tmp')) continue;
+
+        const fullPath = resolve(folder, item.name);
+
+        if (item.isFile()) {
+          files.push(fullPath);
+        } else if (item.isDirectory()) {
+          folders.push(fullPath);
+        }
       }
-    });
-
-    await Promise.all(promises);
-  } catch (exc) {
-    logger.error({
-      tag: 'ANTIVIRUS',
-      msg: 'Error getting files from directory',
-      exc,
-    });
+    } catch (exc) {
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error getting files from directory',
+        exc,
+      });
+    }
   }
-}
 
-export async function getFilesFromDirectory({ filePaths, folder }: TProps) {
-  const isFolder = await PathTypeChecker.isFolder(folder);
-  if (!isFolder) return;
-  await _getFilesFromDirectory({ filePaths, folder });
+  return files;
 }
