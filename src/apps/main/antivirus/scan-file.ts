@@ -12,8 +12,8 @@ type TProps = {
 export const scanFile = async ({ filePath, database, antivirus }: TProps) => {
   try {
     const scannedItem = await transformItem(filePath);
-    const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);
 
+    const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);
     if (previousScannedItem) {
       if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
         return;
@@ -29,8 +29,7 @@ export const scanFile = async ({ filePath, database, antivirus }: TProps) => {
       return;
     }
 
-    const currentScannedFile = await antivirus.scanFile(filePath);
-
+    const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
     if (currentScannedFile) {
       await database.addItemToDatabase({
         ...scannedItem,
