@@ -13,9 +13,17 @@ const hashItem = async (filePath: string): Promise<string> => {
 
     await pipeline(stream, hasher);
     return hasher.digest('hex');
-  } catch (error) {
-    logger.warn({ tag: 'ANTIVIRUS', msg: 'Error hashing item', filePath });
-    throw error;
+  } catch {
+    /**
+     * v2.5.5 Daniel Jiménez
+     * We cannot add the error because there are so many files with hashing problems
+     * and it would be a lot of noise in the logs.
+     */
+    throw logger.warn({
+      tag: 'ANTIVIRUS',
+      msg: 'Error hashing item',
+      filePath,
+    });
   }
 };
 
