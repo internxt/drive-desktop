@@ -23,23 +23,6 @@ export class DBScannerConnection {
     }
   };
 
-  updateItemToDatabase = async (itemId: ScannedItem['id'], item: ScannedItem) => {
-    const currentTime = new Date().toISOString();
-
-    const itemToUpdate: Partial<ScannedItem> = {
-      ...item,
-      updatedAt: currentTime,
-    };
-
-    try {
-      const createdItem = await this.db.update(itemId, itemToUpdate);
-      return createdItem;
-    } catch (error) {
-      Logger.error('Error updating the item in the DB:', error);
-      return false;
-    }
-  };
-
   getItemFromDatabase = async (pathName: string) => {
     const { result, success } = await this.db.getByPathName(pathName);
     if (success) {

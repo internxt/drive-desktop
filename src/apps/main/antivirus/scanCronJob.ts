@@ -1,12 +1,12 @@
 import { getUserSystemPath } from '../device/service';
 import { Antivirus } from './Antivirus';
-import { transformItem } from './utils/transformItem';
 import { queue } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { isPermissionError } from './utils/isPermissionError';
 import { logger } from '@/apps/shared/logger/logger';
 import { getFilesFromDirectory } from './utils/get-files-from-directory';
+import { scanFile } from './scan-file';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const BACKGROUND_MAX_CONCURRENCY = 5;
@@ -53,42 +53,14 @@ const scanInBackground = async (): Promise<void> => {
 
   console.time('scan-background');
 
-  const scan = async (filePath: string) => {
-    try {
-      const scannedItem = await transformItem(filePath);
-      const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);
-      if (previousScannedItem) {
-        if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
-          return;
-        }
-
-        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
-        if (currentScannedFile) {
-          await database.updateItemToDatabase(previousScannedItem.id, {
-            ...scannedItem,
-            isInfected: currentScannedFile.isInfected,
-          });
-        }
-        return;
-      }
-
-      const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
-
-      if (currentScannedFile) {
-        await database.addItemToDatabase({
-          ...scannedItem,
-          isInfected: currentScannedFile.isInfected,
-        });
-      }
-    } catch (error) {
-      if (!isPermissionError(error)) {
-        throw error;
-      }
-    }
-  };
-
   try {
-    const backgroundQueue = queue(scan, BACKGROUND_MAX_CONCURRENCY);
+    const backgroundQueue = queue(async (filePath: string) => {
+      await scanFile({
+        filePath,
+        database,
+        antivirus,
+      });
+    }, BACKGROUND_MAX_CONCURRENCY);
 
     const filePaths = await getFilesFromDirectory({ rootFolder: userSystemPath.path });
 
