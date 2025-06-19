@@ -73,8 +73,6 @@ export function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('event', async (data) => {
-    broadcastToWindows('remote-changes', undefined);
-
     if (data.event === 'FOLDER_DELETED') {
       broadcastToWindows('refresh-backup', undefined);
     }

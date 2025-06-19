@@ -22,25 +22,10 @@ import { z } from 'zod';
  *   cause: Error: getaddrinfo ENOTFOUND gateway.internxt.com
  *     code: 'ENOTFOUND'
  */
-const fetchErrorSchema = z.object({
+export const fetchExceptionSchema = z.object({
   code: z.string().optional(),
   message: z.string().optional(),
-  cause: z
-    .object({
-      code: z.string().optional(),
-    })
-    .optional(),
-});
-
-/**
- * v2.5.4 Daniel Jiménez
- * Examples:
- * { message: 'workspaceId should be a valid uuid!', error: 'Bad Request', statusCode: 400 }
- */
-const fetchErrorWithHttpResponseSchema = z.object({
-  message: z.string().optional(),
-  error: z.string().optional(),
-  statusCode: z.number().optional(),
+  cause: z.object({ code: z.string().optional() }).optional(),
 });
 
 const errorCodes = [
@@ -68,8 +53,8 @@ export const serverErrorIssue: Omit<GeneralIssue, 'tab'> = {
   error: 'SERVER_INTERNAL_ERROR',
 };
 
-export function isNetworkConnectivityError({ error }: { error: unknown }): boolean {
-  const parsedError = fetchErrorSchema.safeParse(error);
+export function isNetworkConnectivityError({ exc }: { exc: unknown }): boolean {
+  const parsedError = fetchExceptionSchema.safeParse(exc);
   if (!parsedError.success) return false;
 
   const { code, message, cause } = parsedError.data;
@@ -85,22 +70,11 @@ export function isNetworkConnectivityError({ error }: { error: unknown }): boole
   return !!(message && message.includes('Failed to fetch'));
 }
 
-export function isServerError({ response, error }: { response: Response; error: unknown }): boolean {
-  const parsedError = fetchErrorWithHttpResponseSchema.safeParse(error);
-  if (!parsedError.success) return false;
-
-  const status = parsedError.data.statusCode ?? response.status;
-  const statusText = response.statusText;
-
-  return (status >= 500 && status < 600) || statusText.includes('Internal Server Error') || statusText.includes('Service Unavailable');
+export function isServerError({ response }: { response: Response }): boolean {
+  return response.status >= 500 && response.status < 600;
 }
 
 export function handleRemoveErrors() {
   removeGeneralIssue(serverErrorIssue);
   removeGeneralIssue(networkErrorIssue);
-}
-
-export function isErrorWithStatusCode({ error, code }: { error: unknown; code: number }): boolean {
-  const parsedData = fetchErrorWithHttpResponseSchema.safeParse(error).data;
-  return parsedData?.statusCode === code;
 }

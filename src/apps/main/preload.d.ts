@@ -27,8 +27,6 @@ declare interface Window {
 
     getItemByFolderUuid(folderUuid: string): Promise<import('../shared/types/items').ItemBackup[]>;
 
-    userIsUnauthorized(): void;
-
     downloadBackup: typeof import('../main/device/service').downloadBackup;
 
     userLoggedIn(data: import('../renderer/pages/Login/service').AccessResponse): void;
@@ -134,8 +132,6 @@ declare interface Window {
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
 
     getFolderPath: typeof import('../main/device/service').getPathFromDialog;
-
-    onRemoteChanges(func: () => void): () => void;
 
     getUsage: () => Promise<import('./usage/Usage').Usage>;
 

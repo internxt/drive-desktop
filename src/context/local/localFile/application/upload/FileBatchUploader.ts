@@ -42,7 +42,7 @@ export class FileBatchUploader {
             Logger.info(localFile.absolutePath);
 
             if (error) {
-              if (error.cause !== 'KILLED_BY_USER') {
+              if (error.code !== 'KILLED_BY_USER') {
                 logger.error({
                   tag: 'BACKUPS',
                   msg: 'Error uploading file',
@@ -50,9 +50,9 @@ export class FileBatchUploader {
                   error,
                 });
 
-                if (error.cause !== 'UNKNOWN') {
+                if (error.code !== 'UNKNOWN') {
                   context.addIssue({
-                    error: error.cause,
+                    error: error.code,
                     name: localFile.relativePath,
                   });
                 }

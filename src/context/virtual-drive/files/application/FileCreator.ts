@@ -6,11 +6,11 @@ import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { OfflineFile } from '../domain/OfflineFile';
 import { FileStatuses } from '../domain/FileStatus';
-import Logger from 'electron-log';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class FileCreator {
   constructor(
@@ -59,10 +59,15 @@ export class FileCreator {
       });
 
       return file;
-    } catch (error: unknown) {
+    } catch (error) {
       const message = error instanceof Error ? error.message : 'unknown error';
 
-      Logger.debug('[DEBUG ERROR IN FILECREATOR]' + filePath.value, error);
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: 'Error in file creator',
+        filePath: filePath.value,
+        exc: error,
+      });
 
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
         name: filePath.name(),
@@ -70,6 +75,7 @@ export class FileCreator {
         nameWithExtension: filePath.nameWithExtension(),
         error: message,
       });
+
       throw error;
     }
   }
