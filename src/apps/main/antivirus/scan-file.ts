@@ -14,7 +14,18 @@ export const scanFile = async ({ filePath, database, antivirus }: TProps) => {
     const scannedItem = await transformItem(filePath);
     const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);
 
-    if (scannedItem.updatedAtW === previousScannedItem?.updatedAtW || scannedItem.hash === previousScannedItem?.hash) {
+    if (previousScannedItem) {
+      if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
+        return;
+      }
+
+      const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
+      if (currentScannedFile) {
+        await database.updateItemToDatabase(previousScannedItem.id, {
+          ...scannedItem,
+          isInfected: currentScannedFile.isInfected,
+        });
+      }
       return;
     }
 
