@@ -192,10 +192,12 @@ class ManualSystemScan {
 
       const allFilePaths: string[] = [];
 
-      for (const p of pathNames) {
-        const filePaths = await getFilesFromDirectory({ rootFolder: p });
-        allFilePaths.push(...filePaths);
-      }
+      await Promise.all(
+        pathNames.map(async (p) => {
+          const filePaths = await getFilesFromDirectory({ rootFolder: p });
+          allFilePaths.push(...filePaths);
+        }),
+      );
 
       this.totalItemsToScan = allFilePaths.length;
 
