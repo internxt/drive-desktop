@@ -17,7 +17,7 @@ describe('QueueManager', () => {
     vi.clearAllMocks();
   });
 
-  it('should add a task to the queue and sort it correctly', async () => {
+  it('should add a task to the queue and sort it correctly', () => {
     const tasks: QueueItem[] = [
       { path: '\\test\\folder4', isFolder: true, type: typeQueue.add },
       { path: '\\test\\folder\\test.txt', isFolder: false, type: typeQueue.add },
