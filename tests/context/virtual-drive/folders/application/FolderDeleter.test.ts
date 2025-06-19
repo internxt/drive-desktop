@@ -14,7 +14,7 @@ describe('Folder deleter', () => {
   const local = mockDeep<NodeWinLocalFolderSystem>();
   const deleteFolderByUuid = vi.mocked(driveServerWip.storage.deleteFolderByUuid);
 
-  const SUT = new FolderDeleter(repository, remote, local, allParentFoldersStatusIsExists);
+  const SUT = new FolderDeleter(repository, local, allParentFoldersStatusIsExists);
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -28,8 +28,8 @@ describe('Folder deleter', () => {
     vi.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
 
     await SUT.run(folder.uuid);
-
-    expect(remote.trash).toBeCalledWith(folder);
+    expect(driveServerWip.storage.deleteFolderByUuid).toBeCalledWith({ uuid: folder.uuid });
+    expect(repository.update).toBeCalledWith(folder);
   });
 
   it('throws an error when trashing a folder already trashed', async () => {
@@ -41,8 +41,8 @@ describe('Folder deleter', () => {
     await SUT.run(folder.uuid).catch((err) => {
       expect(err).toBeDefined();
     });
-
-    expect(repository.delete).not.toBeCalled();
+    expect(driveServerWip.storage.deleteFolderByUuid).not.toBeCalled();
+    expect(repository.update).not.toBeCalled();
   });
 
   it('does not delete the folder if a higher folder is already deleted ', async () => {
@@ -54,8 +54,8 @@ describe('Folder deleter', () => {
     await SUT.run(folder.uuid).catch((err) => {
       expect(err).toBeDefined();
     });
-
-    expect(repository.delete).not.toBeCalled();
+    expect(driveServerWip.storage.deleteFolderByUuid).not.toBeCalled();
+    expect(repository.update).not.toBeCalled();
   });
 
   it('recreates the placeholder if the deletion fails', async () => {
