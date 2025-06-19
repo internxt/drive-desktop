@@ -24,8 +24,7 @@ export async function getFilesFromDirectory({ rootFolder }: TProps) {
       for (const item of items) {
         const name = item.name.toLowerCase();
 
-        if (name.includes('temp')) continue;
-        if (name.includes('tmp')) continue;
+        if (name.includes('temp') || name.includes('tmp')) continue;
 
         const fullPath = resolve(folder, item.name);
 
