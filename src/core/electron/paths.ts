@@ -9,4 +9,3 @@ const ELECTRON_IMPORTANT_LOGS = join(LOGS, 'drive-desktop-important.ans');
 const QUEUE_MANAGER = join(app.getPath('appData'), 'internxt-drive', 'queue-manager.json');
 
 export const PATHS = { HOME_FOLDER_PATH, SQLITE_DB, LOGS, ELECTRON_LOGS, ELECTRON_IMPORTANT_LOGS, QUEUE_MANAGER };
-export type TPaths = typeof PATHS;

@@ -61,7 +61,6 @@ export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
   ipcMain.handle('GET_HEADERS', () => getAuthHeaders());
-  ipcMain.handle('GET_PATHS', () => PATHS);
   ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
 
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {

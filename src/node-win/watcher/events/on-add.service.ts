@@ -31,7 +31,19 @@ export function onAdd({ self, path, stats }: TProps) {
       isMovedFile = true;
     }
 
-    if (status.pinState === PinState.AlwaysLocal || status.pinState === PinState.OnlineOnly || status.syncState === SyncState.InSync) {
+    const isAlreadySynced =
+      status.pinState === PinState.AlwaysLocal || status.pinState === PinState.OnlineOnly || status.syncState === SyncState.InSync;
+
+    self.logger.debug({
+      msg: 'onAdd',
+      path,
+      status,
+      isAlreadySynced,
+      isNewFile,
+      isMovedFile,
+    });
+
+    if (isAlreadySynced) {
       return;
     }
 

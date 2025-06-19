@@ -64,6 +64,11 @@ export class FSLocalFileProvider {
     const isBeingRead = this.reading.get(filePath);
 
     if (isBeingRead) {
+      logger.debug({
+        tag: 'SYNC-ENGINE',
+        msg: 'File is being read, aborting previous read',
+        filePath,
+      });
       isBeingRead.abort();
     }
 

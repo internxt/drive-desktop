@@ -1,24 +1,30 @@
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core/upload/strategy';
 import { EventEmitter, Readable } from 'stream';
-import { ContentFileUploader, FileUploadEvents } from '../../domain/contentHandlers/ContentFileUploader';
+import { FileUploadEvents } from '../../domain/contentHandlers/ContentFileUploader';
 import { ContentsId } from '../../domain/ContentsId';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
 import { logger } from '@/apps/shared/logger/logger';
 
-export class EnvironmentContentFileUploader implements ContentFileUploader {
+type TProps = {
+  contents: Readable;
+  size: number;
+  path: string;
+  abortSignal: AbortSignal;
+};
+
+export class EnvironmentContentFileUploader {
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
 
   constructor(
     private readonly fn: UploadStrategyFunction,
     private readonly bucket: string,
-    private readonly abortSignal: AbortSignal,
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
   }
 
-  upload(contents: Readable, size: number): Promise<ContentsId> {
+  upload({ contents, size, path, abortSignal }: TProps): Promise<ContentsId> {
     this.eventEmitter.emit('start');
     this.stopwatch.start();
 
@@ -41,9 +47,11 @@ export class EnvironmentContentFileUploader implements ContentFileUploader {
         },
       });
 
-      this.abortSignal.addEventListener('abort', () => {
+      abortSignal.addEventListener('abort', () => {
         logger.info({
+          tag: 'SYNC-ENGINE',
           msg: 'Upload aborted here',
+          path,
         });
         state.stop();
         contents.destroy();

@@ -15,12 +15,12 @@ export class EnvironmentRemoteFileContentsManagersFactory {
     return new EnvironmentContentFileDownloader(this.environment.download, this.bucket);
   }
 
-  uploader(contents: LocalFileContents, abortSignal: AbortSignal) {
+  uploader(contents: LocalFileContents) {
     const fn =
       contents.size > EnvironmentRemoteFileContentsManagersFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile.bind(this.environment)
         : this.environment.upload;
 
-    return new EnvironmentContentFileUploader(fn, this.bucket, abortSignal);
+    return new EnvironmentContentFileUploader(fn, this.bucket);
   }
 }

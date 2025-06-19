@@ -59,6 +59,7 @@ export async function spawnDefaultSyncEngineWorker() {
     providerName: 'Internxt Drive',
     workspaceId: '',
     loggerPath: join(PATHS.LOGS, 'node-win.log'),
+    queueManagerPath: join(PATHS.LOGS, 'queue-manager.log'),
     rootUuid: user.rootFolderId,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
