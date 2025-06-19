@@ -1,11 +1,9 @@
 import { io, Socket } from 'socket.io-client';
-import { getUser, obtainToken } from './auth/service';
+import { obtainToken } from './auth/service';
 import eventBus from './event-bus';
-import { broadcastToWindows } from './windows';
 import { logger } from '../shared/logger/logger';
-import { debouncedSynchronization } from './remote-sync/handlers';
 import { addGeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
-import { NOTIFICATION_SCHEMA } from './notification-schema';
+import {processWebSocketEvent} from "@/infra/remote-notifications/services/remote-notifications.service";
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -13,8 +11,6 @@ type XHRRequest = {
 // REMOTE TRIGGER
 
 let socket: Socket | undefined;
-
-let user = getUser();
 
 export function cleanAndStartRemoteNotifications() {
   stopRemoteNotifications();
@@ -72,30 +68,7 @@ export function cleanAndStartRemoteNotifications() {
     });
   });
 
-  socket.on('event', async (data) => {
-    if (data.event === 'FOLDER_DELETED') {
-      broadcastToWindows('refresh-backup', undefined);
-    }
-
-    if (!user) {
-      user = getUser();
-    }
-
-    const parsedData = await NOTIFICATION_SCHEMA.safeParseAsync(data);
-
-    if (parsedData.success && parsedData.data.clientId === 'drive-desktop') {
-      const { data } = parsedData;
-      logger.debug({
-        msg: 'Notification received',
-        event: data.event,
-        clientId: data.clientId,
-        payload: data.payload,
-      });
-    } else {
-      logger.info({ msg: 'Notification received', data });
-      await debouncedSynchronization();
-    }
-  });
+  socket.on('event', processWebSocketEvent);
 }
 
 function stopRemoteNotifications() {
