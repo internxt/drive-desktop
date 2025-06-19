@@ -10,9 +10,10 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 describe('QueueManager', () => {
   const mockHandlers = mockDeep<QueueHandler>();
   const persistPath = join(TEST_FILES, v4());
-  const queueManager = new QueueManager({ handlers: mockHandlers, persistPath });
+  let queueManager: QueueManager;
 
   beforeEach(() => {
+    queueManager = new QueueManager({ handlers: mockHandlers, persistPath });
     vi.clearAllMocks();
   });
 
