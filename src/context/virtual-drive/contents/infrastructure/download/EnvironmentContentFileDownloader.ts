@@ -1,13 +1,19 @@
 import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core/download/strategy';
 import { EventEmitter, Readable } from 'stream';
-import { ContentFileDownloader, FileDownloadEvents } from '../../domain/contentHandlers/ContentFileDownloader';
 import { File } from '../../../files/domain/File';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
 import { logger } from '@/apps/shared/logger/logger';
 
-export class EnvironmentContentFileDownloader implements ContentFileDownloader {
+export type FileDownloadEvents = {
+  start: () => void;
+  progress: (progress: number) => void;
+  finish: (contentsId: string) => void;
+  error: (error: Error) => void;
+};
+
+export class EnvironmentContentFileDownloader {
   private eventEmitter: EventEmitter;
   private stopwatch: Stopwatch;
   private state: ActionState | null;

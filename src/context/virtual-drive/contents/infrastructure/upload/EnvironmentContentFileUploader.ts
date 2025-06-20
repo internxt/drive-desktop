@@ -1,9 +1,15 @@
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core/upload/strategy';
 import { EventEmitter, Readable } from 'stream';
-import { FileUploadEvents } from '../../domain/contentHandlers/ContentFileUploader';
 import { ContentsId } from '../../domain/ContentsId';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
 import { logger } from '@/apps/shared/logger/logger';
+
+type FileUploadEvents = {
+  start: () => void;
+  progress: (progress: number) => void;
+  finish: (contentsId: string) => void;
+  error: (error: Error) => void;
+};
 
 type TProps = {
   contents: Readable;
