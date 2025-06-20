@@ -3,7 +3,7 @@ import { driveFilesCollection, driveFoldersCollection } from '@/apps/main/remote
 import { beforeEach } from 'vitest';
 import { updateDatabaseStatusToTrashed } from './update-database-status-to-trashed';
 
-vi.mock(import('@/apps/main/remote-sync/store'))
+vi.mock(import('@/apps/main/remote-sync/store'));
 
 describe('updateDatabaseStatusToTrashed', () => {
   const driveFilesCollectionUpdateInBatchMock = deepMocked(driveFilesCollection.updateInBatch);
@@ -34,6 +34,7 @@ describe('updateDatabaseStatusToTrashed', () => {
       }),
     );
   });
+
   it('should handle empty arrays without error', async () => {
     await updateDatabaseStatusToTrashed([], []);
     expect(driveFilesCollectionUpdateInBatchMock).toHaveBeenCalledWith(

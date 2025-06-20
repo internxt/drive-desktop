@@ -15,6 +15,7 @@ describe('markItemsAsTrashed', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
+
   it('should update files and folders to TRASHED status', async () => {
     const items = [
       { type: 'file' as const, uuid: 'file-uuid' },

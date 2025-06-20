@@ -4,7 +4,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { debouncedSynchronization } from '@/apps/main/remote-sync/handlers';
 import { handleParsedNotificationEvent } from './handle-parsed-notification-event';
 
-export const processWebSocketEvent = async (data: unknown) => {
+export const processWebSocketEvent = async ({ data }: { data: unknown }) => {
   if (FOLDER_DELETED.safeParse(data).success) {
     broadcastToWindows('refresh-backup', undefined);
   }

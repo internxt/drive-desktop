@@ -2,7 +2,6 @@ import { mockDeep } from 'vitest-mock-extended';
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FolderDeleter } from '../../../../../src/context/virtual-drive/folders/application/FolderDeleter';
 import { FolderMother } from '../domain/FolderMother';
-import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -10,7 +9,6 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 describe('Folder deleter', () => {
   const repository = mockDeep<InMemoryFolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
-  const remote = mockDeep<HttpRemoteFolderSystem>();
   const local = mockDeep<NodeWinLocalFolderSystem>();
   const deleteFolderByUuid = vi.mocked(driveServerWip.storage.deleteFolderByUuid);
 
@@ -63,7 +61,6 @@ describe('Folder deleter', () => {
 
     repository.searchByPartial.mockReturnValueOnce(folder);
     vi.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
-    remote.trash.mockRejectedValue(new Error('Error during the deletion'));
 
     await SUT.run(folder.uuid);
 
