@@ -29,7 +29,7 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
 
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
 
-  const folderDeleter = new FolderDeleter(repository, remoteFolderSystem, localFolderSystem, allParentFoldersStatusIsExists);
+  const folderDeleter = new FolderDeleter(repository, localFolderSystem, allParentFoldersStatusIsExists);
 
   const folderCreator = new FolderCreator(repository, remoteFolderSystem, virtualDrive);
 
