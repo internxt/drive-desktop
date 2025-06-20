@@ -70,7 +70,7 @@ describe('spawn-workspace.service', () => {
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',
-        queueManagerPath: '\\mock\\logs\\internxt-drive\\logs\\queue-manager-workspaceId.log',
+        queueManagerPath: '\\mock\\logs\\internxt-drive\\logs\\queue-manager-workspace-workspaceId.log',
         rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
         rootUuid: undefined,
         workspaceId: 'workspaceId',
