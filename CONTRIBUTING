@@ -12,16 +12,12 @@ backend
 | features
     | sync
         sync.module.ts
-        | in
-        | out
-            | debounce-sync
+        | debounce-sync
     | backups
     | antivirus
     | notifications
         notifications.module.ts
-        | in
-            | process-notification (sync.debounceSync())
-        | out
+        | process-notification (sync.debounceSync())
 ```
 
 ## Code
