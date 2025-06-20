@@ -14,13 +14,18 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
       const handler = vi.fn();
 
       uploader.on('start', handler);
 
-      await uploader.upload(Readable.from(''), validFileSize);
+      await uploader.upload({
+        contents: Readable.from(''),
+        size: validFileSize,
+        path: '',
+        abortSignal,
+      });
 
       expect(handler).toBeCalled();
     });
@@ -31,13 +36,18 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, uploadedFileId);
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
       uploader.on('finish', (fileId: string) => {
         expect(fileId).toBe(uploadedFileId);
       });
 
-      await uploader.upload(Readable.from(''), validFileSize);
+      await uploader.upload({
+        contents: Readable.from(''),
+        size: validFileSize,
+        path: '',
+        abortSignal,
+      });
     });
 
     it('emits an event when there is a progress update', async () => {
@@ -48,13 +58,18 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
       const handler = vi.fn();
 
       uploader.on('progress', handler);
 
-      await uploader.upload(Readable.from(''), validFileSize);
+      await uploader.upload({
+        contents: Readable.from(''),
+        size: validFileSize,
+        path: '',
+        abortSignal,
+      });
 
       expect(handler.mock.calls).toEqual([[25], [50], [75]]);
     });
@@ -65,7 +80,7 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback(null, ContentsIdMother.raw());
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
       const progressHandler = vi.fn();
       const finishHandler = vi.fn();
@@ -74,7 +89,12 @@ describe('Environment Content File Uploader', () => {
 
       uploader.on('finish', finishHandler);
 
-      await uploader.upload(Readable.from(''), validFileSize);
+      await uploader.upload({
+        contents: Readable.from(''),
+        size: validFileSize,
+        path: '',
+        abortSignal,
+      });
 
       expect(progressHandler).toBeCalledWith(50);
       expect(finishHandler).toBeCalled();
@@ -86,15 +106,22 @@ describe('Environment Content File Uploader', () => {
         opts.finishedCallback({ message: errorMsg } as unknown as Error, null);
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
       uploader.on('error', (error: Error) => {
         expect(error.message).toBe(errorMsg);
       });
 
-      await uploader.upload(Readable.from(''), validFileSize).catch(() => {
-        // no-op
-      });
+      await uploader
+        .upload({
+          contents: Readable.from(''),
+          size: validFileSize,
+          path: '',
+          abortSignal,
+        })
+        .catch(() => {
+          // no-op
+        });
     });
   });
 
@@ -105,7 +132,7 @@ describe('Environment Content File Uploader', () => {
         setTimeout(() => opts.finishedCallback(null, ContentsIdMother.raw()), 100);
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
       uploader.on('progress', () => {
         expect(uploader.elapsedTime()).toBeGreaterThan(-1);
@@ -113,7 +140,12 @@ describe('Environment Content File Uploader', () => {
 
       expect(uploader.elapsedTime()).toBe(-1);
 
-      await uploader.upload(Readable.from(''), validFileSize);
+      await uploader.upload({
+        contents: Readable.from(''),
+        size: validFileSize,
+        path: '',
+        abortSignal,
+      });
     });
 
     it('stops the timer when the file is uploaded', async () => {
@@ -122,9 +154,14 @@ describe('Environment Content File Uploader', () => {
         setTimeout(() => opts.finishedCallback(null, ContentsIdMother.raw()), delay);
       });
 
-      const uploader = new EnvironmentContentFileUploader(strategy, bucket, abortSignal);
+      const uploader = new EnvironmentContentFileUploader(strategy, bucket);
 
-      await uploader.upload(Readable.from(''), validFileSize);
+      await uploader.upload({
+        contents: Readable.from(''),
+        size: validFileSize,
+        path: '',
+        abortSignal,
+      });
 
       setTimeout(() => {
         expect(uploader.elapsedTime()).toBeGreaterThan(delay - 10);

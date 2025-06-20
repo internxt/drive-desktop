@@ -5,7 +5,7 @@ import { createFolderPlaceholderId } from './FolderPlaceholderId';
 import { FolderId } from './FolderId';
 import { FolderCreatedAt } from './FolderCreatedAt';
 import { FolderUpdatedAt } from './FolderUpdatedAt';
-import crypt from '@/context/shared/infrastructure/crypt';
+import * as crypt from '@/context/shared/infrastructure/crypt';
 
 export type FolderAttributes = {
   id: number;
@@ -87,28 +87,6 @@ export class Folder {
     );
   }
 
-  static create({
-    id,
-    uuid,
-    path,
-    parentId,
-    parentUuid,
-    createdAt,
-    updatedAt,
-  }: {
-    id: FolderId;
-    uuid: FolderUuid;
-    path: FolderPath;
-    parentId: FolderId;
-    parentUuid: FolderUuid;
-    createdAt: FolderCreatedAt;
-    updatedAt: FolderUpdatedAt;
-  }): Folder {
-    const folder = new Folder(id, uuid, path, parentId, parentUuid, createdAt, updatedAt, FolderStatus.Exists);
-
-    return folder;
-  }
-
   static decryptName({ plainName, name, parentId }: { plainName?: string | null; name: string; parentId?: number | null }) {
     const decryptedName = plainName || crypt.decryptName({ name, parentId });
     return decryptedName;
@@ -143,14 +121,6 @@ export class Folder {
 
   isIn(folder: Folder): boolean {
     return this.parentId === folder.id;
-  }
-
-  isFolder(): this is Folder {
-    return true;
-  }
-
-  isFile(): this is File {
-    return false;
   }
 
   hasStatus(status: FolderStatuses): boolean {

@@ -5,10 +5,10 @@ import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererS
 import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { LocalFileWriter } from '../domain/LocalFileWriter';
-import { ContentFileDownloader } from '../domain/contentHandlers/ContentFileDownloader';
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
+import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
 
 export class ContentsDownloader {
   constructor(
@@ -17,11 +17,11 @@ export class ContentsDownloader {
     private readonly temporalFolderProvider: TemporalFolderProvider,
   ) {}
 
-  private downloaderIntance: ContentFileDownloader | null = null;
+  private downloaderIntance: EnvironmentContentFileDownloader | null = null;
   private downloaderIntanceCB: CallbackDownload | null = null;
   private downloaderFile: File | null = null;
 
-  private async registerEvents(downloader: ContentFileDownloader, file: File, callback: CallbackDownload) {
+  private async registerEvents(downloader: EnvironmentContentFileDownloader, file: File, callback: CallbackDownload) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 

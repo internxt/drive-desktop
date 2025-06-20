@@ -1,37 +1,18 @@
-import { logger, loggerService, TLoggerBody } from '@/apps/shared/logger/logger';
+import { TLoggerBody } from '@/apps/shared/logger/logger';
+import { handleRemoveErrors } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { errorWrapper, exceptionWrapper } from './error-wrapper';
 
 type TProps<T> = {
   loggerBody: TLoggerBody;
-  promise: Promise<{ data: T; error: undefined; response: Response } | { data: undefined; error: unknown; response: Response }>;
-};
-
-export class ClientWrapperService {
-  constructor(private readonly logger = loggerService) {}
-
-  async run<T>({ loggerBody, promise }: TProps<T>) {
-    try {
-      const res = await promise;
-
-      if (!res.data) {
-        return {
-          error: this.logger.error({
-            ...loggerBody,
-            exc: res.error,
-          }),
-        };
+  promise: Promise<
+    | { data: T; error: undefined; response: Response }
+    | {
+        data: undefined;
+        error: unknown;
+        response: Response;
       }
-
-      return { data: res.data };
-    } catch (exc) {
-      return {
-        error: logger.error({
-          ...loggerBody,
-          exc,
-        }),
-      };
-    }
-  }
-}
+  >;
+};
 
 export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
   try {
@@ -39,18 +20,21 @@ export async function clientWrapper<T>({ loggerBody, promise }: TProps<T>) {
 
     if (!res.data) {
       return {
-        error: logger.error({
-          ...loggerBody,
-          exc: res.error,
+        error: errorWrapper({
+          loggerBody,
+          error: res.error,
+          response: res.response,
         }),
       };
     }
 
+    handleRemoveErrors();
+
     return { data: res.data };
   } catch (exc) {
     return {
-      error: logger.error({
-        ...loggerBody,
+      error: exceptionWrapper({
+        loggerBody,
         exc,
       }),
     };

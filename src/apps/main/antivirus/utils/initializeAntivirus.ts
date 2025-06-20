@@ -1,6 +1,6 @@
 import { buildPaymentsService } from '../../payments/builder';
 import { PaymentsService } from '../../payments/service';
-import clamAVServer from '../ClamAVDaemon';
+import * as clamAVServer from '../ClamAVDaemon';
 import { clearDailyScan, scheduleDailyScan } from '../scanCronJob';
 import { logger } from '@/apps/shared/logger/logger';
 
@@ -34,7 +34,11 @@ async function initializeClamAV() {
       await clamAVServer.startClamdServer();
       await clamAVServer.waitForClamd();
 
-      logger.debug({ msg: '[INITIALIZING CLAM AV] ClamAV is running. Scheduling daily scan...' });
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: 'ClamAV is running. Scheduling daily scan.',
+      });
+
       scheduleDailyScan();
 
       isClamAVRunning = true;
@@ -42,28 +46,40 @@ async function initializeClamAV() {
 
       return { antivirusEnabled: true };
     } else {
-      logger.debug({ msg: '[INITIALIZING CLAM AV] Antivirus not enabled for this user. Clearing any running ClamAV instance...' });
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: 'Antivirus not enabled for this user. Clearing any running ClamAV instance.',
+      });
+
       clamAVInitializationPromise = null;
 
-      await clearAntivirus();
+      clearAntivirus();
 
       return { antivirusEnabled: false };
     }
   } catch (error) {
-    logger.warn({ msg: '[INITIALIZING CLAM AV] Error initializing antivirus:', exc: error });
+    logger.warn({
+      tag: 'ANTIVIRUS',
+      msg: 'Error initializing antivirus.',
+      exc: error,
+    });
+
     clamAVInitializationPromise = null;
-    await clearAntivirus();
+    clearAntivirus();
 
     return { antivirusEnabled: false };
   }
 }
 
-export async function clearAntivirus() {
+export function clearAntivirus() {
   if (isClamAVRunning) {
     clearDailyScan();
     clamAVServer.stopClamdServer();
-
     isClamAVRunning = false;
-    logger.debug({ msg: '[CLEARING ANTIVIRUS] ClamAV has been stopped successfully.' });
+
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'ClamAV has been stopped successfully.',
+    });
   }
 }

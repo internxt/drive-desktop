@@ -1,11 +1,12 @@
 import { getUserSystemPath } from '../device/service';
 import { Antivirus } from './Antivirus';
-import { getFilesFromDirectory } from './utils/getFilesFromDirectory';
-import { transformItem } from './utils/transformItem';
-import { queue, QueueObject } from 'async';
+import { queue } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { isPermissionError } from './utils/isPermissionError';
+import { logger } from '@/apps/shared/logger/logger';
+import { getFilesFromDirectory } from './utils/get-files-from-directory';
+import { scanFile } from './scan-file';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const BACKGROUND_MAX_CONCURRENCY = 5;
@@ -44,50 +45,37 @@ const scanInBackground = async (): Promise<void> => {
   const userSystemPath = await getUserSystemPath();
   if (!userSystemPath) return;
 
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: 'Starting background scan',
+    userSystemPath,
+  });
+
   console.time('scan-background');
 
-  const scan = async (filePath: string) => {
-    try {
-      const scannedItem = await transformItem(filePath);
-      const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);
-      if (previousScannedItem) {
-        if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
-          return;
-        }
-
-        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
-        if (currentScannedFile) {
-          await database.updateItemToDatabase(previousScannedItem.id, {
-            ...scannedItem,
-            isInfected: currentScannedFile.isInfected,
-          });
-        }
-        return;
-      }
-
-      const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
-
-      if (currentScannedFile) {
-        await database.addItemToDatabase({
-          ...scannedItem,
-          isInfected: currentScannedFile.isInfected,
-        });
-      }
-    } catch (error) {
-      if (!isPermissionError(error)) {
-        throw error;
-      }
-    }
-  };
-
   try {
-    let backgroundQueue: QueueObject<string> | null = queue(scan, BACKGROUND_MAX_CONCURRENCY);
+    const backgroundQueue = queue(async (filePath: string) => {
+      await scanFile({
+        filePath,
+        database,
+        antivirus,
+      });
+    }, BACKGROUND_MAX_CONCURRENCY);
 
-    await getFilesFromDirectory(userSystemPath.path, (file: string) => backgroundQueue!.pushAsync(file));
+    const filePaths = await getFilesFromDirectory({ rootFolder: userSystemPath.path });
 
-    await backgroundQueue.drain();
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'Retrieved all files',
+      totalFiles: filePaths.length,
+    });
 
-    backgroundQueue = null;
+    if (filePaths.length > 0) {
+      await backgroundQueue.pushAsync(filePaths);
+      await backgroundQueue.drain();
+    }
+
+    logger.debug({ tag: 'ANTIVIRUS', msg: 'Background scan completed' });
   } catch (error) {
     if (!isPermissionError(error)) {
       throw error;

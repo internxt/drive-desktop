@@ -6,8 +6,9 @@ export type Config = {
   rootUuid: string;
   providerName: string;
   loggerPath: string;
+  queueManagerPath: string;
   workspaceId: string;
-  workspaceToken: string | undefined;
+  workspaceToken: string;
   bucket: string;
   mnemonic: string;
   bridgeUser: string;
@@ -20,13 +21,14 @@ const emptyValues = (): Config => {
     rootPath: '',
     providerName: '',
     loggerPath: '',
+    queueManagerPath: '',
     workspaceId: '',
     rootUuid: '',
     bucket: '',
     mnemonic: '',
     bridgePass: '',
     bridgeUser: '',
-    workspaceToken: undefined,
+    workspaceToken: '',
   };
 };
 
@@ -40,12 +42,13 @@ const defaultValues = (): Config => {
   }
 
   return {
-    providerId: config.providerId || '',
-    rootPath: config.rootPath || '',
-    providerName: config.providerName || '',
-    loggerPath: config.loggerPath || '',
-    workspaceId: config.workspaceId || '',
-    rootUuid: config.rootUuid || '',
+    providerId: config.providerId,
+    rootPath: config.rootPath,
+    providerName: config.providerName,
+    loggerPath: config.loggerPath,
+    queueManagerPath: config.queueManagerPath,
+    workspaceId: config.workspaceId,
+    rootUuid: config.rootUuid,
     bucket: user.bucket || config.bucket,
     mnemonic: user.mnemonic || config.mnemonic,
     bridgeUser: user.bridgeUser || config.bridgeUser,

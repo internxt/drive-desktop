@@ -1,7 +1,7 @@
 import { v4 } from 'uuid';
 import { ContentsIdMother } from 'tests/context/virtual-drive/contents/domain/ContentsIdMother';
 import { Traverser } from './Traverser';
-import crypt from '@/context/shared/infrastructure/crypt';
+import * as crypt from '@/context/shared/infrastructure/crypt';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { deepMocked } from 'tests/vitest/utils.helper.test';

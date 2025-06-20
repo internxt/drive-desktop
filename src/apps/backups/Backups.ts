@@ -17,6 +17,7 @@ import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 import { calculateFilesDiff, FilesDiff } from './diff/calculate-files-diff';
 import { calculateFoldersDiff, FoldersDiff } from './diff/calculate-folders-diff';
 import { createFolders } from './folders/create-folders';
+import { deleteRemoteFiles } from './process-files/delete-remote-files';
 
 @Service()
 export class Backup {
@@ -120,7 +121,7 @@ export class Backup {
     await Promise.all([
       this.uploadAndCreateFile(context, tracker, local.root.absolutePath, added, remote),
       this.uploadAndUpdate(context, tracker, modified, remote),
-      this.deleteRemoteFiles(context, deleted),
+      deleteRemoteFiles({ context, deleted }),
     ]);
   }
 
@@ -178,25 +179,6 @@ export class Backup {
 
       this.backed += batch.size;
       tracker.currentProcessed(this.backed);
-    }
-  }
-
-  private async deleteRemoteFiles(context: BackupsContext, deleted: Array<File>) {
-    for (const file of deleted) {
-      if (context.abortController.signal.aborted) {
-        return;
-      }
-
-      const promise = () => driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
-      const { error } = await retryWrapper({
-        promise,
-        loggerBody: {
-          tag: 'BACKUPS',
-          msg: 'Retry deleting file',
-        },
-      });
-
-      if (error) throw error;
     }
   }
 

@@ -1,6 +1,7 @@
 import { PATHS } from '@/core/electron/paths';
 import { ipcMain, shell } from 'electron';
 import ElectronLog from 'electron-log';
+import { logFormatter } from '@/core/utils/logFormatter';
 
 export function setupElectronLog() {
   ElectronLog.initialize();
@@ -19,8 +20,8 @@ export function setupElectronLog() {
    * https://inxt.atlassian.net/browse/BR-1244
    */
   ElectronLog.transports.file.maxSize = 1024 * 1024 * 1024;
-  ElectronLog.transports.file.format = '[{iso}] {text}';
-  ElectronLog.transports.console.format = '[{iso}] {text}';
+  ElectronLog.transports.file.format = logFormatter;
+  ElectronLog.transports.console.format = logFormatter;
   ElectronLog.transports.console.writeFn = ({ message }) => {
     if (message.level === 'debug') {
       // eslint-disable-next-line no-console

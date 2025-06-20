@@ -9,16 +9,15 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 
 describe('QueueManager', () => {
   const mockHandlers = mockDeep<QueueHandler>();
+  const persistPath = join(TEST_FILES, v4());
   let queueManager: QueueManager;
 
-  const persistPath = join(TEST_FILES, v4());
-
   beforeEach(() => {
-    vi.clearAllMocks();
     queueManager = new QueueManager({ handlers: mockHandlers, persistPath });
+    vi.clearAllMocks();
   });
 
-  it('should add a task to the queue and sort it correctly', async () => {
+  it('should add a task to the queue and sort it correctly', () => {
     const tasks: QueueItem[] = [
       { path: '\\test\\folder4', isFolder: true, type: typeQueue.add },
       { path: '\\test\\folder\\test.txt', isFolder: false, type: typeQueue.add },

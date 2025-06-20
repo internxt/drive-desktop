@@ -7,8 +7,8 @@ import { Service } from 'diod';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { logger } from '@/apps/shared/logger/logger';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
+import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
+import { getConfig } from '@/apps/sync-engine/config';
 
 @Service()
 export class FileDeleter {
@@ -48,13 +48,9 @@ export class FileDeleter {
     try {
       file.trash();
 
-      const promise = () => driveServerWip.storage.deleteFileByUuid({ uuid: file.uuid });
-      const { error } = await retryWrapper({
-        promise,
-        loggerBody: {
-          tag: 'SYNC-ENGINE',
-          msg: 'Retry deleting file',
-        },
+      const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFileByUuid', {
+        uuid: file.uuid,
+        workspaceToken: getConfig().workspaceToken,
       });
 
       if (error) throw error;

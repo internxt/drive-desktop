@@ -61,6 +61,7 @@ import { migrate } from '@/migrations/migrate';
 import { unregisterVirtualDrives } from './background-processes/sync-engine/services/unregister-virtual-drives';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
+import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -75,6 +76,7 @@ setupSettingsIPCHandlers();
 setupVirtualDriveHandlers();
 setupQuitHandlers();
 setupIssueHandlers();
+setupIpcDriveServerWip();
 
 Logger.log(`Running ${packageJson.version}`);
 Logger.log(`App is packaged: ${app.isPackaged}`);
@@ -107,6 +109,8 @@ if (process.env.NODE_ENV === 'development') {
 app
   .whenReady()
   .then(async () => {
+    setDefaultConfig({});
+
     if (!AppDataSource.isInitialized) {
       await AppDataSource.initialize();
     }

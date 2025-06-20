@@ -1,6 +1,6 @@
 module.exports = {
-  extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended'],
-  plugins: ['import'],
+  extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended', 'plugin:@tanstack/eslint-plugin-query/recommended'],
+  plugins: ['import', 'unicorn', '@tanstack/query'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
@@ -13,6 +13,7 @@ module.exports = {
   rules: {
     '@typescript-eslint/await-thenable': 'warn',
     '@typescript-eslint/ban-ts-comment': 'warn',
+    '@typescript-eslint/ban-types': 'off',
     '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/no-unused-expressions': 'error',
     'array-callback-return': 'warn',
@@ -26,6 +27,7 @@ module.exports = {
     'no-use-before-define': 'warn',
     'object-shorthand': 'error',
     'require-await': 'warn',
+    'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
   },
   parser: '@typescript-eslint/parser',
   settings: {

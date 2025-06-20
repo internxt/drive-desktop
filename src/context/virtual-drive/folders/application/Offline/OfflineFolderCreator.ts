@@ -1,9 +1,9 @@
-import Logger from 'electron-log';
 import { FolderPath } from '../../domain/FolderPath';
 import { OfflineFolder } from '../../domain/OfflineFolder';
 import { FolderFinder } from '../FolderFinder';
 import { FolderStatuses } from '../../domain/FolderStatus';
 import { InMemoryFolderRepository } from '../../infrastructure/InMemoryFolderRepository';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class OfflineFolderCreator {
   constructor(
@@ -25,9 +25,11 @@ export class OfflineFolderCreator {
 
     const parent = this.folderFinder.run(folderPath.dirname());
 
-    Logger.debug('[DEBUG IN OFFLINEFOLDERCREATOR STEEP 1]');
-
-    Logger.debug(parent);
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Offline folder creator',
+      posixRelativePath,
+    });
 
     const folder = OfflineFolder.create(folderPath, parent.id, parent.uuid);
 

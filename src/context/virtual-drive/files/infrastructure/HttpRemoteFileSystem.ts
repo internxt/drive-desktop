@@ -6,7 +6,7 @@ import { Service } from 'diod';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import crypt from '@/context/shared/infrastructure/crypt';
+import * as crypt from '@/context/shared/infrastructure/crypt';
 
 @Service()
 export class HttpRemoteFileSystem {

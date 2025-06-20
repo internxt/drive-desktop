@@ -4,6 +4,7 @@ import { stat } from 'fs/promises';
 import { extname } from 'path';
 import { ScannedItem } from '../../database/entities/ScannedItem';
 import { pipeline } from 'stream/promises';
+import { logger } from '@/apps/shared/logger/logger';
 
 const hashItem = async (filePath: string): Promise<string> => {
   try {
@@ -12,9 +13,17 @@ const hashItem = async (filePath: string): Promise<string> => {
 
     await pipeline(stream, hasher);
     return hasher.digest('hex');
-  } catch (error) {
-    console.log('ERROR HASHING ITEM ');
-    throw error;
+  } catch {
+    /**
+     * v2.5.5 Daniel Jiménez
+     * We cannot add the error because there are so many files with hashing problems
+     * and it would be a lot of noise in the logs.
+     */
+    throw logger.warn({
+      tag: 'ANTIVIRUS',
+      msg: 'Error hashing item',
+      filePath,
+    });
   }
 };
 

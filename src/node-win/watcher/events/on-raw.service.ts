@@ -11,7 +11,6 @@ export class OnRawService {
       if (event === 'change' && details.prev && details.curr) {
         const item = await stat(path);
         if (item.isDirectory()) {
-          self.logger.debug({ msg: 'change', path, details: 'Is directory' });
           return;
         }
 

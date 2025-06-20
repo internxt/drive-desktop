@@ -4,11 +4,12 @@ import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { Antivirus } from './Antivirus';
-import { countSystemFiles, getFilesFromDirectory } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
+import { logger } from '@/apps/shared/logger/logger';
+import { getFilesFromDirectory } from './utils/get-files-from-directory';
 
 export interface ProgressData {
   totalScannedFiles: number;
@@ -174,53 +175,54 @@ class ManualSystemScan {
       }
     };
 
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'Starting manual scan',
+      pathNames,
+    });
+
     console.time('manual-scan');
+
     try {
-      if (!pathNames) {
+      if (!pathNames || pathNames.length === 0) {
         const userSystemPath = await getUserSystemPath();
         if (!userSystemPath) return;
-
-        const countPromise = countSystemFiles(userSystemPath.path);
-
-        await new Promise((resolve) => setTimeout(resolve, 15000));
-
-        this.manualQueue = queue(scan, 10);
-        const filesPromise = getFilesFromDirectory(userSystemPath.path, (filePath: string) => this.manualQueue!.pushAsync(filePath));
-
-        this.totalItemsToScan = await countPromise;
-
-        await filesPromise;
-      } else {
-        let pathsToScan: string[] = [];
-        if (pathNames && pathNames.length > 0) {
-          pathsToScan = pathNames;
-        } else {
-          const userSystemPath = await getUserSystemPath();
-          if (!userSystemPath) return;
-          pathsToScan = [userSystemPath.path];
-        }
-
-        let total = 0;
-        for (const p of pathNames) {
-          total += await countSystemFiles(p);
-        }
-
-        this.totalItemsToScan = total;
-
-        eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
-          totalScannedFiles: 0,
-          infectedFiles: [],
-          currentScanPath: '',
-          progress: 0,
-        });
-
-        this.manualQueue = queue(scan, 10);
-        for (const p of pathsToScan) {
-          await getFilesFromDirectory(p, (filePath: string) => this.manualQueue!.pushAsync(filePath));
-        }
+        pathNames = [userSystemPath.path];
       }
 
-      await this.manualQueue.drain();
+      const allFilePaths: string[] = [];
+
+      await Promise.all(
+        pathNames.map(async (p) => {
+          const filePaths = await getFilesFromDirectory({ rootFolder: p });
+          allFilePaths.push(...filePaths);
+        }),
+      );
+
+      this.totalItemsToScan = allFilePaths.length;
+
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: 'Retrieved all files',
+        totalFiles: allFilePaths.length,
+      });
+
+      eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', {
+        totalScannedFiles: 0,
+        infectedFiles: [],
+        currentScanPath: '',
+        progress: 0,
+      });
+
+      this.manualQueue = queue(scan, 10);
+
+      if (this.totalItemsToScan > 0) {
+        await this.manualQueue.pushAsync(allFilePaths);
+        await this.manualQueue.drain();
+      }
+
+      logger.debug({ tag: 'ANTIVIRUS', msg: 'Manual scan completed' });
+
       this.finishScan(currentSession);
     } catch (error) {
       if (!isPermissionError(error)) {

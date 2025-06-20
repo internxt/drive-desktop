@@ -27,8 +27,6 @@ declare interface Window {
 
     getItemByFolderUuid(folderUuid: string): Promise<import('../shared/types/items').ItemBackup[]>;
 
-    userIsUnauthorized(): void;
-
     downloadBackup: typeof import('../main/device/service').downloadBackup;
 
     userLoggedIn(data: import('../renderer/pages/Login/service').AccessResponse): void;
@@ -99,8 +97,6 @@ declare interface Window {
 
     stopBackupsProcess(): void;
 
-    getVirtualDriveRoot(): Promise<string>;
-
     chooseSyncRootWithDialog: typeof import('./virtual-root-folder/service').chooseSyncRootWithDialog;
 
     getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
@@ -137,8 +133,6 @@ declare interface Window {
 
     getFolderPath: typeof import('../main/device/service').getPathFromDialog;
 
-    onRemoteChanges(func: () => void): () => void;
-
     getUsage: () => Promise<import('./usage/Usage').Usage>;
 
     userLogginFailed: (email: string) => void;
@@ -147,7 +141,6 @@ declare interface Window {
     openMigrationFailedFolder: () => Promise<void>;
     onRemoteSyncStatusChange(callback: (status: import('./remote-sync/helpers').RemoteSyncStatus) => void): () => void;
     getRemoteSyncStatus(): Promise<import('./remote-sync/helpers').RemoteSyncStatus>;
-    getVirtualDriveStatus(): Promise<import('../shared/types/VirtualDriveStatus').VirtualDriveStatus>;
     onVirtualDriveStatusChange(
       callback: (event: { status: import('../shared/types/VirtualDriveStatus').VirtualDriveStatus }) => void,
     ): () => void;

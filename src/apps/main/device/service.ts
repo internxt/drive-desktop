@@ -6,23 +6,23 @@ import fetch from 'electron-fetch';
 import os from 'os';
 import path from 'path';
 import { IpcMainEvent, ipcMain } from 'electron';
-import fs from 'fs';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
-import { getNewApiHeaders, getUser, setUser } from '../auth/service';
+import { getUser, setUser } from '../auth/service';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
-import { PathLike } from 'fs';
+import fs, { PathLike } from 'fs';
 import { downloadFolder } from '../network/download';
 import Logger from 'electron-log';
 import { broadcastToWindows } from '../windows';
 import { randomUUID } from 'crypto';
-import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
+import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';
 import { getConfig } from '@/apps/sync-engine/config';
 import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
+import { getAuthHeaders } from '../auth/headers';
 
 export type Device = {
   name: string;
@@ -42,6 +42,12 @@ interface FolderTreeResponse {
   totalItems: number;
 }
 
+/**
+ * V2.5.5
+ * Alexis Mora
+ * TODO: Change this to accept an errorMessage instead of an Error object,
+ * since this function only uses the message from the error
+ */
 export const addUnknownDeviceIssue = (error: Error) => {
   addGeneralIssue({
     name: error.name,
@@ -49,78 +55,116 @@ export const addUnknownDeviceIssue = (error: Error) => {
   });
 };
 
-function createDevice(deviceName: string) {
-  return driveServerWipModule.backup.createDevice({ deviceName });
-}
-
 export async function getDevices(): Promise<Array<Device>> {
   const { data } = await driveServerWipModule.backup.getDevices();
   const devices = data ?? [];
   return devices.filter(({ removed, hasBackups }) => !removed && hasBackups).map((device) => decryptDeviceName(device));
 }
 
-async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
-  let res = await createDevice(os.hostname());
+/**
+ * Checks if a device exists with the given UUID
+ * @param deviceUuid The UUID of the device to check
+ * @returns an object containing the device data if found, null if not found,
+ *  or an object with an error if there was an issue fetching the device
+ */
+export async function fetchDevice(deviceUuid: string) {
+  const { data, error } = await driveServerWipModule.backup.getDevice({ deviceUuid });
 
-  let i = 1;
-
-  while (res.error && i <= 10) {
-    const deviceName = `${os.hostname()} (${i})`;
-    Logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
-    res = await createDevice(deviceName);
-    i++;
+  if (data) {
+    const device = decryptDeviceName(data);
+    logger.info({ tag: 'BACKUPS', msg: 'Found device', device: device.name });
+    return { data: device };
   }
 
-  if (res.error) {
-    const deviceName = `${new Date().valueOf() % 1000}`;
-    Logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
-    res = await createDevice(`${os.hostname()} (${deviceName})`);
+  if (error?.code === 'NOT_FOUND') {
+    const msg = `Device not found for deviceUuid: ${deviceUuid}`;
+    logger.info({ tag: 'BACKUPS', msg });
+    addUnknownDeviceIssue(new Error(msg));
+    return { data: null };
+  } else {
+    return { error: logger.error({ tag: 'BACKUPS', msg: 'Error fetching device', error }) };
   }
-
-  if (res.data) {
-    return res.data;
-  }
-  const error = new Error('Could not create device trying different names');
-  addUnknownDeviceIssue(error);
-  throw error;
 }
+
+export function saveDeviceToConfig(device: Device) {
+  configStore.set('deviceId', device.id);
+  configStore.set('deviceUuid', device.uuid);
+  configStore.set('backupList', {});
+}
+
+async function tryCreateDevice(deviceName: string) {
+  const { data, error } = await driveServerWipModule.backup.createDevice({ deviceName });
+  if (data) return { data };
+
+  if (error?.code === 'ALREADY_EXISTS') {
+    return {
+      error: logger.info({
+        tag: 'BACKUPS',
+        msg: 'Device name already exists',
+        deviceName,
+      }),
+    };
+  }
+
+  return { error: logger.error({ tag: 'BACKUPS', msg: 'Error creating device', error }) };
+}
+
+/**
+ * Creates a new device with a unique name
+ * @returns The an object with the created device or
+ * an object with the error if device creation fails after multiple attempts
+ * @param attempts The number of attempts to create a device with a unique name, defaults to 1000
+ */
+export async function createUniqueDevice(attempts = 1000) {
+  const baseName = os.hostname();
+  const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
+
+  for (const name of nameVariants) {
+    logger.info({ tag: 'BACKUPS', msg: `Trying to create device with name "${name}"` });
+    const { data, error } = await tryCreateDevice(name);
+
+    if (data) return { data };
+    if (error.message == 'Error creating device') return { error };
+  }
+
+  const finalError = logger.error({ tag: 'BACKUPS', msg: 'Could not create device trying different names' });
+  addUnknownDeviceIssue(finalError);
+  return { error: finalError };
+}
+
+async function createNewDevice() {
+  const { data, error } = await createUniqueDevice();
+  if (data) {
+    saveDeviceToConfig(data);
+    return { data: decryptDeviceName(data) };
+  }
+  return { error };
+}
+
 export async function getOrCreateDevice() {
   const savedDeviceUuid = configStore.get('deviceUuid');
+  const deviceIsStored = savedDeviceUuid !== '';
+  logger.debug({ tag: 'BACKUPS', msg: 'Saved device', savedDeviceUuid });
 
-  logger.debug({ msg: '[DEVICE] Saved device', savedDeviceUuid });
-
-  const deviceIsDefined = savedDeviceUuid !== '';
-
-  let newDevice: Device | null = null;
-
-  if (deviceIsDefined) {
-    const res = await driveServerWipModule.backup.getDevice({ deviceUuid: savedDeviceUuid });
-
-    if (res.data) {
-      const device = decryptDeviceName(res.data);
-      logger.debug({ msg: '[DEVICE] Found device', device: device.name });
-      configStore.set('deviceUuid', device.uuid);
-
-      if (!device.removed) return device;
-      newDevice = await tryToCreateDeviceWithDifferentNames();
-    } else {
-      newDevice = await tryToCreateDeviceWithDifferentNames();
-    }
-  } else {
-    newDevice = await tryToCreateDeviceWithDifferentNames();
+  if (!deviceIsStored) {
+    logger.debug({ tag: 'BACKUPS', msg: 'No saved device, creating a new one' });
+    return createNewDevice();
+  }
+  const { data, error } = await fetchDevice(savedDeviceUuid);
+  if (data && !data.removed) {
+    return { data };
   }
 
-  if (newDevice) {
-    configStore.set('deviceId', newDevice.id);
-    configStore.set('deviceUuid', newDevice.uuid);
-    configStore.set('backupList', {});
-    const device = decryptDeviceName(newDevice);
-    logger.debug({ msg: '[DEVICE] Created device', device });
-    return device;
+  if (data == null && !error) {
+    logger.debug({ tag: 'BACKUPS', msg: 'Device not found, creating a new one' });
+    return createNewDevice();
   }
-  const error = new Error('Could not get or create device');
-  addUnknownDeviceIssue(error);
-  throw error;
+
+  if (error) {
+    logger.error({ tag: 'BACKUPS', msg: 'Error fetching device', error });
+    return { error };
+  }
+  return { error: logger.error({ tag: 'BACKUPS', msg: 'Unknown error: Device not found or removed' }) };
 }
 
 export async function renameDevice(deviceName: string): Promise<Device> {
@@ -135,7 +179,7 @@ export async function renameDevice(deviceName: string): Promise<Device> {
   throw new Error('Error in the request to rename a device');
 }
 
-function decryptDeviceName({ name, ...rest }: Device): Device {
+export function decryptDeviceName({ name, ...rest }: Device): Device {
   let nameDevice;
   let key;
   try {
@@ -146,7 +190,7 @@ function decryptDeviceName({ name, ...rest }: Device): Device {
     nameDevice = aes.decrypt(name, key);
   }
 
-  logger.debug({ msg: '[DEVICE] Decrypted device', nameDevice });
+  logger.debug({ tag: 'BACKUPS', msg: 'Decrypted device', nameDevice });
 
   return {
     name: nameDevice,
@@ -293,7 +337,7 @@ async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
 async function fetchTreeFromApi(folderUuid: string): Promise<FolderTree> {
   const res = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/tree`, {
     method: 'GET',
-    headers: getNewApiHeaders(),
+    headers: getAuthHeaders(),
   });
 
   if (!res.ok) {
@@ -400,6 +444,7 @@ export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Pro
     configStore.set('backupList', backupListFiltered);
   }
 }
+
 export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<void> {
   const backups = await getBackupsFromDevice(device, isCurrent);
 
@@ -606,21 +651,15 @@ function getDeviceUuid(): string {
 export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   configStore.set('backupsEnabled', true);
 
-  await getOrCreateDevice();
+  const { error } = await getOrCreateDevice();
+  if (error) throw error;
 
   const operations = folderPaths.map((folderPath) => createBackup(folderPath));
 
   await Promise.all(operations);
 }
 
-export async function getUserSystemPath(): Promise<
-  | {
-      path: string;
-      itemName: string;
-      isDirectory: boolean;
-    }
-  | undefined
-> {
+export async function getUserSystemPath() {
   const filePath = os.homedir();
   if (!filePath) return;
 
@@ -634,11 +673,7 @@ export async function getUserSystemPath(): Promise<
   };
 }
 
-export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']): Promise<{
-  path: string;
-  itemName: string;
-  isDirectory?: boolean;
-} | null> {
+export async function getPathFromDialog(dialogPropertiesOptions?: Electron.OpenDialogOptions['properties']) {
   const dialogProperties = dialogPropertiesOptions ?? ['openDirectory'];
 
   const result = await dialog.showOpenDialog({
@@ -676,14 +711,7 @@ async function openFileSystemAndGetPaths(
   return result.filePaths;
 }
 
-export async function getMultiplePathsFromDialog(getFiles?: boolean): Promise<
-  | {
-      path: string;
-      itemName: string;
-      isDirectory: boolean;
-    }[]
-  | undefined
-> {
+export async function getMultiplePathsFromDialog(getFiles?: boolean) {
   const fileSelection = getFiles ? 'openFile' : 'openDirectory';
 
   const chosenItem = await openFileSystemAndGetPaths(['multiSelections', fileSelection]);

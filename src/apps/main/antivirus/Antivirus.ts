@@ -1,7 +1,8 @@
 import path from 'path';
 import NodeClam from '@internxt/scan';
-import clamAVServer from './ClamAVDaemon';
+import * as clamAVServer from './ClamAVDaemon';
 import { app } from 'electron';
+import { cwd } from 'process';
 
 export interface SelectedItemToScanProps {
   path: string;
@@ -9,15 +10,11 @@ export interface SelectedItemToScanProps {
   isDirectory: boolean;
 }
 
-const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(__dirname, '../../../../clamAV');
+const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(cwd(), 'clamAV');
 
 export class Antivirus {
   private clamAv: NodeClam | null = null;
   private isInitialized = false;
-
-  private constructor() {
-    //
-  }
 
   static async createInstance(): Promise<Antivirus> {
     const instance = new Antivirus();
@@ -53,7 +50,7 @@ export class Antivirus {
     }
   }
 
-  async scanFile(filePath: string): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
+  async scanFile(filePath: string) {
     if (!this.clamAv || !this.isInitialized) {
       throw new Error('ClamAV is not initialized');
     }
@@ -72,9 +69,5 @@ export class Antivirus {
       this.isInitialized = false;
       await this.clamAv.closeAllSockets();
     }
-  }
-
-  async stopServer() {
-    clamAVServer.stopClamdServer();
   }
 }

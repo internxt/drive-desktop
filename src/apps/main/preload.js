@@ -34,9 +34,6 @@ contextBridge.exposeInMainWorld('electron', {
   pathChanged(pathname) {
     ipcRenderer.send('path-changed', pathname);
   },
-  userIsUnauthorized() {
-    ipcRenderer.send('USER_IS_UNAUTHORIZED');
-  },
   userLoggedIn(data) {
     return ipcRenderer.send('user-logged-in', data);
   },
@@ -171,9 +168,6 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
-  getVirtualDriveRoot() {
-    return ipcRenderer.invoke('get-virtual-drive-root');
-  },
   chooseSyncRootWithDialog() {
     return ipcRenderer.invoke('choose-sync-root-with-dialog');
   },
@@ -254,13 +248,6 @@ contextBridge.exposeInMainWorld('electron', {
   getFolderPath() {
     return ipcRenderer.invoke('get-folder-path');
   },
-  onRemoteChanges(func) {
-    const eventName = 'remote-changes';
-    const callback = () => func();
-    ipcRenderer.on(eventName, callback);
-
-    return () => ipcRenderer.removeListener(eventName, callback);
-  },
   startMigration() {
     return ipcRenderer.invoke('open-migration-window');
   },
@@ -284,9 +271,6 @@ contextBridge.exposeInMainWorld('electron', {
   },
   getRemoteSyncStatus() {
     return ipcRenderer.invoke('get-remote-sync-status');
-  },
-  getVirtualDriveStatus() {
-    return ipcRenderer.invoke('get-virtual-drive-status');
   },
   retryVirtualDriveMount() {
     return ipcRenderer.invoke('retry-virtual-drive-mount');

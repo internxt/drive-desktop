@@ -3,16 +3,17 @@ import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { app } from 'electron';
 import net from 'net';
 import path from 'path';
+import { cwd } from 'process';
 
 const SERVER_HOST = '127.0.0.1';
 const SERVER_PORT = 3310;
 
 let clamdProcess: ChildProcessWithoutNullStreams | null = null;
-const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(__dirname, '../../../../clamAV');
+const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(cwd(), 'clamAV');
 
 let timer: NodeJS.Timeout | null = null;
 
-const startClamdServer = (): Promise<void> => {
+export const startClamdServer = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     const clamdPath = path.join(RESOURCES_PATH, 'clamd-inxt.exe');
     const clamdConfigPath = path.join(RESOURCES_PATH, 'clamd.conf');
@@ -42,7 +43,7 @@ const startClamdServer = (): Promise<void> => {
   });
 };
 
-const stopClamdServer = (): void => {
+export const stopClamdServer = (): void => {
   if (clamdProcess) {
     console.log('Stopping clamd server...');
     clamdProcess.kill();
@@ -55,7 +56,7 @@ const stopClamdServer = (): void => {
   }
 };
 
-const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT): Promise<boolean> => {
+export const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT): Promise<boolean> => {
   return new Promise((resolve) => {
     const client = new net.Socket();
 
@@ -71,7 +72,7 @@ const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT): Promise
   });
 };
 
-const waitForClamd = async (timeout = 180000, interval = 5000): Promise<void> => {
+export const waitForClamd = async (timeout = 180000, interval = 5000): Promise<void> => {
   const startTime = Date.now();
   while (Date.now() - startTime < timeout) {
     const isAvailable = await checkClamdAvailability();
@@ -82,12 +83,3 @@ const waitForClamd = async (timeout = 180000, interval = 5000): Promise<void> =>
   }
   throw new Error('Timeout waiting for clamd server to become available');
 };
-
-const clamAVServer = {
-  startClamdServer,
-  checkClamdAvailability,
-  stopClamdServer,
-  waitForClamd,
-};
-
-export default clamAVServer;
