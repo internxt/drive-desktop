@@ -14,7 +14,12 @@ export function setupElectronLog() {
     }
   };
 
-  ElectronLog.transports.file.maxSize = 150 * 1024 * 1024; // 150MB
+  /**
+   * v2.5.4 Daniel Jiménez
+   * Based on this ticket we set the maximum to 1GB.
+   * https://inxt.atlassian.net/browse/BR-1244
+   */
+  ElectronLog.transports.file.maxSize = 1024 * 1024 * 1024;
   ElectronLog.transports.file.format = logFormatter;
   ElectronLog.transports.console.format = logFormatter;
   ElectronLog.transports.console.writeFn = ({ message }) => {
