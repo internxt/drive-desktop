@@ -3,7 +3,9 @@ import { obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { logger } from '../shared/logger/logger';
 import { addGeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
-import {processWebSocketEvent} from "@/infra/remote-notifications/services/remote-notifications.service";
+import {
+  RemoteNotificationsModule,
+} from '@/backend/features/remote-notifications/remote-notifications.module';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -68,7 +70,7 @@ export function cleanAndStartRemoteNotifications() {
     });
   });
 
-  socket.on('event', processWebSocketEvent);
+  socket.on('event', RemoteNotificationsModule.processWebSocketEvent);
 }
 
 function stopRemoteNotifications() {

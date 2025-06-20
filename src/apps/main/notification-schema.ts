@@ -42,5 +42,9 @@ const FOLDER_CREATED = EVENT.extend({
   }),
 });
 
+export const FOLDER_DELETED = EVENT.extend({
+  event: z.literal('FOLDER_DELETED'),
+})
+
 export const NOTIFICATION_SCHEMA = z.union([ITEMS_TO_TRASH, FILE_CREATED, FOLDER_CREATED]);
 export type NotificationSchema = z.infer<typeof NOTIFICATION_SCHEMA>;
