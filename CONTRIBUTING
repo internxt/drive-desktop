@@ -3,27 +3,21 @@
 ## Architecture
 
 ```
-"core"
-"infra"
-    |- sqlite
-    |- drive-server-wip
-renderer (electron/renderer)
-    |- "core"
-    |- "pages"
-    |- "features"
-processes (electron/renderer for now)
-    |- "core"
-    |- "features"
-        |- backups
-            |- "features"
-        |- sync-engine
-            |- "features"
-        |- antivirus
-            |- "features"
-main (electron/main)
-    |- "core"
-    |- "infra"
-    |- "features"
+backend
+| core
+| infra
+    | sqlite
+    | drive-server-wip
+    | file-system
+| features
+    | sync
+        sync.module.ts
+        | debounce-sync
+    | backups
+    | antivirus
+    | notifications
+        notifications.module.ts
+        | process-notification (sync.debounceSync())
 ```
 
 ## Code

@@ -1,13 +1,12 @@
-import { ContentFileUploader } from '../domain/contentHandlers/ContentFileUploader';
 import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import Logger from 'electron-log';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileProvider } from '../infrastructure/FSLocalFileProvider';
 import { logger } from '@/apps/shared/logger/logger';
+import { EnvironmentContentFileUploader } from '../infrastructure/upload/EnvironmentContentFileUploader';
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: EnvironmentRemoteFileContentsManagersFactory,
@@ -15,7 +14,7 @@ export class ContentsUploader {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  private registerEvents(uploader: ContentFileUploader, localFileContents: LocalFileContents) {
+  private registerEvents(uploader: EnvironmentContentFileUploader, localFileContents: LocalFileContents) {
     uploader.on('start', () => {
       ipcRendererSyncEngine.send('FILE_UPLOADING', {
         name: localFileContents.name,
@@ -64,11 +63,16 @@ export class ContentsUploader {
 
       const { contents, abortSignal } = await this.contentProvider.provide(absolutePath);
 
-      const uploader = this.remoteContentsManagersFactory.uploader(contents, abortSignal);
+      const uploader = this.remoteContentsManagersFactory.uploader(contents);
 
       this.registerEvents(uploader, contents);
 
-      const contentsId = await uploader.upload(contents.stream, contents.size);
+      const contentsId = await uploader.upload({
+        contents: contents.stream,
+        size: contents.size,
+        path: posixRelativePath,
+        abortSignal,
+      });
 
       const fileContents = RemoteFileContents.create(contentsId, contents.size);
 

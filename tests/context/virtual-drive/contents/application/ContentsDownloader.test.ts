@@ -1,11 +1,13 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
-import { FileDownloadEvents } from '../../../../../src/context/virtual-drive/contents/domain/contentHandlers/ContentFileDownloader';
 import { FileMother } from '../../files/domain/FileMother';
 import { LocalFileWriter } from '@/context/virtual-drive/contents/domain/LocalFileWriter';
 import { EventEmitter, Readable } from 'stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { EnvironmentContentFileDownloader } from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
+import {
+  EnvironmentContentFileDownloader,
+  FileDownloadEvents,
+} from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
 
 describe('Contents Downloader', () => {
   const temporalFolderProvider = (): Promise<string> => {

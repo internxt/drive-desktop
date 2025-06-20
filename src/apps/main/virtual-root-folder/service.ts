@@ -1,6 +1,4 @@
-import Logger from 'electron-log';
 import { dialog, shell } from 'electron';
-import fsPromises from 'fs/promises';
 import fs from 'fs';
 import path from 'path';
 
@@ -49,14 +47,6 @@ export function getRootVirtualDrive(): string {
   }
 
   return current;
-}
-
-export async function clearRootVirtualDrive(): Promise<void> {
-  try {
-    await fsPromises.rm(PATHS.QUEUE_MANAGER, { recursive: true, force: true });
-  } catch (err) {
-    Logger.error('Error clearing root virtual drive', err);
-  }
 }
 
 export function setupRootFolder(user: User): void {

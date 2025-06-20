@@ -4,11 +4,11 @@ import Logger from 'electron-log';
 import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
 import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
 import { temporalFolderProvider } from '../../contents/application/temporalFolderProvider';
-import { ContentFileDownloader } from '../../contents/domain/contentHandlers/ContentFileDownloader';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { File } from '../domain/File';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 import { FileContentsHardUpdater } from './FileContentsHardUpdater';
+import { EnvironmentContentFileDownloader } from '../../contents/infrastructure/download/EnvironmentContentFileDownloader';
 
 export class FileOverwriteContent {
   private processingErrorQueue: boolean;
@@ -44,7 +44,7 @@ export class FileOverwriteContent {
   }
 
   private async registerEvents(input: {
-    downloader: ContentFileDownloader;
+    downloader: EnvironmentContentFileDownloader;
     file: File;
     callback: (remoteDangledFile: string) => Promise<void>;
   }) {

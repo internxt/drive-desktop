@@ -3,14 +3,13 @@ import Logger from 'electron-log';
 
 import { AccessResponse } from '../../renderer/pages/Login/service';
 import eventBus from '../event-bus';
-import { clearRootVirtualDrive, setupRootFolder } from '../virtual-root-folder/service';
+import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
 import { checkUserData, createTokenSchedule } from './refresh-token';
 import { canHisConfigBeRestored, encryptToken, getUser, logout, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
-import { PATHS } from '@/core/electron/paths';
 import { getAuthHeaders } from './headers';
 
 let isLoggedIn: boolean;
@@ -61,7 +60,6 @@ export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
   ipcMain.handle('GET_HEADERS', () => getAuthHeaders());
-  ipcMain.handle('GET_PATHS', () => PATHS);
   ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
 
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
@@ -74,7 +72,6 @@ export function setupAuthIpcHandlers() {
     if (!canHisConfigBeRestored(data.user.uuid)) {
       setupRootFolder(data.user);
     }
-    await clearRootVirtualDrive();
 
     setIsLoggedIn(true);
     await emitUserLoggedIn();

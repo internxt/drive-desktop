@@ -2,7 +2,6 @@ import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
-import type { TPaths } from '@/core/electron/paths';
 import type { FileErrorInfo } from './drive';
 
 type ProcessInfo = {
@@ -60,7 +59,6 @@ type ProcessInfoUpdate = {
   ADD_GENERAL_ISSUE: (payload: Omit<GeneralIssue, 'tab'>) => void;
   CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
   FIND_DANGLED_FILES: () => Promise<DriveFile[]>;
-  GET_PATHS: () => Promise<TPaths>;
   SET_HEALTHY_FILES: (ids: string[]) => Promise<void>;
 };
 

@@ -159,16 +159,12 @@ export class BindingsManager {
       handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
     };
 
-    const PATHS = await ipcRendererSyncEngine.invoke('GET_PATHS');
-    logger.debug({ msg: 'Paths', paths: PATHS });
-
     const queueManager = new QueueManager({
       handlers: callbacks,
-      persistPath: PATHS.QUEUE_MANAGER,
+      persistPath: getConfig().queueManagerPath,
     });
-    this.container.virtualDrive.watchAndWait({
-      queueManager,
-    });
+
+    this.container.virtualDrive.watchAndWait({ queueManager });
     await queueManager.processAll();
   }
 

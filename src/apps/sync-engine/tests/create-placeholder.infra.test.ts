@@ -7,7 +7,6 @@ import { setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
-import { PATHS } from '@/core/electron/paths';
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
@@ -53,6 +52,7 @@ describe('create-placeholder', () => {
       providerName: 'Internxt Drive',
       providerId,
       rootUuid: rootFolderUuid,
+      queueManagerPath,
     });
 
     // @ts-expect-error we do not want to implement all events
@@ -63,10 +63,6 @@ describe('create-placeholder', () => {
 
       if (event === 'FIND_DANGLED_FILES') {
         return Promise.resolve([]);
-      }
-
-      if (event === 'GET_PATHS') {
-        return Promise.resolve({ ...PATHS, QUEUE_MANAGER: queueManagerPath });
       }
     });
 

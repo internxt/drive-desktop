@@ -16,6 +16,7 @@ import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { VirtualDrive } from '@/node-win/virtual-drive';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class FileSyncronizer {
   // queue of files to be uploaded
@@ -92,22 +93,34 @@ export class FileSyncronizer {
   }
 
   private async createFolderFather(posixRelativePath: string) {
-    Logger.info('posixRelativePath', posixRelativePath);
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'posixRelativePath',
+      posixRelativePath,
+    });
+
     const posixDir = PlatformPathConverter.getFatherPathPosix(posixRelativePath);
+
     try {
       await this.runFolderCreator(posixDir);
     } catch (error) {
-      Logger.error('Error creating folder father creation:', error);
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: 'Error creating folder father creation',
+        error,
+      });
+
       if (error instanceof FolderNotFoundError) {
         this.foldersPathQueue.push(posixDir);
-        // father created
+
         await this.createFolderFather(posixDir);
-        // child created
-        Logger.info('Creating child', posixDir);
         await this.retryFolderCreation(posixDir);
       } else {
-        Logger.error('Error creating folder father creation inside catch:', error);
-        throw error;
+        throw logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Error creating folder father creation inside catch',
+          error,
+        });
       }
     }
   }
