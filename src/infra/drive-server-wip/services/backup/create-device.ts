@@ -12,10 +12,12 @@ class CreateDeviceError extends DriveServerWipError {
 }
 
 export async function createDevice(context: { deviceName: string }) {
+  const promise = client.POST('/backup/deviceAsFolder', {
+    body: { deviceName: context.deviceName },
+  });
+
   const { data, error } = await clientWrapper({
-    promise: client.POST('/backup/deviceAsFolder', {
-      body: { deviceName: context.deviceName },
-    }),
+    promise: () => promise,
     loggerBody: {
       msg: 'Create device as folder request was not successful',
       context,
