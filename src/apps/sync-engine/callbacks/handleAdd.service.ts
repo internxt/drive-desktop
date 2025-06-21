@@ -41,6 +41,7 @@ export class HandleAddService {
 
       drive.convertToPlaceholder({
         itemPath: task.path,
+        // @ts-expect-error TODO: solve in next PR
         id: itemId,
       });
       drive.updateSyncStatus({

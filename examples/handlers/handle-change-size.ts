@@ -6,7 +6,7 @@ import { QueueItem } from '@/node-win/queue/queueManager';
 export const handleChangeSize = (task: QueueItem) => {
   try {
     logger.debug({ msg: 'handleChangeSize', path: task.path });
-    const id = v4();
+    const id = `FILE:${v4()}` as const;
     drive.convertToPlaceholder({
       itemPath: task.path,
       id,
