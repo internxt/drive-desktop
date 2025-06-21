@@ -15,10 +15,12 @@ class CreateFolderError extends DriveServerWipError {
 }
 
 export async function createFolder(context: { body: TCreateFolderBody }) {
+  const promise = client.POST('/folders', {
+    body: context.body,
+  });
+
   const { data, error } = await clientWrapper({
-    promise: client.POST('/folders', {
-      body: context.body,
-    }),
+    promise: () => promise,
     loggerBody: {
       msg: 'Create folder request was not successful',
       context,

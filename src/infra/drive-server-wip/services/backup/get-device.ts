@@ -12,10 +12,12 @@ export class GetDeviceError extends DriveServerWipError {
 }
 
 export async function getDevice(context: { deviceUuid: string }) {
+  const promise = client.GET('/backup/deviceAsFolder/{uuid}', {
+    params: { path: { uuid: context.deviceUuid } },
+  });
+
   const { data, error } = await clientWrapper({
-    promise: client.GET('/backup/deviceAsFolder/{uuid}', {
-      params: { path: { uuid: context.deviceUuid } },
-    }),
+    promise: () => promise,
     loggerBody: {
       msg: 'Get device as folder request was not successful',
       context,
