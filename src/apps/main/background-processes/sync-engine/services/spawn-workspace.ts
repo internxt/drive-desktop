@@ -4,12 +4,10 @@ import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { sleep } from '@/apps/main/util';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
 
 type TProps = {
-  retry?: number;
   workspace: {
     id: string;
     mnemonic: string;
@@ -19,16 +17,12 @@ type TProps = {
   };
 };
 
-export async function spawnWorkspace({ workspace, retry = 1 }: TProps) {
-  logger.debug({ msg: 'Spawn workspace', workspaceId: workspace.id, retry });
+export async function spawnWorkspace({ workspace }: TProps) {
+  logger.debug({ msg: 'Spawn workspace', workspaceId: workspace.id });
 
   const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: workspace.id });
 
-  if (error) {
-    await sleep(5000);
-    await spawnWorkspace({ workspace, retry: retry + 1 });
-    return;
-  }
+  if (error) return;
 
   const user = getUserOrThrow();
 

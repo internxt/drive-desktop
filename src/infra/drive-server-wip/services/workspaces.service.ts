@@ -7,13 +7,13 @@ type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']
 type CreateFileInWorkspaceBody = paths['/workspaces/{workspaceId}/files']['post']['requestBody']['content']['application/json'];
 type CreateFolderInWorkspaceBody = paths['/workspaces/{workspaceId}/folders']['post']['requestBody']['content']['application/json'];
 
-export function getWorkspaces() {
+export async function getWorkspaces() {
   const promise = client.GET('/workspaces');
 
-  return clientWrapper({
-    promise,
+  return await clientWrapper({
+    promise: () => promise,
     loggerBody: {
-      msg: 'Get workspaces request was not successful',
+      msg: 'Get workspaces request',
       attributes: {
         method: 'GET',
         endpoint: '/workspaces',
@@ -22,15 +22,15 @@ export function getWorkspaces() {
   });
 }
 
-export function getCredentials(context: { workspaceId: string }) {
+export async function getCredentials(context: { workspaceId: string }) {
   const promise = client.GET('/workspaces/{workspaceId}/credentials', {
     params: { path: { workspaceId: context.workspaceId } },
   });
 
-  return clientWrapper({
-    promise,
+  return await clientWrapper({
+    promise: () => promise,
     loggerBody: {
-      msg: 'Get workspace credentials request was not successful',
+      msg: 'Get workspace credentials request',
       context,
       attributes: {
         method: 'GET',
@@ -40,7 +40,7 @@ export function getCredentials(context: { workspaceId: string }) {
   });
 }
 
-export function getFilesInWorkspace(context: { workspaceId: string; query: QueryFilesInWorkspace }) {
+export async function getFilesInWorkspace(context: { workspaceId: string; query: QueryFilesInWorkspace }) {
   const promise = client.GET('/workspaces/{workspaceId}/files', {
     params: {
       path: { workspaceId: context.workspaceId },
@@ -48,10 +48,10 @@ export function getFilesInWorkspace(context: { workspaceId: string; query: Query
     },
   });
 
-  return clientWrapper({
-    promise,
+  return await clientWrapper({
+    promise: () => promise,
     loggerBody: {
-      msg: 'Get workspace files request was not successful',
+      msg: 'Get workspace files request',
       context,
       attributes: {
         method: 'GET',
@@ -61,7 +61,7 @@ export function getFilesInWorkspace(context: { workspaceId: string; query: Query
   });
 }
 
-export function getFoldersInWorkspace(context: { workspaceId: string; query: QueryFoldersInWorkspace }) {
+export async function getFoldersInWorkspace(context: { workspaceId: string; query: QueryFoldersInWorkspace }) {
   const promise = client.GET('/workspaces/{workspaceId}/folders', {
     params: {
       path: { workspaceId: context.workspaceId },
@@ -69,10 +69,10 @@ export function getFoldersInWorkspace(context: { workspaceId: string; query: Que
     },
   });
 
-  return clientWrapper({
-    promise,
+  return await clientWrapper({
+    promise: () => promise,
     loggerBody: {
-      msg: 'Get workspace folders request was not successful',
+      msg: 'Get workspace folders request',
       context,
       attributes: {
         method: 'GET',
@@ -82,16 +82,16 @@ export function getFoldersInWorkspace(context: { workspaceId: string; query: Que
   });
 }
 
-export function createFileInWorkspace(context: { workspaceId: string; body: CreateFileInWorkspaceBody }) {
+export async function createFileInWorkspace(context: { workspaceId: string; body: CreateFileInWorkspaceBody }) {
   const promise = client.POST('/workspaces/{workspaceId}/files', {
     params: { path: { workspaceId: context.workspaceId } },
     body: context.body,
   });
 
-  return clientWrapper({
-    promise,
+  return await clientWrapper({
+    promise: () => promise,
     loggerBody: {
-      msg: 'Create file in workspace request was not successful',
+      msg: 'Create file in workspace request',
       context,
       attributes: {
         method: 'POST',
@@ -101,16 +101,16 @@ export function createFileInWorkspace(context: { workspaceId: string; body: Crea
   });
 }
 
-export function createFolderInWorkspace(context: { workspaceId: string; body: CreateFolderInWorkspaceBody }) {
+export async function createFolderInWorkspace(context: { workspaceId: string; body: CreateFolderInWorkspaceBody }) {
   const promise = client.POST('/workspaces/{workspaceId}/folders', {
     params: { path: { workspaceId: context.workspaceId } },
     body: context.body,
   });
 
-  return clientWrapper({
-    promise,
+  return await clientWrapper({
+    promise: () => promise,
     loggerBody: {
-      msg: 'Create folder in workspace request was not successful',
+      msg: 'Create folder in workspace request',
       context,
       attributes: {
         method: 'POST',

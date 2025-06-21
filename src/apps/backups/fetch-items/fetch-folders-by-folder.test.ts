@@ -70,19 +70,14 @@ describe('fetch-folders-by-folder', () => {
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(2);
   });
 
-  it('If fetch fails, then retry at least 3 times and keep offset', async () => {
+  it('If fetch fails, then throw error', async () => {
     // Given
-    getFoldersByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFoldersByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFoldersByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
-    getFoldersByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFoldersByFolderMock.mockResolvedValueOnce({ error: new Error() });
     getFoldersByFolderMock.mockResolvedValueOnce({ error: new Error() });
 
     // When
     await expect(() => fetchFoldersByFolder(props)).rejects.toThrowError();
 
     // Then
-    expect(getFoldersByFolderMock).toHaveBeenCalledTimes(6);
+    expect(getFoldersByFolderMock).toHaveBeenCalledTimes(1);
   });
 });

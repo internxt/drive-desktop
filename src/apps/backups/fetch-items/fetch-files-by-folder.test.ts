@@ -68,19 +68,14 @@ describe('fetch-files-by-folder', () => {
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(2);
   });
 
-  it('If fetch fails, then retry at least 3 times and keep offset', async () => {
+  it('If fetch fails, then throw error', async () => {
     // Given
-    getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFilesByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
-    getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
     getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
 
     // When
     await expect(() => fetchFilesByFolder(props)).rejects.toThrowError();
 
     // Then
-    expect(getFilesByFolderMock).toHaveBeenCalledTimes(6);
+    expect(getFilesByFolderMock).toHaveBeenCalledTimes(1);
   });
 });

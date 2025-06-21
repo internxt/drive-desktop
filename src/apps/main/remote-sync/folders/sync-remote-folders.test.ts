@@ -78,19 +78,14 @@ describe('sync-remote-folders.service', () => {
     expect(syncRemoteFolderMock).toHaveBeenCalledTimes(50);
   });
 
-  it('If fetch fails, then retry at least 3 times and keep offset', async () => {
+  it('If fetch fails, then throw error', async () => {
     // Given
-    getFoldersMock.mockResolvedValueOnce({ error: new Error() });
-    getFoldersMock.mockResolvedValueOnce({ error: new Error() });
-    getFoldersMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
-    getFoldersMock.mockResolvedValueOnce({ error: new Error() });
-    getFoldersMock.mockResolvedValueOnce({ error: new Error() });
     getFoldersMock.mockResolvedValueOnce({ error: new Error() });
 
     // When
     await expect(() => syncRemoteFolders({ self: remoteSyncManager })).rejects.toThrowError();
 
     // Then
-    expect(getFoldersMock).toHaveBeenCalledTimes(6);
+    expect(getFoldersMock).toHaveBeenCalledTimes(1);
   });
 });
