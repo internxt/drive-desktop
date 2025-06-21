@@ -17,6 +17,7 @@ export function errorWrapper({ loggerBody, error, response, retry }: TProps) {
 
   const loggedError = logger.error({
     ...loggerBody,
+    msg: `${loggerBody.msg} was not successful`,
     retry,
     exc,
     response: {
