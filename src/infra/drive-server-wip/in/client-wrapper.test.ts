@@ -1,4 +1,4 @@
-import { mockProps } from '@/tests/vitest/utils.helper.test';
+import { mockProps } from 'tests/vitest/utils.helper.test';
 import { clientWrapper } from './client-wrapper.service';
 import { handleRemoveErrors, isServerError } from './helpers/error-helpers';
 import { errorWrapper } from './error-wrapper';
