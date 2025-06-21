@@ -22,7 +22,7 @@ export async function createFolder(context: { body: TCreateFolderBody }) {
   const { data, error } = await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Create folder request was not successful',
+      msg: 'Create folder request',
       context,
       attributes: {
         method: 'POST',

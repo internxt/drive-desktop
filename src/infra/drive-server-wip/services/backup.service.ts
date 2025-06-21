@@ -10,7 +10,7 @@ export class BackupService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get devices as folder request was not successful',
+        msg: 'Get devices as folder request',
         attributes: {
           method: 'GET',
           endpoint: '/backup/deviceAsFolder',
@@ -31,7 +31,7 @@ export class BackupService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Update device as folder request was not successful',
+        msg: 'Update device as folder request',
         context,
         attributes: {
           method: 'PATCH',

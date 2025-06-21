@@ -15,7 +15,7 @@ export class AuthService {
 
     if (!res.data) {
       throw this.logger.error({
-        msg: 'Access request was not successful',
+        msg: 'Access request',
         error: res.error,
         context: {
           email,
@@ -38,7 +38,7 @@ export class AuthService {
 
     if (!res.data) {
       throw this.logger.error({
-        msg: 'Login request was not successful',
+        msg: 'Login request',
         error: res.error,
         context: {
           email,
@@ -61,7 +61,7 @@ export class AuthService {
     return clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Refresh request was not successful',
+        msg: 'Refresh request',
         attributes: {
           tag: 'AUTH',
           endpoint: '/users/refresh',

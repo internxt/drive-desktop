@@ -73,8 +73,8 @@ describe('client-wrapper', () => {
     expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(driveServerWipError);
     expect(sleepMock).toBeCalledTimes(2);
+    expect(sleepMock).toBeCalledWith(5_000);
     expect(sleepMock).toBeCalledWith(10_000);
-    expect(sleepMock).toBeCalledWith(20_000);
     expect(handleRemoveErrorsMock).toBeCalledTimes(0);
   });
 
@@ -100,8 +100,8 @@ describe('client-wrapper', () => {
     expect(data).toStrictEqual('data');
     expect(error).toStrictEqual(undefined);
     expect(sleepMock).toBeCalledTimes(2);
+    expect(sleepMock).toBeCalledWith(5_000);
     expect(sleepMock).toBeCalledWith(10_000);
-    expect(sleepMock).toBeCalledWith(20_000);
     expect(handleRemoveErrorsMock).toBeCalledTimes(1);
   });
 
@@ -127,8 +127,8 @@ describe('client-wrapper', () => {
     expect(data).toStrictEqual('data');
     expect(error).toStrictEqual(undefined);
     expect(sleepMock).toBeCalledTimes(2);
+    expect(sleepMock).toBeCalledWith(5_000);
     expect(sleepMock).toBeCalledWith(10_000);
-    expect(sleepMock).toBeCalledWith(20_000);
     expect(handleRemoveErrorsMock).toBeCalledTimes(1);
   });
 });

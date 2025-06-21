@@ -19,7 +19,7 @@ export async function getDevice(context: { deviceUuid: string }) {
   const { data, error } = await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Get device as folder request was not successful',
+      msg: 'Get device as folder request',
       context,
       attributes: {
         method: 'GET',

@@ -13,7 +13,7 @@ export async function getWorkspaces() {
   return await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Get workspaces request was not successful',
+      msg: 'Get workspaces request',
       attributes: {
         method: 'GET',
         endpoint: '/workspaces',
@@ -30,7 +30,7 @@ export async function getCredentials(context: { workspaceId: string }) {
   return await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Get workspace credentials request was not successful',
+      msg: 'Get workspace credentials request',
       context,
       attributes: {
         method: 'GET',
@@ -51,7 +51,7 @@ export async function getFilesInWorkspace(context: { workspaceId: string; query:
   return await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Get workspace files request was not successful',
+      msg: 'Get workspace files request',
       context,
       attributes: {
         method: 'GET',
@@ -72,7 +72,7 @@ export async function getFoldersInWorkspace(context: { workspaceId: string; quer
   return await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Get workspace folders request was not successful',
+      msg: 'Get workspace folders request',
       context,
       attributes: {
         method: 'GET',
@@ -91,7 +91,7 @@ export async function createFileInWorkspace(context: { workspaceId: string; body
   return await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Create file in workspace request was not successful',
+      msg: 'Create file in workspace request',
       context,
       attributes: {
         method: 'POST',
@@ -110,7 +110,7 @@ export async function createFolderInWorkspace(context: { workspaceId: string; bo
   return await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Create folder in workspace request was not successful',
+      msg: 'Create folder in workspace request',
       context,
       attributes: {
         method: 'POST',

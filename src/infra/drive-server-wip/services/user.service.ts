@@ -8,7 +8,7 @@ export class UserService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get usage request was not successful',
+        msg: 'Get usage request',
         attributes: {
           method: 'GET',
           endpoint: '/users/usage',
@@ -23,7 +23,7 @@ export class UserService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get limit request was not successful',
+        msg: 'Get limit request',
         attributes: {
           method: 'GET',
           endpoint: '/users/limit',

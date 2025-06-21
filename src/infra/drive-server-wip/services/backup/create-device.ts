@@ -19,7 +19,7 @@ export async function createDevice(context: { deviceName: string }) {
   const { data, error } = await clientWrapper({
     promise: () => promise,
     loggerBody: {
-      msg: 'Create device as folder request was not successful',
+      msg: 'Create device as folder request',
       context,
       attributes: {
         method: 'POST',

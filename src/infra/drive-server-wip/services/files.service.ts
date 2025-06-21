@@ -16,7 +16,7 @@ export class FilesService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get files request was not successful',
+        msg: 'Get files request',
         context,
         attributes: {
           method: 'GET',
@@ -34,7 +34,7 @@ export class FilesService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Create file request was not successful',
+        msg: 'Create file request',
         context,
         attributes: {
           method: 'POST',
@@ -53,7 +53,7 @@ export class FilesService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Move file request was not successful',
+        msg: 'Move file request',
         context,
         attributes: {
           method: 'PATCH',
@@ -72,7 +72,7 @@ export class FilesService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Rename file request was not successful',
+        msg: 'Rename file request',
         context,
         attributes: {
           method: 'PUT',
@@ -91,7 +91,7 @@ export class FilesService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Replace file request was not successful',
+        msg: 'Replace file request',
         context,
         attributes: {
           method: 'PUT',
@@ -109,7 +109,7 @@ export class FilesService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Create thumbnail request was not successful',
+        msg: 'Create thumbnail request',
         context,
         attributes: {
           method: 'POST',
@@ -129,7 +129,7 @@ export class FilesService {
     return clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Delete file content from bucket request was not successful',
+        msg: 'Delete file content from bucket request',
         context,
         attributes: {
           method: 'DELETE',

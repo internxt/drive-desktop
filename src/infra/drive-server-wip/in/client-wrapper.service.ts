@@ -27,7 +27,7 @@ const MAX_RETRIES = 3;
  *  - Network error (we want to retry always).
  *  - Unknown error (we want to retry 3 times).
  */
-export async function clientWrapper<T>({ loggerBody, promise, sleepMs = 10_000, retry = 1 }: TProps<T>) {
+export async function clientWrapper<T>({ loggerBody, promise, sleepMs = 5_000, retry = 1 }: TProps<T>) {
   try {
     logger.debug({ ...loggerBody, retry });
 

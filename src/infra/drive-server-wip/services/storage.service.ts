@@ -13,7 +13,7 @@ export class StorageService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Delete file request was not successful',
+        msg: 'Delete file request',
         context,
         attributes: {
           method: 'DELETE',
@@ -33,7 +33,7 @@ export class StorageService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Delete folder request was not successful',
+        msg: 'Delete folder request',
         context,
         attributes: {
           method: 'DELETE',
@@ -54,7 +54,7 @@ export class StorageService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Delete file by uuid request was not successful',
+        msg: 'Delete file by uuid request',
         context,
         attributes: {
           method: 'POST',
@@ -74,7 +74,7 @@ export class StorageService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Delete folder by uuid request was not successful',
+        msg: 'Delete folder by uuid request',
         context,
         attributes: {
           method: 'POST',

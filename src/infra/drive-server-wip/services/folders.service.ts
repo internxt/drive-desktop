@@ -16,7 +16,7 @@ export class FoldersService {
     return clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get folder metadata request was not successful',
+        msg: 'Get folder metadata request',
         context,
         attributes: {
           method: 'GET',
@@ -34,7 +34,7 @@ export class FoldersService {
     return clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get folder metadata request was not successful',
+        msg: 'Get folder metadata request',
         context,
         attributes: {
           method: 'GET',
@@ -50,7 +50,7 @@ export class FoldersService {
     return clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get folders request was not successful',
+        msg: 'Get folders request',
         context,
         attributes: {
           method: 'GET',
@@ -68,7 +68,7 @@ export class FoldersService {
     const res = await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get folders by folder request was not successful',
+        msg: 'Get folders by folder request',
         context,
         attributes: {
           method: 'GET',
@@ -94,7 +94,7 @@ export class FoldersService {
     const res = await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Get files by folder request was not successful',
+        msg: 'Get files by folder request',
         context,
         attributes: {
           method: 'GET',
@@ -119,7 +119,7 @@ export class FoldersService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Move folder request was not successful',
+        msg: 'Move folder request',
         context,
         attributes: {
           method: 'PATCH',
@@ -138,7 +138,7 @@ export class FoldersService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Rename folder request was not successful',
+        msg: 'Rename folder request',
         context,
         attributes: {
           method: 'PUT',
@@ -157,7 +157,7 @@ export class FoldersService {
     return await clientWrapper({
       promise: () => promise,
       loggerBody: {
-        msg: 'Check folder existence request was not successful',
+        msg: 'Check folder existence request',
         context,
         attributes: {
           method: 'POST',
