@@ -1,5 +1,5 @@
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
-import { handleRemoveErrors, isServerError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
+import { handleRemoveErrors } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 import { errorWrapper } from './error-wrapper';
 import { sleep } from '@/apps/main/util';
 import { exceptionWrapper } from './exception-wrapper';
@@ -38,10 +38,6 @@ export async function clientWrapper<T>({ loggerBody, promise, sleepMs = 10_000, 
       return { data };
     }
 
-    /**
-     * v2.5.5 Daniel Jiménez
-     * We need to call this function anyway to generate the issue.
-     */
     const driveServerWipError = errorWrapper({ loggerBody, error, response, retry });
 
     /**
@@ -49,7 +45,7 @@ export async function clientWrapper<T>({ loggerBody, promise, sleepMs = 10_000, 
      * When we have a server error (5XX) the fault is not in our side, so we want to retry always.
      * A server error can happen when the server is down for example.
      */
-    if (isServerError({ response })) {
+    if (driveServerWipError.code === 'SERVER') {
       await sleep(sleepMs);
       return await clientWrapper({
         promise,

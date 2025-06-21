@@ -1,6 +1,6 @@
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { clientWrapper } from './client-wrapper.service';
-import { handleRemoveErrors, isServerError } from './helpers/error-helpers';
+import { handleRemoveErrors } from './helpers/error-helpers';
 import { errorWrapper } from './error-wrapper';
 import { DriveServerWipError } from '../out/error.types';
 import { sleep } from '@/apps/main/util';
@@ -15,7 +15,6 @@ describe('client-wrapper', () => {
   const handleRemoveErrorsMock = vi.mocked(handleRemoveErrors);
   const errorWrapperMock = vi.mocked(errorWrapper);
   const exceptionWrapperMock = vi.mocked(exceptionWrapper);
-  const isServerErrorMock = vi.mocked(isServerError);
   const sleepMock = vi.mocked(sleep);
 
   const response = {} as unknown as Response;
@@ -43,7 +42,6 @@ describe('client-wrapper', () => {
     // Given
     const driveServerWipError = new DriveServerWipError('UNKNOWN', 'cause');
     errorWrapperMock.mockReturnValueOnce(driveServerWipError);
-    isServerErrorMock.mockReturnValueOnce(false);
 
     const props = mockProps<typeof clientWrapper>({
       promise: () => Promise.resolve({ error: 'error', response }),
@@ -56,6 +54,7 @@ describe('client-wrapper', () => {
     expect(data).toStrictEqual(undefined);
     expect(error).toStrictEqual(driveServerWipError);
     expect(sleepMock).toBeCalledTimes(0);
+    expect(handleRemoveErrorsMock).toBeCalledTimes(0);
   });
 
   it('If promise throws exception and is not network error, then retry 3 times', async () => {
@@ -76,11 +75,12 @@ describe('client-wrapper', () => {
     expect(sleepMock).toBeCalledTimes(2);
     expect(sleepMock).toBeCalledWith(10_000);
     expect(sleepMock).toBeCalledWith(20_000);
+    expect(handleRemoveErrorsMock).toBeCalledTimes(0);
   });
 
   it('If promise returns error and is server error (5XX), then retry until success', async () => {
     // Given
-    isServerErrorMock.mockReturnValue(true);
+    errorWrapperMock.mockReturnValueOnce(new DriveServerWipError('SERVER', 'cause'));
 
     let i = 0;
     const props = mockProps<typeof clientWrapper>({
@@ -99,7 +99,6 @@ describe('client-wrapper', () => {
     // Then
     expect(data).toStrictEqual('data');
     expect(error).toStrictEqual(undefined);
-    expect(errorWrapperMock).toBeCalledTimes(2);
     expect(sleepMock).toBeCalledTimes(2);
     expect(sleepMock).toBeCalledWith(10_000);
     expect(sleepMock).toBeCalledWith(20_000);
