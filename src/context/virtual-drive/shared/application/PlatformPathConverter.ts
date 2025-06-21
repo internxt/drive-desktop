@@ -1,4 +1,4 @@
-import path from 'path';
+import path, { posix } from 'path';
 
 export class PlatformPathConverter {
   static winToPosix(win: string): string {
@@ -10,9 +10,14 @@ export class PlatformPathConverter {
   }
 
   static getFatherPathPosix(posixPath: string): string {
-    const pathArray = posixPath.split('/');
-    pathArray.pop();
-    const parentPath = pathArray.join('/');
-    return this.winToPosix(parentPath);
+    let normalized = posix.normalize(posixPath);
+
+    if (!normalized.startsWith('/')) {
+      normalized = '/' + normalized;
+    }
+
+    const dirname = posix.dirname(normalized);
+
+    return dirname === '.' ? '/' : dirname;
   }
 }

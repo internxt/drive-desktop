@@ -16,7 +16,6 @@ export function buildControllers(container: DependencyContainer): IControllers {
     container.absolutePathToRelativeConverter,
     container.fileCreationOrchestrator,
     container.folderCreator,
-    container.offline.folderCreator,
   );
 
   const deleteController = new DeleteController(
