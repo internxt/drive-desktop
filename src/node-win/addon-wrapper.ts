@@ -2,6 +2,8 @@ import { addon } from './addon';
 import { addonZod } from './addon/addon-zod';
 import { Callbacks } from './types/callbacks.type';
 import { logger } from '@/apps/shared/logger/logger';
+import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
 export class Addon {
   syncRootPath!: string;
@@ -185,7 +187,7 @@ export class Addon {
     return this.parseAddonZod('updateSyncStatus', result);
   }
 
-  convertToPlaceholder({ path, id }: { path: string; id: string }) {
+  convertToPlaceholder({ path, id }: { path: string; id: FilePlaceholderId | FolderPlaceholderId }) {
     const result = addon.convertToPlaceholder(path, id);
 
     this.parseAddonZod('convertToPlaceholder', result);

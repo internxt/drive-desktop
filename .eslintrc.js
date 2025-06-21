@@ -24,7 +24,7 @@ module.exports = {
     'no-empty': 'off',
     'no-throw-literal': 'error',
     'no-unused-expressions': 'off',
-    'no-use-before-define': 'warn',
+    'no-use-before-define': ['warn', { functions: false }],
     'object-shorthand': 'error',
     'require-await': 'warn',
     'unicorn/filename-case': ['warn', { case: 'kebabCase' }],

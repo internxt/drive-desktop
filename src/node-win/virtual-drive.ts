@@ -6,6 +6,8 @@ import { TLogger } from './logger';
 import { QueueManager } from './queue/queue-manager';
 import { Callbacks } from './types/callbacks.type';
 import { Watcher } from './watcher/watcher';
+import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
 const PLACEHOLDER_ATTRIBUTES = {
   FILE_ATTRIBUTE_READONLY: 0x1,
@@ -301,7 +303,7 @@ export class VirtualDrive {
     return this.addon.updateSyncStatus({ path: this.fixPath(itemPath), isDirectory, sync });
   }
 
-  convertToPlaceholder({ itemPath, id }: { itemPath: string; id: string }) {
+  convertToPlaceholder({ itemPath, id }: { itemPath: string; id: FilePlaceholderId | FolderPlaceholderId }) {
     return this.addon.convertToPlaceholder({ path: this.fixPath(itemPath), id });
   }
 
