@@ -59,7 +59,7 @@ export class AuthService {
     });
 
     return clientWrapper({
-      promise: () => promise,
+      promise,
       loggerBody: {
         msg: 'Refresh request was not successful',
         attributes: {

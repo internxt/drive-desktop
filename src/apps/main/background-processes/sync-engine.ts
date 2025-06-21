@@ -80,7 +80,7 @@ export async function spawnDefaultSyncEngineWorker() {
 }
 
 export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { providerId: string }) {
-  const workspaces = await getWorkspaces();
+  const workspaces = await getWorkspaces({});
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
   const currentProviderIds = workspaceProviderIds.concat([providerId]);

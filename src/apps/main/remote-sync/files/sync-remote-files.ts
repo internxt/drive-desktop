@@ -4,6 +4,7 @@ import { FETCH_LIMIT } from '../store';
 import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFile } from './sync-remote-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 
 type TProps = {
   self: RemoteSyncManager;
@@ -37,11 +38,18 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
       updatedAt: from?.toISOString(),
     };
 
-    const promise = self.workspaceId
-      ? driveServerWip.workspaces.getFilesInWorkspace({ workspaceId: self.workspaceId, query })
-      : driveServerWip.files.getFiles({ query });
+    const promise = () =>
+      self.workspaceId
+        ? driveServerWip.workspaces.getFilesInWorkspace({ workspaceId: self.workspaceId, query })
+        : driveServerWip.files.getFiles({ query });
 
-    const { data, error } = await promise;
+    const { data, error } = await retryWrapper({
+      promise,
+      loggerBody: {
+        tag: 'SYNC-ENGINE',
+        msg: 'Retry fetching files',
+      },
+    });
 
     if (!data) throw error;
 

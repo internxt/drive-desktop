@@ -4,11 +4,11 @@ import { createDevice } from './backup/create-device';
 import { getDevice } from './backup/get-device';
 
 export class BackupService {
-  async getDevices() {
+  getDevices() {
     const promise = client.GET('/backup/deviceAsFolder');
 
-    return await clientWrapper({
-      promise: () => promise,
+    return clientWrapper({
+      promise,
       loggerBody: {
         msg: 'Get devices as folder request was not successful',
         attributes: {
@@ -22,17 +22,20 @@ export class BackupService {
   getDevice = getDevice;
   createDevice = createDevice;
 
-  async updateDevice(context: { deviceUuid: string; deviceName: string }) {
+  updateDevice({ deviceUuid, deviceName }: { deviceUuid: string; deviceName: string }) {
     const promise = client.PATCH('/backup/deviceAsFolder/{uuid}', {
-      params: { path: { uuid: context.deviceUuid } },
-      body: { deviceName: context.deviceName },
+      params: { path: { uuid: deviceUuid } },
+      body: { deviceName },
     });
 
-    return await clientWrapper({
-      promise: () => promise,
+    return clientWrapper({
+      promise,
       loggerBody: {
         msg: 'Update device as folder request was not successful',
-        context,
+        context: {
+          deviceUuid,
+          deviceName,
+        },
         attributes: {
           method: 'PATCH',
           endpoint: '/backup/deviceAsFolder/{uuid}',

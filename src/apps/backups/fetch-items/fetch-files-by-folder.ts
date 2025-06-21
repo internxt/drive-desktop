@@ -2,6 +2,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { FileDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
+import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 
 type TProps = {
   folderUuid: string;
@@ -21,13 +22,22 @@ export async function fetchFilesByFolder({ folderUuid, allFiles, abortSignal, of
       offset,
     });
 
-    const { data, error } = await driveServerWip.folders.getFilesByFolder({
-      folderUuid,
-      query: {
-        limit: FETCH_LIMIT,
-        offset,
-        sort: 'updatedAt',
-        order: 'DESC',
+    const promise = () =>
+      driveServerWip.folders.getFilesByFolder({
+        folderUuid,
+        query: {
+          limit: FETCH_LIMIT,
+          offset,
+          sort: 'updatedAt',
+          order: 'DESC',
+        },
+      });
+
+    const { data, error } = await retryWrapper({
+      promise,
+      loggerBody: {
+        tag: 'BACKUPS',
+        msg: 'Retry fetching files by folder',
       },
     });
 

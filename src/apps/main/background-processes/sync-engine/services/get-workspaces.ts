@@ -1,7 +1,12 @@
+import { sleep } from '@/apps/main/util';
 import { logger } from '@/apps/shared/logger/logger';
 import { PATHS } from '@/core/electron/paths';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { join } from 'node:path';
+
+type TProps = {
+  retry?: number;
+};
 
 type TReturn = Promise<
   Array<{
@@ -13,15 +18,15 @@ type TReturn = Promise<
   }>
 >;
 
-export async function getWorkspaces(): TReturn {
-  logger.debug({
-    tag: 'SYNC-ENGINE',
-    msg: 'Get workspaces',
-  });
+export async function getWorkspaces({ retry = 1 }: TProps): TReturn {
+  logger.debug({ msg: 'Get workspaces', retry });
 
   const { data: workspaces, error } = await driveServerWipModule.workspaces.getWorkspaces();
 
-  if (error) return [];
+  if (error) {
+    await sleep(5000);
+    return await getWorkspaces({ retry: retry + 1 });
+  }
 
   return workspaces.availableWorkspaces.map(({ workspace, workspaceUser }) => ({
     id: workspace.id,
