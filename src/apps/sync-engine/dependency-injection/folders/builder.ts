@@ -5,7 +5,6 @@ import { FolderFinder } from '../../../../context/virtual-drive/folders/applicat
 import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
 import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
 import { FolderRenamer } from '../../../../context/virtual-drive/folders/application/FolderRenamer';
-import { OfflineFolderCreator } from '../../../../context/virtual-drive/folders/application/Offline/OfflineFolderCreator';
 import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
@@ -38,8 +37,6 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
 
   const folderPathUpdater = new FolderPathUpdater(repository, folderMover, folderRenamer);
 
-  const offlineFolderCreator = new OfflineFolderCreator(folderFinder, repository);
-
   const folderPlaceholderUpdater = new FolderPlaceholderUpdater(
     repository,
     localFolderSystem,
@@ -58,9 +55,6 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
     allParentFoldersStatusIsExists,
     folderPathUpdater,
     folderContainerDetector,
-    offline: {
-      folderCreator: offlineFolderCreator,
-    },
     folderPlaceholderDeleter,
     folderRepository: repository,
     folderPlaceholderUpdater,

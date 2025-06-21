@@ -3,6 +3,7 @@ import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+
 @Service()
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId?: string) {}
@@ -35,14 +36,20 @@ export class HttpRemoteFolderSystem {
         createdAt: data.createdAt,
         status: FolderStatuses.EXISTS,
       };
-    } catch (error: unknown) {
-      logger.error({
-        msg: 'Error creating folder',
-        exc: error,
-      });
-
+    } catch (error) {
       const existing = await this.existFolder(offline);
-      return existing.status !== FolderStatuses.EXISTS ? Promise.reject(error) : existing;
+
+      if (existing.status !== FolderStatuses.EXISTS) {
+        throw logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Error creating folder',
+          basename: offline.basename,
+          parentUuid: offline.parentUuid,
+          exc: error,
+        });
+      }
+
+      return existing;
     }
   }
 
@@ -77,7 +84,9 @@ export class HttpRemoteFolderSystem {
   async move(folder: Folder): Promise<void> {
     if (!folder.parentUuid) {
       throw logger.error({
+        tag: 'SYNC-ENGINE',
         msg: 'Error moving folder, folder does not have a parent',
+        path: folder.path,
       });
     }
 
