@@ -1,7 +1,7 @@
 import { markItemsAsTrashed } from '@/backend/features/remote-notifications/in/mark-items-as-trashed';
-import { loggerMock } from '../../../../../tests/vitest/mocks.helper.test';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { beforeEach } from 'vitest';
-import { deepMocked } from '../../../../../tests/vitest/utils.helper.test';
+import { deepMocked } from '@/tests/vitest/utils.helper.test';
 import { splitItemsIntoFilesAndFolders } from '@/backend/features/remote-notifications/in/split-items-into-files-and-folders';
 import { updateDatabaseStatusToTrashed } from '@/backend/features/remote-notifications/in/update-database-status-to-trashed';
 
@@ -26,7 +26,7 @@ describe('markItemsAsTrashed', () => {
       files: [{ type: 'file', uuid: 'file-uuid' }],
       folders: [{ type: 'folder', uuid: 'folder-uuid' }],
     });
-    updateDatabaseStatusToTrashedMock.mockResolvedValueOnce(undefined);
+
     await markItemsAsTrashed({ items });
     expect(updateDatabaseStatusToTrashedMock).toHaveBeenCalledTimes(1);
   });

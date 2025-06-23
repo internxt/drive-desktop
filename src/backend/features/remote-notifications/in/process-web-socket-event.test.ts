@@ -1,16 +1,17 @@
 import { beforeEach } from 'vitest';
 import { processWebSocketEvent } from '@/backend/features/remote-notifications/in/process-web-socket-event';
 import { broadcastToWindows } from '@/apps/main/windows';
-import { deepMocked } from '../../../../../tests/vitest/utils.helper.test';
-import { loggerMock } from '../../../../../tests/vitest/mocks.helper.test';
-import { debouncedSynchronization } from '@/apps/main/remote-sync/handlers';
+import { deepMocked } from '@/tests/vitest/utils.helper.test';
+import { handleParsedNotificationEvent, logAndSync } from '@/backend/features/remote-notifications/in/handle-parsed-notification-event';
 
 vi.mock(import('@/apps/main/windows'));
 vi.mock(import('@/apps/main/remote-sync/handlers'));
+vi.mock(import('@/backend/features/remote-notifications/in/handle-parsed-notification-event'));
 
 describe('processWebSocketEvent', () => {
   const broadcastToWindowsMock = deepMocked(broadcastToWindows);
-  const debouncedSynchronizationMock = deepMocked(debouncedSynchronization);
+  const handleParsedNotificationEventMock = deepMocked(handleParsedNotificationEvent);
+  const logAndSyncMock = deepMocked(logAndSync);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -25,6 +26,8 @@ describe('processWebSocketEvent', () => {
     };
     await processWebSocketEvent({ data: event });
     expect(broadcastToWindowsMock).toHaveBeenCalledWith('refresh-backup', undefined);
+    expect(logAndSyncMock).toHaveBeenCalledTimes(1);
+    expect(handleParsedNotificationEventMock).not.toHaveBeenCalled();
   });
 
   it('should call handleParsedNotificationEvent if schema is valid', async () => {
@@ -37,12 +40,7 @@ describe('processWebSocketEvent', () => {
     };
 
     await processWebSocketEvent({ data: validEvent });
-    expect(loggerMock.debug).toHaveBeenCalledWith({
-      msg: 'Notification received',
-      event: validEvent.event,
-      clientId: validEvent.clientId,
-      payload: validEvent.payload,
-    });
+    expect(handleParsedNotificationEventMock).toHaveBeenCalledWith(expect.objectContaining({ event: validEvent }));
   });
 
   it('should call debouncedSynchronization if schema is not valid', async () => {
@@ -51,11 +49,7 @@ describe('processWebSocketEvent', () => {
     };
 
     await processWebSocketEvent({ data: validEvent });
-    expect(loggerMock.debug).toHaveBeenCalledTimes(0);
-    expect(loggerMock.info).toHaveBeenCalledWith({
-      msg: 'Notification received',
-      data: validEvent,
-    });
-    expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
+    expect(handleParsedNotificationEventMock).not.toHaveBeenCalled();
+    expect(logAndSyncMock).toHaveBeenCalledWith(expect.objectContaining({ data: validEvent }));
   });
 });
