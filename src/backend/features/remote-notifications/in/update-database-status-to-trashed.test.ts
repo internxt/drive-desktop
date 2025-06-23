@@ -1,7 +1,8 @@
-import { deepMocked } from '../../../../../tests/vitest/utils.helper.test';
 import { driveFilesCollection, driveFoldersCollection } from '@/apps/main/remote-sync/store';
 import { beforeEach } from 'vitest';
 import { updateDatabaseStatusToTrashed } from './update-database-status-to-trashed';
+import { In } from 'typeorm';
+import { deepMocked } from '@/tests/vitest/utils.helper.test';
 
 vi.mock(import('@/apps/main/remote-sync/store'));
 
@@ -20,7 +21,7 @@ describe('updateDatabaseStatusToTrashed', () => {
       expect.objectContaining({
         payload: { status: 'TRASHED' },
         where: {
-          uuid: expect.any(Object),
+          uuid: In(['f-1']),
         },
       }),
     );
@@ -29,7 +30,7 @@ describe('updateDatabaseStatusToTrashed', () => {
       expect.objectContaining({
         payload: { status: 'TRASHED' },
         where: {
-          uuid: expect.any(Object),
+          uuid: In(['d-1']),
         },
       }),
     );
@@ -41,7 +42,7 @@ describe('updateDatabaseStatusToTrashed', () => {
       expect.objectContaining({
         payload: { status: 'TRASHED' },
         where: {
-          uuid: expect.any(Object),
+          uuid: In([]),
         },
       }),
     );
@@ -50,7 +51,7 @@ describe('updateDatabaseStatusToTrashed', () => {
       expect.objectContaining({
         payload: { status: 'TRASHED' },
         where: {
-          uuid: expect.any(Object),
+          uuid: In([]),
         },
       }),
     );
