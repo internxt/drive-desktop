@@ -36,7 +36,7 @@ export class HttpRemoteFolderSystem {
         createdAt: data.createdAt,
         status: FolderStatuses.EXISTS,
       };
-    } catch (error: unknown) {
+    } catch (exc) {
       const existing = await this.existFolder(offline);
 
       if (existing.status !== FolderStatuses.EXISTS) {
@@ -45,7 +45,7 @@ export class HttpRemoteFolderSystem {
           msg: 'Error creating folder',
           basename: offline.basename,
           parentUuid: offline.parentUuid,
-          exc: error,
+          exc,
         });
       }
 
