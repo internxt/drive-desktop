@@ -45,6 +45,7 @@
   },
   "include": [
     "src",
+    "examples",
     "tests",
     ".erb/configs",
     ".erb/scripts"
