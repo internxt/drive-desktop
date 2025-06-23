@@ -4,7 +4,6 @@ import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedErro
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists';
 import { Service } from 'diod';
-import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
 import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -14,7 +13,6 @@ import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 export class FolderDeleter {
   constructor(
     private readonly repository: InMemoryFolderRepository,
-    private readonly remote: HttpRemoteFolderSystem,
     private readonly local: NodeWinLocalFolderSystem,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
   ) {}
@@ -54,7 +52,6 @@ export class FolderDeleter {
 
       if (error) throw error;
 
-      await this.remote.trash(folder);
       this.repository.update(folder);
     } catch (error: unknown) {
       Logger.error(`Error deleting the folder ${folder.name}: `, error);
