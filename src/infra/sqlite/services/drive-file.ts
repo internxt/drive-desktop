@@ -54,8 +54,7 @@ export class DriveFileCollection {
     };
   }
 
-  async updateInBatch(input: UpdateInBatchPayload) {
-    const { where, payload } = input;
+  async updateInBatch({ where, payload }: UpdateInBatchPayload) {
     const user = getUserOrThrow();
     const match = await this.repository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
 
