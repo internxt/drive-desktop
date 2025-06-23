@@ -10,10 +10,7 @@ export const handleParsedNotificationEvent = async ({ event }: { event: Notifica
       clientId: event.clientId,
       payload: event.payload,
     });
-    return { data: true };
+  } else if (event.event === 'ITEMS_TO_TRASH') {
+    await markItemsAsTrashed({ items: event.payload });
   }
-  if (event.event === 'ITEMS_TO_TRASH') {
-    return await markItemsAsTrashed({ items: event.payload });
-  }
-  return { data: false };
 };

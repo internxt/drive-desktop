@@ -7,13 +7,10 @@ export const markItemsAsTrashed = async ({ items }: { items: ItemsToTrashEvent['
   try {
     const { files, folders } = splitItemsIntoFilesAndFolders({ items });
     await updateDatabaseStatusToTrashed(files, folders);
-    return { data: true };
   } catch (error) {
-    return {
-      error: logger.error({
-        msg: 'Error while handling ITEMS_TO_TRASH event',
-        error,
-      }),
-    };
+    logger.error({
+      msg: 'Error while handling ITEMS_TO_TRASH event',
+      error,
+    });
   }
 };

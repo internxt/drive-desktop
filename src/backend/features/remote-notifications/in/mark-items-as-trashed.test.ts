@@ -16,32 +16,28 @@ describe('markItemsAsTrashed', () => {
     vi.clearAllMocks();
   });
 
+  const items = [
+    { type: 'file' as const, uuid: 'file-uuid' },
+    { type: 'folder' as const, uuid: 'folder-uuid' },
+  ];
+
   it('should update files and folders to TRASHED status', async () => {
-    const items = [
-      { type: 'file' as const, uuid: 'file-uuid' },
-      { type: 'folder' as const, uuid: 'folder-uuid' },
-    ];
     splitItemsIntoFilesAndFoldersMock.mockReturnValue({
       files: [{ type: 'file', uuid: 'file-uuid' }],
       folders: [{ type: 'folder', uuid: 'folder-uuid' }],
     });
     updateDatabaseStatusToTrashedMock.mockResolvedValueOnce(undefined);
-    const result = await markItemsAsTrashed({ items });
-    expect(result).toEqual({ data: true });
+    await markItemsAsTrashed({ items });
+    expect(updateDatabaseStatusToTrashedMock).toHaveBeenCalledTimes(1);
   });
 
   it('should log error and return error object on failure', async () => {
-    const items = [
-      { type: 'file' as const, uuid: 'file-uuid' },
-      { type: 'folder' as const, uuid: 'folder-uuid' },
-    ];
     loggerMock.error.mockReturnValue(new Error('Error while handling ITEMS_TO_TRASH event'));
     updateDatabaseStatusToTrashedMock.mockImplementationOnce(() => {
       throw new Error('Database error');
     });
 
-    const { error } = await markItemsAsTrashed({ items });
-    expect(error).toBeDefined();
+    await markItemsAsTrashed({ items });
     expect(loggerMock.error).toHaveBeenCalledWith(
       expect.objectContaining({
         msg: 'Error while handling ITEMS_TO_TRASH event',

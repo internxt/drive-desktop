@@ -18,15 +18,15 @@ describe('handleParsedNotificationEvent', () => {
     const event = mockDeep<NotificationSchema>({
       clientId: 'drive-desktop',
     });
-    const { data } = await handleParsedNotificationEvent({ event });
+    await handleParsedNotificationEvent({ event });
     expect(loggerMock.debug).toHaveBeenCalledWith({
       msg: 'Notification received',
       event: event.event,
       clientId: event.clientId,
       payload: event.payload,
     });
-    expect(data).toBe(true);
   });
+
   it('should not log debug message if clientId is not drive-desktop', async () => {
     const event = mockDeep<NotificationSchema>({
       clientId: 'drive-web',
@@ -34,6 +34,7 @@ describe('handleParsedNotificationEvent', () => {
     await handleParsedNotificationEvent({ event });
     expect(loggerMock.debug).toHaveBeenCalledTimes(0);
   });
+
   it('should call markItemsAsTrashed if event is ITEMS_TO_TRASH', async () => {
     const event = mockDeep<NotificationSchema>({
       event: 'ITEMS_TO_TRASH',
@@ -46,20 +47,20 @@ describe('handleParsedNotificationEvent', () => {
       items: event.payload,
     });
   });
+
   it('should ONLY log debug message if event is ITEMS_TO_TRASH and clientId is drive-desktop', async () => {
     const event = mockDeep<NotificationSchema>({
       event: 'ITEMS_TO_TRASH',
       clientId: 'drive-desktop',
       payload: [{ type: 'file', uuid: 'file1' }],
     });
-    const { data } = await handleParsedNotificationEvent({ event });
+    await handleParsedNotificationEvent({ event });
     expect(loggerMock.debug).toHaveBeenCalledWith({
       msg: 'Notification received',
       event: event.event,
       clientId: event.clientId,
       payload: event.payload,
     });
-    expect(data).toBe(true);
-    expect(markItemsAsTrashedMock);
+    expect(markItemsAsTrashedMock).not.toBeCalled();
   });
 });
