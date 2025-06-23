@@ -24,10 +24,17 @@ module.exports = {
     'no-empty': 'off',
     'no-throw-literal': 'error',
     'no-unused-expressions': 'off',
-    'no-use-before-define': 'warn',
+    'no-use-before-define': ['warn', { functions: false }],
     'object-shorthand': 'error',
     'require-await': 'warn',
     'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
+    'padding-line-between-statements': [
+      'warn',
+      { blankLine: 'always', prev: '*', next: 'block' },
+      { blankLine: 'always', prev: '*', next: 'class' },
+      { blankLine: 'always', prev: '*', next: 'function' },
+      { blankLine: 'always', prev: 'multiline-expression', next: 'multiline-expression' },
+    ],
   },
   parser: '@typescript-eslint/parser',
   settings: {

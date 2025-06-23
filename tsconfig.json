@@ -35,6 +35,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@/tests/*": [
+        "./tests/*"
       ]
       // "@internxt/inxt-js/build": ["../inxt-js/build"],
       // "@internxt/inxt-js/build/*": ["../inxt-js/build/*"],
