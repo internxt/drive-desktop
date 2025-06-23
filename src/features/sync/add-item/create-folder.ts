@@ -10,7 +10,7 @@ type TProps = {
 
 export async function createParentFolder({ posixRelativePath, ...props }: TProps) {
   const posixDir = PlatformPathConverter.getFatherPathPosix(posixRelativePath);
-  return await createFolder({ posixRelativePath: posixDir, ...props });
+  await createFolder({ posixRelativePath: posixDir, ...props });
 }
 
 export async function createFolder({ posixRelativePath, folderCreator }: TProps) {
@@ -21,7 +21,7 @@ export async function createFolder({ posixRelativePath, folderCreator }: TProps)
   });
 
   try {
-    return await folderCreator.run({ path: posixRelativePath });
+    await folderCreator.run({ path: posixRelativePath });
   } catch (error) {
     logger.error({
       tag: 'SYNC-ENGINE',
@@ -32,7 +32,7 @@ export async function createFolder({ posixRelativePath, folderCreator }: TProps)
 
     if (error instanceof FolderNotFoundError) {
       await createParentFolder({ posixRelativePath, folderCreator });
-      return await createFolder({ posixRelativePath, folderCreator });
+      await createFolder({ posixRelativePath, folderCreator });
     } else {
       throw logger.error({
         tag: 'SYNC-ENGINE',
