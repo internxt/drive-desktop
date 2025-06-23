@@ -22,15 +22,21 @@ backend
 
 ## Code
 
-### Use const instead of function by default
+### Use function instead of arrow functions by default
 
-By default we encourage the usage of arrow functions, since its a more flexible way of writing functions, unless it is strictly necessary the usage of functions, then it is allowed.
+We recommend always creating functions using the `function` keyword because:
+- We use the eslint `no-use-before-define` rule and we need to skip checking functions because they are hoisted (we cannot do this with arrow functions).
+
+We only use arrow functions when we want to define a function using a type.
 
 ```ts
 // bad
+const connect = () => {}
+// good
 function connect() {}
 // good
-const connect = () => {}
+type func = () => void;
+const connect: func = () => {}
 ```
 
 ### Use object props instead of multiple props
@@ -41,11 +47,11 @@ https://github.com/internxt/drive-desktop/issues/545
 
 ```ts
 // bad
-const connect = (host: string, port: number) => {}
+function connect(host: string, port: number) {}
 // good
-const connect = ({ host, port }: { host: string; port: number }) => {}
+function connect({ host, port }: { host: string; port: number }) {}
 // default parameters
-const connect = ({ host, port = 5432 }: { host: string; port?: number }) => {}
+function connect({ host, port = 5432 }: { host: string; port?: number }) {}
 ```
 
 ### Use explicit return types in functions just for primitive types
@@ -57,7 +63,7 @@ const connect = ({ host, port = 5432 }: { host: string; port?: number }) => {}
 
 ```ts
 // good
-const getAccessToken = (): Promise<string | undefined> => {
+function getAccessToken(): Promise<string | undefined> {
   return new Promise((resolve, reject) => {
     resolve('');
   });

@@ -7,7 +7,7 @@ import { QueueItem } from '@/node-win/queue/queueManager';
 export const handleAdd = (task: QueueItem) => {
   try {
     logger.debug({ msg: 'handleAdd', task });
-    const id = task.isFolder ? v4() : addInfoItem(task.path);
+    const id = task.isFolder ? (`FOLDER:${v4()}` as const) : addInfoItem(task.path);
     drive.convertToPlaceholder({
       itemPath: task.path,
       id,

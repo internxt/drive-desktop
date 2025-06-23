@@ -30,7 +30,7 @@ export const addInfoItem = (itemPath: string) => {
   const serverItemPath = join(serverPath, fileName);
   copyFileSync(itemPath, serverItemPath);
 
-  const id = v4();
+  const id = `FILE:${v4()}` as const;
   const infoItems = getInfoItems();
   infoItems[id] = serverItemPath;
 
