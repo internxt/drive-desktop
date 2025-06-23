@@ -31,14 +31,6 @@ export class InMemoryFolderRepository {
     this.folders.set(folder.id, folder.attributes());
   }
 
-  delete(id: number): void {
-    const deleted = this.folders.delete(id);
-
-    if (!deleted) {
-      throw new Error('Folder not found');
-    }
-  }
-
   update(folder: Folder): void {
     if (!this.folders.has(folder.id)) {
       throw new Error('Folder not found');

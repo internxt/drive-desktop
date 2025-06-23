@@ -28,6 +28,13 @@ module.exports = {
     'object-shorthand': 'error',
     'require-await': 'warn',
     'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
+    'padding-line-between-statements': [
+      'warn',
+      { blankLine: 'always', prev: '*', next: 'block' },
+      { blankLine: 'always', prev: '*', next: 'class' },
+      { blankLine: 'always', prev: '*', next: 'function' },
+      { blankLine: 'always', prev: 'multiline-expression', next: 'multiline-expression' },
+    ],
   },
   parser: '@typescript-eslint/parser',
   settings: {
