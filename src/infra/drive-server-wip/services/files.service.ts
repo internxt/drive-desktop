@@ -2,6 +2,7 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { client } from '@/apps/shared/HttpClient/client';
+import { getRequestKey } from '../in/get-in-flight-request';
 
 export const files = {
   getFiles,
@@ -18,138 +19,173 @@ type TCreateFileBody = paths['/files']['post']['requestBody']['content']['applic
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 async function getFiles(context: { query: TGetFilesQuery }) {
-  const promise = () =>
-    client.GET('/files', {
+  const method = 'GET';
+  const endpoint = '/files';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.GET(endpoint, {
       params: { query: context.query },
     });
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Get files request',
       context,
       attributes: {
-        method: 'GET',
-        endpoint: '/files',
+        method,
+        endpoint,
       },
     },
   });
 }
 
 async function createFile(context: { body: TCreateFileBody }) {
-  const promise = () =>
-    client.POST('/files', {
+  const method = 'POST';
+  const endpoint = '/files';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.POST(endpoint, {
       body: context.body,
     });
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Create file request',
       context,
       attributes: {
-        method: 'POST',
-        endpoint: '/files',
+        method,
+        endpoint,
       },
     },
   });
 }
 
 async function moveFile(context: { uuid: string; parentUuid: string }) {
-  const promise = () =>
-    client.PATCH('/files/{uuid}', {
+  const method = 'PATCH';
+  const endpoint = '/files/{uuid}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.PATCH(endpoint, {
       body: { destinationFolder: context.parentUuid },
       params: { path: { uuid: context.uuid } },
     });
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Move file request',
       context,
       attributes: {
-        method: 'PATCH',
-        endpoint: '/files/{uuid}',
+        method,
+        endpoint,
       },
     },
   });
 }
 
 async function renameFile(context: { uuid: string; name: string; type: string }) {
-  const promise = () =>
-    client.PUT('/files/{uuid}/meta', {
+  const method = 'PUT';
+  const endpoint = '/files/{uuid}/meta';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.PUT(endpoint, {
       body: { plainName: context.name, type: context.type },
       params: { path: { uuid: context.uuid } },
     });
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Rename file request',
       context,
       attributes: {
-        method: 'PUT',
-        endpoint: '/files/{uuid}/meta',
+        method,
+        endpoint,
       },
     },
   });
 }
 
 async function replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
-  const promise = () =>
-    client.PUT('/files/{uuid}', {
+  const method = 'PUT';
+  const endpoint = '/files/{uuid}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.PUT(endpoint, {
       body: { fileId: context.newContentId, size: context.newSize },
       params: { path: { uuid: context.uuid } },
     });
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Replace file request',
       context,
       attributes: {
-        method: 'PUT',
-        endpoint: '/files/{uuid}',
+        method,
+        endpoint,
       },
     },
   });
 }
 
 async function createThumbnail(context: { body: TCreateThumnailBody }) {
-  const promise = () =>
-    client.POST('/files/thumbnail', {
+  const method = 'POST';
+  const endpoint = '/files/thumbnail';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.POST(endpoint, {
       body: context.body,
     });
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Create thumbnail request',
       context,
       attributes: {
-        method: 'POST',
-        endpoint: '/files/thumbnail',
+        method,
+        endpoint,
       },
     },
   });
 }
 
 async function deleteContentFromBucket(context: { bucketId: string; contentId: string }) {
-  const promise = () =>
+  const method = 'DELETE';
+  const endpoint = '/files/{bucketId}/{fileId}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
     noContentWrapper({
-      request: client.DELETE('/files/{bucketId}/{fileId}', {
+      request: client.DELETE(endpoint, {
         params: { path: { bucketId: context.bucketId, fileId: context.contentId } },
       }),
     });
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Delete file content from bucket request',
       context,
       attributes: {
-        method: 'DELETE',
-        endpoint: '/files/{bucketId}/{fileId}',
+        method,
+        endpoint,
       },
     },
   });

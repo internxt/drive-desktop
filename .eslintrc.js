@@ -14,6 +14,7 @@ module.exports = {
     '@typescript-eslint/await-thenable': 'warn',
     '@typescript-eslint/ban-ts-comment': 'warn',
     '@typescript-eslint/ban-types': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
     '@typescript-eslint/no-floating-promises': 'warn',
     '@typescript-eslint/no-unused-expressions': 'error',
     'array-callback-return': 'warn',

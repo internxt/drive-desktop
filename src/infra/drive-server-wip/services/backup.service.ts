@@ -2,6 +2,7 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createDevice } from './backup/create-device';
 import { getDevice } from './backup/get-device';
+import { getRequestKey } from '../in/get-in-flight-request';
 
 export const backup = {
   getDevices,
@@ -11,35 +12,45 @@ export const backup = {
 };
 
 async function getDevices() {
-  const promise = () => client.GET('/backup/deviceAsFolder');
+  const method = 'GET';
+  const endpoint = '/backup/deviceAsFolder';
+  const key = getRequestKey({ method, endpoint });
+
+  const promiseFn = () => client.GET(endpoint);
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Get devices as folder request',
       attributes: {
-        method: 'GET',
-        endpoint: '/backup/deviceAsFolder',
+        method,
+        endpoint,
       },
     },
   });
 }
 
 async function updateDevice(context: { deviceUuid: string; deviceName: string }) {
-  const promise = () =>
-    client.PATCH('/backup/deviceAsFolder/{uuid}', {
+  const method = 'PATCH';
+  const endpoint = '/backup/deviceAsFolder/{uuid}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.PATCH(endpoint, {
       params: { path: { uuid: context.deviceUuid } },
       body: { deviceName: context.deviceName },
     });
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Update device as folder request',
       context,
       attributes: {
-        method: 'PATCH',
-        endpoint: '/backup/deviceAsFolder/{uuid}',
+        method,
+        endpoint,
       },
     },
   });

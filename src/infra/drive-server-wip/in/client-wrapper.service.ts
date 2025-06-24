@@ -3,13 +3,15 @@ import { handleRemoveErrors } from '@/infra/drive-server-wip/in/helpers/error-he
 import { errorWrapper } from './error-wrapper';
 import { sleep } from '@/apps/main/util';
 import { exceptionWrapper } from './exception-wrapper';
+import { getInFlightRequest } from './get-in-flight-request';
 
 type TValidResponse<T> = { data: NonNullable<T>; error?: undefined; response: Response };
 type TErrorResponse = { data?: undefined; error: unknown; response: Response };
 type TPromise<T> = Promise<TValidResponse<T> | TErrorResponse>;
 type TProps<T> = {
   loggerBody: TLoggerBody;
-  promise: () => TPromise<T>;
+  key: string;
+  promiseFn: () => TPromise<T>;
   sleepMs?: number;
   retry?: number;
 };
@@ -27,11 +29,13 @@ const MAX_RETRIES = 3;
  *  - Network error (we want to retry always).
  *  - Unknown error (we want to retry 3 times).
  */
-export async function clientWrapper<T>({ loggerBody, promise, sleepMs = 5_000, retry = 1 }: TProps<T>) {
+export async function clientWrapper<T>({ loggerBody, promiseFn, key, sleepMs = 5_000, retry = 1 }: TProps<T>) {
   try {
-    logger.debug({ ...loggerBody, retry });
+    const { reused, promise } = getInFlightRequest({ key, promiseFn });
 
-    const { data, error, response } = await promise();
+    logger.debug({ ...loggerBody, reused, retry });
+
+    const { data, error, response } = await promise;
 
     if (data) {
       handleRemoveErrors();
@@ -48,8 +52,9 @@ export async function clientWrapper<T>({ loggerBody, promise, sleepMs = 5_000, r
     if (driveServerWipError.code === 'SERVER') {
       await sleep(sleepMs);
       return await clientWrapper({
-        promise,
+        promiseFn,
         loggerBody,
+        key,
         sleepMs: sleepMs * 2,
         retry: retry + 1,
       });
@@ -67,8 +72,9 @@ export async function clientWrapper<T>({ loggerBody, promise, sleepMs = 5_000, r
     if (driveServerWipError.code === 'NETWORK' || retry < MAX_RETRIES) {
       await sleep(sleepMs);
       return await clientWrapper({
-        promise,
+        promiseFn,
         loggerBody,
+        key,
         sleepMs: sleepMs * 2,
         retry: retry + 1,
       });
