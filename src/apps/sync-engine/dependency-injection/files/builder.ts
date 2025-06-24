@@ -82,7 +82,6 @@ export function buildFilesContainer(
     fileCreator,
     sharedContainer.absolutePathToRelativeConverter,
     folderContainer.folderCreator,
-    folderContainer.offline.folderCreator,
     fileContentsUpdater,
     contentsContainer.contentsUploader,
   );

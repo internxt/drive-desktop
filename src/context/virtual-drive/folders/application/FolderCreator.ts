@@ -1,9 +1,17 @@
 import { Service } from 'diod';
 import { Folder } from '../domain/Folder';
-import { OfflineFolder } from '../domain/OfflineFolder';
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 import VirtualDrive from '@/node-win/virtual-drive';
+import { posix } from 'path';
+import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
+import { getConfig } from '@/apps/sync-engine/config';
+import { NodeWin } from '@/infra/node-win/node-win.module';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
+
+type TProps = {
+  path: string;
+};
 
 @Service()
 export class FolderCreator {
@@ -13,11 +21,22 @@ export class FolderCreator {
     private readonly virtualDrive: VirtualDrive,
   ) {}
 
-  async run(offlineFolder: OfflineFolder): Promise<Folder> {
+  async run({ path }: TProps): Promise<Folder> {
+    const posixDir = PlatformPathConverter.getFatherPathPosix(path);
+    const { data: parentUuid } = NodeWin.getFolderUuid({
+      drive: this.virtualDrive,
+      rootUuid: getConfig().rootUuid,
+      path: posixDir,
+    });
+
+    if (!parentUuid) {
+      throw new FolderNotFoundError(posixDir);
+    }
+
     const attributes = await this.remote.persist({
-      parentUuid: offlineFolder.parentUuid,
-      basename: offlineFolder.basename,
-      path: offlineFolder.path.value,
+      parentUuid,
+      basename: posix.basename(path),
+      path,
     });
 
     const folder = Folder.from(attributes);
