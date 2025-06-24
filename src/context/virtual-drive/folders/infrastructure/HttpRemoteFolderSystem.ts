@@ -3,6 +3,7 @@ import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+
 @Service()
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId?: string) {}
@@ -35,7 +36,7 @@ export class HttpRemoteFolderSystem {
         createdAt: data.createdAt,
         status: FolderStatuses.EXISTS,
       };
-    } catch (error: unknown) {
+    } catch (exc) {
       const existing = await this.existFolder(offline);
 
       if (existing.status !== FolderStatuses.EXISTS) {
@@ -44,7 +45,7 @@ export class HttpRemoteFolderSystem {
           msg: 'Error creating folder',
           basename: offline.basename,
           parentUuid: offline.parentUuid,
-          exc: error,
+          exc,
         });
       }
 
@@ -53,17 +54,15 @@ export class HttpRemoteFolderSystem {
   }
 
   private async existFolder(offline: { parentUuid: string; basename: string; path: string }): Promise<FolderAttributes> {
-    const { data, error } = await driveServerWip.folders.existsFolder({ parentUuid: offline.parentUuid, basename: offline.basename });
+    const { data, error } = await driveServerWip.folders.existsFolder({
+      parentUuid: offline.parentUuid,
+      basename: offline.basename,
+    });
     if (!data) throw error;
     return {
       ...data.existentFolders[0],
       path: offline.path,
     };
-  }
-
-  async trash(folder: Folder): Promise<void> {
-    const { error } = await driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
-    if (error) throw error;
   }
 
   async getFolderMetadata(folder: Folder) {
