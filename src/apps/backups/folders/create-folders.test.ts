@@ -6,6 +6,8 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+
 describe('create-folders', () => {
   const createFolderMock = deepMocked(driveServerWip.folders.createFolder);
 

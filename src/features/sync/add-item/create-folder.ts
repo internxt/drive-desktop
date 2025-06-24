@@ -23,20 +23,14 @@ export async function createFolder({ posixRelativePath, folderCreator }: TProps)
   try {
     await folderCreator.run({ path: posixRelativePath });
   } catch (error) {
-    logger.error({
-      tag: 'SYNC-ENGINE',
-      msg: 'Error creating folder',
-      posixRelativePath,
-      error,
-    });
-
     if (error instanceof FolderNotFoundError) {
       await createParentFolder({ posixRelativePath, folderCreator });
       await createFolder({ posixRelativePath, folderCreator });
     } else {
       throw logger.error({
         tag: 'SYNC-ENGINE',
-        msg: 'Error creating folder inside catch',
+        msg: 'Error creating folder',
+        posixRelativePath,
         error,
       });
     }

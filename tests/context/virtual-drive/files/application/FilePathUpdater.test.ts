@@ -8,6 +8,8 @@ import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastruc
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+
 describe('File path updater', () => {
   const repository = mockDeep<InMemoryFileRepository>();
   const folderFinder = mockDeep<FolderFinder>();

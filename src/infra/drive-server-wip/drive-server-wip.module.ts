@@ -1,23 +1,18 @@
-import { AuthService } from './services/auth.service';
-import { BackupService } from './services/backup.service';
-import { FilesService } from './services/files.service';
-import { FoldersService } from './services/folders.service';
-import { StorageService } from './services/storage.service';
-import { UserService } from './services/user.service';
+import * as auth from './services/auth.service';
+import * as backup from './services/backup.service';
+import * as storage from './services/storage.service';
+import * as user from './services/user.service';
 import * as workspaces from './services/workspaces.service';
+import * as files from './services/files.service';
+import * as folders from './services/folders.service';
 
-export class DriveServerWipModule {
-  public workspaces = workspaces;
-
-  constructor(
-    public auth = new AuthService(),
-    public backup = new BackupService(),
-    public files = new FilesService(),
-    public folders = new FoldersService(),
-    public storage = new StorageService(),
-    public user = new UserService(),
-  ) {}
-}
-
-export const driveServerWipModule = new DriveServerWipModule();
-export const driveServerWip = driveServerWipModule;
+export const driveServerWip = {
+  workspaces,
+  auth,
+  backup,
+  files,
+  folders,
+  storage,
+  user,
+};
+export const driveServerWipModule = driveServerWip;

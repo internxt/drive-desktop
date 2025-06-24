@@ -6,6 +6,8 @@ import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infras
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+
 describe('Folder deleter', () => {
   const repository = mockDeep<InMemoryFolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);

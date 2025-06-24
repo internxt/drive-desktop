@@ -1,72 +1,69 @@
 import { authClient } from '@/apps/shared/HttpClient/auth-client';
-import { getHeaders } from '@/apps/shared/HttpClient/client';
-import { loggerService } from '@/apps/shared/logger/logger';
+import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { HEADERS } from '@/apps/main/auth/headers';
 
-export class AuthService {
-  constructor(private readonly logger = loggerService) {}
-
-  async access({ email, password, tfa }: { email: string; password: string; tfa?: string }) {
-    const res = await authClient.POST('/auth/login/access', {
+export async function access({ email, password, tfa }: { email: string; password: string; tfa?: string }) {
+  const promise = () =>
+    authClient.POST('/auth/login/access', {
       body: { email, password, tfa },
       headers: HEADERS,
     });
 
-    if (!res.data) {
-      throw this.logger.error({
-        msg: 'Access request',
-        error: res.error,
-        context: {
-          email,
-        },
-        attributes: {
-          tag: 'AUTH',
-          endpoint: '/auth/login/access',
-        },
-      });
-    }
+  const { data, error } = await clientWrapper({
+    promise,
+    sleepMs: 1_000,
+    loggerBody: {
+      msg: 'Access request',
+      context: {
+        email,
+      },
+      attributes: {
+        tag: 'AUTH',
+        endpoint: '/auth/login/access',
+      },
+    },
+  });
 
-    return res.data;
-  }
+  if (error) throw error;
+  return data;
+}
 
-  async login({ email }: { email: string }) {
-    const res = await authClient.POST('/auth/login', {
-      body: { email },
+export async function login(context: { email: string }) {
+  const promise = () =>
+    authClient.POST('/auth/login', {
+      body: { email: context.email },
       headers: HEADERS,
     });
 
-    if (!res.data) {
-      throw this.logger.error({
-        msg: 'Login request',
-        error: res.error,
-        context: {
-          email,
-        },
-        attributes: {
-          tag: 'AUTH',
-          endpoint: '/auth/login',
-        },
-      });
-    }
-
-    return res.data;
-  }
-
-  async refresh() {
-    const promise = authClient.GET('/users/refresh', {
-      headers: await getHeaders(),
-    });
-
-    return clientWrapper({
-      promise: () => promise,
-      loggerBody: {
-        msg: 'Refresh request',
-        attributes: {
-          tag: 'AUTH',
-          endpoint: '/users/refresh',
-        },
+  const { data, error } = await clientWrapper({
+    promise,
+    sleepMs: 1_000,
+    loggerBody: {
+      msg: 'Login request',
+      context,
+      attributes: {
+        tag: 'AUTH',
+        endpoint: '/auth/login',
       },
-    });
-  }
+    },
+  });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function refresh() {
+  const promise = () => client.GET('/users/refresh');
+
+  return await clientWrapper({
+    promise,
+    loggerBody: {
+      msg: 'Refresh request',
+      attributes: {
+        tag: 'AUTH',
+        endpoint: '/users/refresh',
+      },
+    },
+  });
 }
