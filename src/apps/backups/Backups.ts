@@ -13,7 +13,6 @@ import { DangledFilesService } from './dangled-files/DangledFilesService';
 import { RemoteTree, Traverser } from './remote-tree/traverser';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
-import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 import { calculateFilesDiff, FilesDiff } from './diff/calculate-files-diff';
 import { calculateFoldersDiff, FoldersDiff } from './diff/calculate-folders-diff';
 import { createFolders } from './folders/create-folders';
@@ -188,16 +187,7 @@ export class Backup {
         return;
       }
 
-      const promise = () => driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
-      const { error } = await retryWrapper({
-        promise,
-        loggerBody: {
-          tag: 'BACKUPS',
-          msg: 'Retry deleting folder',
-        },
-      });
-
-      if (error) throw error;
+      await driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
     }
   }
 }

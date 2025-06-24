@@ -7,7 +7,6 @@ import { Service } from 'diod';
 import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 
 @Service()
 export class FolderDeleter {
@@ -41,14 +40,7 @@ export class FolderDeleter {
 
       folder.trash();
 
-      const promise = () => driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
-      const { error } = await retryWrapper({
-        promise,
-        loggerBody: {
-          tag: 'SYNC-ENGINE',
-          msg: 'Retry deleting folder',
-        },
-      });
+      const { error } = await driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
 
       if (error) throw error;
 
