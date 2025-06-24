@@ -1,4 +1,4 @@
-export type TBody = {
+type TBody = {
   msg: string;
   [key: string]: unknown;
 };

@@ -4,7 +4,7 @@ type FilePlaceholderIdPrefixType = 'FILE:';
 
 type FilePlaceholderId = `${FilePlaceholderIdPrefixType}${string}`;
 
-export type TFetchDataCallback = (
+type TFetchDataCallback = (
   id: FilePlaceholderId,
   callback: (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>,
 ) => void;
