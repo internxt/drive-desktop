@@ -3,7 +3,13 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { HEADERS } from '@/apps/main/auth/headers';
 
-export async function access({ email, password, tfa }: { email: string; password: string; tfa?: string }) {
+export const auth = {
+  access,
+  login,
+  refresh,
+};
+
+async function access({ email, password, tfa }: { email: string; password: string; tfa?: string }) {
   const promise = () =>
     authClient.POST('/auth/login/access', {
       body: { email, password, tfa },
@@ -29,7 +35,7 @@ export async function access({ email, password, tfa }: { email: string; password
   return data;
 }
 
-export async function login(context: { email: string }) {
+async function login(context: { email: string }) {
   const promise = () =>
     authClient.POST('/auth/login', {
       body: { email: context.email },
@@ -53,7 +59,7 @@ export async function login(context: { email: string }) {
   return data;
 }
 
-export async function refresh() {
+async function refresh() {
   const promise = () => client.GET('/users/refresh');
 
   return await clientWrapper({

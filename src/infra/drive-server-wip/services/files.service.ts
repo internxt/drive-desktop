@@ -3,11 +3,21 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { client } from '@/apps/shared/HttpClient/client';
 
+export const files = {
+  getFiles,
+  createFile,
+  moveFile,
+  renameFile,
+  replaceFile,
+  createThumbnail,
+  deleteContentFromBucket,
+};
+
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
-export async function getFiles(context: { query: TGetFilesQuery }) {
+async function getFiles(context: { query: TGetFilesQuery }) {
   const promise = () =>
     client.GET('/files', {
       params: { query: context.query },
@@ -26,7 +36,7 @@ export async function getFiles(context: { query: TGetFilesQuery }) {
   });
 }
 
-export async function createFile(context: { body: TCreateFileBody }) {
+async function createFile(context: { body: TCreateFileBody }) {
   const promise = () =>
     client.POST('/files', {
       body: context.body,
@@ -45,7 +55,7 @@ export async function createFile(context: { body: TCreateFileBody }) {
   });
 }
 
-export async function moveFile(context: { uuid: string; parentUuid: string }) {
+async function moveFile(context: { uuid: string; parentUuid: string }) {
   const promise = () =>
     client.PATCH('/files/{uuid}', {
       body: { destinationFolder: context.parentUuid },
@@ -65,7 +75,7 @@ export async function moveFile(context: { uuid: string; parentUuid: string }) {
   });
 }
 
-export async function renameFile(context: { uuid: string; name: string; type: string }) {
+async function renameFile(context: { uuid: string; name: string; type: string }) {
   const promise = () =>
     client.PUT('/files/{uuid}/meta', {
       body: { plainName: context.name, type: context.type },
@@ -85,7 +95,7 @@ export async function renameFile(context: { uuid: string; name: string; type: st
   });
 }
 
-export async function replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
+async function replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
   const promise = () =>
     client.PUT('/files/{uuid}', {
       body: { fileId: context.newContentId, size: context.newSize },
@@ -105,7 +115,7 @@ export async function replaceFile(context: { uuid: string; newContentId: string;
   });
 }
 
-export async function createThumbnail(context: { body: TCreateThumnailBody }) {
+async function createThumbnail(context: { body: TCreateThumnailBody }) {
   const promise = () =>
     client.POST('/files/thumbnail', {
       body: context.body,
@@ -124,7 +134,7 @@ export async function createThumbnail(context: { body: TCreateThumnailBody }) {
   });
 }
 
-export async function deleteContentFromBucket(context: { bucketId: string; contentId: string }) {
+async function deleteContentFromBucket(context: { bucketId: string; contentId: string }) {
   const promise = () =>
     noContentWrapper({
       request: client.DELETE('/files/{bucketId}/{fileId}', {

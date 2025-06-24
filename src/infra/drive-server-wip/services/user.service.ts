@@ -1,7 +1,12 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '@/infra/drive-server-wip/in/client-wrapper.service';
 
-export async function getUsage() {
+export const user = {
+  getUsage,
+  getLimit,
+};
+
+async function getUsage() {
   const promise = () => client.GET('/users/usage');
 
   return await clientWrapper({
@@ -16,7 +21,7 @@ export async function getUsage() {
   });
 }
 
-export async function getLimit() {
+async function getLimit() {
   const promise = () => client.GET('/users/limit');
 
   return await clientWrapper({

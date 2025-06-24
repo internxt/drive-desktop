@@ -3,13 +3,23 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
 
+export const folders = {
+  createFolder,
+  getMetadata,
+  getMetadataWithUuid,
+  getFolders,
+  getFoldersByFolder,
+  getFilesByFolder,
+  moveFolder,
+  renameFolder,
+  existsFolder,
+};
+
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
 type TGetFilesByFolderQuery = paths['/folders/content/{uuid}/files']['get']['parameters']['query'];
 
-export { createFolder };
-
-export async function getMetadata(context: { folderId: number }) {
+async function getMetadata(context: { folderId: number }) {
   const promise = () =>
     client.GET('/folders/{id}/metadata', {
       params: { path: { id: context.folderId } },
@@ -28,7 +38,7 @@ export async function getMetadata(context: { folderId: number }) {
   });
 }
 
-export async function getMetadataWithUuid(context: { uuid: string }) {
+async function getMetadataWithUuid(context: { uuid: string }) {
   const promise = () =>
     client.GET('/folders/{uuid}/meta', {
       params: { path: { uuid: context.uuid } },
@@ -47,7 +57,7 @@ export async function getMetadataWithUuid(context: { uuid: string }) {
   });
 }
 
-export async function getFolders(context: { query: TGetFoldersQuery }) {
+async function getFolders(context: { query: TGetFoldersQuery }) {
   const promise = () => client.GET('/folders', { params: { query: context.query } });
 
   return await clientWrapper({
@@ -63,7 +73,7 @@ export async function getFolders(context: { query: TGetFoldersQuery }) {
   });
 }
 
-export async function getFoldersByFolder(context: { folderUuid: string; query: TGetFoldersByFolderQuery }) {
+async function getFoldersByFolder(context: { folderUuid: string; query: TGetFoldersByFolderQuery }) {
   const promise = () =>
     client.GET('/folders/content/{uuid}/folders', {
       params: { path: { uuid: context.folderUuid }, query: context.query },
@@ -88,7 +98,7 @@ export async function getFoldersByFolder(context: { folderUuid: string; query: T
   }
 }
 
-export async function getFilesByFolder(context: { folderUuid: string; query: TGetFilesByFolderQuery }) {
+async function getFilesByFolder(context: { folderUuid: string; query: TGetFilesByFolderQuery }) {
   const promise = () =>
     client.GET('/folders/content/{uuid}/files', {
       params: { path: { uuid: context.folderUuid }, query: context.query },
@@ -113,7 +123,7 @@ export async function getFilesByFolder(context: { folderUuid: string; query: TGe
   }
 }
 
-export async function moveFolder(context: { uuid: string; parentUuid: string }) {
+async function moveFolder(context: { uuid: string; parentUuid: string }) {
   const promise = () =>
     client.PATCH('/folders/{uuid}', {
       params: { path: { uuid: context.uuid } },
@@ -133,7 +143,7 @@ export async function moveFolder(context: { uuid: string; parentUuid: string }) 
   });
 }
 
-export async function renameFolder(context: { uuid: string; plainName: string }) {
+async function renameFolder(context: { uuid: string; plainName: string }) {
   const promise = () =>
     client.PUT('/folders/{uuid}/meta', {
       params: { path: { uuid: context.uuid } },
@@ -153,7 +163,7 @@ export async function renameFolder(context: { uuid: string; plainName: string })
   });
 }
 
-export async function existsFolder(context: { parentUuid: string; basename: string }) {
+async function existsFolder(context: { parentUuid: string; basename: string }) {
   const promise = () =>
     client.POST('/folders/content/{uuid}/folders/existence', {
       params: { path: { uuid: context.parentUuid } },

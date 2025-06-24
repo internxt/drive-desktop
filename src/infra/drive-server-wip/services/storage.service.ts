@@ -2,7 +2,14 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { clientWrapper } from '../in/client-wrapper.service';
 
-export async function deleteFile(context: { fileId: string }) {
+export const storage = {
+  deleteFile,
+  deleteFolder,
+  deleteFileByUuid,
+  deleteFolderByUuid,
+};
+
+async function deleteFile(context: { fileId: string }) {
   const promise = () =>
     noContentWrapper({
       request: client.DELETE('/storage/trash/file/{fileId}', {
@@ -23,7 +30,7 @@ export async function deleteFile(context: { fileId: string }) {
   });
 }
 
-export async function deleteFolder(context: { folderId: number }) {
+async function deleteFolder(context: { folderId: number }) {
   const promise = () =>
     noContentWrapper({
       request: client.DELETE('/storage/trash/folder/{folderId}', {
@@ -44,7 +51,7 @@ export async function deleteFolder(context: { folderId: number }) {
   });
 }
 
-export async function deleteFileByUuid(context: { uuid: string; workspaceToken: string }) {
+async function deleteFileByUuid(context: { uuid: string; workspaceToken: string }) {
   const promise = () =>
     noContentWrapper({
       request: client.POST('/storage/trash/add', {
@@ -66,7 +73,7 @@ export async function deleteFileByUuid(context: { uuid: string; workspaceToken: 
   });
 }
 
-export async function deleteFolderByUuid(context: { uuid: string }) {
+async function deleteFolderByUuid(context: { uuid: string }) {
   const promise = () =>
     noContentWrapper({
       request: client.POST('/storage/trash/add', {

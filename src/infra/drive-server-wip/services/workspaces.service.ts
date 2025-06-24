@@ -7,7 +7,16 @@ type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']
 type CreateFileInWorkspaceBody = paths['/workspaces/{workspaceId}/files']['post']['requestBody']['content']['application/json'];
 type CreateFolderInWorkspaceBody = paths['/workspaces/{workspaceId}/folders']['post']['requestBody']['content']['application/json'];
 
-export async function getWorkspaces() {
+export const workspaces = {
+  getWorkspaces,
+  getCredentials,
+  getFilesInWorkspace,
+  getFoldersInWorkspace,
+  createFileInWorkspace,
+  createFolderInWorkspace,
+};
+
+async function getWorkspaces() {
   const promise = () => client.GET('/workspaces');
 
   return await clientWrapper({
@@ -22,7 +31,7 @@ export async function getWorkspaces() {
   });
 }
 
-export async function getCredentials(context: { workspaceId: string }) {
+async function getCredentials(context: { workspaceId: string }) {
   const promise = () =>
     client.GET('/workspaces/{workspaceId}/credentials', {
       params: { path: { workspaceId: context.workspaceId } },
@@ -41,7 +50,7 @@ export async function getCredentials(context: { workspaceId: string }) {
   });
 }
 
-export async function getFilesInWorkspace(context: { workspaceId: string; query: QueryFilesInWorkspace }) {
+async function getFilesInWorkspace(context: { workspaceId: string; query: QueryFilesInWorkspace }) {
   const promise = () =>
     client.GET('/workspaces/{workspaceId}/files', {
       params: {
@@ -63,7 +72,7 @@ export async function getFilesInWorkspace(context: { workspaceId: string; query:
   });
 }
 
-export async function getFoldersInWorkspace(context: { workspaceId: string; query: QueryFoldersInWorkspace }) {
+async function getFoldersInWorkspace(context: { workspaceId: string; query: QueryFoldersInWorkspace }) {
   const promise = () =>
     client.GET('/workspaces/{workspaceId}/folders', {
       params: {
@@ -85,7 +94,7 @@ export async function getFoldersInWorkspace(context: { workspaceId: string; quer
   });
 }
 
-export async function createFileInWorkspace(context: { workspaceId: string; body: CreateFileInWorkspaceBody }) {
+async function createFileInWorkspace(context: { workspaceId: string; body: CreateFileInWorkspaceBody }) {
   const promise = () =>
     client.POST('/workspaces/{workspaceId}/files', {
       params: { path: { workspaceId: context.workspaceId } },
@@ -105,7 +114,7 @@ export async function createFileInWorkspace(context: { workspaceId: string; body
   });
 }
 
-export async function createFolderInWorkspace(context: { workspaceId: string; body: CreateFolderInWorkspaceBody }) {
+async function createFolderInWorkspace(context: { workspaceId: string; body: CreateFolderInWorkspaceBody }) {
   const promise = () =>
     client.POST('/workspaces/{workspaceId}/folders', {
       params: { path: { workspaceId: context.workspaceId } },

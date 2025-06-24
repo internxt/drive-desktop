@@ -3,9 +3,14 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { createDevice } from './backup/create-device';
 import { getDevice } from './backup/get-device';
 
-export { getDevice, createDevice };
+export const backup = {
+  getDevices,
+  updateDevice,
+  getDevice,
+  createDevice,
+};
 
-export async function getDevices() {
+async function getDevices() {
   const promise = () => client.GET('/backup/deviceAsFolder');
 
   return await clientWrapper({
@@ -20,7 +25,7 @@ export async function getDevices() {
   });
 }
 
-export async function updateDevice(context: { deviceUuid: string; deviceName: string }) {
+async function updateDevice(context: { deviceUuid: string; deviceName: string }) {
   const promise = () =>
     client.PATCH('/backup/deviceAsFolder/{uuid}', {
       params: { path: { uuid: context.deviceUuid } },
