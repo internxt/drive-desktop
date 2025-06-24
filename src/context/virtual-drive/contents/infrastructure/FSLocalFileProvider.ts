@@ -34,22 +34,35 @@ export class FSLocalFileProvider {
           });
 
           readable.on('error', (err: NodeJS.ErrnoException) => {
-            if (err.code === 'EBUSY' && retriesLeft > 0 && !isResolved) {
+            const busyErrorCodes = ['EBUSY', 'EPERM', 'EACCES', 'ENOENT'];
+            const isBusyError =
+              busyErrorCodes.includes(err.code || '') || err.message.includes('busy') || err.message.includes('access denied');
+
+            if (isBusyError && retriesLeft > 0 && !isResolved) {
               Logger.debug(
-                `File is busy, will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
+                `File is busy (${err.code || 'UNKNOWN'}), will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
               );
               setTimeout(async () => {
-                await attemptRead();
-                // TODO: perhaps, we should reject here when isResolved is false
-                resolve();
+                try {
+                  await attemptRead();
+                  resolve();
+                } catch (retryError) {
+                  reject(retryError);
+                }
               }, FSLocalFileProvider.TIMEOUT_BUSY_CHECK);
             } else {
+              Logger.error(`File read error: ${err.code || 'UNKNOWN'} - ${err.message}`, {
+                filePath,
+                syscall: err.syscall,
+                path: err.path,
+                retriesLeft,
+              });
               reject(err);
             }
           });
         });
       } catch (error) {
-        Logger.error(`Error reading file: ${error}`);
+        Logger.error(`Error reading file: ${error}`, { filePath });
         throw error;
       }
     };
@@ -75,6 +88,15 @@ export class FSLocalFileProvider {
     await this.untilIsNotBusy(filePath);
     const readStream = createReadStream(filePath);
     const controller = new AbortController();
+
+    readStream.on('error', (err: NodeJS.ErrnoException) => {
+      Logger.error(`Stream read error: ${err.code || 'UNKNOWN'} - ${err.message}`, {
+        filePath,
+        syscall: err.syscall,
+        path: err.path,
+      });
+      controller.abort();
+    });
 
     this.reading.set(filePath, controller);
 
