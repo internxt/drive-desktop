@@ -26,7 +26,7 @@ describe('client-wrapper', () => {
   it('If promise returns data, then return data', async () => {
     // Given
     const props = mockProps<typeof clientWrapper>({
-      promise: () => Promise.resolve({ data: 'data', response }),
+      promiseFn: () => Promise.resolve({ data: 'data', response }),
     });
 
     // When
@@ -44,7 +44,7 @@ describe('client-wrapper', () => {
     errorWrapperMock.mockReturnValueOnce(driveServerWipError);
 
     const props = mockProps<typeof clientWrapper>({
-      promise: () => Promise.resolve({ error: 'error', response }),
+      promiseFn: () => Promise.resolve({ error: 'error', response }),
     });
 
     // When
@@ -63,7 +63,7 @@ describe('client-wrapper', () => {
     exceptionWrapperMock.mockReturnValue(driveServerWipError);
 
     const props = mockProps<typeof clientWrapper>({
-      promise: () => Promise.reject(),
+      promiseFn: () => Promise.reject(),
     });
 
     // When
@@ -84,7 +84,7 @@ describe('client-wrapper', () => {
 
     let i = 0;
     const props = mockProps<typeof clientWrapper>({
-      promise: () =>
+      promiseFn: () =>
         new Promise((resolve) => {
           i += 1;
           if (i === 1) resolve({ error: 'error', response });
@@ -111,7 +111,7 @@ describe('client-wrapper', () => {
 
     let i = 0;
     const props = mockProps<typeof clientWrapper>({
-      promise: () =>
+      promiseFn: () =>
         new Promise((resolve, reject) => {
           i += 1;
           if (i === 1) reject();
