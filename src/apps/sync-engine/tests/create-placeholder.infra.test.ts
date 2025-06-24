@@ -19,6 +19,7 @@ import { mockDeep } from 'vitest-mock-extended';
 vi.mock(import('../ipcRendererSyncEngine'));
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/context/virtual-drive/contents/infrastructure/upload/EnvironmentContentFileUploader'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('create-placeholder', () => {
   const invokeMock = deepMocked(ipcRendererSyncEngine.invoke);

@@ -4,9 +4,9 @@ import ElectronLog from 'electron-log';
 import { paths } from '../HttpClient/schema';
 
 type TTag = 'AUTH' | 'BACKUPS' | 'SYNC-ENGINE' | 'ANTIVIRUS' | 'NODE-WIN';
+type TLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal';
 
 export type TLoggerBody = {
-  process?: 'main' | 'renderer';
   tag?: TTag;
   msg: string;
   workspaceId?: string;
@@ -21,13 +21,58 @@ export type TLoggerBody = {
   [key: string]: unknown;
 };
 
+function getLevelStr(level: TLevel): string {
+  switch (level) {
+    case 'debug':
+      return ' ';
+    case 'warn':
+      return 'w';
+    case 'error':
+      return 'E';
+    case 'fatal':
+      return 'F';
+    case 'info':
+      return 'I';
+  }
+}
+
+function getProcessStr(): string {
+  switch (process.type) {
+    case 'browser':
+      return 'b';
+    case 'renderer':
+      return 'r';
+    case 'worker':
+      return 'w';
+    case 'utility':
+      return 'u';
+  }
+}
+
+function getTagStr(tag?: TTag): string {
+  switch (tag) {
+    case 'AUTH':
+      return 'auth';
+    case 'BACKUPS':
+      return 'back';
+    case 'SYNC-ENGINE':
+      return 'sync';
+    case 'ANTIVIRUS':
+      return 'anti';
+    case 'NODE-WIN':
+      return 'sync';
+    default:
+      return '    ';
+  }
+}
+
 export class LoggerService {
-  private prepareBody(level: 'debug' | 'info' | 'warn' | 'error' | 'fatal', rawBody: TLoggerBody) {
+  private prepareBody(level: TLevel, rawBody: TLoggerBody) {
     const user = getUser();
 
     const { tag, msg, workspaceId, ...rest1 } = rawBody;
 
-    const header = `${level.padEnd(5)} - ${process.type.padEnd(8)} - ${(tag ?? '').padEnd(11)}`;
+    const header = `${getLevelStr(level)} - ${getProcessStr()} - ${getTagStr(tag)}`;
 
     rawBody = {
       header,
@@ -81,4 +126,3 @@ export class LoggerService {
 }
 
 export const logger = new LoggerService();
-export const loggerService = logger;

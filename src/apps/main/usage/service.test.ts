@@ -2,6 +2,8 @@ import { DriveServerWipError } from '@/infra/drive-server-wip/out/error.types';
 import { calculateUsage } from './service';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+
 describe('UserUsageService', () => {
   const getUsageMock = vi.mocked(driveServerWip.user.getUsage);
   const getLimitMock = vi.mocked(driveServerWip.user.getLimit);

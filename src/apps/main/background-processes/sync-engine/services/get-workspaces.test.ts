@@ -4,6 +4,7 @@ import { getWorkspaces } from './get-workspaces';
 import { PATHS } from '@/core/electron/paths';
 
 vi.mock(import('@/apps/main/util'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('get-workspaces', () => {
   const getWorkspacesMock = deepMocked(driveServerWipModule.workspaces.getWorkspaces);

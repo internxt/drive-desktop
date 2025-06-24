@@ -3,6 +3,8 @@ import { deleteRemoteFiles } from './delete-remote-files';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { FileMother } from 'tests/context/virtual-drive/files/domain/FileMother';
 
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+
 describe('delete-remote-files', () => {
   const deleteFileByUuidMock = vi.mocked(driveServerWip.storage.deleteFileByUuid);
 

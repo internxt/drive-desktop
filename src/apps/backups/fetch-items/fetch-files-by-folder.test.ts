@@ -3,6 +3,7 @@ import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
 
 vi.mock(import('@/apps/main/util'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('fetch-files-by-folder', () => {
   const getFilesByFolderMock = deepMocked(driveServerWip.folders.getFilesByFolder);

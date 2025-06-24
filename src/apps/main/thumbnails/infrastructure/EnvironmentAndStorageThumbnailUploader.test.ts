@@ -6,7 +6,9 @@ import { deepMocked } from '../../../../../tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
+
 vi.mock('@internxt/inxt-js/build');
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('EnvironmentAndStorageThumbnailUploader', () => {
   const createThumbnailMock = deepMocked(driveServerWipModule.files.createThumbnail);

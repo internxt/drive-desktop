@@ -10,6 +10,7 @@ import { TWorkerConfig } from '../../background-processes/sync-engine/store';
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('../../auth/service'));
 vi.mock(import('./sync-remote-folder'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('sync-remote-folders.service', () => {
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
