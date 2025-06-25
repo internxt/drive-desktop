@@ -89,7 +89,7 @@ async function getFolders(context: { query: TGetFoldersQuery }) {
   });
 }
 
-async function getFoldersByFolder(context: { folderUuid: string; query: TGetFoldersByFolderQuery }) {
+async function getFoldersByFolder(context: { folderUuid: string; query: TGetFoldersByFolderQuery }, extra?: { abortSignal: AbortSignal }) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/folders';
   const key = getRequestKey({ method, endpoint, context });
@@ -97,6 +97,7 @@ async function getFoldersByFolder(context: { folderUuid: string; query: TGetFold
   const promiseFn = () =>
     client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
+      signal: extra?.abortSignal,
     });
 
   const res = await clientWrapper({
@@ -119,7 +120,7 @@ async function getFoldersByFolder(context: { folderUuid: string; query: TGetFold
   }
 }
 
-async function getFilesByFolder(context: { folderUuid: string; query: TGetFilesByFolderQuery }) {
+async function getFilesByFolder(context: { folderUuid: string; query: TGetFilesByFolderQuery }, extra?: { abortSignal: AbortSignal }) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/files';
   const key = getRequestKey({ method, endpoint, context });
@@ -127,6 +128,7 @@ async function getFilesByFolder(context: { folderUuid: string; query: TGetFilesB
   const promiseFn = () =>
     client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
+      signal: extra?.abortSignal,
     });
 
   const res = await clientWrapper({

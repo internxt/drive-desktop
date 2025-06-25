@@ -61,6 +61,25 @@ describe('client-wrapper', () => {
     expect(handleRemoveErrorsMock).toBeCalledTimes(0);
   });
 
+  it('If promise throws exception and is abort error, then return error', async () => {
+    // Given
+    const driveServerWipError = new DriveServerWipError('ABORTED', 'cause');
+    exceptionWrapperMock.mockReturnValue(driveServerWipError);
+
+    const props = mockProps<typeof clientWrapper>({
+      promiseFn: () => Promise.reject(),
+    });
+
+    // When
+    const { data, error } = await clientWrapper(props);
+
+    // Then
+    expect(data).toStrictEqual(undefined);
+    expect(error).toStrictEqual(driveServerWipError);
+    expect(sleepMock).toBeCalledTimes(0);
+    expect(handleRemoveErrorsMock).toBeCalledTimes(0);
+  });
+
   it('If promise throws exception and is not network error, then retry 3 times', async () => {
     // Given
     const driveServerWipError = new DriveServerWipError('UNKNOWN', 'cause');
