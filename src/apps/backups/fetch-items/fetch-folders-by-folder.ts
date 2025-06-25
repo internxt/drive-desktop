@@ -22,17 +22,23 @@ export async function fetchFoldersByFolder({ folderUuid, allFolders, abortSignal
       offset,
     });
 
-    const { data, error } = await driveServerWip.folders.getFoldersByFolder({
-      folderUuid,
-      query: {
-        limit: FETCH_LIMIT,
-        offset,
-        sort: 'updatedAt',
-        order: 'DESC',
+    const { data, error } = await driveServerWip.folders.getFoldersByFolder(
+      {
+        folderUuid,
+        query: {
+          limit: FETCH_LIMIT,
+          offset,
+          sort: 'updatedAt',
+          order: 'DESC',
+        },
       },
-    });
+      { abortSignal },
+    );
 
-    if (!data) throw error;
+    if (error) {
+      if (error.code === 'ABORTED') return { newFolders };
+      throw error;
+    }
 
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;

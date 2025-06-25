@@ -75,6 +75,10 @@ export function isServerError({ response: { status } }: { response: Response }):
   return status >= 500 && status < 600;
 }
 
+export function isAbortError({ exc }: { exc: unknown }): boolean {
+  return exc instanceof DOMException && exc.name === 'AbortError';
+}
+
 export function handleRemoveErrors() {
   removeGeneralIssue(serverErrorIssue);
   removeGeneralIssue(networkErrorIssue);

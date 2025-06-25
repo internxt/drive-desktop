@@ -64,6 +64,10 @@ export async function clientWrapper<T>({ loggerBody, promiseFn, key, sleepMs = 5
   } catch (exc) {
     const driveServerWipError = exceptionWrapper({ loggerBody, exc, retry });
 
+    if (driveServerWipError.code === 'ABORTED') {
+      return { error: driveServerWipError };
+    }
+
     /**
      * v2.5.5 Daniel Jiménez
      * When we have a network error the fault is not in our side, so we want to retry always.
