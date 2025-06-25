@@ -252,7 +252,7 @@ describe('Watcher', () => {
       // Act
       await sleep(50);
       execSync(`attrib +P ${file}`);
-      await sleep(50);
+      await sleep(100);
 
       // Assert
       expect(getEvents()).toStrictEqual(
@@ -274,7 +274,7 @@ describe('Watcher', () => {
       // Act
       await sleep(50);
       execSync(`attrib +P ${folder}`);
-      await sleep(50);
+      await sleep(100);
 
       // Assert
       expect(getEvents()).toStrictEqual(
