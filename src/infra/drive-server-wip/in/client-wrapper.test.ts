@@ -5,22 +5,26 @@ import { errorWrapper } from './error-wrapper';
 import { DriveServerWipError } from '../out/error.types';
 import { sleep } from '@/apps/main/util';
 import { exceptionWrapper } from './exception-wrapper';
+import { getInFlightRequest } from './get-in-flight-request';
 
 vi.mock(import('./error-wrapper'));
 vi.mock(import('./exception-wrapper'));
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('@/infra/drive-server-wip/in/helpers/error-helpers'));
+vi.mock(import('./get-in-flight-request'));
 
 describe('client-wrapper', () => {
   const handleRemoveErrorsMock = vi.mocked(handleRemoveErrors);
   const errorWrapperMock = vi.mocked(errorWrapper);
   const exceptionWrapperMock = vi.mocked(exceptionWrapper);
   const sleepMock = vi.mocked(sleep);
+  const getInFlightRequestMock = vi.mocked(getInFlightRequest);
 
   const response = {} as unknown as Response;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    getInFlightRequestMock.mockImplementation(({ promiseFn }) => ({ reused: false, promise: promiseFn() }));
   });
 
   it('If promise returns data, then return data', async () => {
@@ -80,7 +84,7 @@ describe('client-wrapper', () => {
 
   it('If promise returns error and is server error (5XX), then retry until success', async () => {
     // Given
-    errorWrapperMock.mockReturnValueOnce(new DriveServerWipError('SERVER', 'cause'));
+    errorWrapperMock.mockReturnValue(new DriveServerWipError('SERVER', 'cause'));
 
     let i = 0;
     const props = mockProps<typeof clientWrapper>({
