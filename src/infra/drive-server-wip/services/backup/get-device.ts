@@ -1,6 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
+import { getRequestKey } from '../../in/get-in-flight-request';
 
 export class GetDeviceError extends DriveServerWipError {
   constructor(
@@ -12,19 +13,24 @@ export class GetDeviceError extends DriveServerWipError {
 }
 
 export async function getDevice(context: { deviceUuid: string }) {
-  const promise = () =>
-    client.GET('/backup/deviceAsFolder/{uuid}', {
+  const method = 'GET';
+  const endpoint = '/backup/deviceAsFolder/{uuid}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.GET(endpoint, {
       params: { path: { uuid: context.deviceUuid } },
     });
 
   const { data, error } = await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Get device as folder request',
       context,
       attributes: {
-        method: 'GET',
-        endpoint: '/backup/deviceAsFolder/{uuid}',
+        method,
+        endpoint,
       },
     },
   });

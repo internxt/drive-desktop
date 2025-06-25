@@ -2,6 +2,7 @@ import { authClient } from '@/apps/shared/HttpClient/auth-client';
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { HEADERS } from '@/apps/main/auth/headers';
+import { getRequestKey } from '../in/get-in-flight-request';
 
 export const auth = {
   access,
@@ -10,15 +11,28 @@ export const auth = {
 };
 
 async function access({ email, password, tfa }: { email: string; password: string; tfa?: string }) {
-  const promise = () =>
-    authClient.POST('/auth/login/access', {
+  const method = 'POST';
+  const endpoint = '/auth/login/access';
+  const key = getRequestKey({
+    method,
+    endpoint,
+    context: {
+      email,
+      password,
+      tfa,
+    },
+  });
+
+  const promiseFn = () =>
+    authClient.POST(endpoint, {
       body: { email, password, tfa },
       headers: HEADERS,
     });
 
   const { data, error } = await clientWrapper({
-    promise,
     sleepMs: 1_000,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Access request',
       context: {
@@ -26,7 +40,8 @@ async function access({ email, password, tfa }: { email: string; password: strin
       },
       attributes: {
         tag: 'AUTH',
-        endpoint: '/auth/login/access',
+        method,
+        endpoint,
       },
     },
   });
@@ -36,21 +51,27 @@ async function access({ email, password, tfa }: { email: string; password: strin
 }
 
 async function login(context: { email: string }) {
-  const promise = () =>
-    authClient.POST('/auth/login', {
+  const method = 'POST';
+  const endpoint = '/auth/login';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    authClient.POST(endpoint, {
       body: { email: context.email },
       headers: HEADERS,
     });
 
   const { data, error } = await clientWrapper({
-    promise,
     sleepMs: 1_000,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Login request',
       context,
       attributes: {
         tag: 'AUTH',
-        endpoint: '/auth/login',
+        method,
+        endpoint,
       },
     },
   });
@@ -60,15 +81,21 @@ async function login(context: { email: string }) {
 }
 
 async function refresh() {
-  const promise = () => client.GET('/users/refresh');
+  const method = 'GET';
+  const endpoint = '/users/refresh';
+  const key = getRequestKey({ method, endpoint });
+
+  const promiseFn = () => client.GET(endpoint);
 
   return await clientWrapper({
-    promise,
+    promiseFn,
+    key,
     loggerBody: {
       msg: 'Refresh request',
       attributes: {
         tag: 'AUTH',
-        endpoint: '/users/refresh',
+        method,
+        endpoint,
       },
     },
   });

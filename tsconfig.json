@@ -3,10 +3,7 @@
     "baseUrl": ".",
     "target": "ESNext",
     "module": "commonjs",
-    "lib": [
-      "dom",
-      "esnext"
-    ],
+    "lib": ["dom", "esnext"],
     "declaration": true,
     "declarationMap": true,
     "jsx": "react-jsx",
@@ -29,24 +26,13 @@
     "skipLibCheck": true,
     "allowJs": true,
     "outDir": "release/app/dist",
-    "types": [
-      "vitest/globals"
-    ],
+    "types": ["vitest/globals"],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@/tests/*": [
-        "./tests/*"
-      ]
+      "@/*": ["./src/*"],
+      "@/tests/*": ["./tests/*"]
       // "@internxt/inxt-js/build": ["../inxt-js/build"],
       // "@internxt/inxt-js/build/*": ["../inxt-js/build/*"],
     }
   },
-  "include": [
-    "src",
-    "tests",
-    ".erb/configs",
-    ".erb/scripts"
-  ]
+  "include": ["src", "tests", ".erb/configs", ".erb/scripts"]
 }
