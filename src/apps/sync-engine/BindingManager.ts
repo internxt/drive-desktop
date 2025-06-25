@@ -45,14 +45,25 @@ export class BindingsManager {
 
   async start() {
     const callbacks: Callbacks = {
-      notifyDeleteCallback: (placeholderId: string, callback: (response: boolean) => void) => {
+      notifyDeleteCallback: (placeholderId, callback) => {
         try {
-          logger.debug({ msg: 'Path received in notifyDeleteCallback', placeholderId });
+          logger.debug({
+            tag: 'SYNC-ENGINE',
+            msg: 'Path received in notifyDeleteCallback',
+            placeholderId,
+          });
+
           this.controllers.delete.execute(placeholderId);
-          void ipcRenderer.invoke('DELETE_ITEM_DRIVE', placeholderId);
+
           callback(true);
         } catch (error) {
-          logger.error({ msg: 'Error in notifyDeleteCallback', error });
+          logger.error({
+            tag: 'SYNC-ENGINE',
+            msg: 'Error in notifyDeleteCallback',
+            placeholderId,
+            error,
+          });
+
           callback(false);
         }
       },

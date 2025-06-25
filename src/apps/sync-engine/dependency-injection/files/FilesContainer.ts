@@ -7,7 +7,6 @@ import { FileSyncronizer } from '../../../../context/virtual-drive/files/applica
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
-import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { FilesPlaceholderUpdater } from '@/context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
@@ -24,6 +23,5 @@ export interface FilesContainer {
   filesPlaceholderDeleter: FilesPlaceholderDeleter;
   fileSyncStatusUpdater: FileSyncStatusUpdater;
   filesCheckerStatusInRoot: FileCheckerStatusInRoot;
-  fileIdentityUpdater: FileIdentityUpdater;
   fileOverwriteContent: FileOverwriteContent;
 }

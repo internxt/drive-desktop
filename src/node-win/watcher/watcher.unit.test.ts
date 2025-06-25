@@ -156,6 +156,10 @@ describe('Watcher', () => {
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
           { event: 'addDir', path: folder },
+          /**
+           * v2.5.5 Daniel Jiménez
+           * TODO: check why it doesn't emit unlink
+           */
           { event: 'add', path: movedFile },
         ]),
       );

@@ -20,17 +20,15 @@ export class FileCreator {
     private readonly fileDeleter: FileDeleter,
   ) {}
 
-  async run(filePath: FilePath, contents: RemoteFileContents, existingFileAlreadyEvaluated = false): Promise<File> {
+  async run(filePath: FilePath, contents: RemoteFileContents): Promise<File> {
     try {
-      if (!existingFileAlreadyEvaluated) {
-        const existingFile = this.repository.searchByPartial({
-          path: PlatformPathConverter.winToPosix(filePath.value),
-          status: FileStatuses.EXISTS,
-        });
+      const existingFile = this.repository.searchByPartial({
+        path: PlatformPathConverter.winToPosix(filePath.value),
+        status: FileStatuses.EXISTS,
+      });
 
-        if (existingFile) {
-          await this.fileDeleter.run(existingFile.contentsId);
-        }
+      if (existingFile) {
+        await this.fileDeleter.run(existingFile.contentsId);
       }
 
       const folder = this.folderFinder.findFromFilePath(filePath);

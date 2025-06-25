@@ -29,29 +29,9 @@ export class DriveFileCollection {
     return result;
   }
 
-  async getBy(where: FindOptionsWhere<DriveFile>) {
-    const user = getUserOrThrow();
-    const result = await this.repository.findOneBy({
-      ...this.parseWhere(where),
-      userUuid: user.uuid,
-    });
-
-    return result;
-  }
-
   async createOrUpdate(payload: DriveFile) {
     const result = await this.repository.save(payload);
     return result;
-  }
-
-  async update(uuid: DriveFile['uuid'], payload: Partial<DriveFile>) {
-    const user = getUserOrThrow();
-    const match = await this.repository.update({ uuid, userUuid: user.uuid }, payload);
-
-    return {
-      success: match.affected ? true : false,
-      affected: match.affected as number,
-    };
   }
 
   async updateInBatch({ where, payload }: UpdateInBatchPayload) {
