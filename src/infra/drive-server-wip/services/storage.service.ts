@@ -89,7 +89,7 @@ async function deleteFileByUuid(context: { uuid: string; workspaceToken: string 
   });
 }
 
-async function deleteFolderByUuid(context: { uuid: string }) {
+async function deleteFolderByUuid(context: { uuid: string; workspaceToken: string }) {
   const method = 'POST';
   const endpoint = '/storage/trash/add';
   const key = getRequestKey({ method, endpoint, context });
@@ -97,6 +97,7 @@ async function deleteFolderByUuid(context: { uuid: string }) {
   const promiseFn = () =>
     noContentWrapper({
       request: client.POST(endpoint, {
+        headers: { 'x-internxt-workspace': context.workspaceToken },
         body: { items: [{ type: 'folder', uuid: context.uuid, id: null }] },
       }),
     });

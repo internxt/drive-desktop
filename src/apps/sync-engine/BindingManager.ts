@@ -20,6 +20,8 @@ import { QueueManager } from '@/node-win/queue/queue-manager';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
 import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { trimPlaceholderId } from './callbacks-controllers/controllers/placeholder-id';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -70,7 +72,11 @@ export class BindingsManager {
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: async (absolutePath: string, placeholderId: string, callback: (response: boolean) => void) => {
+      notifyRenameCallback: async (
+        absolutePath: string,
+        placeholderId: FilePlaceholderId | FolderPlaceholderId,
+        callback: (response: boolean) => void,
+      ) => {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
 

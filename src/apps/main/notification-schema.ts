@@ -16,8 +16,6 @@ const ITEMS_TO_TRASH = EVENT.extend({
   ),
 });
 
-export type ItemsToTrashEvent = z.infer<typeof ITEMS_TO_TRASH>;
-
 const FILE_CREATED = EVENT.extend({
   event: z.literal('FILE_CREATED'),
   payload: z.object({

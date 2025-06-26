@@ -5,6 +5,7 @@ import { CallbackController } from './CallbackController';
 import { CallbackDownload } from '../../BindingManager';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { FileNotFoundError } from '@/context/virtual-drive/files/domain/errors/FileNotFoundError';
+import { trimPlaceholderId } from './placeholder-id';
 
 export class DownloadFileController extends CallbackController {
   constructor(
@@ -33,7 +34,7 @@ export class DownloadFileController extends CallbackController {
   }
 
   async execute(filePlaceholderId: FilePlaceholderId, callback: CallbackDownload): Promise<string> {
-    const trimmedId = this.trim(filePlaceholderId);
+    const trimmedId = trimPlaceholderId({ placeholderId: filePlaceholderId });
     const [, uuid] = trimmedId.split(':');
 
     return await this.withRetries(() => this.action(uuid, callback), this.MAX_RETRY, this.RETRY_DELAY);

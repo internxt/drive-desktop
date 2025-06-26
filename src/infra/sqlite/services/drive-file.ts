@@ -34,6 +34,16 @@ export class DriveFileCollection {
     return result;
   }
 
+  async update(uuid: DriveFile['uuid'], payload: Partial<DriveFile>) {
+    const user = getUserOrThrow();
+    const match = await this.repository.update({ uuid, userUuid: user.uuid }, payload);
+
+    return {
+      success: match.affected ? true : false,
+      affected: match.affected as number,
+    };
+  }
+
   async updateInBatch({ where, payload }: UpdateInBatchPayload) {
     const user = getUserOrThrow();
     const match = await this.repository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
