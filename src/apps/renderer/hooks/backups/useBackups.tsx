@@ -76,12 +76,6 @@ export function useBackups(): BackupContextProps {
     loadBackups();
   }, [selected, devices]);
 
-  useEffect(() => {
-    const removeListener = window.electron.listenersRefreshBackups(fetchBackups, 'refresh-backup');
-
-    return removeListener;
-  }, []);
-
   async function addBackup(): Promise<void> {
     try {
       await window.electron.addBackup();

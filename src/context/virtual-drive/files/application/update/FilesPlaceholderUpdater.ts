@@ -1,12 +1,9 @@
 import fs from 'fs/promises';
-import { LocalFileIdProvider } from '../../../shared/application/LocalFileIdProvider';
 import { RelativePathToAbsoluteConverter } from '../../../shared/application/RelativePathToAbsoluteConverter';
 import { File } from '../../domain/File';
 import { FileStatuses } from '../../domain/FileStatus';
-import { FileMovedDomainEvent } from '../../domain/events/FileMovedDomainEvent';
 import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
-import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 
 export class FilesPlaceholderUpdater {
@@ -14,8 +11,6 @@ export class FilesPlaceholderUpdater {
     private readonly repository: InMemoryFileRepository,
     private readonly localFileSystem: NodeWinLocalFileSystem,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-    private readonly localFileIdProvider: LocalFileIdProvider,
-    private readonly eventHistory: InMemoryEventRepository,
   ) {}
 
   private hasToBeDeleted(local: File, remote: File): boolean {
@@ -73,27 +68,19 @@ export class FilesPlaceholderUpdater {
       }
       return;
     }
+
     /*
      * v2.5.2 Jonathan Daniel
      * Validate if the placeholder needs to be updated since we previously used the dynamic contentsId
      * and now we use the static uuid for file identification.
+     * DELETE AFTER ONE YEAR.
      */
-
     if (this.hasToBeUpdatedIdentity(local, remote)) {
       this.localFileSystem.updateFileIdentity(local.path, local.placeholderId);
       this.localFileSystem.updateSyncStatus(local);
     }
 
     if (local.path !== remote.path) {
-      if (remote.folderId !== local.folderId) {
-        const trackerId = await this.localFileIdProvider.run(local.path);
-        const event = new FileMovedDomainEvent({
-          aggregateId: remote.contentsId,
-          trackerId,
-        });
-        this.eventHistory.store(event);
-      }
-
       this.repository.update(remote);
 
       try {

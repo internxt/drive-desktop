@@ -154,8 +154,6 @@ declare interface Window {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
     };
-    listenersRefreshBackups(callback: (data: any) => void, eventName?: string): () => void;
-
     backups: {
       isAvailable: () => Promise<boolean>;
     };

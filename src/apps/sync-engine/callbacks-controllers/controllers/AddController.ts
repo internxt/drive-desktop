@@ -16,7 +16,6 @@ export class AddController extends CallbackController {
   // - a file has been added
   // - a folder has been added
   // - a file has been saved
-  // - after a file has been moved to a folder
 
   constructor(
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,

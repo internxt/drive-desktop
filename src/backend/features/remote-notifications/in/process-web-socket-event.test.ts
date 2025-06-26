@@ -1,15 +1,12 @@
 import { beforeEach } from 'vitest';
 import { processWebSocketEvent } from '@/backend/features/remote-notifications/in/process-web-socket-event';
-import { broadcastToWindows } from '@/apps/main/windows';
 import { debouncedSynchronization } from '@/apps/main/remote-sync/handlers';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 vi.mock(import('@/apps/main/windows'));
 vi.mock(import('@/apps/main/remote-sync/handlers'));
-vi.mock(import('@/apps/main/remote-sync/handlers'));
 
 describe('processWebSocketEvent', () => {
-  const broadcastToWindowsMock = vi.mocked(broadcastToWindows);
   const debouncedSynchronizationMock = vi.mocked(debouncedSynchronization);
 
   beforeEach(() => {
@@ -29,20 +26,6 @@ describe('processWebSocketEvent', () => {
     expect(loggerMock.debug).toHaveBeenCalledTimes(1);
     expect(loggerMock.info).not.toHaveBeenCalled();
     expect(debouncedSynchronizationMock).not.toHaveBeenCalled();
-  });
-
-  it('should trigger refresh-backup on FOLDER_DELETED event', async () => {
-    const event = {
-      event: 'FOLDER_DELETED',
-      email: 'email@test.com',
-      clientId: 'drive-web',
-      userId: '123',
-    };
-    await processWebSocketEvent({ data: event });
-    expect(broadcastToWindowsMock).toHaveBeenCalledWith('refresh-backup', undefined);
-    expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
-    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Notification received', data: event });
-    expect(loggerMock.debug).not.toHaveBeenCalled();
   });
 
   it('should call debouncedSynchronization if schema is not valid', async () => {

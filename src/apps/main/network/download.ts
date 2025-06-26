@@ -48,7 +48,6 @@ async function writeReadableStreamToFile(readableStream: ReadableStream<Uint8Arr
 
 export async function downloadFolder(
   deviceName: string,
-  networkApiUrl: string,
   foldersUuid: string[],
   targetPath: PathLike,
   environment: {
@@ -117,7 +116,6 @@ export async function downloadFolder(
             Logger.info('Downloading file:', filePath);
 
             const fileStream = await downloadFile({
-              networkApiUrl,
               bucketId: file.bucket,
               fileId: file.fileId,
               creds: {
@@ -163,13 +161,12 @@ interface MetadataRequiredForDownload {
 }
 
 async function getRequiredFileMetadataWithAuth(
-  networkApiUrl: string,
   bucketId: string,
   fileId: string,
   creds: NetworkCredentials,
 ): Promise<MetadataRequiredForDownload> {
-  const fileMeta: FileInfo = await getFileInfoWithAuth(networkApiUrl, bucketId, fileId, creds);
-  const mirrors: Mirror[] = await getMirrors(networkApiUrl, bucketId, fileId, creds);
+  const fileMeta: FileInfo = await getFileInfoWithAuth(bucketId, fileId, creds);
+  const mirrors: Mirror[] = await getMirrors(bucketId, fileId, creds);
 
   return { fileMeta, mirrors };
 }
@@ -187,12 +184,12 @@ async function downloadFile(params: IDownloadParams): Promise<ReadableStream<Uin
 }
 
 async function _downloadFile(params: IDownloadParams): Promise<ReadableStream<Uint8Array>> {
-  const { networkApiUrl, bucketId, fileId, creds } = params;
+  const { bucketId, fileId, creds } = params;
 
   let metadata: MetadataRequiredForDownload;
 
   if (creds) {
-    metadata = await getRequiredFileMetadataWithAuth(networkApiUrl, bucketId, fileId, creds);
+    metadata = await getRequiredFileMetadataWithAuth(bucketId, fileId, creds);
   } else {
     throw new Error('Download error 1');
   }

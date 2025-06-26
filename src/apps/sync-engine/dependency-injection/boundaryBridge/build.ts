@@ -9,11 +9,7 @@ export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
   filesContainer: FilesContainer,
 ): BoundaryBridgeContainer {
-  const fileCreationOrchestrator = new FileCreationOrchestrator(
-    contentsContainer.contentsUploader,
-    filesContainer.fileCreator,
-    filesContainer.sameFileWasMoved,
-  );
+  const fileCreationOrchestrator = new FileCreationOrchestrator(contentsContainer.contentsUploader, filesContainer.fileCreator);
 
   const fileSyncOrchestrator = new FileSyncOrchestrator(filesContainer.fileSyncronizer);
 

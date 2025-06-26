@@ -1,8 +1,9 @@
 import { Stats } from 'fs';
 
 import { Watcher } from '../watcher';
-import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 import { typeQueue } from '@/node-win/queue/queueManager';
+import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
+import { logger } from '@/apps/shared/logger/logger';
 
 type TProps = {
   self: Watcher;
@@ -14,46 +15,29 @@ export function onAdd({ self, path, stats }: TProps) {
   try {
     const { size, birthtime, mtime } = stats;
 
-    if (size === 0 || size > 20 * 1024 * 1024 * 1024) return;
+    if (size === 0 || size > BucketEntry.MAX_SIZE) {
+      logger.warn({ msg: 'Invalid file size', path, size });
+      return;
+    }
 
-    const itemId = self.addon.getFileIdentity({ path });
-    const status = self.addon.getPlaceholderState({ path });
+    const placeholderId = self.addon.getFileIdentity({ path });
+
+    if (!placeholderId) {
+      self.logger.debug({ msg: 'File added', path });
+      self.fileInDevice.add(path);
+      self.queueManager.enqueue({ path, type: typeQueue.add, isFolder: false });
+      return;
+    }
 
     const creationTime = new Date(birthtime).getTime();
     const modificationTime = new Date(mtime).getTime();
 
-    let isNewFile = false;
-    let isMovedFile = false;
-
-    if (!itemId) {
-      isNewFile = true;
-    } else if (creationTime !== modificationTime) {
-      isMovedFile = true;
-    }
-
-    const isAlreadySynced =
-      status.pinState === PinState.AlwaysLocal || status.pinState === PinState.OnlineOnly || status.syncState === SyncState.InSync;
-
-    self.logger.debug({
-      msg: 'onAdd',
-      path,
-      status,
-      isAlreadySynced,
-      isNewFile,
-      isMovedFile,
-    });
-
-    if (isAlreadySynced) {
-      return;
-    }
-
-    if (isNewFile) {
-      self.fileInDevice.add(path);
-      self.queueManager.enqueue({ path, type: typeQueue.add, isFolder: false });
-    } else if (isMovedFile) {
-      self.logger.debug({ msg: 'File moved', path });
+    if (creationTime === modificationTime) {
+      /* File added from remote */
+    } else {
+      self.logger.debug({ msg: 'File moved or renamed', path, placeholderId });
     }
   } catch (error) {
-    self.logger.error({ msg: 'onAddService', error });
+    self.logger.error({ msg: 'Error onAdd', path, error });
   }
 }
