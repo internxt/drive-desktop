@@ -4,15 +4,15 @@ import { FolderDeleter } from '../../../../../src/context/virtual-drive/folders/
 import { FolderMother } from '../domain/FolderMother';
 import { NodeWinLocalFolderSystem } from '@/context/virtual-drive/folders/infrastructure/NodeWinLocalFolderSystem';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+vi.mock(import('@/infra/drive-server-wip/out/ipc-renderer'));
 
 describe('Folder deleter', () => {
   const repository = mockDeep<InMemoryFolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(repository);
   const local = mockDeep<NodeWinLocalFolderSystem>();
-  const deleteFolderByUuid = vi.mocked(driveServerWip.storage.deleteFolderByUuid);
+  const ipcRendererDriveServerWipMock = vi.mocked(ipcRendererDriveServerWip);
 
   const SUT = new FolderDeleter(repository, local, allParentFoldersStatusIsExists);
 
@@ -23,13 +23,16 @@ describe('Folder deleter', () => {
   it('trashes an existing folder', async () => {
     const folder = FolderMother.exists();
 
-    deleteFolderByUuid.mockResolvedValue({ data: true });
+    ipcRendererDriveServerWipMock.invoke.mockResolvedValue({ data: true });
     repository.searchByPartial.mockReturnValueOnce(folder);
     vi.spyOn(allParentFoldersStatusIsExists, 'run').mockReturnValueOnce(true);
 
     await SUT.run(folder.uuid);
-    expect(driveServerWip.storage.deleteFolderByUuid).toBeCalledWith({ uuid: folder.uuid });
     expect(repository.update).toBeCalledWith(folder);
+    expect(ipcRendererDriveServerWipMock.invoke).toBeCalledWith('storageDeleteFolderByUuid', {
+      uuid: folder.uuid,
+      workspaceToken: '',
+    });
   });
 
   it('throws an error when trashing a folder already trashed', async () => {
@@ -41,7 +44,7 @@ describe('Folder deleter', () => {
     await SUT.run(folder.uuid).catch((err) => {
       expect(err).toBeDefined();
     });
-    expect(driveServerWip.storage.deleteFolderByUuid).not.toBeCalled();
+    expect(ipcRendererDriveServerWipMock.invoke).not.toBeCalled();
     expect(repository.update).not.toBeCalled();
   });
 
@@ -54,7 +57,7 @@ describe('Folder deleter', () => {
     await SUT.run(folder.uuid).catch((err) => {
       expect(err).toBeDefined();
     });
-    expect(driveServerWip.storage.deleteFolderByUuid).not.toBeCalled();
+    expect(ipcRendererDriveServerWipMock.invoke).not.toBeCalled();
     expect(repository.update).not.toBeCalled();
   });
 
