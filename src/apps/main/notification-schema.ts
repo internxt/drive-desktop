@@ -40,12 +40,4 @@ const FOLDER_CREATED = EVENT.extend({
   }),
 });
 
-/**
- * v2.5.5 Daniel Jiménez
- * TODO: Check this event because I think it doesn't exist and the action done with it can be deleted
- */
-export const FOLDER_DELETED = EVENT.extend({
-  event: z.literal('FOLDER_DELETED'),
-});
-
 export const NOTIFICATION_SCHEMA = z.union([ITEMS_TO_TRASH, FILE_CREATED, FOLDER_CREATED]);
