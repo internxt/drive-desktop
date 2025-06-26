@@ -21,7 +21,6 @@ setupElectronLog();
 
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
-import { setupBugReportHandlers } from './bug-report/handlers';
 import { checkIfUserIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
@@ -68,7 +67,6 @@ if (!gotTheLock) {
 }
 
 setupAutoLaunchHandlers();
-setupBugReportHandlers();
 setupAuthIpcHandlers();
 setupSettingsIPCHandlers();
 setupVirtualDriveHandlers();
