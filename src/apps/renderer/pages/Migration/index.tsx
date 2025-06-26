@@ -97,9 +97,6 @@ export default function Migration() {
       finishMigrationSuccess()
         .catch((error) => {
           console.error('Error moving sync folder to desktop: ', error);
-          reportError(error, {
-            description: 'Failed to move sync folder to desktop location',
-          });
         })
         .finally(() => {
           goToSlideIndex(2);
