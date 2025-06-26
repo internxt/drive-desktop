@@ -1,5 +1,4 @@
 import Logger from 'electron-log';
-import * as Sentry from '@sentry/electron/renderer';
 import { BindingsManager } from '../BindingManager';
 import { QueueItem } from '@/node-win/queue/queueManager';
 
@@ -16,7 +15,6 @@ export class HandleChangeSizeService {
     } catch (error) {
       Logger.error(`Error changing size ${task.path}`);
       Logger.error(error);
-      Sentry.captureException(error);
     }
   }
 }

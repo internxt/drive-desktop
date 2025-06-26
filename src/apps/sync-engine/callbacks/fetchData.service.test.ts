@@ -1,4 +1,3 @@
-import * as Sentry from '@sentry/electron/renderer';
 import { mockDeep } from 'vitest-mock-extended';
 import { FetchDataService } from './fetchData.service';
 import { BindingsManager } from '../BindingManager';
@@ -7,13 +6,9 @@ import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { DeepPartial } from 'ts-essentials';
 import fs from 'fs';
+import { it } from 'vitest';
 
 vi.mock('fs');
-vi.mock('@sentry/electron/renderer', () => {
-  return {
-    captureException: vi.fn(),
-  };
-});
 
 const fetchData = new FetchDataService();
 
@@ -58,7 +53,6 @@ describe('Fetch Data', () => {
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
-      expect(Sentry.captureException).toHaveBeenCalledTimes(1);
     });
 
     it('When progress is less than 0, then throw an error', async () => {
@@ -70,7 +64,6 @@ describe('Fetch Data', () => {
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
-      expect(Sentry.captureException).toHaveBeenCalledTimes(1);
     });
 
     it('When finished but progress is 0, then throw an error', async () => {
@@ -82,7 +75,6 @@ describe('Fetch Data', () => {
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
-      expect(Sentry.captureException).toHaveBeenCalledTimes(1);
     });
   });
 });

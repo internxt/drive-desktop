@@ -1,5 +1,4 @@
 import Logger from 'electron-log';
-import * as Sentry from '@sentry/electron/renderer';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import * as fs from 'fs';
@@ -76,7 +75,6 @@ export class FetchDataService {
       } catch (error) {
         Logger.error('[Fetch Data Error]', error);
         Logger.debug('[Fetch Data Error] Finish', path);
-        Sentry.captureException(error);
         // await callback(false, '');
         fs.unlinkSync(path);
         return;
@@ -89,7 +87,6 @@ export class FetchDataService {
       Logger.debug('[Fetch Data Callback] Finish', path);
     } catch (error) {
       Logger.error(error);
-      Sentry.captureException(error);
       await callback(false, '');
     }
   }

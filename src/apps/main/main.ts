@@ -43,7 +43,6 @@ import { setupSettingsIPCHandlers } from './windows/ipc/setup-ipc-handlers';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
-import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
@@ -80,15 +79,6 @@ setupIpcDriveServerWip();
 
 Logger.log(`Running ${packageJson.version}`);
 Logger.log(`App is packaged: ${app.isPackaged}`);
-
-Logger.log('Initializing Sentry for main process');
-Sentry.init({
-  // Enable Sentry only when app is packaged
-  enabled: app.isPackaged,
-  dsn: process.env.SENTRY_DSN,
-});
-Sentry.captureMessage('Main process started');
-Logger.log('Sentry is ready for main process');
 
 async function checkForUpdates() {
   autoUpdater.logger = Logger;

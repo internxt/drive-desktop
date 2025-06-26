@@ -9,18 +9,7 @@ import packageJson from '../../../../package.json';
 import { obtainToken } from '../auth/service';
 import { BugReportResult } from './BugReportResult';
 import { User } from '../types';
-import Logger from 'electron-log';
 import { ErrorDetails } from '../../shared/types';
-
-/**
- * Reports an error to Sentry from the main process
- *
- * @param error The error to be reported
- * @param context The context to attach to the error such the userId, tags, boolean values...
- */
-export const reportError = (error: Error, context: Record<string, string> = {}) => {
-  Logger.error('[SENTRY_CAPTURED]: ', error);
-};
 
 export const identifyUserForErrorReporting = (user: User | null) => {
   if (!user) {
