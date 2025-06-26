@@ -16,8 +16,6 @@ const ITEMS_TO_TRASH = EVENT.extend({
   ),
 });
 
-export type ItemsToTrashEvent = z.infer<typeof ITEMS_TO_TRASH>;
-
 const FILE_CREATED = EVENT.extend({
   event: z.literal('FILE_CREATED'),
   payload: z.object({
@@ -51,4 +49,3 @@ export const FOLDER_DELETED = EVENT.extend({
 });
 
 export const NOTIFICATION_SCHEMA = z.union([ITEMS_TO_TRASH, FILE_CREATED, FOLDER_CREATED]);
-export type NotificationSchema = z.infer<typeof NOTIFICATION_SCHEMA>;

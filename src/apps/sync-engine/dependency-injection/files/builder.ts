@@ -17,7 +17,6 @@ import { FileContentsUpdater } from '../../../../context/virtual-drive/files/app
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
-import { FileIdentityUpdater } from '../../../../context/virtual-drive/files/application/FileIndetityUpdater';
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
@@ -68,8 +67,6 @@ export function buildFilesContainer(
 
   const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem);
 
-  const fileIdentityUpdater = new FileIdentityUpdater(localFileSystem);
-
   const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(virtualDrive);
 
   const fileOverwriteContent = new FileOverwriteContent(repository, filesCheckerStatusInRoot, fileContentsHardUpdate);
@@ -78,12 +75,12 @@ export function buildFilesContainer(
     repository,
     fileSyncStatusUpdater,
     virtualDrive,
-    fileIdentityUpdater,
     fileCreator,
     sharedContainer.absolutePathToRelativeConverter,
     folderContainer.folderCreator,
     fileContentsUpdater,
     contentsContainer.contentsUploader,
+    localFileSystem,
   );
 
   const container: FilesContainer = {
@@ -98,7 +95,6 @@ export function buildFilesContainer(
     filesPlaceholderDeleter,
     fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
-    fileIdentityUpdater,
     fileOverwriteContent,
   };
 

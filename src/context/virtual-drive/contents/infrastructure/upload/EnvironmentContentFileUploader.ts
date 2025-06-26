@@ -38,15 +38,16 @@ export class EnvironmentContentFileUploader {
       const state = this.fn(this.bucket, {
         source: contents,
         fileSize: size,
-        finishedCallback: (err: Error | null, contentsId: string) => {
+        finishedCallback: (err, contentsId) => {
           this.stopwatch.finish();
 
-          if (err) {
+          if (contentsId) {
+            this.eventEmitter.emit('finish', contentsId);
+            resolve(new ContentsId(contentsId));
+          } else {
             this.eventEmitter.emit('error', err);
             return reject(err);
           }
-          this.eventEmitter.emit('finish', contentsId);
-          resolve(new ContentsId(contentsId));
         },
         progressCallback: (progress: number) => {
           this.eventEmitter.emit('progress', progress);

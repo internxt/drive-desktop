@@ -11,7 +11,6 @@ export const files = {
   renameFile,
   replaceFile,
   createThumbnail,
-  deleteContentFromBucket,
 };
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
@@ -156,32 +155,6 @@ async function createThumbnail(context: { body: TCreateThumnailBody }) {
     key,
     loggerBody: {
       msg: 'Create thumbnail request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
-
-async function deleteContentFromBucket(context: { bucketId: string; contentId: string }) {
-  const method = 'DELETE';
-  const endpoint = '/files/{bucketId}/{fileId}';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    noContentWrapper({
-      request: client.DELETE(endpoint, {
-        params: { path: { bucketId: context.bucketId, fileId: context.contentId } },
-      }),
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Delete file content from bucket request',
       context,
       attributes: {
         method,

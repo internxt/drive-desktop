@@ -7,8 +7,6 @@ import { ipcMain } from 'electron';
 import { spawnDefaultSyncEngineWorker, spawnWorkspaceSyncEngineWorkers, updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { DriveFile } from '../database/entities/DriveFile';
-import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import { FolderPlaceholderId } from '../../../context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
@@ -206,23 +204,6 @@ function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {
 
 ipcMain.handle('CHECK_SYNC_IN_PROGRESS', (_, workspaceId = '') => {
   return checkSyncInProgress({ workspaceId });
-});
-
-ipcMain.handle('DELETE_ITEM_DRIVE', async (_, itemId: FilePlaceholderId | FolderPlaceholderId): Promise<boolean> => {
-  try {
-    const [type, uuid] = itemId.split(':');
-    logger.debug({ msg: 'Deleting item in handler', type, uuid });
-
-    const isFolder = type === 'FOLDER';
-    const result = isFolder
-      ? await driveFoldersCollection.update(uuid, { status: 'TRASHED' })
-      : await driveFilesCollection.update(uuid, { status: 'TRASHED' });
-
-    return result.success;
-  } catch (error) {
-    logger.error({ msg: 'Error deleting item in handler', exc: error });
-    return false;
-  }
 });
 
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {

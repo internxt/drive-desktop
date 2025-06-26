@@ -187,7 +187,10 @@ export class Backup {
         return;
       }
 
-      await driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
+      await driveServerWip.storage.deleteFolderByUuid({
+        uuid: folder.uuid,
+        workspaceToken: '',
+      });
     }
   }
 }

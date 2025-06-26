@@ -6,7 +6,8 @@ import { AllParentFoldersStatusIsExists } from './AllParentFoldersStatusIsExists
 import { Service } from 'diod';
 import { NodeWinLocalFolderSystem } from '../infrastructure/NodeWinLocalFolderSystem';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
+import { getConfig } from '@/apps/sync-engine/config';
 
 @Service()
 export class FolderDeleter {
@@ -40,7 +41,10 @@ export class FolderDeleter {
 
       folder.trash();
 
-      const { error } = await driveServerWip.storage.deleteFolderByUuid({ uuid: folder.uuid });
+      const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFolderByUuid', {
+        uuid: folder.uuid,
+        workspaceToken: getConfig().workspaceToken,
+      });
 
       if (error) throw error;
 

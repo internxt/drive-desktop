@@ -25,12 +25,12 @@ export class EnvironmentAndStorageThumbnailUploader {
           progressCallback: () => {
             // no op
           },
-          finishedCallback: (err: unknown, id: string) => {
-            if (err && !id) {
+          finishedCallback: (err, id) => {
+            if (id) {
+              resolve(id);
+            } else {
               reject(err);
             }
-
-            resolve(id);
           },
           fileSize: thumbnail.byteLength,
           source: thumbnailStream,

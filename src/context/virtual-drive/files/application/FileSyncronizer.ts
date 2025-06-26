@@ -10,24 +10,24 @@ import * as fs from 'fs';
 import { File } from '../domain/File';
 import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
 import { FileContentsUpdater } from './FileContentsUpdater';
-import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { logger } from '@/apps/shared/logger/logger';
 import { createParentFolder } from '@/features/sync/add-item/create-folder';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 
 export class FileSyncronizer {
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
     private readonly virtualDrive: VirtualDrive,
-    private readonly fileIdentityUpdater: FileIdentityUpdater,
     private readonly fileCreator: FileCreator,
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreator,
     private readonly fileContentsUpdater: FileContentsUpdater,
     private readonly contentsUploader: RetryContentsUploader,
+    private readonly localFileSystem: NodeWinLocalFileSystem,
   ) {}
 
   async run(absolutePath: string): Promise<void> {
@@ -96,14 +96,9 @@ export class FileSyncronizer {
     return Math.abs(file.size - stats.size) > 0.001;
   }
 
-  private async convertAndUpdateSyncStatus(file: File) {
-    await Promise.all([
-      this.virtualDrive.convertToPlaceholder({
-        itemPath: file.path,
-        id: file.placeholderId,
-      }),
-      this.fileIdentityUpdater.run(file),
-      this.fileSyncStatusUpdater.run(file),
-    ]);
+  private convertAndUpdateSyncStatus(file: File) {
+    this.virtualDrive.convertToPlaceholder({ itemPath: file.path, id: file.placeholderId });
+    this.localFileSystem.updateFileIdentity(file.path, file.placeholderId);
+    this.fileSyncStatusUpdater.run(file);
   }
 }

@@ -29,16 +29,6 @@ export class DriveFileCollection {
     return result;
   }
 
-  async getBy(where: FindOptionsWhere<DriveFile>) {
-    const user = getUserOrThrow();
-    const result = await this.repository.findOneBy({
-      ...this.parseWhere(where),
-      userUuid: user.uuid,
-    });
-
-    return result;
-  }
-
   async createOrUpdate(payload: DriveFile) {
     const result = await this.repository.save(payload);
     return result;
