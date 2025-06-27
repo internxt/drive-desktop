@@ -2,6 +2,8 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../in/get-in-flight-request';
+import { getFilesByFolder } from './workspaces/get-files-by-folder';
+import { getFoldersByFolder } from './workspaces/get-folders-by-folder';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
@@ -15,6 +17,8 @@ export const workspaces = {
   getFoldersInWorkspace,
   createFileInWorkspace,
   createFolderInWorkspace,
+  getFilesByFolder,
+  getFoldersByFolder,
 };
 
 async function getWorkspaces() {
