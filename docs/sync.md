@@ -18,7 +18,7 @@
 We fetch ALL changes from a checkpoint. If there is not checkpoint, it means that is the first time the user has the app, so we only fetch EXISTS.
 
 *Issues*
-  - 🚧 If the user uninstall the app, the items are kept, but the checkpoint is lost, so we can't sync the TRASHED items.
+  - If the user uninstall the app, the items are kept, but the checkpoint is lost, so we can't sync the TRASHED items.
 
 *Irrelevant*
   - The user removes an item but it's not yet in remote. The sync is going to create the placeholder until the next sync.
@@ -29,14 +29,12 @@ We fetch ALL changes from a checkpoint. If there is not checkpoint, it means tha
 
 ---
 
-Since we may lose the checkpoint, we have a background sync that retrieves all EXISTS from a folder. All items that are not there are marked as TRASHED.
+Since we may lose the checkpoint, we have a background sync that retrieves all EXISTS from a folder.
 
 *Issues*
   - We can't create an item because we will lose the checkpoint.
+  - We always start the sync from the root folder so maybe we don't reach deep folders.
 
 *Irrelevant*
   - The user removes an item but it's not yet in remote. The sync is going to create the placeholder until the next sync.
   - The user moves a file from location1 to location2 but it's not yet in remote. The sync is going to create a placeholder in the location1 until next sync.
-
-*Solved*
-  - The user adds an item but it's not yet in remote. The sync is not going to do anything, because the item is not in SQLite. In worst case, if the item is in SQLite because of the first sync, it will delete the item until next sync, but the content is already on remote.
