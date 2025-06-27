@@ -9,14 +9,14 @@ import {
   deleteBackupsFromDevice,
   getBackupsFromDevice,
   getPathFromDialog,
-  getOrCreateDevice,
   getDevices,
   renameDevice,
   createBackupsFromLocalPaths,
   downloadBackup,
 } from './service';
+import { DeviceModule } from '@/backend/features/device/device.module';
 
-ipcMain.handle('get-or-create-device', getOrCreateDevice);
+ipcMain.handle('get-or-create-device', DeviceModule.getOrCreateDevice);
 
 ipcMain.handle('rename-device', (_, v) => renameDevice(v));
 

@@ -23,6 +23,9 @@ import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getAuthHeaders } from '../auth/headers';
+import { DeviceIdentifierDTO, ExistingDeviceIdentifierDTO } from '@/backend/features/device/device.types';
+import { DeviceModule } from '@/backend/features/device/device.module';
+import { getCurrentDevice } from '@/backend/features/device/get-current-device';
 
 export type Device = {
   name: string;
@@ -64,11 +67,14 @@ export async function getDevices(): Promise<Array<Device>> {
 /**
  * Checks if a device exists with the given UUID
  * @param deviceUuid The UUID of the device to check
+ * @param deviceIdentifier The identifier of the device to check
  * @returns an object containing the device data if found, null if not found,
  *  or an object with an error if there was an issue fetching the device
  */
-export async function fetchDevice(deviceUuid: string) {
-  const { data, error } = await driveServerWipModule.backup.getDevice({ deviceUuid });
+export async function fetchDevice({ deviceUuid, deviceIdentifier }: { deviceUuid?: string; deviceIdentifier?: DeviceIdentifierDTO }) {
+  const { data, error } = deviceUuid
+    ? await driveServerWipModule.backup.getDevice({ deviceUuid })
+    : await driveServerWipModule.backup.getDeviceByIdentifier({ context: deviceIdentifier });
 
   if (data) {
     const device = decryptDeviceName(data);
@@ -132,7 +138,7 @@ export async function createUniqueDevice(attempts = 1000) {
   return { error: finalError };
 }
 
-async function createNewDevice() {
+export async function createNewDevice() {
   const { data, error } = await createUniqueDevice();
   if (data) {
     saveDeviceToConfig(data);
@@ -141,36 +147,15 @@ async function createNewDevice() {
   return { error };
 }
 
-export async function getOrCreateDevice() {
-  const savedDeviceUuid = configStore.get('deviceUuid');
-  const deviceIsStored = savedDeviceUuid !== '';
-  logger.debug({ tag: 'BACKUPS', msg: 'Saved device', savedDeviceUuid });
-
-  if (!deviceIsStored) {
-    logger.debug({ tag: 'BACKUPS', msg: 'No saved device, creating a new one' });
-    return createNewDevice();
-  }
-  const { data, error } = await fetchDevice(savedDeviceUuid);
-  if (data && !data.removed) {
-    return { data };
-  }
-
-  if (data == null && !error) {
-    logger.debug({ tag: 'BACKUPS', msg: 'Device not found, creating a new one' });
-    return createNewDevice();
-  }
+export async function renameDevice(deviceName: string): Promise<Device> {
+  const { data: device, error } = getCurrentDevice();
 
   if (error) {
-    logger.error({ tag: 'BACKUPS', msg: 'Error fetching device', error });
-    return { error };
+    logger.error({ tag: 'BACKUPS', msg: 'Error getting current device', error });
+    throw error;
   }
-  return { error: logger.error({ tag: 'BACKUPS', msg: 'Unknown error: Device not found or removed' }) };
-}
 
-export async function renameDevice(deviceName: string): Promise<Device> {
-  const deviceUuid = getDeviceUuid();
-
-  const res = await driveServerWipModule.backup.updateDevice({ deviceUuid, deviceName });
+  const res = await driveServerWipModule.backup.updateDevice({ deviceUuid: device.uuid, deviceName });
 
   if (res.data) {
     return decryptDeviceName(res.data);
@@ -651,7 +636,7 @@ function getDeviceUuid(): string {
 export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   configStore.set('backupsEnabled', true);
 
-  const { error } = await getOrCreateDevice();
+  const { error } = await DeviceModule.getOrCreateDevice();
   if (error) throw error;
 
   const operations = folderPaths.map((folderPath) => createBackup(folderPath));

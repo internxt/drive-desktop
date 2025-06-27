@@ -3,12 +3,16 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { createDevice } from './backup/create-device';
 import { getDevice } from './backup/get-device';
 import { getRequestKey } from '../in/get-in-flight-request';
+import { getDeviceByIdentifier } from './backup/get-device-by-identifier';
+import { addIdentifierToExistingDevice } from './backup/add-identifier-to-existing-device';
 
 export const backup = {
   getDevices,
   updateDevice,
   getDevice,
   createDevice,
+  addIdentifierToExistingDevice,
+  getDeviceByIdentifier,
 };
 
 async function getDevices() {
