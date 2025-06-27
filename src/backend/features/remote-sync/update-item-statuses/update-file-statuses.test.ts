@@ -4,7 +4,7 @@ import { deepMocked } from '@/tests/vitest/utils.helper.test';
 import { updateFileStatuses } from './update-file-statuses';
 import { In, Not } from 'typeorm';
 
-vi.mock(import('./fetch-folders-by-folder'));
+vi.mock(import('./fetch-files-by-folder'));
 vi.mock(import('@/apps/main/remote-sync/store'));
 
 describe('update-file-statuses', () => {
@@ -22,12 +22,12 @@ describe('update-file-statuses', () => {
     expect(driveFilesCollectionMock.updateInBatch).toBeCalledTimes(2);
     expect(driveFilesCollectionMock.updateInBatch).toHaveBeenCalledWith({
       payload: { status: 'EXISTS' },
-      where: { parentUuid: 'folderUuid', uuid: In(['uuid']) },
+      where: { folderUuid: 'folderUuid', uuid: In(['uuid']) },
     });
 
     expect(driveFilesCollectionMock.updateInBatch).toHaveBeenCalledWith({
       payload: { status: 'TRASHED' },
-      where: { parentUuid: 'folderUuid', uuid: Not(In(['uuid'])) },
+      where: { folderUuid: 'folderUuid', uuid: Not(In(['uuid'])) },
     });
   });
 });
