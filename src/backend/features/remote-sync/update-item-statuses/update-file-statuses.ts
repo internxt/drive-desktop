@@ -14,6 +14,11 @@ export async function updateFileStatuses({ context, folderUuid }: TProps) {
     const files = await fetchFilesByFolder({ context, folderUuid });
     const fileUuids = files.map((file) => file.uuid);
 
+    /**
+     * v2.5.6 Daniel Jiménez
+     * TODO: this should be improved because it can happen that the file doesn't exist in our local database,
+     * and we have to create it, however, we cannot do that yet because we will break the checkpoint
+     */
     await driveFilesCollection.updateInBatch({
       payload: { status: 'EXISTS' },
       where: { folderUuid, uuid: In(fileUuids) },
