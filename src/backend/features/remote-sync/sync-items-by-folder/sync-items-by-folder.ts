@@ -9,7 +9,7 @@ type TProps = {
   rootFolderUuid: string;
 };
 
-export async function updateItemStatuses({ context, rootFolderUuid }: TProps) {
+export async function syncItemsByFolder({ context, rootFolderUuid }: TProps) {
   const folderUuids = [rootFolderUuid];
 
   while (folderUuids.length > 0) {

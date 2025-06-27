@@ -1,5 +1,5 @@
-import { updateItemStatuses } from './update-item-statuses/update-item-statuses';
+import { syncItemsByFolder } from './sync-items-by-folder/sync-items-by-folder';
 
 export const RemoteSyncModule = {
-  updateItemStatuses,
+  syncItemsByFolder,
 };

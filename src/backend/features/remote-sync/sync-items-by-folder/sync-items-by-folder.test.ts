@@ -1,7 +1,7 @@
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { updateFileStatuses } from './update-file-statuses';
 import { updateFolderStatuses } from './update-folder-statuses';
-import { updateItemStatuses } from './update-item-statuses';
+import { syncItemsByFolder } from './sync-items-by-folder';
 import { sleep } from '@/apps/main/util';
 
 vi.mock(import('@/apps/main/util'));
@@ -13,12 +13,12 @@ describe('update-item-statuses', () => {
   const updateFileStatusesMock = vi.mocked(updateFileStatuses);
   const sleepMock = vi.mocked(sleep);
 
-  let props: Parameters<typeof updateItemStatuses>[0];
+  let props: Parameters<typeof syncItemsByFolder>[0];
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    props = mockProps<typeof updateItemStatuses>({
+    props = mockProps<typeof syncItemsByFolder>({
       rootFolderUuid: 'rootFolderUuid',
       context: {
         workspaceId: '',
@@ -32,7 +32,7 @@ describe('update-item-statuses', () => {
     updateFolderStatusesMock.mockResolvedValueOnce([]);
 
     // When
-    await updateItemStatuses(props);
+    await syncItemsByFolder(props);
 
     // Then
     expect(updateFolderStatusesMock).toBeCalledTimes(1);
@@ -46,7 +46,7 @@ describe('update-item-statuses', () => {
     updateFolderStatusesMock.mockResolvedValueOnce([]);
 
     // When
-    await updateItemStatuses(props);
+    await syncItemsByFolder(props);
 
     // Then
     expect(updateFolderStatusesMock).toBeCalledTimes(2);

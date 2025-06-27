@@ -35,7 +35,7 @@ describe('spawn-sync-engine-worker', () => {
     expect(BrowserWindow).toHaveBeenCalledTimes(1);
     expect(monitorHealthMock).toHaveBeenCalledTimes(1);
     expect(scheduleSyncMock).toHaveBeenCalledTimes(1);
-    expect(RemoteSyncModuleMock.updateItemStatuses).toHaveBeenCalledTimes(1);
+    expect(RemoteSyncModuleMock.syncItemsByFolder).toHaveBeenCalledTimes(1);
     expect(workers[workspaceId]).toStrictEqual(
       expect.objectContaining({
         startingWorker: true,

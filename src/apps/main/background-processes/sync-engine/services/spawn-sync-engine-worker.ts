@@ -47,7 +47,7 @@ export async function spawnSyncEngineWorker({ config }: TProps) {
    * Since we can have a different status in our local database that in remote,
    * we want to run also this sync in background to update the statuses.
    */
-  void RemoteSyncModule.updateItemStatuses({
+  void RemoteSyncModule.syncItemsByFolder({
     rootFolderUuid: config.rootUuid,
     context: config,
   });
