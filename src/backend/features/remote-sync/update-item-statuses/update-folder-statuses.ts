@@ -21,15 +21,9 @@ export async function updateFolderStatuses({ context, folderUuid }: TProps) {
      * TODO: this should be improved because it can happen that the folder doesn't exist in our local database,
      * and we have to create it, however, we cannot do that yet because we will break the checkpoint
      */
-
     await driveFoldersCollection.updateInBatch({
       payload: { status: 'EXISTS' },
       where: { parentUuid: folderUuid, uuid: In(folderUuids) },
-    });
-
-    await driveFoldersCollection.updateInBatch({
-      payload: { status: 'TRASHED' },
-      where: { parentUuid: folderUuid, uuid: Not(In(folderUuids)) },
     });
   } catch (exc) {
     logger.error({

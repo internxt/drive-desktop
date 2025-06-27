@@ -23,11 +23,6 @@ export async function updateFileStatuses({ context, folderUuid }: TProps) {
       payload: { status: 'EXISTS' },
       where: { folderUuid, uuid: In(fileUuids) },
     });
-
-    await driveFilesCollection.updateInBatch({
-      payload: { status: 'TRASHED' },
-      where: { folderUuid, uuid: Not(In(fileUuids)) },
-    });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',
