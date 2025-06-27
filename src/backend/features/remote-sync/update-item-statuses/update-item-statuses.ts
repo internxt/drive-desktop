@@ -28,6 +28,11 @@ export async function updateItemStatuses({ context, rootFolderUuid }: TProps) {
 
     const [newFolderUuids] = await Promise.all([foldersPromise, filesPromise]);
     folderUuids.push(...newFolderUuids);
+    /**
+     * v2.5.6 Daniel Jiménez
+     * Since this is a fetch that is going to run everytime in the background,
+     * we don't want to saturate the server, so we wait 10 seconds before the next folder.
+     */
     await sleep(10_000);
   }
 }
