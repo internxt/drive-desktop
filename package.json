@@ -95,7 +95,6 @@
     "@types/react-dom": "^17.0.11",
     "@types/uuid": "^8.3.4",
     "@types/webpack-bundle-analyzer": "^4.7.0",
-    "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^5.8.1",
     "@typescript-eslint/parser": "^5.8.1",
     "@vitest/coverage-v8": "3.0.8",
@@ -106,7 +105,6 @@
     "cross-env": "^7.0.3",
     "css-loader": "^6.5.1",
     "css-minimizer-webpack-plugin": "^3.3.1",
-    "del-cli": "^5.0.0",
     "depcheck": "^1.4.7",
     "dotenv": "^10.0.0",
     "dotenv-webpack": "^7.0.3",
@@ -155,7 +153,6 @@
     "webpack-cli": "^4.9.1",
     "webpack-dev-server": "^4.7.1",
     "webpack-merge": "^5.8.0",
-    "yargs": "^18.0.0",
     "zod": "^3.24.2"
   },
   "dependencies": {
@@ -184,7 +181,6 @@
     "electron-log": "^5.3.3",
     "electron-store": "^8.0.1",
     "electron-updater": "^4.6.4",
-    "form-data": "^4.0.0",
     "framer-motion": "^5.6.0",
     "i18next": "^22.4.13",
     "jwt-decode": "^3.1.2",
