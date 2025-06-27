@@ -21,7 +21,6 @@ import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pend
 import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
-import { trimPlaceholderId } from './callbacks-controllers/controllers/placeholder-id';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 

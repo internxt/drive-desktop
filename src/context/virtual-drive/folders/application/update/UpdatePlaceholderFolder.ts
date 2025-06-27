@@ -1,7 +1,6 @@
 import { promises as fs, constants as FsConstants } from 'fs';
 import Logger from 'electron-log';
 import path from 'path';
-import * as Sentry from '@sentry/electron/renderer';
 import { InMemoryFolderRepository } from '../../infrastructure/InMemoryFolderRepository';
 import { NodeWinLocalFolderSystem } from '../../infrastructure/NodeWinLocalFolderSystem';
 import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
@@ -140,7 +139,6 @@ export class FolderPlaceholderUpdater {
           }
         } catch (error) {
           Logger.error(error);
-          Sentry.captureException(error);
         }
       }
     }

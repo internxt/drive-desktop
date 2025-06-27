@@ -3,7 +3,6 @@ import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
-import * as Sentry from '@sentry/electron/renderer';
 import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -11,16 +10,6 @@ import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File'
 import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
 
 logger.debug({ msg: 'Running sync engine' });
-
-function initSentry() {
-  Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    enabled: true, // it is true but is using app.isPackaged from the main process
-  });
-  Sentry.captureMessage('Sync engine process started');
-}
-
-initSentry();
 
 async function ensureTheFolderExist(path: string) {
   try {
@@ -59,7 +48,6 @@ async function setUp() {
       event.sender.send('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS');
     } catch (error: unknown) {
       Logger.error('[SYNC ENGINE] Error stopping and cleaning: ', error);
-      Sentry.captureException(error);
       event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
     }
   });
@@ -118,10 +106,8 @@ ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
     })
     .catch((error) => {
       Logger.error('[SYNC ENGINE] Error setting up', error);
-      Sentry.captureException(error);
       if (error.toString().includes('Error: ConnectSyncRoot failed')) {
         Logger.info('[SYNC ENGINE] We need to restart the app virtual drive');
-        Sentry.captureMessage('Restarting sync engine virtual drive is required');
       }
       ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
     });

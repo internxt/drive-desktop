@@ -1,5 +1,4 @@
 import Logger from 'electron-log';
-import * as Sentry from '@sentry/electron/renderer';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { BindingsManager } from '../BindingManager';
 import configStore from '../../../apps/main/config';
@@ -47,7 +46,6 @@ export class HandleHydrateService {
     } catch (error) {
       Logger.error(`error hydrating file ${task.path}`);
       Logger.error(error);
-      Sentry.captureException(error);
     }
   }
 }
