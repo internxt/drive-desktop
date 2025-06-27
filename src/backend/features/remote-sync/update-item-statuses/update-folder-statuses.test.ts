@@ -1,6 +1,6 @@
 import { driveFoldersCollection } from '@/apps/main/remote-sync/store';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
-import { deepMocked } from '@/tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { updateFolderStatuses } from './update-folder-statuses';
 import { In, Not } from 'typeorm';
 
@@ -14,9 +14,10 @@ describe('update-folder-statuses', () => {
   it('should update folder statuses', async () => {
     // Given
     fetchFoldersByFolderMock.mockResolvedValueOnce([{ uuid: 'uuid' }]);
+    const props = mockProps<typeof updateFolderStatuses>({ folderUuid: 'folderUuid' });
 
     // When
-    await updateFolderStatuses({ context: { workspaceId: '', workspaceToken: '' }, folderUuid: 'folderUuid' });
+    await updateFolderStatuses(props);
 
     // Then
     expect(driveFoldersCollectionMock.updateInBatch).toBeCalledTimes(2);
