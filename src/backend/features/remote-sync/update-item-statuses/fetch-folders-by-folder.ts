@@ -1,10 +1,10 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
-import { TSyncContext } from '../domain/sync-context';
+import { Config } from '@/apps/sync-engine/config';
 
 type TProps = {
-  context: TSyncContext;
+  context: Config;
   folderUuid: string;
 };
 

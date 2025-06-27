@@ -57,7 +57,10 @@ export const deleteFileInBatch = async (itemsIds: string[]) => {
 
 export async function getUpdatedRemoteItems(workspaceId: string) {
   try {
-    const promise = Promise.all([driveFilesCollection.getAll({ workspaceId }), driveFoldersCollection.getAll({ workspaceId })]);
+    const promise = Promise.all([
+      driveFilesCollection.getAll({ workspaceId, status: 'EXISTS' }),
+      driveFoldersCollection.getAll({ workspaceId, status: 'EXISTS' }),
+    ]);
 
     const [files, folders] = await promise;
 

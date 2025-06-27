@@ -17,8 +17,6 @@ type Items = {
 export type Tree = {
   files: Array<File>;
   folders: Array<Folder>;
-  trashedFiles: Array<File>;
-  trashedFolders: Array<Folder>;
 };
 
 export class Traverser {
@@ -66,11 +64,7 @@ export class Traverser {
           size: Number(serverFile.size),
         });
 
-        if (serverFile.status === 'DELETED' || serverFile.status === 'TRASHED') {
-          tree.trashedFiles.push(file);
-        } else {
-          tree.files.push(file);
-        }
+        tree.files.push(file);
       } catch (exc) {
         if (relativePath) {
           const name = relativePath;
@@ -105,12 +99,8 @@ export class Traverser {
           path: relativePath,
         });
 
-        if (serverFolder.status === 'DELETED' || serverFolder.status === 'TRASHED') {
-          tree.trashedFolders.push(folder);
-        } else {
-          tree.folders.push(folder);
-          this.traverse(tree, items, folder);
-        }
+        tree.folders.push(folder);
+        this.traverse(tree, items, folder);
       } catch (exc) {
         /**
          * v2.5.3 Daniel Jiménez
@@ -132,8 +122,6 @@ export class Traverser {
     const tree: Tree = {
       files: [],
       folders: [rootFolder],
-      trashedFiles: [],
-      trashedFolders: [],
     };
 
     this.traverse(tree, items, rootFolder);

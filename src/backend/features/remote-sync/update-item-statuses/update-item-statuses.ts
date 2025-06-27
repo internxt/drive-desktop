@@ -1,11 +1,11 @@
 import { sleep } from '@/apps/main/util';
 import { updateFolderStatuses } from './update-folder-statuses';
 import { updateFileStatuses } from './update-file-statuses';
-import { TSyncContext } from '../domain/sync-context';
 import { logger } from '@/apps/shared/logger/logger';
+import { Config } from '@/apps/sync-engine/config';
 
 type TProps = {
-  context: TSyncContext;
+  context: Config;
   rootFolderUuid: string;
 };
 

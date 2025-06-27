@@ -1,11 +1,11 @@
 import { driveFilesCollection } from '@/apps/main/remote-sync/store';
-import { TSyncContext } from '../domain/sync-context';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
 import { In, Not } from 'typeorm';
 import { logger } from '@/apps/shared/logger/logger';
+import { Config } from '@/apps/sync-engine/config';
 
 type TProps = {
-  context: TSyncContext;
+  context: Config;
   folderUuid: string;
 };
 
