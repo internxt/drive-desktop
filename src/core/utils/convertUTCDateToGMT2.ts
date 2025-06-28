@@ -11,7 +11,7 @@ const formatDate = (date: Date) => {
   );
 };
 
-export const convertUTCDateToGMT2 = (date = new Date()) => {
+export const convertUTCDateToGMT2 = (date: Date) => {
   const gmt2Date = new Date(date.getTime() + 2 * 60 * 60 * 1000);
   return formatDate(gmt2Date);
 };

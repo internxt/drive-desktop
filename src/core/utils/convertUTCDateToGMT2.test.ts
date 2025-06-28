@@ -2,15 +2,8 @@ import { convertUTCDateToGMT2 } from './convertUTCDateToGMT2';
 
 describe('convertUTCDateToGMT2', () => {
   it('should return a string in the format YYYY-MM-DD HH:mm:SS.SSS', () => {
-    const result = convertUTCDateToGMT2();
+    const result = convertUTCDateToGMT2(new Date());
     expect(result).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$/);
-  });
-
-  it('should use current date when no argument is passed', () => {
-    const now = new Date();
-    const expected = convertUTCDateToGMT2(now);
-    const actual = convertUTCDateToGMT2();
-    expect(actual).toBe(expected);
   });
 
   it('should correctly convert a specific UTC date to GMT+2', () => {

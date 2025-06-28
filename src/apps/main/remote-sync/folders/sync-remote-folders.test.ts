@@ -6,16 +6,19 @@ import { syncRemoteFolder } from './sync-remote-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFolders } from './sync-remote-folders';
 import { TWorkerConfig } from '../../background-processes/sync-engine/store';
+import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('../../auth/service'));
 vi.mock(import('./sync-remote-folder'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+vi.mock(import('@/infra/lokijs/lokijs.module'));
 
 describe('sync-remote-folders.service', () => {
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
   const syncRemoteFolderMock = deepMocked(syncRemoteFolder);
   const getFoldersMock = deepMocked(driveServerWip.folders.getFolders);
+  const updateCheckpointMock = vi.mocked(LokijsModule.CheckpointsModule.updateCheckpoint);
 
   const worker = mockDeep<TWorkerConfig>();
   const remoteSyncManager = new RemoteSyncManager(worker, '');
@@ -44,7 +47,7 @@ describe('sync-remote-folders.service', () => {
     await syncRemoteFolders({ self: remoteSyncManager });
 
     // Then
-    expect(getFoldersMock).toHaveBeenCalledWith({
+    expect(getFoldersMock).toBeCalledWith({
       query: expect.objectContaining({
         status: 'EXISTS',
       }),
@@ -59,7 +62,7 @@ describe('sync-remote-folders.service', () => {
     await syncRemoteFolders({ self: remoteSyncManager, from: new Date() });
 
     // Then
-    expect(getFoldersMock).toHaveBeenCalledWith({
+    expect(getFoldersMock).toBeCalledWith({
       query: expect.objectContaining({
         status: 'ALL',
       }),
@@ -88,5 +91,20 @@ describe('sync-remote-folders.service', () => {
 
     // Then
     expect(getFoldersMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('Update checkpoint after fetch', async () => {
+    // Given
+    getFoldersMock.mockResolvedValueOnce({ data: Array(50).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) });
+    getFoldersMock.mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
+
+    // When
+    await syncRemoteFolders({ self: remoteSyncManager });
+
+    // Then
+    const common = { userUuid: 'uuid', workspaceId: '', type: 'folder' };
+    expect(updateCheckpointMock).toHaveBeenCalledTimes(2);
+    expect(updateCheckpointMock).toBeCalledWith({ ...common, checkpoint: '2025-06-28T12:25:07.000Z' });
+    expect(updateCheckpointMock).toBeCalledWith({ ...common, checkpoint: '2025-06-29T12:25:07.000Z' });
   });
 });
