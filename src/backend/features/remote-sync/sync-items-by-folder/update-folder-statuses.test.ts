@@ -20,7 +20,7 @@ describe('update-folder-statuses', () => {
     await updateFolderStatuses(props);
 
     // Then
-    expect(driveFoldersCollectionMock.updateInBatch).toBeCalledTimes(2);
+    expect(driveFoldersCollectionMock.updateInBatch).toBeCalledTimes(1);
     expect(driveFoldersCollectionMock.updateInBatch).toHaveBeenCalledWith({
       payload: { status: 'EXISTS' },
       where: { parentUuid: 'folderUuid', uuid: In(['uuid']) },

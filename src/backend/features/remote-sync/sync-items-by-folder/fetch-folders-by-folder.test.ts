@@ -58,15 +58,17 @@ describe('fetch-folders-by-folder', () => {
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(2);
   });
 
-  it('If fetch fails, then throw error', async () => {
+  it('If fetch fails, do not throw an error', async () => {
     // Given
+    getFoldersByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFoldersByFolderMock.mockResolvedValueOnce({ error: new Error() });
 
     // When
-    await expect(() => fetchFoldersByFolder(props)).rejects.toThrowError();
+    const folders = await fetchFoldersByFolder(props);
 
     // Then
-    expect(getFoldersByFolderMock).toHaveBeenCalledTimes(1);
+    expect(folders).toHaveLength(50);
+    expect(getFoldersByFolderMock).toHaveBeenCalledTimes(2);
   });
 
   it('If workspaceId is provided, call fetch from workspace', async () => {

@@ -1,5 +1,5 @@
 import { driveFoldersCollection } from '@/apps/main/remote-sync/store';
-import { In, Not } from 'typeorm';
+import { In } from 'typeorm';
 import { logger } from '@/apps/shared/logger/logger';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
 import { Config } from '@/apps/sync-engine/config';

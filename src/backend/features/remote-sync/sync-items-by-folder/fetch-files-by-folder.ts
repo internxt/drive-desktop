@@ -31,12 +31,7 @@ export async function fetchFilesByFolder({ context, folderUuid }: TProps) {
       { skipLog: true },
     );
 
-    /**
-     * v2.5.6 Daniel Jiménez
-     * We need to throw the error, otherwise we are going to have an incomplete array of uuids
-     * for that folderUuid and we will mark as TRASHED folders that are not TRASHED.
-     */
-    if (error) throw error;
+    if (error) break;
 
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;

@@ -1,6 +1,6 @@
 import { driveFilesCollection } from '@/apps/main/remote-sync/store';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
-import { In, Not } from 'typeorm';
+import { In } from 'typeorm';
 import { logger } from '@/apps/shared/logger/logger';
 import { Config } from '@/apps/sync-engine/config';
 
