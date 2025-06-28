@@ -150,9 +150,6 @@ importers:
       '@internxt/eslint-config-internxt':
         specifier: ^1.0.9
         version: 1.0.9(eslint@8.57.1)(typescript@5.8.3)
-      '@playwright/test':
-        specifier: 1.26.1
-        version: 1.26.1
       '@pmmmwh/react-refresh-webpack-plugin':
         specifier: 0.5.4
         version: 0.5.4(react-refresh@0.11.0)(type-fest@2.19.0)(webpack-dev-server@4.15.2)(webpack@5.98.0)
@@ -258,9 +255,6 @@ importers:
       electron-builder:
         specifier: ^26.0.12
         version: 26.0.12(electron-builder-squirrel-windows@26.0.12)
-      electron-playwright-helpers:
-        specifier: ^1.2.0
-        version: 1.7.1
       electron-rebuild:
         specifier: ^3.2.9
         version: 3.2.9
@@ -312,9 +306,6 @@ importers:
       openapi-typescript:
         specifier: ^7.6.1
         version: 7.6.1(typescript@5.8.3)
-      playwright:
-        specifier: 1.26.1
-        version: 1.26.1
       postcss:
         specifier: ^8.4.5
         version: 8.5.3
@@ -1448,12 +1439,6 @@ packages:
   '@pkgr/core@0.2.7':
     resolution: {integrity: sha512-YLT9Zo3oNPJoBjBc4q8G2mjU4tqIbf5CEOORbUUr48dCD9q3umJ3IPlVqOqDakPfd2HuwccBaqlGhN4Gmr5OWg==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
-
-  '@playwright/test@1.26.1':
-    resolution: {integrity: sha512-bNxyZASVt2adSZ9gbD7NCydzcb5JaI0OR9hc7s+nmPeH604gwp0zp17NNpwXY4c8nvuBGQQ9oGDx72LE+cUWvw==}
-    engines: {node: '>=14'}
-    deprecated: Please update to the latest version of Playwright to test up-to-date browsers.
-    hasBin: true
 
   '@pmmmwh/react-refresh-webpack-plugin@0.5.4':
     resolution: {integrity: sha512-zZbZeHQDnoTlt2AF+diQT0wsSXpvWiaIOZwBRdltNFhG1+I3ozyaw7U/nBiUwyJ0D+zwdXp0E3bWOl38Ag2BMw==}
@@ -3411,9 +3396,6 @@ packages:
     resolution: {integrity: sha512-ZOnlgCVfhKC0Nef68L0wDhwhg8nh5QkpEOA+udjpBxcPfTHGgbZbfoCBS6hmAgVHTAWByHNPkHKpSbEOPGZcxA==}
     engines: {node: '>= 14'}
 
-  electron-playwright-helpers@1.7.1:
-    resolution: {integrity: sha512-S9mo7LfpERgub2WIuYVPpib4XKFeAqBP+mxYf5Bv7E0B5GUB+LUbSj6Fpu39h18Ar635Nf9nQYTmypjuvaYJng==}
-
   electron-publish@26.0.11:
     resolution: {integrity: sha512-a8QRH0rAPIWH9WyyS5LbNvW9Ark6qe63/LqDB7vu2JXYpi0Gma5Q60Dh4tmTqhOBQt0xsrzD8qE7C+D7j+B24A==}
 
@@ -5303,16 +5285,6 @@ packages:
   pkg-up@3.1.0:
     resolution: {integrity: sha512-nDywThFk1i4BQK4twPQ6TA4RT8bDY96yeuCVBWL3ePARCiEKDRSrNGbFIgUJpLp+XeIR65v8ra7WuJOFUBtkMA==}
     engines: {node: '>=8'}
-
-  playwright-core@1.26.1:
-    resolution: {integrity: sha512-hzFchhhxnEiPc4qVPs9q2ZR+5eKNifY2hQDHtg1HnTTUuphYCBP8ZRb2si+B1TR7BHirgXaPi48LIye5SgrLAA==}
-    engines: {node: '>=14'}
-    hasBin: true
-
-  playwright@1.26.1:
-    resolution: {integrity: sha512-WQmEdCgYYe8jOEkhkW9QLcK0PB+w1RZztBLYIT10MEEsENYg251cU0IzebDINreQsUt+HCwwRhtdz4weH9ICcQ==}
-    engines: {node: '>=14'}
-    hasBin: true
 
   please-upgrade-node@3.2.0:
     resolution: {integrity: sha512-gQR3WpIgNIKwBMVLkpMUeR3e1/E1y42bqDQZfql+kDeXd8COYfM8PQA4X6y7a8u9Ua9FHmsrrmirW2vHs45hWg==}
@@ -8412,11 +8384,6 @@ snapshots:
 
   '@pkgr/core@0.2.7': {}
 
-  '@playwright/test@1.26.1':
-    dependencies:
-      '@types/node': 22.15.21
-      playwright-core: 1.26.1
-
   '@pmmmwh/react-refresh-webpack-plugin@0.5.4(react-refresh@0.11.0)(type-fest@2.19.0)(webpack-dev-server@4.15.2)(webpack@5.98.0)':
     dependencies:
       ansi-html-community: 0.0.8
@@ -10614,10 +10581,6 @@ snapshots:
 
   electron-log@5.3.3: {}
 
-  electron-playwright-helpers@1.7.1:
-    dependencies:
-      '@electron/asar': 3.3.1
-
   electron-publish@26.0.11:
     dependencies:
       '@types/fs-extra': 9.0.13
@@ -12762,12 +12725,6 @@ snapshots:
   pkg-up@3.1.0:
     dependencies:
       find-up: 3.0.0
-
-  playwright-core@1.26.1: {}
-
-  playwright@1.26.1:
-    dependencies:
-      playwright-core: 1.26.1
 
   please-upgrade-node@3.2.0:
     dependencies:
