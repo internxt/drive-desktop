@@ -12,6 +12,10 @@ export const getHeaders = async () => {
   return getAuthHeaders();
 };
 
+export const getWorkspaceHeader = ({ workspaceToken }: { workspaceToken: string }) => {
+  return { 'x-internxt-workspace': workspaceToken };
+};
+
 const handleOnUserUnauthorized = () => {
   if (process.type === 'renderer') {
     ipcRendererSyncEngine.emit('USER_IS_UNAUTHORIZED');

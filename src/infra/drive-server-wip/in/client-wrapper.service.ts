@@ -5,6 +5,8 @@ import { sleep } from '@/apps/main/util';
 import { exceptionWrapper } from './exception-wrapper';
 import { getInFlightRequest } from './get-in-flight-request';
 
+const MAX_RETRIES = 3;
+
 type TValidResponse<T> = { data: NonNullable<T>; error?: undefined; response: Response };
 type TErrorResponse = { data?: undefined; error: unknown; response: Response };
 type TPromise<T> = Promise<TValidResponse<T> | TErrorResponse>;
@@ -14,9 +16,8 @@ type TProps<T> = {
   promiseFn: () => TPromise<T>;
   sleepMs?: number;
   retry?: number;
+  skipLog?: boolean;
 };
-
-const MAX_RETRIES = 3;
 
 /**
  * v2.5.5 Daniel Jiménez
@@ -29,11 +30,13 @@ const MAX_RETRIES = 3;
  *  - Network error (we want to retry always).
  *  - Unknown error (we want to retry 3 times).
  */
-export async function clientWrapper<T>({ loggerBody, promiseFn, key, sleepMs = 5_000, retry = 1 }: TProps<T>) {
+export async function clientWrapper<T>({ loggerBody, promiseFn, key, sleepMs = 5_000, retry = 1, skipLog = false }: TProps<T>) {
   try {
     const { reused, promise } = getInFlightRequest({ key, promiseFn });
 
-    logger.debug({ ...loggerBody, reused, retry });
+    if (!skipLog) {
+      logger.debug({ ...loggerBody, reused, retry });
+    }
 
     const { data, error, response } = await promise;
 

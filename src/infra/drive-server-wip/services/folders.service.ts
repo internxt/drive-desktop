@@ -89,7 +89,10 @@ async function getFolders(context: { query: TGetFoldersQuery }) {
   });
 }
 
-async function getFoldersByFolder(context: { folderUuid: string; query: TGetFoldersByFolderQuery }, extra?: { abortSignal: AbortSignal }) {
+async function getFoldersByFolder(
+  context: { folderUuid: string; query: TGetFoldersByFolderQuery },
+  extra?: { abortSignal?: AbortSignal; skipLog?: boolean },
+) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/folders';
   const key = getRequestKey({ method, endpoint, context });
@@ -103,6 +106,7 @@ async function getFoldersByFolder(context: { folderUuid: string; query: TGetFold
   const res = await clientWrapper({
     promiseFn,
     key,
+    skipLog: extra?.skipLog,
     loggerBody: {
       msg: 'Get folders by folder request',
       context,
@@ -120,7 +124,10 @@ async function getFoldersByFolder(context: { folderUuid: string; query: TGetFold
   }
 }
 
-async function getFilesByFolder(context: { folderUuid: string; query: TGetFilesByFolderQuery }, extra?: { abortSignal: AbortSignal }) {
+async function getFilesByFolder(
+  context: { folderUuid: string; query: TGetFilesByFolderQuery },
+  extra?: { abortSignal?: AbortSignal; skipLog?: boolean },
+) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/files';
   const key = getRequestKey({ method, endpoint, context });
@@ -134,6 +141,7 @@ async function getFilesByFolder(context: { folderUuid: string; query: TGetFilesB
   const res = await clientWrapper({
     promiseFn,
     key,
+    skipLog: extra?.skipLog,
     loggerBody: {
       msg: 'Get files by folder request',
       context,
