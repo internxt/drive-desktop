@@ -4,6 +4,7 @@ import { FETCH_LIMIT } from '../store';
 import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFolder } from './sync-remote-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
 type TProps = {
   self: RemoteSyncManager;
@@ -53,5 +54,16 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
         await syncRemoteFolder({ self, user, remoteFolder });
       }),
     );
+
+    const lastFolder = data.at(-1);
+    if (lastFolder) {
+      await LokijsModule.CheckpointsModule.updateCheckpoint({
+        userUuid: user.uuid,
+        workspaceId: self.workspaceId,
+        type: 'folder',
+        plainName: lastFolder.plainName,
+        checkpoint: lastFolder.updatedAt,
+      });
+    }
   }
 }
