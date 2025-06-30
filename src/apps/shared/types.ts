@@ -47,7 +47,7 @@ type ProcessInfo = ProcessInfoBase &
       }
   );
 
-export type ProcessIssue = ProcessInfoBase & {
+type ProcessIssue = ProcessInfoBase & {
   action: 'UPLOAD_ERROR' | 'DOWNLOAD_ERROR' | 'RENAME_ERROR' | 'DELETE_ERROR' | 'METADATA_READ_ERROR';
   errorName: ProcessErrorName;
   process: 'SYNC' | 'BACKUPS';

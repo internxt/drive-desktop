@@ -6,7 +6,7 @@ import { ActionState } from '@internxt/inxt-js/build/api';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
 import { logger } from '@/apps/shared/logger/logger';
 
-export type FileDownloadEvents = {
+type FileDownloadEvents = {
   start: () => void;
   progress: (progress: number) => void;
   finish: (contentsId: string) => void;
