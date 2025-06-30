@@ -2,9 +2,7 @@ import Loki from 'lokijs';
 import { TCheckpoints } from './checkpoints-schema';
 import { PATHS } from '@/core/electron/paths';
 
-const dbFilePath = PATHS.CHECKPOINTS_DB;
-
-const db = new Loki(dbFilePath, {
+const db = new Loki(PATHS.CHECKPOINTS_DB, {
   autoload: true,
   autosave: true,
   autosaveInterval: 5000,
