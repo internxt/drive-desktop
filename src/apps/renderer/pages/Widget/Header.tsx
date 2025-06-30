@@ -7,7 +7,6 @@ import { User } from '../../../main/types';
 import { useTranslationContext } from '../../context/LocalContext';
 // import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
 import useUsage from '../../hooks/useUsage';
-import { reportError } from '../../utils/sentry';
 import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
 import { useIssues } from '../../hooks/useIssues';
 
@@ -36,7 +35,10 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     try {
       await window.electron.openUrl(URL);
     } catch (error) {
-      reportError(error);
+      window.electron.logger.error({
+        msg: 'Error opening URL',
+        error,
+      });
     }
   };
 

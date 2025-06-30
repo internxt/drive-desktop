@@ -15,13 +15,6 @@ export async function fetchFoldersByFolder({ folderUuid, allFolders, abortSignal
   let hasMore = true;
 
   while (hasMore && !abortSignal.aborted) {
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Fetching backup folders',
-      folderUuid,
-      offset,
-    });
-
     const { data, error } = await driveServerWip.folders.getFoldersByFolder(
       {
         folderUuid,

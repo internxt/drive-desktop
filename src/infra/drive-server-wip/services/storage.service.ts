@@ -1,4 +1,4 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { getRequestKey } from '../in/get-in-flight-request';
@@ -70,7 +70,7 @@ async function deleteFileByUuid(context: { uuid: string; workspaceToken: string 
   const promiseFn = () =>
     noContentWrapper({
       request: client.POST(endpoint, {
-        headers: { 'x-internxt-workspace': context.workspaceToken },
+        headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
         body: { items: [{ type: 'file', uuid: context.uuid, id: null }] },
       }),
     });
@@ -97,7 +97,7 @@ async function deleteFolderByUuid(context: { uuid: string; workspaceToken: strin
   const promiseFn = () =>
     noContentWrapper({
       request: client.POST(endpoint, {
-        headers: { 'x-internxt-workspace': context.workspaceToken },
+        headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
         body: { items: [{ type: 'folder', uuid: context.uuid, id: null }] },
       }),
     });

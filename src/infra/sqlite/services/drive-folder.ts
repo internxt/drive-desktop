@@ -55,10 +55,9 @@ export class DriveFolderCollection {
     };
   }
 
-  async getLastUpdatedByWorkspace(workspaceId: string) {
-    const user = getUserOrThrow();
+  async getLastUpdatedByWorkspace({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) {
     const result = await this.repository.findOne({
-      where: { userUuid: user.uuid, workspaceId },
+      where: { userUuid, workspaceId },
       order: { updatedAt: 'DESC' },
     });
 

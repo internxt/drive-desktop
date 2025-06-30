@@ -1,4 +1,3 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { FileDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
@@ -14,13 +13,6 @@ export async function fetchFilesByFolder({ folderUuid, allFiles, abortSignal, of
   let hasMore = true;
 
   while (hasMore && !abortSignal.aborted) {
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Fetching backup files',
-      folderUuid,
-      offset,
-    });
-
     const { data, error } = await driveServerWip.folders.getFilesByFolder(
       {
         folderUuid,

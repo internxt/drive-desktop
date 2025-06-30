@@ -1,0 +1,29 @@
+import { driveFilesCollection } from '@/apps/main/remote-sync/store';
+import { fetchFilesByFolder } from './fetch-files-by-folder';
+import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
+import { updateFileStatuses } from './update-file-statuses';
+import { In } from 'typeorm';
+
+vi.mock(import('./fetch-files-by-folder'));
+vi.mock(import('@/apps/main/remote-sync/store'));
+
+describe('update-file-statuses', () => {
+  const fetchFilesByFolderMock = deepMocked(fetchFilesByFolder);
+  const driveFilesCollectionMock = vi.mocked(driveFilesCollection);
+
+  it('should update file statuses', async () => {
+    // Given
+    fetchFilesByFolderMock.mockResolvedValueOnce([{ uuid: 'uuid' }]);
+    const props = mockProps<typeof updateFileStatuses>({ folderUuid: 'folderUuid' });
+
+    // When
+    await updateFileStatuses(props);
+
+    // Then
+    expect(driveFilesCollectionMock.updateInBatch).toBeCalledTimes(1);
+    expect(driveFilesCollectionMock.updateInBatch).toHaveBeenCalledWith({
+      payload: { status: 'EXISTS' },
+      where: { folderUuid: 'folderUuid', uuid: In(['uuid']) },
+    });
+  });
+});
