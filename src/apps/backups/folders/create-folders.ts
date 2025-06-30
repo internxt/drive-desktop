@@ -53,6 +53,7 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
       });
 
       const { data } = await driveServerWip.folders.createFolder({
+        path: localFolder.relativePath,
         body: {
           plainName: basename(localFolder.relativePath),
           parentFolderUuid: parent.uuid,
