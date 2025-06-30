@@ -1,26 +1,18 @@
-import { User } from '../../types';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { driveFilesCollection } from '../store';
 import { logger } from '@/apps/shared/logger/logger';
 import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File';
 import { FolderStore } from '../folders/folder-store';
 import { FileDto } from '@/infra/drive-server-wip/out/dto';
+import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 
 type TProps = {
   self: RemoteSyncManager;
-  user: User;
   remoteFile: FileDto;
 };
 
-export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
+export async function syncRemoteFile({ self, remoteFile }: TProps) {
   try {
-    const driveFile = await driveFilesCollection.createOrUpdate({
-      ...remoteFile,
-      size: Number(remoteFile.size),
-      isDangledStatus: false,
-      userUuid: user.uuid,
-      workspaceId: self.workspaceId,
-    });
+    const driveFile = await createOrUpdateFile({ context: self.context, fileDto: remoteFile });
 
     if (remoteFile.status === 'EXISTS' && self.worker.worker) {
       try {
@@ -32,7 +24,7 @@ export async function syncRemoteFile({ self, user, remoteFile }: TProps) {
         });
 
         const { relativePath } = FolderStore.getFolderPath({
-          workspaceId: self.workspaceId ?? '',
+          workspaceId: self.workspaceId,
           parentId: driveFile.folderId,
           parentUuid: driveFile.folderUuid ?? null,
           plainName,

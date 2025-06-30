@@ -1,24 +1,18 @@
-import { User } from '../../types';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { driveFoldersCollection } from '../store';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderStore } from './folder-store';
 import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
 import { FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 
 type TProps = {
   self: RemoteSyncManager;
-  user: User;
   remoteFolder: FolderDto;
 };
 
-export async function syncRemoteFolder({ self, user, remoteFolder }: TProps) {
+export async function syncRemoteFolder({ self, remoteFolder }: TProps) {
   try {
-    await driveFoldersCollection.createOrUpdate({
-      ...remoteFolder,
-      userUuid: user.uuid,
-      workspaceId: self.workspaceId,
-    });
+    await createOrUpdateFolder({ context: self.context, folderDto: remoteFolder });
 
     FolderStore.addFolder({
       workspaceId: self.workspaceId,

@@ -1,31 +1,30 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
-import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFolder } from './sync-remote-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFolders } from './sync-remote-folders';
 import { TWorkerConfig } from '../../background-processes/sync-engine/store';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
+import { Config } from '@/apps/sync-engine/config';
 
 vi.mock(import('@/apps/main/util'));
-vi.mock(import('../../auth/service'));
 vi.mock(import('./sync-remote-folder'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 vi.mock(import('@/infra/lokijs/lokijs.module'));
 
 describe('sync-remote-folders.service', () => {
-  const getUserOrThrowMock = deepMocked(getUserOrThrow);
   const syncRemoteFolderMock = deepMocked(syncRemoteFolder);
   const getFoldersMock = deepMocked(driveServerWip.folders.getFolders);
   const updateCheckpointMock = vi.mocked(LokijsModule.CheckpointsModule.updateCheckpoint);
 
+  const config = mockDeep<Config>();
+  config.userUuid = 'uuid';
   const worker = mockDeep<TWorkerConfig>();
-  const remoteSyncManager = new RemoteSyncManager(worker, '');
+  const remoteSyncManager = new RemoteSyncManager(config, worker, '');
 
   beforeEach(() => {
     vi.clearAllMocks();
-    getUserOrThrowMock.mockReturnValue({ uuid: 'uuid' });
   });
 
   it('If we fetch less than 50 files, then do not fetch again', async () => {

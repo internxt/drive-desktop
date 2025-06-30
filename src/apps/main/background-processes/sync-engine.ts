@@ -54,6 +54,7 @@ export async function spawnDefaultSyncEngineWorker() {
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
   const config: Config = {
+    userUuid: user.uuid,
     providerId,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
