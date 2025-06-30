@@ -119,7 +119,7 @@ async function getFoldersInWorkspace(context: { workspaceId: string; query: Quer
   });
 }
 
-async function createFileInWorkspace(context: { workspaceId: string; body: CreateFileInWorkspaceBody }) {
+async function createFileInWorkspace(context: { workspaceId: string; path: string; body: CreateFileInWorkspaceBody }) {
   const method = 'POST';
   const endpoint = '/workspaces/{workspaceId}/files';
   const key = getRequestKey({ method, endpoint, context });
@@ -144,7 +144,7 @@ async function createFileInWorkspace(context: { workspaceId: string; body: Creat
   });
 }
 
-async function createFolderInWorkspace(context: { workspaceId: string; body: CreateFolderInWorkspaceBody }) {
+async function createFolderInWorkspace(context: { path: string; workspaceId: string; body: CreateFolderInWorkspaceBody }) {
   const method = 'POST';
   const endpoint = '/workspaces/{workspaceId}/folders';
   const key = getRequestKey({ method, endpoint, context });

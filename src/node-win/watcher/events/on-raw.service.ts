@@ -2,6 +2,7 @@ import { stat } from 'fs/promises';
 
 import { DetectContextMenuActionService } from '../detect-context-menu-action.service';
 import { Watcher } from '../watcher';
+import { fileSystem } from '@/infra/file-system/file-system.module';
 
 export class OnRawService {
   constructor(private readonly detectContextMenuAction = new DetectContextMenuActionService()) {}
@@ -9,8 +10,18 @@ export class OnRawService {
   async execute({ self, event, path, details }: TProps) {
     try {
       if (event === 'change' && details.prev && details.curr) {
-        const item = await stat(path);
-        if (item.isDirectory()) {
+        const { data, error } = await fileSystem.stat({ absolutePath: path });
+
+        if (error) {
+          /**
+           * v2.5.6 Daniel Jiménez
+           * When placeholder is deleted it also emits a change event, we want to ignore that error.
+           */
+          if (error.code === 'NON_EXISTS') return;
+          throw error;
+        }
+
+        if (data.isDirectory()) {
           return;
         }
 

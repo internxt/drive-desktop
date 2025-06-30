@@ -40,7 +40,7 @@ async function getFiles(context: { query: TGetFilesQuery }) {
   });
 }
 
-async function createFile(context: { body: TCreateFileBody }) {
+async function createFile(context: { path: string; body: TCreateFileBody }) {
   const method = 'POST';
   const endpoint = '/files';
   const key = getRequestKey({ method, endpoint, context });
