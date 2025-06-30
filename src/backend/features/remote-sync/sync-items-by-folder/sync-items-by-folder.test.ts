@@ -8,7 +8,7 @@ vi.mock(import('@/apps/main/util'));
 vi.mock(import('./update-file-statuses'));
 vi.mock(import('./update-folder-statuses'));
 
-describe('update-item-statuses', () => {
+describe('sync-items-by-folder', () => {
   const updateFolderStatusesMock = vi.mocked(updateFolderStatuses);
   const updateFileStatusesMock = vi.mocked(updateFileStatuses);
   const sleepMock = vi.mocked(sleep);
