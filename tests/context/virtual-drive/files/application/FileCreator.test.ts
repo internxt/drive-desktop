@@ -4,22 +4,22 @@ import { File } from '../../../../../src/context/virtual-drive/files/domain/File
 import { FileContentsMother } from '../../contents/domain/FileContentsMother';
 import { mockDeep } from 'vitest-mock-extended';
 import { FileMother, generateRandomFileId } from '../domain/FileMother';
-import { FolderFinder } from '@/context/virtual-drive/folders/application/FolderFinder';
-import { FileDeleter } from '@/context/virtual-drive/files/application/FileDeleter';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { FolderMother } from '../../folders/domain/FolderMother';
 import { v4 } from 'uuid';
-import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
+import VirtualDrive from '@/node-win/virtual-drive';
+import { NodeWin } from '@/infra/node-win/node-win.module';
+
+vi.mock(import('@/infra/node-win/node-win.module'));
 
 describe('File Creator', () => {
   const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
   const fileRepository = mockDeep<InMemoryFileRepository>();
-  const fileDeleter = mockDeep<FileDeleter>();
-  const folderRepository = mockDeep<InMemoryFolderRepository>();
-  const folderFinder = new FolderFinder(folderRepository);
+  const virtualDrive = mockDeep<VirtualDrive>();
+  const getFolderUuid = vi.mocked(NodeWin.getFolderUuid);
 
-  const SUT = new FileCreator(remoteFileSystemMock, fileRepository, folderFinder, fileDeleter);
+  const SUT = new FileCreator(remoteFileSystemMock, fileRepository, virtualDrive);
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -42,7 +42,7 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(file);
 
-    vi.spyOn(folderFinder, 'findFromFilePath').mockReturnValueOnce(folderParent);
+    getFolderUuid.mockReturnValueOnce({ data: folderParent.uuid });
 
     await SUT.run(path, contents);
 
@@ -63,7 +63,7 @@ describe('File Creator', () => {
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
-    vi.spyOn(folderFinder, 'findFromFilePath').mockReturnValueOnce(folderParent);
+    getFolderUuid.mockReturnValueOnce({ data: folderParent.uuid });
 
     await SUT.run(path, contents);
   });
@@ -83,13 +83,13 @@ describe('File Creator', () => {
 
     fileRepository.searchByPartial.mockReturnValueOnce(existingFile).mockReturnValueOnce(existingFile);
 
-    vi.spyOn(folderFinder, 'findFromFilePath').mockReturnValueOnce(folderParent);
+    getFolderUuid.mockReturnValueOnce({ data: folderParent.uuid });
 
     remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
 
     await SUT.run(path, contents);
 
-    expect(fileDeleter.run).toBeCalledWith(existingFile.contentsId);
+    // expect(fileDeleter.run).toBeCalledWith(existingFile.contentsId);
 
     expect(remoteFileSystemMock.persist).toBeCalledWith(
       expect.objectContaining({

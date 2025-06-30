@@ -100,7 +100,6 @@ export class FileOverwriteContent {
       await this.fileContentsHardUpdater.run({
         attributes: {
           contentsId: hydratedDangledRemoteFile.contentsId,
-          folderId: hydratedDangledRemoteFile.folderId.value,
           folderUuid: hydratedDangledRemoteFile.folderUuid.value,
           size: hydratedDangledRemoteFile.size,
           path: hydratedDangledRemoteFile.path,

@@ -69,7 +69,6 @@ export class FileBatchUploader {
 
               const file = await this.creator.run({
                 contentsId,
-                folderId: parent.id,
                 folderUuid: parent.uuid,
                 path: localFile.relativePath,
                 size: localFile.size.value,
