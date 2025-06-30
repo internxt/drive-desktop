@@ -1,4 +1,3 @@
-import { FilePath } from '../../files/domain/FilePath';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { Folder } from '../domain/Folder';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
@@ -11,16 +10,6 @@ export class FolderFinder {
 
     if (!folder) {
       throw new FolderNotFoundError(path);
-    }
-
-    return folder;
-  }
-
-  findFromFilePath(path: FilePath): Folder {
-    const folder = this.repository.searchByPartial({ path: path.dirname() });
-
-    if (!folder) {
-      throw new FolderNotFoundError(path.dirname());
     }
 
     return folder;

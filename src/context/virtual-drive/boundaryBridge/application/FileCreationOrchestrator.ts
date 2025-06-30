@@ -18,7 +18,7 @@ export class FileCreationOrchestrator {
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'File uploaded',
-      posixRelativePath,
+      path: posixRelativePath,
       contentsId: fileContents.id,
       size: fileContents.size,
     });

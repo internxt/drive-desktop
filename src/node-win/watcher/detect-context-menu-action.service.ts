@@ -13,24 +13,6 @@ export class DetectContextMenuActionService {
     const itemId = self.addon.getFileIdentity({ path });
     const isInDevice = self.fileInDevice.has(path);
 
-    self.logger.debug({
-      msg: 'change',
-      path,
-      status,
-      itemId,
-      isInDevice,
-      prev: {
-        size: prev.size,
-        ctimeMs: prev.ctimeMs,
-        mtimeMs: prev.mtimeMs,
-      },
-      curr: {
-        size: curr.size,
-        ctimeMs: curr.ctimeMs,
-        mtimeMs: curr.mtimeMs,
-      },
-    });
-
     if (
       prev.size === curr.size &&
       prev.ctimeMs !== curr.ctimeMs &&

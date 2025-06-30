@@ -92,12 +92,6 @@ export class AddController extends CallbackController {
         });
       }
     } else {
-      logger.debug({
-        tag: 'SYNC-ENGINE',
-        msg: 'Create file',
-        posixRelativePath,
-      });
-
       try {
         const placeholderId = await this.createFile(posixRelativePath);
         drive.convertToPlaceholder({ itemPath: absolutePath, id: placeholderId });

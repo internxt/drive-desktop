@@ -41,7 +41,7 @@ export function buildFilesContainer(
 
   const filePathUpdater = new FilePathUpdater(repository, folderContainer.folderFinder);
 
-  const fileCreator = new FileCreator(remoteFileSystem, repository, folderContainer.folderFinder, fileDeleter);
+  const fileCreator = new FileCreator(remoteFileSystem, repository, virtualDrive);
 
   const filesPlaceholderUpdater = new FilesPlaceholderUpdater(repository, localFileSystem, sharedContainer.relativePathToAbsoluteConverter);
 
