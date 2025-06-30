@@ -6,7 +6,6 @@ import { Service } from 'diod';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import * as crypt from '@/context/shared/infrastructure/crypt';
 
 @Service()
 export class HttpRemoteFileSystem {
@@ -17,12 +16,6 @@ export class HttpRemoteFileSystem {
 
   async persist(offline: OfflineFile): Promise<FileAttributes> {
     try {
-      const encryptedName = crypt.encryptName({ name: offline.name, parentId: offline.folderId });
-
-      if (!encryptedName) {
-        throw new Error('Failed to encrypt name');
-      }
-
       const body = {
         bucket: this.bucket,
         fileId: offline.contentsId,
@@ -33,13 +26,9 @@ export class HttpRemoteFileSystem {
         type: offline.type,
       };
 
-      logger.debug({
-        msg: `Creating file ${offline.name} in folder ${offline.folderId}`,
-      });
-
       const { data, error } = this.workspaceId
-        ? await driveServerWip.workspaces.createFileInWorkspace({ body, workspaceId: this.workspaceId })
-        : await driveServerWip.files.createFile({ body });
+        ? await driveServerWip.workspaces.createFileInWorkspace({ body, workspaceId: this.workspaceId, path: offline.path })
+        : await driveServerWip.files.createFile({ body, path: offline.path });
 
       if (!data) throw error;
 

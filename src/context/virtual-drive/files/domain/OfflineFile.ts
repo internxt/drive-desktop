@@ -4,7 +4,6 @@ import { FileSize } from './FileSize';
 
 export type OfflineFileAttributes = {
   contentsId: string;
-  folderId: number;
   path: string;
   size: number;
   folderUuid: string;
@@ -13,7 +12,6 @@ export type OfflineFileAttributes = {
 export class OfflineFile {
   private constructor(
     private _contentsId: ContentsId,
-    private _folderId: number,
     private _folderUuid: string,
     private _path: FilePath,
     private readonly _size: FileSize,
@@ -21,10 +19,6 @@ export class OfflineFile {
 
   public get contentsId() {
     return this._contentsId.value;
-  }
-
-  public get folderId() {
-    return this._folderId;
   }
 
   public get folderUuid() {
@@ -50,7 +44,6 @@ export class OfflineFile {
   static from(attributes: OfflineFileAttributes): OfflineFile {
     return new OfflineFile(
       new ContentsId(attributes.contentsId),
-      attributes.folderId,
       attributes.folderUuid,
       new FilePath(attributes.path),
       new FileSize(attributes.size),

@@ -192,17 +192,16 @@ export class Addon {
 
     this.parseAddonZod('convertToPlaceholder', result);
 
-    logger.debug({
-      msg: 'Convert to placeholder',
-      result,
-      path,
-      id,
-      tag: 'NODE-WIN',
-    });
-
-    if (!result.success) {
+    if (result.success) {
+      logger.debug({
+        msg: 'Convert to placeholder succeeded',
+        path,
+        id,
+        tag: 'NODE-WIN',
+      });
+    } else {
       logger.error({
-        msg: 'Failed to convert to placeholder',
+        msg: 'Convert to placeholder failed',
         path,
         id,
         error: result.errorMessage,

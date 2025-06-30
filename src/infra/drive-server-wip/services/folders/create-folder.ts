@@ -15,7 +15,7 @@ class CreateFolderError extends DriveServerWipError {
   }
 }
 
-export async function createFolder(context: { body: TCreateFolderBody }) {
+export async function createFolder(context: { path: string; body: TCreateFolderBody }) {
   const method = 'POST';
   const endpoint = '/folders';
   const key = getRequestKey({ method, endpoint, context });

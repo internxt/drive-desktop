@@ -21,8 +21,8 @@ export class HttpRemoteFolderSystem {
 
     try {
       const { data, error } = this.workspaceId
-        ? await driveServerWip.workspaces.createFolderInWorkspace({ body, workspaceId: this.workspaceId })
-        : await driveServerWip.folders.createFolder({ body });
+        ? await driveServerWip.workspaces.createFolderInWorkspace({ path: offline.path, body, workspaceId: this.workspaceId })
+        : await driveServerWip.folders.createFolder({ path: offline.path, body });
 
       if (!data) throw error;
 
