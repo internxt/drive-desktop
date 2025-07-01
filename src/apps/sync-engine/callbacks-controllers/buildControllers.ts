@@ -25,12 +25,7 @@ export function buildControllers(container: DependencyContainer): IControllers {
     container.folderContainerDetector,
   );
 
-  const renameOrMoveController = new RenameOrMoveController(
-    container.absolutePathToRelativeConverter,
-    container.filePathUpdater,
-    container.folderPathUpdater,
-    deleteController,
-  );
+  const renameOrMoveController = new RenameOrMoveController(container.filePathUpdater, container.folderPathUpdater);
 
   const downloadFileController = new DownloadFileController(container.contentsDownloader, container.fileRepository);
 

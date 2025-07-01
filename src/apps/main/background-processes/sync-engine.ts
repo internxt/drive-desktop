@@ -95,7 +95,7 @@ export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { provider
       rootUuid: workspace.rootFolderId,
     });
 
-    await spawnWorkspace({ workspace });
+    // await spawnWorkspace({ workspace });
   });
 
   await Promise.all(spawnWorkspaces);

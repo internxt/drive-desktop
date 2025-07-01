@@ -6,14 +6,14 @@ import { OnAddDirService } from './events/on-add-dir.service';
 import { OnRawService } from './events/on-raw.service';
 import { Watcher } from './watcher';
 import { QueueManager } from '../queue/queue-manager';
-import { Addon } from '../addon-wrapper';
 import { TLogger } from '../logger';
+import VirtualDrive from '../virtual-drive';
 
 vi.mock(import('./events/on-add.service'));
 
 let watcher: Watcher | undefined;
 
-const addon = mockDeep<Addon>();
+const virtualDrive = mockDeep<VirtualDrive>();
 const queueManager = mockDeep<QueueManager>();
 const logger = mockDeep<TLogger>();
 
@@ -27,7 +27,7 @@ export async function setupWatcher(syncRootPath: string) {
   }
 
   watcher = new Watcher(onAddDir, onRaw);
-  watcher.init(queueManager, syncRootPath, {}, logger, addon);
+  watcher.init(queueManager, syncRootPath, {}, logger, virtualDrive);
   watcher.watchAndWait();
   watcher.chokidar?.on('all', (event, path) => onAll({ event, path }));
 }

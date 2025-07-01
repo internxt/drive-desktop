@@ -29,6 +29,15 @@ export class DriveFolderCollection {
     return result;
   }
 
+  async get({ uuid }: { uuid: DriveFolder['uuid'] }) {
+    const user = getUserOrThrow();
+    const result = await this.repository.findOne({
+      where: { uuid, userUuid: user.uuid },
+    });
+
+    return result;
+  }
+
   async createOrUpdate(payload: DriveFolder) {
     const result = await this.repository.save(payload);
     return result;

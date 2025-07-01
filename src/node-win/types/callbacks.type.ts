@@ -21,8 +21,6 @@ export type InputSyncCallbacks = {
   notifyDehydrateCompletionCallback?: NapiCallbackFunction;
   notifyDeleteCallback?: TNotifyDeleteCallback;
   notifyDeleteCompletionCallback?: NapiCallbackFunction;
-  notifyRenameCallback?: NapiCallbackFunction;
-  notifyRenameCompletionCallback?: NapiCallbackFunction;
   noneCallback?: NapiCallbackFunction;
 };
 
