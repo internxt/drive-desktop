@@ -15,11 +15,25 @@ This guide explains how to set up and build the `drive-desktop` project.
 
 Before proceeding, ensure you have the following tools installed:
 
-- **Node.js 18**
+- **Install NVM**
+
+https://github.com/coreybutler/nvm-windows
+
+
+- **Node.js 20**
 
 ```bash
-nvm install 18
+nvm install 20
 ```
+
+- **Install node GYP**
+```bash
+npm install -g node-gyp
+```
+
+- **Python 3.10**
+
+Install using win store
 
 - **pnpm**
 
@@ -28,6 +42,10 @@ npm install -g pnpm
 ```
 
 - **Visual Studio** (not VS Code) for building native dependencies.
+
+![alt text](public/image.png)
+
+![alt text](public/image-1.png)
 
 ## Build Steps
 
