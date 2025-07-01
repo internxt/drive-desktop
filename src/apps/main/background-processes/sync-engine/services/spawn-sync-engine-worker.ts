@@ -8,7 +8,8 @@ import { monitorHealth } from './monitor-health';
 import { logger } from '@/apps/shared/logger/logger';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
-import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
+// import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
+// import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
 type TProps = {
   config: Config;
@@ -47,10 +48,10 @@ export async function spawnSyncEngineWorker({ config }: TProps) {
    * Since we can have a different status in our local database that in remote,
    * we want to run also this sync in background to update the statuses.
    */
-  void RemoteSyncModule.syncItemsByFolder({
-    rootFolderUuid: config.rootUuid,
-    context: config,
-  });
+  // void RemoteSyncModule.syncItemsByFolder({
+  //   rootFolderUuid: config.rootUuid,
+  //   context: config,
+  // });
 
   try {
     const browserWindow = new BrowserWindow({
