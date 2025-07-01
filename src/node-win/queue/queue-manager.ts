@@ -4,7 +4,7 @@ import { TLogger } from '@/node-win/logger';
 
 import { HandleAction, HandleActions, QueueItem, typeQueue } from './queueManager';
 
-export type QueueHandler = {
+type QueueHandler = {
   handleHydrate: HandleAction;
   handleDehydrate: HandleAction;
   handleChangeSize: HandleAction;
