@@ -1,31 +1,49 @@
 import { Stats } from 'fs';
 
 import { Watcher } from '../watcher';
-import { typeQueue } from '@/node-win/queue/queueManager';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
-import { logger } from '@/apps/shared/logger/logger';
+import { NodeWin } from '@/infra/node-win/node-win.module';
+import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
+// import { isFileMoved } from './is-file-moved';
 
 type TProps = {
   self: Watcher;
-  path: string;
+  absolutePath: AbsolutePath;
   stats: Stats;
 };
 
-export function onAdd({ self, path, stats }: TProps) {
+export async function onAdd({ self, absolutePath, stats }: TProps) {
+  const path = pathUtils.absoluteToRelative({
+    base: self.virtualDrive.syncRootPath as AbsolutePath,
+    path: absolutePath,
+  });
+
   try {
     const { size, birthtime, mtime } = stats;
 
     if (size === 0 || size > BucketEntry.MAX_SIZE) {
-      logger.warn({ msg: 'Invalid file size', path, size });
+      self.logger.warn({ msg: 'Invalid file size', path, size });
       return;
     }
 
-    const placeholderId = self.addon.getFileIdentity({ path });
+    const tempFile = isTemporaryFile(path);
 
-    if (!placeholderId) {
+    if (tempFile) {
+      self.logger.debug({ msg: 'File is temporary, skipping', path });
+      return;
+    }
+
+    const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
+
+    if (!uuid) {
       self.logger.debug({ msg: 'File added', path });
       self.fileInDevice.add(path);
-      self.queueManager.enqueue({ path, type: typeQueue.add, isFolder: false });
+      await self.callbacks.addController.execute({
+        path,
+        virtualDrive: self.virtualDrive,
+        isFolder: false,
+      });
       return;
     }
 
@@ -35,7 +53,7 @@ export function onAdd({ self, path, stats }: TProps) {
     if (creationTime === modificationTime) {
       /* File added from remote */
     } else {
-      self.logger.debug({ msg: 'File moved or renamed', path, placeholderId });
+      // await isFileMoved({ self, path, uuid });
     }
   } catch (error) {
     self.logger.error({ msg: 'Error onAdd', path, error });

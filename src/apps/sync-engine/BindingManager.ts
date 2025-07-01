@@ -8,7 +8,6 @@ import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
 import { HandleHydrateService } from './callbacks/handleHydrate.service';
 import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
-import { HandleAddService } from './callbacks/handleAdd.service';
 import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
@@ -36,7 +35,6 @@ export class BindingsManager {
     private readonly fetchData = new FetchDataService(),
     private readonly handleHydrate = new HandleHydrateService(),
     private readonly handleDehydrate = new HandleDehydrateService(),
-    private readonly handleAdd = new HandleAddService(),
     private readonly handleChangeSize = new HandleChangeSizeService(),
   ) {
     logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
@@ -169,7 +167,6 @@ export class BindingsManager {
 
   async watch() {
     const callbacks = {
-      handleAdd: (task: QueueItem) => this.handleAdd.run({ self: this, task, drive: this.container.virtualDrive }),
       handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task, drive: this.container.virtualDrive }),
       handleDehydrate: (task: QueueItem) => Promise.resolve(this.handleDehydrate.run({ task, drive: this.container.virtualDrive })),
       handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
@@ -180,7 +177,13 @@ export class BindingsManager {
       persistPath: getConfig().queueManagerPath,
     });
 
-    this.container.virtualDrive.watchAndWait({ queueManager });
+    this.container.virtualDrive.watchAndWait({
+      queueManager,
+      callbacks: {
+        addController: this.controllers.addFile,
+      },
+    });
+
     await queueManager.processAll();
   }
 

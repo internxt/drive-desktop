@@ -5,7 +5,7 @@ import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
 import { TLogger } from './logger';
 import { QueueManager } from './queue/queue-manager';
 import { Callbacks } from './types/callbacks.type';
-import { Watcher } from './watcher/watcher';
+import { TWatcherCallbacks, Watcher } from './watcher/watcher';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
@@ -199,11 +199,12 @@ export class VirtualDrive {
     return DependencyInjectionAddonProvider.get().unregisterSyncRoot({ providerId });
   }
 
-  watchAndWait({ queueManager }: { queueManager: QueueManager }): void {
-    this.watcher.addon = this.addon;
+  watchAndWait({ queueManager, callbacks }: { queueManager: QueueManager; callbacks: TWatcherCallbacks }): void {
+    this.watcher.virtualDrive = this;
     this.watcher.queueManager = queueManager;
     this.watcher.logger = this.logger;
     this.watcher.syncRootPath = this.syncRootPath;
+    this.watcher.callbacks = callbacks;
     this.watcher.options = {
       ignored: /(^|[/\\])\../,
       persistent: true,
@@ -304,7 +305,24 @@ export class VirtualDrive {
   }
 
   convertToPlaceholder({ itemPath, id }: { itemPath: string; id: FilePlaceholderId | FolderPlaceholderId }) {
-    return this.addon.convertToPlaceholder({ path: this.fixPath(itemPath), id });
+    const result = this.addon.convertToPlaceholder({ path: this.fixPath(itemPath), id });
+
+    if (result.success) {
+      this.logger.debug({
+        msg: 'Convert to placeholder succeeded',
+        itemPath,
+        id,
+      });
+    } else {
+      this.logger.error({
+        msg: 'Convert to placeholder failed',
+        itemPath,
+        id,
+        error: result.errorMessage,
+      });
+    }
+
+    return result.success;
   }
 
   updateFileIdentity({ itemPath, id, isDirectory }: { itemPath: string; id: string; isDirectory: boolean }) {

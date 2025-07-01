@@ -1,5 +1,5 @@
 import { mockProps } from 'tests/vitest/utils.helper.test';
-import { getFileIdentity } from './get-file-identity';
+import { getFileIdentity, GetFileIdentityError } from './get-file-identity';
 import { getFileUuid } from './get-file-uuid';
 
 vi.mock(import('./get-file-identity'));
@@ -22,12 +22,13 @@ describe('get-file-uuid', () => {
 
   it('If get file identity returns an error, then return the error', () => {
     // Given
-    getFileIdentityMock.mockReturnValueOnce({ error: new Error() });
+    const error = new GetFileIdentityError('NON_EXISTS');
+    getFileIdentityMock.mockReturnValueOnce({ error });
 
     // When
     const uuid = getFileUuid(props);
 
     // Then
-    expect(uuid).toStrictEqual({ error: new Error() });
+    expect(uuid).toStrictEqual({ error });
   });
 });

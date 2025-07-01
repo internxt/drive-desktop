@@ -1,32 +1,25 @@
 import fs from 'fs';
-import lodashChunk from 'lodash.chunk';
 
 import { TLogger } from '@/node-win/logger';
 
 import { HandleAction, HandleActions, QueueItem, typeQueue } from './queueManager';
 
 export type QueueHandler = {
-  handleAdd: HandleAction;
   handleHydrate: HandleAction;
   handleDehydrate: HandleAction;
-  handleChange?: HandleAction;
   handleChangeSize: HandleAction;
 };
 
 export class QueueManager {
   private queues: { [key: string]: QueueItem[] } = {
-    add: [],
     hydrate: [],
     dehydrate: [],
-    change: [],
     changeSize: [],
   };
 
   private isProcessing: { [key: string]: boolean } = {
-    add: false,
     hydrate: false,
     dehydrate: false,
-    change: false,
     changeSize: false,
   };
 
@@ -41,11 +34,9 @@ export class QueueManager {
 
   constructor({ handlers, persistPath }: { handlers: QueueHandler; persistPath: string }) {
     this.actions = {
-      add: handlers.handleAdd,
       hydrate: handlers.handleHydrate,
       dehydrate: handlers.handleDehydrate,
       changeSize: handlers.handleChangeSize,
-      change: handlers.handleChange || (() => Promise.resolve()),
     };
     // this.notify = notify;
     this.persistPath = persistPath;
@@ -62,10 +53,8 @@ export class QueueManager {
       this.persistPath,
       JSON.stringify(
         {
-          add: [],
           hydrate: this.queues.hydrate,
           dehydrate: this.queues.dehydrate,
-          change: [],
           changeSize: [],
         },
         null,
@@ -91,7 +80,6 @@ export class QueueManager {
 
   public clearQueue(): void {
     this.queues = {
-      add: [],
       hydrate: [],
       dehydrate: [],
       change: [],
@@ -148,23 +136,9 @@ export class QueueManager {
 
     this.isProcessing[type] = true;
 
-    if (type === typeQueue.add) {
-      await this.processInChunks(type, 7);
-    } else {
-      await this.processSequentially(type);
-    }
+    await this.processSequentially(type);
 
     this.isProcessing[type] = false;
-  }
-
-  private async processInChunks(type: typeQueue, chunkSize: number): Promise<void> {
-    const chunks = lodashChunk(this.queues[type], chunkSize);
-
-    for (const chunk of chunks) {
-      // await this.notify.onTaskProcessing();
-      await Promise.all(chunk.map((task) => this.processTask(type, task)));
-      this.queues[type] = this.queues[type].slice(chunk.length);
-    }
   }
 
   private async processSequentially(type: typeQueue): Promise<void> {

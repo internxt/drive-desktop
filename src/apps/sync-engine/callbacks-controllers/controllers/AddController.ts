@@ -1,106 +1,55 @@
 import { FileCreationOrchestrator } from '../../../../context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
-import { createFilePlaceholderId, FilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
-import { AbsolutePathToRelativeConverter } from '../../../../context/virtual-drive/shared/application/AbsolutePathToRelativeConverter';
-import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/application/PlatformPathConverter';
-import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker';
-import { CallbackController } from './CallbackController';
-import { FolderNotFoundError } from '../../../../context/virtual-drive/folders/domain/errors/FolderNotFoundError';
-import { sleep } from '@/apps/main/util';
 import { logger } from '@/apps/shared/logger/logger';
-import { createFolder, createParentFolder } from '@/features/sync/add-item/create-folder';
+import { createFolder } from '@/features/sync/add-item/create-folder';
 import VirtualDrive from '@/node-win/virtual-drive';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createFile } from '@/features/sync/add-item/create-file';
+import { createFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 
-export class AddController extends CallbackController {
+type TProps = {
+  path: RelativePath;
+  virtualDrive: VirtualDrive;
+  isFolder: boolean;
+};
+
+export class AddController {
   // Gets called when:
   // - a file has been added
   // - a folder has been added
   // - a file has been saved
 
   constructor(
-    private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly fileCreationOrchestrator: FileCreationOrchestrator,
     private readonly folderCreator: FolderCreator,
-  ) {
-    super();
-  }
+  ) {}
 
-  private createFile = async (posixRelativePath: string, attempts = 3): Promise<FilePlaceholderId> => {
-    try {
-      const uuid = await this.fileCreationOrchestrator.run(posixRelativePath);
-      return createFilePlaceholderId(uuid);
-    } catch (error) {
-      logger.error({
-        tag: 'SYNC-ENGINE',
-        msg: 'Error when adding a file',
-        posixRelativePath,
-        exc: error,
-      });
-
-      if (error instanceof FolderNotFoundError) {
-        await createParentFolder({
-          posixRelativePath,
-          folderCreator: this.folderCreator,
-        });
-      }
-
-      if (attempts > 0) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
-          msg: 'Retry creating file',
-          posixRelativePath,
-          attempts,
-        });
-
-        await sleep(2000);
-        return this.createFile(posixRelativePath, attempts - 1);
-      }
-
-      throw logger.error({
-        tag: 'SYNC-ENGINE',
-        msg: 'Max retries reached',
-        posixRelativePath,
-      });
-    }
-  };
-
-  async execute({ absolutePath, drive }: { absolutePath: string; drive: VirtualDrive }) {
-    const win32RelativePath = this.absolutePathToRelativeConverter.run(absolutePath);
-
-    const posixRelativePath = PlatformPathConverter.winToPosix(win32RelativePath);
-
-    const isFolder = await PathTypeChecker.isFolder(absolutePath);
-
+  async execute({ path, virtualDrive, isFolder }: TProps) {
     if (isFolder) {
-      logger.debug({
-        tag: 'SYNC-ENGINE',
-        msg: '[Is Folder]',
-        posixRelativePath,
-      });
-
       try {
         await createFolder({
-          posixRelativePath,
+          path,
           folderCreator: this.folderCreator,
         });
       } catch (error) {
         logger.error({
           tag: 'SYNC-ENGINE',
           msg: 'Error in folder creation',
-          posixRelativePath,
+          path,
           error,
         });
       }
     } else {
       try {
-        const placeholderId = await this.createFile(posixRelativePath);
-        drive.convertToPlaceholder({ itemPath: absolutePath, id: placeholderId });
-        drive.updateSyncStatus({ itemPath: absolutePath, isDirectory: false, sync: true });
+        const uuid = await createFile({ path, folderCreator: this.folderCreator, fileCreationOrchestrator: this.fileCreationOrchestrator });
+        const placeholderId = createFilePlaceholderId(uuid);
+        virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
+        virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
       } catch (error) {
         logger.error({
           tag: 'SYNC-ENGINE',
           msg: 'Error in file creation',
-          posixRelativePath,
+          path,
           error,
         });
       }

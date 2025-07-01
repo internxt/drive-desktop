@@ -77,12 +77,6 @@ export class RetryContentsUploader {
       setTimeout(resolve, RetryContentsUploader.INITIAL_DELAY);
     });
 
-    logger.debug({
-      tag: 'SYNC-ENGINE',
-      msg: 'Upload file',
-      posixRelativePath,
-    });
-
     const upload = () => this.uploader.run(posixRelativePath);
 
     return this.retryUpload(upload);

@@ -1,8 +1,6 @@
 export enum typeQueue {
-  add = 'add',
   hydrate = 'hydrate',
   dehydrate = 'dehydrate',
-  change = 'change',
   changeSize = 'changeSize',
 }
 
