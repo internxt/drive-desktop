@@ -1,15 +1,14 @@
-import { driveFoldersCollection } from '@/apps/main/remote-sync/store';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
 import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { updateFolderStatuses } from './update-folder-statuses';
-import { In } from 'typeorm';
+import { createOrUpdateFolder } from '../update-in-sqlite/create-or-update-folder';
 
 vi.mock(import('./fetch-folders-by-folder'));
-vi.mock(import('@/apps/main/remote-sync/store'));
+vi.mock(import('../update-in-sqlite/create-or-update-folder'));
 
 describe('update-folder-statuses', () => {
   const fetchFoldersByFolderMock = deepMocked(fetchFoldersByFolder);
-  const driveFoldersCollectionMock = vi.mocked(driveFoldersCollection);
+  const createOrUpdateFolderMock = vi.mocked(createOrUpdateFolder);
 
   it('should update folder statuses', async () => {
     // Given
@@ -20,10 +19,10 @@ describe('update-folder-statuses', () => {
     await updateFolderStatuses(props);
 
     // Then
-    expect(driveFoldersCollectionMock.updateInBatch).toBeCalledTimes(1);
-    expect(driveFoldersCollectionMock.updateInBatch).toHaveBeenCalledWith({
-      payload: { status: 'EXISTS' },
-      where: { parentUuid: 'folderUuid', uuid: In(['uuid']) },
+    expect(createOrUpdateFolderMock).toBeCalledTimes(1);
+    expect(createOrUpdateFolderMock).toHaveBeenCalledWith({
+      context: props.context,
+      folderDto: { uuid: 'uuid' },
     });
   });
 });

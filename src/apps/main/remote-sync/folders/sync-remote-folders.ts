@@ -1,7 +1,6 @@
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { logger } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
-import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFolder } from './sync-remote-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
@@ -13,7 +12,6 @@ type TProps = {
 };
 
 export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
-  const user = getUserOrThrow();
   let hasMore = true;
 
   while (hasMore) {
@@ -51,14 +49,14 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
 
     await Promise.all(
       data.map(async (remoteFolder) => {
-        await syncRemoteFolder({ self, user, remoteFolder });
+        await syncRemoteFolder({ self, remoteFolder });
       }),
     );
 
     const lastFolder = data.at(-1);
     if (lastFolder) {
       await LokijsModule.CheckpointsModule.updateCheckpoint({
-        userUuid: user.uuid,
+        userUuid: self.context.userUuid,
         workspaceId: self.workspaceId,
         type: 'folder',
         plainName: lastFolder.plainName,

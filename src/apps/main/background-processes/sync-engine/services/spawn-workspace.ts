@@ -32,6 +32,7 @@ export async function spawnWorkspace({ workspace }: TProps) {
   });
 
   const config: Config = {
+    userUuid: user.uuid,
     mnemonic: mnemonic.toString(),
     providerId: workspace.providerId,
     rootPath: workspace.rootPath,

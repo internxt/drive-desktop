@@ -16,9 +16,10 @@ import { getSyncStatus } from './services/broadcast-sync-status';
 import { FolderStore } from './folders/folder-store';
 import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
+import { Config } from '@/apps/sync-engine/config';
 
-export function addRemoteSyncManager({ workspaceId, worker }: { workspaceId: string; worker: TWorkerConfig }) {
-  remoteSyncManagers.set(workspaceId, new RemoteSyncManager(worker, workspaceId));
+export function addRemoteSyncManager({ config, workspaceId, worker }: { config: Config; workspaceId: string; worker: TWorkerConfig }) {
+  remoteSyncManagers.set(workspaceId, new RemoteSyncManager(config, worker, workspaceId));
 }
 
 type UpdateFileInBatchInput = {

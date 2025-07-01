@@ -109,7 +109,7 @@ export async function spawnSyncEngineWorker({ config }: TProps) {
 
     scheduleSync({ worker });
 
-    addRemoteSyncManager({ workspaceId, worker });
+    addRemoteSyncManager({ config, workspaceId, worker });
   } catch (exc) {
     logger.error({
       msg: '[MAIN] Error loading sync engine worker for workspace',
