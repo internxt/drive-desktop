@@ -58,8 +58,12 @@ export class EnvironmentFileUploader {
       const state = fn(this.bucket, {
         source: readable,
         fileSize: size,
-        finishedCallback: (err: Error | null, contentsId: string) => {
+        finishedCallback: (err, contentsId) => {
           stopwatch.finish();
+
+          if (contentsId) {
+            return resolve({ data: contentsId });
+          }
 
           if (err) {
             if (err.message === 'Process killed by user') {
@@ -80,12 +84,10 @@ export class EnvironmentFileUploader {
                 bucket: this.bucket,
                 error: err,
               });
-
-              return resolve({ error: new EnvironmentFileUploaderError('UNKNOWN', err) });
             }
           }
 
-          resolve({ data: contentsId });
+          return resolve({ error: new EnvironmentFileUploaderError('UNKNOWN', err) });
         },
         progressCallback: (progress: number) => {
           logger.debug({

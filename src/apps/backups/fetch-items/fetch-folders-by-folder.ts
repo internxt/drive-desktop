@@ -1,15 +1,12 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
-import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 
 type TProps = {
   folderUuid: string;
   allFolders: FolderDto[];
   abortSignal: AbortSignal;
   newFolders?: FolderDto[];
-  retry?: number;
   offset?: number;
 };
 
@@ -17,15 +14,8 @@ export async function fetchFoldersByFolder({ folderUuid, allFolders, abortSignal
   let hasMore = true;
 
   while (hasMore && !abortSignal.aborted) {
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Fetching backup folders',
-      folderUuid,
-      offset,
-    });
-
-    const promise = () =>
-      driveServerWip.folders.getFoldersByFolder({
+    const { data, error } = await driveServerWip.folders.getFoldersByFolder(
+      {
         folderUuid,
         query: {
           limit: FETCH_LIMIT,
@@ -33,17 +23,14 @@ export async function fetchFoldersByFolder({ folderUuid, allFolders, abortSignal
           sort: 'updatedAt',
           order: 'DESC',
         },
-      });
-
-    const { data, error } = await retryWrapper({
-      promise,
-      loggerBody: {
-        tag: 'BACKUPS',
-        msg: 'Retry fetching folders by folder',
       },
-    });
+      { abortSignal },
+    );
 
-    if (!data) throw error;
+    if (error) {
+      if (error.code === 'ABORTED') return { newFolders };
+      throw error;
+    }
 
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;

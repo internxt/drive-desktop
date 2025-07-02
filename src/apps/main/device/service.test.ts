@@ -11,6 +11,7 @@ import { GetDeviceError } from '@/infra/drive-server-wip/services/backup/get-dev
 vi.mock('@internxt/lib');
 vi.mock('os');
 vi.mock('@/apps/main/config');
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('Device Service', () => {
   const decryptMock = deepMocked(aes.decrypt);

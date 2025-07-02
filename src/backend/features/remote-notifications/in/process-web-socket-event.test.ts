@@ -1,37 +1,20 @@
 import { beforeEach } from 'vitest';
 import { processWebSocketEvent } from '@/backend/features/remote-notifications/in/process-web-socket-event';
-import { broadcastToWindows } from '@/apps/main/windows';
-import { deepMocked } from '@/tests/vitest/utils.helper.test';
-import { handleParsedNotificationEvent, logAndSync } from '@/backend/features/remote-notifications/in/handle-parsed-notification-event';
+import { debouncedSynchronization } from '@/apps/main/remote-sync/handlers';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 vi.mock(import('@/apps/main/windows'));
 vi.mock(import('@/apps/main/remote-sync/handlers'));
-vi.mock(import('@/backend/features/remote-notifications/in/handle-parsed-notification-event'));
 
 describe('processWebSocketEvent', () => {
-  const broadcastToWindowsMock = deepMocked(broadcastToWindows);
-  const handleParsedNotificationEventMock = deepMocked(handleParsedNotificationEvent);
-  const logAndSyncMock = deepMocked(logAndSync);
+  const debouncedSynchronizationMock = vi.mocked(debouncedSynchronization);
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('should trigger refresh-backup on FOLDER_DELETED event', async () => {
+  it('should log debug if schema is valid and clientId is drive-desktop', async () => {
     const event = {
-      event: 'FOLDER_DELETED',
-      email: 'email@test.com',
-      clientId: 'drive-web',
-      userId: '123',
-    };
-    await processWebSocketEvent({ data: event });
-    expect(broadcastToWindowsMock).toHaveBeenCalledWith('refresh-backup', undefined);
-    expect(logAndSyncMock).toHaveBeenCalledTimes(1);
-    expect(handleParsedNotificationEventMock).not.toHaveBeenCalled();
-  });
-
-  it('should call handleParsedNotificationEvent if schema is valid', async () => {
-    const validEvent = {
       event: 'ITEMS_TO_TRASH',
       email: 'test@example.com',
       clientId: 'drive-desktop',
@@ -39,17 +22,35 @@ describe('processWebSocketEvent', () => {
       payload: [{ type: 'file', uuid: 'abc' }],
     };
 
-    await processWebSocketEvent({ data: validEvent });
-    expect(handleParsedNotificationEventMock).toHaveBeenCalledWith(expect.objectContaining({ event: validEvent }));
+    await processWebSocketEvent({ data: event });
+    expect(loggerMock.debug).toHaveBeenCalledTimes(1);
+    expect(loggerMock.info).not.toHaveBeenCalled();
+    expect(debouncedSynchronizationMock).not.toHaveBeenCalled();
   });
 
   it('should call debouncedSynchronization if schema is not valid', async () => {
-    const validEvent = {
+    const event = {
       event: 'ANY_OTHER_EVENT',
     };
 
-    await processWebSocketEvent({ data: validEvent });
-    expect(handleParsedNotificationEventMock).not.toHaveBeenCalled();
-    expect(logAndSyncMock).toHaveBeenCalledWith(expect.objectContaining({ data: validEvent }));
+    await processWebSocketEvent({ data: event });
+    expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
+    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Notification received', data: event });
+    expect(loggerMock.debug).not.toHaveBeenCalled();
+  });
+
+  it('should call debouncedSynchronization if schema is valid and clientId is not drive-desktop', async () => {
+    const event = {
+      event: 'ITEMS_TO_TRASH',
+      email: 'test@example.com',
+      clientId: 'drive-web',
+      userId: 'user1',
+      payload: [{ type: 'file', uuid: 'abc' }],
+    };
+
+    await processWebSocketEvent({ data: event });
+    expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
+    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Notification received', data: event });
+    expect(loggerMock.debug).not.toHaveBeenCalled();
   });
 });

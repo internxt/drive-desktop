@@ -1,10 +1,10 @@
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
+import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { getWorkspaces } from './get-workspaces';
 import { PATHS } from '@/core/electron/paths';
-import { loggerMock } from 'tests/vitest/mocks.helper.test';
 
 vi.mock(import('@/apps/main/util'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('get-workspaces', () => {
   const getWorkspacesMock = deepMocked(driveServerWipModule.workspaces.getWorkspaces);
@@ -13,28 +13,16 @@ describe('get-workspaces', () => {
     vi.clearAllMocks();
   });
 
-  it('If get workspaces gives an error, then retry it again', async () => {
+  it('If get workspaces gives an error, then return empty array', async () => {
     // Given
-    getWorkspacesMock
-      .mockResolvedValueOnce({ error: new Error() })
-      .mockResolvedValueOnce({ error: new Error() })
-      .mockResolvedValueOnce({ error: new Error() })
-      .mockResolvedValueOnce({ error: new Error() })
-      .mockResolvedValueOnce({ data: { availableWorkspaces: [] } });
+    getWorkspacesMock.mockResolvedValueOnce({ error: new Error() });
 
     // When
-    const props = mockProps<typeof getWorkspaces>({});
-    await getWorkspaces(props);
+    const workspaces = await getWorkspaces();
 
     // Then
-    expect(getWorkspacesMock).toHaveBeenCalledTimes(5);
-    expect(getMockCalls(loggerMock.debug)).toStrictEqual([
-      { msg: 'Get workspaces', retry: 1 },
-      { msg: 'Get workspaces', retry: 2 },
-      { msg: 'Get workspaces', retry: 3 },
-      { msg: 'Get workspaces', retry: 4 },
-      { msg: 'Get workspaces', retry: 5 },
-    ]);
+    expect(getWorkspacesMock).toHaveBeenCalledTimes(1);
+    expect(workspaces).toStrictEqual([]);
   });
 
   it('If get workspaces success, then spawn workspaces', async () => {
@@ -56,8 +44,7 @@ describe('get-workspaces', () => {
     });
 
     // When
-    const props = mockProps<typeof getWorkspaces>({});
-    const workspaces = await getWorkspaces(props);
+    const workspaces = await getWorkspaces();
 
     // Then
     expect(getWorkspacesMock).toHaveBeenCalledTimes(1);

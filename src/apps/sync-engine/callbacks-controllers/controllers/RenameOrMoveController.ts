@@ -5,7 +5,9 @@ import { PlatformPathConverter } from '../../../../context/virtual-drive/shared/
 import { CallbackController } from './CallbackController';
 import { DeleteController } from './DeleteController';
 import Logger from 'electron-log';
-import * as Sentry from '@sentry/electron/renderer';
+import { trimPlaceholderId } from './placeholder-id';
+import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
 export class RenameOrMoveController extends CallbackController {
   constructor(
@@ -17,8 +19,8 @@ export class RenameOrMoveController extends CallbackController {
     super();
   }
 
-  async execute(absolutePath: string, placeholderId: string, callback: (response: boolean) => void) {
-    const trimmedId = this.trim(placeholderId);
+  async execute(absolutePath: string, placeholderId: FilePlaceholderId | FolderPlaceholderId, callback: (response: boolean) => void) {
+    const trimmedId = trimPlaceholderId({ placeholderId });
 
     try {
       if (absolutePath.startsWith('\\$Recycle.Bin')) {
@@ -49,7 +51,6 @@ export class RenameOrMoveController extends CallbackController {
       callback(false);
     } catch (error: unknown) {
       Logger.error('[ERROR Rename or move]', error);
-      Sentry.captureException(error);
       callback(false);
     }
   }

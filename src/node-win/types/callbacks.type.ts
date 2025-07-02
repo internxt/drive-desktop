@@ -1,10 +1,10 @@
+import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+
 type NapiCallbackFunction = (...args: any[]) => any;
 
-type FilePlaceholderIdPrefixType = 'FILE:';
-
-type FilePlaceholderId = `${FilePlaceholderIdPrefixType}${string}`;
-
-export type TFetchDataCallback = (
+type TNotifyDeleteCallback = (placeholderId: FilePlaceholderId | FolderPlaceholderId, callback: (response: boolean) => void) => void;
+type TFetchDataCallback = (
   id: FilePlaceholderId,
   callback: (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>,
 ) => void;
@@ -19,7 +19,7 @@ export type InputSyncCallbacks = {
   notifyFileCloseCompletionCallback?: NapiCallbackFunction;
   notifyDehydrateCallback?: NapiCallbackFunction;
   notifyDehydrateCompletionCallback?: NapiCallbackFunction;
-  notifyDeleteCallback?: NapiCallbackFunction;
+  notifyDeleteCallback?: TNotifyDeleteCallback;
   notifyDeleteCompletionCallback?: NapiCallbackFunction;
   notifyRenameCallback?: NapiCallbackFunction;
   notifyRenameCompletionCallback?: NapiCallbackFunction;

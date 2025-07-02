@@ -6,6 +6,8 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+
 describe('create-folders', () => {
   const createFolderMock = deepMocked(driveServerWip.folders.createFolder);
 
@@ -131,10 +133,8 @@ describe('create-folders', () => {
 
     // Then
     expect(createFolderMock).toHaveBeenCalledWith({
-      body: {
-        parentFolderUuid: rootFolderUuid,
-        plainName: 'folder1',
-      },
+      body: { parentFolderUuid: rootFolderUuid, plainName: 'folder1' },
+      path: '/folder1',
     });
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toHaveBeenCalledWith(1);
@@ -163,11 +163,11 @@ describe('create-folders', () => {
     // Then
     expect(props.self.backed).toBe(6);
     expect(getMockCalls(createFolderMock)).toStrictEqual([
-      { body: expect.objectContaining({ plainName: 'folder1' }) },
-      { body: expect.objectContaining({ plainName: 'folder2' }) },
-      { body: expect.objectContaining({ plainName: 'folder3' }) },
-      { body: expect.objectContaining({ plainName: 'folder4' }) },
-      { body: expect.objectContaining({ plainName: 'folder5' }) },
+      { body: expect.objectContaining({ plainName: 'folder1' }), path: '/folder1' },
+      { body: expect.objectContaining({ plainName: 'folder2' }), path: '/folder1/folder2' },
+      { body: expect.objectContaining({ plainName: 'folder3' }), path: '/folder3' },
+      { body: expect.objectContaining({ plainName: 'folder4' }), path: '/folder3/folder4' },
+      { body: expect.objectContaining({ plainName: 'folder5' }), path: '/folder5' },
     ]);
   });
 });

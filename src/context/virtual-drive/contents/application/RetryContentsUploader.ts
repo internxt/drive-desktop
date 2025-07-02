@@ -72,6 +72,10 @@ export class RetryContentsUploader {
     throw new Error(`Max retries (${RetryContentsUploader.NUMBER_OF_RETRIES}) reached. Upload still failed.${rejectionReason}`);
   }
 
+  /**
+   * v2.5.6 Daniel Jiménez
+   * TODO: add bottleneck here
+   */
   async run(posixRelativePath: string): Promise<RemoteFileContents> {
     await new Promise((resolve) => {
       setTimeout(resolve, RetryContentsUploader.INITIAL_DELAY);

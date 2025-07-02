@@ -1,6 +1,7 @@
 import { getUser } from '../main/auth/service';
 
 export type Config = {
+  userUuid: string;
   providerId: string;
   rootPath: string;
   rootUuid: string;
@@ -17,6 +18,7 @@ export type Config = {
 
 const emptyValues = (): Config => {
   return {
+    userUuid: '',
     providerId: '',
     rootPath: '',
     providerName: '',
@@ -42,6 +44,7 @@ const defaultValues = (): Config => {
   }
 
   return {
+    userUuid: user.uuid,
     providerId: config.providerId,
     rootPath: config.rootPath,
     providerName: config.providerName,

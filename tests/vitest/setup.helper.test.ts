@@ -9,7 +9,7 @@ process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
 // We do not want to log anything
 vi.mock(import('@/apps/shared/logger/logger'));
 // We do not want to make network calls
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
+vi.mock(import('@/apps/shared/HttpClient/auth-client'));
 vi.mock(import('@/apps/shared/HttpClient/client'));
 
 vi.mock('../event-bus', () => {

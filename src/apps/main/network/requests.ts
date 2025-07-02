@@ -35,10 +35,10 @@ function getAuthFromCredentials(creds: NetworkCredentials): AxiosBasicCredential
   };
 }
 
-function getFileInfo(networkApiUrl: string, bucketId: string, fileId: string, opts?: AxiosRequestConfig): Promise<FileInfo> {
+function getFileInfo(bucketId: string, fileId: string, opts?: AxiosRequestConfig): Promise<FileInfo> {
   const defaultOpts: AxiosRequestConfig = {
     method: 'GET',
-    url: `${networkApiUrl}/buckets/${bucketId}/files/${fileId}/info`,
+    url: `${process.env.BRIDGE_URL}/buckets/${bucketId}/files/${fileId}/info`,
     maxContentLength: Infinity,
   };
 
@@ -52,8 +52,8 @@ function getFileInfo(networkApiUrl: string, bucketId: string, fileId: string, op
     });
 }
 
-export function getFileInfoWithAuth(networkApiUrl: string, bucketId: string, fileId: string, creds: NetworkCredentials): Promise<FileInfo> {
-  return getFileInfo(networkApiUrl, bucketId, fileId, {
+export function getFileInfoWithAuth(bucketId: string, fileId: string, creds: NetworkCredentials): Promise<FileInfo> {
+  return getFileInfo(bucketId, fileId, {
     auth: getAuthFromCredentials(creds),
   });
 }
@@ -78,13 +78,7 @@ export interface Mirror {
   operation: string;
 }
 
-export async function getMirrors(
-  networkApiUrl: string,
-  bucketId: string,
-  fileId: string,
-  creds: NetworkCredentials | null,
-  token?: string,
-): Promise<Mirror[]> {
+export async function getMirrors(bucketId: string, fileId: string, creds: NetworkCredentials | null, token?: string): Promise<Mirror[]> {
   const mirrors: Mirror[] = [];
   const limit = 3;
 
@@ -95,7 +89,7 @@ export async function getMirrors(
   };
 
   do {
-    results = (await getFileMirrors(networkApiUrl, bucketId, fileId, limit, mirrors.length, [], requestConfig))
+    results = (await getFileMirrors(bucketId, fileId, limit, mirrors.length, [], requestConfig))
       .filter((m) => !m.parity)
       .sort((mA, mB) => mA.index - mB.index);
 
@@ -110,7 +104,7 @@ export async function getMirrors(
     if (farmerIsOk) {
       mirror.farmer.address = mirror.farmer.address.trim();
     } else {
-      mirrors[mirror.index] = await replaceMirror(networkApiUrl, bucketId, fileId, mirror.index, [], requestConfig);
+      mirrors[mirror.index] = await replaceMirror(bucketId, fileId, mirror.index, [], requestConfig);
 
       if (!isFarmerOk(mirrors[mirror.index].farmer)) {
         throw new Error('Missing pointer for shard %s' + mirror.hash);
@@ -126,7 +120,6 @@ export async function getMirrors(
 }
 
 async function replaceMirror(
-  networkApiUrl: string,
   bucketId: string,
   fileId: string,
   pointerIndex: number,
@@ -137,7 +130,7 @@ async function replaceMirror(
   let mirror: Mirror;
 
   while (!mirrorIsOk) {
-    const [newMirror] = await getFileMirrors(networkApiUrl, bucketId, fileId, 1, pointerIndex, excludeNodes, opts);
+    const [newMirror] = await getFileMirrors(bucketId, fileId, 1, pointerIndex, excludeNodes, opts);
 
     mirror = newMirror;
     mirrorIsOk = newMirror.farmer && newMirror.farmer.nodeID && newMirror.farmer.port && newMirror.farmer.address ? true : false;
@@ -148,7 +141,6 @@ async function replaceMirror(
 }
 
 function getFileMirrors(
-  networkApiUrl: string,
   bucketId: string,
   fileId: string,
   limit: number | 3,
@@ -157,7 +149,7 @@ function getFileMirrors(
   opts?: AxiosRequestConfig,
 ): Promise<Mirror[]> {
   const excludeNodeIds: string = excludeNodes.join(',');
-  const path = `${networkApiUrl}/buckets/${bucketId}/files/${fileId}`;
+  const path = `${process.env.BRIDGE_URL}/buckets/${bucketId}/files/${fileId}`;
   const queryParams = `?limit=${limit}&skip=${skip}&exclude=${excludeNodeIds}`;
 
   const defaultOpts: AxiosRequestConfig = {

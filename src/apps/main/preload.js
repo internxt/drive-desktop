@@ -106,9 +106,6 @@ contextBridge.exposeInMainWorld('electron', {
   openLogs() {
     return ipcRenderer.send('open-logs');
   },
-  sendReport(report) {
-    return ipcRenderer.invoke('send-report', report);
-  },
   openSettingsWindow(section) {
     return ipcRenderer.send('open-settings-window', section);
   },
@@ -307,16 +304,6 @@ contextBridge.exposeInMainWorld('electron', {
     discoveredBackups() {
       ipcRenderer.send('user.set-has-discovered-backups');
     },
-  },
-  listenersRefreshBackups(callback, eventName = 'refresh-backup') {
-    const callbackWrapper = (_, data) => {
-      Logger.info('Refresh backups');
-      callback(data);
-    };
-
-    ipcRenderer.on(eventName, callbackWrapper);
-
-    return () => ipcRenderer.removeListener(eventName, callbackWrapper);
   },
   backups: {
     isAvailable: () => {

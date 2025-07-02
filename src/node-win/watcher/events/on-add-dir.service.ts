@@ -1,36 +1,51 @@
 import { Stats } from 'fs';
 
 import { Watcher } from '../watcher';
-import { PinState, SyncState } from '@/node-win/types/placeholder.type';
-import { typeQueue } from '@/node-win/queue/queueManager';
+import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { NodeWin } from '@/infra/node-win/node-win.module';
+import { getConfig } from '@/apps/sync-engine/config';
+// import { isFolderMoved } from './is-folder-moved';
 
 type TProps = {
   self: Watcher;
-  path: string;
+  absolutePath: AbsolutePath;
   stats: Stats;
 };
 
-export class OnAddDirService {
-  execute({ self, path }: TProps) {
-    try {
-      const status = self.addon.getPlaceholderState({ path });
-      const isAlreadySynced =
-        status.pinState === PinState.AlwaysLocal || status.pinState === PinState.OnlineOnly || status.syncState === SyncState.InSync;
+export async function onAddDir({ self, absolutePath, stats }: TProps) {
+  const path = pathUtils.absoluteToRelative({
+    base: self.virtualDrive.syncRootPath as AbsolutePath,
+    path: absolutePath,
+  });
 
-      self.logger.debug({
-        msg: 'onAddDir',
+  try {
+    const { birthtime, mtime } = stats;
+
+    const { data: uuid } = NodeWin.getFolderUuid({
+      drive: self.virtualDrive,
+      path,
+      rootUuid: getConfig().rootUuid,
+    });
+
+    if (!uuid) {
+      self.logger.debug({ msg: 'Folder added', path });
+      await self.callbacks.addController.execute({
         path,
-        status,
-        isAlreadySynced,
+        virtualDrive: self.virtualDrive,
+        isFolder: true,
       });
-
-      if (isAlreadySynced) {
-        return;
-      }
-
-      self.queueManager.enqueue({ path, type: typeQueue.add, isFolder: true });
-    } catch (error) {
-      self.logger.error({ msg: 'Error en onAddDir', error });
+      return;
     }
+
+    const creationTime = new Date(birthtime).getTime();
+    const modificationTime = new Date(mtime).getTime();
+
+    if (creationTime === modificationTime) {
+      /* Folder added from remote */
+    } else {
+      // await isFolderMoved({ self, path, uuid });
+    }
+  } catch (error) {
+    self.logger.error({ msg: 'Error en onAddDir', error });
   }
 }

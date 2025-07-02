@@ -6,6 +6,9 @@ import { Folder } from '../../../../context/virtual-drive/folders/domain/Folder'
 import { FolderContainerDetector } from '../../../../context/virtual-drive/folders/application/FolderContainerDetector';
 import { FolderDeleter } from '@/context/virtual-drive/folders/application/FolderDeleter';
 import { logger } from '@/apps/shared/logger/logger';
+import { trimPlaceholderId } from './placeholder-id';
+import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
 export class DeleteController extends CallbackController {
   private readonly filesQueue: DelayQueue;
@@ -49,8 +52,8 @@ export class DeleteController extends CallbackController {
     this.filesQueue = new DelayQueue('files', deleteFile, canDeleteFiles);
   }
 
-  execute(placeholderId: string) {
-    const trimmedId = this.trim(placeholderId);
+  execute(placeholderId: FilePlaceholderId | FolderPlaceholderId) {
+    const trimmedId = trimPlaceholderId({ placeholderId });
     const uuid = trimmedId.split(':')[1];
 
     if (this.isFilePlaceholder(trimmedId)) {

@@ -8,7 +8,6 @@ import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
 import { HandleHydrateService } from './callbacks/handleHydrate.service';
 import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
-import { HandleAddService } from './callbacks/handleAdd.service';
 import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
@@ -20,6 +19,7 @@ import { QueueManager } from '@/node-win/queue/queue-manager';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
 import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -35,7 +35,6 @@ export class BindingsManager {
     private readonly fetchData = new FetchDataService(),
     private readonly handleHydrate = new HandleHydrateService(),
     private readonly handleDehydrate = new HandleDehydrateService(),
-    private readonly handleAdd = new HandleAddService(),
     private readonly handleChangeSize = new HandleChangeSizeService(),
   ) {
     logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
@@ -45,21 +44,36 @@ export class BindingsManager {
 
   async start() {
     const callbacks: Callbacks = {
-      notifyDeleteCallback: (placeholderId: string, callback: (response: boolean) => void) => {
+      notifyDeleteCallback: (placeholderId, callback) => {
         try {
-          logger.debug({ msg: 'Path received in notifyDeleteCallback', placeholderId });
+          logger.debug({
+            tag: 'SYNC-ENGINE',
+            msg: 'Path received in notifyDeleteCallback',
+            placeholderId,
+          });
+
           this.controllers.delete.execute(placeholderId);
-          void ipcRenderer.invoke('DELETE_ITEM_DRIVE', placeholderId);
+
           callback(true);
         } catch (error) {
-          logger.error({ msg: 'Error in notifyDeleteCallback', error });
+          logger.error({
+            tag: 'SYNC-ENGINE',
+            msg: 'Error in notifyDeleteCallback',
+            placeholderId,
+            error,
+          });
+
           callback(false);
         }
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: async (absolutePath: string, placeholderId: string, callback: (response: boolean) => void) => {
+      notifyRenameCallback: async (
+        absolutePath: string,
+        placeholderId: FilePlaceholderId | FolderPlaceholderId,
+        callback: (response: boolean) => void,
+      ) => {
         try {
           Logger.debug('Path received from rename callback', absolutePath);
 
@@ -153,7 +167,6 @@ export class BindingsManager {
 
   async watch() {
     const callbacks = {
-      handleAdd: (task: QueueItem) => this.handleAdd.run({ self: this, task, drive: this.container.virtualDrive }),
       handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task, drive: this.container.virtualDrive }),
       handleDehydrate: (task: QueueItem) => Promise.resolve(this.handleDehydrate.run({ task, drive: this.container.virtualDrive })),
       handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
@@ -164,7 +177,13 @@ export class BindingsManager {
       persistPath: getConfig().queueManagerPath,
     });
 
-    this.container.virtualDrive.watchAndWait({ queueManager });
+    this.container.virtualDrive.watchAndWait({
+      queueManager,
+      callbacks: {
+        addController: this.controllers.addFile,
+      },
+    });
+
     await queueManager.processAll();
   }
 

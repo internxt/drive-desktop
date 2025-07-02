@@ -6,33 +6,29 @@ import { FileCreator } from './FileCreator';
 import { AbsolutePathToRelativeConverter } from '../../shared/application/AbsolutePathToRelativeConverter';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { FolderCreator } from '../../folders/application/FolderCreator';
-import { OfflineFolderCreator } from '../../folders/application/Offline/OfflineFolderCreator';
-import { Folder } from '../../folders/domain/Folder';
 import * as fs from 'fs';
 import { File } from '../domain/File';
 import { FileSyncStatusUpdater } from './FileSyncStatusUpdater';
 import { FileContentsUpdater } from './FileContentsUpdater';
-import { FileIdentityUpdater } from './FileIndetityUpdater';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { logger } from '@/apps/shared/logger/logger';
+import { createParentFolder } from '@/features/sync/add-item/create-folder';
+import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export class FileSyncronizer {
-  // queue of files to be uploaded
-  private foldersPathQueue: string[] = [];
-
   constructor(
     private readonly repository: InMemoryFileRepository,
     private readonly fileSyncStatusUpdater: FileSyncStatusUpdater,
     private readonly virtualDrive: VirtualDrive,
-    private readonly fileIdentityUpdater: FileIdentityUpdater,
     private readonly fileCreator: FileCreator,
     private readonly absolutePathToRelativeConverter: AbsolutePathToRelativeConverter,
     private readonly folderCreator: FolderCreator,
-    private readonly offlineFolderCreator: OfflineFolderCreator,
     private readonly fileContentsUpdater: FileContentsUpdater,
     private readonly contentsUploader: RetryContentsUploader,
+    private readonly localFileSystem: NodeWinLocalFileSystem,
   ) {}
 
   async run(absolutePath: string): Promise<void> {
@@ -71,9 +67,18 @@ export class FileSyncronizer {
       const createdFile = await this.fileCreator.run(filePath, fileContents);
       await this.convertAndUpdateSyncStatus(createdFile);
     } catch (error: unknown) {
-      Logger.error('Error creating file:', error);
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: 'Error creating file',
+        posixRelativePath,
+        exc: error,
+      });
+
       if (error instanceof FolderNotFoundError) {
-        await this.createFolderFather(posixRelativePath);
+        await createParentFolder({
+          path: createRelativePath(posixRelativePath),
+          folderCreator: this.folderCreator,
+        });
       }
 
       if (error instanceof Error && error.message.includes('Max space used')) {
@@ -87,69 +92,14 @@ export class FileSyncronizer {
     }
   };
 
-  private runFolderCreator(posixRelativePath: string): Promise<Folder> {
-    const offlineFolder = this.offlineFolderCreator.run(posixRelativePath);
-    return this.folderCreator.run(offlineFolder);
-  }
-
-  private async createFolderFather(posixRelativePath: string) {
-    logger.debug({
-      tag: 'SYNC-ENGINE',
-      msg: 'posixRelativePath',
-      posixRelativePath,
-    });
-
-    const posixDir = PlatformPathConverter.getFatherPathPosix(posixRelativePath);
-
-    try {
-      await this.runFolderCreator(posixDir);
-    } catch (error) {
-      logger.error({
-        tag: 'SYNC-ENGINE',
-        msg: 'Error creating folder father creation',
-        error,
-      });
-
-      if (error instanceof FolderNotFoundError) {
-        this.foldersPathQueue.push(posixDir);
-
-        await this.createFolderFather(posixDir);
-        await this.retryFolderCreation(posixDir);
-      } else {
-        throw logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Error creating folder father creation inside catch',
-          error,
-        });
-      }
-    }
-  }
-
   private hasDifferentSize(file: File, absoulthePath: string) {
     const stats = fs.statSync(absoulthePath);
     return Math.abs(file.size - stats.size) > 0.001;
   }
 
-  private async convertAndUpdateSyncStatus(file: File) {
-    await Promise.all([
-      this.virtualDrive.convertToPlaceholder({
-        itemPath: file.path,
-        id: file.placeholderId,
-      }),
-      this.fileIdentityUpdater.run(file),
-      this.fileSyncStatusUpdater.run(file),
-    ]);
+  private convertAndUpdateSyncStatus(file: File) {
+    this.virtualDrive.convertToPlaceholder({ itemPath: file.path, id: file.placeholderId });
+    this.localFileSystem.updateFileIdentity(file.path, file.placeholderId);
+    this.fileSyncStatusUpdater.run(file);
   }
-
-  private retryFolderCreation = async (posixDir: string, attemps = 3) => {
-    try {
-      await this.runFolderCreator(posixDir);
-    } catch (error) {
-      Logger.error('Error creating folder father creation:', error);
-      if (attemps > 0) {
-        await this.retryFolderCreation(posixDir, attemps - 1);
-        return;
-      }
-    }
-  };
 }

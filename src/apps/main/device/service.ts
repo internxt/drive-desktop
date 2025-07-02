@@ -544,14 +544,12 @@ async function downloadDeviceBackupZip({
 
   const folders = await fetchFolders({ folderUuids: folderUuidsToDownload });
 
-  const networkApiUrl = process.env.BRIDGE_URL;
   const bridgeUser = user.bridgeUser;
   const bridgePass = user.userId;
   const encryptionKey = getConfig().mnemonic;
 
   await downloadFolder(
     device.name,
-    networkApiUrl,
     folders.map((folder) => folder.uuid),
     path,
     {

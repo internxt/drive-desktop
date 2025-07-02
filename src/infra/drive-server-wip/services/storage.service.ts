@@ -1,90 +1,117 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { clientWrapper } from '../in/client-wrapper.service';
-import { retryWrapper } from '../out/retry-wrapper';
+import { getRequestKey } from '../in/get-in-flight-request';
 
-export class StorageService {
-  deleteFile(context: { fileId: string }) {
-    const promise = noContentWrapper({
-      request: client.DELETE('/storage/trash/file/{fileId}', {
+export const storage = {
+  deleteFile,
+  deleteFolder,
+  deleteFileByUuid,
+  deleteFolderByUuid,
+};
+
+async function deleteFile(context: { fileId: string }) {
+  const method = 'DELETE';
+  const endpoint = '/storage/trash/file/{fileId}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    noContentWrapper({
+      request: client.DELETE(endpoint, {
         params: { path: { fileId: context.fileId } },
       }),
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Delete file request was not successful',
-        context,
-        attributes: {
-          method: 'DELETE',
-          endpoint: '/storage/trash/file/{fileId}',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Delete file request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
+}
 
-  deleteFolder(context: { folderId: number }) {
-    const promise = noContentWrapper({
-      request: client.DELETE('/storage/trash/folder/{folderId}', {
+async function deleteFolder(context: { folderId: number }) {
+  const method = 'DELETE';
+  const endpoint = '/storage/trash/folder/{folderId}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    noContentWrapper({
+      request: client.DELETE(endpoint, {
         params: { path: { folderId: context.folderId } },
       }),
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Delete folder request was not successful',
-        context,
-        attributes: {
-          method: 'DELETE',
-          endpoint: '/storage/trash/folder/{folderId}',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Delete folder request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
+}
 
-  deleteFileByUuid(context: { uuid: string; workspaceToken: string }) {
-    const promise1 = noContentWrapper({
-      request: client.POST('/storage/trash/add', {
-        headers: { 'x-internxt-workspace': context.workspaceToken },
+async function deleteFileByUuid(context: { uuid: string; workspaceToken: string }) {
+  const method = 'POST';
+  const endpoint = '/storage/trash/add';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    noContentWrapper({
+      request: client.POST(endpoint, {
+        headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
         body: { items: [{ type: 'file', uuid: context.uuid, id: null }] },
       }),
     });
 
-    const promise2 = () =>
-      clientWrapper({
-        promise: promise1,
-        loggerBody: {
-          msg: 'Delete file by uuid request was not successful',
-          context,
-          attributes: {
-            method: 'POST',
-            endpoint: '/storage/trash/add',
-          },
-        },
-      });
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Delete file by uuid request',
+      context,
+      attributes: {
+        method,
+        endpoint,
+      },
+    },
+  });
+}
 
-    return retryWrapper({ promise: promise2 });
-  }
+async function deleteFolderByUuid(context: { uuid: string; workspaceToken: string }) {
+  const method = 'POST';
+  const endpoint = '/storage/trash/add';
+  const key = getRequestKey({ method, endpoint, context });
 
-  deleteFolderByUuid(context: { uuid: string }) {
-    const promise = noContentWrapper({
-      request: client.POST('/storage/trash/add', {
+  const promiseFn = () =>
+    noContentWrapper({
+      request: client.POST(endpoint, {
+        headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
         body: { items: [{ type: 'folder', uuid: context.uuid, id: null }] },
       }),
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Delete folder by uuid request was not successful',
-        context,
-        attributes: {
-          method: 'POST',
-          endpoint: '/storage/trash/add',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Delete folder by uuid request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
 }

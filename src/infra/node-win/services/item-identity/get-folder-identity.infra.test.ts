@@ -1,5 +1,5 @@
 import VirtualDrive from '@/node-win/virtual-drive';
-import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import { v4 } from 'uuid';
@@ -8,7 +8,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { iconPath } from '@/apps/utils/icon';
-import { getFolderIdentity } from './get-folder-identity';
+import { getFolderIdentity, GetFolderIdentityError } from './get-folder-identity';
 
 describe('get-folder-identity', () => {
   const callbacks = mockDeep<Callbacks>();
@@ -30,6 +30,7 @@ describe('get-folder-identity', () => {
   });
 
   afterAll(() => {
+    drive.disconnectSyncRoot();
     VirtualDrive.unRegisterSyncRootByProviderId({ providerId });
   });
 
@@ -50,8 +51,6 @@ describe('get-folder-identity', () => {
 
   it('If get folder identity of a placeholder file, then return error', async () => {
     // Given
-    loggerMock.error.mockReturnValueOnce(new Error());
-
     const file = join(driveFolder, v4());
     const id = `FILE:${v4()}` as const;
     await mkdir(file);
@@ -62,12 +61,11 @@ describe('get-folder-identity', () => {
 
     // Then
     expect(data).toStrictEqual(undefined);
-    expect(error).toStrictEqual(new Error());
+    expect(error).toStrictEqual(new GetFolderIdentityError('NOT_A_FOLDER'));
   });
 
   it('If the path does not exist, then return error', () => {
     // Given
-    loggerMock.error.mockReturnValueOnce(new Error());
     const folder = join(driveFolder, v4());
 
     // When
@@ -75,6 +73,6 @@ describe('get-folder-identity', () => {
 
     // Then
     expect(data).toStrictEqual(undefined);
-    expect(error).toStrictEqual(new Error());
+    expect(error).toStrictEqual(new GetFolderIdentityError('NON_EXISTS'));
   });
 });

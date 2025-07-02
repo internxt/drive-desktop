@@ -1,5 +1,8 @@
+import { DriveServerWipError } from '@/infra/drive-server-wip/out/error.types';
 import { calculateUsage } from './service';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('UserUsageService', () => {
   const getUsageMock = vi.mocked(driveServerWip.user.getUsage);
@@ -34,9 +37,9 @@ describe('UserUsageService', () => {
   });
 
   it('should throw an error', async () => {
-    getUsageMock.mockResolvedValueOnce({ error: new Error('Permanent error') });
+    getUsageMock.mockResolvedValueOnce({ error: new DriveServerWipError('UNKNOWN', 'cause') });
     getLimitMock.mockResolvedValueOnce({ data: { maxSpaceBytes: 10000 } });
 
-    await expect(calculateUsage()).rejects.toThrow('Permanent error');
+    await expect(calculateUsage()).rejects.toThrow('UNKNOWN');
   });
 });

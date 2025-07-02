@@ -63,8 +63,6 @@ declare interface Window {
 
     openLogs(): void;
 
-    sendReport: typeof import('./bug-report/service').sendReport;
-
     openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS'): void;
 
     settingsWindowResized(payload: { width: number; height: number }): void;
@@ -154,8 +152,6 @@ declare interface Window {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
     };
-    listenersRefreshBackups(callback: (data: any) => void, eventName?: string): () => void;
-
     backups: {
       isAvailable: () => Promise<boolean>;
     };

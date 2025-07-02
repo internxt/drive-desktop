@@ -1,6 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
+import { getRequestKey } from '../../in/get-in-flight-request';
 
 class CreateDeviceError extends DriveServerWipError {
   constructor(
@@ -12,16 +13,24 @@ class CreateDeviceError extends DriveServerWipError {
 }
 
 export async function createDevice(context: { deviceName: string }) {
-  const { data, error } = await clientWrapper({
-    promise: client.POST('/backup/deviceAsFolder', {
+  const method = 'POST';
+  const endpoint = '/backup/deviceAsFolder';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.POST(endpoint, {
       body: { deviceName: context.deviceName },
-    }),
+    });
+
+  const { data, error } = await clientWrapper({
+    promiseFn,
+    key,
     loggerBody: {
-      msg: 'Create device as folder request was not successful',
+      msg: 'Create device as folder request',
       context,
       attributes: {
-        method: 'POST',
-        endpoint: '/backup/deviceAsFolder',
+        method,
+        endpoint,
       },
     },
   });

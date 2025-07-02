@@ -1,10 +1,9 @@
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { logger } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
-import { getUserOrThrow } from '../../auth/service';
 import { syncRemoteFolder } from './sync-remote-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
+import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
 type TProps = {
   self: RemoteSyncManager;
@@ -13,7 +12,6 @@ type TProps = {
 };
 
 export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
-  const user = getUserOrThrow();
   let hasMore = true;
 
   while (hasMore) {
@@ -38,18 +36,11 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
       updatedAt: from?.toISOString(),
     };
 
-    const promise = () =>
-      self.workspaceId
-        ? driveServerWip.workspaces.getFoldersInWorkspace({ workspaceId: self.workspaceId, query })
-        : driveServerWip.folders.getFolders({ query });
+    const promise = self.workspaceId
+      ? driveServerWip.workspaces.getFoldersInWorkspace({ workspaceId: self.workspaceId, query })
+      : driveServerWip.folders.getFolders({ query });
 
-    const { data, error } = await retryWrapper({
-      promise,
-      loggerBody: {
-        tag: 'SYNC-ENGINE',
-        msg: 'Retry fetching folders',
-      },
-    });
+    const { data, error } = await promise;
 
     if (!data) throw error;
 
@@ -58,8 +49,19 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
 
     await Promise.all(
       data.map(async (remoteFolder) => {
-        await syncRemoteFolder({ self, user, remoteFolder });
+        await syncRemoteFolder({ self, remoteFolder });
       }),
     );
+
+    const lastFolder = data.at(-1);
+    if (lastFolder) {
+      await LokijsModule.CheckpointsModule.updateCheckpoint({
+        userUuid: self.context.userUuid,
+        workspaceId: self.workspaceId,
+        type: 'folder',
+        plainName: lastFolder.plainName,
+        checkpoint: lastFolder.updatedAt,
+      });
+    }
   }
 }

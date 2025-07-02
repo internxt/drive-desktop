@@ -34,5 +34,5 @@
       // "@internxt/inxt-js/build/*": ["../inxt-js/build/*"],
     }
   },
-  "include": ["src", "examples", "tests", ".erb/configs", ".erb/scripts"]
+  "include": ["src", "tests", ".erb/configs", ".erb/scripts"]
 }

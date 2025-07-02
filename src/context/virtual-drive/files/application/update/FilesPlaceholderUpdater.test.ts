@@ -3,13 +3,11 @@ import { FilesPlaceholderUpdater } from './FilesPlaceholderUpdater';
 import { InMemoryFileRepository } from '../../infrastructure/InMemoryFileRepository';
 import { NodeWinLocalFileSystem } from '../../infrastructure/NodeWinLocalFileSystem';
 import { RelativePathToAbsoluteConverter } from '../../../shared/application/RelativePathToAbsoluteConverter';
-import { LocalFileIdProvider } from '../../../shared/application/LocalFileIdProvider';
 import { mockDeep } from 'vitest-mock-extended';
 import { FileMother } from 'tests/context/virtual-drive/files/domain/FileMother';
 import { FileStatuses } from '../../domain/FileStatus';
 import { v4 } from 'uuid';
 import fs from 'fs/promises';
-import { InMemoryEventRepository } from '@/context/virtual-drive/shared/infrastructure/InMemoryEventHistory';
 
 vi.mock(import('fs/promises'));
 
@@ -19,10 +17,6 @@ const mockLocalFileSystem = mockDeep<NodeWinLocalFileSystem>();
 
 const mockPathConverter = mockDeep<RelativePathToAbsoluteConverter>();
 
-const mockFileIdProvider = mockDeep<LocalFileIdProvider>();
-
-const mockEventHistory = mockDeep<InMemoryEventRepository>();
-
 describe('FilesPlaceholderUpdater', () => {
   let updater: FilesPlaceholderUpdater;
 
@@ -31,7 +25,7 @@ describe('FilesPlaceholderUpdater', () => {
   });
 
   beforeAll(() => {
-    updater = new FilesPlaceholderUpdater(mockRepository, mockLocalFileSystem, mockPathConverter, mockFileIdProvider, mockEventHistory);
+    updater = new FilesPlaceholderUpdater(mockRepository, mockLocalFileSystem, mockPathConverter);
   });
 
   afterAll(() => {

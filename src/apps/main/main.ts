@@ -21,7 +21,6 @@ setupElectronLog();
 
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
-import { setupBugReportHandlers } from './bug-report/handlers';
 import { checkIfUserIsLoggedIn, setupAuthIpcHandlers } from './auth/handlers';
 import './windows/settings';
 import './windows/process-issues';
@@ -43,7 +42,6 @@ import { setupSettingsIPCHandlers } from './windows/ipc/setup-ipc-handlers';
 import { autoUpdater } from 'electron-updater';
 import packageJson from '../../../package.json';
 import eventBus from './event-bus';
-import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
 import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
@@ -51,7 +49,6 @@ import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
-import { reportError } from './bug-report/service';
 import { Theme } from '../shared/types/Theme';
 import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
@@ -70,7 +67,6 @@ if (!gotTheLock) {
 }
 
 setupAutoLaunchHandlers();
-setupBugReportHandlers();
 setupAuthIpcHandlers();
 setupSettingsIPCHandlers();
 setupVirtualDriveHandlers();
@@ -80,15 +76,6 @@ setupIpcDriveServerWip();
 
 Logger.log(`Running ${packageJson.version}`);
 Logger.log(`App is packaged: ${app.isPackaged}`);
-
-Logger.log('Initializing Sentry for main process');
-Sentry.init({
-  // Enable Sentry only when app is packaged
-  enabled: app.isPackaged,
-  dsn: process.env.SENTRY_DSN,
-});
-Sentry.captureMessage('Main process started');
-Logger.log('Sentry is ready for main process');
 
 async function checkForUpdates() {
   autoUpdater.logger = Logger;

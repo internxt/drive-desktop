@@ -54,6 +54,7 @@ export async function spawnDefaultSyncEngineWorker() {
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
   const config: Config = {
+    userUuid: user.uuid,
     providerId,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
@@ -80,7 +81,7 @@ export async function spawnDefaultSyncEngineWorker() {
 }
 
 export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { providerId: string }) {
-  const workspaces = await getWorkspaces({});
+  const workspaces = await getWorkspaces();
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
   const currentProviderIds = workspaceProviderIds.concat([providerId]);

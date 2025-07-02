@@ -2,168 +2,234 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
+import { getRequestKey } from '../in/get-in-flight-request';
+
+export const folders = {
+  createFolder,
+  getMetadata,
+  getMetadataWithUuid,
+  getFolders,
+  getFoldersByFolder,
+  getFilesByFolder,
+  moveFolder,
+  renameFolder,
+  existsFolder,
+};
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
 type TGetFilesByFolderQuery = paths['/folders/content/{uuid}/files']['get']['parameters']['query'];
 
-export class FoldersService {
-  getMetadata(context: { folderId: number }) {
-    const promise = client.GET('/folders/{id}/metadata', {
+async function getMetadata(context: { folderId: number }) {
+  const method = 'GET';
+  const endpoint = '/folders/{id}/metadata';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.GET(endpoint, {
       params: { path: { id: context.folderId } },
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get folder metadata request was not successful',
-        context,
-        attributes: {
-          method: 'GET',
-          endpoint: '/folders/{id}/metadata',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Get folder metadata request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
+}
 
-  getMetadataWithUuid(context: { uuid: string }) {
-    const promise = client.GET('/folders/{uuid}/meta', {
+async function getMetadataWithUuid(context: { uuid: string }) {
+  const method = 'GET';
+  const endpoint = '/folders/{uuid}/meta';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.GET(endpoint, {
       params: { path: { uuid: context.uuid } },
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get folder metadata request was not successful',
-        context,
-        attributes: {
-          method: 'GET',
-          endpoint: '/folders/{uuid}/meta',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Get folder metadata request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
+}
 
-  getFolders(context: { query: TGetFoldersQuery }) {
-    const promise = client.GET('/folders', { params: { query: context.query } });
+async function getFolders(context: { query: TGetFoldersQuery }) {
+  const method = 'GET';
+  const endpoint = '/folders';
+  const key = getRequestKey({ method, endpoint, context });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get folders request was not successful',
-        context,
-        attributes: {
-          method: 'GET',
-          endpoint: '/folders',
-        },
+  const promiseFn = () => client.GET(endpoint, { params: { query: context.query } });
+
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Get folders request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
+}
 
-  async getFoldersByFolder(context: { folderUuid: string; query: TGetFoldersByFolderQuery }) {
-    const promise = client.GET('/folders/content/{uuid}/folders', {
+async function getFoldersByFolder(
+  context: { folderUuid: string; query: TGetFoldersByFolderQuery },
+  extra?: { abortSignal?: AbortSignal; skipLog?: boolean },
+) {
+  const method = 'GET';
+  const endpoint = '/folders/content/{uuid}/folders';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
+      signal: extra?.abortSignal,
     });
 
-    const res = await clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get folders by folder request was not successful',
-        context,
-        attributes: {
-          method: 'GET',
-          endpoint: '/folders/content/{uuid}/folders',
-        },
+  const res = await clientWrapper({
+    promiseFn,
+    key,
+    skipLog: extra?.skipLog,
+    loggerBody: {
+      msg: 'Get folders by folder request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
+    },
+  });
 
-    if (res.data) {
-      return { data: res.data.folders };
-    } else {
-      return { error: res.error };
-    }
+  if (res.data) {
+    return { data: res.data.folders };
+  } else {
+    return { error: res.error };
   }
+}
 
-  createFolder = createFolder;
+async function getFilesByFolder(
+  context: { folderUuid: string; query: TGetFilesByFolderQuery },
+  extra?: { abortSignal?: AbortSignal; skipLog?: boolean },
+) {
+  const method = 'GET';
+  const endpoint = '/folders/content/{uuid}/files';
+  const key = getRequestKey({ method, endpoint, context });
 
-  async getFilesByFolder(context: { folderUuid: string; query: TGetFilesByFolderQuery }) {
-    const promise = client.GET('/folders/content/{uuid}/files', {
+  const promiseFn = () =>
+    client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
+      signal: extra?.abortSignal,
     });
 
-    const res = await clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get files by folder request was not successful',
-        context,
-        attributes: {
-          method: 'GET',
-          endpoint: '/folders/content/{uuid}/files',
-        },
+  const res = await clientWrapper({
+    promiseFn,
+    key,
+    skipLog: extra?.skipLog,
+    loggerBody: {
+      msg: 'Get files by folder request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
+    },
+  });
 
-    if (res.data) {
-      return { data: res.data.files };
-    } else {
-      return { error: res.error };
-    }
+  if (res.data) {
+    return { data: res.data.files };
+  } else {
+    return { error: res.error };
   }
+}
 
-  moveFolder(context: { uuid: string; parentUuid: string }) {
-    const promise = client.PATCH('/folders/{uuid}', {
+async function moveFolder(context: { uuid: string; parentUuid: string }) {
+  const method = 'PATCH';
+  const endpoint = '/folders/{uuid}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.PATCH(endpoint, {
       params: { path: { uuid: context.uuid } },
       body: { destinationFolder: context.parentUuid },
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Move folder request was not successful',
-        context,
-        attributes: {
-          method: 'PATCH',
-          endpoint: '/folders/{uuid}',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Move folder request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
+}
 
-  renameFolder(context: { uuid: string; plainName: string }) {
-    const promise = client.PUT('/folders/{uuid}/meta', {
+async function renameFolder(context: { uuid: string; plainName: string }) {
+  const method = 'PUT';
+  const endpoint = '/folders/{uuid}/meta';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.PUT(endpoint, {
       params: { path: { uuid: context.uuid } },
       body: { plainName: context.plainName },
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Rename folder request was not successful',
-        context,
-        attributes: {
-          method: 'PUT',
-          endpoint: '/folders/{uuid}/meta',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Rename folder request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
+}
 
-  existsFolder(context: { parentUuid: string; basename: string }) {
-    const promise = client.POST('/folders/content/{uuid}/folders/existence', {
+async function existsFolder(context: { parentUuid: string; basename: string }) {
+  const method = 'POST';
+  const endpoint = '/folders/content/{uuid}/folders/existence';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.POST(endpoint, {
       params: { path: { uuid: context.parentUuid } },
       body: { plainNames: [context.basename] },
     });
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Check folder existence request was not successful',
-        context,
-        attributes: {
-          method: 'POST',
-          endpoint: '/folders/content/{uuid}/folders/existence',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Check folder existence request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
 }

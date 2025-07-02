@@ -2,6 +2,7 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
 import { paths } from '@/apps/shared/HttpClient/schema';
+import { getRequestKey } from '../../in/get-in-flight-request';
 
 type TCreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];
 
@@ -14,17 +15,25 @@ class CreateFolderError extends DriveServerWipError {
   }
 }
 
-export async function createFolder(context: { body: TCreateFolderBody }) {
-  const { data, error } = await clientWrapper({
-    promise: client.POST('/folders', {
+export async function createFolder(context: { path: string; body: TCreateFolderBody }) {
+  const method = 'POST';
+  const endpoint = '/folders';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.POST(endpoint, {
       body: context.body,
-    }),
+    });
+
+  const { data, error } = await clientWrapper({
+    promiseFn,
+    key,
     loggerBody: {
-      msg: 'Create folder request was not successful',
+      msg: 'Create folder request',
       context,
       attributes: {
-        method: 'POST',
-        endpoint: '/folders',
+        method,
+        endpoint,
       },
     },
   });

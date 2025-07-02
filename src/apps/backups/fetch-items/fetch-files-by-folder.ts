@@ -1,8 +1,6 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { FileDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
-import { retryWrapper } from '@/infra/drive-server-wip/out/retry-wrapper';
 
 type TProps = {
   folderUuid: string;
@@ -15,15 +13,8 @@ export async function fetchFilesByFolder({ folderUuid, allFiles, abortSignal, of
   let hasMore = true;
 
   while (hasMore && !abortSignal.aborted) {
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Fetching backup files',
-      folderUuid,
-      offset,
-    });
-
-    const promise = () =>
-      driveServerWip.folders.getFilesByFolder({
+    const { data, error } = await driveServerWip.folders.getFilesByFolder(
+      {
         folderUuid,
         query: {
           limit: FETCH_LIMIT,
@@ -31,17 +22,14 @@ export async function fetchFilesByFolder({ folderUuid, allFiles, abortSignal, of
           sort: 'updatedAt',
           order: 'DESC',
         },
-      });
-
-    const { data, error } = await retryWrapper({
-      promise,
-      loggerBody: {
-        tag: 'BACKUPS',
-        msg: 'Retry fetching files by folder',
       },
-    });
+      { abortSignal },
+    );
 
-    if (!data) throw error;
+    if (error) {
+      if (error.code === 'ABORTED') return;
+      throw error;
+    }
 
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;

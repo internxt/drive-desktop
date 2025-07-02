@@ -189,28 +189,7 @@ export class Addon {
 
   convertToPlaceholder({ path, id }: { path: string; id: FilePlaceholderId | FolderPlaceholderId }) {
     const result = addon.convertToPlaceholder(path, id);
-
-    this.parseAddonZod('convertToPlaceholder', result);
-
-    logger.debug({
-      msg: 'Convert to placeholder',
-      result,
-      path,
-      id,
-      tag: 'NODE-WIN',
-    });
-
-    if (!result.success) {
-      logger.error({
-        msg: 'Failed to convert to placeholder',
-        path,
-        id,
-        error: result.errorMessage,
-        tag: 'NODE-WIN',
-      });
-    }
-
-    return result.success;
+    return this.parseAddonZod('convertToPlaceholder', result);
   }
 
   updateFileIdentity({ path, id, isDirectory }: { path: string; id: string; isDirectory: boolean }) {

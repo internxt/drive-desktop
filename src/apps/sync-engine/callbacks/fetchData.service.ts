@@ -1,10 +1,10 @@
 import Logger from 'electron-log';
-import * as Sentry from '@sentry/electron/renderer';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import * as fs from 'fs';
 import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { dirname } from 'path';
+import { trimPlaceholderId } from '../callbacks-controllers/controllers/placeholder-id';
 
 type TProps = {
   self: BindingsManager;
@@ -21,8 +21,8 @@ export class FetchDataService {
       const startTime = Date.now();
       const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
-      // eslint-disable-next-line no-control-regex
-      const parsedPlaceholderId = filePlaceholderId.replace(/[\x00-\x1F\x7F-\x9F]/g, '').split(':')[1];
+      const trimmedPlaceholderId = trimPlaceholderId({ placeholderId: filePlaceholderId });
+      const parsedPlaceholderId = trimmedPlaceholderId.split(':')[1];
       const file = self.controllers.downloadFile.fileFinderByUuid({ uuid: parsedPlaceholderId });
 
       Logger.debug('[Fetch Data Callback] Preparing begins', path);
@@ -75,7 +75,6 @@ export class FetchDataService {
       } catch (error) {
         Logger.error('[Fetch Data Error]', error);
         Logger.debug('[Fetch Data Error] Finish', path);
-        Sentry.captureException(error);
         // await callback(false, '');
         fs.unlinkSync(path);
         return;
@@ -88,7 +87,6 @@ export class FetchDataService {
       Logger.debug('[Fetch Data Callback] Finish', path);
     } catch (error) {
       Logger.error(error);
-      Sentry.captureException(error);
       await callback(false, '');
     }
   }

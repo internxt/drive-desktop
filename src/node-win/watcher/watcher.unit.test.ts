@@ -156,6 +156,10 @@ describe('Watcher', () => {
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
           { event: 'addDir', path: folder },
+          /**
+           * v2.5.5 Daniel Jiménez
+           * TODO: check why it doesn't emit unlink
+           */
           { event: 'add', path: movedFile },
         ]),
       );
@@ -248,7 +252,7 @@ describe('Watcher', () => {
       // Act
       await sleep(50);
       execSync(`attrib +P ${file}`);
-      await sleep(50);
+      await sleep(100);
 
       // Assert
       expect(getEvents()).toStrictEqual(
@@ -270,7 +274,7 @@ describe('Watcher', () => {
       // Act
       await sleep(50);
       execSync(`attrib +P ${folder}`);
-      await sleep(50);
+      await sleep(100);
 
       // Assert
       expect(getEvents()).toStrictEqual(

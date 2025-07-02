@@ -3,6 +3,7 @@ import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
 
 vi.mock(import('@/apps/main/util'));
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('fetch-files-by-folder', () => {
   const getFilesByFolderMock = deepMocked(driveServerWip.folders.getFilesByFolder);
@@ -68,19 +69,14 @@ describe('fetch-files-by-folder', () => {
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(2);
   });
 
-  it('If fetch fails, then retry at least 3 times and keep offset', async () => {
+  it('If fetch fails, then throw error', async () => {
     // Given
-    getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFilesByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
-    getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
-    getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
     getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
 
     // When
     await expect(() => fetchFilesByFolder(props)).rejects.toThrowError();
 
     // Then
-    expect(getFilesByFolderMock).toHaveBeenCalledTimes(6);
+    expect(getFilesByFolderMock).toHaveBeenCalledTimes(1);
   });
 });

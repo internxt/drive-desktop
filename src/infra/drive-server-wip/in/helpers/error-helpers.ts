@@ -70,8 +70,13 @@ export function isNetworkConnectivityError({ exc }: { exc: unknown }): boolean {
   return !!(message && message.includes('Failed to fetch'));
 }
 
-export function isServerError({ response }: { response: Response }): boolean {
-  return response.status >= 500 && response.status < 600;
+export function isServerError({ response: { status } }: { response: Response }): boolean {
+  if (status === 429) return true;
+  return status >= 500 && status < 600;
+}
+
+export function isAbortError({ exc }: { exc: unknown }): boolean {
+  return exc instanceof DOMException && exc.name === 'AbortError';
 }
 
 export function handleRemoveErrors() {

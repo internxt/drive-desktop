@@ -2,45 +2,56 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createDevice } from './backup/create-device';
 import { getDevice } from './backup/get-device';
+import { getRequestKey } from '../in/get-in-flight-request';
 
-export class BackupService {
-  getDevices() {
-    const promise = client.GET('/backup/deviceAsFolder');
+export const backup = {
+  getDevices,
+  updateDevice,
+  getDevice,
+  createDevice,
+};
 
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Get devices as folder request was not successful',
-        attributes: {
-          method: 'GET',
-          endpoint: '/backup/deviceAsFolder',
-        },
+async function getDevices() {
+  const method = 'GET';
+  const endpoint = '/backup/deviceAsFolder';
+  const key = getRequestKey({ method, endpoint });
+
+  const promiseFn = () => client.GET(endpoint);
+
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Get devices as folder request',
+      attributes: {
+        method,
+        endpoint,
       },
+    },
+  });
+}
+
+async function updateDevice(context: { deviceUuid: string; deviceName: string }) {
+  const method = 'PATCH';
+  const endpoint = '/backup/deviceAsFolder/{uuid}';
+  const key = getRequestKey({ method, endpoint, context });
+
+  const promiseFn = () =>
+    client.PATCH(endpoint, {
+      params: { path: { uuid: context.deviceUuid } },
+      body: { deviceName: context.deviceName },
     });
-  }
 
-  getDevice = getDevice;
-  createDevice = createDevice;
-
-  updateDevice({ deviceUuid, deviceName }: { deviceUuid: string; deviceName: string }) {
-    const promise = client.PATCH('/backup/deviceAsFolder/{uuid}', {
-      params: { path: { uuid: deviceUuid } },
-      body: { deviceName },
-    });
-
-    return clientWrapper({
-      promise,
-      loggerBody: {
-        msg: 'Update device as folder request was not successful',
-        context: {
-          deviceUuid,
-          deviceName,
-        },
-        attributes: {
-          method: 'PATCH',
-          endpoint: '/backup/deviceAsFolder/{uuid}',
-        },
+  return await clientWrapper({
+    promiseFn,
+    key,
+    loggerBody: {
+      msg: 'Update device as folder request',
+      context,
+      attributes: {
+        method,
+        endpoint,
       },
-    });
-  }
+    },
+  });
 }
