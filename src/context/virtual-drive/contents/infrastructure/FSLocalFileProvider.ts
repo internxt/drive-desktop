@@ -100,7 +100,6 @@ export class FSLocalFileProvider {
     const readStream = createReadStream(filePath);
     const controller = new AbortController();
 
-    // Agregar manejo de errores al stream final
     readStream.on('error', (err: Error) => {
       throw logger.error({
         tag: 'SYNC-ENGINE',
