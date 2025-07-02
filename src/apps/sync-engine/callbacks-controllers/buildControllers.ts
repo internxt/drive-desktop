@@ -12,11 +12,7 @@ export interface IControllers {
 }
 
 export function buildControllers(container: DependencyContainer): IControllers {
-  const addFileController = new AddController(
-    container.absolutePathToRelativeConverter,
-    container.fileCreationOrchestrator,
-    container.folderCreator,
-  );
+  const addFileController = new AddController(container.fileCreationOrchestrator, container.folderCreator);
 
   const deleteController = new DeleteController(
     container.fileDeleter,

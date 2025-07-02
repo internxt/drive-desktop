@@ -8,6 +8,11 @@ export function createRelativePath(...parts: string[]): RelativePath {
   let path = posix.join(posix.sep, ...parts);
   path = path.replaceAll(win32.sep, posix.sep);
   path = posix.normalize(path);
+  /**
+   * v2.5.6 Daniel Jiménez
+   * If the path is not the root path "/" remote the last slash "/a/b/" -> "/a/b"
+   */
+  path = path !== '/' ? path.replace(/\/{1,}$/, '') : path;
   return path as RelativePath;
 }
 
@@ -15,7 +20,13 @@ function dirname(path: RelativePath): RelativePath {
   return posix.dirname(path) as RelativePath;
 }
 
+function absoluteToRelative({ base, path }: { base: AbsolutePath; path: AbsolutePath }) {
+  const relativePath = win32.relative(base, path);
+  return createRelativePath(relativePath);
+}
+
 export const pathUtils = {
   dirname,
   createRelativePath,
+  absoluteToRelative,
 };

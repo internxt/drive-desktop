@@ -2,13 +2,14 @@ import { mockDeep } from 'vitest-mock-extended';
 import { createFolder, createParentFolder } from './create-folder';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('create-folder', () => {
   const folderCreator = mockDeep<FolderCreator>();
 
-  const path = '/folder1/folder2';
+  const path = createRelativePath('folder1', 'folder2');
   const parentPath = '/folder1';
-  const props = { posixRelativePath: path, folderCreator };
+  const props = { path, folderCreator };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -37,9 +38,7 @@ describe('create-folder', () => {
 
     it('folderCreator.run throws FolderNotFoundError', async () => {
       // Given
-      folderCreator.run.mockImplementationOnce(() => {
-        throw new FolderNotFoundError('Error creating folder');
-      });
+      folderCreator.run.mockRejectedValueOnce(new FolderNotFoundError(''));
 
       // When
       await createFolder(props);

@@ -11,6 +11,7 @@ import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderM
 import { FolderCreator } from './FolderCreator';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { v4 } from 'uuid';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 
@@ -22,7 +23,7 @@ describe('Folder Creator', () => {
 
   const SUT = new FolderCreator(repository, remote, virtualDrive);
 
-  const path = '/folder1/folder2';
+  const path = createRelativePath('folder1', 'folder2');
   const props = { path };
 
   beforeEach(() => {
@@ -47,7 +48,7 @@ describe('Folder Creator', () => {
     getFolderUuid.mockReturnValueOnce({ data: folder.parentUuid });
 
     // When
-    await SUT.run({ path: folder.path });
+    await SUT.run({ path });
 
     // Then
     expect(remote.persist).toBeCalledWith({

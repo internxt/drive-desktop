@@ -16,6 +16,7 @@ import { VirtualDrive } from '@/node-win/virtual-drive';
 import { logger } from '@/apps/shared/logger/logger';
 import { createParentFolder } from '@/features/sync/add-item/create-folder';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export class FileSyncronizer {
   constructor(
@@ -75,7 +76,7 @@ export class FileSyncronizer {
 
       if (error instanceof FolderNotFoundError) {
         await createParentFolder({
-          posixRelativePath,
+          path: createRelativePath(posixRelativePath),
           folderCreator: this.folderCreator,
         });
       }

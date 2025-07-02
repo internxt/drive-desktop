@@ -1,32 +1,44 @@
 import { watch, WatchOptions, FSWatcher } from 'chokidar';
 
-import { OnAddDirService } from './events/on-add-dir.service';
+import { onAddDir } from './events/on-add-dir.service';
 import { OnRawService } from './events/on-raw.service';
-import { Addon } from '../addon-wrapper';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
+import VirtualDrive from '../virtual-drive';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/AddController';
+
+export type TWatcherCallbacks = {
+  addController: AddController;
+};
 
 export class Watcher {
   syncRootPath!: string;
   options!: WatchOptions;
-  addon!: Addon;
+  virtualDrive!: VirtualDrive;
   queueManager!: QueueManager;
   logger!: TLogger;
   fileInDevice = new Set<string>();
   chokidar?: FSWatcher;
+  callbacks!: TWatcherCallbacks;
 
-  constructor(
-    private readonly onAddDir: OnAddDirService = new OnAddDirService(),
-    private readonly onRaw: OnRawService = new OnRawService(),
-  ) {}
+  constructor(private readonly onRaw: OnRawService = new OnRawService()) {}
 
-  init(queueManager: QueueManager, syncRootPath: string, options: WatchOptions, logger: TLogger, addon: Addon) {
+  init(
+    queueManager: QueueManager,
+    syncRootPath: string,
+    options: WatchOptions,
+    logger: TLogger,
+    virtualDrive: VirtualDrive,
+    callbacks: TWatcherCallbacks,
+  ) {
     this.queueManager = queueManager;
     this.syncRootPath = syncRootPath;
     this.options = options;
     this.logger = logger;
-    this.addon = addon;
+    this.virtualDrive = virtualDrive;
+    this.callbacks = callbacks;
   }
 
   private onChange = (path: string) => {
@@ -45,9 +57,9 @@ export class Watcher {
     try {
       this.chokidar = watch(this.syncRootPath, this.options);
       this.chokidar
-        .on('add', (path, stats) => onAdd({ self: this, path, stats: stats! }))
+        .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ self: this, absolutePath, stats: stats! }))
+        .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ self: this, absolutePath, stats: stats! }))
         .on('change', this.onChange)
-        .on('addDir', (path, stats) => this.onAddDir.execute({ self: this, path, stats: stats! }))
         .on('error', this.onError)
         .on('raw', (event, path, details) => this.onRaw.execute({ self: this, event, path, details }))
         .on('ready', this.onReady);

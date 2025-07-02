@@ -1,11 +1,8 @@
-import { FolderFinder } from '../../folders/application/FolderFinder';
 import { FilePath } from '../domain/FilePath';
 import { File } from '../domain/File';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
-import { FileDeleter } from './FileDeleter';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { OfflineFile } from '../domain/OfflineFile';
-import { FileStatuses } from '../domain/FileStatus';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '@/apps/sync-engine/config';
