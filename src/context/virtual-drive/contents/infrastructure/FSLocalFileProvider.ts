@@ -35,10 +35,9 @@ export class FSLocalFileProvider {
 
           readable.on('error', (err: Error) => {
             const busyErrorCodes = ['EBUSY', 'EPERM', 'EACCES', 'ENOENT'];
-            const isBusyError = busyErrorCodes.includes((err as any).code || '') || 
-                               err.message.includes('busy') ||
-                               err.message.includes('access denied');
-            
+            const isBusyError =
+              busyErrorCodes.includes((err as any).code || '') || err.message.includes('busy') || err.message.includes('access denied');
+
             if (isBusyError && retriesLeft > 0 && !isResolved) {
               Logger.debug(
                 `File is busy (${(err as any).code || 'BUSY'}), will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
@@ -61,8 +60,8 @@ export class FSLocalFileProvider {
                   syscall: (err as any).syscall,
                   path: (err as any).path,
                   retriesLeft,
-                  errorCode: (err as any).code
-                }
+                  errorCode: (err as any).code,
+                },
               });
             }
           });
@@ -72,7 +71,7 @@ export class FSLocalFileProvider {
           tag: 'SYNC-ENGINE',
           msg: 'Error reading file during busy check',
           exc: error,
-          context: { filePath }
+          context: { filePath },
         });
       }
     };
@@ -90,7 +89,7 @@ export class FSLocalFileProvider {
       logger.debug({
         tag: 'SYNC-ENGINE',
         msg: 'File is being read, aborting previous read',
-        context: { filePath }
+        context: { filePath },
       });
       isBeingRead.abort();
     }
@@ -109,8 +108,8 @@ export class FSLocalFileProvider {
           filePath,
           syscall: (err as any).syscall,
           path: (err as any).path,
-          errorCode: (err as any).code
-        }
+          errorCode: (err as any).code,
+        },
       });
     });
 
@@ -147,7 +146,7 @@ export class FSLocalFileProvider {
                 event,
                 newMtimeMs,
                 newSize,
-              }
+              },
             });
 
             controller.abort();
@@ -160,7 +159,7 @@ export class FSLocalFileProvider {
                 filename,
                 nameWithExtension,
                 event,
-              }
+              },
             });
           }
         } catch (error) {
@@ -168,7 +167,7 @@ export class FSLocalFileProvider {
             tag: 'SYNC-ENGINE',
             msg: 'Error while checking file changes',
             exc: error,
-            context: { filePath: absoluteFilePath }
+            context: { filePath: absoluteFilePath },
           });
         }
       });
@@ -202,7 +201,7 @@ export class FSLocalFileProvider {
         tag: 'SYNC-ENGINE',
         msg: 'Error providing file',
         exc: error,
-        context: { filePath: absoluteFilePath }
+        context: { filePath: absoluteFilePath },
       });
     }
   }
