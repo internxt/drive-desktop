@@ -22,26 +22,24 @@ describe('create-file', () => {
     vi.clearAllMocks();
   });
 
-  describe('create-file', () => {
-    it('File does not exist, create it', async () => {
-      // When
-      await createFile(props);
+  it('File does not exist, create it', async () => {
+    // When
+    await createFile(props);
 
-      // Then
-      expect(fileCreationOrchestratorMock.run).toHaveBeenCalledTimes(1);
-      expect(fileCreationOrchestratorMock.run).toHaveBeenCalledWith({ path });
-    });
+    // Then
+    expect(fileCreationOrchestratorMock.run).toHaveBeenCalledTimes(1);
+    expect(fileCreationOrchestratorMock.run).toHaveBeenCalledWith({ path });
+  });
 
-    it('should run createParentFolder if parent folder does not exist', async () => {
-      // Given
-      fileCreationOrchestratorMock.run.mockRejectedValueOnce(new FolderNotFoundError(''));
+  it('should run createParentFolder if parent folder does not exist', async () => {
+    // Given
+    fileCreationOrchestratorMock.run.mockRejectedValueOnce(new FolderNotFoundError(''));
 
-      // When
-      await createFile(props);
+    // When
+    await createFile(props);
 
-      // Then
-      expect(createParentFolderMock).toHaveBeenCalledTimes(1);
-      expect(createParentFolderMock).toHaveBeenCalledWith({ path });
-    });
+    // Then
+    expect(createParentFolderMock).toHaveBeenCalledTimes(1);
+    expect(createParentFolderMock).toHaveBeenCalledWith({ path });
   });
 });
