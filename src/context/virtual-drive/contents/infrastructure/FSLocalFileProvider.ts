@@ -33,14 +33,15 @@ export class FSLocalFileProvider {
             resolve();
           });
 
-          readable.on('error', (err: NodeJS.ErrnoException) => {
+          readable.on('error', (err: Error) => {
             const busyErrorCodes = ['EBUSY', 'EPERM', 'EACCES', 'ENOENT'];
-            const isBusyError =
-              busyErrorCodes.includes(err.code || '') || err.message.includes('busy') || err.message.includes('access denied');
-
+            const isBusyError = busyErrorCodes.includes((err as any).code || '') || 
+                               err.message.includes('busy') ||
+                               err.message.includes('access denied');
+            
             if (isBusyError && retriesLeft > 0 && !isResolved) {
               Logger.debug(
-                `File is busy (${err.code || 'UNKNOWN'}), will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
+                `File is busy (${(err as any).code || 'BUSY'}), will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
               );
               setTimeout(async () => {
                 try {
@@ -51,19 +52,28 @@ export class FSLocalFileProvider {
                 }
               }, FSLocalFileProvider.TIMEOUT_BUSY_CHECK);
             } else {
-              Logger.error(`File read error: ${err.code || 'UNKNOWN'} - ${err.message}`, {
-                filePath,
-                syscall: err.syscall,
-                path: err.path,
-                retriesLeft,
+              throw logger.error({
+                tag: 'SYNC-ENGINE',
+                msg: 'File read error during busy check',
+                exc: err,
+                context: {
+                  filePath,
+                  syscall: (err as any).syscall,
+                  path: (err as any).path,
+                  retriesLeft,
+                  errorCode: (err as any).code
+                }
               });
-              reject(err);
             }
           });
         });
       } catch (error) {
-        Logger.error(`Error reading file: ${error}`, { filePath });
-        throw error;
+        throw logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Error reading file during busy check',
+          exc: error,
+          context: { filePath }
+        });
       }
     };
 
@@ -80,7 +90,7 @@ export class FSLocalFileProvider {
       logger.debug({
         tag: 'SYNC-ENGINE',
         msg: 'File is being read, aborting previous read',
-        filePath,
+        context: { filePath }
       });
       isBeingRead.abort();
     }
@@ -89,13 +99,19 @@ export class FSLocalFileProvider {
     const readStream = createReadStream(filePath);
     const controller = new AbortController();
 
-    readStream.on('error', (err: NodeJS.ErrnoException) => {
-      Logger.error(`Stream read error: ${err.code || 'UNKNOWN'} - ${err.message}`, {
-        filePath,
-        syscall: err.syscall,
-        path: err.path,
+    // Agregar manejo de errores al stream final
+    readStream.on('error', (err: Error) => {
+      throw logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: 'Stream read error',
+        exc: err,
+        context: {
+          filePath,
+          syscall: (err as any).syscall,
+          path: (err as any).path,
+          errorCode: (err as any).code
+        }
       });
-      controller.abort();
     });
 
     this.reading.set(filePath, controller);
@@ -122,30 +138,37 @@ export class FSLocalFileProvider {
 
           if (newMtimeMs !== mtimeMs || newSize !== size) {
             logger.debug({
+              tag: 'SYNC-ENGINE',
               msg: 'File changed, aborting read stream',
-              filePath: absoluteFilePath,
-              filename,
-              nameWithExtension,
-              event,
-              newMtimeMs,
-              newSize,
+              context: {
+                filePath: absoluteFilePath,
+                filename,
+                nameWithExtension,
+                event,
+                newMtimeMs,
+                newSize,
+              }
             });
 
             controller.abort();
           } else {
             logger.debug({
+              tag: 'SYNC-ENGINE',
               msg: 'File event detected, but no real changes found',
-              filePath: absoluteFilePath,
-              filename,
-              nameWithExtension,
-              event,
+              context: {
+                filePath: absoluteFilePath,
+                filename,
+                nameWithExtension,
+                event,
+              }
             });
           }
         } catch (error) {
           logger.error({
+            tag: 'SYNC-ENGINE',
             msg: 'Error while checking file changes',
             exc: error,
-            filePath: absoluteFilePath,
+            context: { filePath: absoluteFilePath }
           });
         }
       });
@@ -175,8 +198,12 @@ export class FSLocalFileProvider {
         abortSignal: controller.signal,
       };
     } catch (error) {
-      Logger.error(`Error providing file: ${error}`);
-      throw error;
+      throw logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: 'Error providing file',
+        exc: error,
+        context: { filePath: absoluteFilePath }
+      });
     }
   }
 }
