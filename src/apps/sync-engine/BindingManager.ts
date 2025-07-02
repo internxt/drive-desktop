@@ -4,7 +4,6 @@ import { IControllers, buildControllers } from './callbacks-controllers/buildCon
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
-import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
 import { HandleHydrateService } from './callbacks/handleHydrate.service';
 import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
@@ -20,7 +19,6 @@ import { QueueManager } from '@/node-win/queue/queue-manager';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
 import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
-import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -29,7 +27,6 @@ export class BindingsManager {
   controllers: IControllers;
 
   lastHydrated = '';
-  private lastMoved = '';
 
   constructor(
     public readonly container: DependencyContainer,
@@ -71,39 +68,6 @@ export class BindingsManager {
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
       },
-      notifyRenameCallback: async (
-        absolutePath: string,
-        placeholderId: FilePlaceholderId | FolderPlaceholderId,
-        callback: (response: boolean) => void,
-      ) => {
-        try {
-          Logger.debug('Path received from rename callback', absolutePath);
-
-          if (this.lastMoved === absolutePath) {
-            Logger.debug('Same file moved');
-            this.lastMoved = '';
-            callback(true);
-            return;
-          }
-
-          const isTempFile = isTemporaryFile(absolutePath);
-
-          Logger.debug('[isTemporaryFile]', isTempFile);
-
-          if (isTempFile && !placeholderId.startsWith('FOLDER')) {
-            Logger.debug('File is temporary, skipping');
-            callback(true);
-            return;
-          }
-
-          const fn = this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove);
-          await fn(absolutePath, placeholderId, callback);
-          Logger.debug('Finish Rename', absolutePath);
-          this.lastMoved = absolutePath;
-        } catch (error) {
-          Logger.error('Error during rename or move operation', error);
-        }
-      },
       fetchDataCallback: (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
           self: this,
@@ -135,9 +99,6 @@ export class BindingsManager {
       },
       notifyDehydrateCompletionCallback: () => {
         Logger.debug('notifyDehydrateCompletionCallback');
-      },
-      notifyRenameCompletionCallback: () => {
-        Logger.debug('notifyRenameCompletionCallback');
       },
       noneCallback: () => {
         Logger.debug('noneCallback');
@@ -179,6 +140,10 @@ export class BindingsManager {
       handlers: callbacks,
       persistPath: getConfig().queueManagerPath,
     });
+
+    this.container.virtualDrive.watcher.controllers = {
+      renameOrMoveController: this.controllers.renameOrMove,
+    };
 
     this.container.virtualDrive.watchAndWait({ queueManager });
     await queueManager.processAll();

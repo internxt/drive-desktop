@@ -9,6 +9,7 @@ import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository
 import { logger } from '../../../../apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export class FilePathUpdater {
   constructor(
@@ -51,9 +52,9 @@ export class FilePathUpdater {
     this.repository.update(file);
   }
 
-  async run(uuid: string, posixRelativePath: string) {
+  async run({ uuid, path, action }: { uuid: string; path: RelativePath; action: 'rename' | 'move' }) {
     try {
-      const destination = new FilePath(posixRelativePath);
+      const destination = new FilePath(path);
       const file = this.repository.searchByPartial({
         uuid,
       });
@@ -66,20 +67,7 @@ export class FilePathUpdater {
         ? this.folderFinder.findFromUuid(file.folderUuid.value)
         : this.folderFinder.findFromId(file.folderId.value);
 
-      logger.info({
-        msg: 'File path updater info',
-        file: file.name,
-        fileDirname: file.dirname,
-        folder: folderFather.name,
-        folderPath: folderFather.path,
-        destination: destination.dirname(),
-      });
-
-      if (folderFather.path !== destination.dirname()) {
-        if (file.nameWithExtension !== destination.nameWithExtension()) {
-          throw new ActionNotPermittedError('rename and change folder');
-        }
-        Logger.error('[RUN MOVE]', file.name, destination.value);
+      if (action === 'move') {
         await this.move(file, destination);
         return;
       }

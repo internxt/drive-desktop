@@ -59,6 +59,7 @@ import { unregisterVirtualDrives } from './background-processes/sync-engine/serv
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
+import { setupIpcSQLite } from '@/infra/sqlite/ipc/ipc-main';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -73,6 +74,7 @@ setupVirtualDriveHandlers();
 setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();
+setupIpcSQLite();
 
 Logger.log(`Running ${packageJson.version}`);
 Logger.log(`App is packaged: ${app.isPackaged}`);

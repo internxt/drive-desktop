@@ -30,6 +30,7 @@ describe('get-folder-identity', () => {
   });
 
   afterAll(() => {
+    drive.disconnectSyncRoot();
     VirtualDrive.unRegisterSyncRootByProviderId({ providerId });
   });
 

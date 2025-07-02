@@ -166,20 +166,4 @@ export class File {
 
     return this;
   }
-
-  attributes(): FileAttributes {
-    return {
-      id: this._id,
-      uuid: this._uuid.value,
-      contentsId: this.contentsId,
-      folderId: Number(this.folderId),
-      folderUuid: this.folderUuid?.value,
-      createdAt: this.createdAt.toISOString(),
-      path: this.path,
-      size: this.size,
-      updatedAt: this.updatedAt.toISOString(),
-      status: this.status.value,
-      modificationTime: this.updatedAt.toISOString(),
-    };
-  }
 }

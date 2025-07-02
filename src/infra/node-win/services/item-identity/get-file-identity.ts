@@ -1,6 +1,11 @@
-import { logger } from '@/apps/shared/logger/logger';
 import { isFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import VirtualDrive from '@/node-win/virtual-drive';
+
+export class GetFileIdentityError extends Error {
+  constructor(public readonly code: 'NON_EXISTS' | 'NOT_A_FILE') {
+    super(code);
+  }
+}
 
 type TProps = {
   drive: VirtualDrive;
@@ -11,16 +16,12 @@ export function getFileIdentity({ drive, path }: TProps) {
   const identity = drive.getFileIdentity({ path });
   const isFile = isFilePlaceholderId(identity);
 
-  if (!identity || !isFile) {
-    return {
-      error: logger.error({
-        tag: 'SYNC-ENGINE',
-        msg: 'File not found or not a file',
-        path,
-        identity,
-        isFile,
-      }),
-    };
+  if (!identity) {
+    return { error: new GetFileIdentityError('NON_EXISTS') };
+  }
+
+  if (!isFile) {
+    return { error: new GetFileIdentityError('NOT_A_FILE') };
   }
 
   return { data: identity };

@@ -9,7 +9,7 @@ import { logger } from '@/apps/shared/logger/logger';
 const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupIpcDriveServerWip() {
-  void ipcMainDriveServerWip.handle('storageDeleteFileByUuid', async (event, props) => {
+  void ipcMainDriveServerWip.handle('storageDeleteFileByUuid', async (_, props) => {
     const res = await driveServerWip.storage.deleteFileByUuid(props);
 
     if (!res.error) {
@@ -28,7 +28,7 @@ export function setupIpcDriveServerWip() {
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', async (event, props) => {
+  void ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', async (_, props) => {
     const res = await driveServerWip.storage.deleteFolderByUuid(props);
 
     if (!res.error) {

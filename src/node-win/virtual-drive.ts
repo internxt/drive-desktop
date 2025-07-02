@@ -200,7 +200,7 @@ export class VirtualDrive {
   }
 
   watchAndWait({ queueManager }: { queueManager: QueueManager }): void {
-    this.watcher.addon = this.addon;
+    this.watcher.virtualDrive = this;
     this.watcher.queueManager = queueManager;
     this.watcher.logger = this.logger;
     this.watcher.syncRootPath = this.syncRootPath;

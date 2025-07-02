@@ -1,11 +1,9 @@
-import { Folder } from '../domain/Folder';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderPath } from '../domain/FolderPath';
-import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { InMemoryFolderRepository } from '../infrastructure/InMemoryFolderRepository';
 import { FolderMover } from './FolderMover';
 import { FolderRenamer } from './FolderRenamer';
-import { logger } from '@/apps/shared/logger/logger';
 
 export class FolderPathUpdater {
   constructor(
@@ -14,34 +12,21 @@ export class FolderPathUpdater {
     private readonly folderRenamer: FolderRenamer,
   ) {}
 
-  async run(uuid: Folder['uuid'], posixRelativePath: string) {
+  async run({ uuid, path, action }: { uuid: string; path: RelativePath; action: 'rename' | 'move' }) {
     const folder = this.repository.searchByPartial({ uuid });
-
-    logger.debug({
-      msg: 'FolderPathUpdater.run',
-    });
 
     if (!folder) {
       throw new FolderNotFoundError(uuid);
     }
 
-    const desiredPath = new FolderPath(posixRelativePath);
+    const desiredPath = new FolderPath(path);
 
-    const dirnameChanged = folder.dirname.value !== desiredPath.dirname();
-    const nameChanged = folder.name !== desiredPath.name();
-
-    if (dirnameChanged && nameChanged) {
-      throw new ActionNotPermittedError('Move and rename (at the same time)');
-    }
-
-    if (dirnameChanged) {
+    if (action === 'move') {
       return await this.folderMover.run(folder, desiredPath);
     }
 
-    if (nameChanged) {
+    if (action === 'rename') {
       return await this.folderRenamer.run(folder, desiredPath);
     }
-
-    return;
   }
 }

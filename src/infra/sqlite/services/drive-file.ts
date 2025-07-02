@@ -29,6 +29,15 @@ export class DriveFileCollection {
     return result;
   }
 
+  async get({ uuid }: { uuid: DriveFile['uuid'] }) {
+    const user = getUserOrThrow();
+    const result = await this.repository.findOne({
+      where: { uuid, userUuid: user.uuid },
+    });
+
+    return result;
+  }
+
   async createOrUpdate(payload: DriveFile) {
     const result = await this.repository.save(payload);
     return result;

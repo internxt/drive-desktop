@@ -1,5 +1,5 @@
 import { mockProps } from 'tests/vitest/utils.helper.test';
-import { getFolderIdentity } from './get-folder-identity';
+import { getFolderIdentity, GetFolderIdentityError } from './get-folder-identity';
 import { getFolderUuid } from './get-folder-uuid';
 
 vi.mock(import('./get-folder-identity'));
@@ -33,12 +33,13 @@ describe('get-folder-uuid', () => {
 
   it('If get folder identity returns an error, then return the error', () => {
     // Given
-    getFolderIdentityMock.mockReturnValueOnce({ error: new Error() });
+    const error = new GetFolderIdentityError('NON_EXISTS');
+    getFolderIdentityMock.mockReturnValueOnce({ error });
 
     // When
     const uuid = getFolderUuid(props);
 
     // Then
-    expect(uuid).toStrictEqual({ error: new Error() });
+    expect(uuid).toStrictEqual({ error });
   });
 });
