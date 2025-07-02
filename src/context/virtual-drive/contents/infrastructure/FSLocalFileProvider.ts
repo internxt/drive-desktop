@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { createReadStream, promises as fs, watch } from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
@@ -39,9 +38,11 @@ export class FSLocalFileProvider {
               busyErrorCodes.includes((err as any).code || '') || err.message.includes('busy') || err.message.includes('access denied');
 
             if (isBusyError && retriesLeft > 0 && !isResolved) {
-              Logger.debug(
-                `File is busy (${(err as any).code || 'BUSY'}), will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
-              );
+              logger.debug({
+                tag: 'SYNC-ENGINE',
+                msg: `File is busy (${(err as any).code || 'BUSY'}), will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
+                context: { filePath, retriesLeft },
+              });
               setTimeout(async () => {
                 try {
                   await attemptRead();
