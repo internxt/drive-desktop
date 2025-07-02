@@ -34,6 +34,7 @@ export const createAuthWindow = async () => {
   authWindow.on('closed', () => {
     authWindow = null;
   });
+
   authWindow.on('blur', () => {
     const isLoggedIn = getIsLoggedIn();
 

@@ -4,6 +4,7 @@ type PushAndCleanInput = {
   toUpdateContentsIds: string[];
   toDeleteContentsIds: string[];
 };
+
 class DangledFilesManager {
   // eslint-disable-next-line no-use-before-define
   private static instance: DangledFilesManager;

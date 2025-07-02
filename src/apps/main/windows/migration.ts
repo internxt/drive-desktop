@@ -32,6 +32,7 @@ const openMigrationWindow = () => {
   migrationWindow.on('closed', () => {
     migrationWindow = null;
   });
+
   migrationWindow.on('ready-to-show', () => {
     migrationWindow?.show();
   });

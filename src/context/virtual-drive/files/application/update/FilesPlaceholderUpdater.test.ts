@@ -113,6 +113,7 @@ describe('FilesPlaceholderUpdater', () => {
 
       expect(result).toBe(false);
     });
+
     it('should return false if remote does not exist', () => {
       const local = FileMother.fromPartial({
         status: FileStatuses.EXISTS,

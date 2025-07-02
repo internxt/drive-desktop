@@ -39,6 +39,7 @@ ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
     name: nameWithExtension,
   });
 });
+
 ipcMainDrive.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
   const { nameWithExtension } = payload;
 
