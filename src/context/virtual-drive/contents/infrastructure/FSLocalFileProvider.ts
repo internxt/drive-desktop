@@ -43,6 +43,7 @@ export class FSLocalFileProvider {
                 msg: `File is busy (${(err as any).code || 'BUSY'}), will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
                 context: { filePath, retriesLeft },
               });
+
               setTimeout(async () => {
                 try {
                   await attemptRead();

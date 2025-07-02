@@ -44,6 +44,7 @@ export class HandleAddService {
         // @ts-expect-error TODO: solve in next PR
         id: itemId,
       });
+
       drive.updateSyncStatus({
         itemPath: task.path,
         isDirectory: task.isFolder,

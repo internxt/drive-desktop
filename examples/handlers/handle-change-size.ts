@@ -11,6 +11,7 @@ export const handleChangeSize = (task: QueueItem) => {
       itemPath: task.path,
       id,
     });
+
     drive.updateFileIdentity({
       itemPath: task.path,
       id,

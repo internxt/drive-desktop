@@ -8,6 +8,7 @@ describe('PlatformPathConverter', () => {
 
       expect(posix).toBe('/New Folder (4)');
     });
+
     it('works with two levels', () => {
       const win = '\\New Folder (4)\\Subfolder';
       const posix = PlatformPathConverter.winToPosix(win);
