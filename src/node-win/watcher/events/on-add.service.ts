@@ -23,6 +23,10 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
     const { size, birthtime, mtime } = stats;
 
     if (size === 0 || size > BucketEntry.MAX_SIZE) {
+      /**
+       * v2.5.6 Daniel Jiménez
+       * TODO: add sync issue
+       */
       self.logger.warn({ msg: 'Invalid file size', path, size });
       return;
     }
@@ -38,7 +42,7 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
 
     if (!uuid) {
       self.logger.debug({ msg: 'File added', path });
-      self.fileInDevice.add(path);
+      self.fileInDevice.add(absolutePath);
       await self.callbacks.addController.execute({
         path,
         virtualDrive: self.virtualDrive,

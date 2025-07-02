@@ -32,7 +32,7 @@ describe('on-add-dir', () => {
     });
   });
 
-  it('should enqueue a task if the folder is new', async () => {
+  it('should call add controller if the folder is new', async () => {
     // Given
     getFolderUuidMock.mockReturnValueOnce({ data: undefined });
 

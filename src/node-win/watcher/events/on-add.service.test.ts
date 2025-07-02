@@ -4,25 +4,29 @@ import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 // import { isFileMoved } from './is-file-moved';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
+vi.mock(import('@/apps/utils/isTemporalFile'));
 // vi.mock(import('./is-file-moved'));
 
 describe('on-add', () => {
   const getFileUuidMock = deepMocked(NodeWin.getFileUuid);
+  const isTemporaryFileMock = vi.mocked(isTemporaryFile);
   // const isFileMovedMock = vi.mocked(isFileMoved);
   const isFileMovedMock = vi.fn();
 
   const date1 = new Date();
   const date2 = new Date(date1.getTime() + 1);
+  const absolutePath = 'C:\\Users\\user\\drive\\file.txt' as AbsolutePath;
 
   let props: Parameters<typeof onAdd>[0];
 
   beforeEach(() => {
     vi.clearAllMocks();
     props = mockProps<typeof onAdd>({
-      absolutePath: 'C:\\Users\\user\\drive\\file.txt' as AbsolutePath,
+      absolutePath,
       stats: { birthtime: date1, mtime: date2, size: 1024 },
       self: {
         fileInDevice: new Set(),
@@ -33,7 +37,7 @@ describe('on-add', () => {
     });
   });
 
-  it('should not enqueue if the file is empty', async () => {
+  it('should not call add controller if the file is empty', async () => {
     // Given
     props.stats.size = 0;
 
@@ -44,7 +48,7 @@ describe('on-add', () => {
     expect(props.self.callbacks.addController.execute).not.toHaveBeenCalled();
   });
 
-  it('should not enqueue if the file is larger than MAX_SIZE', async () => {
+  it('should not call add controller if the file is larger than MAX_SIZE', async () => {
     // Given
     props.stats.size = BucketEntry.MAX_SIZE + 1;
 
@@ -55,7 +59,18 @@ describe('on-add', () => {
     expect(props.self.callbacks.addController.execute).not.toHaveBeenCalled();
   });
 
-  it('should enqueue a task if the file is new', async () => {
+  it('should not call add controller if the file is temporary', async () => {
+    // Given
+    isTemporaryFileMock.mockReturnValueOnce(true);
+
+    // When
+    await onAdd(props);
+
+    // Then
+    expect(props.self.callbacks.addController.execute).not.toHaveBeenCalled();
+  });
+
+  it('should call add controller if the file is new', async () => {
     // Given
     getFileUuidMock.mockReturnValueOnce({ data: undefined });
 
@@ -63,6 +78,7 @@ describe('on-add', () => {
     await onAdd(props);
 
     // Then
+    expect(props.self.fileInDevice.has(absolutePath)).toBe(true);
     expect(props.self.callbacks.addController.execute).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/file.txt',
