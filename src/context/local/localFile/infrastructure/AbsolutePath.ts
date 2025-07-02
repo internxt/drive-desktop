@@ -8,7 +8,7 @@ export function createRelativePath(...parts: string[]): RelativePath {
   let path = posix.join(posix.sep, ...parts);
   path = path.replaceAll(win32.sep, posix.sep);
   path = posix.normalize(path);
-  path = path !== '/' ? path.replace(/\/+$/, '') : path;
+  path = path !== '/' ? path.replace(/\/{1,}$/, '') : path;
   return path as RelativePath;
 }
 
