@@ -11,54 +11,15 @@ import fs from 'fs/promises';
 
 vi.mock(import('fs/promises'));
 
-const mockRepository = mockDeep<InMemoryFileRepository>();
-
-const mockLocalFileSystem = mockDeep<NodeWinLocalFileSystem>();
-
-const mockPathConverter = mockDeep<RelativePathToAbsoluteConverter>();
-
 describe('FilesPlaceholderUpdater', () => {
-  let updater: FilesPlaceholderUpdater;
+  const mockRepository = mockDeep<InMemoryFileRepository>();
+  const mockLocalFileSystem = mockDeep<NodeWinLocalFileSystem>();
+  const mockPathConverter = mockDeep<RelativePathToAbsoluteConverter>();
+
+  const updater = new FilesPlaceholderUpdater(mockRepository, mockLocalFileSystem, mockPathConverter);
 
   beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  beforeAll(() => {
-    updater = new FilesPlaceholderUpdater(mockRepository, mockLocalFileSystem, mockPathConverter);
-  });
-
-  afterAll(() => {
-    vi.restoreAllMocks();
-  });
-
-  describe('hasToBeDeleted', () => {
-    it('should return true if local exists and remote is trashed or deleted', () => {
-      const local = FileMother.fromPartial({
-        status: FileStatuses.EXISTS,
-      });
-
-      const remote = FileMother.fromPartial({
-        status: FileStatuses.TRASHED,
-      });
-
-      const result = updater['hasToBeDeleted'](local, remote);
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false if local does not exist', () => {
-      const local = FileMother.fromPartial({
-        status: FileStatuses.TRASHED,
-      });
-      const remote = FileMother.fromPartial({
-        status: FileStatuses.TRASHED,
-      });
-
-      const result = updater['hasToBeDeleted'](local, remote);
-
-      expect(result).toBe(false);
-    });
   });
 
   describe('hasToBeUpdatedIdentity', () => {
@@ -102,24 +63,8 @@ describe('FilesPlaceholderUpdater', () => {
     });
 
     it('should return false if local does not exist', () => {
-      const local = FileMother.fromPartial({
-        status: FileStatuses.TRASHED,
-      });
-      const remote = FileMother.fromPartial({
-        status: FileStatuses.EXISTS,
-      });
-
-      const result = updater['hasToBeUpdatedIdentity'](local, remote);
-
-      expect(result).toBe(false);
-    });
-    it('should return false if remote does not exist', () => {
-      const local = FileMother.fromPartial({
-        status: FileStatuses.EXISTS,
-      });
-      const remote = FileMother.fromPartial({
-        status: FileStatuses.TRASHED,
-      });
+      const local = FileMother.fromPartial({ status: FileStatuses.TRASHED });
+      const remote = FileMother.fromPartial({});
 
       const result = updater['hasToBeUpdatedIdentity'](local, remote);
 

@@ -199,7 +199,15 @@ export class BindingsManager {
   }
 
   async update(tree: Tree) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Updating placeholders' });
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Updating placeholders',
+      files: tree.files.length,
+      folders: tree.folders.length,
+      trashedFiles: tree.trashedFiles.length,
+      trashedFolders: tree.trashedFolders.length,
+    });
+
     await Promise.all([
       this.container.filesPlaceholderDeleter.run(tree.trashedFiles),
       this.container.folderPlaceholderDeleter.run(tree.trashedFolders),
