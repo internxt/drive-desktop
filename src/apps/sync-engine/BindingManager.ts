@@ -107,7 +107,6 @@ export class BindingsManager {
           self: this,
           filePlaceholderId,
           callback,
-          ipcRendererSyncEngine,
         }),
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');

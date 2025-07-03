@@ -2,19 +2,18 @@ import Logger from 'electron-log';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import * as fs from 'fs';
-import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { dirname } from 'path';
 import { trimPlaceholderId } from '../callbacks-controllers/controllers/placeholder-id';
+import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 
 type TProps = {
   self: BindingsManager;
   filePlaceholderId: FilePlaceholderId;
   callback: CallbackDownload;
-  ipcRendererSyncEngine: SyncEngineIpc;
 };
 
 export class FetchDataService {
-  async run({ self, filePlaceholderId, callback, ipcRendererSyncEngine }: TProps) {
+  async run({ self, filePlaceholderId, callback }: TProps) {
     try {
       Logger.debug('[Fetch Data Callback] Donwloading begins');
 
@@ -50,10 +49,7 @@ export class FetchDataService {
           }
 
           ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-            name: file.name,
-            extension: file.type,
             nameWithExtension: file.nameWithExtension,
-            size: file.size,
             processInfo: {
               elapsedTime: 0,
               progress: result.progress,
@@ -66,10 +62,7 @@ export class FetchDataService {
         const finishTime = Date.now();
 
         ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
-          name: file.name,
-          extension: file.type,
           nameWithExtension: file.nameWithExtension,
-          size: file.size,
           processInfo: { elapsedTime: finishTime - startTime },
         });
       } catch (error) {

@@ -29,10 +29,7 @@ export class ContentsDownloader {
 
     downloader.on('start', () => {
       ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
         nameWithExtension: file.nameWithExtension,
-        size: file.size,
         processInfo: { elapsedTime: downloader.elapsedTime() },
       });
     });
@@ -47,10 +44,7 @@ export class ContentsDownloader {
       }
 
       ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
         nameWithExtension: file.nameWithExtension,
-        size: file.size,
         processInfo: {
           elapsedTime: 0,
           progress,
@@ -61,10 +55,7 @@ export class ContentsDownloader {
     downloader.on('error', (error: Error) => {
       Logger.error('[Server] Error downloading file', error);
       ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', {
-        name: file.name,
-        extension: file.type,
         nameWithExtension: file.nameWithExtension,
-        error: error.message,
       });
     });
 
@@ -103,10 +94,7 @@ export class ContentsDownloader {
     void this.downloaderIntanceCB(false, '');
 
     ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', {
-      name: this.downloaderFile.name,
-      extension: this.downloaderFile.type,
       nameWithExtension: this.downloaderFile.nameWithExtension,
-      size: this.downloaderFile.size,
     });
 
     this.downloaderIntanceCB = null;

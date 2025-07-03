@@ -46,10 +46,7 @@ describe('File Creator', () => {
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
 
     expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_UPLOAD_ERROR', {
-      name: filePath.name(),
-      extension: filePath.extension(),
       nameWithExtension: filePath.nameWithExtension(),
-      error: 'Folder /Zodseve not found',
     });
   });
 
