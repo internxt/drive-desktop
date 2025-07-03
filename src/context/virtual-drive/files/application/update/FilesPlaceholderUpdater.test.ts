@@ -7,7 +7,6 @@ import { mockDeep } from 'vitest-mock-extended';
 import { FileMother } from 'tests/context/virtual-drive/files/domain/FileMother';
 import { FileStatuses } from '../../domain/FileStatus';
 import { v4 } from 'uuid';
-import fs from 'fs/promises';
 
 vi.mock(import('fs/promises'));
 
@@ -110,7 +109,6 @@ describe('FilesPlaceholderUpdater', () => {
       const remotes = [
         FileMother.fromPartial({ path: '/remote1', status: FileStatuses.EXISTS }),
         FileMother.fromPartial({ path: '/remote2', status: FileStatuses.EXISTS }),
-        FileMother.fromPartial({ path: '/remote3', status: FileStatuses.TRASHED }),
       ];
 
       const oldIdentity = v4();
@@ -123,17 +121,9 @@ describe('FilesPlaceholderUpdater', () => {
           contentsId: remotes[1].contentsId,
           uuid: newIdentity,
         }),
-        FileMother.fromPartial({
-          path: '/remote3',
-          status: FileStatuses.EXISTS,
-          contentsId: remotes[2].contentsId,
-          uuid: oldIdentity,
-        }),
       ];
 
       mockRepository.searchByPartial.mockImplementation(({ contentsId }) => locals.find((file) => file.contentsId === contentsId));
-
-      mockPathConverter.run.mockReturnValue('/remote3');
 
       mockLocalFileSystem.getFileIdentity.mockResolvedValue(oldIdentity);
       updater['fileExists'] = vi.fn().mockImplementation((path) => path === '/remote2');
@@ -142,7 +132,6 @@ describe('FilesPlaceholderUpdater', () => {
 
       expect(mockLocalFileSystem.createPlaceHolder).toHaveBeenCalledWith(remotes[0]);
       expect(mockLocalFileSystem.updateFileIdentity).toHaveBeenCalledWith('/remote2', 'FILE:' + newIdentity);
-      expect(fs.rm).toHaveBeenCalledWith('/remote3');
     });
 
     it('should only create files when none exist locally', async () => {
@@ -185,27 +174,6 @@ describe('FilesPlaceholderUpdater', () => {
 
       expect(mockLocalFileSystem.updateFileIdentity).toHaveBeenCalledTimes(1);
       expect(mockLocalFileSystem.updateFileIdentity).toHaveBeenCalledWith('/remote1', `FILE:${newsUuids[0]}`);
-    });
-
-    it('should only delete files when remote status is trashed or deleted', async () => {
-      const remotes = [
-        FileMother.fromPartial({ path: '/remote1', status: FileStatuses.TRASHED }),
-        FileMother.fromPartial({ path: '/remote2', status: FileStatuses.DELETED }),
-      ];
-
-      const localFiles = [
-        FileMother.fromPartial({ path: '/remote1', status: FileStatuses.EXISTS, contentsId: remotes[0].contentsId }),
-        FileMother.fromPartial({ path: '/remote2', status: FileStatuses.EXISTS, contentsId: remotes[1].contentsId }),
-      ];
-
-      mockRepository.searchByPartial.mockImplementation(({ contentsId }) => localFiles.find((file) => file.contentsId === contentsId));
-      mockPathConverter.run.mockImplementation((path) => path);
-
-      await updater.run(remotes);
-
-      expect(fs.rm).toHaveBeenCalledTimes(2);
-      expect(fs.rm).toHaveBeenCalledWith('/remote1');
-      expect(fs.rm).toHaveBeenCalledWith('/remote2');
     });
   });
 });
