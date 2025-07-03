@@ -13,29 +13,20 @@ export class FilesPlaceholderUpdater {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  private hasToBeDeleted(local: File, remote: File): boolean {
-    const localExists = local.status.is(FileStatuses.EXISTS);
-    const remoteIsTrashed = remote.status.is(FileStatuses.TRASHED);
-    const remoteIsDeleted = remote.status.is(FileStatuses.DELETED);
-    return localExists && (remoteIsTrashed || remoteIsDeleted);
-  }
-
   private hasToBeUpdatedIdentity(local: File, remote: File): boolean {
     const localExists = local.status.is(FileStatuses.EXISTS);
-    const remoteExists = remote.status.is(FileStatuses.EXISTS);
 
     const systemFileidentity = this.localFileSystem.getFileIdentity(local.path);
     const remoteIdentity = remote.placeholderId;
 
     const isDifferentIdentity = systemFileidentity !== remoteIdentity;
 
-    return localExists && remoteExists && isDifferentIdentity && systemFileidentity !== '';
+    return localExists && isDifferentIdentity && systemFileidentity !== '';
   }
   private async hasToBeCreated(remote: File): Promise<boolean> {
-    const remoteExists = remote.status.is(FileStatuses.EXISTS);
     const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
     const existsFile = await this.fileExists(win32AbsolutePath);
-    return remoteExists && !existsFile;
+    return !existsFile;
   }
 
   private async fileExists(win32AbsolutePath: string): Promise<boolean> {
@@ -48,24 +39,20 @@ export class FilesPlaceholderUpdater {
   }
 
   async update(remote: File): Promise<void> {
-    if (remote.status.is(FileStatuses.EXISTS)) {
-      const { isValid } = validateWindowsName({
-        path: remote.path,
-        name: remote.name,
-      });
+    const { isValid } = validateWindowsName({
+      path: remote.path,
+      name: remote.name,
+    });
 
-      if (!isValid) return;
-    }
+    if (!isValid) return;
 
     const local = this.repository.searchByPartial({
       contentsId: remote.contentsId,
     });
 
     if (!local) {
-      if (remote.status.is(FileStatuses.EXISTS)) {
-        this.repository.add(remote);
-        this.localFileSystem.createPlaceHolder(remote);
-      }
+      this.repository.add(remote);
+      this.localFileSystem.createPlaceHolder(remote);
       return;
     }
 
@@ -91,11 +78,6 @@ export class FilesPlaceholderUpdater {
         const newWin32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
         await fs.rename(win32AbsolutePath, newWin32AbsolutePath);
       }
-    }
-
-    if (this.hasToBeDeleted(local, remote)) {
-      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
-      await fs.rm(win32AbsolutePath);
     }
 
     if (await this.hasToBeCreated(remote)) {
