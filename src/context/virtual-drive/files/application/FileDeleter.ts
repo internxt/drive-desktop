@@ -2,13 +2,13 @@ import Logger from 'electron-log';
 import { AllParentFoldersStatusIsExists } from '../../folders/application/AllParentFoldersStatusIsExists';
 import { FileStatuses } from '../domain/FileStatus';
 import { File } from '../domain/File';
-import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { Service } from 'diod';
 import { NodeWinLocalFileSystem } from '../infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { logger } from '@/apps/shared/logger/logger';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { getConfig } from '@/apps/sync-engine/config';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 @Service()
 export class FileDeleter {
@@ -16,7 +16,6 @@ export class FileDeleter {
     private readonly local: NodeWinLocalFileSystem,
     private readonly repository: InMemoryFileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
-    private readonly ipc = ipcRendererSyncEngine,
   ) {}
 
   async run(uuid: File['uuid']): Promise<void> {
@@ -38,11 +37,8 @@ export class FileDeleter {
       return;
     }
 
-    this.ipc.send('FILE_DELETING', {
-      name: file.name,
-      extension: file.type,
+    ipcRendererSyncEngine.send('FILE_DELETING', {
       nameWithExtension: file.nameWithExtension,
-      size: file.size,
     });
 
     try {
@@ -57,11 +53,8 @@ export class FileDeleter {
 
       this.repository.update(file);
 
-      this.ipc.send('FILE_DELETED', {
-        name: file.name,
-        extension: file.type,
+      ipcRendererSyncEngine.send('FILE_DELETED', {
         nameWithExtension: file.nameWithExtension,
-        size: file.size,
       });
     } catch (error) {
       logger.error({
@@ -70,16 +63,12 @@ export class FileDeleter {
         exc: error,
       });
 
-      const message = error instanceof Error ? error.message : 'Unknown error';
       this.local.createPlaceHolder(file);
-      this.ipc.send('FILE_DELETION_ERROR', {
-        name: file.name,
-        extension: file.type,
+      ipcRendererSyncEngine.send('FILE_DELETION_ERROR', {
         nameWithExtension: file.nameWithExtension,
-        error: message,
       });
 
-      this.ipc.send('ADD_SYNC_ISSUE', {
+      ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', {
         name: file.path,
         error: 'DELETE_ERROR',
       });

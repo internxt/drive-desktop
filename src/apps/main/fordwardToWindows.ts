@@ -1,18 +1,17 @@
 import { broadcastToWindows } from './windows';
-import { ipcMainDrive } from './ipcs/mainDrive';
-import { FileErrorInfo } from '../shared/IPC/events/drive';
 import { createAndUploadThumbnail } from './thumbnails/application/create-and-upload-thumbnail';
 import configStore from './config';
 import path from 'path';
 import { isAbsolutePath } from './util';
 import { getRemoteSyncManager } from './remote-sync/store';
+import { ipcMainSyncEngine } from '../sync-engine/ipcMainSyncEngine';
 
-ipcMainDrive.on('CHANGE_SYNC_STATUS', (_, workspaceId, status) => {
+ipcMainSyncEngine.on('CHANGE_SYNC_STATUS', (_, workspaceId, status) => {
   const manager = getRemoteSyncManager({ workspaceId });
   manager?.changeStatus(status);
 });
 
-ipcMainDrive.on('FILE_DELETED', (_, payload) => {
+ipcMainSyncEngine.on('FILE_DELETED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -21,7 +20,7 @@ ipcMainDrive.on('FILE_DELETED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
+ipcMainSyncEngine.on('FILE_DOWNLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -31,7 +30,7 @@ ipcMainDrive.on('FILE_DOWNLOADING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
+ipcMainSyncEngine.on('FILE_DOWNLOADED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -39,7 +38,8 @@ ipcMainDrive.on('FILE_DOWNLOADED', (_, payload) => {
     name: nameWithExtension,
   });
 });
-ipcMainDrive.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
+
+ipcMainSyncEngine.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -48,7 +48,7 @@ ipcMainDrive.on('FILE_DOWNLOAD_CANCEL', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_MOVED', (_, payload) => {
+ipcMainSyncEngine.on('FILE_MOVED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -57,16 +57,7 @@ ipcMainDrive.on('FILE_MOVED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_OVERWRITED', (_, payload) => {
-  const { nameWithExtension } = payload;
-
-  broadcastToWindows('sync-info-update', {
-    action: 'MOVED',
-    name: nameWithExtension,
-  });
-});
-
-ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
+ipcMainSyncEngine.on('FILE_RENAMING', (_, payload) => {
   const { nameWithExtension, oldName } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -76,7 +67,7 @@ ipcMainDrive.on('FILE_RENAMING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_RENAMED', (_, payload) => {
+ipcMainSyncEngine.on('FILE_RENAMED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -85,16 +76,7 @@ ipcMainDrive.on('FILE_RENAMED', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_CLONNED', (_, payload) => {
-  const { nameWithExtension } = payload;
-
-  broadcastToWindows('sync-info-update', {
-    action: 'UPLOADED',
-    name: nameWithExtension,
-  });
-});
-
-ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
+ipcMainSyncEngine.on('FILE_UPLOADING', (_, payload) => {
   const { nameWithExtension, processInfo } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -104,7 +86,7 @@ ipcMainDrive.on('FILE_UPLOADING', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_UPLOADED', async (_, payload) => {
+ipcMainSyncEngine.on('FILE_UPLOADED', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -138,9 +120,9 @@ export async function onFileCreated(payload: {
   });
 }
 
-ipcMainDrive.on('FILE_CREATED', (_, payload) => onFileCreated(payload));
+ipcMainSyncEngine.on('FILE_CREATED', (_, payload) => onFileCreated(payload));
 
-ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
+ipcMainSyncEngine.on('FILE_UPLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -149,7 +131,7 @@ ipcMainDrive.on('FILE_UPLOAD_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
+ipcMainSyncEngine.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -158,7 +140,7 @@ ipcMainDrive.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
+ipcMainSyncEngine.on('FILE_RENAME_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {
@@ -167,7 +149,7 @@ ipcMainDrive.on('FILE_RENAME_ERROR', (_, payload) => {
   });
 });
 
-ipcMainDrive.on('FILE_DELETION_ERROR', (_, payload: FileErrorInfo) => {
+ipcMainSyncEngine.on('FILE_DELETION_ERROR', (_, payload) => {
   const { nameWithExtension } = payload;
 
   broadcastToWindows('sync-info-update', {

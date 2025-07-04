@@ -72,8 +72,6 @@ export class FileCreator {
 
       return file;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown error';
-
       logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Error in file creator',
@@ -82,10 +80,7 @@ export class FileCreator {
       });
 
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
-        name: filePath.name(),
-        extension: filePath.extension(),
         nameWithExtension: filePath.nameWithExtension(),
-        error: message,
       });
 
       throw error;

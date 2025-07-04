@@ -2,7 +2,6 @@ import { FileDeleter } from '../../../../../src/context/virtual-drive/files/appl
 import { AllParentFoldersStatusIsExists } from '../../../../../src/context/virtual-drive/folders/application/AllParentFoldersStatusIsExists';
 import { FileStatus } from '../../../../../src/context/virtual-drive/files/domain/FileStatus';
 import { mockDeep } from 'vitest-mock-extended';
-import { SyncEngineIpc } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { NodeWinLocalFileSystem } from '@/context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
@@ -11,16 +10,16 @@ import { ContentsIdMother } from '@/tests/context/virtual-drive/contents/domain/
 import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMother';
 
 vi.mock(import('@/infra/drive-server-wip/out/ipc-renderer'));
+vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
 
 describe('File Deleter', () => {
   const repository = mockDeep<InMemoryFileRepository>();
   const folderRepository = mockDeep<InMemoryFolderRepository>();
   const allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(folderRepository);
   const localFileSystem = mockDeep<NodeWinLocalFileSystem>();
-  const ipc = mockDeep<SyncEngineIpc>();
   const ipcRendererDriveServerWipMock = vi.mocked(ipcRendererDriveServerWip);
 
-  const SUT = new FileDeleter(localFileSystem, repository, allParentFoldersStatusIsExists, ipc);
+  const SUT = new FileDeleter(localFileSystem, repository, allParentFoldersStatusIsExists);
 
   beforeEach(() => {
     vi.resetAllMocks();

@@ -90,10 +90,7 @@ export class FilePathUpdater {
 
       if (destinationFile) {
         ipcRendererSyncEngine.send('FILE_RENAME_ERROR', {
-          name: file.name,
-          extension: file.type,
           nameWithExtension: file.nameWithExtension,
-          error: 'Renaming error: file already exists',
         });
         throw new FileAlreadyExistsError(destination.name());
       }

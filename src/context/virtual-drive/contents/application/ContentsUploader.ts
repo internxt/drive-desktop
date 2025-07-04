@@ -17,39 +17,27 @@ export class ContentsUploader {
   private registerEvents(uploader: EnvironmentContentFileUploader, localFileContents: LocalFileContents) {
     uploader.on('start', () => {
       ipcRendererSyncEngine.send('FILE_UPLOADING', {
-        name: localFileContents.name,
-        extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
-        size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime() },
       });
     });
 
     uploader.on('progress', (progress: number) => {
       ipcRendererSyncEngine.send('FILE_UPLOADING', {
-        name: localFileContents.name,
-        extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
-        size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime(), progress },
       });
     });
 
-    uploader.on('error', (error: Error) => {
+    uploader.on('error', () => {
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
-        name: localFileContents.name,
-        extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
-        error: error.message,
       });
     });
 
     uploader.on('finish', () => {
       ipcRendererSyncEngine.send('FILE_UPLOADED', {
-        name: localFileContents.name,
-        extension: localFileContents.extension,
         nameWithExtension: localFileContents.nameWithExtension,
-        size: localFileContents.size,
         processInfo: { elapsedTime: uploader.elapsedTime() },
       });
     });
