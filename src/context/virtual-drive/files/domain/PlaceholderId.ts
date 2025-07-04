@@ -1,3 +1,6 @@
+import { Brand } from '@/context/shared/domain/Brand';
+
+export type FileUuid = Brand<string, 'FileUuid'>;
 type FilePlaceholderIdPrefixType = 'FILE:';
 
 export type FilePlaceholderId = `${FilePlaceholderIdPrefixType}${string}`;

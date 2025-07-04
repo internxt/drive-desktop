@@ -1,16 +1,27 @@
-import { stat } from 'fs/promises';
-
 import { DetectContextMenuActionService } from '../detect-context-menu-action.service';
 import { Watcher } from '../watcher';
 import { fileSystem } from '@/infra/file-system/file-system.module';
+import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+
+type TProps = {
+  self: Watcher;
+  event: string;
+  absolutePath: AbsolutePath;
+  details: any;
+};
 
 export class OnRawService {
   constructor(private readonly detectContextMenuAction = new DetectContextMenuActionService()) {}
 
-  async execute({ self, event, path, details }: TProps) {
+  async execute({ self, event, absolutePath, details }: TProps) {
+    const path = pathUtils.absoluteToRelative({
+      base: self.virtualDrive.syncRootPath,
+      path: absolutePath,
+    });
+
     try {
       if (event === 'change' && details.prev && details.curr) {
-        const { data, error } = await fileSystem.stat({ absolutePath: path });
+        const { data, error } = await fileSystem.stat({ absolutePath });
 
         if (error) {
           /**
@@ -25,21 +36,14 @@ export class OnRawService {
           return;
         }
 
-        const action = await this.detectContextMenuAction.execute({ self, details, path, isFolder: false });
+        const action = await this.detectContextMenuAction.execute({ self, details, absolutePath, path });
 
         if (action) {
           self.logger.debug({ msg: 'change', path, action });
         }
       }
     } catch (error) {
-      self.logger.error({ msg: 'Error on change', error });
+      self.logger.error({ msg: 'Error on change', path, error });
     }
   }
 }
-
-type TProps = {
-  self: Watcher;
-  event: string;
-  path: string;
-  details: any;
-};
