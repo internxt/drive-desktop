@@ -11,7 +11,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
 import { getAuthHeaders } from './headers';
-import { AuthModule } from '@/features/auth/auth.module';
+import { AuthModule } from '@/backend/features/auth/auth.module';
 
 let isLoggedIn: boolean;
 

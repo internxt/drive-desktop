@@ -4,34 +4,35 @@ import * as saveConfigModule from './utils/save-config';
 import * as resetConfigModule from './utils/reset-config';
 import * as resetCredentialsModule from './utils/reset-credentials';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { DriveServerWipError } from '@/infra/drive-server-wip/out/error.types';
 
 describe('logout service', () => {
-  const logoutMock = vi.fn();
+  const logoutMock = vi.spyOn(driveServerWipModule.auth, 'logout');
+  const saveConfigMock = vi.spyOn(saveConfigModule, 'saveConfig');
+  const resetConfigMock = vi.spyOn(resetConfigModule, 'resetConfig');
+  const resetCredentialsMock = vi.spyOn(resetCredentialsModule, 'resetCredentials');
 
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
 
-    driveServerWipModule.auth.logout = logoutMock;
-
-    vi.spyOn(saveConfigModule, 'saveConfig').mockImplementation(() => {});
-    vi.spyOn(resetConfigModule, 'resetConfig').mockImplementation(() => {});
-    vi.spyOn(resetCredentialsModule, 'resetCredentials').mockImplementation(() => {});
-
-    logoutMock.mockResolvedValue({ error: undefined });
+    saveConfigMock.mockReturnValue();
+    resetConfigMock.mockReturnValue();
+    resetCredentialsMock.mockReturnValue();
   });
 
   it('should send a logout request to invalidate the user session', async () => {
+    logoutMock.mockResolvedValue({ error: undefined, data: true });
     await logout();
 
     expect(logoutMock).toHaveBeenCalledOnce();
     expect(loggerMock.error).not.toHaveBeenCalled();
-    expect(saveConfigModule.saveConfig).toHaveBeenCalled();
-    expect(resetConfigModule.resetConfig).toHaveBeenCalled();
-    expect(resetCredentialsModule.resetCredentials).toHaveBeenCalled();
+    expect(saveConfigMock).toHaveBeenCalled();
+    expect(resetConfigMock).toHaveBeenCalled();
+    expect(resetCredentialsMock).toHaveBeenCalled();
   });
 
   it('should log an error if the logout request fails', async () => {
-    const error = new Error('Logout failed');
+    const error = new DriveServerWipError('Logout failed', { code: 'LOGOUT_ERROR' });
     logoutMock.mockResolvedValue({ error });
 
     await logout();
