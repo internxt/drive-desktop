@@ -1,14 +1,15 @@
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { FileUuid } from '@/context/virtual-drive/files/domain/PlaceholderId';
+
 export enum typeQueue {
   hydrate = 'hydrate',
   dehydrate = 'dehydrate',
-  changeSize = 'changeSize',
 }
 
 export type QueueItem = {
-  path: string;
-  isFolder: boolean;
+  path: AbsolutePath;
   type: typeQueue;
-  fileId?: string;
+  uuid: FileUuid;
 };
 
 export type HandleAction = (task: QueueItem) => Promise<void> | void;

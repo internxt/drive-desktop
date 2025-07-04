@@ -7,6 +7,7 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/
 import { FSLocalFileProvider } from '../infrastructure/FSLocalFileProvider';
 import { logger } from '@/apps/shared/logger/logger';
 import { EnvironmentContentFileUploader } from '../infrastructure/upload/EnvironmentContentFileUploader';
+
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: EnvironmentRemoteFileContentsManagersFactory,
@@ -43,9 +44,9 @@ export class ContentsUploader {
     });
   }
 
-  async run(posixRelativePath: string): Promise<RemoteFileContents> {
+  async run(path: string): Promise<RemoteFileContents> {
     try {
-      const win32RelativePath = PlatformPathConverter.posixToWin(posixRelativePath);
+      const win32RelativePath = PlatformPathConverter.posixToWin(path);
 
       const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath);
 
@@ -58,7 +59,7 @@ export class ContentsUploader {
       const contentsId = await uploader.upload({
         contents: contents.stream,
         size: contents.size,
-        path: posixRelativePath,
+        path,
         abortSignal,
       });
 
@@ -66,18 +67,11 @@ export class ContentsUploader {
 
       return fileContents;
     } catch (error) {
-      logger.error({
+      throw logger.error({
         msg: 'Contents uploader error',
-        posixRelativePath,
+        path,
         error,
       });
-
-      const fileName = posixRelativePath.split('/').pop() || posixRelativePath;
-      if (error instanceof Error) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (error as any).fileName = fileName;
-      }
-      throw error;
     }
   }
 }

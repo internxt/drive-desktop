@@ -30,6 +30,7 @@ export async function onAddDir({ self, absolutePath, stats }: TProps) {
     if (!uuid) {
       self.logger.debug({ msg: 'Folder added', path });
       await self.callbacks.addController.execute({
+        absolutePath,
         path,
         virtualDrive: self.virtualDrive,
         isFolder: true,

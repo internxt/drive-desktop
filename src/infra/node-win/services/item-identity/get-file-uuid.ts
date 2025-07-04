@@ -1,3 +1,4 @@
+import { FileUuid } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { getFileIdentity } from './get-file-identity';
 import VirtualDrive from '@/node-win/virtual-drive';
 
@@ -13,5 +14,5 @@ export function getFileUuid({ drive, path }: TProps) {
     return { error: identity.error };
   }
 
-  return { data: identity.data.split(':')[1] };
+  return { data: identity.data.split(':')[1] as FileUuid };
 }

@@ -7,6 +7,7 @@ import { TWatcherCallbacks, Watcher } from './watcher';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import VirtualDrive from '../virtual-drive';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('./events/on-add.service'));
 vi.mock(import('./events/on-add-dir.service'));
@@ -26,8 +27,7 @@ export async function setupWatcher(syncRootPath: string) {
     await mkdir(syncRootPath);
   }
 
-  watcher = new Watcher(onRaw);
-  watcher.init(queueManager, syncRootPath, {}, logger, virtualDrive, watcherCallbacks);
+  watcher = new Watcher(syncRootPath as AbsolutePath, {}, queueManager, logger, virtualDrive, watcherCallbacks, onRaw);
   watcher.watchAndWait();
   watcher.chokidar?.on('all', (event, path) => onAll({ event, path }));
 }

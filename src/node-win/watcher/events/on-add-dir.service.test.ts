@@ -3,6 +3,7 @@ import { onAddDir } from './on-add-dir.service';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 // import { isFolderMoved } from './is-folder-moved';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
@@ -27,7 +28,7 @@ describe('on-add-dir', () => {
         queueManager: { enqueue: vi.fn() },
         logger: loggerMock,
         callbacks: { addController: { execute: vi.fn() } },
-        virtualDrive: { syncRootPath: 'C:\\Users\\user' },
+        virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },
       },
     });
   });
@@ -50,7 +51,7 @@ describe('on-add-dir', () => {
 
   it('should call isFolderMoved if the folder is moved', async () => {
     // Given
-    getFolderUuidMock.mockReturnValueOnce({ data: 'parentUuid' });
+    getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
     props.stats.birthtime = date1;
     props.stats.mtime = date2;
 
@@ -68,7 +69,7 @@ describe('on-add-dir', () => {
 
   it('should not do anything if the folder is added from remote', async () => {
     // Given
-    getFolderUuidMock.mockReturnValueOnce({ data: 'parentUuid' });
+    getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
     props.stats.birthtime = date1;
     props.stats.mtime = date1;
 

@@ -1,7 +1,7 @@
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 
-export function trimPlaceholderId({ placeholderId }: { placeholderId: FilePlaceholderId | FolderPlaceholderId }) {
+export function trimPlaceholderId<T extends FilePlaceholderId | FolderPlaceholderId>({ placeholderId }: { placeholderId: T }): T {
   /**
    * v2.5.5 Daniel Jiménez
    * For some reason the placeholder id can contain control characters.
@@ -12,5 +12,5 @@ export function trimPlaceholderId({ placeholderId }: { placeholderId: FilePlaceh
    * - Additional C1 control characters (hex 7F to 9F).
    */
   // eslint-disable-next-line no-control-regex
-  return placeholderId.replace(/[\x00-\x1F\x7F-\x9F]/g, '').normalize() as FilePlaceholderId | FolderPlaceholderId;
+  return placeholderId.replace(/[\x00-\x1F\x7F-\x9F]/g, '').normalize() as T;
 }

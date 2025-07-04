@@ -44,6 +44,7 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
       self.logger.debug({ msg: 'File added', path });
       self.fileInDevice.add(absolutePath);
       await self.callbacks.addController.execute({
+        absolutePath,
         path,
         virtualDrive: self.virtualDrive,
         isFolder: false,

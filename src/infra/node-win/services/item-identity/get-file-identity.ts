@@ -1,3 +1,4 @@
+import { trimPlaceholderId } from '@/apps/sync-engine/callbacks-controllers/controllers/placeholder-id';
 import { isFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import VirtualDrive from '@/node-win/virtual-drive';
 
@@ -24,5 +25,5 @@ export function getFileIdentity({ drive, path }: TProps) {
     return { error: new GetFileIdentityError('NOT_A_FILE') };
   }
 
-  return { data: identity };
+  return { data: trimPlaceholderId({ placeholderId: identity }) };
 }
