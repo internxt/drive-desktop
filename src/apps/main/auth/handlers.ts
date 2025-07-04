@@ -6,11 +6,12 @@ import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
 import { checkUserData, createTokenSchedule } from './refresh-token';
-import { canHisConfigBeRestored, encryptToken, getUser, logout, setCredentials } from './service';
+import { canHisConfigBeRestored, encryptToken, getUser, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
 import { getAuthHeaders } from './headers';
+import { AuthModule } from '@/features/auth/auth.module';
 
 let isLoggedIn: boolean;
 
@@ -30,7 +31,7 @@ export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
   eventBus.emit('USER_LOGGED_OUT');
 
-  logout();
+  void AuthModule.logout();
   Logger.info('[AUTH] User has been logged out because it was unauthorized');
   setIsLoggedIn(false);
 }
@@ -45,7 +46,7 @@ export async function checkIfUserIsLoggedIn() {
     eventBus.emit('USER_LOGGED_OUT');
     setIsLoggedIn(false);
 
-    logout();
+    void AuthModule.logout();
   }
 
   if (!isLoggedIn) return;
@@ -82,7 +83,7 @@ export function setupAuthIpcHandlers() {
 
     setIsLoggedIn(false);
 
-    logout();
+    void AuthModule.logout();
   });
 }
 
