@@ -11,7 +11,6 @@ import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
 import { getAuthHeaders } from './headers';
-import { AuthModule } from '@/backend/features/auth/auth.module';
 
 let isLoggedIn: boolean;
 
@@ -30,8 +29,6 @@ export function getIsLoggedIn() {
 export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
   eventBus.emit('USER_LOGGED_OUT');
-
-  void AuthModule.logout();
   Logger.info('[AUTH] User has been logged out because it was unauthorized');
   setIsLoggedIn(false);
 }
@@ -45,8 +42,6 @@ export async function checkIfUserIsLoggedIn() {
     });
     eventBus.emit('USER_LOGGED_OUT');
     setIsLoggedIn(false);
-
-    void AuthModule.logout();
   }
 
   if (!isLoggedIn) return;
@@ -82,8 +77,6 @@ export function setupAuthIpcHandlers() {
     eventBus.emit('USER_LOGGED_OUT');
 
     setIsLoggedIn(false);
-
-    void AuthModule.logout();
   });
 }
 
