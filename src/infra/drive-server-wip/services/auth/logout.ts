@@ -2,6 +2,7 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { noContentWrapper } from '../../in/no-content-wrapper.service';
+import { DriveServerWipError } from '../../out/error.types';
 
 export async function logout() {
   const method = 'GET';
@@ -12,7 +13,7 @@ export async function logout() {
       request: client.GET(endpoint),
     });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -24,4 +25,13 @@ export async function logout() {
       },
     },
   });
+
+  if (error?.code === 'UNKNOWN') {
+    switch (true) {
+      case error.response?.status === 409:
+        return { error: new DriveServerWipError('UNAUTHORIZED', error.cause) };
+    }
+  }
+
+  return { data, error };
 }
