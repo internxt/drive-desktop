@@ -42,7 +42,7 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
 
     if (!uuid) {
       self.logger.debug({ msg: 'File added', path });
-      self.fileInDevice.add(absolutePath);
+      self.fileInDevice.add(path);
       await self.callbacks.addController.execute({
         absolutePath,
         path,

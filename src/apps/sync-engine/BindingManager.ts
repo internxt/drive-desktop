@@ -6,14 +6,11 @@ import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
-import { HandleHydrateService } from './callbacks/handleHydrate.service';
-import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
-import { QueueItem } from '@/node-win/queue/queueManager';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
 import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
@@ -26,17 +23,13 @@ import { Watcher } from '@/node-win/watcher/watcher';
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
 export class BindingsManager {
-  progressBuffer = 0;
   controllers: IControllers;
 
-  lastHydrated = '';
   private lastMoved = '';
 
   constructor(
     public readonly container: DependencyContainer,
     private readonly fetchData = new FetchDataService(),
-    private readonly handleHydrate = new HandleHydrateService(),
-    private readonly handleDehydrate = new HandleDehydrateService(),
   ) {
     logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
 
@@ -165,18 +158,13 @@ export class BindingsManager {
   }
 
   async watch() {
-    const callbacks = {
-      handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task, drive: this.container.virtualDrive }),
-      handleDehydrate: (task: QueueItem) => Promise.resolve(this.handleDehydrate.run({ task, drive: this.container.virtualDrive })),
-    };
-
-    const { queueManager, watcher } = createWatcher({
-      queueCallbacks: callbacks,
+    const watcher = createWatcher({
       virtulDrive: this.container.virtualDrive,
       watcherCallbacks: {
         addController: this.controllers.addFile,
-        updateContentsId: ({ absolutePath, path, uuid }) =>
-          updateContentsId({
+        updateContentsId: async ({ absolutePath, path, uuid }) =>
+          await updateContentsId({
+            virtualDrive: this.container.virtualDrive,
             absolutePath,
             path,
             uuid,
@@ -189,7 +177,6 @@ export class BindingsManager {
     watcher.watchAndWait();
 
     await this.polling({ watcher });
-    await queueManager.processAll();
   }
 
   stop() {

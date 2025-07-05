@@ -35,7 +35,7 @@ describe('processWebSocketEvent', () => {
 
     await processWebSocketEvent({ data: event });
     expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
-    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Notification received', data: event });
+    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Unknown notification received', data: event });
     expect(loggerMock.debug).not.toHaveBeenCalled();
   });
 
@@ -50,7 +50,7 @@ describe('processWebSocketEvent', () => {
 
     await processWebSocketEvent({ data: event });
     expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
-    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Notification received', data: event });
+    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Unknown notification received', data: event });
     expect(loggerMock.debug).not.toHaveBeenCalled();
   });
 });

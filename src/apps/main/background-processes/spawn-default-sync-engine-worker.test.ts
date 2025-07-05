@@ -28,7 +28,6 @@ describe('spawn-default-sync-engine-worker', () => {
           mnemonic: undefined,
           providerId: '{USER_ID}',
           providerName: 'Internxt Drive',
-          queueManagerPath: '\\mock\\logs\\internxt-drive\\logs\\queue-manager-user-user_id.log',
           rootPath: '/mock/path',
           rootUuid: undefined,
           userUuid: 'user_id',

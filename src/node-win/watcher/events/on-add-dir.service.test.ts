@@ -25,7 +25,6 @@ describe('on-add-dir', () => {
       absolutePath: 'C:\\Users\\user\\drive\\folder' as AbsolutePath,
       stats: { birthtime: date1, mtime: date2 },
       self: {
-        queueManager: { enqueue: vi.fn() },
         logger: loggerMock,
         callbacks: { addController: { execute: vi.fn() } },
         virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },

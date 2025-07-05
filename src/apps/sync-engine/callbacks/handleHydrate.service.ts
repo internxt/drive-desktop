@@ -1,51 +1,30 @@
-import Logger from 'electron-log';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { BindingsManager } from '../BindingManager';
-import configStore from '../../../apps/main/config';
-import { QueueItem } from '@/node-win/queue/queueManager';
+import { logger } from '@/apps/shared/logger/logger';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import Bottleneck from 'bottleneck';
+
+const limiter = new Bottleneck({ maxConcurrent: 1 });
 
 type TProps = {
-  self: BindingsManager;
   drive: VirtualDrive;
-  task: QueueItem;
+  path: RelativePath;
 };
 
-export class HandleHydrateService {
-  async run({ self, drive, task }: TProps) {
-    try {
-      const syncRoot = configStore.get('syncRoot');
-      Logger.debug('[Handle Hydrate Callback] Preparing begins', task.path);
-      const start = Date.now();
+export async function handleHydrate({ drive, path }: TProps) {
+  try {
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Hydrating file',
+      path,
+    });
 
-      const normalizePath = (path: string) => path.replace(/\\/g, '/');
-
-      const normalizedLastHydrated = normalizePath(self.lastHydrated);
-      let normalizedTaskPath = normalizePath(task.path.replace(syncRoot, ''));
-
-      if (!normalizedTaskPath.startsWith('/')) {
-        normalizedTaskPath = '/' + normalizedTaskPath;
-      }
-
-      if (normalizedLastHydrated === normalizedTaskPath) {
-        Logger.debug('Same file hidrated');
-        self.lastHydrated = '';
-        return;
-      }
-
-      self.lastHydrated = normalizedTaskPath;
-
-      await drive.hydrateFile({ itemPath: task.path });
-
-      const finish = Date.now();
-
-      if (finish - start < 1500) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-
-      Logger.debug('[Handle Hydrate Callback] Finish begins', task.path);
-    } catch (error) {
-      Logger.error(`error hydrating file ${task.path}`);
-      Logger.error(error);
-    }
+    await limiter.schedule(() => drive.hydrateFile({ itemPath: path }));
+  } catch (error) {
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'Error hydrating file',
+      path,
+      error,
+    });
   }
 }

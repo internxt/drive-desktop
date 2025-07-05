@@ -8,7 +8,6 @@ import { FilePathUpdater } from '../../../../context/virtual-drive/files/applica
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
-import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
@@ -43,8 +42,6 @@ export function buildFilesContainer(
 
   const filesPlaceholderDeleter = new FilesPlaceholderDeleter(virtualDrive);
 
-  const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
-
   const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem);
 
   const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(virtualDrive);
@@ -59,7 +56,6 @@ export function buildFilesContainer(
     fileFolderContainerDetector,
     filesPlaceholderUpdater,
     filesPlaceholderDeleter,
-    fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
     fileOverwriteContent,
   };

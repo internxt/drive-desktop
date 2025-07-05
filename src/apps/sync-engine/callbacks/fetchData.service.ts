@@ -1,10 +1,9 @@
-import Logger from 'electron-log';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import * as fs from 'fs';
-import { dirname } from 'path';
-import { trimPlaceholderId } from '../callbacks-controllers/controllers/placeholder-id';
+import { basename } from 'path';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
+import { logger } from '@/apps/shared/logger/logger';
+import { unlink } from 'fs/promises';
 
 type TProps = {
   self: BindingsManager;
@@ -15,41 +14,53 @@ type TProps = {
 export class FetchDataService {
   async run({ self, filePlaceholderId, callback }: TProps) {
     try {
-      Logger.debug('[Fetch Data Callback] Donwloading begins');
-
       const startTime = Date.now();
       const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
+      const nameWithExtension = basename(path);
 
-      const trimmedPlaceholderId = trimPlaceholderId({ placeholderId: filePlaceholderId });
-      const parsedPlaceholderId = trimmedPlaceholderId.split(':')[1];
-      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid: parsedPlaceholderId });
+      logger.debug({
+        tag: 'SYNC-ENGINE',
+        msg: 'Start fetching data',
+        path,
+        filePlaceholderId,
+      });
 
-      Logger.debug('[Fetch Data Callback] Preparing begins', path);
-      Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
-
-      self.lastHydrated = file.path;
+      let progressBuffer = 0;
+      let finished = false;
 
       try {
-        let finished = false;
-
         while (!finished) {
           const result = await callback(true, path);
           finished = result.finished;
 
-          Logger.debug('Callback result', result);
+          logger.debug({
+            tag: 'SYNC-ENGINE',
+            msg: 'Callback result',
+            path,
+            result,
+          });
 
           if (result.progress > 1 || result.progress < 0) {
-            throw new Error('Result progress is not between 0 and 1');
+            throw logger.error({
+              tag: 'SYNC-ENGINE',
+              msg: 'Result progress is not between 0 and 1',
+              path,
+              progress: result.progress,
+            });
           } else if (finished && result.progress === 0) {
-            throw new Error('Result progress is 0');
-          } else if (self.progressBuffer == result.progress) {
+            throw logger.error({
+              tag: 'SYNC-ENGINE',
+              msg: 'Result progress is 0',
+              path,
+            });
+          } else if (progressBuffer == result.progress) {
             break;
           } else {
-            self.progressBuffer = result.progress;
+            progressBuffer = result.progress;
           }
 
           ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-            nameWithExtension: file.nameWithExtension,
+            nameWithExtension,
             processInfo: {
               elapsedTime: 0,
               progress: result.progress,
@@ -57,34 +68,37 @@ export class FetchDataService {
           });
         }
 
-        self.progressBuffer = 0;
-
         const finishTime = Date.now();
 
         ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
-          nameWithExtension: file.nameWithExtension,
+          nameWithExtension,
           processInfo: { elapsedTime: finishTime - startTime },
         });
+
+        logger.debug({
+          tag: 'SYNC-ENGINE',
+          msg: 'Finish fetching data',
+          path,
+        });
       } catch (error) {
-        Logger.error('[Fetch Data Error]', error);
-        Logger.debug('[Fetch Data Error] Finish', path);
+        logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Error fetching data',
+          path,
+          error,
+        });
         // await callback(false, '');
-        fs.unlinkSync(path);
-        return;
       }
 
-      fs.unlinkSync(path);
-
-      self.container.fileSyncStatusUpdater.run(file);
-
-      Logger.debug('[Fetch Data Callback] Finish', path);
+      await unlink(path);
     } catch (error) {
-      Logger.error(error);
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: 'Error fetching data',
+        filePlaceholderId,
+        error,
+      });
       await callback(false, '');
     }
-  }
-
-  normalizePath(path: string) {
-    return dirname(path).replace(/\\/g, '/');
   }
 }
