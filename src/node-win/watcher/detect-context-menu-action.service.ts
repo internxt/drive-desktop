@@ -1,11 +1,12 @@
 import { Stats } from 'fs';
 
-import { typeQueue } from '@/node-win/queue/queueManager';
 import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 
 import { Watcher } from './watcher';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { handleHydrate } from '@/apps/sync-engine/callbacks/handleHydrate.service';
+import { handleDehydrate } from '@/apps/sync-engine/callbacks/handleDehydrate.service';
 
 type TProps = {
   self: Watcher;
@@ -19,10 +20,7 @@ export class DetectContextMenuActionService {
     const { prev, curr } = details;
 
     const status = self.virtualDrive.getPlaceholderState({ path });
-    const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
-    const isInDevice = self.fileInDevice.has(absolutePath);
-
-    if (!uuid) return;
+    const isInDevice = self.fileInDevice.has(path);
 
     if (
       prev.size === curr.size &&
@@ -32,15 +30,15 @@ export class DetectContextMenuActionService {
       status.syncState === SyncState.InSync &&
       !isInDevice
     ) {
-      self.fileInDevice.add(absolutePath);
+      self.fileInDevice.add(path);
 
       if (curr.blocks !== 0) {
         // This event is triggered from the addon
         return 'Doble click en el archivo';
       }
 
-      self.queueManager.enqueue({ path: absolutePath, type: typeQueue.hydrate, uuid });
-      return 'Mantener siempre en el dispositivo';
+      await handleHydrate({ drive: self.virtualDrive, path });
+      return;
     }
 
     if (
@@ -56,19 +54,22 @@ export class DetectContextMenuActionService {
       //   return "Liberando espacio";
       // }
 
-      self.fileInDevice.delete(absolutePath);
-      self.queueManager.enqueue({ path: absolutePath, type: typeQueue.dehydrate, uuid });
-      return 'Liberar espacio';
+      self.fileInDevice.delete(path);
+      handleDehydrate({ drive: self.virtualDrive, path });
+      return;
     }
 
     if (prev.size !== curr.size) {
+      const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
+      if (!uuid) return;
+
       self.logger.debug({
         msg: 'Change size event',
         path,
         prevSize: prev.size,
         currSize: curr.size,
       });
-      self.fileInDevice.add(absolutePath);
+      self.fileInDevice.add(path);
       await self.callbacks.updateContentsId({ absolutePath, path, uuid });
     }
   }

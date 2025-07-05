@@ -6,6 +6,7 @@ import { CallbackDownload } from '../../BindingManager';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { FileNotFoundError } from '@/context/virtual-drive/files/domain/errors/FileNotFoundError';
 import { trimPlaceholderId } from './placeholder-id';
+import { sleep } from '@/apps/main/util';
 
 export class DownloadFileController extends CallbackController {
   constructor(
@@ -37,26 +38,22 @@ export class DownloadFileController extends CallbackController {
     const trimmedId = trimPlaceholderId({ placeholderId: filePlaceholderId });
     const [, uuid] = trimmedId.split(':');
 
-    return await this.withRetries(() => this.action(uuid, callback), this.MAX_RETRY, this.RETRY_DELAY);
+    return await this.withRetries(() => this.action(uuid, callback));
   }
-  private async withRetries<T>(action: () => Promise<T>, maxRetries: number, delayMs: number): Promise<T> {
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  private async withRetries<T>(action: () => Promise<T>): Promise<T> {
+    for (let attempt = 1; attempt <= this.MAX_RETRY; attempt++) {
       try {
         return await action();
       } catch (error) {
         Logger.error(`Attempt ${attempt} failed:`, error);
-        if (attempt === maxRetries) {
+        if (attempt === this.MAX_RETRY) {
           Logger.error('Max retries reached. Throwing error.');
           throw error;
         }
-        await this.delay(delayMs);
+        await sleep(this.RETRY_DELAY);
       }
     }
     throw new Error('Unexpected end of retry loop');
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   cancel() {

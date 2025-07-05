@@ -4,10 +4,10 @@ import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { DeepPartial } from 'ts-essentials';
-import fs from 'fs';
 import { it } from 'vitest';
+import { unlink } from 'fs/promises';
 
-vi.mock('fs');
+vi.mock('fs/promises');
 
 const fetchData = new FetchDataService();
 
@@ -24,24 +24,6 @@ describe('Fetch Data', () => {
     self.controllers.downloadFile.fileFinderByUuid.mockReturnValue(file as File);
   });
 
-  describe('When call normalizePath', () => {
-    it('When using slash, then return the parent path', () => {
-      // Act
-      const result = fetchData.normalizePath('C:/windows/system32');
-
-      // Arrange
-      expect(result).toBe('C:/windows');
-    });
-
-    it('When using backslash, then parse and return the parent path', () => {
-      // Act
-      const result = fetchData.normalizePath('C:\\windows\\system32');
-
-      // Arrange
-      expect(result).toBe('C:/windows');
-    });
-  });
-
   describe('When progress value is wrong', () => {
     it('When progress is greater than 1, then throw an error', async () => {
       // Arrange
@@ -51,7 +33,7 @@ describe('Fetch Data', () => {
       await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
 
     it('When progress is less than 0, then throw an error', async () => {
@@ -62,7 +44,7 @@ describe('Fetch Data', () => {
       await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
 
     it('When finished but progress is 0, then throw an error', async () => {
@@ -73,7 +55,7 @@ describe('Fetch Data', () => {
       await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
   });
 });
