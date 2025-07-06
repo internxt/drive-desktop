@@ -1,20 +1,20 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
-import { LocalFileWriter } from '@/context/virtual-drive/contents/domain/LocalFileWriter';
 import { EventEmitter, Readable } from 'stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import {
   EnvironmentContentFileDownloader,
   FileDownloadEvents,
 } from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
-import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMother';
+import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 describe('Contents Downloader', () => {
   const temporalFolderProvider = (): Promise<string> => {
     return Promise.resolve('C:/temp');
   };
 
-  const localWriter = mockDeep<LocalFileWriter>();
+  const localWriter = mockDeep<FSLocalFileWriter>();
   const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
 
   const environmentContentFileDownloader = mockDeep<EnvironmentContentFileDownloader>();
@@ -28,6 +28,7 @@ describe('Contents Downloader', () => {
   environmentContentFileDownloader.forceStop.mockImplementation(() => {
     eventEmitter.emit('error', new Error('Download stopped'));
   });
+
   const callbackFunction = (data: boolean, path: string) => {
     return Promise.resolve({
       finished: data,
@@ -36,6 +37,8 @@ describe('Contents Downloader', () => {
   };
 
   const SUT = new ContentsDownloader(factory, localWriter, temporalFolderProvider);
+  const file = mockDeep<ExtendedDriveFile>();
+  file.nameWithExtension = 'file.txt';
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -46,15 +49,13 @@ describe('Contents Downloader', () => {
     async (event: keyof FileDownloadEvents) => {
       factory.downloader.mockResolvedValueOnce(environmentContentFileDownloader);
 
-      await SUT.run(FileMother.any(), callbackFunction);
+      await SUT.run(file, callbackFunction);
 
       expect(environmentContentFileDownloader.on).toBeCalledWith(event, expect.any(Function));
     },
   );
 
   it('writes the downloaded content a local file', async () => {
-    const file = FileMother.any();
-
     factory.downloader.mockResolvedValueOnce(environmentContentFileDownloader);
 
     await SUT.run(file, callbackFunction);
@@ -62,7 +63,7 @@ describe('Contents Downloader', () => {
     expect(localWriter.write).toBeCalledWith(
       expect.objectContaining({
         name: file.name,
-        extension: file.type,
+        extension: file.extension,
         size: file.size,
       }),
     );

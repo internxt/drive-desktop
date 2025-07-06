@@ -4,10 +4,9 @@ import { AppDataSource } from '@/apps/main/database/data-source';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; payload: Partial<DriveFile> };
+export const repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 
 export class DriveFileCollection {
-  private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
-
   parseWhere(where: FindOptionsWhere<DriveFile>) {
     /**
      * v2.5.1 Daniel Jiménez
@@ -21,7 +20,7 @@ export class DriveFileCollection {
 
   async getAll(where: FindOptionsWhere<DriveFile>) {
     const user = getUserOrThrow();
-    const result = await this.repository.findBy({
+    const result = await repository.findBy({
       ...this.parseWhere(where),
       userUuid: user.uuid,
     });
@@ -30,13 +29,13 @@ export class DriveFileCollection {
   }
 
   async createOrUpdate(payload: DriveFile) {
-    const result = await this.repository.save(payload);
+    const result = await repository.save(payload);
     return result;
   }
 
   async update(uuid: DriveFile['uuid'], payload: Partial<DriveFile>) {
     const user = getUserOrThrow();
-    const match = await this.repository.update({ uuid, userUuid: user.uuid }, payload);
+    const match = await repository.update({ uuid, userUuid: user.uuid }, payload);
 
     return {
       success: match.affected ? true : false,
@@ -46,7 +45,7 @@ export class DriveFileCollection {
 
   async updateInBatch({ where, payload }: UpdateInBatchPayload) {
     const user = getUserOrThrow();
-    const match = await this.repository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
+    const match = await repository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
 
     return {
       success: match.affected ? true : false,
@@ -56,7 +55,7 @@ export class DriveFileCollection {
 
   async removeInBatch(where: FindOptionsWhere<DriveFile>) {
     const user = getUserOrThrow();
-    const match = await this.repository.delete({
+    const match = await repository.delete({
       ...this.parseWhere(where),
       userUuid: user.uuid,
     });
@@ -68,7 +67,7 @@ export class DriveFileCollection {
   }
 
   async getLastUpdatedByWorkspace({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) {
-    const result = await this.repository.findOne({
+    const result = await repository.findOne({
       where: { userUuid, workspaceId },
       order: { updatedAt: 'DESC' },
     });

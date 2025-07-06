@@ -114,7 +114,7 @@ export class FileOverwriteContent {
         void this.registerEvents({ downloader, file, callback: asynchronousFixingOfDangledFiles });
 
         Logger.debug('Trying to download file ', file.uuid, ' ', file.name);
-        await downloader.download(file);
+        await downloader.download({ contentsId: file.contentsId });
 
         Logger.info(`Possible dangled file ${file.path} hydrated.`);
         DangledFilesManager.getInstance().add({ contentId: file.contentsId, path: file.path });

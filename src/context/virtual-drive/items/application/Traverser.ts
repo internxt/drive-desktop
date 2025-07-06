@@ -8,6 +8,7 @@ import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { FileErrorHandler } from '../../files/domain/FileError';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { fileDecryptName } from '../../files/domain/file-decrypt-name';
 
 type Items = {
   files: Array<DriveFile>;
@@ -50,14 +51,14 @@ export class Traverser {
       let relativePath: RelativePath | undefined;
 
       try {
-        const decryptedName = File.decryptName({
+        const { nameWithExtension } = fileDecryptName({
           plainName: serverFile.plainName,
-          name: serverFile.name,
+          encryptedName: serverFile.name,
           parentId: serverFile.folderId,
-          type: serverFile.type,
+          extension: serverFile.type,
         });
 
-        relativePath = createRelativePath(currentFolder.path, decryptedName);
+        relativePath = createRelativePath(currentFolder.path, nameWithExtension);
 
         const file = File.from({
           ...serverFile,

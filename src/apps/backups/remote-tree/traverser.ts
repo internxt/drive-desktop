@@ -8,6 +8,7 @@ import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@/apps/shared/logger/logger';
 import { FileErrorHandler } from '@/context/virtual-drive/files/domain/FileError';
+import { fileDecryptName } from '@/context/virtual-drive/files/domain/file-decrypt-name';
 
 export type RemoteTree = {
   files: Record<RelativePath, File>;
@@ -44,14 +45,14 @@ export class Traverser {
       let relativePath: RelativePath | undefined;
 
       try {
-        const decryptedName = File.decryptName({
+        const { nameWithExtension } = fileDecryptName({
           plainName: serverFile.plainName,
-          name: serverFile.name,
+          encryptedName: serverFile.name,
           parentId: serverFile.folderId,
-          type: serverFile.type,
+          extension: serverFile.type,
         });
 
-        relativePath = createRelativePath(currentFolder.path, decryptedName);
+        relativePath = createRelativePath(currentFolder.path, nameWithExtension);
 
         const file = File.from({
           ...serverFile,

@@ -28,7 +28,7 @@ export function buildControllers(container: DependencyContainer): IControllers {
     deleteController,
   );
 
-  const downloadFileController = new DownloadFileController(container.contentsDownloader, container.fileRepository);
+  const downloadFileController = new DownloadFileController(container.contentsDownloader);
 
   return {
     addFile: addFileController,

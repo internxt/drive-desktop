@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 import { ContentsSize } from './ContentsSize';
-import { File } from '../../files/domain/File';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 type LocalFileContentsAttributes = {
   name: string;
@@ -49,13 +49,13 @@ export class LocalFileContents {
     return remoteContents;
   }
 
-  static downloadedFrom(file: File, contents: Readable) {
+  static downloadedFrom(file: ExtendedDriveFile, contents: Readable) {
     const remoteContents = new LocalFileContents(
       file.name,
-      file.type,
+      file.extension,
       new ContentsSize(file.size),
-      file.createdAt.getUTCMilliseconds(),
-      file.updatedAt.getUTCMilliseconds(),
+      new Date(file.createdAt).getUTCMilliseconds(),
+      new Date(file.updatedAt).getUTCMilliseconds(),
       contents,
     );
 
