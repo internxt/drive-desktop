@@ -39,7 +39,7 @@ describe('create-placeholder', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
-    environmentContentFileUploader.upload.mockResolvedValueOnce('contentsId' as ContentsId);
+    environmentContentFileUploader.upload.mockResolvedValueOnce('012345678901234567890123' as ContentsId);
   });
 
   afterAll(() => {
