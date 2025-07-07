@@ -8,13 +8,13 @@ export async function processWebSocketEvent({ data }: { data: unknown }) {
   if (parsedEventData.success && parsedEventData.data.clientId === 'drive-desktop') {
     const event = parsedEventData.data;
     logger.debug({
-      msg: 'Notification received',
+      msg: 'Local notification received',
       event: event.event,
       clientId: event.clientId,
       payload: event.payload,
     });
   } else {
-    logger.info({ msg: 'Notification received', data });
+    logger.info({ msg: 'Remote notification received', data });
     await debouncedSynchronization();
   }
 }
