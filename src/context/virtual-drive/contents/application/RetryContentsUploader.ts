@@ -7,6 +7,8 @@ import { sleep } from '@/apps/main/util';
 
 const limiter = new Bottleneck({ maxConcurrent: 7 });
 
+const MILLISECOND_BETWEEN_TRIES = 5_000;
+
 export class RetryContentsUploader {
   constructor(private readonly uploader: ContentsUploader) {}
 
@@ -46,7 +48,7 @@ export class RetryContentsUploader {
           });
         }
 
-        await sleep(1_000);
+        await sleep(MILLISECOND_BETWEEN_TRIES);
       }
     }
 
