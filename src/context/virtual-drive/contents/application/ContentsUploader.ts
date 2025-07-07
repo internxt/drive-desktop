@@ -1,4 +1,3 @@
-import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
@@ -44,7 +43,7 @@ export class ContentsUploader {
     });
   }
 
-  async run(path: string): Promise<RemoteFileContents> {
+  async run(path: string) {
     try {
       const win32RelativePath = PlatformPathConverter.posixToWin(path);
 
@@ -63,9 +62,7 @@ export class ContentsUploader {
         abortSignal,
       });
 
-      const fileContents = RemoteFileContents.create(contentsId, contents.size);
-
-      return fileContents;
+      return { id: contentsId, size: contents.size };
     } catch (error) {
       throw logger.error({
         msg: 'Contents uploader error',

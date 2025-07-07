@@ -7,7 +7,6 @@ import { ipcRenderer } from 'electron';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
 import { HandleHydrateService } from './callbacks/handleHydrate.service';
-import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
 import { logger } from '../shared/logger/logger';
@@ -36,7 +35,6 @@ export class BindingsManager {
     public readonly container: DependencyContainer,
     private readonly fetchData = new FetchDataService(),
     private readonly handleHydrate = new HandleHydrateService(),
-    private readonly handleDehydrate = new HandleDehydrateService(),
   ) {
     logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
 
@@ -167,7 +165,6 @@ export class BindingsManager {
   async watch() {
     const callbacks = {
       handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task, drive: this.container.virtualDrive }),
-      handleDehydrate: (task: QueueItem) => Promise.resolve(this.handleDehydrate.run({ task, drive: this.container.virtualDrive })),
     };
 
     const { queueManager, watcher } = createWatcher({
@@ -175,8 +172,9 @@ export class BindingsManager {
       virtulDrive: this.container.virtualDrive,
       watcherCallbacks: {
         addController: this.controllers.addFile,
-        updateContentsId: ({ absolutePath, path, uuid }) =>
-          updateContentsId({
+        updateContentsId: async ({ absolutePath, path, uuid }) =>
+          await updateContentsId({
+            virtualDrive: this.container.virtualDrive,
             absolutePath,
             path,
             uuid,

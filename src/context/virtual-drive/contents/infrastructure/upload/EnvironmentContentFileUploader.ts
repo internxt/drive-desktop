@@ -1,13 +1,13 @@
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core/upload/strategy';
 import { EventEmitter, Readable } from 'stream';
-import { ContentsId } from '../../domain/ContentsId';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
 import { logger } from '@/apps/shared/logger/logger';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 type FileUploadEvents = {
   start: () => void;
   progress: (progress: number) => void;
-  finish: (contentsId: string) => void;
+  finish: (contentsId: ContentsId) => void;
   error: (error: Error) => void;
 };
 
@@ -43,7 +43,7 @@ export class EnvironmentContentFileUploader {
 
           if (contentsId) {
             this.eventEmitter.emit('finish', contentsId);
-            resolve(new ContentsId(contentsId));
+            resolve(contentsId as ContentsId);
           } else {
             this.eventEmitter.emit('error', err);
             return reject(err);

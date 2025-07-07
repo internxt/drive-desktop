@@ -11,7 +11,7 @@ import { AddController } from '@/apps/sync-engine/callbacks-controllers/controll
 
 export type TWatcherCallbacks = {
   addController: AddController;
-  updateContentsId: (_: { absolutePath: AbsolutePath; path: RelativePath; uuid: string }) => void;
+  updateContentsId: (_: { absolutePath: AbsolutePath; path: RelativePath; uuid: string }) => Promise<void>;
 };
 
 export class Watcher {
@@ -28,10 +28,6 @@ export class Watcher {
     private readonly onRaw: OnRawService = new OnRawService(),
   ) {}
 
-  private onChange = (path: string) => {
-    this.logger.debug({ msg: 'onChange', path });
-  };
-
   private onError = (error: unknown) => {
     this.logger.error({ msg: 'onError', error });
   };
@@ -47,7 +43,6 @@ export class Watcher {
         .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ self: this, absolutePath, stats: stats! }))
         .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ self: this, absolutePath, stats: stats! }))
         .on('raw', (event, absolutePath: AbsolutePath, details) => this.onRaw.execute({ self: this, event, absolutePath, details }))
-        .on('change', this.onChange)
         .on('error', this.onError)
         .on('ready', this.onReady);
     } catch (exc) {

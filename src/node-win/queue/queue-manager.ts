@@ -6,18 +6,15 @@ import { HandleAction, HandleActions, QueueItem, typeQueue } from './queueManage
 
 export type QueueHandler = {
   handleHydrate: HandleAction;
-  handleDehydrate: HandleAction;
 };
 
 export class QueueManager {
   private queues: { [key: string]: QueueItem[] } = {
     hydrate: [],
-    dehydrate: [],
   };
 
   private isProcessing: { [key: string]: boolean } = {
     hydrate: false,
-    dehydrate: false,
   };
 
   private enqueueTimeout: NodeJS.Timeout | null = null;
@@ -30,7 +27,6 @@ export class QueueManager {
   constructor({ handlers, persistPath }: { handlers: QueueHandler; persistPath: string }) {
     this.actions = {
       hydrate: handlers.handleHydrate,
-      dehydrate: handlers.handleDehydrate,
     };
 
     this.persistPath = persistPath;
@@ -49,7 +45,6 @@ export class QueueManager {
       JSON.stringify(
         {
           hydrate: this.queues.hydrate,
-          dehydrate: this.queues.dehydrate,
         },
         null,
         2,

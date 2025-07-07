@@ -13,8 +13,8 @@ import { sleep } from '@/apps/main/util';
 import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { EnvironmentContentFileUploader } from '@/context/virtual-drive/contents/infrastructure/upload/EnvironmentContentFileUploader';
-import { ContentsId } from '@/context/virtual-drive/contents/domain/ContentsId';
 import { mockDeep } from 'vitest-mock-extended';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('../ipcRendererSyncEngine'));
 vi.mock(import('@/apps/main/auth/service'));
@@ -39,7 +39,7 @@ describe('create-placeholder', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
-    environmentContentFileUploader.upload.mockResolvedValueOnce(new ContentsId('012345678901234567890123'));
+    environmentContentFileUploader.upload.mockResolvedValueOnce('012345678901234567890123' as ContentsId);
   });
 
   afterAll(() => {

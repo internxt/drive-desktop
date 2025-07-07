@@ -17,7 +17,7 @@
     "package": "ts-node .erb/scripts/clean.js && npm run build && electron-builder build --publish never",
     "init:dev": "pnpm install && node node_modules/electron/install.js && npm run build:dll && npm run reload-native-deps",
     "========== Code style ==========": "",
-    "lint": "eslint . --ext .ts,.tsx --max-warnings 541",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 516",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier src --check",
     "format:fix": "prettier src --write",

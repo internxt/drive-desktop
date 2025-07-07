@@ -1,4 +1,7 @@
+import { Brand } from '@/context/shared/domain/Brand';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+
+export type ContentsId = Brand<string, 'ContentsId'>;
 
 @Entity('drive_file')
 export class DriveFile {
