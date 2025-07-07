@@ -1,7 +1,7 @@
 import { onAdd } from './on-add.service';
 import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
@@ -21,6 +21,7 @@ describe('on-add', () => {
   const date1 = new Date();
   const date2 = new Date(date1.getTime() + 1);
   const absolutePath = 'C:\\Users\\user\\drive\\file.txt' as AbsolutePath;
+  const path = createRelativePath('file.txt');
 
   let props: Parameters<typeof onAdd>[0];
 
@@ -33,7 +34,7 @@ describe('on-add', () => {
         fileInDevice: new Set(),
         logger: loggerMock,
         callbacks: { addController: { execute: vi.fn() } },
-        virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },
+        virtualDrive: { syncRootPath: 'C:\\Users\\user\\drive' as AbsolutePath },
       },
     });
   });
@@ -79,10 +80,10 @@ describe('on-add', () => {
     await onAdd(props);
 
     // Then
-    expect(props.self.fileInDevice.has(absolutePath)).toBe(true);
+    expect(props.self.fileInDevice.has(path)).toBe(true);
     expect(props.self.callbacks.addController.execute).toBeCalledWith(
       expect.objectContaining({
-        path: '/drive/file.txt',
+        path,
         isFolder: false,
       }),
     );
@@ -98,7 +99,7 @@ describe('on-add', () => {
     // Then
     // expect(isFileMovedMock).toBeCalledWith(
     //   expect.objectContaining({
-    //     path: '/drive/file.txt',
+    //     path,
     //     uuid: 'parentUuid',
     //   }),
     // );
