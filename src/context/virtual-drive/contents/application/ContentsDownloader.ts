@@ -2,26 +2,26 @@ import Logger from 'electron-log';
 import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
+import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 export class ContentsDownloader {
   constructor(
     private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory,
-    private readonly localWriter: LocalFileWriter,
+    private readonly localWriter: FSLocalFileWriter,
     private readonly temporalFolderProvider: TemporalFolderProvider,
   ) {}
 
   private downloaderIntance: EnvironmentContentFileDownloader | null = null;
   private downloaderIntanceCB: CallbackDownload | null = null;
-  private downloaderFile: File | null = null;
+  private downloaderFile: ExtendedDriveFile | null = null;
 
-  private async registerEvents(downloader: EnvironmentContentFileDownloader, file: File, callback: CallbackDownload) {
+  private async registerEvents(downloader: EnvironmentContentFileDownloader, file: ExtendedDriveFile, callback: CallbackDownload) {
     const location = await this.temporalFolderProvider();
     ensureFolderExists(location);
 
@@ -66,7 +66,7 @@ export class ContentsDownloader {
     });
   }
 
-  async run(file: File, callback: CallbackDownload): Promise<string> {
+  async run(file: ExtendedDriveFile, callback: CallbackDownload): Promise<string> {
     // TODO: If we remove the wait, the tests fail
     // eslint-disable-next-line @typescript-eslint/await-thenable
     const downloader = await this.managerFactory.downloader();
@@ -76,7 +76,7 @@ export class ContentsDownloader {
     this.downloaderFile = file;
     await this.registerEvents(downloader, file, callback);
 
-    const readable = await downloader.download(file);
+    const readable = await downloader.download({ contentsId: file.contentsId });
 
     const localContents = LocalFileContents.downloadedFrom(file, readable);
 

@@ -1,33 +1,27 @@
 import Logger from 'electron-log';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { FilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
-import { CallbackController } from './CallbackController';
 import { CallbackDownload } from '../../BindingManager';
-import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { FileNotFoundError } from '@/context/virtual-drive/files/domain/errors/FileNotFoundError';
 import { trimPlaceholderId } from './placeholder-id';
 import { sleep } from '@/apps/main/util';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { logger } from '@/apps/shared/logger/logger';
 
-export class DownloadFileController extends CallbackController {
-  constructor(
-    private readonly downloader: ContentsDownloader,
-    private readonly repository: InMemoryFileRepository,
-  ) {
-    super();
-  }
+export class DownloadFileController {
+  constructor(private readonly downloader: ContentsDownloader) {}
 
   private MAX_RETRY = 3;
   private RETRY_DELAY = 100;
 
   private async action(uuid: string, callback: CallbackDownload): Promise<string> {
-    const file = this.fileFinderByUuid({ uuid });
+    const file = await this.fileFinderByUuid({ uuid });
 
-    Logger.info('[Begin] Download: ', file.path);
     return await this.downloader.run(file, callback);
   }
 
-  fileFinderByUuid({ uuid }: { uuid: string }) {
-    const file = this.repository.searchByPartial({ uuid });
+  async fileFinderByUuid({ uuid }: { uuid: string }) {
+    const { data: file } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
     if (!file) {
       throw new FileNotFoundError(uuid);
     }

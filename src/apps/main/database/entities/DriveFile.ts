@@ -65,3 +65,13 @@ export class DriveFile {
   @Column({ nullable: false, default: true, type: 'boolean' })
   isDangledStatus!: boolean;
 }
+
+export type ExtendedDriveFile = {
+  name: string;
+  nameWithExtension: string;
+  extension: string;
+  contentsId: string;
+  size: number;
+  createdAt: string;
+  updatedAt: string;
+};

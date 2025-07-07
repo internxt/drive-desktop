@@ -107,22 +107,6 @@ export class File {
     );
   }
 
-  static decryptName({
-    plainName,
-    name,
-    parentId,
-    type,
-  }: {
-    plainName?: string | null;
-    name: string;
-    parentId: number | null;
-    type: string | null;
-  }) {
-    const decryptedName = plainName || crypt.decryptName({ name, parentId });
-    if (type) return `${decryptedName}.${type}`;
-    return decryptedName;
-  }
-
   changeContents(contentsId: FileContentsId, contentsSize: FileSize) {
     this._contentsId = contentsId;
     this._size = contentsSize;

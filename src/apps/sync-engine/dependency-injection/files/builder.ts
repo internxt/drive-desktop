@@ -26,7 +26,7 @@ export function buildFilesContainer(
   const { virtualDrive } = DependencyInjectionVirtualDrive;
 
   const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
-  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
+  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
 
   const repository = new InMemoryFileRepository();
 

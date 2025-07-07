@@ -5,7 +5,7 @@ import { aes } from '@internxt/lib';
 // eslint-disable-next-line prefer-destructuring
 const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
 
-export function decryptName({ name, parentId }: { name: string; parentId?: number | null }) {
+export function decryptName({ encryptedName, parentId }: { encryptedName: string; parentId?: number | null }) {
   /**
    * v2.5.2 Daniel Jiménez
    * parentId can only be null for the root folder, so it should never reach here
@@ -13,18 +13,18 @@ export function decryptName({ name, parentId }: { name: string; parentId?: numbe
   if (!parentId) {
     throw logger.error({
       msg: 'AES Decrypt failed because parentId is null',
-      name,
+      encryptedName,
     });
   }
 
   try {
     const salt = parentId.toString();
     const password = `${CRYPTO_KEY}-${salt}`;
-    return aes.decrypt(name, password);
+    return aes.decrypt(encryptedName, password);
   } catch (exc) {
     throw logger.error({
       msg: 'AES Decrypt failed',
-      name,
+      encryptedName,
       parentId,
       exc,
     });

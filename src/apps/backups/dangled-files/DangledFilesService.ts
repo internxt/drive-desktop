@@ -52,7 +52,7 @@ export class DangledFilesService {
           resolve(false);
         });
       });
-      await downloader.download(file);
+      await downloader.download({ contentsId: file.contentsId });
       return await isDownloadable;
     } catch (error) {
       logger.warn({

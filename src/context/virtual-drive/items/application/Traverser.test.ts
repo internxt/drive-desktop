@@ -19,7 +19,7 @@ describe('Traverser', () => {
   const SUT = new Traverser(baseFolderId, baseFolderUuid);
 
   beforeAll(() => {
-    cryptMock.decryptName.mockImplementation(({ name }) => name);
+    cryptMock.decryptName.mockImplementation(({ encryptedName }) => encryptedName);
   });
 
   beforeEach(() => {

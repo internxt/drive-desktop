@@ -5,7 +5,6 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { isTemporaryFile } from '../utils/isTemporalFile';
-import { FetchDataService } from './callbacks/fetchData.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
 import { logger } from '../shared/logger/logger';
@@ -19,6 +18,7 @@ import { updateContentsId } from './callbacks-controllers/controllers/update-con
 import { addPendingFiles } from './in/add-pending-files';
 import { createWatcher } from './create-watcher';
 import { Watcher } from '@/node-win/watcher/watcher';
+import { fetchData } from './callbacks/fetchData.service';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -27,10 +27,7 @@ export class BindingsManager {
 
   private lastMoved = '';
 
-  constructor(
-    public readonly container: DependencyContainer,
-    private readonly fetchData = new FetchDataService(),
-  ) {
+  constructor(public readonly container: DependencyContainer) {
     logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
 
     this.controllers = buildControllers(this.container);
@@ -96,8 +93,8 @@ export class BindingsManager {
           Logger.error('Error during rename or move operation', error);
         }
       },
-      fetchDataCallback: (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
-        this.fetchData.run({
+      fetchDataCallback: async (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
+        await fetchData({
           self: this,
           filePlaceholderId,
           callback,
