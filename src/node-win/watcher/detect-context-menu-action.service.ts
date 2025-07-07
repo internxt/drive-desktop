@@ -6,6 +6,7 @@ import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 import { Watcher } from './watcher';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { handleDehydrate } from '@/apps/sync-engine/callbacks/handleDehydrate.service';
 
 type TProps = {
   self: Watcher;
@@ -57,8 +58,8 @@ export class DetectContextMenuActionService {
       // }
 
       self.fileInDevice.delete(absolutePath);
-      self.queueManager.enqueue({ path: absolutePath, type: typeQueue.dehydrate, uuid });
-      return 'Liberar espacio';
+      handleDehydrate({ drive: self.virtualDrive, path });
+      return;
     }
 
     if (prev.size !== curr.size) {

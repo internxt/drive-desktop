@@ -3,7 +3,6 @@ import { FileUuid } from '@/context/virtual-drive/files/domain/PlaceholderId';
 
 export enum typeQueue {
   hydrate = 'hydrate',
-  dehydrate = 'dehydrate',
 }
 
 export type QueueItem = {

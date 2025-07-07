@@ -1,20 +1,27 @@
-import Logger from 'electron-log';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { QueueItem } from '@/node-win/queue/queueManager';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { logger } from '@/apps/shared/logger/logger';
 
 type TProps = {
   drive: VirtualDrive;
-  task: QueueItem;
+  path: RelativePath;
 };
 
-export class HandleDehydrateService {
-  run({ drive, task }: TProps) {
-    try {
-      Logger.debug('Dehydrate', task);
-      drive.dehydrateFile({ itemPath: task.path });
-    } catch (error) {
-      Logger.error(`Error dehydrating file ${task.path}`);
-      Logger.error(error);
-    }
+export function handleDehydrate({ drive, path }: TProps) {
+  try {
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Dehydrating file',
+      path,
+    });
+
+    drive.dehydrateFile({ itemPath: path });
+  } catch (error) {
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'Error dehydrating file',
+      path,
+      error,
+    });
   }
 }

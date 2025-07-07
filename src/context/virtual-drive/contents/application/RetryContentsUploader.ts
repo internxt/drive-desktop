@@ -1,5 +1,4 @@
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { RemoteFileContents } from '../domain/RemoteFileContents';
 import { ContentsUploader } from './ContentsUploader';
 import { logger } from '@/apps/shared/logger/logger';
 import Bottleneck from 'bottleneck';
@@ -55,7 +54,7 @@ export class RetryContentsUploader {
     throw logger.error({ msg: 'Max retries reached. Upload still failed', path });
   }
 
-  async run(path: string): Promise<RemoteFileContents> {
+  async run(path: string) {
     return await limiter.schedule(() => this.retryUpload(path));
   }
 }

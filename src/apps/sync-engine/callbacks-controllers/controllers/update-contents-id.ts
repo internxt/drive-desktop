@@ -3,8 +3,10 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { RetryContentsUploader } from '@/context/virtual-drive/contents/application/RetryContentsUploader';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import VirtualDrive from '@/node-win/virtual-drive';
 
 type TProps = {
+  virtualDrive: VirtualDrive;
   absolutePath: AbsolutePath;
   path: RelativePath;
   uuid: string;
@@ -12,11 +14,8 @@ type TProps = {
   repository: InMemoryFileRepository;
 };
 
-export async function updateContentsId({ path, uuid, fileContentsUploader, repository }: TProps) {
+export async function updateContentsId({ virtualDrive, path, uuid, fileContentsUploader, repository }: TProps) {
   try {
-    // TODO: repository not used
-    const file = repository.searchByPartial({ uuid });
-
     const contents = await fileContentsUploader.run(path);
 
     await driveServerWip.files.replaceFile({
@@ -25,6 +24,10 @@ export async function updateContentsId({ path, uuid, fileContentsUploader, repos
       newSize: contents.size,
     });
 
+    virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
+
+    // TODO: repository not used
+    const file = repository.searchByPartial({ uuid });
     if (file) {
       repository.updateContentsAndSize(file, contents.id, contents.size);
     }
