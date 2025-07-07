@@ -41,7 +41,8 @@
     "reload-native-deps": "ts-node .erb/scripts/check-native-deps.ts && npm run electron-rebuild && pnpm install",
     "========== Other ==========": "",
     "prepare": "husky install",
-    "generate_schema": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",
+    "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",
+    "swagger_prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",
     "depcheck": "depcheck"
   },
   "build": {

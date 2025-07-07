@@ -13,7 +13,7 @@ describe('UserUsageService', () => {
   });
 
   it('should calculate usage correctly', async () => {
-    getUsageMock.mockResolvedValueOnce({ data: { drive: 5000 } });
+    getUsageMock.mockResolvedValueOnce({ data: { drive: 5000, backup: 1000, total: 6000 } });
     getLimitMock.mockResolvedValueOnce({ data: { maxSpaceBytes: 10000 } });
 
     const result = await calculateUsage();
@@ -27,7 +27,7 @@ describe('UserUsageService', () => {
   });
 
   it('should handle infinite space threshold', async () => {
-    getUsageMock.mockResolvedValueOnce({ data: { drive: 5000 } });
+    getUsageMock.mockResolvedValueOnce({ data: { drive: 5000, backup: 1000, total: 6000 } });
     getLimitMock.mockResolvedValueOnce({ data: { maxSpaceBytes: 108851651149824 } });
 
     const result = await calculateUsage();
