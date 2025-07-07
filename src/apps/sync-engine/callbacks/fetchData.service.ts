@@ -5,6 +5,7 @@ import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
 import { unlink } from 'fs/promises';
 import { fileDownloading } from './file-downloading';
+import { store } from './handleHydrate.service';
 
 type TProps = {
   self: BindingsManager;
@@ -20,6 +21,8 @@ export async function fetchData({ self, filePlaceholderId, callback }: TProps) {
     const startTime = Date.now();
     path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
     nameWithExtension = basename(path);
+
+    store.lastHydrated = nameWithExtension;
 
     logger.debug({
       tag: 'SYNC-ENGINE',
