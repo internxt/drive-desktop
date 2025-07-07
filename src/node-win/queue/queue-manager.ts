@@ -4,29 +4,24 @@ import { TLogger } from '@/node-win/logger';
 
 import { HandleAction, HandleActions, QueueItem, typeQueue } from './queueManager';
 
-type QueueHandler = {
+export type QueueHandler = {
   handleHydrate: HandleAction;
   handleDehydrate: HandleAction;
-  handleChangeSize: HandleAction;
 };
 
 export class QueueManager {
   private queues: { [key: string]: QueueItem[] } = {
     hydrate: [],
     dehydrate: [],
-    changeSize: [],
   };
 
   private isProcessing: { [key: string]: boolean } = {
     hydrate: false,
     dehydrate: false,
-    changeSize: false,
   };
 
   private enqueueTimeout: NodeJS.Timeout | null = null;
   private enqueueDelay = 2000;
-
-  // private readonly notify: QueueManagerCallback;
   private readonly persistPath: string;
 
   logger?: TLogger;
@@ -36,9 +31,8 @@ export class QueueManager {
     this.actions = {
       hydrate: handlers.handleHydrate,
       dehydrate: handlers.handleDehydrate,
-      changeSize: handlers.handleChangeSize,
     };
-    // this.notify = notify;
+
     this.persistPath = persistPath;
     if (!fs.existsSync(this.persistPath)) {
       fs.writeFileSync(this.persistPath, JSON.stringify(this.queues));
@@ -46,6 +40,7 @@ export class QueueManager {
       this.loadQueueStateFromFile();
     }
   }
+
   private saveQueueStateToFile(): void {
     if (!this.persistPath) return;
 
@@ -55,7 +50,6 @@ export class QueueManager {
         {
           hydrate: this.queues.hydrate,
           dehydrate: this.queues.dehydrate,
-          changeSize: [],
         },
         null,
         2,
@@ -78,16 +72,6 @@ export class QueueManager {
     }
   }
 
-  public clearQueue(): void {
-    this.queues = {
-      hydrate: [],
-      dehydrate: [],
-      change: [],
-      changeSize: [],
-    };
-    this.saveQueueStateToFile();
-  }
-
   public enqueue(task: QueueItem): void {
     this.logger?.debug({ msg: 'enqueue', task });
     const existingTask = this.queues[task.type].find((item) => item.path === task.path && item.type === task.type);
@@ -98,7 +82,6 @@ export class QueueManager {
     }
 
     this.queues[task.type].push(task);
-    this.sortQueue(task.type);
     this.saveQueueStateToFile();
     this.resetEnqueueTimeout();
   }
@@ -108,27 +91,9 @@ export class QueueManager {
       clearTimeout(this.enqueueTimeout);
     }
 
-    // Inicia el temporizador de espera
-    this.enqueueTimeout = setTimeout(() => {
-      this.processAll();
+    this.enqueueTimeout = setTimeout(async () => {
+      await this.processAll();
     }, this.enqueueDelay);
-  }
-
-  private sortQueue(type: typeQueue): void {
-    this.queues[type].sort((a, b) => {
-      const depthA = a.path.split('\\').length;
-      const depthB = b.path.split('\\').length;
-
-      if (depthA !== depthB) {
-        return depthA - depthB;
-      }
-
-      if (a.isFolder !== b.isFolder) {
-        return a.isFolder ? 1 : -1;
-      }
-
-      return a.path.localeCompare(b.path);
-    });
   }
 
   private async processQueue(type: typeQueue): Promise<void> {
@@ -143,8 +108,6 @@ export class QueueManager {
 
   private async processSequentially(type: typeQueue): Promise<void> {
     while (this.queues[type].length > 0) {
-      // await this.notify.onTaskProcessing();
-
       const task = this.queues[type].shift();
       this.saveQueueStateToFile();
 
@@ -162,11 +125,9 @@ export class QueueManager {
     }
   }
 
-  public async processAll(): Promise<void> {
+  async processAll(): Promise<void> {
     this.logger?.debug({ msg: 'processAll' });
     const taskTypes = Object.keys(this.queues) as typeQueue[];
-    // await this.notify.onTaskProcessing();
-    await Promise.all(taskTypes.map((type: typeQueue) => this.processQueue(type)));
-    // await this.notify.onTaskSuccess();
+    await Promise.all(taskTypes.map((type) => this.processQueue(type)));
   }
 }
