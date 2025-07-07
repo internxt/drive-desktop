@@ -1,12 +1,9 @@
 name: Mark stale PRs
 
-# on:
-#   schedule:
-#     - cron: '0 7 * * *'
-#   workflow_dispatch:
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
 
 permissions:
   issues: write
