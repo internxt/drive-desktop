@@ -6,7 +6,7 @@ import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 import { Watcher } from './watcher';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { handleDehydrate } from '@/apps/sync-engine/callbacks/handleDehydrate.service';
+import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 
 type TProps = {
   self: Watcher;

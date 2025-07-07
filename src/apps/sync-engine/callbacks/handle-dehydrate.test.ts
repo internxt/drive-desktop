@@ -1,5 +1,5 @@
 import { mockProps } from '@/tests/vitest/utils.helper.test';
-import { handleDehydrate } from './handleDehydrate.service';
+import { handleDehydrate } from './handle-dehydrate';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
