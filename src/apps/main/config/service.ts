@@ -7,7 +7,9 @@ export const getConfigKey = <T extends StoredValues>(key: T): AppStore[T] => {
   return store.get(key);
 };
 
-export const setConfigKey = <T extends StoredValues>(key: T, value: AppStore[T]): void => {
+type SetConfigKeyProps = { key: 'preferedLanguage'; value: string } | { key: 'preferedTheme'; value: string };
+
+export const setConfigKey = ({ key, value }: SetConfigKeyProps): void => {
   store.set(key, value);
-  broadcastToWindows(`${key}-updated`, value);
+  broadcastToWindows({ name: `${key}-updated`, data: value });
 };

@@ -37,10 +37,6 @@ export class FileDeleter {
       return;
     }
 
-    ipcRendererSyncEngine.send('FILE_DELETING', {
-      nameWithExtension: file.nameWithExtension,
-    });
-
     try {
       file.trash();
 

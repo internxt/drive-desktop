@@ -3,12 +3,12 @@ import { LocalFile } from '../../domain/LocalFile';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
 import Logger from 'electron-log';
 import { logger } from '@/apps/shared/logger/logger';
-import { onFileCreated } from '@/apps/main/fordwardToWindows';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { pathUtils } from '../../infrastructure/AbsolutePath';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { uploadFile } from '../upload-file';
+import { onFileCreated } from '@/apps/main/on-file-created';
 
 @Service()
 export class FileBatchUploader {

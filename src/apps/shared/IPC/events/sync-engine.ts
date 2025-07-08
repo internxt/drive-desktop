@@ -22,12 +22,11 @@ type FilesEvents = {
   FILE_DOWNLOAD_CANCEL: (payload: FileInfo) => void;
   FILE_DOWNLOAD_ERROR: (payload: FileInfo) => void;
 
-  FILE_DELETING: (payload: FileInfo) => void;
   FILE_DELETED: (payload: FileInfo) => void;
   FILE_DELETION_ERROR: (payload: FileInfo) => void;
 
-  FILE_RENAMING: (payload: { nameWithExtension: string; oldName: string }) => void;
-  FILE_RENAMED: (payload: { nameWithExtension: string; oldName: string }) => void;
+  FILE_RENAMING: (payload: FileInfo) => void;
+  FILE_RENAMED: (payload: FileInfo) => void;
   FILE_RENAME_ERROR: (payload: FileInfo) => void;
 
   FILE_CREATED: (payload: {
@@ -38,9 +37,6 @@ type FilesEvents = {
     fileId: number;
     path: string;
   }) => void;
-  FILE_OVERWRITTEN: (payload: FileInfo) => void;
-  FILE_CLONED: (payload: FileInfo) => void;
-  FILE_MOVED: (payload: { nameWithExtension: string; folderName: string }) => void;
 };
 
 type SyncEngineInvocableFunctions = {

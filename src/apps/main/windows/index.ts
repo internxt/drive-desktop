@@ -7,6 +7,7 @@ import { getProcessIssuesWindow } from './process-issues';
 import { getSettingsWindow } from './settings';
 import { getWidget } from './widget';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
+import { BroadcastToWindows } from './broadcast-to-windows';
 
 function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
@@ -15,10 +16,10 @@ function closeAuxWindows() {
   getMigrationWindow()?.close();
 }
 
-export function broadcastToWindows(eventName: string, data: unknown) {
+export function broadcastToWindows({ name, data }: BroadcastToWindows) {
   const renderers = [getWidget(), getProcessIssuesWindow(), getSettingsWindow(), getOnboardingWindow(), getMigrationWindow()];
 
-  renderers.forEach((r) => r?.webContents.send(eventName, data));
+  renderers.forEach((r) => r?.webContents.send(name, data));
 }
 
 eventBus.on('USER_LOGGED_OUT', closeAuxWindows);

@@ -12,22 +12,21 @@ export function getUploadCallbacks({ path }: TProps): FileUploaderCallbacks {
 
   return {
     onProgress({ progress }: { progress: number }) {
-      broadcastToWindows('sync-info-update', {
-        action: 'UPLOADING',
-        name: nameWithExtension,
-        progress,
+      broadcastToWindows({
+        name: 'sync-info-update',
+        data: { action: 'UPLOADING', name: nameWithExtension, progress },
       });
     },
     onFinish() {
-      broadcastToWindows('sync-info-update', {
-        action: 'UPLOADED',
-        name: nameWithExtension,
+      broadcastToWindows({
+        name: 'sync-info-update',
+        data: { action: 'UPLOADED', name: nameWithExtension },
       });
     },
     onError() {
-      broadcastToWindows('sync-info-update', {
-        action: 'UPLOAD_ERROR',
-        name: nameWithExtension,
+      broadcastToWindows({
+        name: 'sync-info-update',
+        data: { action: 'UPLOAD_ERROR', name: nameWithExtension },
       });
     },
   };
