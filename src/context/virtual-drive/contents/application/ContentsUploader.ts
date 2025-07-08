@@ -18,14 +18,14 @@ export class ContentsUploader {
     uploader.on('start', () => {
       ipcRendererSyncEngine.send('FILE_UPLOADING', {
         nameWithExtension: localFileContents.nameWithExtension,
-        processInfo: { elapsedTime: uploader.elapsedTime() },
+        progress: 0,
       });
     });
 
     uploader.on('progress', (progress: number) => {
       ipcRendererSyncEngine.send('FILE_UPLOADING', {
         nameWithExtension: localFileContents.nameWithExtension,
-        processInfo: { elapsedTime: uploader.elapsedTime(), progress },
+        progress,
       });
     });
 
@@ -38,7 +38,6 @@ export class ContentsUploader {
     uploader.on('finish', () => {
       ipcRendererSyncEngine.send('FILE_UPLOADED', {
         nameWithExtension: localFileContents.nameWithExtension,
-        processInfo: { elapsedTime: uploader.elapsedTime() },
       });
     });
   }

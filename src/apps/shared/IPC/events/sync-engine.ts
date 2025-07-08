@@ -9,20 +9,17 @@ type FileInfo = {
 
 type FileUpdatePayload = {
   nameWithExtension: string;
-  processInfo: {
-    elapsedTime: number;
-    progress?: number;
-  };
+  progress: number;
 };
 
 type FilesEvents = {
   FILE_UPLOADING: (payload: FileUpdatePayload) => void;
-  FILE_UPLOADED: (payload: FileUpdatePayload) => void;
+  FILE_UPLOADED: (payload: FileInfo) => void;
   FILE_UPLOAD_ERROR: (payload: FileInfo) => void;
 
   FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
-  FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
-  FILE_DOWNLOAD_CANCEL: (payload: Partial<FileUpdatePayload>) => void;
+  FILE_DOWNLOADED: (payload: FileInfo) => void;
+  FILE_DOWNLOAD_CANCEL: (payload: FileInfo) => void;
   FILE_DOWNLOAD_ERROR: (payload: FileInfo) => void;
 
   FILE_DELETING: (payload: FileInfo) => void;
@@ -41,8 +38,8 @@ type FilesEvents = {
     fileId: number;
     path: string;
   }) => void;
-  FILE_OVERWRITTEN: (payload: { nameWithExtension: string }) => void;
-  FILE_CLONED: (payload: FileUpdatePayload) => void;
+  FILE_OVERWRITTEN: (payload: FileInfo) => void;
+  FILE_CLONED: (payload: FileInfo) => void;
   FILE_MOVED: (payload: { nameWithExtension: string; folderName: string }) => void;
 };
 
