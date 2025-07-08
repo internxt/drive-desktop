@@ -32,6 +32,7 @@ export class EnvironmentFileUploader {
     logger.debug({
       msg: 'Uploading file to the bucket',
       path,
+      size,
       bucket: this.bucket,
       useMultipartUpload,
     });
