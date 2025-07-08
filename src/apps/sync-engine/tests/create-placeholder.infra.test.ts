@@ -12,13 +12,13 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { sleep } from '@/apps/main/util';
 import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 import { getUserOrThrow } from '@/apps/main/auth/service';
-import { EnvironmentContentFileUploader } from '@/context/virtual-drive/contents/infrastructure/upload/EnvironmentContentFileUploader';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('../ipcRendererSyncEngine'));
 vi.mock(import('@/apps/main/auth/service'));
-vi.mock(import('@/context/virtual-drive/contents/infrastructure/upload/EnvironmentContentFileUploader'));
+vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('create-placeholder', () => {
@@ -26,8 +26,8 @@ describe('create-placeholder', () => {
   const createFileMock = vi.mocked(driveServerWip.files.createFile);
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
-  const environmentContentFileUploader = mockDeep<EnvironmentContentFileUploader>();
-  vi.mocked(EnvironmentContentFileUploader).mockImplementation(() => environmentContentFileUploader);
+  const environmentFileUploader = mockDeep<EnvironmentFileUploader>();
+  vi.mocked(EnvironmentFileUploader).mockImplementation(() => environmentFileUploader);
 
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
@@ -39,7 +39,7 @@ describe('create-placeholder', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
-    environmentContentFileUploader.upload.mockResolvedValueOnce('012345678901234567890123' as ContentsId);
+    environmentFileUploader.upload.mockResolvedValueOnce({ data: '012345678901234567890123' as ContentsId });
   });
 
   afterAll(() => {

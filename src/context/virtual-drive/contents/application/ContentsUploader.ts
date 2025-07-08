@@ -1,11 +1,10 @@
-import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileProvider } from '../infrastructure/FSLocalFileProvider';
 import { logger } from '@/apps/shared/logger/logger';
-import { EnvironmentContentFileUploader } from '../infrastructure/upload/EnvironmentContentFileUploader';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
 
 export class ContentsUploader {
   constructor(
@@ -14,52 +13,25 @@ export class ContentsUploader {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  private registerEvents(uploader: EnvironmentContentFileUploader, localFileContents: LocalFileContents) {
-    uploader.on('start', () => {
-      ipcRendererSyncEngine.send('FILE_UPLOADING', {
-        nameWithExtension: localFileContents.nameWithExtension,
-        progress: 0,
-      });
-    });
-
-    uploader.on('progress', (progress: number) => {
-      ipcRendererSyncEngine.send('FILE_UPLOADING', {
-        nameWithExtension: localFileContents.nameWithExtension,
-        progress,
-      });
-    });
-
-    uploader.on('error', () => {
-      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
-        nameWithExtension: localFileContents.nameWithExtension,
-      });
-    });
-
-    uploader.on('finish', () => {
-      ipcRendererSyncEngine.send('FILE_UPLOADED', {
-        nameWithExtension: localFileContents.nameWithExtension,
-      });
-    });
-  }
-
   async run(path: string) {
     try {
       const win32RelativePath = PlatformPathConverter.posixToWin(path);
 
-      const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath);
+      const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath) as AbsolutePath;
 
       const { contents, abortSignal } = await this.contentProvider.provide(absolutePath);
 
-      const uploader = this.remoteContentsManagersFactory.uploader(contents);
+      const uploader = this.remoteContentsManagersFactory.uploader();
 
-      this.registerEvents(uploader, contents);
-
-      const contentsId = await uploader.upload({
-        contents: contents.stream,
+      const { data: contentsId, error } = await uploader.upload({
+        readable: contents.stream,
         size: contents.size,
         path,
         abortSignal,
+        callbacks: getUploadCallbacks({ path: absolutePath }),
       });
+
+      if (error) throw error;
 
       return { id: contentsId, size: contents.size };
     } catch (error) {
