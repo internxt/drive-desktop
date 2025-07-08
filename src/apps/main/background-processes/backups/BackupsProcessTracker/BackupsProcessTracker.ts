@@ -19,7 +19,7 @@ export class BackupsProcessTracker {
   private notify() {
     if (this.abortController && !this.abortController.signal.aborted) {
       logger.debug({ tag: 'BACKUPS', msg: 'Progress', progress: this.progress() });
-      broadcastToWindows('backup-progress', this.progress());
+      broadcastToWindows({ name: 'backup-progress', data: this.progress() });
     }
   }
 
