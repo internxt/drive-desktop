@@ -26,7 +26,7 @@ describe('environment-file-uploader', () => {
     props = mockProps<typeof service.upload>({ size: 100, callbacks, abortSignal: abortController.signal });
   });
 
-  it('should use multipart upload if file is small than 100MB', async () => {
+  it('should use upload if file is small than 100MB', async () => {
     // Given
     props.size = 100 * 1024 * 1024 - 1;
     environment.upload.mockImplementation((_, opts) => {
