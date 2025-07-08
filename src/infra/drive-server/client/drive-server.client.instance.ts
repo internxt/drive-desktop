@@ -1,13 +1,13 @@
 import { paths } from '../../schemas';
 import Bottleneck from 'bottleneck';
-import { logout } from '../../../apps/main/auth/service';
+import { AuthModule } from '../../../features/auth/auth.module';
 import eventBus from '../../../apps/main/event-bus';
 import { ClientOptions, createClient } from '../drive-server.client';
 
 
 function handleOnUserUnauthorized(): void {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
-  logout();
+  AuthModule.logout();
 }
 
 const limiter = new Bottleneck({

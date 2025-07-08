@@ -1,14 +1,16 @@
 import { createClient } from '../drive-server.client';
 import Bottleneck from 'bottleneck';
 import eventBus from '../../../apps/main/event-bus';
-import { logout } from '../../../apps/main/auth/service';
+import { AuthModule } from '../../../features/auth/auth.module';
 
 jest.mock('../drive-server.client', () => ({
   createClient: jest.fn(() => ({}))
 }));
 
-jest.mock('../../../apps/main/auth/service', () => ({
-  logout: jest.fn()
+jest.mock('../../../features/auth/auth.module', () => ({
+  AuthModule: {
+    logout: jest.fn()
+  }
 }));
 
 jest.mock('../../../apps/main/event-bus', () => ({
@@ -48,7 +50,7 @@ describe('driveServerClient instance', () => {
     clientOptionsArg.onUnauthorized();
 
     expect(eventBus.emit).toHaveBeenCalledWith('USER_WAS_UNAUTHORIZED');
-    expect(logout).toHaveBeenCalled();
+    expect(AuthModule.logout).toHaveBeenCalled();
   });
 
   it('should use process.env.NEW_DRIVE_URL as baseUrl', async () => {

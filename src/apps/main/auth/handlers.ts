@@ -6,6 +6,7 @@ import { applicationOpened } from '../analytics/service';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
+import { AuthModule } from '../../../features/auth/auth.module';
 import { createTokenSchedule } from './refresh-token/refresh-token';
 import {
   canHisConfigBeRestored,
@@ -13,7 +14,6 @@ import {
   getHeaders,
   getNewApiHeaders,
   getUser,
-  logout,
   obtainToken,
   setCredentials,
   tokensArePresent,
@@ -54,7 +54,7 @@ ipcMain.handle('get-token', () => {
 export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
 
-  logout();
+  AuthModule.logout();
   Logger.info('[AUTH] User has been logged out because it was unauthorized');
   setIsLoggedIn(false);
 }
@@ -85,7 +85,7 @@ ipcMain.on('user-logged-out', () => {
 
   setIsLoggedIn(false);
 
-  logout();
+  AuthModule.logout();
 });
 
 eventBus.on('APP_IS_READY', async (): Promise<void> => {
