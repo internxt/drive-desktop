@@ -19,13 +19,13 @@ export class ContentsUploader {
 
       const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath) as AbsolutePath;
 
-      const { contents, abortSignal } = await this.contentProvider.provide(absolutePath);
+      const { readable, abortSignal, size } = await this.contentProvider.provide(absolutePath);
 
       const uploader = this.remoteContentsManagersFactory.uploader();
 
       const { data: contentsId, error } = await uploader.upload({
-        readable: contents.stream,
-        size: contents.size,
+        readable,
+        size,
         path,
         abortSignal,
         callbacks: getUploadCallbacks({ path: absolutePath }),
@@ -33,7 +33,7 @@ export class ContentsUploader {
 
       if (error) throw error;
 
-      return { id: contentsId, size: contents.size };
+      return { id: contentsId, size };
     } catch (error) {
       throw logger.error({
         msg: 'Contents uploader error',
