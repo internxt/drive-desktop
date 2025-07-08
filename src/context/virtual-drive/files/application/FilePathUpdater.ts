@@ -103,12 +103,10 @@ export class FilePathUpdater {
 
       if (destination.extensionMatch(file.type)) {
         ipcRendererSyncEngine.send('FILE_RENAMING', {
-          oldName: file.name,
           nameWithExtension: destination.nameWithExtension(),
         });
         await this.rename(file, destination);
         ipcRendererSyncEngine.send('FILE_RENAMED', {
-          oldName: file.name,
           nameWithExtension: destination.nameWithExtension(),
         });
         return;

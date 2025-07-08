@@ -34,7 +34,7 @@ export default function ThemePicker(): JSX.Element {
 
   const updatePreferedTheme = (theme: string) => {
     window.electron.toggleDarkMode(theme as Theme);
-    window.electron.setConfigKey('preferedTheme', theme);
+    window.electron.setConfigKey({ key: 'preferedTheme', value: theme });
     refreshPreferedTheme();
   };
 
