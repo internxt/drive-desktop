@@ -30,7 +30,7 @@ export class ContentsDownloader {
     downloader.on('start', () => {
       ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
         nameWithExtension: file.nameWithExtension,
-        processInfo: { elapsedTime: downloader.elapsedTime() },
+        progress: 0,
       });
     });
 
@@ -45,10 +45,7 @@ export class ContentsDownloader {
 
       ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
         nameWithExtension: file.nameWithExtension,
-        processInfo: {
-          elapsedTime: 0,
-          progress,
-        },
+        progress,
       });
     });
 

@@ -7,7 +7,8 @@ import { onFileCreated } from '@/apps/main/fordwardToWindows';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { pathUtils } from '../../infrastructure/AbsolutePath';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/services/environment-file-uploader';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { uploadFile } from '../upload-file';
 
 @Service()
 export class FileBatchUploader {
@@ -33,63 +34,43 @@ export class FileBatchUploader {
       await Promise.all(
         chunk.map(async (localFile) => {
           try {
-            const { data: contentsId, error } = await this.localHandler.upload({
-              path: localFile.absolutePath,
-              size: localFile.size.value,
-              abortSignal: context.abortController.signal,
-            });
+            const contentsId = await uploadFile({ context, localFile, uploader: this.localHandler });
 
             Logger.info(localFile.absolutePath);
 
-            if (error) {
-              if (error.code !== 'KILLED_BY_USER') {
-                logger.error({
-                  tag: 'BACKUPS',
-                  msg: 'Error uploading file',
-                  path: localFile.absolutePath,
-                  error,
-                });
+            if (!contentsId) return;
 
-                if (error.code !== 'UNKNOWN') {
-                  context.addIssue({
-                    error: error.code,
-                    name: localFile.relativePath,
-                  });
-                }
-              }
-            } else {
-              const parentPath = pathUtils.dirname(localFile.relativePath);
-              const parent = remoteTree.folders[parentPath];
+            const parentPath = pathUtils.dirname(localFile.relativePath);
+            const parent = remoteTree.folders[parentPath];
 
-              logger.debug({
-                tag: 'BACKUPS',
-                msg: 'Uploading file',
-                remotePath: localFile.relativePath,
-              });
+            logger.debug({
+              tag: 'BACKUPS',
+              msg: 'Uploading file',
+              remotePath: localFile.relativePath,
+            });
 
-              const file = await this.creator.run({
-                contentsId,
-                folderUuid: parent.uuid,
-                path: localFile.relativePath,
-                size: localFile.size.value,
-              });
+            const file = await this.creator.run({
+              contentsId,
+              folderUuid: parent.uuid,
+              path: localFile.relativePath,
+              size: localFile.size.value,
+            });
 
-              logger.info({
-                tag: 'BACKUPS',
-                msg: 'File created',
-                relativePath: file.path,
-                contentsId: file.contentsId,
-              });
+            logger.info({
+              tag: 'BACKUPS',
+              msg: 'File created',
+              relativePath: file.path,
+              contentsId: file.contentsId,
+            });
 
-              await onFileCreated({
-                bucket: context.backupsBucket,
-                name: file.name,
-                extension: file.type,
-                nameWithExtension: file.nameWithExtension,
-                fileId: file.id,
-                path: localFile.absolutePath,
-              });
-            }
+            await onFileCreated({
+              bucket: context.backupsBucket,
+              name: file.name,
+              extension: file.type,
+              nameWithExtension: file.nameWithExtension,
+              fileId: file.id,
+              path: localFile.absolutePath,
+            });
           } catch (error) {
             logger.error({
               tag: 'BACKUPS',

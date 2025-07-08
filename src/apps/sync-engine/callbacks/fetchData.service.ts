@@ -17,7 +17,6 @@ export class FetchDataService {
     try {
       Logger.debug('[Fetch Data Callback] Donwloading begins');
 
-      const startTime = Date.now();
       const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
       const trimmedPlaceholderId = trimPlaceholderId({ placeholderId: filePlaceholderId });
@@ -50,20 +49,14 @@ export class FetchDataService {
 
           ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
             nameWithExtension: file.nameWithExtension,
-            processInfo: {
-              elapsedTime: 0,
-              progress: result.progress,
-            },
+            progress: result.progress,
           });
         }
 
         self.progressBuffer = 0;
 
-        const finishTime = Date.now();
-
         ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
           nameWithExtension: file.nameWithExtension,
-          processInfo: { elapsedTime: finishTime - startTime },
         });
       } catch (error) {
         Logger.error('[Fetch Data Error]', error);

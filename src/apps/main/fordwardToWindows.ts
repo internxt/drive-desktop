@@ -21,12 +21,12 @@ ipcMainSyncEngine.on('FILE_DELETED', (_, payload) => {
 });
 
 ipcMainSyncEngine.on('FILE_DOWNLOADING', (_, payload) => {
-  const { nameWithExtension, processInfo } = payload;
+  const { nameWithExtension, progress } = payload;
 
   broadcastToWindows('sync-info-update', {
     action: 'DOWNLOADING',
     name: nameWithExtension,
-    progress: processInfo.progress,
+    progress,
   });
 });
 
@@ -77,12 +77,12 @@ ipcMainSyncEngine.on('FILE_RENAMED', (_, payload) => {
 });
 
 ipcMainSyncEngine.on('FILE_UPLOADING', (_, payload) => {
-  const { nameWithExtension, processInfo } = payload;
+  const { nameWithExtension, progress } = payload;
 
   broadcastToWindows('sync-info-update', {
     action: 'UPLOADING',
     name: nameWithExtension,
-    progress: processInfo.progress,
+    progress,
   });
 });
 
