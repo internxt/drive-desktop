@@ -24,8 +24,8 @@ importers:
         specifier: 1.0.18
         version: 1.0.18
       '@internxt/scan':
-        specifier: 1.0.2
-        version: 1.0.2
+        specifier: 1.0.7
+        version: 1.0.7
       '@internxt/sdk':
         specifier: 1.9.12
         version: 1.9.12
@@ -1268,8 +1268,8 @@ packages:
     resolution: {integrity: sha512-IzZKCcnJOBX13rfJMC86BP4J4yJGUETlsx4eaBKG92hZxEN78GTfvS+Euqjqe4QO/xJ+2FA4nb31v2U6AUkxdg==, tarball: https://npm.pkg.github.com/download/@internxt/node-win/1.0.18/75e940a22824aa2aec33fb44aa7138acdbca5543}
     engines: {node: '>=20.0.0'}
 
-  '@internxt/scan@1.0.2':
-    resolution: {integrity: sha512-AZAPF+JywxfyEWJ9LPk+b3HHJG1c6fDq+x+YX5U5FKilfX43RgM6GdCME/RfuJPLuMy6B0r/W24NWIRs6sQUXQ==, tarball: https://npm.pkg.github.com/download/@internxt/scan/1.0.2/dc85bd75165ff50adfc8b9f607b233398898c60a}
+  '@internxt/scan@1.0.7':
+    resolution: {integrity: sha512-PDNnNbjR5D9YIgk7OxcdamREtkjcjiJuRLQuxboIalOsPoMxl0rlymW7qYfruPFOGjDwkCASoX8o1Jwd1jwqfw==, tarball: https://npm.pkg.github.com/download/@internxt/scan/1.0.7/332bd94bc242d783da480aae0510003880ef9560}
     engines: {node: '>=18.0.0'}
 
   '@internxt/sdk@1.9.12':
@@ -8226,7 +8226,7 @@ snapshots:
 
   '@internxt/node-win@1.0.18': {}
 
-  '@internxt/scan@1.0.2': {}
+  '@internxt/scan@1.0.7': {}
 
   '@internxt/sdk@1.9.12':
     dependencies:
