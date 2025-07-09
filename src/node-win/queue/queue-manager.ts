@@ -5,15 +5,10 @@ import { handleHydrate, Task } from '@/apps/sync-engine/callbacks/handle-hydrate
 import VirtualDrive from '../virtual-drive';
 import { z } from 'zod';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 const QueueSchema = z.array(
   z.object({
     path: z.string().transform((x) => x as RelativePath),
-    uuid: z
-      .string()
-      .uuid()
-      .transform((x) => x as FileUuid),
   }),
 );
 

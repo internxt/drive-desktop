@@ -20,9 +20,6 @@ export class DetectContextMenuActionService {
 
     const status = self.virtualDrive.getPlaceholderState({ path });
     const isInDevice = self.fileInDevice.has(absolutePath);
-    const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
-
-    if (!uuid) return;
 
     if (
       prev.size === curr.size &&
@@ -39,7 +36,7 @@ export class DetectContextMenuActionService {
         return 'Doble click en el archivo';
       }
 
-      self.queueManager.enqueue({ path, uuid });
+      self.queueManager.enqueue({ path });
       return;
     }
 
@@ -62,6 +59,9 @@ export class DetectContextMenuActionService {
     }
 
     if (prev.size !== curr.size) {
+      const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
+      if (!uuid) return;
+
       self.logger.debug({
         msg: 'Change size event',
         path,

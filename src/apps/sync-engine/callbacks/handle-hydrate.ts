@@ -1,11 +1,9 @@
 import VirtualDrive from '@/node-win/virtual-drive';
 import { logger } from '@/apps/shared/logger/logger';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export type Task = {
   path: RelativePath;
-  uuid: FileUuid;
 };
 
 type TProps = {

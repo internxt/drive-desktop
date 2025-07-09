@@ -38,7 +38,7 @@ describe('queue-manager', async () => {
 
     it('should load queue from file if exists', async () => {
       // Given
-      const queue = [{ path: 'path', uuid: v4() }];
+      const queue = [{ path: 'path' }];
       await writeFile(queuePath, JSON.stringify(queue));
 
       // When
@@ -50,7 +50,7 @@ describe('queue-manager', async () => {
 
     it('should not load queue if invalid', async () => {
       // Given
-      const queue = [{ path: 'path', uuid: 'uuid' }];
+      const queue = [{ path: 1 }];
       await writeFile(queuePath, JSON.stringify(queue));
 
       // When
