@@ -10,7 +10,6 @@ import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
 import { FileUuid } from './FileUuid';
-import * as crypt from '@/context/shared/infrastructure/crypt';
 
 export type FileAttributes = {
   id: number;
@@ -105,22 +104,6 @@ export class File {
       new Date(attributes.updatedAt),
       FileStatus.fromValue(attributes.status),
     );
-  }
-
-  static decryptName({
-    plainName,
-    name,
-    parentId,
-    type,
-  }: {
-    plainName?: string | null;
-    name: string;
-    parentId: number | null;
-    type: string | null;
-  }) {
-    const decryptedName = plainName || crypt.decryptName({ name, parentId });
-    if (type) return `${decryptedName}.${type}`;
-    return decryptedName;
   }
 
   changeContents(contentsId: FileContentsId, contentsSize: FileSize) {
