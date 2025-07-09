@@ -10,7 +10,7 @@ type TProps = {
 
 export function getFolderUuid({ drive, path, rootUuid }: TProps) {
   if (path === '/') {
-    return { data: rootUuid };
+    return { data: rootUuid as FolderUuid };
   }
 
   const identity = getFolderIdentity({ drive, path });
