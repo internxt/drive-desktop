@@ -23,8 +23,6 @@ export class RetryContentsUploader {
           retry,
         });
 
-        retry += 1;
-
         return await this.uploader.run(path);
       } catch (error) {
         if (error instanceof Error && error.message == 'Max space used') {
@@ -51,6 +49,7 @@ export class RetryContentsUploader {
       }
     }
 
+    retry += 1;
     throw logger.error({ msg: 'Max retries reached. Upload still failed', path });
   }
 

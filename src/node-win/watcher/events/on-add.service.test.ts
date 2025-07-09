@@ -5,7 +5,7 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
-import { FileUuid } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 // import { isFileMoved } from './is-file-moved';
 
 vi.mock(import('@/infra/node-win/node-win.module'));

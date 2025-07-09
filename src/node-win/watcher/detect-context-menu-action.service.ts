@@ -1,6 +1,5 @@
 import { Stats } from 'fs';
 
-import { typeQueue } from '@/node-win/queue/queueManager';
 import { PinState, SyncState } from '@/node-win/types/placeholder.type';
 
 import { Watcher } from './watcher';
@@ -20,10 +19,7 @@ export class DetectContextMenuActionService {
     const { prev, curr } = details;
 
     const status = self.virtualDrive.getPlaceholderState({ path });
-    const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
     const isInDevice = self.fileInDevice.has(absolutePath);
-
-    if (!uuid) return;
 
     if (
       prev.size === curr.size &&
@@ -40,8 +36,8 @@ export class DetectContextMenuActionService {
         return 'Doble click en el archivo';
       }
 
-      self.queueManager.enqueue({ path: absolutePath, type: typeQueue.hydrate, uuid });
-      return 'Mantener siempre en el dispositivo';
+      self.queueManager.enqueue({ path });
+      return;
     }
 
     if (
@@ -63,12 +59,16 @@ export class DetectContextMenuActionService {
     }
 
     if (prev.size !== curr.size) {
+      const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
+      if (!uuid) return;
+
       self.logger.debug({
         msg: 'Change size event',
         path,
         prevSize: prev.size,
         currSize: curr.size,
       });
+
       self.fileInDevice.add(absolutePath);
       await self.callbacks.updateContentsId({ absolutePath, path, uuid });
     }
