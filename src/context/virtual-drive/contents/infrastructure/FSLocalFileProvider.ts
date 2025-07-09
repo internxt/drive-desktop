@@ -38,6 +38,7 @@ export class FSLocalFileProvider {
               Logger.debug(
                 `File is busy, will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
               );
+
               setTimeout(async () => {
                 await attemptRead();
                 // TODO: perhaps, we should reject here when isResolved is false

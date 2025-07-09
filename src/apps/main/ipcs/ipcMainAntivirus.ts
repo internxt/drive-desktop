@@ -1,5 +1,5 @@
 import { ipcMain, shell } from 'electron';
-import { SelectedItemToScanProps } from '../antivirus/Antivirus';
+import { SelectedItemToScanProps } from '../antivirus/IAntivirusEngine';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { exec } from 'node:child_process';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
@@ -65,6 +65,7 @@ ipcMain.handle('antivirus:cancel-scan', async () => {
   const fileSystemMonitor = await getManualScanMonitorInstance();
   await fileSystemMonitor.stopScan();
 });
+
 ipcMain.handle('antivirus:scan-items', async (_, items?: SelectedItemToScanProps[]) => {
   const pathNames = items?.map((item) => item.path);
   const fileSystemMonitor = await getManualScanMonitorInstance();
