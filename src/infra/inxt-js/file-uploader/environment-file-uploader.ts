@@ -2,22 +2,22 @@ import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { Service } from 'diod';
 import { Environment } from '@internxt/inxt-js/build';
 import { logger } from '@/apps/shared/logger/logger';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { EnvironmentFileUploaderError, processError } from './process-error';
 import { Readable } from 'stream';
 import { FileUploaderCallbacks } from './file-uploader';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
 type TProps = {
-  path: AbsolutePath;
+  path: string;
   readable: Readable;
   size: number;
   abortSignal: AbortSignal;
   callbacks: FileUploaderCallbacks;
 };
 
-type TReturn = Promise<{ data: string; error?: undefined } | { data?: undefined; error: EnvironmentFileUploaderError }>;
+type TReturn = Promise<{ data: ContentsId; error?: undefined } | { data?: undefined; error: EnvironmentFileUploaderError }>;
 
 @Service()
 export class EnvironmentFileUploader {
@@ -50,7 +50,7 @@ export class EnvironmentFileUploader {
         finishedCallback: (err, contentsId) => {
           if (contentsId) {
             callbacks.onFinish();
-            return resolve({ data: contentsId });
+            return resolve({ data: contentsId as ContentsId });
           }
 
           return resolve({ error: processError({ path, err, callbacks }) });

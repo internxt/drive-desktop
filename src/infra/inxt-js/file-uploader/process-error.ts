@@ -1,6 +1,5 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { FileUploaderCallbacks } from './file-uploader';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export class EnvironmentFileUploaderError extends Error {
   constructor(
@@ -12,7 +11,7 @@ export class EnvironmentFileUploaderError extends Error {
 }
 
 type TProps = {
-  path: AbsolutePath;
+  path: string;
   err: Error | null;
   callbacks: FileUploaderCallbacks;
 };

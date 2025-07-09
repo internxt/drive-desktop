@@ -5,6 +5,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { EnvironmentFileUploaderError } from '@/infra/inxt-js/file-uploader/process-error';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('fs'));
 
@@ -25,7 +26,7 @@ describe('upload-file', () => {
 
   it('should return contentsId if upload is successful', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ data: 'contentsId' });
+    uploader.upload.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
     // When
     const res = await uploadFile(props);
     // Then
