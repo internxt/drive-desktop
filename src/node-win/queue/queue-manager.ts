@@ -42,6 +42,7 @@ export class QueueManager {
       const parsed = JSON.parse(data);
       this.queue = QueueSchema.parse(parsed);
     } catch (exc) {
+      this.saveQueue();
       logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Invalid queue',
