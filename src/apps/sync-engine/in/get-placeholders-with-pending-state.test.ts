@@ -3,7 +3,7 @@ import { readdir } from 'fs/promises';
 import { getPlaceholdersWithPendingState } from './get-placeholders-with-pending-state';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { GetFileIdentityError } from '@/infra/node-win/services/item-identity/get-file-identity';
-import { FileUuid } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('fs/promises'));
 vi.mock(import('@/infra/node-win/node-win.module'));

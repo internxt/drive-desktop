@@ -1,6 +1,7 @@
 import { Brand } from '@/context/shared/domain/Brand';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
+export type FileUuid = Brand<string, 'FileUuid'>;
 export type ContentsId = Brand<string, 'ContentsId'>;
 
 @Entity('drive_file')

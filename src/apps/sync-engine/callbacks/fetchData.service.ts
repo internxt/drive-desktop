@@ -3,8 +3,8 @@ import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import * as fs from 'fs';
 import { dirname } from 'path';
-import { trimPlaceholderId } from '../callbacks-controllers/controllers/placeholder-id';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type TProps = {
   self: BindingsManager;
@@ -19,14 +19,11 @@ export class FetchDataService {
 
       const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
-      const trimmedPlaceholderId = trimPlaceholderId({ placeholderId: filePlaceholderId });
-      const parsedPlaceholderId = trimmedPlaceholderId.split(':')[1];
-      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid: parsedPlaceholderId });
+      const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
+      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid });
 
       Logger.debug('[Fetch Data Callback] Preparing begins', path);
       Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
-
-      self.lastHydrated = file.path;
 
       try {
         let finished = false;
