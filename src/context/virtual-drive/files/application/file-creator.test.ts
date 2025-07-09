@@ -13,6 +13,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { GetFolderIdentityError } from '@/infra/node-win/services/item-identity/get-folder-identity';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
@@ -32,7 +33,7 @@ describe('File Creator', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    getFolderUuid.mockReturnValue({ data: folderParent.uuid });
+    getFolderUuid.mockReturnValue({ data: folderParent.uuid as FolderUuid });
   });
 
   it('should throw an error if placeholderId is not found', async () => {
