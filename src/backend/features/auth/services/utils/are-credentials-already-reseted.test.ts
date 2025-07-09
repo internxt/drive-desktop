@@ -1,34 +1,35 @@
 import { areCredentialsAlreadyReseted } from './are-credentials-already-reseted';
 import ConfigStore from '@/apps/main/config';
 import { defaults } from '@/core/electron/store/defaults';
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 vi.mock(import('@/apps/main/config'));
 describe('areCredentialsAlreadyReseted', () => {
-  const mockConfigStore = vi.mocked(ConfigStore);
+  const mockConfigStore = partialSpyOn(ConfigStore, 'get');
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it('should return true if credentials are already reset', () => {
-    mockConfigStore.get.mockImplementation((field) => (defaults as any)[field]);
+    mockConfigStore.mockImplementation((field) => defaults[field as keyof typeof defaults]);
 
     const result = areCredentialsAlreadyReseted();
 
     expect(result).toBe(true);
-    expect(mockConfigStore.get).toHaveBeenCalledWith('mnemonic');
-    expect(mockConfigStore.get).toHaveBeenCalledWith('userData');
-    expect(mockConfigStore.get).toHaveBeenCalledWith('bearerToken');
-    expect(mockConfigStore.get).toHaveBeenCalledWith('bearerTokenEncrypted');
-    expect(mockConfigStore.get).toHaveBeenCalledWith('newToken');
+    expect(mockConfigStore).toHaveBeenCalledWith('mnemonic');
+    expect(mockConfigStore).toHaveBeenCalledWith('userData');
+    expect(mockConfigStore).toHaveBeenCalledWith('bearerToken');
+    expect(mockConfigStore).toHaveBeenCalledWith('bearerTokenEncrypted');
+    expect(mockConfigStore).toHaveBeenCalledWith('newToken');
   });
 
   it('should return false if credentials are not reset', () => {
-    mockConfigStore.get.mockImplementation((field) => {
+    mockConfigStore.mockImplementation((field) => {
       if (field === 'bearerToken') {
         return 'some-token';
       }
-      return (defaults as any)[field];
+      return defaults[field as keyof typeof defaults];
     });
 
     const result = areCredentialsAlreadyReseted();
@@ -37,11 +38,11 @@ describe('areCredentialsAlreadyReseted', () => {
   });
 
   it('should handle object comparison correctly', () => {
-    mockConfigStore.get.mockImplementation((field) => {
+    mockConfigStore.mockImplementation((field) => {
       if (field === 'userData') {
         return { id: 1, name: 'user' };
       }
-      return (defaults as any)[field];
+      return defaults[field as keyof typeof defaults];
     });
 
     const result = areCredentialsAlreadyReseted();
@@ -50,11 +51,11 @@ describe('areCredentialsAlreadyReseted', () => {
   });
 
   it('should return true when object fields match defaults', () => {
-    mockConfigStore.get.mockImplementation((field) => {
+    mockConfigStore.mockImplementation((field) => {
       if (field === 'userData') {
         return {};
       }
-      return (defaults as any)[field];
+      return defaults[field as keyof typeof defaults];
     });
 
     const result = areCredentialsAlreadyReseted();

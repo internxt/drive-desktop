@@ -1,3 +1,4 @@
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as authServiceModule from '@/apps/main/auth/service';
 import * as configModule from '@/apps/main/config';
@@ -5,7 +6,7 @@ import { fieldsToSave } from '@/core/electron/store/fields-to-save';
 import { saveConfig } from './save-config';
 
 describe('saveConfig', () => {
-  const getUserMock = vi.spyOn(authServiceModule, 'getUser');
+  const getUserMock = partialSpyOn(authServiceModule, 'getUser');
   const configGetMock = vi.spyOn(configModule.default, 'get');
   const configSetMock = vi.spyOn(configModule.default, 'set');
 
@@ -24,7 +25,7 @@ describe('saveConfig', () => {
   });
 
   it('should return early when user has no uuid', () => {
-    getUserMock.mockReturnValue({ uuid: undefined } as any);
+    getUserMock.mockReturnValue({ uuid: undefined });
 
     const result = saveConfig();
 
@@ -34,7 +35,7 @@ describe('saveConfig', () => {
   });
 
   it('should save current config values for current user', () => {
-    getUserMock.mockReturnValue({ uuid: 'current-user-uuid' } as any);
+    getUserMock.mockReturnValue({ uuid: 'current-user-uuid' });
 
     const currentUserConfigs = {
       backupsEnabled: true,
@@ -70,7 +71,7 @@ describe('saveConfig', () => {
   });
 
   it('should create savedConfigs when none exist', () => {
-    getUserMock.mockReturnValue({ uuid: 'new-user-uuid' } as any);
+    getUserMock.mockReturnValue({ uuid: 'new-user-uuid' });
 
     const firstTimeUserConfigs = {
       backupsEnabled: false,
@@ -96,7 +97,7 @@ describe('saveConfig', () => {
   });
 
   it('should replace existing user config with updated values', () => {
-    getUserMock.mockReturnValue({ uuid: 'returning-user-uuid' } as any);
+    getUserMock.mockReturnValue({ uuid: 'returning-user-uuid' });
     const outdatedConfigs = {
       'returning-user-uuid': {
         backupsEnabled: false,
@@ -131,7 +132,7 @@ describe('saveConfig', () => {
   });
 
   it('should retrieve all fields specified in fieldsToSave constant', () => {
-    getUserMock.mockReturnValue({ uuid: 'validation-user-uuid' } as any);
+    getUserMock.mockReturnValue({ uuid: 'validation-user-uuid' });
     const allRequiredFields = [
       'backupsEnabled',
       'backupInterval',
