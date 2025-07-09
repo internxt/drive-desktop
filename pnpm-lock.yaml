@@ -18,8 +18,8 @@ importers:
         specifier: 2.1.2
         version: 2.1.2
       '@internxt/lib':
-        specifier: 1.1.6
-        version: 1.1.6
+        specifier: 1.3.1
+        version: 1.3.1
       '@internxt/node-win':
         specifier: 1.0.18
         version: 1.0.18
@@ -1261,8 +1261,8 @@ packages:
   '@internxt/inxt-js@2.1.2':
     resolution: {integrity: sha512-KhcY3NLV9Y2diwzrDsq/eFIA57ILFNX+7ARKF1gagkpCKHPFWOAacN5VtvQ0TDGXrdTru5v6ObhclHEV/enAVA==, tarball: https://npm.pkg.github.com/download/@internxt/inxt-js/2.1.2/9e6c3fa0aeabf812e231a7b4d62794f4c1373122}
 
-  '@internxt/lib@1.1.6':
-    resolution: {integrity: sha512-xpnSpDsWr+jemV2aI71B39LGfXnNCsyv2VKND0JAgrOeyHXjnChH+IHxGLq/8f73HT47mpkNXrK4nfpzH4OaaQ==, tarball: https://npm.pkg.github.com/download/@internxt/lib/1.1.6/ea931ba39aa0e715704400603beb8833c73c05e4}
+  '@internxt/lib@1.3.1':
+    resolution: {integrity: sha512-W0D7aIdH1wg9YNLmLw7iaZ0T0pvG7qtDKkKRZRKVU4zSMWH0Rc+q+ZMLpo5Agyqua07A0gQ3Y8i4M42cglV0bw==, tarball: https://npm.pkg.github.com/download/@internxt/lib/1.3.1/c330ee66e4963469691f448a1716a9f6266ec729}
 
   '@internxt/node-win@1.0.18':
     resolution: {integrity: sha512-IzZKCcnJOBX13rfJMC86BP4J4yJGUETlsx4eaBKG92hZxEN78GTfvS+Euqjqe4QO/xJ+2FA4nb31v2U6AUkxdg==, tarball: https://npm.pkg.github.com/download/@internxt/node-win/1.0.18/75e940a22824aa2aec33fb44aa7138acdbca5543}
@@ -8212,7 +8212,7 @@ snapshots:
 
   '@internxt/inxt-js@2.1.2':
     dependencies:
-      '@internxt/lib': 1.1.6
+      '@internxt/lib': 1.3.1
       '@internxt/sdk': 1.9.12
       async: 3.2.6
       axios: 0.23.0
@@ -8222,7 +8222,7 @@ snapshots:
     transitivePeerDependencies:
       - debug
 
-  '@internxt/lib@1.1.6': {}
+  '@internxt/lib@1.3.1': {}
 
   '@internxt/node-win@1.0.18': {}
 
