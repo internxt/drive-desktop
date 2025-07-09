@@ -2,12 +2,7 @@ import { areCredentialsAlreadyReseted } from './are-credentials-already-reseted'
 import ConfigStore from '@/apps/main/config';
 import { defaults } from '@/core/electron/store/defaults';
 
-vi.mock('@/apps/main/config', () => ({
-  default: {
-    get: vi.fn(),
-  },
-}));
-
+vi.mock(import('@/apps/main/config'));
 describe('areCredentialsAlreadyReseted', () => {
   const mockConfigStore = vi.mocked(ConfigStore);
 

@@ -28,7 +28,7 @@ export async function logout() {
 
   if (error?.code === 'UNKNOWN') {
     switch (true) {
-      case error.response?.status === 409:
+      case error.response?.status === 401:
         return { error: new DriveServerWipError('UNAUTHORIZED', error.cause) };
     }
   }

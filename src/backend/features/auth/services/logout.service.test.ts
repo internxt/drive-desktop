@@ -35,7 +35,7 @@ describe('logout service', () => {
   });
 
   it('should log an error if the logout request fails with non-unauthorized error', async () => {
-    const error = new DriveServerWipError('Logout failed', { code: 'LOGOUT_ERROR' });
+    const error = new DriveServerWipError('LOGOUT_ERROR', { cause: 'Logout failed' });
     logoutMock.mockResolvedValue({ error });
 
     await logout();
