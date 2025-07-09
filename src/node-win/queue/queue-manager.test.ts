@@ -4,7 +4,7 @@ import { QueueManager } from './queue-manager';
 import { join } from 'path';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
-import { mkdir, rm, unlink, writeFile } from 'fs/promises';
+import { mkdir, readFile, rm, unlink, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as handleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
@@ -55,10 +55,12 @@ describe('queue-manager', async () => {
 
       // When
       const service = new QueueManager(virtualDrive, queuePath);
+      const content = await readFile(queuePath, 'utf-8');
 
       // Then
       expect(service.queue).toEqual([]);
       expect(loggerMock.error).toBeCalledTimes(1);
+      expect(content).toEqual('[]');
     });
   });
 

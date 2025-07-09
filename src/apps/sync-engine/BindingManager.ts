@@ -178,7 +178,7 @@ export class BindingsManager {
     watcher.watchAndWait();
 
     await this.polling({ watcher });
-    await queueManager.processQueue();
+    void queueManager.processQueue();
   }
 
   stop() {
