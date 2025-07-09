@@ -1,9 +1,10 @@
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { logger } from '@/apps/shared/logger/logger';
-import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File';
+import { FileAttributes } from '@/context/virtual-drive/files/domain/File';
 import { FolderStore } from '../folders/folder-store';
 import { FileDto } from '@/infra/drive-server-wip/out/dto';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { fileDecryptName } from '@/context/virtual-drive/files/domain/file-decrypt-name';
 
 type TProps = {
   self: RemoteSyncManager;
@@ -16,10 +17,10 @@ export async function syncRemoteFile({ self, remoteFile }: TProps) {
 
     if (remoteFile.status === 'EXISTS' && self.worker.worker) {
       try {
-        const plainName = File.decryptName({
-          name: driveFile.name,
+        const { nameWithExtension } = fileDecryptName({
+          encryptedName: driveFile.name,
           parentId: driveFile.folderId,
-          type: driveFile.type,
+          extension: driveFile.type,
           plainName: driveFile.plainName,
         });
 
@@ -27,7 +28,7 @@ export async function syncRemoteFile({ self, remoteFile }: TProps) {
           workspaceId: self.workspaceId,
           parentId: driveFile.folderId,
           parentUuid: driveFile.folderUuid ?? null,
-          plainName,
+          plainName: nameWithExtension,
         });
 
         const fileAttributes: FileAttributes = {

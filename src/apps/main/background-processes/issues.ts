@@ -34,7 +34,7 @@ export type Issue = SyncIssue | BackupsIssue | GeneralIssue;
 export let issues: Issue[] = [];
 
 function onIssuesChanged() {
-  eventBus.emit('BROADCAST_TO_WINDOWS', 'issues-changed', issues);
+  eventBus.emit('BROADCAST_TO_WINDOWS', { name: 'issues-changed', data: issues });
 }
 
 function addIssue(issue: Issue) {

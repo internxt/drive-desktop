@@ -5,8 +5,8 @@ import { Environment } from '@internxt/inxt-js/build';
 import { getConfig } from '@/apps/sync-engine/config';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { BackupInfo } from '../../BackupInfo';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/services/environment-file-uploader';
 import { logger } from '@/apps/shared/logger/logger';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 export function registerLocalFileServices(builder: ContainerBuilder, data: BackupInfo) {
   //Infra

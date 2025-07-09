@@ -3,11 +3,12 @@ import { FolderCreator } from '../../../../context/virtual-drive/folders/applica
 import { logger } from '@/apps/shared/logger/logger';
 import { createFolder } from '@/features/sync/add-item/create-folder';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from '@/features/sync/add-item/create-file';
 import { createFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 
 type TProps = {
+  absolutePath: AbsolutePath;
   path: RelativePath;
   virtualDrive: VirtualDrive;
   isFolder: boolean;
@@ -24,7 +25,7 @@ export class AddController {
     private readonly folderCreator: FolderCreator,
   ) {}
 
-  async execute({ path, virtualDrive, isFolder }: TProps) {
+  async execute({ absolutePath, path, virtualDrive, isFolder }: TProps) {
     if (isFolder) {
       try {
         await createFolder({
@@ -41,7 +42,13 @@ export class AddController {
       }
     } else {
       try {
-        const uuid = await createFile({ path, folderCreator: this.folderCreator, fileCreationOrchestrator: this.fileCreationOrchestrator });
+        const uuid = await createFile({
+          absolutePath,
+          path,
+          folderCreator: this.folderCreator,
+          fileCreationOrchestrator: this.fileCreationOrchestrator,
+        });
+
         const placeholderId = createFilePlaceholderId(uuid);
         virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
         virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });

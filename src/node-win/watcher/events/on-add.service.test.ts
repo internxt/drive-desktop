@@ -5,6 +5,7 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 // import { isFileMoved } from './is-file-moved';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
@@ -32,7 +33,7 @@ describe('on-add', () => {
         fileInDevice: new Set(),
         logger: loggerMock,
         callbacks: { addController: { execute: vi.fn() } },
-        virtualDrive: { syncRootPath: 'C:\\Users\\user' },
+        virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },
       },
     });
   });
@@ -89,7 +90,7 @@ describe('on-add', () => {
 
   it('should call isFileMoved if the file is moved', async () => {
     // Given
-    getFileUuidMock.mockReturnValueOnce({ data: 'parentUuid' });
+    getFileUuidMock.mockReturnValueOnce({ data: 'uuid' as FileUuid });
 
     // When
     await onAdd(props);
@@ -105,7 +106,7 @@ describe('on-add', () => {
 
   it('should not do anything if the file is added from remote', async () => {
     // Given
-    getFileUuidMock.mockReturnValueOnce({ data: 'parentUuid' });
+    getFileUuidMock.mockReturnValueOnce({ data: 'uuid' as FileUuid });
     props.stats.birthtime = date1;
     props.stats.mtime = date1;
 

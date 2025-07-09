@@ -6,20 +6,19 @@ import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
-import { HandleHydrateService } from './callbacks/handleHydrate.service';
-import { HandleDehydrateService } from './callbacks/handleDehydrate.service';
-import { HandleChangeSizeService } from './callbacks/handleChangeSize.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
-import { QueueItem } from '@/node-win/queue/queueManager';
-import { QueueManager } from '@/node-win/queue/queue-manager';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
 import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
+import { addPendingFiles } from './in/add-pending-files';
+import { createWatcher } from './create-watcher';
+import { Watcher } from '@/node-win/watcher/watcher';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -27,15 +26,11 @@ export class BindingsManager {
   progressBuffer = 0;
   controllers: IControllers;
 
-  lastHydrated = '';
   private lastMoved = '';
 
   constructor(
     public readonly container: DependencyContainer,
     private readonly fetchData = new FetchDataService(),
-    private readonly handleHydrate = new HandleHydrateService(),
-    private readonly handleDehydrate = new HandleDehydrateService(),
-    private readonly handleChangeSize = new HandleChangeSizeService(),
   ) {
     logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
 
@@ -107,7 +102,6 @@ export class BindingsManager {
           self: this,
           filePlaceholderId,
           callback,
-          ipcRendererSyncEngine,
         }),
       validateDataCallback: () => {
         Logger.debug('validateDataCallback');
@@ -162,29 +156,29 @@ export class BindingsManager {
      * and we have some placeholders pending from being created/updated/deleted
      */
     await this.update(tree);
-    await this.polling();
   }
 
   async watch() {
-    const callbacks = {
-      handleHydrate: (task: QueueItem) => this.handleHydrate.run({ self: this, task, drive: this.container.virtualDrive }),
-      handleDehydrate: (task: QueueItem) => Promise.resolve(this.handleDehydrate.run({ task, drive: this.container.virtualDrive })),
-      handleChangeSize: (task: QueueItem) => this.handleChangeSize.run({ self: this, task }),
-    };
-
-    const queueManager = new QueueManager({
-      handlers: callbacks,
-      persistPath: getConfig().queueManagerPath,
-    });
-
-    this.container.virtualDrive.watchAndWait({
-      queueManager,
-      callbacks: {
+    const { queueManager, watcher } = createWatcher({
+      virtulDrive: this.container.virtualDrive,
+      watcherCallbacks: {
         addController: this.controllers.addFile,
+        updateContentsId: async ({ absolutePath, path, uuid }) =>
+          await updateContentsId({
+            virtualDrive: this.container.virtualDrive,
+            absolutePath,
+            path,
+            uuid,
+            fileContentsUploader: this.container.contentsUploader,
+            repository: this.container.fileRepository,
+          }),
       },
     });
 
-    await queueManager.processAll();
+    watcher.watchAndWait();
+
+    await this.polling({ watcher });
+    void queueManager.processQueue();
   }
 
   stop() {
@@ -199,7 +193,15 @@ export class BindingsManager {
   }
 
   async update(tree: Tree) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Updating placeholders' });
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Updating placeholders',
+      files: tree.files.length,
+      folders: tree.folders.length,
+      trashedFiles: tree.trashedFiles.length,
+      trashedFolders: tree.trashedFolders.length,
+    });
+
     await Promise.all([
       this.container.filesPlaceholderDeleter.run(tree.trashedFiles),
       this.container.folderPlaceholderDeleter.run(tree.trashedFolders),
@@ -208,18 +210,30 @@ export class BindingsManager {
     ]);
   }
 
-  async polling(): Promise<void> {
+  async polling({ watcher }: { watcher: Watcher }): Promise<void> {
     const workspaceId = getConfig().workspaceId;
-    logger.debug({ msg: '[SYNC ENGINE] Polling', workspaceId });
+
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Polling',
+      workspaceId,
+    });
 
     try {
-      const fileInPendingPaths = await getPlaceholdersWithPendingState({
+      const absolutePaths = await getPlaceholdersWithPendingState({
         virtualDrive: this.container.virtualDrive,
         path: this.container.virtualDrive.syncRootPath,
       });
-      logger.debug({ msg: 'Files in pending paths', workspaceId, total: fileInPendingPaths.length });
 
-      await this.container.fileSyncOrchestrator.run(fileInPendingPaths);
+      logger.debug({
+        tag: 'SYNC-ENGINE',
+        msg: 'Files in pending paths',
+        workspaceId,
+        total: absolutePaths.length,
+      });
+
+      await addPendingFiles({ absolutePaths, watcher });
+
       await this.container.fileDangledManager.run();
     } catch (error) {
       logger.error({ msg: '[SYNC ENGINE] Polling', workspaceId, error });
@@ -241,28 +255,8 @@ export class BindingsManager {
     try {
       const tree = await this.container.traverser.run();
       await this.update(tree);
-      await this.polling();
 
-      const placeholders = await getPlaceholdersWithPendingState({
-        virtualDrive: this.container.virtualDrive,
-        path: this.container.virtualDrive.syncRootPath,
-      });
-
-      logger.debug({
-        msg: 'Update and check placeholders',
-        workspaceId,
-        total: placeholders.length,
-        placeholders,
-        attributes: {
-          tag: 'SYNC-ENGINE',
-        },
-      });
-
-      if (placeholders.length === 0) {
-        ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
-      } else {
-        ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNC_PENDING');
-      }
+      ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
     } catch {
       ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNC_FAILED');
     }

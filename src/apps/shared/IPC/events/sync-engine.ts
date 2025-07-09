@@ -2,38 +2,32 @@ import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
-import type { FileErrorInfo } from './drive';
 
-type ProcessInfo = {
-  elapsedTime: number;
-  progress?: number;
+type FileInfo = {
+  nameWithExtension: string;
 };
 
 type FileUpdatePayload = {
-  name: string;
-  extension: string;
   nameWithExtension: string;
-  size: number;
-  processInfo: ProcessInfo;
+  progress: number;
 };
 
 type FilesEvents = {
   FILE_UPLOADING: (payload: FileUpdatePayload) => void;
-  FILE_UPLOADED: (payload: FileUpdatePayload) => void;
-  FILE_UPLOAD_ERROR: (payload: FileErrorInfo) => void;
+  FILE_UPLOADED: (payload: FileInfo) => void;
+  FILE_UPLOAD_ERROR: (payload: FileInfo) => void;
 
   FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
-  FILE_DOWNLOADED: (payload: FileUpdatePayload) => void;
-  FILE_DOWNLOAD_CANCEL: (payload: Partial<FileUpdatePayload>) => void;
-  FILE_DOWNLOAD_ERROR: (payload: FileErrorInfo) => void;
+  FILE_DOWNLOADED: (payload: FileInfo) => void;
+  FILE_DOWNLOAD_CANCEL: (payload: FileInfo) => void;
+  FILE_DOWNLOAD_ERROR: (payload: FileInfo) => void;
 
-  FILE_DELETING: (payload: { name: string; extension: string; nameWithExtension: string; size: number }) => void;
-  FILE_DELETED: (payload: { name: string; extension: string; nameWithExtension: string; size: number }) => void;
-  FILE_DELETION_ERROR: (payload: FileErrorInfo) => void;
+  FILE_DELETED: (payload: FileInfo) => void;
+  FILE_DELETION_ERROR: (payload: FileInfo) => void;
 
-  FILE_RENAMING: (payload: { nameWithExtension: string; oldName: string }) => void;
-  FILE_RENAMED: (payload: { nameWithExtension: string; oldName: string }) => void;
-  FILE_RENAME_ERROR: (payload: FileErrorInfo) => void;
+  FILE_RENAMING: (payload: FileInfo) => void;
+  FILE_RENAMED: (payload: FileInfo) => void;
+  FILE_RENAME_ERROR: (payload: FileInfo) => void;
 
   FILE_CREATED: (payload: {
     bucket: string;
@@ -43,9 +37,6 @@ type FilesEvents = {
     fileId: number;
     path: string;
   }) => void;
-  FILE_OVERWRITTEN: (payload: { nameWithExtension: string }) => void;
-  FILE_CLONED: (payload: FileUpdatePayload) => void;
-  FILE_MOVED: (payload: { nameWithExtension: string; folderName: string }) => void;
 };
 
 type SyncEngineInvocableFunctions = {
@@ -63,7 +54,4 @@ type ProcessInfoUpdate = {
 };
 
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
-
-export type FromMain = {
-  [key: string]: (...args: Array<unknown>) => unknown;
-};
+export type FromMain = {};

@@ -1,6 +1,5 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
-import { LocalFileWriter } from '@/context/virtual-drive/contents/domain/LocalFileWriter';
 import { EventEmitter, Readable } from 'stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import {
@@ -8,13 +7,14 @@ import {
   FileDownloadEvents,
 } from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
 import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMother';
+import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 
 describe('Contents Downloader', () => {
   const temporalFolderProvider = (): Promise<string> => {
     return Promise.resolve('C:/temp');
   };
 
-  const localWriter = mockDeep<LocalFileWriter>();
+  const localWriter = mockDeep<FSLocalFileWriter>();
   const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
 
   const environmentContentFileDownloader = mockDeep<EnvironmentContentFileDownloader>();

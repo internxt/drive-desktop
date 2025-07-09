@@ -3,11 +3,10 @@ import path, { join, posix, win32 } from 'path';
 
 import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
 import { TLogger } from './logger';
-import { QueueManager } from './queue/queue-manager';
 import { Callbacks } from './types/callbacks.type';
-import { TWatcherCallbacks, Watcher } from './watcher/watcher';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 const PLACEHOLDER_ATTRIBUTES = {
   FILE_ATTRIBUTE_READONLY: 0x1,
@@ -17,11 +16,9 @@ const PLACEHOLDER_ATTRIBUTES = {
 };
 
 export class VirtualDrive {
-  syncRootPath: string;
+  syncRootPath: AbsolutePath;
   providerId: string;
-  watcher = new Watcher();
   logger: TLogger;
-
   addon: Addon;
 
   constructor({
@@ -36,7 +33,7 @@ export class VirtualDrive {
     logger: TLogger;
   }) {
     this.addon = DependencyInjectionAddonProvider.get();
-    this.syncRootPath = this.convertToWindowsPath({ path: syncRootPath });
+    this.syncRootPath = this.convertToWindowsPath({ path: syncRootPath }) as AbsolutePath;
     loggerPath = this.convertToWindowsPath({ path: loggerPath });
     this.providerId = providerId;
 
@@ -197,28 +194,6 @@ export class VirtualDrive {
 
   static unRegisterSyncRootByProviderId({ providerId }: { providerId: string }) {
     return DependencyInjectionAddonProvider.get().unregisterSyncRoot({ providerId });
-  }
-
-  watchAndWait({ queueManager, callbacks }: { queueManager: QueueManager; callbacks: TWatcherCallbacks }): void {
-    this.watcher.virtualDrive = this;
-    this.watcher.queueManager = queueManager;
-    this.watcher.logger = this.logger;
-    this.watcher.syncRootPath = this.syncRootPath;
-    this.watcher.callbacks = callbacks;
-    this.watcher.options = {
-      ignored: /(^|[/\\])\../,
-      persistent: true,
-      ignoreInitial: true,
-      followSymlinks: true,
-      depth: undefined,
-      awaitWriteFinish: {
-        stabilityThreshold: 2000,
-        pollInterval: 100,
-      },
-      usePolling: true,
-    };
-
-    this.watcher.watchAndWait();
   }
 
   createFileByPath({

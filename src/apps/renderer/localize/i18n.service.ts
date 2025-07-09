@@ -22,7 +22,7 @@ const languageDetection = (callback: (lang: Language | undefined) => void) => {
 
     const language = preferedLanguageAvailable || DEFAULT_LANGUAGE;
 
-    window.electron.setConfigKey('preferedLanguage', language);
+    window.electron.setConfigKey({ key: 'preferedLanguage', value: language });
 
     dayjs.locale(DayJsLocales[language]);
     callback(language);
