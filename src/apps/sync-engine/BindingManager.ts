@@ -4,7 +4,6 @@ import { IControllers, buildControllers } from './callbacks-controllers/buildCon
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
-import { isTemporaryFile } from '../utils/isTemporalFile';
 import { FetchDataService } from './callbacks/fetchData.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
@@ -14,7 +13,6 @@ import { Callbacks } from '@/node-win/types/callbacks.type';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
 import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
-import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
 import { addPendingFiles } from './in/add-pending-files';
 import { createWatcher } from './create-watcher';
@@ -63,39 +61,6 @@ export class BindingsManager {
       },
       notifyDeleteCompletionCallback: () => {
         Logger.info('Deletion completed');
-      },
-      notifyRenameCallback: async (
-        absolutePath: string,
-        placeholderId: FilePlaceholderId | FolderPlaceholderId,
-        callback: (response: boolean) => void,
-      ) => {
-        try {
-          Logger.debug('Path received from rename callback', absolutePath);
-
-          if (this.lastMoved === absolutePath) {
-            Logger.debug('Same file moved');
-            this.lastMoved = '';
-            callback(true);
-            return;
-          }
-
-          const isTempFile = isTemporaryFile(absolutePath);
-
-          Logger.debug('[isTemporaryFile]', isTempFile);
-
-          if (isTempFile && !placeholderId.startsWith('FOLDER')) {
-            Logger.debug('File is temporary, skipping');
-            callback(true);
-            return;
-          }
-
-          const fn = this.controllers.renameOrMove.execute.bind(this.controllers.renameOrMove);
-          await fn(absolutePath, placeholderId, callback);
-          Logger.debug('Finish Rename', absolutePath);
-          this.lastMoved = absolutePath;
-        } catch (error) {
-          Logger.error('Error during rename or move operation', error);
-        }
       },
       fetchDataCallback: (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({

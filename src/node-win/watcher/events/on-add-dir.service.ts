@@ -4,7 +4,7 @@ import { Watcher } from '../watcher';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { getConfig } from '@/apps/sync-engine/config';
-// import { isFolderMoved } from './is-folder-moved';
+import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
 
 type TProps = {
   self: Watcher;
@@ -44,7 +44,7 @@ export async function onAddDir({ self, absolutePath, stats }: TProps) {
     if (creationTime === modificationTime) {
       /* Folder added from remote */
     } else {
-      // await isFolderMoved({ self, path, uuid });
+      await moveFolder({ self, path, uuid });
     }
   } catch (error) {
     self.logger.error({ msg: 'Error en onAddDir', error });
