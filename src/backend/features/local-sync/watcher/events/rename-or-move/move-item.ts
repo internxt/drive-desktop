@@ -30,6 +30,12 @@ export async function moveItem({ self, path, uuid, item, type }: TProps) {
 
   const name = basename(path);
   const isRenamed = oldName !== name;
+  /**
+   * v2.5.6 Daniel Jiménez
+   * We need to take into account that oldParentUuid can be undefined because
+   * for old items it has not been migrated yet in drive-server-wip. In this case
+   * we are going to mark it also as moved and we will help to the migration.
+   */
   const isMoved = oldParentUuid !== parentUuid;
 
   if (isRenamed) {
