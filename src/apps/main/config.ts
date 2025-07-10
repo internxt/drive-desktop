@@ -1,6 +1,43 @@
 import Store, { Schema } from 'electron-store';
-import { AppStore } from '@/core/electron/store/app-store.interface';
-import { defaults } from '@/core/electron/store/defaults';
+import * as uuid from 'uuid';
+
+import { User } from './types';
+
+// Fields to persist between user sessions
+export const fieldsToSave = [
+  'backupsEnabled',
+  'backupInterval',
+  'lastBackup',
+  'syncRoot',
+  'lastSync',
+  'deviceId',
+  'deviceUuid',
+  'backupList',
+] as const;
+
+export interface AppStore {
+  bearerToken: string;
+  bearerTokenEncrypted: boolean;
+  newToken: string;
+  newTokenEncrypted: boolean;
+  userData: User;
+  mnemonic: string;
+  backupsEnabled: boolean;
+  backupInterval: number;
+  lastBackup: number;
+  syncRoot: string;
+  lastSync: number;
+  savedConfigs: Record<string, Pick<AppStore, (typeof fieldsToSave)[number]>>;
+  lastOnboardingShown: string;
+  deviceId: number;
+  deviceUuid: string;
+  backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
+  clientId: string;
+  preferedLanguage?: string;
+  preferedTheme?: string;
+  virtualdriveWindowsLetter: string;
+  dataIntegrityMaintenance?: boolean;
+}
 
 const schema: Schema<AppStore> = {
   bearerToken: {
@@ -67,6 +104,30 @@ const schema: Schema<AppStore> = {
     type: 'boolean',
   },
 } as const;
+
+export const defaults: AppStore = {
+  bearerToken: '',
+  bearerTokenEncrypted: false,
+  newToken: '',
+  newTokenEncrypted: false,
+  userData: {} as User,
+  mnemonic: '',
+  backupsEnabled: false,
+  backupInterval: 86_400_000, // 24h
+  lastBackup: -1,
+  syncRoot: '',
+  lastSync: -1,
+  savedConfigs: {},
+  lastOnboardingShown: '',
+  deviceId: -1,
+  deviceUuid: '',
+  backupList: {},
+  clientId: uuid.v4(),
+  preferedLanguage: '',
+  preferedTheme: 'system',
+  virtualdriveWindowsLetter: 'I',
+  dataIntegrityMaintenance: false,
+};
 
 const configStore = new Store({ schema, defaults });
 
