@@ -4,7 +4,7 @@ import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { IAntivirusEngine } from './IAntivirusEngine';
-import { getAntivirusManager } from './AntivirusManager';
+import { getAntivirusManager } from './antivirus-manager';
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './utils/dbConections';

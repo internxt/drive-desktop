@@ -1,5 +1,5 @@
 import { getUserSystemPath } from '../device/service';
-import { getAntivirusManager } from './AntivirusManager';
+import { getAntivirusManager } from './antivirus-manager';
 import { queue } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';

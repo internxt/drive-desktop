@@ -1,5 +1,5 @@
-import { AntivirusClamAV } from './AntivirusClamAV';
-import { AntivirusWindowsDefender } from './AntivirusWindowsDefender';
+import { AntivirusClamAV } from './antivirus-clam-av';
+import { AntivirusWindowsDefender } from './antivirus-windows-defender';
 import { IAntivirusEngine } from './IAntivirusEngine';
 import { isWindowsDefenderRealTimeProtectionActive } from '../ipcs/ipcMainAntivirus';
 import { initializeClamAV, clearAntivirus } from './utils/initializeAntivirus';
@@ -49,7 +49,7 @@ class AntivirusManager {
 
     // Fallback: ClamAV
     if (!(await checkClamdAvailability())) await initializeClamAV();
-    sleep(5000); // Wait for ClamAV initialization
+    await sleep(5000); // Wait for ClamAV initialization
     if (await checkClamdAvailability()) {
       logger.info({
         tag: 'ANTIVIRUS',
