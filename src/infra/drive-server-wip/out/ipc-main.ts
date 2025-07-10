@@ -21,7 +21,7 @@ export function setupIpcDriveServerWip() {
   void ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', async (_, props) => {
     const res = await driveServerWip.storage.deleteFolderByUuid(props);
 
-    if (res.error) {
+    if (!res.error) {
       await SqliteModule.FolderModule.updateByUuid({ uuid: props.uuid, payload: { status: 'TRASHED' } });
     }
 
