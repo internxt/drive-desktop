@@ -3,6 +3,16 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 export type FileUuid = Brand<string, 'FileUuid'>;
 export type ContentsId = Brand<string, 'ContentsId'>;
+export type SimpleDriveFile = {
+  name: string;
+  nameWithExtension: string;
+  extension: string;
+  parentUuid: string | undefined;
+  contentsId: string;
+  size: number;
+  createdAt: string;
+  updatedAt: string;
+};
 
 @Entity('drive_file')
 export class DriveFile {
@@ -12,11 +22,7 @@ export class DriveFile {
   @Column({ nullable: false, type: 'int' })
   id!: number;
 
-  @PrimaryColumn({
-    nullable: false,
-    unique: true,
-    type: 'varchar',
-  })
+  @PrimaryColumn({ nullable: false, unique: true, type: 'varchar' })
   uuid!: string;
 
   @Column({ nullable: true, default: '', type: 'varchar' })
