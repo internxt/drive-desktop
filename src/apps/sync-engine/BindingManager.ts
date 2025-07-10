@@ -24,8 +24,6 @@ export class BindingsManager {
   progressBuffer = 0;
   controllers: IControllers;
 
-  private lastMoved = '';
-
   constructor(
     public readonly container: DependencyContainer,
     private readonly fetchData = new FetchDataService(),
