@@ -2,7 +2,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { repository } from '../drive-file';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 
-export class UpdateByError extends Error {
+class UpdateByError extends Error {
   constructor(
     public readonly code: 'UNKNOWN' | 'NOT_FOUND',
     cause?: unknown,

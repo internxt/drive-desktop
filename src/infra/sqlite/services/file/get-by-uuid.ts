@@ -3,7 +3,7 @@ import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { fileDecryptName } from '@/context/virtual-drive/files/domain/file-decrypt-name';
 
-export class GetByError extends Error {
+class GetByError extends Error {
   constructor(
     public readonly code: 'UNKNOWN' | 'NOT_FOUND',
     cause?: unknown,
