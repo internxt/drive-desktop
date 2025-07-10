@@ -25,8 +25,11 @@ describe('move-folder', () => {
     // Then
     expect(moveItemMock).toBeCalledWith(
       expect.objectContaining({
-        oldName: 'plainName',
-        oldParentUuid: 'folderUuid',
+        type: 'folder',
+        item: {
+          oldName: 'plainName',
+          oldParentUuid: 'folderUuid',
+        },
       }),
     );
   });
@@ -39,8 +42,8 @@ describe('move-folder', () => {
     // Then
     expect(moveItemMock).toBeCalledWith(
       expect.objectContaining({
-        oldName: undefined,
-        oldParentUuid: undefined,
+        type: 'folder',
+        item: undefined,
       }),
     );
   });

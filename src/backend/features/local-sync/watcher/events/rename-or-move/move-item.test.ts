@@ -11,15 +11,17 @@ describe('move-item', () => {
   const getParentUuidMock = partialSpyOn(getParentUuid, 'getParentUuid');
   const invokeMock = vi.spyOn(ipcRendererDriveServerWip, 'invoke');
 
+  const existingItem = {
+    oldName: 'oldName.exe',
+    oldParentUuid: 'oldParentUuid' as FolderUuid,
+  };
+
   let props: Parameters<typeof moveItem>[0];
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    getParentUuidMock.mockReturnValue('newParentUuid' as FolderUuid);
-
     props = mockProps<typeof moveItem>({
-      oldParentUuid: 'oldParentUuid',
       self: {
         virtualDrive: { updateSyncStatus: vi.fn() },
         logger: loggerMock,
@@ -27,11 +29,20 @@ describe('move-item', () => {
     });
   });
 
+  it('should not do anything if cannot find parent uuid', async () => {
+    // Given
+    getParentUuidMock.mockReturnValue(undefined);
+    // When
+    await moveItem(props);
+    // Then
+    expect(invokeMock).toBeCalledTimes(0);
+    expect(props.self.virtualDrive.updateSyncStatus).toBeCalledTimes(0);
+  });
+
   it('should not do anything if not renamed or moved', async () => {
     // Given
-    getParentUuidMock.mockReturnValue('oldParentUuid' as FolderUuid);
     props.path = createRelativePath('folder', 'oldName.exe');
-    props.oldName = 'oldName.exe';
+    getParentUuidMock.mockReturnValue({ parentUuid: 'oldParentUuid' as FolderUuid, existingItem });
     // When
     await moveItem(props);
     // Then
@@ -42,14 +53,13 @@ describe('move-item', () => {
   describe('file', () => {
     beforeEach(() => {
       props.uuid = 'uuid' as FileUuid;
-      props.oldName = 'oldName.exe';
       props.type = 'file';
     });
 
     it('should rename if it is renamed', async () => {
       // Given
-      getParentUuidMock.mockReturnValue('oldParentUuid' as FolderUuid);
       props.path = createRelativePath('folder', 'newName.exe');
+      getParentUuidMock.mockReturnValue({ parentUuid: 'oldParentUuid' as FolderUuid, existingItem });
       // When
       await moveItem(props);
       // Then
@@ -59,8 +69,8 @@ describe('move-item', () => {
 
     it('should move if it is moved', async () => {
       // Given
-      getParentUuidMock.mockReturnValue('newParentUuid' as FolderUuid);
       props.path = createRelativePath('folder', 'oldName.exe');
+      getParentUuidMock.mockReturnValue({ parentUuid: 'newParentUuid' as FolderUuid, existingItem });
       // When
       await moveItem(props);
       // Then
@@ -72,13 +82,12 @@ describe('move-item', () => {
   describe('folder', () => {
     beforeEach(() => {
       props.uuid = 'uuid' as FolderUuid;
-      props.oldName = 'oldName';
       props.type = 'folder';
     });
 
     it('should rename if it is renamed', async () => {
       // Given
-      getParentUuidMock.mockReturnValue('oldParentUuid' as FolderUuid);
+      getParentUuidMock.mockReturnValue({ parentUuid: 'oldParentUuid' as FolderUuid, existingItem });
       props.path = createRelativePath('folder', 'newName');
       // When
       await moveItem(props);
@@ -89,7 +98,7 @@ describe('move-item', () => {
 
     it('should move if it is moved', async () => {
       // Given
-      getParentUuidMock.mockReturnValue('newParentUuid' as FolderUuid);
+      getParentUuidMock.mockReturnValue({ parentUuid: 'newParentUuid' as FolderUuid, existingItem });
       props.path = createRelativePath('folder', 'oldName.exe');
       // When
       await moveItem(props);

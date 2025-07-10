@@ -10,16 +10,23 @@ type TProps = {
   self: Watcher;
   path: RelativePath;
   uuid: FileUuid | FolderUuid;
-  oldName?: string;
-  oldParentUuid?: string;
   type: 'file' | 'folder';
+  item?: {
+    oldName: string;
+    oldParentUuid: string | undefined;
+  };
 };
 
-export async function moveItem({ self, path, uuid, oldName, oldParentUuid, type }: TProps) {
+export async function moveItem({ self, path, uuid, item, type }: TProps) {
   const props = { path, type, uuid };
 
-  const parentUuid = getParentUuid({ self, path, props, oldName, oldParentUuid });
-  if (!parentUuid) return;
+  const res = getParentUuid({ self, path, props, item });
+  if (!res) return;
+
+  const {
+    parentUuid,
+    existingItem: { oldName, oldParentUuid },
+  } = res;
 
   const name = basename(path);
   const isRenamed = oldName !== name;

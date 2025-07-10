@@ -27,9 +27,11 @@ describe('move-file', () => {
     // Then
     expect(moveItemMock).toBeCalledWith(
       expect.objectContaining({
-        oldName: 'plainName.exe',
-        oldParentUuid: 'folderUuid',
         type: 'file',
+        item: {
+          oldName: 'plainName.exe',
+          oldParentUuid: 'folderUuid',
+        },
       }),
     );
   });
@@ -42,9 +44,8 @@ describe('move-file', () => {
     // Then
     expect(moveItemMock).toBeCalledWith(
       expect.objectContaining({
-        oldName: undefined,
-        oldParentUuid: undefined,
         type: 'file',
+        item: undefined,
       }),
     );
   });

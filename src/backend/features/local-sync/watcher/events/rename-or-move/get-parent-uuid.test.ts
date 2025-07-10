@@ -19,24 +19,16 @@ describe('get-parent-uuid', () => {
     props = mockProps<typeof getParentUuid>({
       self: { logger: loggerMock },
       path: createRelativePath('folder', 'file.txt'),
-      oldName: 'oldName.exe',
-      oldParentUuid: 'oldParentUuid',
+      item: {
+        oldName: 'oldName.exe',
+        oldParentUuid: 'oldParentUuid',
+      },
     });
   });
 
-  it('should log error and return if oldName is undefined', () => {
+  it('should log error and return if item is undefined', () => {
     // Given
-    props.oldName = undefined;
-    // When
-    const parentUuid = getParentUuid(props);
-    // Then
-    expect(parentUuid).toBeUndefined();
-    expect(loggerMock.error).toBeCalledTimes(1);
-  });
-
-  it('should log error and return if oldParentUuid is undefined', () => {
-    // Given
-    props.oldParentUuid = undefined;
+    props.item = undefined;
     // When
     const parentUuid = getParentUuid(props);
     // Then
