@@ -22,11 +22,7 @@ export class DriveFile {
   @Column({ nullable: false, type: 'int' })
   id!: number;
 
-  @PrimaryColumn({
-    nullable: false,
-    unique: true,
-    type: 'varchar',
-  })
+  @PrimaryColumn({ nullable: false, unique: true, type: 'varchar' })
   uuid!: string;
 
   @Column({ nullable: true, default: '', type: 'varchar' })

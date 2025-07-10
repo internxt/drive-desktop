@@ -1,9 +1,9 @@
-import { repository } from '../drive-file';
+import { fileRepository } from '../drive-file';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { updateByUuid } from './update-by-uuid';
 
 describe('update-by-uuid', () => {
-  const updateSpy = partialSpyOn(repository, 'update');
+  const updateSpy = partialSpyOn(fileRepository, 'update');
 
   const props = mockProps<typeof updateByUuid>({});
 

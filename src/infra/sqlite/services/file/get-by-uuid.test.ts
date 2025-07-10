@@ -1,10 +1,10 @@
 import * as fileDecryptName from '@/context/virtual-drive/files/domain/file-decrypt-name';
-import { repository } from '../drive-file';
+import { fileRepository } from '../drive-file';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getByUuid } from './get-by-uuid';
 
 describe('get-by-uuid', () => {
-  const findOneSpy = partialSpyOn(repository, 'findOne');
+  const findOneSpy = partialSpyOn(fileRepository, 'findOne');
   const fileDecryptNameSpy = vi.spyOn(fileDecryptName, 'fileDecryptName');
 
   const props = mockProps<typeof getByUuid>({});

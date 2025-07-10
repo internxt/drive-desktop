@@ -1,16 +1,8 @@
-import { repository } from '../drive-file';
+import { fileRepository } from '../drive-file';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { fileDecryptName } from '@/context/virtual-drive/files/domain/file-decrypt-name';
-
-class GetByError extends Error {
-  constructor(
-    public readonly code: 'UNKNOWN' | 'NOT_FOUND',
-    cause?: unknown,
-  ) {
-    super(code, { cause });
-  }
-}
+import { SingleItemError } from '../common/single-item-error';
 
 type Props = {
   uuid: string;
@@ -18,7 +10,7 @@ type Props = {
 
 export async function getByUuid({ uuid }: Props) {
   try {
-    const data = await repository.findOne({ where: { uuid } });
+    const data = await fileRepository.findOne({ where: { uuid } });
 
     if (data) {
       const { name, nameWithExtension } = fileDecryptName({
@@ -42,7 +34,7 @@ export async function getByUuid({ uuid }: Props) {
       };
     }
 
-    return { error: new GetByError('NOT_FOUND') };
+    return { error: new SingleItemError('NOT_FOUND') };
   } catch (exc) {
     logger.error({
       msg: 'Error getting file by uuid',
@@ -50,6 +42,6 @@ export async function getByUuid({ uuid }: Props) {
       exc,
     });
 
-    return { error: new GetByError('UNKNOWN', exc) };
+    return { error: new SingleItemError('UNKNOWN', exc) };
   }
 }

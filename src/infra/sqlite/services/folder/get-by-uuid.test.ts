@@ -1,12 +1,12 @@
 import * as auth from '@/apps/main/auth/service';
-import { repository } from '../drive-folder';
+import { folderRepository } from '../drive-folder';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getByUuid } from './get-by-uuid';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 
 describe('get-by-uuid', () => {
   const getUserOrThrowSpy = partialSpyOn(auth, 'getUserOrThrow');
-  const findOneSpy = partialSpyOn(repository, 'findOne');
+  const findOneSpy = partialSpyOn(folderRepository, 'findOne');
   const decryptNameSpy = vi.spyOn(Folder, 'decryptName');
 
   const props = mockProps<typeof getByUuid>({});
