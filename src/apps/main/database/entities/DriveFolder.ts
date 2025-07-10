@@ -11,10 +11,7 @@ export type SimpleDriveFolder = {
 
 @Entity('drive_folder')
 export class DriveFolder {
-  @PrimaryColumn({
-    nullable: false,
-    type: 'varchar',
-  })
+  @PrimaryColumn({ nullable: false, type: 'varchar' })
   uuid!: string;
 
   @Column({ nullable: false, type: 'varchar' })

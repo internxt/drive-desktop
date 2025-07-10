@@ -2,15 +2,7 @@ import { folderRepository } from '../drive-folder';
 import { SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { logger } from '@/apps/shared/logger/logger';
-
-class GetByError extends Error {
-  constructor(
-    public readonly code: 'UNKNOWN' | 'NOT_FOUND',
-    cause?: unknown,
-  ) {
-    super(code, { cause });
-  }
-}
+import { SingleItemError } from '../common/single-item-error';
 
 type Props = {
   uuid: string;
@@ -37,7 +29,7 @@ export async function getByUuid({ uuid }: Props) {
       };
     }
 
-    return { error: new GetByError('NOT_FOUND') };
+    return { error: new SingleItemError('NOT_FOUND') };
   } catch (exc) {
     logger.error({
       msg: 'Error getting folder by uuid',
@@ -45,6 +37,6 @@ export async function getByUuid({ uuid }: Props) {
       exc,
     });
 
-    return { error: new GetByError('UNKNOWN', exc) };
+    return { error: new SingleItemError('UNKNOWN', exc) };
   }
 }

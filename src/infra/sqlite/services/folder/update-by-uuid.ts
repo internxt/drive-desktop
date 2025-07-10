@@ -1,15 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { folderRepository } from '../drive-folder';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
-
-class UpdateByError extends Error {
-  constructor(
-    public readonly code: 'UNKNOWN' | 'NOT_FOUND',
-    cause?: unknown,
-  ) {
-    super(code, { cause });
-  }
-}
+import { SingleItemError } from '../common/single-item-error';
 
 type Props = {
   uuid: string;
@@ -21,7 +13,7 @@ export async function updateByUuid({ uuid, payload }: Props) {
     const match = await folderRepository.update({ uuid }, payload);
 
     if (!match.affected) {
-      return { error: new UpdateByError('NOT_FOUND') };
+      return { error: new SingleItemError('NOT_FOUND') };
     }
 
     return { data: match.affected };
@@ -33,6 +25,6 @@ export async function updateByUuid({ uuid, payload }: Props) {
       exc,
     });
 
-    return { error: new UpdateByError('UNKNOWN', exc) };
+    return { error: new SingleItemError('UNKNOWN', exc) };
   }
 }
