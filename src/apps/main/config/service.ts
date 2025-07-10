@@ -1,5 +1,4 @@
-import { AppStore } from '@/core/electron/store/app-store.interface';
-import store from '../config';
+import store, { AppStore } from '../config';
 import { broadcastToWindows } from '../windows';
 
 export type StoredValues = keyof AppStore;
