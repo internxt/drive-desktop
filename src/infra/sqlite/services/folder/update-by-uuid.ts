@@ -1,5 +1,5 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { repository } from '../drive-folder';
+import { folderRepository } from '../drive-folder';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 
 class UpdateByError extends Error {
@@ -18,7 +18,7 @@ type Props = {
 
 export async function updateByUuid({ uuid, payload }: Props) {
   try {
-    const match = await repository.update({ uuid }, payload);
+    const match = await folderRepository.update({ uuid }, payload);
 
     if (!match.affected) {
       return { error: new UpdateByError('NOT_FOUND') };

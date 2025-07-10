@@ -1,4 +1,4 @@
-import { repository } from '../drive-file';
+import { fileRepository } from '../drive-file';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { fileDecryptName } from '@/context/virtual-drive/files/domain/file-decrypt-name';
@@ -18,7 +18,7 @@ type Props = {
 
 export async function getByUuid({ uuid }: Props) {
   try {
-    const data = await repository.findOne({ where: { uuid } });
+    const data = await fileRepository.findOne({ where: { uuid } });
 
     if (data) {
       const { name, nameWithExtension } = fileDecryptName({

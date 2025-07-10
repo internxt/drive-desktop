@@ -1,4 +1,4 @@
-import { repository } from '../drive-folder';
+import { folderRepository } from '../drive-folder';
 import { SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { logger } from '@/apps/shared/logger/logger';
@@ -18,7 +18,7 @@ type Props = {
 
 export async function getByUuid({ uuid }: Props) {
   try {
-    const data = await repository.findOne({ where: { uuid } });
+    const data = await folderRepository.findOne({ where: { uuid } });
 
     if (data) {
       const name = Folder.decryptName({

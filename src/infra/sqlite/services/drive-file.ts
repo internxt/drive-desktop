@@ -3,7 +3,7 @@ import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 
-export const repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
+export const fileRepository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; payload: Partial<DriveFile> };
 
@@ -21,7 +21,7 @@ export class DriveFileCollection {
 
   async getAll(where: FindOptionsWhere<DriveFile>) {
     const user = getUserOrThrow();
-    const result = await repository.findBy({
+    const result = await fileRepository.findBy({
       ...this.parseWhere(where),
       userUuid: user.uuid,
     });
@@ -30,13 +30,13 @@ export class DriveFileCollection {
   }
 
   async createOrUpdate(payload: DriveFile) {
-    const result = await repository.save(payload);
+    const result = await fileRepository.save(payload);
     return result;
   }
 
   async updateInBatch({ where, payload }: UpdateInBatchPayload) {
     const user = getUserOrThrow();
-    const match = await repository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
+    const match = await fileRepository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
 
     return {
       success: match.affected ? true : false,
@@ -46,7 +46,7 @@ export class DriveFileCollection {
 
   async removeInBatch(where: FindOptionsWhere<DriveFile>) {
     const user = getUserOrThrow();
-    const match = await repository.delete({
+    const match = await fileRepository.delete({
       ...this.parseWhere(where),
       userUuid: user.uuid,
     });
@@ -58,7 +58,7 @@ export class DriveFileCollection {
   }
 
   async getLastUpdatedByWorkspace({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) {
-    const result = await repository.findOne({
+    const result = await fileRepository.findOne({
       where: { userUuid, workspaceId },
       order: { updatedAt: 'DESC' },
     });
