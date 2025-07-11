@@ -1,5 +1,5 @@
 import { mockDeep } from 'vitest-mock-extended';
-import { AddController } from './AddController';
+import { AddController } from './add-controller';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';

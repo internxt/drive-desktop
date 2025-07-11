@@ -7,7 +7,7 @@ import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
 import VirtualDrive from '../virtual-drive';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/AddController';
+import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
 
 export type TWatcherCallbacks = {
   addController: AddController;
