@@ -26,7 +26,7 @@ describe('on-add-dir', () => {
       self: {
         queueManager: { enqueue: vi.fn() },
         logger: loggerMock,
-        callbacks: { addController: { execute: vi.fn() } },
+        callbacks: { addController: { createFolder: vi.fn() } },
         virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },
       },
     });
@@ -40,10 +40,9 @@ describe('on-add-dir', () => {
     await onAddDir(props);
 
     // Then
-    expect(props.self.callbacks.addController.execute).toBeCalledWith(
+    expect(props.self.callbacks.addController.createFolder).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/folder',
-        isFolder: true,
       }),
     );
   });
@@ -76,7 +75,7 @@ describe('on-add-dir', () => {
     await onAddDir(props);
 
     // Then
-    expect(props.self.callbacks.addController.execute).not.toBeCalled();
+    expect(props.self.callbacks.addController.createFolder).not.toBeCalled();
     expect(moveFolderMock).not.toBeCalled();
   });
 });

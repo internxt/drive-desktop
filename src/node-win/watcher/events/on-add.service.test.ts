@@ -31,7 +31,7 @@ describe('on-add', () => {
       self: {
         fileInDevice: new Set(),
         logger: loggerMock,
-        callbacks: { addController: { execute: vi.fn() } },
+        callbacks: { addController: { createFile: vi.fn() } },
         virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },
       },
     });
@@ -45,7 +45,7 @@ describe('on-add', () => {
     await onAdd(props);
 
     // Then
-    expect(props.self.callbacks.addController.execute).not.toHaveBeenCalled();
+    expect(props.self.callbacks.addController.createFile).not.toHaveBeenCalled();
   });
 
   it('should not call add controller if the file is larger than MAX_SIZE', async () => {
@@ -56,7 +56,7 @@ describe('on-add', () => {
     await onAdd(props);
 
     // Then
-    expect(props.self.callbacks.addController.execute).not.toHaveBeenCalled();
+    expect(props.self.callbacks.addController.createFile).not.toHaveBeenCalled();
   });
 
   it('should not call add controller if the file is temporary', async () => {
@@ -67,7 +67,7 @@ describe('on-add', () => {
     await onAdd(props);
 
     // Then
-    expect(props.self.callbacks.addController.execute).not.toHaveBeenCalled();
+    expect(props.self.callbacks.addController.createFile).not.toHaveBeenCalled();
   });
 
   it('should call add controller if the file is new', async () => {
@@ -79,10 +79,9 @@ describe('on-add', () => {
 
     // Then
     expect(props.self.fileInDevice.has(absolutePath)).toBe(true);
-    expect(props.self.callbacks.addController.execute).toBeCalledWith(
+    expect(props.self.callbacks.addController.createFile).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/file.txt',
-        isFolder: false,
       }),
     );
   });
@@ -113,7 +112,7 @@ describe('on-add', () => {
     await onAdd(props);
 
     // Then
-    expect(props.self.callbacks.addController.execute).not.toBeCalled();
+    expect(props.self.callbacks.addController.createFile).not.toBeCalled();
     expect(moveFileMock).not.toBeCalled();
   });
 });

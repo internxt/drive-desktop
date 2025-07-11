@@ -2,7 +2,6 @@ import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceho
 import { getFolderIdentity } from './get-folder-identity';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { getConfig } from '@/apps/sync-engine/config';
-import { logger } from '@/apps/shared/logger/logger';
 
 type TProps = {
   drive: VirtualDrive;
