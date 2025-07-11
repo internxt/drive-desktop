@@ -1,8 +1,9 @@
+import { INTERNXT_CLIENT } from '@/core/utils/utils';
 import { z } from 'zod';
 
 const EVENT = z.object({
   email: z.string(),
-  clientId: z.union([z.literal('drive-desktop'), z.literal('drive-web')]),
+  clientId: z.union([z.literal(INTERNXT_CLIENT), z.literal('drive-web')]),
   userId: z.string(),
 });
 
