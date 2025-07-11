@@ -1,5 +1,5 @@
 import { ipcMain, shell } from 'electron';
-import { SelectedItemToScanProps } from '../antivirus/Antivirus';
+import { SelectedItemToScanProps } from '../antivirus/antivirus-clam-av';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { exec } from 'node:child_process';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
