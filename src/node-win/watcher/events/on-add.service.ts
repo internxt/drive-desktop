@@ -1,10 +1,8 @@
 import { Stats } from 'fs';
 
 import { Watcher } from '../watcher';
-import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 
 type TProps = {
@@ -15,45 +13,27 @@ type TProps = {
 
 export async function onAdd({ self, absolutePath, stats }: TProps) {
   const path = pathUtils.absoluteToRelative({
-    base: self.virtualDrive.syncRootPath as AbsolutePath,
+    base: self.virtualDrive.syncRootPath,
     path: absolutePath,
   });
 
   try {
-    const { size, birthtime, mtime } = stats;
-
-    if (size === 0 || size > BucketEntry.MAX_SIZE) {
-      /**
-       * v2.5.6 Daniel Jiménez
-       * TODO: add sync issue
-       */
-      self.logger.warn({ msg: 'Invalid file size', path, size });
-      return;
-    }
-
-    const tempFile = isTemporaryFile(path);
-
-    if (tempFile) {
-      self.logger.debug({ msg: 'File is temporary, skipping', path });
-      return;
-    }
-
     const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
 
     if (!uuid) {
       self.logger.debug({ msg: 'File added', path });
       self.fileInDevice.add(absolutePath);
-      await self.callbacks.addController.execute({
+      await self.callbacks.addController.createFile({
         absolutePath,
         path,
         virtualDrive: self.virtualDrive,
-        isFolder: false,
+        size: stats.size,
       });
       return;
     }
 
-    const creationTime = new Date(birthtime).getTime();
-    const modificationTime = new Date(mtime).getTime();
+    const creationTime = new Date(stats.birthtime).getTime();
+    const modificationTime = new Date(stats.mtime).getTime();
 
     if (creationTime === modificationTime) {
       /* File added from remote */

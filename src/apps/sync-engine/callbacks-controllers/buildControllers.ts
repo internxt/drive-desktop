@@ -1,5 +1,5 @@
 import { DependencyContainer } from '../dependency-injection/DependencyContainer';
-import { AddController } from './controllers/AddController';
+import { AddController } from './controllers/add-controller';
 import { DeleteController } from './controllers/DeleteController';
 import { DownloadFileController } from './controllers/DownloadFileController';
 
