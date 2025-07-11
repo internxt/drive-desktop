@@ -42,7 +42,7 @@ describe('get-by-name', () => {
     expect(data).toBeDefined();
     expect(findOneSpy).toBeCalledWith({
       where: expect.objectContaining({
-        name: 'folder',
+        plainName: 'folder',
         status: 'EXISTS',
       }),
     });
