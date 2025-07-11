@@ -2,9 +2,6 @@ import { AllParentFoldersStatusIsExists } from '../../../../context/virtual-driv
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
 import { FolderDeleter } from '../../../../context/virtual-drive/folders/application/FolderDeleter';
 import { FolderFinder } from '../../../../context/virtual-drive/folders/application/FolderFinder';
-import { FolderMover } from '../../../../context/virtual-drive/folders/application/FolderMover';
-import { FolderPathUpdater } from '../../../../context/virtual-drive/folders/application/FolderPathUpdater';
-import { FolderRenamer } from '../../../../context/virtual-drive/folders/application/FolderRenamer';
 import { HttpRemoteFolderSystem } from '../../../../context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
@@ -32,11 +29,6 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
 
   const folderCreator = new FolderCreator(repository, remoteFolderSystem, virtualDrive);
 
-  const folderMover = new FolderMover(repository, remoteFolderSystem, folderFinder);
-  const folderRenamer = new FolderRenamer(repository, remoteFolderSystem);
-
-  const folderPathUpdater = new FolderPathUpdater(repository, folderMover, folderRenamer);
-
   const folderPlaceholderUpdater = new FolderPlaceholderUpdater(
     repository,
     localFolderSystem,
@@ -53,7 +45,6 @@ export function buildFoldersContainer(shredContainer: SharedContainer): FoldersC
     folderFinder,
     folderDeleter,
     allParentFoldersStatusIsExists,
-    folderPathUpdater,
     folderContainerDetector,
     folderPlaceholderDeleter,
     folderRepository: repository,

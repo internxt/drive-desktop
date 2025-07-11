@@ -5,7 +5,7 @@ import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
-// import { isFileMoved } from './is-file-moved';
+import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 
 type TProps = {
   self: Watcher;
@@ -58,7 +58,7 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
     if (creationTime === modificationTime) {
       /* File added from remote */
     } else {
-      // await isFileMoved({ self, path, uuid });
+      await moveFile({ self, path, uuid });
     }
   } catch (error) {
     self.logger.error({ msg: 'Error onAdd', path, error });

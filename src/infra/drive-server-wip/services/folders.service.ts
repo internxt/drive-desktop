@@ -7,7 +7,6 @@ import { getRequestKey } from '../in/get-in-flight-request';
 export const folders = {
   createFolder,
   getMetadata,
-  getMetadataWithUuid,
   getFolders,
   getFoldersByFolder,
   getFilesByFolder,
@@ -28,30 +27,6 @@ async function getMetadata(context: { folderId: number }) {
   const promiseFn = () =>
     client.GET(endpoint, {
       params: { path: { id: context.folderId } },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Get folder metadata request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
-
-async function getMetadataWithUuid(context: { uuid: string }) {
-  const method = 'GET';
-  const endpoint = '/folders/{uuid}/meta';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.GET(endpoint, {
-      params: { path: { uuid: context.uuid } },
     });
 
   return await clientWrapper({
