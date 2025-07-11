@@ -25,7 +25,6 @@ export class FolderCreator {
     const posixDir = PlatformPathConverter.getFatherPathPosix(path);
     const { data: parentUuid } = NodeWin.getFolderUuid({
       drive: this.virtualDrive,
-      rootUuid: getConfig().rootUuid,
       path: posixDir,
     });
 

@@ -5,14 +5,8 @@ import { createFolder } from '@/features/sync/add-item/create-folder';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from '@/features/sync/add-item/create-file';
-import { createFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
-
-type TProps = {
-  absolutePath: AbsolutePath;
-  path: RelativePath;
-  virtualDrive: VirtualDrive;
-  isFolder: boolean;
-};
+import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
+import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 
 export class AddController {
   // Gets called when:
@@ -25,41 +19,51 @@ export class AddController {
     private readonly folderCreator: FolderCreator,
   ) {}
 
-  async execute({ absolutePath, path, virtualDrive, isFolder }: TProps) {
-    if (isFolder) {
-      try {
-        await createFolder({
-          path,
-          folderCreator: this.folderCreator,
-        });
-      } catch (error) {
-        logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Error in folder creation',
-          path,
-          error,
-        });
+  async createFile({
+    absolutePath,
+    path,
+    virtualDrive,
+    size,
+  }: {
+    absolutePath: AbsolutePath;
+    path: RelativePath;
+    virtualDrive: VirtualDrive;
+    size: number;
+  }) {
+    try {
+      if (size === 0 || size > BucketEntry.MAX_SIZE) {
+        /**
+         * v2.5.6 Daniel Jiménez
+         * TODO: add sync issue
+         */
+        logger.warn({ tag: 'SYNC-ENGINE', msg: 'Invalid file size', path, size });
+        return;
       }
-    } else {
-      try {
-        const uuid = await createFile({
-          absolutePath,
-          path,
-          folderCreator: this.folderCreator,
-          fileCreationOrchestrator: this.fileCreationOrchestrator,
-        });
 
-        const placeholderId = createFilePlaceholderId(uuid);
-        virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
-        virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
-      } catch (error) {
-        logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Error in file creation',
-          path,
-          error,
-        });
+      const tempFile = isTemporaryFile(path);
+
+      if (tempFile) {
+        logger.debug({ tag: 'SYNC-ENGINE', msg: 'File is temporary, skipping', path });
+        return;
       }
+
+      await createFile({
+        absolutePath,
+        path,
+        folderCreator: this.folderCreator,
+        fileCreationOrchestrator: this.fileCreationOrchestrator,
+        virtualDrive,
+      });
+    } catch (error) {
+      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error in file creation', path, error });
+    }
+  }
+
+  async createFolder({ path }: { path: RelativePath }) {
+    try {
+      await createFolder({ path, folderCreator: this.folderCreator });
+    } catch (error) {
+      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error in folder creation', path, error });
     }
   }
 }

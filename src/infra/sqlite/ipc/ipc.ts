@@ -1,6 +1,9 @@
 import { SqliteModule } from '../sqlite.module';
 
 export type FromProcess = {
+  fileGetByName: (
+    props: Parameters<typeof SqliteModule.FileModule.getByName>[0],
+  ) => Awaited<ReturnType<typeof SqliteModule.FileModule.getByName>>;
   fileGetByUuid: (
     props: Parameters<typeof SqliteModule.FileModule.getByUuid>[0],
   ) => Awaited<ReturnType<typeof SqliteModule.FileModule.getByUuid>>;
