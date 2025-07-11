@@ -3,10 +3,8 @@ import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
-import { FileDeleter } from '../../../../context/virtual-drive/files/application/FileDeleter';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
-import { FileFolderContainerDetector } from '../../../../context/virtual-drive/files/application/FileFolderContainerDetector';
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
@@ -30,10 +28,6 @@ export function buildFilesContainer(
 
   const repository = new InMemoryFileRepository();
 
-  const fileDeleter = new FileDeleter(localFileSystem, repository, folderContainer.allParentFoldersStatusIsExists);
-
-  const fileFolderContainerDetector = new FileFolderContainerDetector(repository, folderContainer.folderFinder);
-
   const fileCreator = new FileCreator(remoteFileSystem, repository, virtualDrive);
 
   const filesPlaceholderUpdater = new FilesPlaceholderUpdater(repository, localFileSystem, sharedContainer.relativePathToAbsoluteConverter);
@@ -50,9 +44,7 @@ export function buildFilesContainer(
 
   const container: FilesContainer = {
     fileRepository: repository,
-    fileDeleter,
     fileCreator,
-    fileFolderContainerDetector,
     filesPlaceholderUpdater,
     filesPlaceholderDeleter,
     fileSyncStatusUpdater,

@@ -25,6 +25,7 @@ export async function getByName({ parentUuid, nameWithExtension }: Props) {
     });
 
     if (data) return { data: parseData({ data }) };
+
     return { error: new SingleItemError('NOT_FOUND') };
   } catch (exc) {
     logger.error({
