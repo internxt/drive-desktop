@@ -42,8 +42,8 @@ const FILE_EVENT = EVENT.extend({
   payload: FILE_DTO,
 });
 
-const FOLDER_CREATED = EVENT.extend({
-  event: z.literal('FOLDER_CREATED'),
+const FOLDER_EVENT = EVENT.extend({
+  event: z.enum(['FOLDER_CREATED', 'FOLDER_UPDATED']),
   payload: z.object({
     id: z.number(),
     uuid: z.string(),
@@ -52,4 +52,4 @@ const FOLDER_CREATED = EVENT.extend({
   }),
 });
 
-export const NOTIFICATION_SCHEMA = z.union([ITEMS_TO_TRASH, FILE_EVENT, FOLDER_CREATED]);
+export const NOTIFICATION_SCHEMA = z.union([ITEMS_TO_TRASH, FILE_EVENT, FOLDER_EVENT]);

@@ -12,6 +12,7 @@ import { FolderCreator } from './FolderCreator';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { v4 } from 'uuid';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { FolderUuid as TFolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 
@@ -45,7 +46,7 @@ describe('Folder Creator', () => {
     // Given
     const folder = FolderMother.fromPartial({ parentId: 1, parentUuid: v4(), path });
     remote.persist.mockResolvedValueOnce(folder.attributes());
-    getFolderUuid.mockReturnValueOnce({ data: folder.parentUuid });
+    getFolderUuid.mockReturnValueOnce({ data: folder.parentUuid as TFolderUuid });
 
     // When
     await SUT.run({ path });

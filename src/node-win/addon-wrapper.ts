@@ -67,14 +67,6 @@ export class Addon {
     return this.parseAddonZod('getPlaceholderState', result);
   }
 
-  /**
-   * @deprecated
-   */
-  getPlaceholderWithStatePending() {
-    const result = addon.getPlaceholderWithStatePending(this.syncRootPath);
-    return this.parseAddonZod('getPlaceholderWithStatePending', result);
-  }
-
   getFileIdentity({ path }: { path: string }) {
     const result = addon.getFileIdentity(path);
     return this.parseAddonZod('getFileIdentity', result);
@@ -179,9 +171,6 @@ export class Addon {
     return result.success;
   }
 
-  /**
-   * @deprecated
-   */
   updateSyncStatus({ path, isDirectory, sync }: { path: string; isDirectory: boolean; sync: boolean }) {
     const result = addon.updateSyncStatus(path, sync, isDirectory);
     return this.parseAddonZod('updateSyncStatus', result);
