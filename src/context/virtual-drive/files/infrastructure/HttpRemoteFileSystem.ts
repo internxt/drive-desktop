@@ -14,7 +14,7 @@ export class HttpRemoteFileSystem {
     private readonly workspaceId?: string | null,
   ) {}
 
-  async persist(offline: OfflineFile): Promise<FileAttributes> {
+  async persist(offline: OfflineFile) {
     try {
       const body = {
         bucket: this.bucket,
@@ -33,6 +33,7 @@ export class HttpRemoteFileSystem {
       if (!data) throw error;
 
       return {
+        dto: data,
         id: data.id,
         uuid: data.uuid,
         contentsId: data.fileId,
@@ -65,7 +66,7 @@ export class HttpRemoteFileSystem {
     }
   }
 
-  async getFileByPath(filePath: string): Promise<null | FileAttributes> {
+  async getFileByPath(filePath: string) {
     const response = await client.GET('/files/meta', {
       params: {
         query: {
@@ -84,7 +85,8 @@ export class HttpRemoteFileSystem {
     const data = response.data;
     if (data.status !== FileStatuses.EXISTS) return null;
 
-    const attributes: FileAttributes = {
+    const attributes = {
+      dto: data,
       id: data.id,
       uuid: data.uuid,
       contentsId: data.fileId,

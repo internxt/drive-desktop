@@ -12,8 +12,8 @@ export class FolderStore {
         number,
         {
           parentId: number;
-          parentUuid: string | null;
-          plainName: string;
+          parentUuid: string | undefined;
+          name: string;
         }
       >;
     }
@@ -39,29 +39,26 @@ export class FolderStore {
     parentId,
     parentUuid,
     name,
-    plainName,
   }: {
     workspaceId: string;
     folderId: number;
     parentId: number;
-    parentUuid: string | null;
+    parentUuid: string | undefined;
     name: string;
-    plainName?: string;
   }) {
-    const decryptedName = Folder.decryptName({ plainName, name, parentId });
-    FolderStore.store[workspaceId].folders[folderId] = { parentId, parentUuid, plainName: decryptedName };
+    FolderStore.store[workspaceId].folders[folderId] = { parentId, parentUuid, name };
   }
 
   static getFolderPath({
     workspaceId,
     parentId,
     parentUuid,
-    plainName,
+    name,
   }: {
     workspaceId: string;
     parentId: number;
-    parentUuid: string | null;
-    plainName: string;
+    parentUuid: string | undefined;
+    name: string;
   }) {
     const paths: string[] = [];
     const workspace = FolderStore.store[workspaceId];
@@ -75,12 +72,12 @@ export class FolderStore {
         throw new Error(`Folder not found for workspaceId "${workspaceId}" and parentId "${parentId}"`);
       }
 
-      paths.unshift(folder.plainName);
+      paths.unshift(folder.name);
       parentId = folder.parentId;
       parentUuid = folder.parentUuid;
     }
 
-    const relativePath = posix.join(...paths, plainName);
+    const relativePath = posix.join(...paths, name);
 
     return {
       relativePath: posix.sep + relativePath,

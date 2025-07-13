@@ -10,11 +10,23 @@ export function setupIpcSqlite() {
     return await SqliteModule.FileModule.getByName(props);
   });
 
+  void ipcMainSqlite.handle('folderGetByName', async (_, props) => {
+    return await SqliteModule.FolderModule.getByName(props);
+  });
+
   void ipcMainSqlite.handle('fileGetByUuid', async (_, props) => {
     return await SqliteModule.FileModule.getByUuid(props);
   });
 
   void ipcMainSqlite.handle('folderGetByUuid', async (_, props) => {
     return await SqliteModule.FolderModule.getByUuid(props);
+  });
+
+  void ipcMainSqlite.handle('fileCreateOrUpdate', async (_, props) => {
+    return await SqliteModule.FileModule.createOrUpdate(props);
+  });
+
+  void ipcMainSqlite.handle('folderCreateOrUpdate', async (_, props) => {
+    return await SqliteModule.FolderModule.createOrUpdate(props);
   });
 }
