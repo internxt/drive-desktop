@@ -1,10 +1,11 @@
-import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
+import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { onAddDir } from './on-add-dir.service';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
+import * as trackAddDirEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-folder'));
@@ -12,6 +13,7 @@ vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move
 describe('on-add-dir', () => {
   const getFolderUuidMock = deepMocked(NodeWin.getFolderUuid);
   const moveFolderMock = vi.mocked(moveFolder);
+  const trackAddDirEventMock = partialSpyOn(trackAddDirEvent, 'trackAddDirEvent');
 
   const date1 = new Date();
   const date2 = new Date(date1.getTime() + 1);
@@ -57,6 +59,7 @@ describe('on-add-dir', () => {
     await onAddDir(props);
 
     // Then
+    expect(trackAddDirEventMock).toBeCalledWith({ uuid: 'uuid' });
     expect(moveFolderMock).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/folder',

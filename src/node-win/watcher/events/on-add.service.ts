@@ -4,6 +4,7 @@ import { Watcher } from '../watcher';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
+import { trackAddEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 
 type TProps = {
   self: Watcher;
@@ -38,6 +39,7 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
     if (creationTime === modificationTime) {
       /* File added from remote */
     } else {
+      void trackAddEvent({ uuid });
       await moveFile({ self, path, uuid });
     }
   } catch (error) {

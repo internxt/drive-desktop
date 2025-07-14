@@ -35,67 +35,15 @@ export class BindingsManager {
 
   async start() {
     const callbacks: Callbacks = {
-      notifyDeleteCallback: (placeholderId, callback) => {
-        try {
-          logger.debug({
-            tag: 'SYNC-ENGINE',
-            msg: 'Path received in notifyDeleteCallback',
-            placeholderId,
-          });
-
-          this.controllers.delete.execute(placeholderId);
-
-          callback(true);
-        } catch (error) {
-          logger.error({
-            tag: 'SYNC-ENGINE',
-            msg: 'Error in notifyDeleteCallback',
-            placeholderId,
-            error,
-          });
-
-          callback(false);
-        }
-      },
-      notifyDeleteCompletionCallback: () => {
-        Logger.info('Deletion completed');
-      },
       fetchDataCallback: (filePlaceholderId: FilePlaceholderId, callback: CallbackDownload) =>
         this.fetchData.run({
           self: this,
           filePlaceholderId,
           callback,
         }),
-      validateDataCallback: () => {
-        Logger.debug('validateDataCallback');
-      },
       cancelFetchDataCallback: () => {
         this.controllers.downloadFile.cancel();
         Logger.debug('cancelFetchDataCallback');
-      },
-      fetchPlaceholdersCallback: () => {
-        Logger.debug('fetchPlaceholdersCallback');
-      },
-      cancelFetchPlaceholdersCallback: () => {
-        Logger.debug('cancelFetchPlaceholdersCallback');
-      },
-      notifyFileOpenCompletionCallback: () => {
-        Logger.debug('notifyFileOpenCompletionCallback');
-      },
-      notifyFileCloseCompletionCallback: () => {
-        Logger.debug('notifyFileCloseCompletionCallback');
-      },
-      notifyDehydrateCallback: () => {
-        Logger.debug('notifyDehydrateCallback');
-      },
-      notifyDehydrateCompletionCallback: () => {
-        Logger.debug('notifyDehydrateCompletionCallback');
-      },
-      notifyRenameCompletionCallback: () => {
-        Logger.debug('notifyRenameCompletionCallback');
-      },
-      noneCallback: () => {
-        Logger.debug('noneCallback');
       },
     };
 
