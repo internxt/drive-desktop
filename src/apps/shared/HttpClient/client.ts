@@ -19,7 +19,6 @@ const handleOnUserUnauthorized = () => {
   if (process.type === 'renderer') {
     ipcRendererSyncEngine.emit('USER_IS_UNAUTHORIZED');
   } else {
-    eventBus.emit('USER_WAS_UNAUTHORIZED');
     eventBus.emit('USER_LOGGED_OUT');
   }
 };

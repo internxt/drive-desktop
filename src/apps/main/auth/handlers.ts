@@ -27,7 +27,6 @@ export function getIsLoggedIn() {
 }
 
 export function onUserUnauthorized() {
-  eventBus.emit('USER_WAS_UNAUTHORIZED');
   eventBus.emit('USER_LOGGED_OUT');
   Logger.info('[AUTH] User has been logged out because it was unauthorized');
   setIsLoggedIn(false);
@@ -56,7 +55,6 @@ export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
   ipcMain.handle('GET_HEADERS', () => getAuthHeaders());
-  ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
 
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
     setCredentials({
