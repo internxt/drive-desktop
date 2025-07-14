@@ -129,8 +129,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const onCustomScanButtonClicked = async (scanType: ScanType) => {
     resetStates();
-    const isDefenderActive = await isWinDefenderActive();
-    if (isDefenderActive) return;
 
     const items = await onSelectItemsButtonClicked(scanType);
     if (!items || items.length === 0) return;
@@ -148,8 +146,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const onScanUserSystemButtonClicked = async () => {
     resetStates();
-    const isDefenderActive = await isWinDefenderActive();
-    if (isDefenderActive) return;
 
     setView('scan');
 

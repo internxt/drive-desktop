@@ -1,5 +1,5 @@
 import { getUserSystemPath } from '../device/service';
-import { AntivirusClamAV } from './antivirus-clam-av';
+import { getAntivirusManager } from './antivirus-manager/antivirus-manager';
 import { queue } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
@@ -40,7 +40,13 @@ export function clearDailyScan() {
 const scanInBackground = async (): Promise<void> => {
   const hashedFilesAdapter = new ScannedItemCollection();
   const database = new DBScannerConnection(hashedFilesAdapter);
-  const antivirus = await AntivirusClamAV.createInstance();
+  const antivirusManager = getAntivirusManager();
+  const antivirus = await antivirusManager.getActiveEngine();
+
+  if (!antivirus) {
+    logger.error({ tag: 'ANTIVIRUS', msg: 'No active antivirus engine found' });
+    return;
+  }
 
   const userSystemPath = await getUserSystemPath();
   if (!userSystemPath) return;

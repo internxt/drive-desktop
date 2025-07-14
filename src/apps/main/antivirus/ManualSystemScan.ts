@@ -3,7 +3,8 @@ import { ScannedItem } from '../database/entities/ScannedItem';
 import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
-import { AntivirusClamAV } from './antivirus-clam-av';
+import { getAntivirusManager } from './antivirus-manager/antivirus-manager';
+import { AntivirusEngine } from './antivirus-manager/types';
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './utils/dbConections';
@@ -39,7 +40,7 @@ class ManualSystemScan {
   private cancelled = false;
   private scanSessionId = 0;
 
-  private antivirus: AntivirusClamAV | null;
+  private antivirus: AntivirusEngine | null;
 
   constructor() {
     this.progressEvents = [];
@@ -131,7 +132,8 @@ class ManualSystemScan {
     const currentSession = this.scanSessionId;
 
     if (!this.antivirus) {
-      this.antivirus = await AntivirusClamAV.createInstance();
+      const antivirusManager = await getAntivirusManager();
+      this.antivirus = await antivirusManager.getActiveEngine();
     }
     const antivirus = this.antivirus;
 
@@ -155,7 +157,7 @@ class ManualSystemScan {
           return this.handlePreviousScannedItem(currentSession, scannedItem, previousScannedItem);
         }
 
-        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
+        const currentScannedFile = await antivirus?.scanFile(scannedItem.pathName);
 
         if (currentScannedFile) {
           await this.dbConnection.addItemToDatabase({
