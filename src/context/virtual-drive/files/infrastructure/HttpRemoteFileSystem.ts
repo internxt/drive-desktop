@@ -1,5 +1,4 @@
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
-import { FileAttributes } from '../domain/File';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { Service } from 'diod';
