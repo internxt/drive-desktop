@@ -1,5 +1,4 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { posix } from 'path';
 
 export class FolderStore {
