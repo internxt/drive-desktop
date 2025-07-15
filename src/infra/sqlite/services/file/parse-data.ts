@@ -1,4 +1,4 @@
-import { DriveFile, FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId, DriveFile, FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { fileDecryptName } from '@/context/virtual-drive/files/domain/file-decrypt-name';
 
 type TProps = {
@@ -14,14 +14,18 @@ export function parseData({ data }: TProps) {
   });
 
   return {
+    id: data.id,
     uuid: data.uuid as FileUuid,
     name,
     nameWithExtension,
     extension: data.type,
+    parentId: data.folderId,
     parentUuid: data.folderUuid,
-    contentsId: data.fileId,
+    contentsId: data.fileId as ContentsId,
     size: data.size,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
+    modificationTime: data.modificationTime,
+    status: data.status,
   } satisfies SimpleDriveFile;
 }

@@ -12,45 +12,38 @@ type TProps = {
 
 export async function syncRemoteFolder({ self, remoteFolder }: TProps) {
   try {
-    await createOrUpdateFolder({ context: self.context, folderDto: remoteFolder });
+    const { data: folder, error } = await createOrUpdateFolder({ context: self.context, folderDto: remoteFolder });
+
+    if (error) throw error;
 
     FolderStore.addFolder({
       workspaceId: self.workspaceId,
-      folderId: remoteFolder.id,
+      folderId: folder.id,
       parentId: remoteFolder.parentId,
-      parentUuid: remoteFolder.parentUuid,
-      plainName: remoteFolder.plainName,
-      name: remoteFolder.name,
+      parentUuid: folder.parentUuid,
+      name: folder.name,
     });
 
-    if (remoteFolder.status === 'EXISTS' && self.worker.worker) {
-      try {
-        const plainName = Folder.decryptName({
-          name: remoteFolder.name,
-          parentId: remoteFolder.parentId,
-          plainName: remoteFolder.plainName,
-        });
+    if (folder.status === 'EXISTS' && self.worker.worker) {
+      const { relativePath } = FolderStore.getFolderPath({
+        workspaceId: self.workspaceId,
+        parentId: remoteFolder.parentId,
+        parentUuid: folder.parentUuid,
+        name: folder.name,
+      });
 
-        const { relativePath } = FolderStore.getFolderPath({
-          workspaceId: self.workspaceId,
-          parentId: remoteFolder.parentId,
-          parentUuid: remoteFolder.parentUuid,
-          plainName,
-        });
+      const folderAttributes: FolderAttributes = {
+        uuid: folder.uuid,
+        id: folder.id,
+        parentId: remoteFolder.parentId,
+        parentUuid: folder.parentUuid ?? null,
+        createdAt: folder.createdAt,
+        updatedAt: folder.updatedAt,
+        status: folder.status,
+        path: relativePath,
+      };
 
-        const folderAttributes: FolderAttributes = {
-          uuid: remoteFolder.uuid,
-          id: remoteFolder.id,
-          parentId: remoteFolder.parentId,
-          parentUuid: remoteFolder.parentUuid,
-          createdAt: remoteFolder.createdAt,
-          updatedAt: remoteFolder.updatedAt,
-          status: remoteFolder.status,
-          path: relativePath,
-        };
-
-        self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
-      } catch {}
+      self.worker.worker?.webContents.send('UPDATE_FOLDER_PLACEHOLDER', folderAttributes);
     }
   } catch (exc) {
     logger.error({

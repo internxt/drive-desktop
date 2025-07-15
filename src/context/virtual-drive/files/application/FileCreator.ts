@@ -11,6 +11,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 
 export class FileCreator {
   constructor(
@@ -56,8 +57,20 @@ export class FileCreator {
 
       const persistedAttributes = await this.remote.persist(offline);
 
-      const file = File.from(persistedAttributes);
+      const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
+        file: {
+          ...persistedAttributes.dto,
+          size: Number(persistedAttributes.dto.size),
+          isDangledStatus: false,
+          userUuid: getConfig().userUuid,
+          workspaceId: getConfig().workspaceId,
+          updatedAt: '2000-01-01T00:00:00Z',
+        },
+      });
 
+      if (error) throw error;
+
+      const file = File.from(persistedAttributes);
       this.repository.add(file);
 
       ipcRendererSyncEngine.send('FILE_CREATED', {

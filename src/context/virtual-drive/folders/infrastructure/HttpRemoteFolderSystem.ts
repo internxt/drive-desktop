@@ -8,7 +8,7 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId?: string) {}
 
-  async persist(offline: { basename: string; parentUuid: string; path: string }): Promise<FolderAttributes> {
+  async persist(offline: { basename: string; parentUuid: string; path: string }) {
     if (!offline.basename) {
       throw new Error('Bad folder name');
     }
@@ -27,6 +27,7 @@ export class HttpRemoteFolderSystem {
       if (!data) throw error;
 
       return {
+        dto: data,
         id: data.id,
         uuid: data.uuid,
         parentId: data.parentId,
@@ -53,13 +54,14 @@ export class HttpRemoteFolderSystem {
     }
   }
 
-  private async existFolder(offline: { parentUuid: string; basename: string; path: string }): Promise<FolderAttributes> {
+  private async existFolder(offline: { parentUuid: string; basename: string; path: string }) {
     const { data, error } = await driveServerWip.folders.existsFolder({
       parentUuid: offline.parentUuid,
       basename: offline.basename,
     });
     if (!data) throw error;
     return {
+      dto: data.existentFolders[0],
       ...data.existentFolders[0],
       path: offline.path,
     };
