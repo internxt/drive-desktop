@@ -29,11 +29,6 @@ export class DriveFolderCollection {
     return result;
   }
 
-  async createOrUpdate(payload: DriveFolder) {
-    const result = await folderRepository.save(payload);
-    return result;
-  }
-
   async updateInBatch(input: UpdateInBatchPayload) {
     const { where, payload } = input;
     const user = getUserOrThrow();

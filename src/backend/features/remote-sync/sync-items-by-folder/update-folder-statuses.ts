@@ -15,7 +15,15 @@ export async function updateFolderStatuses({ context, folderUuid }: TProps) {
     const folders = await fetchFoldersByFolder({ context, folderUuid });
     folderUuids = folders.map((folder) => folder.uuid);
 
-    const promises = folders.map((folderDto) => createOrUpdateFolder({ context, folderDto }));
+    const promises = folders.map((folderDto) =>
+      createOrUpdateFolder({
+        context,
+        folderDto: {
+          ...folderDto,
+          updatedAt: '2000-01-01T00:00:00Z',
+        },
+      }),
+    );
     await Promise.all(promises);
   } catch (exc) {
     logger.error({

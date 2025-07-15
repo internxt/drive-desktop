@@ -1,6 +1,6 @@
-import { driveFoldersCollection } from '@/apps/main/remote-sync/store';
 import { Config } from '@/apps/sync-engine/config';
 import { FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type TProps = {
   context: Config;
@@ -8,9 +8,11 @@ type TProps = {
 };
 
 export async function createOrUpdateFolder({ context, folderDto }: TProps) {
-  return await driveFoldersCollection.createOrUpdate({
-    ...folderDto,
-    userUuid: context.userUuid,
-    workspaceId: context.workspaceId,
+  return await SqliteModule.FolderModule.createOrUpdate({
+    folder: {
+      ...folderDto,
+      userUuid: context.userUuid,
+      workspaceId: context.workspaceId,
+    },
   });
 }
