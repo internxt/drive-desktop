@@ -35,7 +35,7 @@ export class FilePlaceholderUpdater {
         this.virtualDrive.createFileByPath({
           relativePath: path,
           itemId: remote.placeholderId,
-          size: 0,
+          size: remote.size,
           creationTime: remote.createdAt.getTime(),
           lastWriteTime: remote.updatedAt.getTime(),
         });
