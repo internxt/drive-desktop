@@ -1,12 +1,11 @@
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { WriteReadableToFile } from '../../../../apps/shared/fs/write-readable-to-file';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { LocalFileWriter } from '../domain/LocalFileWriter';
 import path from 'path';
 
 type LocationProvider = () => Promise<string>;
 
-export class FSLocalFileWriter implements LocalFileWriter {
+export class FSLocalFileWriter {
   constructor(private readonly getLocation: LocationProvider) {}
 
   async write(contents: LocalFileContents): Promise<string> {

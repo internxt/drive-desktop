@@ -1,0 +1,29 @@
+name: Mark stale PRs
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/stale@v9
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          days-before-stale: 30
+          days-before-close: 15
+          stale-pr-message: 'This pull request has been inactive for 30 days. Is it still in progress? If so, please leave a comment or make an update to keep it open. Otherwise, it will be closed automatically in 15 days.'
+          close-pr-message: 'This pull request was closed automatically due to prolonged inactivity.'
+          # Labels
+          stale-pr-label: stalled
+          exempt-draft-pr: true
+          # Do not touch issues
+          days-before-issue-stale: -1
+          days-before-issue-close: -1

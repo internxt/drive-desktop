@@ -38,7 +38,7 @@ export default function LanguagePicker(): JSX.Element {
   const updatePreferedLanguage = (lang: string) => {
     i18next.changeLanguage(lang);
     dayjs.locale(DayJsLocales[lang as Language]);
-    window.electron.setConfigKey('preferedLanguage', lang);
+    window.electron.setConfigKey({ key: 'preferedLanguage', value: lang });
     refreshPreferedLanguage();
   };
 

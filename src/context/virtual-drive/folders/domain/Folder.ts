@@ -88,7 +88,7 @@ export class Folder {
   }
 
   static decryptName({ plainName, name, parentId }: { plainName?: string | null; name: string; parentId?: number | null }) {
-    const decryptedName = plainName || crypt.decryptName({ name, parentId });
+    const decryptedName = plainName || crypt.decryptName({ encryptedName: name, parentId });
     return decryptedName;
   }
 

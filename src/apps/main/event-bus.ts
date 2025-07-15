@@ -1,5 +1,6 @@
 import { EventEmitter } from 'events';
 import { ProgressData } from './antivirus/ManualSystemScan';
+import { BroadcastToWindows } from './windows/broadcast-to-windows';
 
 class EventBus extends EventEmitter {}
 
@@ -23,7 +24,7 @@ interface Events {
 
   // Get the scan progress
   ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
-  BROADCAST_TO_WINDOWS: (eventName: string, data: unknown) => void;
+  BROADCAST_TO_WINDOWS: (_: BroadcastToWindows) => void;
 }
 
 declare interface EventBus {

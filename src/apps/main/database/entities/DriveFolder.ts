@@ -1,11 +1,20 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Brand } from '@/context/shared/domain/Brand';
+
+export type FolderUuid = Brand<string, 'FolderUuid'>;
+export type SimpleDriveFolder = {
+  id: number;
+  uuid: FolderUuid;
+  name: string;
+  parentUuid: string | undefined;
+  createdAt: string;
+  updatedAt: string;
+  status: 'EXISTS' | 'TRASHED' | 'DELETED';
+};
 
 @Entity('drive_folder')
 export class DriveFolder {
-  @PrimaryColumn({
-    nullable: false,
-    type: 'varchar',
-  })
+  @PrimaryColumn({ nullable: false, type: 'varchar' })
   uuid!: string;
 
   @Column({ nullable: false, type: 'varchar' })

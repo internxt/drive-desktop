@@ -617,9 +617,9 @@ export async function downloadBackup(device: Device, folderUuids?: string[]): Pr
       updateProgress: (progress: number) => {
         if (abortController?.signal.aborted) return;
         logger.debug({ tag: 'BACKUPS', msg: 'Download progress', progress });
-        broadcastToWindows('backup-download-progress', {
-          id: device.uuid,
-          progress: Math.trunc(progress),
+        broadcastToWindows({
+          name: 'backup-download-progress',
+          data: { id: device.uuid, progress: Math.trunc(progress) },
         });
       },
       abortController,

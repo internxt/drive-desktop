@@ -3,11 +3,11 @@ import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 
+export const folderRepository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
+
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFolder>; payload: Partial<DriveFolder> };
 
 export class DriveFolderCollection {
-  private repository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
-
   parseWhere(where: FindOptionsWhere<DriveFolder>) {
     /**
      * v2.5.1 Daniel Jiménez
@@ -21,7 +21,7 @@ export class DriveFolderCollection {
 
   async getAll(where: FindOptionsWhere<DriveFolder>) {
     const user = getUserOrThrow();
-    const result = await this.repository.findBy({
+    const result = await folderRepository.findBy({
       ...this.parseWhere(where),
       userUuid: user.uuid,
     });
@@ -29,25 +29,10 @@ export class DriveFolderCollection {
     return result;
   }
 
-  async createOrUpdate(payload: DriveFolder) {
-    const result = await this.repository.save(payload);
-    return result;
-  }
-
-  async update(uuid: DriveFolder['uuid'], payload: Partial<DriveFolder>) {
-    const user = getUserOrThrow();
-    const match = await this.repository.update({ uuid, userUuid: user.uuid }, payload);
-
-    return {
-      success: match.affected ? true : false,
-      affected: match.affected as number,
-    };
-  }
-
   async updateInBatch(input: UpdateInBatchPayload) {
     const { where, payload } = input;
     const user = getUserOrThrow();
-    const match = await this.repository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
+    const match = await folderRepository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);
 
     return {
       success: match.affected ? true : false,
@@ -56,7 +41,7 @@ export class DriveFolderCollection {
   }
 
   async getLastUpdatedByWorkspace({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) {
-    const result = await this.repository.findOne({
+    const result = await folderRepository.findOne({
       where: { userUuid, workspaceId },
       order: { updatedAt: 'DESC' },
     });

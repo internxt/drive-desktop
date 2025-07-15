@@ -2,7 +2,6 @@ import { mockDeep } from 'vitest-mock-extended';
 import { FetchDataService } from './fetchData.service';
 import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { DeepPartial } from 'ts-essentials';
 import fs from 'fs';
@@ -14,7 +13,7 @@ const fetchData = new FetchDataService();
 
 describe('Fetch Data', () => {
   const self = mockDeep<BindingsManager>();
-  const ipcRendererSyncEngine = mockDeep<SyncEngineIpc>();
+
   const file: DeepPartial<File> = { path: 'path' };
   const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
@@ -49,7 +48,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: false, progress: 2 });
 
       // Act
-      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
@@ -60,7 +59,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: false, progress: -1 });
 
       // Act
-      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');
@@ -71,7 +70,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: true, progress: 0 });
 
       // Act
-      await fetchData.run({ self, filePlaceholderId, callback, ipcRendererSyncEngine });
+      await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
       expect(fs.unlinkSync).toHaveBeenCalledWith('path');

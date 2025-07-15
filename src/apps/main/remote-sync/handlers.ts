@@ -114,8 +114,7 @@ async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
         workspaceId,
         folderId: folder.id,
         parentId: folder.parentId!,
-        parentUuid: folder.parentUuid ?? null,
-        plainName: folder.plainName,
+        parentUuid: folder.parentUuid,
         name: folder.name,
       });
     });

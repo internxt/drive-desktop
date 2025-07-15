@@ -26,7 +26,7 @@ export function getSyncStatus() {
 export function broadcastSyncStatus() {
   const status = getSyncStatus();
 
-  broadcastToWindows('remote-sync-status-change', status);
+  broadcastToWindows({ name: 'remote-sync-status-change', data: status });
 
   switch (status) {
     case 'SYNCING':

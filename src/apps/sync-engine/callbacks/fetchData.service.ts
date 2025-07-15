@@ -2,33 +2,28 @@ import Logger from 'electron-log';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import * as fs from 'fs';
-import { SyncEngineIpc } from '../ipcRendererSyncEngine';
 import { dirname } from 'path';
-import { trimPlaceholderId } from '../callbacks-controllers/controllers/placeholder-id';
+import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type TProps = {
   self: BindingsManager;
   filePlaceholderId: FilePlaceholderId;
   callback: CallbackDownload;
-  ipcRendererSyncEngine: SyncEngineIpc;
 };
 
 export class FetchDataService {
-  async run({ self, filePlaceholderId, callback, ipcRendererSyncEngine }: TProps) {
+  async run({ self, filePlaceholderId, callback }: TProps) {
     try {
       Logger.debug('[Fetch Data Callback] Donwloading begins');
 
-      const startTime = Date.now();
       const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
-      const trimmedPlaceholderId = trimPlaceholderId({ placeholderId: filePlaceholderId });
-      const parsedPlaceholderId = trimmedPlaceholderId.split(':')[1];
-      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid: parsedPlaceholderId });
+      const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
+      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid });
 
       Logger.debug('[Fetch Data Callback] Preparing begins', path);
       Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
-
-      self.lastHydrated = file.path;
 
       try {
         let finished = false;
@@ -50,27 +45,15 @@ export class FetchDataService {
           }
 
           ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-            name: file.name,
-            extension: file.type,
             nameWithExtension: file.nameWithExtension,
-            size: file.size,
-            processInfo: {
-              elapsedTime: 0,
-              progress: result.progress,
-            },
+            progress: result.progress,
           });
         }
 
         self.progressBuffer = 0;
 
-        const finishTime = Date.now();
-
         ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
-          name: file.name,
-          extension: file.type,
           nameWithExtension: file.nameWithExtension,
-          size: file.size,
-          processInfo: { elapsedTime: finishTime - startTime },
         });
       } catch (error) {
         Logger.error('[Fetch Data Error]', error);
