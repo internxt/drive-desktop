@@ -1,7 +1,6 @@
 import VirtualDrive from '@/node-win/virtual-drive';
 import { FileStatuses } from '../../files/domain/FileStatus';
 import { File } from '../domain/File';
-import { FilePlaceholderId } from '../domain/PlaceholderId';
 
 export class NodeWinLocalFileSystem {
   constructor(private readonly virtualDrive: VirtualDrive) {}
@@ -29,14 +28,6 @@ export class NodeWinLocalFileSystem {
       itemPath: path,
       isDirectory: false,
       sync: status,
-    });
-  }
-
-  updateFileIdentity(path: string, newIdentity: FilePlaceholderId): void {
-    this.virtualDrive.updateFileIdentity({
-      itemPath: path,
-      id: newIdentity,
-      isDirectory: false,
     });
   }
 }
