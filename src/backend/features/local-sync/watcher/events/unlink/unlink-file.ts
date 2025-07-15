@@ -26,6 +26,11 @@ export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
     const nameWithExtension = basename(path);
     const { data: file } = await ipcRendererSqlite.invoke('fileGetByName', { parentUuid, nameWithExtension });
 
+    /**
+     * v2.5.6 Daniel Jiménez
+     * TODO: check because this event it's also triggered when we change remove something
+     * in remote and it automatically markes it as TRASHED in sqlite, so this error is always logged.
+     */
     if (!file) {
       logger.warn({ tag: 'SYNC-ENGINE', msg: 'File not found or does not exist', path, parentUuid, nameWithExtension });
       return;

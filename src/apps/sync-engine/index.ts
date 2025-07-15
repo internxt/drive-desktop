@@ -64,17 +64,7 @@ async function setUp() {
     }
   });
 
-  ipcRenderer.on('UPDATE_FOLDER_PLACEHOLDER', async (_, folderAttributes: FolderAttributes) => {
-    try {
-      const folder = Folder.from(folderAttributes);
-      await container.folderPlaceholderUpdater.update(folder);
-    } catch (exc) {
-      logger.error({
-        msg: 'Error updating folder placeholder',
-        exc,
-      });
-    }
-  });
+  ipcRenderer.on('UPDATE_FOLDER_PLACEHOLDER', async () => {});
 
   await bindings.start();
   await bindings.watch();
