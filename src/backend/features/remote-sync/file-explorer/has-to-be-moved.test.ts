@@ -17,52 +17,81 @@ describe('has-to-be-moved', () => {
   });
 
   it('should return false if path is the same', () => {
+    // Given
     props.remotePath = props.localPath;
+    // When
     const hasBeenMoved = hasToBeMoved(props);
+    // Then
     expect(hasBeenMoved).toBe(false);
   });
 
   it('should return false if local parent does not exist', () => {
+    // Given
     getFolderUuidMock.mockReturnValueOnce({});
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
+    // When
     const hasBeenMoved = hasToBeMoved(props);
+    // Then
     expect(hasBeenMoved).toBe(false);
   });
 
   it('should return false if remote parent does not exist', () => {
+    // Given
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
     getFolderUuidMock.mockReturnValueOnce({});
+    // When
     const hasBeenMoved = hasToBeMoved(props);
+    // Then
     expect(hasBeenMoved).toBe(false);
   });
 
   it('should return false if both parents have the same uuid', () => {
+    // Given
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
+    // When
     const hasBeenMoved = hasToBeMoved(props);
+    // Then
     expect(hasBeenMoved).toBe(false);
   });
 
   it('should return true if both parents have different uuid', () => {
+    // Given
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid1' as FolderUuid });
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid2' as FolderUuid });
+    // When
     const hasBeenMoved = hasToBeMoved(props);
+    // Then
     expect(hasBeenMoved).toBe(true);
   });
 
   it('should return true if item has been renamed but not moved', () => {
+    // Given
     props.remotePath = 'C:\\Users\\user\\InternxtDrive\\folder\\old' as AbsolutePath;
     props.localPath = 'C:\\Users\\user\\InternxtDrive\\folder\\new' as AbsolutePath;
+    // When
     const hasBeenMoved = hasToBeMoved(props);
+    // Then
     expect(hasBeenMoved).toBe(true);
   });
 
+  /**
+   * v2.5.6 Daniel Jiménez
+   * This is a use case that we cannot handle right now. Basically we cannot rename
+   * an item if the move event is in another folder because we cannot move an inner
+   * item. What will happen is that in the first sync iteration we will call move from
+   * folder1 to folder3 and in the second sync iteration now the path will be the same
+   * so we will rename the inner folder.
+   */
   it('should return false if item has been renamed but both parents have the same uuid', () => {
+    // Given
     props.remotePath = 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2\\old' as AbsolutePath;
     props.localPath = 'C:\\Users\\user\\InternxtDrive\\folder3\\folder2\\new' as AbsolutePath;
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
+    // When
     const hasBeenMoved = hasToBeMoved(props);
+    // Then
     expect(hasBeenMoved).toBe(false);
   });
 });

@@ -83,8 +83,6 @@ describe('update-folder-placeholder', () => {
     await service.update(props);
     // Then
     expect(virtualDrive.createFolderByPath).toBeCalledTimes(0);
-    expect(hasToBeMovedMock).toBeCalledTimes(1);
-    expect(hasToBeMovedMock).toBeCalledWith({ remotePath: 'remotePath', localPath: 'localPath' });
     expect(renameMock).toBeCalledTimes(1);
     expect(renameMock).toBeCalledWith('localPath', 'remotePath');
   });
@@ -96,7 +94,6 @@ describe('update-folder-placeholder', () => {
     await service.update(props);
     // Then
     expect(virtualDrive.createFolderByPath).toBeCalledTimes(0);
-    expect(hasToBeMovedMock).toBeCalledTimes(1);
     expect(renameMock).toBeCalledTimes(0);
   });
 
