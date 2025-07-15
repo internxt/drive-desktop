@@ -8,6 +8,8 @@ import { onAdd } from './events/on-add.service';
 import VirtualDrive from '../virtual-drive';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
+import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
+import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 
 export type TWatcherCallbacks = {
   addController: AddController;
@@ -42,6 +44,8 @@ export class Watcher {
       this.chokidar
         .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ self: this, absolutePath, stats: stats! }))
         .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ self: this, absolutePath, stats: stats! }))
+        .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ virtualDrive: this.virtualDrive, absolutePath }))
+        .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ virtualDrive: this.virtualDrive, absolutePath }))
         .on('raw', (event, absolutePath: AbsolutePath, details) => this.onRaw.execute({ self: this, event, absolutePath, details }))
         .on('error', this.onError)
         .on('ready', this.onReady);

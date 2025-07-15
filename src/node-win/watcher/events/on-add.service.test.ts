@@ -1,10 +1,11 @@
 import { onAdd } from './on-add.service';
-import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
+import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
+import * as trackAddEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-file'));
@@ -12,6 +13,7 @@ vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move
 describe('on-add', () => {
   const getFileUuidMock = deepMocked(NodeWin.getFileUuid);
   const moveFileMock = vi.mocked(moveFile);
+  const trackAddEventMock = partialSpyOn(trackAddEvent, 'trackAddEvent');
 
   const date1 = new Date();
   const date2 = new Date(date1.getTime() + 1);
@@ -53,6 +55,7 @@ describe('on-add', () => {
     // When
     await onAdd(props);
     // Then
+    expect(trackAddEventMock).toBeCalledWith({ uuid: 'uuid' });
     expect(moveFileMock).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/file.txt',
