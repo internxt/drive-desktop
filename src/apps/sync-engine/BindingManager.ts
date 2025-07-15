@@ -17,7 +17,6 @@ import { updateContentsId } from './callbacks-controllers/controllers/update-con
 import { addPendingFiles } from './in/add-pending-files';
 import { createWatcher } from './create-watcher';
 import { Watcher } from '@/node-win/watcher/watcher';
-import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -99,7 +98,8 @@ export class BindingsManager {
 
   async load(tree: Tree): Promise<void> {
     const addFilePromises = tree.files.map((file) => this.container.fileRepository.add(file));
-    await Promise.all([addFilePromises]);
+    const addFolderPromises = tree.folders.map((folder) => this.container.folderRepository.add(folder));
+    await Promise.all([addFolderPromises, addFilePromises]);
     logger.debug({ msg: 'In memory repositories loaded', workspaceId: getConfig().workspaceId });
   }
 
@@ -113,21 +113,10 @@ export class BindingsManager {
       trashedFolders: tree.trashedFolders.length,
     });
 
-    RemoteSyncModule.FileExplorerModule.deleteItemPlaceholders({
-      remotes: tree.trashedFolders,
-      virtualDrive: this.container.virtualDrive,
-      isFolder: true,
-    });
-
-    RemoteSyncModule.FileExplorerModule.deleteItemPlaceholders({
-      remotes: tree.trashedFiles,
-      virtualDrive: this.container.virtualDrive,
-      isFolder: false,
-    });
-
-    const { folders } = await RemoteSyncModule.loadInMemoryPaths({ drive: this.container.virtualDrive });
     await Promise.all([
-      this.container.folderPlaceholderUpdater.run({ remotes: tree.folders, folders }),
+      this.container.filesPlaceholderDeleter.run(tree.trashedFiles),
+      this.container.folderPlaceholderDeleter.run(tree.trashedFolders),
+      this.container.folderPlaceholderUpdater.run(tree.folders),
       this.container.filesPlaceholderUpdater.run(tree.files),
     ]);
   }
