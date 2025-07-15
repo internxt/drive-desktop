@@ -20,9 +20,8 @@ export async function loadInMemoryPaths({ drive }: TProps) {
   const folders: InMemoryFolders = {};
 
   const rootPath = drive.syncRootPath;
-  const start = Date.now();
 
-  logger.debug({ tag: 'SYNC-ENGINE', msg: 'Start load in memory paths', rootPath });
+  logger.debug({ tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath });
 
   const folderPaths = [rootPath];
 
@@ -56,8 +55,6 @@ export async function loadInMemoryPaths({ drive }: TProps) {
       }
     }
   }
-
-  logger.debug({ tag: 'SYNC-ENGINE', msg: 'End load in memory paths', rootPath, durationMs: Date.now() - start });
 
   return { files, folders };
 }
