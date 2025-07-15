@@ -2,8 +2,6 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 type Props =
   | { remotes: File[]; virtualDrive: VirtualDrive; isFolder: false }
@@ -11,7 +9,7 @@ type Props =
 
 export function deleteItemPlaceholders({ remotes, virtualDrive, isFolder }: Props) {
   for (const remote of remotes) {
-    let localUuid: FileUuid | FolderUuid | undefined;
+    let localUuid;
 
     if (isFolder) {
       localUuid = NodeWin.getFolderUuid({ path: remote.path, drive: virtualDrive }).data;

@@ -45,11 +45,11 @@ export class RetryContentsUploader {
           });
         }
 
+        retry += 1;
         await sleep(MILLISECOND_BETWEEN_TRIES);
       }
     }
 
-    retry += 1;
     throw logger.error({ msg: 'Max retries reached. Upload still failed', path });
   }
 

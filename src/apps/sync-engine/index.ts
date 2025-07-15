@@ -6,8 +6,6 @@ import fs from 'fs/promises';
 import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { File, FileAttributes } from '@/context/virtual-drive/files/domain/File';
-import { Folder, FolderAttributes } from '@/context/virtual-drive/folders/domain/Folder';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -52,17 +50,7 @@ async function setUp() {
     }
   });
 
-  ipcRenderer.on('UPDATE_FILE_PLACEHOLDER', async (_, fileAttributes: FileAttributes) => {
-    try {
-      const file = File.from(fileAttributes);
-      await container.filesPlaceholderUpdater.update(file);
-    } catch (exc) {
-      logger.error({
-        msg: 'Error updating file placeholder',
-        exc,
-      });
-    }
-  });
+  ipcRenderer.on('UPDATE_FILE_PLACEHOLDER', async () => {});
 
   ipcRenderer.on('UPDATE_FOLDER_PLACEHOLDER', async () => {});
 

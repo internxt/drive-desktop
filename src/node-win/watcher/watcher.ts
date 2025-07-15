@@ -46,8 +46,9 @@ export class Watcher {
         .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ self: this, absolutePath, stats: stats! }))
         /**
          * v2.5.6 Daniel Jiménez
-         * unlink events are triggered when we delete an item locally or when we delete it
-         * using sync by checkpoint.
+         * unlink events are triggered when:
+         * - we delete an item locally or when we delete it using sync by checkpoint.
+         * - we move an item locally or when we move it using sync by checkpoint.
          */
         .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ virtualDrive: this.virtualDrive, absolutePath }))
         .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ virtualDrive: this.virtualDrive, absolutePath }))
