@@ -6,8 +6,8 @@ import { accessRequest, hashPassword } from './service';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
 import WindowTopBar from '../../components/WindowTopBar';
-import { TwoFASection } from './TwoFASection/TwoFASection';
-import { CredentialsSection } from './CredentialsSection/CredentialsSection';
+import { TwoFASection } from './TwoFASection';
+import { CredentialsSection } from './CredentialsSection';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 

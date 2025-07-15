@@ -1,4 +1,3 @@
-import { FC } from 'react';
 import TwoFA from '../TwoFA';
 import { LoginState } from '../types';
 import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
@@ -9,7 +8,7 @@ interface Props {
   setTwoFA: (value: string) => void;
 }
 
-export const TwoFASection: FC<Props> = ({ state, resetForm, setTwoFA }) => {
+export function TwoFASection({ state, resetForm, setTwoFA }: Props) {
   const { translate } = useTranslationContext();
 
   return (
@@ -32,4 +31,4 @@ export const TwoFASection: FC<Props> = ({ state, resetForm, setTwoFA }) => {
       </div>
     </>
   );
-};
+}

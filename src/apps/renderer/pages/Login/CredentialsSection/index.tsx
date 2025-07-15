@@ -1,6 +1,5 @@
 import TextInput from '@/apps/renderer/components/TextInput';
 import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
-import { type FC } from 'react';
 import { LoginState } from '../types';
 import PasswordInput from '@/apps/renderer/components/PasswordInput';
 import Button from '@/apps/renderer/components/Button';
@@ -15,7 +14,7 @@ interface Props {
   setPassword: (value: string) => void;
 }
 
-export const CredentialsSection: FC<Props> = ({ state, email, password, openURL, onSubmit, setEmail, setPassword }) => {
+export function CredentialsSection({ state, email, password, openURL, onSubmit, setEmail, setPassword }: Props) {
   const { translate } = useTranslationContext();
 
   return (
@@ -77,4 +76,4 @@ export const CredentialsSection: FC<Props> = ({ state, email, password, openURL,
       </form>
     </>
   );
-};
+}
