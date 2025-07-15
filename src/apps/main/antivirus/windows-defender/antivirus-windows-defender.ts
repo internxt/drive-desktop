@@ -1,5 +1,4 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { ScanResult } from './types';
 import { scanFile } from './scan-file';
 import { findMpCmdRun } from './find-mcp-command';
 
@@ -7,35 +6,37 @@ export class AntivirusWindowsDefender {
   isInitialized = false;
   mpCmdRunPath = '';
 
-  static async createInstance(): Promise<AntivirusWindowsDefender> {
+  static createInstance(): AntivirusWindowsDefender {
     const instance = new AntivirusWindowsDefender();
-    await instance.initialize();
+    instance.initialize();
     return instance;
   }
 
-  initialize(): Promise<void> {
+  initialize() {
     try {
       this.mpCmdRunPath = findMpCmdRun();
       this.isInitialized = true;
-      return Promise.resolve();
     } catch (error) {
-      logger.debug({
+      logger.error({
         tag: 'ANTIVIRUS',
         msg: 'Error Initializing Windows Defender',
         error,
       });
-      return Promise.reject(error);
     }
   }
 
-  async scanFile(filePath: string): Promise<ScanResult> {
+  async scanFile(filePath: string) {
     if (!this.isInitialized) {
-      throw new Error('Windows Defender is not initialized');
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Windows Defender is not initialized',
+      });
+      return;
     }
     return await scanFile(filePath, this.mpCmdRunPath);
   }
 
-  stop(): void {
+  stop() {
     this.isInitialized = false;
   }
 }

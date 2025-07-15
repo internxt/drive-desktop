@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { findMpCmdRun } from '../find-mcp-command';
+import { findMpCmdRun } from './find-mcp-command';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import fs, { readdirSync, existsSync, statSync } from 'fs';
 import { join } from 'path';
 
-vi.mock('fs');
-vi.mock('path');
+vi.mock(import('fs'));
+vi.mock(import('path'));
 
 describe('findMpCmdRun', () => {
   const existsSyncMock = deepMocked(existsSync);

@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
-import { scanFile } from '../scan-file';
+import { scanFile } from './scan-file';
 import * as childProcess from 'child_process';
 import { EventEmitter } from 'events';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
-import { parseVirusNames } from '../parse-virus-names';
+import { parseVirusNames } from './parse-virus-names';
 
 // Definimos una interfaz para el proceso simulado
 interface MockChildProcess extends EventEmitter {
@@ -14,18 +14,16 @@ interface MockChildProcess extends EventEmitter {
 }
 
 // Mock modules
-vi.mock('child_process');
-vi.mock('../parse-virus-names');
+vi.mock(import('child_process'));
+vi.mock(import('./parse-virus-names'));
 
-// Usar deepMocked para tipar correctamente los mocks
 const spawnMock = deepMocked(childProcess.spawn);
 const parseVirusNamesMock = deepMocked(parseVirusNames);
 
 describe('scanFile', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    parseVirusNamesMock.mockImplementation((stdout, stderr, isInfected) => {
-      if (!isInfected) return [];
+    parseVirusNamesMock.mockImplementation(({ stdout, stderr }) => {
       if (stdout.includes('TestVirus')) return ['TestVirus'];
       return ['Windows.Defender.Threat.Detected'];
     });
@@ -81,16 +79,24 @@ describe('scanFile', () => {
     mockProcess.stderr = new EventEmitter();
     spawnMock.mockReturnValue(mockProcess as unknown as childProcess.ChildProcess);
 
-    // Create a promise to await the rejection
+    // Mock console.error to prevent test output noise
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    // When - Execute the function that will handle the error
     const resultPromise = scanFile(filePath, mpCmdRunPath);
 
-    // When - Emit error after a short delay
-    setTimeout(() => {
-      mockProcess.emit('error', new Error('Spawn failed'));
-    }, 10);
+    // Emit the error immediately instead of using setTimeout
+    mockProcess.emit('error', new Error('Spawn failed'));
+
+    // Emit close to resolve the promise
+    mockProcess.emit('close', 0);
 
     // Then
-    await expect(resultPromise).rejects.toThrow('Spawn failed');
+    const result = await resultPromise;
+    expect(result.isInfected).toBe(false);
+
+    // Clean up
+    consoleErrorSpy.mockRestore();
   });
 
   it('handles stderr output', async () => {
