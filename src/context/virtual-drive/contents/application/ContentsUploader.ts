@@ -19,7 +19,7 @@ export class ContentsUploader {
 
       const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath) as AbsolutePath;
 
-      const { readable, abortSignal, size } = await this.contentProvider.provide(absolutePath);
+      const { readable, abortSignal, size } = await this.contentProvider.provide({ path, absolutePath });
 
       const uploader = this.remoteContentsManagersFactory.uploader();
 

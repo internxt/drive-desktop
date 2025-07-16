@@ -1,122 +1,59 @@
 import { createReadStream, promises as fs, watch } from 'fs';
-import path from 'path';
+import { basename, dirname } from 'path';
 import { Readable } from 'stream';
-import { LocalFileContents } from '../domain/LocalFileContents';
 import { logger } from '@/apps/shared/logger/logger';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { untilIsNotBusy } from './until-is-not-busy';
+
+type Props = {
+  path: string;
+  absolutePath: AbsolutePath;
+};
 
 export class FSLocalFileProvider {
-  private static readonly TIMEOUT_BUSY_CHECK = 10_000;
-  private reading = new Map<string, AbortController>();
+  private reading = new Map<AbsolutePath, AbortController>();
 
-  private async untilIsNotBusy(filePath: string, retriesLeft = 5): Promise<void> {
-    let isResolved = false;
-
-    const attemptRead = () => {
-      try {
-        const readable = createReadStream(filePath);
-
-        return new Promise<void>((resolve, reject) => {
-          readable.once('data', () => {
-            isResolved = true;
-            readable.close();
-            resolve();
-          });
-
-          readable.on('error', (err: Error) => {
-            const busyErrorCodes = ['EBUSY', 'EPERM', 'EACCES', 'ENOENT'];
-            const isBusyError =
-              busyErrorCodes.includes((err as any).code || '') || err.message.includes('busy') || err.message.includes('access denied');
-
-            if (isBusyError && retriesLeft > 0 && !isResolved) {
-              logger.debug({
-                tag: 'SYNC-ENGINE',
-                msg: `File is busy (${(err as any).code || 'BUSY'}), will wait ${FSLocalFileProvider.TIMEOUT_BUSY_CHECK} ms and try it again. Retries left: ${retriesLeft}`,
-                context: { filePath, retriesLeft },
-              });
-
-              setTimeout(async () => {
-                try {
-                  await attemptRead();
-                  resolve();
-                } catch (retryError) {
-                  reject(retryError);
-                }
-              }, FSLocalFileProvider.TIMEOUT_BUSY_CHECK);
-            } else {
-              throw logger.error({
-                tag: 'SYNC-ENGINE',
-                msg: 'File read error during busy check',
-                exc: err,
-                context: {
-                  filePath,
-                  syscall: (err as any).syscall,
-                  path: (err as any).path,
-                  retriesLeft,
-                  errorCode: (err as any).code,
-                },
-              });
-            }
-          });
-        });
-      } catch (error) {
-        throw logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Error reading file during busy check',
-          exc: error,
-          context: { filePath },
-        });
-      }
-    };
-
-    await attemptRead();
-  }
-
-  private async createAbortableStream(filePath: string): Promise<{
+  private async createAbortableStream({ path, absolutePath }: Props): Promise<{
     readable: Readable;
     controller: AbortController;
   }> {
-    const isBeingRead = this.reading.get(filePath);
+    const isBeingRead = this.reading.get(absolutePath);
 
     if (isBeingRead) {
       logger.debug({
         tag: 'SYNC-ENGINE',
         msg: 'File is being read, aborting previous read',
-        context: { filePath },
+        path,
       });
       isBeingRead.abort();
     }
 
-    await this.untilIsNotBusy(filePath);
-    const readStream = createReadStream(filePath);
+    await untilIsNotBusy({ absolutePath });
+    const readStream = createReadStream(absolutePath);
     const controller = new AbortController();
 
-    readStream.on('error', (err: Error) => {
+    readStream.on('error', (err) => {
       throw logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Stream read error',
         exc: err,
-        context: {
-          filePath,
-          syscall: (err as any).syscall,
-          path: (err as any).path,
-          errorCode: (err as any).code,
-        },
+        path,
       });
     });
 
-    this.reading.set(filePath, controller);
+    this.reading.set(absolutePath, controller);
 
     return { readable: readStream, controller };
   }
 
-  async provide(absoluteFilePath: string) {
+  async provide({ path, absolutePath }: Props) {
     try {
-      const { readable, controller } = await this.createAbortableStream(absoluteFilePath);
+      const { readable, controller } = await this.createAbortableStream({ path, absolutePath });
 
-      const { size, mtimeMs } = await fs.stat(absoluteFilePath);
+      const { size, mtimeMs } = await fs.stat(absolutePath);
 
-      const absoluteFolderPath = path.dirname(absoluteFilePath);
-      const nameWithExtension = path.basename(absoluteFilePath);
+      const absoluteFolderPath = dirname(absolutePath);
+      const nameWithExtension = basename(absolutePath);
 
       const watcher = watch(absoluteFolderPath, async (event, filename) => {
         if (filename !== nameWithExtension) {
@@ -124,20 +61,16 @@ export class FSLocalFileProvider {
         }
 
         try {
-          const { mtimeMs: newMtimeMs, size: newSize } = await fs.stat(absoluteFilePath);
+          const { mtimeMs: newMtimeMs, size: newSize } = await fs.stat(absolutePath);
 
           if (newMtimeMs !== mtimeMs || newSize !== size) {
             logger.debug({
               tag: 'SYNC-ENGINE',
               msg: 'File changed, aborting read stream',
-              context: {
-                filePath: absoluteFilePath,
-                filename,
-                nameWithExtension,
-                event,
-                newMtimeMs,
-                newSize,
-              },
+              path,
+              event,
+              newMtimeMs,
+              newSize,
             });
 
             controller.abort();
@@ -145,31 +78,27 @@ export class FSLocalFileProvider {
             logger.debug({
               tag: 'SYNC-ENGINE',
               msg: 'File event detected, but no real changes found',
-              context: {
-                filePath: absoluteFilePath,
-                filename,
-                nameWithExtension,
-                event,
-              },
+              path,
+              event,
             });
           }
-        } catch (error) {
+        } catch (exc) {
           logger.error({
             tag: 'SYNC-ENGINE',
             msg: 'Error while checking file changes',
-            exc: error,
-            context: { filePath: absoluteFilePath },
+            path,
+            exc,
           });
         }
       });
 
       readable.on('end', () => {
         watcher.close();
-        this.reading.delete(absoluteFilePath);
+        this.reading.delete(absolutePath);
       });
 
       readable.on('close', () => {
-        this.reading.delete(absoluteFilePath);
+        this.reading.delete(absolutePath);
       });
 
       return {
@@ -177,12 +106,12 @@ export class FSLocalFileProvider {
         size,
         abortSignal: controller.signal,
       };
-    } catch (error) {
+    } catch (exc) {
       throw logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Error providing file',
-        exc: error,
-        context: { filePath: absoluteFilePath },
+        path,
+        exc,
       });
     }
   }
