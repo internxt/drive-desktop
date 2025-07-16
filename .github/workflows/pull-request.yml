@@ -6,7 +6,7 @@ on:
 
 jobs:
   pull_request:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     timeout-minutes: 10
 
     permissions:
@@ -34,7 +34,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps --ignore-scripts
+        run: npm ci --legacy-peer-deps --ignore-scripts && node node_modules/electron/install.js
 
       - name: Run TypeScript compiler
         run: npm run type-check
