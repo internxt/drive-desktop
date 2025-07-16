@@ -22,7 +22,7 @@ describe('update-folder-statuses', () => {
     expect(createOrUpdateFolderMock).toBeCalledTimes(1);
     expect(createOrUpdateFolderMock).toHaveBeenCalledWith({
       context: props.context,
-      folderDto: { uuid: 'uuid' },
+      folderDto: { uuid: 'uuid', updatedAt: '2000-01-01T00:00:00Z' },
     });
   });
 });

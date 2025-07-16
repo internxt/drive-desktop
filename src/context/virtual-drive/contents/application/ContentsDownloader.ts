@@ -4,16 +4,16 @@ import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exi
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { File } from '../../files/domain/File';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { LocalFileWriter } from '../domain/LocalFileWriter';
 import { TemporalFolderProvider } from './temporalFolderProvider';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
+import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 
 export class ContentsDownloader {
   constructor(
     private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory,
-    private readonly localWriter: LocalFileWriter,
+    private readonly localWriter: FSLocalFileWriter,
     private readonly temporalFolderProvider: TemporalFolderProvider,
   ) {}
 
@@ -29,11 +29,8 @@ export class ContentsDownloader {
 
     downloader.on('start', () => {
       ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
         nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: { elapsedTime: downloader.elapsedTime() },
+        progress: 0,
       });
     });
 
@@ -47,24 +44,15 @@ export class ContentsDownloader {
       }
 
       ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        name: file.name,
-        extension: file.type,
         nameWithExtension: file.nameWithExtension,
-        size: file.size,
-        processInfo: {
-          elapsedTime: 0,
-          progress,
-        },
+        progress,
       });
     });
 
     downloader.on('error', (error: Error) => {
       Logger.error('[Server] Error downloading file', error);
       ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', {
-        name: file.name,
-        extension: file.type,
         nameWithExtension: file.nameWithExtension,
-        error: error.message,
       });
     });
 
@@ -103,10 +91,7 @@ export class ContentsDownloader {
     void this.downloaderIntanceCB(false, '');
 
     ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', {
-      name: this.downloaderFile.name,
-      extension: this.downloaderFile.type,
       nameWithExtension: this.downloaderFile.nameWithExtension,
-      size: this.downloaderFile.size,
     });
 
     this.downloaderIntanceCB = null;

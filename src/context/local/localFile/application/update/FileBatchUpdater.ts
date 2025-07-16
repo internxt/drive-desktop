@@ -3,7 +3,8 @@ import { LocalFile } from '../../domain/LocalFile';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { simpleFileOverride } from '@/context/virtual-drive/files/application/override/SimpleFileOverrider';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/services/environment-file-uploader';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { uploadFile } from '../upload-file';
 
 @Service()
 export class FileBatchUpdater {
@@ -11,15 +12,9 @@ export class FileBatchUpdater {
 
   async run(context: BackupsContext, remoteTree: RemoteTree, batch: Array<LocalFile>): Promise<void> {
     for (const localFile of batch) {
-      const { data: contentsId, error } = await this.uploader.upload({
-        path: localFile.absolutePath,
-        size: localFile.size.value,
-        abortSignal: context.abortController.signal,
-      });
+      const contentsId = await uploadFile({ context, localFile, uploader: this.uploader });
 
-      if (error) {
-        throw error;
-      }
+      if (!contentsId) continue;
 
       const file = remoteTree.files[localFile.relativePath];
 

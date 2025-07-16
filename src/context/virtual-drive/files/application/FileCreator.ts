@@ -11,6 +11,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 
 export class FileCreator {
   constructor(
@@ -24,7 +25,6 @@ export class FileCreator {
       const posixDir = PlatformPathConverter.getFatherPathPosix(filePath.value);
       const { data: folderUuid } = NodeWin.getFolderUuid({
         drive: this.virtualDrive,
-        rootUuid: getConfig().rootUuid,
         path: posixDir,
       });
 
@@ -57,8 +57,20 @@ export class FileCreator {
 
       const persistedAttributes = await this.remote.persist(offline);
 
-      const file = File.from(persistedAttributes);
+      const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
+        file: {
+          ...persistedAttributes.dto,
+          size: Number(persistedAttributes.dto.size),
+          isDangledStatus: false,
+          userUuid: getConfig().userUuid,
+          workspaceId: getConfig().workspaceId,
+          updatedAt: '2000-01-01T00:00:00Z',
+        },
+      });
 
+      if (error) throw error;
+
+      const file = File.from(persistedAttributes);
       this.repository.add(file);
 
       ipcRendererSyncEngine.send('FILE_CREATED', {
@@ -72,8 +84,6 @@ export class FileCreator {
 
       return file;
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'unknown error';
-
       logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Error in file creator',
@@ -82,10 +92,7 @@ export class FileCreator {
       });
 
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
-        name: filePath.name(),
-        extension: filePath.extension(),
         nameWithExtension: filePath.nameWithExtension(),
-        error: message,
       });
 
       throw error;

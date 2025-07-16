@@ -6,7 +6,7 @@ export class BackupsProcessStatus {
 
   set(status: BackupsStatus) {
     this.status = status;
-    broadcastToWindows('backups-status-changed', status);
+    broadcastToWindows({ name: 'backups-status-changed', data: status });
   }
 
   isIn(status: BackupsStatus): boolean {

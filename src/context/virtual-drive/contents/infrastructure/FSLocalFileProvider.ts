@@ -4,16 +4,6 @@ import { Readable } from 'stream';
 import { LocalFileContents } from '../domain/LocalFileContents';
 import { logger } from '@/apps/shared/logger/logger';
 
-function extractNameAndExtension(nameWithExtension: string): [string, string] {
-  if (nameWithExtension.startsWith('.')) {
-    return [nameWithExtension, ''];
-  }
-
-  const [name, extension] = nameWithExtension.split('.');
-
-  return [name, extension];
-}
-
 export class FSLocalFileProvider {
   private static readonly TIMEOUT_BUSY_CHECK = 10_000;
   private reading = new Map<string, AbortController>();
@@ -123,7 +113,7 @@ export class FSLocalFileProvider {
     try {
       const { readable, controller } = await this.createAbortableStream(absoluteFilePath);
 
-      const { size, mtimeMs, birthtimeMs } = await fs.stat(absoluteFilePath);
+      const { size, mtimeMs } = await fs.stat(absoluteFilePath);
 
       const absoluteFolderPath = path.dirname(absoluteFilePath);
       const nameWithExtension = path.basename(absoluteFilePath);
@@ -182,19 +172,9 @@ export class FSLocalFileProvider {
         this.reading.delete(absoluteFilePath);
       });
 
-      const [name, extension] = extractNameAndExtension(nameWithExtension);
-
-      const contents = LocalFileContents.from({
-        name,
-        extension,
-        size,
-        modifiedTime: mtimeMs,
-        birthTime: birthtimeMs,
-        contents: readable,
-      });
-
       return {
-        contents,
+        readable,
+        size,
         abortSignal: controller.signal,
       };
     } catch (error) {

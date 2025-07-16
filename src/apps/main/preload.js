@@ -9,8 +9,8 @@ contextBridge.exposeInMainWorld('electron', {
   getConfigKey(key) {
     return ipcRenderer.invoke('get-config-key', key);
   },
-  setConfigKey(key, value) {
-    return ipcRenderer.send('set-config-key', { key, value });
+  setConfigKey(props) {
+    return ipcRenderer.send('set-config-key', props);
   },
   listenToConfigKeyChange(key, fn) {
     const eventName = `${key}-updated`;

@@ -1,19 +1,16 @@
 import { Check, WarningCircle } from '@phosphor-icons/react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { useTranslationContext } from '../../context/LocalContext';
-import { shortMessages } from '../../messages/process-error';
 import { getBaseName, getExtension } from '../../utils/path';
-import { ProcessInfoUpdatePayload, ProcessErrorName } from '../../../shared/types';
+import { ProcessInfoUpdatePayload } from '../../../shared/types';
 import { fileIcon } from '../../assets/icons/getIcon';
 
 export function Item({
   name,
   action,
   progress,
-  errorName,
 }: ProcessInfoUpdatePayload & {
   progress?: number;
-  errorName?: ProcessErrorName;
 }) {
   const { translate } = useTranslationContext();
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
@@ -22,8 +19,6 @@ export function Item({
 
   if (action === 'DOWNLOADING') {
     description = translate('widget.body.activity.operation.downloading');
-  } else if (action === 'PREPARING') {
-    description = translate('widget.body.activity.operation.preparing');
   } else if (action === 'UPLOADING') {
     description = progress ? translate('widget.body.activity.operation.uploading') : translate('widget.body.activity.operation.encrypting');
   } else if (action === 'DOWNLOADED') {
@@ -32,16 +27,12 @@ export function Item({
     description = translate('widget.body.activity.operation.cancel_downloaded');
   } else if (action === 'UPLOADED') {
     description = translate('widget.body.activity.operation.uploaded');
-  } else if (action === 'DELETING') {
-    description = translate('widget.body.activity.operation.deleting');
   } else if (action === 'DELETED') {
     description = translate('widget.body.activity.operation.deleted');
   } else if (action === 'RENAMING') {
     description = translate('widget.body.activity.operation.renaming');
   } else if (action === 'RENAMED') {
     description = translate('widget.body.activity.operation.renamed');
-  } else if (errorName) {
-    description = shortMessages[errorName];
   }
 
   return (
@@ -55,22 +46,12 @@ export function Item({
           </p>
           <p
             className={`truncate text-xs text-gray-50 ${
-              action &&
-              (action === 'DELETE_ERROR' ||
-                action === 'DOWNLOAD_ERROR' ||
-                action === 'UPLOAD_ERROR' ||
-                action === 'RENAME_ERROR' ||
-                action === 'METADATA_READ_ERROR')
+              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR')
                 ? 'text-red'
                 : undefined
             }`}
             title={
-              action &&
-              (action === 'DELETE_ERROR' ||
-                action === 'DOWNLOAD_ERROR' ||
-                action === 'UPLOAD_ERROR' ||
-                action === 'RENAME_ERROR' ||
-                action === 'METADATA_READ_ERROR')
+              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR')
                 ? description
                 : undefined
             }>
@@ -80,25 +61,20 @@ export function Item({
 
         <div className="flex w-7 items-center justify-center">
           {/* PROGRESS */}
-          {action &&
-            (action === 'UPLOADING' ||
-              action === 'DOWNLOADING' ||
-              action === 'PREPARING' ||
-              action === 'RENAMING' ||
-              action === 'DELETING') && (
-              <CircularProgressbar
-                value={progress ?? 0}
-                minValue={0}
-                maxValue={1}
-                strokeWidth={16}
-                styles={buildStyles({
-                  pathTransitionDuration: 0.25,
-                  pathColor: 'rgb(var(--color-primary) / 1)',
-                  strokeLinecap: 'round',
-                })}
-                className="aspect-square w-6 rounded-full ring-4 ring-inset ring-primary/15 dark:ring-gray-10"
-              />
-            )}
+          {action && (action === 'UPLOADING' || action === 'DOWNLOADING' || action === 'RENAMING') && (
+            <CircularProgressbar
+              value={progress ?? 0}
+              minValue={0}
+              maxValue={1}
+              strokeWidth={16}
+              styles={buildStyles({
+                pathTransitionDuration: 0.25,
+                pathColor: 'rgb(var(--color-primary) / 1)',
+                strokeLinecap: 'round',
+              })}
+              className="aspect-square w-6 rounded-full ring-4 ring-inset ring-primary/15 dark:ring-gray-10"
+            />
+          )}
 
           {/* DONE */}
           {action &&
@@ -110,11 +86,9 @@ export function Item({
 
           {/* ERROR */}
           {action &&
-            (action === 'DELETE_ERROR' ||
-              action === 'DOWNLOAD_ERROR' ||
-              action === 'UPLOAD_ERROR' ||
-              action === 'RENAME_ERROR' ||
-              action === 'METADATA_READ_ERROR') && <WarningCircle size={24} className="text-red" weight="regular" />}
+            (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR') && (
+              <WarningCircle size={24} className="text-red" weight="regular" />
+            )}
         </div>
       </div>
     </div>

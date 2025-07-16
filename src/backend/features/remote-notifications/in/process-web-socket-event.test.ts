@@ -13,11 +13,11 @@ describe('processWebSocketEvent', () => {
     vi.clearAllMocks();
   });
 
-  it('should log debug if schema is valid and clientId is drive-desktop', async () => {
+  it('should log debug if schema is valid and clientId is drive-desktop-windows', async () => {
     const event = {
       event: 'ITEMS_TO_TRASH',
       email: 'test@example.com',
-      clientId: 'drive-desktop',
+      clientId: 'drive-desktop-windows',
       userId: 'user1',
       payload: [{ type: 'file', uuid: 'abc' }],
     };
@@ -35,11 +35,11 @@ describe('processWebSocketEvent', () => {
 
     await processWebSocketEvent({ data: event });
     expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
-    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Notification received', data: event });
+    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Remote notification received', data: event });
     expect(loggerMock.debug).not.toHaveBeenCalled();
   });
 
-  it('should call debouncedSynchronization if schema is valid and clientId is not drive-desktop', async () => {
+  it('should call debouncedSynchronization if schema is valid and clientId is not drive-desktop-windows', async () => {
     const event = {
       event: 'ITEMS_TO_TRASH',
       email: 'test@example.com',
@@ -50,7 +50,7 @@ describe('processWebSocketEvent', () => {
 
     await processWebSocketEvent({ data: event });
     expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
-    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Notification received', data: event });
+    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Remote notification received', data: event });
     expect(loggerMock.debug).not.toHaveBeenCalled();
   });
 });

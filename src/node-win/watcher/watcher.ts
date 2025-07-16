@@ -6,44 +6,29 @@ import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
 import VirtualDrive from '../virtual-drive';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/AddController';
+import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
+import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
+import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 
 export type TWatcherCallbacks = {
   addController: AddController;
+  updateContentsId: (_: { absolutePath: AbsolutePath; path: RelativePath; uuid: string }) => Promise<void>;
 };
 
 export class Watcher {
-  syncRootPath!: string;
-  options!: WatchOptions;
-  virtualDrive!: VirtualDrive;
-  queueManager!: QueueManager;
-  logger!: TLogger;
-  fileInDevice = new Set<string>();
+  fileInDevice = new Set<AbsolutePath>();
   chokidar?: FSWatcher;
-  callbacks!: TWatcherCallbacks;
 
-  constructor(private readonly onRaw: OnRawService = new OnRawService()) {}
-
-  init(
-    queueManager: QueueManager,
-    syncRootPath: string,
-    options: WatchOptions,
-    logger: TLogger,
-    virtualDrive: VirtualDrive,
-    callbacks: TWatcherCallbacks,
-  ) {
-    this.queueManager = queueManager;
-    this.syncRootPath = syncRootPath;
-    this.options = options;
-    this.logger = logger;
-    this.virtualDrive = virtualDrive;
-    this.callbacks = callbacks;
-  }
-
-  private onChange = (path: string) => {
-    this.logger.debug({ msg: 'onChange', path });
-  };
+  constructor(
+    public readonly syncRootPath: AbsolutePath,
+    public readonly options: WatchOptions,
+    public readonly queueManager: QueueManager,
+    public readonly logger: TLogger,
+    public readonly virtualDrive: VirtualDrive,
+    public readonly callbacks: TWatcherCallbacks,
+    private readonly onRaw: OnRawService = new OnRawService(),
+  ) {}
 
   private onError = (error: unknown) => {
     this.logger.error({ msg: 'onError', error });
@@ -53,15 +38,16 @@ export class Watcher {
     this.logger.debug({ msg: 'onReady' });
   };
 
-  public watchAndWait() {
+  watchAndWait() {
     try {
       this.chokidar = watch(this.syncRootPath, this.options);
       this.chokidar
         .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ self: this, absolutePath, stats: stats! }))
         .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ self: this, absolutePath, stats: stats! }))
-        .on('change', this.onChange)
+        .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ virtualDrive: this.virtualDrive, absolutePath }))
+        .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ virtualDrive: this.virtualDrive, absolutePath }))
+        .on('raw', (event, absolutePath: AbsolutePath, details) => this.onRaw.execute({ self: this, event, absolutePath, details }))
         .on('error', this.onError)
-        .on('raw', (event, path, details) => this.onRaw.execute({ self: this, event, path, details }))
         .on('ready', this.onReady);
     } catch (exc) {
       this.logger.error({ msg: 'watchAndWait', exc });

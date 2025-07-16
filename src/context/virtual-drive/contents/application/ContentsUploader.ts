@@ -1,12 +1,11 @@
-import { RemoteFileContents } from '../domain/RemoteFileContents';
-import { LocalFileContents } from '../domain/LocalFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileProvider } from '../infrastructure/FSLocalFileProvider';
 import { logger } from '@/apps/shared/logger/logger';
-import { EnvironmentContentFileUploader } from '../infrastructure/upload/EnvironmentContentFileUploader';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
+
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: EnvironmentRemoteFileContentsManagersFactory,
@@ -14,82 +13,33 @@ export class ContentsUploader {
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  private registerEvents(uploader: EnvironmentContentFileUploader, localFileContents: LocalFileContents) {
-    uploader.on('start', () => {
-      ipcRendererSyncEngine.send('FILE_UPLOADING', {
-        name: localFileContents.name,
-        extension: localFileContents.extension,
-        nameWithExtension: localFileContents.nameWithExtension,
-        size: localFileContents.size,
-        processInfo: { elapsedTime: uploader.elapsedTime() },
-      });
-    });
-
-    uploader.on('progress', (progress: number) => {
-      ipcRendererSyncEngine.send('FILE_UPLOADING', {
-        name: localFileContents.name,
-        extension: localFileContents.extension,
-        nameWithExtension: localFileContents.nameWithExtension,
-        size: localFileContents.size,
-        processInfo: { elapsedTime: uploader.elapsedTime(), progress },
-      });
-    });
-
-    uploader.on('error', (error: Error) => {
-      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
-        name: localFileContents.name,
-        extension: localFileContents.extension,
-        nameWithExtension: localFileContents.nameWithExtension,
-        error: error.message,
-      });
-    });
-
-    uploader.on('finish', () => {
-      ipcRendererSyncEngine.send('FILE_UPLOADED', {
-        name: localFileContents.name,
-        extension: localFileContents.extension,
-        nameWithExtension: localFileContents.nameWithExtension,
-        size: localFileContents.size,
-        processInfo: { elapsedTime: uploader.elapsedTime() },
-      });
-    });
-  }
-
-  async run(posixRelativePath: string): Promise<RemoteFileContents> {
+  async run(path: string) {
     try {
-      const win32RelativePath = PlatformPathConverter.posixToWin(posixRelativePath);
+      const win32RelativePath = PlatformPathConverter.posixToWin(path);
 
-      const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath);
+      const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath) as AbsolutePath;
 
-      const { contents, abortSignal } = await this.contentProvider.provide(absolutePath);
+      const { readable, abortSignal, size } = await this.contentProvider.provide(absolutePath);
 
-      const uploader = this.remoteContentsManagersFactory.uploader(contents);
+      const uploader = this.remoteContentsManagersFactory.uploader();
 
-      this.registerEvents(uploader, contents);
-
-      const contentsId = await uploader.upload({
-        contents: contents.stream,
-        size: contents.size,
-        path: posixRelativePath,
+      const { data: contentsId, error } = await uploader.upload({
+        readable,
+        size,
+        path,
         abortSignal,
+        callbacks: getUploadCallbacks({ path: absolutePath }),
       });
 
-      const fileContents = RemoteFileContents.create(contentsId, contents.size);
+      if (error) throw error;
 
-      return fileContents;
+      return { id: contentsId, size };
     } catch (error) {
-      logger.error({
+      throw logger.error({
         msg: 'Contents uploader error',
-        posixRelativePath,
+        path,
         error,
       });
-
-      const fileName = posixRelativePath.split('/').pop() || posixRelativePath;
-      if (error instanceof Error) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (error as any).fileName = fileName;
-      }
-      throw error;
     }
   }
 }

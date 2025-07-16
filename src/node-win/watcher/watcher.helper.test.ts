@@ -7,9 +7,17 @@ import { TWatcherCallbacks, Watcher } from './watcher';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import VirtualDrive from '../virtual-drive';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as unlinkFile from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
+import * as unlinkFolder from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
+import * as onAdd from './events/on-add.service';
+import * as onAddDir from './events/on-add-dir.service';
 
-vi.mock(import('./events/on-add.service'));
-vi.mock(import('./events/on-add-dir.service'));
+partialSpyOn(onAdd, 'onAdd');
+partialSpyOn(onAddDir, 'onAddDir');
+partialSpyOn(unlinkFile, 'unlinkFile');
+partialSpyOn(unlinkFolder, 'unlinkFolder');
 
 let watcher: Watcher | undefined;
 
@@ -26,8 +34,7 @@ export async function setupWatcher(syncRootPath: string) {
     await mkdir(syncRootPath);
   }
 
-  watcher = new Watcher(onRaw);
-  watcher.init(queueManager, syncRootPath, {}, logger, virtualDrive, watcherCallbacks);
+  watcher = new Watcher(syncRootPath as AbsolutePath, {}, queueManager, logger, virtualDrive, watcherCallbacks, onRaw);
   watcher.watchAndWait();
   watcher.chokidar?.on('all', (event, path) => onAll({ event, path }));
 }
