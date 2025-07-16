@@ -29,7 +29,7 @@ jobs:
       - name: Create .npmrc file
         run: |
           touch .npmrc
-          echo "node-linker=hoisted" >> .npmrc
+          echo "registry=https://registry.yarnpkg.com/" >> .npmrc
           echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
