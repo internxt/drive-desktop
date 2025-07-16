@@ -21,12 +21,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.11
-          run_install: false
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -42,7 +36,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install --ignore-scripts
 
       - name: Run tests
         run: npm run test:cov
