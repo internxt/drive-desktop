@@ -10,7 +10,7 @@ import Bottleneck from 'bottleneck';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
-const limiter = new Bottleneck({ maxConcurrent: 7 });
+const limiter = new Bottleneck({ maxConcurrent: 4 });
 
 type TProps = {
   path: string;
