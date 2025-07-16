@@ -8,42 +8,39 @@ import { pathUtils } from '../../infrastructure/AbsolutePath';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { uploadFile } from '../upload-file';
 import { onFileCreated } from '@/apps/main/on-file-created';
+import { Backup } from '@/apps/backups/Backups';
+import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+
+type Props = {
+  self: Backup;
+  context: BackupsContext;
+  tracker: BackupsProcessTracker;
+  remoteTree: RemoteTree;
+  added: LocalFile[];
+};
 
 @Service()
 export class FileBatchUploader {
   constructor(
-    private readonly localHandler: EnvironmentFileUploader,
+    private readonly uploader: EnvironmentFileUploader,
     private readonly creator: SimpleFileCreator,
   ) {}
 
-  async run(context: BackupsContext, remoteTree: RemoteTree, added: Array<LocalFile>, updateProgress: () => void): Promise<void> {
+  async run({ self, context, tracker, remoteTree, added }: Props) {
     const promises = added.map(async (localFile) => {
       try {
-        const contentsId = await uploadFile({ context, localFile, uploader: this.localHandler });
+        const contentsId = await uploadFile({ context, localFile, uploader: this.uploader });
 
         if (!contentsId) return;
 
         const parentPath = pathUtils.dirname(localFile.relativePath);
         const parent = remoteTree.folders[parentPath];
 
-        logger.debug({
-          tag: 'BACKUPS',
-          msg: 'Uploading file',
-          remotePath: localFile.relativePath,
-        });
-
         const file = await this.creator.run({
           contentsId,
           folderUuid: parent.uuid,
           path: localFile.relativePath,
           size: localFile.size.value,
-        });
-
-        logger.info({
-          tag: 'BACKUPS',
-          msg: 'File created',
-          relativePath: file.path,
-          contentsId: file.contentsId,
         });
 
         await onFileCreated({
@@ -62,7 +59,8 @@ export class FileBatchUploader {
           error,
         });
       } finally {
-        updateProgress();
+        self.backed++;
+        tracker.currentProcessed(self.backed);
       }
     });
 

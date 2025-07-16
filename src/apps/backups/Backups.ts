@@ -1,9 +1,7 @@
 import { Service } from 'diod';
 import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
-import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
-import { File } from '../../context/virtual-drive/files/domain/File';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { BackupsContext } from './BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
@@ -104,32 +102,10 @@ export class Backup {
     const { added, modified, deleted } = diff;
 
     await Promise.all([
-      this.uploadAndCreateFile(context, tracker, added, remote),
-      this.uploadAndUpdate(context, tracker, modified),
+      this.fileBatchUploader.run({ self: this, tracker, context, remoteTree: remote, added }),
+      this.fileBatchUpdater.run({ self: this, tracker, context, modified }),
       deleteRemoteFiles({ context, deleted }),
     ]);
-  }
-
-  private async uploadAndCreateFile(context: BackupsContext, tracker: BackupsProcessTracker, added: Array<LocalFile>, tree: RemoteTree) {
-    if (context.abortController.signal.aborted) {
-      return;
-    }
-
-    await this.fileBatchUploader.run(context, tree, added, () => {
-      this.backed += 1;
-      tracker.currentProcessed(this.backed);
-    });
-  }
-
-  private async uploadAndUpdate(context: BackupsContext, tracker: BackupsProcessTracker, modified: Map<LocalFile, File>) {
-    if (context.abortController.signal.aborted) {
-      return;
-    }
-
-    await this.fileBatchUpdater.run(context, modified);
-
-    this.backed += modified.size;
-    tracker.currentProcessed(this.backed);
   }
 
   private async deleteRemoteFolders(context: BackupsContext, deleted: Array<Folder>) {
