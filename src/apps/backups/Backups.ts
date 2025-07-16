@@ -110,12 +110,7 @@ export class Backup {
     ]);
   }
 
-  private async uploadAndCreateFile(
-    context: BackupsContext,
-    tracker: BackupsProcessTracker,
-    added: Array<LocalFile>,
-    tree: RemoteTree,
-  ): Promise<void> {
+  private async uploadAndCreateFile(context: BackupsContext, tracker: BackupsProcessTracker, added: Array<LocalFile>, tree: RemoteTree) {
     if (context.abortController.signal.aborted) {
       return;
     }
@@ -126,7 +121,7 @@ export class Backup {
     });
   }
 
-  private async uploadAndUpdate(context: BackupsContext, tracker: BackupsProcessTracker, modified: Map<LocalFile, File>): Promise<void> {
+  private async uploadAndUpdate(context: BackupsContext, tracker: BackupsProcessTracker, modified: Map<LocalFile, File>) {
     if (context.abortController.signal.aborted) {
       return;
     }
