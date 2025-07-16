@@ -1,36 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useItems } from '../../api/use-get-items';
 import { ItemBackup } from '../../../shared/types/items';
+import { useMemo } from 'react';
 
-const cache = new Map<string, { data: ItemBackup[]; timestamp: number }>();
+export default function useGetItems(folderUuid: string): { items: ItemBackup[]; status: string } {
+  const { data: items, isFetching, isError } = useItems(folderUuid);
 
-export default function useGetItems(folderUuid: string): { items: ItemBackup[]; loadingItems: boolean } {
-  const [items, setItems] = useState<ItemBackup[]>([]);
-  const [loadingItems, setLoadingItems] = useState(true);
-  const CACHE_DURATION = 2 * 60 * 1000;
+  const status = useMemo(() => {
+    if (isFetching) return 'loading';
+    if (isError) return 'error';
+    return 'ready';
+  }, [items, isFetching, isError]);
 
-  useEffect(() => {
-    const cached = cache.get(folderUuid);
-    const now = Date.now();
-
-    if (cached && now - cached.timestamp < CACHE_DURATION) {
-      setItems(cached.data);
-    } else {
-      setItems([]);
-      setLoadingItems(true);
-      window.electron
-        .getItemByFolderUuid(folderUuid)
-        .then((fetchedItems) => {
-          cache.set(folderUuid, { data: fetchedItems, timestamp: Date.now() });
-          setItems(fetchedItems);
-        })
-        .catch(() => {
-          setItems([]);
-        })
-        .finally(() => {
-          setLoadingItems(false);
-        });
-    }
-  }, [folderUuid]);
-
-  return { items, loadingItems };
+  return { items: items ?? [], status };
 }
