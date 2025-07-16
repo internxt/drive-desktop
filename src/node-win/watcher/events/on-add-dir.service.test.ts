@@ -1,18 +1,19 @@
-import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
+import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { onAddDir } from './on-add-dir.service';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
-// import { isFolderMoved } from './is-folder-moved';
+import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
+import * as trackAddDirEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
-// vi.mock(import('./is-folder-moved'));
+vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-folder'));
 
 describe('on-add-dir', () => {
   const getFolderUuidMock = deepMocked(NodeWin.getFolderUuid);
-  // const isFolderMovedMock = vi.mocked(isFolderMoved);
-  const isFolderMovedMock = vi.fn();
+  const moveFolderMock = vi.mocked(moveFolder);
+  const trackAddDirEventMock = partialSpyOn(trackAddDirEvent, 'trackAddDirEvent');
 
   const date1 = new Date();
   const date2 = new Date(date1.getTime() + 1);
@@ -27,7 +28,7 @@ describe('on-add-dir', () => {
       self: {
         queueManager: { enqueue: vi.fn() },
         logger: loggerMock,
-        callbacks: { addController: { execute: vi.fn() } },
+        callbacks: { addController: { createFolder: vi.fn() } },
         virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },
       },
     });
@@ -41,15 +42,14 @@ describe('on-add-dir', () => {
     await onAddDir(props);
 
     // Then
-    expect(props.self.callbacks.addController.execute).toBeCalledWith(
+    expect(props.self.callbacks.addController.createFolder).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/folder',
-        isFolder: true,
       }),
     );
   });
 
-  it('should call isFolderMoved if the folder is moved', async () => {
+  it('should call moveFolder if the folder is moved', async () => {
     // Given
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
     props.stats.birthtime = date1;
@@ -59,12 +59,13 @@ describe('on-add-dir', () => {
     await onAddDir(props);
 
     // Then
-    // expect(isFolderMovedMock).toBeCalledWith(
-    //   expect.objectContaining({
-    //     path: '/drive/folder',
-    //     uuid: 'parentUuid',
-    //   }),
-    // );
+    expect(trackAddDirEventMock).toBeCalledWith({ uuid: 'uuid' });
+    expect(moveFolderMock).toBeCalledWith(
+      expect.objectContaining({
+        path: '/drive/folder',
+        uuid: 'uuid',
+      }),
+    );
   });
 
   it('should not do anything if the folder is added from remote', async () => {
@@ -77,7 +78,7 @@ describe('on-add-dir', () => {
     await onAddDir(props);
 
     // Then
-    expect(props.self.callbacks.addController.execute).not.toBeCalled();
-    expect(isFolderMovedMock).not.toBeCalled();
+    expect(props.self.callbacks.addController.createFolder).not.toBeCalled();
+    expect(moveFolderMock).not.toBeCalled();
   });
 });

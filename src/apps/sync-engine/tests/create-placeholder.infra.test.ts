@@ -5,7 +5,7 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -15,14 +15,14 @@ import { getUserOrThrow } from '@/apps/main/auth/service';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { ipcRenderer } from 'electron';
 
-vi.mock(import('../ipcRendererSyncEngine'));
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('create-placeholder', () => {
-  const invokeMock = deepMocked(ipcRendererSyncEngine.invoke);
+  const invokeMock = partialSpyOn(ipcRenderer, 'invoke');
   const createFileMock = vi.mocked(driveServerWip.files.createFile);
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
@@ -56,7 +56,6 @@ describe('create-placeholder', () => {
       queueManagerPath,
     });
 
-    // @ts-expect-error we do not want to implement all events
     invokeMock.mockImplementation((event) => {
       if (event === 'GET_UPDATED_REMOTE_ITEMS') {
         return Promise.resolve({ files: [], folders: [] });
@@ -65,6 +64,12 @@ describe('create-placeholder', () => {
       if (event === 'FIND_DANGLED_FILES') {
         return Promise.resolve([]);
       }
+
+      if (event === 'fileCreateOrUpdate') {
+        return Promise.resolve({});
+      }
+
+      return Promise.resolve();
     });
 
     createFileMock.mockResolvedValueOnce({

@@ -59,7 +59,7 @@ import { unregisterVirtualDrives } from './background-processes/sync-engine/serv
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
-import { AuthModule } from '@/backend/features/auth/auth.module';
+import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -74,6 +74,7 @@ setupVirtualDriveHandlers();
 setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();
+setupIpcSqlite();
 
 Logger.log(`Running ${packageJson.version}`);
 Logger.log(`App is packaged: ${app.isPackaged}`);
@@ -168,9 +169,8 @@ eventBus.on('USER_LOGGED_OUT', async () => {
     widget.destroy();
   }
 
-  clearAntivirus();
+  await clearAntivirus();
   unregisterVirtualDrives({});
-  void AuthModule.logout();
 
   await createAuthWindow();
 });

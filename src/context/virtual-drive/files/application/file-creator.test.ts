@@ -13,6 +13,9 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { GetFolderIdentityError } from '@/infra/node-win/services/item-identity/get-folder-identity';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
@@ -23,6 +26,7 @@ describe('File Creator', () => {
   const virtualDriveMock = mockDeep<VirtualDrive>();
   const getFolderUuid = vi.mocked(NodeWin.getFolderUuid);
   const ipcRendererSyncEngineMock = vi.mocked(ipcRendererSyncEngine);
+  const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
   const folderParent = FolderMother.any();
   const filePath = new FilePath(folderParent.path + '/cat.png');
@@ -32,7 +36,8 @@ describe('File Creator', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
-    getFolderUuid.mockReturnValue({ data: folderParent.uuid });
+    getFolderUuid.mockReturnValue({ data: folderParent.uuid as FolderUuid });
+    invokeMock.mockResolvedValue({});
   });
 
   it('should throw an error if placeholderId is not found', async () => {
@@ -60,11 +65,15 @@ describe('File Creator', () => {
       path: filePath.value,
     }).attributes();
 
-    remoteFileSystemMock.persist.mockResolvedValueOnce(file);
+    remoteFileSystemMock.persist.mockResolvedValueOnce({
+      ...file,
+      dto: { size: '1024' },
+    } as any);
 
     await SUT.run(filePath, contents);
 
     expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(file)));
+    expect(invokeMock).toBeCalledTimes(1);
   });
 
   it('once the file entry is created the creation event should have been emitted', async () => {
@@ -79,10 +88,14 @@ describe('File Creator', () => {
       folderUuid: folderParent.uuid,
     }).attributes();
 
-    remoteFileSystemMock.persist.mockResolvedValueOnce(fileAttributes);
+    remoteFileSystemMock.persist.mockResolvedValueOnce({
+      ...fileAttributes,
+      dto: { size: '1024' },
+    } as any);
 
     await SUT.run(filePath, contents);
 
+    expect(invokeMock).toBeCalledTimes(1);
     expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_CREATED', {
       bucket: '',
       name: 'cat',

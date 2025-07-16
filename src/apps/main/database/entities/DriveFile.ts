@@ -3,6 +3,21 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 export type FileUuid = Brand<string, 'FileUuid'>;
 export type ContentsId = Brand<string, 'ContentsId'>;
+export type SimpleDriveFile = {
+  id: number;
+  uuid: FileUuid;
+  name: string;
+  nameWithExtension: string;
+  extension: string;
+  parentId: number;
+  parentUuid: string | undefined;
+  contentsId: ContentsId;
+  size: number;
+  createdAt: string;
+  updatedAt: string;
+  modificationTime: string;
+  status: 'EXISTS' | 'TRASHED' | 'DELETED';
+};
 
 @Entity('drive_file')
 export class DriveFile {
@@ -12,11 +27,7 @@ export class DriveFile {
   @Column({ nullable: false, type: 'int' })
   id!: number;
 
-  @PrimaryColumn({
-    nullable: false,
-    unique: true,
-    type: 'varchar',
-  })
+  @PrimaryColumn({ nullable: false, unique: true, type: 'varchar' })
   uuid!: string;
 
   @Column({ nullable: true, default: '', type: 'varchar' })

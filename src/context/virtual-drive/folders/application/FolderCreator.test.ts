@@ -12,6 +12,9 @@ import { FolderCreator } from './FolderCreator';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { v4 } from 'uuid';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { FolderUuid as TFolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 
@@ -20,6 +23,7 @@ describe('Folder Creator', () => {
   const remote = mockDeep<HttpRemoteFolderSystem>();
   const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderUuid = deepMocked(NodeWin.getFolderUuid);
+  const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
   const SUT = new FolderCreator(repository, remote, virtualDrive);
 
@@ -28,6 +32,7 @@ describe('Folder Creator', () => {
 
   beforeEach(() => {
     vi.resetAllMocks();
+    invokeMock.mockResolvedValue({});
   });
 
   it('If placeholderId is not found, throw error', async () => {
@@ -44,8 +49,8 @@ describe('Folder Creator', () => {
   it('If placeholder id is found, create folder', async () => {
     // Given
     const folder = FolderMother.fromPartial({ parentId: 1, parentUuid: v4(), path });
-    remote.persist.mockResolvedValueOnce(folder.attributes());
-    getFolderUuid.mockReturnValueOnce({ data: folder.parentUuid });
+    remote.persist.mockResolvedValueOnce(folder.attributes() as any);
+    getFolderUuid.mockReturnValueOnce({ data: folder.parentUuid as TFolderUuid });
 
     // When
     await SUT.run({ path });
