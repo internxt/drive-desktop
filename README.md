@@ -26,7 +26,7 @@ https://github.com/coreybutler/nvm-windows
 nvm install 20
 ```
 
-- **Install node GYP**
+- **Install node-gyp**
 ```bash
 npm install -g node-gyp
 ```
@@ -34,12 +34,6 @@ npm install -g node-gyp
 - **Python 3.10**
 
 Install using win store
-
-- **pnpm**
-
-```bash
-npm install -g pnpm
-```
 
 - **Visual Studio** (not VS Code) for building native dependencies.
 
