@@ -36,7 +36,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: yarn install --ignore-scripts
+        run: npm ci
 
       - name: Run tests
         run: npm run test:cov
