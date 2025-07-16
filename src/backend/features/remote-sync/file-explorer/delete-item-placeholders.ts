@@ -9,12 +9,9 @@ type Props =
 
 export function deleteItemPlaceholders({ remotes, virtualDrive, isFolder }: Props) {
   for (const remote of remotes) {
-    let localUuid;
-
-    if (isFolder) {
-      localUuid = NodeWin.getFolderUuid({ path: remote.path, drive: virtualDrive }).data;
-    } else {
-      localUuid = NodeWin.getFileUuid({ path: remote.path, drive: virtualDrive }).data;
+    const localUUID = isFolder
+      ? NodeWin.getFolderUuid({ path: remote.path, drive: virtualDrive }).data
+      : NodeWin.getFileUuid({ path: remote.path, drive: virtualDrive }).data;
     }
 
     /**
