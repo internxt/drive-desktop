@@ -34,7 +34,7 @@ jobs:
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: npm ci --legacy-peer-deps --ignore-scripts && node node_modules/electron/install.js
+        run: npm ci
 
       - name: Run TypeScript compiler
         run: npm run type-check

@@ -15,7 +15,7 @@
     "build:sync-engine": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.sync-engine.ts",
     "build:dll": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.renderer.dev.dll.ts",
     "package": "ts-node .erb/scripts/clean.js && npm run build && electron-builder build --publish never",
-    "init:dev": "npm install --legacy-peer-deps && node node_modules/electron/install.js && npm run build:dll && npm run reload-native-deps",
+    "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run reload-native-deps",
     "========== Code style ==========": "",
     "lint": "eslint . --ext .ts,.tsx --max-warnings 516",
     "lint:fix": "npm run lint -- --fix",
@@ -38,7 +38,7 @@
     "test:cov": "npm run test:infra -- --coverage",
     "========== Native deps ==========": "",
     "electron-rebuild": "electron-rebuild --sequential --force --types prod,dev,optional --module-dir .",
-    "reload-native-deps": "ts-node .erb/scripts/check-native-deps.ts && npm run electron-rebuild && npm install --legacy-peer-deps",
+    "reload-native-deps": "ts-node .erb/scripts/check-native-deps.ts && npm run electron-rebuild && npm install",
     "========== Other ==========": "",
     "prepare": "husky install",
     "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",
@@ -88,7 +88,7 @@
     "@types/lodash.chunk": "^4.2.9",
     "@types/lodash.debounce": "^4.0.9",
     "@types/lokijs": "^1.5.14",
-    "@types/node": "20.17.48",
+    "@types/node": "^20.19.0",
     "@types/node-schedule": "^2.1.0",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
@@ -202,7 +202,7 @@
     "uuid": "^8.3.2"
   },
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=20.19.0",
     "npm": ">=10.0.0"
   }
 }
