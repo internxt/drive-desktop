@@ -42,7 +42,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
     tmpPath: '',
   });
 
-  const items = useGetItems(folder.uuid);
+  const { items, loadingItems } = useGetItems(folder.uuid);
 
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
 
@@ -121,7 +121,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
         {selected && items.length > 0 ? (
           <BackupsList items={items} selected={selectedBackup} setSelected={addOrDeleteItem} onDobleClick={handleNavigateToFolder} />
         ) : (
-          <LoadingFolders state={backupsState} messageText="settings.backups.folders.no-folders-to-download" />
+          <LoadingFolders state={backupsState} loadingItems={loadingItems} messageText="settings.backups.folders.no-folders-to-download" />
         )}
       </div>
       <div className=" flex items-center justify-end">

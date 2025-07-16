@@ -6,9 +6,10 @@ import { BackupsState } from '../../../../hooks/backups/useBackups';
 interface LoadingFoldersProps {
   state: BackupsState;
   messageText?: string;
+  loadingItems?: boolean;
 }
 
-export function LoadingFolders({ state, messageText }: LoadingFoldersProps) {
+export function LoadingFolders({ state, messageText, loadingItems }: LoadingFoldersProps) {
   const [isLoading, setIsLoading] = useState(true);
   const { translate } = useTranslationContext();
 
@@ -25,7 +26,7 @@ export function LoadingFolders({ state, messageText }: LoadingFoldersProps) {
 
   return (
     <div className="flex h-full items-center justify-center">
-      {isLoading ? (
+      {isLoading || loadingItems ? (
         <Spinner className="fill-l-neutral-50 h-6 w-6 animate-spin" />
       ) : state === 'LOADING' ? (
         <Spinner className="fill-l-neutral-50 h-6 w-6 animate-spin" />

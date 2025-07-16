@@ -3,8 +3,9 @@ import { ItemBackup } from '../../../shared/types/items';
 
 const cache = new Map<string, { data: ItemBackup[]; timestamp: number }>();
 
-export default function useGetItems(folderUuid: string): ItemBackup[] {
+export default function useGetItems(folderUuid: string): { items: ItemBackup[]; loadingItems: boolean } {
   const [items, setItems] = useState<ItemBackup[]>([]);
+  const [loadingItems, setLoadingItems] = useState(true);
   const CACHE_DURATION = 2 * 60 * 1000;
 
   useEffect(() => {
@@ -15,12 +16,21 @@ export default function useGetItems(folderUuid: string): ItemBackup[] {
       setItems(cached.data);
     } else {
       setItems([]);
-      window.electron.getItemByFolderUuid(folderUuid).then((fetchedItems) => {
-        cache.set(folderUuid, { data: fetchedItems, timestamp: Date.now() });
-        setItems(fetchedItems);
-      });
+      setLoadingItems(true);
+      window.electron
+        .getItemByFolderUuid(folderUuid)
+        .then((fetchedItems) => {
+          cache.set(folderUuid, { data: fetchedItems, timestamp: Date.now() });
+          setItems(fetchedItems);
+        })
+        .catch(() => {
+          setItems([]);
+        })
+        .finally(() => {
+          setLoadingItems(false);
+        });
     }
   }, [folderUuid]);
 
-  return items;
+  return { items, loadingItems };
 }
