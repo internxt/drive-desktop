@@ -1,7 +1,6 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
-import Logger from 'electron-log';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
@@ -17,72 +16,56 @@ export class FileBatchUploader {
     private readonly creator: SimpleFileCreator,
   ) {}
 
-  async run(
-    context: BackupsContext,
-    localRootPath: string,
-    remoteTree: RemoteTree,
-    batch: Array<LocalFile>,
-    updateProgress: () => void,
-  ): Promise<void> {
-    const MAX_CONCURRENT_TASKS = 5;
+  async run(context: BackupsContext, remoteTree: RemoteTree, added: Array<LocalFile>, updateProgress: () => void): Promise<void> {
+    const promises = added.map(async (localFile) => {
+      try {
+        const contentsId = await uploadFile({ context, localFile, uploader: this.localHandler });
 
-    const chunks = Array.from({ length: Math.ceil(batch.length / MAX_CONCURRENT_TASKS) }, (_, i) =>
-      batch.slice(i * MAX_CONCURRENT_TASKS, (i + 1) * MAX_CONCURRENT_TASKS),
-    );
+        if (!contentsId) return;
 
-    for (const chunk of chunks) {
-      await Promise.all(
-        chunk.map(async (localFile) => {
-          try {
-            const contentsId = await uploadFile({ context, localFile, uploader: this.localHandler });
+        const parentPath = pathUtils.dirname(localFile.relativePath);
+        const parent = remoteTree.folders[parentPath];
 
-            Logger.info(localFile.absolutePath);
+        logger.debug({
+          tag: 'BACKUPS',
+          msg: 'Uploading file',
+          remotePath: localFile.relativePath,
+        });
 
-            if (!contentsId) return;
+        const file = await this.creator.run({
+          contentsId,
+          folderUuid: parent.uuid,
+          path: localFile.relativePath,
+          size: localFile.size.value,
+        });
 
-            const parentPath = pathUtils.dirname(localFile.relativePath);
-            const parent = remoteTree.folders[parentPath];
+        logger.info({
+          tag: 'BACKUPS',
+          msg: 'File created',
+          relativePath: file.path,
+          contentsId: file.contentsId,
+        });
 
-            logger.debug({
-              tag: 'BACKUPS',
-              msg: 'Uploading file',
-              remotePath: localFile.relativePath,
-            });
+        await onFileCreated({
+          bucket: context.backupsBucket,
+          name: file.name,
+          extension: file.type,
+          nameWithExtension: file.nameWithExtension,
+          fileId: file.id,
+          path: localFile.absolutePath,
+        });
+      } catch (error) {
+        logger.error({
+          tag: 'BACKUPS',
+          msg: 'Error uploading file',
+          path: localFile.relativePath,
+          error,
+        });
+      } finally {
+        updateProgress();
+      }
+    });
 
-            const file = await this.creator.run({
-              contentsId,
-              folderUuid: parent.uuid,
-              path: localFile.relativePath,
-              size: localFile.size.value,
-            });
-
-            logger.info({
-              tag: 'BACKUPS',
-              msg: 'File created',
-              relativePath: file.path,
-              contentsId: file.contentsId,
-            });
-
-            await onFileCreated({
-              bucket: context.backupsBucket,
-              name: file.name,
-              extension: file.type,
-              nameWithExtension: file.nameWithExtension,
-              fileId: file.id,
-              path: localFile.absolutePath,
-            });
-          } catch (error) {
-            logger.error({
-              tag: 'BACKUPS',
-              msg: 'Error uploading file',
-              path: localFile.relativePath,
-              error,
-            });
-          } finally {
-            updateProgress();
-          }
-        }),
-      );
-    }
+    await Promise.all(promises);
   }
 }

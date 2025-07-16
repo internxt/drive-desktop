@@ -10,10 +10,11 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
 import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
+import { Stats } from 'fs';
 
 export type TWatcherCallbacks = {
   addController: AddController;
-  updateContentsId: (_: { absolutePath: AbsolutePath; path: RelativePath; uuid: string }) => Promise<void>;
+  updateContentsId: (_: { stats: Stats; path: RelativePath; uuid: string }) => Promise<void>;
 };
 
 export class Watcher {

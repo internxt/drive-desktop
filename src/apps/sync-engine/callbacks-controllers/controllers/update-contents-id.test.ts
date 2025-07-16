@@ -3,7 +3,6 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { updateContentsId } from './update-contents-id';
 import { mockDeep } from 'vitest-mock-extended';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { RetryContentsUploader } from '@/context/virtual-drive/contents/application/RetryContentsUploader';
 import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
@@ -12,13 +11,14 @@ import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMothe
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { StatError } from '@/infra/file-system/services/stat';
+import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 
 describe('update-contents-id', () => {
   const replaceFileSpy = partialSpyOn(driveServerWip.files, 'replaceFile');
   const statSpy = partialSpyOn(fileSystem, 'stat');
 
   const virtualDrive = mockDeep<VirtualDrive>();
-  const fileContentsUploader = mockDeep<RetryContentsUploader>();
+  const fileContentsUploader = mockDeep<ContentsUploader>();
   const repository = mockDeep<InMemoryFileRepository>();
   const path = createRelativePath('folder', 'file.txt');
   const uuid = 'uuid';
