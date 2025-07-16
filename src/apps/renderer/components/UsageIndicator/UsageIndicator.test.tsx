@@ -2,23 +2,19 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UsageIndicator } from '.';
 import { Usage } from '@/apps/main/usage/Usage';
-import { UsageStatus } from '../../hooks/useUsage';
+import useUsage, { UsageStatus } from '../../hooks/useUsage';
+import { deepMocked } from '@/tests/vitest/utils.helper.test';
+import { LocalContextProps, useTranslationContext } from '../../context/LocalContext';
+import { mockDeep } from 'vitest-mock-extended';
 
-// Mock the hooks
-const mockTranslate = vi.fn();
-const mockUseUsage = vi.fn();
-
-vi.mock('../../context/LocalContext', () => ({
-  useTranslationContext: () => ({
-    translate: mockTranslate,
-  }),
-}));
-
-vi.mock('../../hooks/useUsage', () => ({
-  default: () => mockUseUsage(),
-}));
+vi.mock(import('../../context/LocalContext'));
+vi.mock(import('../../hooks/useUsage'));
 
 describe('UsageIndicator', () => {
+  const mockuseTranslationContext = deepMocked(useTranslationContext);
+  const mockedTranslationContext = mockDeep<LocalContextProps>();
+  const mockUseUsage = deepMocked(useUsage);
+
   const mockUsage: Usage = {
     usageInBytes: 500 * 1024 * 1024, // 500MB
     limitInBytes: 1024 * 1024 * 1024, // 1GB
@@ -27,7 +23,8 @@ describe('UsageIndicator', () => {
   };
   beforeEach(() => {
     vi.clearAllMocks();
-    mockTranslate.mockReturnValue('of');
+    mockedTranslationContext.translate.mockReturnValue('of');
+    mockuseTranslationContext.mockReturnValue(mockedTranslationContext);
   });
 
   describe('Loading State', () => {
@@ -89,7 +86,7 @@ describe('UsageIndicator', () => {
 
       // Then: Should display formatted usage
       expect(screen.getByText('500MB of 1GB')).toBeInTheDocument();
-      expect(mockTranslate).toHaveBeenCalledWith('widget.header.usage.of');
+      expect(mockedTranslationContext.translate).toHaveBeenCalledWith('widget.header.usage.of');
     });
 
     it('should display zero usage correctly', () => {
@@ -182,7 +179,7 @@ describe('UsageIndicator', () => {
   describe('Translation Integration', () => {
     it('should use translated "of" text', () => {
       // Given: Custom translation for "of"
-      mockTranslate.mockReturnValue('de');
+      mockedTranslationContext.translate.mockReturnValue('de');
 
       const mockUsage: Usage = {
         usageInBytes: 100 * 1024 * 1024, // 100MB
@@ -201,7 +198,7 @@ describe('UsageIndicator', () => {
 
       // Then: Should use translated text
       expect(screen.getByText('100MB de 1GB')).toBeInTheDocument();
-      expect(mockTranslate).toHaveBeenCalledWith('widget.header.usage.of');
+      expect(mockedTranslationContext.translate).toHaveBeenCalledWith('widget.header.usage.of');
     });
   });
 
@@ -281,7 +278,7 @@ describe('UsageIndicator', () => {
     it('should handle null/undefined usage gracefully', () => {
       // Given: Usage hook returns null usage
       mockUseUsage.mockReturnValue({
-        usage: null,
+        usage: undefined,
         status: 'ready' as UsageStatus,
       });
 
