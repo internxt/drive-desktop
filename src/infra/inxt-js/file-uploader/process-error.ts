@@ -3,7 +3,7 @@ import { FileUploaderCallbacks } from './file-uploader';
 
 export class EnvironmentFileUploaderError extends Error {
   constructor(
-    public readonly code: 'KILLED_BY_USER' | 'NOT_ENOUGH_SPACE' | 'UNKNOWN',
+    public readonly code: 'ABORTED' | 'NOT_ENOUGH_SPACE' | 'UNKNOWN',
     cause?: unknown,
   ) {
     super(code, { cause });
@@ -19,7 +19,7 @@ type TProps = {
 export function processError({ path, err, callbacks }: TProps) {
   if (err) {
     if (err.message === 'Process killed by user') {
-      return new EnvironmentFileUploaderError('KILLED_BY_USER', err);
+      return new EnvironmentFileUploaderError('ABORTED', err);
     }
 
     callbacks.onError();

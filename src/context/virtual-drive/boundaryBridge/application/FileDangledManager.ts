@@ -1,5 +1,4 @@
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
 import { FileOverwriteContent } from '../../files/application/FileOverwriteContent';
@@ -10,7 +9,6 @@ import { logger } from '@/apps/shared/logger/logger';
 
 export class FileDangledManager {
   constructor(
-    private readonly contentsUploader: RetryContentsUploader,
     private readonly contentsManagerFactory: EnvironmentRemoteFileContentsManagersFactory,
     private readonly fileOverwriteContent: FileOverwriteContent,
   ) {}
@@ -54,7 +52,6 @@ export class FileDangledManager {
       Logger.debug(`Dangled files: ${dangledFilesIds}`);
       await this.fileOverwriteContent.run({
         contentsIds: dangledFilesIds,
-        upload: this.contentsUploader.run.bind(this.contentsUploader),
         downloaderManger: this.contentsManagerFactory,
       });
     }

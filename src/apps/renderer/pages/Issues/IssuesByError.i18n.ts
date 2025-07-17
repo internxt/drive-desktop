@@ -2,6 +2,7 @@ import { globalI18n } from '../../localize/global.i18n';
 import { TLanguage } from '../../localize/language.store';
 
 type Translations =
+  | 'ABORTED'
   | 'CREATE_FOLDER_FAILED'
   | 'DELETE_ERROR'
   | 'FILE_SIZE_TOO_BIG'
@@ -18,6 +19,7 @@ type Translations =
 
 const translations: Record<TLanguage, Record<Translations, string>> = {
   en: {
+    ABORTED: 'Aborted',
     CREATE_FOLDER_FAILED: 'Failed to create folder',
     DELETE_ERROR: 'Cannot delete item',
     FILE_SIZE_TOO_BIG: 'File size too big (max 20GB)',
@@ -33,6 +35,7 @@ const translations: Record<TLanguage, Record<Translations, string>> = {
     SERVER_INTERNAL_ERROR: 'Server internal error.',
   },
   es: {
+    ABORTED: 'Abortado',
     CREATE_FOLDER_FAILED: 'Error al crear la carpeta',
     DELETE_ERROR: 'No se pudo eliminar el elemento',
     FILE_SIZE_TOO_BIG: 'El archivo es demasiado grande (máximo 20GB)',
@@ -48,6 +51,7 @@ const translations: Record<TLanguage, Record<Translations, string>> = {
     SERVER_INTERNAL_ERROR: 'Error interno del servidor',
   },
   fr: {
+    ABORTED: 'Avorté',
     CREATE_FOLDER_FAILED: 'Erreur lors de la création de la dossier',
     DELETE_ERROR: "Impossible de supprimer l'élément",
     FILE_SIZE_TOO_BIG: 'Le fichier est trop grand (max 20GB)',

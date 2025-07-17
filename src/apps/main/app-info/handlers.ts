@@ -1,8 +1,8 @@
 import { ipcMain, app } from 'electron';
-import { getInxtTempFolder } from './helpers';
+import { join } from 'path';
 
 ipcMain.handle('APP:TEMPORAL_FILES_FOLDER', () => {
-  return getInxtTempFolder();
+  return join(app.getPath('temp'), 'internxt');
 });
 
 ipcMain.handle('APP:PREFERRED_LANGUAGE', (): Array<string> => {

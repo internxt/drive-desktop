@@ -6,7 +6,6 @@ import { v4 } from 'uuid';
 import { setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
@@ -39,7 +38,7 @@ describe('create-placeholder', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
-    environmentFileUploader.upload.mockResolvedValueOnce({ data: '012345678901234567890123' as ContentsId });
+    environmentFileUploader.run.mockResolvedValueOnce({ data: '012345678901234567890123' as ContentsId });
   });
 
   afterAll(() => {

@@ -1,20 +1,27 @@
 import Logger from 'electron-log';
 import { OfflineFileAttributes } from '../domain/OfflineFile';
-import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
+import { ContentsUploader } from '../../contents/application/ContentsUploader';
+import { fileSystem } from '@/infra/file-system/file-system.module';
 
 type FileContentsHardUpdaterRun = {
   attributes: OfflineFileAttributes;
-  upload: (path: string) => Promise<RemoteFileContents>;
 };
 export class FileContentsHardUpdater {
-  constructor(private readonly remote: HttpRemoteFileSystem) {}
+  constructor(
+    private readonly remote: HttpRemoteFileSystem,
+    private readonly contentsUploader: ContentsUploader,
+  ) {}
+
   async run(input: FileContentsHardUpdaterRun) {
-    const { attributes, upload } = input;
+    const { attributes } = input;
     try {
       Logger.info('Running hard update before upload');
 
-      const content = await upload(attributes.path);
+      const { data: stats, error } = await fileSystem.stat({ absolutePath: attributes.path });
+      if (error) throw error;
+
+      const content = await this.contentsUploader.run({ path: attributes.path, stats });
 
       Logger.info('Running hard update after upload, Content id generated', content);
 

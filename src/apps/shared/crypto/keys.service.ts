@@ -9,6 +9,7 @@ class CorruptedEncryptedPrivateKeyError extends Error {
     Object.setPrototypeOf(this, CorruptedEncryptedPrivateKeyError.prototype);
   }
 }
+
 function decryptPrivateKey(privateKey: string, password: string): string {
   if (!privateKey || privateKey.length <= MINIMAL_ENCRYPTED_KEY_LEN) return '';
   else {

@@ -1,5 +1,4 @@
 import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
-import { FoldersContainer } from '../folders/FoldersContainer';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
@@ -13,9 +12,10 @@ import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/in
 import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { FilesPlaceholderUpdater } from '@/context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
+import { ContentsContainer } from '../contents/ContentsContainer';
 
 export function buildFilesContainer(
-  folderContainer: FoldersContainer,
+  contentsContainer: ContentsContainer,
   sharedContainer: SharedContainer,
 ): {
   container: FilesContainer;
@@ -36,7 +36,7 @@ export function buildFilesContainer(
 
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
-  const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem);
+  const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem, contentsContainer.contentsUploader);
 
   const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(virtualDrive);
 
