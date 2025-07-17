@@ -37,6 +37,7 @@ describe('update-file-placeholder', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         placeholderId: 'FILE:uuid',
+        size: 1024,
       },
     });
   });
@@ -61,7 +62,7 @@ describe('update-file-placeholder', () => {
     expect(virtualDrive.createFileByPath).toBeCalledWith({
       relativePath: '/file1/file2',
       itemId: 'FILE:uuid',
-      size: 0,
+      size: 1024,
       creationTime: props.remote.createdAt.getTime(),
       lastWriteTime: props.remote.updatedAt.getTime(),
     });

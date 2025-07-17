@@ -16,7 +16,7 @@ export class FilePlaceholderUpdater {
   ) {}
 
   async update({ remote, files }: { remote: File; files: InMemoryFiles }) {
-    const path = remote.path;
+    const { path } = remote;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
