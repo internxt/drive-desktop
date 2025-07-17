@@ -7,7 +7,7 @@ import { BackupsList } from './BackupsList';
 import { BackupContext } from '../../../../context/BackupContext';
 import { DeviceContext } from '../../../../context/DeviceContext';
 import { ItemBackup } from '../../../../../shared/types/items';
-import { useGetBackupFolders } from '@/apps/renderer/api/use-get-items';
+import { useGetBackupFolders } from '@/apps/renderer/api/use-get-backup-folders';
 
 interface DownloadFolderSelectorProps {
   onClose: () => void;
