@@ -43,9 +43,9 @@ describe('update-folder-placeholder', () => {
 
   it('should skip if path is root', async () => {
     // Given
-    const props = mockProps<typeof service.update>({ remote: { path: createRelativePath('/') } });
+    const props = mockProps<typeof service.run>({ remotes: [{ path: createRelativePath('/') }] });
     // When
-    await service.update(props);
+    await service.run(props);
     // Then
     expect(relativePathToAbsoluteConverter.run).toBeCalledTimes(0);
   });

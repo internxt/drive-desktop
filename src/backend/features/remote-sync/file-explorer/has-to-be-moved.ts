@@ -15,8 +15,8 @@ export function hasToBeMoved({ drive, remotePath, localPath }: TProps) {
   const remoteParentPath = dirname(remotePath);
   const localParentPath = dirname(localPath);
 
-  // Renamed
-  if (remoteParentPath === localParentPath) return true;
+  const isRenamed = remoteParentPath === localParentPath;
+  if (isRenamed) return true;
 
   const { data: remoteParentUuid } = NodeWin.getFolderUuid({ drive, path: remoteParentPath });
   const { data: localParentUuid } = NodeWin.getFolderUuid({ drive, path: localParentPath });
@@ -24,7 +24,5 @@ export function hasToBeMoved({ drive, remotePath, localPath }: TProps) {
   if (!remoteParentUuid || !localParentUuid) return false;
 
   const isMoved = remoteParentUuid !== localParentUuid;
-
-  // Moved
   return isMoved;
 }

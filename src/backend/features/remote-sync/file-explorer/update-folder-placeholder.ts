@@ -16,11 +16,9 @@ export class FolderPlaceholderUpdater {
   ) {}
 
   async update({ remote, folders }: { remote: Folder; folders: InMemoryFolders }) {
-    const path = remote.path;
+    const { path } = remote;
 
     try {
-      if (path === '/') return;
-
       const { isValid } = validateWindowsName({ path, name: remote.name });
       if (!isValid) return;
 
@@ -66,7 +64,11 @@ export class FolderPlaceholderUpdater {
   }
 
   async run({ remotes, folders }: { remotes: Folder[]; folders: InMemoryFolders }) {
-    const promises = remotes.map((remote) => this.update({ remote, folders }));
-    await Promise.all(promises);
+    await Promise.all(
+      remotes.map(async (remote) => {
+        if (remote.path === '/') return;
+        await this.update({ remote, folders });
+      }),
+    );
   }
 }

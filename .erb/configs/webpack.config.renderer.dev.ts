@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import webpack from 'webpack';
+import webpackDevServer from 'webpack-dev-server';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import Dotenv from 'dotenv-webpack';
 import chalk from 'chalk';
@@ -10,6 +11,10 @@ import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';
 import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
+
+interface Configuration extends webpack.Configuration {
+  devServer?: webpackDevServer.Configuration;
+}
 
 checkNodeEnv('development');
 
@@ -24,7 +29,7 @@ if (!requiredByDLLConfig && !(fs.existsSync(webpackPaths.dllPath) && fs.existsSy
   execSync('npm run build:dll');
 }
 
-const configuration: webpack.Configuration = {
+const configuration: Configuration = {
   devtool: 'inline-source-map',
 
   mode: 'development',
@@ -151,27 +156,24 @@ const configuration: webpack.Configuration = {
     __filename: false,
   },
 
-  // @ts-ignore
   devServer: {
     port: process.env.PORT,
     compress: true,
     hot: true,
     headers: { 'Access-Control-Allow-Origin': '*' },
-    static: {
-      publicPath: '/',
-    },
-    historyApiFallback: {
-      verbose: true,
-    },
-    onBeforeSetupMiddleware() {
+    static: { publicPath: '/' },
+    historyApiFallback: { verbose: true },
+    setupMiddlewares: (middlewares) => {
       console.log('Starting Main Process...');
       spawn('npm', ['run', 'start:nodemon'], {
         shell: true,
         env: process.env,
         stdio: 'inherit',
       })
-        .on('close', (code: number) => process.exit(code!))
+        .on('close', (code) => process.exit(code))
         .on('error', (spawnError) => console.error(spawnError));
+
+      return middlewares;
     },
   },
 };
