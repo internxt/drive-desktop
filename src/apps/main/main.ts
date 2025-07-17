@@ -60,6 +60,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
 import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
+import { logger } from '../shared/logger/logger';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -80,7 +81,12 @@ Logger.log(`Running ${packageJson.version}`);
 Logger.log(`App is packaged: ${app.isPackaged}`);
 
 async function checkForUpdates() {
-  autoUpdater.logger = Logger;
+  autoUpdater.logger = {
+    debug: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
+    info: (msg) => logger.info({ msg: `AutoUpdater: ${msg}` }),
+    error: (msg) => logger.error({ msg: `AutoUpdater: ${msg}` }),
+    warn: (msg) => logger.warn({ msg: `AutoUpdater: ${msg}` }),
+  };
   await autoUpdater.checkForUpdatesAndNotify();
 }
 
