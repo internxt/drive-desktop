@@ -1,5 +1,5 @@
 import { Payments } from '@internxt/sdk/dist/drive';
-import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
+import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types/types';
 
 export class PaymentsService {
   private cachedFeatures: AvailableProducts['featuresPerService'] | null = null;

@@ -6,7 +6,7 @@ describe('notification-schema', () => {
     await NOTIFICATION_SCHEMA.parseAsync({
       event: 'FILE_CREATED',
       email: 'activate@internxt.com',
-      clientId: 'drive-desktop',
+      clientId: 'drive-desktop-windows',
       userId: '658594fe-68bd-4905-8598-5adc73e930fb',
       payload: {
         id: 881869447,
