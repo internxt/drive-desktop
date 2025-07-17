@@ -10,13 +10,7 @@ interface LoadingFoldersProps {
 }
 
 export function LoadingFolders({ state, messageText, loadingItems }: LoadingFoldersProps) {
-  const [isLoading, setIsLoading] = useState(true);
   const { translate } = useTranslationContext();
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => setIsLoading(false), 1000);
-    return () => clearTimeout(timeoutId);
-  }, []);
 
   const message: Record<BackupsState, string> = {
     LOADING: 'settings.backups.folders.loading',
@@ -26,7 +20,7 @@ export function LoadingFolders({ state, messageText, loadingItems }: LoadingFold
 
   return (
     <div className="flex h-full items-center justify-center">
-      {isLoading || loadingItems ? (
+      {loadingItems ? (
         <Spinner className="fill-l-neutral-50 h-6 w-6 animate-spin" />
       ) : state === 'LOADING' ? (
         <Spinner className="fill-l-neutral-50 h-6 w-6 animate-spin" />

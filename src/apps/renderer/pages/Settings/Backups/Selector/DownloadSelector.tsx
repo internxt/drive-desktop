@@ -6,8 +6,8 @@ import { LoadingFolders } from './LoadingFolders';
 import { BackupsList } from './BackupsList';
 import { BackupContext } from '../../../../context/BackupContext';
 import { DeviceContext } from '../../../../context/DeviceContext';
-import useGetItems from '../../../../hooks/folders/useGetItems';
 import { ItemBackup } from '../../../../../shared/types/items';
+import { useGetBackupFolders } from '@/apps/renderer/api/use-get-items';
 
 interface DownloadFolderSelectorProps {
   onClose: () => void;
@@ -42,7 +42,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
     tmpPath: '',
   });
 
-  const { items, status: itemsStatus } = useGetItems(folder.uuid);
+  const { data: items, status: itemsStatus } = useGetBackupFolders({ folderUuid: folder.uuid });
 
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
 
@@ -118,7 +118,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
         </div>
       </div>
       <div className="border-l-neutral-30 h-72 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black">
-        {selected && items.length > 0 && itemsStatus === 'ready' ? (
+        {selected && items && items.length > 0 && itemsStatus === 'success' ? (
           <BackupsList items={items} selected={selectedBackup} setSelected={addOrDeleteItem} onDobleClick={handleNavigateToFolder} />
         ) : (
           <LoadingFolders
