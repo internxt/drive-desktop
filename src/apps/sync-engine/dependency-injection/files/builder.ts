@@ -8,7 +8,6 @@ import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/
 import { FileSyncStatusUpdater } from '../../../../context/virtual-drive/files/application/FileSyncStatusUpdater';
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
-import { FilesPlaceholderDeleter } from '../../../../context/virtual-drive/files/application/FilesPlaceholderDeleter';
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
@@ -32,8 +31,6 @@ export function buildFilesContainer(
 
   const filesPlaceholderUpdater = new FilesPlaceholderUpdater(repository, localFileSystem, sharedContainer.relativePathToAbsoluteConverter);
 
-  const filesPlaceholderDeleter = new FilesPlaceholderDeleter(virtualDrive);
-
   const fileSyncStatusUpdater = new FileSyncStatusUpdater(localFileSystem);
 
   const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem);
@@ -46,7 +43,6 @@ export function buildFilesContainer(
     fileRepository: repository,
     fileCreator,
     filesPlaceholderUpdater,
-    filesPlaceholderDeleter,
     fileSyncStatusUpdater,
     filesCheckerStatusInRoot,
     fileOverwriteContent,

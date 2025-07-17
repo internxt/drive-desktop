@@ -1,9 +1,5 @@
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { mockDeep } from 'vitest-mock-extended';
-import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
-import { FolderId } from '@/context/virtual-drive/folders/domain/FolderId';
-import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderUuid';
-import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -19,13 +15,12 @@ import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 vi.mock(import('@/infra/node-win/node-win.module'));
 
 describe('Folder Creator', () => {
-  const repository = mockDeep<InMemoryFolderRepository>();
   const remote = mockDeep<HttpRemoteFolderSystem>();
   const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderUuid = deepMocked(NodeWin.getFolderUuid);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
-  const SUT = new FolderCreator(repository, remote, virtualDrive);
+  const SUT = new FolderCreator(remote, virtualDrive);
 
   const path = createRelativePath('folder1', 'folder2');
   const props = { path };
@@ -58,19 +53,18 @@ describe('Folder Creator', () => {
     // Then
     expect(remote.persist).toBeCalledWith({
       parentUuid: folder.parentUuid,
-      basename: 'folder2',
+      plainName: 'folder2',
       path: folder.path,
     });
 
-    expect(repository.add).toBeCalledWith(
-      expect.objectContaining({
-        _id: new FolderId(folder.id),
-        _parentId: new FolderId(folder.parentId ?? 0),
-        _parentUuid: new FolderUuid(folder.parentUuid ?? ''),
-        _path: new FolderPath(folder.path),
-        _uuid: new FolderUuid(folder.uuid),
-      }),
-    );
+    expect(invokeMock).toBeCalledWith('folderCreateOrUpdate', {
+      folder: {
+        ...folder.attributes(),
+        userUuid: '',
+        workspaceId: '',
+        updatedAt: '2000-01-01T00:00:00Z',
+      },
+    });
 
     expect(virtualDrive.convertToPlaceholder).toBeCalledWith({
       itemPath: folder.path,

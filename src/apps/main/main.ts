@@ -40,7 +40,6 @@ import './remote-sync/handlers';
 
 import { setupSettingsIPCHandlers } from './windows/ipc/setup-ipc-handlers';
 import { autoUpdater } from 'electron-updater';
-import packageJson from '../../../package.json';
 import eventBus from './event-bus';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
@@ -61,6 +60,7 @@ import { setupIssueHandlers } from './background-processes/issues';
 import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
 import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
 import { logger } from '../shared/logger/logger';
+import { INTERNXT_VERSION } from '@/core/utils/utils';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -77,8 +77,7 @@ setupIssueHandlers();
 setupIpcDriveServerWip();
 setupIpcSqlite();
 
-Logger.log(`Running ${packageJson.version}`);
-Logger.log(`App is packaged: ${app.isPackaged}`);
+logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
 
 async function checkForUpdates() {
   autoUpdater.logger = {
