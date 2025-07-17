@@ -80,7 +80,12 @@ setupIpcSqlite();
 logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
 
 async function checkForUpdates() {
-  autoUpdater.logger = Logger;
+  autoUpdater.logger = {
+    debug: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
+    info: (msg) => logger.info({ msg: `AutoUpdater: ${msg}` }),
+    error: (msg) => logger.error({ msg: `AutoUpdater: ${msg}` }),
+    warn: (msg) => logger.warn({ msg: `AutoUpdater: ${msg}` }),
+  };
   await autoUpdater.checkForUpdatesAndNotify();
 }
 
