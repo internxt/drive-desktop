@@ -118,7 +118,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
         </div>
       </div>
       <div className="border-l-neutral-30 h-72 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black">
-        {selected && items && items.length > 0 && itemsStatus === 'success' ? (
+        {selected && items && items.length > 0 ? (
           <BackupsList items={items} selected={selectedBackup} setSelected={addOrDeleteItem} onDobleClick={handleNavigateToFolder} />
         ) : (
           <LoadingFolders
