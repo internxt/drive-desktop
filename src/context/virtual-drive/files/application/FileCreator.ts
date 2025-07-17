@@ -3,7 +3,6 @@ import { File } from '../domain/File';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { OfflineFile } from '../domain/OfflineFile';
-import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
@@ -16,7 +15,6 @@ import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 export class FileCreator {
   constructor(
     private readonly remote: HttpRemoteFileSystem,
-    private readonly repository: InMemoryFileRepository,
     private readonly virtualDrive: VirtualDrive,
   ) {}
 
@@ -71,7 +69,6 @@ export class FileCreator {
       if (error) throw error;
 
       const file = File.from(persistedAttributes);
-      this.repository.add(file);
 
       ipcRendererSyncEngine.send('FILE_CREATED', {
         bucket: getConfig().bucket,

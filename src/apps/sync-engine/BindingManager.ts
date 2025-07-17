@@ -125,10 +125,10 @@ export class BindingsManager {
       isFolder: false,
     });
 
-    const { folders } = await loadInMemoryPaths({ drive: this.container.virtualDrive });
+    const { files, folders } = await loadInMemoryPaths({ drive: this.container.virtualDrive });
     await Promise.all([
       this.container.folderPlaceholderUpdater.run({ remotes: tree.folders, folders }),
-      this.container.filesPlaceholderUpdater.run(tree.files),
+      this.container.filePlaceholderUpdater.run({ remotes: tree.files, files }),
     ]);
   }
 

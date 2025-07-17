@@ -8,7 +8,7 @@ import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
-type InMemoryFiles = Record<FileUuid, AbsolutePath>;
+export type InMemoryFiles = Record<FileUuid, AbsolutePath>;
 export type InMemoryFolders = Record<FolderUuid, AbsolutePath>;
 
 type TProps = {
