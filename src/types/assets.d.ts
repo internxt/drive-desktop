@@ -1,3 +1,5 @@
+/* eslint-disable import/no-default-export */
+
 type Styles = Record<string, string>;
 
 declare module '*.png' {
