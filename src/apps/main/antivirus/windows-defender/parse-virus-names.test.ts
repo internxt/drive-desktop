@@ -11,13 +11,9 @@ describe('parseVirusNames', () => {
     // Given
     const stdout = 'Scanning file... Threat detected: TestVirus1';
     const stderr = '';
-
-    // Add infection code separately to simulate a real scan
     const stdoutWithCode = stdout + '\nWarning: MpScan() encounter error. hr = 0x80508023';
-
     // When
     const result = parseVirusNames({ stdout: stdoutWithCode, stderr });
-
     // Then
     expect(result).toEqual(['TestVirus1']);
   });
@@ -26,13 +22,9 @@ describe('parseVirusNames', () => {
     // Given
     const stdout = 'Scanning file... Threat TestVirus2 was detected';
     const stderr = '';
-
-    // Add infection code separately to simulate a real scan
     const stdoutWithCode = stdout + '\nERROR: MpScan(dwOptions=1107300385) Completion Failed 0x80508023';
-
     // When
     const result = parseVirusNames({ stdout: stdoutWithCode, stderr });
-
     // Then
     expect(result).toEqual(['TestVirus2']);
   });
@@ -41,10 +33,8 @@ describe('parseVirusNames', () => {
     // Given
     const stdout = 'Scanning file... Found TestVirus3 threat\nMpCmdRun.exe: hr = 0x80508007.';
     const stderr = '';
-
     // When
     const result = parseVirusNames({ stdout, stderr });
-
     // Then
     expect(result).toEqual(['TestVirus3']);
   });
@@ -53,10 +43,8 @@ describe('parseVirusNames', () => {
     // Given
     const stdout = 'Scanning file... Malware TestVirus4 detected';
     const stderr = 'Warning: MpScan() encounter error. hr = 0x80508007';
-
     // When
     const result = parseVirusNames({ stdout, stderr });
-
     // Then
     expect(result).toEqual(['TestVirus4']);
   });
@@ -65,10 +53,8 @@ describe('parseVirusNames', () => {
     // Given
     const stdout = 'Scanning file... Virus TestVirus5 found\nERROR: MpScan(dwOptions=1107300385) Completion Failed 0x80508023';
     const stderr = '';
-
     // When
     const result = parseVirusNames({ stdout, stderr });
-
     // Then
     expect(result).toEqual(['TestVirus5']);
   });
@@ -78,28 +64,21 @@ describe('parseVirusNames', () => {
     const stdout = 'Scanning file... Infected with TestVirus6';
     const stderr = '';
     const stdoutWithCode = stdout + '\nMpCmdRun.exe: hr = 0x80508007.';
-
     // When
     const result = parseVirusNames({ stdout: stdoutWithCode, stderr });
-
     // Then
     expect(result).toEqual(['TestVirus6']);
   });
 
   it('combines output from stdout and stderr', () => {
     // Given
-    // Modifiquemos este test para que solo verifique que se detectan virus tanto en stdout como en stderr
-    // sin preocuparnos por la cantidad exacta
     const stdout = 'Scanning file... Virus TestVirus7 found\nMpCmdRun.exe: hr = 0x80508023.';
     const stderr = 'Error: Threat TestVirus8 was detected';
-
     // When
     const result = parseVirusNames({ stdout, stderr });
-
     // Then
     expect(result).toContain('TestVirus7');
     expect(result).toContain('TestVirus8');
-    // Ya no verificamos la longitud exacta, solo que contenga los dos virus que esperamos
   });
 
   it('removes duplicates', () => {
@@ -107,10 +86,8 @@ describe('parseVirusNames', () => {
     const stdout =
       'Scanning file... Virus TestVirus9 found. Another instance: Virus TestVirus9 found\nWarning: MpScan() encounter error. hr = 0x80508023';
     const stderr = '';
-
     // When
     const result = parseVirusNames({ stdout, stderr });
-
     // Then
     expect(result).toEqual(['TestVirus9']);
   });
@@ -119,10 +96,8 @@ describe('parseVirusNames', () => {
     // Given
     const stdout = 'Scanning file... Virus file:TestVirus10 found\nMpCmdRun.exe: hr = 0x80508007.';
     const stderr = '';
-
     // When
     const result = parseVirusNames({ stdout, stderr });
-
     // Then
     expect(result).toEqual(['TestVirus10']);
   });
@@ -132,10 +107,8 @@ describe('parseVirusNames', () => {
     const stdout =
       'Scanning file... Something detected but no pattern match\nERROR: MpScan(dwOptions=1107300385) Completion Failed 0x80508023';
     const stderr = '';
-
     // When
     const result = parseVirusNames({ stdout, stderr });
-
     // Then
     expect(result).toEqual(['Windows.Defender.Threat.Detected']);
   });
@@ -159,11 +132,9 @@ MpCmdRun.exe: hr = 0x80508023.
 MpCmdRun: End Time: mar. jul. 15 2025 10:11:20
 -------------------------------------------------------------------------------`;
     const stderr = '';
-
     // When
     const result = parseVirusNames({ stdout, stderr });
-
-    // Then - Should return the default threat name since no specific virus name found
+    // Then
     expect(result).toEqual(['Windows.Defender.Threat.Detected']);
   });
 });

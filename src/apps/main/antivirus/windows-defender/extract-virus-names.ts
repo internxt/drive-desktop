@@ -1,9 +1,4 @@
-/**
- * Extracts virus names from Windows Defender output using regular expressions
- * @param output The combined stdout and stderr output from MpCmdRun.exe
- * @returns Array of unique virus names found in the output
- */
-export function extractVirusNamesFromOutput(output: string): string[] {
+export function extractVirusNamesFromOutput({ output }: { output: string }) {
   const virusNames: string[] = [];
 
   const threatPatterns = [

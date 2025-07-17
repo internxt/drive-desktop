@@ -6,15 +6,15 @@ export class AntivirusWindowsDefender {
   isInitialized = false;
   mpCmdRunPath = '';
 
-  static createInstance(): AntivirusWindowsDefender {
+  static async createInstance() {
     const instance = new AntivirusWindowsDefender();
-    instance.initialize();
+    await instance.initialize();
     return instance;
   }
 
-  initialize() {
+  async initialize() {
     try {
-      this.mpCmdRunPath = findMpCmdRun();
+      this.mpCmdRunPath = await findMpCmdRun();
       this.isInitialized = true;
     } catch (error) {
       logger.error({
@@ -33,7 +33,7 @@ export class AntivirusWindowsDefender {
       });
       return;
     }
-    return await scanFile(filePath, this.mpCmdRunPath);
+    return await scanFile({ filePath, mpCmdRunPath: this.mpCmdRunPath });
   }
 
   stop() {

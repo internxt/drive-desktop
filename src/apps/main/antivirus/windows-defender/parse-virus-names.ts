@@ -5,19 +5,17 @@ interface Props {
   stderr: string;
 }
 
-/**
- * Parses the output from MpCmdRun.exe to extract actual virus names
- * @param stdout Standard output from MpCmdRun.exe
- * @param stderr Standard error from MpCmdRun.exe
- * @returns Array of virus names found
- */
 export function parseVirusNames({ stdout, stderr }: Props) {
   const output = `${stdout}${stderr}`;
 
-  const infectionHrCodes = [
-    '0x80508023', // Threat detected and remediated
-    '0x80508007', // Threat found but not remediated
-  ];
+  /**
+   * v2.5.6 Esteban Galvis
+   * MpcmdRun.exe can return multiple codes indicating different states of infection.
+   * 0x80508023 indicates a threat was detected and remediated,
+   * 0x80508007 indicates a threat was found but not remediated
+   * If either of these codes is present, we consider the system infected.
+   */
+  const infectionHrCodes = ['0x80508023', '0x80508007'];
 
   const isInfected = infectionHrCodes.some((code) => output.includes(code));
 
@@ -25,9 +23,14 @@ export function parseVirusNames({ stdout, stderr }: Props) {
     return [];
   }
 
-  const extractedVirusNames = extractVirusNamesFromOutput(output);
+  const extractedVirusNames = extractVirusNamesFromOutput({ output });
 
-  // If no specific virus names were found, add a generic name
+  /**
+   * v2.5.6 Esteban Galvis
+   * MpcmdRun.exe in some cases may not return any virus names,
+   * in which case we return a default value indicating a threat was detected.
+   * based on the codes (0x80508023, 0x80508007) validation above.
+   */
   if (extractedVirusNames.length === 0) {
     return ['Windows.Defender.Threat.Detected'];
   }

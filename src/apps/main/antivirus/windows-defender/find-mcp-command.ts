@@ -1,29 +1,48 @@
 import { join } from 'path';
-import { readdirSync, existsSync, statSync } from 'fs';
-import { MpCmdRunNotFoundError } from './errors/mpcmdrun-not-found-error';
+import { readdirSync, existsSync } from 'fs';
+import { stat } from '@/infra/file-system/services/stat';
+import { logger } from '@/apps/shared/logger/logger';
 
-/**
- * Finds the full path to the Windows Defender MpCmdRun.exe executable.
- * Searches the Defender Platform directory for the latest version, falling back to the default path if necessary.
- * @returns {string} The full path to MpCmdRun.exe.
- * @throws {MpCmdRunNotFoundError} If MpCmdRun.exe cannot be found in any of the expected locations.
- */
-export function findMpCmdRun(): string {
+export async function findMpCmdRun() {
   const DEFENDER_PLATFORM_PATH = 'C:\\ProgramData\\Microsoft\\Windows Defender\\Platform';
   const DEFENDER_FALLBACK_PATH = 'C:\\Program Files\\Windows Defender\\MpCmdRun.exe';
 
-  const platformSubdirs = existsSync(DEFENDER_PLATFORM_PATH)
-    ? readdirSync(DEFENDER_PLATFORM_PATH)
-        .filter((name) => statSync(join(DEFENDER_PLATFORM_PATH, name)).isDirectory())
-        .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))
-    : [];
+  let platformSubdirs: string[] = [];
+  if (existsSync(DEFENDER_PLATFORM_PATH)) {
+    const entries = readdirSync(DEFENDER_PLATFORM_PATH);
+    const validDirs = await Promise.all(
+      entries.map(async (name) => {
+        const fullPath = join(DEFENDER_PLATFORM_PATH, name);
+        const { data, error } = await stat({ absolutePath: fullPath });
+        return !error && data?.isDirectory() ? name : null;
+      }),
+    );
 
-  const latestDefenderPath =
-    platformSubdirs.length > 0 ? join(DEFENDER_PLATFORM_PATH, platformSubdirs[0], 'MpCmdRun.exe') : DEFENDER_FALLBACK_PATH;
-
-  if (!existsSync(latestDefenderPath)) {
-    throw new MpCmdRunNotFoundError();
+    platformSubdirs = validDirs
+      .filter((name): name is string => Boolean(name))
+      /**
+       * v2.5.6 Esteban Galvis
+       * Defender platform has subdirectories with version numbers.
+       * We sort them in descending order to get the latest version.
+       * This ensures that we always use the most recent version of MpCmdRun.exe.
+       */
+      .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
   }
 
-  return latestDefenderPath;
+  let mpCmdRunPath: string;
+  if (platformSubdirs.length > 0) {
+    mpCmdRunPath = join(DEFENDER_PLATFORM_PATH, platformSubdirs[0], 'MpCmdRun.exe');
+  } else {
+    mpCmdRunPath = DEFENDER_FALLBACK_PATH;
+  }
+
+  if (!existsSync(mpCmdRunPath)) {
+    throw logger.error({
+      tag: 'ANTIVIRUS',
+      msg: 'MpCmdRun.exe not found.',
+      mpCmdRunPath,
+    });
+  }
+
+  return mpCmdRunPath;
 }
