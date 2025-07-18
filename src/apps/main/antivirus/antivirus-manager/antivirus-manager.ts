@@ -16,7 +16,7 @@ export class AntivirusManager {
   }
 
   async getActiveEngine() {
-    return await getActiveEngine(this);
+    return await getActiveEngine({ self: this });
   }
 }
 

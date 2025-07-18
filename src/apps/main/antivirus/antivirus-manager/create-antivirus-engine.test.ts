@@ -22,7 +22,7 @@ describe('createEngine', () => {
     // Given
     windowsDefenderCreateInstanceMock.mockResolvedValue(mockDefenderInstance);
     // When
-    const result = await createEngine('windows-defender');
+    const result = await createEngine({ type: 'windows-defender' });
     // Then
     expect(result).toBe(mockDefenderInstance);
     expect(windowsDefenderCreateInstanceMock).toHaveBeenCalled();
@@ -33,7 +33,7 @@ describe('createEngine', () => {
     // Given
     clamAVCreateInstanceMock.mockResolvedValue(mockClamAVInstance);
     // When
-    const result = await createEngine('clamav');
+    const result = await createEngine({ type: 'clamav' });
     // Then
     expect(result).toBe(mockClamAVInstance);
     expect(clamAVCreateInstanceMock).toHaveBeenCalled();
@@ -46,7 +46,7 @@ describe('createEngine', () => {
     windowsDefenderCreateInstanceMock.mockRejectedValue(mockError);
     clamAVCreateInstanceMock.mockResolvedValue(mockClamAVInstance);
     // When
-    const result = await createEngine('windows-defender');
+    const result = await createEngine({ type: 'windows-defender' });
     // Then
     expect(result).toBe(mockClamAVInstance);
     expect(windowsDefenderCreateInstanceMock).toHaveBeenCalled();
@@ -61,6 +61,6 @@ describe('createEngine', () => {
 
   it('throws error for unsupported antivirus type', async () => {
     // Given/When/Then
-    await expect(createEngine('unknown' as unknown as AntivirusType)).rejects.toThrow('Unsupported antivirus type: unknown');
+    await expect(createEngine({ type: 'unknown' as unknown as AntivirusType })).rejects.toThrow('Unsupported antivirus type: unknown');
   });
 });

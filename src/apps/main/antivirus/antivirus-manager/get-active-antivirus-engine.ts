@@ -5,7 +5,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { AntivirusManager } from './antivirus-manager';
 import { AntivirusEngine } from './types';
 
-export async function getActiveEngine(self: AntivirusManager): Promise<AntivirusEngine | null> {
+export async function getActiveEngine({ self }: { self: AntivirusManager }): Promise<AntivirusEngine | null> {
   try {
     const selectedType = await selectAntivirusEngine();
 
@@ -27,7 +27,7 @@ export async function getActiveEngine(self: AntivirusManager): Promise<Antivirus
       if (self.currentType === 'clamav') clearAntivirus();
     }
 
-    self.currentEngine = await createEngine(selectedType);
+    self.currentEngine = await createEngine({ type: selectedType });
     self.currentType = selectedType;
 
     logger.info({

@@ -33,7 +33,7 @@ describe('getActiveEngine', () => {
     mockManager.currentEngine = null;
     mockManager.currentType = null;
     // When
-    const result = await getActiveEngine(mockManager);
+    const result = await getActiveEngine({ self: mockManager });
     // Then
     expect(result).toBeNull();
     expect(selectAntivirusEngineMock).toHaveBeenCalled();
@@ -46,7 +46,7 @@ describe('getActiveEngine', () => {
     mockManager.currentType = 'windows-defender';
 
     // When
-    const result = await getActiveEngine(mockManager);
+    const result = await getActiveEngine({ self: mockManager });
 
     // Then
     expect(result).toBe(mockWindowsDefenderInstance);
@@ -63,11 +63,11 @@ describe('getActiveEngine', () => {
     mockManager.currentEngine = mockOldEngine;
     mockManager.currentType = 'clamav';
     // When
-    const result = await getActiveEngine(mockManager);
+    const result = await getActiveEngine({ self: mockManager });
     // Then
     expect(mockOldEngine.stop).toHaveBeenCalled();
     expect(clearAntivirusMock).toHaveBeenCalled();
-    expect(createEngineMock).toHaveBeenCalledWith('windows-defender');
+    expect(createEngineMock).toHaveBeenCalledWith({ type: 'windows-defender' });
     expect(result).toBe(mockNewEngine);
     expect(mockManager.currentEngine).toBe(mockNewEngine);
     expect(mockManager.currentType).toBe('windows-defender');
@@ -86,9 +86,9 @@ describe('getActiveEngine', () => {
     mockManager.currentEngine = null;
     mockManager.currentType = null;
     // When
-    const result = await getActiveEngine(mockManager);
+    const result = await getActiveEngine({ self: mockManager });
     // Then
-    expect(createEngineMock).toHaveBeenCalledWith('clamav');
+    expect(createEngineMock).toHaveBeenCalledWith({ type: 'clamav' });
     expect(result).toBe(mockNewEngine);
     expect(mockManager.currentEngine).toBe(mockNewEngine);
     expect(mockManager.currentType).toBe('clamav');
@@ -99,7 +99,7 @@ describe('getActiveEngine', () => {
     const mockError = new Error('Test error');
     selectAntivirusEngineMock.mockRejectedValue(mockError);
     // When
-    const result = await getActiveEngine(mockManager);
+    const result = await getActiveEngine({ self: mockManager });
     // Then
     expect(result).toBeNull();
     expect(loggerErrorMock).toHaveBeenCalledWith(
