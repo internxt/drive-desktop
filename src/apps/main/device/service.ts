@@ -1,5 +1,5 @@
 import { aes } from '@internxt/lib';
-import { app, BrowserWindow, dialog, IpcMainEvent } from 'electron';
+import { app, dialog, IpcMainEvent } from 'electron';
 import fetch from 'electron-fetch';
 import logger from 'electron-log';
 import os from 'os';
@@ -7,17 +7,15 @@ import path from 'path';
 import fs, { PathLike } from 'fs';
 import { getHeaders, getNewApiHeaders, getUser } from '../auth/service';
 import configStore from '../config';
-import { addAppIssue } from '../issues/app';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { downloadFolderAsZip } from '../network/download';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { broadcastToWindows } from '../windows';
 import { ipcMain } from 'electron';
-import { DependencyInjectionUserProvider } from '../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { BackupError } from '../../backups/BackupError';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker ';
 import { driveServerModule } from '../../../infra/drive-server/drive-server.module';
-import Logger from 'electron-log';
+import { DeviceModule } from '../../../backend/features/device/device.module';
 
 export type Device = {
   id: number;
@@ -27,22 +25,6 @@ export type Device = {
   removed: boolean;
   hasBackups: boolean;
 };
-
-export const addUnknownDeviceIssue = (error: Error) => {
-  addAppIssue({
-    errorName: 'UNKNOWN_DEVICE_NAME',
-    action: 'GET_DEVICE_NAME_ERROR',
-    errorDetails: {
-      name: error.name,
-      message: error.message,
-      stack: error.stack || '',
-    },
-  });
-};
-
-function createDevice(deviceName: string) {
-  return driveServerModule.backup.createDevice(deviceName);
-}
 
 export async function getDevices(): Promise<Array<Device>> {
   const response = await driveServerModule.backup.getDevices();
@@ -54,100 +36,6 @@ export async function getDevices(): Promise<Array<Device>> {
       .filter(({ removed, hasBackups }) => !removed && hasBackups)
       .map((device) => decryptDeviceName(device));
   }
-}
-
-async function tryToCreateDeviceWithDifferentNames(): Promise<Device> {
-  let res = await createDevice(os.hostname());
-
-  let i = 1;
-
-  while (res.isLeft() && i <= 10) {
-    const deviceName = `${os.hostname()} (${i})`;
-    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
-    res = await createDevice(deviceName);
-    i++;
-  }
-
-  if (res.isLeft()) {
-    const deviceName = `${new Date().valueOf() % 1000}`;
-    logger.info(`[DEVICE] Creating device with name "${deviceName}"`);
-    res = await createDevice(`${os.hostname()} (${deviceName})`);
-  }
-
-  if (res.isRight()) {
-    return res.getRight();
-  }
-  const error = new Error('Could not create device trying different names');
-  addUnknownDeviceIssue(error);
-  throw error;
-}
-
-export async function getOrCreateDevice() {
-  const legacyId = configStore.get('deviceId'); // This is the legacy way of story the deviceId, we are now using the uuid
-  const savedUUID = configStore.get('deviceUUID');
-
-  Logger.debug({
-    msg: '[DEVICE] Saved device with legacy deviceId',
-    savedDeviceId: legacyId,
-  });
-  Logger.debug({
-    msg: '[DEVICE] Saved device with UUID',
-    savedDeviceId: savedUUID,
-  });
-
-  const hasLegacyId = legacyId !== -1;
-  const hasUuid = savedUUID !== '';
-
-  const onlyLegacy = hasLegacyId && !hasUuid;
-  const onlyUuid = !hasLegacyId && hasUuid;
-
-  if (onlyLegacy) {
-    /* eventually, this whole if section is going to be replaced
-    when all the users naturaly migrated to the new uuid */
-    const response = await driveServerModule.backup.getDeviceById(legacyId.toString());
-
-    if (response.isRight()) {
-      const device = response.getRight();
-      if (!device.removed) {
-        configStore.set('deviceUUID', device.uuid);
-        configStore.set('deviceId', -1);
-
-        return decryptDeviceName(device);
-      }
-    }
-  }
-
-  if (onlyUuid) {
-    const response = await driveServerModule.backup.getDevice(savedUUID);
-
-    if (response.isRight()) {
-      const device = response.getRight();
-      if (!device.removed) {
-        return decryptDeviceName(device);
-      }
-    }
-  }
-
-  const newDevice = await tryToCreateDeviceWithDifferentNames();
-
-  configStore.set('deviceUUID', newDevice.uuid);
-  configStore.set('deviceId', -1);
-  configStore.set('backupList', {});
-  const device = decryptDeviceName(newDevice);
-  const user = DependencyInjectionUserProvider.get();
-  user.backupsBucket = newDevice.bucket;
-  DependencyInjectionUserProvider.updateUser(user);
-
-  const mainWindow = BrowserWindow.getAllWindows()[0];
-  if (mainWindow) {
-    mainWindow.webContents.send('reinitialize-backups');
-  }
-
-  broadcastToWindows('device-created', device);
-
-  logger.info(`[DEVICE] Created device with name "${device.name}"`);
-
-  return device;
 }
 
 function getDeviceUUID(): string {
@@ -175,7 +63,7 @@ export async function renameDevice(deviceName: string): Promise<Device> {
   }
 }
 
-function decryptDeviceName({ name, ...rest }: Device): Device {
+export function decryptDeviceName({ name, ...rest }: Device): Device {
   return {
     name: aes.decrypt(name, `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`),
     ...rest,
@@ -190,7 +78,6 @@ export async function getBackupsFromDevice(
 ): Promise<Array<BackupInfo>> {
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
-    const device = await getOrCreateDevice();
     const folder = await fetchFolder(device.id);
 
     return folder.children
@@ -226,7 +113,11 @@ export async function getBackupsFromDevice(
  * @returns
  */
 async function postBackup(name: string): Promise<Backup> {
-  const deviceId = (await getOrCreateDevice()).id;
+  const getOrCreateDeviceResult = await DeviceModule.getOrCreateDevice();
+  if (getOrCreateDeviceResult instanceof Error) {
+    throw getOrCreateDeviceResult;
+  }
+  const deviceId = getOrCreateDeviceResult.id;
 
   const res = await fetch(`${process.env.API_URL}/storage/folder`, {
     method: 'POST',
@@ -590,8 +481,10 @@ function findBackupPathnameFromId(id: number): string | undefined {
 export async function createBackupsFromLocalPaths(folderPaths: string[]) {
   configStore.set('backupsEnabled', true);
 
-  await getOrCreateDevice();
-
+  const result = await DeviceModule.getOrCreateDevice();
+  if (result instanceof Error) {
+    throw result;
+  }
   const operations = folderPaths.map((folderPath) => createBackup(folderPath));
 
   await Promise.all(operations);
