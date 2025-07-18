@@ -3,12 +3,7 @@ import { AntivirusClamAV } from '../antivirus-clam-av';
 import { AntivirusType, AntivirusEngine } from './types';
 import { logger } from '@/apps/shared/logger/logger';
 
-/**
- * Creates an antivirus engine instance based on type
- * @param type - the type of antivirus to create
- * @returns Promise<AntivirusEngine> - initialized antivirus instance
- */
-export async function createEngine(type: AntivirusType): Promise<AntivirusEngine> {
+export async function createEngine({ type }: { type: AntivirusType }): Promise<AntivirusEngine> {
   if (type === 'windows-defender') {
     try {
       return await AntivirusWindowsDefender.createInstance();

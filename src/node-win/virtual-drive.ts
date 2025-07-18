@@ -69,13 +69,6 @@ export class VirtualDrive {
     return this.addon.getPlaceholderState({ path: this.fixPath(path) });
   }
 
-  /**
-   * @deprecated
-   */
-  getPlaceholderWithStatePending() {
-    return this.addon.getPlaceholderWithStatePending();
-  }
-
   createSyncRootFolder() {
     if (!fs.existsSync(this.syncRootPath)) {
       fs.mkdirSync(this.syncRootPath, { recursive: true });

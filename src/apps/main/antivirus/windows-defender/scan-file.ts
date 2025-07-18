@@ -1,10 +1,16 @@
 import { spawn } from 'child_process';
 import { ScanResult } from './types';
 import { parseVirusNames } from './parse-virus-names';
+import { logger } from '@/apps/shared/logger/logger';
 
-export function scanFile(filePath: string, mpCmdRunPath: string): Promise<ScanResult> {
-  return new Promise((resolve, reject) => {
-    const process = spawn(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath]);
+type TProps = {
+  filePath: string;
+  mpCmdRunPath: string;
+};
+
+export function scanFile({ filePath, mpCmdRunPath }: TProps): Promise<ScanResult> {
+  return new Promise((resolve) => {
+    const process = spawn(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
 
     let stdout = '';
     let stderr = '';
@@ -21,8 +27,7 @@ export function scanFile(filePath: string, mpCmdRunPath: string): Promise<ScanRe
       const exitCode = code || 0;
       const isInfected = exitCode === 2;
 
-      // Parse the output to extract actual threat names
-      const detectedViruses = parseVirusNames(stdout, stderr, isInfected);
+      const detectedViruses = isInfected ? parseVirusNames({ stdout, stderr }) : [];
 
       resolve({
         file: filePath,
@@ -32,7 +37,11 @@ export function scanFile(filePath: string, mpCmdRunPath: string): Promise<ScanRe
     });
 
     process.on('error', (error) => {
-      reject(error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error scanning file with Windows Defender',
+        error,
+      });
     });
   });
 }

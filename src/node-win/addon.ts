@@ -38,7 +38,6 @@ type TAddon = {
    */
   disconnectSyncRoot(path: string): unknown;
   getPlaceholderState(path: string): z.infer<typeof addonZod.getPlaceholderState>;
-  getPlaceholderWithStatePending(path: string): z.infer<typeof addonZod.getPlaceholderWithStatePending>;
   registerSyncRoot(
     syncRootPath: string,
     providerName: string,
