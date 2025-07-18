@@ -1,7 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { RetryContentsUploader } from '@/context/virtual-drive/contents/application/RetryContentsUploader';
-import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { fileSystem } from '@/infra/file-system/file-system.module';
@@ -13,10 +12,9 @@ type TProps = {
   path: RelativePath;
   uuid: string;
   fileContentsUploader: RetryContentsUploader;
-  repository: InMemoryFileRepository;
 };
 
-export async function updateContentsId({ virtualDrive, absolutePath, path, uuid, fileContentsUploader, repository }: TProps) {
+export async function updateContentsId({ virtualDrive, absolutePath, path, uuid, fileContentsUploader }: TProps) {
   try {
     const { data: stats, error } = await fileSystem.stat({ absolutePath });
 
@@ -41,12 +39,6 @@ export async function updateContentsId({ virtualDrive, absolutePath, path, uuid,
     });
 
     virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
-
-    // TODO: repository not used
-    const file = repository.searchByPartial({ uuid });
-    if (file) {
-      repository.updateContentsAndSize(file, contents.id, contents.size);
-    }
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

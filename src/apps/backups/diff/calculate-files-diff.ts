@@ -1,7 +1,7 @@
 import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
 import { RelativePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
 import { File } from '../../../context/virtual-drive/files/domain/File';
-import { FileStatus } from '../../../context/virtual-drive/files/domain/FileStatus';
+import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTree } from '../remote-tree/traverser';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
@@ -59,7 +59,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
 
   Object.values(remote.files).forEach((remoteFile) => {
     // Already deleted
-    if (remoteFile.status.value !== FileStatus.Exists.value) return;
+    if (remoteFile.status.value !== FileStatuses.EXISTS) return;
 
     if (!local.files[remoteFile.path as RelativePath]) {
       deleted.push(remoteFile);

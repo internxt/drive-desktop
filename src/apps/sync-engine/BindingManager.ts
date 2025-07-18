@@ -83,7 +83,6 @@ export class BindingsManager {
             path,
             uuid,
             fileContentsUploader: this.container.contentsUploader,
-            repository: this.container.fileRepository,
           }),
       },
     });

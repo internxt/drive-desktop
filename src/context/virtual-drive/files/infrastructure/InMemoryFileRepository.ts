@@ -45,13 +45,6 @@ export class InMemoryFileRepository {
 
     return undefined;
   }
-  delete(id: File['contentsId']): void {
-    const deleted = this.files.delete(id);
-
-    if (!deleted) {
-      throw new Error('File not found');
-    }
-  }
 
   add(file: File): void {
     this.files.set(file.contentsId, {
@@ -75,17 +68,5 @@ export class InMemoryFileRepository {
     }
 
     return this.add(file);
-  }
-
-  updateContentsAndSize(file: File, newContentsId: File['contentsId'], newSize: File['size']): File {
-    if (!this.files.has(file.contentsId)) {
-      throw new Error('File not found');
-    }
-    const oldContentsId = file.contentsId;
-    const updatedFile = file.replaceContestsAndSize(newContentsId, newSize);
-    // first delete the old file to be able to add the new one
-    this.files.delete(oldContentsId);
-    this.add(updatedFile);
-    return updatedFile;
   }
 }

@@ -8,6 +8,8 @@ import {
 } from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
 import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMother';
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ContentsSize } from '../domain/ContentsSize';
 
 describe('Contents Downloader', () => {
   const temporalFolderProvider = (): Promise<string> => {
@@ -46,7 +48,7 @@ describe('Contents Downloader', () => {
     async (event: keyof FileDownloadEvents) => {
       factory.downloader.mockResolvedValueOnce(environmentContentFileDownloader);
 
-      await SUT.run(FileMother.any(), callbackFunction);
+      await SUT.run(FileMother.any() as unknown as SimpleDriveFile, callbackFunction);
 
       expect(environmentContentFileDownloader.on).toBeCalledWith(event, expect.any(Function));
     },
@@ -57,13 +59,12 @@ describe('Contents Downloader', () => {
 
     factory.downloader.mockResolvedValueOnce(environmentContentFileDownloader);
 
-    await SUT.run(file, callbackFunction);
+    await SUT.run(file as unknown as SimpleDriveFile, callbackFunction);
 
     expect(localWriter.write).toBeCalledWith(
       expect.objectContaining({
-        name: file.name,
-        extension: file.type,
-        size: file.size,
+        nameWithExtension: `${file.name}.${file.type}`,
+        size: new ContentsSize(file.size),
       }),
     );
   });

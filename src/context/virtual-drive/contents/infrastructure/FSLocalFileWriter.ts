@@ -15,7 +15,7 @@ export class FSLocalFileWriter {
 
     const filePath = path.join(location, contents.nameWithExtension);
 
-    await WriteReadableToFile.write(contents.stream, filePath, contents.size);
+    await WriteReadableToFile.write(contents.stream, filePath, contents.size.value);
 
     return filePath;
   }

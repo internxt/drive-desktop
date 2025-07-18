@@ -1,26 +1,10 @@
 import VirtualDrive from '@/node-win/virtual-drive';
 import { FileStatuses } from '../../files/domain/FileStatus';
 import { File } from '../domain/File';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
-import fs from 'fs/promises';
-import Logger from 'electron-log';
 import { FilePlaceholderId } from '../domain/PlaceholderId';
 
 export class NodeWinLocalFileSystem {
-  constructor(
-    private readonly virtualDrive: VirtualDrive,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-  ) {}
-
-  async getLocalFileId(file: File): Promise<`${string}-${string}`> {
-    const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(file.path);
-
-    Logger.info('[getLocalFileId]: ', win32AbsolutePath);
-
-    const { ino, dev } = await fs.stat(win32AbsolutePath);
-
-    return `${dev}-${ino}`;
-  }
+  constructor(private readonly virtualDrive: VirtualDrive) {}
 
   createPlaceHolder(file: File): void {
     if (!file.hasStatus(FileStatuses.EXISTS)) {
@@ -40,9 +24,9 @@ export class NodeWinLocalFileSystem {
     return this.virtualDrive.getFileIdentity({ path });
   }
 
-  updateSyncStatus(file: File, status = true) {
+  updateSyncStatus(path: string, status = true) {
     return this.virtualDrive.updateSyncStatus({
-      itemPath: file.path,
+      itemPath: path,
       isDirectory: false,
       sync: status,
     });

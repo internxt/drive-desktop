@@ -1,10 +1,6 @@
 import { FolderUuid } from './../../folders/domain/FolderUuid';
-import { Folder } from '../../folders/domain/Folder';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileActionOnlyCanAffectOneLevelError } from './errors/FileActionOnlyCanAffectOneLevelError';
-import { FileNameShouldDifferFromOriginalError } from './errors/FileNameShouldDifferFromOriginalError';
-import { FileActionCannotModifyExtension } from './errors/FileActionCannotModifyExtension';
 import { FileStatus, FileStatuses } from './FileStatus';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
@@ -111,43 +107,8 @@ export class File {
     this._size = contentsSize;
   }
 
-  trash() {
-    this._status = this._status.changeTo(FileStatuses.TRASHED);
-    this.updatedAt = new Date();
-  }
-
-  moveTo(folder: Folder): void {
-    this._folderId = new FileFolderId(folder.id);
-    this._folderUuid = new FolderUuid(folder.uuid);
-    this._path = this._path.changeFolder(folder.path);
-  }
-
-  rename(newPath: FilePath) {
-    if (!this._path.hasSameDirname(newPath)) {
-      throw new FileActionOnlyCanAffectOneLevelError('rename');
-    }
-
-    if (!newPath.hasSameExtension(this._path)) {
-      throw new FileActionCannotModifyExtension('rename');
-    }
-
-    if (this._path.hasSameName(newPath)) {
-      throw new FileNameShouldDifferFromOriginalError('rename');
-    }
-
-    this._path = this._path.updateName(newPath.nameWithExtension());
-  }
-
   hasStatus(status: FileStatuses): boolean {
     return this._status.is(status);
-  }
-
-  replaceContestsAndSize(contentsId: string, size: number) {
-    this._contentsId = new FileContentsId(contentsId);
-    this._size = new FileSize(size);
-    this.updatedAt = new Date();
-
-    return this;
   }
 
   attributes(): FileAttributes {

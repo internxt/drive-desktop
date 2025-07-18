@@ -20,10 +20,9 @@ export class FetchDataService {
       const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
       const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
-      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid });
+      const file = await self.controllers.downloadFile.fileFinderByUuid({ uuid });
 
       Logger.debug('[Fetch Data Callback] Preparing begins', path);
-      Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
 
       try {
         let finished = false;
@@ -64,8 +63,6 @@ export class FetchDataService {
       }
 
       fs.unlinkSync(path);
-
-      self.container.fileSyncStatusUpdater.run(file);
 
       Logger.debug('[Fetch Data Callback] Finish', path);
     } catch (error) {
