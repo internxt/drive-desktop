@@ -10,7 +10,7 @@ export default defineConfig({
       reportOnFailure: true,
     },
     reporters: ['verbose'],
-    setupFiles: ['./tests/vitest/setup.helper.test.ts', './tests/vitest/setup.dom.test.ts'],
+    setupFiles: ['./tests/vitest/setup.helper.test.ts', './tests/vitest/setup.dom.helper.test.ts'],
     include: ['src/apps/renderer/**/*.test.{ts,tsx}'],
     exclude: ['**/*.helper.test.ts', '**/*.infra.test.ts', '**/node_modules'],
     globals: true,
