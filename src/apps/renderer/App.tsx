@@ -1,8 +1,8 @@
 import './App.css';
 import './localize/i18n.service';
 
-import { Suspense, useEffect, useRef } from 'react';
-import { HashRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Suspense, useEffect } from 'react';
+import { HashRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 import { TranslationProvider } from './context/LocalContext';
 import useLanguageChangedListener from './hooks/useLanguage';
@@ -14,6 +14,7 @@ import Migration from './pages/Migration';
 import IssuesPage from './pages/Issues';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './core/tanstack-query/query-client';
+import { AuthGuard } from './components/AuthGuard';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -24,42 +25,16 @@ function LocationWrapper({ children }: { children: JSX.Element }) {
   return children;
 }
 
-function LoggedInWrapper({ children }: { children: JSX.Element }) {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const intendedRoute = useRef<null | string>(null);
-
-  function onUserLoggedInChanged(isLoggedIn: boolean) {
-    if (!isLoggedIn) {
-      intendedRoute.current = pathname;
-      navigate('/login');
-    } else if (intendedRoute.current) {
-      navigate(intendedRoute.current);
-      intendedRoute.current = null;
-    }
-  }
-  useEffect(() => {
-    window.electron.onUserLoggedInChanged(onUserLoggedInChanged);
-    window.electron.isUserLoggedIn().then(onUserLoggedInChanged);
-  }, []);
-
-  return children;
-}
-
-function Loader() {
-  return <></>;
-}
-
 export default function App() {
   useLanguageChangedListener();
 
   return (
     <Router>
-      <Suspense fallback={<Loader />}>
+      <Suspense fallback={<></>}>
         <TranslationProvider>
           <QueryClientProvider client={queryClient}>
             <LocationWrapper>
-              <LoggedInWrapper>
+              <AuthGuard>
                 <Routes>
                   <Route path="/login" element={<Login />} />
                   <Route path="/process-issues" element={<IssuesPage />} />
@@ -68,7 +43,7 @@ export default function App() {
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/" element={<Widget />} />
                 </Routes>
-              </LoggedInWrapper>
+              </AuthGuard>
             </LocationWrapper>
           </QueryClientProvider>
         </TranslationProvider>

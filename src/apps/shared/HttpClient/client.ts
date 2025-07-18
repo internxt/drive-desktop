@@ -1,6 +1,5 @@
 import createClient, { Middleware } from 'openapi-fetch';
 import { paths } from './schema';
-import { logout } from '../../../apps/main/auth/service';
 import { getConfig } from '../../sync-engine/config';
 import { ipcRendererSyncEngine } from '../../sync-engine/ipcRendererSyncEngine';
 import eventBus from '@/apps/main/event-bus';
@@ -20,8 +19,7 @@ const handleOnUserUnauthorized = () => {
   if (process.type === 'renderer') {
     ipcRendererSyncEngine.emit('USER_IS_UNAUTHORIZED');
   } else {
-    eventBus.emit('USER_WAS_UNAUTHORIZED');
-    logout();
+    eventBus.emit('USER_LOGGED_OUT');
   }
 };
 

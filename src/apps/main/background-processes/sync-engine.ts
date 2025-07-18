@@ -102,4 +102,3 @@ export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { provider
 }
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
-eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearAllSyncEngineWatcher);

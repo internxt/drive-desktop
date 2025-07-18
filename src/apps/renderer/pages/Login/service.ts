@@ -1,7 +1,5 @@
 import CryptoJS from 'crypto-js';
 
-import { User } from '../../../main/types';
-
 export function hashPassword(password: string, sKey: string): string {
   const reb = CryptoJS.enc.Hex.parse(sKey);
   const bytes = CryptoJS.AES.decrypt(reb.toString(CryptoJS.enc.Base64), process.env.CRYPTO_KEY);
@@ -19,13 +17,6 @@ export function hashPassword(password: string, sKey: string): string {
 
   return encryptedHash;
 }
-
-export type AccessResponse = {
-  newToken: string;
-  token: string;
-  user: User;
-  password: string;
-};
 
 export async function accessRequest({
   email,

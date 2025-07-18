@@ -23,7 +23,6 @@ export function broadcastToWindows({ name, data }: BroadcastToWindows) {
 }
 
 eventBus.on('USER_LOGGED_OUT', closeAuxWindows);
-eventBus.on('USER_WAS_UNAUTHORIZED', closeAuxWindows);
 eventBus.on('BROADCAST_TO_WINDOWS', broadcastToWindows);
 
 export function setUpCommonWindowHandlers(window: BrowserWindow) {

@@ -11,7 +11,7 @@ export default defineConfig({
     },
     reporters: ['verbose'],
     setupFiles: './tests/vitest/setup.helper.test.ts',
-    exclude: ['**/*.helper.test.ts', '**/node_modules'],
+    exclude: ['**/*.helper.test.ts', '**/node_modules', 'src/apps/renderer/**/*.test.{ts,tsx}'],
     globals: true,
     root: './',
     watch: false,
