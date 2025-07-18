@@ -29,11 +29,6 @@ export class DriveFileCollection {
     return result;
   }
 
-  async createOrUpdate(payload: DriveFile) {
-    const result = await fileRepository.save(payload);
-    return result;
-  }
-
   async updateInBatch({ where, payload }: UpdateInBatchPayload) {
     const user = getUserOrThrow();
     const match = await fileRepository.update({ ...this.parseWhere(where), userUuid: user.uuid }, payload);

@@ -7,7 +7,7 @@ describe('folder-store', () => {
   const FolderMock = vi.mocked(Folder);
 
   const workspaceId = '';
-  const plainName = 'file.png';
+  const name = 'file.png';
 
   beforeAll(() => {
     FolderMock.decryptName.mockImplementation(({ name }) => name);
@@ -19,16 +19,16 @@ describe('folder-store', () => {
 
   it('Should return path if all folders exist using parentId', () => {
     FolderStore.addWorkspace({ workspaceId, rootId: 109862695, rootUuid: 'c133cad4-4bf4-4b03-86eb-794aeed82302' });
-    FolderStore.addFolder({ folderId: 110355389, parentId: 109862695, parentUuid: null, name: 'folder', workspaceId });
-    FolderStore.addFolder({ folderId: 110750590, parentId: 110355389, parentUuid: null, name: 'folder2', workspaceId });
+    FolderStore.addFolder({ folderId: 110355389, parentId: 109862695, parentUuid: undefined, name: 'folder', workspaceId });
+    FolderStore.addFolder({ folderId: 110750590, parentId: 110355389, parentUuid: undefined, name: 'folder2', workspaceId });
 
-    const path1 = FolderStore.getFolderPath({ workspaceId, parentId: 109862695, parentUuid: null, plainName });
+    const path1 = FolderStore.getFolderPath({ workspaceId, parentId: 109862695, parentUuid: undefined, name });
     expect(path1.relativePath).toBe('/file.png');
 
-    const path2 = FolderStore.getFolderPath({ workspaceId, parentId: 110355389, parentUuid: null, plainName });
+    const path2 = FolderStore.getFolderPath({ workspaceId, parentId: 110355389, parentUuid: undefined, name });
     expect(path2.relativePath).toBe('/folder/file.png');
 
-    const path3 = FolderStore.getFolderPath({ workspaceId, parentId: 110750590, parentUuid: null, plainName });
+    const path3 = FolderStore.getFolderPath({ workspaceId, parentId: 110750590, parentUuid: undefined, name });
     expect(path3.relativePath).toBe('/folder/folder2/file.png');
   });
 
@@ -55,14 +55,14 @@ describe('folder-store', () => {
       workspaceId,
       parentId: 109862695,
       parentUuid: 'c133cad4-4bf4-4b03-86eb-794aeed82302',
-      plainName,
+      name,
     });
     expect(path1.relativePath).toBe('/file.png');
 
-    const path2 = FolderStore.getFolderPath({ workspaceId, parentId: 110355389, parentUuid: null, plainName });
+    const path2 = FolderStore.getFolderPath({ workspaceId, parentId: 110355389, parentUuid: undefined, name });
     expect(path2.relativePath).toBe('/folder/file.png');
 
-    const path3 = FolderStore.getFolderPath({ workspaceId, parentId: 110750590, parentUuid: null, plainName });
+    const path3 = FolderStore.getFolderPath({ workspaceId, parentId: 110750590, parentUuid: undefined, name });
     expect(path3.relativePath).toBe('/folder/folder2/file.png');
   });
 
@@ -72,12 +72,12 @@ describe('folder-store', () => {
     FolderStore.addFolder({
       folderId: 110753145,
       parentId: 0,
-      parentUuid: null,
+      parentUuid: undefined,
       name: 'wrong_parent_id',
       workspaceId,
     });
 
-    expect(() => FolderStore.getFolderPath({ workspaceId, parentId: 0, parentUuid: null, plainName })).toThrowError();
-    expect(() => FolderStore.getFolderPath({ workspaceId, parentId: 110753145, parentUuid: null, plainName })).toThrowError();
+    expect(() => FolderStore.getFolderPath({ workspaceId, parentId: 0, parentUuid: undefined, name })).toThrowError();
+    expect(() => FolderStore.getFolderPath({ workspaceId, parentId: 110753145, parentUuid: undefined, name })).toThrowError();
   });
 });

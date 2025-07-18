@@ -1,0 +1,48 @@
+import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { basename } from 'path';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { logger } from '@/apps/shared/logger/logger';
+import VirtualDrive from '@/node-win/virtual-drive';
+import { isMoveEvent } from './is-move-event';
+import { getParentUuid } from './get-parent-uuid';
+import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
+import { getConfig } from '@/apps/sync-engine/config';
+
+type TProps = {
+  virtualDrive: VirtualDrive;
+  absolutePath: AbsolutePath;
+};
+
+export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
+  const path = pathUtils.absoluteToRelative({
+    base: virtualDrive.syncRootPath,
+    path: absolutePath,
+  });
+
+  try {
+    const parentUuid = getParentUuid({ path, virtualDrive });
+    if (!parentUuid) return;
+
+    const nameWithExtension = basename(path);
+    const { data: file } = await ipcRendererSqlite.invoke('fileGetByName', { parentUuid, nameWithExtension });
+
+    if (!file) {
+      logger.warn({ tag: 'SYNC-ENGINE', msg: 'File not found or does not exist', path, parentUuid, nameWithExtension });
+      return;
+    }
+
+    const isMove = await isMoveEvent({ uuid: file.uuid });
+    if (isMove) return;
+
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'File unlinked', path });
+
+    const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFileByUuid', {
+      uuid: file.uuid,
+      workspaceToken: getConfig().workspaceToken,
+    });
+
+    if (error) throw error;
+  } catch (exc) {
+    logger.error({ tag: 'SYNC-ENGINE', msg: 'Error on unlink file', path, exc });
+  }
+}

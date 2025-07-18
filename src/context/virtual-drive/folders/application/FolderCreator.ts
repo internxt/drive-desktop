@@ -8,6 +8,7 @@ import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { getConfig } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 
 type TProps = {
   path: string;
@@ -25,7 +26,6 @@ export class FolderCreator {
     const posixDir = PlatformPathConverter.getFatherPathPosix(path);
     const { data: parentUuid } = NodeWin.getFolderUuid({
       drive: this.virtualDrive,
-      rootUuid: getConfig().rootUuid,
       path: posixDir,
     });
 
@@ -39,8 +39,18 @@ export class FolderCreator {
       path,
     });
 
-    const folder = Folder.from(attributes);
+    const { error } = await ipcRendererSqlite.invoke('folderCreateOrUpdate', {
+      folder: {
+        ...attributes.dto,
+        userUuid: getConfig().userUuid,
+        workspaceId: getConfig().workspaceId,
+        updatedAt: '2000-01-01T00:00:00Z',
+      },
+    });
 
+    if (error) throw error;
+
+    const folder = Folder.from(attributes);
     this.repository.add(folder);
 
     this.virtualDrive.convertToPlaceholder({

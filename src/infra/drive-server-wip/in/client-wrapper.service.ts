@@ -35,7 +35,11 @@ export async function clientWrapper<T>({ loggerBody, promiseFn, key, sleepMs = 5
     const { reused, promise } = getInFlightRequest({ key, promiseFn });
 
     if (!skipLog) {
-      logger.debug({ ...loggerBody, reused, retry });
+      logger.debug({
+        ...loggerBody,
+        ...(reused && { reused }),
+        ...(retry > 1 && { retry }),
+      });
     }
 
     const { data, error, response } = await promise;
