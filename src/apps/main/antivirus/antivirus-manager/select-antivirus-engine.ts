@@ -2,21 +2,14 @@ import { isWindowsDefenderRealTimeProtectionActive } from '../../ipcs/ipcMainAnt
 import { initializeClamAV } from '../utils/initializeAntivirus';
 import { checkClamdAvailability } from '../ClamAVDaemon';
 import { sleep } from '@/apps/main/util';
-import { AntivirusType } from './types';
 import { logger } from '@/apps/shared/logger/logger';
 
-/**
- * Determines which antivirus engine to use based on availability
- * Priority: Windows Defender -> ClamAV
- * @returns Promise<AntivirusType | null> - the selected antivirus type or null if none available
- */
-export async function selectAntivirusEngine(): Promise<AntivirusType | null> {
+export async function selectAntivirusEngine() {
   logger.debug({
     tag: 'ANTIVIRUS',
     msg: 'Selecting antivirus engine...',
   });
 
-  // First priority: Windows Defender
   if (await isWindowsDefenderRealTimeProtectionActive()) {
     logger.info({
       tag: 'ANTIVIRUS',
@@ -25,9 +18,8 @@ export async function selectAntivirusEngine(): Promise<AntivirusType | null> {
     return 'windows-defender';
   }
 
-  // Fallback: ClamAV
   if (!(await checkClamdAvailability())) await initializeClamAV();
-  await sleep(5000); // Wait for ClamAV initialization
+  await sleep(5000);
   if (await checkClamdAvailability()) {
     logger.info({
       tag: 'ANTIVIRUS',

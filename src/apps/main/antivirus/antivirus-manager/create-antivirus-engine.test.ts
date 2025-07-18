@@ -1,25 +1,18 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { createEngine } from '../create-antivirus-engine';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
-import { AntivirusWindowsDefender } from '../../windows-defender/antivirus-windows-defender';
-import { AntivirusClamAV } from '../../antivirus-clam-av';
+import { createEngine } from './create-antivirus-engine';
+import { partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { mockDeep } from 'vitest-mock-extended';
+import { AntivirusWindowsDefender } from '../windows-defender/antivirus-windows-defender';
+import { AntivirusClamAV } from '../antivirus-clam-av';
 import { logger } from '@/apps/shared/logger/logger';
-import { AntivirusType } from '../types';
-
-// Mock dependencies
-vi.mock('../../windows-defender/antivirus-windows-defender');
-vi.mock('../../antivirus-clam-av');
-vi.mock('@/apps/shared/logger/logger', () => ({
-  logger: {
-    error: vi.fn(),
-  },
-}));
+import { AntivirusType } from './types';
 
 describe('createEngine', () => {
-  // Use deepMocked for properly typed mocks
-  const windowsDefenderCreateInstanceMock = deepMocked(AntivirusWindowsDefender.createInstance);
-  const clamAVCreateInstanceMock = deepMocked(AntivirusClamAV.createInstance);
-  const loggerErrorMock = vi.mocked(logger.error);
+  const mockDefenderInstance = mockDeep<AntivirusWindowsDefender>();
+  const mockClamAVInstance = mockDeep<AntivirusClamAV>();
+  const windowsDefenderCreateInstanceMock = partialSpyOn(AntivirusWindowsDefender, 'createInstance');
+  const clamAVCreateInstanceMock = partialSpyOn(AntivirusClamAV, 'createInstance');
+  const loggerErrorMock = partialSpyOn(logger, 'error');
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -27,18 +20,9 @@ describe('createEngine', () => {
 
   it('creates Windows Defender instance when type is windows-defender', async () => {
     // Given
-    const mockDefenderInstance: AntivirusWindowsDefender = {
-      scanFile: vi.fn(),
-      initialize: vi.fn(),
-      stop: vi.fn(),
-      isInitialized: true,
-      mpCmdRunPath: 'C:\\path\\to\\MpCmdRun.exe',
-    } as AntivirusWindowsDefender;
     windowsDefenderCreateInstanceMock.mockResolvedValue(mockDefenderInstance);
-
     // When
     const result = await createEngine('windows-defender');
-
     // Then
     expect(result).toBe(mockDefenderInstance);
     expect(windowsDefenderCreateInstanceMock).toHaveBeenCalled();
@@ -47,18 +31,9 @@ describe('createEngine', () => {
 
   it('creates ClamAV instance when type is clamav', async () => {
     // Given
-    const mockClamAVInstance = {
-      scanFile: vi.fn(),
-      initialize: vi.fn(),
-      stop: vi.fn(),
-      isInitialized: true,
-      clamAv: null,
-    } as unknown as AntivirusClamAV;
     clamAVCreateInstanceMock.mockResolvedValue(mockClamAVInstance);
-
     // When
     const result = await createEngine('clamav');
-
     // Then
     expect(result).toBe(mockClamAVInstance);
     expect(clamAVCreateInstanceMock).toHaveBeenCalled();
@@ -69,19 +44,9 @@ describe('createEngine', () => {
     // Given
     const mockError = new Error('Windows Defender initialization error');
     windowsDefenderCreateInstanceMock.mockRejectedValue(mockError);
-
-    const mockClamAVInstance = {
-      scanFile: vi.fn(),
-      initialize: vi.fn(),
-      stop: vi.fn(),
-      isInitialized: true,
-      clamAv: null,
-    } as unknown as AntivirusClamAV;
     clamAVCreateInstanceMock.mockResolvedValue(mockClamAVInstance);
-
     // When
     const result = await createEngine('windows-defender');
-
     // Then
     expect(result).toBe(mockClamAVInstance);
     expect(windowsDefenderCreateInstanceMock).toHaveBeenCalled();
