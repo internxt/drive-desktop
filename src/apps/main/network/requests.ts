@@ -1,5 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { createHash } from 'crypto';
+import { getFileMirrors } from './get-file-mirrors';
+import { replaceMirror } from './replace-mirror';
 
 export type FileInfo = {
   bucket: string;
@@ -159,67 +161,6 @@ export async function getMirrors({
   }
 
   return mirrors;
-}
-
-async function replaceMirror({
-  bucketId,
-  fileId,
-  pointerIndex,
-  excludeNodes = [],
-  opts,
-}: {
-  bucketId: string;
-  fileId: string;
-  pointerIndex: number;
-  excludeNodes?: string[];
-  opts?: { headers?: Record<string, string> };
-}): Promise<Mirror> {
-  let mirrorIsOk = false;
-  let mirror: Mirror;
-
-  while (!mirrorIsOk) {
-    const [newMirror] = await getFileMirrors({
-      bucketId,
-      fileId,
-      limit: 1,
-      skip: pointerIndex,
-      excludeNodes,
-      opts,
-    });
-    mirror = newMirror;
-    mirrorIsOk = !!(newMirror.farmer && newMirror.farmer.nodeID && newMirror.farmer.port && newMirror.farmer.address);
-  }
-
-  return mirror!;
-}
-
-function getFileMirrors({
-  bucketId,
-  fileId,
-  limit = 3,
-  skip = 0,
-  excludeNodes = [],
-  opts,
-}: {
-  bucketId: string;
-  fileId: string;
-  limit?: number;
-  skip?: number;
-  excludeNodes?: string[];
-  opts?: { headers?: Record<string, string> };
-}): Promise<Mirror[]> {
-  const excludeNodeIds: string = excludeNodes.join(',');
-  const url = `${process.env.BRIDGE_URL}/buckets/${bucketId}/files/${fileId}?limit=${limit}&skip=${skip}&exclude=${excludeNodeIds}`;
-
-  return fetch(url, {
-    method: 'GET',
-    headers: {
-      ...(opts?.headers || {}),
-    },
-  }).then((res) => {
-    if (!res.ok) throw new Error(`Failed to fetch mirrors: ${res.status} ${res.statusText}`);
-    return res.json();
-  });
 }
 
 function isFarmerOk(farmer?: Partial<Mirror['farmer']>) {
