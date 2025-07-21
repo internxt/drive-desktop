@@ -1,7 +1,7 @@
-import axios, { AxiosBasicCredentials, AxiosRequestConfig } from 'axios';
+import { logger } from '@/apps/shared/logger/logger';
 import { createHash } from 'crypto';
 
-export interface FileInfo {
+export type FileInfo = {
   bucket: string;
   mimetype: string;
   filename: string;
@@ -17,48 +17,67 @@ export interface FileInfo {
     type: string;
   };
   index: string;
-}
+};
 
-export interface NetworkCredentials {
+export type NetworkCredentials = {
   user: string;
   pass: string;
-}
+};
 
 export function sha256(input: Buffer): Buffer {
   return createHash('sha256').update(input).digest();
 }
 
-function getAuthFromCredentials(creds: NetworkCredentials): AxiosBasicCredentials {
+function getAuthFromCredentials({ creds }: { creds: NetworkCredentials }): { Authorization: string } {
+  const username = creds.user;
+  const password = sha256(Buffer.from(creds.pass)).toString('hex');
+  const base64 = Buffer.from(`${username}:${password}`).toString('base64');
   return {
-    username: creds.user,
-    password: sha256(Buffer.from(creds.pass)).toString('hex'),
+    Authorization: `Basic ${base64}`,
   };
 }
 
-function getFileInfo(bucketId: string, fileId: string, opts?: AxiosRequestConfig): Promise<FileInfo> {
-  const defaultOpts: AxiosRequestConfig = {
+async function getFileInfo({
+  bucketId,
+  fileId,
+  opts,
+}: {
+  bucketId: string;
+  fileId: string;
+  opts?: { headers?: Record<string, string> };
+}): Promise<FileInfo> {
+  logger.info({ tag: 'BACKUPS', msg: `Fetching file info for bucketId downloadV1: ${bucketId}, fileId: ${fileId}` });
+  const url = `${process.env.BRIDGE_URL}/buckets/${bucketId}/files/${fileId}/info`;
+  const res = await fetch(url, {
     method: 'GET',
-    url: `${process.env.BRIDGE_URL}/buckets/${bucketId}/files/${fileId}/info`,
-    maxContentLength: Infinity,
-  };
+    headers: {
+      ...(opts?.headers || {}),
+    },
+  });
 
-  return axios
-    .request<FileInfo>({ ...defaultOpts, ...opts })
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      throw err;
-    });
+  if (!res.ok) throw new Error(`Failed to fetch file info: ${res.status} ${res.statusText}`);
+  return res.json();
 }
 
-export function getFileInfoWithAuth(bucketId: string, fileId: string, creds: NetworkCredentials): Promise<FileInfo> {
-  return getFileInfo(bucketId, fileId, {
-    auth: getAuthFromCredentials(creds),
+export function getFileInfoWithAuth({
+  bucketId,
+  fileId,
+  creds,
+}: {
+  bucketId: string;
+  fileId: string;
+  creds: NetworkCredentials;
+}): Promise<FileInfo> {
+  return getFileInfo({
+    bucketId,
+    fileId,
+    opts: {
+      headers: getAuthFromCredentials({ creds }),
+    },
   });
 }
 
-export interface Mirror {
+export type Mirror = {
   index: number;
   replaceCount: number;
   hash: string;
@@ -76,26 +95,43 @@ export interface Mirror {
   };
   url: string;
   operation: string;
-}
+};
 
-export async function getMirrors(bucketId: string, fileId: string, creds: NetworkCredentials | null, token?: string): Promise<Mirror[]> {
+export async function getMirrors({
+  bucketId,
+  fileId,
+  creds,
+  token,
+}: {
+  bucketId: string;
+  fileId: string;
+  creds: NetworkCredentials | null;
+  token?: string;
+}): Promise<Mirror[]> {
   const mirrors: Mirror[] = [];
   const limit = 3;
 
   let results: Mirror[] = [];
-  const requestConfig: AxiosRequestConfig = {
-    auth: creds ? getAuthFromCredentials(creds) : undefined,
-    headers: token ? { 'x-token': token } : {},
+  const headers: Record<string, string> = {
+    ...(creds ? getAuthFromCredentials({ creds }) : {}),
+    ...(token ? { 'x-token': token } : {}),
   };
 
   do {
-    results = (await getFileMirrors(bucketId, fileId, limit, mirrors.length, [], requestConfig))
+    results = (
+      await getFileMirrors({
+        bucketId,
+        fileId,
+        limit,
+        skip: mirrors.length,
+        excludeNodes: [],
+        opts: { headers },
+      })
+    )
       .filter((m) => !m.parity)
       .sort((mA, mB) => mA.index - mB.index);
 
-    results.forEach((r) => {
-      mirrors.push(r);
-    });
+    results.forEach((r) => mirrors.push(r));
   } while (results.length > 0);
 
   for (const mirror of mirrors) {
@@ -104,7 +140,13 @@ export async function getMirrors(bucketId: string, fileId: string, creds: Networ
     if (farmerIsOk) {
       mirror.farmer.address = mirror.farmer.address.trim();
     } else {
-      mirrors[mirror.index] = await replaceMirror(bucketId, fileId, mirror.index, [], requestConfig);
+      mirrors[mirror.index] = await replaceMirror({
+        bucketId,
+        fileId,
+        pointerIndex: mirror.index,
+        excludeNodes: [],
+        opts: { headers },
+      });
 
       if (!isFarmerOk(mirrors[mirror.index].farmer)) {
         throw new Error('Missing pointer for shard %s' + mirror.hash);
@@ -119,52 +161,65 @@ export async function getMirrors(bucketId: string, fileId: string, creds: Networ
   return mirrors;
 }
 
-async function replaceMirror(
-  bucketId: string,
-  fileId: string,
-  pointerIndex: number,
-  excludeNodes: string[] = [],
-  opts?: AxiosRequestConfig,
-): Promise<Mirror> {
+async function replaceMirror({
+  bucketId,
+  fileId,
+  pointerIndex,
+  excludeNodes = [],
+  opts,
+}: {
+  bucketId: string;
+  fileId: string;
+  pointerIndex: number;
+  excludeNodes?: string[];
+  opts?: { headers?: Record<string, string> };
+}): Promise<Mirror> {
   let mirrorIsOk = false;
   let mirror: Mirror;
 
   while (!mirrorIsOk) {
-    const [newMirror] = await getFileMirrors(bucketId, fileId, 1, pointerIndex, excludeNodes, opts);
-
+    const [newMirror] = await getFileMirrors({
+      bucketId,
+      fileId,
+      limit: 1,
+      skip: pointerIndex,
+      excludeNodes,
+      opts,
+    });
     mirror = newMirror;
-    mirrorIsOk = newMirror.farmer && newMirror.farmer.nodeID && newMirror.farmer.port && newMirror.farmer.address ? true : false;
+    mirrorIsOk = !!(newMirror.farmer && newMirror.farmer.nodeID && newMirror.farmer.port && newMirror.farmer.address);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   return mirror!;
 }
 
-function getFileMirrors(
-  bucketId: string,
-  fileId: string,
-  limit: number | 3,
-  skip: number | 0,
-  excludeNodes: string[] = [],
-  opts?: AxiosRequestConfig,
-): Promise<Mirror[]> {
+function getFileMirrors({
+  bucketId,
+  fileId,
+  limit = 3,
+  skip = 0,
+  excludeNodes = [],
+  opts,
+}: {
+  bucketId: string;
+  fileId: string;
+  limit?: number;
+  skip?: number;
+  excludeNodes?: string[];
+  opts?: { headers?: Record<string, string> };
+}): Promise<Mirror[]> {
   const excludeNodeIds: string = excludeNodes.join(',');
-  const path = `${process.env.BRIDGE_URL}/buckets/${bucketId}/files/${fileId}`;
-  const queryParams = `?limit=${limit}&skip=${skip}&exclude=${excludeNodeIds}`;
+  const url = `${process.env.BRIDGE_URL}/buckets/${bucketId}/files/${fileId}?limit=${limit}&skip=${skip}&exclude=${excludeNodeIds}`;
 
-  const defaultOpts: AxiosRequestConfig = {
-    responseType: 'json',
-    url: path + queryParams,
-  };
-
-  return axios
-    .request<Mirror[]>({ ...defaultOpts, ...opts })
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      throw err;
-    });
+  return fetch(url, {
+    method: 'GET',
+    headers: {
+      ...(opts?.headers || {}),
+    },
+  }).then((res) => {
+    if (!res.ok) throw new Error(`Failed to fetch mirrors: ${res.status} ${res.statusText}`);
+    return res.json();
+  });
 }
 
 function isFarmerOk(farmer?: Partial<Mirror['farmer']>) {

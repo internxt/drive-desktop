@@ -165,7 +165,7 @@ async function getRequiredFileMetadataWithAuth(
   fileId: string,
   creds: NetworkCredentials,
 ): Promise<MetadataRequiredForDownload> {
-  const fileMeta: FileInfo = await getFileInfoWithAuth(bucketId, fileId, creds);
+  const fileMeta: FileInfo = await getFileInfoWithAuth({ bucketId, fileId, creds });
   const mirrors: Mirror[] = await getMirrors(bucketId, fileId, creds);
 
   return { fileMeta, mirrors };
