@@ -3,12 +3,13 @@ import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { NodeWinLocalFileSystem } from '../../../../context/virtual-drive/files/infrastructure/NodeWinLocalFileSystem';
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
-import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
+import { FilesPlaceholderUpdater } from '@/context/virtual-drive/files/application/update/FilesPlaceholderUpdater';
 
 export function buildFilesContainer(sharedContainer: SharedContainer): {
   container: FilesContainer;
@@ -17,12 +18,13 @@ export function buildFilesContainer(sharedContainer: SharedContainer): {
   const { virtualDrive } = DependencyInjectionVirtualDrive;
 
   const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
+  const localFileSystem = new NodeWinLocalFileSystem(virtualDrive);
 
   const repository = new InMemoryFileRepository();
 
-  const fileCreator = new FileCreator(remoteFileSystem, virtualDrive);
+  const fileCreator = new FileCreator(remoteFileSystem, repository, virtualDrive);
 
-  const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
+  const filesPlaceholderUpdater = new FilesPlaceholderUpdater(repository, localFileSystem, sharedContainer.relativePathToAbsoluteConverter);
 
   const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem);
 
@@ -33,7 +35,7 @@ export function buildFilesContainer(sharedContainer: SharedContainer): {
   const container: FilesContainer = {
     fileRepository: repository,
     fileCreator,
-    filePlaceholderUpdater,
+    filesPlaceholderUpdater,
     filesCheckerStatusInRoot,
     fileOverwriteContent,
   };
