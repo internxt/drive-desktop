@@ -2,10 +2,12 @@ import { driveServerClient } from '../../client/drive-server.client.instance';
 import { getNewApiHeaders } from '../../../../apps/main/auth/service';
 import { Either, left, right } from '../../../../context/shared/domain/Either';
 import { logger } from '../../../../core/LoggerService/LoggerService';
-import { components } from '../../../schemas';
+import { components, operations } from '../../../schemas';
 import { mapError } from '../utils/mapError';
 import { AxiosError } from 'axios';
 import { BackupError } from './backup.error';
+
+type getDevicesByIdentifierQuery = operations['BackupController_getDevicesAndFolders']['parameters']['query'];
 
 export class BackupService {
   async getDevices(): Promise<
@@ -161,9 +163,11 @@ export class BackupService {
         );
       }
       return right(response.data);
-       } catch (err: unknown) {
-       if (err instanceof AxiosError && err.response?.status === 409) {
-        const alreadyExistsError = BackupError.alreadyExists('Device already exists');
+    } catch (err: unknown) {
+      if (err instanceof AxiosError && err.response?.status === 409) {
+        const alreadyExistsError = BackupError.alreadyExists(
+          'Device already exists'
+        );
         logger.error({
           msg: 'Device already exists (409)',
           tag: 'BACKUP',
@@ -221,6 +225,117 @@ export class BackupService {
         error: error,
         attributes: {
           endpoint: '/backup/deviceAsFolder/{uuid}',
+        },
+      });
+      return left(error);
+    }
+  }
+
+  async getDevicesByIdentifier(
+    query: getDevicesByIdentifierQuery
+  ): Promise<Either<Error, Array<components['schemas']['DeviceDto']>>> {
+    try {
+      const response = await driveServerClient.GET('/backup/v2/devices', {
+        headers: getNewApiHeaders(),
+        query,
+      });
+      if (!response.data) {
+        logger.error({
+          msg: 'Get devices by identifier request was not successful',
+          tag: 'BACKUP',
+          attributes: { endpoint: '/backup/v2/devices' },
+        });
+        return left(
+          new Error('Get devices by identifier request was not successful')
+        );
+      }
+      return right(response.data);
+    } catch (err) {
+      const error = mapError(err);
+      logger.error({
+        msg: 'Get devices by identifier request threw an exception',
+        tag: 'BACKUP',
+        error: error,
+        attributes: { endpoint: '/backup/v2/devices' },
+      });
+      return left(error);
+    }
+  }
+
+  async addDeviceIdentifier(
+    body: components['schemas']['CreateDeviceAndAttachFolderDto']
+  ): Promise<Either<Error, components['schemas']['DeviceDto']>> {
+    try {
+      const response = await driveServerClient.POST(
+        '/backup/v2/devices/migrate',
+        {
+          headers: getNewApiHeaders(),
+          body,
+        }
+      );
+      if (!response.data) {
+        const error = new Error(
+          'Add device identifier request was not successful'
+        );
+        logger.error({
+          msg: error.message,
+          tag: 'BACKUP',
+        });
+        return left(error);
+      }
+      return right(response.data);
+    } catch (err) {
+      const error = mapError(err);
+      logger.error({
+        msg: 'Add device identifier request threw an exception',
+        tag: 'BACKUP',
+        error,
+      });
+      return left(error);
+    }
+  }
+
+  async createDeviceWithIdentifier(
+    body: components['schemas']['CreateDeviceAndFolderDto']
+  ): Promise<Either<Error, components['schemas']['DeviceDto']>> {
+    try {
+      const response = await driveServerClient.POST('/backup/v2/devices', {
+        headers: getNewApiHeaders(),
+        body,
+      });
+      if (!response.data) {
+        const error = new Error(
+          'Create device with identifier request was not successful'
+        );
+        logger.error({
+          msg: error.message,
+          tag: 'BACKUP',
+        });
+        return left(error);
+      }
+      return right(response.data);
+    } catch (err: unknown) {
+      if (err instanceof AxiosError && err.response?.status === 409) {
+        const alreadyExistsError = BackupError.alreadyExists(
+          'Device already exists'
+        );
+        logger.error({
+          msg: 'Device already exists (409)',
+          tag: 'BACKUP',
+          attributes: {
+            endpoint: '/backup/v2/devices',
+          },
+        });
+        return left(alreadyExistsError);
+      }
+
+      const error = mapError(err);
+      logger.error({
+        msg: 'Create device as folder request threw an exception',
+        tag: 'BACKUP',
+        error: error,
+        attributes: {
+          endpoint: '/backup/v2/devices',
         },
       });
       return left(error);
