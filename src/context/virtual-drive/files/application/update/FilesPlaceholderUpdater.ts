@@ -64,7 +64,7 @@ export class FilesPlaceholderUpdater {
      */
     if (this.hasToBeUpdatedIdentity(local, remote)) {
       this.localFileSystem.updateFileIdentity(local.path, local.placeholderId);
-      this.localFileSystem.updateSyncStatus(local);
+      this.localFileSystem.updateSyncStatus(local.path);
     }
 
     if (local.path !== remote.path) {
