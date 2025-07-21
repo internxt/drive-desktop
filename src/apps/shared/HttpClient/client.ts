@@ -53,7 +53,7 @@ const limiter = new Bottleneck({
 });
 
 export const client = createClient<paths>({
-  baseUrl: process.env.NEW_DRIVE_URL,
+  baseUrl: process.env.DRIVE_URL,
   fetch: limiter.wrap(fetch),
 });
 
