@@ -3,11 +3,9 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { updateContentsId } from './update-contents-id';
 import { mockDeep } from 'vitest-mock-extended';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMother';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 
@@ -16,7 +14,6 @@ describe('update-contents-id', () => {
 
   const virtualDrive = mockDeep<VirtualDrive>();
   const fileContentsUploader = mockDeep<ContentsUploader>();
-  const repository = mockDeep<InMemoryFileRepository>();
   const path = createRelativePath('folder', 'file.txt');
   const uuid = 'uuid';
 
@@ -28,7 +25,6 @@ describe('update-contents-id', () => {
     props = mockProps<typeof updateContentsId>({
       virtualDrive,
       fileContentsUploader,
-      repository,
       path,
       uuid,
       stats: { size: 1024 },
@@ -70,17 +66,6 @@ describe('update-contents-id', () => {
     await updateContentsId(props);
     // Then
     expect(replaceFileSpy).toBeCalledWith({ uuid, newContentId: 'newContentsId', newSize: 1 });
-    expect(loggerMock.error).toBeCalledTimes(0);
-  });
-
-  it('should update repository', async () => {
-    // Given
-    const file = FileMother.any();
-    repository.searchByPartial.mockReturnValue(file);
-    // When
-    await updateContentsId(props);
-    // Then
-    expect(repository.updateContentsAndSize).toBeCalledWith(file, 'newContentsId', 1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });
 });

@@ -1,7 +1,6 @@
 import { parseAndDecryptUserKeys } from '../../../apps/shared/crypto/keys.service';
 import { safeStorage } from 'electron';
 import Logger from 'electron-log';
-import packageConfig from '../../../../package.json';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import { User } from '../types';
 
