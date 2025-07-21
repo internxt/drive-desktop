@@ -5,10 +5,6 @@ import { File, FileAttributes } from '../domain/File';
 export class InMemoryFileRepository {
   private files: Map<string, FileAttributes>;
 
-  private get values(): Array<FileAttributes> {
-    return Array.from(this.files.values());
-  }
-
   constructor() {
     this.files = new Map();
   }
@@ -27,25 +23,6 @@ export class InMemoryFileRepository {
     return files as Array<File>;
   }
 
-  searchByPartial(partial: Partial<FileAttributes>): File | undefined {
-    const keys = Object.keys(partial) as Array<keyof Partial<FileAttributes>>;
-
-    const file: FileAttributes | undefined = this.values.find((attributes) => {
-      return keys.every((key: keyof FileAttributes) => {
-        if (key === 'contentsId') {
-          return attributes[key].normalize() == (partial[key] as string).normalize();
-        }
-        return attributes[key] == partial[key];
-      });
-    });
-
-    if (file) {
-      return File.from(file);
-    }
-
-    return undefined;
-  }
-
   add(file: File): void {
     this.files.set(file.contentsId, {
       id: file.id,
@@ -60,13 +37,5 @@ export class InMemoryFileRepository {
       status: file.status.value,
       modificationTime: file.updatedAt.toISOString(),
     });
-  }
-
-  update(file: File): void {
-    if (!this.files.has(file.contentsId)) {
-      throw new Error('File not found');
-    }
-
-    return this.add(file);
   }
 }

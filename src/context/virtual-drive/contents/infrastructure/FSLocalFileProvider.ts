@@ -2,7 +2,6 @@ import Logger from 'electron-log';
 import { createReadStream, promises as fs, watch } from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
-import { LocalFileContents } from '../domain/LocalFileContents';
 import { logger } from '@/apps/shared/logger/logger';
 
 export class FSLocalFileProvider {
