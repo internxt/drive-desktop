@@ -1,9 +1,9 @@
-import { extractVirusNamesFromOutput } from './extract-virus-names';
+import { extractVirusNames } from './extract-virus-names';
 
-interface Props {
+type Props = {
   stdout: string;
   stderr: string;
-}
+};
 
 export function parseVirusNames({ stdout, stderr }: Props) {
   const output = `${stdout}${stderr}`;
@@ -23,7 +23,7 @@ export function parseVirusNames({ stdout, stderr }: Props) {
     return [];
   }
 
-  const extractedVirusNames = extractVirusNamesFromOutput({ output });
+  const extractedVirusNames = extractVirusNames({ output });
 
   /**
    * v2.5.6 Esteban Galvis

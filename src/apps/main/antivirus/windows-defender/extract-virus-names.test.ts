@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { extractVirusNamesFromOutput } from './extract-virus-names';
+import { extractVirusNames } from './extract-virus-names';
 
-describe('extractVirusNamesFromOutput', () => {
+describe('extractVirusNames', () => {
   it('extracts virus names from pattern "Threat detected: VirusName"', () => {
     // Given
     const output = 'Scanning file... Threat detected: TestVirus1';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['TestVirus1']);
   });
@@ -15,7 +15,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... Threat TestVirus2 was detected';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['TestVirus2']);
   });
@@ -24,7 +24,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... Found TestVirus3 threat';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['TestVirus3']);
   });
@@ -33,7 +33,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... Malware TestVirus4 detected';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['TestVirus4']);
   });
@@ -42,7 +42,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... Virus TestVirus5 found';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['TestVirus5']);
   });
@@ -51,7 +51,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... Infected with TestVirus6';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['TestVirus6']);
   });
@@ -60,7 +60,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... Virus TestVirus7 found. Another instance: Virus TestVirus7 found';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['TestVirus7']);
   });
@@ -69,7 +69,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... Virus file:TestVirus8 found';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['TestVirus8']);
   });
@@ -78,7 +78,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... Virus TestVirus9 found. Also, Threat detected: TestVirus10';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toContain('TestVirus9');
     expect(result).toContain('TestVirus10');
@@ -89,7 +89,7 @@ describe('extractVirusNamesFromOutput', () => {
     // Given
     const output = 'Scanning file... No threats found.';
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual([]);
   });
@@ -113,7 +113,7 @@ MpCmdRun.exe: hr = 0x80508023.
 MpCmdRun: End Time: mar. jul. 15 2025 10:11:20
 -------------------------------------------------------------------------------`;
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     expect(result).toEqual([]);
   });
 
@@ -131,7 +131,7 @@ MpCmdRun.exe: hr = 0x80508023.
 MpCmdRun: End Time: mar. jul. 15 2025 10:11:20
 -------------------------------------------------------------------------------`;
     // When
-    const result = extractVirusNamesFromOutput({ output });
+    const result = extractVirusNames({ output });
     // Then
     expect(result).toEqual(['EICAR-Test-File (not a virus)']);
   });

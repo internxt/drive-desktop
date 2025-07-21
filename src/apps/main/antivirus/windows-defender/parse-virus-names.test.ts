@@ -4,7 +4,6 @@ import { parseVirusNames } from './parse-virus-names';
 describe('parseVirusNames', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.restoreAllMocks();
   });
 
   it('extracts virus names from pattern "Threat detected: VirusName"', () => {

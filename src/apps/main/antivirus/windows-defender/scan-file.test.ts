@@ -5,12 +5,12 @@ import { EventEmitter } from 'events';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import * as parseVirusNames from './parse-virus-names';
 
-interface MockChildProcess extends EventEmitter {
+type MockChildProcess = EventEmitter & {
   stdout: EventEmitter;
   stderr: EventEmitter;
-  on(event: string, listener: (...args: unknown[]) => void): this;
+  on(event: string, listener: (...args: unknown[]) => void): MockChildProcess;
   emit(event: string, ...args: unknown[]): boolean;
-}
+};
 
 vi.mock(import('child_process'));
 
