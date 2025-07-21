@@ -10,7 +10,7 @@ type TProps = {
 export function scheduleSync({ worker }: TProps) {
   worker.syncSchedule?.cancel(false);
   worker.syncSchedule = nodeSchedule.scheduleJob('*/10 * * * *', async () => {
-    logger.debug({ msg: 'Received remote changes event' });
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Start scheduled sync' });
     await debouncedSynchronization();
   });
 }

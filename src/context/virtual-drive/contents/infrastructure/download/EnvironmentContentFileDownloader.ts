@@ -1,6 +1,5 @@
 import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core/download/strategy';
 import { EventEmitter, Readable } from 'stream';
-import { File } from '../../../files/domain/File';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
@@ -35,7 +34,7 @@ export class EnvironmentContentFileDownloader {
     // this.eventEmitter.emit('finish');
   }
 
-  download(file: File): Promise<Readable> {
+  download({ contentsId }: { contentsId: string }): Promise<Readable> {
     try {
       this.stopwatch.start();
 
@@ -44,7 +43,7 @@ export class EnvironmentContentFileDownloader {
       return new Promise((resolve, reject) => {
         this.state = this.fn(
           this.bucket,
-          file.contentsId,
+          contentsId,
           {
             progressCallback: (progress: number) => {
               this.eventEmitter.emit('progress', progress);

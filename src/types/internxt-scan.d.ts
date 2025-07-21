@@ -1,3 +1,5 @@
+/* eslint-disable import/no-default-export */
+
 declare module '@internxt/scan' {
   type InitParams = {
     removeInfected: boolean;
