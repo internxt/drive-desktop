@@ -9,13 +9,20 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../contex
 import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { getConfig } from '../../config';
+import { logger } from '@/apps/shared/logger/logger';
+import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 
 export function buildContentsContainer(sharedContainer: SharedContainer): ContentsContainer {
   const environment = new Environment({
-    bridgeUrl: process.env.DRIVE_URL,
+    bridgeUrl: process.env.BRIDGE_URL,
     bridgeUser: getConfig().bridgeUser,
     bridgePass: getConfig().bridgePass,
     encryptionKey: getConfig().mnemonic,
+    appDetails: {
+      clientName: INTERNXT_CLIENT,
+      clientVersion: INTERNXT_VERSION,
+      desktopHeader: process.env.DESKTOP_HEADER,
+    },
   });
 
   const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, getConfig().bucket);
