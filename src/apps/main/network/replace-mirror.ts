@@ -6,7 +6,7 @@ type Props = {
   fileId: string;
   pointerIndex: number;
   excludeNodes?: string[];
-  opts?: { headers?: Record<string, string> };
+  opts: { headers?: Record<string, string> };
 };
 
 export async function replaceMirror({ bucketId, fileId, pointerIndex, excludeNodes = [], opts }: Props): Promise<Mirror> {

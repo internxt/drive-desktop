@@ -4,7 +4,7 @@ import { FileInfo } from './requests';
 type Props = {
   bucketId: string;
   fileId: string;
-  opts?: { headers?: Record<string, string> };
+  opts: { headers?: Record<string, string> };
 };
 
 export async function getFileInfo({ bucketId, fileId, opts }: Props): Promise<FileInfo> {
@@ -13,10 +13,10 @@ export async function getFileInfo({ bucketId, fileId, opts }: Props): Promise<Fi
   const res = await fetch(url, {
     method: 'GET',
     headers: {
-      ...(opts?.headers || {}),
+      ...(opts.headers || {}),
     },
   });
 
-  if (!res.ok) throw new Error(`Failed to fetch file info: ${res.status} ${res.statusText}`);
+  if (!res.ok) throw logger.error({ msg: 'Failed to fetch file info', status: res.status, statusText: res.statusText });
   return res.json();
 }
