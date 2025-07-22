@@ -10,8 +10,6 @@ describe('get-by-uuid', () => {
   const props = mockProps<typeof getByUuid>({});
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     fileDecryptNameSpy.mockImplementation(({ encryptedName }) => ({
       name: encryptedName,
       nameWithExtension: encryptedName,

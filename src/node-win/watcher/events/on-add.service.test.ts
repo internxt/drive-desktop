@@ -22,8 +22,6 @@ describe('on-add', () => {
   let props: Parameters<typeof onAdd>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof onAdd>({
       absolutePath,

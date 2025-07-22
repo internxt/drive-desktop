@@ -10,10 +10,6 @@ describe('handle-dehydrate', () => {
   const path = createRelativePath('folder', 'file.txt');
   const props = mockProps<typeof handleDehydrate>({ drive, path });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should call dehydrateFile', () => {
     // When
     handleDehydrate(props);

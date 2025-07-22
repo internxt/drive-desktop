@@ -20,7 +20,6 @@ describe('scanFile', () => {
   const spawnMock = deepMocked(childProcess.spawn);
 
   beforeEach(() => {
-    vi.clearAllMocks();
     parseVirusNamesMock.mockImplementation(({ stdout }) => {
       if (stdout.includes('TestVirus')) return ['TestVirus'];
       return ['Windows.Defender.Threat.Detected'];

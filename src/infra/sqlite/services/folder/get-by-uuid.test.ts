@@ -12,7 +12,6 @@ describe('get-by-uuid', () => {
   const props = mockProps<typeof getByUuid>({});
 
   beforeEach(() => {
-    vi.clearAllMocks();
     getUserOrThrowSpy.mockResolvedValue({ uuid: 'uuid' });
     decryptNameSpy.mockImplementation(({ name }) => name);
   });

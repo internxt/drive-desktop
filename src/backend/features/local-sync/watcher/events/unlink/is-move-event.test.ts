@@ -12,8 +12,6 @@ describe('is-move-event', () => {
   const sleepMock = partialSpyOn(sleep, 'sleep');
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     sleepMock.mockImplementation(() => Promise.resolve());
 
     store.addEvents.clear();

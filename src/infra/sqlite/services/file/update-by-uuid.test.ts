@@ -7,10 +7,6 @@ describe('update-by-uuid', () => {
 
   const props = mockProps<typeof updateByUuid>({});
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should return NOT_FOUND when no file has been affected', async () => {
     // Given
     updateSpy.mockResolvedValue({ affected: 0 });

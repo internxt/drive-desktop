@@ -16,7 +16,6 @@ describe('getDefenderVersions', () => {
   type MockReaddirReturn = ReturnType<typeof readdir> extends Promise<infer T> ? T : never;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     joinMock.mockImplementation((...args) => args.join('\\'));
   });
 

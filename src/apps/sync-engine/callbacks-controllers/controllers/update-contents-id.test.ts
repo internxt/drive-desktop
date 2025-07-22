@@ -27,7 +27,6 @@ describe('update-contents-id', () => {
   });
 
   beforeEach(() => {
-    vi.clearAllMocks();
     fileContentsUploader.run.mockResolvedValue({ id: 'newContentsId' as ContentsId, size: 1 });
     statSpy.mockResolvedValue({ data: { size: 1 } });
   });

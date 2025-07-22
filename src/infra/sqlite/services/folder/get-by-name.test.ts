@@ -10,8 +10,6 @@ describe('get-by-name', () => {
   const props = mockProps<typeof getByName>({ name: 'folder' });
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     decryptNameSpy.mockImplementation(({ name }) => name);
   });
 
