@@ -1,8 +1,6 @@
 import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/FileCreator';
 import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
-import { File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { mockDeep } from 'vitest-mock-extended';
-import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { v4 } from 'uuid';
 import { FileMother, generateRandomFileId } from '@/tests/context/virtual-drive/files/domain/FileMother';
@@ -22,7 +20,6 @@ vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
 
 describe('File Creator', () => {
   const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
-  const fileRepository = mockDeep<InMemoryFileRepository>();
   const virtualDriveMock = mockDeep<VirtualDrive>();
   const getFolderUuid = vi.mocked(NodeWin.getFolderUuid);
   const ipcRendererSyncEngineMock = vi.mocked(ipcRendererSyncEngine);
@@ -32,10 +29,9 @@ describe('File Creator', () => {
   const filePath = new FilePath(folderParent.path + '/cat.png');
   const contents = FileContentsMother.random();
 
-  const SUT = new FileCreator(remoteFileSystemMock, fileRepository, virtualDriveMock);
+  const SUT = new FileCreator(remoteFileSystemMock, virtualDriveMock);
 
   beforeEach(() => {
-    vi.resetAllMocks();
     getFolderUuid.mockReturnValue({ data: folderParent.uuid as FolderUuid });
     invokeMock.mockResolvedValue({});
   });
@@ -72,7 +68,6 @@ describe('File Creator', () => {
 
     await SUT.run(filePath, contents);
 
-    expect(fileRepository.add).toBeCalledWith(expect.objectContaining(File.from(file)));
     expect(invokeMock).toBeCalledTimes(1);
   });
 

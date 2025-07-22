@@ -21,7 +21,6 @@ describe('spawn-sync-engine-worker', () => {
 
   beforeEach(() => {
     delete workers[workspaceId];
-    vi.clearAllMocks();
   });
 
   it('If worker does not exist then create and start it', async () => {

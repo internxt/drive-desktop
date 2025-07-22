@@ -18,7 +18,7 @@ function downloadOwnFile(params: IDownloadParams) {
 
   return new NetworkFacade(
     Network.client(
-      process.env.DRIVE_URL,
+      process.env.BRIDGE_URL,
       {
         clientName: INTERNXT_CLIENT,
         clientVersion: INTERNXT_VERSION,

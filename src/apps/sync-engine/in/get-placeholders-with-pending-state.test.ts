@@ -14,10 +14,6 @@ describe('get-placeholders-with-pending-state', () => {
 
   const props = mockProps<typeof getPlaceholdersWithPendingState>({ path: 'C:\\Users\\user\\InternxtDrive' });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should return files that are not uploaded', async () => {
     getFileUuidMock.mockReturnValueOnce({ data: 'uuid' as FileUuid });
     getFileUuidMock.mockReturnValueOnce({ error: new GetFileIdentityError('NON_EXISTS') });

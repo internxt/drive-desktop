@@ -26,7 +26,6 @@ describe('Folder Creator', () => {
   const props = { path };
 
   beforeEach(() => {
-    vi.resetAllMocks();
     invokeMock.mockResolvedValue({});
   });
 

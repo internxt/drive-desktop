@@ -16,8 +16,6 @@ describe('sync-items-by-folder', () => {
   let props: Parameters<typeof syncItemsByFolder>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof syncItemsByFolder>({
       rootFolderUuid: 'rootFolderUuid',
       context: {

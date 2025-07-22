@@ -10,8 +10,6 @@ describe('get-by-name', () => {
   const props = mockProps<typeof getByName>({ nameWithExtension: 'file.txt' });
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     fileDecryptNameSpy.mockImplementation(({ encryptedName }) => ({
       name: encryptedName,
       nameWithExtension: encryptedName,

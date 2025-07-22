@@ -20,7 +20,6 @@ describe('queue-manager', async () => {
   const virtualDrive = mockDeep<VirtualDrive>();
 
   beforeEach(async () => {
-    vi.clearAllMocks();
     if (existsSync(queuePath)) await unlink(queuePath);
   });
 

@@ -25,10 +25,6 @@ describe('VirtualDrive', () => {
   const syncRootPath = 'C:\\test-drive';
   const loggerPath = 'C:\\test-logs';
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe('When convertToWindowsPath is called', () => {
     const providerId = v4();
 

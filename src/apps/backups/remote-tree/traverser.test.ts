@@ -17,7 +17,6 @@ describe('traverser', () => {
   const folder3 = v4();
 
   beforeEach(() => {
-    vi.clearAllMocks();
     fetchItemsMock.mockResolvedValue({
       files: [
         { uuid: v4(), plainName: 'file1', folderUuid: folder, folderId: 0, fileId: '012345678901234567890123', status: 'EXISTS' },

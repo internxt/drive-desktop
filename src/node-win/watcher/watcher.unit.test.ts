@@ -12,10 +12,6 @@ import { getEvents, setupWatcher } from './watcher.helper.test';
 describe('Watcher', () => {
   let watcher: Watcher | undefined;
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   afterEach(async () => {
     await watcher?.chokidar?.close();
   });

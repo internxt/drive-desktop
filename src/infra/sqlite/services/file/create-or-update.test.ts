@@ -10,8 +10,6 @@ describe('create-or-update', () => {
   const props = mockProps<typeof createOrUpdate>({});
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     fileDecryptNameSpy.mockImplementation(({ encryptedName }) => ({
       name: encryptedName,
       nameWithExtension: encryptedName,

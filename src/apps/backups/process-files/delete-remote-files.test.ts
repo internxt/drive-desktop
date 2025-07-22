@@ -12,10 +12,6 @@ describe('delete-remote-files', () => {
   const file2 = FileMother.any();
   const deleted = [file1, file2];
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('If signal is aborted then do nothing', async () => {
     // Given
     const abortController = new AbortController();

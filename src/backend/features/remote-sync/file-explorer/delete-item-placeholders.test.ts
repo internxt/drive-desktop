@@ -13,10 +13,6 @@ describe('delete-item-placeholders', () => {
 
   const virtualDrive = mockDeep<VirtualDrive>();
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should call deleteFileSyncRoot if folder uuids match', () => {
     // Given
     getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
