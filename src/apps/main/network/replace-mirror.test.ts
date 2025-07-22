@@ -8,7 +8,6 @@ describe('replace-mirror', () => {
   const props = mockProps<typeof replaceMirror>({});
 
   it('should return mirror is ok', async () => {
-
     getFileMirrorsMock.mockResolvedValueOnce([{ farmer: {} }]);
     getFileMirrorsMock.mockResolvedValueOnce([{ farmer: { nodeID: 'nodeID', port: 1, address: 'address' } }]);
 
