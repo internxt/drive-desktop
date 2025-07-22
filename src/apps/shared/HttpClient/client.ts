@@ -17,7 +17,7 @@ export const getWorkspaceHeader = ({ workspaceToken }: { workspaceToken: string 
 
 const handleOnUserUnauthorized = () => {
   if (process.type === 'renderer') {
-    ipcRendererSyncEngine.emit('USER_IS_UNAUTHORIZED');
+    ipcRendererSyncEngine.emit('USER_LOGGED_OUT');
   } else {
     eventBus.emit('USER_LOGGED_OUT');
   }

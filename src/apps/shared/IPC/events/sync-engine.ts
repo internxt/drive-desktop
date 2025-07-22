@@ -42,7 +42,7 @@ type FilesEvents = {
 type SyncEngineInvocableFunctions = {
   GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: DriveFile[]; folders: DriveFolder[] }>;
   GET_HEADERS: () => Promise<Record<string, string>>;
-  USER_IS_UNAUTHORIZED: () => void;
+  USER_LOGGED_OUT: () => void;
 };
 
 type ProcessInfoUpdate = {

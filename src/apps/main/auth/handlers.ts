@@ -10,6 +10,7 @@ import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
 import { getAuthHeaders } from './headers';
 import { AccessResponse } from '@/apps/renderer/pages/Login/types';
+import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 
 let isLoggedIn: boolean;
 
@@ -70,7 +71,7 @@ export function setupAuthIpcHandlers() {
     await emitUserLoggedIn();
   });
 
-  ipcMain.on('user-logged-out', () => {
+  ipcMainSyncEngine.on('USER_LOGGED_OUT', () => {
     eventBus.emit('USER_LOGGED_OUT');
 
     setIsLoggedIn(false);
