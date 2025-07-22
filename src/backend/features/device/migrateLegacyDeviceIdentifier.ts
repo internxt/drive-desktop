@@ -5,7 +5,6 @@ import { Either, left } from './../../../context/shared/domain/Either';
 import { Device } from './../../../apps/main/device/service';
 import { getDeviceIdentifier } from './getDeviceIdentifier';
 import configStore from './../../../apps/main/config';
-import { mapDeviceDtoToDevice } from './utils/deviceMapper';
 
 export async function migrateLegacyDeviceIdentifier(
   device: Device

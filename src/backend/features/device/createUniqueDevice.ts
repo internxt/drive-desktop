@@ -3,10 +3,8 @@ import os from 'os';
 import { logger } from '../../../core/LoggerService/LoggerService';
 import { tryCreateDevice } from './tryCreateDevice';
 import { Either, left, right } from '../../../context/shared/domain/Either';
-import { mapDeviceDtoToDevice } from './utils/deviceMapper';
 import { addUnknownDeviceIssue } from './addUnknownDeviceIssue';
 import { DeviceIdentifierDTO } from './device.types';
-import { components } from 'src/infra/schemas';
 /**
  * Creates a new device with a unique name
  * @returns Either containing the created device or an error if device creation fails after multiple attempts

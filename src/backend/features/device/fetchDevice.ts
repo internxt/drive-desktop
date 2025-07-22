@@ -5,7 +5,6 @@ import { logger } from '../../../core/LoggerService/LoggerService';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 import { addUnknownDeviceIssue } from './addUnknownDeviceIssue';
 import { DeviceIdentifierDTO } from './device.types';
-import { mapDeviceDtoToDevice } from './utils/deviceMapper';
 export type FetchDeviceProps =
   | { deviceIdentifier: DeviceIdentifierDTO }
   | { uuid: string }
@@ -40,7 +39,7 @@ async function getDeviceByProps(
 
     if (deviceResult.isLeft()) return left(deviceResult.getLeft());
 
-    return right(mapDeviceDtoToDevice(deviceResult.getRight()));
+    return right(deviceResult.getRight());
   }
 }
 
