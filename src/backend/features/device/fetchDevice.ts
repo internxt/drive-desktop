@@ -31,7 +31,7 @@ async function getDeviceByProps(
     if (devices.length > 1)
       return left(new Error('Multiple devices found for the same identifier'));
 
-    return right(mapDeviceDtoToDevice(devices[0]));
+    return right(devices[0]);
   } else {
     const deviceResult =
       'uuid' in props

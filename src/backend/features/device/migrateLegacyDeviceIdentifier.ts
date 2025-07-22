@@ -16,7 +16,7 @@ export async function migrateLegacyDeviceIdentifier(
       tag: 'BACKUP',
       msg: 'No valid identifier available for migration',
     });
-    return left(getDeviceIdentifierResult.getLeft());
+    return right(device);
   }
   const deviceIdentifier = getDeviceIdentifierResult.getRight();
 
@@ -37,7 +37,7 @@ export async function migrateLegacyDeviceIdentifier(
       msg: 'Successfully migrated legacy device identifier',
       device: addIdentifierResult.getRight(),
     });
-    return right(mapDeviceDtoToDevice(addIdentifierResult.getRight()));
+    return right(addIdentifierResult.getRight());
   }
   const error = addIdentifierResult.getLeft();
   logger.warn({

@@ -1,6 +1,5 @@
 import { components } from '../../../../infra/schemas';
 import { Device } from '../../../../apps/main/device/service';
-
 /**
  * Maps a DeviceDto from the API to the internal Device type
  * @param deviceDto - The device data transfer object from the API

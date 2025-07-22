@@ -4,22 +4,6 @@
  */
 
 export interface paths {
-    "/api-json": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["OpenApiController_getDocument"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/files": {
         parameters: {
             query?: never;
@@ -148,159 +132,6 @@ export interface paths {
         post?: never;
         /** Delete file from storage by fileId */
         delete: operations["FileController_deleteFileByFileId"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/domains": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["ShareController_getDomains"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get share list */
-        get: operations["ShareController_listShares"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/{token}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get share by token */
-        get: operations["ShareController_getShareByToken"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/{token}/view": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Increment share view by token */
-        put: operations["ShareController_incrementViewById"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/{shareId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update share by id */
-        put: operations["ShareController_updateShareByToken"];
-        post?: never;
-        /** Delete share by id */
-        delete: operations["ShareController_deleteShareByToken"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/file/{fileId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create share for file */
-        post: operations["ShareController_generateSharedTokenToFile"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/folder/{folderId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create share for folder */
-        post: operations["ShareController_generateFolderShare"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/down/files": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all files by token paginated */
-        get: operations["ShareController_getDownFiles"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/storage/share/down/folders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all folders by token paginated */
-        get: operations["ShareController_getDownFolders"];
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1048,6 +879,22 @@ export interface paths {
             cookie?: never;
         };
         get: operations["SharingController_getPublicSharingFolderSize"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sharings/public/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["SharingController_getPublicSharingDomains"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1951,7 +1798,10 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        /** Recover account */
+        /**
+         * Recover account
+         * @deprecated
+         */
         put: operations["UserController_recoverAccount"];
         /** Request account recovery */
         post: operations["UserController_requestAccountRecovery"];
@@ -1973,6 +1823,43 @@ export interface paths {
         put: operations["UserController_accountUnblock"];
         /** Request account unblock */
         post: operations["UserController_requestAccountUnblock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/recover-account-v2": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Recover account */
+        put: operations["UserController_recoverAccountV2"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/legacy-recover-account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Recover accocunt with legacy backup file
+         * @description Recover account with legacy backup file, mnemonic only files should be used
+         */
+        put: operations["UserController_requestLegacyAccountRecovery"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2229,6 +2116,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/me/upload-status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check if user has uploaded any files */
+        get: operations["UserController_getUploadStatus"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/generate-mnemonic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["UserController_generateMnemonic"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/storage/share/domains": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get the domains for the sharing links
+         * @deprecated
+         */
+        get: operations["ShareController_getDomains"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/fuzzy/{search}": {
         parameters: {
             query?: never;
@@ -2263,6 +2203,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/backup/v2/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List user backup devices
+         * @description Retrieve all backup devices associated with the current user, along with their linked backup folders.
+         */
+        get: operations["BackupController_getDevicesAndFolders"];
+        put?: never;
+        /**
+         * Create new device with backup folder
+         * @description Register a new backup device and create a new backup folder for it.
+         */
+        post: operations["BackupController_createDeviceAndFolder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/backup/v2/devices/migrate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register device for existing backup folder
+         * @description Register a new device and link it to an existing backup folder. Primarily used for migrating existing backup folders to the new device-folder model.
+         */
+        post: operations["BackupController_createDeviceForExistingFolder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/backup/v2/devices/{deviceId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete device and its linked folder by ID */
+        delete: operations["BackupController_deleteDeviceAndFolder"];
+        options?: never;
+        head?: never;
+        /** Update device */
+        patch: operations["BackupController_updateDevice"];
+        trace?: never;
+    };
     "/backup/deviceAsFolder": {
         parameters: {
             query?: never;
@@ -2292,7 +2294,8 @@ export interface paths {
         get: operations["BackupController_getDeviceAsFolder"];
         put?: never;
         post?: never;
-        delete?: never;
+        /** Delete device as folder by uuid */
+        delete: operations["BackupController_deleteDeviceAsFolder"];
         options?: never;
         head?: never;
         /** Update device as folder by uuid */
@@ -2326,7 +2329,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get all user devices */
+        /**
+         * Get all user devices. Will not retrieve any device linked to a folder
+         * @deprecated
+         */
         get: operations["BackupController_getAllDevices"];
         put?: never;
         post?: never;
@@ -2346,7 +2352,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete user device */
+        /**
+         * Delete user device
+         * @deprecated
+         */
         delete: operations["BackupController_deleteDevice"];
         options?: never;
         head?: never;
@@ -2360,7 +2369,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get backups by mac */
+        /**
+         * Get backups by mac
+         * @deprecated
+         */
         get: operations["BackupController_getBackupsByMac"];
         put?: never;
         post?: never;
@@ -2830,11 +2842,9 @@ export interface components {
             fileId: string;
             name: string;
             type: string;
-            /** Format: int64 */
-            size: number;
+            size: string;
             bucket: string;
             folderId: number;
-            folder: Record<string, never>;
             folderUuid: string;
             encryptVersion: string;
             userId: number;
@@ -2884,10 +2894,16 @@ export interface components {
         };
         CreateThumbnailDto: {
             /**
-             * @description The ID of the file
+             * @deprecated
+             * @description The ID of the file. Deprecated in favor of fileUuid
              * @example 12345
              */
             fileId: number;
+            /**
+             * @description The UUID of the file
+             * @example ebe586db-eb56-429f-a037-6ba712b40c3c
+             */
+            fileUuid?: string;
             /**
              * @description The type of the file
              * @example text
@@ -2927,6 +2943,7 @@ export interface components {
         ThumbnailDto: {
             id: number;
             fileId: number;
+            fileUuid: string;
             maxWidth: number;
             maxHeight: number;
             type: string;
@@ -2938,60 +2955,6 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
-        };
-        UpdateShareDto: {
-            /**
-             * @description Times to view valid, set null if unlimited
-             * @example 4
-             */
-            timesValid: number;
-            /**
-             * @description Share active or not
-             * @example true
-             */
-            active: boolean;
-            /**
-             * @description The new password for the share
-             * @example a_sample_password_update_here
-             */
-            plainPassword: boolean;
-        };
-        CreateShareDto: {
-            /**
-             * @description Times to view valid, set null if unlimited
-             * @example 4
-             */
-            timesValid: number;
-            /**
-             * @description Encryption key
-             * @example token
-             */
-            encryptionKey: Record<string, never>;
-            /**
-             * @description Mnemonic
-             * @example mnemonic mnemonic
-             */
-            encryptedMnemonic: string;
-            /**
-             * @description Token of item
-             * @example token
-             */
-            itemToken: string;
-            /**
-             * @description Token of Bucket
-             * @example bucketToken
-             */
-            bucket: string;
-            /**
-             * @description Password to protect the shared resoruce
-             * @example a_sample_password_here
-             */
-            plainPassword: string;
-            /**
-             * @description Code Encrypted
-             * @example code
-             */
-            encryptedCode: string;
         };
         CreateFolderDto: {
             /**
@@ -3748,6 +3711,125 @@ export interface components {
              */
             email: string;
         };
+        DeprecatedRecoverAccountDto: {
+            /**
+             * @description New user pass hashed
+             * @example some_hashed_pass
+             */
+            password: string;
+            /**
+             * @description Hashed password salt
+             * @example some_salt
+             */
+            salt: string;
+            /**
+             * @description User mnemonic encrypted with the new pass
+             * @example some_encrypted_mnemonic
+             */
+            mnemonic: string;
+            /**
+             * @description User's private key encrypted with the user's plain password
+             * @example encrypted private key
+             */
+            privateKey: string;
+        };
+        PrivateKeysDto: {
+            ecc: string;
+            kyber: string;
+        };
+        RecoverAccountDto: {
+            /**
+             * @description New user pass hashed
+             * @example some_hashed_pass
+             */
+            password: string;
+            /**
+             * @description Hashed password salt
+             * @example some_salt
+             */
+            salt: string;
+            /**
+             * @description User mnemonic encrypted with the new pass
+             * @example some_encrypted_mnemonic
+             */
+            mnemonic: string;
+            /**
+             * @description User's private keys encrypted with the user's plain password
+             * @example {
+             *       "ecc": "encrypted private key",
+             *       "kyber": "encrypted kyber private key"
+             *     }
+             */
+            privateKeys: components["schemas"]["PrivateKeysDto"];
+        };
+        EncryptedMnemonicDto: {
+            /**
+             * @description Mnemonic encrypted with ECC method
+             * @example mnemonic_encrypted_with_ecc_method
+             */
+            ecc: string;
+            /**
+             * @description Mnemonic encrypted with hybrid method
+             * @example mnemonic_encrypted_with_hybrid_method
+             */
+            hybrid: string;
+        };
+        RecoverAccountEccKeysDto: {
+            /**
+             * @description public key
+             * @example public_key
+             */
+            public: string;
+            /**
+             * @description private key encrypted with password
+             * @example private_key
+             */
+            private: string;
+            /**
+             * @description Key used for revocation
+             * @example revocation_key
+             */
+            revocationKey: string;
+        };
+        RecoverAccountKeysPairDto: {
+            /**
+             * @description public key
+             * @example public_key
+             */
+            public: string;
+            /**
+             * @description private key encrypted with password
+             * @example private_key
+             */
+            private: string;
+        };
+        NewGeneratedKeysDto: {
+            /** @description ECC keys (public and private) */
+            ecc: components["schemas"]["RecoverAccountEccKeysDto"];
+            /** @description Kyber keys (public and private) */
+            kyber: components["schemas"]["RecoverAccountKeysPairDto"];
+        };
+        LegacyRecoverAccountDto: {
+            /**
+             * @description New user pass hashed
+             * @example hashed_password
+             */
+            password: string;
+            /**
+             * @description Hashed password salt
+             * @example password_salt
+             */
+            salt: string;
+            /**
+             * @description User mnemonic encrypted with the new pass
+             * @example password_encrypted_mnemonic
+             */
+            mnemonic: string;
+            /** @description Mnemonic encrypted with asymmetric encryption algorithms */
+            asymmetricEncryptedMnemonic: components["schemas"]["EncryptedMnemonicDto"];
+            /** @description User ecc and kyber keys */
+            keys: components["schemas"]["NewGeneratedKeysDto"];
+        };
         CreateAttemptChangeEmailDto: {
             /**
              * @description The new email of the user
@@ -3805,9 +3887,25 @@ export interface components {
         };
         GetUserUsageDto: {
             drive: number;
+            backup: number;
+            total: number;
         };
         GetUserLimitDto: {
             maxSpaceBytes: number;
+        };
+        GetUploadStatusDto: {
+            /**
+             * @description Indicates whether the user has uploaded any files
+             * @example true
+             */
+            hasUploadedFiles: boolean;
+        };
+        GenerateMnemonicResponseDto: {
+            /**
+             * @description A plain mnemonic
+             * @example abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
+             */
+            mnemonic: string;
         };
         FuzzySearchResult: {
             id: string;
@@ -3821,10 +3919,100 @@ export interface components {
         FuzzySearchResults: {
             data: components["schemas"]["FuzzySearchResult"][];
         };
+        /**
+         * @description Device platform
+         * @enum {string}
+         */
+        DevicePlatform: "win32" | "darwin" | "linux" | "android";
+        DeviceDto: {
+            /** @example 7 */
+            id: number;
+            /**
+             * @description MAC address of the device
+             * @example null
+             */
+            mac: string | null;
+            /** @example 1 */
+            userId: number;
+            /**
+             * @description Device platform
+             * @example linux
+             */
+            platform: components["schemas"]["DevicePlatform"];
+            /**
+             * @description Unique installation identifier
+             * @example DESKTOP-ABC123ddd3
+             */
+            key: string;
+            /**
+             * @description Device hostname
+             * @example UNKNOWN_HOSTNAME
+             */
+            hostname: string;
+            /** @example 077e1ec6-9272-4719-ae1a-2ae35883a09e */
+            folderUuid: string;
+            /** @example 2025-07-10T20:14:04.784Z */
+            createdAt: string;
+            /** @example 2025-07-10T20:14:04.784Z */
+            updatedAt: string;
+            folder?: components["schemas"]["DeviceAsFolder"];
+        };
+        CreateDeviceAndFolderDto: {
+            /**
+             * @description OS Installation unique identifier
+             * @example 81CBB42C-73A0-9660-6C7D-2FE94627F3A3
+             */
+            key?: string;
+            /**
+             * @description Device hostname
+             * @example DESKTOP-ABC123
+             */
+            hostname?: string;
+            /**
+             * @description Device platform
+             * @example linux
+             */
+            platform: components["schemas"]["DevicePlatform"];
+            /**
+             * @description Name of the device and folder to be created, this should be a readable name
+             * @example Johns mac
+             */
+            name: string;
+        };
+        CreateDeviceAndAttachFolderDto: {
+            /**
+             * @description OS Installation unique identifier
+             * @example 81CBB42C-73A0-9660-6C7D-2FE94627F3A3
+             */
+            key?: string;
+            /**
+             * @description Device hostname
+             * @example DESKTOP-ABC123
+             */
+            hostname?: string;
+            /**
+             * @description Device platform
+             * @example linux
+             */
+            platform: components["schemas"]["DevicePlatform"];
+            /**
+             * @description Name of the device to be created, this should be a readable name. Use the already existent folder name if you are attaching a folder
+             * @example Johns mac
+             */
+            name: string;
+            /**
+             * @description Uuuid of the folder to attach to the device
+             * @example 0c303e45-3f5f-4224-9886-9c5afdea0e7e
+             */
+            folderUuid: string;
+        };
+        UpdateDeviceAndFolderDto: {
+            name: string;
+        };
         CreateDeviceAsFolderDto: {
             deviceName: string;
         };
-        DeviceDto: {
+        DeviceAsFolder: {
             type: string;
             id: number;
             parentId: number;
@@ -4111,23 +4299,6 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    OpenApiController_getDocument: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     FileController_getFiles: {
         parameters: {
             query: {
@@ -4238,7 +4409,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FileDto"];
+                };
             };
         };
     };
@@ -4261,7 +4434,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FileDto"];
+                };
             };
         };
     };
@@ -4303,7 +4478,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FileDto"];
+                };
             };
         };
     };
@@ -4382,244 +4559,6 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_getDomains: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get the domains for the sharing links */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_listShares: {
-        parameters: {
-            query: {
-                page: string;
-                perPage: string;
-                orderBy: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all shares in a list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_getShareByToken: {
-        parameters: {
-            query: {
-                code: string;
-            };
-            header: {
-                "x-share-password": string;
-            };
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get share */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_incrementViewById: {
-        parameters: {
-            query?: never;
-            header: {
-                "x-share-password": string;
-            };
-            path: {
-                token: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Increment share view by token */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_updateShareByToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                shareId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateShareDto"];
-            };
-        };
-        responses: {
-            /** @description Get share updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_deleteShareByToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                shareId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Delete share by id */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_generateSharedTokenToFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateShareDto"];
-            };
-        };
-        responses: {
-            /** @description The share of the file */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_generateFolderShare: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                folderId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateShareDto"];
-            };
-        };
-        responses: {
-            /** @description The share of the folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_getDownFiles: {
-        parameters: {
-            query: {
-                /** @description Token of share */
-                token: string;
-                /** @description Code of share */
-                code: string;
-                /** @description Folder Id */
-                folderId: number;
-                /** @description Page of pagination */
-                page: string;
-                /** @description Number of items per page */
-                perPage: string;
-            };
-            header: {
-                "x-share-password": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all files */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    ShareController_getDownFolders: {
-        parameters: {
-            query: {
-                /** @description Token of share */
-                token: string;
-                /** @description Code of share */
-                code: string;
-                /** @description Folder Id */
-                folderId: number;
-                /** @description Page of pagination */
-                page: string;
-                /** @description Number of items per page */
-                perPage: string;
-            };
-            header: {
-                "x-share-password": string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all folders */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -4976,7 +4915,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FolderDto"];
+                };
             };
         };
     };
@@ -4987,7 +4928,9 @@ export interface operations {
                 workspace: boolean;
             };
             header?: never;
-            path?: never;
+            path: {
+                uuid: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -5004,7 +4947,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                uuid: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -5042,7 +4987,9 @@ export interface operations {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                uuid: string;
+            };
             cookie?: never;
         };
         requestBody?: never;
@@ -5093,7 +5040,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["FolderDto"];
+                };
             };
         };
     };
@@ -5813,6 +5762,23 @@ export interface operations {
         };
     };
     SharingController_getPublicSharingFolderSize: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SharingController_getPublicSharingDomains: {
         parameters: {
             query?: never;
             header?: never;
@@ -6975,7 +6941,9 @@ export interface operations {
     };
     WorkspacesController_searchWorkspace: {
         parameters: {
-            query?: never;
+            query: {
+                offset: number;
+            };
             header?: never;
             path: {
                 search: string;
@@ -7224,7 +7192,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeprecatedRecoverAccountDto"];
+            };
+        };
         responses: {
             200: {
                 headers: {
@@ -7282,6 +7254,53 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["RequestAccountUnblock"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_recoverAccountV2: {
+        parameters: {
+            query: {
+                token: string;
+                reset: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecoverAccountDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_requestLegacyAccountRecovery: {
+        parameters: {
+            query: {
+                token: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LegacyRecoverAccountDto"];
             };
         };
         responses: {
@@ -7608,9 +7627,69 @@ export interface operations {
             };
         };
     };
-    FuzzySearchController_fuzzySearch: {
+    UserController_getUploadStatus: {
         parameters: {
             query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns whether the user has uploaded any files */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetUploadStatusDto"];
+                };
+            };
+        };
+    };
+    UserController_generateMnemonic: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns a mnemonic, it is not saved anywhere */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GenerateMnemonicResponseDto"];
+                };
+            };
+        };
+    };
+    ShareController_getDomains: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Get the domains for the sharing links */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    FuzzySearchController_fuzzySearch: {
+        parameters: {
+            query: {
+                offset: number;
+            };
             header?: never;
             path: {
                 search: string;
@@ -7647,6 +7726,126 @@ export interface operations {
             };
         };
     };
+    BackupController_getDevicesAndFolders: {
+        parameters: {
+            query: {
+                platform: string;
+                key: string;
+                hostname: string;
+                limit: number;
+                offset: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of devices. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceDto"][];
+                };
+            };
+        };
+    };
+    BackupController_createDeviceAndFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDeviceAndFolderDto"];
+            };
+        };
+        responses: {
+            /** @description The newly created device */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceDto"];
+                };
+            };
+        };
+    };
+    BackupController_createDeviceForExistingFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDeviceAndAttachFolderDto"];
+            };
+        };
+        responses: {
+            /** @description The created device */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceDto"];
+                };
+            };
+        };
+    };
+    BackupController_deleteDeviceAndFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deviceId: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully deleted the device and its linked folder. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    BackupController_updateDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                deviceId: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateDeviceAndFolderDto"];
+            };
+        };
+        responses: {
+            /** @description The updated device */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceDto"];
+                };
+            };
+        };
+    };
     BackupController_getDevicesAsFolder: {
         parameters: {
             query?: never;
@@ -7661,7 +7860,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"][];
+                    "application/json": components["schemas"]["DeviceAsFolder"][];
                 };
             };
         };
@@ -7684,7 +7883,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"];
+                    "application/json": components["schemas"]["DeviceAsFolder"];
                 };
             };
         };
@@ -7705,8 +7904,27 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"];
+                    "application/json": components["schemas"]["DeviceAsFolder"];
                 };
+            };
+        };
+    };
+    BackupController_deleteDeviceAsFolder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                uuid: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -7730,7 +7948,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"];
+                    "application/json": components["schemas"]["DeviceAsFolder"];
                 };
             };
         };
@@ -7751,7 +7969,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"];
+                    "application/json": components["schemas"]["DeviceAsFolder"];
                 };
             };
         };

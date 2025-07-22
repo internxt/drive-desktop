@@ -6,6 +6,7 @@ import { Either, left, right } from '../../../context/shared/domain/Either';
 import { mapDeviceDtoToDevice } from './utils/deviceMapper';
 import { addUnknownDeviceIssue } from './addUnknownDeviceIssue';
 import { DeviceIdentifierDTO } from './device.types';
+import { components } from 'src/infra/schemas';
 /**
  * Creates a new device with a unique name
  * @returns Either containing the created device or an error if device creation fails after multiple attempts
@@ -28,20 +29,22 @@ export async function createUniqueDevice(
     });
     const tryCreateDeviceEither = await tryCreateDevice(name, deviceIdentifier);
 
-    if (tryCreateDeviceEither.isRight())
-      return right(mapDeviceDtoToDevice(tryCreateDeviceEither.getRight()));
+    if (tryCreateDeviceEither.isRight()) {
+      return right(tryCreateDeviceEither.getRight());
+    }
     const error = tryCreateDeviceEither.getLeft();
     if (error.message == 'Error creating device') {
-      return tryCreateDeviceEither;
+      return left(tryCreateDeviceEither.getLeft());
     }
   }
-
-  const errorMsg = 'Could not create device trying different names';
+  const finalError = new Error(
+    'Could not create device trying different names'
+  );
   logger.error({
     tag: 'BACKUP',
-    msg: errorMsg,
+    msg: finalError.message,
   });
-  const finalError = new Error(errorMsg);
+
   addUnknownDeviceIssue(finalError);
   return left(finalError);
 }

@@ -1,12 +1,15 @@
-import { left } from './../../../context/shared/domain/Either';
+import { Device } from './../../../apps/main/device/service';
+import { left, right } from './../../../context/shared/domain/Either';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
 import { logger } from '../../../core/LoggerService/LoggerService'; //src/infra/drive-server/services/backup/backup.error'
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
-import { Either } from 'src/context/shared/domain/Either';
-import { components } from 'src/infra/schemas';
+import { Either } from './../../../context/shared/domain/Either';
 import { DeviceIdentifierDTO } from './device.types';
 
-export async function tryCreateDevice(deviceName: string, deviceIdentifier: DeviceIdentifierDTO): Promise<Either<Error, components['schemas']['DeviceDto']>> {
+
+export async function tryCreateDevice(
+  deviceName: string, deviceIdentifier: DeviceIdentifierDTO
+): Promise<Either<Error, Device>> {
   const createDeviceEither =
     await driveServerModule.backup.createDeviceWithIdentifier({
       name: deviceName,
@@ -15,7 +18,7 @@ export async function tryCreateDevice(deviceName: string, deviceIdentifier: Devi
       platform: deviceIdentifier.platform
     });
 
-  if (createDeviceEither.isRight()) return createDeviceEither;
+  if (createDeviceEither.isRight()) return right(createDeviceEither.getRight());
 
   const createDeviceError = createDeviceEither.getLeft();
   if (createDeviceError instanceof BackupError && createDeviceError?.code === 'ALREADY_EXISTS') {
@@ -24,16 +27,15 @@ export async function tryCreateDevice(deviceName: string, deviceIdentifier: Devi
         msg: 'Device name already exists',
         deviceName,
       });
-    return createDeviceEither;
+    return left(createDeviceEither.getLeft());
   };
 
-  const errorMsg = 'Error creating device';
-  const error = new Error(errorMsg);
+  const error = new Error('Error creating device');
   logger.error({
-      tag: 'BACKUP',
-      msg: errorMsg,
-      error,
-    });
+    tag: 'BACKUP',
+    msg: error.message,
+    error,
+  });
   return left(error);
 }
 

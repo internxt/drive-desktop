@@ -2,11 +2,10 @@ import { left, right } from './../../../context/shared/domain/Either';
 import { Device } from './../../../apps/main/device/service';
 import { Either } from 'src/context/shared/domain/Either';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
-import { DeviceModule } from './device.module';
-import { mapDeviceDtoToDevice } from './utils/deviceMapper';
+import { getDeviceIdentifier } from './getDeviceIdentifier';
 
 export async function getCurrentDevice(): Promise<Either<Error, Device>> {
-  const getDeviceIdentifierEither = DeviceModule.getDeviceIdentifier();
+  const getDeviceIdentifierEither = getDeviceIdentifier();
 
   if (getDeviceIdentifierEither.isLeft()) {
     return left(getDeviceIdentifierEither.getLeft());
@@ -33,5 +32,5 @@ export async function getCurrentDevice(): Promise<Either<Error, Device>> {
     return left(new Error('Multiple devices found for the same identifier'));
   }
 
-  return right(mapDeviceDtoToDevice(getDeviceEither.getRight()[0]));
+  return right(getDeviceEither.getRight()[0]);
 }
