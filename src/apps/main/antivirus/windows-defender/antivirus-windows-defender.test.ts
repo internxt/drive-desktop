@@ -8,7 +8,6 @@ describe('AntivirusWindowsDefender', () => {
   const mockMpCmdRunPath = 'C:\\mock\\path\\to\\MpCmdRun.exe';
 
   beforeEach(() => {
-    vi.clearAllMocks();
     findMpCmdRunMock.mockResolvedValue(mockMpCmdRunPath);
   });
 

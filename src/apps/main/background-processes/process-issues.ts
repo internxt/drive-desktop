@@ -36,7 +36,3 @@ export function showNotEnoughSpaceNotification() {
 eventBus.on('USER_LOGGED_OUT', () => {
   clearIssues();
 });
-
-eventBus.on('USER_WAS_UNAUTHORIZED', () => {
-  clearIssues();
-});
