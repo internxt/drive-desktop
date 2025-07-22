@@ -138,7 +138,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.hide();
 
-    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as string;
+    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
 
     const widget = await getOrCreateWidged();
     const tray = getTray();
