@@ -13,7 +13,7 @@ export async function selectAntivirusEngine() {
   if (await isWindowsDefenderRealTimeProtectionActive()) {
     logger.info({
       tag: 'ANTIVIRUS',
-      msg: 'Windows Defender selected as primary antivirus',
+      msg: 'Default antivirus selected as engine',
     });
     return 'windows-defender';
   }

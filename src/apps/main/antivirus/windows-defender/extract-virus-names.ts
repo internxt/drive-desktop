@@ -1,4 +1,4 @@
-export function extractVirusNamesFromOutput({ output }: { output: string }) {
+export function extractVirusNames({ output }: { output: string }) {
   const virusNames: string[] = [];
 
   const threatPatterns = [

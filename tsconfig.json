@@ -25,13 +25,11 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "allowJs": true,
-    "outDir": "release/app/dist",
+    "noEmit": true,
     "types": ["vitest/globals"],
     "paths": {
       "@/*": ["./src/*"],
       "@/tests/*": ["./tests/*"]
-      // "@internxt/inxt-js/build": ["../inxt-js/build"],
-      // "@internxt/inxt-js/build/*": ["../inxt-js/build/*"],
     }
   },
   "include": ["src", "tests", ".erb/configs", ".erb/scripts"]

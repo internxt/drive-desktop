@@ -39,7 +39,7 @@ export function scanFile({ filePath, mpCmdRunPath }: TProps): Promise<ScanResult
     process.on('error', (error) => {
       logger.error({
         tag: 'ANTIVIRUS',
-        msg: 'Error scanning file with Windows Defender',
+        msg: 'Error scanning file with antivirus',
         error,
       });
     });

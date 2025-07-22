@@ -1,4 +1,3 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { createEngine } from './create-antivirus-engine';
 import { partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
@@ -25,8 +24,8 @@ describe('createEngine', () => {
     const result = await createEngine({ type: 'windows-defender' });
     // Then
     expect(result).toBe(mockDefenderInstance);
-    expect(windowsDefenderCreateInstanceMock).toHaveBeenCalled();
-    expect(clamAVCreateInstanceMock).not.toHaveBeenCalled();
+    expect(windowsDefenderCreateInstanceMock).toBeCalled();
+    expect(clamAVCreateInstanceMock).not.toBeCalled();
   });
 
   it('creates ClamAV instance when type is clamav', async () => {
@@ -36,8 +35,8 @@ describe('createEngine', () => {
     const result = await createEngine({ type: 'clamav' });
     // Then
     expect(result).toBe(mockClamAVInstance);
-    expect(clamAVCreateInstanceMock).toHaveBeenCalled();
-    expect(windowsDefenderCreateInstanceMock).not.toHaveBeenCalled();
+    expect(clamAVCreateInstanceMock).toBeCalled();
+    expect(windowsDefenderCreateInstanceMock).not.toBeCalled();
   });
 
   it('falls back to ClamAV when Windows Defender initialization fails', async () => {
@@ -49,11 +48,11 @@ describe('createEngine', () => {
     const result = await createEngine({ type: 'windows-defender' });
     // Then
     expect(result).toBe(mockClamAVInstance);
-    expect(windowsDefenderCreateInstanceMock).toHaveBeenCalled();
-    expect(clamAVCreateInstanceMock).toHaveBeenCalled();
-    expect(loggerErrorMock).toHaveBeenCalledWith(
+    expect(windowsDefenderCreateInstanceMock).toBeCalled();
+    expect(clamAVCreateInstanceMock).toBeCalled();
+    expect(loggerErrorMock).toBeCalledWith(
       expect.objectContaining({
-        msg: expect.stringContaining('Error initializing Windows Defender'),
+        msg: expect.stringContaining('Error initializing antivirus engine, using fallback'),
         exc: mockError,
       }),
     );

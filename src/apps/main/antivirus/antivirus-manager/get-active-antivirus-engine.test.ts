@@ -1,4 +1,3 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { getActiveEngine } from './get-active-antivirus-engine';
 import { mockDeep } from 'vitest-mock-extended';
 import { partialSpyOn } from 'tests/vitest/utils.helper.test';
@@ -36,7 +35,7 @@ describe('getActiveEngine', () => {
     const result = await getActiveEngine({ self: mockManager });
     // Then
     expect(result).toBeNull();
-    expect(selectAntivirusEngineMock).toHaveBeenCalled();
+    expect(selectAntivirusEngineMock).toBeCalled();
   });
 
   it('returns the current engine when it matches the selected type', async () => {
@@ -50,8 +49,8 @@ describe('getActiveEngine', () => {
 
     // Then
     expect(result).toBe(mockWindowsDefenderInstance);
-    expect(selectAntivirusEngineMock).toHaveBeenCalled();
-    expect(createEngineMock).not.toHaveBeenCalled();
+    expect(selectAntivirusEngineMock).toBeCalled();
+    expect(createEngineMock).not.toBeCalled();
   });
 
   it('switches from one engine to another when needed', async () => {
@@ -65,15 +64,15 @@ describe('getActiveEngine', () => {
     // When
     const result = await getActiveEngine({ self: mockManager });
     // Then
-    expect(mockOldEngine.stop).toHaveBeenCalled();
-    expect(clearAntivirusMock).toHaveBeenCalled();
-    expect(createEngineMock).toHaveBeenCalledWith({ type: 'windows-defender' });
+    expect(mockOldEngine.stop).toBeCalled();
+    expect(clearAntivirusMock).toBeCalled();
+    expect(createEngineMock).toBeCalledWith({ type: 'windows-defender' });
     expect(result).toBe(mockNewEngine);
     expect(mockManager.currentEngine).toBe(mockNewEngine);
     expect(mockManager.currentType).toBe('windows-defender');
-    expect(loggerInfoMock).toHaveBeenCalledWith(
+    expect(loggerInfoMock).toBeCalledWith(
       expect.objectContaining({
-        msg: expect.stringContaining('windows-defender'),
+        msg: expect.stringContaining('Antivirus engine switched'),
       }),
     );
   });
@@ -88,7 +87,7 @@ describe('getActiveEngine', () => {
     // When
     const result = await getActiveEngine({ self: mockManager });
     // Then
-    expect(createEngineMock).toHaveBeenCalledWith({ type: 'clamav' });
+    expect(createEngineMock).toBeCalledWith({ type: 'clamav' });
     expect(result).toBe(mockNewEngine);
     expect(mockManager.currentEngine).toBe(mockNewEngine);
     expect(mockManager.currentType).toBe('clamav');
@@ -102,7 +101,7 @@ describe('getActiveEngine', () => {
     const result = await getActiveEngine({ self: mockManager });
     // Then
     expect(result).toBeNull();
-    expect(loggerErrorMock).toHaveBeenCalledWith(
+    expect(loggerErrorMock).toBeCalledWith(
       expect.objectContaining({
         msg: 'Error getting active antivirus engine',
         exc: mockError,
