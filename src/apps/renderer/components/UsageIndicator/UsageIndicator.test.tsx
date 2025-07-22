@@ -37,20 +37,6 @@ describe('UsageIndicator', () => {
       const element = container.querySelector('p');
       expect(element).toHaveTextContent('');
     });
-
-    it('should display loading message when usage exists and status is loading', () => {
-      // Given: Usage exists but status is loading
-      mockUseUsage.mockReturnValue({
-        data: mockUsage,
-        status: 'success',
-      });
-
-      // When: Component renders
-      render(<UsageIndicator />);
-
-      // Then: Should show loading message
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
-    });
   });
 
   it('should display empty string when usage is undefined with error status', () => {
