@@ -23,8 +23,6 @@ describe('unlink-file', () => {
   });
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     getConfigMock.mockReturnValue({ workspaceToken: 'token' });
     getFolderUuidMock.mockReturnValue({ data: 'parentUuid' as FolderUuid });
     invokeMock.mockResolvedValue({ data: { uuid: 'uuid' as FileUuid } });

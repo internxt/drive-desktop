@@ -18,8 +18,6 @@ describe('Fetch Data', () => {
   const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     self.controllers.downloadFile.execute.mockResolvedValue('path');
     self.controllers.downloadFile.fileFinderByUuid.mockResolvedValue(file as SimpleDriveFile);
   });

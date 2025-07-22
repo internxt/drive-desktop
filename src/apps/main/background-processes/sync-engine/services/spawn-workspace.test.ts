@@ -26,10 +26,6 @@ describe('spawn-workspace.service', () => {
     },
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('If get credentials gives an error, then do nothing', async () => {
     // Given
     getCredentialsMock.mockResolvedValueOnce({ error: new Error() });

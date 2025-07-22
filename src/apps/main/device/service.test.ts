@@ -38,8 +38,8 @@ describe('Device Service', () => {
 
   beforeEach(() => {
     process.env.NEW_CRYPTO_KEY = 'test-key';
-    vi.clearAllMocks();
   });
+
   describe('fetchDevice', () => {
     const getDeviceMock = deepMocked(driveServerWipModule.backup.getDevice);
 

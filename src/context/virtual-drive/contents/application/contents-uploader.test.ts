@@ -17,8 +17,6 @@ describe('contents-uploader', () => {
   const service = new ContentsUploader(remoteContentsManagersFactory, contentsProvider, relativePathToAbsoluteConverter);
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     relativePathToAbsoluteConverter.run.mockReturnValue('abolutePath');
     remoteContentsManagersFactory.uploader.mockReturnValue(uploader);
     contentsProvider.provide.mockResolvedValue({

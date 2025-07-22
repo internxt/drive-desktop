@@ -11,10 +11,6 @@ describe('create-folder', () => {
   const parentPath = '/folder1';
   const props = { path, folderCreator };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe('createParentFolder', () => {
     it('Calls createFolder with parent path', async () => {
       // When
