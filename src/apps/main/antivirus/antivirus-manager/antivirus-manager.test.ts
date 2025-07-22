@@ -1,4 +1,3 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { AntivirusManager, getAntivirusManager } from './antivirus-manager';
 
 describe('AntivirusManager', () => {

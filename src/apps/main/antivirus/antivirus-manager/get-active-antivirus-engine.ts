@@ -32,7 +32,7 @@ export async function getActiveEngine({ self }: { self: AntivirusManager }): Pro
 
     logger.info({
       tag: 'ANTIVIRUS',
-      msg: `Antivirus engine switched to: ${selectedType}`,
+      msg: 'Antivirus engine switched',
     });
 
     return self.currentEngine;

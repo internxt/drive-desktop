@@ -1,4 +1,3 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { selectAntivirusEngine } from './select-antivirus-engine';
 import { partialSpyOn } from 'tests/vitest/utils.helper.test';
 import * as ipcMainAntivirus from '@/apps/main/ipcs/ipcMainAntivirus';
@@ -27,13 +26,13 @@ describe('selectAntivirusEngine', () => {
     const result = await selectAntivirusEngine();
     // Then
     expect(result).toBe('windows-defender');
-    expect(isWindowsDefenderActiveMock).toHaveBeenCalled();
-    expect(loggerInfoMock).toHaveBeenCalledWith(
+    expect(isWindowsDefenderActiveMock).toBeCalled();
+    expect(loggerInfoMock).toBeCalledWith(
       expect.objectContaining({
-        msg: expect.stringContaining('Windows Defender'),
+        msg: expect.stringContaining('Default antivirus selected as engine'),
       }),
     );
-    expect(checkClamdAvailabilityMock).not.toHaveBeenCalled();
+    expect(checkClamdAvailabilityMock).not.toBeCalled();
   });
 
   it('selects ClamAV when Windows Defender is not available but ClamAV is', async () => {
@@ -46,10 +45,10 @@ describe('selectAntivirusEngine', () => {
     const result = await selectAntivirusEngine();
     // Then
     expect(result).toBe('clamav');
-    expect(isWindowsDefenderActiveMock).toHaveBeenCalled();
-    expect(initializeClamAVMock).toHaveBeenCalled();
-    expect(sleepMock).toHaveBeenCalledWith(5000);
-    expect(loggerInfoMock).toHaveBeenCalledWith(
+    expect(isWindowsDefenderActiveMock).toBeCalled();
+    expect(initializeClamAVMock).toBeCalled();
+    expect(sleepMock).toBeCalledWith(5000);
+    expect(loggerInfoMock).toBeCalledWith(
       expect.objectContaining({
         msg: expect.stringContaining('ClamAV'),
       }),
@@ -66,10 +65,10 @@ describe('selectAntivirusEngine', () => {
     const result = await selectAntivirusEngine();
     // Then
     expect(result).toBeNull();
-    expect(isWindowsDefenderActiveMock).toHaveBeenCalled();
-    expect(initializeClamAVMock).toHaveBeenCalled();
-    expect(sleepMock).toHaveBeenCalledWith(5000);
-    expect(loggerWarnMock).toHaveBeenCalledWith(
+    expect(isWindowsDefenderActiveMock).toBeCalled();
+    expect(initializeClamAVMock).toBeCalled();
+    expect(sleepMock).toBeCalledWith(5000);
+    expect(loggerWarnMock).toBeCalledWith(
       expect.objectContaining({
         msg: expect.stringContaining('No antivirus engines available'),
       }),
@@ -82,7 +81,7 @@ describe('selectAntivirusEngine', () => {
     // When
     await selectAntivirusEngine();
     // Then
-    expect(loggerDebugMock).toHaveBeenCalledWith(
+    expect(loggerDebugMock).toBeCalledWith(
       expect.objectContaining({
         msg: 'Selecting antivirus engine...',
       }),

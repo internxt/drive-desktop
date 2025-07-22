@@ -10,7 +10,7 @@ export async function createEngine({ type }: { type: AntivirusType }): Promise<A
     } catch (error) {
       logger.error({
         tag: 'ANTIVIRUS',
-        msg: 'Error initializing Windows Defender, falling back to ClamAV',
+        msg: 'Error initializing antivirus engine, using fallback',
         exc: error,
       });
       return await AntivirusClamAV.createInstance();
