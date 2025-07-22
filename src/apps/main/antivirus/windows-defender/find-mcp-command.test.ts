@@ -26,7 +26,7 @@ describe('findMpCmdRun', () => {
     const result = await findMpCmdRun();
     // Then
     expect(result).toBe('C:\\Program Files\\Windows Defender\\MpCmdRun.exe');
-    expect(getDefenderVersionsMock).toHaveBeenCalledWith('C:\\ProgramData\\Microsoft\\Windows Defender\\Platform');
+    expect(getDefenderVersionsMock).toHaveBeenCalledWith({ path: 'C:\\ProgramData\\Microsoft\\Windows Defender\\Platform' });
   });
 
   it('returns path with latest version when defender versions exist', async () => {
@@ -37,7 +37,7 @@ describe('findMpCmdRun', () => {
     const result = await findMpCmdRun();
     // Then
     expect(result).toBe('C:\\ProgramData\\Microsoft\\Windows Defender\\Platform\\4.18.2207.10\\MpCmdRun.exe');
-    expect(getDefenderVersionsMock).toHaveBeenCalledWith('C:\\ProgramData\\Microsoft\\Windows Defender\\Platform');
+    expect(getDefenderVersionsMock).toHaveBeenCalledWith({ path: 'C:\\ProgramData\\Microsoft\\Windows Defender\\Platform' });
     expect(joinMock).toHaveBeenCalledWith('C:\\ProgramData\\Microsoft\\Windows Defender\\Platform', '4.18.2207.10', 'MpCmdRun.exe');
   });
 

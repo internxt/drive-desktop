@@ -2,7 +2,7 @@ import { access, constants, readdir } from 'fs/promises';
 import { join } from 'path';
 import { stat } from '@/infra/file-system/services/stat';
 
-export async function getDefenderVersions(path: string): Promise<string[]> {
+export async function getDefenderVersions({ path }: { path: string }): Promise<string[]> {
   try {
     await access(path, constants.F_OK);
     const entries = await readdir(path);

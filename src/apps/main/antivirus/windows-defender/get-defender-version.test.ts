@@ -25,7 +25,7 @@ describe('getDefenderVersions', () => {
     // Given
     accessMock.mockRejectedValue(new Error('ENOENT: no such file or directory'));
     // When
-    const result = await getDefenderVersions('C:\\NonExistentPath');
+    const result = await getDefenderVersions({ path: 'C:\\NonExistentPath' });
     // Then
     expect(result).toEqual([]);
     expect(accessMock).toHaveBeenCalledWith('C:\\NonExistentPath', expect.any(Number));
@@ -43,7 +43,7 @@ describe('getDefenderVersions', () => {
       error: undefined,
     });
     // When
-    const result = await getDefenderVersions('C:\\TestPath');
+    const result = await getDefenderVersions({ path: 'C:\\TestPath' });
     // Then
     expect(result).toEqual(['4.18.2207.10', '4.18.2205.7', '4.18.1803.5']);
     expect(readdirMock).toHaveBeenCalledWith('C:\\TestPath');
@@ -63,7 +63,7 @@ describe('getDefenderVersions', () => {
       };
     });
     // When
-    const result = await getDefenderVersions('C:\\TestPath');
+    const result = await getDefenderVersions({ path: 'C:\\TestPath' });
     // Then
     expect(result).toEqual(['4.18.10']);
   });
@@ -80,7 +80,7 @@ describe('getDefenderVersions', () => {
       error: undefined,
     });
     // When
-    const result = await getDefenderVersions('C:\\TestPath');
+    const result = await getDefenderVersions({ path: 'C:\\TestPath' });
     // Then
     expect(result).toEqual(['4.18.10', '4.18.2', '4.9.10']);
   });
