@@ -76,7 +76,10 @@ export default function Header() {
     }
 
     return (
-      <div className="flex flex-1 space-x-2.5 truncate">
+      <div
+        className="flex flex-1 space-x-2.5 truncate"
+        data-automation-id="headerAccountSection"
+      >
         <div className="relative z-0 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-base font-semibold uppercase text-primary before:absolute before:inset-0 before:-z-1 before:rounded-full before:bg-primary/20 dark:text-white dark:before:bg-primary/75">
           {`${user?.name.charAt(0) ?? ''}${user?.lastname.charAt(0) ?? ''}`}
         </div>
@@ -154,6 +157,7 @@ export default function Header() {
       </HeaderItemWrapper>
       <HeaderItemWrapper
         onClick={() => window.electron.openVirtualDriveFolder()}
+        data-automation-id="openVirtualDriveFolder"
       >
         <FolderSimple size={22} />
       </HeaderItemWrapper>
@@ -211,6 +215,7 @@ export default function Header() {
                       <DropdownItem
                         active={active}
                         onClick={window.electron.openProcessIssuesWindow}
+                        data-automation-id="menuItemIssues"
                       >
                         <div className="flex items-center justify-between">
                           <p>{translate('widget.header.dropdown.issues')}</p>
@@ -232,6 +237,7 @@ export default function Header() {
                         onClick={() =>
                           handleOpenURL('https://help.internxt.com')
                         }
+                        data-automation-id="menuItemSupport"
                       >
                         <span>
                           {translate('widget.header.dropdown.support')}
@@ -249,6 +255,7 @@ export default function Header() {
                           onClick={() =>
                             window.electron.openSettingsWindow('ANTIVIRUS')
                           }
+                          data-automation-id="menuItemAntivirus"
                         >
                           <div className="flex flex-row items-center justify-end gap-4">
                             <span>
@@ -269,6 +276,7 @@ export default function Header() {
                       <DropdownItem
                         active={active}
                         onClick={window.electron.logout}
+                        data-automation-id="menuItemLogout"
                       >
                         <span>
                           {translate('widget.header.dropdown.logout')}
@@ -280,7 +288,11 @@ export default function Header() {
                 <Menu.Item>
                   {({ active }) => (
                     <div className="border-t border-t-gray-10">
-                      <DropdownItem active={active} onClick={onQuitClick}>
+                      <DropdownItem
+                        active={active}
+                        onClick={onQuitClick}
+                        data-automation-id="menuItemQuit"
+                      >
                         <span>{translate('widget.header.dropdown.quit')}</span>
                       </DropdownItem>
                     </div>

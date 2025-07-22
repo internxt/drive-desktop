@@ -76,17 +76,25 @@ export default function Settings() {
                 />
                 <Header active={activeSection} onClick={setActiveSection} />
                 <div className="flex bg-gray-1 p-5" style={{ minHeight: 420 }}>
-                  <GeneralSection active={activeSection === 'GENERAL'} />
-                  <AccountSection active={activeSection === 'ACCOUNT'} />
+                  <GeneralSection
+                    active={activeSection === 'GENERAL'}
+                    data-automation-id="itemSettingsGeneral"
+                  />
+                  <AccountSection
+                    active={activeSection === 'ACCOUNT'}
+                    data-automation-id="itemSettingsAccount"
+                  />
                   <BackupsSection
                     active={activeSection === 'BACKUPS'}
                     showBackedFolders={() => setSubsection('list')}
                     showIssues={() => window.electron.openProcessIssuesWindow()}
+                    data-automation-id="itemSettingsBackups"
                   />
                   {SHOW_ANTIVIRUS_TOOL && (
                     <AntivirusSection
                       active={activeSection === 'ANTIVIRUS'}
                       showItemsWithMalware={() => setSubsection('list')}
+                      data-automation-id="itemSettingsAntivirus"
                     />
                   )}
                 </div>
