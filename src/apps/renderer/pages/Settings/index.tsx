@@ -65,19 +65,21 @@ export default function Settings() {
                 <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" />
                 <Header active={activeSection} onClick={setActiveSection} />
                 <div className={'relative bg-gray-1 p-5'}>
-                  <GeneralSection active={activeSection === 'GENERAL'} />
-                  <AccountSection active={activeSection === 'ACCOUNT'} />
+                  <GeneralSection active={activeSection === 'GENERAL'} data-automation-id="itemSettingsGeneral" />
+                  <AccountSection active={activeSection === 'ACCOUNT'} data-automation-id="itemSettingsAccount" />
                   <BackupsSection
                     active={activeSection === 'BACKUPS'}
                     showBackedFolders={() => setSubsection('list')}
                     showDownloadFolers={() => setSubsection('download_list')}
                     showIssues={() => window.electron.openProcessIssuesWindow()}
+                    data-automation-id="itemSettingsBackups"
                   />
                   {SHOW_ANTIVIRUS_TOOL && (
                     <AntivirusSection
                       onCancelDeactivateWinDefender={() => setActiveSection('GENERAL')}
                       active={SHOW_ANTIVIRUS_TOOL && activeSection === 'ANTIVIRUS'}
                       showItemsWithMalware={() => setSubsection('list')}
+                      data-automation-id="itemSettingsAntivirus"
                     />
                   )}
                 </div>

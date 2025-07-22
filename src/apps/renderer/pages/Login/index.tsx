@@ -123,6 +123,7 @@ export default function Login() {
           onChange={(e) => setEmail(e.currentTarget.value.toLowerCase())}
           customClassName="w-full"
           tabIndex={1}
+          data-automation-id="inputEmailLogin"
         />
       </label>
 
@@ -136,6 +137,7 @@ export default function Login() {
           onChange={(e) => setPassword(e.currentTarget.value)}
           customClassName="w-full"
           tabIndex={2}
+          data-automation-id="inputPasswordLogin"
         />
       </label>
 
@@ -144,11 +146,12 @@ export default function Login() {
         disabled={state === 'loading'}
         onClick={() => handleOpenURL('https://drive.internxt.com/recovery-link')}
         tabIndex={3}
+        data-automation-id="buttonForgotPasswordLogin"
         className={`text-sm font-medium outline-none ${state === 'loading' ? 'text-gray-30' : 'text-primary'}`}>
         {translate('login.password.forgotten')}
       </button>
 
-      <Button type="submit" variant="primary" size="lg" disabled={state === 'loading'} tabIndex={4}>
+      <Button type="submit" variant="primary" size="lg" disabled={state === 'loading'} tabIndex={4} data-automation-id="buttonLogin">
         {translate(state === 'loading' ? 'login.action.is-logging-in' : 'login.action.login')}
       </Button>
 
@@ -157,6 +160,7 @@ export default function Login() {
         disabled={state === 'loading'}
         onClick={() => handleOpenURL('https://drive.internxt.com/new')}
         tabIndex={5}
+        data-automation-id="buttonCreateAccountLogin"
         className={`text-sm font-medium outline-none ${state === 'loading' ? 'text-gray-30' : 'text-primary'}`}>
         {translate('login.create-account')}
       </button>
