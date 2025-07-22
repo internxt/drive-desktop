@@ -49,7 +49,6 @@ const renderAuthGuard = (initialRoute = '/') => {
 
 describe('AuthGuard', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
     vi.useFakeTimers();
   });
 

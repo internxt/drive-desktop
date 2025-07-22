@@ -7,10 +7,6 @@ vi.mock(import('@/apps/main/config'));
 describe('areCredentialsAlreadyReseted', () => {
   const mockConfigStore = partialSpyOn(ConfigStore, 'get');
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should return true if credentials are already reset', () => {
     mockConfigStore.mockImplementation((field) => defaults[field as keyof typeof defaults]);
 

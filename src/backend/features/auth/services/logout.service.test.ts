@@ -15,8 +15,6 @@ describe('logout service', () => {
   const areCredentialsAlreadyResetedMock = vi.spyOn(areCredentialsAlreadyResetedModule, 'areCredentialsAlreadyReseted');
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     saveConfigMock.mockReturnValue();
     resetConfigMock.mockReturnValue();
     resetCredentialsMock.mockReturnValue();

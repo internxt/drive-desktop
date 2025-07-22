@@ -10,10 +10,6 @@ describe('saveConfig', () => {
   const configGetMock = vi.spyOn(configModule.default, 'get');
   const configSetMock = vi.spyOn(configModule.default, 'set');
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should return early when user is not available', () => {
     getUserMock.mockReturnValue(null);
 

@@ -22,7 +22,6 @@ describe('UsageIndicator', () => {
     offerUpgrade: false,
   };
   beforeEach(() => {
-    vi.clearAllMocks();
     mockedTranslationContext.translate.mockReturnValue('of');
     mockuseTranslationContext.mockReturnValue(mockedTranslationContext);
   });

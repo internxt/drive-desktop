@@ -1,10 +1,6 @@
 import { parseVirusNames } from './parse-virus-names';
 
 describe('parseVirusNames', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('extracts virus names from pattern "Threat detected: VirusName"', () => {
     // Given
     const stdout = 'Scanning file... Threat detected: TestVirus1';

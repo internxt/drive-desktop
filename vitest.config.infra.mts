@@ -6,7 +6,7 @@ export default defineConfig({
   test: {
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'lcov', 'json', 'json-summary'],
+      reporter: ['lcov', 'json-summary'],
       reportOnFailure: true,
     },
     clearMocks: true,
@@ -16,6 +16,5 @@ export default defineConfig({
     root: './',
     setupFiles: './tests/vitest/setup.helper.test.ts',
     testTimeout: 20000,
-    watch: false,
   },
 });
