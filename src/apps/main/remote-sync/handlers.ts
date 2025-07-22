@@ -13,7 +13,6 @@ import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
-import { FolderStore } from './folders/folder-store';
 import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { Config } from '@/apps/sync-engine/config';
@@ -106,18 +105,6 @@ async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
       logger.debug({ msg: 'Remote sync is already running', workspaceId });
       return;
     }
-
-    const folders = await driveFoldersCollection.getAll({ workspaceId });
-
-    folders.forEach((folder) => {
-      FolderStore.addFolder({
-        workspaceId,
-        folderId: folder.id,
-        parentId: folder.parentId!,
-        parentUuid: folder.parentUuid,
-        name: folder.name,
-      });
-    });
 
     manager.changeStatus('SYNCING');
     await startRemoteSync({ workspaceId });

@@ -50,10 +50,6 @@ async function setUp() {
     }
   });
 
-  ipcRenderer.on('UPDATE_FILE_PLACEHOLDER', async () => {});
-
-  ipcRenderer.on('UPDATE_FOLDER_PLACEHOLDER', async () => {});
-
   await bindings.start();
   await bindings.watch();
 
