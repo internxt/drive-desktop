@@ -9,10 +9,6 @@ vi.mock(import('@/apps/main/remote-sync/handlers'));
 describe('processWebSocketEvent', () => {
   const debouncedSynchronizationMock = vi.mocked(debouncedSynchronization);
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should log debug if schema is valid and clientId is drive-desktop-windows', async () => {
     const event = {
       event: 'ITEMS_TO_TRASH',

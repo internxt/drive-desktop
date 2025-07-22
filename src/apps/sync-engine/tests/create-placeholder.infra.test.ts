@@ -37,7 +37,6 @@ describe('create-placeholder', () => {
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
     environmentFileUploader.upload.mockResolvedValueOnce({ data: '012345678901234567890123' as ContentsId });
   });

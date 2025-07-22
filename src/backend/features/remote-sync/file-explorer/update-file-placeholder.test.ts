@@ -24,8 +24,6 @@ describe('update-file-placeholder', () => {
   let props: Parameters<typeof service.update>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     validateWindowsNameMock.mockReturnValue({ isValid: true });
     relativePathToAbsoluteConverter.run.mockReturnValue('remotePath' as AbsolutePath);
 

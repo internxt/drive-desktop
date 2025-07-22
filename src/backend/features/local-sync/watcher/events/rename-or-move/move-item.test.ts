@@ -19,8 +19,6 @@ describe('move-item', () => {
   let props: Parameters<typeof moveItem>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof moveItem>({
       self: {
         virtualDrive: { updateSyncStatus: vi.fn() },

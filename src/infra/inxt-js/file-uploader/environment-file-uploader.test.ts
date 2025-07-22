@@ -20,8 +20,6 @@ describe('environment-file-uploader', () => {
   let props: Parameters<typeof service.upload>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     abortController = new AbortController();
     props = mockProps<typeof service.upload>({ size: 100, callbacks, abortSignal: abortController.signal });
   });
