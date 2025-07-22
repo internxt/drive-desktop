@@ -7,17 +7,15 @@ type Props = {
   bucketId: string;
   fileId: string;
   creds: NetworkCredentials | null;
-  token?: string;
 };
 
-export async function getMirrors({ bucketId, fileId, creds, token }: Props): Promise<Mirror[]> {
+export async function getMirrors({ bucketId, fileId, creds }: Props): Promise<Mirror[]> {
   const mirrors: Mirror[] = [];
   const limit = 3;
 
   let results: Mirror[] = [];
   const headers: Record<string, string> = {
     ...(creds ? getAuthFromCredentials({ creds }) : {}),
-    ...(token ? { 'x-token': token } : {}),
   };
 
   do {
