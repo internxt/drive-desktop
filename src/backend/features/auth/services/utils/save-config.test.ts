@@ -84,7 +84,7 @@ describe('saveConfig', () => {
       backupList: [],
     };
 
-    configGetMock.mockImplementation((key: string) => {
+    configGetMock.mockImplementation((key) => {
       if (key === 'savedConfigs') return undefined;
       return firstTimeUserConfigs[key as keyof typeof firstTimeUserConfigs];
     });
@@ -118,7 +118,7 @@ describe('saveConfig', () => {
       backupList: ['Work Files'],
     };
 
-    configGetMock.mockImplementation((key: string) => {
+    configGetMock.mockImplementation((key) => {
       if (key === 'savedConfigs') return outdatedConfigs;
       return updatedUserConfigs[key as keyof typeof updatedUserConfigs];
     });

@@ -5,10 +5,6 @@ import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 describe('resetConfig', () => {
   const configSetMock = partialSpyOn(configModule.default, 'set');
 
-  beforeEach(() => {
-    configSetMock.mockReturnValue();
-  });
-
   it('should reset all fields in fieldsToSave to their default values', () => {
     resetConfig();
 
