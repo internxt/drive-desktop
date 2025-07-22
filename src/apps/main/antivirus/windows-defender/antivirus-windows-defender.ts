@@ -19,17 +19,17 @@ export class AntivirusWindowsDefender {
     } catch (error) {
       logger.error({
         tag: 'ANTIVIRUS',
-        msg: 'Error Initializing Windows Defender',
+        msg: 'Error initializing antivirus',
         error,
       });
     }
   }
 
-  async scanFile(filePath: string) {
+  async scanFile({ filePath }: { filePath: string }) {
     if (!this.isInitialized) {
       logger.error({
         tag: 'ANTIVIRUS',
-        msg: 'Windows Defender is not initialized',
+        msg: 'Antivirus is not initialized',
       });
       return;
     }

@@ -36,7 +36,7 @@ describe('scanFile', () => {
     // When
     const result = await scanFile({ filePath, mpCmdRunPath });
     // Then
-    expect(spawnMock).toHaveBeenCalledWith(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
+    expect(spawnMock).toBeCalledWith(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
     expect(result).toEqual({
       file: filePath,
       isInfected: false,
@@ -53,7 +53,7 @@ describe('scanFile', () => {
     // When
     const result = await scanFile({ filePath, mpCmdRunPath });
     // Then
-    expect(spawnMock).toHaveBeenCalledWith(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
+    expect(spawnMock).toBeCalledWith(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
     expect(result).toEqual({
       file: filePath,
       isInfected: true,

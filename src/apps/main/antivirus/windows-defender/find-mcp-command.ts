@@ -8,8 +8,8 @@ export async function findMpCmdRun() {
   const DEFENDER_FALLBACK_PATH = 'C:\\Program Files\\Windows Defender\\MpCmdRun.exe';
 
   const platformSubdirs = await getDefenderVersions({ path: DEFENDER_PLATFORM_PATH });
-  const mpCmdRunPath =
-    platformSubdirs.length > 0 ? join(DEFENDER_PLATFORM_PATH, platformSubdirs[0], 'MpCmdRun.exe') : DEFENDER_FALLBACK_PATH;
+  const latestPlatformSubdir = platformSubdirs.at(0);
+  const mpCmdRunPath = latestPlatformSubdir ? join(DEFENDER_PLATFORM_PATH, latestPlatformSubdir, 'MpCmdRun.exe') : DEFENDER_FALLBACK_PATH;
 
   try {
     await access(mpCmdRunPath, constants.F_OK);

@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import { findMpCmdRun } from './find-mcp-command';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { access } from 'fs/promises';
@@ -26,7 +25,7 @@ describe('findMpCmdRun', () => {
     const result = await findMpCmdRun();
     // Then
     expect(result).toBe('C:\\Program Files\\Windows Defender\\MpCmdRun.exe');
-    expect(getDefenderVersionsMock).toHaveBeenCalledWith({ path: 'C:\\ProgramData\\Microsoft\\Windows Defender\\Platform' });
+    expect(getDefenderVersionsMock).toBeCalledWith({ path: 'C:\\ProgramData\\Microsoft\\Windows Defender\\Platform' });
   });
 
   it('returns path with latest version when defender versions exist', async () => {
@@ -37,8 +36,8 @@ describe('findMpCmdRun', () => {
     const result = await findMpCmdRun();
     // Then
     expect(result).toBe('C:\\ProgramData\\Microsoft\\Windows Defender\\Platform\\4.18.2207.10\\MpCmdRun.exe');
-    expect(getDefenderVersionsMock).toHaveBeenCalledWith({ path: 'C:\\ProgramData\\Microsoft\\Windows Defender\\Platform' });
-    expect(joinMock).toHaveBeenCalledWith('C:\\ProgramData\\Microsoft\\Windows Defender\\Platform', '4.18.2207.10', 'MpCmdRun.exe');
+    expect(getDefenderVersionsMock).toBeCalledWith({ path: 'C:\\ProgramData\\Microsoft\\Windows Defender\\Platform' });
+    expect(joinMock).toBeCalledWith('C:\\ProgramData\\Microsoft\\Windows Defender\\Platform', '4.18.2207.10', 'MpCmdRun.exe');
   });
 
   it('throws error when MpCmdRun.exe is not found', async () => {

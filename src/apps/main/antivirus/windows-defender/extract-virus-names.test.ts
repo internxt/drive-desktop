@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { extractVirusNames } from './extract-virus-names';
 
 describe('extractVirusNames', () => {
@@ -8,7 +7,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['TestVirus1']);
+    expect(result).toStrictEqual(['TestVirus1']);
   });
 
   it('extracts virus names from pattern "Threat VirusName was detected"', () => {
@@ -17,7 +16,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['TestVirus2']);
+    expect(result).toStrictEqual(['TestVirus2']);
   });
 
   it('extracts virus names from pattern "Found VirusName threat"', () => {
@@ -26,7 +25,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['TestVirus3']);
+    expect(result).toStrictEqual(['TestVirus3']);
   });
 
   it('extracts virus names from pattern "Malware VirusName detected"', () => {
@@ -35,7 +34,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['TestVirus4']);
+    expect(result).toStrictEqual(['TestVirus4']);
   });
 
   it('extracts virus names from pattern "Virus VirusName found"', () => {
@@ -44,7 +43,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['TestVirus5']);
+    expect(result).toStrictEqual(['TestVirus5']);
   });
 
   it('extracts virus names from pattern "Infected with VirusName"', () => {
@@ -53,7 +52,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['TestVirus6']);
+    expect(result).toStrictEqual(['TestVirus6']);
   });
 
   it('removes duplicates', () => {
@@ -62,7 +61,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['TestVirus7']);
+    expect(result).toStrictEqual(['TestVirus7']);
   });
 
   it('cleans up virus names by removing quotes and file: prefix', () => {
@@ -71,7 +70,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['TestVirus8']);
+    expect(result).toStrictEqual(['TestVirus8']);
   });
 
   it('handles multiple different viruses in the same output', () => {
@@ -80,9 +79,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toContain('TestVirus9');
-    expect(result).toContain('TestVirus10');
-    expect(result.length).toBe(2);
+    expect(result).toStrictEqual(['TestVirus10', 'TestVirus9']);
   });
 
   it('returns empty array when no virus names are found', () => {
@@ -91,7 +88,7 @@ describe('extractVirusNames', () => {
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual([]);
+    expect(result).toStrictEqual([]);
   });
 
   it('handles real Windows Defender output with EICAR test file', () => {
@@ -114,7 +111,7 @@ MpCmdRun: End Time: mar. jul. 15 2025 10:11:20
 -------------------------------------------------------------------------------`;
     // When
     const result = extractVirusNames({ output });
-    expect(result).toEqual([]);
+    expect(result).toStrictEqual([]);
   });
 
   it('extracts EICAR test virus name when present in output', () => {
@@ -133,6 +130,6 @@ MpCmdRun: End Time: mar. jul. 15 2025 10:11:20
     // When
     const result = extractVirusNames({ output });
     // Then
-    expect(result).toEqual(['EICAR-Test-File (not a virus)']);
+    expect(result).toStrictEqual(['EICAR-Test-File (not a virus)']);
   });
 });

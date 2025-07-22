@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import { getDefenderVersions } from './get-defender-version';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import * as statFunction from '@/infra/file-system/services/stat';
@@ -37,10 +36,7 @@ describe('getDefenderVersions', () => {
     const mockVersions = ['4.18.1803.5', '4.18.2205.7', '4.18.2207.10'];
     readdirMock.mockResolvedValue(mockVersions as unknown as MockReaddirReturn);
     statMock.mockResolvedValue({
-      data: {
-        isDirectory: () => true,
-      },
-      error: undefined,
+      data: { isDirectory: () => true },
     });
     // When
     const result = await getDefenderVersions({ path: 'C:\\TestPath' });
@@ -56,10 +52,7 @@ describe('getDefenderVersions', () => {
     readdirMock.mockResolvedValue(mockFiles as unknown as MockReaddirReturn);
     statMock.mockImplementation(async ({ absolutePath }) => {
       return {
-        data: {
-          isDirectory: () => absolutePath.includes('4.18.10'),
-        },
-        error: undefined,
+        data: { isDirectory: () => absolutePath.includes('4.18.10') },
       };
     });
     // When
@@ -74,10 +67,7 @@ describe('getDefenderVersions', () => {
     const mockVersions = ['4.9.10', '4.18.10', '4.18.2'];
     readdirMock.mockResolvedValue(mockVersions as unknown as MockReaddirReturn);
     statMock.mockResolvedValue({
-      data: {
-        isDirectory: () => true,
-      },
-      error: undefined,
+      data: { isDirectory: () => true },
     });
     // When
     const result = await getDefenderVersions({ path: 'C:\\TestPath' });

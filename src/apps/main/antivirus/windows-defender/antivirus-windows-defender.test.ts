@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import { AntivirusWindowsDefender } from './antivirus-windows-defender';
 import * as findMCPCommand from './find-mcp-command';
 import { partialSpyOn } from 'tests/vitest/utils.helper.test';
