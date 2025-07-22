@@ -17,9 +17,5 @@ export async function createEngine({ type }: { type: AntivirusType }): Promise<A
     }
   }
 
-  if (type === 'clamav') {
-    return await AntivirusClamAV.createInstance();
-  }
-
-  throw new Error(`Unsupported antivirus type: ${type}`);
+  return await AntivirusClamAV.createInstance();
 }

@@ -19,5 +19,3 @@ export class AntivirusManager {
     return await getActiveEngine({ self: this });
   }
 }
-
-export const getAntivirusManager = () => AntivirusManager.getInstance();
