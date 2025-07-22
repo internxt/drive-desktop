@@ -1,11 +1,7 @@
 import { NetworkCredentials } from './types';
 import { createHash } from 'crypto';
 
-type Props = {
-  creds: NetworkCredentials;
-};
-
-export function getAuthFromCredentials({ creds }: Props): { Authorization: string } {
+export function getAuthFromCredentials({ creds }: { creds: NetworkCredentials }): { Authorization: string } {
   const username = creds.user;
   const password = sha256(Buffer.from(creds.pass)).toString('hex');
   const base64 = Buffer.from(`${username}:${password}`).toString('base64');

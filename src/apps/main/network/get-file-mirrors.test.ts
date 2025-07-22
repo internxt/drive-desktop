@@ -3,14 +3,9 @@ import { getFileMirrors } from './get-file-mirrors';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 
 describe('get-file-mirrors', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
   const props = mockProps<typeof getFileMirrors>({});
 
   it('should fetch and return mirrors', async () => {
-    // Given
     const mockMirrors = [
       {
         farmer: { nodeID: 'nodeID', port: 1, address: 'address' },
@@ -29,10 +24,8 @@ describe('get-file-mirrors', () => {
       json: () => mockMirrors,
     });
 
-    // When
     const result = await getFileMirrors(props);
 
-    // Then
     expect(global.fetch).toHaveBeenCalledTimes(1);
     expect(result).toEqual(mockMirrors);
   });

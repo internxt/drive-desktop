@@ -1,10 +1,7 @@
 import { getFileInfo } from './get-file-info';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 describe('get-file-info', () => {
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
 
   it('should fetch and return file info', async () => {
     const mockFileInfo = {

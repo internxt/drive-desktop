@@ -26,13 +26,10 @@ const mockMirror = {
 
 describe('getMirrors', () => {
   const props = mockProps<typeof getMirrors>({});
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
+  const getFileMirrorsMock = partialSpyOn(getFileMirrorsModule, 'getFileMirrors');
+  const replaceMirrorMock = partialSpyOn(replaceMirrorModule, 'replaceMirror');
 
   it('should fetch and return mirrors with healthy farmers', async () => {
-    const getFileMirrorsMock = partialSpyOn(getFileMirrorsModule, 'getFileMirrors');
-    const replaceMirrorMock = partialSpyOn(replaceMirrorModule, 'replaceMirror');
     getFileMirrorsMock.mockResolvedValueOnce([mockMirror]).mockResolvedValue([]);
 
     const result = await getMirrors(props);
@@ -44,8 +41,6 @@ describe('getMirrors', () => {
 
   it('should replace mirror if farmer is not ok', async () => {
     const unhealthyMirror = { ...mockMirror, farmer: {} };
-    const getFileMirrorsMock = partialSpyOn(getFileMirrorsModule, 'getFileMirrors');
-    const replaceMirrorMock = partialSpyOn(replaceMirrorModule, 'replaceMirror');
     getFileMirrorsMock.mockResolvedValueOnce([unhealthyMirror]).mockResolvedValueOnce([mockMirror]).mockResolvedValue([]);
     replaceMirrorMock.mockResolvedValue(mockMirror);
 
@@ -58,8 +53,6 @@ describe('getMirrors', () => {
 
   it('should throw if replaced mirror is still not ok', async () => {
     const unhealthyMirror = { ...mockMirror, farmer: {} };
-    const getFileMirrorsMock = partialSpyOn(getFileMirrorsModule, 'getFileMirrors');
-    const replaceMirrorMock = partialSpyOn(replaceMirrorModule, 'replaceMirror');
     getFileMirrorsMock.mockResolvedValueOnce([unhealthyMirror]).mockResolvedValueOnce([unhealthyMirror]).mockResolvedValue([]);
     replaceMirrorMock.mockResolvedValue(unhealthyMirror);
 

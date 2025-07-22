@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { getFileInfoWithAuth } from './get-file-info-with-auth';
 import * as getFileInfoModule from './get-file-info';
 import * as getAuthModule from './get-auth-from-credentials';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 const mockFileInfo = {
   bucket: 'b',
@@ -18,18 +19,18 @@ const mockFileInfo = {
 const creds = { user: 'test', pass: 'secret' };
 
 describe('get-file-info-with-auth', () => {
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  const getFileInfoMock = partialSpyOn(getFileInfoModule, 'getFileInfo');
+  const getAuthMock = partialSpyOn(getAuthModule, 'getAuthFromCredentials');
+  const props = mockProps<typeof getFileInfoWithAuth>({ bucketId: 'b', fileId: 'id', creds });
 
   it('should call getFileInfo with correct headers and return file info', async () => {
-    const getFileInfoSpy = vi.spyOn(getFileInfoModule, 'getFileInfo').mockResolvedValue(mockFileInfo);
-    const getAuthSpy = vi.spyOn(getAuthModule, 'getAuthFromCredentials').mockReturnValue({ Authorization: 'Basic test' });
+    getFileInfoMock.mockResolvedValue(mockFileInfo);
+    getAuthMock.mockReturnValue({ Authorization: 'Basic test' });
 
-    const result = await getFileInfoWithAuth({ bucketId: 'b', fileId: 'id', creds });
+    const result = await getFileInfoWithAuth(props);
 
-    expect(getAuthSpy).toHaveBeenCalledWith({ creds });
-    expect(getFileInfoSpy).toHaveBeenCalledWith({
+    expect(getAuthMock).toBeCalledWith({ creds });
+    expect(getFileInfoMock).toBeCalledWith({
       bucketId: 'b',
       fileId: 'id',
       opts: { headers: { Authorization: 'Basic test' } },
