@@ -1,5 +1,5 @@
 import { DownloadProgressCallback } from '@internxt/inxt-js/build/lib/core';
-import { NetworkCredentials } from './requests';
+import { NetworkCredentials } from './types';
 
 export interface IDownloadParams {
   bucketId: string;

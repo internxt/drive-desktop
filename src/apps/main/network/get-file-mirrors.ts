@@ -1,4 +1,4 @@
-import { Mirror } from './requests';
+import { Mirror } from './types';
 
 type Props = {
   bucketId: string;

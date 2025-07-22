@@ -1,7 +1,7 @@
 import { FileVersionOneError } from '@internxt/sdk/dist/network/download';
 import { items } from '@internxt/lib';
 import fs, { PathLike } from 'fs';
-import { FileInfo, getFileInfoWithAuth, getMirrors, Mirror, NetworkCredentials } from './requests';
+import { FileInfo, Mirror, NetworkCredentials } from './types';
 import { GenerateFileKey } from '@internxt/inxt-js/build/lib/utils/crypto';
 import { createDecipheriv, Decipher } from 'crypto';
 import { downloadFileV2 } from './downloadv2';
@@ -15,6 +15,8 @@ import Logger from 'electron-log';
 import path from 'path';
 import { logger } from '@/apps/shared/logger/logger';
 import { IDownloadParams } from './download.types';
+import { getFileInfoWithAuth } from './get-file-info-with-auth';
+import { getMirrors } from './get-mirrors';
 
 async function writeReadableStreamToFile(readableStream: ReadableStream<Uint8Array>, filePath: string): Promise<void> {
   const writer = fs.createWriteStream(filePath);

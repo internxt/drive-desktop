@@ -1,5 +1,5 @@
 import { getFileMirrors } from './get-file-mirrors';
-import { Mirror } from './requests';
+import { Mirror } from './types';
 
 type Props = {
   bucketId: string;

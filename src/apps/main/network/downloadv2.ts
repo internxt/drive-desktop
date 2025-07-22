@@ -1,8 +1,9 @@
 import { Network } from '@internxt/sdk/dist/network';
-import { NetworkCredentials, sha256 } from './requests';
+import { NetworkCredentials } from './types';
 import { NetworkFacade } from './NetworkFacade';
 import { IDownloadParams } from './download.types';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
+import { sha256 } from './get-auth-from-credentials';
 
 function getAuthFromCredentials(creds: NetworkCredentials): { username: string; password: string } {
   return {
