@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  stale:
+  stale_prs:
     runs-on: ubuntu-latest
 
     steps:
