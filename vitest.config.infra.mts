@@ -5,16 +5,17 @@ export default defineConfig({
   plugins: [tsconfigPaths()],
   test: {
     coverage: {
-      reporter: ['text', 'lcov', 'json', 'json-summary'],
       provider: 'v8',
+      reporter: ['text', 'lcov', 'json', 'json-summary'],
       reportOnFailure: true,
     },
-    reporters: ['verbose'],
-    setupFiles: './tests/vitest/setup.helper.test.ts',
+    clearMocks: true,
     exclude: ['**/*.helper.test.ts', '**/node_modules'],
     globals: true,
+    reporters: ['verbose'],
     root: './',
-    watch: false,
+    setupFiles: './tests/vitest/setup.helper.test.ts',
     testTimeout: 20000,
+    watch: false,
   },
 });

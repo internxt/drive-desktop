@@ -13,7 +13,6 @@ describe('move-folder', () => {
   let props: Parameters<typeof moveFolder>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
     props = mockProps<typeof moveFolder>({});
   });
 

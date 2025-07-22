@@ -19,8 +19,6 @@ describe('EnvironmentAndStorageThumbnailUploader', () => {
   let sut: EnvironmentAndStorageThumbnailUploader;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     environmentMocked.upload.mockImplementation((_bucket, options) => {
       options.finishedCallback(null, 'env-id-default');
       return {} as ActionState;
