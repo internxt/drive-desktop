@@ -1,21 +1,22 @@
-import { FolderAttributes } from '../domain/Folder';
 import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
+type TProps = {
+  plainName: string;
+  parentUuid: string;
+  path: string;
+};
+
 @Service()
 export class HttpRemoteFolderSystem {
-  constructor(private readonly workspaceId?: string) {}
+  constructor(private readonly workspaceId: string) {}
 
-  async persist(offline: { basename: string; parentUuid: string; path: string }) {
-    if (!offline.basename) {
-      throw new Error('Bad folder name');
-    }
-
+  async persist(offline: TProps) {
     const body = {
-      plainName: offline.basename,
-      name: offline.basename,
+      plainName: offline.plainName,
+      name: offline.plainName,
       parentFolderUuid: offline.parentUuid,
     };
 
@@ -26,17 +27,7 @@ export class HttpRemoteFolderSystem {
 
       if (!data) throw error;
 
-      return {
-        dto: data,
-        id: data.id,
-        uuid: data.uuid,
-        parentId: data.parentId,
-        parentUuid: data.parentUuid,
-        path: offline.path,
-        updatedAt: data.updatedAt,
-        createdAt: data.createdAt,
-        status: FolderStatuses.EXISTS,
-      };
+      return data;
     } catch (exc) {
       const existing = await this.existFolder(offline);
 
@@ -44,8 +35,7 @@ export class HttpRemoteFolderSystem {
         throw logger.error({
           tag: 'SYNC-ENGINE',
           msg: 'Error creating folder',
-          basename: offline.basename,
-          parentUuid: offline.parentUuid,
+          path: offline.path,
           exc,
         });
       }
@@ -54,16 +44,14 @@ export class HttpRemoteFolderSystem {
     }
   }
 
-  private async existFolder(offline: { parentUuid: string; basename: string; path: string }) {
+  private async existFolder(offline: TProps) {
     const { data, error } = await driveServerWip.folders.existsFolder({
       parentUuid: offline.parentUuid,
-      basename: offline.basename,
+      basename: offline.plainName,
     });
+
     if (!data) throw error;
-    return {
-      dto: data.existentFolders[0],
-      ...data.existentFolders[0],
-      path: offline.path,
-    };
+
+    return data.existentFolders[0];
   }
 }

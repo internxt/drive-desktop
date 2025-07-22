@@ -1,10 +1,8 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { parseVirusNames } from './parse-virus-names';
 
 describe('parseVirusNames', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.restoreAllMocks();
   });
 
   it('extracts virus names from pattern "Threat detected: VirusName"', () => {
@@ -15,7 +13,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout: stdoutWithCode, stderr });
     // Then
-    expect(result).toEqual(['TestVirus1']);
+    expect(result).toStrictEqual(['TestVirus1']);
   });
 
   it('extracts virus names from pattern "Threat VirusName was detected"', () => {
@@ -26,7 +24,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout: stdoutWithCode, stderr });
     // Then
-    expect(result).toEqual(['TestVirus2']);
+    expect(result).toStrictEqual(['TestVirus2']);
   });
 
   it('extracts virus names from pattern "Found VirusName threat"', () => {
@@ -36,7 +34,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout, stderr });
     // Then
-    expect(result).toEqual(['TestVirus3']);
+    expect(result).toStrictEqual(['TestVirus3']);
   });
 
   it('extracts virus names from pattern "Malware VirusName detected"', () => {
@@ -46,7 +44,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout, stderr });
     // Then
-    expect(result).toEqual(['TestVirus4']);
+    expect(result).toStrictEqual(['TestVirus4']);
   });
 
   it('extracts virus names from pattern "Virus VirusName found"', () => {
@@ -56,7 +54,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout, stderr });
     // Then
-    expect(result).toEqual(['TestVirus5']);
+    expect(result).toStrictEqual(['TestVirus5']);
   });
 
   it('extracts virus names from pattern "Infected with VirusName"', () => {
@@ -67,7 +65,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout: stdoutWithCode, stderr });
     // Then
-    expect(result).toEqual(['TestVirus6']);
+    expect(result).toStrictEqual(['TestVirus6']);
   });
 
   it('combines output from stdout and stderr', () => {
@@ -89,7 +87,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout, stderr });
     // Then
-    expect(result).toEqual(['TestVirus9']);
+    expect(result).toStrictEqual(['TestVirus9']);
   });
 
   it('cleans up virus names by removing quotes and file: prefix', () => {
@@ -99,7 +97,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout, stderr });
     // Then
-    expect(result).toEqual(['TestVirus10']);
+    expect(result).toStrictEqual(['TestVirus10']);
   });
 
   it('returns default threat name if no virus names are found', () => {
@@ -110,7 +108,7 @@ describe('parseVirusNames', () => {
     // When
     const result = parseVirusNames({ stdout, stderr });
     // Then
-    expect(result).toEqual(['Windows.Defender.Threat.Detected']);
+    expect(result).toStrictEqual(['Windows.Defender.Threat.Detected']);
   });
 
   it('handles real Windows Defender output with EICAR test file', () => {
@@ -135,6 +133,6 @@ MpCmdRun: End Time: mar. jul. 15 2025 10:11:20
     // When
     const result = parseVirusNames({ stdout, stderr });
     // Then
-    expect(result).toEqual(['Windows.Defender.Threat.Detected']);
+    expect(result).toStrictEqual(['Windows.Defender.Threat.Detected']);
   });
 });

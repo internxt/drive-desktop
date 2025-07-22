@@ -2,10 +2,10 @@ import { mockDeep } from 'vitest-mock-extended';
 import { FetchDataService } from './fetchData.service';
 import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import { File } from '../../../context/virtual-drive/files/domain/File';
 import { DeepPartial } from 'ts-essentials';
 import fs from 'fs';
 import { it } from 'vitest';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock('fs');
 
@@ -14,14 +14,14 @@ const fetchData = new FetchDataService();
 describe('Fetch Data', () => {
   const self = mockDeep<BindingsManager>();
 
-  const file: DeepPartial<File> = { path: 'path' };
+  const file: DeepPartial<SimpleDriveFile> = { nameWithExtension: 'file.txt' };
   const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
   beforeEach(() => {
     vi.clearAllMocks();
 
     self.controllers.downloadFile.execute.mockResolvedValue('path');
-    self.controllers.downloadFile.fileFinderByUuid.mockReturnValue(file as File);
+    self.controllers.downloadFile.fileFinderByUuid.mockResolvedValue(file as SimpleDriveFile);
   });
 
   describe('When call normalizePath', () => {

@@ -5,12 +5,12 @@ import { EventEmitter } from 'events';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import * as parseVirusNames from './parse-virus-names';
 
-interface MockChildProcess extends EventEmitter {
+type MockChildProcess = EventEmitter & {
   stdout: EventEmitter;
   stderr: EventEmitter;
-  on(event: string, listener: (...args: unknown[]) => void): this;
+  on(event: string, listener: (...args: unknown[]) => void): MockChildProcess;
   emit(event: string, ...args: unknown[]): boolean;
-}
+};
 
 vi.mock(import('child_process'));
 
@@ -36,7 +36,7 @@ describe('scanFile', () => {
     // When
     const result = await scanFile({ filePath, mpCmdRunPath });
     // Then
-    expect(spawnMock).toHaveBeenCalledWith(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
+    expect(spawnMock).toBeCalledWith(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
     expect(result).toEqual({
       file: filePath,
       isInfected: false,
@@ -53,7 +53,7 @@ describe('scanFile', () => {
     // When
     const result = await scanFile({ filePath, mpCmdRunPath });
     // Then
-    expect(spawnMock).toHaveBeenCalledWith(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
+    expect(spawnMock).toBeCalledWith(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
     expect(result).toEqual({
       file: filePath,
       isInfected: true,

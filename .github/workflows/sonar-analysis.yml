@@ -21,12 +21,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.11
-          run_install: false
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -36,13 +30,12 @@ jobs:
       - name: Create .npmrc file
         run: |
           touch .npmrc
-          echo "node-linker=hoisted" >> .npmrc
           echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
           echo //npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }} >> .npmrc
           echo "always-auth=true" >> .npmrc
 
       - name: Install dependencies
-        run: pnpm install
+        run: npm run init:ci
 
       - name: Run tests
         run: npm run test:cov

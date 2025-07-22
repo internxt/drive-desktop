@@ -1,4 +1,3 @@
-node-linker=hoisted
 @internxt:registry=https://npm.pkg.github.com
 //npm.pkg.github.com/:_authToken=TOKEN
 always-auth=true

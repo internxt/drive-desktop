@@ -10,7 +10,7 @@ export interface IControllers {
 export function buildControllers(container: DependencyContainer): IControllers {
   const addFileController = new AddController(container.fileCreationOrchestrator, container.folderCreator);
 
-  const downloadFileController = new DownloadFileController(container.contentsDownloader, container.fileRepository);
+  const downloadFileController = new DownloadFileController(container.contentsDownloader);
 
   return {
     addFile: addFileController,
