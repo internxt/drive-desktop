@@ -14,10 +14,6 @@ describe('LocalTreeBuilder', () => {
     currentFolder: { absolutePath: '' as AbsolutePath },
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('If file size is 0 it should skip it', async () => {
     // Given
     getAllLocalItemsMock.mockResolvedValueOnce({ files: [{ size: 0 }], folders: [] });

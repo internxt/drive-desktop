@@ -21,7 +21,6 @@ describe('on-add-dir', () => {
   let props: Parameters<typeof onAddDir>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
     props = mockProps<typeof onAddDir>({
       absolutePath: 'C:\\Users\\user\\drive\\folder' as AbsolutePath,
       stats: { birthtime: date1, mtime: date2 },

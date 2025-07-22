@@ -20,10 +20,6 @@ describe('create-file', () => {
     },
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('File does not exist, create it', async () => {
     // Given
     fileCreationOrchestratorMock.run.mockResolvedValueOnce('uuid');

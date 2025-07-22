@@ -9,10 +9,6 @@ describe('unregister-virtual-drives', () => {
   const getRegisteredSyncRootsMock = deepMocked(VirtualDrive.getRegisteredSyncRoots);
   const unRegisterSyncRootByProviderIdMock = deepMocked(VirtualDrive.unRegisterSyncRootByProviderId);
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('Skip unregistration if they are already registered', () => {
     // Given
     getRegisteredSyncRootsMock.mockReturnValue([{ id: '{PROVIDER_ID}' }, { id: '{WORKSPACE_PROVIDER_ID}' }]);
