@@ -1,9 +1,13 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { getFileMirrors } from './get-file-mirrors';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 
 describe('get-file-mirrors', () => {
-  const props = mockProps<typeof getFileMirrors>({});
+  const props = mockProps<typeof getFileMirrors>({
+    bucketId: 'b',
+    fileId: 'id',
+    opts: { headers: {} },
+  });
 
   it('should fetch and return mirrors', async () => {
     const mockMirrors = [
