@@ -1,6 +1,6 @@
 import { getAuthFromCredentials } from './get-auth-from-credentials';
 import { getFileInfo } from './get-file-info';
-import { NetworkCredentials, FileInfo } from './types';
+import { NetworkCredentials, FileInfo } from './requests';
 
 type Props = {
   bucketId: string;

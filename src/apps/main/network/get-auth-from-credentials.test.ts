@@ -1,5 +1,5 @@
 import { getAuthFromCredentials } from './get-auth-from-credentials';
-import { NetworkCredentials } from './types';
+import { NetworkCredentials } from './requests';
 
 describe('get-auth-from-credentials', () => {
   it('should return correct Authorization header', () => {

@@ -1,7 +1,7 @@
 import { getAuthFromCredentials } from './get-auth-from-credentials';
 import { getFileMirrors } from './get-file-mirrors';
 import { replaceMirror } from './replace-mirror';
-import { Mirror, NetworkCredentials } from './types';
+import { Mirror, NetworkCredentials } from './requests';
 
 type Props = {
   bucketId: string;

@@ -1,4 +1,4 @@
-import { NetworkCredentials } from './types';
+import { NetworkCredentials } from './requests';
 import { createHash } from 'crypto';
 
 export function getAuthFromCredentials({ creds }: { creds: NetworkCredentials }): { Authorization: string } {

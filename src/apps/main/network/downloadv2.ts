@@ -1,5 +1,5 @@
 import { Network } from '@internxt/sdk/dist/network';
-import { NetworkCredentials } from './types';
+import { NetworkCredentials } from './requests';
 import { NetworkFacade } from './NetworkFacade';
 import { IDownloadParams } from './download.types';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';

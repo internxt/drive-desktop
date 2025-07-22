@@ -1,7 +1,7 @@
 import { FileVersionOneError } from '@internxt/sdk/dist/network/download';
 import { items } from '@internxt/lib';
 import fs, { PathLike } from 'fs';
-import { FileInfo, Mirror, NetworkCredentials } from './types';
+import { FileInfo, Mirror, NetworkCredentials } from './requests';
 import { GenerateFileKey } from '@internxt/inxt-js/build/lib/utils/crypto';
 import { createDecipheriv, Decipher } from 'crypto';
 import { downloadFileV2 } from './downloadv2';

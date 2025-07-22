@@ -1,5 +1,5 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { FileInfo } from './types';
+import { FileInfo } from './requests';
 
 type Props = {
   bucketId: string;
