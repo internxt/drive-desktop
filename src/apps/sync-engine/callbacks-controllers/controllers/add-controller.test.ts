@@ -18,7 +18,6 @@ describe('add-controller', () => {
     let props: Parameters<typeof addController.createFile>[0];
 
     beforeEach(() => {
-      vi.clearAllMocks();
       props = mockProps<typeof addController.createFile>({});
     });
 

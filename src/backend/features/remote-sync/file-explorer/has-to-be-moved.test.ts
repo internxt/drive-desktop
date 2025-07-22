@@ -12,7 +12,6 @@ describe('has-to-be-moved', () => {
   let props: Parameters<typeof hasToBeMoved>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
     props = mockProps<typeof hasToBeMoved>({ remotePath, localPath });
   });
 

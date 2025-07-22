@@ -11,8 +11,6 @@ describe('fetch-files-by-folder', () => {
   let props: Parameters<typeof fetchFilesByFolder>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof fetchFilesByFolder>({
       folderUuid: 'folderUuid',
       context: {

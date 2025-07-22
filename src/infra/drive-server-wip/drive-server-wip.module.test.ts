@@ -29,10 +29,6 @@ describe('drive-server-wip', () => {
     clientWrapperMock.mockResolvedValue({ data: {} });
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it.each(dataset)('%s', async ({ service, method }) => {
     // Given
     authClientMock.POST.mockResolvedValueOnce({ response: { status: 200 } });
