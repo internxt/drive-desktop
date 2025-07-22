@@ -1,31 +1,25 @@
 import { resetConfig } from './reset-config';
 import * as configModule from '@/apps/main/config';
-import * as defaultsModule from '@/core/electron/store/defaults';
-import * as fieldsToSaveModule from '@/core/electron/store/fields-to-save';
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 describe('resetConfig', () => {
-  const configSetMock = vi.spyOn(configModule.default, 'set');
-  const defaultsMock = vi.spyOn(defaultsModule, 'defaults', 'get');
-  const fieldsToSaveMock = vi.spyOn(fieldsToSaveModule, 'fieldsToSave', 'get');
+  const configSetMock = partialSpyOn(configModule.default, 'set');
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     configSetMock.mockReturnValue();
-    fieldsToSaveMock.mockReturnValue(['backupsEnabled', 'syncRoot', 'deviceId'] as any);
-    defaultsMock.mockReturnValue({
-      backupsEnabled: false,
-      syncRoot: '',
-      deviceId: 0,
-    } as any);
   });
 
   it('should reset all fields in fieldsToSave to their default values', () => {
     resetConfig();
 
-    expect(configSetMock).toHaveBeenCalledWith('backupsEnabled', false);
-    expect(configSetMock).toHaveBeenCalledWith('syncRoot', '');
-    expect(configSetMock).toHaveBeenCalledWith('deviceId', 0);
-    expect(configSetMock).toHaveBeenCalledTimes(3);
+    expect(configSetMock).toBeCalledWith('backupsEnabled', false);
+    expect(configSetMock).toBeCalledWith('backupInterval', 86_400_000);
+    expect(configSetMock).toBeCalledWith('lastBackup', -1);
+    expect(configSetMock).toBeCalledWith('syncRoot', '');
+    expect(configSetMock).toBeCalledWith('lastSync', -1);
+    expect(configSetMock).toBeCalledWith('deviceId', -1);
+    expect(configSetMock).toBeCalledWith('deviceUuid', '');
+    expect(configSetMock).toBeCalledWith('backupList', {});
+    expect(configSetMock).toBeCalledTimes(8);
   });
 });
