@@ -3,11 +3,13 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { HEADERS } from '@/apps/main/auth/headers';
 import { getRequestKey } from '../in/get-in-flight-request';
+import { logout } from './auth/logout';
 
 export const auth = {
   access,
   login,
   refresh,
+  logout,
 };
 
 async function access({ email, password, tfa }: { email: string; password: string; tfa?: string }) {
