@@ -1,10 +1,10 @@
 import { Usage } from '@/apps/main/usage/Usage';
+import { QueryStatus } from '@tanstack/react-query';
 import bytes from 'bytes';
-import { UsageStatus } from '../../hooks/useUsage';
 
 interface Props {
   usage: Usage;
-  status: UsageStatus;
+  status: QueryStatus;
   translate: (key: string) => string;
 }
 
@@ -14,7 +14,7 @@ export function getUsageIndicatorValue({ usage, status, translate }: Props) {
       return 'Loading...';
     case 'error':
       return '';
-    case 'ready': {
+    case 'success': {
       const used = bytes.format(usage.usageInBytes || 0);
       const limit = usage.isInfinite ? '∞' : bytes.format(usage.limitInBytes);
       const ofText = translate('widget.header.usage.of');

@@ -4,15 +4,15 @@ import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
 import useSyncStatus from '../../hooks/useSyncStatus';
-import useUsage from '../../hooks/useUsage';
 import { WarningCircle } from 'phosphor-react';
 import { useNetworkRetry } from '../../hooks/useNetworkRetry';
+import { useGetUsage } from '../../api/use-get-usage';
 
 export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { translate } = useTranslationContext();
 
   const { isOnline } = useNetworkRetry(3000, 5);
-  const { usage, status } = useUsage();
+  const { data: usage, status } = useGetUsage();
   const { syncStatus } = useSyncStatus();
 
   const isSyncStopped = syncStatus === 'FAILED';
@@ -79,7 +79,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
         )}
       </div>
 
-      {usage && status === 'ready' && usage.offerUpgrade && (
+      {usage && status === 'success' && usage.offerUpgrade && (
         <Button variant="primary" size="sm" onClick={handleOpenUpgrade}>
           {translate('widget.header.usage.upgrade')}
         </Button>

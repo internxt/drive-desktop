@@ -8,6 +8,7 @@ export async function logout() {
   const method = 'GET';
   const endpoint = '/auth/logout';
   const key = getRequestKey({ method, endpoint });
+
   const promiseFn = () =>
     noContentWrapper({
       request: client.GET(endpoint),

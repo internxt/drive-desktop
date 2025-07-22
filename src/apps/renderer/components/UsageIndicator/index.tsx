@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
-import useUsage from '../../hooks/useUsage';
 import { getUsageIndicatorValue } from './get-usage-indicator-value';
+import { useGetUsage } from '../../api/use-get-usage';
 
 export function UsageIndicator() {
   const [UsageValue, setUsageValue] = useState('');
   const { translate } = useTranslationContext();
-  const { usage, status } = useUsage();
+  const { data: usage, status } = useGetUsage();
 
   useEffect(() => {
     setUsageValue(usage ? getUsageIndicatorValue({ usage, status, translate }) : '');

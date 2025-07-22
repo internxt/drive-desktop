@@ -2,18 +2,17 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UsageIndicator } from '.';
 import { Usage } from '@/apps/main/usage/Usage';
-import useUsage, { UsageStatus } from '../../hooks/useUsage';
-import { deepMocked } from '@/tests/vitest/utils.helper.test';
+import { deepMocked, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { LocalContextProps, useTranslationContext } from '../../context/LocalContext';
 import { mockDeep } from 'vitest-mock-extended';
+import * as useGetUsage from '../../api/use-get-usage';
 
 vi.mock(import('../../context/LocalContext'));
-vi.mock(import('../../hooks/useUsage'));
 
 describe('UsageIndicator', () => {
   const mockuseTranslationContext = deepMocked(useTranslationContext);
   const mockedTranslationContext = mockDeep<LocalContextProps>();
-  const mockUseUsage = deepMocked(useUsage);
+  const mockUseUsage = partialSpyOn(useGetUsage, 'useGetUsage');
 
   const mockUsage: Usage = {
     usageInBytes: 500 * 1024 * 1024, // 500MB
@@ -29,10 +28,7 @@ describe('UsageIndicator', () => {
   describe('Loading State', () => {
     it('should display empty text when usage is undefined', () => {
       // Given: Usage is in loading state but usage is undefined
-      mockUseUsage.mockReturnValue({
-        usage: undefined,
-        status: 'loading' as UsageStatus,
-      });
+      mockUseUsage.mockReturnValue({ status: 'loading' });
 
       // When: Component renders
       const { container } = render(<UsageIndicator />);
@@ -45,8 +41,8 @@ describe('UsageIndicator', () => {
     it('should display loading message when usage exists and status is loading', () => {
       // Given: Usage exists but status is loading
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'loading' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       // When: Component renders
@@ -60,8 +56,8 @@ describe('UsageIndicator', () => {
   it('should display empty string when usage is undefined with error status', () => {
     // Given: Usage is undefined with error status
     mockUseUsage.mockReturnValue({
-      usage: undefined,
-      status: 'error' as UsageStatus,
+      data: undefined,
+      status: 'error',
     });
 
     // When: Component renders
@@ -76,8 +72,8 @@ describe('UsageIndicator', () => {
     it('should display formatted usage with finite limit', () => {
       // Given: Usage is ready with finite storage
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'ready' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       // When: Component renders
@@ -98,8 +94,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'ready' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       // When: Component renders
@@ -119,8 +115,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'ready' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       // When: Component renders
@@ -142,8 +138,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'ready' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       // When: Component renders
@@ -163,8 +159,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'ready' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       // When: Component renders
@@ -188,8 +184,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'ready' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       // When: Component renders
@@ -212,8 +208,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: initialUsage,
-        status: 'ready' as UsageStatus,
+        data: initialUsage,
+        status: 'success',
       });
 
       const { rerender } = render(<UsageIndicator />);
@@ -230,8 +226,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: updatedUsage,
-        status: 'ready' as UsageStatus,
+        data: updatedUsage,
+        status: 'success',
       });
 
       rerender(<UsageIndicator />);
@@ -243,8 +239,8 @@ describe('UsageIndicator', () => {
     it('should update display when status changes', () => {
       // Given: Initial loading state with undefined usage
       mockUseUsage.mockReturnValue({
-        usage: undefined,
-        status: 'loading' as UsageStatus,
+        data: undefined,
+        status: 'loading',
       });
 
       const { rerender, container } = render(<UsageIndicator />);
@@ -262,8 +258,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'ready' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       rerender(<UsageIndicator />);
@@ -274,21 +270,6 @@ describe('UsageIndicator', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should handle null/undefined usage gracefully', () => {
-      // Given: Usage hook returns null usage
-      mockUseUsage.mockReturnValue({
-        usage: undefined,
-        status: 'ready' as UsageStatus,
-      });
-
-      // When: Component renders
-      const { container } = render(<UsageIndicator />);
-
-      // Then: Should show empty string
-      const element = container.querySelector('p');
-      expect(element).toHaveTextContent('');
-    });
-
     it('should handle very large numbers correctly', () => {
       // Given: Usage with very large numbers
       const mockUsage: Usage = {
@@ -299,8 +280,8 @@ describe('UsageIndicator', () => {
       };
 
       mockUseUsage.mockReturnValue({
-        usage: mockUsage,
-        status: 'ready' as UsageStatus,
+        data: mockUsage,
+        status: 'success',
       });
 
       // When: Component renders
