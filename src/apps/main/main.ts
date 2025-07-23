@@ -83,7 +83,7 @@ logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.i
 async function checkForUpdates() {
   autoUpdater.logger = {
     debug: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
-    info: (msg) => logger.info({ msg: `AutoUpdater: ${msg}` }),
+    info: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
     error: (msg) => logger.error({ msg: `AutoUpdater: ${msg}` }),
     warn: (msg) => logger.warn({ msg: `AutoUpdater: ${msg}` }),
   };
