@@ -6,29 +6,28 @@ describe('get-file-info', () => {
   const props = mockProps<typeof getFileInfo>({
     bucketId: 'b',
     fileId: 'id',
-    opts: { headers: {} },
+    opts: { headers: { 'Content-Type': 'application/json' } },
   });
 
   it('should fetch and return file info', async () => {
     const mockFileInfo = {
       bucket: 'b',
-      mimetype: 'm',
-      filename: 'f',
-      frame: 'fr',
-      size: 1,
-      id: 'id',
-      created: new Date(),
-      hmac: { value: '', type: '' },
-      index: '0',
     };
+
+    const expectedUrl = `${process.env.BRIDGE_URL}/buckets/${props.bucketId}/files/${props.fileId}/info`;
     global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => mockFileInfo });
     const result = await getFileInfo(props);
-    expect(global.fetch).toHaveBeenCalled();
+    expect(global.fetch).toHaveBeenCalledWith(expectedUrl, {
+      method: 'GET',
+      headers: {
+        ...props.opts.headers,
+      },
+    });
     expect(result).toEqual(mockFileInfo);
   });
 
   it('should throw if fetch fails', async () => {
-    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: 'fail', json: () => ({}) });
+    global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 500, statusText: 'fail' });
     await expect(getFileInfo(props)).rejects.toThrow('Failed to fetch file info: 500 fail');
   });
 });
