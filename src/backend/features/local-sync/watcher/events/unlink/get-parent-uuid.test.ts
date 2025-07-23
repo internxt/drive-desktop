@@ -13,7 +13,6 @@ describe('get-parent-uuid', () => {
   const props = mockProps<typeof getParentUuid>({ path });
 
   beforeEach(() => {
-    vi.clearAllMocks();
     getFolderUuidMock.mockReturnValue({ data: 'parentUuid' as FolderUuid });
     statMock.mockResolvedValue({ data: { size: 1024 } });
   });

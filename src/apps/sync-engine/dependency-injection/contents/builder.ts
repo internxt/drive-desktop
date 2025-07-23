@@ -3,10 +3,8 @@ import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
-import { RetryContentsUploader } from '../../../../context/virtual-drive/contents/application/RetryContentsUploader';
 import { temporalFolderProvider } from '../../../../context/virtual-drive/contents/application/temporalFolderProvider';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { getConfig } from '../../config';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
@@ -26,17 +24,14 @@ export function buildContentsContainer(sharedContainer: SharedContainer): Conten
 
   const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, getConfig().bucket);
 
-  const contentsProvider = new FSLocalFileProvider();
-  const contentsUploader = new ContentsUploader(contentsManagerFactory, contentsProvider, sharedContainer.relativePathToAbsoluteConverter);
-
-  const retryContentsUploader = new RetryContentsUploader(contentsUploader);
+  const contentsUploader = new ContentsUploader(contentsManagerFactory, sharedContainer.relativePathToAbsoluteConverter);
 
   const localWriter = new FSLocalFileWriter(temporalFolderProvider);
 
   const contentsDownloader = new ContentsDownloader(contentsManagerFactory, localWriter, temporalFolderProvider);
 
   return {
-    contentsUploader: retryContentsUploader,
+    contentsUploader,
     contentsDownloader,
     temporalFolderProvider,
     contentsManagerFactory,

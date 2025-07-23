@@ -71,12 +71,8 @@ export class FileOverwriteContent {
     });
   }
 
-  async run(input: {
-    contentsIds: File['contentsId'][];
-    upload: (path: string) => Promise<RemoteFileContents>;
-    downloaderManger: EnvironmentRemoteFileContentsManagersFactory;
-  }) {
-    const { contentsIds, upload, downloaderManger } = input;
+  async run(input: { contentsIds: File['contentsId'][]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
+    const { contentsIds, downloaderManger } = input;
     Logger.debug('Inside overrideDangledFiles');
     const files = this.repository.searchByContentsIds(contentsIds);
 
@@ -104,7 +100,6 @@ export class FileOverwriteContent {
           size: hydratedDangledRemoteFile.size,
           path: hydratedDangledRemoteFile.path,
         },
-        upload,
       });
     };
 

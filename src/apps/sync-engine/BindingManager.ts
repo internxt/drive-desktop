@@ -76,10 +76,10 @@ export class BindingsManager {
       virtulDrive: this.container.virtualDrive,
       watcherCallbacks: {
         addController: this.controllers.addFile,
-        updateContentsId: async ({ absolutePath, path, uuid }) =>
+        updateContentsId: async ({ stats, path, uuid }) =>
           await updateContentsId({
             virtualDrive: this.container.virtualDrive,
-            absolutePath,
+            stats,
             path,
             uuid,
             fileContentsUploader: this.container.contentsUploader,
