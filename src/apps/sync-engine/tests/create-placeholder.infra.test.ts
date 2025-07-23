@@ -9,7 +9,7 @@ import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
-import { PinState, SyncState } from '@/node-win/types/placeholder.type';
+import { PinState } from '@/node-win/types/placeholder.type';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockDeep } from 'vitest-mock-extended';
@@ -106,6 +106,5 @@ describe('create-placeholder', () => {
     // Then
     const status = container.virtualDrive.getPlaceholderState({ path: file });
     expect(status.pinState).toBe(PinState.AlwaysLocal);
-    expect(status.syncState).toBe(SyncState.InSync);
   });
 });

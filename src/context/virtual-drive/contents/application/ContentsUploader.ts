@@ -27,6 +27,7 @@ export class ContentsUploader {
     const readable = createReadStream(absolutePath);
     const { data: contentsId, error } = await uploader.run({
       readable,
+      absolutePath,
       size: stats.size,
       path,
       abortSignal: new AbortController().signal,

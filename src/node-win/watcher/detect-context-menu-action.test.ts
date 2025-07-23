@@ -2,7 +2,7 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { DetectContextMenuActionService } from './detect-context-menu-action.service';
 import { mockDeep } from 'vitest-mock-extended';
 import VirtualDrive from '../virtual-drive';
-import { PinState, SyncState } from '../types/placeholder.type';
+import { PinState } from '../types/placeholder.type';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -18,6 +18,7 @@ describe('detect-context-menu-action', () => {
   let props: Parameters<typeof service.execute>[0];
 
   beforeEach(() => {
+    getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof service.execute>({
       absolutePath: 'absolutePath' as AbsolutePath,
       path: createRelativePath('file.txt'),
@@ -29,18 +30,17 @@ describe('detect-context-menu-action', () => {
         queueManager: { enqueue: vi.fn() },
       },
       details: {
-        prev: { size: 1024, ctimeMs: 1, mtimeMs: 1 },
-        curr: { size: 1024, ctimeMs: 2, mtimeMs: 1 },
+        prev: { ctimeMs: 1, mtimeMs: 1 },
+        curr: { ctimeMs: 2, mtimeMs: 1 },
       },
     });
 
     props.self.fileInDevice.clear();
   });
 
-  it('should update contents id when file size changes', async () => {
+  it('should update contents id when file modification time changes', async () => {
     // Given
-    props.details.curr.size = 2024;
-    getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
+    props.details.curr.mtimeMs = 2;
     // When
     await service.execute(props);
     // Then
@@ -55,7 +55,7 @@ describe('detect-context-menu-action', () => {
   it('should dehydrate when pin state is online only', async () => {
     // Given
     props.self.fileInDevice.add(props.absolutePath);
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.OnlineOnly, syncState: SyncState.InSync });
+    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.OnlineOnly });
     // When
     await service.execute(props);
     // Then
@@ -66,7 +66,7 @@ describe('detect-context-menu-action', () => {
 
   describe('what happens when hydrate event', () => {
     beforeEach(() => {
-      virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal, syncState: SyncState.InSync });
+      virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
     });
 
     it('should enqueue file for hydrate', async () => {

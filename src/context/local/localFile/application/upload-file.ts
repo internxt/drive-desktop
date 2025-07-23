@@ -14,6 +14,7 @@ type TProps = {
 export async function uploadFile({ context, localFile, uploader }: TProps) {
   const readable = createReadStream(localFile.absolutePath);
   const { data: contentsId, error } = await uploader.run({
+    absolutePath: localFile.absolutePath,
     path: localFile.absolutePath,
     size: localFile.size.value,
     abortSignal: context.abortController.signal,
