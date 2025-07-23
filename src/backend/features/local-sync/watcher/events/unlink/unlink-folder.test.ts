@@ -7,9 +7,10 @@ import * as isMoveDirEvent from './is-move-event';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import * as getConfig from '@/apps/sync-engine/config';
 import { ipcRenderer } from 'electron';
+import * as getParentUuid from './get-parent-uuid';
 
 describe('unlink-folder', () => {
-  const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
+  const getParentUuidMock = partialSpyOn(getParentUuid, 'getParentUuid');
   const invokeMock = partialSpyOn(ipcRenderer, 'invoke');
   const isMoveDirEventMock = partialSpyOn(isMoveDirEvent, 'isMoveDirEvent');
   const getConfigMock = partialSpyOn(getConfig, 'getConfig');
@@ -22,17 +23,15 @@ describe('unlink-folder', () => {
   });
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     getConfigMock.mockReturnValue({ workspaceToken: 'token' });
-    getFolderUuidMock.mockReturnValue({ data: 'parentUuid' as FolderUuid });
+    getParentUuidMock.mockResolvedValue('parentUuid' as FolderUuid);
     invokeMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
     isMoveDirEventMock.mockResolvedValue(false);
   });
 
   it('should catch in case of error', async () => {
     // Given
-    getFolderUuidMock.mockImplementation(() => {
+    getParentUuidMock.mockImplementation(() => {
       throw new Error();
     });
     // When
@@ -43,12 +42,12 @@ describe('unlink-folder', () => {
 
   it('should skip if cannot retrieve parent uuid', async () => {
     // Given
-    getFolderUuidMock.mockReturnValue({});
+    getParentUuidMock.mockResolvedValue(undefined);
     // When
     await unlinkFolder(props);
     // Then
-    expect(getFolderUuidMock).toBeCalledTimes(1);
-    expect(getFolderUuidMock).toBeCalledWith(expect.objectContaining({ path: '/folder' }));
+    expect(getParentUuidMock).toBeCalledTimes(1);
+    expect(getParentUuidMock).toBeCalledWith(expect.objectContaining({ path: '/folder/folder' }));
     expect(invokeMock).toBeCalledTimes(0);
   });
 
@@ -58,9 +57,9 @@ describe('unlink-folder', () => {
     // When
     await unlinkFolder(props);
     // Then
-    expect(getFolderUuidMock).toBeCalledTimes(1);
+    expect(getParentUuidMock).toBeCalledTimes(1);
     expect(invokeMock).toBeCalledTimes(1);
-    expect(invokeMock).toBeCalledWith('folderGetByName', { parentUuid: 'parentUuid', name: 'folder' });
+    expect(invokeMock).toBeCalledWith('folderGetByName', { parentUuid: 'parentUuid', plainName: 'folder' });
     expect(isMoveDirEventMock).toBeCalledTimes(0);
   });
 
@@ -70,7 +69,7 @@ describe('unlink-folder', () => {
     // When
     await unlinkFolder(props);
     // Then
-    expect(getFolderUuidMock).toBeCalledTimes(1);
+    expect(getParentUuidMock).toBeCalledTimes(1);
     expect(invokeMock).toBeCalledTimes(1);
     expect(isMoveDirEventMock).toBeCalledTimes(1);
     expect(isMoveDirEventMock).toBeCalledWith({ uuid: 'uuid' });
@@ -80,7 +79,7 @@ describe('unlink-folder', () => {
     // When
     await unlinkFolder(props);
     // Then
-    expect(getFolderUuidMock).toBeCalledTimes(1);
+    expect(getParentUuidMock).toBeCalledTimes(1);
     expect(isMoveDirEventMock).toBeCalledTimes(1);
     expect(invokeMock).toBeCalledTimes(2);
     expect(invokeMock).toBeCalledWith('storageDeleteFolderByUuid', { uuid: 'uuid', workspaceToken: 'token' });
@@ -95,7 +94,7 @@ describe('unlink-folder', () => {
     // When
     await unlinkFolder(props);
     // Then
-    expect(getFolderUuidMock).toBeCalledTimes(1);
+    expect(getParentUuidMock).toBeCalledTimes(1);
     expect(isMoveDirEventMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(1);
   });

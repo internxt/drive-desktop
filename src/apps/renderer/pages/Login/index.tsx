@@ -3,32 +3,23 @@ import packageJson from '../../../../../package.json';
 import { useTranslationContext } from '../../context/LocalContext';
 import ErrorBanner from './ErrorBanner';
 import { accessRequest, hashPassword } from './service';
-import TwoFA from './TwoFA';
 import { LoginState } from './types';
 import WarningBanner from './WarningBanner';
-import Button from '../../components/Button';
-import PasswordInput from '../../components/PasswordInput';
-import TextInput from '../../components/TextInput';
 import WindowTopBar from '../../components/WindowTopBar';
+import { TwoFASection } from './TwoFASection';
+import { CredentialsSection } from './CredentialsSection';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 
 export default function Login() {
   const { translate } = useTranslationContext();
-
   const [phase, setPhase] = useState<'credentials' | '2fa'>('credentials');
-
   const [state, setState] = useState<LoginState>('ready');
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [twoFA, setTwoFA] = useState('');
-
   const sKey = useRef<string>('');
-
   const [errorDetails, setErrorDetails] = useState('');
-
   const [warning, setWarning] = useState('');
 
   async function access() {
@@ -56,7 +47,7 @@ export default function Login() {
     }
   }
 
-  async function onSubmit() {
+  async function handleOnSubmit() {
     setState('loading');
 
     if (!window.navigator.onLine) {
@@ -88,13 +79,25 @@ export default function Login() {
     }
   }
 
-  function resetForm() {
+  function handleResetForm() {
     setPhase('credentials');
     setState('ready');
     setEmail('');
     setPassword('');
     setTwoFA('');
     sKey.current = '';
+  }
+
+  function handleSetTwoFA(value: string) {
+    setTwoFA(value);
+  }
+
+  function handleSetEmail(value: string) {
+    setEmail(value.toLowerCase());
+  }
+
+  function handleSetPassword(value: string) {
+    setPassword(value);
   }
 
   const handleOpenURL = async (URL: string) => {
@@ -105,91 +108,11 @@ export default function Login() {
     }
   };
 
-  const credentialsComponents = (
-    <form
-      className="flex flex-1 flex-col space-y-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit();
-      }}>
-      <label className="flex flex-col items-start space-y-2">
-        <p className="text-sm font-medium leading-4 text-gray-80">{translate('login.email.section')}</p>
-
-        <TextInput
-          required
-          disabled={state === 'loading'}
-          variant="email"
-          value={email}
-          onChange={(e) => setEmail(e.currentTarget.value.toLowerCase())}
-          customClassName="w-full"
-          tabIndex={1}
-        />
-      </label>
-
-      <label className="flex flex-col items-start space-y-2">
-        <p className="text-sm font-medium leading-4 text-gray-80">{translate('login.password.section')}</p>
-
-        <PasswordInput
-          required
-          disabled={state === 'loading'}
-          value={password}
-          onChange={(e) => setPassword(e.currentTarget.value)}
-          customClassName="w-full"
-          tabIndex={2}
-        />
-      </label>
-
-      <button
-        type="button"
-        disabled={state === 'loading'}
-        onClick={() => handleOpenURL('https://drive.internxt.com/recovery-link')}
-        tabIndex={3}
-        className={`text-sm font-medium outline-none ${state === 'loading' ? 'text-gray-30' : 'text-primary'}`}>
-        {translate('login.password.forgotten')}
-      </button>
-
-      <Button type="submit" variant="primary" size="lg" disabled={state === 'loading'} tabIndex={4}>
-        {translate(state === 'loading' ? 'login.action.is-logging-in' : 'login.action.login')}
-      </Button>
-
-      <button
-        type="button"
-        disabled={state === 'loading'}
-        onClick={() => handleOpenURL('https://drive.internxt.com/new')}
-        tabIndex={5}
-        className={`text-sm font-medium outline-none ${state === 'loading' ? 'text-gray-30' : 'text-primary'}`}>
-        {translate('login.create-account')}
-      </button>
-    </form>
-  );
-
   useEffect(() => {
     if (twoFA.length === 6) {
-      access();
+      void access();
     }
   }, [twoFA]);
-
-  const twoFAComponents = (
-    // TODO: move this to a React component, aling items properly
-    <>
-      <p className={`mt-3 text-xs font-medium ${state === 'error' ? 'text-red' : state === 'loading' ? 'text-gray-50' : 'text-primary'}`}>
-        {translate('login.2fa.section')}
-      </p>
-      <TwoFA state={state} onChange={setTwoFA} />
-      <p className="mt-4 text-xs text-gray-60">{translate('login.2fa.description')}</p>
-
-      <div
-        className={`mx-auto mt-5 block w-max text-sm font-medium ${
-          state === 'loading' ? 'pointer-events-none cursor-default text-gray-100' : 'cursor-pointer text-primary'
-        }`}
-        onClick={resetForm}
-        onKeyDown={resetForm}
-        role="button"
-        tabIndex={0}>
-        {translate('login.2fa.change-account')}
-      </div>
-    </>
-  );
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-surface dark:bg-gray-1">
@@ -207,7 +130,19 @@ export default function Login() {
         {errorDetails && state === 'error' && (
           <ErrorBanner className={`${state === 'error' ? 'opacity-100' : 'opacity-0'}`}>{errorDetails}</ErrorBanner>
         )}
-        {phase === 'credentials' ? credentialsComponents : twoFAComponents}
+        {phase === 'credentials' ? (
+          <CredentialsSection
+            state={state}
+            email={email}
+            password={password}
+            openURL={handleOpenURL}
+            onSubmit={handleOnSubmit}
+            setEmail={handleSetEmail}
+            setPassword={handleSetPassword}
+          />
+        ) : (
+          <TwoFASection state={state} resetForm={handleResetForm} setTwoFA={handleSetTwoFA} />
+        )}
       </div>
     </div>
   );

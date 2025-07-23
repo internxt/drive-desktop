@@ -20,7 +20,6 @@ describe('update-contents-id', () => {
   let props: Parameters<typeof updateContentsId>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
     fileContentsUploader.run.mockResolvedValue({ id: 'newContentsId' as ContentsId, size: 1 });
     props = mockProps<typeof updateContentsId>({
       virtualDrive,

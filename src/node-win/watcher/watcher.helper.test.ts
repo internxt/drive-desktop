@@ -43,10 +43,6 @@ export function getEvents() {
   return onAll.mock.calls.map((call) => ({ event: call[0].event, path: call[0].path }));
 }
 
-beforeEach(() => {
-  vi.clearAllMocks();
-});
-
 afterEach(async () => {
   await watcher?.chokidar?.close();
 });

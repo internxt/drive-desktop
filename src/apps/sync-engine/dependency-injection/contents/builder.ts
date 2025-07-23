@@ -7,7 +7,6 @@ import { temporalFolderProvider } from '../../../../context/virtual-drive/conten
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { getConfig } from '../../config';
-import { logger } from '@/apps/shared/logger/logger';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 
 export function buildContentsContainer(sharedContainer: SharedContainer): ContentsContainer {

@@ -59,6 +59,7 @@ import { setUpBackups } from './background-processes/backups/setUpBackups';
 import { setupIssueHandlers } from './background-processes/issues';
 import { setupIpcDriveServerWip } from '@/infra/drive-server-wip/out/ipc-main';
 import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
+import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 
@@ -174,8 +175,9 @@ eventBus.on('USER_LOGGED_OUT', async () => {
     widget.destroy();
   }
 
-  await clearAntivirus();
+  clearAntivirus();
   unregisterVirtualDrives({});
+  void AuthModule.logout();
 
   await createAuthWindow();
 });

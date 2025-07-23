@@ -23,8 +23,6 @@ describe('contents-uploader', () => {
   });
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     relativePathToAbsoluteConverter.run.mockReturnValue('abolutePath');
     remoteContentsManagersFactory.uploader.mockReturnValue(uploader);
   });

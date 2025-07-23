@@ -8,8 +8,6 @@ describe('process-error', () => {
   let props: Parameters<typeof processError>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof processError>({ callbacks });
   });
 

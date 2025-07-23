@@ -13,7 +13,6 @@ describe('DangledFilesService', () => {
   let downloader: MockProxy<EnvironmentContentFileDownloader>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     contentsManagerFactory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
     downloader = mockDeep<EnvironmentContentFileDownloader>();
     downloader.download.mockResolvedValue(new Readable());

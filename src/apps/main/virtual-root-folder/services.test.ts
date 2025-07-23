@@ -28,7 +28,6 @@ afterEach(() => {
   fs.rm(tempDir, { recursive: true }, () => {
     return;
   });
-  vi.restoreAllMocks();
 });
 
 describe('setupRootFolder', () => {

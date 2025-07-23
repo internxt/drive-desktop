@@ -22,10 +22,6 @@ describe('Traverser', () => {
     cryptMock.decryptName.mockImplementation(({ encryptedName }) => encryptedName);
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   function extractPaths(items: File[] | Folder[]) {
     return items.map((item) => item.path);
   }

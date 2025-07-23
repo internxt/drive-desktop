@@ -13,10 +13,6 @@ describe('get-files-from-directory', () => {
 
   const rootFolder = win32.join('C:', 'Users', 'user', 'internxt');
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('If root is a file then do nothing', async () => {
     // Given
     PathTypeCheckerMock.isFolder.mockResolvedValue(false);

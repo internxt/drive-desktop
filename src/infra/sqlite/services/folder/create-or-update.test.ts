@@ -10,8 +10,6 @@ describe('create-or-update', () => {
   const props = mockProps<typeof createOrUpdate>({});
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     decryptNameSpy.mockImplementation(({ name }) => name);
   });
 

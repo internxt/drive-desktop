@@ -38,10 +38,6 @@ describe('calculate-files-diff', () => {
     },
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('It should calculate files diff', () => {
     // Given
     isDangledAppliedMock.mockReturnValue({ isApplied: false });
