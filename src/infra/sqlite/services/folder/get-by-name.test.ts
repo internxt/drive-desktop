@@ -5,13 +5,9 @@ import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 
 describe('get-by-name', () => {
   const findOneSpy = partialSpyOn(folderRepository, 'findOne');
-  const decryptNameSpy = partialSpyOn(Folder, 'decryptName');
+  partialSpyOn(Folder, 'decryptName');
 
-  const props = mockProps<typeof getByName>({ name: 'folder' });
-
-  beforeEach(() => {
-    decryptNameSpy.mockImplementation(({ name }) => name);
-  });
+  const props = mockProps<typeof getByName>({ plainName: 'folder' });
 
   it('should return NOT_FOUND when folder is not found', async () => {
     // Given
@@ -40,7 +36,7 @@ describe('get-by-name', () => {
     expect(data).toBeDefined();
     expect(findOneSpy).toBeCalledWith({
       where: expect.objectContaining({
-        name: 'folder',
+        plainName: 'folder',
         status: 'EXISTS',
       }),
     });

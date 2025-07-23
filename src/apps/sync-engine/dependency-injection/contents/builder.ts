@@ -9,7 +9,6 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../contex
 import { FSLocalFileProvider } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileProvider';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { getConfig } from '../../config';
-import { logger } from '@/apps/shared/logger/logger';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 
 export function buildContentsContainer(sharedContainer: SharedContainer): ContentsContainer {

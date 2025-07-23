@@ -5,15 +5,12 @@ import { getByName } from './get-by-name';
 
 describe('get-by-name', () => {
   const findOneSpy = partialSpyOn(fileRepository, 'findOne');
-  const fileDecryptNameSpy = vi.spyOn(fileDecryptName, 'fileDecryptName');
+  const fileDecryptNameSpy = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
   const props = mockProps<typeof getByName>({ nameWithExtension: 'file.txt' });
 
   beforeEach(() => {
-    fileDecryptNameSpy.mockImplementation(({ encryptedName }) => ({
-      name: encryptedName,
-      nameWithExtension: encryptedName,
-    }));
+    fileDecryptNameSpy.mockResolvedValue({});
   });
 
   it('should return NOT_FOUND when file is not found', async () => {
