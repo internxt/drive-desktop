@@ -1,7 +1,7 @@
 import { logger } from '../../../core/LoggerService/LoggerService';
 import { right } from './../../../context/shared/domain/Either';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
-import { Either, left } from './../../../context/shared/domain/Either';
+import { Either } from './../../../context/shared/domain/Either';
 import { Device } from './../../../apps/main/device/service';
 import { getDeviceIdentifier } from './getDeviceIdentifier';
 import configStore from './../../../apps/main/config';
@@ -44,5 +44,5 @@ export async function migrateLegacyDeviceIdentifier(
     msg: 'Failed to migrate legacy device identifier',
     error,
   });
-  return left(error);
+  return right(device);
 }

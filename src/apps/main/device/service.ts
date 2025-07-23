@@ -38,34 +38,21 @@ export async function getDevices(): Promise<Array<Device>> {
   }
 }
 
-function getDeviceUUID(): string {
-  const deviceUuid = configStore.get('deviceUUID');
 
-  if (deviceUuid === '') {
-    throw new Error('deviceUuid is not defined');
-  }
-
-  return deviceUuid;
-}
-
-export async function renameDevice(deviceName: string): Promise<Device> {
-  const deviceUUID = getDeviceUUID();
-
-  const response = await driveServerModule.backup.updateDevice(
-    deviceUUID,
-    deviceName
-  );
-  if (response.isRight()) {
-    const device = response.getRight();
-    return decryptDeviceName(device);
-  } else {
-    throw new Error('Error in the request to rename a device');
-  }
-}
 
 export function decryptDeviceName({ name, ...rest }: Device): Device {
+  let nameDevice;
+  let key;
+  try {
+    key = `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`;
+    nameDevice = aes.decrypt(name, key);
+  } catch (error) {
+    key = `${process.env.NEW_CRYPTO_KEY}-${null}`;
+    nameDevice = aes.decrypt(name, key);
+  }
+  logger.debug({ tag: 'BACKUPS', msg: 'Decrypted device', nameDevice });
   return {
-    name: aes.decrypt(name, `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`),
+    name: nameDevice,
     ...rest,
   };
 }

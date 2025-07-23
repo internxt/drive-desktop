@@ -11,7 +11,6 @@ import {
   getBackupsFromDevice,
   getDevices,
   getPathFromDialog,
-  renameDevice,
 } from './service';
 import { DeviceModule } from '../../../backend/features/device/device.module';
 
@@ -19,7 +18,7 @@ ipcMain.handle('devices.get-all', () => getDevices());
 
 ipcMain.handle('get-or-create-device', DeviceModule.getOrCreateDevice);
 
-ipcMain.handle('rename-device', (_, v) => renameDevice(v));
+ipcMain.handle('rename-device', (_, v) => DeviceModule.renameDevice(v));
 
 ipcMain.handle('get-backups-from-device', (_, d, c?) => getBackupsFromDevice(d, c));
 
