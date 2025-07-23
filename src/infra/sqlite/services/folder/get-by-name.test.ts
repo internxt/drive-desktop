@@ -9,10 +9,6 @@ describe('get-by-name', () => {
 
   const props = mockProps<typeof getByName>({ plainName: 'folder' });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should return NOT_FOUND when folder is not found', async () => {
     // Given
     findOneSpy.mockResolvedValue(null);

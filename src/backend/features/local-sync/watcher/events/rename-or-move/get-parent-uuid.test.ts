@@ -17,8 +17,6 @@ describe('get-parent-uuid', () => {
   let props: Parameters<typeof getParentUuid>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     getFolderUuidMock.mockReturnValue({ data: 'newParentUuid' as FolderUuid });
 
     props = mockProps<typeof getParentUuid>({

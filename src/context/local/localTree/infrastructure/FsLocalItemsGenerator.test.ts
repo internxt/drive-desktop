@@ -43,10 +43,6 @@ describe('CLSFsLocalItemsGenerator', () => {
     await rm(folder, { recursive: true });
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('It should add files and folders', async () => {
     // Given
     statMock.mockResolvedValue({ data: { mtime: new Date(), size: 7 } });

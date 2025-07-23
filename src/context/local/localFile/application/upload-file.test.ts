@@ -20,10 +20,6 @@ describe('upload-file', () => {
     },
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should return contentsId if upload is successful', async () => {
     // Given
     uploader.upload.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });

@@ -47,7 +47,7 @@ contextBridge.exposeInMainWorld('electron', {
     ipcRenderer.send('USER_LOGIN_FAILED', email);
   },
   logout() {
-    return ipcRenderer.send('user-logged-out');
+    return ipcRenderer.send('USER_LOGGED_OUT');
   },
   closeWindow() {
     return ipcRenderer.send('user-closed-window');

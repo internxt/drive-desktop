@@ -1,16 +1,16 @@
 import { useEffect, useState } from 'react';
 import { User } from '../../../../main/types';
 import Spinner from '../../../assets/spinner.svg';
-import useUsage from '../../../hooks/useUsage';
 import Usage from './Usage';
 import UserInfo from './UserInfo';
 import Button from '../../../components/Button';
 import { useTranslationContext } from '../../../context/LocalContext';
+import { useGetUsage } from '../../../api/use-get-usage';
 
 export default function AccountSection({ active }: { active: boolean }) {
   const { translate } = useTranslationContext();
   const [user, setUser] = useState<User | null>(null);
-  const { usage, status, refreshUsage } = useUsage();
+  const { data: usage, status, refetch: refreshUsage } = useGetUsage();
 
   useEffect(() => {
     window.electron

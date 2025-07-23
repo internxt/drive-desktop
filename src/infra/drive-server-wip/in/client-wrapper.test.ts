@@ -23,7 +23,6 @@ describe('client-wrapper', () => {
   const response = {} as unknown as Response;
 
   beforeEach(() => {
-    vi.clearAllMocks();
     getInFlightRequestMock.mockImplementation(({ promiseFn }) => ({ reused: false, promise: promiseFn() }));
   });
 

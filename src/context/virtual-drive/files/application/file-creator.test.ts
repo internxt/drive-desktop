@@ -32,7 +32,6 @@ describe('File Creator', () => {
   const SUT = new FileCreator(remoteFileSystemMock, virtualDriveMock);
 
   beforeEach(() => {
-    vi.resetAllMocks();
     getFolderUuid.mockReturnValue({ data: folderParent.uuid as FolderUuid });
     invokeMock.mockResolvedValue({});
   });

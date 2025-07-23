@@ -25,7 +25,7 @@ export const createAuthWindow = async () => {
     skipTaskbar: true,
   });
 
-  const authLoaded = authWindow.loadURL(resolveHtmlPath(''));
+  const authLoaded = authWindow.loadURL(resolveHtmlPath('login'));
 
   authWindow.on('ready-to-show', () => {
     authWindow?.show();
@@ -34,6 +34,7 @@ export const createAuthWindow = async () => {
   authWindow.on('closed', () => {
     authWindow = null;
   });
+
   authWindow.on('blur', () => {
     const isLoggedIn = getIsLoggedIn();
 

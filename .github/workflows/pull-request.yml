@@ -45,11 +45,11 @@ jobs:
       - name: Run Eslint
         run: npm run lint
 
-      - name: Find deadcode
-        run: npm run find-deadcode
-
       - name: Run tests
         run: npm run test:cov
+
+      - name: Find deadcode
+        run: npm run find-deadcode
 
       - name: Run report coverage
         if: always()

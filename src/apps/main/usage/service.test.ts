@@ -8,10 +8,6 @@ describe('UserUsageService', () => {
   const getUsageMock = vi.mocked(driveServerWip.user.getUsage);
   const getLimitMock = vi.mocked(driveServerWip.user.getLimit);
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should calculate usage correctly', async () => {
     getUsageMock.mockResolvedValueOnce({ data: { drive: 5000, backup: 1000, total: 6000 } });
     getLimitMock.mockResolvedValueOnce({ data: { maxSpaceBytes: 10000 } });

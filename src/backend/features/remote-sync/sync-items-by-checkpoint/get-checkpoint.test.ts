@@ -17,7 +17,6 @@ describe('get-checkpoint', () => {
   let props: Parameters<typeof getCheckpoint>[0];
 
   beforeAll(() => {
-    vi.clearAllMocks();
     getUserOrThrowMock.mockReturnValue({ uuid: 'userUuid' });
   });
 
