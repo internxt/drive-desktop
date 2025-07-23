@@ -19,6 +19,7 @@ import { createWatcher } from './create-watcher';
 import { Watcher } from '@/node-win/watcher/watcher';
 import { deleteItemPlaceholders } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
+import { addPendingFolders } from './in/add-pending-folders';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -142,7 +143,7 @@ export class BindingsManager {
     });
 
     try {
-      const pendingPaths = await getPlaceholdersWithPendingState({
+      const { pendingFiles, pendingFolders } = await getPlaceholdersWithPendingState({
         virtualDrive: this.container.virtualDrive,
         path: this.container.virtualDrive.syncRootPath,
       });
@@ -151,10 +152,11 @@ export class BindingsManager {
         tag: 'SYNC-ENGINE',
         msg: 'Files in pending paths',
         workspaceId,
-        total: pendingPaths.length,
+        pendingFiles: pendingFiles.length,
+        pendingFolders: pendingFolders.length,
       });
 
-      await addPendingFiles({ pendingPaths, watcher });
+      await Promise.all([addPendingFiles({ pendingFiles, watcher }), addPendingFolders({ pendingFolders, watcher })]);
 
       await this.container.fileDangledManager.run();
     } catch (error) {
