@@ -70,7 +70,7 @@ export class DetectContextMenuActionService {
       });
 
       self.fileInDevice.add(absolutePath);
-      await self.callbacks.updateContentsId({ absolutePath, path, uuid });
+      await self.callbacks.updateContentsId({ stats: curr, path, uuid });
     }
   }
 }

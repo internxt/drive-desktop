@@ -6,8 +6,11 @@ import { EnvironmentFileUploaderError, processError } from './process-error';
 import { Readable } from 'stream';
 import { FileUploaderCallbacks } from './file-uploader';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import Bottleneck from 'bottleneck';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
+
+const limiter = new Bottleneck({ maxConcurrent: 4 });
 
 type TProps = {
   path: string;
@@ -70,5 +73,9 @@ export class EnvironmentFileUploader {
         readable.destroy();
       });
     });
+  }
+
+  async run(props: TProps) {
+    return await limiter.schedule(() => this.upload(props));
   }
 }

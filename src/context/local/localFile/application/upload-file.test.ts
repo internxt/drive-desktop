@@ -22,16 +22,16 @@ describe('upload-file', () => {
 
   it('should return contentsId if upload is successful', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
+    uploader.run.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
     // When
     const res = await uploadFile(props);
     // Then
     expect(res).toBe('contentsId');
   });
 
-  it('should not log if KILLED_BY_USER', async () => {
+  it('should not log if ABORTED', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('KILLED_BY_USER') });
+    uploader.run.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('ABORTED') });
     // When
     const res = await uploadFile(props);
     // Then
@@ -41,7 +41,7 @@ describe('upload-file', () => {
 
   it('should not add issue if UNKNOWN', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('UNKNOWN') });
+    uploader.run.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('UNKNOWN') });
     // When
     const res = await uploadFile(props);
     // Then
@@ -52,7 +52,7 @@ describe('upload-file', () => {
 
   it('should add issue if not unknown', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('NOT_ENOUGH_SPACE') });
+    uploader.run.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('NOT_ENOUGH_SPACE') });
     // When
     const res = await uploadFile(props);
     // Then

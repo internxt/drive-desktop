@@ -22,7 +22,7 @@ describe('update-file-statuses', () => {
     expect(createOrUpdateFileMock).toBeCalledTimes(1);
     expect(createOrUpdateFileMock).toHaveBeenCalledWith({
       context: props.context,
-      fileDto: { uuid: 'uuid', updatedAt: '2000-01-01T00:00:00Z' },
+      fileDto: { uuid: 'uuid', updatedAt: '2000-01-01T00:00:00.000Z' },
     });
   });
 });
