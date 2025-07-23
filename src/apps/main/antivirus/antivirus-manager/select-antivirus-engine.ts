@@ -1,4 +1,4 @@
-import { isWindowsDefenderRealTimeProtectionActive } from '../../ipcs/ipcMainAntivirus';
+import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 import { initializeClamAV } from '../utils/initializeAntivirus';
 import { checkClamdAvailability } from '../ClamAVDaemon';
 import { sleep } from '@/apps/main/util';
@@ -10,7 +10,7 @@ export async function selectAntivirusEngine() {
     msg: 'Selecting antivirus engine...',
   });
 
-  if (await isWindowsDefenderRealTimeProtectionActive()) {
+  if (await isWindowsDefenderAvailable()) {
     logger.info({
       tag: 'ANTIVIRUS',
       msg: 'Default antivirus selected as engine',

@@ -1,5 +1,5 @@
 import { getUserSystemPath } from '../device/service';
-import { getAntivirusManager } from './antivirus-manager/antivirus-manager';
+import { AntivirusManager } from './antivirus-manager/antivirus-manager';
 import { queue } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
@@ -40,7 +40,7 @@ export function clearDailyScan() {
 const scanInBackground = async (): Promise<void> => {
   const hashedFilesAdapter = new ScannedItemCollection();
   const database = new DBScannerConnection(hashedFilesAdapter);
-  const antivirusManager = getAntivirusManager();
+  const antivirusManager = AntivirusManager.getInstance();
   const antivirus = await antivirusManager.getActiveEngine();
 
   if (!antivirus) {

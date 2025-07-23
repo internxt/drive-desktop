@@ -50,7 +50,7 @@ export class AntivirusClamAV {
     }
   }
 
-  async scanFile(filePath: string) {
+  async scanFile({ filePath }: { filePath: string }) {
     if (!this.clamAv || !this.isInitialized) {
       throw new Error('ClamAV is not initialized');
     }

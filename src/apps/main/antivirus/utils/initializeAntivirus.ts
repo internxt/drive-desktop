@@ -1,7 +1,7 @@
 import { buildPaymentsService } from '../../payments/builder';
 import { PaymentsService } from '../../payments/service';
 import * as clamAVServer from '../ClamAVDaemon';
-import { isWindowsDefenderRealTimeProtectionActive } from '../../ipcs/ipcMainAntivirus';
+import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 import { clearDailyScan, scheduleDailyScan } from '../scanCronJob';
 import { logger } from '@/apps/shared/logger/logger';
 
@@ -13,8 +13,9 @@ export async function initializeAntivirusIfAvailable() {
   paymentService = buildPaymentsService();
 
   try {
-    const availableProducts = await paymentService.getAvailableProducts();
-    const isAntivirusEnabled = availableProducts.antivirus;
+    //const availableProducts = await paymentService.getAvailableProducts();
+    //const isAntivirusEnabled = availableProducts.antivirus;
+    const isAntivirusEnabled = true;
 
     if (!isAntivirusEnabled) {
       logger.debug({
@@ -27,8 +28,7 @@ export async function initializeAntivirusIfAvailable() {
       return { antivirusEnabled: false };
     }
 
-    // Check if Windows Defender is active first
-    const isWindowsDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
+    const isWindowsDefenderActive = await isWindowsDefenderAvailable();
     if (isWindowsDefenderActive) {
       logger.debug({
         tag: 'ANTIVIRUS',
