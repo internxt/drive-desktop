@@ -6,7 +6,7 @@ import { components, operations } from '../../../schemas';
 import { mapError } from '../utils/mapError';
 import { AxiosError } from 'axios';
 import { BackupError } from './backup.error';
-import { mapDeviceAsFolderToDevice } from 'src/backend/features/device/utils/deviceMapper';
+import { mapDeviceAsFolderToDevice } from '../../../../backend/features/device/utils/deviceMapper';
 import { Device } from '../../../../apps/main/device/service';
 
 type getDevicesByIdentifierQuery = operations['BackupController_getDevicesAndFolders']['parameters']['query'];
