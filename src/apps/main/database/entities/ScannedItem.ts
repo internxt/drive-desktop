@@ -1,8 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-export const SCANNED_ITEMS_DB_ENTITY = 'scanned_files';
-
-@Entity(SCANNED_ITEMS_DB_ENTITY)
+@Entity('scanned_files')
 export class ScannedItem {
   @PrimaryColumn({ nullable: false, unique: true, type: 'varchar' })
   id!: string;

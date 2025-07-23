@@ -2,7 +2,6 @@ import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core/downl
 import { EventEmitter, Readable } from 'stream';
 import { DownloadOneShardStrategy } from '@internxt/inxt-js/build/lib/core';
 import { ActionState } from '@internxt/inxt-js/build/api';
-import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
 import { logger } from '@/apps/shared/logger/logger';
 
 export type FileDownloadEvents = {
@@ -14,7 +13,6 @@ export type FileDownloadEvents = {
 
 export class EnvironmentContentFileDownloader {
   private eventEmitter: EventEmitter;
-  private stopwatch: Stopwatch;
   private state: ActionState | null;
 
   constructor(
@@ -22,7 +20,6 @@ export class EnvironmentContentFileDownloader {
     private readonly bucket: string,
   ) {
     this.eventEmitter = new EventEmitter();
-    this.stopwatch = new Stopwatch();
     this.state = null;
   }
 
@@ -36,8 +33,6 @@ export class EnvironmentContentFileDownloader {
 
   download({ contentsId }: { contentsId: string }): Promise<Readable> {
     try {
-      this.stopwatch.start();
-
       this.eventEmitter.emit('start');
 
       return new Promise((resolve, reject) => {
@@ -50,7 +45,6 @@ export class EnvironmentContentFileDownloader {
             },
             finishedCallback: (err: Error, stream: Readable) => {
               logger.debug({ msg: '[FinishedCallback] Stream is ready' });
-              this.stopwatch.finish();
 
               if (err) {
                 logger.debug({ msg: '[FinishedCallback] Stream has error', err });
@@ -85,10 +79,6 @@ export class EnvironmentContentFileDownloader {
 
   on(event: keyof FileDownloadEvents, handler: FileDownloadEvents[keyof FileDownloadEvents]): void {
     this.eventEmitter.on(event, handler);
-  }
-
-  elapsedTime(): number {
-    return this.stopwatch.elapsedTime();
   }
 
   removeListeners(): void {

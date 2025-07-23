@@ -1,9 +1,9 @@
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere } from 'typeorm';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 
-export const fileRepository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
+export const fileRepository = AppDataSource.getRepository(DriveFile);
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; payload: Partial<DriveFile> };
 
