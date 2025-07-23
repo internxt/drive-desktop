@@ -3,7 +3,7 @@ import { FileUploaderCallbacks } from './file-uploader';
 
 export class EnvironmentFileUploaderError extends Error {
   constructor(
-    public readonly code: 'ABORTED' | 'NOT_ENOUGH_SPACE' | 'UNKNOWN',
+    public readonly code: 'ABORTED' | 'NOT_ENOUGH_SPACE' | 'FILE_MODIFIED' | 'UNKNOWN',
     cause?: unknown,
   ) {
     super(code, { cause });
