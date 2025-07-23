@@ -18,6 +18,7 @@ describe('detect-context-menu-action', () => {
   let props: Parameters<typeof service.execute>[0];
 
   beforeEach(() => {
+    getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof service.execute>({
       absolutePath: 'absolutePath' as AbsolutePath,
       path: createRelativePath('file.txt'),
@@ -29,8 +30,8 @@ describe('detect-context-menu-action', () => {
         queueManager: { enqueue: vi.fn() },
       },
       details: {
-        prev: { size: 1024, ctimeMs: 1, mtimeMs: 1 },
-        curr: { size: 1024, ctimeMs: 2, mtimeMs: 1 },
+        prev: { ctimeMs: 1, mtimeMs: 1 },
+        curr: { ctimeMs: 2, mtimeMs: 1 },
       },
     });
 
@@ -40,7 +41,6 @@ describe('detect-context-menu-action', () => {
   it('should update contents id when file modification time changes', async () => {
     // Given
     props.details.curr.mtimeMs = 2;
-    getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     // When
     await service.execute(props);
     // Then

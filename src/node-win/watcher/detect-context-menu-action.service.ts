@@ -24,38 +24,6 @@ export class DetectContextMenuActionService {
 
     if (!uuid) return;
 
-    if (
-      prev.size === curr.size &&
-      prev.ctimeMs !== curr.ctimeMs &&
-      prev.mtimeMs === curr.mtimeMs &&
-      status.pinState === PinState.AlwaysLocal &&
-      uuid &&
-      !isInDevice
-    ) {
-      self.fileInDevice.add(absolutePath);
-
-      if (curr.blocks !== 0) {
-        // This event is triggered from the addon
-        return 'Doble click en el archivo';
-      }
-
-      self.queueManager.enqueue({ path });
-      return;
-    }
-
-    if (prev.size === curr.size && prev.ctimeMs !== curr.ctimeMs && status.pinState == PinState.OnlineOnly && uuid) {
-      // TODO: we need to disable this for now even if dehydate it's called two times
-      // because files that are a .zip have blocks === 0, so they never dehydrate
-      // because it's seems that it's already been dehydrated
-      // if (curr.blocks === 0) {
-      //   return "Liberando espacio";
-      // }
-
-      self.fileInDevice.delete(absolutePath);
-      handleDehydrate({ drive: self.virtualDrive, path });
-      return;
-    }
-
     if (prev.mtimeMs !== curr.mtimeMs) {
       self.logger.debug({
         msg: 'Change size event',
@@ -68,6 +36,31 @@ export class DetectContextMenuActionService {
 
       self.fileInDevice.add(absolutePath);
       await self.callbacks.updateContentsId({ stats: curr, path, uuid });
+      return;
+    }
+
+    if (prev.ctimeMs !== curr.ctimeMs && status.pinState === PinState.AlwaysLocal && !isInDevice) {
+      self.fileInDevice.add(absolutePath);
+
+      if (curr.blocks !== 0) {
+        // This event is triggered from the addon
+        return 'Doble click en el archivo';
+      }
+
+      self.queueManager.enqueue({ path });
+      return;
+    }
+
+    if (prev.ctimeMs !== curr.ctimeMs && status.pinState === PinState.OnlineOnly) {
+      // TODO: we need to disable this for now even if dehydate it's called two times
+      // because files that are a .zip have blocks === 0, so they never dehydrate
+      // because it's seems that it's already been dehydrated
+      // if (curr.blocks === 0) {
+      //   return "Liberando espacio";
+      // }
+
+      self.fileInDevice.delete(absolutePath);
+      handleDehydrate({ drive: self.virtualDrive, path });
     }
   }
 }
