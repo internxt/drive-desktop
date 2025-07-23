@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { PinState, SyncState } from '@/node-win/types/placeholder.type';
+import { PinState } from '@/node-win/types/placeholder.type';
 
 export const addonZod = {
   addLoggerPath: z.boolean(),
@@ -10,7 +10,7 @@ export const addonZod = {
   createPlaceholderFile: z.object({ success: z.boolean(), errorMessage: z.string().optional() }),
   dehydrateFile: z.boolean(),
   getFileIdentity: z.union([z.literal(''), z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
-  getPlaceholderState: z.object({ pinState: z.nativeEnum(PinState), syncState: z.nativeEnum(SyncState) }),
+  getPlaceholderState: z.object({ pinState: z.nativeEnum(PinState) }),
   hydrateFile: z.undefined(),
   registerSyncRoot: z.literal(0),
   updateSyncStatus: z.boolean(),

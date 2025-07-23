@@ -1,45 +1,48 @@
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { FSLocalFileProvider } from '../infrastructure/FSLocalFileProvider';
-import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
+import { createReadStream, Stats } from 'fs';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+
+type Props = {
+  path: string;
+  stats: Stats;
+};
 
 export class ContentsUploader {
   constructor(
     private readonly remoteContentsManagersFactory: EnvironmentRemoteFileContentsManagersFactory,
-    private readonly contentProvider: FSLocalFileProvider,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  async run(path: string) {
-    try {
-      const win32RelativePath = PlatformPathConverter.posixToWin(path);
+  async run({ path, stats }: Props) {
+    const win32RelativePath = PlatformPathConverter.posixToWin(path);
 
-      const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath) as AbsolutePath;
+    const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath) as AbsolutePath;
 
-      const { readable, abortSignal, size } = await this.contentProvider.provide(absolutePath);
+    const uploader = this.remoteContentsManagersFactory.uploader();
 
-      const uploader = this.remoteContentsManagersFactory.uploader();
+    const readable = createReadStream(absolutePath);
+    const { data: contentsId, error } = await uploader.run({
+      readable,
+      absolutePath,
+      size: stats.size,
+      path,
+      abortSignal: new AbortController().signal,
+      callbacks: getUploadCallbacks({ path: absolutePath }),
+    });
 
-      const { data: contentsId, error } = await uploader.upload({
-        readable,
-        size,
-        path,
-        abortSignal,
-        callbacks: getUploadCallbacks({ path: absolutePath }),
-      });
+    if (contentsId) return { id: contentsId, size: stats.size };
 
-      if (error) throw error;
-
-      return { id: contentsId, size };
-    } catch (error) {
-      throw logger.error({
-        msg: 'Contents uploader error',
-        path,
-        error,
+    if (error && error.code !== 'UNKNOWN') {
+      ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', {
+        error: error.code,
+        name: path,
       });
     }
+
+    throw error;
   }
 }

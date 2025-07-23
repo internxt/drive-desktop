@@ -18,12 +18,12 @@ describe('add-controller', () => {
     let props: Parameters<typeof addController.createFile>[0];
 
     beforeEach(() => {
-      props = mockProps<typeof addController.createFile>({});
+      props = mockProps<typeof addController.createFile>({ stats: { size: 1024 } });
     });
 
     it('should not call add controller if the file is empty', async () => {
       // Given
-      props.size = 0;
+      props.stats.size = 0;
       // When
       await addController.createFile(props);
       // Then
@@ -32,7 +32,7 @@ describe('add-controller', () => {
 
     it('should not call add controller if the file is larger than MAX_SIZE', async () => {
       // Given
-      props.size = BucketEntry.MAX_SIZE + 1;
+      props.stats.size = BucketEntry.MAX_SIZE + 1;
 
       // When
       await addController.createFile(props);

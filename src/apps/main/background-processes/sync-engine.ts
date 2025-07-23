@@ -12,7 +12,6 @@ import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
-import { FolderStore } from '../remote-sync/folders/folder-store';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
@@ -69,12 +68,6 @@ export async function spawnDefaultSyncEngineWorker() {
     workspaceToken: '',
   };
 
-  FolderStore.addWorkspace({
-    workspaceId: '',
-    rootId: user.root_folder_id,
-    rootUuid: user.rootFolderId,
-  });
-
   await spawnSyncEngineWorker({ config });
 
   return { providerId };
@@ -89,12 +82,6 @@ export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { provider
   unregisterVirtualDrives({ currentProviderIds });
 
   const spawnWorkspaces = workspaces.map(async (workspace) => {
-    FolderStore.addWorkspace({
-      workspaceId: workspace.id,
-      rootId: null,
-      rootUuid: workspace.rootFolderId,
-    });
-
     await spawnWorkspace({ workspace });
   });
 

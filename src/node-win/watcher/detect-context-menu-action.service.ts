@@ -1,6 +1,6 @@
 import { Stats } from 'fs';
 
-import { PinState, SyncState } from '@/node-win/types/placeholder.type';
+import { PinState } from '@/node-win/types/placeholder.type';
 
 import { Watcher } from './watcher';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -18,17 +18,28 @@ export class DetectContextMenuActionService {
   async execute({ self, details, absolutePath, path }: TProps) {
     const { prev, curr } = details;
 
+    const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
     const status = self.virtualDrive.getPlaceholderState({ path });
     const isInDevice = self.fileInDevice.has(absolutePath);
 
-    if (
-      prev.size === curr.size &&
-      prev.ctimeMs !== curr.ctimeMs &&
-      prev.mtimeMs === curr.mtimeMs &&
-      status.pinState === PinState.AlwaysLocal &&
-      status.syncState === SyncState.InSync &&
-      !isInDevice
-    ) {
+    if (!uuid) return;
+
+    if (prev.mtimeMs !== curr.mtimeMs) {
+      self.logger.debug({
+        msg: 'Change size event',
+        path,
+        prevSize: prev.size,
+        currSize: curr.size,
+        prevMtimeMs: prev.mtimeMs,
+        currMtimeMs: curr.mtimeMs,
+      });
+
+      self.fileInDevice.add(absolutePath);
+      await self.callbacks.updateContentsId({ stats: curr, path, uuid });
+      return;
+    }
+
+    if (prev.ctimeMs !== curr.ctimeMs && status.pinState === PinState.AlwaysLocal && !isInDevice) {
       self.fileInDevice.add(absolutePath);
 
       if (curr.blocks !== 0) {
@@ -40,12 +51,7 @@ export class DetectContextMenuActionService {
       return;
     }
 
-    if (
-      prev.size === curr.size &&
-      prev.ctimeMs !== curr.ctimeMs &&
-      status.pinState == PinState.OnlineOnly &&
-      status.syncState == SyncState.InSync
-    ) {
+    if (prev.ctimeMs !== curr.ctimeMs && status.pinState === PinState.OnlineOnly) {
       // TODO: we need to disable this for now even if dehydate it's called two times
       // because files that are a .zip have blocks === 0, so they never dehydrate
       // because it's seems that it's already been dehydrated
@@ -55,22 +61,6 @@ export class DetectContextMenuActionService {
 
       self.fileInDevice.delete(absolutePath);
       handleDehydrate({ drive: self.virtualDrive, path });
-      return;
-    }
-
-    if (prev.size !== curr.size) {
-      const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
-      if (!uuid) return;
-
-      self.logger.debug({
-        msg: 'Change size event',
-        path,
-        prevSize: prev.size,
-        currSize: curr.size,
-      });
-
-      self.fileInDevice.add(absolutePath);
-      await self.callbacks.updateContentsId({ absolutePath, path, uuid });
     }
   }
 }

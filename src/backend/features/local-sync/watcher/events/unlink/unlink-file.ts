@@ -20,7 +20,7 @@ export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
   });
 
   try {
-    const parentUuid = getParentUuid({ path, virtualDrive });
+    const parentUuid = await getParentUuid({ path, virtualDrive });
     if (!parentUuid) return;
 
     const nameWithExtension = basename(path);

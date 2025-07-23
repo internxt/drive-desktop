@@ -1,5 +1,4 @@
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { logger } from '@/apps/shared/logger/logger';
 import { FETCH_LIMIT } from '../store';
 import { syncRemoteFolder } from './sync-remote-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -15,13 +14,6 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
   let hasMore = true;
 
   while (hasMore) {
-    logger.debug({
-      msg: 'Retrieving folders',
-      workspaceId: self.workspaceId,
-      from,
-      offset,
-    });
-
     /**
      * v2.5.0 Daniel Jiménez
      * We fetch ALL folders when we want to synchronize the current state with the web state.

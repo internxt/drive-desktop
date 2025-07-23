@@ -20,7 +20,7 @@ export async function updateFolderStatuses({ context, folderUuid }: TProps) {
         context,
         folderDto: {
           ...folderDto,
-          updatedAt: '2000-01-01T00:00:00Z',
+          updatedAt: '2000-01-01T00:00:00.000Z',
         },
       }),
     );

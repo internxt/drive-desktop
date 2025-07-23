@@ -1,9 +1,16 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
+import { Stats } from 'fs';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
+
+export type PendingPaths = {
+  stats: Stats;
+  absolutePath: AbsolutePath;
+};
 
 type TProps = {
   virtualDrive: VirtualDrive;
@@ -11,21 +18,30 @@ type TProps = {
 };
 
 async function processFolder({ virtualDrive, path }: TProps) {
-  const entries = await readdir(path, { withFileTypes: true });
-  const pendingPaths: AbsolutePath[] = [];
+  const pendingPaths: PendingPaths[] = [];
+
+  /**
+   * v2.5.6 Daniel Jiménez
+   * We cannot use `withFileTypes` because it treats everything as a symbolic link,
+   * so we have to use `stat` for each entry.
+   */
+  const entries = await readdir(path);
 
   for (const entry of entries) {
-    const absolutePath = join(path, entry.name) as AbsolutePath;
+    const absolutePath = join(path, entry) as AbsolutePath;
+    const { data: stats } = await fileSystem.stat({ absolutePath });
 
-    if (entry.isDirectory()) {
-      const result = await processFolder({ virtualDrive, path: absolutePath });
-      pendingPaths.push(...result);
-    }
+    if (stats) {
+      if (stats.isDirectory()) {
+        const result = await processFolder({ virtualDrive, path: absolutePath });
+        pendingPaths.push(...result);
+      }
 
-    if (entry.isFile()) {
-      const { error } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
-      if (error?.code === 'NON_EXISTS') {
-        pendingPaths.push(absolutePath);
+      if (stats.isFile()) {
+        const { error } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
+        if (error?.code === 'NON_EXISTS') {
+          pendingPaths.push({ stats, absolutePath });
+        }
       }
     }
   }
@@ -34,22 +50,11 @@ async function processFolder({ virtualDrive, path }: TProps) {
 }
 
 export async function getPlaceholdersWithPendingState({ virtualDrive, path }: TProps) {
-  const start = Date.now();
-
   logger.debug({
     tag: 'SYNC-ENGINE',
-    msg: 'Start get files with pending state',
+    msg: 'Get files with pending state',
     path,
   });
 
-  const files = await processFolder({ virtualDrive, path });
-
-  logger.debug({
-    tag: 'SYNC-ENGINE',
-    msg: 'End get files with pending state',
-    path,
-    durationMs: Date.now() - start,
-  });
-
-  return files;
+  return await processFolder({ virtualDrive, path });
 }
