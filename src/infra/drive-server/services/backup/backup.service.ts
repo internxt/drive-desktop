@@ -344,4 +344,37 @@ export class BackupService {
       return left(error);
     }
   }
+
+  async updateDeviceByIdentifier(
+    deviceIdentifier: string,
+    deviceName: string
+  ): Promise<Either<Error, Device>> {
+    try {
+      const response = await driveServerClient.PATCH('/backup/v2/devices/{deviceId}', {
+        headers: getNewApiHeaders(),
+        body: { deviceName },
+        path: { deviceId: deviceIdentifier },
+      });
+      if (!response.data) {
+        const error = new Error('Update device by identifier request was not successful');
+        logger.error({
+          msg: error.message,
+          tag: 'BACKUP',
+          attributes: {
+            endpoint: '/backup/v2/devices/{deviceId}',
+          },
+        });
+        return left(error);
+      }
+      return right(mapDeviceAsFolderToDevice(response.data.folder!));
+    } catch (err) {
+      const error = mapError(err);
+      logger.error({
+        msg: 'Update device by identifier request threw an exception',
+        tag: 'BACKUP',
+        error: error,
+      });
+      return left(error);
+    }
+  }
 }

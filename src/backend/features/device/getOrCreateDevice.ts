@@ -55,7 +55,6 @@ export async function getOrCreateDevice(): Promise<Device | Error> {
     return handleFetchDeviceResult(result);
   }
 
-  if (hasUuid || hasLegacyId) {
     /* eventually, this whole if section is going to be replaced
     when all the users naturaly migrated to the new identification mechanism */
     const prop = hasUuid
@@ -64,7 +63,4 @@ export async function getOrCreateDevice(): Promise<Device | Error> {
 
     const deviceResult = await fetchDeviceLegacyAndMigrate(prop);
     return handleFetchDeviceResult(deviceResult);
-  }
-
-  return new Error('Unknown error: Device not found or removed');
 }

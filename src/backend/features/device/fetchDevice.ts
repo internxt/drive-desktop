@@ -17,9 +17,7 @@ async function getDeviceByProps(
     const query = {
       key: props.deviceIdentifier.key,
       platform: props.deviceIdentifier.platform,
-      hostname: props.deviceIdentifier.hostname,
-      limit: 50,
-      offset: 0,
+      hostname: props.deviceIdentifier.hostname
     };
     const result = await driveServerModule.backup.getDevicesByIdentifier(query);
 
