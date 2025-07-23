@@ -18,8 +18,6 @@ describe('detect-context-menu-action', () => {
   let props: Parameters<typeof service.execute>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof service.execute>({
       absolutePath: 'absolutePath' as AbsolutePath,
       path: createRelativePath('file.txt'),

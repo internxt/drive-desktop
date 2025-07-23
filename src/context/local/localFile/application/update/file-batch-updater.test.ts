@@ -16,8 +16,6 @@ describe('file-batch-updater', () => {
   let props: Parameters<typeof service.process>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof service.process>({
       self: { backed: 0 },
       tracker: { currentProcessed: vi.fn() },

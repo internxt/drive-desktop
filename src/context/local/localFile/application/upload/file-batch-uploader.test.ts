@@ -22,8 +22,6 @@ describe('file-batch-uploader', () => {
   const parentPath = pathUtils.dirname(path);
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof service.run>({
       self: { backed: 0 },
       tracker: { currentProcessed: vi.fn() },
