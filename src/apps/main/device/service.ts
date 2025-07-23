@@ -12,7 +12,6 @@ import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import fs, { PathLike } from 'fs';
 import { downloadFolder } from '../network/download';
-import Logger from 'electron-log';
 import { broadcastToWindows } from '../windows';
 import { randomUUID } from 'crypto';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
@@ -285,14 +284,14 @@ export async function addBackup(): Promise<void> {
     }
 
     const chosenPath = chosenItem.path;
-    Logger.debug(`[BACKUPS] Chosen item: ${chosenItem.path}`);
+    logger.debug({ msg: '[BACKUPS] Chosen item', chosenPath });
 
     const backupList = configStore.get('backupList');
 
-    Logger.debug(`[BACKUPS] Backup list: ${JSON.stringify(backupList)}`);
+    logger.debug({ msg: '[BACKUPS] Backup list', backupList });
     const existingBackup = backupList[chosenPath];
 
-    Logger.debug(`[BACKUPS] Existing backup: ${existingBackup}`);
+    logger.debug({ msg: '[BACKUPS] Existing backup', existingBackup });
 
     if (!existingBackup) {
       return createBackup(chosenPath);
@@ -313,7 +312,7 @@ export async function addBackup(): Promise<void> {
       return createBackup(chosenPath);
     }
   } catch (error) {
-    Logger.error(error);
+    logger.error({ tag: 'BACKUPS', msg: 'Error adding backup', error });
   }
 }
 
@@ -475,7 +474,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
     return null;
   }
 
-  Logger.info(`[BACKUPS] Changing backup path from ${currentPath} to ${chosen.path}`);
+  logger.debug({ tag: 'BACKUPS', msg: 'Changing backup path from', currentPath, chosenPath: chosen.path });
   const chosenPath = chosen.path;
   if (backupsList[chosenPath]) {
     throw new Error('A backup with this path already exists');
@@ -540,7 +539,7 @@ async function downloadDeviceBackupZip({
   if (!user) {
     throw new Error('No saved user');
   }
-  Logger.info(`[BACKUPS] Downloading backup for device ${device.name}`);
+  logger.debug({ tag: 'BACKUPS', msg: 'Downloading backup for device', deviceName: device.name });
 
   const folders = await fetchFolders({ folderUuids: folderUuidsToDownload });
 
@@ -584,20 +583,20 @@ export async function downloadBackup(device: Device, folderUuids?: string[]): Pr
   const zipFilePath = chosenPath + 'Backup_' + now + '';
   // const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
 
-  Logger.info(`[BACKUPS] Downloading backup to ${zipFilePath}`);
+  logger.debug({ tag: 'BACKUPS', msg: 'Downloading backup to', zipFilePath });
 
   const abortController = new AbortController();
 
   const abortListener = (_: IpcMainEvent, abortDeviceUuid: string) => {
     if (abortDeviceUuid === device.uuid) {
       try {
-        Logger.info(`[BACKUPS] Aborting download for device ${device.name}`);
+        logger.debug({ tag: 'BACKUPS', msg: 'Aborting download for device', deviceName: device.name });
         if (abortController && !abortController.signal.aborted) {
           abortController.abort();
           fs.unlinkSync(zipFilePath);
         }
       } catch (error) {
-        Logger.error(`[BACKUPS] Error while aborting download: ${error}`);
+        logger.error({ tag: 'BACKUPS', msg: 'Error while aborting download', error });
       }
     }
   };

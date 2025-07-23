@@ -1,10 +1,10 @@
-import Logger from 'electron-log';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import * as fs from 'fs';
 import { dirname } from 'path';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { logger } from '@/apps/shared/logger/logger';
 
 type TProps = {
   self: BindingsManager;
@@ -15,14 +15,14 @@ type TProps = {
 export class FetchDataService {
   async run({ self, filePlaceholderId, callback }: TProps) {
     try {
-      Logger.debug('[Fetch Data Callback] Donwloading begins');
+      logger.debug({ msg: '[Fetch Data Callback] Donwloading begins' });
 
       const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
       const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
       const file = await self.controllers.downloadFile.fileFinderByUuid({ uuid });
 
-      Logger.debug('[Fetch Data Callback] Preparing begins', path);
+      logger.debug({ msg: '[Fetch Data Callback] Preparing begins', path });
 
       try {
         let finished = false;
@@ -31,7 +31,7 @@ export class FetchDataService {
           const result = await callback(true, path);
           finished = result.finished;
 
-          Logger.debug('Callback result', result);
+          logger.debug({ msg: 'Callback result', result });
 
           if (result.progress > 1 || result.progress < 0) {
             throw new Error('Result progress is not between 0 and 1');
@@ -55,8 +55,7 @@ export class FetchDataService {
           nameWithExtension: file.nameWithExtension,
         });
       } catch (error) {
-        Logger.error('[Fetch Data Error]', error);
-        Logger.debug('[Fetch Data Error] Finish', path);
+        logger.error({ msg: '[Fetch Data Error]', path, error });
         // await callback(false, '');
         fs.unlinkSync(path);
         return;
@@ -64,9 +63,9 @@ export class FetchDataService {
 
       fs.unlinkSync(path);
 
-      Logger.debug('[Fetch Data Callback] Finish', path);
+      logger.debug({ msg: '[Fetch Data Callback] Finish', path });
     } catch (error) {
-      Logger.error(error);
+      logger.error({ msg: '[Fetch Data Error]', error });
       await callback(false, '');
     }
   }

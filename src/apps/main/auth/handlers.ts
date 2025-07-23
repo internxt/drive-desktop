@@ -1,5 +1,4 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
@@ -28,7 +27,7 @@ export function getIsLoggedIn() {
 
 export function onUserUnauthorized() {
   eventBus.emit('USER_LOGGED_OUT');
-  Logger.info('[AUTH] User has been logged out because it was unauthorized');
+  logger.debug({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
   setIsLoggedIn(false);
 }
 

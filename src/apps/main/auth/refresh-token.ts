@@ -1,12 +1,11 @@
-import Logger from 'electron-log';
-
+import { logger } from '@/apps/shared/logger/logger';
 import { TokenScheduler } from '../token-scheduler/TokenScheduler';
 import { onUserUnauthorized } from './handlers';
 import { getUser, obtainTokens as obtainStoredTokens, setUser, updateCredentials } from './service';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 async function obtainTokens() {
-  Logger.debug('[TOKEN] Obtaining new tokens');
+  logger.debug({ msg: 'Obtaining new tokens' });
   const { data, error } = await driveServerWipModule.auth.refresh();
 
   if (error) {
@@ -38,7 +37,7 @@ export async function createTokenSchedule(refreshedTokens?: Array<string>) {
   const schedule = shceduler.schedule(refreshToken);
 
   if (!schedule && !refreshedTokens) {
-    Logger.debug('[TOKEN] Refreshing tokens');
+    logger.debug({ msg: 'Refreshing tokens' });
     createTokenSchedule(await refreshToken());
   }
 }

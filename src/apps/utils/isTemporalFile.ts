@@ -1,5 +1,5 @@
 import * as path from 'path';
-import Logger from 'electron-log';
+import { logger } from '../shared/logger/logger';
 
 export const isTemporaryFile = (filePath: string): boolean => {
   try {
@@ -16,12 +16,12 @@ export const isTemporaryFile = (filePath: string): boolean => {
 
     // if start with $Recycle.Bin
     if (filePath.includes('$Recycle.Bin')) {
-      Logger.debug(`File ${filePath} is in Recycle Bin`);
+      logger.debug({ msg: `File ${filePath} is in Recycle Bin` });
       return true;
     }
     return false;
   } catch (error) {
-    Logger.error(`Failed to check if the file is temporary: ${error}`);
+    logger.error({ msg: `Failed to check if the file is temporary`, error });
     return false;
   }
 };

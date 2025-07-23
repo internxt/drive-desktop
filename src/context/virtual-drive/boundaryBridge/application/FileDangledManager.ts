@@ -2,7 +2,6 @@ import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/inf
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
 import { FileOverwriteContent } from '../../files/application/FileOverwriteContent';
-import Logger from 'electron-log';
 import { DangledFilesManager, PushAndCleanInput } from '../../shared/domain/DangledFilesManager';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
@@ -34,7 +33,7 @@ export class FileDangledManager {
       const fileDate = new Date(file.createdAt).getTime();
 
       if (fileDate >= startDate && fileDate <= endDate) {
-        Logger.debug(`File ${file.plainName} is in the range`);
+        logger.debug({ msg: `File ${file.plainName} is in the range` });
         dangledFilesIds.push(file.fileId);
       } else {
         healthyFilesIds.push(file.fileId);
@@ -49,7 +48,7 @@ export class FileDangledManager {
     }
 
     if (dangledFilesIds.length > 0) {
-      Logger.debug(`Dangled files: ${dangledFilesIds}`);
+      logger.debug({ msg: `Dangled files: ${dangledFilesIds}` });
       await this.fileOverwriteContent.run({
         contentsIds: dangledFilesIds,
         downloaderManger: this.contentsManagerFactory,

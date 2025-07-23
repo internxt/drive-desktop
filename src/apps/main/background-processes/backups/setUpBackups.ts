@@ -5,7 +5,6 @@ import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 import { handleBackupsStatusMessages } from './BackupsProcessStatus/handlers';
 import { initiateBackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import { launchBackupProcesses } from './launchBackupProcesses';
-import Logger from 'electron-log';
 import { logger } from '@/apps/shared/logger/logger';
 
 export async function setUpBackups() {
@@ -23,12 +22,12 @@ export async function setUpBackups() {
   backupConfiguration.onBackupIntervalChanged = (interval: number) => {
     if (interval === -1) {
       scheduler.stop();
-      Logger.info('[BACKUPS] The backups schedule stopped');
+      logger.debug({ msg: '[BACKUPS] The backups schedule stopped' });
       return;
     }
 
     scheduler.reschedule();
-    Logger.debug('[BACKUPS] The backups has been rescheduled');
+    logger.debug({ msg: '[BACKUPS] The backups has been rescheduled' });
   };
 
   function stopAndClearBackups() {
@@ -40,18 +39,18 @@ export async function setUpBackups() {
   eventBus.on('USER_LOGGED_OUT', stopAndClearBackups);
 
   ipcMain.on('start-backups-process', async () => {
-    Logger.debug('Backups started manually');
+    logger.debug({ msg: 'Backups started manually' });
 
     await launchBackupProcesses(false, tracker, status);
   });
 
-  Logger.debug('[BACKUPS] Start service');
+  logger.debug({ msg: '[BACKUPS] Start service' });
 
   await scheduler.start();
 
   if (scheduler.isScheduled()) {
-    Logger.debug('[BACKUPS] Backups schedule is set');
+    logger.debug({ msg: '[BACKUPS] Backups schedule is set' });
   }
 
-  Logger.debug('[BACKUPS] Backups ready');
+  logger.debug({ msg: '[BACKUPS] Backups ready' });
 }

@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
-const Logger = require('electron-log');
 const { inspect } = require('util');
 
 contextBridge.exposeInMainWorld('electron', {
@@ -25,10 +24,10 @@ contextBridge.exposeInMainWorld('electron', {
   },
 
   logger: {
-    info: (rawBody) => Logger.info(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
-    error: (rawBody) => Logger.error(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
-    warn: (rawBody) => Logger.warn(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
-    debug: (rawBody) => Logger.debug(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    info: (rawBody) => console.info(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    error: (rawBody) => console.error(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    warn: (rawBody) => console.warn(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    debug: (rawBody) => console.debug(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
   },
 
   pathChanged(pathname) {
