@@ -31,7 +31,8 @@
     "test:antivirus": "jest --config jest.config.renderer.js \"src/apps/renderer/pages/Settings/Antivirus\"",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install",
-    "generate_schema": "openapi-typescript http://localhost:3005/api-json -o ./src/infra/schemas.d.ts"
+    "generate_schema": "openapi-typescript http://localhost:3005/api-json -o ./src/infra/schemas.d.ts",
+    "generate_schema:prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/infra/schemas.d.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
