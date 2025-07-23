@@ -28,7 +28,7 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
         absolutePath,
         path,
         virtualDrive: self.virtualDrive,
-        size: stats.size,
+        stats,
       });
       return;
     }

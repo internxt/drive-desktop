@@ -1,9 +1,8 @@
 import { AppDataSource } from '../data-source';
-import { Repository } from 'typeorm';
-import { SCANNED_ITEMS_DB_ENTITY, ScannedItem } from '../entities/ScannedItem';
+import { ScannedItem } from '../entities/ScannedItem';
 
 export class ScannedItemCollection {
-  private repository: Repository<ScannedItem> = AppDataSource.getRepository(SCANNED_ITEMS_DB_ENTITY);
+  private repository = AppDataSource.getRepository(ScannedItem);
 
   async get(id: ScannedItem['id']) {
     const match = await this.repository.findOneBy({ id });

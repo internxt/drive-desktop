@@ -32,7 +32,6 @@ describe('create-folders', () => {
   });
 
   beforeEach(() => {
-    vi.clearAllMocks();
     baseProps.self.backed = 0;
   });
 

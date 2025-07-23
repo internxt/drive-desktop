@@ -11,10 +11,6 @@ describe('handle-hydrate', () => {
     },
   });
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('should call handle hydrate successfully', async () => {
     // When
     await handleHydrate(props);

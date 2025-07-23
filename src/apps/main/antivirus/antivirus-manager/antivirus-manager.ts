@@ -6,8 +6,6 @@ export class AntivirusManager {
   currentEngine: AntivirusEngine | null = null;
   currentType: AntivirusType | null = null;
 
-  private constructor() {}
-
   static getInstance() {
     if (!AntivirusManager.instance) {
       AntivirusManager.instance = new AntivirusManager();
@@ -19,5 +17,3 @@ export class AntivirusManager {
     return await getActiveEngine({ self: this });
   }
 }
-
-export const getAntivirusManager = () => AntivirusManager.getInstance();

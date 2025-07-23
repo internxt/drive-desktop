@@ -55,6 +55,7 @@ const createWidget = async () => {
   widget.on('closed', () => {
     widget = null;
   });
+
   widget.webContents.on('ipc-message', (_, channel, payload) => {
     // Current widget pathname
     if (channel === 'path-changed') {

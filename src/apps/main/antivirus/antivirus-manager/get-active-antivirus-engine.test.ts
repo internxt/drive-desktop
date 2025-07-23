@@ -1,10 +1,10 @@
 import { getActiveEngine } from './get-active-antivirus-engine';
 import { mockDeep } from 'vitest-mock-extended';
 import { partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import * as selectAntivirusEngineModule from './select-antivirus-engine';
 import * as createEngineModule from './create-antivirus-engine';
 import * as initializeAntivirusModule from '../utils/initializeAntivirus';
-import { logger } from '@/apps/shared/logger/logger';
 import { AntivirusType } from './types';
 import { AntivirusManager } from './antivirus-manager';
 import { AntivirusClamAV } from '../antivirus-clam-av';
@@ -17,11 +17,8 @@ describe('getActiveEngine', () => {
   const selectAntivirusEngineMock = partialSpyOn(selectAntivirusEngineModule, 'selectAntivirusEngine');
   const createEngineMock = partialSpyOn(createEngineModule, 'createEngine');
   const clearAntivirusMock = partialSpyOn(initializeAntivirusModule, 'clearAntivirus');
-  const loggerInfoMock = partialSpyOn(logger, 'info');
-  const loggerErrorMock = partialSpyOn(logger, 'error');
 
   beforeEach(() => {
-    vi.clearAllMocks();
     mockManager.currentEngine = null;
     mockManager.currentType = null;
   });
@@ -70,7 +67,7 @@ describe('getActiveEngine', () => {
     expect(result).toBe(mockNewEngine);
     expect(mockManager.currentEngine).toBe(mockNewEngine);
     expect(mockManager.currentType).toBe('windows-defender');
-    expect(loggerInfoMock).toBeCalledWith(
+    expect(loggerMock.info).toBeCalledWith(
       expect.objectContaining({
         msg: expect.stringContaining('Antivirus engine switched'),
       }),
@@ -101,7 +98,7 @@ describe('getActiveEngine', () => {
     const result = await getActiveEngine({ self: mockManager });
     // Then
     expect(result).toBeNull();
-    expect(loggerErrorMock).toBeCalledWith(
+    expect(loggerMock.error).toBeCalledWith(
       expect.objectContaining({
         msg: 'Error getting active antivirus engine',
         exc: mockError,

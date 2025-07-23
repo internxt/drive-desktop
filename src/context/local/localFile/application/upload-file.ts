@@ -13,7 +13,8 @@ type TProps = {
 
 export async function uploadFile({ context, localFile, uploader }: TProps) {
   const readable = createReadStream(localFile.absolutePath);
-  const { data: contentsId, error } = await uploader.upload({
+  const { data: contentsId, error } = await uploader.run({
+    absolutePath: localFile.absolutePath,
     path: localFile.absolutePath,
     size: localFile.size.value,
     abortSignal: context.abortController.signal,
@@ -22,7 +23,7 @@ export async function uploadFile({ context, localFile, uploader }: TProps) {
   });
 
   if (error) {
-    if (error.code !== 'KILLED_BY_USER') {
+    if (error.code !== 'ABORTED') {
       logger.error({
         tag: 'BACKUPS',
         msg: 'Error uploading file',

@@ -1,9 +1,8 @@
-import { AntivirusManager, getAntivirusManager } from './antivirus-manager';
+import { AntivirusManager } from './antivirus-manager';
 
 describe('AntivirusManager', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    (AntivirusManager as unknown as { instance: AntivirusManager | null }).instance = null;
+    AntivirusManager.instance = null;
   });
 
   describe('getInstance', () => {
@@ -19,10 +18,9 @@ describe('AntivirusManager', () => {
   describe('getAntivirusManager', () => {
     it('provides convenient access to the AntivirusManager instance', () => {
       // Given/When
-      const managerFromFunction = getAntivirusManager();
       const managerFromClass = AntivirusManager.getInstance();
       // Then
-      expect(managerFromFunction).toBe(managerFromClass);
+      expect(managerFromClass).toBeInstanceOf(AntivirusManager);
     });
   });
 });

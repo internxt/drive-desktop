@@ -13,7 +13,6 @@ describe('findMpCmdRun', () => {
   const getDefenderVersionsMock = partialSpyOn(getDefenderVersionsModule, 'getDefenderVersions');
 
   beforeEach(() => {
-    vi.clearAllMocks();
     joinMock.mockImplementation((...args) => args.join('\\'));
   });
 

@@ -39,10 +39,6 @@ describe('Contents Downloader', () => {
 
   const SUT = new ContentsDownloader(factory, localWriter, temporalFolderProvider);
 
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
-
   it.each(['start', 'progress', 'finish', 'error'] satisfies Array<keyof FileDownloadEvents>)(
     'tracks all the manager events ',
     async (event: keyof FileDownloadEvents) => {
