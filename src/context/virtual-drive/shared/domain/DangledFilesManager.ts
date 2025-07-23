@@ -1,4 +1,4 @@
-import Logger from 'electron-log';
+import { logger } from '@/apps/shared/logger/logger';
 
 type PushAndCleanInput = {
   toUpdateContentsIds: string[];
@@ -21,7 +21,7 @@ class DangledFilesManager {
 
   public add(input: { contentId: string; path: string }): void {
     const { contentId, path } = input;
-    Logger.debug(`Adding dangled file: ${contentId} - ${path}`);
+    logger.debug({ msg: 'Adding dangled file', contentId, path });
     this.accumulate[contentId] = path;
   }
 
