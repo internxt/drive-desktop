@@ -144,7 +144,7 @@ declare interface Window {
 
     path: typeof import('path');
 
-    getOrCreateDevice: typeof import('../main/device/service').getOrCreateDevice;
+    getOrCreateDevice: typeof import('../../backend/features/device/device.module').DeviceModule.getOrCreateDevice;
 
     renameDevice: typeof import('../main/device/service').renameDevice;
 

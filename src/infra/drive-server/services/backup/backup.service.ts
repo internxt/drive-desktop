@@ -4,6 +4,8 @@ import { Either, left, right } from '../../../../context/shared/domain/Either';
 import { logger } from '../../../../core/LoggerService/LoggerService';
 import { components } from '../../../schemas';
 import { mapError } from '../utils/mapError';
+import { AxiosError } from 'axios';
+import { BackupError } from './backup.error';
 
 export class BackupService {
   async getDevices(): Promise<
@@ -61,7 +63,19 @@ export class BackupService {
         );
       }
       return right(response.data);
-    } catch (err) {
+    } catch (err: unknown) {
+      if (err instanceof AxiosError && err.response?.status === 404) {
+        const notFoundError = BackupError.notFound('Device not found');
+        logger.error({
+          msg: 'Device not found (404)',
+          tag: 'BACKUP',
+          attributes: {
+            endpoint: '/backup/deviceAsFolder/{uuid}',
+          },
+        });
+        return left(notFoundError);
+      }
+
       const error = mapError(err);
       logger.error({
         msg: 'Get device as folder request threw an exception',
@@ -101,7 +115,19 @@ export class BackupService {
         );
       }
       return right(response.data);
-    } catch (err) {
+    } catch (err: unknown) {
+      if (err instanceof AxiosError && err.response?.status === 404) {
+        const notFoundError = BackupError.notFound('Device by not found');
+        logger.error({
+          msg: 'Device by id not found (404)',
+          tag: 'BACKUP',
+          attributes: {
+            endpoint: '/backup/deviceAsFolderById/{id}',
+          },
+        });
+        return left(notFoundError);
+      }
+
       const error = mapError(err);
       logger.error({
         msg: 'Get device as folder by id request threw an exception',
@@ -131,11 +157,23 @@ export class BackupService {
           attributes: { endpoint: '/backup/deviceAsFolder' },
         });
         return left(
-          new Error('Create device as folder request was not successful')
+          new BackupError('Create device as folder request was not successful')
         );
       }
       return right(response.data);
-    } catch (err) {
+       } catch (err: unknown) {
+       if (err instanceof AxiosError && err.response?.status === 409) {
+        const alreadyExistsError = BackupError.alreadyExists('Device already exists');
+        logger.error({
+          msg: 'Device already exists (409)',
+          tag: 'BACKUP',
+          attributes: {
+            endpoint: '/backup/deviceAsFolder',
+          },
+        });
+        return left(alreadyExistsError);
+      }
+
       const error = mapError(err);
       logger.error({
         msg: 'Create device as folder request threw an exception',
@@ -170,7 +208,9 @@ export class BackupService {
           context: { deviceUUID, deviceName },
           attributes: { endpoint: '/backup/deviceAsFolder/{uuid}' },
         });
-        return left(new Error('Update device as folder request was not successful'));
+        return left(
+          new Error('Update device as folder request was not successful')
+        );
       }
       return right(response.data);
     } catch (err) {
