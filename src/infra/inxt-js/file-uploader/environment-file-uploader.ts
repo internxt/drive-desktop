@@ -6,10 +6,16 @@ import { EnvironmentFileUploaderError, processError } from './process-error';
 import { Readable } from 'stream';
 import { FileUploaderCallbacks } from './file-uploader';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import Bottleneck from 'bottleneck';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { abortOnChangeSize } from './abort-on-change-size';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
+const limiter = new Bottleneck({ maxConcurrent: 4 });
+
 type TProps = {
+  absolutePath: AbsolutePath;
   path: string;
   readable: Readable;
   size: number;
@@ -26,7 +32,7 @@ export class EnvironmentFileUploader {
     private readonly bucket: string,
   ) {}
 
-  upload({ path, readable, size, abortSignal, callbacks }: TProps): TReturn {
+  upload({ absolutePath, path, readable, size, abortSignal, callbacks }: TProps): TReturn {
     const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
     logger.debug({
@@ -60,15 +66,21 @@ export class EnvironmentFileUploader {
         },
       });
 
-      abortSignal.addEventListener('abort', () => {
-        logger.debug({
-          msg: 'Aborting upload',
-          path,
-        });
-
+      function stopUpload() {
         state.stop();
         readable.destroy();
+      }
+
+      void abortOnChangeSize({ absolutePath, size, resolve, stopUpload });
+
+      abortSignal.addEventListener('abort', () => {
+        logger.debug({ msg: 'Aborting upload', path });
+        stopUpload();
       });
     });
+  }
+
+  async run(props: TProps) {
+    return await limiter.schedule(() => this.upload(props));
   }
 }

@@ -3,7 +3,7 @@ import { ScannedItem } from '../database/entities/ScannedItem';
 import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
-import { Antivirus } from './Antivirus';
+import { AntivirusClamAV } from './antivirus-clam-av';
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './utils/dbConections';
@@ -39,7 +39,7 @@ class ManualSystemScan {
   private cancelled = false;
   private scanSessionId = 0;
 
-  private antivirus: Antivirus | null;
+  private antivirus: AntivirusClamAV | null;
 
   constructor() {
     this.progressEvents = [];
@@ -85,7 +85,7 @@ class ManualSystemScan {
     }
 
     if (this.antivirus) {
-      await this.antivirus.stopClamAv();
+      await this.antivirus.stop();
     }
 
     this.resetCounters();
@@ -131,7 +131,7 @@ class ManualSystemScan {
     const currentSession = this.scanSessionId;
 
     if (!this.antivirus) {
-      this.antivirus = await Antivirus.createInstance();
+      this.antivirus = await AntivirusClamAV.createInstance();
     }
     const antivirus = this.antivirus;
 

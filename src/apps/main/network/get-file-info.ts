@@ -8,7 +8,7 @@ type Props = {
 };
 
 export async function getFileInfo({ bucketId, fileId, opts }: Props): Promise<FileInfo> {
-  logger.info({ tag: 'BACKUPS', msg: `Fetching file info for bucketId downloadV1: ${bucketId}, fileId: ${fileId}` });
+  logger.debug({ tag: 'BACKUPS', msg: `Fetching file info for bucketId downloadV1: ${bucketId}, fileId: ${fileId}` });
   const url = `${process.env.BRIDGE_URL}/buckets/${bucketId}/files/${fileId}/info`;
   const res = await fetch(url, {
     method: 'GET',

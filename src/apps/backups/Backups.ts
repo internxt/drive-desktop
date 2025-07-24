@@ -1,13 +1,9 @@
 import { Service } from 'diod';
 import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
-import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
-import LocalTreeBuilder, { LocalTree } from '../../context/local/localTree/application/LocalTreeBuilder';
-import { File } from '../../context/virtual-drive/files/domain/File';
+import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { BackupsContext } from './BackupInfo';
-import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
-import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
 import { logger } from '@/apps/shared/logger/logger';
 import { DangledFilesService } from './dangled-files/DangledFilesService';
 import { RemoteTree, Traverser } from './remote-tree/traverser';
@@ -56,7 +52,7 @@ export class Backup {
     });
 
     if (filesDiff.dangled.size > 0) {
-      logger.info({
+      logger.debug({
         msg: 'Dangling files found, handling them',
         tag: 'BACKUPS',
       });
@@ -89,17 +85,11 @@ export class Backup {
     tracker.currentTotal(filesDiff.total + foldersDiff.total);
     tracker.currentProcessed(alreadyBacked);
 
-    await this.backupFolders(context, tracker, foldersDiff, local, remote);
-    await this.backupFiles(context, tracker, filesDiff, local, remote);
+    await this.backupFolders(context, tracker, foldersDiff, remote);
+    await this.backupFiles(context, tracker, filesDiff, remote);
   }
 
-  private async backupFolders(
-    context: BackupsContext,
-    tracker: BackupsProcessTracker,
-    diff: FoldersDiff,
-    local: LocalTree,
-    remote: RemoteTree,
-  ) {
+  private async backupFolders(context: BackupsContext, tracker: BackupsProcessTracker, diff: FoldersDiff, remote: RemoteTree) {
     const { added, deleted } = diff;
 
     return await Promise.all([
@@ -108,77 +98,14 @@ export class Backup {
     ]);
   }
 
-  private async backupFiles(
-    context: BackupsContext,
-    tracker: BackupsProcessTracker,
-    diff: FilesDiff,
-    local: LocalTree,
-    remote: RemoteTree,
-  ) {
+  private async backupFiles(context: BackupsContext, tracker: BackupsProcessTracker, diff: FilesDiff, remote: RemoteTree) {
     const { added, modified, deleted } = diff;
 
     await Promise.all([
-      this.uploadAndCreateFile(context, tracker, local.root.absolutePath, added, remote),
-      this.uploadAndUpdate(context, tracker, modified, remote),
+      this.fileBatchUploader.run({ self: this, tracker, context, remoteTree: remote, added }),
+      this.fileBatchUpdater.run({ self: this, tracker, context, modified }),
       deleteRemoteFiles({ context, deleted }),
     ]);
-  }
-
-  private async uploadAndCreateFile(
-    context: BackupsContext,
-    tracker: BackupsProcessTracker,
-    localRootPath: string,
-    added: Array<LocalFile>,
-    tree: RemoteTree,
-  ): Promise<void> {
-    const batches = AddedFilesBatchCreator.run(added);
-
-    for (const batch of batches) {
-      try {
-        if (context.abortController.signal.aborted) {
-          return;
-        }
-
-        await this.fileBatchUploader.run(context, localRootPath, tree, batch, () => {
-          this.backed += 1;
-          tracker.currentProcessed(this.backed);
-        });
-      } catch (error) {
-        logger.warn({
-          tag: 'BACKUPS',
-          msg: 'Error uploading files',
-          error,
-        });
-      }
-    }
-  }
-
-  private async uploadAndUpdate(
-    context: BackupsContext,
-    tracker: BackupsProcessTracker,
-    modified: Map<LocalFile, File>,
-    remoteTree: RemoteTree,
-  ): Promise<void> {
-    const batches = ModifiedFilesBatchCreator.run(modified);
-
-    for (const batch of batches) {
-      if (context.abortController.signal.aborted) {
-        return;
-      }
-
-      try {
-        await this.fileBatchUpdater.run(context, remoteTree, Array.from(batch.keys()));
-      } catch (error) {
-        logger.warn({
-          tag: 'BACKUPS',
-          msg: 'Error updating files',
-          error,
-        });
-      }
-
-      this.backed += batch.size;
-      tracker.currentProcessed(this.backed);
-    }
   }
 
   private async deleteRemoteFolders(context: BackupsContext, deleted: Array<Folder>) {

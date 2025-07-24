@@ -6,6 +6,7 @@ import { createParentFolder } from './create-folder';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { createFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
+import { Stats } from 'fs';
 
 type TProps = {
   absolutePath: AbsolutePath;
@@ -13,18 +14,26 @@ type TProps = {
   fileCreationOrchestrator: FileCreationOrchestrator;
   folderCreator: FolderCreator;
   virtualDrive: VirtualDrive;
+  stats: Stats;
 };
 
-export async function createFile({ absolutePath, path, fileCreationOrchestrator, folderCreator, virtualDrive }: TProps) {
+export async function createFile({ absolutePath, path, fileCreationOrchestrator, folderCreator, virtualDrive, stats }: TProps) {
   try {
-    const uuid = await fileCreationOrchestrator.run({ path, absolutePath });
+    const uuid = await fileCreationOrchestrator.run({ path, absolutePath, stats });
     const placeholderId = createFilePlaceholderId(uuid);
     virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
     virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
   } catch (error) {
     if (error instanceof FolderNotFoundError) {
       await createParentFolder({ path, folderCreator });
-      return await createFile({ absolutePath, path, fileCreationOrchestrator, folderCreator, virtualDrive });
+      return await createFile({
+        absolutePath,
+        path,
+        fileCreationOrchestrator,
+        folderCreator,
+        virtualDrive,
+        stats,
+      });
     } else {
       throw logger.error({
         tag: 'SYNC-ENGINE',

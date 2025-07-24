@@ -15,7 +15,7 @@ export async function processWebSocketEvent({ data }: { data: unknown }) {
       payload: event.payload,
     });
   } else {
-    logger.info({ msg: 'Remote notification received', data });
+    logger.debug({ msg: 'Remote notification received', data });
     await debouncedSynchronization();
   }
 }

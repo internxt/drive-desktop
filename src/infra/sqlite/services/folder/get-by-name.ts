@@ -7,15 +7,15 @@ import { SingleItemError } from '../common/single-item-error';
 
 type Props = {
   parentUuid: FolderUuid;
-  name: string;
+  plainName: string;
 };
 
-export async function getByName({ parentUuid, name }: Props) {
+export async function getByName({ parentUuid, plainName }: Props) {
   try {
     const data = await folderRepository.findOne({
       where: {
         parentUuid,
-        name,
+        plainName,
         status: 'EXISTS',
       },
     });
@@ -26,7 +26,7 @@ export async function getByName({ parentUuid, name }: Props) {
     logger.error({
       msg: 'Error getting folder by name',
       parentUuid,
-      name,
+      plainName,
       exc,
     });
 

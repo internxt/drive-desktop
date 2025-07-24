@@ -1,5 +1,5 @@
 import { getUserSystemPath } from '../device/service';
-import { Antivirus } from './Antivirus';
+import { AntivirusClamAV } from './antivirus-clam-av';
 import { queue } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
@@ -40,7 +40,7 @@ export function clearDailyScan() {
 const scanInBackground = async (): Promise<void> => {
   const hashedFilesAdapter = new ScannedItemCollection();
   const database = new DBScannerConnection(hashedFilesAdapter);
-  const antivirus = await Antivirus.createInstance();
+  const antivirus = await AntivirusClamAV.createInstance();
 
   const userSystemPath = await getUserSystemPath();
   if (!userSystemPath) return;

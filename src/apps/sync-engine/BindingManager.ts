@@ -76,10 +76,10 @@ export class BindingsManager {
       virtulDrive: this.container.virtualDrive,
       watcherCallbacks: {
         addController: this.controllers.addFile,
-        updateContentsId: async ({ absolutePath, path, uuid }) =>
+        updateContentsId: async ({ stats, path, uuid }) =>
           await updateContentsId({
             virtualDrive: this.container.virtualDrive,
-            absolutePath,
+            stats,
             path,
             uuid,
             fileContentsUploader: this.container.contentsUploader,
@@ -142,7 +142,7 @@ export class BindingsManager {
     });
 
     try {
-      const absolutePaths = await getPlaceholdersWithPendingState({
+      const pendingPaths = await getPlaceholdersWithPendingState({
         virtualDrive: this.container.virtualDrive,
         path: this.container.virtualDrive.syncRootPath,
       });
@@ -151,10 +151,10 @@ export class BindingsManager {
         tag: 'SYNC-ENGINE',
         msg: 'Files in pending paths',
         workspaceId,
-        total: absolutePaths.length,
+        total: pendingPaths.length,
       });
 
-      await addPendingFiles({ absolutePaths, watcher });
+      await addPendingFiles({ pendingPaths, watcher });
 
       await this.container.fileDangledManager.run();
     } catch (error) {

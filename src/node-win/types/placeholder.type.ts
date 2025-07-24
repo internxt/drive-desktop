@@ -1,12 +1,3 @@
-export enum SyncState {
-  /**
-   * Status that occurs when an error occurs while reading the status.
-   */
-  Undefined = -1,
-  NotInSync = 0,
-  InSync = 1,
-}
-
 export enum PinState {
   /**
    * The pin state is derived from the state of the parent folder.

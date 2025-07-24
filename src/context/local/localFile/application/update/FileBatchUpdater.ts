@@ -1,29 +1,72 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
-import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
-import { simpleFileOverride } from '@/context/virtual-drive/files/application/override/SimpleFileOverrider';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { uploadFile } from '../upload-file';
+import { File } from '@/context/virtual-drive/files/domain/File';
+import { logger } from '@/apps/shared/logger/logger';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { Backup } from '@/apps/backups/Backups';
+import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+
+type Props = {
+  self: Backup;
+  context: BackupsContext;
+  tracker: BackupsProcessTracker;
+  modified: Map<LocalFile, File>;
+};
 
 @Service()
 export class FileBatchUpdater {
   constructor(private readonly uploader: EnvironmentFileUploader) {}
 
-  async run(context: BackupsContext, remoteTree: RemoteTree, batch: Array<LocalFile>): Promise<void> {
-    for (const localFile of batch) {
+  async run({ self, context, tracker, modified }: Props) {
+    await Promise.all(
+      modified.entries().map(([localFile, file]) =>
+        this.process({
+          self,
+          context,
+          tracker,
+          localFile,
+          file,
+        }),
+      ),
+    );
+  }
+
+  async process({
+    self,
+    context,
+    tracker,
+    localFile,
+    file,
+  }: {
+    self: Backup;
+    context: BackupsContext;
+    tracker: BackupsProcessTracker;
+    localFile: LocalFile;
+    file: File;
+  }) {
+    try {
       const contentsId = await uploadFile({ context, localFile, uploader: this.uploader });
 
-      if (!contentsId) continue;
+      if (!contentsId) return;
 
-      const file = remoteTree.files[localFile.relativePath];
-
-      /**
-       * v2.5.3 Daniel Jiménez
-       * TODO: Check file can be null or contentsId maybe continue???
-       */
-
-      await simpleFileOverride(file, contentsId, localFile.size.value);
+      await driveServerWip.files.replaceFile({
+        uuid: file.uuid,
+        newContentId: contentsId,
+        newSize: localFile.size.value,
+      });
+    } catch (exc) {
+      logger.error({
+        tag: 'BACKUPS',
+        msg: 'Error updating file',
+        path: localFile.relativePath,
+        exc,
+      });
+    } finally {
+      self.backed++;
+      tracker.currentProcessed(self.backed);
     }
   }
 }
