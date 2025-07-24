@@ -18,15 +18,13 @@ export async function selectAntivirusEngine() {
   }
 
   const clamavAvailable = await checkClamdAvailability();
-  if (!clamavAvailable) {
-    const { antivirusEnabled } = await initializeClamAV();
-    if (antivirusEnabled) {
-      logger.debug({
-        tag: 'ANTIVIRUS',
-        msg: 'ClamAV selected as fallback antivirus',
-      });
-      return 'clamav';
-    }
+  if (!clamavAvailable) await initializeClamAV();
+  if (await checkClamdAvailability()) {
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'ClamAV selected as fallback antivirus',
+    });
+    return 'clamav';
   }
 
   logger.warn({

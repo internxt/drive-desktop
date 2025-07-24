@@ -29,8 +29,10 @@ describe('selectAntivirusEngine', () => {
   it('selects ClamAV when Windows Defender is not available but ClamAV is', async () => {
     // Given
     isWindowsDefenderActiveMock.mockResolvedValue(false);
-    checkClamdAvailabilityMock.mockResolvedValue(false);
+    checkClamdAvailabilityMock.mockResolvedValueOnce(false);
     initializeClamAVMock.mockResolvedValue({ antivirusEnabled: true });
+    checkClamdAvailabilityMock.mockResolvedValueOnce(true);
+
     // When
     const result = await selectAntivirusEngine();
     // Then
