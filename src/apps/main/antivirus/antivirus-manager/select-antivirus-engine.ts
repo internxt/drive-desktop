@@ -1,7 +1,6 @@
 import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 import { initializeClamAV } from '../utils/initializeAntivirus';
 import { checkClamdAvailability } from '../ClamAVDaemon';
-import { sleep } from '@/apps/main/util';
 import { logger } from '@/apps/shared/logger/logger';
 
 export async function selectAntivirusEngine() {
@@ -19,7 +18,6 @@ export async function selectAntivirusEngine() {
   }
 
   if (!(await checkClamdAvailability())) await initializeClamAV();
-  await sleep(5000);
   if (await checkClamdAvailability()) {
     logger.info({
       tag: 'ANTIVIRUS',

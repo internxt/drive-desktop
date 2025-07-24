@@ -10,7 +10,6 @@ describe('selectAntivirusEngine', () => {
   const isWindowsDefenderActiveMock = partialSpyOn(isDefenderAvailable, 'isWindowsDefenderAvailable');
   const checkClamdAvailabilityMock = partialSpyOn(clamAVDaemon, 'checkClamdAvailability');
   const initializeClamAVMock = partialSpyOn(initializeAntivirusModule, 'initializeClamAV');
-  const sleepMock = partialSpyOn(sleepModule, 'sleep');
 
   it('selects Windows Defender when available', async () => {
     // Given
@@ -40,7 +39,6 @@ describe('selectAntivirusEngine', () => {
     expect(result).toBe('clamav');
     expect(isWindowsDefenderActiveMock).toBeCalled();
     expect(initializeClamAVMock).toBeCalled();
-    expect(sleepMock).toBeCalledWith(5000);
     expect(loggerMock.info).toBeCalledWith(
       expect.objectContaining({
         msg: expect.stringContaining('ClamAV'),
@@ -60,7 +58,6 @@ describe('selectAntivirusEngine', () => {
     expect(result).toBeNull();
     expect(isWindowsDefenderActiveMock).toBeCalled();
     expect(initializeClamAVMock).toBeCalled();
-    expect(sleepMock).toBeCalledWith(5000);
     expect(loggerMock.warn).toBeCalledWith(
       expect.objectContaining({
         msg: expect.stringContaining('No antivirus engines available'),

@@ -3,9 +3,8 @@ import { selectAntivirusEngine } from './select-antivirus-engine';
 import { createEngine } from './create-antivirus-engine';
 import { logger } from '@/apps/shared/logger/logger';
 import { AntivirusManager } from './antivirus-manager';
-import { AntivirusEngine } from './types';
 
-export async function getActiveEngine({ self }: { self: AntivirusManager }): Promise<AntivirusEngine | null> {
+export async function getActiveEngine({ self }: { self: AntivirusManager }) {
   try {
     const selectedType = await selectAntivirusEngine();
 
