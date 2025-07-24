@@ -62,20 +62,33 @@ export async function initializeAntivirusIfAvailable() {
 }
 
 export async function initializeClamAV() {
-  await clamAVServer.startClamdServer();
-  await clamAVServer.waitForClamd();
+  try {
+    await clamAVServer.startClamdServer();
+    await clamAVServer.waitForClamd();
 
-  logger.debug({
-    tag: 'ANTIVIRUS',
-    msg: 'ClamAV is running. Scheduling daily scan.',
-  });
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'ClamAV is running. Scheduling daily scan.',
+    });
 
-  scheduleDailyScan();
+    scheduleDailyScan();
 
-  isClamAVRunning = true;
-  clamAVInitializationPromise = null;
+    isClamAVRunning = true;
+    clamAVInitializationPromise = null;
 
-  return { antivirusEnabled: true };
+    return { antivirusEnabled: true };
+  } catch (error) {
+    logger.warn({
+      tag: 'ANTIVIRUS',
+      msg: 'Error initializing ClamAV.',
+      exc: error,
+    });
+
+    clamAVInitializationPromise = null;
+    clearAntivirus();
+
+    return { antivirusEnabled: false };
+  }
 }
 
 export function clearAntivirus() {
