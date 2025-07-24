@@ -41,7 +41,6 @@ class ManualSystemScan {
   private scanSessionId = 0;
 
   private antivirus: AntivirusEngine | null;
-
   constructor() {
     this.progressEvents = [];
     this.manualQueue = null;
