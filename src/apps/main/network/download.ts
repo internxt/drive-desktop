@@ -15,8 +15,9 @@ import Logger from 'electron-log';
 import path from 'path';
 import { logger } from '@/apps/shared/logger/logger';
 import { IDownloadParams } from './download.types';
-import { getFileInfoWithAuth } from './get-file-info-with-auth';
 import { getMirrors } from './get-mirrors';
+import { getFileInfo } from './get-file-info';
+import { getAuthFromCredentials } from './get-auth-from-credentials';
 
 async function writeReadableStreamToFile(readableStream: ReadableStream<Uint8Array>, filePath: string): Promise<void> {
   const writer = fs.createWriteStream(filePath);
@@ -167,7 +168,13 @@ async function getRequiredFileMetadataWithAuth(
   fileId: string,
   creds: NetworkCredentials,
 ): Promise<MetadataRequiredForDownload> {
-  const fileMeta: FileInfo = await getFileInfoWithAuth({ bucketId, fileId, creds });
+  const fileMeta: FileInfo = await getFileInfo({
+    bucketId,
+    fileId,
+    opts: {
+      headers: getAuthFromCredentials({ creds }),
+    },
+  });
   const mirrors: Mirror[] = await getMirrors({ bucketId, fileId, creds });
 
   return { fileMeta, mirrors };
