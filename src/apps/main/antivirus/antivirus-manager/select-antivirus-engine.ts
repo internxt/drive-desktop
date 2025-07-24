@@ -10,7 +10,7 @@ export async function selectAntivirusEngine() {
   });
 
   if (await isWindowsDefenderRealTimeProtectionActive()) {
-    logger.info({
+    logger.debug({
       tag: 'ANTIVIRUS',
       msg: 'Default antivirus selected as engine',
     });
@@ -21,7 +21,7 @@ export async function selectAntivirusEngine() {
   if (!clamavAvailable) {
     const { antivirusEnabled } = await initializeClamAV();
     if (antivirusEnabled) {
-      logger.info({
+      logger.debug({
         tag: 'ANTIVIRUS',
         msg: 'ClamAV selected as fallback antivirus',
       });

@@ -1,4 +1,3 @@
-import { beforeEach } from 'vitest';
 import { processWebSocketEvent } from '@/backend/features/remote-notifications/in/process-web-socket-event';
 import { debouncedSynchronization } from '@/apps/main/remote-sync/handlers';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -20,7 +19,6 @@ describe('processWebSocketEvent', () => {
 
     await processWebSocketEvent({ data: event });
     expect(loggerMock.debug).toHaveBeenCalledTimes(1);
-    expect(loggerMock.info).not.toHaveBeenCalled();
     expect(debouncedSynchronizationMock).not.toHaveBeenCalled();
   });
 
@@ -31,8 +29,7 @@ describe('processWebSocketEvent', () => {
 
     await processWebSocketEvent({ data: event });
     expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
-    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Remote notification received', data: event });
-    expect(loggerMock.debug).not.toHaveBeenCalled();
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Remote notification received', data: event });
   });
 
   it('should call debouncedSynchronization if schema is valid and clientId is not drive-desktop-windows', async () => {
@@ -46,7 +43,6 @@ describe('processWebSocketEvent', () => {
 
     await processWebSocketEvent({ data: event });
     expect(debouncedSynchronizationMock).toHaveBeenCalledTimes(1);
-    expect(loggerMock.info).toHaveBeenCalledWith({ msg: 'Remote notification received', data: event });
-    expect(loggerMock.debug).not.toHaveBeenCalled();
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Remote notification received', data: event });
   });
 });

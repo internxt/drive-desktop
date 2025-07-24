@@ -29,7 +29,7 @@ export async function getActiveEngine({ self }: { self: AntivirusManager }) {
     self.currentEngine = await createEngine({ type: selectedType });
     self.currentType = selectedType;
 
-    logger.info({
+    logger.debug({
       tag: 'ANTIVIRUS',
       msg: 'Antivirus engine switched',
     });

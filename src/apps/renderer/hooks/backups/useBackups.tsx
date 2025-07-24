@@ -38,13 +38,13 @@ export function useBackups(): BackupContextProps {
     } else {
       backups = await window.electron.getBackupsFromDevice(selected, selected.id === current?.id);
     }
-    window.electron.logger.info({ msg: 'Backups fetched', length: backups.length });
+    window.electron.logger.debug({ msg: 'Backups fetched', length: backups.length });
     setBackups(backups);
   }
 
   const validateIfBackupExists = async () => {
     const existsBackup = devices.some((device) => device.hasBackups);
-    window.electron.logger.info({
+    window.electron.logger.debug({
       msg: 'Backup exists',
       devices: devices.map((d) => d.name),
       existsBackup,

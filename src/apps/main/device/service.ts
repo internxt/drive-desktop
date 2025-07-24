@@ -72,13 +72,13 @@ export async function fetchDevice(deviceUuid: string) {
 
   if (data) {
     const device = decryptDeviceName(data);
-    logger.info({ tag: 'BACKUPS', msg: 'Found device', device: device.name });
+    logger.debug({ tag: 'BACKUPS', msg: 'Found device', device: device.name });
     return { data: device };
   }
 
   if (error?.code === 'NOT_FOUND') {
     const msg = `Device not found for deviceUuid: ${deviceUuid}`;
-    logger.info({ tag: 'BACKUPS', msg });
+    logger.debug({ tag: 'BACKUPS', msg });
     addUnknownDeviceIssue(new Error(msg));
     return { data: null };
   } else {
@@ -98,7 +98,7 @@ async function tryCreateDevice(deviceName: string) {
 
   if (error?.code === 'ALREADY_EXISTS') {
     return {
-      error: logger.info({
+      error: logger.debug({
         tag: 'BACKUPS',
         msg: 'Device name already exists',
         deviceName,
@@ -120,7 +120,7 @@ export async function createUniqueDevice(attempts = 1000) {
   const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
 
   for (const name of nameVariants) {
-    logger.info({ tag: 'BACKUPS', msg: `Trying to create device with name "${name}"` });
+    logger.debug({ tag: 'BACKUPS', msg: `Trying to create device with name "${name}"` });
     const { data, error } = await tryCreateDevice(name);
 
     if (data) return { data };
@@ -485,7 +485,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   const newFolderName = path.basename(chosenPath);
 
   if (oldFolderName !== newFolderName) {
-    logger.info({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
+    logger.debug({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
 
     const folderUuid = await new BackupFolderUuid().getBackupFolderUuid({ backup: existingBackup });
 
