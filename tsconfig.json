@@ -11,7 +11,7 @@
     "pretty": true,
     "sourceMap": true,
     "rootDir": ".",
-    "noImplicitReturns": false,
+    "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strictNullChecks": true,

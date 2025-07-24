@@ -83,11 +83,11 @@ describe('detect-context-menu-action', () => {
       // Given
       props.details.curr.blocks = 1;
       // When
-      const action = await service.execute(props);
+      await service.execute(props);
       // Then
       expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
       expect(props.self.queueManager.enqueue).toBeCalledTimes(0);
-      expect(action).toBe('Doble click en el archivo');
+      expect(loggerMock.debug).toBeCalledWith({ msg: 'Double click on file', path: props.path });
     });
 
     it('should not enqueue file for hydrate if file is the device', async () => {
