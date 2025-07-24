@@ -52,7 +52,7 @@ export class Backup {
     });
 
     if (filesDiff.dangled.size > 0) {
-      logger.info({
+      logger.debug({
         msg: 'Dangling files found, handling them',
         tag: 'BACKUPS',
       });

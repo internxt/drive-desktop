@@ -108,12 +108,12 @@ export class HttpRemoteFileSystem {
       throw new Error('Failed to generate new contents id');
     }
 
-    logger.info({
+    logger.debug({
       msg: `New contents id generated ${newContentsId}, path: ${attributes.path}`,
     });
     await driveServerWip.storage.deleteFile({ fileId: attributes.contentsId });
 
-    logger.info({
+    logger.debug({
       msg: `Deleted file with contents id ${attributes.contentsId}, path: ${attributes.path}`,
     });
 
@@ -127,7 +127,7 @@ export class HttpRemoteFileSystem {
         isDeleted = true;
         break;
       }
-      logger.info({
+      logger.debug({
         msg: `File not deleted yet, path: ${attributes.path}`,
       });
     }
@@ -138,7 +138,7 @@ export class HttpRemoteFileSystem {
     const offlineFile = OfflineFile.from({ ...attributes, contentsId: newContentsId });
 
     const persistedFile = await this.persist(offlineFile);
-    logger.info({
+    logger.debug({
       msg: `File persisted with new contents id ${newContentsId}, path: ${attributes.path}`,
     });
 

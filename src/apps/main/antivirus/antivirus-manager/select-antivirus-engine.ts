@@ -21,7 +21,7 @@ export async function selectAntivirusEngine() {
   if (!clamavAvailable) {
     const { antivirusEnabled } = await initializeClamAV();
     if (antivirusEnabled) {
-      logger.info({
+      logger.debug({
         tag: 'ANTIVIRUS',
         msg: 'ClamAV selected as fallback antivirus',
       });
