@@ -18,7 +18,7 @@ describe('selectAntivirusEngine', () => {
     // Then
     expect(result).toBe('windows-defender');
     expect(isWindowsDefenderActiveMock).toBeCalled();
-    expect(loggerMock.info).toBeCalledWith(
+    expect(loggerMock.debug).toBeCalledWith(
       expect.objectContaining({
         msg: expect.stringContaining('Default antivirus selected as engine'),
       }),
@@ -37,7 +37,7 @@ describe('selectAntivirusEngine', () => {
     expect(result).toBe('clamav');
     expect(isWindowsDefenderActiveMock).toBeCalled();
     expect(initializeClamAVMock).toBeCalled();
-    expect(loggerMock.info).toBeCalledWith(
+    expect(loggerMock.debug).toBeCalledWith(
       expect.objectContaining({
         msg: expect.stringContaining('ClamAV'),
       }),

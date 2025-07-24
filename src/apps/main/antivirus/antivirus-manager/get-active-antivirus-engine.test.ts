@@ -67,7 +67,7 @@ describe('getActiveEngine', () => {
     expect(result).toBe(mockNewEngine);
     expect(mockManager.currentEngine).toBe(mockNewEngine);
     expect(mockManager.currentType).toBe('windows-defender');
-    expect(loggerMock.info).toBeCalledWith(
+    expect(loggerMock.debug).toBeCalledWith(
       expect.objectContaining({
         msg: expect.stringContaining('Antivirus engine switched'),
       }),
