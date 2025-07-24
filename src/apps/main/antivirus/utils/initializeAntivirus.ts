@@ -13,9 +13,8 @@ export async function initializeAntivirusIfAvailable() {
   paymentService = buildPaymentsService();
 
   try {
-    //const availableProducts = await paymentService.getAvailableProducts();
-    //const isAntivirusEnabled = availableProducts.antivirus;
-    const isAntivirusEnabled = true;
+    const availableProducts = await paymentService.getAvailableProducts();
+    const isAntivirusEnabled = availableProducts.antivirus;
 
     if (!isAntivirusEnabled) {
       logger.debug({
