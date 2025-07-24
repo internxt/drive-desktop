@@ -79,10 +79,7 @@ function getNumber() {
 
 ---
 
-We are going to start open telemetry and store the logs in S3 has a cost. That's why:
-
-- Use logger.debug and logger.warn for anything that shouldn't be stored in S3 (most logs).
-- Use logger.info, logger.error, and logger.fatal for a small number of logs (only the most important ones).
+Use logger.error for errors that should be logged in `drive-desktop-important.log` and logger.warn for all other errors. Almost all errors should be logged with logger.error.
 
 ### Comments
 

@@ -7,7 +7,7 @@ import { areCredentialsAlreadyReseted } from './utils/are-credentials-already-re
 
 export async function logout() {
   if (!areCredentialsAlreadyReseted()) {
-    logger.info({
+    logger.debug({
       tag: 'AUTH',
       msg: 'Logging out',
     });
@@ -23,7 +23,7 @@ export async function logout() {
     saveConfig();
     resetConfig();
     resetCredentials();
-    logger.info({
+    logger.debug({
       tag: 'AUTH',
       msg: 'User logged out',
     });

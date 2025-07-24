@@ -21,11 +21,15 @@ export function setupElectronLog() {
    */
   ElectronLog.transports.file.maxSize = 1024 * 1024 * 1024;
   ElectronLog.transports.file.format = logFormatter;
-  ElectronLog.transports.console.format = logFormatter;
+  /**
+   * v2.5.6 Daniel Jiménez
+   * Levels: silly < debug < verbose < info < log < warn < error
+   */
+  ElectronLog.transports.file.level = 'debug';
   ElectronLog.transports.console.writeFn = ({ message }) => {
-    if (message.level === 'debug') {
+    if (message.level === 'silly') {
       // eslint-disable-next-line no-console
-      console.log(`${message.data}`);
+      console.log(...message.data);
     }
   };
 
