@@ -10,7 +10,7 @@ export async function selectAntivirusEngine() {
   });
 
   if (await isWindowsDefenderAvailable()) {
-    logger.info({
+    logger.debug({
       tag: 'ANTIVIRUS',
       msg: 'Default antivirus selected as engine',
     });

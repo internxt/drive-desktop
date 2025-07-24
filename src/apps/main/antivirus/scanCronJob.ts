@@ -15,17 +15,25 @@ let dailyScanInterval: NodeJS.Timeout | null = null;
 
 export function scheduleDailyScan() {
   async function startBackgroundScan() {
-    console.log('Starting user system scan (BACKGROUND)...');
+    logger.debug({ tag: 'ANTIVIRUS', msg: 'Starting user system scan (BACKGROUND)' });
     await scanInBackground();
   }
 
   startBackgroundScan().catch((err) => {
-    console.error('Error in initial background scan:', err);
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: 'Error in initial background scan',
+      exc: err,
+    });
   });
 
   dailyScanInterval = setInterval(() => {
     startBackgroundScan().catch((err) => {
-      console.error('Error in scheduled background scan:', err);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error in scheduled background scan',
+        exc: err,
+      });
     });
   }, ONE_DAY_MS);
 }

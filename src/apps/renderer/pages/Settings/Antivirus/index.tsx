@@ -6,11 +6,11 @@ import { useAntivirusContext } from '../../../context/AntivirusContext';
 import { useEffect } from 'react';
 import { Spinner } from 'phosphor-react';
 
-interface AntivirusSectionProps {
+type AntivirusSectionProps = {
   active: boolean;
   onCancelDeactivateWinDefender: () => void;
   showItemsWithMalware: () => void;
-}
+};
 
 export default function AntivirusSection({ active, showItemsWithMalware }: AntivirusSectionProps): JSX.Element {
   const {

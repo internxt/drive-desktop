@@ -1,14 +1,18 @@
+import { logger } from '@/apps/shared/logger/logger';
 import { exec } from 'child_process';
+import { promisify } from 'util';
 
-export function isWindowsDefenderAvailable(): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    exec('powershell "Get-MpComputerStatus | Select-Object -Property AMServiceEnabled"', (error, stdout, stderr) => {
-      if (error) {
-        return reject(`Error checking Windows Defender status: ${stderr}`);
-      }
-
-      const isEnabled = stdout.includes('True');
-      resolve(isEnabled);
+const execPromise = promisify(exec);
+export async function isWindowsDefenderAvailable(): Promise<boolean> {
+  try {
+    const { stdout } = await execPromise('powershell "Get-MpComputerStatus | Select-Object -Property AMServiceEnabled"');
+    return stdout.includes('True');
+  } catch (error) {
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: 'Error checking Windows Defender status.',
+      exc: error,
     });
-  });
+    return false;
+  }
 }

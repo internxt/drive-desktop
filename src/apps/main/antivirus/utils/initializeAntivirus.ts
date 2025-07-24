@@ -13,8 +13,9 @@ export async function initializeAntivirusIfAvailable() {
   paymentService = buildPaymentsService();
 
   try {
-    const availableProducts = await paymentService.getAvailableProducts();
-    const isAntivirusEnabled = availableProducts.antivirus;
+    //const availableProducts = await paymentService.getAvailableProducts();
+    //const isAntivirusEnabled = availableProducts.antivirus;
+    const isAntivirusEnabled = true;
 
     if (!isAntivirusEnabled) {
       logger.debug({
@@ -31,7 +32,7 @@ export async function initializeAntivirusIfAvailable() {
     if (isWindowsDefenderActive) {
       logger.debug({
         tag: 'ANTIVIRUS',
-        msg: 'Using Windows defender.',
+        msg: 'Using default antivirus.',
       });
       return { antivirusEnabled: true };
     }

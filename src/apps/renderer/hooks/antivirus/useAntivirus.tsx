@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 export type ScanType = 'files' | 'folders';
 export type Views = 'locked' | 'chooseItems' | 'scan' | 'loading';
 
-export interface UseAntivirusReturn {
+export type UseAntivirusReturn = {
   infectedFiles: string[];
   currentScanPath?: string;
   countScannedFiles: number;
@@ -22,7 +22,7 @@ export interface UseAntivirusReturn {
   onCustomScanButtonClicked: (scanType: ScanType) => Promise<void>;
   onRemoveInfectedItems: (infectedFiles: string[]) => Promise<void>;
   isWinDefenderActive: () => Promise<boolean>;
-}
+};
 
 export const useAntivirus = (): UseAntivirusReturn => {
   const [infectedFiles, setInfectedFiles] = useState<string[]>([]);
