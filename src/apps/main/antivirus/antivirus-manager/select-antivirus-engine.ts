@@ -17,13 +17,16 @@ export async function selectAntivirusEngine() {
     return 'windows-defender';
   }
 
-  if (!(await checkClamdAvailability())) await initializeClamAV();
-  if (await checkClamdAvailability()) {
-    logger.info({
-      tag: 'ANTIVIRUS',
-      msg: 'ClamAV selected as fallback antivirus',
-    });
-    return 'clamav';
+  const clamavAvailable = await checkClamdAvailability();
+  if (!clamavAvailable) {
+    const { antivirusEnabled } = await initializeClamAV();
+    if (antivirusEnabled) {
+      logger.info({
+        tag: 'ANTIVIRUS',
+        msg: 'ClamAV selected as fallback antivirus',
+      });
+      return 'clamav';
+    }
   }
 
   logger.warn({
