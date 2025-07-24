@@ -21,7 +21,7 @@ describe('get-file-mirrors', () => {
     const result = await getFileMirrors(props);
 
     expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(result).toEqual(mockMirrors);
+    expect(result).toStrictEqual(mockMirrors);
   });
 
   it('should throw if fetch fails', async () => {

@@ -36,7 +36,7 @@ describe('getMirrors', () => {
 
     expect(getFileMirrorsMock).toHaveBeenCalledTimes(2);
     expect(replaceMirrorMock).not.toHaveBeenCalled();
-    expect(result).toEqual([mockMirror]);
+    expect(result).toStrictEqual([mockMirror]);
   });
 
   it('should replace mirror if farmer is not ok', async () => {
@@ -48,7 +48,7 @@ describe('getMirrors', () => {
 
     expect(getFileMirrorsMock).toHaveBeenCalledTimes(3);
     expect(replaceMirrorMock).toHaveBeenCalledTimes(1);
-    expect(result).toEqual([mockMirror, mockMirror]);
+    expect(result).toStrictEqual([mockMirror, mockMirror]);
   });
 
   it('should throw if replaced mirror is still not ok', async () => {

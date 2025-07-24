@@ -23,7 +23,7 @@ describe('get-file-info', () => {
         ...props.opts.headers,
       },
     });
-    expect(result).toEqual(mockFileInfo);
+    expect(result).toStrictEqual(mockFileInfo);
   });
 
   it('should throw if fetch fails', async () => {
