@@ -36,6 +36,7 @@ export class DetectContextMenuActionService {
 
       self.fileInDevice.add(absolutePath);
       await self.callbacks.updateContentsId({ stats: curr, path, uuid });
+      return;
     }
 
     if (prev.ctimeMs !== curr.ctimeMs && status.pinState === PinState.AlwaysLocal && !isInDevice) {
