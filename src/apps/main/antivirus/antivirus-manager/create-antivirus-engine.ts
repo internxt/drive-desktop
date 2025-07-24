@@ -1,9 +1,9 @@
 import { AntivirusWindowsDefender } from '../windows-defender/antivirus-windows-defender';
 import { AntivirusClamAV } from '../antivirus-clam-av';
-import { AntivirusType, AntivirusEngine } from './types';
+import { AntivirusType } from './types';
 import { logger } from '@/apps/shared/logger/logger';
 
-export async function createEngine({ type }: { type: AntivirusType }): Promise<AntivirusEngine> {
+export async function createEngine({ type }: { type: AntivirusType }) {
   if (type === 'windows-defender') {
     try {
       return await AntivirusWindowsDefender.createInstance();
@@ -13,7 +13,6 @@ export async function createEngine({ type }: { type: AntivirusType }): Promise<A
         msg: 'Error initializing antivirus engine, using fallback',
         exc: error,
       });
-      return await AntivirusClamAV.createInstance();
     }
   }
 
