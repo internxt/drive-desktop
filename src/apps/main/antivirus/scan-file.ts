@@ -1,12 +1,12 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { Antivirus } from './Antivirus';
+import { AntivirusClamAV } from './antivirus-clam-av';
 import { DBScannerConnection } from './utils/dbConections';
 import { transformItem } from './utils/transformItem';
 
 type TProps = {
   filePath: string;
   database: DBScannerConnection;
-  antivirus: Antivirus;
+  antivirus: AntivirusClamAV;
 };
 
 export const scanFile = async ({ filePath, database, antivirus }: TProps) => {
