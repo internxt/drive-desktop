@@ -36,19 +36,16 @@ export class DetectContextMenuActionService {
 
       self.fileInDevice.add(absolutePath);
       await self.callbacks.updateContentsId({ stats: curr, path, uuid });
-      return;
     }
 
     if (prev.ctimeMs !== curr.ctimeMs && status.pinState === PinState.AlwaysLocal && !isInDevice) {
       self.fileInDevice.add(absolutePath);
 
-      if (curr.blocks !== 0) {
-        // This event is triggered from the addon
-        return 'Doble click en el archivo';
+      if (curr.blocks === 0) {
+        self.queueManager.enqueue({ path });
+      } else {
+        self.logger.debug({ msg: 'Double click on file', path });
       }
-
-      self.queueManager.enqueue({ path });
-      return;
     }
 
     if (prev.ctimeMs !== curr.ctimeMs && status.pinState === PinState.OnlineOnly) {
