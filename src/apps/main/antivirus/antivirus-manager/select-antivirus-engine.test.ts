@@ -4,7 +4,6 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import * as isDefenderAvailable from '../windows-defender/is-windows-defender-available';
 import * as initializeAntivirusModule from '../utils/initializeAntivirus';
 import * as clamAVDaemon from '../ClamAVDaemon';
-import * as sleepModule from '@/apps/main/util';
 
 describe('selectAntivirusEngine', () => {
   const isWindowsDefenderActiveMock = partialSpyOn(isDefenderAvailable, 'isWindowsDefenderAvailable');
@@ -30,9 +29,8 @@ describe('selectAntivirusEngine', () => {
   it('selects ClamAV when Windows Defender is not available but ClamAV is', async () => {
     // Given
     isWindowsDefenderActiveMock.mockResolvedValue(false);
-    checkClamdAvailabilityMock.mockResolvedValueOnce(false);
+    checkClamdAvailabilityMock.mockResolvedValue(false);
     initializeClamAVMock.mockResolvedValue({ antivirusEnabled: true });
-    checkClamdAvailabilityMock.mockResolvedValueOnce(true);
     // When
     const result = await selectAntivirusEngine();
     // Then
@@ -49,9 +47,8 @@ describe('selectAntivirusEngine', () => {
   it('returns null when neither Windows Defender nor ClamAV are available', async () => {
     // Given
     isWindowsDefenderActiveMock.mockResolvedValue(false);
-    checkClamdAvailabilityMock.mockResolvedValueOnce(false);
+    checkClamdAvailabilityMock.mockResolvedValue(false);
     initializeClamAVMock.mockResolvedValue({ antivirusEnabled: false });
-    checkClamdAvailabilityMock.mockResolvedValueOnce(false);
     // When
     const result = await selectAntivirusEngine();
     // Then
