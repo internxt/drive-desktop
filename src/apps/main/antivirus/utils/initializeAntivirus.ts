@@ -23,7 +23,7 @@ export async function initializeAntivirusIfAvailable() {
   return clamAVInitializationPromise;
 }
 
-async function initializeClamAV() {
+export async function initializeClamAV() {
   paymentService = buildPaymentsService();
 
   try {
