@@ -31,7 +31,6 @@ describe('selectAntivirusEngine', () => {
     isWindowsDefenderActiveMock.mockResolvedValue(false);
     checkClamdAvailabilityMock.mockResolvedValue(false);
     initializeClamAVMock.mockResolvedValue({ antivirusEnabled: true });
-
     // When
     const result = await selectAntivirusEngine();
     // Then
