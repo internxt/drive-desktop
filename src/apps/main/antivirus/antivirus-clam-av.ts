@@ -46,12 +46,11 @@ export class AntivirusClamAV {
 
       this.isInitialized = true;
     } catch (error) {
-      logger.error({
+      throw logger.error({
         tag: 'ANTIVIRUS',
         msg: 'Error initializing ClamAV',
         exc: error,
       });
-      throw error;
     }
   }
 
