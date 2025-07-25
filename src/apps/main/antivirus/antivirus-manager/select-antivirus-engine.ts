@@ -1,4 +1,4 @@
-import { isWindowsDefenderRealTimeProtectionActive } from '../../ipcs/ipcMainAntivirus';
+import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 import { initializeClamAV } from '../utils/initializeAntivirus';
 import { checkClamdAvailability } from '../ClamAVDaemon';
 import { logger } from '@/apps/shared/logger/logger';
@@ -9,7 +9,7 @@ export async function selectAntivirusEngine() {
     msg: 'Selecting antivirus engine...',
   });
 
-  if (await isWindowsDefenderRealTimeProtectionActive()) {
+  if (await isWindowsDefenderAvailable()) {
     logger.debug({
       tag: 'ANTIVIRUS',
       msg: 'Default antivirus selected as engine',
@@ -18,15 +18,21 @@ export async function selectAntivirusEngine() {
   }
 
   const clamavAvailable = await checkClamdAvailability();
-  if (!clamavAvailable) {
-    const { antivirusEnabled } = await initializeClamAV();
-    if (antivirusEnabled) {
-      logger.debug({
-        tag: 'ANTIVIRUS',
-        msg: 'ClamAV selected as fallback antivirus',
-      });
-      return 'clamav';
-    }
+  if (clamavAvailable) {
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'ClamAV is already available, selected as engine',
+    });
+    return 'clamav';
+  }
+
+  const { antivirusEnabled } = await initializeClamAV();
+  if (antivirusEnabled) {
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'ClamAV initialized, selected as engine',
+    });
+    return 'clamav';
   }
 
   logger.warn({
