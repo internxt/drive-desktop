@@ -17,8 +17,6 @@ declare interface Window {
       debug: (rawBody: import('@/apps/shared/logger/logger').TLoggerBody) => void;
     };
 
-    onSyncStopped: (func: (value: import('../../context/desktop/sync/domain/SyncStoppedPayload').SyncStoppedPayload) => void) => () => void;
-
     getIssues(): Promise<import('./background-processes/issues').Issue[]>;
 
     onIssuesChanged(func: (value: import('./background-processes/issues').Issue[]) => void): () => void;
