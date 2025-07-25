@@ -5,8 +5,6 @@ import { BroadcastToWindows } from './windows/broadcast-to-windows';
 class EventBus extends EventEmitter {}
 
 interface Events {
-  APP_IS_READY: () => void;
-
   // Fired when the user either
   // logs in or is already logged
   // in on app start and the tokens are correct

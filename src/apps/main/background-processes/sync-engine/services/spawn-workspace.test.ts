@@ -59,7 +59,7 @@ describe('spawn-workspace.service', () => {
     expect(getCredentialsMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncEngineWorkerMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncEngineWorkerMock).toHaveBeenCalledWith({
-      config: {
+      context: {
         bridgePass: 'pass',
         bridgeUser: 'user',
         bucket: undefined,

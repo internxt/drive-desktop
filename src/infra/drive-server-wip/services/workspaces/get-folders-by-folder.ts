@@ -7,7 +7,7 @@ type TQuery = paths['/workspaces/{workspaceId}/folders/{folderUuid}/folders']['g
 
 export async function getFoldersByFolder(
   context: { workspaceId: string; folderUuid: string; query: TQuery; workspaceToken: string },
-  extra?: { skipLog?: boolean },
+  extra: { skipLog?: boolean; abortSignal: AbortSignal },
 ) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/folders/{folderUuid}/folders';
@@ -19,12 +19,13 @@ export async function getFoldersByFolder(
         path: { workspaceId: context.workspaceId, folderUuid: context.folderUuid },
         query: context.query,
       },
+      signal: extra.abortSignal,
     });
 
   const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog: extra.skipLog,
     loggerBody: {
       msg: 'Get workspace folders by folder request',
       context,

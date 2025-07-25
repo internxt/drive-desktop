@@ -66,7 +66,7 @@ async function getFolders(context: { query: TGetFoldersQuery }) {
 
 async function getFoldersByFolder(
   context: { folderUuid: string; query: TGetFoldersByFolderQuery },
-  extra?: { abortSignal?: AbortSignal; skipLog?: boolean },
+  extra: { abortSignal: AbortSignal; skipLog?: boolean },
 ) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/folders';
@@ -75,13 +75,13 @@ async function getFoldersByFolder(
   const promiseFn = () =>
     client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
-      signal: extra?.abortSignal,
+      signal: extra.abortSignal,
     });
 
   const res = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog: extra.skipLog,
     loggerBody: {
       msg: 'Get folders by folder request',
       context,
@@ -101,7 +101,7 @@ async function getFoldersByFolder(
 
 async function getFilesByFolder(
   context: { folderUuid: string; query: TGetFilesByFolderQuery },
-  extra?: { abortSignal?: AbortSignal; skipLog?: boolean },
+  extra: { abortSignal: AbortSignal; skipLog?: boolean },
 ) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/files';
@@ -110,13 +110,13 @@ async function getFilesByFolder(
   const promiseFn = () =>
     client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
-      signal: extra?.abortSignal,
+      signal: extra.abortSignal,
     });
 
   const res = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog: extra.skipLog,
     loggerBody: {
       msg: 'Get files by folder request',
       context,

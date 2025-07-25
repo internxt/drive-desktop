@@ -1,4 +1,4 @@
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { logger } from '@/apps/shared/logger/logger';
@@ -6,8 +6,10 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
+import { AuthContext } from '@/backend/features/auth/utils/context';
 
 type TProps = {
+  context: AuthContext;
   workspace: {
     id: string;
     mnemonic: string;
@@ -17,7 +19,7 @@ type TProps = {
   };
 };
 
-export async function spawnWorkspace({ workspace }: TProps) {
+export async function spawnWorkspace({ context, workspace }: TProps) {
   logger.debug({ msg: 'Spawn workspace', workspaceId: workspace.id });
 
   const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: workspace.id });
@@ -31,7 +33,8 @@ export async function spawnWorkspace({ workspace }: TProps) {
     privateKeyInBase64: user.privateKey,
   });
 
-  const config: Config = {
+  const syncContext: SyncContext = {
+    ...context,
     userUuid: user.uuid,
     mnemonic: mnemonic.toString(),
     providerId: workspace.providerId,
@@ -47,5 +50,5 @@ export async function spawnWorkspace({ workspace }: TProps) {
     bridgePass: credentials.credentials.networkPass,
   };
 
-  await spawnSyncEngineWorker({ config });
+  await spawnSyncEngineWorker({ context: syncContext });
 }

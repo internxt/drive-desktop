@@ -26,6 +26,7 @@ export function setupElectronLog() {
    * Levels: silly < debug < verbose < info < log < warn < error
    */
   ElectronLog.transports.file.level = 'debug';
+  ElectronLog.transports.console.format = (message) => [...message.data];
   ElectronLog.transports.console.writeFn = ({ message }) => {
     if (message.level === 'silly') {
       // eslint-disable-next-line no-console

@@ -1,14 +1,14 @@
 import { getDefenderVersions } from './get-defender-version';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import * as statFunction from '@/infra/file-system/services/stat';
 import { readdir, access } from 'fs/promises';
 import { join } from 'path';
+import { fileSystem } from '@/infra/file-system/file-system.module';
 
 vi.mock(import('fs/promises'));
 vi.mock(import('path'));
 
 describe('getDefenderVersions', () => {
-  const statMock = partialSpyOn(statFunction, 'stat');
+  const statMock = partialSpyOn(fileSystem, 'stat');
   const accessMock = deepMocked(access);
   const readdirMock = deepMocked(readdir);
   const joinMock = deepMocked(join);

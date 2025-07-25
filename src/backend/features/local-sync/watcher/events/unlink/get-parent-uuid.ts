@@ -1,16 +1,16 @@
-import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
+import { dirname } from 'path';
 
 type Props = {
-  path: RelativePath;
+  absolutePath: AbsolutePath;
   virtualDrive: VirtualDrive;
 };
 
-export async function getParentUuid({ path, virtualDrive }: Props) {
-  const parentPath = pathUtils.dirname(path);
-
+export async function getParentUuid({ absolutePath, virtualDrive }: Props) {
+  const parentPath = dirname(absolutePath);
   const { data: parentUuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: parentPath });
   const { data: stats } = await fileSystem.stat({ absolutePath: parentPath });
 

@@ -1,3 +1,4 @@
+import { AuthContext } from '@/backend/features/auth/utils/context';
 import { getUser } from '../main/auth/service';
 
 export type Config = {
@@ -15,6 +16,8 @@ export type Config = {
   bridgeUser: string;
   bridgePass: string;
 };
+
+export type SyncContext = AuthContext & Config;
 
 const emptyValues = (): Config => {
   return {

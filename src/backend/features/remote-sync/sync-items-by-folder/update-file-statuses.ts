@@ -1,10 +1,10 @@
 import { fetchFilesByFolder } from './fetch-files-by-folder';
 import { logger } from '@/apps/shared/logger/logger';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { createOrUpdateFile } from '../update-in-sqlite/create-or-update-file';
 
 type TProps = {
-  context: Config;
+  context: SyncContext;
   folderUuid: string;
 };
 

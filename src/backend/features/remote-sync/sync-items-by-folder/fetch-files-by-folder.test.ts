@@ -14,6 +14,7 @@ describe('fetch-files-by-folder', () => {
     props = mockProps<typeof fetchFilesByFolder>({
       folderUuid: 'folderUuid',
       context: {
+        abortController: new AbortController(),
         workspaceId: '',
         workspaceToken: '',
       },

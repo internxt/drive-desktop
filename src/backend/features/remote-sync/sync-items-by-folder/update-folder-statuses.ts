@@ -1,10 +1,10 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { createOrUpdateFolder } from '../update-in-sqlite/create-or-update-folder';
 
 type TProps = {
-  context: Config;
+  context: SyncContext;
   folderUuid: string;
 };
 

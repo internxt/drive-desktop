@@ -1,6 +1,6 @@
+import { fileSystem } from '@/infra/file-system/file-system.module';
 import { access, constants, readdir } from 'fs/promises';
 import { join } from 'path';
-import { stat } from '@/infra/file-system/services/stat';
 
 export async function getDefenderVersions({ path }: { path: string }) {
   try {
@@ -9,7 +9,7 @@ export async function getDefenderVersions({ path }: { path: string }) {
     const validDirs = await Promise.all(
       entries.map(async (name) => {
         const fullPath = join(path, name);
-        const { data } = await stat({ absolutePath: fullPath });
+        const { data } = await fileSystem.stat({ absolutePath: fullPath });
         return data?.isDirectory() ? name : null;
       }),
     );
