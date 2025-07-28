@@ -146,11 +146,21 @@ export class FuseApp extends EventEmitter {
   }
 
   async stop(): Promise<void> {
-    //no-op
+    if (this._fuse && this.status === 'MOUNTED') {
+      try {
+        await unmountPromise(this._fuse);
+        this.status = 'UNMOUNTED';
+        Logger.info('[FUSE] unmounted');
+      } catch (error) {
+        Logger.error('[FUSE] unmount error:', error);
+      }
+    }
   }
 
   async clearCache(): Promise<void> {
     await this.container.get(StorageClearer).run();
+    await this.container.get(FileRepositorySynchronizer).clear();
+    await this.container.get(FolderRepositorySynchronizer).clear();
   }
 
   async update(): Promise<void> {

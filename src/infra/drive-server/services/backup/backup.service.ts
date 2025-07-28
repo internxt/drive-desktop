@@ -350,11 +350,14 @@ export class BackupService {
     deviceName: string
   ): Promise<Either<Error, Device>> {
     try {
-      const response = await driveServerClient.PATCH('/backup/v2/devices/{deviceId}', {
-        headers: getNewApiHeaders(),
-        body: { deviceName },
-        path: { deviceId: deviceIdentifier },
-      });
+      const response = await driveServerClient.PATCH(
+        '/backup/v2/devices/{deviceId}',
+        {
+          headers: getNewApiHeaders(),
+          body: { name: deviceName },
+          path: { deviceId: deviceIdentifier },
+        }
+      );
       if (!response.data) {
         const error = new Error('Update device by identifier request was not successful');
         logger.error({

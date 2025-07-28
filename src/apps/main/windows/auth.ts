@@ -11,6 +11,13 @@ export const getAuthWindow = () => {
 };
 
 export const createAuthWindow = async () => {
+  // Check if auth window already exists and is not destroyed
+  if (authWindow && !authWindow.isDestroyed()) {
+    // If window exists, focus it and return early
+    authWindow.focus();
+    return;
+  }
+
   authWindow = new BrowserWindow({
     width: 300,
     height: 450,
