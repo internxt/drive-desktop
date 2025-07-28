@@ -54,41 +54,32 @@ function connect({ host, port }: { host: string; port: number }) {}
 function connect({ host, port = 5432 }: { host: string; port?: number }) {}
 ```
 
-### Use explicit return types in functions just for primitive types
+### Never use return types if the function infers the type correctly
 
 ---
 
-- Using return types for primitive types can help in code reviews to check whether, for example, something can be undefined or not.
-- Using return types for complex objects introduces the problem of naming elements and maintaining those types, and it also doesn't help in code reviews, since the return type can be anything (it's not a common type).
+We believe that using return types presents more problems than advantages:
+- Naming return types.
+- Maintaining return types.
+
+However, using return types has one advantage: if a function is supposed to return a `boolean` value and we forget to add a return value, it will infer an `undefined` value and we might start checking that function's return value using the wrong `undefined`. To solve this, we use the TypeScript rule `noImplicitReturns` to ensure that we don't forget to return a value in all branches of a function and that the function doesn't return `undefined` without explicitly defining it.
 
 ```ts
+// bad
+function getNumber(): number {
+  return 8;
+}
 // good
-function getAccessToken(): Promise<string | undefined> {
-  return new Promise((resolve, reject) => {
-    resolve('');
-  });
+function getNumber() {
+  return 8;
 }
 ```
-
-### Stop using event bus
-
----
-
-We are only going to use events for IPC.
-
-- Events are less type-safe.
-- They may follow a different order on each execution.
-- It's more difficult to track code execution in the IDE.
-- It's not possible to know if an event is being used from the IDE (e.g., references in TypeScript).
 
 ### Logger
 
 ---
 
-We are going to start open telemetry and store the logs in S3 has a cost. That's why:
-
-- Use logger.debug and logger.warn for anything that shouldn't be stored in S3 (most logs).
-- Use logger.error for a small number of logs (only the most important ones).
+Use logger.error for errors that should be logged in `drive-desktop-important.log` and logger.warn for all other errors. Almost all errors should be logged with logger.error.
 
 ### Comments
 

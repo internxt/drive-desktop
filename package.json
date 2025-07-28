@@ -14,7 +14,7 @@
     "init:ci": "npm ci --ignore-scripts && node node_modules/electron/install.js",
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run reload-native-deps",
     "========== Code style ==========": "",
-    "lint": "eslint . --ext .ts,.tsx --max-warnings 550",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 518",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier src --check",
     "format:fix": "prettier src --write",
