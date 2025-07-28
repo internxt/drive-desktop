@@ -15,10 +15,11 @@ import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { AuthContext } from '@/backend/features/auth/utils/context';
 
-export function addRemoteSyncManager({ config, workspaceId, worker }: { config: Config; workspaceId: string; worker: TWorkerConfig }) {
-  remoteSyncManagers.set(workspaceId, new RemoteSyncManager(config, worker, workspaceId));
+export function addRemoteSyncManager({ context, worker }: { context: SyncContext; worker: TWorkerConfig }) {
+  remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, worker, context.workspaceId));
 }
 
 type UpdateFileInBatchInput = {
@@ -164,10 +165,10 @@ ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', (_, workspaceId = '') => {
   return manager.totalFilesUnsynced;
 });
 
-export async function initSyncEngine() {
+export async function initSyncEngine({ context }: { context: AuthContext }) {
   try {
-    const { providerId } = await spawnDefaultSyncEngineWorker();
-    await spawnWorkspaceSyncEngineWorkers({ providerId });
+    const { providerId } = await spawnDefaultSyncEngineWorker({ context });
+    await spawnWorkspaceSyncEngineWorkers({ context, providerId });
     await debouncedSynchronization();
   } catch (error) {
     throw logger.error({

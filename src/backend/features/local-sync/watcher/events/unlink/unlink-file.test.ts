@@ -1,7 +1,6 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { unlinkFile } from './unlink-file';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as isMoveEvent from './is-move-event';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -48,7 +47,7 @@ describe('unlink-file', () => {
     await unlinkFile(props);
     // Then
     expect(getParentUuidMock).toBeCalledTimes(1);
-    expect(getParentUuidMock).toBeCalledWith(expect.objectContaining({ path: '/folder/file.txt' }));
+    expect(getParentUuidMock).toBeCalledWith(expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder\\file.txt' }));
     expect(invokeMock).toBeCalledTimes(0);
   });
 

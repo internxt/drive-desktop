@@ -1,10 +1,10 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
-  context: Config;
+  context: SyncContext;
   folderUuid: string;
 };
 
@@ -28,7 +28,7 @@ export async function fetchFoldersByFolder({ context, folderUuid }: TProps) {
           order: 'DESC',
         },
       },
-      { skipLog: true },
+      { skipLog: true, abortSignal: context.abortController.signal },
     );
 
     if (error) break;

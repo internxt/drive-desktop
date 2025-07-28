@@ -162,7 +162,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
   }
 });
 
-eventBus.on('USER_LOGGED_OUT', async () => {
+eventBus.on('USER_LOGGED_OUT', () => {
   setTrayStatus('IDLE');
 
   clearConfig();
@@ -176,6 +176,4 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   clearAntivirus();
   unregisterVirtualDrives({});
   void AuthModule.logout();
-
-  await createAuthWindow();
 });

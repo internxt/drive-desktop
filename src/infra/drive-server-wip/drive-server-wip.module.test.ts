@@ -7,7 +7,7 @@ vi.mock(import('./in/client-wrapper.service'));
 
 type TService = keyof typeof driveServerWip;
 type TMethod = keyof (typeof driveServerWip)[TService];
-type TFunction = (_: unknown) => Promise<{ data: unknown }>;
+type TFunction = (_: unknown, __: unknown) => Promise<{ data: unknown }>;
 type TFetchResponse = FetchResponse<Record<string, unknown>, unknown, `${string}/${string}`>;
 
 describe('drive-server-wip', () => {
@@ -46,7 +46,7 @@ describe('drive-server-wip', () => {
 
     // When
     const fn: TFunction = driveServerWip[service][method];
-    await fn({});
+    await fn({}, {});
 
     // Then
     const { promiseFn } = clientWrapperMock.mock.calls[0][0];

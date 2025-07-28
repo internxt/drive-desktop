@@ -19,19 +19,43 @@ describe('sync-items-by-folder', () => {
     props = mockProps<typeof syncItemsByFolder>({
       rootFolderUuid: 'rootFolderUuid',
       context: {
+        abortController: new AbortController(),
         workspaceId: '',
         workspaceToken: '',
       },
     });
   });
 
-  it('should not iterate another time if there are no folders inside', async () => {
+  it('should not iterate if signal is aborted', async () => {
     // Given
-    updateFolderStatusesMock.mockResolvedValueOnce([]);
-
+    props.context.abortController.abort();
     // When
     await syncItemsByFolder(props);
+    // Then
+    expect(updateFolderStatusesMock).toBeCalledTimes(0);
+    expect(updateFileStatusesMock).toBeCalledTimes(0);
+    expect(sleepMock).toBeCalledTimes(0);
+  });
 
+  it('should not iterate again if signal is aborted', async () => {
+    // Given
+    updateFolderStatusesMock.mockImplementation(() => {
+      props.context.abortController.abort();
+      return Promise.resolve(['folderUuid']);
+    });
+    // When
+    await syncItemsByFolder(props);
+    // Then
+    expect(updateFolderStatusesMock).toBeCalledTimes(1);
+    expect(updateFileStatusesMock).toBeCalledTimes(1);
+    expect(sleepMock).toBeCalledTimes(1);
+  });
+
+  it('should not iterate another time if there are no folders inside', async () => {
+    // Given
+    updateFolderStatusesMock.mockResolvedValue([]);
+    // When
+    await syncItemsByFolder(props);
     // Then
     expect(updateFolderStatusesMock).toBeCalledTimes(1);
     expect(updateFileStatusesMock).toBeCalledTimes(1);
@@ -42,10 +66,8 @@ describe('sync-items-by-folder', () => {
     // Given
     updateFolderStatusesMock.mockResolvedValueOnce(['folderUuid']);
     updateFolderStatusesMock.mockResolvedValueOnce([]);
-
     // When
     await syncItemsByFolder(props);
-
     // Then
     expect(updateFolderStatusesMock).toBeCalledTimes(2);
     expect(updateFileStatusesMock).toBeCalledTimes(2);
