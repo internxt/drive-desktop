@@ -15,7 +15,7 @@ import 'regenerator-runtime/runtime';
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
 import { PATHS } from '@/core/electron/paths';
-import { setupElectronLog } from '@internxt/drive-desktop-core/backend/core/logger/setup-electron-log';
+import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
 setupElectronLog({
   logsPath: PATHS.ELECTRON_LOGS,
