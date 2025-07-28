@@ -2264,7 +2264,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/backup/v2/devices/{deviceId}": {
+    "/backup/v2/devices/{key}": {
         parameters: {
             query?: never;
             header?: never;
@@ -2274,11 +2274,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete device and its linked folder by ID */
+        /** Delete device and its linked folder by key */
         delete: operations["BackupController_deleteDeviceAndFolder"];
         options?: never;
         head?: never;
-        /** Update device */
+        /** Update device by key */
         patch: operations["BackupController_updateDevice"];
         trace?: never;
     };
@@ -7876,7 +7876,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                deviceId: number;
+                key: string;
             };
             cookie?: never;
         };
@@ -7896,7 +7896,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                deviceId: number;
+                key: string;
             };
             cookie?: never;
         };

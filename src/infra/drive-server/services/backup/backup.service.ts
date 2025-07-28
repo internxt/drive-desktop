@@ -351,11 +351,11 @@ export class BackupService {
   ): Promise<Either<Error, Device>> {
     try {
       const response = await driveServerClient.PATCH(
-        '/backup/v2/devices/{deviceId}',
+        '/backup/v2/devices/{key}',
         {
           headers: getNewApiHeaders(),
           body: { name: deviceName },
-          path: { deviceId: deviceIdentifier },
+          path: { key: deviceIdentifier },
         }
       );
       if (!response.data) {
@@ -364,7 +364,7 @@ export class BackupService {
           msg: error.message,
           tag: 'BACKUP',
           attributes: {
-            endpoint: '/backup/v2/devices/{deviceId}',
+            endpoint: '/backup/v2/devices/{key}',
           },
         });
         return left(error);
@@ -374,6 +374,25 @@ export class BackupService {
       const error = mapError(err);
       logger.error({
         msg: 'Update device by identifier request threw an exception',
+        tag: 'BACKUP',
+        error: error,
+      });
+      return left(error);
+    }
+  }
+
+  async deleteDeviceByIdentifier(
+    deviceIdentifier: string
+  ): Promise<Either<Error, void>> {
+    try {
+      await driveServerClient.DELETE('/backup/v2/devices/{key}', {
+        headers: getNewApiHeaders(),
+        path: { key: deviceIdentifier },
+      });
+    } catch (err) {
+      const error = mapError(err);
+      logger.error({
+        msg: 'Delete device by identifier request threw an exception',
         tag: 'BACKUP',
         error: error,
       });
