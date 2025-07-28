@@ -20,8 +20,8 @@
     "========== Code style ==========": "",
     "lint": "eslint . --ext .ts,.tsx --max-warnings 518",
     "lint:fix": "npm run lint -- --fix",
-    "format": "prettier src --check",
-    "format:fix": "prettier src --write",
+    "format": "prettier src tests --check",
+    "format:fix": "prettier src tests --write",
     "type-check": "tsc",
     "find-deadcode": "ts-prune -i schema.d.ts -e",
     "========== Start ==========": "",
@@ -51,19 +51,16 @@
     "productName": "Internxt",
     "appId": "com.internxt.drive",
     "asar": true,
-    "asarUnpack": [
-      "**\\*.{node,dll}"
-    ],
+    "asarUnpack": "**\\*.{node,dll}",
     "files": [
       "dist",
       "node_modules",
       "package.json"
     ],
     "win": {
-      "target": [
-        "nsis"
-      ],
-      "verifyUpdateCodeSignature": false
+      "target": "nsis",
+      "verifyUpdateCodeSignature": false,
+      "artifactName": "Internxt-Setup-${version}.${ext}"
     },
     "directories": {
       "buildResources": "assets",
