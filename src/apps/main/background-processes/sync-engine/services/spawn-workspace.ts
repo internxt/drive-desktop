@@ -31,7 +31,7 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
   try {
     const mnemonic = await decryptMessageWithPrivateKey({
       encryptedMessage: Buffer.from(workspace.mnemonic, 'base64').toString(),
-      privateKeyInBase64: user.keys.ecc.privateKey,
+      privateKeyInBase64: user.privateKey,
       userMnemonic: user.mnemonic,
     });
 
