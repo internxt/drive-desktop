@@ -2,8 +2,8 @@ import { io, Socket } from 'socket.io-client';
 import { obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { logger } from '../shared/logger/logger';
-import { addGeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
 import { RemoteNotificationsModule } from '@/backend/features/remote-notifications/remote-notifications.module';
+import { IssuesModule } from '@internxt/drive-desktop-core/build/backend';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -50,7 +50,7 @@ export function cleanAndStartRemoteNotifications() {
 
   socket.on('connect', () => {
     logger.debug({ msg: 'Remote notifications connected' });
-    removeGeneralIssue({
+    IssuesModule.removeGeneralIssue({
       error: 'WEBSOCKET_CONNECTION_ERROR',
       name: 'Remote notifications',
     });
@@ -62,7 +62,7 @@ export function cleanAndStartRemoteNotifications() {
 
   socket.on('connect_error', () => {
     logger.warn({ msg: 'Remote notifications connect error' });
-    addGeneralIssue({
+    IssuesModule.addGeneralIssue({
       error: 'WEBSOCKET_CONNECTION_ERROR',
       name: 'Remote notifications',
     });

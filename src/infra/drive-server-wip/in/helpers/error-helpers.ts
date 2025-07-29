@@ -1,4 +1,5 @@
-import { GeneralIssue, removeGeneralIssue } from '@/apps/main/background-processes/issues';
+import { IssuesModule } from '@internxt/drive-desktop-core/build/backend';
+import { GeneralIssue } from '@internxt/drive-desktop-core/build/backend';
 import { z } from 'zod';
 
 /*
@@ -80,6 +81,6 @@ export function isAbortError({ exc }: { exc: unknown }): boolean {
 }
 
 export function handleRemoveErrors() {
-  removeGeneralIssue(serverErrorIssue);
-  removeGeneralIssue(networkErrorIssue);
+  IssuesModule.removeGeneralIssue(serverErrorIssue);
+  IssuesModule.removeGeneralIssue(networkErrorIssue);
 }

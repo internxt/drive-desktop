@@ -29,7 +29,7 @@ import './windows/settings';
 import './windows/process-issues';
 import './windows';
 import './background-processes/sync-engine';
-import './background-processes/process-issues';
+import { setupIpcIssues } from './background-processes/process-issues';
 import './device/handlers';
 import './usage/handlers';
 import './realtime';
@@ -80,6 +80,7 @@ setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();
 setupIpcSqlite();
+setupIpcIssues();
 
 logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
 

@@ -1,6 +1,6 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../../in/get-in-flight-request';
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { paths } from '@internxt/drive-desktop-core/build/backend';
 import { clientWrapper } from '../../in/client-wrapper.service';
 
 type TQuery = paths['/workspaces/{workspaceId}/folders/{folderUuid}/folders']['get']['parameters']['query'];

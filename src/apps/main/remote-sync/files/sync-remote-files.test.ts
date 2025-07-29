@@ -2,7 +2,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { syncRemoteFile } from './sync-remote-file';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { newDriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFiles } from './sync-remote-files';
 import { TWorkerConfig } from '../../background-processes/sync-engine/store';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
@@ -15,7 +15,7 @@ vi.mock(import('@/infra/lokijs/lokijs.module'));
 
 describe('sync-remote-files.service', () => {
   const syncRemoteFileMock = deepMocked(syncRemoteFile);
-  const getFilesMock = deepMocked(driveServerWip.files.getFiles);
+  const getFilesMock = deepMocked(newDriveServerWipModule.files.getFiles);
   const updateCheckpointMock = vi.mocked(LokijsModule.CheckpointsModule.updateCheckpoint);
 
   const config = mockDeep<Config>();

@@ -1,7 +1,7 @@
-import type { Issue } from '../background-processes/issues';
 import type { RemoteSyncStatus } from '../remote-sync/helpers';
 import type { BackupsStatus } from '../background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import type { BackupsProgress } from '../background-processes/backups/types/BackupsProgress';
+import { Issue } from '@internxt/drive-desktop-core/build/backend';
 
 export type SyncInfoUpdateEvent = {
   name: 'sync-info-update';

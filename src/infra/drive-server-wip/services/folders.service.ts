@@ -1,5 +1,5 @@
 import { client } from '@/apps/shared/HttpClient/client';
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { paths } from '@internxt/drive-desktop-core/build/backend';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';

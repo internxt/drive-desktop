@@ -2,9 +2,9 @@ import fs from 'fs/promises';
 import path from 'path';
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { BackupsIssue } from '@/apps/main/background-processes/issues';
 import { StatError } from '@/infra/file-system/services/stat';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
+import { BackupsIssue } from '@internxt/drive-desktop-core/build/backend';
 
 type LocalFileDTO = {
   path: AbsolutePath;

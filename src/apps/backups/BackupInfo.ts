@@ -1,4 +1,4 @@
-import { BackupsIssue } from '../main/background-processes/issues';
+import { BackupsIssue } from '@internxt/drive-desktop-core/build/backend';
 
 export type BackupInfo = {
   folderUuid: string;

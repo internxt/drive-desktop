@@ -1,5 +1,5 @@
+import { Issue } from '@internxt/drive-desktop-core/build/backend';
 import { useEffect, useMemo, useState } from 'react';
-import { Issue } from '@/apps/main/background-processes/issues';
 
 export function useIssues() {
   const [issues, setIssues] = useState<Issue[]>([]);

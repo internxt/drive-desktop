@@ -1,38 +1,8 @@
-import { Notification } from 'electron';
-
 import eventBus from '../event-bus';
-import path from 'path';
-import { clearIssues } from './issues';
-import { logger } from '@/apps/shared/logger/logger';
+import { IssuesModule } from '@internxt/drive-desktop-core/build/backend';
 
-let lastDialogTime = 0;
-
-export function showNotEnoughSpaceNotification() {
-  const now = Date.now();
-  const TWO_MINUTES = 2 * 60 * 1000;
-
-  if (now - lastDialogTime < TWO_MINUTES) {
-    return;
-  }
-  lastDialogTime = now;
-
-  const notification = new Notification({
-    title: 'Internxt',
-    body: 'Your account storage limit has been reached, for more details go to Settings -> Issues',
-    icon: path.join(process.cwd(), 'assets', 'icon.ico'),
+export function setupIpcIssues() {
+  eventBus.on('USER_LOGGED_OUT', () => {
+    IssuesModule.clearIssues();
   });
-
-  notification.on('click', () => {
-    logger.debug({ msg: 'The users clicked on the notification' });
-  });
-
-  /**
-   * v2.5.3 Daniel Jiménez
-   * TODO: Notification is not working
-   */
-  notification.show();
 }
-
-eventBus.on('USER_LOGGED_OUT', () => {
-  clearIssues();
-});

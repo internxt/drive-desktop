@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Accordion } from './Accordion';
-import { Issue } from '@/apps/main/background-processes/issues';
 import { i18n } from './IssuesByError.i18n';
+import { Issue } from '@internxt/drive-desktop-core/build/backend';
 
 function groupAppIssuesByErrorName(issues: Issue[]) {
   return issues.reduce(
