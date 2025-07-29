@@ -20,9 +20,6 @@ export class DependencyInjectionVirtualDrive {
         debug(body) {
           logger.debug({ tag: 'NODE-WIN', ...body, workspaceId });
         },
-        info(body) {
-          logger.info({ tag: 'NODE-WIN', ...body, workspaceId });
-        },
         warn(body) {
           logger.warn({ tag: 'NODE-WIN', ...body, workspaceId });
         },

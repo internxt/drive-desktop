@@ -1,12 +1,12 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { Antivirus } from './Antivirus';
 import { DBScannerConnection } from './utils/dbConections';
 import { transformItem } from './utils/transformItem';
+import { AntivirusEngine } from './antivirus-manager/types';
 
 type TProps = {
   filePath: string;
   database: DBScannerConnection;
-  antivirus: Antivirus;
+  antivirus: AntivirusEngine;
 };
 
 export const scanFile = async ({ filePath, database, antivirus }: TProps) => {
@@ -18,7 +18,7 @@ export const scanFile = async ({ filePath, database, antivirus }: TProps) => {
       if (scannedItem.updatedAtW === previousScannedItem.updatedAtW) return;
       if (scannedItem.hash === previousScannedItem.hash) return;
 
-      const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
+      const currentScannedFile = await antivirus.scanFile({ filePath: scannedItem.pathName });
       if (currentScannedFile) {
         await database.updateItemToDatabase(previousScannedItem.id, {
           ...scannedItem,
@@ -28,7 +28,7 @@ export const scanFile = async ({ filePath, database, antivirus }: TProps) => {
       return;
     }
 
-    const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
+    const currentScannedFile = await antivirus.scanFile({ filePath: scannedItem.pathName });
     if (currentScannedFile) {
       await database.addItemToDatabase({
         ...scannedItem,

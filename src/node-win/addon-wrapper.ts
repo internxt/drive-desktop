@@ -197,7 +197,7 @@ export class Addon {
 }
 
 export class DependencyInjectionAddonProvider {
-  private static _addon: Addon;
+  private static _addon?: Addon;
 
   static get() {
     if (DependencyInjectionAddonProvider._addon) return DependencyInjectionAddonProvider._addon;

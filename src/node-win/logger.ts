@@ -5,7 +5,6 @@ type TBody = {
 
 export type TLogger = {
   debug: (body: TBody) => void;
-  info: (body: TBody) => void;
   warn: (body: TBody) => void;
   error: (body: TBody) => void;
 };

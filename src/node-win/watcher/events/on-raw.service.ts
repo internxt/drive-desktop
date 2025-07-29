@@ -36,11 +36,7 @@ export class OnRawService {
           return;
         }
 
-        const action = await this.detectContextMenuAction.execute({ self, details, absolutePath, path });
-
-        if (action) {
-          self.logger.debug({ msg: 'change', path, action });
-        }
+        await this.detectContextMenuAction.execute({ self, details, absolutePath, path });
       }
     } catch (error) {
       self.logger.error({ msg: 'Error on change', path, error });
