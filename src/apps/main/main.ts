@@ -1,5 +1,4 @@
 import { app, ipcMain, nativeTheme } from 'electron';
-import Logger from 'electron-log';
 
 void app.whenReady().then(() => {
   app.setAppUserModelId('com.internxt.app');
@@ -15,9 +14,13 @@ import 'regenerator-runtime/runtime';
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
-import { setupElectronLog } from './logger';
+import { PATHS } from '@/core/electron/paths';
+import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
-setupElectronLog();
+setupElectronLog({
+  logsPath: PATHS.ELECTRON_LOGS,
+  importantLogsPath: PATHS.ELECTRON_IMPORTANT_LOGS,
+});
 
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
@@ -131,7 +134,7 @@ app
 
     await checkForUpdates();
   })
-  .catch(Logger.error);
+  .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
@@ -157,7 +160,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
       widget.show();
     }
   } catch (error) {
-    Logger.error(error);
+    logger.error({ msg: 'Error logging in', error });
     reportError(error as Error);
   }
 });

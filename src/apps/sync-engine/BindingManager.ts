@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
@@ -46,7 +45,7 @@ export class BindingsManager {
         }),
       cancelFetchDataCallback: () => {
         this.controllers.downloadFile.cancel();
-        Logger.debug('cancelFetchDataCallback');
+        logger.debug({ msg: 'cancelFetchDataCallback' });
       },
     };
 

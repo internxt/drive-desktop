@@ -1,8 +1,8 @@
 import { parseAndDecryptUserKeys } from '../../../apps/shared/crypto/keys.service';
 import { safeStorage } from 'electron';
-import Logger from 'electron-log';
 import ConfigStore from '../config';
 import { User } from '../types';
+import { logger } from '@/apps/shared/logger/logger';
 
 const TOKEN_ENCODING = 'latin1';
 
@@ -24,7 +24,7 @@ export function encryptToken() {
     return;
   }
 
-  Logger.info('TOKEN WAS NOT ENCRYPTED, ENCRYPTING...');
+  logger.debug({ msg: 'TOKEN WAS NOT ENCRYPTED, ENCRYPTING...' });
 
   if (!safeStorage.isEncryptionAvailable()) {
     throw new Error('Safe Storage is not available');
