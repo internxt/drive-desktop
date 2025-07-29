@@ -1,12 +1,14 @@
+# base64 -w 0 certificate.p12 > certificate.p12.b64
+
 $packageJson = Get-Content "..\package.json" -Raw | ConvertFrom-Json
 $version = $packageJson.version
 
 $envPath = "..\.env"
-$exeFileName = "Internxt-Setup-$version.exe"
-$exePath = "..\build\$exeFileName"
+$exePath = "..\build\Internxt-Setup-$version.exe"
 $yamlPath = "..\build\latest.yml"
+$certPath = "certificate.p12"
 
-Write-Host "Exe name: $exeFileName"
+Write-Host "Exe name: $exePath"
 
 $envVars = Get-Content $envPath | Where-Object { $_ -match '^\s*[^#]' -and $_ -match '=' }
 
@@ -17,15 +19,9 @@ foreach ($line in $envVars) {
     Set-Variable -Name $key -Value $value
 }
 
-Write-Host "SM_API_KEY: $SM_API_KEY"
-Write-Host "SM_CLIENT_CERT_PASSWORD: $SM_CLIENT_CERT_PASSWORD"
+[IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($CERT_BASE64))
 
-.\smctl.exe creds save $SM_API_KEY $SM_CLIENT_CERT_PASSWORD
-
-$env:SM_HOST = "http://clientauth.one.digicert.com/"
-$env:SM_CLIENT_CERT_FILE = "certificate.p12"
-
-.\smctl.exe sign --keypair-alias=key_1153997366 -d=SHA256 --input "$exePath" --verbose
+.\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $certPath /p $CERT_PASSWORD $exePath
 
 $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
 $bytes = [System.Convert]::FromHexString($hash)

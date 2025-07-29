@@ -9,19 +9,11 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 10
 
-    permissions:
-      contents: read
-      packages: read
-      pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Check for SignTool
-        run: |
-          where signtool
-          signtool /?
-        shell: cmd
+      - name: Create package
+        run: npm run package
