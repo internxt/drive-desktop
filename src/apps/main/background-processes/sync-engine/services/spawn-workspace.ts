@@ -28,27 +28,32 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
 
   const user = getUserOrThrow();
 
-  const mnemonic = await decryptMessageWithPrivateKey({
-    encryptedMessage: Buffer.from(workspace.mnemonic, 'base64').toString(),
-    privateKeyInBase64: user.privateKey,
-  });
+  try {
+    const mnemonic = await decryptMessageWithPrivateKey({
+      encryptedMessage: Buffer.from(workspace.mnemonic, 'base64').toString(),
+      privateKeyInBase64: user.keys.ecc.privateKey,
+      userMnemonic: user.mnemonic,
+    });
 
-  const syncContext: SyncContext = {
-    ...context,
-    userUuid: user.uuid,
-    mnemonic: mnemonic.toString(),
-    providerId: workspace.providerId,
-    rootPath: workspace.rootPath,
-    providerName: 'Internxt Drive for Business',
-    loggerPath: join(PATHS.LOGS, `node-win-workspace-${workspace.id}.log`),
-    queueManagerPath: join(PATHS.LOGS, `queue-manager-workspace-${workspace.id}.log`),
-    workspaceId: workspace.id,
-    workspaceToken: credentials.tokenHeader,
-    rootUuid: workspace.rootFolderId,
-    bucket: credentials.bucket,
-    bridgeUser: credentials.credentials.networkUser,
-    bridgePass: credentials.credentials.networkPass,
-  };
+    const syncContext: SyncContext = {
+      ...context,
+      userUuid: user.uuid,
+      mnemonic,
+      providerId: workspace.providerId,
+      rootPath: workspace.rootPath,
+      providerName: 'Internxt Drive for Business',
+      loggerPath: join(PATHS.LOGS, `node-win-workspace-${workspace.id}.log`),
+      queueManagerPath: join(PATHS.LOGS, `queue-manager-workspace-${workspace.id}.log`),
+      workspaceId: workspace.id,
+      workspaceToken: credentials.tokenHeader,
+      rootUuid: workspace.rootFolderId,
+      bucket: credentials.bucket,
+      bridgeUser: credentials.credentials.networkUser,
+      bridgePass: credentials.credentials.networkPass,
+    };
 
-  await spawnSyncEngineWorker({ context: syncContext });
+    await spawnSyncEngineWorker({ context: syncContext });
+  } catch (exc) {
+    logger.error({ tag: 'SYNC-ENGINE', msg: 'Error spawning workspace', exc });
+  }
 }
