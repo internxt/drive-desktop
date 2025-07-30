@@ -9,7 +9,6 @@
 /coverage
 /dist
 /node_modules
-/sign/certificate.p12
 /test-files
 /test/temp-test
 CLAUDE.md
