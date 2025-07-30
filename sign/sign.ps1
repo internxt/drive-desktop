@@ -28,6 +28,8 @@ try {
     Write-Error "Failed to load certificate: $_"
 }
 
+Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $CERT_PASSWORD -AsPlainText -Force)
+
 .\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $certPath /p $CERT_PASSWORD $exePath
 
 $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
