@@ -31,6 +31,7 @@ jobs:
         run: |
           echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" >> .env
           echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
+          echo "DESKTOP_HEADER=${{ secrets.DESKTOP_HEADER }}" >> .env
           echo "DRIVE_URL=${{ secrets.DRIVE_URL }}" >> .env
           echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
           echo "NOTIFICATIONS_URL=${{ secrets.NOTIFICATIONS_URL }}" >> .env
