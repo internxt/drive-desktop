@@ -21,24 +21,21 @@ foreach ($line in $envVars) {
 
 [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($CERT_BASE64))
 
-try {
-    $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certPath, $CERT_PASSWORD, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
-    Write-Host "Certificate loaded: $($cert.Subject)"
+$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certPath, $CERT_PASSWORD, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+Write-Host "Certificate loaded: $($cert.Subject)"
 
-    Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $CERT_PASSWORD -AsPlainText -Force)
+Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $CERT_PASSWORD -AsPlainText -Force)
 
-    .\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /n "CN=$($cert.Subject)" $exePath
+certutil -store -user My
 
-    $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
-    $bytes = [System.Convert]::FromHexString($hash)
-    $base64 = [System.Convert]::ToBase64String($bytes)
+.\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /n "CN=$($cert.Subject)" $exePath
 
-    Write-Host "Exe base64 hash: $base64"
+$hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
+$bytes = [System.Convert]::FromHexString($hash)
+$base64 = [System.Convert]::ToBase64String($bytes)
 
-    (Get-Content $yamlPath) `
-    | ForEach-Object { $_ -replace '^(\s*sha512:\s*).+', "`$1$base64" } `
-    | Set-Content $yamlPath
-} catch {
-    Write-Error "Failed to load certificate: $_"
-}
+Write-Host "Exe base64 hash: $base64"
 
+(Get-Content $yamlPath) `
+| ForEach-Object { $_ -replace '^(\s*sha512:\s*).+', "`$1$base64" } `
+| Set-Content $yamlPath
