@@ -26,9 +26,9 @@ Write-Host "Certificate loaded: $($cert.Subject)"
 
 Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $CERT_PASSWORD -AsPlainText -Force)
 
-certutil -store -user My
+Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.HasPrivateKey }
 
-.\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /n "bdbcc4f6-1337-4640-9e7e-ad63909562ad" $exePath
+.\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /sha1 90E9EEE4AE33BA76F90B05CE1388F2AF463AD953 $exePath
 
 $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
 $bytes = [System.Convert]::FromHexString($hash)

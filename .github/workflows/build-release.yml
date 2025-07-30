@@ -57,6 +57,6 @@ jobs:
         with:
           name: signed-windows-build
           path: |
-            build/Internxt Drive Setup 2.3.5.exe
-            build/Internxt Drive Setup 2.3.5.exe.blockmap
+            build/Internxt-Setup-*.exe
+            build/Internxt-Setup-*.exe.blockmap
             build/latest.yml
