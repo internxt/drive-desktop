@@ -38,7 +38,7 @@ const configuration: webpack.Configuration = {
   },
 
   plugins: [
-    new BundleAnalyzerPlugin({ analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled' }),
+    // new BundleAnalyzerPlugin({ analyzerMode: 'server' }),
     new webpack.EnvironmentPlugin({ NODE_ENV: 'production' }),
     new Dotenv({ ignoreStub: true }),
   ],
