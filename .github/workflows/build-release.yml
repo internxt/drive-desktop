@@ -30,16 +30,19 @@ jobs:
 
       - name: Create .env file
         run: |
-          cat <<EOF > .env
-          BRIDGE_URL="${{ secrets.BRIDGE_URL }}"
-          CRYPTO_KEY="${{ secrets.CRYPTO_KEY }}"
-          DESKTOP_HEADER="${{ secrets.DESKTOP_HEADER }}"
-          DRIVE_URL="${{ secrets.DRIVE_URL }}"
-          NEW_CRYPTO_KEY="${{ secrets.NEW_CRYPTO_KEY }}"
-          NOTIFICATIONS_URL="${{ secrets.NOTIFICATIONS_URL }}"
-          PAYMENTS_URL="${{ secrets.PAYMENTS_URL }}"
-          PORT=${{ secrets.PORT }}
-          EOF
+          "@(
+          'BRIDGE_URL=${{ secrets.BRIDGE_URL }}'
+          'CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}'
+          'DESKTOP_HEADER=${{ secrets.DESKTOP_HEADER }}'
+          'DRIVE_URL=${{ secrets.DRIVE_URL }}'
+          'NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}'
+          'NOTIFICATIONS_URL=${{ secrets.NOTIFICATIONS_URL }}'
+          'PAYMENTS_URL=${{ secrets.PAYMENTS_URL }}'
+          'PORT=${{ secrets.PORT }}'
+          'CERT_BASE64=${{ secrets.CERT_BASE64 }}'
+          'CERT_PASSWORD=${{ secrets.CERT_PASSWORD }}'
+          ) -join \"`r`n\"" | Out-File -FilePath .env -Encoding ascii
+        shell: pwsh
 
       - name: Print .env file
         run: cat .env
