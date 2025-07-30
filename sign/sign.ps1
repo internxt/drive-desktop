@@ -1,12 +1,12 @@
-# base64 -w 0 certificate.p12 > certificate.p12.b64
+# base64 -w 0 certificate.p12 > CERT_BASE64
 
-$packageJson = Get-Content "..\package.json" -Raw | ConvertFrom-Json
+$packageJson = Get-Content "package.json" -Raw | ConvertFrom-Json
 $version = $packageJson.version
 
-$envPath = "..\.env"
-$exePath = "..\build\Internxt-Setup-$version.exe"
-$yamlPath = "..\build\latest.yml"
-$certPath = "certificate.p12"
+$envPath = ".env"
+$exePath = "build\Internxt-Setup-$version.exe"
+$yamlPath = "build\latest.yml"
+$certPath = "sign\certificate.p12"
 
 Write-Host "Exe name: $exePath"
 
@@ -21,7 +21,7 @@ foreach ($line in $envVars) {
 
 [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($CERT_BASE64))
 
-.\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $certPath /p $CERT_PASSWORD $exePath
+.\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $certPath /p $CERT_PASSWORD $exePath
 
 $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
 $bytes = [System.Convert]::FromHexString($hash)
