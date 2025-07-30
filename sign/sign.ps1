@@ -28,7 +28,7 @@ Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\CurrentUser\M
 
 certutil -store -user My
 
-.\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /n "CN=$($cert.Subject)" $exePath
+.\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /n "bdbcc4f6-1337-4640-9e7e-ad63909562ad" $exePath
 
 $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
 $bytes = [System.Convert]::FromHexString($hash)
