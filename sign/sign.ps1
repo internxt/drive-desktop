@@ -22,6 +22,8 @@ foreach ($line in $envVars) {
 [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($CERT_BASE64))
 
 $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certPath, $CERT_PASSWORD, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+$cert.Extensions | Where-Object { $_.Oid.FriendlyName -eq "Enhanced Key Usage" } | ForEach-Object { $_.EnhancedKeyUsages | ForEach-Object { $_.FriendlyName } }
+
 Write-Host "Certificate loaded: $($cert.Subject)"
 
 Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $CERT_PASSWORD -AsPlainText -Force)
