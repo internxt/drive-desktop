@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  pull_request:
+  build_release:
     runs-on: windows-latest
     timeout-minutes: 10
 

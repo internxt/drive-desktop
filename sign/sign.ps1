@@ -21,6 +21,13 @@ foreach ($line in $envVars) {
 
 [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($CERT_BASE64))
 
+try {
+    $cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certPath, $CERT_PASSWORD, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+    Write-Host "Certificate loaded: $($cert.Subject)"
+} catch {
+    Write-Error "Failed to load certificate: $_"
+}
+
 .\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /f $certPath /p $CERT_PASSWORD $exePath
 
 $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
