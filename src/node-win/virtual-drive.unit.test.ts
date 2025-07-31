@@ -6,6 +6,7 @@ import { addon } from '@/node-win/addon';
 
 import VirtualDrive from './virtual-drive';
 import { setDefaultConfig } from '@/apps/sync-engine/config';
+import { iconPath } from '@/apps/utils/icon';
 
 vi.mock(import('fs'));
 vi.mock('@/node-win/addon', () => ({
@@ -137,13 +138,12 @@ describe('VirtualDrive', () => {
       const drive = new VirtualDrive();
       const providerName = 'MyProvider';
       const providerVersion = '1.0.0';
-      const logoPath = 'C:\\iconPath';
 
       // Act
-      drive.registerSyncRoot({ providerName, providerVersion, logoPath });
+      drive.registerSyncRoot({ providerName, providerVersion });
 
       // Assert
-      expect(addon.registerSyncRoot).toHaveBeenCalledWith(syncRootPath, providerName, providerVersion, providerId, logoPath);
+      expect(addon.registerSyncRoot).toHaveBeenCalledWith(syncRootPath, providerName, providerVersion, providerId, iconPath);
     });
   });
 });

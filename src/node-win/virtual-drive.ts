@@ -8,6 +8,7 @@ import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/Fold
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getConfig } from '@/apps/sync-engine/config';
+import { iconPath } from '@/apps/utils/icon';
 
 const PLACEHOLDER_ATTRIBUTES = {
   FILE_ATTRIBUTE_READONLY: 0x1,
@@ -152,13 +153,13 @@ export class VirtualDrive {
     });
   }
 
-  registerSyncRoot({ providerName, providerVersion, logoPath }: { providerName: string; providerVersion: string; logoPath: string }) {
+  registerSyncRoot({ providerName, providerVersion }: { providerName: string; providerVersion: string }) {
     logger.debug({ msg: 'Registering sync root', syncRootPath: this.syncRootPath });
     return this.addon.registerSyncRoot({
       providerName,
       providerVersion,
       providerId: this.providerId,
-      logoPath,
+      logoPath: iconPath,
     });
   }
 
