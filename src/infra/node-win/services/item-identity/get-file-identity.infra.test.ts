@@ -8,6 +8,7 @@ import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { iconPath } from '@/apps/utils/icon';
 import { getFileIdentity, GetFileIdentityError } from './get-file-identity';
+import { initializeVirtualDrive, virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 describe('get-file-identity', () => {
   const callbacks = mockDeep<Callbacks>();
@@ -15,20 +16,20 @@ describe('get-file-identity', () => {
   const providerId = `{${v4()}}`;
   const rootFolder = join(TEST_FILES, v4());
   const driveFolder = join(rootFolder, v4());
-  const drive = new VirtualDrive();
+  initializeVirtualDrive();
 
   beforeAll(() => {
-    drive.registerSyncRoot({
+    virtualDrive.registerSyncRoot({
       providerName: 'Internxt Drive',
       providerVersion: INTERNXT_VERSION,
       logoPath: iconPath,
     });
 
-    drive.connectSyncRoot({ callbacks });
+    virtualDrive.connectSyncRoot({ callbacks });
   });
 
   afterAll(() => {
-    drive.disconnectSyncRoot();
+    virtualDrive.disconnectSyncRoot();
     VirtualDrive.unRegisterSyncRootByProviderId({ providerId });
   });
 
@@ -37,10 +38,10 @@ describe('get-file-identity', () => {
     const file = join(driveFolder, v4());
     const id = `FILE:${v4()}` as const;
     await writeFile(file, 'content');
-    drive.convertToPlaceholder({ itemPath: file, id });
+    virtualDrive.convertToPlaceholder({ itemPath: file, id });
 
     // When
-    const { data, error } = getFileIdentity({ drive, path: file });
+    const { data, error } = getFileIdentity({ drive: virtualDrive, path: file });
 
     // Then
     expect(data).toStrictEqual(id);
@@ -52,10 +53,10 @@ describe('get-file-identity', () => {
     const folder = join(driveFolder, v4());
     const id = `FOLDER:${v4()}` as const;
     await mkdir(folder);
-    drive.convertToPlaceholder({ itemPath: folder, id });
+    virtualDrive.convertToPlaceholder({ itemPath: folder, id });
 
     // When
-    const { data, error } = getFileIdentity({ drive, path: folder });
+    const { data, error } = getFileIdentity({ drive: virtualDrive, path: folder });
 
     // Then
     expect(data).toStrictEqual(undefined);
@@ -67,7 +68,7 @@ describe('get-file-identity', () => {
     const file = join(driveFolder, v4());
 
     // When
-    const { data, error } = getFileIdentity({ drive, path: file });
+    const { data, error } = getFileIdentity({ drive: virtualDrive, path: file });
 
     // Then
     expect(data).toStrictEqual(undefined);
