@@ -18,7 +18,7 @@ describe('get-folder-identity', () => {
   const driveFolder = join(rootFolder, v4());
 
   beforeAll(() => {
-    setDefaultConfig({ rootPath: rootFolder, providerId });
+    setDefaultConfig({ rootPath: driveFolder, providerId });
     initializeVirtualDrive();
 
     virtualDrive.registerSyncRoot({
