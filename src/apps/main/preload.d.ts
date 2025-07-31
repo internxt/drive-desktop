@@ -101,13 +101,13 @@ declare interface Window {
 
     renameDevice: typeof import('../main/device/service').renameDevice;
 
-    getBackups: typeof import('../main/device/service').getBackupsFromDevice;
+    getBackups: typeof import('../main/device/get-backups-from-device').getBackupsFromDevice;
 
     devices: {
       getDevices: () => Promise<Array<import('../main/device/service').Device>>;
     };
 
-    getBackupsFromDevice: typeof import('../main/device/service').getBackupsFromDevice;
+    getBackupsFromDevice: typeof import('../main/device/get-backups-from-device').getBackupsFromDevice;
 
     addBackup: typeof import('../main/device/service').addBackup;
 

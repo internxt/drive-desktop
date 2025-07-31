@@ -22,6 +22,7 @@ import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getAuthHeaders } from '../auth/headers';
+import { getBackupsFromDevice } from './get-backups-from-device';
 
 export type Device = {
   name: string;
@@ -197,44 +198,6 @@ export function decryptDeviceName({ name, ...rest }: Device): Device {
   };
 }
 
-export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
-  const folder = await fetchFolder({ folderUuid: device.uuid });
-
-  if (isCurrent) {
-    const backupsList = configStore.get('backupList');
-
-    await new BackupFolderUuid().ensureBackupUuidExists({ backupsList });
-
-    const user = getUser();
-
-    if (user && !user?.backupsBucket) {
-      user.backupsBucket = device.bucket;
-      setUser(user);
-    }
-
-    return folder.children
-      .map((backup) => ({ ...backup, pathname: findBackupPathnameFromId(backup.id) }))
-      .filter(({ pathname }) => pathname && backupsList[pathname].enabled)
-      .map((backup) => ({
-        ...backup,
-        pathname: backup.pathname as string,
-        folderId: backup.id,
-        folderUuid: backup.uuid,
-        tmpPath: app.getPath('temp'),
-        backupsBucket: device.bucket,
-      }));
-  } else {
-    return folder.children.map((backup) => ({
-      ...backup,
-      folderId: backup.id,
-      folderUuid: backup.uuid,
-      backupsBucket: device.bucket,
-      tmpPath: '',
-      pathname: '',
-    }));
-  }
-}
-
 /**
  * Posts a Backup to desktop server API
  *
@@ -316,7 +279,7 @@ export async function addBackup(): Promise<void> {
   }
 }
 
-async function fetchFolder({ folderUuid }: { folderUuid: string }) {
+export async function fetchFolder({ folderUuid }: { folderUuid: string }) {
   const res = await client.GET('/folders/content/{uuid}', {
     params: { path: { uuid: folderUuid } },
   });
@@ -511,7 +474,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   return chosen.itemName;
 }
 
-function findBackupPathnameFromId(id: number): string | undefined {
+export function findBackupPathnameFromId(id: number): string | undefined {
   const backupsList = configStore.get('backupList');
   const entryfound = Object.entries(backupsList).find(([, b]) => b.folderId === id);
 
