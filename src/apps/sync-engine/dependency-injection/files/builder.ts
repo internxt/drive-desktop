@@ -1,4 +1,3 @@
-import { DependencyInjectionVirtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
@@ -10,6 +9,7 @@ import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { ContentsContainer } from '../contents/ContentsContainer';
+import { virtualDrive } from '../common/virtualDrive';
 
 export function buildFilesContainer(
   contentsContainer: ContentsContainer,
@@ -18,8 +18,6 @@ export function buildFilesContainer(
   container: FilesContainer;
   subscribers: unknown;
 } {
-  const { virtualDrive } = DependencyInjectionVirtualDrive;
-
   const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
 
   const repository = new InMemoryFileRepository();

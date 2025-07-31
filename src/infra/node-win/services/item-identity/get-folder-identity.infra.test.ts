@@ -17,7 +17,7 @@ describe('get-folder-identity', () => {
   const rootFolder = join(TEST_FILES, v4());
   const driveFolder = join(rootFolder, v4());
   const loggerPath = join(rootFolder, 'logs');
-  const drive = new VirtualDrive({ syncRootPath: driveFolder, providerId, loggerPath, logger });
+  const drive = new VirtualDrive();
 
   beforeAll(() => {
     drive.registerSyncRoot({
