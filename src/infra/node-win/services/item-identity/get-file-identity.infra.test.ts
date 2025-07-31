@@ -15,7 +15,6 @@ describe('get-file-identity', () => {
   const providerId = `{${v4()}}`;
   const rootFolder = join(TEST_FILES, v4());
   const driveFolder = join(rootFolder, v4());
-  const loggerPath = join(rootFolder, 'logs');
   const drive = new VirtualDrive();
 
   beforeAll(() => {

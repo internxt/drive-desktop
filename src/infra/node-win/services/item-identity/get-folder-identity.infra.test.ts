@@ -3,7 +3,6 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import { v4 } from 'uuid';
-import { logger } from '@/apps/shared/logger/logger';
 import { mockDeep } from 'vitest-mock-extended';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
@@ -16,7 +15,6 @@ describe('get-folder-identity', () => {
   const providerId = `{${v4()}}`;
   const rootFolder = join(TEST_FILES, v4());
   const driveFolder = join(rootFolder, v4());
-  const loggerPath = join(rootFolder, 'logs');
   const drive = new VirtualDrive();
 
   beforeAll(() => {
