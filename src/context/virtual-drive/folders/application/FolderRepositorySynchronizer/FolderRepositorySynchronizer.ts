@@ -6,6 +6,10 @@ import { FolderRepository } from '../../domain/FolderRepository';
 export class FolderRepositorySynchronizer {
   constructor(private readonly repository: FolderRepository) {}
 
+  async clear(): Promise<void> {
+    await this.repository.clear();
+  }
+
   async run(remoteFolders: Array<Folder>): Promise<void> {
     const currentFolders = await this.repository.all();
 

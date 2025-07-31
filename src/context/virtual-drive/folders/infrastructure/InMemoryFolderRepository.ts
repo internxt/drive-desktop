@@ -73,4 +73,8 @@ export class InMemoryFolderRepository implements FolderRepository {
 
     return this.add(folder);
   }
+
+  async clear(): Promise<void> {
+    this.folders.clear();
+  }
 }

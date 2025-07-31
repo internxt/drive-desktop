@@ -5,6 +5,7 @@ import packageConfig from '../../../../package.json';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
 import { User } from '../types';
 import { Delay } from '../../shared/Delay';
+import { driveServerModule } from '../../../infra/drive-server/drive-server.module';
 
 const TOKEN_ENCODING = 'latin1';
 
@@ -203,11 +204,13 @@ export function canHisConfigBeRestored(uuid: string) {
 }
 
 export function logout() {
+  const headers = getNewApiHeaders();
   Logger.info('Logging out');
 
   saveConfig();
   resetConfig();
   resetCredentials();
+  void driveServerModule.auth.logout(headers);
   Logger.info('[AUTH] User logged out');
 }
 

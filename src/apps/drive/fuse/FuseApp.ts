@@ -127,7 +127,7 @@ export class FuseApp extends EventEmitter {
       // Run after mount is complete
       await this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE);
     } catch (firstMountError) {
-      Logger.error(`[FUSE] mount error: ${firstMountError}`);
+      Logger.error(`[FUSE] mount error first try: ${firstMountError}`);
       try {
         await unmountPromise(this._fuse);
         await mountPromise(this._fuse);
@@ -139,14 +139,14 @@ export class FuseApp extends EventEmitter {
         await this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE);
       } catch (err) {
         this.status = 'ERROR';
-        Logger.error(`[FUSE] mount error: ${err}`);
+        Logger.error(`[FUSE] mount error final try: ${err}`);
         this.emit('mount-error');
       }
     }
   }
 
   async stop(): Promise<void> {
-    //no-op
+    /** no-op */
   }
 
   async clearCache(): Promise<void> {

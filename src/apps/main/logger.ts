@@ -1,9 +1,11 @@
+import { logFormatter } from './../../core/utils/log-formatter';
 import { ipcMain, shell } from 'electron';
 import log from 'electron-log';
 import path from 'path';
 
-log.transports.file.maxSize = 1048576 * 150; // 150MB
-log.transports.console.format = '[{iso}] [{level}] {text}';
+log.transports.file.maxSize = 1024 * 1024 * 1024; // 1GB
+log.transports.file.format = logFormatter;
+log.transports.console.format = logFormatter;
 
 if (process.env.NODE_ENV !== 'development') {
   log.transports.file.level = 'info';

@@ -16,7 +16,7 @@ export interface IElectronAPI {
 
   setBackupsInterval(value: number): Promise<void>;
 
-  getOrCreateDevice: () => Promise<Device>;
+  getOrCreateDevice: () => Promise<Device | Error>;
   renameDevice: (deviceName: string) => Promise<Device>;
   devices: {
 

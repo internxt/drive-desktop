@@ -14,4 +14,6 @@ export abstract class FolderRepository {
   abstract delete(id: Folder['id']): Promise<void>;
 
   abstract update(folder: Folder): Promise<void>;
+
+  abstract clear(): Promise<void>;
 }

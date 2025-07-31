@@ -66,6 +66,10 @@ export class FileRepositorySynchronizer {
     }
   }
 
+  async clear(): Promise<void> {
+    await this.repository.clear();
+  }
+
   async run(files: Array<File>): Promise<boolean> {
     // Resets the repository since replaced files become duplicated as
     // not all applications use the replace endpoint

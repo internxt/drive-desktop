@@ -107,4 +107,35 @@ export class AuthService {
       return left(error);
     }
   }
+
+  async logout(headers: Record<string, string>): Promise<Either<Error, boolean>> {
+    try {
+      const response = await authClient.GET('/auth/logout', {
+        headers
+      });
+
+      if (!response.data) {
+        logger.error({
+          msg: 'logout request was not successful',
+          tag: 'AUTH',
+          attributes: {
+            endpoint: '/auth/logout',
+          },
+        });
+        return left(new Error('logout request was not successful'));
+      }
+      return right(response.data);
+    } catch (err) {
+      const error = mapError(err);
+      logger.error({
+        msg: 'Logout request threw an exception',
+        tag: 'AUTH',
+        error: error,
+        attributes: {
+          endpoint: '/auth/logout',
+        },
+      });
+      return left(error);
+    }
+  }
 }
