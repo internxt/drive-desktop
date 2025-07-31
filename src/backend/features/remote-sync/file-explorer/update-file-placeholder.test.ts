@@ -9,13 +9,15 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as hasToBeMoved from './has-to-be-moved';
 import { rename } from 'fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 
 vi.mock(import('fs/promises'));
 
 describe('update-file-placeholder', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
   const relativePathToAbsoluteConverter = mockDeep<RelativePathToAbsoluteConverter>();
-  const service = new FilePlaceholderUpdater(virtualDrive, relativePathToAbsoluteConverter);
+  const fileContentsUploader = mockDeep<ContentsUploader>();
+  const service = new FilePlaceholderUpdater(virtualDrive, relativePathToAbsoluteConverter, fileContentsUploader);
 
   const validateWindowsNameMock = partialSpyOn(validateWindowsName, 'validateWindowsName');
   const hasToBeMovedMock = partialSpyOn(hasToBeMoved, 'hasToBeMoved');
@@ -28,7 +30,7 @@ describe('update-file-placeholder', () => {
     relativePathToAbsoluteConverter.run.mockReturnValue('remotePath' as AbsolutePath);
 
     props = mockProps<typeof service.update>({
-      files: { ['uuid' as FileUuid]: 'localPath' as AbsolutePath },
+      files: { ['uuid' as FileUuid]: { path: 'localPath.path' as AbsolutePath } },
       remote: {
         path: createRelativePath('file1', 'file2'),
         uuid: 'uuid',
@@ -74,7 +76,7 @@ describe('update-file-placeholder', () => {
     // Then
     expect(virtualDrive.createFileByPath).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
-    expect(renameMock).toBeCalledWith('localPath', 'remotePath');
+    expect(renameMock).toBeCalledWith('localPath.path', 'remotePath');
   });
 
   it('should do nothing if not moved', async () => {

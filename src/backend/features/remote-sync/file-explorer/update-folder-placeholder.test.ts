@@ -82,7 +82,7 @@ describe('update-folder-placeholder', () => {
     // Then
     expect(virtualDrive.createFolderByPath).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
-    expect(renameMock).toBeCalledWith('localPath', 'remotePath');
+    expect(renameMock).toBeCalledWith('localPath.path', 'remotePath');
   });
 
   it('should do nothing if not moved', async () => {

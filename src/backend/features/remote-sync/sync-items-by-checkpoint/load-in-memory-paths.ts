@@ -7,8 +7,15 @@ import { join } from 'path';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { Stats } from 'fs';
 
-export type InMemoryFiles = Record<FileUuid, AbsolutePath>;
+export type InMemoryFiles = Record<
+  FileUuid,
+  {
+    path: AbsolutePath;
+    stats: Stats;
+  }
+>;
 export type InMemoryFolders = Record<FolderUuid, AbsolutePath>;
 
 type TProps = {
@@ -50,7 +57,7 @@ export async function loadInMemoryPaths({ drive }: TProps) {
 
         if (stats.isFile()) {
           const { data: uuid } = NodeWin.getFileUuid({ drive, path: absolutePath });
-          if (uuid) files[uuid] = absolutePath;
+          if (uuid) files[uuid] = { path: absolutePath, stats };
         }
       }
     }

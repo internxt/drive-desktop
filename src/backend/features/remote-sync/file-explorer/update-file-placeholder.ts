@@ -4,15 +4,18 @@ import { logger } from '@/apps/shared/logger/logger';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { rename } from 'fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
+import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
+import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 
 export class FilePlaceholderUpdater {
   constructor(
     private readonly virtualDrive: VirtualDrive,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
+    private readonly fileContentsUploader: ContentsUploader,
   ) {}
 
   async update({ remote, files }: { remote: File; files: InMemoryFiles }) {
@@ -43,7 +46,7 @@ export class FilePlaceholderUpdater {
         return;
       }
 
-      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath })) {
+      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath: localPath.path })) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Moving file placeholder',
@@ -51,7 +54,28 @@ export class FilePlaceholderUpdater {
           localPath,
         });
 
-        await rename(localPath, remotePath);
+        await rename(localPath.path, remotePath);
+      }
+
+      const remoteModificationTime = remote.modificationTime.getTime();
+      const localModificationTime = localPath.stats.mtime.getTime();
+      if (localModificationTime > remoteModificationTime) {
+        logger.debug({
+          tag: 'SYNC-ENGINE',
+          msg: 'File placeholder has been modified locally, updating remote',
+          remotePath,
+          uuid: remote.uuid,
+          remoteDate: remote.modificationTime.toISOString(),
+          localDate: localPath.stats.mtime.toISOString(),
+        });
+
+        await updateContentsId({
+          virtualDrive: this.virtualDrive,
+          stats: localPath.stats,
+          path: createRelativePath(remote.path),
+          uuid: remote.uuid as string,
+          fileContentsUploader: this.fileContentsUploader,
+        });
       }
     } catch (exc) {
       logger.error({
