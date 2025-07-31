@@ -1,4 +1,4 @@
-import { app, ipcMain, nativeTheme } from 'electron';
+import { app, nativeTheme } from 'electron';
 
 void app.whenReady().then(() => {
   app.setAppUserModelId('com.internxt.app');
@@ -127,10 +127,6 @@ app
       await createAuthWindow();
       setTrayStatus('IDLE');
     }
-
-    ipcMain.handle('is-dark-mode-active', () => {
-      return nativeTheme.shouldUseDarkColors;
-    });
 
     await checkForUpdates();
   })
