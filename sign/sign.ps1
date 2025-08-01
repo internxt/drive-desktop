@@ -1,5 +1,8 @@
 # base64 -w 0 certificate.p12 > CERT_BASE64
 
+$absolutePath = Resolve-Path .\sign
+$env:Path += ";$($absolutePath.Path)"
+
 $packageJson = Get-Content "package.json" -Raw | ConvertFrom-Json
 $version = $packageJson.version
 
@@ -8,7 +11,8 @@ $exePath = "build\Internxt-Setup-$version.exe"
 $yamlPath = "build\latest.yml"
 $certPath = Join-Path $scriptDir "certificate.p12"
 
-Write-Host "Exe name: $exePath"
+Write-Host "Exe path: $exePath"
+Write-Host "Cert path: $certPath"
 
 $envVars = Get-Content ".env" | Where-Object { $_ -match '^\s*[^#]' -and $_ -match '=' }
 
@@ -25,9 +29,6 @@ smctl.exe creds save $SM_API_KEY $SM_CLIENT_CERT_PASSWORD
 
 $env:SM_HOST = "http://clientauth.one.digicert.com/"
 $env:SM_CLIENT_CERT_FILE = $certPath
-
-$absolutePath = Resolve-Path .\sign
-$env:Path += ";$($absolutePath.Path)"
 
 Get-Command smctl.exe
 
