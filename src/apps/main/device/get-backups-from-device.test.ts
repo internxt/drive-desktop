@@ -61,6 +61,13 @@ describe('getBackupsFromDevice', () => {
     const error = new Error('fetch error');
     fetchFolderMock.mockRejectedValue(error);
 
-    await expect(getBackupsFromDevice(props, true)).rejects.toThrow('fetch error');
+    await expect(getBackupsFromDevice(props, true)).rejects.toThrow('error getting backups');
+  });
+
+  it('should throw and log error if folder is null or error is present', async () => {
+    const error = new Error('folder fetch failed');
+    fetchFolderMock.mockResolvedValueOnce({ error });
+
+    await expect(getBackupsFromDevice(props, true)).rejects.toThrow('folder fetch failed');
   });
 });
