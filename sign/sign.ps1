@@ -1,8 +1,5 @@
 # https://docs.digicert.com/zf/digicert-keylocker/ci-cd-integrations-and-deployment-piplelines/plugins/github/install-client-tools-for-standard-keypair-signing-on-github.html
 
-$absolutePath = Resolve-Path .\sign
-$env:Path += ";$($absolutePath.Path)"
-
 $packageJson = Get-Content "package.json" -Raw | ConvertFrom-Json
 $version = $packageJson.version
 

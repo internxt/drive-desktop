@@ -9,11 +9,9 @@ export async function getOpenpgp(): Promise<typeof import('openpgp')> {
 export const decryptMessageWithPrivateKey = async ({
   encryptedMessage,
   privateKeyInBase64,
-  userMnemonic,
 }: {
   encryptedMessage: WebStream<string>;
   privateKeyInBase64: string;
-  userMnemonic: string;
 }) => {
   const openpgp = await getOpenpgp();
 
@@ -25,8 +23,7 @@ export const decryptMessageWithPrivateKey = async ({
   });
 
   if (!comparePrivateKeyCiphertextIDs({ privateKey, message })) {
-    logger.warn({ tag: 'SYNC-ENGINE', msg: 'The key does not correspond to the ciphertext' });
-    return userMnemonic;
+    throw logger.error({ tag: 'SYNC-ENGINE', msg: 'The key does not correspond to the ciphertext' });
   }
 
   const { data: decryptedMessage } = await openpgp.decrypt({
