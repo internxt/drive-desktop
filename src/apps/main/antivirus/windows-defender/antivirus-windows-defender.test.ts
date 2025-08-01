@@ -21,16 +21,15 @@ describe('AntivirusWindowsDefender', () => {
       expect(instance.mpCmdRunPath).toBe(mockMpCmdRunPath);
     });
 
-    it('logs error when initialization fails but does not throw', async () => {
+    it('initializes with isInitialized=false when mpCmdRunPath is null', async () => {
       // Given
-      findMpCmdRunMock.mockImplementation(() => {
-        throw new Error('Initialization failed');
-      });
+      findMpCmdRunMock.mockResolvedValue(null);
       // When
       const instance = await AntivirusWindowsDefender.createInstance();
       // Then
       expect(instance).toBeInstanceOf(AntivirusWindowsDefender);
       expect(instance.isInitialized).toBe(false);
+      expect(instance.mpCmdRunPath).toBeNull();
     });
   });
 
@@ -45,17 +44,15 @@ describe('AntivirusWindowsDefender', () => {
       expect(instance.mpCmdRunPath).toBe(mockMpCmdRunPath);
     });
 
-    it('logs error and sets isInitialized to false when findMpCmdRun fails', async () => {
+    it('sets isInitialized to false when findMpCmdRun returns null', async () => {
       // Given
       const instance = new AntivirusWindowsDefender();
-      const mockError = new Error('Failed to find MpCmdRun.exe');
-      findMpCmdRunMock.mockImplementation(() => {
-        throw mockError;
-      });
+      findMpCmdRunMock.mockResolvedValue(null);
       // When
       await instance.initialize();
       // Then
       expect(instance.isInitialized).toBe(false);
+      expect(instance.mpCmdRunPath).toBeNull();
     });
   });
 

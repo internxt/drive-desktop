@@ -39,11 +39,13 @@ describe('findMpCmdRun', () => {
     expect(joinMock).toBeCalledWith('C:\\ProgramData\\Microsoft\\Windows Defender\\Platform', '4.18.2207.10', 'MpCmdRun.exe');
   });
 
-  it('throws error when MpCmdRun.exe is not found', async () => {
+  it('returns null when MpCmdRun.exe is not found', async () => {
     // Given
     getDefenderVersionsMock.mockResolvedValue(['4.18.2207.10']);
     accessMock.mockRejectedValue(new Error('File not found'));
-    // When / Then
-    await expect(findMpCmdRun()).rejects.toThrow('MpCmdRun.exe not found.');
+    // When
+    const result = await findMpCmdRun();
+    // Then
+    expect(result).toBeNull();
   });
 });

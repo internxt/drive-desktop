@@ -14,11 +14,12 @@ export async function findMpCmdRun() {
   try {
     await access(mpCmdRunPath, constants.F_OK);
   } catch {
-    throw logger.error({
+    logger.error({
       tag: 'ANTIVIRUS',
       msg: 'MpCmdRun.exe not found.',
       mpCmdRunPath,
     });
+    return null;
   }
 
   return mpCmdRunPath;
