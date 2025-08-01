@@ -29,6 +29,8 @@ $env:SM_CLIENT_CERT_FILE = $certPath
 $absolutePath = Resolve-Path .\sign
 $env:Path += ";$($absolutePath.Path)"
 
+Get-Command smctl.exe
+
 smctl.exe healthcheck
 smctl.exe sign --keypair-alias=key_1153997366 -d=SHA256 --input "$exePath" --verbose
 
