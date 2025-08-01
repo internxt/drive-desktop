@@ -3,14 +3,14 @@
 $packageJson = Get-Content "package.json" -Raw | ConvertFrom-Json
 $version = $packageJson.version
 
-$envPath = ".env"
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $exePath = "build\Internxt-Setup-$version.exe"
 $yamlPath = "build\latest.yml"
-$certPath = "sign\certificate.p12"
+$certPath = Join-Path $scriptDir "certificate.p12"
 
 Write-Host "Exe name: $exePath"
 
-$envVars = Get-Content $envPath | Where-Object { $_ -match '^\s*[^#]' -and $_ -match '=' }
+$envVars = Get-Content ".env" | Where-Object { $_ -match '^\s*[^#]' -and $_ -match '=' }
 
 foreach ($line in $envVars) {
     $parts = $line -split '=', 2
@@ -21,16 +21,16 @@ foreach ($line in $envVars) {
 
 [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($CERT_BASE64))
 
-$cert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($certPath, $CERT_PASSWORD, [System.Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
-$cert.Extensions | Where-Object { $_.Oid.FriendlyName -eq "Enhanced Key Usage" } | ForEach-Object { $_.EnhancedKeyUsages | ForEach-Object { $_.FriendlyName } }
+smctl.exe creds save $SM_API_KEY $SM_CLIENT_CERT_PASSWORD
 
-Write-Host "Certificate loaded: $($cert.Subject)"
+$env:SM_HOST = "http://clientauth.one.digicert.com/"
+$env:SM_CLIENT_CERT_FILE = $certPath
 
-Import-PfxCertificate -FilePath $certPath -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String $CERT_PASSWORD -AsPlainText -Force)
+$absolutePath = Resolve-Path .\sign
+$env:Path += ";$($absolutePath.Path)"
 
-Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.HasPrivateKey }
-
-.\sign\signtool.exe sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /sha1 90E9EEE4AE33BA76F90B05CE1388F2AF463AD953 $exePath
+smctl.exe healthcheck
+smctl.exe sign --keypair-alias=key_1153997366 -d=SHA256 --input "$exePath" --verbose
 
 $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
 $bytes = [System.Convert]::FromHexString($hash)
