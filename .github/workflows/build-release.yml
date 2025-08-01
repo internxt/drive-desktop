@@ -7,7 +7,7 @@ on:
 jobs:
   build_release:
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
 
     steps:
       - name: Checkout code
@@ -30,49 +30,49 @@ jobs:
           cd "${{ github.workspace }}\clamAV"
           .\freshclam.exe
 
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 20
-      #     registry-url: 'https://npm.pkg.github.com'
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
 
-      # - name: Create .npmrc file
-      #   run: |
-      #     echo "@internxt:registry=https://npm.pkg.github.com" > .npmrc
-      #     echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
-      #     echo "always-auth=true" >> .npmrc
+      - name: Create .npmrc file
+        run: |
+          echo "@internxt:registry=https://npm.pkg.github.com" > .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
 
-      # - name: Create .env file
-      #   run: |
-      #     echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" > .env
-      #     echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
-      #     echo "DESKTOP_HEADER=${{ secrets.DESKTOP_HEADER }}" >> .env
-      #     echo "DRIVE_URL=${{ secrets.DRIVE_URL }}" >> .env
-      #     echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
-      #     echo "NOTIFICATIONS_URL=${{ secrets.NOTIFICATIONS_URL }}" >> .env
-      #     echo "PAYMENTS_URL=${{ secrets.PAYMENTS_URL }}" >> .env
-      #     echo "PORT=${{ secrets.PORT }}" >> .env
-      #     echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> .env
-      #     echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> .env
-      #     echo "CERT_BASE64=${{ secrets.CERT_BASE64 }}" >> .env
+      - name: Create .env file
+        run: |
+          echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" > .env
+          echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
+          echo "DESKTOP_HEADER=${{ secrets.DESKTOP_HEADER }}" >> .env
+          echo "DRIVE_URL=${{ secrets.DRIVE_URL }}" >> .env
+          echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
+          echo "NOTIFICATIONS_URL=${{ secrets.NOTIFICATIONS_URL }}" >> .env
+          echo "PAYMENTS_URL=${{ secrets.PAYMENTS_URL }}" >> .env
+          echo "PORT=${{ secrets.PORT }}" >> .env
+          echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> .env
+          echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> .env
+          echo "CERT_BASE64=${{ secrets.CERT_BASE64 }}" >> .env
 
-      # - name: Install dependencies
-      #   run: npm run init:ci
+      - name: Install dependencies
+        run: npm run init:ci
 
-      # - name: Create package
-      #   run: npm run package
+      - name: Create package
+        run: npm run package
 
-      # - name: Code signing with Software Trust Manager
-      #   uses: digicert/ssm-code-signing@v1.1.0
+      - name: Code signing with Software Trust Manager
+        uses: digicert/ssm-code-signing@v1.1.0
 
-      # - name: Sign build
-      #   run: .\sign\sign.ps1
+      - name: Sign build
+        run: .\sign\sign.ps1
 
-      # - name: Upload build artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: signed-windows-build
-      #     path: |
-      #       build/Internxt-Setup-*.exe
-      #       build/Internxt-Setup-*.exe.blockmap
-      #       build/latest.yml
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-windows-build
+          path: |
+            build/Internxt-Setup-*.exe
+            build/Internxt-Setup-*.exe.blockmap
+            build/latest.yml
