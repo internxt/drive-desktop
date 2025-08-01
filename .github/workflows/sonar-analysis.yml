@@ -20,6 +20,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Create .npmrc file
+        run: |
+          touch .npmrc
+          echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.PERSONAL_ACCESS_TOKEN }}" >> .npmrc
+          echo "always-auth=true" >> .npmrc
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

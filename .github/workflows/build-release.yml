@@ -29,7 +29,7 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" >> .env
+          echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" > .env
           echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
           echo "DESKTOP_HEADER=${{ secrets.DESKTOP_HEADER }}" >> .env
           echo "DRIVE_URL=${{ secrets.DRIVE_URL }}" >> .env
@@ -41,14 +41,14 @@ jobs:
           echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> .env
           echo "CERT_BASE64=${{ secrets.CERT_BASE64 }}" >> .env
 
-      - name: Print .env file
-        run: cat .env
-
       - name: Install dependencies
         run: npm run init:ci
 
       - name: Create package
         run: npm run package
+
+      - name: Code signing with Software Trust Manager
+        uses: digicert/ssm-code-signing@v1.1.0
 
       - name: Sign build
         run: .\sign\sign.ps1

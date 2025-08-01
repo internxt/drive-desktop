@@ -1,11 +1,4 @@
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/internxt/drive-desktop)
-[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
-[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
-[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
-[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=coverage)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
+[![node](https://img.shields.io/badge/node-20-iron)](https://nodejs.org/download/release/latest-iron/) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/internxt/drive-desktop) [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=coverage)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop) [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=internxt_drive-desktop&metric=bugs)](https://sonarcloud.io/summary/new_code?id=internxt_drive-desktop)
 
 # Setup
 
@@ -37,9 +30,8 @@ Install using win store
 
 - **Visual Studio** (not VS Code) for building native dependencies.
 
-![alt text](public/image.png)
-
 ![alt text](public/image-1.png)
+![alt text](public/image.png)
 
 ## Build Steps
 
@@ -69,40 +61,22 @@ This will generate an unsigned build and the following files inside `build`:
 - `Internxt Drive Setup 2.3.5.exe.blockmap`
 - `latest.yml`
 
-## Step 3: Sign the `.exe` file
-
-### Download and install DigiCert​​®​​ KeyLocker
+## Step 3: Download and install DigiCert​​®​​ KeyLocker
 
 1. The `Keylockertools-windows-x64.msi` file can be requested from Fran or Sergio.
 2. Install it.
 
-### Set environment variables
+## Step 4: Add `.env` variables
 
-Add the following environment variables to the `.env` file:
-
-- `SM_API_KEY`
-- `SM_CLIENT_CERT_PASSWORD`
-
-### Save the `.p12` certificate
-
-Save the `.p12` inside the `sign` folder as `certificate.p12`.
-
-### Install SignTool
-
-[SignTool.exe](https://docs.digicert.com/en/software-trust-manager/client-tools/signing-tools/third-party-signing-tool-integrations/signtool.html#download-signtool-480768)
+- `SM_API_KEY` (ask to Fran or Sergio)
+- `SM_CLIENT_CERT_PASSWORD` (ask to Fran or Sergio)
+- `CERT_BASE64` (the `certificate.p12` converted to base64)
 
 ```bash
-# Powershell 7
-cd sign
-.\smctl.exe healthcheck
-# You should see
-# --------- Signing tools ---------
-# Signtool:
-#        Mapped: Yes
-#        Path: C:\Program Files (x86)\Windows Kits\10\bin\version\x64\signtool.exe
+base64 -w 0 certificate.p12 > CERT_BASE64
 ```
 
-### Execute the script
+## Step 5: Sign the `.exe` file
 
 ```bash
 # Powershell 7
@@ -110,7 +84,7 @@ cd sign
 ./sign.ps1
 ```
 
-## Step 4: Upload the files to the release
+## Step 6: Upload the files to the release
 
 - The **signed `.exe` file**.
 - The **`.blockmap` file**.
