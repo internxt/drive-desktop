@@ -15,20 +15,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download ClamAV
-        run: |
-          Invoke-WebRequest -Uri "https://www.clamav.net/downloads/production/clamav-1.4.3.win.x64.zip" -OutFile "clamAV.zip"
-          Expand-Archive -Path "clamAV.zip" -DestinationPath "${{ github.workspace }}\clamAV"
-          Remove-Item "clamAV.zip"
-
-      - name: List ClamAV folder contents (optional debug)
-        run: |
-          dir "${{ github.workspace }}\clamAV"
-
-      - name: Update virus database
-        run: |
-          cd "${{ github.workspace }}\clamAV"
-          .\freshclam.exe
+      - name: Setup clamAV
+        run: release\clamAV.ps1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -66,7 +54,7 @@ jobs:
         uses: digicert/ssm-code-signing@v1.1.0
 
       - name: Sign build
-        run: .\sign\sign.ps1
+        run: release\sign.ps1
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
