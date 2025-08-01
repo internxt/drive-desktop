@@ -4,7 +4,7 @@ import { findMpCmdRun } from './find-mcp-command';
 
 export class AntivirusWindowsDefender {
   isInitialized = false;
-  mpCmdRunPath = '';
+  mpCmdRunPath: string | null = null;
 
   static async createInstance() {
     const instance = new AntivirusWindowsDefender();
@@ -13,20 +13,12 @@ export class AntivirusWindowsDefender {
   }
 
   async initialize() {
-    try {
-      this.mpCmdRunPath = await findMpCmdRun();
-      this.isInitialized = true;
-    } catch (error) {
-      logger.error({
-        tag: 'ANTIVIRUS',
-        msg: 'Error initializing antivirus',
-        error,
-      });
-    }
+    this.mpCmdRunPath = await findMpCmdRun();
+    this.isInitialized = !!this.mpCmdRunPath;
   }
 
   async scanFile({ filePath }: { filePath: string }) {
-    if (!this.isInitialized) {
+    if (!this.isInitialized || !this.mpCmdRunPath) {
       logger.error({
         tag: 'ANTIVIRUS',
         msg: 'Antivirus is not initialized',
