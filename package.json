@@ -42,6 +42,7 @@
     "electron-rebuild": "electron-rebuild --sequential --force --types prod,dev,optional --module-dir .",
     "reload-native-deps": "ts-node .erb/scripts/check-native-deps.ts && npm run electron-rebuild",
     "========== Other ==========": "",
+    "clamav": "powershell release/clamAV.ps1",
     "prepare": "husky install",
     "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",
     "swagger_prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",

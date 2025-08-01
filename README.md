@@ -20,6 +20,7 @@ nvm install 20
 ```
 
 - **node-gyp**
+
 ```bash
 npm install -g node-gyp
 ```
@@ -37,55 +38,6 @@ Install using win store
 
 ```bash
 npm run init:dev
+npm run clamav # optional
 npm run start
 ```
-
-# How to publish a release
-
-## Step 1: Update clamAV database
-
-```bash
-cd clamAV
-.\freshclam.exe
-```
-
-## Step 2: Generate the build
-
-```bash
-npm run package
-```
-
-This will generate an unsigned build and the following files inside `build`:
-
-- `Internxt Drive Setup 2.3.5.exe`
-- `Internxt Drive Setup 2.3.5.exe.blockmap`
-- `latest.yml`
-
-## Step 3: Download and install DigiCert​​®​​ KeyLocker
-
-1. The `Keylockertools-windows-x64.msi` file can be requested from Fran or Sergio.
-2. Install it.
-
-## Step 4: Add `.env` variables
-
-- `SM_API_KEY` (ask to Fran or Sergio)
-- `SM_CLIENT_CERT_PASSWORD` (ask to Fran or Sergio)
-- `CERT_BASE64` (the `certificate.p12` converted to base64)
-
-```bash
-base64 -w 0 certificate.p12 > CERT_BASE64
-```
-
-## Step 5: Sign the `.exe` file
-
-```bash
-# Powershell 7
-cd sign
-./sign.ps1
-```
-
-## Step 6: Upload the files to the release
-
-- The **signed `.exe` file**.
-- The **`.blockmap` file**.
-- The **updated `latest.yml` file** with the new hash.

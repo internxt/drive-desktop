@@ -27,7 +27,7 @@ $env:SM_HOST = "http://clientauth.one.digicert.com/"
 $env:SM_CLIENT_CERT_FILE = $certPath
 
 smctl.exe healthcheck
-# smctl.exe sign --keypair-alias=key_1153997366 -d=SHA256 --input "$exePath" --verbose
+smctl.exe sign --keypair-alias=key_1153997366 -d=SHA256 --input "$exePath" --verbose
 
 $hash = (Get-FileHash $exePath -Algorithm SHA512).Hash
 $bytes = [System.Convert]::FromHexString($hash)
