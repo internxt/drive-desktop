@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-use-before-define */
 import { aes } from '@internxt/lib';
-import { app, dialog } from 'electron';
+import { dialog } from 'electron';
 import fetch from 'electron-fetch';
 import os from 'os';
 import path from 'path';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
-import { getUser, setUser } from '../auth/service';
+import { getUser } from '../auth/service';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import fs, { PathLike } from 'fs';
@@ -261,10 +261,11 @@ export async function addBackup(): Promise<void> {
     }
 
     let folderStillExists;
-    try {
-      const existFolder = await fetchFolder({ folderUuid: existingBackup.folderUuid });
-      folderStillExists = !existFolder.removed;
-    } catch {
+    const { data, error } = await driveServerWipModule.backup.fetchFolder({ folderUuid: existingBackup.folderUuid });
+
+    if (data) {
+      folderStillExists = !data.removed;
+    } else if (error) {
       folderStillExists = false;
     }
 
@@ -279,21 +280,15 @@ export async function addBackup(): Promise<void> {
   }
 }
 
-export async function fetchFolder({ folderUuid }: { folderUuid: string }) {
-  const res = await client.GET('/folders/content/{uuid}', {
-    params: { path: { uuid: folderUuid } },
-  });
-
-  if (!res.data) {
-    throw new Error('Unsuccesful request to fetch folder');
-  }
-
-  return res.data;
-}
-
 async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
-  const folders = await Promise.all(folderUuids.map((folderUuid) => fetchFolder({ folderUuid })));
-  return folders;
+  const results = await Promise.all(
+    folderUuids.map(async (folderUuid) => {
+      const { data, error } = await driveServerWipModule.backup.fetchFolder({ folderUuid });
+      return { data, error };
+    }),
+  );
+
+  return results;
 }
 
 async function fetchTreeFromApi(folderUuid: string): Promise<FolderTree> {
@@ -512,7 +507,7 @@ async function downloadDeviceBackupZip({
 
   await downloadFolder(
     device.name,
-    folders.map((folder) => folder.uuid),
+    folders.filter((folder) => folder.data).map((folder) => folder.data!.uuid),
     path,
     {
       bridgeUser,

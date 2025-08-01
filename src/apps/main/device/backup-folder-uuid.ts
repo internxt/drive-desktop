@@ -22,7 +22,8 @@ export class BackupFolderUuid {
     const entries = Object.entries(backupsList);
     logger.debug({
       tag: 'BACKUPS',
-      msg: `Ensuring backup UUIDs exist for ${entries.length} backups`,
+      msg: `Ensuring backup UUIDs exist for backups`,
+      length: entries.length,
     });
     const promises = entries.map(async ([pathname, backup]) => {
       if (!backup.folderUuid && backup.enabled) {

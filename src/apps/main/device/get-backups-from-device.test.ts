@@ -1,22 +1,26 @@
-import { partialSpyOn, mockProps } from '@/tests/vitest/utils.helper.test';
+import { partialSpyOn, mockProps, deepMocked } from '@/tests/vitest/utils.helper.test';
 import { getBackupsFromDevice } from './get-backups-from-device';
 import * as serviceModule from './service';
 import * as backupFolderUuidModule from './backup-folder-uuid';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import configStore from '../config';
 import { app } from 'electron';
+
+vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('getBackupsFromDevice', () => {
   const props = mockProps<typeof getBackupsFromDevice>({ bucket: 'bucket-1' });
   const backupChild = { id: 1, uuid: 'folder-uuid' };
   const folder = { children: [backupChild] };
-  const fetchFolderMock = partialSpyOn(serviceModule, 'fetchFolder');
+  const fetchFolderMock = deepMocked(driveServerWip.backup.fetchFolder);
+
   const findBackupPathnameFromIdMock = partialSpyOn(serviceModule, 'findBackupPathnameFromId');
   const backupFolderUuidMock = partialSpyOn(backupFolderUuidModule, 'BackupFolderUuid');
   const configStoreMock = partialSpyOn(configStore, 'get');
   const getPathMock = partialSpyOn(app, 'getPath');
 
   it('should return filtered and mapped backups when isCurrent is true', async () => {
-    fetchFolderMock.mockResolvedValueOnce(folder);
+    fetchFolderMock.mockResolvedValueOnce({ data: folder });
     findBackupPathnameFromIdMock.mockReturnValueOnce('/path/to/backup1');
     backupFolderUuidMock.mockImplementationOnce(() => ({
       ensureBackupUuidExists: vi.fn(),
@@ -39,7 +43,7 @@ describe('getBackupsFromDevice', () => {
   });
 
   it('should return mapped backups when isCurrent is false', async () => {
-    fetchFolderMock.mockResolvedValueOnce(folder);
+    fetchFolderMock.mockResolvedValueOnce({ data: folder });
     const result = await getBackupsFromDevice(props, false);
     expect(result).toStrictEqual([
       {

@@ -1,16 +1,22 @@
 import configStore from '../config';
-import { Device, fetchFolder, findBackupPathnameFromId } from './service';
+import { Device, findBackupPathnameFromId } from './service';
 import { getUser, setUser } from '../auth/service';
 import { BackupFolderUuid } from './backup-folder-uuid';
 import { BackupInfo } from '@/apps/backups/BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
 import { app } from 'electron';
+import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
   try {
-    logger.debug({ tag: 'BACKUPS', msg: 'Fetching folder for device', deviceUuid: device.uuid, isCurrent });
-    const folder = await fetchFolder({ folderUuid: device.uuid });
+    const { data: folder, error } = await driveServerWipModule.backup.fetchFolder({ folderUuid: device.uuid });
+
+    if (error || !folder) {
+      throw logger.error({ tag: 'BACKUPS', msg: 'Error fetching folder', error });
+    }
+
     logger.debug({ tag: 'BACKUPS', msg: 'Fetched folder', childrenCount: folder.children.length });
+
     if (isCurrent) {
       const backupsList = configStore.get('backupList');
 
@@ -35,21 +41,20 @@ export async function getBackupsFromDevice(device: Device, isCurrent?: boolean):
           backupsBucket: device.bucket,
         }));
 
-      logger.debug({ tag: 'BACKUPS', msg: `Found ${backups.length} enabled backups` });
+      logger.debug({ tag: 'BACKUPS', msg: `Found enabled backups`, length: backups.length });
 
       return backups;
-    } else {
-      return folder.children.map((backup) => ({
-        ...backup,
-        folderId: backup.id,
-        folderUuid: backup.uuid,
-        backupsBucket: device.bucket,
-        tmpPath: '',
-        pathname: '',
-      }));
     }
+
+    return folder.children.map((backup) => ({
+      ...backup,
+      folderId: backup.id,
+      folderUuid: backup.uuid,
+      backupsBucket: device.bucket,
+      tmpPath: '',
+      pathname: '',
+    }));
   } catch (error) {
-    logger.error({ tag: 'BACKUPS', msg: 'Error getting backups', error });
-    throw error;
+    throw logger.error({ tag: 'BACKUPS', msg: 'Error getting backups', error });
   }
 }
