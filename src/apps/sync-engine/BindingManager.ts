@@ -10,7 +10,6 @@ import { logger } from '../shared/logger/logger';
 import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
-import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
 import { addPendingFiles } from './in/add-pending-files';
@@ -54,7 +53,6 @@ export class BindingsManager {
     this.container.virtualDrive.registerSyncRoot({
       providerName: getConfig().providerName,
       providerVersion: INTERNXT_VERSION,
-      logoPath: iconPath,
     });
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
