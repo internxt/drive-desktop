@@ -22,7 +22,7 @@ describe('spawn-workspace.service', () => {
     workspace: {
       id: 'workspaceId',
       providerId: '{PROVIDER_ID}',
-      mnemonic: 'encryptedMnemonic',
+      key: 'encryptedMnemonic',
       rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
     },
   });

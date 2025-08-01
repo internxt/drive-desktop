@@ -12,7 +12,7 @@ type TProps = {
   context: AuthContext;
   workspace: {
     id: string;
-    mnemonic: string;
+    key: string;
     providerId: string;
     rootFolderId: string;
     rootPath: string;
@@ -30,9 +30,8 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
 
   try {
     const mnemonic = await decryptMessageWithPrivateKey({
-      encryptedMessage: Buffer.from(workspace.mnemonic, 'base64').toString(),
+      encryptedMessage: Buffer.from(workspace.key, 'base64').toString(),
       privateKeyInBase64: user.privateKey,
-      userMnemonic: user.mnemonic,
     });
 
     const syncContext: SyncContext = {

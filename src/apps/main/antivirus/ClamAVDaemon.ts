@@ -15,7 +15,7 @@ let timer: NodeJS.Timeout | null = null;
 
 export const startClamdServer = (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    const clamdPath = path.join(RESOURCES_PATH, 'clamd-inxt.exe');
+    const clamdPath = path.join(RESOURCES_PATH, 'clamd.exe');
     const clamdConfigPath = path.join(RESOURCES_PATH, 'clamd.conf');
 
     clamdProcess = spawn(clamdPath, ['-c', clamdConfigPath]);

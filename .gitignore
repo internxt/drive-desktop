@@ -5,10 +5,13 @@
 /.npmrc
 /.vscode
 /build
-/clamAV
+/clamAV/*
 /coverage
 /dist
 /node_modules
 /test-files
 /test/temp-test
 CLAUDE.md
+
+!/clamAV/clamd.conf
+!/clamAV/freshclam.conf
