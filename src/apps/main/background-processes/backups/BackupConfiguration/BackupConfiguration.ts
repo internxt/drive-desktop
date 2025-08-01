@@ -1,8 +1,9 @@
 import { app, ipcMain } from 'electron';
 import configStore from '../../../config';
 import { BackupInfo } from '../../../../backups/BackupInfo';
-import { getOrCreateDevice, getBackupsFromDevice } from '../../../device/service';
+import { getOrCreateDevice } from '../../../device/service';
 import { logger } from '@/apps/shared/logger/logger';
+import { getBackupsFromDevice } from '@/apps/main/device/get-backups-from-device';
 
 type OnIntervalChangedListener = (interval: number) => void;
 
