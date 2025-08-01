@@ -1,7 +1,6 @@
 import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 import { initializeClamAV } from '../utils/initializeAntivirus';
 import { checkClamdAvailability } from '../ClamAVDaemon';
-import { findMpCmdRun } from '../windows-defender/find-mcp-command';
 import { logger } from '@/apps/shared/logger/logger';
 
 export async function selectAntivirusEngine() {
@@ -10,9 +9,7 @@ export async function selectAntivirusEngine() {
     msg: 'Selecting antivirus engine...',
   });
 
-  const isWindowsDefenderActive = await isWindowsDefenderAvailable();
-  const mpCmdRunPath = await findMpCmdRun();
-  if (isWindowsDefenderActive && mpCmdRunPath) {
+  if (await isWindowsDefenderAvailable()) {
     logger.debug({
       tag: 'ANTIVIRUS',
       msg: 'Default antivirus selected as engine',
