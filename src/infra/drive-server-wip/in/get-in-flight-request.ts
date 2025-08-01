@@ -1,4 +1,4 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { paths } from '@internxt/drive-desktop-core/build/backend';
 
 const inFlightRequests = new Map<string, Promise<unknown>>();
 

@@ -1,10 +1,9 @@
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { paths } from '@internxt/drive-desktop-core/build/backend';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 
 export const files = {
-  getFiles,
   createFile,
   moveFile,
   renameFile,
@@ -12,33 +11,8 @@ export const files = {
   createThumbnail,
 };
 
-type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
-
-async function getFiles(context: { query: TGetFilesQuery }) {
-  const method = 'GET';
-  const endpoint = '/files';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.GET(endpoint, {
-      params: { query: context.query },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Get files request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
 
 async function createFile(context: { path: string; body: TCreateFileBody }) {
   const method = 'POST';

@@ -1,7 +1,7 @@
+import { BackupsIssue, GeneralIssue, SyncIssue } from '@internxt/drive-desktop-core/build/backend';
 import { IssuesByError } from './IssuesByError';
 import { NoIssues } from './NoIssues';
 import { Section } from './Section';
-import { BackupsIssue, SyncIssue, GeneralIssue } from '@/apps/main/background-processes/issues';
 
 type IssuesAccordionsProps = {
   selectedTab: Section;

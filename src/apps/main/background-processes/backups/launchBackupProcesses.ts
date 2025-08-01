@@ -6,7 +6,7 @@ import { BackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTra
 import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { addBackupsIssue, clearBackupsIssues } from '../issues';
+import { IssuesModule } from '@internxt/drive-desktop-core/build/backend';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -45,7 +45,7 @@ export async function launchBackupProcesses(
 
   logger.debug({ tag: 'BACKUPS', msg: 'Launching backups', scheduled, backups });
 
-  clearBackupsIssues();
+  IssuesModule.clearBackupsIssues();
   tracker.track(backups, abortController);
 
   for (const backupInfo of backups) {
@@ -63,7 +63,7 @@ export async function launchBackupProcesses(
       ...backupInfo,
       abortController,
       addIssue: (issue) => {
-        addBackupsIssue({
+        IssuesModule.addBackupsIssue({
           ...issue,
           folderUuid: backupInfo.folderUuid,
         });

@@ -1,7 +1,7 @@
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FETCH_LIMIT } from '../store';
 import { syncRemoteFile } from './sync-remote-file';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { driveServerWip, newDriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
 type TProps = {
@@ -30,7 +30,7 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
 
     const promise = self.workspaceId
       ? driveServerWip.workspaces.getFilesInWorkspace({ workspaceId: self.workspaceId, query })
-      : driveServerWip.files.getFiles({ query });
+      : newDriveServerWipModule.files.getFiles({ query });
 
     const { data, error } = await promise;
 

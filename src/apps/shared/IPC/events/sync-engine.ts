@@ -1,7 +1,7 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
-import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
+import { GeneralIssue, SyncIssue } from '@internxt/drive-desktop-core/build/backend';
 
 type FileInfo = {
   nameWithExtension: string;

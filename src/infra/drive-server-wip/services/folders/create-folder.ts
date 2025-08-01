@@ -1,7 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
-import { paths } from '@/apps/shared/HttpClient/schema';
+import { paths } from '@internxt/drive-desktop-core/build/backend';
 import { getRequestKey } from '../../in/get-in-flight-request';
 
 type TCreateFolderBody = paths['/folders']['post']['requestBody']['content']['application/json'];

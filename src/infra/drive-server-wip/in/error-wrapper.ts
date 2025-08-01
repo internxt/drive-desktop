@@ -1,8 +1,8 @@
-import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { DriveServerWipError } from '../out/error.types';
 import { isServerError, serverErrorIssue } from './helpers/error-helpers';
 import { logger, TLoggerBody } from '@/apps/shared/logger/logger';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { IssuesModule } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   loggerBody: TLoggerBody;
@@ -30,7 +30,7 @@ export function errorWrapper({ loggerBody, error, response, retry }: TProps) {
     if (process.type === 'renderer') {
       ipcRendererSyncEngine.send('ADD_GENERAL_ISSUE', serverErrorIssue);
     } else {
-      addGeneralIssue(serverErrorIssue);
+      IssuesModule.addGeneralIssue(serverErrorIssue);
     }
 
     return new DriveServerWipError('SERVER', loggedError);
