@@ -32,7 +32,7 @@ export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
      * in remote and it automatically markes it as TRASHED in sqlite, this error is always logged.
      */
     if (!file) {
-      logger.warn({ tag: 'SYNC-ENGINE', msg: 'File not found or does not exist', path, parentUuid, nameWithExtension });
+      logger.warn({ tag: 'SYNC-ENGINE', msg: 'Cannot unlink file, not found or does not exist', path, parentUuid, nameWithExtension });
       return;
     }
 
@@ -44,6 +44,7 @@ export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
     const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFileByUuid', {
       uuid: file.uuid,
       workspaceToken: getConfig().workspaceToken,
+      nameWithExtension,
     });
 
     if (error) throw error;

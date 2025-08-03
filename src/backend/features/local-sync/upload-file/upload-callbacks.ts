@@ -12,13 +12,13 @@ export function getUploadCallbacks({ path }: TProps): FileUploaderCallbacks {
 
   return {
     onProgress({ progress }: { progress: number }) {
-      ipcRendererSyncEngine.send('FILE_UPLOADING', { nameWithExtension, progress });
+      ipcRendererSyncEngine.send('FILE_UPLOADING', { key: path, nameWithExtension, progress });
     },
     onFinish() {
-      ipcRendererSyncEngine.send('FILE_UPLOADED', { nameWithExtension });
+      ipcRendererSyncEngine.send('FILE_UPLOADED', { key: path, nameWithExtension });
     },
     onError() {
-      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { nameWithExtension });
+      ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', { key: path, nameWithExtension });
     },
   };
 }
