@@ -41,7 +41,7 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> .env
           echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> .env
           echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> .env
-          echo "CERT_BASE64=${{ secrets.CERT_BASE64 }}" >> .env
+          echo "SM_CLIENT_CERT_FILE_B64=${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" >> .env
 
       - name: Install dependencies
         run: npm run init:ci

@@ -19,7 +19,7 @@ foreach ($line in $envVars) {
     Set-Variable -Name $key -Value $value
 }
 
-[IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($CERT_BASE64))
+[IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($SM_CLIENT_CERT_FILE_B64))
 
 smctl.exe creds save $SM_API_KEY $SM_CLIENT_CERT_PASSWORD
 
