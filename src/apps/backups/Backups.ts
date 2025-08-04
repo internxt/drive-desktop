@@ -5,7 +5,6 @@ import LocalTreeBuilder from '../../context/local/localTree/application/LocalTre
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { BackupsContext } from './BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
-import { DangledFilesService } from './dangled-files/DangledFilesService';
 import { RemoteTree, Traverser } from './remote-tree/traverser';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
@@ -19,7 +18,6 @@ export class Backup {
   constructor(
     private readonly fileBatchUploader: FileBatchUploader,
     private readonly fileBatchUpdater: FileBatchUpdater,
-    private readonly dangledFilesService: DangledFilesService,
   ) {}
 
   backed = 0;
@@ -37,7 +35,6 @@ export class Backup {
       added: filesDiff.added.length,
       modified: filesDiff.modified.size,
       deleted: filesDiff.deleted.length,
-      dangled: filesDiff.dangled.size,
       unmodified: filesDiff.unmodified.length,
       total: filesDiff.total,
     });
@@ -50,26 +47,6 @@ export class Backup {
       unmodified: foldersDiff.unmodified.length,
       total: foldersDiff.total,
     });
-
-    if (filesDiff.dangled.size > 0) {
-      logger.debug({
-        msg: 'Dangling files found, handling them',
-        tag: 'BACKUPS',
-      });
-
-      const filesToResync = await this.dangledFilesService.handleDangledFile(filesDiff.dangled);
-
-      for (const [localFile, remoteFile] of filesToResync) {
-        logger.debug({
-          msg: 'Resyncing dangling file',
-          localPath: localFile.absolutePath,
-          remoteId: remoteFile.contentsId,
-          tag: 'BACKUPS',
-        });
-        filesDiff.modified.set(localFile, remoteFile);
-      }
-      filesDiff.total += filesDiff.dangled.size;
-    }
 
     const alreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;
 

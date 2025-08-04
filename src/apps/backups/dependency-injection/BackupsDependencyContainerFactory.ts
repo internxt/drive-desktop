@@ -2,7 +2,6 @@ import { Container, Service, ContainerBuilder } from 'diod';
 import { registerFilesServices } from './virtual-drive/registerFilesServices';
 import { registerLocalFileServices } from './local/registerLocalFileServices';
 import { Backup } from '../Backups';
-import { DangledFilesService } from '../dangled-files/DangledFilesService';
 import { BackupInfo } from '../BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
 
@@ -20,9 +19,6 @@ export class BackupsDependencyContainerFactory {
 
       logger.debug({ tag: 'BACKUPS', msg: 'Registering local file services' });
       registerLocalFileServices(builder, data);
-
-      logger.debug({ tag: 'BACKUPS', msg: 'Registering dangled files service' });
-      builder.registerAndUse(DangledFilesService);
 
       logger.debug({ tag: 'BACKUPS', msg: 'Registering Backup service' });
       builder.registerAndUse(Backup);

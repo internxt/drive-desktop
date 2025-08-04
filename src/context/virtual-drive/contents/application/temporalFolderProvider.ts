@@ -9,5 +9,3 @@ export const temporalFolderProvider = async (): Promise<string> => {
 
   return temporalFilesFolder;
 };
-
-export type TemporalFolderProvider = typeof temporalFolderProvider;
