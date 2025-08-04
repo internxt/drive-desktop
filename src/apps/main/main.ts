@@ -156,9 +156,9 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
-  } catch (error) {
-    Logger.error(error);
-    reportError(error as Error);
+  } catch (exc) {
+    logger.error({ msg: 'Error logging in', exc });
+    reportError(exc as Error);
   }
 });
 
