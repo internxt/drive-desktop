@@ -193,12 +193,31 @@ class ManualSystemScan {
 
       const allFilePaths: string[] = [];
 
-      await Promise.all(
-        pathNames.map(async (p) => {
+      /**
+       * v2.5.6 Esteban Galvis
+       * Originally, Promise.all was used to process multiple directories concurrently.
+       * However, this caused a stack overflow error due to the large number of files in the system.
+       * To fix this, we now process directories sequentially and add files in chunks,
+       * avoiding heavy array operations. This helps prevent memory issues.
+       */
+      for (const p of pathNames) {
+        try {
           const filePaths = await getFilesFromDirectory({ rootFolder: p });
-          allFilePaths.push(...filePaths);
-        }),
-      );
+
+          const chunkSize = 1000;
+          for (let i = 0; i < filePaths.length; i += chunkSize) {
+            const chunk = filePaths.slice(i, i + chunkSize);
+            allFilePaths.push(...chunk);
+          }
+        } catch (error) {
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: 'Error processing directory',
+            path: p,
+            error,
+          });
+        }
+      }
 
       this.totalItemsToScan = allFilePaths.length;
 
