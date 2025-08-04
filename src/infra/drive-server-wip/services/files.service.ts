@@ -114,14 +114,14 @@ async function renameFile(context: { uuid: string; name: string; type: string })
   });
 }
 
-async function replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
+async function replaceFile(context: { uuid: string; newContentId: string; newSize: number; newModificationTime?: Date }) {
   const method = 'PUT';
   const endpoint = '/files/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PUT(endpoint, {
-      body: { fileId: context.newContentId, size: context.newSize },
+      body: { fileId: context.newContentId, size: context.newSize, modificationTime: context.newModificationTime },
       params: { path: { uuid: context.uuid } },
     });
 

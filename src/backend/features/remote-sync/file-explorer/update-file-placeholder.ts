@@ -57,9 +57,9 @@ export class FilePlaceholderUpdater {
         await rename(localPath.path, remotePath);
       }
 
-      const remoteModificationTime = remote.modificationTime.getTime();
-      const localModificationTime = localPath.stats.mtime.getTime();
-      if (localModificationTime > remoteModificationTime) {
+      const remoteTime = Math.floor(remote.modificationTime.getTime() / 1000);
+      const localTime = Math.floor(localPath.stats.mtime.getTime() / 1000);
+      if (localTime > remoteTime) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'File placeholder has been modified locally, updating remote',

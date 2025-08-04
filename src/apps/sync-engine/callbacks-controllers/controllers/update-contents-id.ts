@@ -32,6 +32,7 @@ export async function updateContentsId({ virtualDrive, stats, path, uuid, fileCo
       uuid,
       newContentId: contents.id,
       newSize: contents.size,
+      newModificationTime: stats.mtime,
     });
 
     virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
