@@ -1,16 +1,27 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { folderRepository } from '../drive-folder';
-import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { DriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { SingleItemError } from '../common/single-item-error';
 
 type Props = {
   uuid: string;
-  payload: Partial<DriveFolder>;
+  payload: {
+    name?: string;
+    parentUuid?: FolderUuid;
+    status?: DriveFolder['status'];
+  };
 };
 
 export async function updateByUuid({ uuid, payload }: Props) {
   try {
-    const match = await folderRepository.update({ uuid }, payload);
+    const match = await folderRepository.update(
+      { uuid },
+      {
+        plainName: payload.name,
+        parentUuid: payload.parentUuid,
+        status: payload.status,
+      },
+    );
 
     if (!match.affected) {
       return { error: new SingleItemError('NOT_FOUND') };

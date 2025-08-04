@@ -1,33 +1,25 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
-import { DriveFile } from '../../../main/database/entities/DriveFile';
+import { DriveFile, FileUuid } from '../../../main/database/entities/DriveFile';
 import { DriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
-type FileInfo = {
-  nameWithExtension: string;
-};
-
-type FileUpdatePayload = {
-  nameWithExtension: string;
-  progress: number;
-};
+type BaseFile = { nameWithExtension: string };
+type FileDownload = BaseFile & { key: FileUuid };
+type FileUpload = BaseFile & { key: AbsolutePath };
+type FileProgress = BaseFile & { progress: number };
+type FileDownloading = FileProgress & FileDownload;
+type FileUploading = FileProgress & FileUpload;
 
 type FilesEvents = {
-  FILE_UPLOADING: (payload: FileUpdatePayload) => void;
-  FILE_UPLOADED: (payload: FileInfo) => void;
-  FILE_UPLOAD_ERROR: (payload: FileInfo) => void;
+  FILE_UPLOADING: (payload: FileUploading) => void;
+  FILE_UPLOADED: (payload: FileUpload) => void;
+  FILE_UPLOAD_ERROR: (payload: FileUpload) => void;
 
-  FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
-  FILE_DOWNLOADED: (payload: FileInfo) => void;
-  FILE_DOWNLOAD_CANCEL: (payload: FileInfo) => void;
-  FILE_DOWNLOAD_ERROR: (payload: FileInfo) => void;
-
-  FILE_DELETED: (payload: FileInfo) => void;
-  FILE_DELETION_ERROR: (payload: FileInfo) => void;
-
-  FILE_RENAMING: (payload: FileInfo) => void;
-  FILE_RENAMED: (payload: FileInfo) => void;
-  FILE_RENAME_ERROR: (payload: FileInfo) => void;
+  FILE_DOWNLOADING: (payload: FileDownloading) => void;
+  FILE_DOWNLOADED: (payload: FileDownload) => void;
+  FILE_DOWNLOAD_CANCEL: (payload: FileDownload) => void;
+  FILE_DOWNLOAD_ERROR: (payload: FileDownload) => void;
 
   FILE_CREATED: (payload: {
     bucket: string;

@@ -1,6 +1,6 @@
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 
 export const files = {
@@ -64,13 +64,14 @@ async function createFile(context: { path: string; body: TCreateFileBody }) {
   });
 }
 
-async function moveFile(context: { uuid: string; parentUuid: string }) {
+async function moveFile(context: { uuid: string; parentUuid: string; workspaceToken: string }) {
   const method = 'PATCH';
   const endpoint = '/files/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PATCH(endpoint, {
+      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
       body: { destinationFolder: context.parentUuid },
       params: { path: { uuid: context.uuid } },
     });
@@ -89,14 +90,15 @@ async function moveFile(context: { uuid: string; parentUuid: string }) {
   });
 }
 
-async function renameFile(context: { uuid: string; name: string; type: string }) {
+async function renameFile(context: { uuid: string; name: string; extension: string; workspaceToken: string }) {
   const method = 'PUT';
   const endpoint = '/files/{uuid}/meta';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PUT(endpoint, {
-      body: { plainName: context.name, type: context.type },
+      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
+      body: { plainName: context.name, type: context.extension },
       params: { path: { uuid: context.uuid } },
     });
 
