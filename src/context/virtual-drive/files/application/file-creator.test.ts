@@ -29,7 +29,7 @@ describe('File Creator', () => {
   const folderParent = FolderMother.any();
   const filePath = new FilePath(folderParent.path + '/cat.png');
   const contents = FileContentsMother.random();
-  const absolutePath = 'C:\\Users\\user\\InternxtDrive' as AbsolutePath;
+  const absolutePath = 'C:\\Users\\user\\InternxtDrive\\cat.png' as AbsolutePath;
 
   const SUT = new FileCreator(remoteFileSystemMock, virtualDriveMock);
 
@@ -49,6 +49,7 @@ describe('File Creator', () => {
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
 
     expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_UPLOAD_ERROR', {
+      key: 'C:\\Users\\user\\InternxtDrive\\cat.png',
       nameWithExtension: filePath.nameWithExtension(),
     });
   });
