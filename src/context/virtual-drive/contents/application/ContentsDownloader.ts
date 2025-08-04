@@ -3,18 +3,17 @@ import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { TemporalFolderProvider } from './temporalFolderProvider';
 import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { temporalFolderProvider } from './temporalFolderProvider';
 
 export class ContentsDownloader {
   constructor(
     private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory,
     private readonly localWriter: FSLocalFileWriter,
-    private readonly temporalFolderProvider: TemporalFolderProvider,
   ) {}
 
   private downloaderIntance: EnvironmentContentFileDownloader | null = null;
@@ -22,7 +21,7 @@ export class ContentsDownloader {
   private downloaderFile: SimpleDriveFile | null = null;
 
   private async registerEvents(downloader: EnvironmentContentFileDownloader, file: SimpleDriveFile, callback: CallbackDownload) {
-    const location = await this.temporalFolderProvider();
+    const location = await temporalFolderProvider();
     ensureFolderExists(location);
 
     const filePath = path.join(location, file.nameWithExtension);

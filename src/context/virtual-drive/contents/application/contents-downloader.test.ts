@@ -10,11 +10,11 @@ import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMothe
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ContentsSize } from '../domain/ContentsSize';
+import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as temporalFolderProvider from './temporalFolderProvider';
 
 describe('Contents Downloader', () => {
-  const temporalFolderProvider = (): Promise<string> => {
-    return Promise.resolve('C:/temp');
-  };
+  const temporalFolderProviderMock = partialSpyOn(temporalFolderProvider, 'temporalFolderProvider');
 
   const localWriter = mockDeep<FSLocalFileWriter>();
   const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
@@ -37,12 +37,16 @@ describe('Contents Downloader', () => {
     });
   };
 
-  const SUT = new ContentsDownloader(factory, localWriter, temporalFolderProvider);
+  const SUT = new ContentsDownloader(factory, localWriter);
+
+  beforeEach(() => {
+    temporalFolderProviderMock.mockResolvedValue('C:/temp');
+  });
 
   it.each(['start', 'progress', 'finish', 'error'] satisfies Array<keyof FileDownloadEvents>)(
     'tracks all the manager events ',
     async (event: keyof FileDownloadEvents) => {
-      factory.downloader.mockResolvedValueOnce(environmentContentFileDownloader);
+      factory.downloader.mockReturnValueOnce(environmentContentFileDownloader);
 
       await SUT.run(FileMother.any() as unknown as SimpleDriveFile, callbackFunction);
 
@@ -53,7 +57,7 @@ describe('Contents Downloader', () => {
   it('writes the downloaded content a local file', async () => {
     const file = FileMother.any();
 
-    factory.downloader.mockResolvedValueOnce(environmentContentFileDownloader);
+    factory.downloader.mockReturnValueOnce(environmentContentFileDownloader);
 
     await SUT.run(file as unknown as SimpleDriveFile, callbackFunction);
 
