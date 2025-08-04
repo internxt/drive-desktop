@@ -1,10 +1,10 @@
-import Logger from 'electron-log';
 import { BindingsManager, CallbackDownload } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import * as fs from 'fs';
 import { dirname } from 'path';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { logger } from '@/apps/shared/logger/logger';
+import { unlink } from 'fs/promises';
 
 type TProps = {
   self: BindingsManager;
@@ -15,23 +15,23 @@ type TProps = {
 export class FetchDataService {
   async run({ self, filePlaceholderId, callback }: TProps) {
     try {
-      Logger.debug('[Fetch Data Callback] Donwloading begins');
+      logger.debug({ msg: '[Fetch Data Callback] Donwloading begins' });
 
-      const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
+      const tmpPath = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
 
       const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
       const file = await self.controllers.downloadFile.fileFinderByUuid({ uuid });
 
-      Logger.debug('[Fetch Data Callback] Preparing begins', path);
+      logger.debug({ msg: '[Fetch Data Callback] Preparing begins', tmpPath });
 
       try {
         let finished = false;
 
         while (!finished) {
-          const result = await callback(true, path);
+          const result = await callback(true, tmpPath);
           finished = result.finished;
 
-          Logger.debug('Callback result', result);
+          logger.debug({ msg: 'Callback result', tmpPath, result });
 
           if (result.progress > 1 || result.progress < 0) {
             throw new Error('Result progress is not between 0 and 1');
@@ -44,6 +44,7 @@ export class FetchDataService {
           }
 
           ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
+            key: uuid,
             nameWithExtension: file.nameWithExtension,
             progress: result.progress,
           });
@@ -52,26 +53,26 @@ export class FetchDataService {
         self.progressBuffer = 0;
 
         ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
+          key: uuid,
           nameWithExtension: file.nameWithExtension,
         });
       } catch (error) {
-        Logger.error('[Fetch Data Error]', error);
-        Logger.debug('[Fetch Data Error] Finish', path);
+        logger.error({ msg: '[Fetch Data Callback] Error', tmpPath, error });
         // await callback(false, '');
-        fs.unlinkSync(path);
+        await unlink(tmpPath);
         return;
       }
 
-      fs.unlinkSync(path);
+      await unlink(tmpPath);
 
-      Logger.debug('[Fetch Data Callback] Finish', path);
+      logger.debug({ msg: '[Fetch Data Callback] Finish', tmpPath });
     } catch (error) {
-      Logger.error(error);
+      logger.error({ msg: '[Fetch Data Callback] Error', filePlaceholderId, error });
       await callback(false, '');
     }
   }
 
-  normalizePath(path: string) {
-    return dirname(path).replace(/\\/g, '/');
+  normalizePath(tmpPath: string) {
+    return dirname(tmpPath).replace(/\\/g, '/');
   }
 }

@@ -17,7 +17,7 @@ export class FileCreationOrchestrator {
     private readonly fileCreator: FileCreator,
   ) {}
 
-  async run({ path, stats }: TProps) {
+  async run({ path, absolutePath, stats }: TProps) {
     const filePath = new FilePath(path);
 
     const fileContents = await this.contentsUploader.run({ path, stats });
@@ -30,7 +30,11 @@ export class FileCreationOrchestrator {
       size: fileContents.size,
     });
 
-    const createdFile = await this.fileCreator.run(filePath, fileContents);
+    const createdFile = await this.fileCreator.run({
+      filePath,
+      contents: fileContents,
+      absolutePath,
+    });
 
     return createdFile.uuid;
   }

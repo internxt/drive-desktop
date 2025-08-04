@@ -5,7 +5,7 @@ import { updateByUuid } from './update-by-uuid';
 describe('update-by-uuid', () => {
   const updateSpy = partialSpyOn(folderRepository, 'update');
 
-  const props = mockProps<typeof updateByUuid>({});
+  const props = mockProps<typeof updateByUuid>({ payload: {} });
 
   it('should return NOT_FOUND when no folder has been affected', async () => {
     // Given

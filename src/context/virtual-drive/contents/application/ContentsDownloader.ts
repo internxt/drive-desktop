@@ -29,6 +29,7 @@ export class ContentsDownloader {
 
     downloader.on('start', () => {
       ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
+        key: file.uuid,
         nameWithExtension: file.nameWithExtension,
         progress: 0,
       });
@@ -44,6 +45,7 @@ export class ContentsDownloader {
       }
 
       ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
+        key: file.uuid,
         nameWithExtension: file.nameWithExtension,
         progress,
       });
@@ -52,6 +54,7 @@ export class ContentsDownloader {
     downloader.on('error', (error: Error) => {
       Logger.error('[Server] Error downloading file', error);
       ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', {
+        key: file.uuid,
         nameWithExtension: file.nameWithExtension,
       });
     });
@@ -91,6 +94,7 @@ export class ContentsDownloader {
     void this.downloaderIntanceCB(false, '');
 
     ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', {
+      key: this.downloaderFile.uuid,
       nameWithExtension: this.downloaderFile.nameWithExtension,
     });
 

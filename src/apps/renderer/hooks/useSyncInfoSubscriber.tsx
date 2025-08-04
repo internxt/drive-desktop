@@ -8,13 +8,13 @@ export function useSyncInfoSubscriber() {
     const MAX_ITEMS = 50;
 
     setProcessInfoUpdatedPayload((currentItems) => {
-      const itemsWithoutGivenItem = currentItems.filter((i) => i.name !== item.name);
+      const itemsWithoutGivenItem = currentItems.filter((i) => i.key !== item.key);
 
       const itemIsAnError = ['UPLOAD_ERROR', 'DOWNLOAD_ERROR', 'RENAME_ERROR', 'DELETE_ERROR'].includes(item.action);
 
       const newItems = itemIsAnError ? itemsWithoutGivenItem : [item, ...itemsWithoutGivenItem].slice(0, MAX_ITEMS);
 
-      return newItems;
+      return newItems.sort((a, b) => a.name.localeCompare(b.name));
     });
   }
 

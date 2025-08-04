@@ -1,4 +1,4 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
@@ -134,13 +134,14 @@ async function getFilesByFolder(
   }
 }
 
-async function moveFolder(context: { uuid: string; parentUuid: string }) {
+async function moveFolder(context: { uuid: string; parentUuid: string; workspaceToken: string }) {
   const method = 'PATCH';
   const endpoint = '/folders/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PATCH(endpoint, {
+      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
       params: { path: { uuid: context.uuid } },
       body: { destinationFolder: context.parentUuid },
     });
@@ -159,15 +160,16 @@ async function moveFolder(context: { uuid: string; parentUuid: string }) {
   });
 }
 
-async function renameFolder(context: { uuid: string; plainName: string }) {
+async function renameFolder(context: { uuid: string; name: string; workspaceToken: string }) {
   const method = 'PUT';
   const endpoint = '/folders/{uuid}/meta';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PUT(endpoint, {
+      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
       params: { path: { uuid: context.uuid } },
-      body: { plainName: context.plainName },
+      body: { plainName: context.name },
     });
 
   return await clientWrapper({
