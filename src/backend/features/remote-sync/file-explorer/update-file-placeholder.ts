@@ -4,12 +4,12 @@ import { logger } from '@/apps/shared/logger/logger';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { rename } from 'fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
-import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
-import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
+import { syncModifiedFile } from './sync-modified-file';
 
 export class FilePlaceholderUpdater {
   constructor(
@@ -57,26 +57,13 @@ export class FilePlaceholderUpdater {
         await rename(localPath.path, remotePath);
       }
 
-      const remoteTime = Math.floor(remote.modificationTime.getTime() / 1000);
-      const localTime = Math.floor(localPath.stats.mtime.getTime() / 1000);
-      if (localTime > remoteTime) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
-          msg: 'File placeholder has been modified locally, updating remote',
-          remotePath,
-          uuid: remote.uuid,
-          remoteDate: remote.modificationTime.toISOString(),
-          localDate: localPath.stats.mtime.toISOString(),
-        });
-
-        await updateContentsId({
-          virtualDrive: this.virtualDrive,
-          stats: localPath.stats,
-          path: createRelativePath(remote.path),
-          uuid: remote.uuid as string,
-          fileContentsUploader: this.fileContentsUploader,
-        });
-      }
+      await syncModifiedFile({
+        remoteFile: remote,
+        localFile: localPath,
+        relativePathToAbsoluteConverter: this.relativePathToAbsoluteConverter,
+        fileContentsUploader: this.fileContentsUploader,
+        virtualDrive: this.virtualDrive,
+      });
     } catch (exc) {
       logger.error({
         tag: 'SYNC-ENGINE',
