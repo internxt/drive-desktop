@@ -7,7 +7,6 @@ import {
   deleteBackup,
   disableBackup,
   deleteBackupsFromDevice,
-  getBackupsFromDevice,
   getPathFromDialog,
   getOrCreateDevice,
   getDevices,
@@ -15,6 +14,7 @@ import {
   createBackupsFromLocalPaths,
   downloadBackup,
 } from './service';
+import { getBackupsFromDevice } from './get-backups-from-device';
 
 ipcMain.handle('get-or-create-device', getOrCreateDevice);
 

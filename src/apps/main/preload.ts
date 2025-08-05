@@ -10,12 +10,13 @@ import { getUser } from './auth/service';
 import { ProcessInfoUpdatePayload } from '../shared/types';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
-import { changeBackupPath, Device, getBackupsFromDevice, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
+import { changeBackupPath, Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
 import { chooseSyncRootWithDialog } from './virtual-root-folder/service';
 import { BackupInfo } from '../backups/BackupInfo';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { ItemBackup } from '../shared/types/items';
 import { Usage } from './usage/Usage';
+import { getBackupsFromDevice } from './device/get-backups-from-device';
 
 const api = {
   getConfigKey(key: StoredValues) {
