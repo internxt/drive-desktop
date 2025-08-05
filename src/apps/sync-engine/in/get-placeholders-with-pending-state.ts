@@ -18,7 +18,8 @@ type TProps = {
 };
 
 async function processFolder({ virtualDrive, path }: TProps) {
-  const pendingPaths: PendingPaths[] = [];
+  const pendingFiles: PendingPaths[] = [];
+  const pendingFolders: PendingPaths[] = [];
 
   /**
    * v2.5.6 Daniel Jiménez
@@ -33,20 +34,28 @@ async function processFolder({ virtualDrive, path }: TProps) {
 
     if (stats) {
       if (stats.isDirectory()) {
+        const { error } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
+
+        if (error && error.code === 'NON_EXISTS') {
+          pendingFolders.push({ stats, absolutePath });
+        }
+
         const result = await processFolder({ virtualDrive, path: absolutePath });
-        pendingPaths.push(...result);
+        pendingFiles.push(...result.pendingFiles);
+        pendingFolders.push(...result.pendingFolders);
       }
 
       if (stats.isFile()) {
         const { error } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
-        if (error?.code === 'NON_EXISTS') {
-          pendingPaths.push({ stats, absolutePath });
+
+        if (error && error.code === 'NON_EXISTS') {
+          pendingFiles.push({ stats, absolutePath });
         }
       }
     }
   }
 
-  return pendingPaths;
+  return { pendingFiles, pendingFolders };
 }
 
 export async function getPlaceholdersWithPendingState({ virtualDrive, path }: TProps) {

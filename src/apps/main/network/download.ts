@@ -11,7 +11,6 @@ import { Readable } from 'node:stream';
 import fetch from 'electron-fetch';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
 import { convertToReadableStream } from './NetworkFacade';
-import Logger from 'electron-log';
 import path from 'path';
 import { logger } from '@/apps/shared/logger/logger';
 import { IDownloadParams } from './download.types';
@@ -63,7 +62,7 @@ export async function downloadFolder(
     updateProgress: (progress: number) => void;
   },
 ) {
-  Logger.info('Downloading folder to directory');
+  logger.debug({ msg: 'Downloading folder to directory' });
 
   const { abortController, updateProgress } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
@@ -88,7 +87,7 @@ export async function downloadFolder(
 
     const folderPath = currentFolder.path + (currentFolder.path === '' ? '' : '/') + folderDecryptedNames[currentFolder.data.id];
 
-    Logger.info('Creating folder:', folderPath);
+    logger.debug({ msg: 'Creating folder:', folderPath });
 
     // Crear el directorio si no existe
     await fs.promises.mkdir(targetPath + '/' + folderPath, { recursive: true });
@@ -116,7 +115,7 @@ export async function downloadFolder(
 
             const filePath = path.join(folderPath, displayFilename);
 
-            Logger.info('Downloading file:', filePath);
+            logger.debug({ msg: 'Downloading file:', filePath });
 
             const fileStream = await downloadFile({
               bucketId: file.bucket,
@@ -137,8 +136,8 @@ export async function downloadFolder(
 
             downloadedItems += 1;
             const progress = (downloadedItems / totalItems) * 100;
-            Logger.info('totalItems:', totalItems, 'downloadedItems:', downloadedItems);
-            Logger.info('Download progress:', progress);
+            logger.debug({ msg: 'totalItems:', totalItems, downloadedItems });
+            logger.debug({ msg: 'Download progress:', progress });
             updateProgress(Math.max(progress, 1));
           } catch (error) {
             throw logger.error({ msg: '[Downloader] Error downloading file:', file, error });
@@ -154,7 +153,7 @@ export async function downloadFolder(
     throw new Error('Download cancelled');
   }
 
-  Logger.info('Download complete:', targetPath);
+  logger.debug({ msg: 'Download complete:', targetPath });
   updateProgress(100);
 }
 

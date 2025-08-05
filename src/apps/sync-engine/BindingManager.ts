@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { FilePlaceholderId } from '../../context/virtual-drive/files/domain/PlaceholderId';
 import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
@@ -11,7 +10,6 @@ import { logger } from '../shared/logger/logger';
 import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { getPlaceholdersWithPendingState } from './in/get-placeholders-with-pending-state';
-import { iconPath } from '../utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
 import { addPendingFiles } from './in/add-pending-files';
@@ -19,6 +17,7 @@ import { createWatcher } from './create-watcher';
 import { Watcher } from '@/node-win/watcher/watcher';
 import { deleteItemPlaceholders } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
+import { addPendingFolders } from './in/add-pending-folders';
 
 export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
 
@@ -45,7 +44,7 @@ export class BindingsManager {
         }),
       cancelFetchDataCallback: () => {
         this.controllers.downloadFile.cancel();
-        Logger.debug('cancelFetchDataCallback');
+        logger.debug({ msg: 'cancelFetchDataCallback' });
       },
     };
 
@@ -54,7 +53,6 @@ export class BindingsManager {
     this.container.virtualDrive.registerSyncRoot({
       providerName: getConfig().providerName,
       providerVersion: INTERNXT_VERSION,
-      logoPath: iconPath,
     });
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
@@ -142,7 +140,7 @@ export class BindingsManager {
     });
 
     try {
-      const pendingPaths = await getPlaceholdersWithPendingState({
+      const { pendingFiles, pendingFolders } = await getPlaceholdersWithPendingState({
         virtualDrive: this.container.virtualDrive,
         path: this.container.virtualDrive.syncRootPath,
       });
@@ -151,10 +149,11 @@ export class BindingsManager {
         tag: 'SYNC-ENGINE',
         msg: 'Files in pending paths',
         workspaceId,
-        total: pendingPaths.length,
+        pendingFiles: pendingFiles.length,
+        pendingFolders: pendingFolders.length,
       });
 
-      await addPendingFiles({ pendingPaths, watcher });
+      await Promise.all([addPendingFiles({ pendingFiles, watcher }), addPendingFolders({ pendingFolders, watcher })]);
 
       await this.container.fileDangledManager.run();
     } catch (error) {

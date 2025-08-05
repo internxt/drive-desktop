@@ -67,7 +67,7 @@ export class FetchDataService {
 
       logger.debug({ msg: '[Fetch Data Callback] Finish', tmpPath });
     } catch (error) {
-      logger.error({ msg: '[Fetch Data Callback] Error', filePlaceholderId, error });
+      logger.error({ msg: '[Fetch Data Error]', error });
       await callback(false, '');
     }
   }

@@ -1,9 +1,9 @@
 import { Notification } from 'electron';
-import Logger from 'electron-log';
 
 import eventBus from '../event-bus';
 import path from 'path';
 import { clearIssues } from './issues';
+import { logger } from '@/apps/shared/logger/logger';
 
 let lastDialogTime = 0;
 
@@ -23,7 +23,7 @@ export function showNotEnoughSpaceNotification() {
   });
 
   notification.on('click', () => {
-    Logger.info('The users clicked on the notification');
+    logger.debug({ msg: 'The users clicked on the notification' });
   });
 
   /**

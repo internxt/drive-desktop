@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
@@ -9,6 +8,7 @@ import { EnvironmentContentFileDownloader } from '../infrastructure/download/Env
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { temporalFolderProvider } from './temporalFolderProvider';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class ContentsDownloader {
   constructor(
@@ -51,7 +51,7 @@ export class ContentsDownloader {
     });
 
     downloader.on('error', (error: Error) => {
-      Logger.error('[Server] Error downloading file', error);
+      logger.error({ msg: '[Server] Error downloading file', error });
       ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', {
         key: file.uuid,
         nameWithExtension: file.nameWithExtension,
@@ -85,10 +85,10 @@ export class ContentsDownloader {
   }
 
   stop() {
-    Logger.info('[Server] Stopping download 1');
+    logger.debug({ msg: '[Server] Stopping download 1' });
     if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
 
-    Logger.info('[Server] Stopping download 2');
+    logger.debug({ msg: '[Server] Stopping download 2' });
     this.downloaderIntance.forceStop();
     void this.downloaderIntanceCB(false, '');
 

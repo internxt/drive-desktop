@@ -1,4 +1,4 @@
-import Logger from 'electron-log';
+import { logger } from '@/apps/shared/logger/logger';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 import nodeSchedule from 'node-schedule';
 
@@ -19,7 +19,7 @@ export class TokenScheduler {
 
       return decoded.exp || TokenScheduler.MAX_TIME;
     } catch (err) {
-      Logger.error('[TOKEN] Token could be not decoded');
+      logger.error({ msg: '[TOKEN] Token could be not decoded' });
       return TokenScheduler.MAX_TIME;
     }
   }
@@ -49,13 +49,13 @@ export class TokenScheduler {
     const expiration = this.nearestExpiration();
 
     if (expiration === TokenScheduler.MAX_TIME) {
-      Logger.warn('[TOKEN] Refresh token schedule will not be set');
+      logger.warn({ msg: '[TOKEN] Refresh token schedule will not be set' });
 
       return;
     }
 
     if (expiration >= Date.now()) {
-      Logger.warn('[TOKEN] TOKEN IS EXPIRED');
+      logger.warn({ msg: '[TOKEN] TOKEN IS EXPIRED' });
       this.unauthorized();
 
       return;
@@ -63,7 +63,7 @@ export class TokenScheduler {
 
     const renewDate = this.calculateRenewDate(expiration);
 
-    Logger.info('[TOKEN] Tokens will be refreshed on ', renewDate.toLocaleDateString());
+    logger.debug({ msg: '[TOKEN] Tokens will be refreshed on ', renewDate: renewDate.toLocaleDateString() });
 
     return nodeSchedule.scheduleJob(renewDate, fn);
   }
