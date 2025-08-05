@@ -2,11 +2,13 @@ import fs from 'fs';
 import path, { join, posix, win32 } from 'path';
 
 import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
-import { TLogger } from './logger';
 import { Callbacks } from './types/callbacks.type';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { getConfig } from '@/apps/sync-engine/config';
+import { iconPath } from '@/apps/utils/icon';
 
 const PLACEHOLDER_ATTRIBUTES = {
   FILE_ATTRIBUTE_READONLY: 0x1,
@@ -16,32 +18,16 @@ const PLACEHOLDER_ATTRIBUTES = {
 };
 
 export class VirtualDrive {
-  syncRootPath: AbsolutePath;
-  providerId: string;
-  logger: TLogger;
   addon: Addon;
+  syncRootPath = this.convertToWindowsPath({ path: getConfig().rootPath }) as AbsolutePath;
+  providerId = getConfig().providerId;
 
-  constructor({
-    syncRootPath,
-    providerId,
-    loggerPath,
-    logger,
-  }: {
-    syncRootPath: string;
-    providerId: string;
-    loggerPath: string;
-    logger: TLogger;
-  }) {
+  constructor() {
     this.addon = DependencyInjectionAddonProvider.get();
-    this.syncRootPath = this.convertToWindowsPath({ path: syncRootPath }) as AbsolutePath;
-    loggerPath = this.convertToWindowsPath({ path: loggerPath });
-    this.providerId = providerId;
-
     this.addon.syncRootPath = this.syncRootPath;
 
     this.createSyncRootFolder();
-    this.addLoggerPath(loggerPath);
-    this.logger = logger;
+    this.addLoggerPath(this.convertToWindowsPath({ path: getConfig().loggerPath }));
   }
 
   private convertToWindowsTime(jsTime: number) {
@@ -86,7 +72,7 @@ export class VirtualDrive {
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
     const connectionKey = this.addon.connectSyncRoot({ callbacks });
 
-    this.logger.debug({ msg: 'connectSyncRoot', connectionKey });
+    logger.debug({ msg: 'connectSyncRoot', connectionKey });
     return connectionKey;
   }
 
@@ -167,13 +153,13 @@ export class VirtualDrive {
     });
   }
 
-  registerSyncRoot({ providerName, providerVersion, logoPath }: { providerName: string; providerVersion: string; logoPath: string }) {
-    this.logger.debug({ msg: 'Registering sync root', syncRootPath: this.syncRootPath });
+  registerSyncRoot({ providerName, providerVersion }: { providerName: string; providerVersion: string }) {
+    logger.debug({ msg: 'Registering sync root', syncRootPath: this.syncRootPath });
     return this.addon.registerSyncRoot({
       providerName,
       providerVersion,
       providerId: this.providerId,
-      logoPath,
+      logoPath: iconPath,
     });
   }
 
@@ -225,7 +211,7 @@ export class VirtualDrive {
         basePath: currentPath,
       });
     } catch (error) {
-      this.logger.error({ msg: 'Error creating placeholder', error });
+      logger.error({ msg: 'Error creating placeholder', error });
     }
   }
 
@@ -276,13 +262,13 @@ export class VirtualDrive {
     const result = this.addon.convertToPlaceholder({ path: this.fixPath(itemPath), id });
 
     if (result.success) {
-      this.logger.debug({
+      logger.debug({
         msg: 'Convert to placeholder succeeded',
         itemPath,
         id,
       });
     } else {
-      this.logger.error({
+      logger.error({
         msg: 'Convert to placeholder failed',
         itemPath,
         id,

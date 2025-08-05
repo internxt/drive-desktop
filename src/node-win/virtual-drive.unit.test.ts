@@ -1,12 +1,12 @@
 import fs from 'fs';
 import { v4 } from 'uuid';
 import { Mock } from 'vitest';
-import { mockDeep } from 'vitest-mock-extended';
 
 import { addon } from '@/node-win/addon';
 
-import { TLogger } from './logger';
 import VirtualDrive from './virtual-drive';
+import { setDefaultConfig } from '@/apps/sync-engine/config';
+import { iconPath } from '@/apps/utils/icon';
 
 vi.mock(import('fs'));
 vi.mock('@/node-win/addon', () => ({
@@ -20,16 +20,16 @@ vi.mock('@/node-win/addon', () => ({
 
 describe('VirtualDrive', () => {
   const mockExistsSync = fs.existsSync as Mock;
-  const loggerMock = mockDeep<TLogger>();
 
   const syncRootPath = 'C:\\test-drive';
   const loggerPath = 'C:\\test-logs';
+  const providerId = v4();
+
+  setDefaultConfig({ rootPath: syncRootPath, loggerPath, providerId });
 
   describe('When convertToWindowsPath is called', () => {
-    const providerId = v4();
-
     // Arrange
-    const drive = new VirtualDrive({ syncRootPath, providerId, loggerPath, logger: loggerMock });
+    const drive = new VirtualDrive();
 
     it('When unix path, then convert to windows path', () => {
       // Assert
@@ -45,10 +45,8 @@ describe('VirtualDrive', () => {
   });
 
   describe('When fixPath is called', () => {
-    const providerId = v4();
-
     // Arrange
-    const drive = new VirtualDrive({ syncRootPath, providerId, loggerPath, logger: loggerMock });
+    const drive = new VirtualDrive();
 
     it('When absolute windows path, then do not modify it', () => {
       // Assert
@@ -80,12 +78,8 @@ describe('VirtualDrive', () => {
     it('When syncRootPath does not exist, then it creates it', () => {
       // Arrange
       mockExistsSync.mockReturnValue(false);
-
-      const providerId = v4();
-
       // Act
-      new VirtualDrive({ syncRootPath, providerId, loggerPath, logger: loggerMock });
-
+      new VirtualDrive();
       // Assert
       expect(fs.mkdirSync).toHaveBeenCalledWith(syncRootPath, {
         recursive: true,
@@ -95,22 +89,15 @@ describe('VirtualDrive', () => {
     it('When syncRootPath exists, then it does not create it', () => {
       // Arrange
       mockExistsSync.mockReturnValue(true);
-
-      const providerId = v4();
-
       // Act
-      new VirtualDrive({ syncRootPath, providerId, loggerPath, logger: loggerMock });
-
+      new VirtualDrive();
       // Assert
       expect(fs.mkdirSync).not.toHaveBeenCalled();
     });
 
     it('Then it calls addon.addLoggerPath with logPath provided', () => {
       // Act
-      const providerId = v4();
-
-      new VirtualDrive({ syncRootPath, providerId, loggerPath, logger: loggerMock });
-
+      new VirtualDrive();
       // Assert
       expect(addon.addLoggerPath).toHaveBeenCalledWith(loggerPath);
     });
@@ -120,9 +107,7 @@ describe('VirtualDrive', () => {
     it('Then it calls addon.createPlaceholderFile', () => {
       // Arrange
       mockExistsSync.mockReturnValue(true);
-      const providerId = v4();
-
-      const drive = new VirtualDrive({ syncRootPath, providerId, loggerPath, logger: loggerMock });
+      const drive = new VirtualDrive();
 
       // Act
       drive.createFileByPath({
@@ -150,17 +135,15 @@ describe('VirtualDrive', () => {
   describe('When call registerSyncRoot', () => {
     it('Then it assigns callbacks and calls addon.registerSyncRoot', () => {
       // Arrange
-      const providerId = v4();
-      const drive = new VirtualDrive({ syncRootPath, providerId, loggerPath, logger: loggerMock });
+      const drive = new VirtualDrive();
       const providerName = 'MyProvider';
       const providerVersion = '1.0.0';
-      const logoPath = 'C:\\iconPath';
 
       // Act
-      drive.registerSyncRoot({ providerName, providerVersion, logoPath });
+      drive.registerSyncRoot({ providerName, providerVersion });
 
       // Assert
-      expect(addon.registerSyncRoot).toHaveBeenCalledWith(syncRootPath, providerName, providerVersion, providerId, logoPath);
+      expect(addon.registerSyncRoot).toHaveBeenCalledWith(syncRootPath, providerName, providerVersion, providerId, iconPath);
     });
   });
 });
