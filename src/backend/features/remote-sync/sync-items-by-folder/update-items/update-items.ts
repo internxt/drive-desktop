@@ -35,9 +35,9 @@ export async function updateItems({ context, type, itemDtos, items }: Props) {
 
     if (!item) {
       if (type === 'file') {
-        await updateOnlyInDtos({ type, itemDto: itemDto as ParsedFileDto });
+        await updateOnlyInDtos({ context, type, itemDto: itemDto as ParsedFileDto });
       } else {
-        await updateOnlyInDtos({ type, itemDto: itemDto as ParsedFolderDto });
+        await updateOnlyInDtos({ context, type, itemDto: itemDto as ParsedFolderDto });
       }
     }
   });
