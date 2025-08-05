@@ -12,8 +12,11 @@ type Props = { context: SyncContext } & (
 );
 
 export async function updateItems({ context, type, itemDtos, items }: Props) {
+  const itemMap = new Map(items.map((item) => [item.uuid, item]));
+  const itemDtoMap = new Map(itemDtos.map((dto) => [dto.uuid, dto]));
+
   const promises1 = items.map(async (item) => {
-    const itemDto = itemDtos.find((dto) => dto.uuid === item.uuid);
+    const itemDto = itemDtoMap.get(item.uuid);
 
     if (itemDto) {
       if (type === 'file') {
@@ -31,7 +34,7 @@ export async function updateItems({ context, type, itemDtos, items }: Props) {
   });
 
   const promises2 = itemDtos.map(async (itemDto) => {
-    const item = items.find((item) => item.uuid === itemDto.uuid);
+    const item = itemMap.get(itemDto.uuid);
 
     if (!item) {
       if (type === 'file') {
