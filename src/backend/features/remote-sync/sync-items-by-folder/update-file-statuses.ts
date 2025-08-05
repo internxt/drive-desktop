@@ -11,9 +11,10 @@ type TProps = {
 
 export async function updateFileStatuses({ context, folderUuid }: TProps) {
   try {
-    const fileDtos = await fetchFilesByFolder({ context, folderUuid });
-
-    const { data: files } = await SqliteModule.FileModule.getByParentUuid({ parentUuid: folderUuid });
+    const [fileDtos, { data: files }] = await Promise.all([
+      fetchFilesByFolder({ context, folderUuid }),
+      SqliteModule.FileModule.getByParentUuid({ parentUuid: folderUuid }),
+    ]);
 
     if (fileDtos && files) {
       void updateItems({

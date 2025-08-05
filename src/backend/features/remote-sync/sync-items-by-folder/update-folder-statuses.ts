@@ -14,9 +14,10 @@ export async function updateFolderStatuses({ context, folderUuid }: TProps) {
   let folderUuids: FolderUuid[] = [];
 
   try {
-    const folderDtos = await fetchFoldersByFolder({ context, folderUuid });
-
-    const { data: folders } = await SqliteModule.FolderModule.getByParentUuid({ parentUuid: folderUuid });
+    const [folderDtos, { data: folders }] = await Promise.all([
+      fetchFoldersByFolder({ context, folderUuid }),
+      SqliteModule.FolderModule.getByParentUuid({ parentUuid: folderUuid }),
+    ]);
 
     if (folderDtos) {
       folderUuids = folderDtos.map((folder) => folder.uuid);
