@@ -17,18 +17,8 @@ export async function updateOnlyInItems({ context, type, item }: Props) {
       logger.debug({
         tag: 'SYNC-ENGINE',
         msg: 'The local file has a different status than the remote',
-        item: {
-          uuid: item.uuid,
-          nameWithExtension: item.nameWithExtension,
-          updatedAt: item.updatedAt,
-          status: item.status,
-        },
-        itemDto: {
-          uuid: itemDto.uuid,
-          plainName: itemDto.plainName,
-          updatedAt: itemDto.updatedAt,
-          status: itemDto.status,
-        },
+        item,
+        itemDto,
       });
 
       await createOrUpdateFile({ context, fileDto: itemDto });
@@ -40,18 +30,8 @@ export async function updateOnlyInItems({ context, type, item }: Props) {
       logger.debug({
         tag: 'SYNC-ENGINE',
         msg: 'The local folder has a different status than the remote',
-        item: {
-          uuid: item.uuid,
-          name: item.name,
-          updatedAt: item.updatedAt,
-          status: item.status,
-        },
-        itemDto: {
-          uuid: itemDto.uuid,
-          plainName: itemDto.plainName,
-          updatedAt: itemDto.updatedAt,
-          status: itemDto.status,
-        },
+        item,
+        itemDto,
       });
 
       await createOrUpdateFolder({ context, folderDto: itemDto });
