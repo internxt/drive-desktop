@@ -1,5 +1,5 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { ParsedFolderDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
 
@@ -9,7 +9,7 @@ type TProps = {
 };
 
 export async function fetchFoldersByFolder({ context, folderUuid }: TProps) {
-  const folders: FolderDto[] = [];
+  const folders: ParsedFolderDto[] = [];
   let hasMore = true;
   let offset = 0;
 
@@ -31,7 +31,7 @@ export async function fetchFoldersByFolder({ context, folderUuid }: TProps) {
       { skipLog: true, abortSignal: context.abortController.signal },
     );
 
-    if (error) break;
+    if (error) return null;
 
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;

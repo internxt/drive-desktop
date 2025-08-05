@@ -1,28 +1,35 @@
-import { fetchFilesByFolder } from './fetch-files-by-folder';
-import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { updateFileStatuses } from './update-file-statuses';
-import { createOrUpdateFile } from '../update-in-sqlite/create-or-update-file';
-
-vi.mock(import('./fetch-files-by-folder'));
-vi.mock(import('../update-in-sqlite/create-or-update-file'));
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import * as fetchFilesByFolder from './fetch-files-by-folder';
+import * as updateItems from './update-items/update-items';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('update-file-statuses', () => {
-  const fetchFilesByFolderMock = deepMocked(fetchFilesByFolder);
-  const createOrUpdateFileMock = vi.mocked(createOrUpdateFile);
+  const fetchFilesByFolderMock = partialSpyOn(fetchFilesByFolder, 'fetchFilesByFolder');
+  const getByParentUuidMock = partialSpyOn(SqliteModule.FileModule, 'getByParentUuid');
+  const updateItemsMock = partialSpyOn(updateItems, 'updateItems');
 
-  it('should update file statuses', async () => {
+  const props = mockProps<typeof updateFileStatuses>({});
+
+  it('should call update items', async () => {
     // Given
-    fetchFilesByFolderMock.mockResolvedValueOnce([{ uuid: 'uuid' }]);
-    const props = mockProps<typeof updateFileStatuses>({ folderUuid: 'folderUuid' });
-
+    fetchFilesByFolderMock.mockResolvedValue([{ uuid: 'uuid' as FileUuid }]);
+    getByParentUuidMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
     // When
     await updateFileStatuses(props);
-
     // Then
-    expect(createOrUpdateFileMock).toBeCalledTimes(1);
-    expect(createOrUpdateFileMock).toHaveBeenCalledWith({
-      context: props.context,
-      fileDto: { uuid: 'uuid', updatedAt: '2000-01-01T00:00:00.000Z' },
-    });
+    expect(updateItemsMock).toBeCalledTimes(1);
+  });
+
+  it('should catch exceptions', async () => {
+    // Given
+    fetchFilesByFolderMock.mockRejectedValue(new Error());
+    // When
+    await updateFileStatuses(props);
+    // Then
+    expect(updateItemsMock).toBeCalledTimes(0);
+    expect(loggerMock.error).toBeCalledTimes(1);
   });
 });
