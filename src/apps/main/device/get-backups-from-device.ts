@@ -9,10 +9,10 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 
 export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
   try {
-    const { data: folder, error } = await driveServerWipModule.backup.fetchFolder({ folderUuid: device.uuid });
+    const { data: folder, error } = await driveServerWipModule.backup.fetchFolder({ folderUuid: '4b4642fe-b82c-4335-923d-9686bb7b7c7f' });
 
-    if (error || !folder) {
-      throw logger.error({ tag: 'BACKUPS', msg: 'Error fetching folder', error });
+    if (error) {
+      throw error;
     }
 
     logger.debug({ tag: 'BACKUPS', msg: 'Fetched folder', childrenCount: folder.children.length });

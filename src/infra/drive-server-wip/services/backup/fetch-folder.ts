@@ -1,6 +1,16 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';
+import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
+
+class FetchFolderError extends DriveServerWipError {
+  constructor(
+    public readonly code: TDriveServerWipError | 'NOT_FOUND',
+    cause: unknown,
+  ) {
+    super(code, cause);
+  }
+}
 
 export async function fetchFolder(context: { folderUuid: string }) {
   const method = 'GET';
@@ -12,7 +22,7 @@ export async function fetchFolder(context: { folderUuid: string }) {
       params: { path: { uuid: context.folderUuid } },
     });
 
-  const { data, error } = await clientWrapper({
+  const result = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -25,5 +35,12 @@ export async function fetchFolder(context: { folderUuid: string }) {
     },
   });
 
-  return { data, error };
+  if (result.error?.code === 'UNKNOWN') {
+    switch (true) {
+      case result.error.response?.status === 404:
+        return { error: new FetchFolderError('NOT_FOUND', result.error.cause) };
+    }
+  }
+
+  return result;
 }

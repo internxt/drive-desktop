@@ -261,11 +261,11 @@ export async function addBackup(): Promise<void> {
     }
 
     let folderStillExists;
-    const { data, error } = await driveServerWipModule.backup.fetchFolder({ folderUuid: existingBackup.folderUuid });
+    const { data } = await driveServerWipModule.backup.fetchFolder({ folderUuid: existingBackup.folderUuid });
 
     if (data) {
       folderStillExists = !data.removed;
-    } else if (error) {
+    } else {
       folderStillExists = false;
     }
 
@@ -283,8 +283,7 @@ export async function addBackup(): Promise<void> {
 async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
   const results = await Promise.all(
     folderUuids.map(async (folderUuid) => {
-      const { data, error } = await driveServerWipModule.backup.fetchFolder({ folderUuid });
-      return { data, error };
+      return await driveServerWipModule.backup.fetchFolder({ folderUuid });
     }),
   );
 

@@ -1,4 +1,4 @@
-import { partialSpyOn, mockProps, deepMocked } from '@/tests/vitest/utils.helper.test';
+import { partialSpyOn, mockProps } from '@/tests/vitest/utils.helper.test';
 import { getBackupsFromDevice } from './get-backups-from-device';
 import * as serviceModule from './service';
 import * as backupFolderUuidModule from './backup-folder-uuid';
@@ -6,13 +6,11 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import configStore from '../config';
 import { app } from 'electron';
 
-vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
-
 describe('getBackupsFromDevice', () => {
   const props = mockProps<typeof getBackupsFromDevice>({ bucket: 'bucket-1' });
   const backupChild = { id: 1, uuid: 'folder-uuid' };
   const folder = { children: [backupChild] };
-  const fetchFolderMock = deepMocked(driveServerWip.backup.fetchFolder);
+  const fetchFolderMock = partialSpyOn(driveServerWip.backup, 'fetchFolder');
 
   const findBackupPathnameFromIdMock = partialSpyOn(serviceModule, 'findBackupPathnameFromId');
   const backupFolderUuidMock = partialSpyOn(backupFolderUuidModule, 'BackupFolderUuid');

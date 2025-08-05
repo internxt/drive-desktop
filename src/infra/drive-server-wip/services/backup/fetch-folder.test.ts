@@ -20,10 +20,8 @@ describe('fetch-folder', () => {
   it('should return error when folder is not found (404)', async () => {
     clientMock.GET.mockResolvedValue({ response: { status: 404 } });
 
-    const { data, error } = await fetchFolder({ folderUuid: 'nonexistent-folder' });
+    const { error } = await fetchFolder({ folderUuid: 'nonexistent-folder' });
 
-    expect(data).toBeUndefined();
-    expect(error).toBeDefined();
-    expect(error?.response?.status).toBe(404);
+    expect(error?.code).toStrictEqual('NOT_FOUND');
   });
 });
