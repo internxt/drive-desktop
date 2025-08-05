@@ -4,10 +4,10 @@ import { components } from '@/apps/shared/HttpClient/schema';
 
 export type FileDto = components['schemas']['FileDto'];
 export type FolderDto = components['schemas']['FolderDto'];
-type ParsedFileDto = FileDto & {
+export type ParsedFileDto = FileDto & {
   uuid: FileUuid;
 };
-type ParsedFolderDto = FolderDto & {
+export type ParsedFolderDto = FolderDto & {
   uuid: FolderUuid;
 };
 
