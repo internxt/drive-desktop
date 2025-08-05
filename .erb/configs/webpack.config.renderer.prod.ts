@@ -103,7 +103,7 @@ const configuration: webpack.Configuration = {
 
     new Dotenv({ ignoreStub: true }),
     new MiniCssExtractPlugin({ filename: 'style.css' }),
-    new BundleAnalyzerPlugin({ analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled' }),
+    // new BundleAnalyzerPlugin({ analyzerMode: process.env.ANALYZE === 'true' ? 'server' : 'disabled' }),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: path.join(webpackPaths.srcRendererPath, 'index.ejs'),
