@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { initializeVirtualDrive } from './dependency-injection/common/virtualDrive';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -25,6 +26,8 @@ async function setUp() {
   logger.debug({ msg: '[SYNC ENGINE] Going to use root folder: ', rootPath });
 
   await ensureTheFolderExist(rootPath);
+
+  initializeVirtualDrive();
 
   const container = DependencyContainerFactory.build();
 
