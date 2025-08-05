@@ -23,7 +23,7 @@
     "format": "prettier src tests --check",
     "format:fix": "prettier src tests --write",
     "type-check": "tsc",
-    "find-deadcode": "ts-prune -i schema.d.ts",
+    "find-deadcode": "ts-prune -i schema.d.ts -e",
     "========== Start ==========": "",
     "start": "npm run start:renderer",
     "start:nodemon": "nodemon",
