@@ -1,35 +1,28 @@
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { fetchFoldersByFolder } from './fetch-folders-by-folder';
+import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { updateFolderStatuses } from './update-folder-statuses';
-import * as fetchFoldersByFolder from './fetch-folders-by-folder';
-import * as updateItems from './update-items/update-items';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { createOrUpdateFolder } from '../update-in-sqlite/create-or-update-folder';
+
+vi.mock(import('./fetch-folders-by-folder'));
+vi.mock(import('../update-in-sqlite/create-or-update-folder'));
 
 describe('update-folder-statuses', () => {
-  const fetchFoldersByFolderMock = partialSpyOn(fetchFoldersByFolder, 'fetchFoldersByFolder');
-  const getByParentUuidMock = partialSpyOn(SqliteModule.FolderModule, 'getByParentUuid');
-  const updateItemsMock = partialSpyOn(updateItems, 'updateItems');
+  const fetchFoldersByFolderMock = deepMocked(fetchFoldersByFolder);
+  const createOrUpdateFolderMock = vi.mocked(createOrUpdateFolder);
 
-  const props = mockProps<typeof updateFolderStatuses>({});
-
-  it('should call update items', async () => {
+  it('should update folder statuses', async () => {
     // Given
-    fetchFoldersByFolderMock.mockResolvedValue([{ uuid: 'uuid' as FolderUuid }]);
-    getByParentUuidMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FolderUuid }] });
+    fetchFoldersByFolderMock.mockResolvedValueOnce([{ uuid: 'uuid' }]);
+    const props = mockProps<typeof updateFolderStatuses>({ folderUuid: 'folderUuid' });
+
     // When
     await updateFolderStatuses(props);
-    // Then
-    expect(updateItemsMock).toBeCalledTimes(1);
-  });
 
-  it('should catch exceptions', async () => {
-    // Given
-    fetchFoldersByFolderMock.mockRejectedValue(new Error());
-    // When
-    await updateFolderStatuses(props);
     // Then
-    expect(updateItemsMock).toBeCalledTimes(0);
-    expect(loggerMock.error).toBeCalledTimes(1);
+    expect(createOrUpdateFolderMock).toBeCalledTimes(1);
+    expect(createOrUpdateFolderMock).toHaveBeenCalledWith({
+      context: props.context,
+      folderDto: { uuid: 'uuid', updatedAt: '2000-01-01T00:00:00.000Z' },
+    });
   });
 });

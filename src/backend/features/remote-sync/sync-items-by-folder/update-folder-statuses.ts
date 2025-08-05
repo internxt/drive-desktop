@@ -1,9 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { updateItems } from './update-items/update-items';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { createOrUpdateFolder } from '../update-in-sqlite/create-or-update-folder';
 
 type TProps = {
   context: SyncContext;
@@ -11,25 +9,22 @@ type TProps = {
 };
 
 export async function updateFolderStatuses({ context, folderUuid }: TProps) {
-  let folderUuids: FolderUuid[] = [];
+  let folderUuids: string[] = [];
 
   try {
-    const folderDtos = await fetchFoldersByFolder({ context, folderUuid });
+    const folders = await fetchFoldersByFolder({ context, folderUuid });
+    folderUuids = folders.map((folder) => folder.uuid);
 
-    const { data: folders } = await SqliteModule.FolderModule.getByParentUuid({ parentUuid: folderUuid });
-
-    if (folderDtos) {
-      folderUuids = folderDtos.map((folder) => folder.uuid);
-
-      if (folders) {
-        void updateItems({
-          context,
-          type: 'folder',
-          itemDtos: folderDtos,
-          items: folders,
-        });
-      }
-    }
+    const promises = folders.map((folderDto) =>
+      createOrUpdateFolder({
+        context,
+        folderDto: {
+          ...folderDto,
+          updatedAt: '2000-01-01T00:00:00.000Z',
+        },
+      }),
+    );
+    await Promise.all(promises);
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

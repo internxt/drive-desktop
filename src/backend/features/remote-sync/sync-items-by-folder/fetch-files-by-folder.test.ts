@@ -57,7 +57,7 @@ describe('fetch-files-by-folder', () => {
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(2);
   });
 
-  it('If fetch fails return null', async () => {
+  it('If fetch fails, do not throw an error', async () => {
     // Given
     getFilesByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
@@ -66,7 +66,7 @@ describe('fetch-files-by-folder', () => {
     const files = await fetchFilesByFolder(props);
 
     // Then
-    expect(files).toBeNull();
+    expect(files).toHaveLength(50);
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(2);
   });
 

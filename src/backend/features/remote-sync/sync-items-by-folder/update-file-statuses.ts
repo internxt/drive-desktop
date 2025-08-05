@@ -1,8 +1,7 @@
 import { fetchFilesByFolder } from './fetch-files-by-folder';
 import { logger } from '@/apps/shared/logger/logger';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { updateItems } from './update-items/update-items';
+import { createOrUpdateFile } from '../update-in-sqlite/create-or-update-file';
 
 type TProps = {
   context: SyncContext;
@@ -11,18 +10,17 @@ type TProps = {
 
 export async function updateFileStatuses({ context, folderUuid }: TProps) {
   try {
-    const fileDtos = await fetchFilesByFolder({ context, folderUuid });
-
-    const { data: files } = await SqliteModule.FileModule.getByParentUuid({ parentUuid: folderUuid });
-
-    if (fileDtos && files) {
-      void updateItems({
+    const files = await fetchFilesByFolder({ context, folderUuid });
+    const promises = files.map((fileDto) =>
+      createOrUpdateFile({
         context,
-        type: 'file',
-        itemDtos: fileDtos,
-        items: files,
-      });
-    }
+        fileDto: {
+          ...fileDto,
+          updatedAt: '2000-01-01T00:00:00.000Z',
+        },
+      }),
+    );
+    await Promise.all(promises);
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

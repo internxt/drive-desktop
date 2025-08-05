@@ -3,7 +3,6 @@ import { updateFileStatuses } from './update-file-statuses';
 import { updateFolderStatuses } from './update-folder-statuses';
 import { syncItemsByFolder } from './sync-items-by-folder';
 import { sleep } from '@/apps/main/util';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('./update-file-statuses'));
@@ -42,7 +41,7 @@ describe('sync-items-by-folder', () => {
     // Given
     updateFolderStatusesMock.mockImplementation(() => {
       props.context.abortController.abort();
-      return Promise.resolve(['folderUuid' as FolderUuid]);
+      return Promise.resolve(['folderUuid']);
     });
     // When
     await syncItemsByFolder(props);
@@ -65,7 +64,7 @@ describe('sync-items-by-folder', () => {
 
   it('should iterate another time if there are folders inside', async () => {
     // Given
-    updateFolderStatusesMock.mockResolvedValueOnce(['folderUuid' as FolderUuid]);
+    updateFolderStatusesMock.mockResolvedValueOnce(['folderUuid']);
     updateFolderStatusesMock.mockResolvedValueOnce([]);
     // When
     await syncItemsByFolder(props);
