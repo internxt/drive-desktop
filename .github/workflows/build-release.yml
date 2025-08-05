@@ -1,7 +1,9 @@
 name: Build release
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - '**'
 
 jobs:
   build_release:
