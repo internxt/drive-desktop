@@ -37,7 +37,6 @@ describe('load-in-memory-paths', () => {
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then
-    // Check that the files object has the expected structure
     expect(Object.keys(files)).toContain('fileUuid2');
     expect(files['fileUuid2' as FileUuid].path).toBe('C:\\Users\\user\\InternxtDrive\\folder\\file2');
     expect(files['fileUuid2' as FileUuid].stats).toBeDefined();
