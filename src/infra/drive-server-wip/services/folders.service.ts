@@ -3,8 +3,11 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
+import { parseFileDto, parseFolderDto } from '../out/dto';
+import { getByUuid } from './folders/get-by-uuid';
 
 export const folders = {
+  getByUuid,
   createFolder,
   getMetadata,
   getFolders,
@@ -93,7 +96,7 @@ async function getFoldersByFolder(
   });
 
   if (res.data) {
-    return { data: res.data.folders };
+    return { data: res.data.folders.map((folderDto) => parseFolderDto({ folderDto })) };
   } else {
     return { error: res.error };
   }
@@ -128,7 +131,7 @@ async function getFilesByFolder(
   });
 
   if (res.data) {
-    return { data: res.data.files };
+    return { data: res.data.files.map((fileDto) => parseFileDto({ fileDto })) };
   } else {
     return { error: res.error };
   }

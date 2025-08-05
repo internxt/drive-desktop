@@ -69,7 +69,6 @@ export class FileCreator {
           isDangledStatus: false,
           userUuid: getConfig().userUuid,
           workspaceId: getConfig().workspaceId,
-          updatedAt: '2000-01-01T00:00:00.000Z',
         },
       });
 

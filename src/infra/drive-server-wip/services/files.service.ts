@@ -2,9 +2,11 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
+import { getByUuid } from './files/get-by-uuid';
 
 export const files = {
   getFiles,
+  getByUuid,
   createFile,
   moveFile,
   renameFile,

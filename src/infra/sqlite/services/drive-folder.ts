@@ -39,13 +39,4 @@ export class DriveFolderCollection {
       affected: match.affected as number,
     };
   }
-
-  async getLastUpdatedByWorkspace({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) {
-    const result = await folderRepository.findOne({
-      where: { userUuid, workspaceId },
-      order: { updatedAt: 'DESC' },
-    });
-
-    return result;
-  }
 }

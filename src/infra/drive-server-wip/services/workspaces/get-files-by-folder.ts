@@ -2,6 +2,7 @@ import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../../in/client-wrapper.service';
+import { parseFileDto } from '../../out/dto';
 
 type TQuery = paths['/workspaces/{workspaceId}/folders/{folderUuid}/files']['get']['parameters']['query'];
 
@@ -38,7 +39,7 @@ export async function getFilesByFolder(
   });
 
   if (data) {
-    return { data: data.result };
+    return { data: data.result.map((fileDto) => parseFileDto({ fileDto })) };
   } else {
     return { error };
   }
