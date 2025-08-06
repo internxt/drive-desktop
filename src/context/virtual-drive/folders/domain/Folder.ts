@@ -46,10 +46,6 @@ export class Folder {
     return this._path.name();
   }
 
-  public get dirname(): FolderPath {
-    return new FolderPath(this._path.dirname());
-  }
-
   public get parentId(): number | undefined {
     return this._parentId?.value;
   }
@@ -90,41 +86,6 @@ export class Folder {
   static decryptName({ plainName, name, parentId }: { plainName?: string | null; name: string; parentId?: number | null }) {
     const decryptedName = plainName || crypt.decryptName({ encryptedName: name, parentId });
     return decryptedName;
-  }
-
-  moveTo(folder: Folder) {
-    if (!this._parentId) {
-      throw new Error('Root folder cannot be moved');
-    }
-    if (this.isIn(folder)) {
-      throw new Error('Cannot move a folder to its current folder');
-    }
-
-    this._path = this._path.changeFolder(folder.path);
-    this._parentId = new FolderId(folder.id);
-    this._parentUuid = new FolderUuid(folder.uuid);
-  }
-
-  rename(newPath: FolderPath) {
-    this._path = this._path.updateName(newPath.name());
-    this._updatedAt = FolderUpdatedAt.now();
-  }
-
-  trash() {
-    if (!this._status.is(FolderStatuses.EXISTS)) {
-      throw new Error(`Folder ${this.name} is already in the trash`);
-    }
-
-    this._status = this._status.changeTo(FolderStatuses.TRASHED);
-    this._updatedAt = FolderUpdatedAt.now();
-  }
-
-  isIn(folder: Folder): boolean {
-    return this.parentId === folder.id;
-  }
-
-  hasStatus(status: FolderStatuses): boolean {
-    return this._status.value === status;
   }
 
   attributes() {

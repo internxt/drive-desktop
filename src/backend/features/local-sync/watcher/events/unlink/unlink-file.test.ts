@@ -42,7 +42,7 @@ describe('unlink-file', () => {
 
   it('should skip if cannot retrieve parent uuid', async () => {
     // Given
-    getParentUuidMock.mockResolvedValue(undefined);
+    getParentUuidMock.mockResolvedValue(null);
     // When
     await unlinkFile(props);
     // Then

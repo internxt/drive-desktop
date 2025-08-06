@@ -96,7 +96,7 @@ export function useBackups(): BackupContextProps {
       await window.electron.deleteBackupsFromDevice(device, isCurrent);
       await fetchBackups();
       setBackupsState('SUCCESS');
-    } catch (err) {
+    } catch {
       setBackupsState('ERROR');
     }
   }

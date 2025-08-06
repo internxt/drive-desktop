@@ -17,7 +17,7 @@ const resSchema = z.array(
  * DELETE AFTER 4 MONTHS (2026-01-18)
  */
 export class MoveCheckpointToLokijs {
-  static KEY = 'v2-5-6-move-checkpoint-to-lokijs';
+  static readonly KEY = 'v2-5-6-move-checkpoint-to-lokijs';
 
   static async getFilesQueryResult() {
     return await fileRepository

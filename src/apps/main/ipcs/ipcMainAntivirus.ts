@@ -12,9 +12,7 @@ let paymentService: PaymentsService | null = null;
 
 export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
   return new Promise((resolve, reject) => {
-    const command = 'powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"';
-
-    exec(command, (error, stdout, stderr) => {
+    exec('powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"', (error, stdout, stderr) => {
       if (error) {
         return reject(`ERROR DETECTING IF DEFENDER IS ACTIVATED: ${stderr}`);
       }
@@ -69,7 +67,7 @@ ipcMain.handle('antivirus:cancel-scan', async () => {
 ipcMain.handle('antivirus:scan-items', async (_, items?: SelectedItemToScanProps[]) => {
   const pathNames = items?.map((item) => item.path);
   const fileSystemMonitor = await getManualScanMonitorInstance();
-  return fileSystemMonitor.scanItems(pathNames);
+  await fileSystemMonitor.scanItems(pathNames);
 });
 
 ipcMain.handle('antivirus:add-items-to-scan', async (_, getFiles?: boolean) => {

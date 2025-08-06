@@ -1,5 +1,4 @@
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as authServiceModule from '@/apps/main/auth/service';
 import * as configModule from '@/apps/main/config';
 import { fieldsToSave } from '@/core/electron/store/fields-to-save';
