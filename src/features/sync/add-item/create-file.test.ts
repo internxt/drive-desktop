@@ -5,8 +5,13 @@ import { createRelativePath } from '@/context/local/localFile/infrastructure/Abs
 import { createFile } from './create-file';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
+import VirtualDrive from '@/node-win/virtual-drive';
+import { initializeVirtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 describe('create-file', () => {
+  const virtualDrive = mockDeep<VirtualDrive>();
+  initializeVirtualDrive(virtualDrive);
+
   const fileCreationOrchestratorMock = mockDeep<FileCreationOrchestrator>();
   const createParentFolderMock = partialSpyOn(createParentFolder, 'createParentFolder');
 
@@ -14,10 +19,6 @@ describe('create-file', () => {
   const props = mockProps<typeof createFile>({
     path,
     fileCreationOrchestrator: fileCreationOrchestratorMock,
-    virtualDrive: {
-      convertToPlaceholder: vi.fn(),
-      updateSyncStatus: vi.fn(),
-    },
   });
 
   it('File does not exist, create it', async () => {
@@ -28,10 +29,10 @@ describe('create-file', () => {
     // Then
     expect(fileCreationOrchestratorMock.run).toBeCalledTimes(1);
     expect(fileCreationOrchestratorMock.run).toBeCalledWith({ path });
-    expect(props.virtualDrive.convertToPlaceholder).toBeCalledTimes(1);
-    expect(props.virtualDrive.convertToPlaceholder).toBeCalledWith({ itemPath: path, id: 'FILE:uuid' });
-    expect(props.virtualDrive.updateSyncStatus).toBeCalledTimes(1);
-    expect(props.virtualDrive.updateSyncStatus).toBeCalledWith({ itemPath: path, isDirectory: false, sync: true });
+    expect(virtualDrive.convertToPlaceholder).toBeCalledTimes(1);
+    expect(virtualDrive.convertToPlaceholder).toBeCalledWith({ itemPath: path, id: 'FILE:uuid' });
+    expect(virtualDrive.updateSyncStatus).toBeCalledTimes(1);
+    expect(virtualDrive.updateSyncStatus).toBeCalledWith({ itemPath: path, isDirectory: false, sync: true });
   });
 
   it('should run createParentFolder if parent folder does not exist', async () => {

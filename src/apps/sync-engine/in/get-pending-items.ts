@@ -58,10 +58,10 @@ async function processFolder({ virtualDrive, path }: TProps) {
   return { pendingFiles, pendingFolders };
 }
 
-export async function getPlaceholdersWithPendingState({ virtualDrive, path }: TProps) {
+export async function getPendingItems({ virtualDrive, path }: TProps) {
   logger.debug({
     tag: 'SYNC-ENGINE',
-    msg: 'Get files with pending state',
+    msg: 'Get pending items',
     path,
   });
 
