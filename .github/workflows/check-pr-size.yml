@@ -6,6 +6,9 @@ on:
 
 jobs:
   check_pr_size:
+    # Ignore PRs with name merge-X-X-X-release
+    if: |
+      !(startsWith(github.head_ref, 'merge-') && endsWith(github.head_ref, '-release') && github.base_ref == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 1
 
@@ -39,3 +42,10 @@ jobs:
 
           # Make the total available for later steps
           echo "total=$TOTAL_CHANGED" >> "$GITHUB_OUTPUT"
+
+      - name: Fail if too many changes
+        if: ${{ steps.diff_check.outputs.total > 500 }}
+        run: |
+          echo "PR has ${{ steps.diff_check.outputs.total }} changed lines, which exceeds the 500-line limit."
+          echo "Please reduce the size of this PR."
+          exit 1
