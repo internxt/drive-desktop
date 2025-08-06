@@ -1,5 +1,4 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
 import { getUserOrThrow } from '../auth/service';
@@ -13,9 +12,10 @@ import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
+import { logger } from '@/apps/shared/logger/logger';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
-  Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
+  logger.debug({ msg: 'SYNC ENGINE RUNNING for workspace', workspaceId });
   if (workers[workspaceId]) {
     workers[workspaceId].workerIsRunning = true;
     workers[workspaceId].startingWorker = false;
@@ -23,7 +23,7 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => 
 });
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
-  Logger.debug(`[MAIN] SYNC ENGINE FAILED for workspace ${workspaceId}`);
+  logger.debug({ msg: 'SYNC ENGINE FAILED for workspace', workspaceId });
   if (workers[workspaceId]) {
     workers[workspaceId].workerIsRunning = false;
     workers[workspaceId].startingWorker = false;
@@ -37,7 +37,7 @@ export function updateSyncEngine(workspaceId: string) {
       browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
-    Logger.error(err);
+    logger.error({ msg: 'Error updating sync engine', error: err });
   }
 }
 

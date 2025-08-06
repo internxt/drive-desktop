@@ -239,11 +239,9 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
-      const isDarkTheme = window.electron.isDarkModeActive();
-
       const AntivirusImage = () => {
         const preferredTheme = useConfig('preferedTheme') as Theme;
-        const theme = preferredTheme === 'system' ? (isDarkTheme ? 'dark' : 'light') : preferredTheme;
+        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
 
         return theme === 'dark' ? <AntivirusDarkSvg /> : <AntivirusSvg />;
       };
@@ -283,11 +281,9 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
-      const isDarkTheme = window.electron.isDarkModeActive();
-
       const BackupsImage = () => {
         const preferredTheme = useConfig('preferedTheme') as Theme;
-        const theme = preferredTheme === 'system' ? (isDarkTheme ? 'dark' : 'light') : preferredTheme;
+        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
 
         return theme === 'dark' ? <BackupsDarkSvg /> : <BackupsSvg />;
       };

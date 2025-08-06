@@ -1,8 +1,9 @@
 import { app, ipcMain } from 'electron';
 import configStore from '../../../config';
 import { BackupInfo } from '../../../../backups/BackupInfo';
-import { getOrCreateDevice, getBackupsFromDevice } from '../../../device/service';
-import Logger from 'electron-log';
+import { getOrCreateDevice } from '../../../device/service';
+import { logger } from '@/apps/shared/logger/logger';
+import { getBackupsFromDevice } from '@/apps/main/device/get-backups-from-device';
 
 type OnIntervalChangedListener = (interval: number) => void;
 
@@ -64,7 +65,7 @@ class BackupConfiguration {
   hasDiscoveredBackups(): boolean {
     const discoveredBackup = configStore.get('discoveredBackup') as number;
 
-    Logger.debug('Discovered backup', discoveredBackup);
+    logger.debug({ msg: 'Discovered backup', discoveredBackup });
     return discoveredBackup > 0;
   }
 
@@ -77,7 +78,7 @@ export const backupsConfig = new BackupConfiguration();
 
 export function setupBackupConfig(): BackupConfiguration {
   ipcMain.handle('get-backups-interval', () => {
-    Logger.debug('Getting backup interval', backupsConfig.backupInterval);
+    logger.debug({ msg: 'Getting backup interval', backupInterval: backupsConfig.backupInterval });
     return backupsConfig.backupInterval;
   });
 

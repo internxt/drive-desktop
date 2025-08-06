@@ -1,4 +1,3 @@
-import Logger from 'electron-log';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { FilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
 import { CallbackDownload } from '../../BindingManager';
@@ -6,6 +5,7 @@ import { FileNotFoundError } from '@/context/virtual-drive/files/domain/errors/F
 import { trimPlaceholderId } from './placeholder-id';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { sleep } from '@/apps/main/util';
+import { logger } from '@/apps/shared/logger/logger';
 
 export class DownloadFileController {
   constructor(private readonly downloader: ContentsDownloader) {}
@@ -38,10 +38,9 @@ export class DownloadFileController {
       try {
         return await action();
       } catch (error) {
-        Logger.error(`Attempt ${attempt} failed:`, error);
+        logger.error({ msg: `Attempt ${attempt} failed:`, error });
         if (attempt === this.MAX_RETRY) {
-          Logger.error('Max retries reached. Throwing error.');
-          throw error;
+          throw logger.error({ msg: 'Max retries reached. Throwing error.' });
         }
         await sleep(this.RETRY_DELAY);
       }
