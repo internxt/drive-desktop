@@ -24,7 +24,7 @@ describe('get-parent-uuid', () => {
     const res = await getParentUuid(props);
     // Then
     expect(getFolderUuidMock).toBeCalledWith(expect.objectContaining({ path: 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2' }));
-    expect(res).toBeUndefined();
+    expect(res).toBeNull();
   });
 
   it('should skip if no stats', async () => {
@@ -34,7 +34,7 @@ describe('get-parent-uuid', () => {
     const res = await getParentUuid(props);
     // Then
     expect(statMock).toBeCalledWith(expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2' }));
-    expect(res).toBeUndefined();
+    expect(res).toBeNull();
   });
 
   it('should return parentUuid', async () => {
