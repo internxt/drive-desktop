@@ -2,7 +2,6 @@ import { In } from 'typeorm';
 /* eslint-disable no-use-before-define */
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
-import Logger from 'electron-log';
 import { ipcMain } from 'electron';
 import { spawnDefaultSyncEngineWorker, spawnWorkspaceSyncEngineWorkers, updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
@@ -15,10 +14,11 @@ import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { AuthContext } from '@/backend/features/auth/utils/context';
 
-export function addRemoteSyncManager({ config, workspaceId, worker }: { config: Config; workspaceId: string; worker: TWorkerConfig }) {
-  remoteSyncManagers.set(workspaceId, new RemoteSyncManager(config, worker, workspaceId));
+export function addRemoteSyncManager({ context, worker }: { context: SyncContext; worker: TWorkerConfig }) {
+  remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, worker, context.workspaceId));
 }
 
 type UpdateFileInBatchInput = {
@@ -79,7 +79,7 @@ void ipcMainSyncEngine.handle('SET_HEALTHY_FILES', async (_, inputData) => {
 });
 
 ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
-  Logger.info('Updating fixed files', inputData);
+  logger.debug({ msg: 'Updating fixed files', inputData });
   await updateFileInBatch({ itemsId: inputData.toUpdate, file: { isDangledStatus: false } });
   await deleteFileInBatch(inputData.toDelete);
 });
@@ -152,22 +152,22 @@ ipcMain.handle('get-remote-sync-status', () => {
 });
 
 ipcMain.handle('SYNC_MANUALLY', async () => {
-  Logger.info('[Manual Sync] Received manual sync event');
+  logger.debug({ msg: '[Manual Sync] Received manual sync event' });
   await updateAllRemoteSync();
 });
 
 ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', (_, workspaceId = '') => {
-  Logger.info('[Get UnSync] Received Get UnSync File event');
+  logger.debug({ msg: '[Get UnSync] Received Get UnSync File event' });
   const manager = remoteSyncManagers.get(workspaceId);
   if (!manager) throw new Error('RemoteSyncManager not found');
-  Logger.info(manager.totalFilesUnsynced);
+  logger.debug({ msg: 'Total files unsynced', totalFilesUnsynced: manager.totalFilesUnsynced });
   return manager.totalFilesUnsynced;
 });
 
-export async function initSyncEngine() {
+export async function initSyncEngine({ context }: { context: AuthContext }) {
   try {
-    const { providerId } = await spawnDefaultSyncEngineWorker();
-    await spawnWorkspaceSyncEngineWorkers({ providerId });
+    const { providerId } = await spawnDefaultSyncEngineWorker({ context });
+    await spawnWorkspaceSyncEngineWorkers({ context, providerId });
     await debouncedSynchronization();
   } catch (error) {
     throw logger.error({
@@ -194,7 +194,7 @@ ipcMain.handle('CHECK_SYNC_IN_PROGRESS', (_, workspaceId = '') => {
 });
 
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
-  Logger.info('Getting items by folder uuid', folderUuid);
+  logger.debug({ msg: 'Getting items by folder uuid', folderUuid });
 
   const abortController = new AbortController();
 

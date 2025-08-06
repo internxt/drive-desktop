@@ -1,5 +1,5 @@
 import { getUserSystemPath } from '../device/service';
-import { Antivirus } from './Antivirus';
+import { AntivirusManager } from './antivirus-manager/antivirus-manager';
 import { queue } from 'async';
 import { DBScannerConnection } from './utils/dbConections';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
@@ -15,17 +15,25 @@ let dailyScanInterval: NodeJS.Timeout | null = null;
 
 export function scheduleDailyScan() {
   async function startBackgroundScan() {
-    console.log('Starting user system scan (BACKGROUND)...');
+    logger.debug({ tag: 'ANTIVIRUS', msg: 'Starting user system scan (BACKGROUND)' });
     await scanInBackground();
   }
 
   startBackgroundScan().catch((err) => {
-    console.error('Error in initial background scan:', err);
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: 'Error in initial background scan',
+      exc: err,
+    });
   });
 
   dailyScanInterval = setInterval(() => {
     startBackgroundScan().catch((err) => {
-      console.error('Error in scheduled background scan:', err);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error in scheduled background scan',
+        exc: err,
+      });
     });
   }, ONE_DAY_MS);
 }
@@ -40,7 +48,13 @@ export function clearDailyScan() {
 const scanInBackground = async (): Promise<void> => {
   const hashedFilesAdapter = new ScannedItemCollection();
   const database = new DBScannerConnection(hashedFilesAdapter);
-  const antivirus = await Antivirus.createInstance();
+  const antivirusManager = AntivirusManager.getInstance();
+  const antivirus = await antivirusManager.getActiveEngine();
+
+  if (!antivirus) {
+    logger.error({ tag: 'ANTIVIRUS', msg: 'No active antivirus engine found' });
+    return;
+  }
 
   const userSystemPath = await getUserSystemPath();
   if (!userSystemPath) return;

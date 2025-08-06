@@ -8,8 +8,8 @@ import { getUser } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
 import { User } from '../types';
 import { PATHS } from '@/core/electron/paths';
+import { ROOT_FOLDER_NAME } from '@/core/utils/utils';
 
-const ROOT_FOLDER_NAME = process.env.ROOT_FOLDER_NAME;
 const VIRTUAL_DRIVE_FOLDER = path.join(PATHS.HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
 
 function setSyncRoot(pathname: string): void {

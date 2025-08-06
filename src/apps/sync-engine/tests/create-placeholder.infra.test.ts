@@ -15,6 +15,7 @@ import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environme
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
+import { initializeVirtualDrive } from '../dependency-injection/common/virtualDrive';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -92,6 +93,7 @@ describe('create-placeholder', () => {
       },
     });
 
+    initializeVirtualDrive();
     const container = DependencyContainerFactory.build();
     const bindingManager = new BindingsManager(container);
 

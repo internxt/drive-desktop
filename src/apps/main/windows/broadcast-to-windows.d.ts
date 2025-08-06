@@ -2,6 +2,7 @@ import type { Issue } from '../background-processes/issues';
 import type { RemoteSyncStatus } from '../remote-sync/helpers';
 import type { BackupsStatus } from '../background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import type { BackupsProgress } from '../background-processes/backups/types/BackupsProgress';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export type SyncInfoUpdateEvent = {
   name: 'sync-info-update';
@@ -13,6 +14,7 @@ export type SyncInfoUpdateEvent = {
       | 'DOWNLOAD_ERROR'
       | 'DOWNLOADED'
       | 'DOWNLOADING'
+      | 'MOVE_ERROR'
       | 'MOVED'
       | 'RENAME_ERROR'
       | 'RENAMED'
@@ -21,6 +23,7 @@ export type SyncInfoUpdateEvent = {
       | 'UPLOADED'
       | 'UPLOADING';
     name: string;
+    key: FileUuid | AbsolutePath;
     progress?: number;
   };
 };

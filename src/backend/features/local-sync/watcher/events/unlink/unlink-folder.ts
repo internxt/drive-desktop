@@ -20,14 +20,14 @@ export async function unlinkFolder({ virtualDrive, absolutePath }: TProps) {
   });
 
   try {
-    const parentUuid = await getParentUuid({ path, virtualDrive });
+    const parentUuid = await getParentUuid({ absolutePath, virtualDrive });
     if (!parentUuid) return;
 
     const plainName = basename(path);
     const { data: folder } = await ipcRendererSqlite.invoke('folderGetByName', { parentUuid, plainName });
 
     if (!folder) {
-      logger.warn({ tag: 'SYNC-ENGINE', msg: 'Folder not found or does not exist', path, parentUuid, plainName });
+      logger.warn({ tag: 'SYNC-ENGINE', msg: 'Cannot unlink folder, not found or does not exist', path, parentUuid, plainName });
       return;
     }
 
@@ -39,6 +39,7 @@ export async function unlinkFolder({ virtualDrive, absolutePath }: TProps) {
     const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFolderByUuid', {
       uuid: folder.uuid,
       workspaceToken: getConfig().workspaceToken,
+      name: plainName,
     });
 
     if (error) throw error;

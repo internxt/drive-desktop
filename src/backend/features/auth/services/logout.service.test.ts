@@ -71,6 +71,6 @@ describe('logout service', () => {
     expect(saveConfigModule.saveConfig).not.toHaveBeenCalled();
     expect(resetConfigModule.resetConfig).not.toHaveBeenCalled();
     expect(resetCredentialsModule.resetCredentials).not.toHaveBeenCalled();
-    expect(loggerMock.info).not.toHaveBeenCalled();
+    expect(loggerMock.debug).not.toHaveBeenCalled();
   });
 });

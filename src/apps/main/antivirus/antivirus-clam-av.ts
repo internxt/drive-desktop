@@ -3,21 +3,22 @@ import NodeClam from '@internxt/scan';
 import * as clamAVServer from './ClamAVDaemon';
 import { app } from 'electron';
 import { cwd } from 'process';
+import { logger } from '@/apps/shared/logger/logger';
 
-export interface SelectedItemToScanProps {
+export type SelectedItemToScanProps = {
   path: string;
   itemName: string;
   isDirectory: boolean;
-}
+};
 
 const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(cwd(), 'clamAV');
 
-export class Antivirus {
+export class AntivirusClamAV {
   private clamAv: NodeClam | null = null;
   private isInitialized = false;
 
-  static async createInstance(): Promise<Antivirus> {
-    const instance = new Antivirus();
+  static async createInstance(): Promise<AntivirusClamAV> {
+    const instance = new AntivirusClamAV();
     await instance.initialize();
     return instance;
   }
@@ -45,12 +46,15 @@ export class Antivirus {
 
       this.isInitialized = true;
     } catch (error) {
-      console.error('Error Initializing ClamAV:', error);
-      throw error;
+      throw logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error initializing ClamAV',
+        exc: error,
+      });
     }
   }
 
-  async scanFile(filePath: string) {
+  async scanFile({ filePath }: { filePath: string }) {
     if (!this.clamAv || !this.isInitialized) {
       throw new Error('ClamAV is not initialized');
     }
@@ -58,7 +62,7 @@ export class Antivirus {
     return await this.clamAv.isInfected(filePath);
   }
 
-  async stopClamAv() {
+  async stop() {
     if (!this.clamAv) {
       throw new Error('ClamAv instance is not initialized');
     }

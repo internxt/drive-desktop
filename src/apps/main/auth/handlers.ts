@@ -1,5 +1,4 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
@@ -11,6 +10,8 @@ import { cleanAndStartRemoteNotifications } from '../realtime';
 import { getAuthHeaders } from './headers';
 import { AccessResponse } from '@/apps/renderer/pages/Login/types';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
+import { AuthContext } from '@/backend/features/auth/utils/context';
+import { createAuthWindow } from '../windows/auth';
 
 let isLoggedIn: boolean;
 
@@ -28,7 +29,7 @@ export function getIsLoggedIn() {
 
 export function onUserUnauthorized() {
   eventBus.emit('USER_LOGGED_OUT');
-  Logger.info('[AUTH] User has been logged out because it was unauthorized');
+  logger.debug({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
   setIsLoggedIn(false);
 }
 
@@ -79,7 +80,16 @@ export function setupAuthIpcHandlers() {
 }
 
 async function emitUserLoggedIn() {
+  const context: AuthContext = {
+    abortController: new AbortController(),
+  };
+
+  eventBus.once('USER_LOGGED_OUT', async () => {
+    context.abortController.abort();
+    await createAuthWindow();
+  });
+
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  await initSyncEngine();
+  await initSyncEngine({ context });
 }

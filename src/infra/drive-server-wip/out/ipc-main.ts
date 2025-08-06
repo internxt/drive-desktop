@@ -4,73 +4,86 @@ import { FromMain, FromProcess } from './ipc';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { broadcastToWindows } from '@/apps/main/windows';
+import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
 
 const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupIpcDriveServerWip() {
-  void ipcMainDriveServerWip.handle('storageDeleteFileByUuid', async (_, props) => {
-    const res = await driveServerWip.storage.deleteFileByUuid(props);
-
-    if (!res.error) {
-      await SqliteModule.FileModule.updateByUuid({ uuid: props.uuid, payload: { status: 'TRASHED' } });
-    }
-
-    return res;
-  });
-
-  void ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', async (_, props) => {
-    const res = await driveServerWip.storage.deleteFolderByUuid(props);
-
-    if (!res.error) {
-      await SqliteModule.FolderModule.updateByUuid({ uuid: props.uuid, payload: { status: 'TRASHED' } });
-    }
-
-    return res;
-  });
-
-  void ipcMainDriveServerWip.handle('renameFileByUuid', async (_, props) => {
-    const res = await driveServerWip.files.renameFile(props);
-
-    const nameWithExtension = `${props.name}.${props.type}`;
+  void ipcMainDriveServerWip.handle('storageDeleteFileByUuid', async (_, { uuid, workspaceToken, nameWithExtension }) => {
+    const res = await driveServerWip.storage.deleteFileByUuid({ uuid, workspaceToken });
 
     if (res.error) {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAME_ERROR', name: nameWithExtension } });
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'DELETE_ERROR', name: nameWithExtension, key: uuid } });
     } else {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAMED', name: nameWithExtension } });
-      await SqliteModule.FileModule.updateByUuid({ uuid: props.uuid, payload: { name: props.name, type: props.type } });
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'DELETED', name: nameWithExtension, key: uuid } });
+      await SqliteModule.FileModule.updateByUuid({ uuid, payload: { status: 'TRASHED' } });
     }
 
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('renameFolderByUuid', async (_, props) => {
-    const res = await driveServerWip.folders.renameFolder(props);
+  void ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', async (_, { uuid, workspaceToken, name }) => {
+    const res = await driveServerWip.storage.deleteFolderByUuid({ uuid, workspaceToken });
 
     if (res.error) {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAME_ERROR', name: props.plainName } });
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'DELETE_ERROR', name, key: uuid } });
     } else {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAMED', name: props.plainName } });
-      await SqliteModule.FolderModule.updateByUuid({ uuid: props.uuid, payload: { name: props.plainName } });
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'DELETED', name, key: uuid } });
+      await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { status: 'TRASHED' } });
     }
 
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('moveFileByUuid', async (_, props) => {
-    const res = await driveServerWip.files.moveFile(props);
+  void ipcMainDriveServerWip.handle('renameFileByUuid', async (_, { uuid, workspaceToken, nameWithExtension }) => {
+    const { name, extension } = getNameAndExtension({ nameWithExtension });
 
-    if (!res.error) {
-      await SqliteModule.FileModule.updateByUuid({ uuid: props.uuid, payload: { folderUuid: props.parentUuid } });
+    const res = await driveServerWip.files.renameFile({ uuid, workspaceToken, name, extension });
+
+    if (res.error) {
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAME_ERROR', name: nameWithExtension, key: uuid } });
+    } else {
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAMED', name: nameWithExtension, key: uuid } });
+      await SqliteModule.FileModule.updateByUuid({ uuid, payload: { name, extension } });
     }
 
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('moveFolderByUuid', async (_, props) => {
-    const res = await driveServerWip.folders.moveFolder(props);
+  void ipcMainDriveServerWip.handle('renameFolderByUuid', async (_, { uuid, workspaceToken, name }) => {
+    const res = await driveServerWip.folders.renameFolder({ uuid, workspaceToken, name });
 
-    if (!res.error) {
-      await SqliteModule.FolderModule.updateByUuid({ uuid: props.uuid, payload: { parentUuid: props.parentUuid } });
+    if (res.error) {
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAME_ERROR', name, key: uuid } });
+    } else {
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAMED', name, key: uuid } });
+      await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { name } });
+    }
+
+    return res;
+  });
+
+  void ipcMainDriveServerWip.handle('moveFileByUuid', async (_, { uuid, workspaceToken, parentUuid, nameWithExtension }) => {
+    const res = await driveServerWip.files.moveFile({ uuid, parentUuid, workspaceToken });
+
+    if (res.error) {
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVE_ERROR', name: nameWithExtension, key: uuid } });
+    } else {
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVED', name: nameWithExtension, key: uuid } });
+      await SqliteModule.FileModule.updateByUuid({ uuid, payload: { parentUuid } });
+    }
+
+    return res;
+  });
+
+  void ipcMainDriveServerWip.handle('moveFolderByUuid', async (_, { uuid, workspaceToken, parentUuid, name }) => {
+    const res = await driveServerWip.folders.moveFolder({ uuid, parentUuid, workspaceToken });
+
+    if (res.error) {
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVE_ERROR', name, key: uuid } });
+    } else {
+      broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVED', name, key: uuid } });
+      await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { parentUuid } });
     }
 
     return res;

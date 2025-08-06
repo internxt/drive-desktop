@@ -1,5 +1,4 @@
-import { app, ipcMain, nativeTheme } from 'electron';
-import Logger from 'electron-log';
+import { app, nativeTheme } from 'electron';
 
 void app.whenReady().then(() => {
   app.setAppUserModelId('com.internxt.app');
@@ -15,9 +14,13 @@ import 'regenerator-runtime/runtime';
 // via webpack in prod
 import 'dotenv/config';
 // ***** APP BOOTSTRAPPING ****************************************************** //
-import { setupElectronLog } from './logger';
+import { PATHS } from '@/core/electron/paths';
+import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
-setupElectronLog();
+setupElectronLog({
+  logsPath: PATHS.ELECTRON_LOGS,
+  importantLogsPath: PATHS.ELECTRON_IMPORTANT_LOGS,
+});
 
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
@@ -49,7 +52,7 @@ import configStore from './config';
 import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { Theme } from '../shared/types/Theme';
-import { clearAntivirus, initializeAntivirusIfAvailable } from './antivirus/utils/initializeAntivirus';
+import { clearAntivirus } from './antivirus/utils/initializeAntivirus';
 import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 import { clearConfig, setDefaultConfig } from '../sync-engine/config';
@@ -83,7 +86,7 @@ logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.i
 async function checkForUpdates() {
   autoUpdater.logger = {
     debug: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
-    info: (msg) => logger.info({ msg: `AutoUpdater: ${msg}` }),
+    info: (msg) => logger.debug({ msg: `AutoUpdater: ${msg}` }),
     error: (msg) => logger.error({ msg: `AutoUpdater: ${msg}` }),
     warn: (msg) => logger.warn({ msg: `AutoUpdater: ${msg}` }),
   };
@@ -125,13 +128,9 @@ app
       setTrayStatus('IDLE');
     }
 
-    ipcMain.handle('is-dark-mode-active', () => {
-      return nativeTheme.shouldUseDarkColors;
-    });
-
     await checkForUpdates();
   })
-  .catch(Logger.error);
+  .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 
 eventBus.on('USER_LOGGED_IN', async () => {
   try {
@@ -156,15 +155,13 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
-
-    await initializeAntivirusIfAvailable();
-  } catch (error) {
-    Logger.error(error);
-    reportError(error as Error);
+  } catch (exc) {
+    logger.error({ msg: 'Error logging in', exc });
+    reportError(exc as Error);
   }
 });
 
-eventBus.on('USER_LOGGED_OUT', async () => {
+eventBus.on('USER_LOGGED_OUT', () => {
   setTrayStatus('IDLE');
 
   clearConfig();
@@ -178,6 +175,4 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   clearAntivirus();
   unregisterVirtualDrives({});
   void AuthModule.logout();
-
-  await createAuthWindow();
 });

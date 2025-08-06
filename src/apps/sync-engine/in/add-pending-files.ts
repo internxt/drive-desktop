@@ -4,12 +4,12 @@ import { PendingPaths } from './get-placeholders-with-pending-state';
 
 type TProps = {
   watcher: Watcher;
-  pendingPaths: PendingPaths[];
+  pendingFiles: PendingPaths[];
 };
 
-export async function addPendingFiles({ watcher, pendingPaths }: TProps) {
+export async function addPendingFiles({ watcher, pendingFiles }: TProps) {
   await Promise.all(
-    pendingPaths.map(async (pendingPath) => {
+    pendingFiles.map(async (pendingPath) => {
       await onAdd({
         self: watcher,
         absolutePath: pendingPath.absolutePath,

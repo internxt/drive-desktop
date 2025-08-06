@@ -2,10 +2,10 @@ import { sleep } from '@/apps/main/util';
 import { updateFolderStatuses } from './update-folder-statuses';
 import { updateFileStatuses } from './update-file-statuses';
 import { logger } from '@/apps/shared/logger/logger';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
-  context: Config;
+  context: SyncContext;
   rootFolderUuid: string;
 };
 
@@ -13,6 +13,11 @@ export async function syncItemsByFolder({ context, rootFolderUuid }: TProps) {
   const folderUuids = [rootFolderUuid];
 
   while (folderUuids.length > 0) {
+    if (context.abortController.signal.aborted) {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Aborted sync items by folder', workspaceId: context.workspaceId });
+      break;
+    }
+
     const folderUuid = folderUuids.shift();
     if (!folderUuid) continue;
 

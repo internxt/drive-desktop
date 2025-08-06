@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 export type ScanType = 'files' | 'folders';
 export type Views = 'locked' | 'chooseItems' | 'scan' | 'loading';
 
-export interface UseAntivirusReturn {
+export type UseAntivirusReturn = {
   infectedFiles: string[];
   currentScanPath?: string;
   countScannedFiles: number;
@@ -22,7 +22,7 @@ export interface UseAntivirusReturn {
   onCustomScanButtonClicked: (scanType: ScanType) => Promise<void>;
   onRemoveInfectedItems: (infectedFiles: string[]) => Promise<void>;
   isWinDefenderActive: () => Promise<boolean>;
-}
+};
 
 export const useAntivirus = (): UseAntivirusReturn => {
   const [infectedFiles, setInfectedFiles] = useState<string[]>([]);
@@ -129,8 +129,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const onCustomScanButtonClicked = async (scanType: ScanType) => {
     resetStates();
-    const isDefenderActive = await isWinDefenderActive();
-    if (isDefenderActive) return;
 
     const items = await onSelectItemsButtonClicked(scanType);
     if (!items || items.length === 0) return;
@@ -148,8 +146,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const onScanUserSystemButtonClicked = async () => {
     resetStates();
-    const isDefenderActive = await isWinDefenderActive();
-    if (isDefenderActive) return;
 
     setView('scan');
 

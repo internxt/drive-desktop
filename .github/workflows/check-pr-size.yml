@@ -6,12 +6,15 @@ on:
 
 jobs:
   check_pr_size:
+    # Ignore PRs with name merge-X-X-X-release
+    if: |
+      !(startsWith(github.head_ref, 'merge-') && endsWith(github.head_ref, '-release') && github.base_ref == 'main')
     runs-on: ubuntu-latest
     timeout-minutes: 1
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -30,7 +33,7 @@ jobs:
 
           # Calculate added and deleted lines between the merge base and the head commit
           TOTAL_CHANGED=$(git diff --numstat "$MERGE_BASE" "$HEAD_SHA" \
-            | grep -Ev "(package-lock.json|schema.d.ts)" \
+            | grep -Ev "(package-lock.json|schema.d.ts|preload.js|preload.d.ts)" \
             | awk '{ added += $1; deleted += $2 } END { print added + deleted }')
 
           # Default to 0 if nothing is output
