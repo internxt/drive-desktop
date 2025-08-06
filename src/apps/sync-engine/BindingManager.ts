@@ -66,7 +66,7 @@ export class BindingsManager {
     await this.update(tree);
   }
 
-  async watch() {
+  watch() {
     const { queueManager, watcher } = createWatcher({
       virtulDrive: this.container.virtualDrive,
       watcherCallbacks: {

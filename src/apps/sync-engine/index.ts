@@ -53,7 +53,7 @@ async function setUp() {
   });
 
   await bindings.start();
-  await bindings.watch();
+  bindings.watch();
 
   logger.debug({ msg: '[SYNC ENGINE] Second sync engine started' });
 }
