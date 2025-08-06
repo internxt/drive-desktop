@@ -147,7 +147,7 @@
     "tsconfig-paths-webpack-plugin": "^4.2.0",
     "typescript": "^5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.0.2",
+    "vitest": "3.0.2",
     "vitest-mock-extended": "^2.0.2",
     "webpack": "^5.100.2",
     "webpack-bundle-analyzer": "^4.10.2",
