@@ -1,4 +1,3 @@
-import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
 import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';

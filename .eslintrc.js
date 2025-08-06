@@ -1,12 +1,29 @@
 module.exports = {
-  extends: ['@internxt/eslint-config-internxt', 'plugin:prettier/recommended', 'plugin:@tanstack/eslint-plugin-query/recommended'],
-  plugins: ['import', 'unicorn', '@tanstack/query'],
+  plugins: ['import', 'unicorn', '@tanstack/query', 'sonarjs'],
+  extends: [
+    '@internxt/eslint-config-internxt',
+    'plugin:prettier/recommended',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
+    'plugin:sonarjs/recommended-legacy',
+  ],
+  parser: '@typescript-eslint/parser',
+  ignorePatterns: ['assets.d.ts', 'node_modules', 'schema.d.ts'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
       parserOptions: {
         tsconfigRootDir: __dirname,
-        project: ['tsconfig.json'],
+        project: './tsconfig.json',
+      },
+    },
+    {
+      files: ['*.test.*'],
+      rules: {
+        'sonarjs/assertions-in-tests': 'off',
+        'sonarjs/constructor-for-side-effects': 'off',
+        'sonarjs/function-return-type': 'off',
+        'sonarjs/no-empty-test-file': 'off',
+        'sonarjs/os-command': 'off',
       },
     },
   ],
@@ -30,6 +47,23 @@ module.exports = {
     'no-use-before-define': ['warn', { functions: false }],
     'object-shorthand': 'error',
     'require-await': 'warn',
+    'sonarjs/array-callback-without-return': 'off',
+    'sonarjs/cognitive-complexity': 'off',
+    'sonarjs/different-types-comparison': 'warn',
+    'sonarjs/no-empty-collection': 'off',
+    'sonarjs/no-identical-functions': 'off',
+    'sonarjs/no-ignored-exceptions': 'off',
+    'sonarjs/no-nested-conditional': 'warn',
+    'sonarjs/no-nested-functions': 'warn',
+    'sonarjs/no-os-command-from-path': 'off',
+    'sonarjs/no-redundant-optional': 'off',
+    'sonarjs/no-selector-parameter': 'off',
+    'sonarjs/no-small-switch': 'off',
+    'sonarjs/prefer-read-only-props': 'off',
+    'sonarjs/pseudo-random': 'warn',
+    'sonarjs/public-static-readonly': 'warn',
+    'sonarjs/slow-regex': 'off',
+    'sonarjs/todo-tag': 'off',
     'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
     'padding-line-between-statements': [
       'warn',
@@ -38,11 +72,5 @@ module.exports = {
       { blankLine: 'always', prev: '*', next: 'function' },
       { blankLine: 'always', prev: 'multiline-expression', next: 'multiline-expression' },
     ],
-  },
-  parser: '@typescript-eslint/parser',
-  settings: {
-    'import/parsers': {
-      '@typescript-eslint/parser': ['.ts', '.tsx'],
-    },
   },
 };

@@ -99,7 +99,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
     if (progress.done) {
       setIsScanning(false);
       setIsScanCompleted(true);
-      return;
     }
   };
 

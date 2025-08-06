@@ -63,5 +63,5 @@ export async function getMirrors({ bucketId, fileId, creds }: Props): Promise<Mi
 }
 
 function isFarmerOk(farmer?: Partial<Mirror['farmer']>) {
-  return farmer && farmer.nodeID && farmer.port && farmer.address;
+  return Boolean(farmer && farmer.nodeID && farmer.port && farmer.address);
 }

@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { Spinner } from 'phosphor-react';
 import { useTranslationContext } from '../../../../context/LocalContext';
 import { BackupsState } from '../../../../hooks/backups/useBackups';

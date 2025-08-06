@@ -2,7 +2,6 @@ import { execSync } from 'child_process';
 import { appendFile, mkdir, rename, rm, unlink, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { v4 } from 'uuid';
-import { beforeEach } from 'vitest';
 
 import { Watcher } from './watcher';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';

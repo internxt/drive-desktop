@@ -21,7 +21,7 @@ function truncateText(text: string, prev: string[], maxLength: number) {
   // Concatenar los textos, truncando si es necesario y agregando ">"
   const truncatedTexts = [text, ...prev].map((str) => truncate(str, Math.floor(maxLength / prev.length)));
 
-  return truncatedTexts.reverse().join(' > ');
+  return truncatedTexts.toReversed().join(' > ');
 }
 
 export default function DownloadFolderSelector({ onClose }: DownloadFolderSelectorProps) {

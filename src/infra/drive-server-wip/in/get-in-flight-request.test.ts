@@ -3,10 +3,10 @@ import { getInFlightRequest } from './get-in-flight-request';
 describe('get-in-flight-response', () => {
   it('should return the same promise when the same key is used', async () => {
     // When
-    const promise1 = new Promise((resolve) => resolve('first'));
-    const promise2 = new Promise((resolve) => resolve('second'));
-    const promise3 = new Promise((resolve) => resolve('third'));
-    const promise4 = new Promise((resolve) => resolve('fourth'));
+    const promise1 = Promise.resolve('first');
+    const promise2 = Promise.resolve('second');
+    const promise3 = Promise.resolve('third');
+    const promise4 = Promise.resolve('fourth');
 
     const { promise: res1 } = getInFlightRequest({ key: 'key1', promiseFn: () => promise1 });
     const { promise: res2 } = getInFlightRequest({ key: 'key1', promiseFn: () => promise2 });
