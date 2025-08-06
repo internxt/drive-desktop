@@ -31,7 +31,8 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" > .env
+          echo "ANALYZE=${{ secrets.ANALYZE }}" > .env
+          echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" >> .env
           echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
           echo "DESKTOP_HEADER=${{ secrets.DESKTOP_HEADER }}" >> .env
           echo "DRIVE_URL=${{ secrets.DRIVE_URL }}" >> .env
