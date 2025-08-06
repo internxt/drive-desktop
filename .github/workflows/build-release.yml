@@ -1,9 +1,7 @@
 name: Build release
 
 on:
-  push:
-    branches:
-      - '**'
+  workflow_dispatch:
 
 jobs:
   build_release:
@@ -51,3 +49,18 @@ jobs:
 
       - name: Create package
         run: npm run package
+
+      - name: Code signing with Software Trust Manager
+        uses: digicert/ssm-code-signing@v1.1.0
+
+      - name: Sign build
+        run: release\sign.ps1
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-windows-build
+          path: |
+            build/Internxt-Setup-*.exe
+            build/Internxt-Setup-*.exe.blockmap
+            build/latest.yml
