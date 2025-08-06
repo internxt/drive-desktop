@@ -24,12 +24,6 @@ export function useSyncInfoSubscriber() {
     );
   }
 
-  function removeOnProgressItems() {
-    setProcessInfoUpdatedPayload((currentItems) => {
-      return currentItems.filter((item) => item.action !== 'UPLOADING' && item.action !== 'DOWNLOADING' && item.action !== 'RENAMING');
-    });
-  }
-
   useEffect(() => {
     const removeListener = window.electron.onSyncInfoUpdate(onSyncItem);
 
@@ -39,6 +33,5 @@ export function useSyncInfoSubscriber() {
   return {
     processInfoUpdatedPayload,
     clearItems,
-    removeOnProgressItems,
   };
 }
