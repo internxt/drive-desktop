@@ -33,8 +33,8 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "ANALYZE=false" > .env
-          echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" > .env
+          echo "ANALYZE=${{ secrets.ANALYZE }}" > .env
+          echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" >> .env
           echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
           echo "DESKTOP_HEADER=${{ secrets.DESKTOP_HEADER }}" >> .env
           echo "DRIVE_URL=${{ secrets.DRIVE_URL }}" >> .env
@@ -51,18 +51,3 @@ jobs:
 
       - name: Create package
         run: npm run package
-
-      - name: Code signing with Software Trust Manager
-        uses: digicert/ssm-code-signing@v1.1.0
-
-      - name: Sign build
-        run: release\sign.ps1
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: signed-windows-build
-          path: |
-            build/Internxt-Setup-*.exe
-            build/Internxt-Setup-*.exe.blockmap
-            build/latest.yml
