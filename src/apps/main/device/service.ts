@@ -185,7 +185,7 @@ export function decryptDeviceName({ name, ...rest }: Device): Device {
   try {
     key = `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`;
     nameDevice = aes.decrypt(name, key);
-  } catch (error) {
+  } catch {
     key = `${process.env.NEW_CRYPTO_KEY}-${null}`;
     nameDevice = aes.decrypt(name, key);
   }
@@ -580,13 +580,11 @@ export async function downloadBackup(device: Device, folderUuids?: string[]): Pr
       },
       abortController,
     });
-  } catch (_) {
+  } catch {
     // Try to delete zip if download backup has failed
     try {
       fs.unlinkSync(zipFilePath);
-    } catch (_) {
-      /* noop */
-    }
+    } catch {}
   }
 
   removeListenerIpc.removeListener(listenerName, abortListener);

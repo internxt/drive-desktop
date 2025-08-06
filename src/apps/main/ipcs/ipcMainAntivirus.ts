@@ -67,7 +67,7 @@ ipcMain.handle('antivirus:cancel-scan', async () => {
 ipcMain.handle('antivirus:scan-items', async (_, items?: SelectedItemToScanProps[]) => {
   const pathNames = items?.map((item) => item.path);
   const fileSystemMonitor = await getManualScanMonitorInstance();
-  return fileSystemMonitor.scanItems(pathNames);
+  await fileSystemMonitor.scanItems(pathNames);
 });
 
 ipcMain.handle('antivirus:add-items-to-scan', async (_, getFiles?: boolean) => {

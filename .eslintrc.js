@@ -52,7 +52,7 @@ module.exports = {
     'sonarjs/different-types-comparison': 'warn',
     'sonarjs/no-empty-collection': 'off',
     'sonarjs/no-identical-functions': 'off',
-    'sonarjs/no-ignored-exceptions': 'off',
+    'sonarjs/no-ignored-exceptions': 'error',
     'sonarjs/no-nested-conditional': 'warn',
     'sonarjs/no-nested-functions': 'warn',
     'sonarjs/no-os-command-from-path': 'off',

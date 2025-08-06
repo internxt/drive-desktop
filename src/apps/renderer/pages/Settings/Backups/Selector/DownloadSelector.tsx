@@ -89,7 +89,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
       try {
         abortDownloadBackups(selected!);
         onClose();
-      } catch (err) {
+      } catch {
         // error while aborting (aborting also throws an exception itself)
       } finally {
         setTimeout(() => {

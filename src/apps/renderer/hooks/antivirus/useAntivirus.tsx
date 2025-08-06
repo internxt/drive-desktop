@@ -61,7 +61,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
       setIsAntivirusAvailable(true);
       setView('chooseItems');
-    } catch (error) {
+    } catch {
       setIsAntivirusAvailable(false);
       setView('locked');
     }
@@ -73,7 +73,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
       setIsDefenderActive(isWinDefenderActive);
       return isWinDefenderActive;
-    } catch (error) {
+    } catch {
       setIsDefenderActive(false);
       return false;
     }
@@ -136,7 +136,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     try {
       await window.electron.antivirus.scanItems(items);
       setIsScanCompleted(true);
-    } catch (error) {
+    } catch {
       setShowErrorState(true);
     } finally {
       setIsScanning(false);
@@ -151,7 +151,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     try {
       await window.electron.antivirus.scanItems();
       setIsScanCompleted(true);
-    } catch (error) {
+    } catch {
       setShowErrorState(true);
     } finally {
       setIsScanning(false);
