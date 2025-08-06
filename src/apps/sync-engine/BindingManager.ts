@@ -15,8 +15,6 @@ import { deleteItemPlaceholders } from '@/backend/features/remote-sync/file-expl
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { addPendingItems } from './in/add-pending-items';
 
-export type CallbackDownload = (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>;
-
 export class BindingsManager {
   progressBuffer = 0;
   controllers: IControllers;
@@ -32,12 +30,13 @@ export class BindingsManager {
 
   async start() {
     const callbacks: Callbacks = {
-      fetchDataCallback: (filePlaceholderId, callback) =>
-        this.fetchData.run({
+      fetchDataCallback: async (filePlaceholderId, callback) => {
+        await this.fetchData.run({
           self: this,
           filePlaceholderId,
           callback,
-        }),
+        });
+      },
       cancelFetchDataCallback: () => {
         this.controllers.downloadFile.cancel();
         logger.debug({ msg: 'cancelFetchDataCallback' });

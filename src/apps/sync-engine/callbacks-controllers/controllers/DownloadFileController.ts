@@ -1,11 +1,11 @@
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { FilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
-import { CallbackDownload } from '../../BindingManager';
 import { FileNotFoundError } from '@/context/virtual-drive/files/domain/errors/FileNotFoundError';
 import { trimPlaceholderId } from './placeholder-id';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { sleep } from '@/apps/main/util';
 import { logger } from '@/apps/shared/logger/logger';
+import { CallbackDownload } from '@/node-win/types/callbacks.type';
 
 export class DownloadFileController {
   constructor(private readonly downloader: ContentsDownloader) {}
