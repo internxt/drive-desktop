@@ -14,6 +14,7 @@ import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine'
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
@@ -28,6 +29,7 @@ describe('File Creator', () => {
   const folderParent = FolderMother.any();
   const filePath = new FilePath(folderParent.path + '/cat.png');
   const contents = FileContentsMother.random();
+  const absolutePath = 'C:\\Users\\user\\InternxtDrive\\cat.png' as AbsolutePath;
 
   const SUT = new FileCreator(remoteFileSystemMock, virtualDriveMock);
 
@@ -41,12 +43,13 @@ describe('File Creator', () => {
     getFolderUuid.mockReturnValue({ error: new GetFolderIdentityError('NON_EXISTS') });
 
     // When
-    const promise = SUT.run(filePath, contents);
+    const promise = SUT.run({ filePath, contents, absolutePath });
 
     // Then
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
 
     expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_UPLOAD_ERROR', {
+      key: 'C:\\Users\\user\\InternxtDrive\\cat.png',
       nameWithExtension: filePath.nameWithExtension(),
     });
   });
@@ -66,7 +69,7 @@ describe('File Creator', () => {
       dto: { size: '1024' },
     } as any);
 
-    await SUT.run(filePath, contents);
+    await SUT.run({ filePath, contents, absolutePath });
 
     expect(invokeMock).toBeCalledTimes(1);
   });
@@ -88,7 +91,7 @@ describe('File Creator', () => {
       dto: { size: '1024' },
     } as any);
 
-    await SUT.run(filePath, contents);
+    await SUT.run({ filePath, contents, absolutePath });
 
     expect(invokeMock).toBeCalledTimes(1);
     expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_CREATED', {

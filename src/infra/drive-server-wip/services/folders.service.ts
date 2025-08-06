@@ -1,10 +1,13 @@
-import { client } from '@/apps/shared/HttpClient/client';
+import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
+import { parseFileDto, parseFolderDto } from '../out/dto';
+import { getByUuid } from './folders/get-by-uuid';
 
 export const folders = {
+  getByUuid,
   createFolder,
   getMetadata,
   getFolders,
@@ -66,7 +69,7 @@ async function getFolders(context: { query: TGetFoldersQuery }) {
 
 async function getFoldersByFolder(
   context: { folderUuid: string; query: TGetFoldersByFolderQuery },
-  extra?: { abortSignal?: AbortSignal; skipLog?: boolean },
+  extra: { abortSignal: AbortSignal; skipLog?: boolean },
 ) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/folders';
@@ -75,13 +78,13 @@ async function getFoldersByFolder(
   const promiseFn = () =>
     client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
-      signal: extra?.abortSignal,
+      signal: extra.abortSignal,
     });
 
   const res = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog: extra.skipLog,
     loggerBody: {
       msg: 'Get folders by folder request',
       context,
@@ -93,7 +96,7 @@ async function getFoldersByFolder(
   });
 
   if (res.data) {
-    return { data: res.data.folders };
+    return { data: res.data.folders.map((folderDto) => parseFolderDto({ folderDto })) };
   } else {
     return { error: res.error };
   }
@@ -101,7 +104,7 @@ async function getFoldersByFolder(
 
 async function getFilesByFolder(
   context: { folderUuid: string; query: TGetFilesByFolderQuery },
-  extra?: { abortSignal?: AbortSignal; skipLog?: boolean },
+  extra: { abortSignal: AbortSignal; skipLog?: boolean },
 ) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/files';
@@ -110,13 +113,13 @@ async function getFilesByFolder(
   const promiseFn = () =>
     client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
-      signal: extra?.abortSignal,
+      signal: extra.abortSignal,
     });
 
   const res = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog: extra.skipLog,
     loggerBody: {
       msg: 'Get files by folder request',
       context,
@@ -128,19 +131,20 @@ async function getFilesByFolder(
   });
 
   if (res.data) {
-    return { data: res.data.files };
+    return { data: res.data.files.map((fileDto) => parseFileDto({ fileDto })) };
   } else {
     return { error: res.error };
   }
 }
 
-async function moveFolder(context: { uuid: string; parentUuid: string }) {
+async function moveFolder(context: { uuid: string; parentUuid: string; workspaceToken: string }) {
   const method = 'PATCH';
   const endpoint = '/folders/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PATCH(endpoint, {
+      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
       params: { path: { uuid: context.uuid } },
       body: { destinationFolder: context.parentUuid },
     });
@@ -159,15 +163,16 @@ async function moveFolder(context: { uuid: string; parentUuid: string }) {
   });
 }
 
-async function renameFolder(context: { uuid: string; plainName: string }) {
+async function renameFolder(context: { uuid: string; name: string; workspaceToken: string }) {
   const method = 'PUT';
   const endpoint = '/folders/{uuid}/meta';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PUT(endpoint, {
+      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
       params: { path: { uuid: context.uuid } },
-      body: { plainName: context.plainName },
+      body: { plainName: context.name },
     });
 
   return await clientWrapper({

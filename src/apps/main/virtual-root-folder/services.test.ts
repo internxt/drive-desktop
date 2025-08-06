@@ -4,6 +4,7 @@ import path from 'path';
 import configStore from '../config';
 import { User } from '../types';
 import { getRootVirtualDrive, setupRootFolder } from './service';
+import { ROOT_FOLDER_NAME } from '@/core/utils/utils';
 
 vi.mock('./service', async () => {
   const actual = await vi.importActual('./service');
@@ -33,7 +34,7 @@ afterEach(() => {
 describe('setupRootFolder', () => {
   it('should rename the folder if the current syncRoot matches pathNameWithSepInTheEnd', async () => {
     const user = { email: 'test@gmail.com', uuid: '123' } as User;
-    const virtualDriveFolder = path.join(tempDir, process.env.ROOT_FOLDER_NAME);
+    const virtualDriveFolder = path.join(tempDir, ROOT_FOLDER_NAME);
     const syncRoot = virtualDriveFolder + path.sep;
 
     if (!fs.existsSync(virtualDriveFolder)) {

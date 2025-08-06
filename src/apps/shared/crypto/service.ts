@@ -1,29 +1,10 @@
 import { Buffer } from 'buffer';
-import { Data, MaybeStream, WebStream } from 'openpgp';
+import { Message, PrivateKey, WebStream } from 'openpgp';
+import { logger } from '../logger/logger';
 
 export async function getOpenpgp(): Promise<typeof import('openpgp')> {
   return import('openpgp');
 }
-
-export const encryptMessageWithPublicKey = async ({
-  message,
-  publicKeyInBase64,
-}: {
-  message: string;
-  publicKeyInBase64: string;
-}): Promise<WebStream<string>> => {
-  const openpgp = await getOpenpgp();
-
-  const publicKeyArmored = Buffer.from(publicKeyInBase64, 'base64').toString();
-  const publicKey = await openpgp.readKey({ armoredKey: publicKeyArmored });
-
-  const encryptedMessage = await openpgp.encrypt({
-    message: await openpgp.createMessage({ text: message }),
-    encryptionKeys: publicKey,
-  });
-
-  return encryptedMessage;
-};
 
 export const decryptMessageWithPrivateKey = async ({
   encryptedMessage,
@@ -31,7 +12,7 @@ export const decryptMessageWithPrivateKey = async ({
 }: {
   encryptedMessage: WebStream<string>;
   privateKeyInBase64: string;
-}): Promise<MaybeStream<Data> & WebStream<Uint8Array>> => {
+}) => {
   const openpgp = await getOpenpgp();
 
   const privateKeyArmored = Buffer.from(privateKeyInBase64, 'base64').toString();
@@ -41,10 +22,20 @@ export const decryptMessageWithPrivateKey = async ({
     armoredMessage: encryptedMessage,
   });
 
+  if (!comparePrivateKeyCiphertextIDs({ privateKey, message })) {
+    throw logger.error({ tag: 'SYNC-ENGINE', msg: 'The key does not correspond to the ciphertext' });
+  }
+
   const { data: decryptedMessage } = await openpgp.decrypt({
     message,
     decryptionKeys: privateKey,
   });
 
-  return decryptedMessage;
+  return decryptedMessage.toString();
 };
+
+function comparePrivateKeyCiphertextIDs({ privateKey, message }: { privateKey: PrivateKey; message: Message<string> }) {
+  const messageKeyID = message.getEncryptionKeyIDs()[0].toHex();
+  const privateKeyID = privateKey.getSubkeys()[0].getKeyID().toHex();
+  return messageKeyID === privateKeyID;
+}

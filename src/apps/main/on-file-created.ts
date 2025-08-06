@@ -2,7 +2,6 @@ import { join } from 'path';
 import configStore from './config';
 import { isAbsolutePath } from './util';
 import { createAndUploadThumbnail } from './thumbnails/application/create-and-upload-thumbnail';
-import { broadcastToWindows } from './windows';
 
 export async function onFileCreated(payload: {
   bucket: string;
@@ -22,9 +21,4 @@ export async function onFileCreated(payload: {
   }
 
   await createAndUploadThumbnail(bucket, fileId, nameWithExtension, fullPath);
-
-  broadcastToWindows({
-    name: 'sync-info-update',
-    data: { action: 'UPLOADED', name: nameWithExtension },
-  });
 }

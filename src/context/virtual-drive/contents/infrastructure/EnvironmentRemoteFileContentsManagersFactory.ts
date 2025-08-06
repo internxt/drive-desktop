@@ -1,6 +1,6 @@
 import { Environment } from '@internxt/inxt-js/build';
-import { EnvironmentContentFileDownloader } from './download/EnvironmentContentFileDownloader';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { EnvironmentContentFileDownloader } from './download/EnvironmentContentFileDownloader';
 
 export class EnvironmentRemoteFileContentsManagersFactory {
   constructor(
@@ -9,7 +9,7 @@ export class EnvironmentRemoteFileContentsManagersFactory {
   ) {}
 
   downloader() {
-    return new EnvironmentContentFileDownloader(this.environment.download, this.bucket);
+    return new EnvironmentContentFileDownloader(this.environment, this.bucket);
   }
 
   uploader() {

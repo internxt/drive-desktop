@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
 import { getUserOrThrow } from '../auth/service';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
@@ -11,6 +11,7 @@ import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
+import { AuthContext } from '@/backend/features/auth/utils/context';
 import { logger } from '@/apps/shared/logger/logger';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
@@ -48,11 +49,12 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-export async function spawnDefaultSyncEngineWorker() {
+export async function spawnDefaultSyncEngineWorker({ context }: { context: AuthContext }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
-  const config: Config = {
+  const syncContext: SyncContext = {
+    ...context,
     userUuid: user.uuid,
     providerId,
     rootPath: getRootVirtualDrive(),
@@ -68,12 +70,12 @@ export async function spawnDefaultSyncEngineWorker() {
     workspaceToken: '',
   };
 
-  await spawnSyncEngineWorker({ config });
+  await spawnSyncEngineWorker({ context: syncContext });
 
   return { providerId };
 }
 
-export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { providerId: string }) {
+export async function spawnWorkspaceSyncEngineWorkers({ context, providerId }: { context: AuthContext; providerId: string }) {
   const workspaces = await getWorkspaces();
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
@@ -82,7 +84,7 @@ export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { provider
   unregisterVirtualDrives({ currentProviderIds });
 
   const spawnWorkspaces = workspaces.map(async (workspace) => {
-    await spawnWorkspace({ workspace });
+    await spawnWorkspace({ context, workspace });
   });
 
   await Promise.all(spawnWorkspaces);
