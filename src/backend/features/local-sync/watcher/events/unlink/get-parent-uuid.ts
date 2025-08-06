@@ -27,5 +27,5 @@ export async function getParentUuid({ absolutePath, virtualDrive }: Props) {
    * If we delete /folder_and_subfolders we are still going to be able to find the parentUuid of file.txt.
    */
   if (parentUuid && stats) return parentUuid;
-  return;
+  return null;
 }

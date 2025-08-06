@@ -5,9 +5,7 @@ type TFetchDataCallback = (
   callback: (data: boolean, path: string, errorHandler?: () => void) => Promise<{ finished: boolean; progress: number }>,
 ) => void;
 
-export type InputSyncCallbacks = {
+export type Callbacks = {
   fetchDataCallback: TFetchDataCallback;
   cancelFetchDataCallback: () => void;
 };
-
-export type Callbacks = InputSyncCallbacks;

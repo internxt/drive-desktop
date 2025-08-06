@@ -1,6 +1,4 @@
 import { folderRepository } from '../drive-folder';
-import { SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { logger } from '@/apps/shared/logger/logger';
 import { SingleItemError } from '../common/single-item-error';
 import { parseData } from './parse-data';

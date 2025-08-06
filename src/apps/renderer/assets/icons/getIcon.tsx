@@ -18,7 +18,7 @@ import Video from './video.svg';
 import Word from './word.svg';
 import Zip from './zip.svg';
 
-interface iconLibrary {
+interface IconLibrary {
   id: string;
   icon: any;
   extensions: string[];
@@ -26,7 +26,7 @@ interface iconLibrary {
 
 // const getSVG = (svg: any) => svg as React.SVGAttributes<SVGElement>;
 
-const file_type: iconLibrary[] = [
+const file_type: IconLibrary[] = [
   {
     id: 'audio',
     icon: <Audio />,

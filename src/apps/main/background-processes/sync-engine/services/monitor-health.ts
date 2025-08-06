@@ -13,8 +13,8 @@ export function monitorHealth({ browserWindow, stopAndSpawn }: TProps) {
     try {
       process.kill(pid, 0);
       logger.debug({ msg: '[MAIN] Sync engine worker is still running', pid });
-    } catch (err) {
-      logger.error({ msg: '[MAIN] Sync engine worker is dead', pid });
+    } catch (exc) {
+      logger.error({ msg: '[MAIN] Sync engine worker is dead', pid, exc });
       await stopAndSpawn();
     }
   };

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { addonZod } from './addon/addon-zod';
-import { InputSyncCallbacks } from './types/callbacks.type';
+import { Callbacks } from './types/callbacks.type';
 import { addon as rawAddon } from '@internxt/node-win/dist';
 
 type TAddon = {
@@ -29,7 +29,7 @@ type TAddon = {
   ): z.infer<typeof addonZod.createEntry>;
   hydrateFile(path: string): Promise<z.infer<typeof addonZod.hydrateFile>>;
   dehydrateFile(path: string): z.infer<typeof addonZod.dehydrateFile>;
-  connectSyncRoot(path: string, callbacks: InputSyncCallbacks): z.infer<typeof addonZod.connectSyncRoot>;
+  connectSyncRoot(path: string, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: string, id: string): z.infer<typeof addonZod.convertToPlaceholder>;
   deleteFileSyncRoot(path: string): any;
   getFileIdentity(path: string): z.infer<typeof addonZod.getFileIdentity>;

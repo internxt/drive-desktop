@@ -15,7 +15,9 @@ if (process.env.NODE_ENV === 'development') {
   };
 } else {
   resolveHtmlPath = (pathname: string, query = '') => {
-    return `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}${query ? `?${query}` : ''}#/${pathname}`;
+    const basePath = path.resolve(__dirname, '../renderer/', htmlFileName);
+    const queryString = query ? `?${query}` : '';
+    return `file://${basePath}${queryString}#/${pathname}`;
   };
 }
 

@@ -12,7 +12,7 @@ export function createRelativePath(...parts: string[]): RelativePath {
    * v2.5.6 Daniel Jiménez
    * If the path is not the root path "/" remote the last slash "/a/b/" -> "/a/b"
    */
-  path = path !== '/' ? path.replace(/\/{1,}$/, '') : path;
+  path = path !== '/' ? path.replace(/\/+$/, '') : path;
   return path as RelativePath;
 }
 
