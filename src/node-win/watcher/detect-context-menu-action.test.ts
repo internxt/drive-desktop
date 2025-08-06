@@ -1,5 +1,4 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { DetectContextMenuActionService } from './detect-context-menu-action.service';
 import { mockDeep } from 'vitest-mock-extended';
 import VirtualDrive from '../virtual-drive';
 import { PinState } from '../types/placeholder.type';
@@ -8,18 +7,18 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
+import { detectContextMenuAction } from './detect-context-menu-action.service';
 
 describe('detect-context-menu-action', () => {
   const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
   const virtualDrive = mockDeep<VirtualDrive>();
-  const service = new DetectContextMenuActionService();
 
-  let props: Parameters<typeof service.execute>[0];
+  let props: Parameters<typeof detectContextMenuAction>[0];
 
   beforeEach(() => {
     getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
-    props = mockProps<typeof service.execute>({
+    props = mockProps<typeof detectContextMenuAction>({
       absolutePath: 'absolutePath' as AbsolutePath,
       path: createRelativePath('file.txt'),
       self: {
@@ -42,7 +41,7 @@ describe('detect-context-menu-action', () => {
     // Given
     props.details.curr.mtimeMs = 2;
     // When
-    await service.execute(props);
+    await detectContextMenuAction(props);
     // Then
     expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
     expect(props.self.callbacks.updateContentsId).toBeCalledWith({
@@ -57,7 +56,7 @@ describe('detect-context-menu-action', () => {
     props.self.fileInDevice.add(props.absolutePath);
     virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.OnlineOnly });
     // When
-    await service.execute(props);
+    await detectContextMenuAction(props);
     // Then
     expect(props.self.fileInDevice.has(props.absolutePath)).toBe(false);
     expect(props.self.queueManager.enqueue).toBeCalledTimes(0);
@@ -73,7 +72,7 @@ describe('detect-context-menu-action', () => {
       // Given
       props.details.curr.blocks = 0;
       // When
-      await service.execute(props);
+      await detectContextMenuAction(props);
       // Then
       expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
       expect(props.self.queueManager.enqueue).toBeCalledWith({ path: props.path });
@@ -83,7 +82,7 @@ describe('detect-context-menu-action', () => {
       // Given
       props.details.curr.blocks = 1;
       // When
-      await service.execute(props);
+      await detectContextMenuAction(props);
       // Then
       expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
       expect(props.self.queueManager.enqueue).toBeCalledTimes(0);
@@ -94,7 +93,7 @@ describe('detect-context-menu-action', () => {
       // Given
       props.self.fileInDevice.add(props.absolutePath);
       // When
-      await service.execute(props);
+      await detectContextMenuAction(props);
       // Then
       expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
       expect(props.self.queueManager.enqueue).toBeCalledTimes(0);

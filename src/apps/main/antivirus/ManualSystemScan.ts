@@ -191,14 +191,9 @@ class ManualSystemScan {
         pathNames = [userSystemPath.path];
       }
 
-      const allFilePaths: string[] = [];
-
-      await Promise.all(
-        pathNames.map(async (p) => {
-          const filePaths = await getFilesFromDirectory({ rootFolder: p });
-          allFilePaths.push(...filePaths);
-        }),
-      );
+      const promises = pathNames.map((p) => getFilesFromDirectory({ rootFolder: p }));
+      const result = await Promise.all(promises);
+      const allFilePaths = result.flat();
 
       this.totalItemsToScan = allFilePaths.length;
 
@@ -227,7 +222,11 @@ class ManualSystemScan {
       this.finishScan(currentSession);
     } catch (error) {
       if (!isPermissionError(error)) {
-        throw error;
+        throw logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error during manual scan',
+          exc: error,
+        });
       }
       this.resetCounters();
       await this.manualQueue?.drain();

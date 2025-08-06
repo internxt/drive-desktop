@@ -23,9 +23,7 @@ describe('AntivirusWindowsDefender', () => {
 
     it('logs error when initialization fails but does not throw', async () => {
       // Given
-      findMpCmdRunMock.mockImplementation(() => {
-        throw new Error('Initialization failed');
-      });
+      findMpCmdRunMock.mockResolvedValueOnce(null);
       // When
       const instance = await AntivirusWindowsDefender.createInstance();
       // Then
@@ -48,10 +46,7 @@ describe('AntivirusWindowsDefender', () => {
     it('logs error and sets isInitialized to false when findMpCmdRun fails', async () => {
       // Given
       const instance = new AntivirusWindowsDefender();
-      const mockError = new Error('Failed to find MpCmdRun.exe');
-      findMpCmdRunMock.mockImplementation(() => {
-        throw mockError;
-      });
+      findMpCmdRunMock.mockResolvedValueOnce(null);
       // When
       await instance.initialize();
       // Then

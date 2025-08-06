@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-use-before-define */
 import { aes } from '@internxt/lib';
-import { app, dialog } from 'electron';
+import { dialog } from 'electron';
 import fetch from 'electron-fetch';
 import os from 'os';
 import path from 'path';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
-import { getUser, setUser } from '../auth/service';
+import { getUser } from '../auth/service';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import fs, { PathLike } from 'fs';
@@ -22,6 +22,7 @@ import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getAuthHeaders } from '../auth/headers';
+import { getBackupsFromDevice } from './get-backups-from-device';
 
 export type Device = {
   name: string;
@@ -197,44 +198,6 @@ export function decryptDeviceName({ name, ...rest }: Device): Device {
   };
 }
 
-export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
-  const folder = await fetchFolder({ folderUuid: device.uuid });
-
-  if (isCurrent) {
-    const backupsList = configStore.get('backupList');
-
-    await new BackupFolderUuid().ensureBackupUuidExists({ backupsList });
-
-    const user = getUser();
-
-    if (user && !user?.backupsBucket) {
-      user.backupsBucket = device.bucket;
-      setUser(user);
-    }
-
-    return folder.children
-      .map((backup) => ({ ...backup, pathname: findBackupPathnameFromId(backup.id) }))
-      .filter(({ pathname }) => pathname && backupsList[pathname].enabled)
-      .map((backup) => ({
-        ...backup,
-        pathname: backup.pathname as string,
-        folderId: backup.id,
-        folderUuid: backup.uuid,
-        tmpPath: app.getPath('temp'),
-        backupsBucket: device.bucket,
-      }));
-  } else {
-    return folder.children.map((backup) => ({
-      ...backup,
-      folderId: backup.id,
-      folderUuid: backup.uuid,
-      backupsBucket: device.bucket,
-      tmpPath: '',
-      pathname: '',
-    }));
-  }
-}
-
 /**
  * Posts a Backup to desktop server API
  *
@@ -298,10 +261,11 @@ export async function addBackup(): Promise<void> {
     }
 
     let folderStillExists;
-    try {
-      const existFolder = await fetchFolder({ folderUuid: existingBackup.folderUuid });
-      folderStillExists = !existFolder.removed;
-    } catch {
+    const { data } = await driveServerWipModule.backup.fetchFolder({ folderUuid: existingBackup.folderUuid });
+
+    if (data) {
+      folderStillExists = !data.removed;
+    } else {
       folderStillExists = false;
     }
 
@@ -316,21 +280,14 @@ export async function addBackup(): Promise<void> {
   }
 }
 
-async function fetchFolder({ folderUuid }: { folderUuid: string }) {
-  const res = await client.GET('/folders/content/{uuid}', {
-    params: { path: { uuid: folderUuid } },
-  });
-
-  if (!res.data) {
-    throw new Error('Unsuccesful request to fetch folder');
-  }
-
-  return res.data;
-}
-
 async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
-  const folders = await Promise.all(folderUuids.map((folderUuid) => fetchFolder({ folderUuid })));
-  return folders;
+  const results = await Promise.all(
+    folderUuids.map(async (folderUuid) => {
+      return await driveServerWipModule.backup.fetchFolder({ folderUuid });
+    }),
+  );
+
+  return results;
 }
 
 async function fetchTreeFromApi(folderUuid: string): Promise<FolderTree> {
@@ -511,7 +468,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   return chosen.itemName;
 }
 
-function findBackupPathnameFromId(id: number): string | undefined {
+export function findBackupPathnameFromId(id: number): string | undefined {
   const backupsList = configStore.get('backupList');
   const entryfound = Object.entries(backupsList).find(([, b]) => b.folderId === id);
 
@@ -549,7 +506,7 @@ async function downloadDeviceBackupZip({
 
   await downloadFolder(
     device.name,
-    folders.map((folder) => folder.uuid),
+    folders.filter((folder) => folder.data).map((folder) => folder.data!.uuid),
     path,
     {
       bridgeUser,

@@ -3,11 +3,11 @@ import { FetchDataService } from './fetchData.service';
 import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { DeepPartial } from 'ts-essentials';
-import fs from 'fs';
 import { it } from 'vitest';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { unlink } from 'fs/promises';
 
-vi.mock('fs');
+vi.mock(import('fs/promises'));
 
 const fetchData = new FetchDataService();
 
@@ -49,7 +49,7 @@ describe('Fetch Data', () => {
       await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
 
     it('When progress is less than 0, then throw an error', async () => {
@@ -60,7 +60,7 @@ describe('Fetch Data', () => {
       await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
 
     it('When finished but progress is 0, then throw an error', async () => {
@@ -71,7 +71,7 @@ describe('Fetch Data', () => {
       await fetchData.run({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
   });
 });

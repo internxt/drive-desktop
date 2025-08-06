@@ -11,6 +11,13 @@ import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundE
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+
+type Props = {
+  filePath: FilePath;
+  absolutePath: AbsolutePath;
+  contents: RemoteFileContents;
+};
 
 export class FileCreator {
   constructor(
@@ -18,7 +25,7 @@ export class FileCreator {
     private readonly virtualDrive: VirtualDrive,
   ) {}
 
-  async run(filePath: FilePath, contents: RemoteFileContents): Promise<File> {
+  async run({ filePath, absolutePath, contents }: Props): Promise<File> {
     try {
       const posixDir = PlatformPathConverter.getFatherPathPosix(filePath.value);
       const { data: folderUuid } = NodeWin.getFolderUuid({
@@ -62,7 +69,6 @@ export class FileCreator {
           isDangledStatus: false,
           userUuid: getConfig().userUuid,
           workspaceId: getConfig().workspaceId,
-          updatedAt: '2000-01-01T00:00:00.000Z',
         },
       });
 
@@ -89,6 +95,7 @@ export class FileCreator {
       });
 
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
+        key: absolutePath,
         nameWithExtension: filePath.nameWithExtension(),
       });
 

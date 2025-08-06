@@ -155,13 +155,13 @@ eventBus.on('USER_LOGGED_IN', async () => {
     } else if (widget) {
       widget.show();
     }
-  } catch (error) {
-    logger.error({ msg: 'Error logging in', error });
-    reportError(error as Error);
+  } catch (exc) {
+    logger.error({ msg: 'Error logging in', exc });
+    reportError(exc as Error);
   }
 });
 
-eventBus.on('USER_LOGGED_OUT', async () => {
+eventBus.on('USER_LOGGED_OUT', () => {
   setTrayStatus('IDLE');
 
   clearConfig();
@@ -175,6 +175,4 @@ eventBus.on('USER_LOGGED_OUT', async () => {
   clearAntivirus();
   unregisterVirtualDrives({});
   void AuthModule.logout();
-
-  await createAuthWindow();
 });

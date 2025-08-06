@@ -14,6 +14,7 @@ describe('fetch-folders-by-folder', () => {
     props = mockProps<typeof fetchFoldersByFolder>({
       folderUuid: 'folderUuid',
       context: {
+        abortController: new AbortController(),
         workspaceId: '',
         workspaceToken: '',
       },
@@ -56,7 +57,7 @@ describe('fetch-folders-by-folder', () => {
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(2);
   });
 
-  it('If fetch fails, do not throw an error', async () => {
+  it('If fetch fails return null', async () => {
     // Given
     getFoldersByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFoldersByFolderMock.mockResolvedValueOnce({ error: new Error() });
@@ -65,7 +66,7 @@ describe('fetch-folders-by-folder', () => {
     const folders = await fetchFoldersByFolder(props);
 
     // Then
-    expect(folders).toHaveLength(50);
+    expect(folders).toBeNull();
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(2);
   });
 

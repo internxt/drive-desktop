@@ -2,15 +2,15 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getParentUuid } from './get-parent-uuid';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('get-parent-uuid', () => {
   const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
   const statMock = partialSpyOn(fileSystem, 'stat');
 
-  const path = createRelativePath('folder1', 'folder2', 'file');
-  const props = mockProps<typeof getParentUuid>({ path });
+  const absolutePath = 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2\\file' as AbsolutePath;
+  const props = mockProps<typeof getParentUuid>({ absolutePath });
 
   beforeEach(() => {
     getFolderUuidMock.mockReturnValue({ data: 'parentUuid' as FolderUuid });
@@ -23,7 +23,7 @@ describe('get-parent-uuid', () => {
     // When
     const res = await getParentUuid(props);
     // Then
-    expect(getFolderUuidMock).toBeCalledWith(expect.objectContaining({ path: '/folder1/folder2' }));
+    expect(getFolderUuidMock).toBeCalledWith(expect.objectContaining({ path: 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2' }));
     expect(res).toBeUndefined();
   });
 
@@ -33,7 +33,7 @@ describe('get-parent-uuid', () => {
     // When
     const res = await getParentUuid(props);
     // Then
-    expect(statMock).toBeCalledWith(expect.objectContaining({ absolutePath: '/folder1/folder2' }));
+    expect(statMock).toBeCalledWith(expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2' }));
     expect(res).toBeUndefined();
   });
 

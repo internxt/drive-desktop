@@ -1,7 +1,6 @@
 import { watch, WatchOptions, FSWatcher } from 'chokidar';
 
 import { onAddDir } from './events/on-add-dir.service';
-import { OnRawService } from './events/on-raw.service';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
@@ -11,6 +10,7 @@ import { AddController } from '@/apps/sync-engine/callbacks-controllers/controll
 import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import { Stats } from 'fs';
+import { debounceOnRaw } from './events/debounce-on-raw';
 
 export type TWatcherCallbacks = {
   addController: AddController;
@@ -28,7 +28,6 @@ export class Watcher {
     public readonly logger: TLogger,
     public readonly virtualDrive: VirtualDrive,
     public readonly callbacks: TWatcherCallbacks,
-    private readonly onRaw: OnRawService = new OnRawService(),
   ) {}
 
   private onError = (error: unknown) => {
@@ -53,7 +52,7 @@ export class Watcher {
          */
         .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ virtualDrive: this.virtualDrive, absolutePath }))
         .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ virtualDrive: this.virtualDrive, absolutePath }))
-        .on('raw', (event, absolutePath: AbsolutePath, details) => this.onRaw.execute({ self: this, event, absolutePath, details }))
+        .on('raw', (event, absolutePath: AbsolutePath, details) => debounceOnRaw({ self: this, event, absolutePath, details }))
         .on('error', this.onError)
         .on('ready', this.onReady);
     } catch (exc) {

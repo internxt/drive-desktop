@@ -10,6 +10,8 @@ import { cleanAndStartRemoteNotifications } from '../realtime';
 import { getAuthHeaders } from './headers';
 import { AccessResponse } from '@/apps/renderer/pages/Login/types';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
+import { AuthContext } from '@/backend/features/auth/utils/context';
+import { createAuthWindow } from '../windows/auth';
 
 let isLoggedIn: boolean;
 
@@ -78,7 +80,16 @@ export function setupAuthIpcHandlers() {
 }
 
 async function emitUserLoggedIn() {
+  const context: AuthContext = {
+    abortController: new AbortController(),
+  };
+
+  eventBus.once('USER_LOGGED_OUT', async () => {
+    context.abortController.abort();
+    await createAuthWindow();
+  });
+
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  await initSyncEngine();
+  await initSyncEngine({ context });
 }

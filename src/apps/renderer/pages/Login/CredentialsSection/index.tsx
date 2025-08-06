@@ -1,7 +1,7 @@
 import TextInput from '@/apps/renderer/components/TextInput';
 import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
 import { LoginState } from '../types';
-import PasswordInput from '@/apps/renderer/components/PasswordInput';
+import { PasswordInput } from '@/apps/renderer/components/password-input';
 import Button from '@/apps/renderer/components/Button';
 
 interface Props {
