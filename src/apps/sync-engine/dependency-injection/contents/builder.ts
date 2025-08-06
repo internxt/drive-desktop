@@ -3,7 +3,6 @@ import { SharedContainer } from '../shared/SharedContainer';
 import { ContentsContainer } from './ContentsContainer';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
-import { temporalFolderProvider } from '../../../../context/virtual-drive/contents/application/temporalFolderProvider';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { getConfig } from '../../config';
@@ -26,14 +25,13 @@ export function buildContentsContainer(sharedContainer: SharedContainer): Conten
 
   const contentsUploader = new ContentsUploader(contentsManagerFactory, sharedContainer.relativePathToAbsoluteConverter);
 
-  const localWriter = new FSLocalFileWriter(temporalFolderProvider);
+  const localWriter = new FSLocalFileWriter();
 
-  const contentsDownloader = new ContentsDownloader(contentsManagerFactory, localWriter, temporalFolderProvider);
+  const contentsDownloader = new ContentsDownloader(contentsManagerFactory, localWriter);
 
   return {
     contentsUploader,
     contentsDownloader,
-    temporalFolderProvider,
     contentsManagerFactory,
   };
 }

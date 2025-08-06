@@ -14,19 +14,19 @@ export function getUploadCallbacks({ path }: TProps): FileUploaderCallbacks {
     onProgress({ progress }: { progress: number }) {
       broadcastToWindows({
         name: 'sync-info-update',
-        data: { action: 'UPLOADING', name: nameWithExtension, progress },
+        data: { action: 'UPLOADING', name: nameWithExtension, progress, key: path },
       });
     },
     onFinish() {
       broadcastToWindows({
         name: 'sync-info-update',
-        data: { action: 'UPLOADED', name: nameWithExtension },
+        data: { action: 'UPLOADED', name: nameWithExtension, key: path },
       });
     },
     onError() {
       broadcastToWindows({
         name: 'sync-info-update',
-        data: { action: 'UPLOAD_ERROR', name: nameWithExtension },
+        data: { action: 'UPLOAD_ERROR', name: nameWithExtension, key: path },
       });
     },
   };

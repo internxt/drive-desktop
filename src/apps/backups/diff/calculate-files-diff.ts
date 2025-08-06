@@ -5,13 +5,13 @@ import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileSt
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTree } from '../remote-tree/traverser';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
+import { logger } from '@/apps/shared/logger/logger';
 
 export type FilesDiff = {
   added: Array<LocalFile>;
   deleted: Array<File>;
   modified: Map<LocalFile, File>;
   unmodified: Array<LocalFile>;
-  dangled: Map<LocalFile, File>;
   total: number;
 };
 
@@ -23,7 +23,6 @@ type TProps = {
 export function calculateFilesDiff({ local, remote }: TProps) {
   const added: Array<LocalFile> = [];
   const modified: Map<LocalFile, File> = new Map();
-  const dangled: Map<LocalFile, File> = new Map();
   const unmodified: Array<LocalFile> = [];
   const deleted: Array<File> = [];
 
@@ -45,7 +44,14 @@ export function calculateFilesDiff({ local, remote }: TProps) {
     const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
     if (!isApplied && createdAt >= startDate && createdAt <= endDate) {
-      dangled.set(local, remoteFile);
+      logger.debug({
+        tag: 'BACKUPS',
+        msg: 'Dangled file found',
+        localPath: local.absolutePath,
+        remoteId: remoteFile.contentsId,
+      });
+
+      modified.set(local, remoteFile);
       return;
     }
 
@@ -73,7 +79,6 @@ export function calculateFilesDiff({ local, remote }: TProps) {
   return {
     added,
     modified,
-    dangled,
     deleted,
     unmodified,
     total,

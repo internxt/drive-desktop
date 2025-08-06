@@ -8,6 +8,12 @@ type TProps = {
 };
 
 export async function getFilesFromDirectory({ rootFolder }: TProps) {
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: 'Getting files from directory',
+    rootFolder,
+  });
+
   const isFolder = await PathTypeChecker.isFolder(rootFolder);
   if (!isFolder) return [];
 

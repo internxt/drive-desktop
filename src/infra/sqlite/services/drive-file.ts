@@ -51,13 +51,4 @@ export class DriveFileCollection {
       affected: match.affected as number,
     };
   }
-
-  async getLastUpdatedByWorkspace({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) {
-    const result = await fileRepository.findOne({
-      where: { userUuid, workspaceId },
-      order: { updatedAt: 'DESC' },
-    });
-
-    return result;
-  }
 }
