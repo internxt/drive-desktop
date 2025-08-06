@@ -1,4 +1,3 @@
-import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import * as updateContentsIdModule from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
@@ -12,13 +11,11 @@ import { Stats } from 'fs';
 
 describe('sync-modified-file', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
-  const relativePathToAbsoluteConverter = mockDeep<RelativePathToAbsoluteConverter>();
   const fileContentsUploader = mockDeep<ContentsUploader>();
 
   const updateContentsIdMock = partialSpyOn(updateContentsIdModule, 'updateContentsId');
 
   beforeEach(() => {
-    relativePathToAbsoluteConverter.run.mockReturnValue('C:\\Users\\test\\Drive\\test.txt' as AbsolutePath);
     updateContentsIdMock.mockResolvedValue(undefined);
   });
 
@@ -50,7 +47,7 @@ describe('sync-modified-file', () => {
     await syncModifiedFile({
       remoteFile,
       localFile,
-      relativePathToAbsoluteConverter,
+      remotePath: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       fileContentsUploader,
       virtualDrive,
     });
@@ -86,7 +83,7 @@ describe('sync-modified-file', () => {
     await syncModifiedFile({
       remoteFile,
       localFile,
-      relativePathToAbsoluteConverter,
+      remotePath: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       fileContentsUploader,
       virtualDrive,
     });
@@ -101,7 +98,7 @@ describe('sync-modified-file', () => {
     });
   });
 
-  it('should not update if timestamps are identical', async () => {
+  it('should not update if timestamps are identical when rounded to seconds', async () => {
     // Given
     const remoteDate = new Date('2025-08-05T10:00:00.123Z');
     const localDate = new Date('2025-08-05T10:00:00.456Z');
@@ -129,7 +126,7 @@ describe('sync-modified-file', () => {
     await syncModifiedFile({
       remoteFile,
       localFile,
-      relativePathToAbsoluteConverter,
+      remotePath: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       fileContentsUploader,
       virtualDrive,
     });

@@ -1,4 +1,3 @@
-import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -11,19 +10,12 @@ import { Stats } from 'fs';
 type Props = {
   remoteFile: File;
   localFile: { path: string; stats: Stats };
-  relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter;
+  remotePath: AbsolutePath;
   fileContentsUploader: ContentsUploader;
   virtualDrive: VirtualDrive;
 };
 
-export async function syncModifiedFile({
-  remoteFile,
-  localFile,
-  relativePathToAbsoluteConverter,
-  fileContentsUploader,
-  virtualDrive,
-}: Props) {
-  const remotePath = relativePathToAbsoluteConverter.run(remoteFile.path) as AbsolutePath;
+export async function syncModifiedFile({ remoteFile, localFile, remotePath, fileContentsUploader, virtualDrive }: Props) {
   /**
    * v2.5.6 Esteban Galvis
    * Sync issues occurred due to millisecond differences in modification time,

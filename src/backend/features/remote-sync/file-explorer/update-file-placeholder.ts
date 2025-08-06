@@ -60,7 +60,7 @@ export class FilePlaceholderUpdater {
       await syncModifiedFile({
         remoteFile: remote,
         localFile: localPath,
-        relativePathToAbsoluteConverter: this.relativePathToAbsoluteConverter,
+        remotePath,
         fileContentsUploader: this.fileContentsUploader,
         virtualDrive: this.virtualDrive,
       });
