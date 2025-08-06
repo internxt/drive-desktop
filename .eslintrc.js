@@ -48,7 +48,7 @@ module.exports = {
     'object-shorthand': 'error',
     'require-await': 'warn',
     'sonarjs/array-callback-without-return': 'off',
-    'sonarjs/cognitive-complexity': 'off',
+    'sonarjs/cognitive-complexity': 'warn',
     'sonarjs/different-types-comparison': 'warn',
     'sonarjs/no-empty-collection': 'off',
     'sonarjs/no-identical-functions': 'off',
