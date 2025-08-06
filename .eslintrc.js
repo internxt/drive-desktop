@@ -59,6 +59,7 @@ module.exports = {
     'sonarjs/no-redundant-optional': 'off',
     'sonarjs/no-selector-parameter': 'off',
     'sonarjs/no-small-switch': 'off',
+    'sonarjs/no-useless-intersection': 'warn',
     'sonarjs/prefer-read-only-props': 'off',
     'sonarjs/pseudo-random': 'warn',
     'sonarjs/public-static-readonly': 'warn',
