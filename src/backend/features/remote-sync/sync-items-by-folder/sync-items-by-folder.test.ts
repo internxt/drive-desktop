@@ -76,8 +76,8 @@ describe('sync-items-by-folder', () => {
     expect(updateFolderStatusesMock).toBeCalledTimes(2);
     expect(updateFileStatusesMock).toBeCalledTimes(2);
     expect(sleepMock).toBeCalledTimes(2);
-    expect(updateFolderStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'rootFolderUuid' });
-    expect(updateFolderStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'folderUuid' });
+    expect(updateFolderStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'rootFolderUuid', path: '/' });
+    expect(updateFolderStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'folderUuid', path: '/' });
     expect(updateFileStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'rootFolderUuid' });
     expect(updateFileStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'folderUuid' });
   });
