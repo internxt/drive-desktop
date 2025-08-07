@@ -52,7 +52,7 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       bridgePass: credentials.credentials.networkPass,
     };
 
-    // await spawnSyncEngineWorker({ context: syncContext });
+    await spawnSyncEngineWorker({ context: syncContext });
   } catch (exc) {
     logger.error({ tag: 'SYNC-ENGINE', msg: 'Error spawning workspace', exc });
   }
