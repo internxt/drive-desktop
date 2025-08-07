@@ -1,25 +1,21 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import drive from '@/node-win/virtual-drive';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 export type InMemoryFiles = Record<FileUuid, AbsolutePath>;
 export type InMemoryFolders = Record<FolderUuid, AbsolutePath>;
 
-type TProps = {
-  drive: drive;
-};
-
-export async function loadInMemoryPaths({ drive }: TProps) {
+export async function loadInMemoryPaths() {
   const files: InMemoryFiles = {};
   const folders: InMemoryFolders = {};
 
-  const rootPath = drive.syncRootPath;
+  const rootPath = virtualDrive.syncRootPath;
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath });
 
@@ -44,12 +40,12 @@ export async function loadInMemoryPaths({ drive }: TProps) {
         if (stats.isDirectory()) {
           folderPaths.push(absolutePath);
 
-          const { data: uuid } = NodeWin.getFolderUuid({ drive, path: absolutePath });
+          const { data: uuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
           if (uuid) folders[uuid] = absolutePath;
         }
 
         if (stats.isFile()) {
-          const { data: uuid } = NodeWin.getFileUuid({ drive, path: absolutePath });
+          const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
           if (uuid) files[uuid] = absolutePath;
         }
       }

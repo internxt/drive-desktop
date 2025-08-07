@@ -6,20 +6,21 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { mockDeep } from 'vitest-mock-extended';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { initializeVirtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 describe('delete-item-placeholders', () => {
+  const virtualDrive = mockDeep<VirtualDrive>();
+  initializeVirtualDrive(virtualDrive);
+
   const getFolderUuid = partialSpyOn(NodeWin, 'getFolderUuid');
   const getFileUuid = partialSpyOn(NodeWin, 'getFileUuid');
-
-  const virtualDrive = mockDeep<VirtualDrive>();
 
   it('should call deleteFileSyncRoot if folder uuids match', () => {
     // Given
     getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
     const props = mockProps<typeof deleteItemPlaceholders>({
       remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'uuid' }],
-      isFolder: true,
-      virtualDrive,
+      type: 'folder',
     });
     // When
     deleteItemPlaceholders(props);
@@ -32,8 +33,7 @@ describe('delete-item-placeholders', () => {
     getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
     const props = mockProps<typeof deleteItemPlaceholders>({
       remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'different' }],
-      isFolder: true,
-      virtualDrive,
+      type: 'folder',
     });
     // When
     deleteItemPlaceholders(props);
@@ -46,8 +46,7 @@ describe('delete-item-placeholders', () => {
     getFileUuid.mockReturnValue({ data: 'uuid' as FileUuid });
     const props = mockProps<typeof deleteItemPlaceholders>({
       remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'uuid' }],
-      isFolder: false,
-      virtualDrive,
+      type: 'file',
     });
     // When
     deleteItemPlaceholders(props);
@@ -60,8 +59,7 @@ describe('delete-item-placeholders', () => {
     getFileUuid.mockReturnValue({ data: 'uuid' as FileUuid });
     const props = mockProps<typeof deleteItemPlaceholders>({
       remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'different' }],
-      isFolder: false,
-      virtualDrive,
+      type: 'file',
     });
     // When
     deleteItemPlaceholders(props);
