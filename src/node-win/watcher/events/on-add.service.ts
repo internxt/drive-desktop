@@ -22,12 +22,10 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
     const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
 
     if (!uuid) {
-      self.logger.debug({ msg: 'File added', path });
       self.fileInDevice.add(absolutePath);
       await self.callbacks.addController.createFile({
         absolutePath,
         path,
-        virtualDrive: self.virtualDrive,
         stats,
       });
       return;

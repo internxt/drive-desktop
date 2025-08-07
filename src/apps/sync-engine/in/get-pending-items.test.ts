@@ -1,6 +1,6 @@
 import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { readdir } from 'fs/promises';
-import { getPlaceholdersWithPendingState } from './get-placeholders-with-pending-state';
+import { getPendingItems } from './get-pending-items';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { GetFileIdentityError } from '@/infra/node-win/services/item-identity/get-file-identity';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -10,7 +10,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('fs/promises'));
 
-describe('get-placeholders-with-pending-state', () => {
+describe('get-pending-items', () => {
   const readdirMock = deepMocked(readdir);
   const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
   const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
@@ -18,7 +18,7 @@ describe('get-placeholders-with-pending-state', () => {
 
   type MockReaddirReturn = ReturnType<typeof readdir> extends Promise<infer T> ? T : never;
 
-  const props = mockProps<typeof getPlaceholdersWithPendingState>({ path: 'C:\\Users\\user\\InternxtDrive' });
+  const props = mockProps<typeof getPendingItems>({ path: 'C:\\Users\\user\\InternxtDrive' });
 
   it('should return files and folders that are not uploaded', async () => {
     readdirMock.mockResolvedValueOnce(['file1', 'folder1', 'folder2'] as unknown as MockReaddirReturn);
@@ -38,7 +38,7 @@ describe('get-placeholders-with-pending-state', () => {
     });
 
     // When
-    const { pendingFiles, pendingFolders } = await getPlaceholdersWithPendingState(props);
+    const { pendingFiles, pendingFolders } = await getPendingItems(props);
 
     // Then
     expect(pendingFiles).toStrictEqual([expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1\\file2' })]);

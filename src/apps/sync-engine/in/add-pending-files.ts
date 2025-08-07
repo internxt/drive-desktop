@@ -1,20 +1,22 @@
-import { onAdd } from '@/node-win/watcher/events/on-add.service';
-import { Watcher } from '@/node-win/watcher/watcher';
-import { PendingPaths } from './get-placeholders-with-pending-state';
+import { PendingPaths } from './get-pending-items';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { virtualDrive } from '../dependency-injection/common/virtualDrive';
+import { IControllers } from '../callbacks-controllers/buildControllers';
 
 type TProps = {
-  watcher: Watcher;
+  controllers: IControllers;
   pendingFiles: PendingPaths[];
 };
 
-export async function addPendingFiles({ watcher, pendingFiles }: TProps) {
+export async function addPendingFiles({ controllers, pendingFiles }: TProps) {
   await Promise.all(
-    pendingFiles.map(async (pendingPath) => {
-      await onAdd({
-        self: watcher,
-        absolutePath: pendingPath.absolutePath,
-        stats: pendingPath.stats,
+    pendingFiles.map(async ({ absolutePath, stats }) => {
+      const path = pathUtils.absoluteToRelative({
+        base: virtualDrive.syncRootPath,
+        path: absolutePath,
       });
+
+      await controllers.addFile.createFile({ absolutePath, path, stats });
     }),
   );
 }
