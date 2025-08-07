@@ -1,11 +1,12 @@
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { getUser } from '../main/auth/service';
+import { FolderUuid } from '../main/database/entities/DriveFolder';
 
 export type Config = {
   userUuid: string;
   providerId: string;
   rootPath: string;
-  rootUuid: string;
+  rootUuid: FolderUuid;
   providerName: string;
   loggerPath: string;
   queueManagerPath: string;
@@ -28,7 +29,7 @@ const emptyValues = (): Config => {
     loggerPath: '',
     queueManagerPath: '',
     workspaceId: '',
-    rootUuid: '',
+    rootUuid: '' as FolderUuid,
     bucket: '',
     mnemonic: '',
     bridgePass: '',
