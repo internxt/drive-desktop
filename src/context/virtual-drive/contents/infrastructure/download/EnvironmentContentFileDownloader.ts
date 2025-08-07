@@ -39,10 +39,10 @@ export class EnvironmentContentFileDownloader {
           this.bucket,
           contentsId,
           {
-            progressCallback: (progress) => {
+            progressCallback: (progress: number) => {
               this.eventEmitter.emit('progress', progress);
             },
-            finishedCallback: (err, stream) => {
+            finishedCallback: (err: Error | null, stream?: Readable) => {
               logger.debug({ msg: '[FinishedCallback] Stream is ready' });
 
               if (stream) {

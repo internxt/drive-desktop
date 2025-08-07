@@ -32,6 +32,7 @@ export class File {
     private _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
+    public modificationTime: Date,
     private _status: FileStatus,
   ) {}
 
@@ -98,6 +99,7 @@ export class File {
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
+      new Date(attributes.modificationTime),
       FileStatus.fromValue(attributes.status),
     );
   }
@@ -123,7 +125,7 @@ export class File {
       size: this.size,
       updatedAt: this.updatedAt.toISOString(),
       status: this.status.value,
-      modificationTime: this.updatedAt.toISOString(),
+      modificationTime: this.modificationTime.toISOString(),
     };
   }
 }
