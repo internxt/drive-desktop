@@ -2,13 +2,13 @@ import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { LocalFileContents } from '../domain/LocalFileContents';
-import { CallbackDownload } from '../../../../apps/sync-engine/BindingManager';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { temporalFolderProvider } from './temporalFolderProvider';
 import { logger } from '@/apps/shared/logger/logger';
+import { CallbackDownload } from '@/node-win/types/callbacks.type';
 
 export class ContentsDownloader {
   constructor(

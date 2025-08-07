@@ -99,7 +99,7 @@ describe('create-placeholder', () => {
 
     // When
     await bindingManager.start();
-    await bindingManager.watch();
+    bindingManager.watch();
 
     await sleep(100);
     await writeFile(file, 'content');

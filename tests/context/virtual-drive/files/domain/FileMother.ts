@@ -10,22 +10,6 @@ export const generateRandomFileId = () => {
 };
 
 export class FileMother {
-  static fromPath(path: string) {
-    return File.from({
-      uuid: v4(),
-      contentsId: ContentsIdMother.random().value,
-      folderId: 3972960,
-      folderUuid: v4(),
-      createdAt: new Date().toISOString(),
-      modificationTime: new Date().toISOString(),
-      path,
-      size: 893924973,
-      updatedAt: new Date().toISOString(),
-      status: FileStatuses.EXISTS,
-      id: generateRandomFileId(),
-    });
-  }
-
   static any() {
     return File.from({
       uuid: v4(),

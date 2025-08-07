@@ -1,6 +1,5 @@
 import Header from './Header';
 import SyncAction from './SyncAction';
-import SyncErrorBanner from './SyncErrorBanner';
 import SyncInfo from './SyncInfo';
 import useSyncStatus from '../../hooks/useSyncStatus';
 import { SyncFailed } from './SyncFailed';
@@ -31,7 +30,6 @@ export default function Widget() {
     <div className="flex h-screen flex-col overflow-hidden">
       <Header setIsLogoutModalOpen={setIsLogoutModalOpen} />
       <InfoBanners />
-      <SyncErrorBanner />
       {displayErrorInWidget ? renderWidgetError() : <SyncInfo />}
       <SyncAction syncStatus={syncStatus} />
       <ModalLogout

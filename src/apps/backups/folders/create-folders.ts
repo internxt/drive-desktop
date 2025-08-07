@@ -18,7 +18,7 @@ type TProps = {
 };
 
 export async function createFolders({ self, context, added, tree, tracker }: TProps) {
-  const sortedAdded = added.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+  const sortedAdded = added.toSorted((a, b) => a.relativePath.localeCompare(b.relativePath));
 
   for (const localFolder of sortedAdded) {
     if (context.abortController.signal.aborted) {

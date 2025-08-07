@@ -206,7 +206,7 @@ async function _downloadFile(params: IDownloadParams): Promise<ReadableStream<Ui
   const downloadUrls: string[] = mirrors.map((m) => m.url);
 
   const index = Buffer.from(fileMeta.index, 'hex');
-  const iv = index.slice(0, 16);
+  const iv = index.subarray(0, 16);
   let key: Buffer;
 
   if (params.mnemonic) {

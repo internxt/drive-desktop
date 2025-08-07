@@ -21,7 +21,7 @@ function truncateText(text: string, prev: string[], maxLength: number) {
   // Concatenar los textos, truncando si es necesario y agregando ">"
   const truncatedTexts = [text, ...prev].map((str) => truncate(str, Math.floor(maxLength / prev.length)));
 
-  return truncatedTexts.reverse().join(' > ');
+  return truncatedTexts.toReversed().join(' > ');
 }
 
 export default function DownloadFolderSelector({ onClose }: DownloadFolderSelectorProps) {
@@ -89,7 +89,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
       try {
         abortDownloadBackups(selected!);
         onClose();
-      } catch (err) {
+      } catch {
         // error while aborting (aborting also throws an exception itself)
       } finally {
         setTimeout(() => {

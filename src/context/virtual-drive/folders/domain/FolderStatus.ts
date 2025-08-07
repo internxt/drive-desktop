@@ -23,9 +23,7 @@ export class FolderStatus extends EnumValueObject<FolderStatuses> {
     throw new InvalidArgumentError(`The folder status ${value} is invalid`);
   }
 
-  static Exists = new FolderStatus(FolderStatuses.EXISTS);
-  static Trashed = new FolderStatus(FolderStatuses.TRASHED);
-  static Deleted = new FolderStatus(FolderStatuses.DELETED);
+  static readonly Exists = new FolderStatus(FolderStatuses.EXISTS);
 
   changeTo(status: FolderStatuses): FolderStatus {
     if (this.value === 'TRASHED') {

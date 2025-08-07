@@ -73,7 +73,7 @@ export default function Login() {
       } else {
         access();
       }
-    } catch (err) {
+    } catch {
       setState('error');
       setErrorDetails(translate('login.2fa.wrong-code'));
     }

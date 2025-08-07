@@ -2,7 +2,6 @@ import { FileCreationOrchestrator } from '../../../../context/virtual-drive/boun
 import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
 import { logger } from '@/apps/shared/logger/logger';
 import { createFolder } from '@/features/sync/add-item/create-folder';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from '@/features/sync/add-item/create-file';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
@@ -20,17 +19,9 @@ export class AddController {
     private readonly folderCreator: FolderCreator,
   ) {}
 
-  async createFile({
-    absolutePath,
-    path,
-    virtualDrive,
-    stats,
-  }: {
-    absolutePath: AbsolutePath;
-    path: RelativePath;
-    virtualDrive: VirtualDrive;
-    stats: Stats;
-  }) {
+  async createFile({ absolutePath, path, stats }: { absolutePath: AbsolutePath; path: RelativePath; stats: Stats }) {
+    logger.debug({ msg: 'Create file', path });
+
     try {
       if (stats.size === 0 || stats.size > BucketEntry.MAX_SIZE) {
         /**
@@ -53,7 +44,6 @@ export class AddController {
         path,
         folderCreator: this.folderCreator,
         fileCreationOrchestrator: this.fileCreationOrchestrator,
-        virtualDrive,
         stats,
       });
     } catch (error) {
@@ -62,6 +52,8 @@ export class AddController {
   }
 
   async createFolder({ path }: { path: RelativePath }) {
+    logger.debug({ msg: 'Create folder', path });
+
     try {
       await createFolder({ path, folderCreator: this.folderCreator });
     } catch (error) {

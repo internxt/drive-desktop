@@ -7,7 +7,7 @@ export function extractVirusNames({ output }: { output: string }) {
     /Found\s+(.+?)\s+threat/gi,
     /Malware\s+(.+?)\s+detected/gi,
     /Virus\s+(.+?)\s+found/gi,
-    /Infected\s+with\s+(.+?)([\s\n]|$)/gi,
+    /Infected\s+with\s+(.+?)(\s|$)/gi,
   ];
 
   for (const pattern of threatPatterns) {

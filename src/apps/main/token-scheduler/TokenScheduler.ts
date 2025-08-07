@@ -18,8 +18,8 @@ export class TokenScheduler {
       const decoded = jwtDecode<JwtPayload>(token);
 
       return decoded.exp || TokenScheduler.MAX_TIME;
-    } catch (err) {
-      logger.error({ msg: '[TOKEN] Token could be not decoded' });
+    } catch (exc) {
+      logger.error({ msg: '[TOKEN] Token could be not decoded', exc });
       return TokenScheduler.MAX_TIME;
     }
   }

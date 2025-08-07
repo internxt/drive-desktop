@@ -2,7 +2,6 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { EnvironmentFileUploaderError } from './process-error';
 import { sleep } from '@/apps/main/util';
-import { logger } from '@/apps/shared/logger/logger';
 
 type Props = {
   absolutePath: AbsolutePath;
