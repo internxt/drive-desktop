@@ -1,17 +1,16 @@
-import VirtualDrive from '@/node-win/virtual-drive';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
+import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
-type Props =
-  | { remotes: File[]; virtualDrive: VirtualDrive; isFolder: false }
-  | { remotes: Folder[]; virtualDrive: VirtualDrive; isFolder: true };
+type Props = { remotes: File[]; type: 'file' } | { remotes: Folder[]; type: 'folder' };
 
-export function deleteItemPlaceholders({ remotes, virtualDrive, isFolder }: Props) {
+export function deleteItemPlaceholders({ remotes, type }: Props) {
   for (const remote of remotes) {
-    const localUuid = isFolder
-      ? NodeWin.getFolderUuid({ path: remote.path, drive: virtualDrive }).data
-      : NodeWin.getFileUuid({ path: remote.path, drive: virtualDrive }).data;
+    const localUuid =
+      type === 'folder'
+        ? NodeWin.getFolderUuid({ path: remote.path, drive: virtualDrive }).data
+        : NodeWin.getFileUuid({ path: remote.path, drive: virtualDrive }).data;
 
     /**
      * v2.5.6 Daniel Jiménez

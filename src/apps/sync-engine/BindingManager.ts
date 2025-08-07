@@ -11,9 +11,8 @@ import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
 import { createWatcher } from './create-watcher';
-import { deleteItemPlaceholders } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
-import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { addPendingItems } from './in/add-pending-items';
+import { refreshItemPlaceholders } from './refresh-item-placeholders';
 
 export class BindingsManager {
   progressBuffer = 0;
@@ -54,8 +53,6 @@ export class BindingsManager {
 
     void addPendingItems({ controllers: this.controllers });
 
-    const tree = await this.container.traverser.run();
-    await this.load(tree);
     /**
      * Jonathan Arce v2.5.1
      * The goal is to create/update/delete placeholders once the sync engine process spawns,
@@ -63,7 +60,7 @@ export class BindingsManager {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await this.update(tree);
+    await refreshItemPlaceholders({ container: this.container });
   }
 
   watch() {
@@ -98,35 +95,6 @@ export class BindingsManager {
     logger.debug({ msg: 'In memory repositories loaded', workspaceId: getConfig().workspaceId });
   }
 
-  async update(tree: Tree) {
-    logger.debug({
-      tag: 'SYNC-ENGINE',
-      msg: 'Updating placeholders',
-      files: tree.files.length,
-      folders: tree.folders.length,
-      trashedFiles: tree.trashedFiles.length,
-      trashedFolders: tree.trashedFolders.length,
-    });
-
-    deleteItemPlaceholders({
-      remotes: tree.trashedFolders,
-      virtualDrive: this.container.virtualDrive,
-      isFolder: true,
-    });
-
-    deleteItemPlaceholders({
-      remotes: tree.trashedFiles,
-      virtualDrive: this.container.virtualDrive,
-      isFolder: false,
-    });
-
-    const { files, folders } = await loadInMemoryPaths({ drive: this.container.virtualDrive });
-    await Promise.all([
-      this.container.folderPlaceholderUpdater.run({ remotes: tree.folders, folders }),
-      this.container.filePlaceholderUpdater.run({ remotes: tree.files, files }),
-    ]);
-  }
-
   async polling(): Promise<void> {
     const workspaceId = getConfig().workspaceId;
 
@@ -137,9 +105,11 @@ export class BindingsManager {
     });
 
     try {
+      const tree = await this.container.traverser.run();
+      await this.load(tree);
       await this.container.fileDangledManager.run();
     } catch (error) {
-      logger.error({ msg: '[SYNC ENGINE] Polling', workspaceId, error });
+      logger.error({ msg: '[SYNC ENGINE] Polling error', workspaceId, error });
     }
 
     logger.debug({ msg: '[SYNC ENGINE] Polling finished', workspaceId });
@@ -156,9 +126,7 @@ export class BindingsManager {
     const workspaceId = getConfig().workspaceId;
 
     try {
-      const tree = await this.container.traverser.run();
-      await this.update(tree);
-
+      await refreshItemPlaceholders({ container: this.container });
       ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
     } catch (exc) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error updating and checking placeholder', workspaceId, exc });

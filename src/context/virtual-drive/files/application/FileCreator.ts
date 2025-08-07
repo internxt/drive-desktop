@@ -37,22 +37,6 @@ export class FileCreator {
         throw new FolderNotFoundError(posixDir);
       }
 
-      /**
-       * v2.5.5 Daniel Jiménez
-       * TODO: we need to delete the contentsId if the file exists? Check this,
-       * because technically we are adding not updating.
-       * Anyway, it doesn't matter for now, there is a check that runs every 3 months do delete unused content.
-       */
-
-      // const existingFile = this.repository.searchByPartial({
-      //   path: PlatformPathConverter.winToPosix(filePath.value),
-      //   status: FileStatuses.EXISTS,
-      // });
-
-      // if (existingFile) {
-      //   await this.fileDeleter.run(existingFile.contentsId);
-      // }
-
       const offline = OfflineFile.from({
         contentsId: contents.id,
         folderUuid,
