@@ -1,10 +1,11 @@
-import { BindingsManager, CallbackDownload } from '../BindingManager';
+import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { dirname } from 'path';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { logger } from '@/apps/shared/logger/logger';
 import { unlink } from 'fs/promises';
+import { CallbackDownload } from '@/node-win/types/callbacks.type';
 
 type TProps = {
   self: BindingsManager;

@@ -4,20 +4,19 @@ import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/erro
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createParentFolder } from './create-folder';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { createFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { Stats } from 'fs';
+import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 type TProps = {
   absolutePath: AbsolutePath;
   path: RelativePath;
   fileCreationOrchestrator: FileCreationOrchestrator;
   folderCreator: FolderCreator;
-  virtualDrive: VirtualDrive;
   stats: Stats;
 };
 
-export async function createFile({ absolutePath, path, fileCreationOrchestrator, folderCreator, virtualDrive, stats }: TProps) {
+export async function createFile({ absolutePath, path, fileCreationOrchestrator, folderCreator, stats }: TProps) {
   try {
     const uuid = await fileCreationOrchestrator.run({ path, absolutePath, stats });
     const placeholderId = createFilePlaceholderId(uuid);
@@ -31,7 +30,6 @@ export async function createFile({ absolutePath, path, fileCreationOrchestrator,
         path,
         fileCreationOrchestrator,
         folderCreator,
-        virtualDrive,
         stats,
       });
     } else {
