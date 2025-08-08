@@ -7,6 +7,7 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { initializeVirtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('create-file', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
@@ -23,7 +24,7 @@ describe('create-file', () => {
 
   it('File does not exist, create it', async () => {
     // Given
-    fileCreationOrchestratorMock.run.mockResolvedValueOnce('uuid');
+    fileCreationOrchestratorMock.run.mockResolvedValueOnce('uuid' as FileUuid);
     // When
     await createFile(props);
     // Then

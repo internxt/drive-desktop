@@ -1,7 +1,6 @@
 import { broadcastToWindows } from './windows';
 import { getRemoteSyncManager } from './remote-sync/store';
 import { ipcMainSyncEngine } from '../sync-engine/ipcMainSyncEngine';
-import { onFileCreated } from './on-file-created';
 
 ipcMainSyncEngine.on('CHANGE_SYNC_STATUS', (_, workspaceId, status) => {
   const manager = getRemoteSyncManager({ workspaceId });
@@ -56,5 +55,3 @@ ipcMainSyncEngine.on('FILE_DOWNLOAD_ERROR', (_, payload) => {
     data: { action: 'DOWNLOAD_ERROR', name: payload.nameWithExtension, key: payload.key },
   });
 });
-
-ipcMainSyncEngine.on('FILE_CREATED', (_, payload) => onFileCreated(payload));

@@ -94,13 +94,5 @@ describe('File Creator', () => {
     await SUT.run({ filePath, contents, absolutePath });
 
     expect(invokeMock).toBeCalledTimes(1);
-    expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_CREATED', {
-      bucket: '',
-      name: 'cat',
-      extension: 'png',
-      nameWithExtension: 'cat.png',
-      fileId: fileAttributes.id,
-      path: fileAttributes.path,
-    });
   });
 });

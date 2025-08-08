@@ -5,6 +5,8 @@ import { Service } from 'diod';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { basename } from 'path';
+import { getNameAndExtension } from '../domain/get-name-and-extension';
 
 @Service()
 export class HttpRemoteFileSystem {
@@ -13,16 +15,18 @@ export class HttpRemoteFileSystem {
     private readonly workspaceId?: string | null,
   ) {}
 
-  async persist(offline: OfflineFile) {
+  async persist(offline: { contentsId: string; folderUuid: string; path: string; size: number }) {
     try {
+      const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
+
       const body = {
         bucket: this.bucket,
         fileId: offline.contentsId,
         encryptVersion: EncryptionVersion.Aes03,
         folderUuid: offline.folderUuid,
-        plainName: offline.name,
+        plainName: name,
         size: offline.size,
-        type: offline.type,
+        type: extension,
       };
 
       const { data, error } = this.workspaceId
@@ -31,20 +35,7 @@ export class HttpRemoteFileSystem {
 
       if (!data) throw error;
 
-      return {
-        dto: data,
-        id: data.id,
-        uuid: data.uuid,
-        contentsId: data.fileId,
-        folderId: data.folderId,
-        folderUuid: data.folderUuid,
-        createdAt: data.createdAt,
-        modificationTime: data.updatedAt,
-        path: offline.path,
-        size: Number(data.size),
-        updatedAt: data.updatedAt,
-        status: FileStatuses.EXISTS,
-      };
+      return data;
     } catch (error) {
       logger.error({
         msg: 'Error persisting file',
@@ -84,22 +75,7 @@ export class HttpRemoteFileSystem {
     const data = response.data;
     if (data.status !== FileStatuses.EXISTS) return null;
 
-    const attributes = {
-      dto: data,
-      id: data.id,
-      uuid: data.uuid,
-      contentsId: data.fileId,
-      folderId: data.folderId,
-      folderUuid: data.folderUuid,
-      createdAt: data.createdAt,
-      modificationTime: data.modificationTime,
-      path: filePath,
-      size: Number(data.size),
-      status: FileStatuses.EXISTS,
-      updatedAt: data.updatedAt,
-    };
-
-    return attributes;
+    return data;
   }
 
   async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }) {
