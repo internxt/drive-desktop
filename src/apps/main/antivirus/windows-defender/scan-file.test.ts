@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import { scanFile } from './scan-file';
 import * as childProcess from 'child_process';
 import { EventEmitter } from 'events';

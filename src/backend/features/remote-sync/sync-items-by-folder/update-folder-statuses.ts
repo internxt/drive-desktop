@@ -24,7 +24,7 @@ export async function updateFolderStatuses({ context, folderUuid, path }: TProps
     if (folderDtos) {
       innerFolders = folderDtos.map((folder) => ({
         folderUuid: folder.uuid,
-        path: createRelativePath(path, folder.name),
+        path: createRelativePath(path, folder.plainName),
       }));
 
       if (folders) {

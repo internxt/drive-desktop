@@ -2,7 +2,6 @@ import { IControllers, buildControllers } from './callbacks-controllers/buildCon
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
-import { FetchDataService } from './callbacks/fetchData.service';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig } from './config';
 import { logger } from '../shared/logger/logger';
@@ -13,15 +12,12 @@ import { updateContentsId } from './callbacks-controllers/controllers/update-con
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
 import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
+import { fetchData } from './callbacks/fetchData.service';
 
 export class BindingsManager {
-  progressBuffer = 0;
   controllers: IControllers;
 
-  constructor(
-    public readonly container: DependencyContainer,
-    private readonly fetchData = new FetchDataService(),
-  ) {
+  constructor(public readonly container: DependencyContainer) {
     logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
 
     this.controllers = buildControllers(this.container);
@@ -30,7 +26,7 @@ export class BindingsManager {
   async start() {
     const callbacks: Callbacks = {
       fetchDataCallback: async (filePlaceholderId, callback) => {
-        await this.fetchData.run({
+        await fetchData({
           self: this,
           filePlaceholderId,
           callback,
