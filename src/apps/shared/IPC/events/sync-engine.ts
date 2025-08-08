@@ -20,15 +20,6 @@ type FilesEvents = {
   FILE_DOWNLOADED: (payload: FileDownload) => void;
   FILE_DOWNLOAD_CANCEL: (payload: FileDownload) => void;
   FILE_DOWNLOAD_ERROR: (payload: FileDownload) => void;
-
-  FILE_CREATED: (payload: {
-    bucket: string;
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    fileId: number;
-    path: string;
-  }) => void;
 };
 
 type SyncEngineInvocableFunctions = {

@@ -1,15 +1,15 @@
 import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
-import { SimpleFileCreator } from '../../../../virtual-drive/files/application/create/SimpleFileCreator';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { pathUtils } from '../../infrastructure/AbsolutePath';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { uploadFile } from '../upload-file';
-import { onFileCreated } from '@/apps/main/on-file-created';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
+import { createAndUploadThumbnail } from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
 
 type Props = {
   self: Backup;
@@ -23,7 +23,7 @@ type Props = {
 export class FileBatchUploader {
   constructor(
     private readonly uploader: EnvironmentFileUploader,
-    private readonly creator: SimpleFileCreator,
+    private readonly remote: HttpRemoteFileSystem,
   ) {}
 
   async run({ self, context, tracker, remoteTree, added }: Props) {
@@ -36,20 +36,17 @@ export class FileBatchUploader {
         const parentPath = pathUtils.dirname(localFile.relativePath);
         const parent = remoteTree.folders[parentPath];
 
-        const file = await this.creator.run({
+        const file = await this.remote.persist({
           contentsId,
           folderUuid: parent.uuid,
           path: localFile.relativePath,
           size: localFile.size.value,
         });
 
-        await onFileCreated({
+        await createAndUploadThumbnail({
           bucket: context.backupsBucket,
-          name: file.name,
-          extension: file.type,
-          nameWithExtension: file.nameWithExtension,
           fileId: file.id,
-          path: localFile.absolutePath,
+          absolutePath: localFile.absolutePath,
         });
       } catch (error) {
         logger.error({
