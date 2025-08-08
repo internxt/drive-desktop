@@ -1,4 +1,3 @@
-import { describe } from 'vitest';
 import { Environment } from '@internxt/inxt-js/build';
 import { EnvironmentAndStorageThumbnailUploader } from '@/apps/main/thumbnails/infrastructure/EnvironmentAndStorageThumbnailUploader';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';

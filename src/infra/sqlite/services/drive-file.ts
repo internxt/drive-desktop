@@ -35,7 +35,7 @@ export class DriveFileCollection {
 
     return {
       success: match.affected ? true : false,
-      affected: match.affected as number,
+      affected: match.affected,
     };
   }
 
@@ -48,7 +48,7 @@ export class DriveFileCollection {
 
     return {
       success: match.affected ? true : false,
-      affected: match.affected as number,
+      affected: match.affected,
     };
   }
 }

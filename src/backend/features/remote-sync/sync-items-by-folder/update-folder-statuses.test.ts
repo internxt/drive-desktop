@@ -16,7 +16,7 @@ describe('update-folder-statuses', () => {
 
   it('should call update items', async () => {
     // Given
-    fetchFoldersByFolderMock.mockResolvedValue([{ uuid: 'uuid' as FolderUuid, name: 'folder' }]);
+    fetchFoldersByFolderMock.mockResolvedValue([{ uuid: 'uuid' as FolderUuid, plainName: 'folder' }]);
     getByParentUuidMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FolderUuid }] });
     // When
     await updateFolderStatuses(props);

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, MockInstance } from 'vitest';
+import { MockInstance } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import configStore from '../config';
@@ -17,12 +17,12 @@ vi.mock('./service', async () => {
 const tempDir = path.join(process.cwd(), 'tests/temp-test');
 let renameSpy: MockInstance<(oldPath: string, newPath: string) => void>;
 
-beforeEach(async () => {
+beforeEach(() => {
   if (!fs.existsSync(tempDir)) {
     fs.mkdirSync(tempDir);
   }
 
-  renameSpy = vi.spyOn(fs, 'renameSync').mockImplementation(async () => Promise.resolve());
+  renameSpy = vi.spyOn(fs, 'renameSync').mockImplementation(() => Promise.resolve());
 });
 
 afterEach(() => {
@@ -32,7 +32,7 @@ afterEach(() => {
 });
 
 describe('setupRootFolder', () => {
-  it('should rename the folder if the current syncRoot matches pathNameWithSepInTheEnd', async () => {
+  it('should rename the folder if the current syncRoot matches pathNameWithSepInTheEnd', () => {
     const user = { email: 'test@gmail.com', uuid: '123' } as User;
     const virtualDriveFolder = path.join(tempDir, ROOT_FOLDER_NAME);
     const syncRoot = virtualDriveFolder + path.sep;
@@ -49,7 +49,7 @@ describe('setupRootFolder', () => {
     expect(configStore.get).toHaveBeenCalledWith('syncRoot');
   });
 
-  it('should set a new syncRoot when the user changes the root', async () => {
+  it('should set a new syncRoot when the user changes the root', () => {
     const user: User = { email: 'test2@gmail.com', uuid: '456' } as User;
     const virtualDriveFolder = path.join(tempDir, 'virtual-drive');
     const syncRoot = `${virtualDriveFolder} - test@gmail.com`;
@@ -65,7 +65,7 @@ describe('setupRootFolder', () => {
     expect(renameSpy).not.toHaveBeenCalled();
   });
 
-  it('should not rename or setSyncRoot if syncRoot is undefined', async () => {
+  it('should not rename or setSyncRoot if syncRoot is undefined', () => {
     const user: User = { email: 'test4@gmail.com', uuid: '101' } as User;
     configStore.get = vi.fn().mockReturnValue(undefined);
 

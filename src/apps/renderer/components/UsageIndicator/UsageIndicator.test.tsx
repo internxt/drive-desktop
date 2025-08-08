@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UsageIndicator } from '.';
 import { Usage } from '@/apps/main/usage/Usage';
 import { deepMocked, partialSpyOn } from '@/tests/vitest/utils.helper.test';

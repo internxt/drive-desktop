@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import path from 'path';
 import { mkdirSync } from 'fs';
 import { TEST_FILES } from './mocks.helper.test';
