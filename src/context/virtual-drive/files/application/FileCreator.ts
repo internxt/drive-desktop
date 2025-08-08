@@ -42,7 +42,7 @@ export class FileCreator {
         size: contents.size,
       });
 
-      const { data, error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
+      const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
         file: {
           ...fileDto,
           size: Number(fileDto.size),
@@ -56,19 +56,21 @@ export class FileCreator {
 
       if (error) throw error;
 
-      return data;
-    } catch (exc) {
+      return fileDto;
+    } catch (error) {
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: 'Error in file creator',
+        filePath: filePath.value,
+        exc: error,
+      });
+
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
         key: absolutePath,
         nameWithExtension: filePath.nameWithExtension(),
       });
 
-      throw logger.error({
-        tag: 'SYNC-ENGINE',
-        msg: 'Error in file creator',
-        filePath: filePath.value,
-        exc,
-      });
+      throw error;
     }
   }
 }
