@@ -14,10 +14,12 @@ import { createWatcher } from './create-watcher';
 import { deleteItemPlaceholders } from '@/backend/features/remote-sync/file-explorer/delete-item-placeholders';
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { addPendingItems } from './in/add-pending-items';
+import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 
 export class BindingsManager {
   progressBuffer = 0;
   controllers: IControllers;
+  fileContentsUploader: ContentsUploader;
 
   constructor(
     public readonly container: DependencyContainer,
@@ -26,6 +28,7 @@ export class BindingsManager {
     logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
 
     this.controllers = buildControllers(this.container);
+    this.fileContentsUploader = this.container.contentsUploader;
   }
 
   async start() {
@@ -52,7 +55,7 @@ export class BindingsManager {
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
 
-    void addPendingItems({ controllers: this.controllers });
+    void addPendingItems({ controllers: this.controllers, fileContentsUploader: this.fileContentsUploader });
 
     const tree = await this.container.traverser.run();
     await this.load(tree);

@@ -8,14 +8,11 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import VirtualDrive from '@/node-win/virtual-drive';
 import { File } from '@/context/virtual-drive/files/domain/File';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
-import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
-import { syncModifiedFile } from './sync-modified-file';
 
 export class FilePlaceholderUpdater {
   constructor(
     private readonly virtualDrive: VirtualDrive,
     private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-    private readonly fileContentsUploader: ContentsUploader,
   ) {}
 
   async update({ remote, files }: { remote: File; files: InMemoryFiles }) {
@@ -56,14 +53,6 @@ export class FilePlaceholderUpdater {
 
         await rename(localPath.path, remotePath);
       }
-
-      await syncModifiedFile({
-        remoteFile: remote,
-        localFile: localPath,
-        remotePath,
-        fileContentsUploader: this.fileContentsUploader,
-        virtualDrive: this.virtualDrive,
-      });
     } catch (exc) {
       logger.error({
         tag: 'SYNC-ENGINE',

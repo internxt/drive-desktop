@@ -9,15 +9,13 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as hasToBeMoved from './has-to-be-moved';
 import { rename } from 'fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 
 vi.mock(import('fs/promises'));
 
 describe('update-file-placeholder', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
   const relativePathToAbsoluteConverter = mockDeep<RelativePathToAbsoluteConverter>();
-  const fileContentsUploader = mockDeep<ContentsUploader>();
-  const service = new FilePlaceholderUpdater(virtualDrive, relativePathToAbsoluteConverter, fileContentsUploader);
+  const service = new FilePlaceholderUpdater(virtualDrive, relativePathToAbsoluteConverter);
 
   const validateWindowsNameMock = partialSpyOn(validateWindowsName, 'validateWindowsName');
   const hasToBeMovedMock = partialSpyOn(hasToBeMoved, 'hasToBeMoved');

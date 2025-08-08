@@ -5,10 +5,10 @@ import * as crypt from '@/context/shared/infrastructure/crypt';
 import { File } from '../../files/domain/File';
 import { Folder } from '../../folders/domain/Folder';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
-import { getAllItems } from './RemoteItemsGenerator';
+import { getAllItems } from './remote-items-generator';
 
 vi.mock(import('@/context/shared/infrastructure/crypt'));
-vi.mock(import('./RemoteItemsGenerator'));
+vi.mock(import('./remote-items-generator'));
 
 describe('Traverser', () => {
   const cryptMock = vi.mocked(crypt);

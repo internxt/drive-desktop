@@ -2,7 +2,7 @@ import { Folder } from '../../folders/domain/Folder';
 import { FolderStatus } from '../../folders/domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { File } from '../../files/domain/File';
-import { getAllItems } from './RemoteItemsGenerator';
+import { getAllItems } from './remote-items-generator';
 import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';

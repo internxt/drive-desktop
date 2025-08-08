@@ -24,11 +24,7 @@ export function buildFilesContainer(
 
   const fileCreator = new FileCreator(remoteFileSystem, virtualDrive);
 
-  const filePlaceholderUpdater = new FilePlaceholderUpdater(
-    virtualDrive,
-    sharedContainer.relativePathToAbsoluteConverter,
-    contentsContainer.contentsUploader,
-  );
+  const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
   const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem, contentsContainer.contentsUploader);
 
