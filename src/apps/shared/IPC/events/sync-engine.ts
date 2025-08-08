@@ -46,4 +46,8 @@ type ProcessInfoUpdate = {
 };
 
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
-export type FromMain = {};
+export type FromMain = {
+  REFRESH_ITEM_PLACEHOLDERS: () => void;
+  UPDATE_SYNC_ENGINE_PROCESS: () => void;
+  STOP_AND_CLEAR_SYNC_ENGINE_PROCESS: () => void;
+};

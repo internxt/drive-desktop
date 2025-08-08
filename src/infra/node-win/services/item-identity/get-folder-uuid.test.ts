@@ -4,6 +4,7 @@ import * as getConfig from '@/apps/sync-engine/config';
 import { GetFolderIdentityError } from './get-folder-identity';
 import { getFolderUuid } from './get-folder-uuid';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('get-folder-uuid', () => {
   const getFolderIdentityMock = partialSpyOn(getFolderIdentity, 'getFolderIdentity');
@@ -12,7 +13,7 @@ describe('get-folder-uuid', () => {
   let props: Parameters<typeof getFolderUuid>[0];
 
   beforeEach(() => {
-    getConfigMock.mockReturnValue({ rootUuid: 'rootUuid' });
+    getConfigMock.mockReturnValue({ rootUuid: 'rootUuid' as FolderUuid });
     props = mockProps<typeof getFolderUuid>({
       drive: { syncRootPath: 'C:\\Users\\user\\InternxtDrive\\' as AbsolutePath },
     });

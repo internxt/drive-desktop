@@ -2,10 +2,11 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { ParsedFileDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 type TProps = {
   context: SyncContext;
-  folderUuid: string;
+  folderUuid: FolderUuid;
 };
 
 export async function fetchFilesByFolder({ context, folderUuid }: TProps) {

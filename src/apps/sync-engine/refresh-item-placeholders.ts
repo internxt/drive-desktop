@@ -5,19 +5,17 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 
 type Props = {
   container: DependencyContainer;
+  workspaceId: string;
 };
 
-export async function refreshItemPlaceholders({ container }: Props) {
-  const startTime = performance.now();
-
-  logger.debug({ tag: 'SYNC-ENGINE', msg: 'Refreshing item placeholders' });
-
+export async function refreshItemPlaceholders({ container, workspaceId }: Props) {
   try {
     const tree = await container.traverser.run();
 
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Tree built',
+      workspaceId,
       files: tree.files.length,
       folders: tree.folders.length,
       trashedFiles: tree.trashedFiles.length,
@@ -36,15 +34,8 @@ export async function refreshItemPlaceholders({ container }: Props) {
     logger.error({
       tag: 'SYNC-ENGINE',
       msg: 'Error refreshing item placeholders',
+      workspaceId,
       exc,
     });
   }
-
-  const endTime = performance.now();
-
-  logger.debug({
-    tag: 'SYNC-ENGINE',
-    msg: 'Finish refreshing item placeholders',
-    time: `${(endTime - startTime) / 1000}s`,
-  });
 }

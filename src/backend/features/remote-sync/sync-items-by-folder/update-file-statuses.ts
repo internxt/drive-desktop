@@ -3,10 +3,11 @@ import { logger } from '@/apps/shared/logger/logger';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { updateItems } from './update-items/update-items';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 type TProps = {
   context: SyncContext;
-  folderUuid: string;
+  folderUuid: FolderUuid;
 };
 
 export async function updateFileStatuses({ context, folderUuid }: TProps) {

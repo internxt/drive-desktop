@@ -6,6 +6,8 @@ import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { initializeVirtualDrive } from './dependency-injection/common/virtualDrive';
+import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
+import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -33,11 +35,15 @@ async function setUp() {
 
   const bindings = new BindingsManager(container);
 
-  ipcRenderer.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
+  ipcRendererSyncEngine.on('REFRESH_ITEM_PLACEHOLDERS', async () => {
+    await trackRefreshItemPlaceholders({ container });
+  });
+
+  ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await bindings.updateAndCheckPlaceholders();
   });
 
-  ipcRenderer.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
+  ipcRendererSyncEngine.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
     logger.debug({ msg: '[SYNC ENGINE] Stopping and clearing sync engine' });
 
     try {

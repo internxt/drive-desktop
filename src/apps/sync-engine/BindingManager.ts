@@ -12,7 +12,7 @@ import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
-import { refreshItemPlaceholders } from './refresh-item-placeholders';
+import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
 
 export class BindingsManager {
   progressBuffer = 0;
@@ -60,7 +60,11 @@ export class BindingsManager {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await refreshItemPlaceholders({ container: this.container });
+    await trackRefreshItemPlaceholders({ container: this.container });
+    setInterval(async () => {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Scheduled refreshing item placeholders', workspaceId: getConfig().workspaceId });
+      await trackRefreshItemPlaceholders({ container: this.container });
+    }, 60 * 1000);
   }
 
   watch() {
@@ -126,7 +130,7 @@ export class BindingsManager {
     const workspaceId = getConfig().workspaceId;
 
     try {
-      await refreshItemPlaceholders({ container: this.container });
+      await trackRefreshItemPlaceholders({ container: this.container });
       ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
     } catch (exc) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error updating and checking placeholder', workspaceId, exc });
