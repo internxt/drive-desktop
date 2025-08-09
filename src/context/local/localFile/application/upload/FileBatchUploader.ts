@@ -21,10 +21,7 @@ type Props = {
 
 @Service()
 export class FileBatchUploader {
-  constructor(
-    private readonly uploader: EnvironmentFileUploader,
-    private readonly remote: HttpRemoteFileSystem,
-  ) {}
+  constructor(private readonly uploader: EnvironmentFileUploader) {}
 
   async run({ self, context, tracker, remoteTree, added }: Props) {
     const promises = added.map(async (localFile) => {
@@ -36,7 +33,8 @@ export class FileBatchUploader {
         const parentPath = pathUtils.dirname(localFile.relativePath);
         const parent = remoteTree.folders[parentPath];
 
-        const file = await this.remote.persist({
+        const file = await HttpRemoteFileSystem.persist({
+          ctx: context,
           contentsId,
           folderUuid: parent.uuid,
           path: localFile.relativePath,
@@ -44,7 +42,7 @@ export class FileBatchUploader {
         });
 
         await createAndUploadThumbnail({
-          bucket: context.backupsBucket,
+          bucket: context.bucket,
           fileId: file.id,
           absolutePath: localFile.absolutePath,
         });

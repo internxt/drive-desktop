@@ -48,7 +48,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
               uuid: backup.folderUuid,
               plainName: backup.plainName,
               tmpPath: backup.tmpPath,
-              backupsBucket: backup.backupsBucket,
+              backupsBucket: backup.bucket,
               pathname: backup.pathname,
             }))}
             selected={selectedBackup}
@@ -75,7 +75,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
                 plainName: selectedBackup[0].plainName,
                 pathname: selectedBackup[0].pathname,
                 tmpPath: selectedBackup[0].tmpPath,
-                backupsBucket: selectedBackup[0].backupsBucket,
+                bucket: selectedBackup[0].backupsBucket,
                 folderUuid: selectedBackup[0].uuid,
               });
             }}

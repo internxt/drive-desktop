@@ -13,8 +13,8 @@ describe('file-batch-uploader', () => {
   partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
   const uploader = mockDeep<EnvironmentFileUploader>();
-  const remote = mockDeep<HttpRemoteFileSystem>();
-  const service = new FileBatchUploader(uploader, remote);
+  const persistMock = partialSpyOn(HttpRemoteFileSystem, 'persist');
+  const service = new FileBatchUploader(uploader);
 
   let props: Parameters<typeof service.run>[0];
 
@@ -36,7 +36,7 @@ describe('file-batch-uploader', () => {
     // When
     await service.run(props);
     // Then
-    expect(remote.persist).toBeCalledTimes(0);
+    expect(persistMock).toBeCalledTimes(0);
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });
@@ -47,7 +47,7 @@ describe('file-batch-uploader', () => {
     // When
     await service.run(props);
     // Then
-    expect(remote.persist).toBeCalledWith({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 });
+    expect(persistMock).toBeCalledWith({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 });
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });

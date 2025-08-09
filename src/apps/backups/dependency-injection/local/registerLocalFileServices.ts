@@ -31,12 +31,12 @@ export function registerLocalFileServices(builder: ContainerBuilder, data: Backu
   logger.debug({ tag: 'BACKUPS', msg: 'Registering network services.' });
 
   builder.register(EnvironmentRemoteFileContentsManagersFactory).useFactory((c) => {
-    return new EnvironmentRemoteFileContentsManagersFactory(c.get(Environment), data.backupsBucket);
+    return new EnvironmentRemoteFileContentsManagersFactory(c.get(Environment), data.bucket);
   });
 
   builder
     .register(EnvironmentFileUploader)
-    .useFactory((c) => new EnvironmentFileUploader(c.get(Environment), data.backupsBucket))
+    .useFactory((c) => new EnvironmentFileUploader(c.get(Environment), data.bucket))
     .private();
 
   // Services

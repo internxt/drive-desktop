@@ -55,7 +55,7 @@ class BackupConfiguration {
       pathname: backup.pathname,
       folderId: backup.folderId,
       tmpPath: app.getPath('temp'),
-      backupsBucket: device.bucket,
+      bucket: device.bucket,
       plainName: backup.plainName,
     }));
 

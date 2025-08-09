@@ -18,7 +18,7 @@ type TProps = {
 
 export async function createFile({ ctx, absolutePath, path, fileCreationOrchestrator, stats }: TProps) {
   try {
-    const uuid = await fileCreationOrchestrator.run({ path, absolutePath, stats });
+    const uuid = await fileCreationOrchestrator.run({ ctx, path, absolutePath, stats });
     const placeholderId = createFilePlaceholderId(uuid);
     virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
     virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });

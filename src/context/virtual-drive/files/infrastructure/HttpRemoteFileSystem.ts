@@ -1,26 +1,27 @@
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { FileStatuses } from '../domain/FileStatus';
-import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
-import { Service } from 'diod';
+import { OfflineFileAttributes } from '../domain/OfflineFile';
 import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { basename } from 'path';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
 
-@Service()
-export class HttpRemoteFileSystem {
-  constructor(
-    private readonly bucket: string,
-    private readonly workspaceId?: string | null,
-  ) {}
+type Props = {
+  ctx: { bucket: string; workspaceId?: string };
+  contentsId: string;
+  folderUuid: string;
+  path: string;
+  size: number;
+};
 
-  async persist(offline: { contentsId: string; folderUuid: string; path: string; size: number }) {
+export class HttpRemoteFileSystem {
+  static async persist({ ctx, ...offline }: Props) {
     try {
       const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
 
       const body = {
-        bucket: this.bucket,
+        bucket: ctx.bucket,
         fileId: offline.contentsId,
         encryptVersion: EncryptionVersion.Aes03,
         folderUuid: offline.folderUuid,
@@ -29,8 +30,8 @@ export class HttpRemoteFileSystem {
         type: extension,
       };
 
-      const { data, error } = this.workspaceId
-        ? await driveServerWip.workspaces.createFileInWorkspace({ body, workspaceId: this.workspaceId, path: offline.path })
+      const { data, error } = ctx.workspaceId
+        ? await driveServerWip.workspaces.createFileInWorkspace({ body, workspaceId: ctx.workspaceId, path: offline.path })
         : await driveServerWip.files.createFile({ body, path: offline.path });
 
       if (!data) throw error;
@@ -56,7 +57,7 @@ export class HttpRemoteFileSystem {
     }
   }
 
-  async getFileByPath(filePath: string) {
+  static async getFileByPath(filePath: string) {
     const response = await client.GET('/files/meta', {
       params: {
         query: {
@@ -78,8 +79,12 @@ export class HttpRemoteFileSystem {
     return data;
   }
 
-  async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }) {
-    const { attributes, newContentsId } = input;
+  static async deleteAndPersist(input: {
+    ctx: { bucket: string; workspaceId: string | undefined };
+    attributes: OfflineFileAttributes;
+    newContentsId: string;
+  }) {
+    const { ctx, attributes, newContentsId } = input;
     if (!newContentsId) {
       throw new Error('Failed to generate new contents id');
     }
@@ -111,9 +116,8 @@ export class HttpRemoteFileSystem {
     if (!isDeleted) {
       throw new Error(`File deletion not confirmed for path: ${attributes.path} after retries`);
     }
-    const offlineFile = OfflineFile.from({ ...attributes, contentsId: newContentsId });
 
-    const persistedFile = await this.persist(offlineFile);
+    const persistedFile = await this.persist({ ctx, ...attributes, contentsId: newContentsId });
     logger.debug({
       msg: `File persisted with new contents id ${newContentsId}, path: ${attributes.path}`,
     });

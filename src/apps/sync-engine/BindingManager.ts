@@ -81,7 +81,7 @@ export class BindingsManager {
 
     watcher.watchAndWait({ ctx });
 
-    void this.polling();
+    void this.polling({ ctx });
     void queueManager.processQueue();
   }
 
@@ -95,7 +95,7 @@ export class BindingsManager {
     logger.debug({ msg: 'In memory repositories loaded', workspaceId: getConfig().workspaceId });
   }
 
-  async polling(): Promise<void> {
+  async polling({ ctx }: { ctx: SyncContext }): Promise<void> {
     const workspaceId = getConfig().workspaceId;
 
     logger.debug({
@@ -107,7 +107,7 @@ export class BindingsManager {
     try {
       const tree = await this.container.traverser.run();
       await this.load(tree);
-      await this.container.fileDangledManager.run();
+      await this.container.fileDangledManager.run({ ctx });
     } catch (error) {
       logger.error({ msg: '[SYNC ENGINE] Polling error', workspaceId, error });
     }

@@ -4,20 +4,19 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { FilePath } from '../../files/domain/FilePath';
 import { Stats } from 'fs';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
+  ctx: SyncContext;
   path: RelativePath;
   absolutePath: AbsolutePath;
   stats: Stats;
 };
 
 export class FileCreationOrchestrator {
-  constructor(
-    private readonly contentsUploader: ContentsUploader,
-    private readonly fileCreator: FileCreator,
-  ) {}
+  constructor(private readonly contentsUploader: ContentsUploader) {}
 
-  async run({ path, absolutePath, stats }: TProps) {
+  async run({ ctx, path, absolutePath, stats }: TProps) {
     const filePath = new FilePath(path);
 
     const fileContents = await this.contentsUploader.run({ path, stats });
@@ -30,7 +29,8 @@ export class FileCreationOrchestrator {
       size: fileContents.size,
     });
 
-    const createdFile = await this.fileCreator.run({
+    const createdFile = await FileCreator.run({
+      ctx,
       filePath,
       contents: fileContents,
       absolutePath,

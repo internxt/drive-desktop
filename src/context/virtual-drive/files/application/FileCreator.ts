@@ -2,7 +2,7 @@ import { FilePath } from '../domain/FilePath';
 import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, SyncContext } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
@@ -12,15 +12,14 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 type Props = {
+  ctx: SyncContext;
   filePath: FilePath;
   absolutePath: AbsolutePath;
   contents: RemoteFileContents;
 };
 
 export class FileCreator {
-  constructor(private readonly remote: HttpRemoteFileSystem) {}
-
-  async run({ filePath, absolutePath, contents }: Props) {
+  static async run({ ctx, filePath, absolutePath, contents }: Props) {
     try {
       const posixDir = PlatformPathConverter.getFatherPathPosix(filePath.value);
       const { data: folderUuid } = NodeWin.getFolderUuid({
@@ -32,7 +31,8 @@ export class FileCreator {
         throw new FolderNotFoundError(posixDir);
       }
 
-      const fileDto = await this.remote.persist({
+      const fileDto = await HttpRemoteFileSystem.persist({
+        ctx,
         contentsId: contents.id,
         folderUuid,
         path: filePath.value,

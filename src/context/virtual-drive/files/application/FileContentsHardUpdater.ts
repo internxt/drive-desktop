@@ -3,15 +3,14 @@ import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { logger } from '@/apps/shared/logger/logger';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type FileContentsHardUpdaterRun = {
+  ctx: SyncContext;
   attributes: OfflineFileAttributes;
 };
 export class FileContentsHardUpdater {
-  constructor(
-    private readonly remote: HttpRemoteFileSystem,
-    private readonly contentsUploader: ContentsUploader,
-  ) {}
+  constructor(private readonly contentsUploader: ContentsUploader) {}
 
   async run(input: FileContentsHardUpdaterRun) {
     const { attributes } = input;
@@ -28,7 +27,7 @@ export class FileContentsHardUpdater {
       const newContentsId = content.id;
 
       if (newContentsId) {
-        await this.remote.deleteAndPersist({ attributes, newContentsId });
+        await HttpRemoteFileSystem.deleteAndPersist({ ctx: input.ctx, attributes, newContentsId });
         logger.debug({ msg: 'Persisted new contents id', newContentsId, path: attributes.path });
       } else {
         throw new Error('Failed to upload file in hardUpdate');

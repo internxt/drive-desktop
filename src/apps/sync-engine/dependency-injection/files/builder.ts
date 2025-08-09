@@ -1,11 +1,8 @@
 import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
-import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
-import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
-import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
 import { ContentsContainer } from '../contents/ContentsContainer';
@@ -18,15 +15,11 @@ export function buildFilesContainer(
   container: FilesContainer;
   subscribers: unknown;
 } {
-  const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
-
   const repository = new InMemoryFileRepository();
-
-  const fileCreator = new FileCreator(remoteFileSystem);
 
   const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
-  const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem, contentsContainer.contentsUploader);
+  const fileContentsHardUpdate = new FileContentsHardUpdater(contentsContainer.contentsUploader);
 
   const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(virtualDrive);
 
@@ -34,7 +27,6 @@ export function buildFilesContainer(
 
   const container: FilesContainer = {
     fileRepository: repository,
-    fileCreator,
     filePlaceholderUpdater,
     filesCheckerStatusInRoot,
     fileOverwriteContent,
