@@ -5,14 +5,16 @@ import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructur
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
 import { trackAddDirEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
+  ctx: SyncContext;
   self: Watcher;
   absolutePath: AbsolutePath;
   stats: Stats;
 };
 
-export async function onAddDir({ self, absolutePath, stats }: TProps) {
+export async function onAddDir({ ctx, self, absolutePath, stats }: TProps) {
   const path = pathUtils.absoluteToRelative({
     base: self.virtualDrive.syncRootPath,
     path: absolutePath,
@@ -25,7 +27,7 @@ export async function onAddDir({ self, absolutePath, stats }: TProps) {
     });
 
     if (!uuid) {
-      await self.callbacks.addController.createFolder({ path });
+      await self.callbacks.addController.createFolder({ ctx, path });
       return;
     }
 

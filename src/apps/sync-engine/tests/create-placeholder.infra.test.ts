@@ -3,7 +3,7 @@ import { BindingsManager } from '../BindingManager';
 import { DependencyContainerFactory } from '../dependency-injection/DependencyContainerFactory';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
-import { setDefaultConfig } from '../config';
+import { getConfig, setDefaultConfig, SyncContext } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
@@ -56,6 +56,11 @@ describe('create-placeholder', () => {
       queueManagerPath,
     });
 
+    const ctx: SyncContext = {
+      ...getConfig(),
+      abortController: new AbortController(),
+    };
+
     invokeMock.mockImplementation((event) => {
       if (event === 'GET_UPDATED_REMOTE_ITEMS') {
         return Promise.resolve({ files: [], folders: [] });
@@ -99,8 +104,8 @@ describe('create-placeholder', () => {
     const bindingManager = new BindingsManager(container);
 
     // When
-    await bindingManager.start();
-    bindingManager.watch();
+    await bindingManager.start({ ctx });
+    bindingManager.watch({ ctx });
 
     await sleep(100);
     await writeFile(file, 'content');

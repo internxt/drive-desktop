@@ -4,13 +4,14 @@ import { getPendingItems } from './get-pending-items';
 import { addPendingFiles } from './add-pending-files';
 import { addPendingFolders } from './add-pending-folders';
 import { IControllers } from '../callbacks-controllers/buildControllers';
-import { getConfig } from '../config';
+import { getConfig, SyncContext } from '../config';
 
 type Props = {
+  ctx: SyncContext;
   controllers: IControllers;
 };
 
-export async function addPendingItems({ controllers }: Props) {
+export async function addPendingItems({ ctx, controllers }: Props) {
   try {
     const { pendingFiles, pendingFolders } = await getPendingItems({
       virtualDrive,
@@ -25,7 +26,7 @@ export async function addPendingItems({ controllers }: Props) {
       pendingFolders: pendingFolders.length,
     });
 
-    await Promise.all([addPendingFiles({ pendingFiles, controllers }), addPendingFolders({ pendingFolders, controllers })]);
+    await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders, controllers })]);
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

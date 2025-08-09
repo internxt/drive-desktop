@@ -1,28 +1,22 @@
-import { Service } from 'diod';
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { posix } from 'path';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, SyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 type TProps = {
+  ctx: SyncContext;
   path: RelativePath;
 };
 
-@Service()
 export class FolderCreator {
-  constructor(
-    private readonly remote: HttpRemoteFolderSystem,
-    private readonly virtualDrive: VirtualDrive,
-  ) {}
-
-  async run({ path }: TProps) {
+  static async run({ ctx, path }: TProps) {
     const posixDir = pathUtils.dirname(path);
     const { data: parentUuid } = NodeWin.getFolderUuid({
-      drive: this.virtualDrive,
+      drive: virtualDrive,
       path: posixDir,
     });
 
@@ -30,7 +24,8 @@ export class FolderCreator {
       throw new FolderNotFoundError(posixDir);
     }
 
-    const folderDto = await this.remote.persist({
+    const folderDto = await HttpRemoteFolderSystem.persist({
+      ctx,
       parentUuid,
       plainName: posix.basename(path),
       path,
@@ -46,7 +41,7 @@ export class FolderCreator {
 
     if (error) throw error;
 
-    this.virtualDrive.convertToPlaceholder({
+    virtualDrive.convertToPlaceholder({
       itemPath: path,
       id: `FOLDER:${folderDto.uuid}`,
     });

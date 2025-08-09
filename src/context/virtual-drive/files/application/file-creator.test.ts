@@ -5,7 +5,6 @@ import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructu
 import { v4 } from 'uuid';
 import { FileMother, generateRandomFileId } from '@/tests/context/virtual-drive/files/domain/FileMother';
 import { FileContentsMother } from '@/tests/context/__mocks__/file-contents-mother.helper.test';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { FolderMother } from '@/tests/context/virtual-drive/folders/domain/FolderMother';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
@@ -21,7 +20,6 @@ vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
 
 describe('File Creator', () => {
   const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
-  const virtualDriveMock = mockDeep<VirtualDrive>();
   const getFolderUuid = vi.mocked(NodeWin.getFolderUuid);
   const ipcRendererSyncEngineMock = vi.mocked(ipcRendererSyncEngine);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
@@ -31,7 +29,7 @@ describe('File Creator', () => {
   const contents = FileContentsMother.random();
   const absolutePath = 'C:\\Users\\user\\InternxtDrive\\cat.png' as AbsolutePath;
 
-  const SUT = new FileCreator(remoteFileSystemMock, virtualDriveMock);
+  const SUT = new FileCreator(remoteFileSystemMock);
 
   beforeEach(() => {
     getFolderUuid.mockReturnValue({ data: folderParent.uuid as FolderUuid });

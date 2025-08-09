@@ -11,6 +11,7 @@ import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import { Stats } from 'fs';
 import { debounceOnRaw } from './events/debounce-on-raw';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 export type TWatcherCallbacks = {
   addController: AddController;
@@ -38,12 +39,12 @@ export class Watcher {
     this.logger.debug({ msg: 'onReady' });
   };
 
-  watchAndWait() {
+  watchAndWait({ ctx }: { ctx: SyncContext }) {
     try {
       this.chokidar = watch(this.syncRootPath, this.options);
       this.chokidar
-        .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ self: this, absolutePath, stats: stats! }))
-        .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ self: this, absolutePath, stats: stats! }))
+        .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ ctx, self: this, absolutePath, stats: stats! }))
+        .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ ctx, self: this, absolutePath, stats: stats! }))
         /**
          * v2.5.6 Daniel Jiménez
          * unlink events are triggered when:

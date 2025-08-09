@@ -1,19 +1,17 @@
-import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { SyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
+  ctx: SyncContext;
   plainName: string;
   parentUuid: string;
   path: string;
 };
 
-@Service()
 export class HttpRemoteFolderSystem {
-  constructor(private readonly workspaceId: string) {}
-
-  async persist(offline: TProps) {
+  static async persist({ ctx, ...offline }: TProps) {
     const body = {
       plainName: offline.plainName,
       name: offline.plainName,
@@ -21,8 +19,8 @@ export class HttpRemoteFolderSystem {
     };
 
     try {
-      const { data, error } = this.workspaceId
-        ? await driveServerWip.workspaces.createFolderInWorkspace({ path: offline.path, body, workspaceId: this.workspaceId })
+      const { data, error } = ctx.workspaceId
+        ? await driveServerWip.workspaces.createFolderInWorkspace({ path: offline.path, body, workspaceId: ctx.workspaceId })
         : await driveServerWip.folders.createFolder({ path: offline.path, body });
 
       if (!data) throw error;
@@ -44,7 +42,7 @@ export class HttpRemoteFolderSystem {
     }
   }
 
-  private async existFolder(offline: TProps) {
+  static async existFolder(offline: { parentUuid: string; plainName: string }) {
     const { data, error } = await driveServerWip.folders.existsFolder({
       parentUuid: offline.parentUuid,
       basename: offline.plainName,

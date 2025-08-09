@@ -7,9 +7,9 @@ import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine'
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 type Props = {
   filePath: FilePath;
@@ -18,16 +18,13 @@ type Props = {
 };
 
 export class FileCreator {
-  constructor(
-    private readonly remote: HttpRemoteFileSystem,
-    private readonly virtualDrive: VirtualDrive,
-  ) {}
+  constructor(private readonly remote: HttpRemoteFileSystem) {}
 
   async run({ filePath, absolutePath, contents }: Props) {
     try {
       const posixDir = PlatformPathConverter.getFatherPathPosix(filePath.value);
       const { data: folderUuid } = NodeWin.getFolderUuid({
-        drive: this.virtualDrive,
+        drive: virtualDrive,
         path: posixDir,
       });
 
