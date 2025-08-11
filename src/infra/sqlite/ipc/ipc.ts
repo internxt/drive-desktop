@@ -1,5 +1,6 @@
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { CreateFolderProps } from '@/backend/features/local-sync/create-item/create-folder';
 import { SqliteModule } from '../sqlite.module';
+import { CreateFileProps } from '@/backend/features/local-sync/create-item/create-file';
 
 export type FromProcess = {
   fileGetByName: (
@@ -14,12 +15,8 @@ export type FromProcess = {
   folderGetByUuid: (
     props: Parameters<typeof SqliteModule.FolderModule.getByUuid>[0],
   ) => Awaited<ReturnType<typeof SqliteModule.FolderModule.getByUuid>>;
-  fileCreateOrUpdate: (
-    props: Parameters<typeof SqliteModule.FileModule.createOrUpdate>[0] & { bucket: string; absolutePath: AbsolutePath },
-  ) => Awaited<ReturnType<typeof SqliteModule.FileModule.createOrUpdate>>;
-  folderCreateOrUpdate: (
-    props: Parameters<typeof SqliteModule.FolderModule.createOrUpdate>[0],
-  ) => Awaited<ReturnType<typeof SqliteModule.FolderModule.createOrUpdate>>;
+  fileCreateOrUpdate: (props: CreateFileProps) => Awaited<ReturnType<typeof SqliteModule.FileModule.createOrUpdate>>;
+  folderCreateOrUpdate: (props: CreateFolderProps) => Awaited<ReturnType<typeof SqliteModule.FolderModule.createOrUpdate>>;
 };
 
 export type FromMain = {};

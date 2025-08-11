@@ -5,7 +5,7 @@ import { ContentsIdMother } from '../../contents/domain/ContentsIdMother';
 import { FilePathMother } from './FilePathMother';
 import { v4 } from 'uuid';
 
-export const generateRandomFileId = () => {
+const generateRandomFileId = () => {
   return Math.floor(Math.random() * 1000000);
 };
 

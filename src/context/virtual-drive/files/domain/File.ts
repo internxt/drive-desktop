@@ -1,7 +1,7 @@
 import { FolderUuid } from './../../folders/domain/FolderUuid';
 import { FilePath } from './FilePath';
 import { FileSize } from './FileSize';
-import { FileStatus, FileStatuses } from './FileStatus';
+import { FileStatus } from './FileStatus';
 import { FilePlaceholderId, createFilePlaceholderId } from './PlaceholderId';
 import { FileContentsId } from './FileContentsId';
 import { FileFolderId } from './FileFolderId';
@@ -67,14 +67,6 @@ export class File {
     return this._path.name();
   }
 
-  public get nameWithExtension() {
-    return this._path.nameWithExtension();
-  }
-
-  public get dirname() {
-    return this._path.dirname();
-  }
-
   public get size(): number {
     return this._size.value;
   }
@@ -100,15 +92,6 @@ export class File {
       new Date(attributes.updatedAt),
       FileStatus.fromValue(attributes.status),
     );
-  }
-
-  changeContents(contentsId: FileContentsId, contentsSize: FileSize) {
-    this._contentsId = contentsId;
-    this._size = contentsSize;
-  }
-
-  hasStatus(status: FileStatuses): boolean {
-    return this._status.is(status);
   }
 
   attributes(): FileAttributes {

@@ -1,6 +1,5 @@
 import { EnumValueObject } from '../../../shared/domain/EnumValueObject';
 import { InvalidArgumentError } from '../../../shared/domain/InvalidArgumentError';
-import { ActionNotPermittedError } from './errors/ActionNotPermittedError';
 
 export enum FolderStatuses {
   EXISTS = 'EXISTS',
@@ -24,18 +23,6 @@ export class FolderStatus extends EnumValueObject<FolderStatuses> {
   }
 
   static readonly Exists = new FolderStatus(FolderStatuses.EXISTS);
-
-  changeTo(status: FolderStatuses): FolderStatus {
-    if (this.value === 'TRASHED') {
-      throw new ActionNotPermittedError('restore from trash');
-    }
-
-    return new FolderStatus(FolderStatuses[status]);
-  }
-
-  is(status: FolderStatuses): boolean {
-    return this.value === FolderStatuses[status];
-  }
 
   protected throwErrorForInvalidValue(value: FolderStatuses): void {
     throw new InvalidArgumentError(`Folder status ${value} is invalid`);

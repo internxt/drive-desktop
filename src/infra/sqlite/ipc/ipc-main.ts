@@ -2,7 +2,7 @@ import { CustomIpc } from '@/apps/shared/IPC/IPCs';
 import { ipcMain } from 'electron';
 import { FromMain, FromProcess } from './ipc';
 import { SqliteModule } from '../sqlite.module';
-import { createAndUploadThumbnail } from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
+import { LocalSyncModule } from '@/backend/features/local-sync/local-sync.module';
 
 const ipcMainSqlite = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -24,20 +24,10 @@ export function setupIpcSqlite() {
   });
 
   void ipcMainSqlite.handle('fileCreateOrUpdate', async (_, props) => {
-    const res = await SqliteModule.FileModule.createOrUpdate(props);
-
-    if (res.data) {
-      await createAndUploadThumbnail({
-        bucket: props.bucket,
-        fileId: res.data.id,
-        absolutePath: props.absolutePath,
-      });
-    }
-
-    return res;
+    return await LocalSyncModule.createFile(props);
   });
 
   void ipcMainSqlite.handle('folderCreateOrUpdate', async (_, props) => {
-    return await SqliteModule.FolderModule.createOrUpdate(props);
+    return await LocalSyncModule.createFolder(props);
   });
 }
