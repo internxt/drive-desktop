@@ -5,15 +5,17 @@ import { addPendingFiles } from './add-pending-files';
 import { addPendingFolders } from './add-pending-folders';
 import { IControllers } from '../callbacks-controllers/buildControllers';
 import { getConfig } from '../config';
-import { syncModifiedFiles } from './sync-modified-file';
+import { syncModifiedFiles } from './sync-modified-files';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
+import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 
 type Props = {
   controllers: IControllers;
   fileContentsUploader: ContentsUploader;
+  tree: Tree;
 };
 
-export async function addPendingItems({ controllers, fileContentsUploader }: Props) {
+export async function addPendingItems({ controllers, fileContentsUploader, tree }: Props) {
   try {
     const { pendingFiles, pendingFolders } = await getPendingItems({
       virtualDrive,
@@ -29,7 +31,7 @@ export async function addPendingItems({ controllers, fileContentsUploader }: Pro
     });
 
     await Promise.all([addPendingFiles({ pendingFiles, controllers }), addPendingFolders({ pendingFolders, controllers })]);
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
+    await syncModifiedFiles({ fileContentsUploader, virtualDrive, tree });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

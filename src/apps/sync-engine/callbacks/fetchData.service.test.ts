@@ -1,6 +1,6 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { FetchDataService } from './fetchData.service';
-import { BindingsManager } from '../BindingManager';
+import { BindingsManager } from '../binding-manager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { DeepPartial } from 'ts-essentials';
 import { it } from 'vitest';

@@ -43,7 +43,6 @@ type ProcessInfoUpdate = {
   CHANGE_SYNC_STATUS: (workspaceId: string, status: RemoteSyncStatus) => void;
   FIND_DANGLED_FILES: () => Promise<DriveFile[]>;
   SET_HEALTHY_FILES: (ids: string[]) => Promise<void>;
-  FIND_EXISTING_FILES: () => Promise<DriveFile[]>;
 };
 
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;

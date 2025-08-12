@@ -1,8 +1,7 @@
 import * as updateContentsIdModule from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
-import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
-import { FileStatuses } from '@/context/virtual-drive/files/domain/FileStatus';
-import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { partialSpyOn, mockProps } from '@/tests/vitest/utils.helper.test';
 import { syncModifiedFile } from './sync-modified-file';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { mockDeep } from 'vitest-mock-extended';
@@ -13,29 +12,13 @@ describe('sync-modified-file', () => {
   const fileContentsUploader = mockDeep<ContentsUploader>();
   const updateContentsIdMock = partialSpyOn(updateContentsIdModule, 'updateContentsId');
 
-  const createRemoteFile = (modificationDate: Date) => ({
-    id: 1,
-    fileId: '1',
-    uuid: '123e4567-e89b-12d3-a456-426614174000',
-    contentsId: '123456789012345678901234',
-    folderId: 1,
-    folderUuid: '123e4567-e89b-12d3-a456-426614174001',
-    path: '/test.txt',
-    size: 1000,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    modificationTime: modificationDate.toISOString(),
-    status: FileStatuses.EXISTS,
-    type: 'file',
-    bucket: 'default',
-    userId: 1,
-    ownerId: 1,
-    permissions: [],
-    trashed: false,
-    userUuid: 'user-uuid-1',
-    name: 'test.txt',
-    isDangledStatus: false,
-  });
+  const createRemoteFile = (modificationDate: Date, uuid: string) =>
+    mockProps({
+      uuid,
+      name: 'test.txt',
+      path: createRelativePath('/test.txt'),
+      modificationTime: modificationDate,
+    });
 
   beforeEach(() => {
     updateContentsIdMock.mockResolvedValue(undefined);
@@ -45,7 +28,7 @@ describe('sync-modified-file', () => {
     // Given
     const remoteDate = new Date('2025-08-05T10:00:00.123Z');
     const localDate = new Date('2025-08-05T09:59:59.999Z');
-    const remoteFile = createRemoteFile(remoteDate);
+    const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
       path: 'C:\\Users\\test\\Drive\\test.txt',
       stats: {
@@ -57,7 +40,6 @@ describe('sync-modified-file', () => {
     await syncModifiedFile({
       remoteFile,
       localFile,
-      remotePath: '/test.txt' as RelativePath,
       fileContentsUploader,
       virtualDrive,
     });
@@ -69,7 +51,7 @@ describe('sync-modified-file', () => {
     // Given
     const remoteDate = new Date('2025-08-05T10:00:00.123Z');
     const localDate = new Date('2025-08-05T10:00:01.000Z');
-    const remoteFile = createRemoteFile(remoteDate);
+    const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
       path: 'C:\\Users\\test\\Drive\\test.txt',
       stats: {
@@ -81,7 +63,6 @@ describe('sync-modified-file', () => {
     await syncModifiedFile({
       remoteFile,
       localFile,
-      remotePath: '/test.txt' as RelativePath,
       fileContentsUploader,
       virtualDrive,
     });
@@ -100,7 +81,7 @@ describe('sync-modified-file', () => {
     // Given
     const remoteDate = new Date('2025-08-05T10:00:00.123Z');
     const localDate = new Date('2025-08-05T10:00:00.456Z');
-    const remoteFile = createRemoteFile(remoteDate);
+    const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
       path: 'C:\\Users\\test\\Drive\\test.txt',
       stats: {
@@ -112,7 +93,6 @@ describe('sync-modified-file', () => {
     await syncModifiedFile({
       remoteFile,
       localFile,
-      remotePath: '/test.txt' as RelativePath,
       fileContentsUploader,
       virtualDrive,
     });

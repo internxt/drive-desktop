@@ -1,5 +1,5 @@
 import { join } from 'node:path';
-import { BindingsManager } from '../BindingManager';
+import { BindingsManager } from '../binding-manager';
 import { DependencyContainerFactory } from '../dependency-injection/DependencyContainerFactory';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';

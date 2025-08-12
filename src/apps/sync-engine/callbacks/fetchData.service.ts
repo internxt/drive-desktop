@@ -1,4 +1,4 @@
-import { BindingsManager } from '../BindingManager';
+import { BindingsManager } from '../binding-manager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { dirname } from 'path';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
