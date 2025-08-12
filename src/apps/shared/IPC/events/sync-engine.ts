@@ -20,15 +20,6 @@ type FilesEvents = {
   FILE_DOWNLOADED: (payload: FileDownload) => void;
   FILE_DOWNLOAD_CANCEL: (payload: FileDownload) => void;
   FILE_DOWNLOAD_ERROR: (payload: FileDownload) => void;
-
-  FILE_CREATED: (payload: {
-    bucket: string;
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    fileId: number;
-    path: string;
-  }) => void;
 };
 
 type SyncEngineInvocableFunctions = {
@@ -46,4 +37,8 @@ type ProcessInfoUpdate = {
 };
 
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
-export type FromMain = {};
+export type FromMain = {
+  REFRESH_ITEM_PLACEHOLDERS: () => void;
+  UPDATE_SYNC_ENGINE_PROCESS: () => void;
+  STOP_AND_CLEAR_SYNC_ENGINE_PROCESS: () => void;
+};

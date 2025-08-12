@@ -4,14 +4,16 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { updateItems } from './update-items/update-items';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type TProps = {
   context: SyncContext;
-  folderUuid: string;
+  folderUuid: FolderUuid;
+  path: RelativePath;
 };
 
-export async function updateFolderStatuses({ context, folderUuid }: TProps) {
-  let folderUuids: FolderUuid[] = [];
+export async function updateFolderStatuses({ context, folderUuid, path }: TProps) {
+  let innerFolders: Array<{ folderUuid: FolderUuid; path: RelativePath }> = [];
 
   try {
     const [folderDtos, { data: folders }] = await Promise.all([
@@ -20,7 +22,10 @@ export async function updateFolderStatuses({ context, folderUuid }: TProps) {
     ]);
 
     if (folderDtos) {
-      folderUuids = folderDtos.map((folder) => folder.uuid);
+      innerFolders = folderDtos.map((folder) => ({
+        folderUuid: folder.uuid,
+        path: createRelativePath(path, folder.plainName),
+      }));
 
       if (folders) {
         void updateItems({
@@ -35,10 +40,11 @@ export async function updateFolderStatuses({ context, folderUuid }: TProps) {
     logger.error({
       tag: 'SYNC-ENGINE',
       msg: 'Update folder statuses failed',
+      path,
       folderUuid,
       exc,
     });
   }
 
-  return folderUuids;
+  return innerFolders;
 }

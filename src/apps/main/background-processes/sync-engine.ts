@@ -13,6 +13,7 @@ import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { logger } from '@/apps/shared/logger/logger';
+import { FolderUuid } from '../database/entities/DriveFolder';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
   logger.debug({ msg: 'SYNC ENGINE RUNNING for workspace', workspaceId });
@@ -62,7 +63,7 @@ export async function spawnDefaultSyncEngineWorker({ context }: { context: AuthC
     workspaceId: '',
     loggerPath: join(PATHS.LOGS, 'node-win.log'),
     queueManagerPath: join(PATHS.LOGS, `queue-manager-user-${user.uuid}.log`),
-    rootUuid: user.rootFolderId,
+    rootUuid: user.rootFolderId as FolderUuid,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
     bridgeUser: user.bridgeUser,

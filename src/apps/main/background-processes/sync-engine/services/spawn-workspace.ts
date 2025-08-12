@@ -7,6 +7,7 @@ import { getUserOrThrow } from '@/apps/main/auth/service';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 type TProps = {
   context: AuthContext;
@@ -45,7 +46,7 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       queueManagerPath: join(PATHS.LOGS, `queue-manager-workspace-${workspace.id}.log`),
       workspaceId: workspace.id,
       workspaceToken: credentials.tokenHeader,
-      rootUuid: workspace.rootFolderId,
+      rootUuid: workspace.rootFolderId as FolderUuid,
       bucket: credentials.bucket,
       bridgeUser: credentials.credentials.networkUser,
       bridgePass: credentials.credentials.networkPass,

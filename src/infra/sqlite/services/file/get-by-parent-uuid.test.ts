@@ -2,12 +2,13 @@ import * as fileDecryptName from '@/context/virtual-drive/files/domain/file-decr
 import { fileRepository } from '../drive-file';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getByParentUuid } from './get-by-parent-uuid';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('get-by-parent-uuid', () => {
   const findBy = partialSpyOn(fileRepository, 'findBy');
   const fileDecryptNameSpy = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
-  const props = mockProps<typeof getByParentUuid>({ parentUuid: 'uuid' });
+  const props = mockProps<typeof getByParentUuid>({ parentUuid: 'uuid' as FolderUuid });
 
   beforeEach(() => {
     fileDecryptNameSpy.mockResolvedValue({});

@@ -5,17 +5,18 @@ import * as updateItems from './update-items/update-items';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('update-folder-statuses', () => {
   const fetchFoldersByFolderMock = partialSpyOn(fetchFoldersByFolder, 'fetchFoldersByFolder');
   const getByParentUuidMock = partialSpyOn(SqliteModule.FolderModule, 'getByParentUuid');
   const updateItemsMock = partialSpyOn(updateItems, 'updateItems');
 
-  const props = mockProps<typeof updateFolderStatuses>({});
+  const props = mockProps<typeof updateFolderStatuses>({ path: createRelativePath('/') });
 
   it('should call update items', async () => {
     // Given
-    fetchFoldersByFolderMock.mockResolvedValue([{ uuid: 'uuid' as FolderUuid }]);
+    fetchFoldersByFolderMock.mockResolvedValue([{ uuid: 'uuid' as FolderUuid, plainName: 'folder' }]);
     getByParentUuidMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FolderUuid }] });
     // When
     await updateFolderStatuses(props);

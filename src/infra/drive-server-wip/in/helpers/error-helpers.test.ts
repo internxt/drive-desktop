@@ -1,4 +1,3 @@
-import { describe, it, expect, vi } from 'vitest';
 import { isNetworkConnectivityError, isServerError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 vi.mock('@/apps/main/background-processes/issues');

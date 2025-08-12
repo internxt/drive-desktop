@@ -4,6 +4,7 @@ import { updateFolderStatuses } from './update-folder-statuses';
 import { syncItemsByFolder } from './sync-items-by-folder';
 import { sleep } from '@/apps/main/util';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('./update-file-statuses'));
@@ -14,11 +15,13 @@ describe('sync-items-by-folder', () => {
   const updateFileStatusesMock = vi.mocked(updateFileStatuses);
   const sleepMock = vi.mocked(sleep);
 
+  const innerFolder = { folderUuid: 'folderUuid' as FolderUuid, path: createRelativePath('/') };
+
   let props: Parameters<typeof syncItemsByFolder>[0];
 
   beforeEach(() => {
     props = mockProps<typeof syncItemsByFolder>({
-      rootFolderUuid: 'rootFolderUuid',
+      rootFolderUuid: 'rootFolderUuid' as FolderUuid,
       context: {
         abortController: new AbortController(),
         workspaceId: '',
@@ -42,7 +45,7 @@ describe('sync-items-by-folder', () => {
     // Given
     updateFolderStatusesMock.mockImplementation(() => {
       props.context.abortController.abort();
-      return Promise.resolve(['folderUuid' as FolderUuid]);
+      return Promise.resolve([innerFolder]);
     });
     // When
     await syncItemsByFolder(props);
@@ -65,7 +68,7 @@ describe('sync-items-by-folder', () => {
 
   it('should iterate another time if there are folders inside', async () => {
     // Given
-    updateFolderStatusesMock.mockResolvedValueOnce(['folderUuid' as FolderUuid]);
+    updateFolderStatusesMock.mockResolvedValueOnce([innerFolder]);
     updateFolderStatusesMock.mockResolvedValueOnce([]);
     // When
     await syncItemsByFolder(props);
@@ -73,8 +76,8 @@ describe('sync-items-by-folder', () => {
     expect(updateFolderStatusesMock).toBeCalledTimes(2);
     expect(updateFileStatusesMock).toBeCalledTimes(2);
     expect(sleepMock).toBeCalledTimes(2);
-    expect(updateFolderStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'rootFolderUuid' });
-    expect(updateFolderStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'folderUuid' });
+    expect(updateFolderStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'rootFolderUuid', path: '/' });
+    expect(updateFolderStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'folderUuid', path: '/' });
     expect(updateFileStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'rootFolderUuid' });
     expect(updateFileStatusesMock).toHaveBeenCalledWith({ context: props.context, folderUuid: 'folderUuid' });
   });

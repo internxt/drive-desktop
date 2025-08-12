@@ -4,17 +4,17 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as uploadFile from '../upload-file';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { FileBatchUploader } from './FileBatchUploader';
-import { SimpleFileCreator } from '@/context/virtual-drive/files/application/create/SimpleFileCreator';
 import { createRelativePath, pathUtils } from '../../infrastructure/AbsolutePath';
-import * as onFileCreated from '@/apps/main/on-file-created';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import * as createAndUploadThumbnail from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
+import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 
 describe('file-batch-uploader', () => {
-  partialSpyOn(onFileCreated, 'onFileCreated');
+  partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
   const uploader = mockDeep<EnvironmentFileUploader>();
-  const creator = mockDeep<SimpleFileCreator>();
-  const service = new FileBatchUploader(uploader, creator);
+  const remote = mockDeep<HttpRemoteFileSystem>();
+  const service = new FileBatchUploader(uploader, remote);
 
   let props: Parameters<typeof service.run>[0];
 
@@ -36,7 +36,7 @@ describe('file-batch-uploader', () => {
     // When
     await service.run(props);
     // Then
-    expect(creator.run).toBeCalledTimes(0);
+    expect(remote.persist).toBeCalledTimes(0);
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });
@@ -47,7 +47,7 @@ describe('file-batch-uploader', () => {
     // When
     await service.run(props);
     // Then
-    expect(creator.run).toBeCalledWith({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 });
+    expect(remote.persist).toBeCalledWith({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 });
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });

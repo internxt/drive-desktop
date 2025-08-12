@@ -1,6 +1,7 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
@@ -12,7 +13,7 @@ describe('fetch-files-by-folder', () => {
 
   beforeEach(() => {
     props = mockProps<typeof fetchFilesByFolder>({
-      folderUuid: 'folderUuid',
+      folderUuid: 'folderUuid' as FolderUuid,
       context: {
         abortController: new AbortController(),
         workspaceId: '',

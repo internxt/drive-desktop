@@ -1,6 +1,5 @@
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 import { getFileInfo } from './get-file-info';
-import { describe, expect, it, vi } from 'vitest';
 
 describe('get-file-info', () => {
   const props = mockProps<typeof getFileInfo>({

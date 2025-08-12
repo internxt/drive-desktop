@@ -2,9 +2,10 @@ import { fileRepository } from '../drive-file';
 import { logger } from '@/apps/shared/logger/logger';
 import { parseData } from './parse-data';
 import { SqliteError } from '../common/sqlite-error';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 type Props = {
-  parentUuid: string;
+  parentUuid: FolderUuid;
 };
 
 export async function getByParentUuid({ parentUuid }: Props) {

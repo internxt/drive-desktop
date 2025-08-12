@@ -16,6 +16,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
 import { initializeVirtualDrive } from '../dependency-injection/common/virtualDrive';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -51,7 +52,7 @@ describe('create-placeholder', () => {
       rootPath,
       providerName: 'Internxt Drive',
       providerId,
-      rootUuid: rootFolderUuid,
+      rootUuid: rootFolderUuid as FolderUuid,
       queueManagerPath,
     });
 

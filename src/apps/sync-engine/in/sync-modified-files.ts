@@ -12,7 +12,7 @@ type SyncModifiedFilesProps = {
 };
 
 export async function syncModifiedFiles({ fileContentsUploader, virtualDrive, tree }: SyncModifiedFilesProps) {
-  const { files } = await loadInMemoryPaths({ drive: virtualDrive });
+  const { files } = await loadInMemoryPaths();
 
   const promises = tree.files.map(async (remoteDriveFile) => {
     const localFile = files[remoteDriveFile.uuid as FileUuid];

@@ -1,4 +1,3 @@
-import { describe, expect, it, vi } from 'vitest';
 import { getFileMirrors } from './get-file-mirrors';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
 
