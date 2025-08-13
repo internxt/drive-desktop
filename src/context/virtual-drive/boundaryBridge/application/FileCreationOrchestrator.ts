@@ -16,7 +16,7 @@ export class FileCreationOrchestrator {
   constructor(private readonly contentsUploader: ContentsUploader) {}
 
   async run({ ctx, path, absolutePath, stats }: TProps) {
-    const fileContents = await this.contentsUploader.run({ path, stats });
+    const fileContents = await this.contentsUploader.run({ path, absolutePath, stats });
 
     logger.debug({
       tag: 'SYNC-ENGINE',

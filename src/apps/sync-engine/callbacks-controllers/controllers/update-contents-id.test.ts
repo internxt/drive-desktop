@@ -8,11 +8,14 @@ import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
+import { initializeVirtualDrive } from '../../dependency-injection/common/virtualDrive';
 
 describe('update-contents-id', () => {
+  const virtualDrive = mockDeep<VirtualDrive>();
+  initializeVirtualDrive(virtualDrive);
+
   const replaceFileSpy = partialSpyOn(driveServerWip.files, 'replaceFile');
 
-  const virtualDrive = mockDeep<VirtualDrive>();
   const fileContentsUploader = mockDeep<ContentsUploader>();
   const path = createRelativePath('folder', 'file.txt');
   const uuid = 'uuid';
@@ -22,7 +25,6 @@ describe('update-contents-id', () => {
   beforeEach(() => {
     fileContentsUploader.run.mockResolvedValue({ id: 'newContentsId' as ContentsId, size: 1 });
     props = mockProps<typeof updateContentsId>({
-      virtualDrive,
       fileContentsUploader,
       path,
       uuid,

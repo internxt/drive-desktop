@@ -19,7 +19,10 @@ export function buildFilesContainer(
 
   const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
 
-  const fileContentsHardUpdate = new FileContentsHardUpdater(contentsContainer.contentsUploader);
+  const fileContentsHardUpdate = new FileContentsHardUpdater(
+    contentsContainer.contentsUploader,
+    sharedContainer.relativePathToAbsoluteConverter,
+  );
 
   const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(virtualDrive);
 
