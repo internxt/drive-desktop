@@ -1,14 +1,19 @@
 import { spawn } from 'child_process';
-import { ScanResult } from './types';
 import { parseVirusNames } from './parse-virus-names';
 import { logger } from '@/apps/shared/logger/logger';
+
+type TReturn = {
+  file: string;
+  isInfected: boolean;
+  viruses: string[];
+};
 
 type TProps = {
   filePath: string;
   mpCmdRunPath: string;
 };
 
-export function scanFile({ filePath, mpCmdRunPath }: TProps): Promise<ScanResult> {
+export function scanFile({ filePath, mpCmdRunPath }: TProps): Promise<TReturn> {
   return new Promise((resolve) => {
     const process = spawn(mpCmdRunPath, ['-Scan', '-ScanType', '3', '-File', filePath, '-DisableRemediation']);
 
