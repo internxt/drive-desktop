@@ -10,6 +10,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import * as path from 'path';
 
 type Props = {
   filePath: FilePath;
@@ -58,6 +59,30 @@ export class FileCreator {
 
       return fileDto;
     } catch (error) {
+      const parentFolder = PlatformPathConverter.getFatherPathPosix(filePath.value);
+      const grandParentFolder = PlatformPathConverter.getFatherPathPosix(parentFolder);
+
+      const targetFolderName = path.posix.basename(parentFolder);
+
+      const { data: parentUuid } = NodeWin.getFolderUuid({
+        drive: this.virtualDrive,
+        path: grandParentFolder,
+      });
+
+      if (!parentUuid) {
+        throw new FolderNotFoundError(grandParentFolder);
+      }
+
+      const remoteFolder = await this.remote.existParentFolder({
+        plainName: targetFolderName,
+        parentUuid,
+        path: parentFolder,
+      });
+
+      if (!remoteFolder) {
+        throw new FolderNotFoundError(parentFolder);
+      }
+
       logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Error in file creator',

@@ -8,6 +8,12 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { basename } from 'path';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
 
+type TProps = {
+  plainName: string;
+  parentUuid: string;
+  path: string;
+};
+
 @Service()
 export class HttpRemoteFileSystem {
   constructor(
@@ -119,5 +125,16 @@ export class HttpRemoteFileSystem {
     });
 
     return persistedFile;
+  }
+
+  async existParentFolder(offline: TProps) {
+    const { data } = await driveServerWip.folders.existsFolder({
+      parentUuid: offline.parentUuid,
+      basename: offline.plainName,
+    });
+
+    if (!data) return null;
+
+    return data.existentFolders[0];
   }
 }
