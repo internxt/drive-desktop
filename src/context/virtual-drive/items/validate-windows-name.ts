@@ -1,8 +1,9 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type TProps = {
-  path: string;
+  path: RelativePath;
   name: string;
 };
 

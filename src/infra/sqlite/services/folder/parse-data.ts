@@ -13,7 +13,6 @@ export function parseData({ data }: TProps) {
   });
 
   return {
-    id: data.id,
     uuid: data.uuid as FolderUuid,
     name,
     parentUuid: data.parentUuid,
