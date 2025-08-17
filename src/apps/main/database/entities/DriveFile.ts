@@ -5,6 +5,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 export type FileUuid = Brand<string, 'FileUuid'>;
 export type ContentsId = Brand<string, 'ContentsId'>;
 export type SimpleDriveFile = {
+  id: number;
   uuid: FileUuid;
   name: string;
   nameWithExtension: string;
