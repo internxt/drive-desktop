@@ -16,25 +16,26 @@ export async function updateFolderStatuses({ context, folderUuid, path }: TProps
   let innerFolders: Array<{ folderUuid: FolderUuid; path: RelativePath }> = [];
 
   try {
-    const [folderDtos, { data: folders }] = await Promise.all([
-      fetchFoldersByFolder({ context, folderUuid }),
-      SqliteModule.FolderModule.getByParentUuid({ parentUuid: folderUuid }),
-    ]);
+    const folderDtos = await fetchFoldersByFolder({ context, folderUuid });
 
-    if (folderDtos) {
-      innerFolders = folderDtos.map((folder) => ({
-        folderUuid: folder.uuid,
-        path: createRelativePath(path, folder.plainName),
-      }));
+    if (!folderDtos) return;
 
-      if (folders) {
-        void updateItems({
-          context,
-          type: 'folder',
-          itemDtos: folderDtos,
-          items: folders,
-        });
-      }
+    innerFolders = folderDtos.map((folderDto) => ({
+      folderUuid: folderDto.uuid,
+      path: createRelativePath(path, folderDto.plainName),
+    }));
+
+    const uuids = folderDtos.map((folderDto) => folderDto.uuid);
+    const { data: folders } = await SqliteModule.FolderModule.getByUuids({ uuids });
+
+    if (folders) {
+      void updateItems({
+        context,
+        parentPath: path,
+        type: 'folder',
+        itemDtos: folderDtos,
+        items: folders,
+      });
     }
   } catch (exc) {
     logger.error({

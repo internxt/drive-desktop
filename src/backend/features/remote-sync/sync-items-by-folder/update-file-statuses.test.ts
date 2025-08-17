@@ -8,7 +8,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('update-file-statuses', () => {
   const fetchFilesByFolderMock = partialSpyOn(fetchFilesByFolder, 'fetchFilesByFolder');
-  const getByParentUuidMock = partialSpyOn(SqliteModule.FileModule, 'getByParentUuid');
+  const getByUuidsMock = partialSpyOn(SqliteModule.FileModule, 'getByUuids');
   const updateItemsMock = partialSpyOn(updateItems, 'updateItems');
 
   const props = mockProps<typeof updateFileStatuses>({});
@@ -16,7 +16,7 @@ describe('update-file-statuses', () => {
   it('should call update items', async () => {
     // Given
     fetchFilesByFolderMock.mockResolvedValue([{ uuid: 'uuid' as FileUuid }]);
-    getByParentUuidMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
+    getByUuidsMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
     // When
     await updateFileStatuses(props);
     // Then

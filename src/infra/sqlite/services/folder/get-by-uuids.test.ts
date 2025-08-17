@@ -1,19 +1,19 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { getByParentUuid } from './get-by-parent-uuid';
+import { getByUuids } from './get-by-uuids';
 import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { folderRepository } from '../drive-folder';
 
-describe('get-by-parent-uuid', () => {
+describe('get-by-uuids', () => {
   const findBy = partialSpyOn(folderRepository, 'findBy');
   partialSpyOn(Folder, 'decryptName');
 
-  const props = mockProps<typeof getByParentUuid>({ parentUuid: 'uuid' });
+  const props = mockProps<typeof getByUuids>({ uuids: [] });
 
   it('should return UNKNOWN when error is thrown', async () => {
     // Given
     findBy.mockRejectedValue(new Error());
     // When
-    const { error } = await getByParentUuid(props);
+    const { error } = await getByUuids(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
   });
@@ -22,7 +22,7 @@ describe('get-by-parent-uuid', () => {
     // Given
     findBy.mockResolvedValue([]);
     // When
-    const { data } = await getByParentUuid(props);
+    const { data } = await getByUuids(props);
     // Then
     expect(data).toBeDefined();
     expect(findBy).toBeCalledWith({

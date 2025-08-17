@@ -52,8 +52,6 @@ export class AddController {
   }
 
   async createFolder({ path }: { path: RelativePath }) {
-    logger.debug({ msg: 'Create folder', path });
-
     try {
       await createFolder({ path, folderCreator: this.folderCreator });
     } catch (error) {

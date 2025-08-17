@@ -9,7 +9,7 @@ import { createRelativePath } from '@/context/local/localFile/infrastructure/Abs
 
 describe('update-folder-statuses', () => {
   const fetchFoldersByFolderMock = partialSpyOn(fetchFoldersByFolder, 'fetchFoldersByFolder');
-  const getByParentUuidMock = partialSpyOn(SqliteModule.FolderModule, 'getByParentUuid');
+  const getByUuidsMock = partialSpyOn(SqliteModule.FolderModule, 'getByUuids');
   const updateItemsMock = partialSpyOn(updateItems, 'updateItems');
 
   const props = mockProps<typeof updateFolderStatuses>({ path: createRelativePath('/') });
@@ -17,7 +17,7 @@ describe('update-folder-statuses', () => {
   it('should call update items', async () => {
     // Given
     fetchFoldersByFolderMock.mockResolvedValue([{ uuid: 'uuid' as FolderUuid, plainName: 'folder' }]);
-    getByParentUuidMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FolderUuid }] });
+    getByUuidsMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FolderUuid }] });
     // When
     await updateFolderStatuses(props);
     // Then

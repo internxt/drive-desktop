@@ -1,14 +1,13 @@
 import * as fileDecryptName from '@/context/virtual-drive/files/domain/file-decrypt-name';
 import { fileRepository } from '../drive-file';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { getByParentUuid } from './get-by-parent-uuid';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { getByUuids } from './get-by-uuids';
 
-describe('get-by-parent-uuid', () => {
+describe('get-by-uuids', () => {
   const findBy = partialSpyOn(fileRepository, 'findBy');
   const fileDecryptNameSpy = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
-  const props = mockProps<typeof getByParentUuid>({ parentUuid: 'uuid' as FolderUuid });
+  const props = mockProps<typeof getByUuids>({ uuids: [] });
 
   beforeEach(() => {
     fileDecryptNameSpy.mockResolvedValue({});
@@ -18,7 +17,7 @@ describe('get-by-parent-uuid', () => {
     // Given
     findBy.mockRejectedValue(new Error());
     // When
-    const { error } = await getByParentUuid(props);
+    const { error } = await getByUuids(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
   });
@@ -27,7 +26,7 @@ describe('get-by-parent-uuid', () => {
     // Given
     findBy.mockResolvedValue([]);
     // When
-    const { data } = await getByParentUuid(props);
+    const { data } = await getByUuids(props);
     // Then
     expect(data).toBeDefined();
     expect(findBy).toBeCalledWith({

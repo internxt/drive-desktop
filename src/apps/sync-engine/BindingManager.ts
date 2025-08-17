@@ -57,10 +57,6 @@ export class BindingsManager {
      * and we have some placeholders pending from being created/updated/deleted
      */
     await trackRefreshItemPlaceholders({ container: this.container });
-    setInterval(async () => {
-      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Scheduled refreshing item placeholders', workspaceId: getConfig().workspaceId });
-      await trackRefreshItemPlaceholders({ container: this.container });
-    }, 60 * 1000);
   }
 
   watch() {

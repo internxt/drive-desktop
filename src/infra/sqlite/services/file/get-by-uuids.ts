@@ -1,24 +1,25 @@
+import { fileRepository } from '../drive-file';
 import { logger } from '@/apps/shared/logger/logger';
 import { parseData } from './parse-data';
 import { SqliteError } from '../common/sqlite-error';
-import { folderRepository } from '../drive-folder';
+import { In } from 'typeorm';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 type Props = {
-  parentUuid: string;
+  uuids: FileUuid[];
 };
 
-export async function getByParentUuid({ parentUuid }: Props) {
+export async function getByUuids({ uuids }: Props) {
   try {
-    const items = await folderRepository.findBy({
-      parentUuid,
+    const items = await fileRepository.findBy({
+      uuid: In(uuids),
       status: 'EXISTS',
     });
 
     return { data: items.map((item) => parseData({ data: item })) };
   } catch (exc) {
     logger.error({
-      msg: 'Error getting folders by parent uuid',
-      parentUuid,
+      msg: 'Error getting files by uuids',
       exc,
     });
 
