@@ -1,6 +1,6 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import { DriveFile, FileUuid, SimpleDriveFile } from '../../../main/database/entities/DriveFile';
-import { DriveFolder, SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
+import { SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
