@@ -137,6 +137,36 @@ describe('Traverser', () => {
     expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder A', '/folder A/folder B']);
   });
 
+  it('when a file data is invalid ignore it and continue', async () => {
+    getAllItemsMock.mockResolvedValue({
+      files: [
+        {
+          nameWithExtension: 'invalid file',
+          parentUuid: rootUuid,
+          size: 67,
+          status: 'EXISTS',
+        },
+        {
+          nameWithExtension: 'valid_name',
+          parentUuid: rootUuid,
+          size: 67,
+          status: 'EXISTS',
+        },
+        {
+          nameWithExtension: 'valid_name_2',
+          parentUuid: rootUuid,
+          size: 67,
+          status: 'EXISTS',
+        },
+      ],
+      folders: [],
+    });
+
+    const tree = await SUT.run();
+
+    expect(extractPaths(tree.files)).toStrictEqual(['/invalid file', '/valid_name', '/valid_name_2']);
+  });
+
   it('when a folder data is invalid ignore it and continue', async () => {
     getAllItemsMock.mockResolvedValue({
       files: [],
