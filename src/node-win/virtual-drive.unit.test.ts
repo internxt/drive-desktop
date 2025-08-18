@@ -112,7 +112,7 @@ describe('VirtualDrive', () => {
       // Act
       drive.createFileByPath({
         relativePath: 'folder/subfolder/file.txt',
-        itemId: 'file-id',
+        itemId: 'FILE:uuid',
         size: 1234,
         creationTime: 1660000000000,
         lastWriteTime: 1660000001000,
