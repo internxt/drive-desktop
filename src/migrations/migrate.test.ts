@@ -30,7 +30,7 @@ describe('migrate', () => {
     // When
     await migrate();
     // Then
-    expect(StoreMock.prototype.set).toBeCalledTimes(2);
+    expect(StoreMock.prototype.set).toBeCalledTimes(3);
     expect(addUserUuidToDatabaseMock).toBeCalledTimes(1);
     expect(moveCheckpointToLokiksMock).toBeCalledTimes(1);
     expect(removeAntivirusTableMock).toBeCalledTimes(1);
