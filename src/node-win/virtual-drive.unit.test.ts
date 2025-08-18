@@ -121,7 +121,7 @@ describe('VirtualDrive', () => {
       // Assert
       expect(addon.createPlaceholderFile).toHaveBeenCalledWith(
         'file.txt',
-        'file-id',
+        'FILE:uuid',
         1234,
         1,
         expect.any(String),
