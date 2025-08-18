@@ -1,5 +1,5 @@
 import { v4 } from 'uuid';
-import { Traverser } from './traverser';
+import { Traverser } from './Traverser';
 import * as crypt from '@/context/shared/infrastructure/crypt';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { getAllItems } from './RemoteItemsGenerator';
