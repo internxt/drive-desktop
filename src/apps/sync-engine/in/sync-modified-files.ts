@@ -3,18 +3,18 @@ import { ContentsUploader } from '@/context/virtual-drive/contents/application/C
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { syncModifiedFile } from './sync-modified-file';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { Tree } from '@/context/virtual-drive/items/application/Traverser';
+import { getExistingFiles } from '@/context/virtual-drive/items/application/remote-items-generator';
 
 type SyncModifiedFilesProps = {
   fileContentsUploader: ContentsUploader;
   virtualDrive: VirtualDrive;
-  tree: Tree;
 };
 
-export async function syncModifiedFiles({ fileContentsUploader, virtualDrive, tree }: SyncModifiedFilesProps) {
+export async function syncModifiedFiles({ fileContentsUploader, virtualDrive }: SyncModifiedFilesProps) {
+  const remoteDriveFiles = await getExistingFiles();
   const { files } = await loadInMemoryPaths();
 
-  const promises = tree.files.map(async (remoteDriveFile) => {
+  const promises = remoteDriveFiles.map(async (remoteDriveFile) => {
     const localFile = files[remoteDriveFile.uuid as FileUuid];
     if (!localFile) return;
 

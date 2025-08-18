@@ -1,5 +1,6 @@
 import * as updateContentsIdModule from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { partialSpyOn, mockProps } from '@/tests/vitest/utils.helper.test';
 import { syncModifiedFile } from './sync-modified-file';
@@ -11,6 +12,7 @@ describe('sync-modified-file', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
   const fileContentsUploader = mockDeep<ContentsUploader>();
   const updateContentsIdMock = partialSpyOn(updateContentsIdModule, 'updateContentsId');
+  const pathUtilsMock = partialSpyOn(pathUtils, 'absoluteToRelative');
 
   const createRemoteFile = (modificationDate: Date, uuid: string) =>
     mockProps({
@@ -22,6 +24,7 @@ describe('sync-modified-file', () => {
 
   beforeEach(() => {
     updateContentsIdMock.mockResolvedValue(undefined);
+    pathUtilsMock.mockReturnValue(createRelativePath('/test.txt'));
   });
 
   it('should not update remote file if local modification time is older', async () => {

@@ -46,10 +46,8 @@ export class BindingsManager {
     });
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
+    void addPendingItems({ controllers: this.controllers, fileContentsUploader: this.container.contentsUploader });
 
-    const tree = await this.container.traverser.run();
-    void addPendingItems({ controllers: this.controllers, fileContentsUploader: this.container.contentsUploader, tree });
-    await this.load(tree);
     /**
      * Jonathan Arce v2.5.1
      * The goal is to create/update/delete placeholders once the sync engine process spawns,

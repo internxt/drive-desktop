@@ -26,6 +26,11 @@ type UpdateFileInBatchInput = {
   file: Partial<DriveFile>;
 };
 
+export async function getExistingFiles() {
+  const allExisting = await driveFilesCollection.getAll({ status: 'EXISTS' });
+  return allExisting;
+}
+
 export async function getLocalDangledFiles() {
   const allExisting = await driveFilesCollection.getAll({ status: 'EXISTS', isDangledStatus: true });
   return allExisting;
@@ -69,6 +74,10 @@ export async function getUpdatedRemoteItems(workspaceId: string) {
     });
   }
 }
+
+void ipcMainSyncEngine.handle('FIND_EXISTING_FILES', () => {
+  return getExistingFiles();
+});
 
 void ipcMainSyncEngine.handle('FIND_DANGLED_FILES', async () => {
   return await getLocalDangledFiles();

@@ -2,9 +2,9 @@ import * as loadInMemoryPathsModule from '@/backend/features/remote-sync/sync-it
 import { createRelativePath, AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { partialSpyOn, mockProps } from '@/tests/vitest/utils.helper.test';
-import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as syncModifiedFileModule from './sync-modified-file';
+import * as remoteItemsGeneratorModule from '@/context/virtual-drive/items/application/remote-items-generator';
 import { syncModifiedFiles } from './sync-modified-files';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { mockDeep } from 'vitest-mock-extended';
@@ -13,10 +13,10 @@ import { Stats } from 'fs';
 describe('sync-modified-files', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
   const fileContentsUploader = mockDeep<ContentsUploader>();
-  const tree = mockDeep<Tree>();
 
   const loadInMemoryPathsMock = partialSpyOn(loadInMemoryPathsModule, 'loadInMemoryPaths');
   const syncModifiedFileMock = partialSpyOn(syncModifiedFileModule, 'syncModifiedFile');
+  const getExistingFilesMock = partialSpyOn(remoteItemsGeneratorModule, 'getExistingFiles');
 
   const createRemoteFile = (uuid: FileUuid, name = 'test.txt') =>
     mockProps({
@@ -51,7 +51,7 @@ describe('sync-modified-files', () => {
     const localFile1 = createLocalFile('C:\\Users\\test\\Drive\\file1.txt');
     const localFile2 = createLocalFile('C:\\Users\\test\\Drive\\file2.txt');
 
-    tree.files = [remoteFile1, remoteFile2, remoteFile3];
+    getExistingFilesMock.mockResolvedValue([remoteFile1, remoteFile2, remoteFile3]);
 
     loadInMemoryPathsMock.mockResolvedValue({
       files: {
@@ -61,7 +61,7 @@ describe('sync-modified-files', () => {
       folders: {},
     });
     // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive, tree });
+    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
     // Then
     expect(syncModifiedFileMock).toBeCalledTimes(2);
     expect(syncModifiedFileMock).toHaveBeenNthCalledWith(1, {
@@ -86,27 +86,27 @@ describe('sync-modified-files', () => {
     const remoteFile1 = createRemoteFile(file1Uuid, 'file1.txt');
     const remoteFile2 = createRemoteFile(file2Uuid, 'file2.txt');
 
-    tree.files = [remoteFile1, remoteFile2];
+    getExistingFilesMock.mockResolvedValue([remoteFile1, remoteFile2]);
 
     loadInMemoryPathsMock.mockResolvedValue({
       files: {},
       folders: {},
     });
     // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive, tree });
+    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
     // Then
     expect(syncModifiedFileMock).not.toBeCalled();
   });
 
   it('should handle empty tree gracefully', async () => {
     // Given
-    tree.files = [];
+    getExistingFilesMock.mockResolvedValue([]);
     loadInMemoryPathsMock.mockResolvedValue({
       files: {},
       folders: {},
     });
     // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive, tree });
+    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
     // Then
     expect(syncModifiedFileMock).not.toBeCalled();
   });
@@ -126,7 +126,7 @@ describe('sync-modified-files', () => {
     const localFile1 = createLocalFile('C:\\Users\\test\\Drive\\file1.txt');
     const localFile4 = createLocalFile('C:\\Users\\test\\Drive\\file4.txt');
 
-    tree.files = [remoteFile1, remoteFile2, remoteFile3, remoteFile4];
+    getExistingFilesMock.mockResolvedValue([remoteFile1, remoteFile2, remoteFile3, remoteFile4]);
 
     loadInMemoryPathsMock.mockResolvedValue({
       files: {
@@ -136,7 +136,7 @@ describe('sync-modified-files', () => {
       folders: {},
     });
     // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive, tree });
+    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
     // Then
     expect(syncModifiedFileMock).toBeCalledTimes(2);
     expect(syncModifiedFileMock).toHaveBeenNthCalledWith(1, {
@@ -164,7 +164,7 @@ describe('sync-modified-files', () => {
     const localFile1 = createLocalFile('C:\\Users\\test\\Drive\\file1.txt');
     const localFile2 = createLocalFile('C:\\Users\\test\\Drive\\file2.txt');
 
-    tree.files = [remoteFile1, remoteFile2];
+    getExistingFilesMock.mockResolvedValue([remoteFile1, remoteFile2]);
 
     loadInMemoryPathsMock.mockResolvedValue({
       files: {
@@ -176,7 +176,7 @@ describe('sync-modified-files', () => {
 
     syncModifiedFileMock.mockRejectedValueOnce(new Error('Sync failed for file1')).mockResolvedValueOnce(undefined);
     // When
-    await expect(syncModifiedFiles({ fileContentsUploader, virtualDrive, tree })).rejects.toThrow();
+    await expect(syncModifiedFiles({ fileContentsUploader, virtualDrive })).rejects.toThrow();
     // Then
     expect(syncModifiedFileMock).toBeCalledTimes(2);
   });
@@ -192,7 +192,7 @@ describe('sync-modified-files', () => {
     const localFile1 = createLocalFile('C:\\Users\\test\\Drive\\file1.txt');
     const localFile2 = createLocalFile('C:\\Users\\test\\Drive\\file2.txt');
 
-    tree.files = [remoteFile1, remoteFile2];
+    getExistingFilesMock.mockResolvedValue([remoteFile1, remoteFile2]);
 
     loadInMemoryPathsMock.mockResolvedValue({
       files: {
@@ -215,7 +215,7 @@ describe('sync-modified-files', () => {
         call2Resolved = true;
       });
     // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive, tree });
+    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
     // Then
     expect(call1Resolved).toBe(true);
     expect(call2Resolved).toBe(true);
@@ -224,10 +224,10 @@ describe('sync-modified-files', () => {
 
   it('should handle loadInMemoryPaths failure', async () => {
     // Given
-    tree.files = [createRemoteFile('123e4567-e89b-12d3-a456-426614174000' as FileUuid)];
+    getExistingFilesMock.mockResolvedValue([createRemoteFile('123e4567-e89b-12d3-a456-426614174000' as FileUuid)]);
     loadInMemoryPathsMock.mockRejectedValue(new Error('Failed to load in-memory paths'));
     // When / Then
-    await expect(syncModifiedFiles({ fileContentsUploader, virtualDrive, tree })).rejects.toThrow('Failed to load in-memory paths');
+    await expect(syncModifiedFiles({ fileContentsUploader, virtualDrive })).rejects.toThrow('Failed to load in-memory paths');
     expect(syncModifiedFileMock).not.toBeCalled();
   });
 });
