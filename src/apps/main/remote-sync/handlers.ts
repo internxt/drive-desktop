@@ -63,7 +63,7 @@ export async function getUpdatedRemoteItems(workspaceId: string) {
       SqliteModule.FolderModule.getByWorkspaceId({ workspaceId }),
     ]);
 
-    const [files, folders] = await promise;
+    const [{ data: files = [] }, { data: folders = [] }] = await promise;
 
     return { files, folders };
   } catch (error) {
@@ -88,7 +88,7 @@ ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
   await deleteFileInBatch(inputData.toDelete);
 });
 
-void ipcMainSyncEngine.handle('GET_UPDATED_REMOTE_ITEMS', (_, workspaceId: string) => {
+ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', (_, workspaceId: string) => {
   logger.debug({
     tag: 'SYNC-ENGINE',
     msg: 'Getting updated remote items',
