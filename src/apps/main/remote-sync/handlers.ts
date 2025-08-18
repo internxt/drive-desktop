@@ -9,13 +9,14 @@ import { DriveFile } from '../database/entities/DriveFile';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
-import { driveFilesCollection, driveFoldersCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { driveFilesCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AuthContext } from '@/backend/features/auth/utils/context';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 export function addRemoteSyncManager({ context, worker }: { context: SyncContext; worker: TWorkerConfig }) {
   remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, worker, context.workspaceId));
@@ -57,7 +58,10 @@ export const deleteFileInBatch = async (itemsIds: string[]) => {
 
 export async function getUpdatedRemoteItems(workspaceId: string) {
   try {
-    const promise = Promise.all([driveFilesCollection.getAll({ workspaceId }), driveFoldersCollection.getAll({ workspaceId })]);
+    const promise = Promise.all([
+      SqliteModule.FileModule.getByWorkspaceId({ workspaceId }),
+      SqliteModule.FolderModule.getByWorkspaceId({ workspaceId }),
+    ]);
 
     const [files, folders] = await promise;
 
@@ -84,7 +88,7 @@ ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
   await deleteFileInBatch(inputData.toDelete);
 });
 
-ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', (_, workspaceId: string) => {
+void ipcMainSyncEngine.handle('GET_UPDATED_REMOTE_ITEMS', (_, workspaceId: string) => {
   logger.debug({
     tag: 'SYNC-ENGINE',
     msg: 'Getting updated remote items',

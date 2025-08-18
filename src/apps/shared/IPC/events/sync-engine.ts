@@ -1,6 +1,6 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
-import { DriveFile, FileUuid } from '../../../main/database/entities/DriveFile';
-import { DriveFolder } from '../../../main/database/entities/DriveFolder';
+import { DriveFile, FileUuid, SimpleDriveFile } from '../../../main/database/entities/DriveFile';
+import { DriveFolder, SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
@@ -23,7 +23,7 @@ type FilesEvents = {
 };
 
 type SyncEngineInvocableFunctions = {
-  GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: DriveFile[]; folders: DriveFolder[] }>;
+  GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: SimpleDriveFile[]; folders: SimpleDriveFolder[] }>;
   GET_HEADERS: () => Promise<Record<string, string>>;
   USER_LOGGED_OUT: () => void;
 };
