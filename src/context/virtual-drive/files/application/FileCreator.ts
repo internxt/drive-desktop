@@ -36,6 +36,31 @@ export class FileCreator {
         throw new FolderNotFoundError(posixDir);
       }
 
+      const grandParentFolder = PlatformPathConverter.getFatherPathPosix(posixDir);
+
+      const targetFolderName = path.posix.basename(posixDir);
+
+      const { data: parentUuid } = NodeWin.getFolderUuid({
+        drive: this.virtualDrive,
+        path: grandParentFolder,
+      });
+
+      if (!parentUuid) {
+        throw new FolderNotFoundError(grandParentFolder);
+      }
+
+      const remoteParentFolder = await this.remote.existParentFolder({
+        plainName: targetFolderName,
+        parentUuid,
+        path: posixDir,
+      });
+
+      if (!remoteParentFolder) {
+        const config = getConfig();
+        await this.remote.restoreParentFolder({ uuid: folderUuid, parentUuid: config.rootUuid, workspaceToken: config.workspaceToken });
+        await this.remote.renameParentFolder({ uuid: folderUuid, name: targetFolderName, workspaceToken: config.workspaceToken });
+      }
+
       const fileDto = await this.remote.persist({
         contentsId: contents.id,
         folderUuid,
@@ -59,30 +84,6 @@ export class FileCreator {
 
       return fileDto;
     } catch (error) {
-      const parentFolder = PlatformPathConverter.getFatherPathPosix(filePath.value);
-      const grandParentFolder = PlatformPathConverter.getFatherPathPosix(parentFolder);
-
-      const targetFolderName = path.posix.basename(parentFolder);
-
-      const { data: parentUuid } = NodeWin.getFolderUuid({
-        drive: this.virtualDrive,
-        path: grandParentFolder,
-      });
-
-      if (!parentUuid) {
-        throw new FolderNotFoundError(grandParentFolder);
-      }
-
-      const remoteFolder = await this.remote.existParentFolder({
-        plainName: targetFolderName,
-        parentUuid,
-        path: parentFolder,
-      });
-
-      if (!remoteFolder) {
-        throw new FolderNotFoundError(parentFolder);
-      }
-
       logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Error in file creator',

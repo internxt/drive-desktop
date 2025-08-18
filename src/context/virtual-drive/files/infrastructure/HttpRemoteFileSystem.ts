@@ -137,4 +137,28 @@ export class HttpRemoteFileSystem {
 
     return data.existentFolders[0];
   }
+
+  async restoreParentFolder({ uuid, parentUuid, workspaceToken }: { uuid: string; parentUuid: string; workspaceToken: string }) {
+    const { data, error } = await driveServerWip.folders.moveFolder({
+      parentUuid,
+      workspaceToken,
+      uuid,
+    });
+
+    if (!data) throw error;
+
+    return data;
+  }
+
+  async renameParentFolder({ uuid, name, workspaceToken }: { uuid: string; name: string; workspaceToken: string }) {
+    const { data, error } = await driveServerWip.folders.renameFolder({
+      name,
+      workspaceToken,
+      uuid,
+    });
+
+    if (!data) throw error;
+
+    return data;
+  }
 }
