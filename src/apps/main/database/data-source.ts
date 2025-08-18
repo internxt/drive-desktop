@@ -1,7 +1,6 @@
 import { DataSource } from 'typeorm';
 import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
-import { ScannedItem } from './entities/ScannedItem';
 import { PATHS } from '@/core/electron/paths';
 
 /**
@@ -15,5 +14,5 @@ export const AppDataSource = new DataSource({
   database: PATHS.SQLITE_DB,
   logging: false,
   synchronize: true,
-  entities: [DriveFile, DriveFolder, ScannedItem],
+  entities: [DriveFile, DriveFolder],
 });

@@ -2,7 +2,6 @@ import { buildPaymentsService } from '../../payments/builder';
 import { PaymentsService } from '../../payments/service';
 import * as clamAVServer from '../ClamAVDaemon';
 import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
-import { clearDailyScan, scheduleDailyScan } from '../scanCronJob';
 import { logger } from '@/apps/shared/logger/logger';
 
 let paymentService: PaymentsService | null = null;
@@ -71,8 +70,6 @@ export async function initializeClamAV() {
       msg: 'ClamAV is running. Scheduling daily scan.',
     });
 
-    scheduleDailyScan();
-
     isClamAVRunning = true;
     clamAVInitializationPromise = null;
 
@@ -93,7 +90,6 @@ export async function initializeClamAV() {
 
 export function clearAntivirus() {
   if (isClamAVRunning) {
-    clearDailyScan();
     clamAVServer.stopClamdServer();
     isClamAVRunning = false;
 
