@@ -2,14 +2,15 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { ThumbnailUploaderFactory } from '../infrastructure/ThumbnailUploaderFactory';
 import { obtainImageToThumbnailIt } from './obtain-image-to-thumbnail-it';
 import { logger } from '@/apps/shared/logger/logger';
+import { FileUuid } from '../../database/entities/DriveFile';
 
 type Props = {
   bucket: string;
-  fileId: number;
+  fileUuid: FileUuid;
   absolutePath: AbsolutePath;
 };
 
-export async function createAndUploadThumbnail({ bucket, fileId, absolutePath }: Props) {
+export async function createAndUploadThumbnail({ bucket, fileUuid, absolutePath }: Props) {
   try {
     const uploader = ThumbnailUploaderFactory.build(bucket);
 
@@ -19,7 +20,7 @@ export async function createAndUploadThumbnail({ bucket, fileId, absolutePath }:
     }
 
     logger.debug({ msg: 'Create thumbnail', absolutePath });
-    const result = await uploader.upload(fileId, image);
+    const result = await uploader.upload(fileUuid, image);
     if (result.error) {
       logger.error({ msg: '[THUMBNAIL] Error uploading thumbnail', exc: result.error });
     }

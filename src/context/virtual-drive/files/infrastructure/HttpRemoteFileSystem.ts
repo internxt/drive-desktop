@@ -2,7 +2,6 @@ import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { Service } from 'diod';
-import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { basename } from 'path';
@@ -57,13 +56,8 @@ export class HttpRemoteFileSystem {
   }
 
   async getFileByPath(filePath: string) {
-    const response = await client.GET('/files/meta', {
-      params: {
-        query: {
-          path: filePath,
-        },
-      },
-    });
+    const response = await driveServerWip.files.getByPath({ path: filePath });
+
     if (!response.data) {
       logger.error({
         msg: 'Error getting file by path',
