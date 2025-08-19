@@ -12,8 +12,8 @@ export class DependencyContainerFactory {
     const sharedContainer = buildSharedContainer();
     const itemsContainer = buildItemsContainer();
     const contentsContainer = buildContentsContainer(sharedContainer);
-    const foldersContainer = buildFoldersContainer(sharedContainer);
-    const { container: filesContainer } = buildFilesContainer(contentsContainer, sharedContainer);
+    const foldersContainer = buildFoldersContainer();
+    const { container: filesContainer } = buildFilesContainer(contentsContainer);
     const boundaryBridgeContainer = buildBoundaryBridgeContainer(contentsContainer, filesContainer);
 
     const container = {

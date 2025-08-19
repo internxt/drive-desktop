@@ -19,7 +19,7 @@ describe('delete-item-placeholders', () => {
     // Given
     getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
     const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'uuid' }],
+      remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'uuid' as FolderUuid }],
       type: 'folder',
     });
     // When
@@ -32,7 +32,7 @@ describe('delete-item-placeholders', () => {
     // Given
     getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
     const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'different' }],
+      remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'different' as FolderUuid }],
       type: 'folder',
     });
     // When
@@ -45,7 +45,7 @@ describe('delete-item-placeholders', () => {
     // Given
     getFileUuid.mockReturnValue({ data: 'uuid' as FileUuid });
     const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'uuid' }],
+      remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'uuid' as FileUuid }],
       type: 'file',
     });
     // When
@@ -58,7 +58,7 @@ describe('delete-item-placeholders', () => {
     // Given
     getFileUuid.mockReturnValue({ data: 'uuid' as FileUuid });
     const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'different' }],
+      remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'different' as FileUuid }],
       type: 'file',
     });
     // When
