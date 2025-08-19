@@ -19,10 +19,6 @@ export async function getByPath(context: { path: string }) {
     loggerBody: {
       msg: 'Get file by path request',
       context,
-      attributes: {
-        method,
-        endpoint,
-      },
     },
   });
 
