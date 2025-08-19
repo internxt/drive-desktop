@@ -26,8 +26,10 @@ describe('sync-remote-files.service', () => {
   it('If we fetch less than 50 files, then do not fetch again', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: [] });
+
     // When
     await syncRemoteFiles({ self: remoteSyncManager });
+
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(1);
   });
@@ -35,8 +37,10 @@ describe('sync-remote-files.service', () => {
   it('If from is undefined, fetch only EXISTS files', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: [] });
+
     // When
     await syncRemoteFiles({ self: remoteSyncManager });
+
     // Then
     expect(getFilesMock).toHaveBeenCalledWith({
       query: expect.objectContaining({
@@ -48,8 +52,10 @@ describe('sync-remote-files.service', () => {
   it('If from is provided, fetch ALL files', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: [] });
+
     // When
     await syncRemoteFiles({ self: remoteSyncManager, from: new Date() });
+
     // Then
     expect(getFilesMock).toHaveBeenCalledWith({
       query: expect.objectContaining({
@@ -62,8 +68,10 @@ describe('sync-remote-files.service', () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFilesMock.mockResolvedValueOnce({ data: [] });
+
     // When
     await syncRemoteFiles({ self: remoteSyncManager });
+
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(2);
     expect(syncRemoteFileMock).toHaveBeenCalledTimes(50);
@@ -72,8 +80,10 @@ describe('sync-remote-files.service', () => {
   it('If fetch fails, then throw error', async () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ error: new Error() });
+
     // When
     await expect(() => syncRemoteFiles({ self: remoteSyncManager })).rejects.toThrowError();
+
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(1);
   });
@@ -82,8 +92,10 @@ describe('sync-remote-files.service', () => {
     // Given
     getFilesMock.mockResolvedValueOnce({ data: Array(50).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) });
     getFilesMock.mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
+
     // When
     await syncRemoteFiles({ self: remoteSyncManager });
+
     // Then
     const common = { userUuid: 'uuid', workspaceId: '', type: 'file' };
     expect(updateCheckpointMock).toHaveBeenCalledTimes(2);
