@@ -1,4 +1,3 @@
-import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
@@ -11,12 +10,8 @@ import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-expl
 import { ContentsContainer } from '../contents/ContentsContainer';
 import { virtualDrive } from '../common/virtualDrive';
 
-export function buildFilesContainer(
-  contentsContainer: ContentsContainer,
-  sharedContainer: SharedContainer,
-): {
+export function buildFilesContainer(contentsContainer: ContentsContainer): {
   container: FilesContainer;
-  subscribers: unknown;
 } {
   const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
 
@@ -24,7 +19,7 @@ export function buildFilesContainer(
 
   const fileCreator = new FileCreator(remoteFileSystem, virtualDrive);
 
-  const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
+  const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive);
 
   const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem, contentsContainer.contentsUploader);
 
@@ -40,5 +35,5 @@ export function buildFilesContainer(
     fileOverwriteContent,
   };
 
-  return { container, subscribers: [] };
+  return { container };
 }

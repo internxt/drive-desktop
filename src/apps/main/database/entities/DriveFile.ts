@@ -1,4 +1,4 @@
-// import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { Brand } from '@/context/shared/domain/Brand';
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
@@ -19,10 +19,10 @@ export type SimpleDriveFile = {
   modificationTime: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
 };
-// export type ExtendedDriveFile = SimpleDriveFile & {
-//   path: RelativePath;
-//   absolutePath: AbsolutePath;
-// };
+export type ExtendedDriveFile = SimpleDriveFile & {
+  path: RelativePath;
+  absolutePath: AbsolutePath;
+};
 
 @Entity('drive_file')
 export class DriveFile {
