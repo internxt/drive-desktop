@@ -10,12 +10,27 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import * as path from 'path';
+import path from 'path';
+import { CreateFileError } from '@/infra/drive-server-wip/services/files.service';
 
 type Props = {
   filePath: FilePath;
   absolutePath: AbsolutePath;
   contents: RemoteFileContents;
+};
+
+type PersistAndIndexParams = {
+  remote: HttpRemoteFileSystem;
+  folderUuid: string;
+  filePath: FilePath;
+  contents: RemoteFileContents;
+  absolutePath: AbsolutePath;
+};
+
+type EnsureParentFolderParams = {
+  remote: HttpRemoteFileSystem;
+  virtualDrive: VirtualDrive;
+  posixDir: string; // carpeta objetivo (padre del archivo)
 };
 
 export class FileCreator {
@@ -27,63 +42,45 @@ export class FileCreator {
   async run({ filePath, absolutePath, contents }: Props) {
     try {
       const posixDir = PlatformPathConverter.getFatherPathPosix(filePath.value);
-      const { data: folderUuid } = NodeWin.getFolderUuid({
-        drive: this.virtualDrive,
-        path: posixDir,
-      });
+      const folderUuid = this.getFolderUuid({ posixPath: posixDir });
 
       if (!folderUuid) {
         throw new FolderNotFoundError(posixDir);
       }
 
-      const grandParentFolder = PlatformPathConverter.getFatherPathPosix(posixDir);
-
-      const targetFolderName = path.posix.basename(posixDir);
-
-      const { data: parentUuid } = NodeWin.getFolderUuid({
-        drive: this.virtualDrive,
-        path: grandParentFolder,
-      });
-
-      if (!parentUuid) {
-        throw new FolderNotFoundError(grandParentFolder);
-      }
-
-      const remoteParentFolder = await this.remote.existParentFolder({
-        plainName: targetFolderName,
-        parentUuid,
-        path: posixDir,
-      });
-
-      if (!remoteParentFolder) {
-        const config = getConfig();
-        await this.remote.restoreParentFolder({ uuid: folderUuid, parentUuid: config.rootUuid, workspaceToken: config.workspaceToken });
-        await this.remote.renameParentFolder({ uuid: folderUuid, name: targetFolderName, workspaceToken: config.workspaceToken });
-      }
-
-      const fileDto = await this.remote.persist({
-        contentsId: contents.id,
+      const fileDto = await this.persistAndIndex({
+        remote: this.remote,
         folderUuid,
-        path: filePath.value,
-        size: contents.size,
-      });
-
-      const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
-        file: {
-          ...fileDto,
-          size: Number(fileDto.size),
-          isDangledStatus: false,
-          userUuid: getConfig().userUuid,
-          workspaceId: getConfig().workspaceId,
-        },
-        bucket: getConfig().bucket,
+        filePath,
+        contents,
         absolutePath,
       });
 
-      if (error) throw error;
-
       return fileDto;
     } catch (error) {
+      if (error instanceof CreateFileError) {
+        const posixDir = PlatformPathConverter.getFatherPathPosix(filePath.value);
+        const repaired = await this.ensureParentFolderExists({
+          remote: this.remote,
+          virtualDrive: this.virtualDrive,
+          posixDir,
+        });
+
+        if (repaired) {
+          const folderUuid = this.getFolderUuid({ posixPath: posixDir });
+          if (folderUuid) {
+            const fileDto = await this.persistAndIndex({
+              remote: this.remote,
+              folderUuid,
+              filePath,
+              contents,
+              absolutePath,
+            });
+            return fileDto;
+          }
+        }
+      }
+
       logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Error in file creator',
@@ -98,5 +95,79 @@ export class FileCreator {
 
       throw error;
     }
+  }
+
+  private getFolderUuid({ posixPath }: { posixPath: string }): string | undefined {
+    const { data: folderUuid } = NodeWin.getFolderUuid({
+      drive: this.virtualDrive,
+      path: posixPath,
+    });
+    return folderUuid;
+  }
+
+  private async persistAndIndex({ remote, folderUuid, filePath, contents, absolutePath }: PersistAndIndexParams) {
+    const fileDto = await remote.persist({
+      contentsId: contents.id,
+      folderUuid,
+      path: filePath.value,
+      size: contents.size,
+    });
+
+    const cfg = getConfig();
+
+    const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
+      file: {
+        ...fileDto,
+        size: Number(fileDto.size),
+        isDangledStatus: false,
+        userUuid: cfg.userUuid,
+        workspaceId: cfg.workspaceId,
+      },
+      bucket: cfg.bucket,
+      absolutePath,
+    });
+
+    if (error) throw error;
+
+    return fileDto;
+  }
+
+  private async ensureParentFolderExists({ remote, virtualDrive, posixDir }: EnsureParentFolderParams): Promise<boolean> {
+    const targetFolderName = path.posix.basename(posixDir);
+    const grandParentFolder = PlatformPathConverter.getFatherPathPosix(posixDir);
+
+    const { data: folderUuid } = NodeWin.getFolderUuid({
+      drive: virtualDrive,
+      path: posixDir,
+    });
+    const { data: parentUuid } = NodeWin.getFolderUuid({
+      drive: virtualDrive,
+      path: grandParentFolder,
+    });
+
+    if (!folderUuid || !parentUuid) return false;
+
+    const remoteParentFolder = await remote.existParentFolder({
+      plainName: targetFolderName,
+      parentUuid,
+      path: posixDir,
+    });
+
+    if (!remoteParentFolder) {
+      const config = getConfig();
+      await remote.restoreParentFolder({
+        uuid: folderUuid,
+        parentUuid: config.rootUuid,
+        workspaceToken: config.workspaceToken,
+      });
+
+      await remote.renameParentFolder({
+        uuid: folderUuid,
+        name: targetFolderName,
+        workspaceToken: config.workspaceToken,
+      });
+    }
+
+    return true;
   }
 }

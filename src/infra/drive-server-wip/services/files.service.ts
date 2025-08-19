@@ -3,6 +3,7 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
+import { DriveServerWipError, TDriveServerWipError } from '../out/error.types';
 
 export const files = {
   getFiles,
@@ -13,6 +14,15 @@ export const files = {
   replaceFile,
   createThumbnail,
 };
+
+export class CreateFileError extends DriveServerWipError {
+  constructor(
+    public readonly code: TDriveServerWipError | 'NOT_FOUND',
+    cause: unknown,
+  ) {
+    super(code, cause);
+  }
+}
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
@@ -52,11 +62,11 @@ async function createFile(context: { path: string; body: TCreateFileBody }) {
       body: context.body,
     });
 
-  return await clientWrapper({
+  const result = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
-      msg: 'Create file request',
+      msg: 'Fetch folder contents',
       context,
       attributes: {
         method,
@@ -64,6 +74,14 @@ async function createFile(context: { path: string; body: TCreateFileBody }) {
       },
     },
   });
+
+  if (result.error?.code === 'UNKNOWN') {
+    switch (true) {
+      case result.error.response?.status === 404:
+        return { error: new CreateFileError('NOT_FOUND', result.error.cause) };
+    }
+  }
+  return result;
 }
 
 async function moveFile(context: { uuid: string; parentUuid: string; workspaceToken: string }) {

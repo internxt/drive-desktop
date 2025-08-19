@@ -56,9 +56,11 @@ export class HttpRemoteFileSystem {
 
       if (existingFile) return existingFile;
 
-      throw logger.error({
+      logger.error({
         msg: 'Failed to persist file and no existing file found',
       });
+
+      throw error;
     }
   }
 
