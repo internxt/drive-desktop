@@ -11,6 +11,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 type TProps = {
   context: AuthContext;
+  previousProviderIds: string[];
   workspace: {
     id: string;
     key: string;
@@ -20,7 +21,7 @@ type TProps = {
   };
 };
 
-export async function spawnWorkspace({ context, workspace }: TProps) {
+export async function spawnWorkspace({ context, workspace, previousProviderIds }: TProps) {
   logger.debug({ msg: 'Spawn workspace', workspaceId: workspace.id });
 
   const { data: credentials, error } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: workspace.id });
@@ -40,6 +41,7 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       userUuid: user.uuid,
       mnemonic,
       providerId: workspace.providerId,
+      previousProviderIds,
       rootPath: workspace.rootPath,
       providerName: 'Internxt Drive for Business',
       loggerPath: join(PATHS.LOGS, `node-win-workspace-${workspace.id}.log`),
