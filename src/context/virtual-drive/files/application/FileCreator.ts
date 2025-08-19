@@ -30,7 +30,7 @@ type PersistAndIndexParams = {
 type EnsureParentFolderParams = {
   remote: HttpRemoteFileSystem;
   virtualDrive: VirtualDrive;
-  posixDir: string; // carpeta objetivo (padre del archivo)
+  posixDir: string;
 };
 
 export class FileCreator {
