@@ -33,8 +33,11 @@ describe('load-in-memory-paths', () => {
     getFileUuidMock.mockReturnValueOnce({});
     getFileUuidMock.mockReturnValueOnce({ data: 'fileUuid2' as FileUuid });
     // When
-    const { files } = await loadInMemoryPaths();
+    const { files, folders } = await loadInMemoryPaths();
     // Then
-    expect(Object.keys(files)).toStrictEqual(['fileUuid2']);
+    expect(folders).toStrictEqual({ folderUuid: 'C:\\Users\\user\\InternxtDrive\\folder' });
+    expect(files).toStrictEqual(
+      expect.objectContaining({ fileUuid2: expect.objectContaining({ path: 'C:\\Users\\user\\InternxtDrive\\folder\\file2' }) }),
+    );
   });
 });

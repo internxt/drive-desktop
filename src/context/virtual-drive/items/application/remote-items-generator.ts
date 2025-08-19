@@ -6,5 +6,5 @@ export function getAllItems() {
 }
 
 export function getExistingFiles() {
-  return ipcRendererSyncEngine.invoke('FIND_EXISTING_FILES');
+  return ipcRendererSyncEngine.invoke('FIND_EXISTING_FILES', getConfig().workspaceId);
 }

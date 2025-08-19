@@ -1,5 +1,5 @@
 import * as updateContentsIdModule from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { partialSpyOn, mockProps } from '@/tests/vitest/utils.helper.test';
@@ -23,7 +23,6 @@ describe('sync-modified-file', () => {
     });
 
   beforeEach(() => {
-    updateContentsIdMock.mockResolvedValue(undefined);
     pathUtilsMock.mockReturnValue(createRelativePath('/test.txt'));
   });
 
@@ -33,7 +32,7 @@ describe('sync-modified-file', () => {
     const localDate = new Date('2025-08-05T09:59:59.999Z');
     const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
-      path: 'C:\\Users\\test\\Drive\\test.txt',
+      path: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       stats: {
         mtime: localDate,
         size: 1000,
@@ -56,7 +55,7 @@ describe('sync-modified-file', () => {
     const localDate = new Date('2025-08-05T10:00:01.000Z');
     const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
-      path: 'C:\\Users\\test\\Drive\\test.txt',
+      path: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       stats: {
         mtime: localDate,
         size: 1000,
@@ -86,7 +85,7 @@ describe('sync-modified-file', () => {
     const localDate = new Date('2025-08-05T10:00:00.456Z');
     const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
-      path: 'C:\\Users\\test\\Drive\\test.txt',
+      path: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       stats: {
         mtime: localDate,
         size: 1000,

@@ -70,6 +70,7 @@ describe('sync-modified-files', () => {
       fileContentsUploader,
       virtualDrive,
     });
+
     expect(syncModifiedFileMock).toHaveBeenNthCalledWith(2, {
       remoteFile: remoteFile2,
       localFile: localFile2,
@@ -145,6 +146,7 @@ describe('sync-modified-files', () => {
       fileContentsUploader,
       virtualDrive,
     });
+
     expect(syncModifiedFileMock).toHaveBeenNthCalledWith(2, {
       remoteFile: remoteFile4,
       localFile: localFile4,

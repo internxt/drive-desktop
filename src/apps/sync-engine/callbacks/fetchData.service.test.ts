@@ -1,5 +1,5 @@
 import { mockDeep } from 'vitest-mock-extended';
-import { BindingsManager } from '../binding-manager';
+import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { DeepPartial } from 'ts-essentials';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';

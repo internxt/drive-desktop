@@ -5,12 +5,12 @@ import { syncModifiedFile } from './sync-modified-file';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { getExistingFiles } from '@/context/virtual-drive/items/application/remote-items-generator';
 
-type SyncModifiedFilesProps = {
+type Props = {
   fileContentsUploader: ContentsUploader;
   virtualDrive: VirtualDrive;
 };
 
-export async function syncModifiedFiles({ fileContentsUploader, virtualDrive }: SyncModifiedFilesProps) {
+export async function syncModifiedFiles({ fileContentsUploader, virtualDrive }: Props) {
   const remoteDriveFiles = await getExistingFiles();
   const { files } = await loadInMemoryPaths();
 

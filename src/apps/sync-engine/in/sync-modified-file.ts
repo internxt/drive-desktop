@@ -9,7 +9,7 @@ import { Stats } from 'fs';
 
 type Props = {
   remoteFile: DriveFile;
-  localFile: { path: string; stats: Stats };
+  localFile: { path: AbsolutePath; stats: Stats };
   fileContentsUploader: ContentsUploader;
   virtualDrive: VirtualDrive;
 };
@@ -25,7 +25,7 @@ export async function syncModifiedFile({ remoteFile, localFile, fileContentsUplo
   const roundLocalTime = Math.floor(localFile.stats.mtime.getTime() / 1000);
 
   if (roundLocalTime > roundRemoteTime && localFile.stats.size !== remoteFile.size) {
-    const fileRelativePath = pathUtils.absoluteToRelative({ base: virtualDrive.syncRootPath, path: localFile.path as AbsolutePath });
+    const fileRelativePath = pathUtils.absoluteToRelative({ base: virtualDrive.syncRootPath, path: localFile.path });
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'File placeholder has been modified locally, updating remote',
@@ -39,7 +39,7 @@ export async function syncModifiedFile({ remoteFile, localFile, fileContentsUplo
       virtualDrive,
       stats: localFile.stats,
       path: fileRelativePath,
-      uuid: remoteFile.uuid as string,
+      uuid: remoteFile.uuid,
       fileContentsUploader,
     });
   }

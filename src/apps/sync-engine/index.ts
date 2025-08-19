@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
-import { BindingsManager } from './binding-manager';
+import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { setConfig, Config, getConfig, setDefaultConfig } from './config';
 import { logger } from '../shared/logger/logger';
