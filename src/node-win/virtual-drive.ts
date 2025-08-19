@@ -183,7 +183,7 @@ export class VirtualDrive {
     lastWriteTime = Date.now(),
   }: {
     relativePath: string;
-    itemId: string;
+    itemId: FilePlaceholderId;
     size?: number;
     creationTime?: number;
     lastWriteTime?: number;
@@ -223,7 +223,7 @@ export class VirtualDrive {
     lastWriteTime = Date.now(),
   }: {
     relativePath: string;
-    itemId: string;
+    itemId: FolderPlaceholderId;
     size?: number;
     creationTime?: number;
     lastWriteTime?: number;

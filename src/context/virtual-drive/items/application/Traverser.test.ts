@@ -1,11 +1,11 @@
 import { v4 } from 'uuid';
-import { ContentsIdMother } from 'tests/context/virtual-drive/contents/domain/ContentsIdMother';
 import { Traverser } from './Traverser';
 import * as crypt from '@/context/shared/infrastructure/crypt';
-import { File } from '../../files/domain/File';
-import { Folder } from '../../folders/domain/Folder';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { getAllItems } from './RemoteItemsGenerator';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('@/context/shared/infrastructure/crypt'));
 vi.mock(import('./RemoteItemsGenerator'));
@@ -14,15 +14,15 @@ describe('Traverser', () => {
   const cryptMock = vi.mocked(crypt);
   const getAllItemsMock = deepMocked(getAllItems);
 
-  const baseFolderId = 6;
-  const baseFolderUuid = v4();
-  const SUT = new Traverser(baseFolderId, baseFolderUuid);
+  const rootPath = 'C:/Users/user/InternxtDrive' as AbsolutePath;
+  const rootUuid = v4() as FolderUuid;
+  const SUT = new Traverser(rootPath, rootUuid);
 
   beforeAll(() => {
     cryptMock.decryptName.mockImplementation(({ encryptedName }) => encryptedName);
   });
 
-  function extractPaths(items: File[] | Folder[]) {
+  function extractPaths(items: ExtendedDriveFile[] | ExtendedDriveFolder[]) {
     return items.map((item) => item.path);
   }
 
@@ -30,11 +30,8 @@ describe('Traverser', () => {
     getAllItemsMock.mockResolvedValue({
       files: [
         {
-          name: 'file A',
-          fileId: ContentsIdMother.raw(),
-          folderId: baseFolderId,
-          folderUuid: baseFolderUuid,
-          uuid: v4(),
+          nameWithExtension: 'file A',
+          parentUuid: rootUuid,
           size: 67,
           status: 'EXISTS',
         },
@@ -52,23 +49,18 @@ describe('Traverser', () => {
     getAllItemsMock.mockResolvedValue({
       files: [
         {
-          name: 'file A',
-          fileId: ContentsIdMother.raw(),
-          folderId: 22491,
-          folderUuid: '87c76c58-717d-5fee-ab8d-0ab4b94bb708',
-          uuid: v4(),
+          nameWithExtension: 'file A',
+          parentUuid: '87c76c58-717d-5fee-ab8d-0ab4b94bb708',
           size: 200,
           status: 'EXISTS',
         },
       ],
       folders: [
         {
-          id: 22491,
-          parentId: baseFolderId,
-          parentUuid: baseFolderUuid,
-          plainName: 'folder A',
+          parentUuid: rootUuid,
+          name: 'folder A',
           status: 'EXISTS',
-          uuid: '87c76c58-717d-5fee-ab8d-0ab4b94bb708',
+          uuid: '87c76c58-717d-5fee-ab8d-0ab4b94bb708' as FolderUuid,
         },
       ],
     });
@@ -84,12 +76,10 @@ describe('Traverser', () => {
       files: [],
       folders: [
         {
-          id: 22491,
-          parentId: baseFolderId,
-          parentUuid: baseFolderUuid,
-          plainName: 'folder A',
+          parentUuid: rootUuid,
+          name: 'folder A',
           status: 'EXISTS',
-          uuid: '35d8c70c-36eb-5761-8340-cf632a86334b',
+          uuid: '35d8c70c-36eb-5761-8340-cf632a86334b' as FolderUuid,
         },
       ],
     });
@@ -104,20 +94,16 @@ describe('Traverser', () => {
       files: [],
       folders: [
         {
-          id: 22491,
-          parentId: baseFolderId,
-          parentUuid: baseFolderUuid,
-          plainName: 'folder A',
+          parentUuid: rootUuid,
+          name: 'folder A',
           status: 'EXISTS',
-          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
+          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b' as FolderUuid,
         },
         {
-          id: 89181879209463,
-          parentId: 22491,
           parentUuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
-          plainName: 'folder B',
+          name: 'folder B',
           status: 'EXISTS',
-          uuid: '56fdacd4-384e-558c-9442-bb032f4b9123',
+          uuid: '56fdacd4-384e-558c-9442-bb032f4b9123' as FolderUuid,
         },
       ],
     });
@@ -132,20 +118,16 @@ describe('Traverser', () => {
       files: [],
       folders: [
         {
-          id: 22491,
-          parentId: baseFolderId,
-          parentUuid: baseFolderUuid,
-          plainName: 'folder A',
+          parentUuid: rootUuid,
+          name: 'folder A',
           status: 'EXISTS',
-          uuid: '6a17069e-5473-5101-b3ab-66f710043f3e',
+          uuid: '6a17069e-5473-5101-b3ab-66f710043f3e' as FolderUuid,
         },
         {
-          id: 89181879209463,
-          parentId: 22491,
           parentUuid: '6a17069e-5473-5101-b3ab-66f710043f3e',
-          plainName: 'folder B',
+          name: 'folder B',
           status: 'EXISTS',
-          uuid: 'd600cb02-ad9c-570f-8977-eb87b7e95ef5',
+          uuid: 'd600cb02-ad9c-570f-8977-eb87b7e95ef5' as FolderUuid,
         },
       ],
     });
@@ -159,29 +141,22 @@ describe('Traverser', () => {
     getAllItemsMock.mockResolvedValue({
       files: [
         {
-          name: 'invalid file',
-          uuid: v4(),
-          folderUuid: baseFolderUuid,
-          fileId: 'Some response',
-          folderId: baseFolderId,
+          nameWithExtension: 'invalid file',
+          parentUuid: rootUuid,
           size: 67,
           status: 'EXISTS',
         },
         {
-          name: 'valid_name',
-          uuid: v4(),
-          folderUuid: baseFolderUuid,
-          fileId: ContentsIdMother.raw(),
-          folderId: baseFolderId,
+          nameWithExtension: 'valid_name',
+          parentUuid: rootUuid,
           size: 67,
           status: 'EXISTS',
         },
         {
-          name: 'valid_name_2',
-          uuid: v4(),
-          folderUuid: baseFolderUuid,
-          fileId: ContentsIdMother.raw(),
+          nameWithExtension: 'valid_name_2',
+          parentUuid: rootUuid,
           size: 67,
+          status: 'EXISTS',
         },
       ],
       folders: [],
@@ -189,7 +164,7 @@ describe('Traverser', () => {
 
     const tree = await SUT.run();
 
-    expect(extractPaths(tree.files)).toStrictEqual(['/valid_name']);
+    expect(extractPaths(tree.files)).toStrictEqual(['/invalid file', '/valid_name', '/valid_name_2']);
   });
 
   it('when a folder data is invalid ignore it and continue', async () => {
@@ -197,14 +172,10 @@ describe('Traverser', () => {
       files: [],
       folders: [
         {
-          id: 22491,
-          parentId: baseFolderId,
-          parentUuid: baseFolderUuid,
-          plainName: 'folder A',
+          parentUuid: rootUuid,
+          name: 'folder A',
           status: 'EXISTS',
-          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
         },
-        {},
       ],
     });
 
@@ -218,23 +189,18 @@ describe('Traverser', () => {
     getAllItemsMock.mockResolvedValue({
       files: [
         {
-          name: 'file A',
-          fileId: ContentsIdMother.raw(),
-          folderId: baseFolderId,
-          uuid: v4(),
-          folderUuid: baseFolderUuid,
+          nameWithExtension: 'file A',
+          parentUuid: rootUuid,
           size: 67,
           status: 'EXISTS',
         },
       ],
       folders: [
         {
-          id: 22491,
-          parentId: baseFolderId,
-          parentUuid: baseFolderUuid,
-          plainName: 'folder A',
+          parentUuid: rootUuid,
+          name: 'folder A',
           status: 'TRASHED',
-          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
+          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b' as FolderUuid,
         },
       ],
     });
@@ -249,34 +215,24 @@ describe('Traverser', () => {
     getAllItemsMock.mockResolvedValue({
       files: [
         {
-          name: 'file A',
-          fileId: ContentsIdMother.raw(),
-          folderId: baseFolderId,
-          folderUuid: baseFolderUuid,
+          nameWithExtension: 'file A.png',
+          parentUuid: rootUuid,
           size: 67,
-          uuid: v4(),
           status: 'EXISTS',
-          type: 'png',
         },
         {
-          name: 'file B',
-          fileId: ContentsIdMother.raw(),
-          uuid: v4(),
-          folderId: baseFolderId,
-          folderUuid: baseFolderUuid,
+          nameWithExtension: 'file B.png',
+          parentUuid: rootUuid,
           size: 67,
           status: 'TRASHED',
-          type: 'png',
         },
       ],
       folders: [
         {
-          id: 22491,
-          parentId: baseFolderId,
-          parentUuid: baseFolderUuid,
-          plainName: 'folder A',
+          parentUuid: rootUuid,
+          name: 'folder A',
           status: 'TRASHED',
-          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b',
+          uuid: 'fc790269-92ac-5990-b9e0-a08d6552bf0b' as FolderUuid,
         },
       ],
     });
