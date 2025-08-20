@@ -151,22 +151,21 @@ export class HttpRemoteFileSystem {
     name: string;
     workspaceToken: string;
   }) {
-    const { data: movedData, error: moveError } = await driveServerWip.folders.moveFolder({
-      parentUuid,
-      workspaceToken,
-      uuid,
-    });
+    const [{ error: moveError }, { error: renameError }] = await Promise.all([
+      driveServerWip.folders.moveFolder({
+        parentUuid,
+        workspaceToken,
+        uuid,
+      }),
+      driveServerWip.folders.renameFolder({
+        name,
+        workspaceToken,
+        uuid,
+      }),
+    ]);
 
-    if (!movedData) throw moveError;
-
-    const { data: renamedData, error: renameError } = await driveServerWip.folders.renameFolder({
-      name,
-      workspaceToken,
-      uuid,
-    });
-
-    if (!renamedData) throw renameError;
-
-    return renamedData;
+    if (moveError || renameError) {
+      throw logger.error({ msg: 'Error restoring parent folder', moveError, renameError });
+    }
   }
 }
