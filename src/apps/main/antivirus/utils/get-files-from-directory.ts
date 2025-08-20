@@ -1,5 +1,5 @@
 import { readdir } from 'fs/promises';
-import { join } from 'path';
+import { resolve } from 'path';
 import { PathTypeChecker } from '@/apps/shared/fs/PathTypeChecker';
 import { logger } from '@/apps/shared/logger/logger';
 
@@ -32,7 +32,7 @@ export async function getFilesFromDirectory({ rootFolder }: TProps) {
 
         if (name.includes('temp') || name.includes('tmp')) continue;
 
-        const fullPath = join(folder, item.name);
+        const fullPath = resolve(folder, item.name);
 
         if (item.isFile()) {
           files.push(fullPath);
