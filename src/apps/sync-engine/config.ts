@@ -5,6 +5,7 @@ import { FolderUuid } from '../main/database/entities/DriveFolder';
 export type Config = {
   userUuid: string;
   providerId: string;
+  previousProviderIds: string[];
   rootPath: string;
   rootUuid: FolderUuid;
   providerName: string;
@@ -24,6 +25,7 @@ const emptyValues = (): Config => {
   return {
     userUuid: '',
     providerId: '',
+    previousProviderIds: [],
     rootPath: '',
     providerName: '',
     loggerPath: '',
@@ -50,6 +52,7 @@ const defaultValues = (): Config => {
   return {
     userUuid: user.uuid,
     providerId: config.providerId,
+    previousProviderIds: config.previousProviderIds,
     rootPath: config.rootPath,
     providerName: config.providerName,
     loggerPath: config.loggerPath,

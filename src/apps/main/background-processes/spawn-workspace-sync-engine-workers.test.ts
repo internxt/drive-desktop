@@ -27,7 +27,9 @@ describe('spawn-workspace-sync-engine-workers', () => {
     await spawnWorkspaceSyncEngineWorkers(props);
 
     // Then
-    expect(getMockCalls(spawnWorkspaceMock)).toStrictEqual([{ context: undefined, workspace: { providerId: '{WORKSPACE_PROVIDER_ID}' } }]);
+    expect(getMockCalls(spawnWorkspaceMock)).toStrictEqual([
+      expect.objectContaining({ workspace: { providerId: '{WORKSPACE_PROVIDER_ID}' } }),
+    ]);
     expect(getMockCalls(unregisterVirtualDrivesMock)).toStrictEqual([{ currentProviderIds: ['{WORKSPACE_PROVIDER_ID}', '{PROVIDER_ID}'] }]);
   });
 });
