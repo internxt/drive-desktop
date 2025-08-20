@@ -4,16 +4,34 @@ import { getPendingItems } from './get-pending-items';
 import { addPendingFiles } from './add-pending-files';
 import { addPendingFolders } from './add-pending-folders';
 import { IControllers } from '../callbacks-controllers/buildControllers';
-import { getConfig } from '../config';
 import { syncModifiedFiles } from './sync-modified-files';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
+import { SyncContext } from '../config';
 
 type Props = {
+  ctx: SyncContext;
   controllers: IControllers;
   fileContentsUploader: ContentsUploader;
 };
 
-export async function addPendingItems({ controllers, fileContentsUploader }: Props) {
+export async function addPendingItems({ ctx, controllers, fileContentsUploader }: Props) {
+  const firstTimeRegistered = !ctx.previousProviderIds.includes(ctx.providerId);
+
+  /**
+   * v2.5.7 Daniel Jiménez
+   * If the cloud provider was not registered before it means that all items that
+   * were in the root folder have their placeholders gone, so it's going to consider
+   * that all items are new and try to create them again.
+   */
+  if (firstTimeRegistered) {
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Skip add pending items, first time registered',
+      workspaceId: ctx.workspaceId,
+    });
+    return;
+  }
+
   try {
     const { pendingFiles, pendingFolders } = await getPendingItems({
       virtualDrive,
@@ -23,7 +41,7 @@ export async function addPendingItems({ controllers, fileContentsUploader }: Pro
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Pending items',
-      workspaceId: getConfig().workspaceId,
+      workspaceId: ctx.workspaceId,
       pendingFiles: pendingFiles.length,
       pendingFolders: pendingFolders.length,
     });

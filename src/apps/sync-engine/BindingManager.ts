@@ -3,7 +3,7 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
-import { getConfig } from './config';
+import { getConfig, SyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
@@ -23,7 +23,7 @@ export class BindingsManager {
     this.controllers = buildControllers(this.container);
   }
 
-  async start() {
+  async start({ ctx }: { ctx: SyncContext }) {
     const callbacks: Callbacks = {
       fetchDataCallback: async (filePlaceholderId, callback) => {
         await fetchData({
@@ -46,7 +46,7 @@ export class BindingsManager {
     });
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
-    void addPendingItems({ controllers: this.controllers, fileContentsUploader: this.container.contentsUploader });
+    void addPendingItems({ ctx, controllers: this.controllers, fileContentsUploader: this.container.contentsUploader });
 
     /**
      * Jonathan Arce v2.5.1

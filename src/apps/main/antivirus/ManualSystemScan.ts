@@ -1,14 +1,9 @@
-/* eslint-disable max-len */
-import { ScannedItem } from '../database/entities/ScannedItem';
 import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { AntivirusManager } from './antivirus-manager/antivirus-manager';
 import { AntivirusEngine } from './antivirus-manager/types';
-import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
-import { DBScannerConnection } from './utils/dbConections';
-import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { logger } from '@/apps/shared/logger/logger';
 import { getFilesFromDirectory } from './utils/get-files-from-directory';
 
@@ -30,7 +25,6 @@ export async function getManualScanMonitorInstance() {
 }
 
 class ManualSystemScan {
-  private dbConnection: DBScannerConnection;
   private manualQueue: QueueObject<string> | null;
   private progressEvents: ProgressData[];
   private totalScannedFiles: number;
@@ -51,9 +45,6 @@ class ManualSystemScan {
     this.antivirus = null;
     this.cancelled = false;
     this.scanSessionId = 0;
-
-    const scannedItemsAdapter = new ScannedItemCollection();
-    this.dbConnection = new DBScannerConnection(scannedItemsAdapter);
   }
 
   trackProgress = (currentSession: number, data: { file: string; isInfected: boolean }) => {
@@ -114,17 +105,6 @@ class ManualSystemScan {
     this.antivirus = null;
   }
 
-  private handlePreviousScannedItem = async (currentSession: number, scannedItem: ScannedItem, previousScannedItem: ScannedItem) => {
-    if (currentSession !== this.scanSessionId) return;
-
-    if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
-      this.trackProgress(currentSession, {
-        file: previousScannedItem.pathName,
-        isInfected: previousScannedItem.isInfected,
-      });
-    }
-  };
-
   public async scanItems(pathNames?: string[]): Promise<void> {
     this.cancelled = false;
     this.scanSessionId++;
@@ -150,20 +130,9 @@ class ManualSystemScan {
     const scan = async (filePath: string) => {
       if (this.cancelled) return;
       try {
-        const scannedItem = await transformItem(filePath);
-        const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
-        if (previousScannedItem) {
-          return this.handlePreviousScannedItem(currentSession, scannedItem, previousScannedItem);
-        }
-
-        const currentScannedFile = await antivirus?.scanFile({ filePath: scannedItem.pathName });
+        const currentScannedFile = await antivirus?.scanFile({ filePath });
 
         if (currentScannedFile) {
-          await this.dbConnection.addItemToDatabase({
-            ...scannedItem,
-            isInfected: currentScannedFile.isInfected,
-          });
-
           this.trackProgress(currentSession, {
             file: currentScannedFile.file,
             isInfected: currentScannedFile.isInfected,

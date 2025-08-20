@@ -3,17 +3,7 @@ import { PATHS } from '@/core/electron/paths';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { join } from 'node:path';
 
-type TReturn = Promise<
-  Array<{
-    id: string;
-    providerId: string;
-    key: string;
-    rootFolderId: string;
-    rootPath: string;
-  }>
->;
-
-export async function getWorkspaces(): TReturn {
+export async function getWorkspaces() {
   logger.debug({
     tag: 'SYNC-ENGINE',
     msg: 'Get workspaces',

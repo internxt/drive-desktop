@@ -3,7 +3,7 @@ import { BindingsManager } from '../BindingManager';
 import { DependencyContainerFactory } from '../dependency-injection/DependencyContainerFactory';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
-import { setDefaultConfig } from '../config';
+import { getConfig, setDefaultConfig, SyncContext } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
@@ -13,7 +13,7 @@ import { PinState } from '@/node-win/types/placeholder.type';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockDeep } from 'vitest-mock-extended';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
 import { initializeVirtualDrive } from '../dependency-injection/common/virtualDrive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -43,7 +43,7 @@ describe('create-placeholder', () => {
   });
 
   afterAll(() => {
-    VirtualDrive.unRegisterSyncRootByProviderId({ providerId });
+    VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
   it('Should create placeholder', async () => {
@@ -55,6 +55,11 @@ describe('create-placeholder', () => {
       rootUuid: rootFolderUuid as FolderUuid,
       queueManagerPath,
     });
+
+    const ctx: SyncContext = {
+      ...getConfig(),
+      abortController: new AbortController(),
+    };
 
     invokeMock.mockImplementation((event) => {
       if (event === 'GET_UPDATED_REMOTE_ITEMS') {
@@ -86,7 +91,7 @@ describe('create-placeholder', () => {
         size: '1',
         status: 'EXISTS',
         updatedAt: new Date().toISOString(),
-        uuid: v4(),
+        uuid: v4() as FileUuid,
         modificationTime: new Date().toISOString(),
         plainName: 'plainName',
         userId: 1,
@@ -99,7 +104,7 @@ describe('create-placeholder', () => {
     const bindingManager = new BindingsManager(container);
 
     // When
-    await bindingManager.start();
+    await bindingManager.start({ ctx });
     bindingManager.watch();
 
     await sleep(100);

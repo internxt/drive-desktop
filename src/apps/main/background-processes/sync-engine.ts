@@ -50,7 +50,7 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-export async function spawnDefaultSyncEngineWorker({ context }: { context: AuthContext }) {
+export function spawnDefaultSyncEngineWorker({ context, previousProviderIds }: { context: AuthContext; previousProviderIds: string[] }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
@@ -58,6 +58,7 @@ export async function spawnDefaultSyncEngineWorker({ context }: { context: AuthC
     ...context,
     userUuid: user.uuid,
     providerId,
+    previousProviderIds,
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
@@ -71,12 +72,20 @@ export async function spawnDefaultSyncEngineWorker({ context }: { context: AuthC
     workspaceToken: '',
   };
 
-  await spawnSyncEngineWorker({ context: syncContext });
+  void spawnSyncEngineWorker({ context: syncContext });
 
   return { providerId };
 }
 
-export async function spawnWorkspaceSyncEngineWorkers({ context, providerId }: { context: AuthContext; providerId: string }) {
+export async function spawnWorkspaceSyncEngineWorkers({
+  context,
+  providerId,
+  previousProviderIds,
+}: {
+  context: AuthContext;
+  providerId: string;
+  previousProviderIds: string[];
+}) {
   const workspaces = await getWorkspaces();
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
@@ -85,7 +94,7 @@ export async function spawnWorkspaceSyncEngineWorkers({ context, providerId }: {
   unregisterVirtualDrives({ currentProviderIds });
 
   const spawnWorkspaces = workspaces.map(async (workspace) => {
-    await spawnWorkspace({ context, workspace });
+    await spawnWorkspace({ context, workspace, previousProviderIds });
   });
 
   await Promise.all(spawnWorkspaces);
