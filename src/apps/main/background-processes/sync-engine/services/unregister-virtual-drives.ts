@@ -19,7 +19,7 @@ export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
        * and we lose them - it happened). Also, do not clear the database, because since we are keeping the files, we also need to keep
        * the lastSyncCheckpoint of files and folders.
        */
-      VirtualDrive.unRegisterSyncRootByProviderId({ providerId: syncRoot.id });
+      VirtualDrive.unregisterSyncRoot({ providerId: syncRoot.id });
     }
   });
 }

@@ -31,7 +31,7 @@ describe('get-folder-identity', () => {
 
   afterAll(() => {
     virtualDrive.disconnectSyncRoot();
-    VirtualDrive.unRegisterSyncRootByProviderId({ providerId });
+    VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
   it('If get folder identity of a placeholder folder, then return the placeholder id', async () => {

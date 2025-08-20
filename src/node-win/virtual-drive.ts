@@ -167,11 +167,7 @@ export class VirtualDrive {
     return DependencyInjectionAddonProvider.get().getRegisteredSyncRoots();
   }
 
-  unregisterSyncRoot() {
-    return this.addon.unregisterSyncRoot({ providerId: this.providerId });
-  }
-
-  static unRegisterSyncRootByProviderId({ providerId }: { providerId: string }) {
+  static unregisterSyncRoot({ providerId }: { providerId: string }) {
     return DependencyInjectionAddonProvider.get().unregisterSyncRoot({ providerId });
   }
 
