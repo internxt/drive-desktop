@@ -26,7 +26,7 @@ describe('update-contents-id', () => {
       fileContentsUploader,
       path,
       uuid,
-      stats: { size: 1024 },
+      stats: { size: 1024, mtime: new Date('2025-08-20T00:00:00.000Z') },
     });
   });
 
@@ -64,7 +64,12 @@ describe('update-contents-id', () => {
     // When
     await updateContentsId(props);
     // Then
-    expect(replaceFileSpy).toBeCalledWith({ uuid, newContentId: 'newContentsId', newSize: 1 });
+    expect(replaceFileSpy).toBeCalledWith({
+      uuid,
+      newContentId: 'newContentsId',
+      newSize: 1,
+      modificationTime: '2025-08-20T00:00:00.000Z',
+    });
     expect(loggerMock.error).toBeCalledTimes(0);
   });
 });

@@ -56,7 +56,7 @@ export class FileBatchUpdater {
         uuid: file.uuid,
         newContentId: contentsId,
         newSize: localFile.size.value,
-        modificationTime: localFile.modificationTime,
+        modificationTime: localFile.modificationTime.toISOString(),
       });
     } catch (exc) {
       logger.error({
