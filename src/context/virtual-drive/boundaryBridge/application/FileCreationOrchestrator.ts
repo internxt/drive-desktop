@@ -4,6 +4,7 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { FilePath } from '../../files/domain/FilePath';
 import { Stats } from 'fs';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 type TProps = {
   path: RelativePath;
@@ -17,7 +18,7 @@ export class FileCreationOrchestrator {
     private readonly fileCreator: FileCreator,
   ) {}
 
-  async run({ path, absolutePath, stats }: TProps) {
+  async run({ path, absolutePath, stats }: TProps): Promise<FileUuid> {
     const filePath = new FilePath(path);
 
     const fileContents = await this.contentsUploader.run({ path, stats });

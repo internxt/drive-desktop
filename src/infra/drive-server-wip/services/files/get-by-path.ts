@@ -1,29 +1,24 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { clientWrapper } from '../../in/client-wrapper.service';
 import { getRequestKey } from '../../in/get-in-flight-request';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { parseFileDto } from '../../out/dto';
 
-export async function getByUuid(context: { uuid: FileUuid }) {
+export async function getByPath(context: { path: string }) {
   const method = 'GET';
-  const endpoint = '/files/{uuid}/meta';
+  const endpoint = '/files/meta';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
-      params: { path: { uuid: context.uuid } },
+      params: { query: { path: context.path } },
     });
 
   const res = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
-      msg: 'Get file by uuid request',
+      msg: 'Get file by path request',
       context,
-      attributes: {
-        method,
-        endpoint,
-      },
     },
   });
 

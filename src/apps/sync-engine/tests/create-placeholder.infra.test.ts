@@ -13,7 +13,7 @@ import { PinState } from '@/node-win/types/placeholder.type';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockDeep } from 'vitest-mock-extended';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
 import { initializeVirtualDrive } from '../dependency-injection/common/virtualDrive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -91,7 +91,7 @@ describe('create-placeholder', () => {
         size: '1',
         status: 'EXISTS',
         updatedAt: new Date().toISOString(),
-        uuid: v4(),
+        uuid: v4() as FileUuid,
         modificationTime: new Date().toISOString(),
         plainName: 'plainName',
         userId: 1,

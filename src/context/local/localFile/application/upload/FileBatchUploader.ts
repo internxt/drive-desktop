@@ -45,7 +45,7 @@ export class FileBatchUploader {
 
         await createAndUploadThumbnail({
           bucket: context.backupsBucket,
-          fileId: file.id,
+          fileUuid: file.uuid,
           absolutePath: localFile.absolutePath,
         });
       } catch (error) {

@@ -3,10 +3,13 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
+import { parseFileDto } from '../out/dto';
+import { getByPath } from './files/get-by-path';
 
 export const files = {
   getFiles,
   getByUuid,
+  getByPath,
   createFile,
   moveFile,
   renameFile,
@@ -52,7 +55,7 @@ async function createFile(context: { path: string; body: TCreateFileBody }) {
       body: context.body,
     });
 
-  return await clientWrapper({
+  const res = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -64,6 +67,12 @@ async function createFile(context: { path: string; body: TCreateFileBody }) {
       },
     },
   });
+
+  if (res.data) {
+    return { data: parseFileDto({ fileDto: res.data }) };
+  } else {
+    return { error: res.error };
+  }
 }
 
 async function moveFile(context: { uuid: string; parentUuid: string; workspaceToken: string }) {
