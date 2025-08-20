@@ -14,28 +14,27 @@ describe('sync-modified-file', () => {
   const updateContentsIdMock = partialSpyOn(updateContentsIdModule, 'updateContentsId');
   const pathUtilsMock = partialSpyOn(pathUtils, 'absoluteToRelative');
 
-  const createRemoteFile = (modificationDate: Date, uuid: string) =>
+  const createRemoteFile = (size: number, uuid: string) =>
     mockProps({
       uuid,
       name: 'test.txt',
       path: createRelativePath('/test.txt'),
-      modificationTime: modificationDate,
+      size,
     });
 
   beforeEach(() => {
     pathUtilsMock.mockReturnValue(createRelativePath('/test.txt'));
   });
 
-  it('should not update remote file if local modification time is older', async () => {
+  it('should not update remote file if local and remote file sizes are equal', async () => {
     // Given
-    const remoteDate = new Date('2025-08-05T10:00:00.123Z');
-    const localDate = new Date('2025-08-05T09:59:59.999Z');
-    const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
+    const fileSize = 1000;
+    const remoteFile = createRemoteFile(fileSize, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
       path: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       stats: {
-        mtime: localDate,
-        size: 1000,
+        mtime: new Date('2025-08-05T10:00:00.000Z'),
+        size: fileSize,
       } as Stats,
     };
     // When
@@ -49,16 +48,16 @@ describe('sync-modified-file', () => {
     expect(updateContentsIdMock).not.toBeCalled();
   });
 
-  it('should update remote file if local modification time is newer', async () => {
+  it('should update remote file if local and remote file sizes are different', async () => {
     // Given
-    const remoteDate = new Date('2025-08-05T10:00:00.123Z');
-    const localDate = new Date('2025-08-05T10:00:01.000Z');
-    const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
+    const remoteSize = 1000;
+    const localSize = 1500;
+    const remoteFile = createRemoteFile(remoteSize, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
       path: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       stats: {
-        mtime: localDate,
-        size: 1000,
+        mtime: new Date('2025-08-05T10:00:00.000Z'),
+        size: localSize,
       } as Stats,
     };
     // When
@@ -79,16 +78,15 @@ describe('sync-modified-file', () => {
     });
   });
 
-  it('should not update if timestamps are identical when rounded to seconds', async () => {
+  it('should not update if file sizes are identical', async () => {
     // Given
-    const remoteDate = new Date('2025-08-05T10:00:00.123Z');
-    const localDate = new Date('2025-08-05T10:00:00.456Z');
-    const remoteFile = createRemoteFile(remoteDate, '123e4567-e89b-12d3-a456-426614174000');
+    const fileSize = 2000;
+    const remoteFile = createRemoteFile(fileSize, '123e4567-e89b-12d3-a456-426614174000');
     const localFile = {
       path: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
       stats: {
-        mtime: localDate,
-        size: 1000,
+        mtime: new Date('2025-08-05T10:00:00.456Z'),
+        size: fileSize,
       } as Stats,
     };
     // When

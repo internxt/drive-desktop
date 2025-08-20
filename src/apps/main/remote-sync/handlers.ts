@@ -77,7 +77,7 @@ export async function getUpdatedRemoteItems(workspaceId: string) {
 
 void ipcMainSyncEngine.handle('FIND_EXISTING_FILES', async (_, workspaceId: string) => {
   const existingFiles = await SqliteModule.FileModule.getByWorkspaceId({ workspaceId });
-  return existingFiles.data;
+  return existingFiles.data ?? [];
 });
 
 void ipcMainSyncEngine.handle('FIND_DANGLED_FILES', async () => {

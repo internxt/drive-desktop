@@ -15,16 +15,7 @@ type Props = {
 };
 
 export async function syncModifiedFile({ remoteFile, localFile, fileContentsUploader, virtualDrive }: Props) {
-  /**
-   * v2.5.6 Esteban Galvis
-   * Sync issues occurred due to millisecond differences in modification time,
-   * causing repeated updates. To fix this, we round timestamps to seconds.
-   */
-  const remoteDate = new Date(remoteFile.modificationTime);
-  const roundRemoteTime = Math.floor(remoteDate.getTime() / 1000);
-  const roundLocalTime = Math.floor(localFile.stats.mtime.getTime() / 1000);
-
-  if (roundLocalTime > roundRemoteTime && localFile.stats.size !== remoteFile.size) {
+  if (localFile.stats.size !== remoteFile.size) {
     const fileRelativePath = pathUtils.absoluteToRelative({ base: virtualDrive.syncRootPath, path: localFile.path });
     logger.debug({
       tag: 'SYNC-ENGINE',
