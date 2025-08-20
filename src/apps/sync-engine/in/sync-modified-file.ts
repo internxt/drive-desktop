@@ -22,8 +22,8 @@ export async function syncModifiedFile({ remoteFile, localFile, fileContentsUplo
       msg: 'File placeholder has been modified locally, updating remote',
       path: filePath,
       uuid: remoteFile.uuid,
-      remoteDate: remoteFile.modificationTime,
-      localDate: localFile.stats.mtime.toISOString(),
+      localSize: localFile.stats.size,
+      remoteSize: remoteFile.size,
     });
 
     await updateContentsId({
