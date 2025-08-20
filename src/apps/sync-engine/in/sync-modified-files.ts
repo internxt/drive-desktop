@@ -3,7 +3,7 @@ import { ContentsUploader } from '@/context/virtual-drive/contents/application/C
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { syncModifiedFile } from './sync-modified-file';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { getExistingFiles } from '@/context/virtual-drive/items/application/remote-items-generator';
+import { getExistingFiles } from '@/context/virtual-drive/items/application/RemoteItemsGenerator';
 
 type Props = {
   fileContentsUploader: ContentsUploader;

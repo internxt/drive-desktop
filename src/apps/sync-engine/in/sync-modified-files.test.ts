@@ -4,7 +4,7 @@ import { ContentsUploader } from '@/context/virtual-drive/contents/application/C
 import { partialSpyOn, mockProps } from '@/tests/vitest/utils.helper.test';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as syncModifiedFileModule from './sync-modified-file';
-import * as remoteItemsGeneratorModule from '@/context/virtual-drive/items/application/remote-items-generator';
+import * as remoteItemsGeneratorModule from '@/context/virtual-drive/items/application/RemoteItemsGenerator';
 import { syncModifiedFiles } from './sync-modified-files';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { mockDeep } from 'vitest-mock-extended';

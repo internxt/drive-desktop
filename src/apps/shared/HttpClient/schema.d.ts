@@ -2898,7 +2898,7 @@ export interface components {
        * @description The last modification time of the file (optional)
        * @example 2025-08-05T12:34:56.000Z
        */
-      modificationTime?: Date;
+      modificationTime?: string;
     };
     UpdateFileMetaDto: {
       /**

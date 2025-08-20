@@ -2,13 +2,13 @@ import { v4 } from 'uuid';
 import { Traverser } from './Traverser';
 import * as crypt from '@/context/shared/infrastructure/crypt';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
-import { getAllItems } from './remote-items-generator';
+import { getAllItems } from './RemoteItemsGenerator';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('@/context/shared/infrastructure/crypt'));
-vi.mock(import('./remote-items-generator'));
+vi.mock(import('./RemoteItemsGenerator'));
 
 describe('Traverser', () => {
   const cryptMock = vi.mocked(crypt);

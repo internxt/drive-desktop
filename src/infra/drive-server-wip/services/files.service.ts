@@ -137,7 +137,7 @@ async function replaceFile(context: { uuid: string; newContentId: string; newSiz
       body: {
         fileId: context.newContentId,
         size: context.newSize,
-        modificationTime: context.modificationTime,
+        modificationTime: context.modificationTime.toISOString(),
       },
       params: { path: { uuid: context.uuid } },
     });
