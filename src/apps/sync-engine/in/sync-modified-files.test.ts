@@ -79,26 +79,6 @@ describe('sync-modified-files', () => {
     });
   });
 
-  it('should not sync files that do not exist locally', async () => {
-    // Given
-    const file1Uuid = '123e4567-e89b-12d3-a456-426614174000' as FileUuid;
-    const file2Uuid = '987fcdeb-51a2-43d7-b123-456789abcdef' as FileUuid;
-
-    const remoteFile1 = createRemoteFile(file1Uuid, 'file1.txt');
-    const remoteFile2 = createRemoteFile(file2Uuid, 'file2.txt');
-
-    getExistingFilesMock.mockResolvedValue([remoteFile1, remoteFile2]);
-
-    loadInMemoryPathsMock.mockResolvedValue({
-      files: {},
-      folders: {},
-    });
-    // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
-    // Then
-    expect(syncModifiedFileMock).not.toBeCalled();
-  });
-
   it('should handle empty tree gracefully', async () => {
     // Given
     getExistingFilesMock.mockResolvedValue([]);

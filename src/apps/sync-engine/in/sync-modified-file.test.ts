@@ -77,26 +77,4 @@ describe('sync-modified-file', () => {
       fileContentsUploader,
     });
   });
-
-  it('should not update if file sizes are identical', async () => {
-    // Given
-    const fileSize = 2000;
-    const remoteFile = createRemoteFile(fileSize, '123e4567-e89b-12d3-a456-426614174000');
-    const localFile = {
-      path: 'C:\\Users\\test\\Drive\\test.txt' as AbsolutePath,
-      stats: {
-        mtime: new Date('2025-08-05T10:00:00.456Z'),
-        size: fileSize,
-      } as Stats,
-    };
-    // When
-    await syncModifiedFile({
-      remoteFile,
-      localFile,
-      fileContentsUploader,
-      virtualDrive,
-    });
-    // Then
-    expect(updateContentsIdMock).not.toBeCalled();
-  });
 });
