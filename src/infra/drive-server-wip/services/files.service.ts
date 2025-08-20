@@ -3,7 +3,7 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
-import { DriveServerWipError, TDriveServerWipError } from '../out/error.types';
+import { createFile } from './create-file.service';
 
 export const files = {
   getFiles,
@@ -15,17 +15,7 @@ export const files = {
   createThumbnail,
 };
 
-export class CreateFileError extends DriveServerWipError {
-  constructor(
-    public readonly code: TDriveServerWipError | 'NOT_FOUND',
-    cause: unknown,
-  ) {
-    super(code, cause);
-  }
-}
-
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
-type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 async function getFiles(context: { query: TGetFilesQuery }) {
@@ -50,38 +40,6 @@ async function getFiles(context: { query: TGetFilesQuery }) {
       },
     },
   });
-}
-
-async function createFile(context: { path: string; body: TCreateFileBody }) {
-  const method = 'POST';
-  const endpoint = '/files';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.POST(endpoint, {
-      body: context.body,
-    });
-
-  const result = await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Fetch folder contents',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-
-  if (result.error?.code === 'UNKNOWN') {
-    switch (true) {
-      case result.error.response?.status === 404:
-        return { error: new CreateFileError('NOT_FOUND', result.error.cause) };
-    }
-  }
-  return result;
 }
 
 async function moveFile(context: { uuid: string; parentUuid: string; workspaceToken: string }) {
