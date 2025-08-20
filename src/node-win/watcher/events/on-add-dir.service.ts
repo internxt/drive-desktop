@@ -16,7 +16,10 @@ export async function onAddDir({ self, absolutePath }: TProps) {
   });
 
   try {
-    const { data: uuid } = NodeWin.getFolderUuid({ drive: self.virtualDrive, path });
+    const { data: uuid } = NodeWin.getFolderUuid({
+      drive: self.virtualDrive,
+      path,
+    });
 
     if (!uuid) {
       await self.callbacks.addController.createFolder({ path, absolutePath });

@@ -23,7 +23,11 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
 
     if (!uuid) {
       self.fileInDevice.add(absolutePath);
-      await self.callbacks.addController.createFile({ absolutePath, path, stats });
+      await self.callbacks.addController.createFile({
+        absolutePath,
+        path,
+        stats,
+      });
       return;
     }
 
