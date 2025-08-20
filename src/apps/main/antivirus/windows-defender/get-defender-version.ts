@@ -5,17 +5,12 @@ export async function getDefenderVersions({ path }: { path: string }) {
   try {
     await access(path, constants.F_OK);
     const entries = await readdir(path, { withFileTypes: true });
-    const validDirs = await Promise.all(
-      entries.map((entry) => {
-        return entry.isDirectory() ? entry.name : null;
-      }),
-    );
+    const validDirs = await Promise.all(entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name));
 
     logger.debug({ msg: 'Antivirus valid dirs', validDirs });
 
     return (
       validDirs
-        .filter((name): name is string => Boolean(name))
         /**
          * v2.5.6 Esteban Galvis
          * Defender platform has subdirectories with version numbers.

@@ -1,76 +1,56 @@
 import { getDefenderVersions } from './get-defender-version';
-import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { readdir, access } from 'fs/promises';
-import { join } from 'path';
-import { fileSystem } from '@/infra/file-system/file-system.module';
 
 vi.mock(import('fs/promises'));
 vi.mock(import('path'));
 
 describe('getDefenderVersions', () => {
-  const statMock = partialSpyOn(fileSystem, 'stat');
   const accessMock = deepMocked(access);
   const readdirMock = deepMocked(readdir);
-  const joinMock = deepMocked(join);
 
   type MockReaddirReturn = ReturnType<typeof readdir> extends Promise<infer T> ? T : never;
 
+  const props = { path: '' };
+
   beforeEach(() => {
-    joinMock.mockImplementation((...args) => args.join('\\'));
+    accessMock.mockResolvedValue(undefined);
   });
 
   it('returns empty array when path does not exist', async () => {
     // Given
     accessMock.mockRejectedValue(new Error('ENOENT: no such file or directory'));
     // When
-    const result = await getDefenderVersions({ path: 'C:\\NonExistentPath' });
+    const result = await getDefenderVersions(props);
     // Then
     expect(result).toEqual([]);
-    expect(accessMock).toHaveBeenCalledWith('C:\\NonExistentPath', expect.any(Number));
   });
 
   it('returns array of valid directories sorted in descending order', async () => {
     // Given
-    accessMock.mockResolvedValue(undefined);
-    const mockVersions = ['4.18.1803.5', '4.18.2205.7', '4.18.2207.10'];
-    readdirMock.mockResolvedValue(mockVersions as unknown as MockReaddirReturn);
-    statMock.mockResolvedValue({
-      data: { isDirectory: () => true },
-    });
+    readdirMock.mockResolvedValue([
+      { name: '4.18.1803.5', isDirectory: () => true },
+      { name: '4.18.2205.7', isDirectory: () => true },
+      { name: '4.18.2207.10', isDirectory: () => true },
+      { name: '4.2.2207.10', isDirectory: () => true },
+      { name: '4.18.5', isDirectory: () => true },
+    ] as unknown as MockReaddirReturn);
     // When
-    const result = await getDefenderVersions({ path: 'C:\\TestPath' });
+    const result = await getDefenderVersions(props);
     // Then
-    expect(result).toEqual(['4.18.2207.10', '4.18.2205.7', '4.18.1803.5']);
-    expect(readdirMock).toHaveBeenCalledWith('C:\\TestPath');
+    expect(result).toEqual(['4.18.2207.10', '4.18.2205.7', '4.18.1803.5', '4.18.5', '4.2.2207.10']);
   });
 
   it('filters out non-directories', async () => {
     // Given
-    accessMock.mockResolvedValue(undefined);
-    const mockFiles = ['file.txt', '4.18.10', 'readme.md'];
-    readdirMock.mockResolvedValue(mockFiles as unknown as MockReaddirReturn);
-    statMock.mockImplementation(async ({ absolutePath }) => {
-      return {
-        data: { isDirectory: () => absolutePath.includes('4.18.10') },
-      };
-    });
+    readdirMock.mockResolvedValue([
+      { name: 'file.txt', isDirectory: () => false },
+      { name: '4.18.10', isDirectory: () => true },
+      { name: 'readme.md', isDirectory: () => false },
+    ] as unknown as MockReaddirReturn);
     // When
-    const result = await getDefenderVersions({ path: 'C:\\TestPath' });
+    const result = await getDefenderVersions(props);
     // Then
     expect(result).toEqual(['4.18.10']);
-  });
-
-  it('sorts versions correctly using numeric sorting', async () => {
-    // Given
-    accessMock.mockResolvedValue(undefined);
-    const mockVersions = ['4.9.10', '4.18.10', '4.18.2'];
-    readdirMock.mockResolvedValue(mockVersions as unknown as MockReaddirReturn);
-    statMock.mockResolvedValue({
-      data: { isDirectory: () => true },
-    });
-    // When
-    const result = await getDefenderVersions({ path: 'C:\\TestPath' });
-    // Then
-    expect(result).toEqual(['4.18.10', '4.18.2', '4.9.10']);
   });
 });
