@@ -23,24 +23,13 @@ export async function onAdd({ self, absolutePath, stats }: TProps) {
 
     if (!uuid) {
       self.fileInDevice.add(absolutePath);
-      await self.callbacks.addController.createFile({
-        absolutePath,
-        path,
-        stats,
-      });
+      await self.callbacks.addController.createFile({ absolutePath, path, stats });
       return;
     }
 
-    const creationTime = new Date(stats.birthtime).getTime();
-    const modificationTime = new Date(stats.mtime).getTime();
-
-    if (creationTime === modificationTime) {
-      /* File added from remote */
-    } else {
-      void trackAddEvent({ uuid });
-      await moveFile({ self, path, uuid });
-    }
+    void trackAddEvent({ uuid });
+    await moveFile({ self, path, absolutePath, uuid });
   } catch (error) {
-    self.logger.error({ msg: 'Error onAdd', path, error });
+    self.logger.error({ msg: 'Error on event "add"', path, error });
   }
 }

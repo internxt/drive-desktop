@@ -15,8 +15,6 @@ describe('on-add', () => {
   const moveFileMock = vi.mocked(moveFile);
   const trackAddEventMock = partialSpyOn(trackAddEvent, 'trackAddEvent');
 
-  const date1 = new Date();
-  const date2 = new Date(date1.getTime() + 1);
   const absolutePath = 'C:\\Users\\user\\drive\\file.txt' as AbsolutePath;
 
   let props: Parameters<typeof onAdd>[0];
@@ -25,7 +23,6 @@ describe('on-add', () => {
     getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof onAdd>({
       absolutePath,
-      stats: { birthtime: date1, mtime: date2, size: 1024 },
       self: {
         fileInDevice: new Set(),
         logger: loggerMock,
@@ -60,16 +57,5 @@ describe('on-add', () => {
         uuid: 'uuid',
       }),
     );
-  });
-
-  it('should not do anything if the file is added from remote', async () => {
-    // Given
-    props.stats.birthtime = date1;
-    props.stats.mtime = date1;
-    // When
-    await onAdd(props);
-    // Then
-    expect(props.self.callbacks.addController.createFile).not.toBeCalled();
-    expect(moveFileMock).not.toBeCalled();
   });
 });

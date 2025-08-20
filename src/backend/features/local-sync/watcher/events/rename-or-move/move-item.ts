@@ -1,4 +1,4 @@
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { basename } from 'path';
 import { Watcher } from '@/node-win/watcher/watcher';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -6,17 +6,20 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { getParentUuid } from './get-parent-uuid';
 import { getConfig } from '@/apps/sync-engine/config';
+import { updateFolderStatus } from '../../../placeholders/update-folder-status';
+import { updateFileStatus } from '../../../placeholders/update-file-status';
 
 type TProps = {
   self: Watcher;
   path: RelativePath;
+  absolutePath: AbsolutePath;
   item?: {
     oldName: string;
     oldParentUuid: string | undefined;
   };
 } & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });
 
-export async function moveItem({ self, path, uuid, item, type }: TProps) {
+export async function moveItem({ self, path, absolutePath, uuid, item, type }: TProps) {
   const props = { path, type, uuid };
 
   const res = getParentUuid({ self, path, props, item });
@@ -59,7 +62,11 @@ export async function moveItem({ self, path, uuid, item, type }: TProps) {
     }
   }
 
-  if ((isRenamed || isMoved) && type === 'file') {
-    self.virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
+  if (isRenamed || isMoved) {
+    if (type === 'file') {
+      updateFileStatus({ path });
+    } else {
+      await updateFolderStatus({ path, absolutePath });
+    }
   }
 }

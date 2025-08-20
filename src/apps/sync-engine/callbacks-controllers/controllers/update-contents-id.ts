@@ -1,20 +1,19 @@
 import { logger } from '@/apps/shared/logger/logger';
+import { updateFileStatus } from '@/backend/features/local-sync/placeholders/update-file-status';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { Stats } from 'fs';
 
 type TProps = {
-  virtualDrive: VirtualDrive;
   stats: Stats;
   path: RelativePath;
   uuid: string;
   fileContentsUploader: ContentsUploader;
 };
 
-export async function updateContentsId({ virtualDrive, stats, path, uuid, fileContentsUploader }: TProps) {
+export async function updateContentsId({ stats, path, uuid, fileContentsUploader }: TProps) {
   try {
     if (stats.size === 0 || stats.size > BucketEntry.MAX_SIZE) {
       logger.warn({
@@ -34,7 +33,7 @@ export async function updateContentsId({ virtualDrive, stats, path, uuid, fileCo
       newSize: contents.size,
     });
 
-    virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
+    updateFileStatus({ path });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',
