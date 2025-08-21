@@ -4,6 +4,6 @@ import { LocalFileSize } from './LocalFileSize';
 export type LocalFile = {
   absolutePath: AbsolutePath;
   relativePath: RelativePath;
-  modificationTime: number;
+  modificationTime: Date;
   size: LocalFileSize;
 };

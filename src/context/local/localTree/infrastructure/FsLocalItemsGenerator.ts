@@ -8,7 +8,7 @@ import { BackupsContext } from '@/apps/backups/BackupInfo';
 
 type LocalFileDTO = {
   path: AbsolutePath;
-  modificationTime: number;
+  modificationTime: Date;
   size: number;
 };
 
@@ -87,7 +87,7 @@ export class CLSFsLocalItemsGenerator {
       if (dirent.isFile()) {
         res.files.push({
           path: absolutePath,
-          modificationTime: data.mtime.getTime(),
+          modificationTime: data.mtime,
           size: data.size,
         });
       } else if (dirent.isDirectory()) {

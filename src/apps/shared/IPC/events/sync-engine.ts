@@ -26,6 +26,7 @@ type SyncEngineInvocableFunctions = {
   GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: SimpleDriveFile[]; folders: SimpleDriveFolder[] }>;
   GET_HEADERS: () => Promise<Record<string, string>>;
   USER_LOGGED_OUT: () => void;
+  FIND_EXISTING_FILES: (workspaceId: string) => Promise<DriveFile[]>;
 };
 
 type ProcessInfoUpdate = {
