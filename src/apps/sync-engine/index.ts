@@ -7,7 +7,6 @@ import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { initializeVirtualDrive } from './dependency-injection/common/virtualDrive';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -34,10 +33,6 @@ async function setUp({ ctx }: { ctx: SyncContext }) {
   const container = DependencyContainerFactory.build();
 
   const bindings = new BindingsManager(container);
-
-  ipcRendererSyncEngine.on('REFRESH_ITEM_PLACEHOLDERS', async () => {
-    await trackRefreshItemPlaceholders({ container });
-  });
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await bindings.updateAndCheckPlaceholders();

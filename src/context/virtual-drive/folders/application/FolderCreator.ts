@@ -6,10 +6,12 @@ import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { getConfig } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { updateFolderStatus } from '@/backend/features/local-sync/placeholders/update-folder-status';
 
 type TProps = {
   path: RelativePath;
+  absolutePath: AbsolutePath;
 };
 
 @Service()
@@ -19,7 +21,7 @@ export class FolderCreator {
     private readonly virtualDrive: VirtualDrive,
   ) {}
 
-  async run({ path }: TProps) {
+  async run({ path, absolutePath }: TProps) {
     const posixDir = pathUtils.dirname(path);
     const { data: parentUuid } = NodeWin.getFolderUuid({
       drive: this.virtualDrive,
@@ -46,9 +48,7 @@ export class FolderCreator {
 
     if (error) throw error;
 
-    this.virtualDrive.convertToPlaceholder({
-      itemPath: path,
-      id: `FOLDER:${folderDto.uuid}`,
-    });
+    this.virtualDrive.convertToPlaceholder({ itemPath: path, id: `FOLDER:${folderDto.uuid}` });
+    await updateFolderStatus({ path, absolutePath });
   }
 }

@@ -3,13 +3,14 @@ import { createFolder, createParentFolder } from './create-folder';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { mockProps } from '@/tests/vitest/utils.helper.test';
 
 describe('create-folder', () => {
   const folderCreator = mockDeep<FolderCreator>();
 
   const path = createRelativePath('folder1', 'folder2');
   const parentPath = '/folder1';
-  const props = { path, folderCreator };
+  const props = mockProps<typeof createFolder>({ path, folderCreator });
 
   describe('createParentFolder', () => {
     it('Calls createFolder with parent path', async () => {

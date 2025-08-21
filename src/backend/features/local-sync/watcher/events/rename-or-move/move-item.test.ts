@@ -6,9 +6,13 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as getParentUuid from './get-parent-uuid';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import * as updateFileStatus from '../../../placeholders/update-file-status';
+import * as updateFolderStatus from '../../../placeholders/update-folder-status';
 
 describe('move-item', () => {
   const getParentUuidMock = partialSpyOn(getParentUuid, 'getParentUuid');
+  const updateFileStatusMock = partialSpyOn(updateFileStatus, 'updateFileStatus');
+  const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
   const invokeMock = vi.spyOn(ipcRendererDriveServerWip, 'invoke');
 
   const existingItem = {
@@ -21,7 +25,6 @@ describe('move-item', () => {
   beforeEach(() => {
     props = mockProps<typeof moveItem>({
       self: {
-        virtualDrive: { updateSyncStatus: vi.fn() },
         logger: loggerMock,
       },
     });
@@ -34,7 +37,7 @@ describe('move-item', () => {
     await moveItem(props);
     // Then
     expect(invokeMock).toBeCalledTimes(0);
-    expect(props.self.virtualDrive.updateSyncStatus).toBeCalledTimes(0);
+    expect(updateFileStatusMock).toBeCalledTimes(0);
   });
 
   it('should not do anything if not renamed or moved', async () => {
@@ -45,7 +48,7 @@ describe('move-item', () => {
     await moveItem(props);
     // Then
     expect(invokeMock).toBeCalledTimes(0);
-    expect(props.self.virtualDrive.updateSyncStatus).toBeCalledTimes(0);
+    expect(updateFileStatusMock).toBeCalledTimes(0);
   });
 
   describe('file', () => {
@@ -62,7 +65,7 @@ describe('move-item', () => {
       await moveItem(props);
       // Then
       expect(invokeMock).toBeCalledWith('renameFileByUuid', { uuid: 'uuid', nameWithExtension: 'newName.exe', workspaceToken: '' });
-      expect(props.self.virtualDrive.updateSyncStatus).toBeCalledWith({ itemPath: '/folder/newName.exe', isDirectory: false, sync: true });
+      expect(updateFileStatusMock).toBeCalledTimes(1);
     });
 
     it('should move if it is moved', async () => {
@@ -78,7 +81,7 @@ describe('move-item', () => {
         parentUuid: 'newParentUuid',
         workspaceToken: '',
       });
-      expect(props.self.virtualDrive.updateSyncStatus).toBeCalledWith({ itemPath: '/folder/oldName.exe', isDirectory: false, sync: true });
+      expect(updateFileStatusMock).toBeCalledTimes(1);
     });
   });
 
@@ -96,7 +99,7 @@ describe('move-item', () => {
       await moveItem(props);
       // Then
       expect(invokeMock).toBeCalledWith('renameFolderByUuid', { uuid: 'uuid', name: 'newName', workspaceToken: '' });
-      expect(props.self.virtualDrive.updateSyncStatus).toBeCalledTimes(0);
+      expect(updateFolderStatusMock).toBeCalledTimes(1);
     });
 
     it('should move if it is moved', async () => {
@@ -112,7 +115,7 @@ describe('move-item', () => {
         parentUuid: 'newParentUuid',
         workspaceToken: '',
       });
-      expect(props.self.virtualDrive.updateSyncStatus).toBeCalledTimes(0);
+      expect(updateFolderStatusMock).toBeCalledTimes(1);
     });
   });
 });

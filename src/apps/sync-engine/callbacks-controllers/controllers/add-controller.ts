@@ -51,13 +51,7 @@ export class AddController {
     }
   }
 
-  async createFolder({ path }: { path: RelativePath }) {
-    logger.debug({ msg: 'Create folder', path });
-
-    try {
-      await createFolder({ path, folderCreator: this.folderCreator });
-    } catch (error) {
-      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error in folder creation', path, error });
-    }
+  async createFolder({ path, absolutePath }: { path: RelativePath; absolutePath: AbsolutePath }) {
+    await createFolder({ path, absolutePath, folderCreator: this.folderCreator });
   }
 }
