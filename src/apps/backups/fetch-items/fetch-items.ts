@@ -1,6 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { fetchItemsByFolder } from './fetch-items-by-folder';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 type TProps = {
   folderUuid: string;
@@ -17,7 +18,7 @@ export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps)
     });
 
     const allFolders: FolderDto[] = [];
-    const allFiles: FileDto[] = [];
+    const allFiles: SimpleDriveFile[] = [];
 
     await fetchItemsByFolder({
       folderUuid,

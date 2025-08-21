@@ -3,17 +3,17 @@ import { LocalFile } from '../../domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { uploadFile } from '../upload-file';
-import { File } from '@/context/virtual-drive/files/domain/File';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 type Props = {
   self: Backup;
   context: BackupsContext;
   tracker: BackupsProcessTracker;
-  modified: Map<LocalFile, File>;
+  modified: Map<LocalFile, ExtendedDriveFile>;
 };
 
 @Service()
@@ -45,7 +45,7 @@ export class FileBatchUpdater {
     context: BackupsContext;
     tracker: BackupsProcessTracker;
     localFile: LocalFile;
-    file: File;
+    file: ExtendedDriveFile;
   }) {
     try {
       const contentsId = await uploadFile({ context, localFile, uploader: this.uploader });

@@ -1,6 +1,7 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
@@ -12,7 +13,7 @@ describe('fetch-files-by-folder', () => {
 
   beforeEach(() => {
     props = mockProps<typeof fetchFilesByFolder>({
-      allFiles: [{ uuid: 'previous' }],
+      allFiles: [{ uuid: 'previous' as FileUuid }],
       folderUuid: 'folderUuid',
       abortSignal: {
         aborted: false,

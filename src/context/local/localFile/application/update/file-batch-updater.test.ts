@@ -4,7 +4,7 @@ import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environme
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as uploadFile from '../upload-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('file-batch-updater', () => {
@@ -19,7 +19,7 @@ describe('file-batch-updater', () => {
     props = mockProps<typeof service.process>({
       self: { backed: 0 },
       tracker: { currentProcessed: vi.fn() },
-      file: { uuid: 'uuid' },
+      file: { uuid: 'uuid' as FileUuid },
       localFile: { size: { value: 1024 } },
     });
   });

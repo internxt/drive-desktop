@@ -1,28 +1,30 @@
-import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
+import { getMockCalls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { Traverser } from './traverser';
-import { fetchItems } from '../fetch-items/fetch-items';
+import * as fetchItems from '../fetch-items/fetch-items';
 import { v4 } from 'uuid';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('../fetch-items/fetch-items'));
 vi.mock(import('@/apps/main/util'));
 
 describe('traverser', () => {
-  const fetchItemsMock = deepMocked(fetchItems);
+  const fetchItemsMock = partialSpyOn(fetchItems, 'fetchItems');
 
-  const folder = v4();
+  const folder = v4() as FolderUuid;
 
-  const folder1 = v4();
-  const folder2 = v4();
-  const folder3 = v4();
+  const folder1 = v4() as FolderUuid;
+  const folder2 = v4() as FolderUuid;
+  const folder3 = v4() as FolderUuid;
 
   beforeEach(() => {
     fetchItemsMock.mockResolvedValue({
       files: [
-        { uuid: v4(), plainName: 'file1', folderUuid: folder, folderId: 0, fileId: '012345678901234567890123', status: 'EXISTS' },
-        { uuid: v4(), plainName: 'file2', folderUuid: folder, folderId: 0, fileId: '012345678901234567890123', status: 'EXISTS' },
-        { uuid: v4(), plainName: 'file3', folderUuid: folder1, folderId: 0, fileId: '012345678901234567890123', status: 'EXISTS' },
-        { uuid: v4(), plainName: 'file4', folderUuid: folder3, folderId: 0, fileId: '012345678901234567890123', status: 'EXISTS' },
+        { nameWithExtension: 'file1', parentUuid: folder },
+        { nameWithExtension: 'file2', parentUuid: folder },
+        { nameWithExtension: 'file3', parentUuid: folder1 },
+        { nameWithExtension: 'file4', parentUuid: folder3 },
       ],
       folders: [
         { id: 1, uuid: folder1, plainName: 'folder1', parentUuid: folder, status: 'EXISTS' },
@@ -71,7 +73,7 @@ describe('traverser', () => {
   it('If an file is invalid ignore it and continue', async () => {
     // Given
     fetchItemsMock.mockResolvedValueOnce({
-      files: [{ uuid: v4(), folderUuid: folder, plainName: 'file' }],
+      files: [{ uuid: v4() as FileUuid, parentUuid: folder, nameWithExtension: 'file.txt' }],
       folders: [],
     });
 
