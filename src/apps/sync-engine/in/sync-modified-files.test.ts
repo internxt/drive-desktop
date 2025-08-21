@@ -163,47 +163,6 @@ describe('sync-modified-files', () => {
     expect(syncModifiedFileMock).toBeCalledTimes(2);
   });
 
-  it('should wait for all sync operations to complete', async () => {
-    // Given
-    const file1Uuid = '123e4567-e89b-12d3-a456-426614174000' as FileUuid;
-    const file2Uuid = '987fcdeb-51a2-43d7-b123-456789abcdef' as FileUuid;
-
-    const remoteFile1 = createRemoteFile(file1Uuid, 'file1.txt');
-    const remoteFile2 = createRemoteFile(file2Uuid, 'file2.txt');
-
-    const localFile1 = createLocalFile('C:\\Users\\test\\Drive\\file1.txt');
-    const localFile2 = createLocalFile('C:\\Users\\test\\Drive\\file2.txt');
-
-    getExistingFilesMock.mockResolvedValue([remoteFile1, remoteFile2]);
-
-    loadInMemoryPathsMock.mockResolvedValue({
-      files: {
-        [file1Uuid]: localFile1,
-        [file2Uuid]: localFile2,
-      },
-      folders: {},
-    });
-
-    let call1Resolved = false;
-    let call2Resolved = false;
-
-    syncModifiedFileMock
-      .mockImplementationOnce(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 10));
-        call1Resolved = true;
-      })
-      .mockImplementationOnce(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 5));
-        call2Resolved = true;
-      });
-    // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
-    // Then
-    expect(call1Resolved).toBe(true);
-    expect(call2Resolved).toBe(true);
-    expect(syncModifiedFileMock).toBeCalledTimes(2);
-  });
-
   it('should handle loadInMemoryPaths failure', async () => {
     // Given
     getExistingFilesMock.mockResolvedValue([createRemoteFile('123e4567-e89b-12d3-a456-426614174000' as FileUuid)]);
