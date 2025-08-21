@@ -70,7 +70,6 @@ describe('sync-modified-file', () => {
     // Then
     expect(updateContentsIdMock).toBeCalledTimes(1);
     expect(updateContentsIdMock).toBeCalledWith({
-      virtualDrive,
       stats: localFile.stats,
       path: createRelativePath('/test.txt'),
       uuid: '123e4567-e89b-12d3-a456-426614174000',
