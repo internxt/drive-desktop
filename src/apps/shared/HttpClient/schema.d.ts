@@ -2896,7 +2896,7 @@ export interface components {
       /**
        * Format: date-time
        * @description The last modification time of the file (optional)
-       * @example 2023-05-30T12:34:56.789Z
+       * @example 2025-08-05T12:34:56.000Z
        */
       modificationTime?: string;
     };

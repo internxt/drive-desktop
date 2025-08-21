@@ -46,8 +46,7 @@ export class BindingsManager {
     });
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
-
-    void addPendingItems({ ctx, controllers: this.controllers });
+    void addPendingItems({ ctx, controllers: this.controllers, fileContentsUploader: this.container.contentsUploader });
 
     /**
      * Jonathan Arce v2.5.1

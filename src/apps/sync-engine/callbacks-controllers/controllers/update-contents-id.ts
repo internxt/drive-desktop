@@ -31,6 +31,7 @@ export async function updateContentsId({ stats, path, uuid, fileContentsUploader
       uuid,
       newContentId: contents.id,
       newSize: contents.size,
+      modificationTime: stats.mtime.toISOString(),
     });
 
     updateFileStatus({ path });

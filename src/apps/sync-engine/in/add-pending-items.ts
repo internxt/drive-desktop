@@ -4,14 +4,17 @@ import { getPendingItems } from './get-pending-items';
 import { addPendingFiles } from './add-pending-files';
 import { addPendingFolders } from './add-pending-folders';
 import { IControllers } from '../callbacks-controllers/buildControllers';
+import { syncModifiedFiles } from './sync-modified-files';
+import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { SyncContext } from '../config';
 
 type Props = {
   ctx: SyncContext;
   controllers: IControllers;
+  fileContentsUploader: ContentsUploader;
 };
 
-export async function addPendingItems({ ctx, controllers }: Props) {
+export async function addPendingItems({ ctx, controllers, fileContentsUploader }: Props) {
   const firstTimeRegistered = !ctx.previousProviderIds.includes(ctx.providerId);
 
   /**
@@ -44,6 +47,7 @@ export async function addPendingItems({ ctx, controllers }: Props) {
     });
 
     await Promise.all([addPendingFiles({ pendingFiles, controllers }), addPendingFolders({ pendingFolders, controllers })]);
+    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

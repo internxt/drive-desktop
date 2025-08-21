@@ -31,7 +31,7 @@ export class FilePlaceholderUpdater {
         return;
       }
 
-      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath })) {
+      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath: localPath.path })) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Moving file placeholder',
@@ -39,7 +39,7 @@ export class FilePlaceholderUpdater {
           localPath,
         });
 
-        await rename(localPath, remotePath);
+        await rename(localPath.path, remotePath);
       }
     } catch (exc) {
       logger.error({

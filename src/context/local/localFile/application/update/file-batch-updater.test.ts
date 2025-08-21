@@ -20,7 +20,7 @@ describe('file-batch-updater', () => {
       self: { backed: 0 },
       tracker: { currentProcessed: vi.fn() },
       file: { uuid: 'uuid' },
-      localFile: { size: { value: 1024 } },
+      localFile: { size: { value: 1024 }, modificationTime: new Date('2025-08-20T00:00:00.000Z') },
     });
   });
 
@@ -41,7 +41,12 @@ describe('file-batch-updater', () => {
     // When
     await service.process(props);
     // Then
-    expect(replaceFileMock).toBeCalledWith({ uuid: 'uuid', newContentId: 'contentsId', newSize: 1024 });
+    expect(replaceFileMock).toBeCalledWith({
+      uuid: 'uuid',
+      newContentId: 'contentsId',
+      newSize: 1024,
+      modificationTime: '2025-08-20T00:00:00.000Z',
+    });
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });
