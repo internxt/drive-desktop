@@ -57,7 +57,7 @@ describe('update-file-placeholder', () => {
     expect(hasToBeMovedMock).toBeCalledTimes(0);
     expect(virtualDrive.createFileByPath).toBeCalledTimes(1);
     expect(virtualDrive.createFileByPath).toBeCalledWith({
-      relativePath: '/file1/file2',
+      itemPath: '/file1/file2',
       itemId: 'FILE:uuid',
       size: 1024,
       creationTime: time,

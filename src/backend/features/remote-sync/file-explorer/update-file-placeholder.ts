@@ -20,14 +20,8 @@ export class FilePlaceholderUpdater {
       const localPath = files[remote.uuid as FileUuid];
 
       if (!localPath) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
-          msg: 'Creating file placeholder',
-          path,
-        });
-
         this.virtualDrive.createFileByPath({
-          relativePath: path,
+          itemPath: path,
           itemId: `FILE:${remote.uuid}`,
           size: remote.size,
           creationTime: new Date(remote.createdAt).getTime(),

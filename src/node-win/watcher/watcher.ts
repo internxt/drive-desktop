@@ -11,6 +11,7 @@ import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import { Stats } from 'fs';
 import { debounceOnRaw } from './events/debounce-on-raw';
+import { onAll } from './events/on-all.service';
 
 export type TWatcherCallbacks = {
   addController: AddController;
@@ -42,6 +43,7 @@ export class Watcher {
     try {
       this.chokidar = watch(this.syncRootPath, this.options);
       this.chokidar
+        .on('all', (event, path) => onAll({ event, path }))
         /**
          * v2.5.7 Daniel Jiménez
          * add events are triggered when:
