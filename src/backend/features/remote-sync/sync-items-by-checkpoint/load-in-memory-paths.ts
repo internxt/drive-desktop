@@ -26,35 +26,30 @@ export async function loadInMemoryPaths() {
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath });
 
-  const folderPaths = [rootPath];
+  /**
+   * v2.5.6 Daniel Jiménez
+   * We cannot use `withFileTypes` because it treats everything as a symbolic link,
+   * so we have to use `stat` for each entry.
+   */
+  const entries = await readdir(rootPath, { recursive: true });
 
-  while (folderPaths.length > 0) {
-    const folderPath = folderPaths.shift();
-    if (!folderPath) continue;
+  for (const entry of entries) {
+    const absolutePath = join(rootPath, entry) as AbsolutePath;
+    const { data: stats } = await fileSystem.stat({ absolutePath });
 
-    /**
-     * v2.5.6 Daniel Jiménez
-     * We cannot use `withFileTypes` because it treats everything as a symbolic link,
-     * so we have to use `stat` for each entry.
-     */
-    const entries = await readdir(folderPath);
+    if (stats) {
+      if (stats.isDirectory()) {
+        const { data: uuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
+        if (uuid) folders[uuid] = absolutePath;
+      }
 
-    for (const entry of entries) {
-      const absolutePath = join(folderPath, entry) as AbsolutePath;
-      const { data: stats } = await fileSystem.stat({ absolutePath });
-
-      if (stats) {
-        if (stats.isDirectory()) {
-          folderPaths.push(absolutePath);
-
-          const { data: uuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
-          if (uuid) folders[uuid] = absolutePath;
-        }
-
-        if (stats.isFile()) {
-          const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
-          if (uuid) files[uuid] = { path: absolutePath, stats };
-        }
+      if (stats.isFile()) {
+        const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
+        if (uuid)
+          files[uuid] = {
+            stats,
+            path: absolutePath,
+          };
       }
     }
   }

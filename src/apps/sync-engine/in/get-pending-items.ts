@@ -26,7 +26,7 @@ async function processFolder({ virtualDrive, path }: TProps) {
    * We cannot use `withFileTypes` because it treats everything as a symbolic link,
    * so we have to use `stat` for each entry.
    */
-  const entries = await readdir(path);
+  const entries = await readdir(path, { recursive: true });
 
   for (const entry of entries) {
     const absolutePath = join(path, entry) as AbsolutePath;
@@ -39,10 +39,6 @@ async function processFolder({ virtualDrive, path }: TProps) {
         if (error && error.code === 'NON_EXISTS') {
           pendingFolders.push({ stats, absolutePath });
         }
-
-        const result = await processFolder({ virtualDrive, path: absolutePath });
-        pendingFiles.push(...result.pendingFiles);
-        pendingFolders.push(...result.pendingFolders);
       }
 
       if (stats.isFile()) {

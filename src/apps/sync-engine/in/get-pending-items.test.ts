@@ -21,9 +21,7 @@ describe('get-pending-items', () => {
   const props = mockProps<typeof getPendingItems>({ path: 'C:\\Users\\user\\InternxtDrive' });
 
   it('should return files and folders that are not uploaded', async () => {
-    readdirMock.mockResolvedValueOnce(['file1', 'folder1', 'folder2'] as unknown as MockReaddirReturn);
-    readdirMock.mockResolvedValueOnce(['file2'] as unknown as MockReaddirReturn);
-    readdirMock.mockResolvedValueOnce([] as unknown as MockReaddirReturn);
+    readdirMock.mockResolvedValueOnce(['file1', 'folder1', 'folder1/file2', 'folder2'] as unknown as MockReaddirReturn);
 
     getFileUuidMock.mockReturnValueOnce({ data: 'uuid' as FileUuid });
     getFolderUuidMock.mockReturnValueOnce({ error: new GetFolderIdentityError('NON_EXISTS') });

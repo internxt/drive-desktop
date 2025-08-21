@@ -20,16 +20,9 @@ export class FolderPlaceholderUpdater {
       const localPath = folders[remote.uuid as FolderUuid];
 
       if (!localPath) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
-          msg: 'Creating folder placeholder',
-          path,
-        });
-
         this.virtualDrive.createFolderByPath({
-          relativePath: path,
+          itemPath: path,
           itemId: `FOLDER:${remote.uuid}`,
-          size: 0,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),
         });
