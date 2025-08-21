@@ -27,7 +27,6 @@ export async function syncModifiedFile({ remoteFile, localFile, fileContentsUplo
     });
 
     await updateContentsId({
-      virtualDrive,
       stats: localFile.stats,
       path: filePath,
       uuid: remoteFile.uuid,

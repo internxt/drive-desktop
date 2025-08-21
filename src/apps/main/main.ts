@@ -118,7 +118,7 @@ app
     await migrate();
 
     registerUsageHandlers();
-    await setUpBackups();
+    void setUpBackups();
 
     await checkIfUserIsLoggedIn();
     const isLoggedIn = getIsLoggedIn();

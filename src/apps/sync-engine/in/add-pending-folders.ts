@@ -16,7 +16,7 @@ export async function addPendingFolders({ controllers, pendingFolders }: TProps)
         path: absolutePath,
       });
 
-      await controllers.addFile.createFolder({ path });
+      await controllers.addFile.createFolder({ path, absolutePath });
     }),
   );
 }

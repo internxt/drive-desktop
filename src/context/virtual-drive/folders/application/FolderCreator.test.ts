@@ -1,7 +1,7 @@
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { mockDeep } from 'vitest-mock-extended';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderMother';
 import { FolderCreator } from './FolderCreator';
@@ -11,6 +11,7 @@ import { createRelativePath } from '@/context/local/localFile/infrastructure/Abs
 import { FolderUuid as TFolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import * as updateFolderStatus from '@/backend/features/local-sync/placeholders/update-folder-status';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 
@@ -19,11 +20,12 @@ describe('Folder Creator', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderUuid = deepMocked(NodeWin.getFolderUuid);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
+  const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
 
   const SUT = new FolderCreator(remote, virtualDrive);
 
   const path = createRelativePath('folder1', 'folder2');
-  const props = { path };
+  const props = mockProps<typeof SUT.run>({ path });
 
   beforeEach(() => {
     invokeMock.mockResolvedValue({});
@@ -47,7 +49,7 @@ describe('Folder Creator', () => {
     getFolderUuid.mockReturnValueOnce({ data: folder.parentUuid as TFolderUuid });
 
     // When
-    await SUT.run({ path });
+    await SUT.run(props);
 
     // Then
     expect(remote.persist).toBeCalledWith({
@@ -68,5 +70,6 @@ describe('Folder Creator', () => {
       itemPath: folder.path,
       id: folder.placeholderId,
     });
+    expect(updateFolderStatusMock).toBeCalledTimes(1);
   });
 });

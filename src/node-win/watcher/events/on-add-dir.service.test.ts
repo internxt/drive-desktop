@@ -15,15 +15,11 @@ describe('on-add-dir', () => {
   const moveFolderMock = vi.mocked(moveFolder);
   const trackAddDirEventMock = partialSpyOn(trackAddDirEvent, 'trackAddDirEvent');
 
-  const date1 = new Date();
-  const date2 = new Date(date1.getTime() + 1);
-
   let props: Parameters<typeof onAddDir>[0];
 
   beforeEach(() => {
     props = mockProps<typeof onAddDir>({
       absolutePath: 'C:\\Users\\user\\drive\\folder' as AbsolutePath,
-      stats: { birthtime: date1, mtime: date2 },
       self: {
         queueManager: { enqueue: vi.fn() },
         logger: loggerMock,
@@ -51,8 +47,6 @@ describe('on-add-dir', () => {
   it('should call moveFolder if the folder is moved', async () => {
     // Given
     getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
-    props.stats.birthtime = date1;
-    props.stats.mtime = date2;
 
     // When
     await onAddDir(props);
@@ -65,19 +59,5 @@ describe('on-add-dir', () => {
         uuid: 'uuid',
       }),
     );
-  });
-
-  it('should not do anything if the folder is added from remote', async () => {
-    // Given
-    getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
-    props.stats.birthtime = date1;
-    props.stats.mtime = date1;
-
-    // When
-    await onAddDir(props);
-
-    // Then
-    expect(props.self.callbacks.addController.createFolder).not.toBeCalled();
-    expect(moveFolderMock).not.toBeCalled();
   });
 });
