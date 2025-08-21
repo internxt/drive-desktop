@@ -17,7 +17,6 @@ import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import VirtualDrive from '@/node-win/virtual-drive';
 
 export function addRemoteSyncManager({ context, worker }: { context: SyncContext; worker: TWorkerConfig }) {
   remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, worker, context.workspaceId));
@@ -171,11 +170,8 @@ ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', (_, workspaceId = '') => {
 
 export async function initSyncEngine({ context }: { context: AuthContext }) {
   try {
-    const syncRoots = VirtualDrive.getRegisteredSyncRoots();
-    const previousProviderIds = syncRoots.map((syncRoot) => syncRoot.id);
-
-    const { providerId } = spawnDefaultSyncEngineWorker({ context, previousProviderIds });
-    void spawnWorkspaceSyncEngineWorkers({ context, providerId, previousProviderIds });
+    const { providerId } = spawnDefaultSyncEngineWorker({ context });
+    void spawnWorkspaceSyncEngineWorkers({ context, providerId });
     await debouncedSynchronization();
   } catch (error) {
     throw logger.error({
