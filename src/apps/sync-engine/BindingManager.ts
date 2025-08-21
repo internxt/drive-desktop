@@ -46,7 +46,6 @@ export class BindingsManager {
     });
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
-    void addPendingItems({ ctx, controllers: this.controllers, fileContentsUploader: this.container.contentsUploader });
 
     /**
      * Jonathan Arce v2.5.1
@@ -56,6 +55,18 @@ export class BindingsManager {
      * and we have some placeholders pending from being created/updated/deleted
      */
     await trackRefreshItemPlaceholders({ container: this.container });
+
+    /**
+     * v2.5.7 Daniel Jiménez
+     * If the cloud provider was not registered before it means that all items that
+     * were in the root folder have their placeholders gone, so we need to refresh first
+     * all item placeholders and the execute this function.
+     */
+    void addPendingItems({
+      ctx,
+      controllers: this.controllers,
+      fileContentsUploader: this.container.contentsUploader,
+    });
   }
 
   watch() {
