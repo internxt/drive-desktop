@@ -16,7 +16,7 @@ export class DownloadFileController {
   private async action(uuid: string, callback: CallbackDownload): Promise<string> {
     const file = await this.fileFinderByUuid({ uuid });
 
-    return await this.downloader.run(file, callback);
+    return await this.downloader.run({ file, callback });
   }
 
   async fileFinderByUuid({ uuid }: { uuid: string }) {

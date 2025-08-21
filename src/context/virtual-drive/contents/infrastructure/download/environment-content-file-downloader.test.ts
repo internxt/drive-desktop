@@ -1,5 +1,4 @@
 import { Readable } from 'stream';
-import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMother';
 import { EnvironmentContentFileDownloader } from './EnvironmentContentFileDownloader';
 import { Environment } from '@internxt/inxt-js';
 import { mockDeep } from 'vitest-mock-extended';
@@ -8,7 +7,7 @@ import { ActionState, ActionTypes } from '@internxt/inxt-js/build/api';
 describe('Environment Content File Downloader', () => {
   const environment = mockDeep<Environment>();
   const bucket = 'b51fd6af-cdac-51ec-b41c-21958aa4c2ae';
-  const file = FileMother.any();
+  const props = { contentsId: 'contentsId' };
 
   describe('event emitter', () => {
     it('emits an event on start', async () => {
@@ -23,7 +22,7 @@ describe('Environment Content File Downloader', () => {
 
       downloader.on('start', handler);
 
-      await downloader.download(file);
+      await downloader.download(props);
 
       expect(handler).toBeCalled();
     });
@@ -40,7 +39,7 @@ describe('Environment Content File Downloader', () => {
 
       downloader.on('finish', handler);
 
-      await downloader.download(file);
+      await downloader.download(props);
 
       expect(handler).toBeCalled();
     });
@@ -60,7 +59,7 @@ describe('Environment Content File Downloader', () => {
 
       downloader.on('progress', handler);
 
-      await downloader.download(file);
+      await downloader.download(props);
 
       expect(handler.mock.calls).toEqual([[25], [50], [75]]);
     });
@@ -78,7 +77,7 @@ describe('Environment Content File Downloader', () => {
         expect(error.message).toBe(errorMsg);
       });
 
-      await downloader.download(file).catch(() => {
+      await downloader.download(props).catch(() => {
         // no-op
       });
     });

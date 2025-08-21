@@ -3,8 +3,6 @@ import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/
 import { mockDeep } from 'vitest-mock-extended';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { v4 } from 'uuid';
-import { FileMother, generateRandomFileId } from '@/tests/context/virtual-drive/files/domain/FileMother';
-import { FileContentsMother } from '@/tests/context/__mocks__/file-contents-mother.helper.test';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { FolderMother } from '@/tests/context/virtual-drive/folders/domain/FolderMother';
 import { NodeWin } from '@/infra/node-win/node-win.module';
@@ -15,6 +13,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
@@ -28,7 +27,7 @@ describe('File Creator', () => {
 
   const folderParent = FolderMother.any();
   const filePath = new FilePath(folderParent.path + '/cat.png');
-  const contents = FileContentsMother.random();
+  const contents = { id: 'contentsId' as ContentsId, size: 1024 };
   const absolutePath = 'C:\\Users\\user\\InternxtDrive\\cat.png' as AbsolutePath;
 
   const SUT = new FileCreator(remoteFileSystemMock, virtualDriveMock);
@@ -55,18 +54,16 @@ describe('File Creator', () => {
   });
 
   it('creates the file on the drive server', async () => {
-    const file = FileMother.fromPartial({
+    const file = {
       uuid: v4(),
-      id: generateRandomFileId(),
       contentsId: contents.id,
       folderId: folderParent.id,
       folderUuid: folderParent.uuid,
       path: filePath.value,
-    }).attributes();
+    };
 
     remoteFileSystemMock.persist.mockResolvedValueOnce({
       ...file,
-      dto: { size: '1024' },
     } as any);
 
     await SUT.run({ filePath, contents, absolutePath });
@@ -78,17 +75,15 @@ describe('File Creator', () => {
     const folderParent = FolderMother.any();
     const path = new FilePath(folderParent.path + '/cat.png');
 
-    const contents = FileContentsMother.random();
-    const fileAttributes = FileMother.fromPartial({
+    const fileAttributes = {
       path: path.value,
       contentsId: contents.id,
       folderId: folderParent.id,
       folderUuid: folderParent.uuid,
-    }).attributes();
+    };
 
     remoteFileSystemMock.persist.mockResolvedValueOnce({
       ...fileAttributes,
-      dto: { size: '1024' },
     } as any);
 
     await SUT.run({ filePath, contents, absolutePath });
