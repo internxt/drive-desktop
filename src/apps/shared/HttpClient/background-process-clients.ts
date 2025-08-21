@@ -12,7 +12,6 @@ const syncBlockedTracker = async () => {
   // TODO: implement the function
   // no-op
 };
-
 let clients: AuthorizedClients | null = null;
 
 export function getClients(): AuthorizedClients {

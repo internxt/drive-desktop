@@ -25,7 +25,8 @@ export async function startVirtualDrive() {
     virtualDrive,
     container,
     localRoot,
-    user.root_folder_id
+    user.root_folder_id,
+    user.rootFolderId
   );
 
   fuseApp.on('mounted', () =>

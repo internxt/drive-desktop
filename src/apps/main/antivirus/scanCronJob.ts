@@ -6,7 +6,7 @@ import { queue, QueueObject } from 'async';
 import { DBScannerConnection } from './db/DBScannerConnection';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { isPermissionError } from './utils/isPermissionError';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000;
 const BACKGROUND_MAX_CONCURRENCY = 5;
@@ -15,17 +15,17 @@ let dailyScanInterval: NodeJS.Timeout | null = null;
 
 export function scheduleDailyScan() {
   async function startBackgroundScan() {
-    Logger.info('Starting user system scan (BACKGROUND)...');
+    logger.debug({ tag: 'ANTIVIRUS', msg: 'Starting user system scan (BACKGROUND)...' });
     await scanInBackground();
   }
 
   startBackgroundScan().catch((err) => {
-    Logger.error('Error in initial background scan:', err);
+    logger.error({ tag: 'ANTIVIRUS', msg: 'Error in initial background scan:', err });
   });
 
   dailyScanInterval = setInterval(() => {
     startBackgroundScan().catch((err) => {
-      Logger.error('Error in scheduled background scan:', err);
+      logger.error({ tag: 'ANTIVIRUS', msg: 'Error in scheduled background scan:', err });
     });
   }, ONE_DAY_MS);
 }

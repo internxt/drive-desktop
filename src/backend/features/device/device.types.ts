@@ -1,3 +1,5 @@
+import { components } from './../../../infra/schemas.d';
+
 export const allowedPlatforms = [
   'win32',
   'darwin',
@@ -21,3 +23,7 @@ export function isAllowedPlatform(
 ): platform is AllowedPlatform {
   return (allowedPlatforms as readonly string[]).includes(platform);
 }
+
+export type FolderDtoWithPathname = components['schemas']['FolderDto'] & {
+  pathname: string;
+};

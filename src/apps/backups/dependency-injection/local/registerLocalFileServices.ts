@@ -1,3 +1,4 @@
+import { INTERNXT_CLIENT, INTERNXT_VERSION } from './../../../../core/utils/utils';
 import { ContainerBuilder } from 'diod';
 import { FileBatchUpdater } from '../../../../context/local/localFile/application/update/FileBatchUpdater';
 import { LocalFileHandler } from '../../../../context/local/localFile/domain/LocalFileUploader';
@@ -6,7 +7,6 @@ import { EnvironmentLocalFileUploader } from '../../../../context/local/localFil
 import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { Environment } from '@internxt/inxt-js';
 import { DependencyInjectionMnemonicProvider } from '../../../shared/dependency-injection/DependencyInjectionMnemonicProvider';
-import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { LocalFileMessenger } from '../../../../context/local/localFile/domain/LocalFileMessenger';
 import { RendererIpcLocalFileMessenger } from '../../../../context/local/localFile/infrastructure/RendererIpcLocalFileMessenger';
 
@@ -20,6 +20,11 @@ export function registerLocalFileServices(builder: ContainerBuilder) {
     bridgeUser: user.bridgeUser,
     bridgePass: user.userId,
     encryptionKey: mnemonic,
+    appDetails: {
+      clientName: INTERNXT_CLIENT,
+      clientVersion: INTERNXT_VERSION,
+      desktopHeader: process.env.INTERNXT_DESKTOP_HEADER_KEY,
+    },
   });
 
   builder.register(Environment).useInstance(environment).private();
@@ -28,12 +33,7 @@ export function registerLocalFileServices(builder: ContainerBuilder) {
     .register(LocalFileHandler)
     .useFactory((c) => {
       const env = c.get(Environment);
-      return new EnvironmentLocalFileUploader(
-        env,
-        user.backupsBucket,
-        //@ts-ignore
-        c.get(AuthorizedClients).drive
-      );
+      return new EnvironmentLocalFileUploader(env, user.backupsBucket);
     })
     .private();
 

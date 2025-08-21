@@ -44,9 +44,7 @@ export class Traverser {
     return new Traverser(decrypt, [], []);
   }
 
-  private createRootFolder(id: number): Folder {
-    const rootFolderUuid = '43711926-15c2-5ebf-8c24-5099fa9af3c3';
-
+  private createRootFolder(id: number, rootFolderUuid: string): Folder {
     return Folder.from({
       id: id,
       uuid: rootFolderUuid,
@@ -143,8 +141,8 @@ export class Traverser {
     });
   }
 
-  public run(rootFolderId: number, items: Items): RemoteTree {
-    const rootFolder = this.createRootFolder(rootFolderId);
+  public run(rootFolderId: number, rootFolderUuid: string, items: Items): RemoteTree {
+    const rootFolder = this.createRootFolder(rootFolderId, rootFolderUuid);
 
     const tree = new RemoteTree(rootFolder);
 

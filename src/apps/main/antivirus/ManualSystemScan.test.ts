@@ -100,7 +100,14 @@ jest.mock('electron', () => ({
     handle: jest.fn(),
   },
 }));
-jest.mock('electron-log');
+jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 jest.mock('path', () => ({
   join: jest.fn((...args) => args.join('/')),
   dirname: jest.fn((p) => p.split('/').slice(0, -1).join('/')),

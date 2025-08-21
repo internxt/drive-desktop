@@ -60,7 +60,8 @@ export class FileBatchUploader {
         contentsId,
         localFile.path,
         localFile.size,
-        parent.id
+        parent.id,
+        parent.uuid
       );
 
       if (either.isLeft()) {
@@ -70,6 +71,9 @@ export class FileBatchUploader {
         const error = either.getLeft();
 
         if (error.cause === 'FILE_ALREADY_EXISTS') {
+          Logger.debug(
+            `[FILE ALREADY EXISTS] Skipping file ${localFile.path} - already exists remotely`
+          );
           continue;
         }
 

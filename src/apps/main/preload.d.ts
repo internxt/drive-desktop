@@ -156,7 +156,7 @@ declare interface Window {
       func: (value: import('../main/device/service').Device) => void
     ): () => void;
 
-    getBackupsFromDevice: typeof import('../main/device/service').getBackupsFromDevice;
+    getBackupsFromDevice: typeof import('../../backend/features/device/device.module').DeviceModule.getBackupsFromDevice;
 
     addBackup: typeof import('../main/device/service').addBackup;
 
@@ -198,7 +198,9 @@ declare interface Window {
       func: (value: import('../main/realtime').EventPayload) => void
     ): () => void;
 
-    getUsage: () => Promise<import('./usage/Usage').Usage>;
+    getUsage: () => Promise<
+      import('../../backend/features/usage/usage.types').Usage
+    >;
 
     getPlatform: () => Promise<
       import('../main/platform/DesktopPlatform').DesktopPlatform

@@ -1,20 +1,20 @@
+import { components } from './../../../../infra/schemas.d';
 import { Environment } from '@internxt/inxt-js';
 import { Storage, StorageTypes } from '@internxt/sdk/dist/drive';
 import { Readable } from 'stream';
-
 import { ThumbnailProperties } from '../domain/ThumbnailProperties';
 import { ThumbnailUploader } from '../domain/ThumbnailUploader';
+import { createThumbnail } from '../../../../infra/drive-server/services/files/services/create-thumbnail';
 
 export class EnvironmentAndStorageThumbnailUploader
   implements ThumbnailUploader
 {
   constructor(
     private readonly environment: Environment,
-    private readonly storage: Storage,
     private readonly bucket: string
   ) {}
 
-  private uploadThumbnail(thumbnail: Buffer) {
+  private uploadThumbnailToEnvironment(thumbnail: Buffer) {
     const thumbnailStream = new Readable({
       read() {
         this.push(thumbnail);
@@ -40,20 +40,25 @@ export class EnvironmentAndStorageThumbnailUploader
     });
   }
 
-  async upload(fileId: number, thumbnailFile: Buffer): Promise<void> {
-    const fileIdOnEnvironment = await this.uploadThumbnail(thumbnailFile);
+  private async uploadThumbnailToStorage(
+    thumbnail: components['schemas']['CreateThumbnailDto']
+  ) {
+    return await createThumbnail(thumbnail);
+  }
 
-    const thumbnail: StorageTypes.ThumbnailEntry = {
-      file_id: fileId,
-      max_width: ThumbnailProperties.dimensions as number,
-      max_height: ThumbnailProperties.dimensions as number,
+  async upload(fileId: number, thumbnailFile: Buffer): Promise<void> {
+    const fileIdOnEnvironment = await this.uploadThumbnailToEnvironment(
+      thumbnailFile
+    );
+    await this.uploadThumbnailToStorage({
+      fileId,
       type: ThumbnailProperties.type as string,
       size: thumbnailFile.byteLength,
-      bucket_id: this.bucket,
-      bucket_file: fileIdOnEnvironment,
-      encrypt_version: StorageTypes.EncryptionVersion.Aes03,
-    };
-
-    await this.storage.createThumbnailEntry(thumbnail);
+      maxWidth: ThumbnailProperties.dimensions as number,
+      maxHeight: ThumbnailProperties.dimensions as number,
+      bucketId: this.bucket,
+      bucketFile: fileIdOnEnvironment,
+      encryptVersion: StorageTypes.EncryptionVersion.Aes03,
+    });
   }
 }

@@ -1329,6 +1329,13 @@
   resolved "https://registry.yarnpkg.com/@inquirer/type/-/type-3.0.6.tgz#2500e435fc2014c5250eec3279f42b70b64089bd"
   integrity sha512-/mKVCtVpyBu3IDarv0G+59KC4stsD5mDsGpYh+GKs1NZT88Jh52+cuoA1AtLk2Q0r/quNl+1cSUyLRHBFeD0XA==
 
+"@internxt/drive-desktop-core@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@internxt/drive-desktop-core/-/drive-desktop-core-0.0.3.tgz#a39ef86e55745fd811d26f4a364bfdd5dd8a0ebd"
+  integrity sha512-yJ609/WWUmsObgRi9ZP6P4yGoI4/Y/4JVV4DXvUwl4tffxDHbFk4J0ICcJqxrOiIQj5XFjva6AZ7Fh8wGGM00g==
+  dependencies:
+    electron-log "^5.4.1"
+
 "@internxt/eslint-config-internxt@^1.0.9":
   version "1.0.9"
   resolved "https://npm.pkg.github.com/download/@internxt/eslint-config-internxt/1.0.9/d2dddb6a5809873ce717507f8d9dbc5964f6d0f4#d2dddb6a5809873ce717507f8d9dbc5964f6d0f4"
@@ -1338,18 +1345,23 @@
     "@typescript-eslint/parser" "^5.4.0"
     eslint-config-prettier "^8.3.0"
 
-"@internxt/inxt-js@^2.1.0":
-  version "2.1.0"
-  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.1.0/cb76e567f3d2144d9877166572cdf614c4c69277#cb76e567f3d2144d9877166572cdf614c4c69277"
-  integrity sha512-Xx65Li3wRvXtDvXkTe44cM5l5DLMpvCkIFzNu0c78hi6xWlMXpl1JrMRiO0PHP+I3tOyRh/KAzUDQ92jRbzbBQ==
+"@internxt/inxt-js@^2.2.3":
+  version "2.2.5"
+  resolved "https://npm.pkg.github.com/download/@internxt/inxt-js/2.2.5/afcdd7350ed4d697e157596d04a588c365374e3c#afcdd7350ed4d697e157596d04a588c365374e3c"
+  integrity sha512-ej73+tS9RcjB0swuw5ec+1PmQsUCPIUnTM7RR8ESxoM/CcQYAFgNyIp8mYopMe+y0am/hDgRjG2cymYLfhaGAg==
   dependencies:
-    "@internxt/lib" "^1.1.6"
-    "@internxt/sdk" "^1.4.27"
-    async "^3.2.0"
-    axios "^0.23.0"
-    bip39 "^3.0.2"
-    undici "^5.5.1"
-    winston "^3.3.3"
+    "@internxt/lib" "1.3.1"
+    "@internxt/sdk" "1.10.0"
+    async "3.2.6"
+    axios "1.10.0"
+    bip39 "3.1.0"
+    undici "5.29.0"
+    winston "3.17.0"
+
+"@internxt/lib@1.3.1":
+  version "1.3.1"
+  resolved "https://npm.pkg.github.com/download/@internxt/lib/1.3.1/c330ee66e4963469691f448a1716a9f6266ec729#c330ee66e4963469691f448a1716a9f6266ec729"
+  integrity sha512-W0D7aIdH1wg9YNLmLw7iaZ0T0pvG7qtDKkKRZRKVU4zSMWH0Rc+q+ZMLpo5Agyqua07A0gQ3Y8i4M42cglV0bw==
 
 "@internxt/lib@^1.1.6":
   version "1.2.0"
@@ -1361,19 +1373,17 @@
   resolved "https://npm.pkg.github.com/download/@internxt/scan/1.0.3/ae308e065a8769d6cebe99671c8b8513a502cb8d#ae308e065a8769d6cebe99671c8b8513a502cb8d"
   integrity sha512-Nqk2nusTr9J2G1KEoQdSy+V1gIS4mG87hJngj/DrskLz19PMgSQxs+F5KYnjurnCLS3vZV0eiZhu+2R0mLBzrQ==
 
-"@internxt/sdk@1.9.9":
-  version "1.9.9"
-  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.9.9/41aaf713bfa85688a09bcfce35814b831389b9be#41aaf713bfa85688a09bcfce35814b831389b9be"
-  integrity sha512-3bhC/WBunAeGLpexEOj84xgZbznwDdTripoLj/fmnPEKW4PpCGP0tS7f58IMDSMkpPMhB6wTSMAXXLW9LfQNNg==
+"@internxt/sdk@1.10.0":
+  version "1.10.0"
+  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.10.0/55ff91fc186073614013f1224f0a2c6cbda47e3b#55ff91fc186073614013f1224f0a2c6cbda47e3b"
+  integrity sha512-ddzD3Vg/FHiK8e8yRnKhe9cjcF7LqO5TKMAkPtZo2t3gwiDqka6icPcgwwxuD2iG1JOocmVdfzMu3/f1MNPH+w==
   dependencies:
-    axios "^0.24.0"
-    query-string "^7.1.0"
-    uuid "^8.3.2"
+    axios "1.10.0"
 
-"@internxt/sdk@^1.4.27":
-  version "1.4.77"
-  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.4.77/c0d13047a95df03b589b9e09502e3cd6f16928e0#c0d13047a95df03b589b9e09502e3cd6f16928e0"
-  integrity sha512-TYghDpyImfOy8amMrz7TZbkYRAEDkMl1LGCbqB2nU40jc+zIvuS2GworLn2kTsGmZA6Oz7tc/EGlg1gZ6vPbBw==
+"@internxt/sdk@1.9.12":
+  version "1.9.12"
+  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.9.12/534488617eac3eea5fb4ad965130e5c2811819d1#534488617eac3eea5fb4ad965130e5c2811819d1"
+  integrity sha512-/GNKYrvrcQvIGaIrg74aeoJq6yjJQaFyO89Af8qZFLbTTpvdVsbQnq3eA17vlTNNEVaTeDllwJQtL4ZMsR6HBQ==
   dependencies:
     axios "^0.24.0"
     query-string "^7.1.0"
@@ -3867,7 +3877,12 @@ async-exit-hook@^2.0.1:
   resolved "https://registry.yarnpkg.com/async-exit-hook/-/async-exit-hook-2.0.1.tgz#8bd8b024b0ec9b1c01cccb9af9db29bd717dfaf3"
   integrity sha512-NW2cX8m1Q7KPA7a5M2ULQeZ2wR5qI5PAbw5L0UOMxdioVk9PMZ0h1TmyZEkPYrCvYjDlFICusOu1dlEKAAeXBw==
 
-async@^3.2.0, async@^3.2.3, async@^3.2.4:
+async@3.2.6:
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/async/-/async-3.2.6.tgz#1b0728e14929d51b85b449b7f06e27c1145e38ce"
+  integrity sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==
+
+async@^3.2.3, async@^3.2.4:
   version "3.2.5"
   resolved "https://registry.yarnpkg.com/async/-/async-3.2.5.tgz#ebd52a8fdaf7a2289a24df399f8d8485c8a46b66"
   integrity sha512-baNZyqaaLhyLVKm/DlvdW051MSgO6b8eVfIezl9E5PqWxFgzLm/wQntEW4zOytVburDEr0JlALEpdOFwvErLsg==
@@ -3924,12 +3939,14 @@ axios-mock-adapter@^1.21.2:
     fast-deep-equal "^3.1.3"
     is-buffer "^2.0.5"
 
-axios@^0.23.0:
-  version "0.23.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.23.0.tgz#b0fa5d0948a8d1d75e3d5635238b6c4625b05149"
-  integrity sha512-NmvAE4i0YAv5cKq8zlDoPd1VLKAqX5oLuZKs8xkJa4qi6RGn0uhCYFjWtHHC9EM/MwOwYWOs53W+V0aqEXq1sg==
+axios@1.10.0:
+  version "1.10.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.10.0.tgz#af320aee8632eaf2a400b6a1979fa75856f38d54"
+  integrity sha512-/1xYAC4MP/HEG+3duIhFr4ZQXR4sQXOIe+o6sdqzeykGLx6Upp/1p8MHqhINOvGeP7xyNHe7tsiJByc4SSVUxw==
   dependencies:
-    follow-redirects "^1.14.4"
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
 
 axios@^0.24.0:
   version "0.24.0"
@@ -4064,7 +4081,7 @@ binary-extensions@^2.0.0:
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-2.3.0.tgz#f6e14a97858d327252200242d4ccfe522c445522"
   integrity sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==
 
-bip39@^3.0.2:
+bip39@3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/bip39/-/bip39-3.1.0.tgz#c55a418deaf48826a6ceb34ac55b3ee1577e18a3"
   integrity sha512-c9kiwdk45Do5GL0vJMe7tS95VjCii65mYAH7DfWl3uW8AVzXKQVUm64i3hzVybBDMp9r7j9iNxR85+ul8MdN/A==
@@ -5676,6 +5693,11 @@ electron-log@^4.4.4:
   version "4.4.8"
   resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.4.8.tgz#fcb9f714dbcaefb6ac7984c4683912c74730248a"
   integrity sha512-QQ4GvrXO+HkgqqEOYbi+DHL7hj5JM+nHi/j+qrN9zeeXVKy8ZABgbu4CnG+BBqDZ2+tbeq9tUC4DZfIWFU5AZA==
+
+electron-log@^5.4.1:
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-5.4.1.tgz#700ddc6ef4b06c13a983468580ba7a7e579129d4"
+  integrity sha512-QvisA18Z++8E3Th0zmhUelys9dEv7aIeXJlbFw3UrxCc8H9qSRW0j8/ooTef/EtHui8tVmbKSL+EIQzP9GoRLg==
 
 electron-notarize@^1.1.1:
   version "1.2.2"
@@ -8966,10 +8988,10 @@ log-update@^4.0.0:
     slice-ansi "^4.0.0"
     wrap-ansi "^6.2.0"
 
-logform@^2.3.2, logform@^2.4.0:
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/logform/-/logform-2.6.0.tgz#8c82a983f05d6eaeb2d75e3decae7a768b2bf9b5"
-  integrity sha512-1ulHeNPp6k/LD8H91o7VYFBng5i1BDE7HoKxVbZiGFidS1Rj65qcywLxX+pVfAPoQJEjRdvKcusKwOupHCVOVQ==
+logform@^2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/logform/-/logform-2.7.0.tgz#cfca97528ef290f2e125a08396805002b2d060d1"
+  integrity sha512-TFYA4jnP7PVbmlBIfhlSe+WKxs9dklXMTEGcBCIvLhE/Tn3H6Gk1norupVW7m5Cnd4bLcr08AytbyV/xj7f/kQ==
   dependencies:
     "@colors/colors" "1.6.0"
     "@types/triple-beam" "^1.3.2"
@@ -10804,7 +10826,7 @@ readable-stream@^2.0.1, readable-stream@^2.0.2, readable-stream@^2.2.2, readable
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
 
-readable-stream@^3.0.6, readable-stream@^3.4.0, readable-stream@^3.6.0:
+readable-stream@^3.0.6, readable-stream@^3.4.0, readable-stream@^3.6.0, readable-stream@^3.6.2:
   version "3.6.2"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.6.2.tgz#56a9b36ea965c00c5a93ef31eb111a0f11056967"
   integrity sha512-9u/sniCrY3D5WdsERHzHE4G2YCXqoG5FTHUiCC4SIbr6XcLZBY05ya9EKjYek9O5xOAwjGq+1JdGBAS7Q9ScoA==
@@ -12355,10 +12377,10 @@ undici-types@~6.11.1:
   resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.11.1.tgz#432ea6e8efd54a48569705a699e62d8f4981b197"
   integrity sha512-mIDEX2ek50x0OlRgxryxsenE5XaQD4on5U2inY7RApK3SOJpofyw7uW2AyfMKkhAxXIceo2DeWGVGwyvng1GNQ==
 
-undici@^5.5.1:
-  version "5.28.4"
-  resolved "https://registry.yarnpkg.com/undici/-/undici-5.28.4.tgz#6b280408edb6a1a604a9b20340f45b422e373068"
-  integrity sha512-72RFADWFqKmUb2hmmvNODKL3p9hcB6Gt2DOQMis1SEBaV6a4MH8soBvzg+95CYhCKPFedut2JY9bMfrDl9D23g==
+undici@5.29.0:
+  version "5.29.0"
+  resolved "https://registry.yarnpkg.com/undici/-/undici-5.29.0.tgz#419595449ae3f2cdcba3580a2e8903399bd1f5a3"
+  integrity sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==
   dependencies:
     "@fastify/busboy" "^2.0.0"
 
@@ -12857,31 +12879,31 @@ wildcard@^2.0.0:
   resolved "https://registry.yarnpkg.com/wildcard/-/wildcard-2.0.1.tgz#5ab10d02487198954836b6349f74fff961e10f67"
   integrity sha512-CC1bOL87PIWSBhDcTrdeLo6eGT7mCFtrg0uIJtqJUFyK+eJnzl8A1niH56uu7KMa5XFrtiV+AQuHO3n7DsHnLQ==
 
-winston-transport@^4.7.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/winston-transport/-/winston-transport-4.7.0.tgz#e302e6889e6ccb7f383b926df6936a5b781bd1f0"
-  integrity sha512-ajBj65K5I7denzer2IYW6+2bNIVqLGDHqDw3Ow8Ohh+vdW+rv4MZ6eiDvHoKhfJFZ2auyN8byXieDDJ96ViONg==
+winston-transport@^4.9.0:
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/winston-transport/-/winston-transport-4.9.0.tgz#3bba345de10297654ea6f33519424560003b3bf9"
+  integrity sha512-8drMJ4rkgaPo1Me4zD/3WLfI/zPdA9o2IipKODunnGDcuqbHwjsbB79ylv04LCGGzU0xQ6vTznOMpQGaLhhm6A==
   dependencies:
-    logform "^2.3.2"
-    readable-stream "^3.6.0"
+    logform "^2.7.0"
+    readable-stream "^3.6.2"
     triple-beam "^1.3.0"
 
-winston@^3.3.3:
-  version "3.13.0"
-  resolved "https://registry.yarnpkg.com/winston/-/winston-3.13.0.tgz#e76c0d722f78e04838158c61adc1287201de7ce3"
-  integrity sha512-rwidmA1w3SE4j0E5MuIufFhyJPBDG7Nu71RkZor1p2+qHvJSZ9GYDA81AyleQcZbh/+V6HjeBdfnTZJm9rSeQQ==
+winston@3.17.0:
+  version "3.17.0"
+  resolved "https://registry.yarnpkg.com/winston/-/winston-3.17.0.tgz#74b8665ce9b4ea7b29d0922cfccf852a08a11423"
+  integrity sha512-DLiFIXYC5fMPxaRg832S6F5mJYvePtmO5G9v9IgUFPhXm9/GkXarH/TUrBAVzhTCzAj9anE/+GjrgXp/54nOgw==
   dependencies:
     "@colors/colors" "^1.6.0"
     "@dabh/diagnostics" "^2.0.2"
     async "^3.2.3"
     is-stream "^2.0.0"
-    logform "^2.4.0"
+    logform "^2.7.0"
     one-time "^1.0.0"
     readable-stream "^3.4.0"
     safe-stable-stringify "^2.3.1"
     stack-trace "0.0.x"
     triple-beam "^1.3.0"
-    winston-transport "^4.7.0"
+    winston-transport "^4.9.0"
 
 word-wrap@^1.2.5:
   version "1.2.5"

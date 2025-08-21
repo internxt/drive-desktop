@@ -1,4 +1,4 @@
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export enum AntivirusErrorCode {
   INITIALIZATION_FAILED = 'ANTIVIRUS_INITIALIZATION_FAILED',
@@ -45,10 +45,14 @@ export class AntivirusError extends Error {
     this.originalError = originalError;
     this.details = details;
 
-    Logger.error(`[${this.name}][${this.code}] ${this.message}`, {
-      originalError,
-      details,
-      stack: this.stack,
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: `[${this.name}][${this.code}] ${this.message}`,
+      error: originalError,
+      details: {
+        ...details,
+        stack: this.stack,
+      },
     });
   }
 

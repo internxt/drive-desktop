@@ -60,6 +60,8 @@ export default function Header() {
     }, []);
 
     const { usage, status } = useUsage();
+    console.log('usage in header', usage);
+    console.log('status in header', status);
 
     let displayUsage: string;
 
@@ -74,7 +76,7 @@ export default function Header() {
     } else {
       displayUsage = '';
     }
-
+    console.log('displayUsage', displayUsage);
     return (
       <div
         className="flex flex-1 space-x-2.5 truncate"

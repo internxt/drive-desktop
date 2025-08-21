@@ -5,7 +5,6 @@ import { FileBatchUploader } from '../../context/local/localFile/application/upl
 import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileDeleter } from '../../context/virtual-drive/files/application/delete/FileDeleter';
 import { SimpleFolderCreator } from '../../context/virtual-drive/folders/application/create/SimpleFolderCreator';
-import { UserAvaliableSpaceValidator } from '../../context/user/usage/application/UserAvaliableSpaceValidator';
 import { BackupInfo } from './BackupInfo';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { LocalTreeMother } from '../../../tests/context/local/tree/domain/LocalTreeMother';
@@ -18,11 +17,19 @@ import { FolderMother } from '../../../tests/context/virtual-drive/folders/domai
 import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
 import { DiffFilesCalculatorService } from './diff/DiffFilesCalculatorService';
+import { UsageModule } from '../../backend/features/usage/usage.module';
 
 // Mock the BackupsIPCRenderer module
 jest.mock('./BackupsIPCRenderer', () => ({
   BackupsIPCRenderer: {
     send: jest.fn(), // Mock the send method
+  },
+}));
+
+// Mock the UsageModule
+jest.mock('../../backend/features/usage/usage.module', () => ({
+  UsageModule: {
+    validateSpace: jest.fn(),
   },
 }));
 
@@ -41,8 +48,8 @@ describe('BackupService', () => {
   let fileBatchUpdater: jest.Mocked<FileBatchUpdater>;
   let remoteFileDeleter: jest.Mocked<FileDeleter>;
   let simpleFolderCreator: jest.Mocked<SimpleFolderCreator>;
-  let userAvaliableSpaceValidator: jest.Mocked<UserAvaliableSpaceValidator>;
   let backupsDanglingFilesService: jest.Mocked<BackupsDanglingFilesService>;
+  let mockValidateSpace: jest.MockedFunction<typeof UsageModule.validateSpace>;
 
   beforeEach(() => {
     localTreeBuilder = {
@@ -70,10 +77,7 @@ describe('BackupService', () => {
       run: jest.fn(),
     } as unknown as jest.Mocked<FileDeleter>;
 
-    userAvaliableSpaceValidator = {
-      run: jest.fn(),
-      repository: {},
-    } as unknown as jest.Mocked<UserAvaliableSpaceValidator>;
+    mockValidateSpace = UsageModule.validateSpace as jest.MockedFunction<typeof UsageModule.validateSpace>;
 
     backupsDanglingFilesService = {
       handleDanglingFilesOnBackup: jest.fn(),
@@ -94,12 +98,12 @@ describe('BackupService', () => {
       fileBatchUpdater,
       remoteFileDeleter,
       simpleFolderCreator,
-      userAvaliableSpaceValidator,
       backupsDanglingFilesService
     );
 
-    // Clear the mock before each test
+    // Clear the mocks before each test
     (BackupsIPCRenderer.send as jest.Mock).mockClear();
+    mockValidateSpace.mockClear();
   });
 
   it('should successfully run the backup process', async () => {
@@ -117,7 +121,7 @@ describe('BackupService', () => {
 
     localTreeBuilder.run.mockResolvedValueOnce(right(localTree));
     remoteTreeBuilder.run.mockResolvedValueOnce(remoteTree);
-    userAvaliableSpaceValidator.run.mockResolvedValueOnce(true);
+    mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: true } });
 
     const result = await backupService.run(info, abortController);
 
@@ -196,7 +200,7 @@ describe('BackupService', () => {
       right(LocalTreeMother.oneLevel(10))
     );
     remoteTreeBuilder.run.mockResolvedValueOnce(RemoteTreeMother.oneLevel(10));
-    userAvaliableSpaceValidator.run.mockResolvedValueOnce(false);
+    mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: false } });
 
     const result = await backupService.run(info, abortController);
 
@@ -252,7 +256,7 @@ describe('BackupService', () => {
 
     localTreeBuilder.run.mockResolvedValueOnce(right(localTree));
     remoteTreeBuilder.run.mockResolvedValueOnce(remoteTree);
-    userAvaliableSpaceValidator.run.mockResolvedValueOnce(true);
+    mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: true } });
     backupsDanglingFilesService.handleDanglingFilesOnBackup.mockResolvedValueOnce(
       new Map([[danglingFile, remoteFile]])
     );

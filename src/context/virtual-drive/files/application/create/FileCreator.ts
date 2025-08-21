@@ -54,6 +54,7 @@ export class FileCreator {
         path: filePath,
         size: fileSize,
         folderId: fileFolderId,
+        folderUuid: folder.uuid,
       });
 
       if (either.isLeft()) {

@@ -26,6 +26,7 @@ describe('paymentServiceHandlers', () => {
     mockPaymentsService = {
       getAvailableProducts: jest.fn(),
       storeUserProducts: jest.fn(),
+      getStoredUserProducts: jest.fn(),
     };
 
     (buildPaymentsService as jest.Mock).mockReturnValue(mockPaymentsService);
@@ -38,16 +39,44 @@ describe('paymentServiceHandlers', () => {
   });
 
   describe('getUserAvailableProductsAndStore', () => {
-    it('should emit the eventBus USER_AVAILABLE_PRODUCTS_UPDATED event', async () => {
-      const mockProducts = { backups: true, antivirus: true };
-      mockPaymentsService.getAvailableProducts.mockResolvedValue(mockProducts);
-
+    it('should emit the eventBus USER_AVAILABLE_PRODUCTS_UPDATED event when products are different', async () => {
+      const mockFetchedProducts = { backups: true, antivirus: true };
+      const mockStoredProducts = { backups: false, antivirus: true };
+      mockPaymentsService.getAvailableProducts.mockResolvedValue(mockFetchedProducts);
+      mockPaymentsService.getStoredUserProducts.mockReturnValue(mockStoredProducts);
 
       await getUserAvailableProductsAndStore();
 
       expect(mockPaymentsService.getAvailableProducts).toHaveBeenCalled();
-      expect(mockPaymentsService.storeUserProducts).toHaveBeenCalledWith(mockProducts);
-      expect(eventBus.emit).toHaveBeenCalledWith('USER_AVAILABLE_PRODUCTS_UPDATED', mockProducts);
+      expect(mockPaymentsService.getStoredUserProducts).toHaveBeenCalled();
+      expect(mockPaymentsService.storeUserProducts).toHaveBeenCalledWith(mockFetchedProducts);
+      expect(eventBus.emit).toHaveBeenCalledWith('USER_AVAILABLE_PRODUCTS_UPDATED', mockFetchedProducts);
+    });
+
+    it('should emit the eventBus USER_AVAILABLE_PRODUCTS_UPDATED event when no stored products exist', async () => {
+      const mockFetchedProducts = { backups: true, antivirus: true };
+      mockPaymentsService.getAvailableProducts.mockResolvedValue(mockFetchedProducts);
+      mockPaymentsService.getStoredUserProducts.mockReturnValue(undefined);
+
+      await getUserAvailableProductsAndStore();
+
+      expect(mockPaymentsService.getAvailableProducts).toHaveBeenCalled();
+      expect(mockPaymentsService.getStoredUserProducts).toHaveBeenCalled();
+      expect(mockPaymentsService.storeUserProducts).toHaveBeenCalledWith(mockFetchedProducts);
+      expect(eventBus.emit).toHaveBeenCalledWith('USER_AVAILABLE_PRODUCTS_UPDATED', mockFetchedProducts);
+    });
+
+    it('should NOT emit the eventBus USER_AVAILABLE_PRODUCTS_UPDATED event when products are the same', async () => {
+      const mockProducts = { backups: true, antivirus: true };
+      mockPaymentsService.getAvailableProducts.mockResolvedValue(mockProducts);
+      mockPaymentsService.getStoredUserProducts.mockReturnValue(mockProducts);
+
+      await getUserAvailableProductsAndStore();
+
+      expect(mockPaymentsService.getAvailableProducts).toHaveBeenCalled();
+      expect(mockPaymentsService.getStoredUserProducts).toHaveBeenCalled();
+      expect(mockPaymentsService.storeUserProducts).not.toHaveBeenCalled();
+      expect(eventBus.emit).not.toHaveBeenCalledWith('USER_AVAILABLE_PRODUCTS_UPDATED', mockProducts);
     });
 
     it('should log an error if paymentsService.getAvailableProducts throws an error', async () => {

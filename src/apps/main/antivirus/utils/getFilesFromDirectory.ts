@@ -5,7 +5,7 @@ import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { isPermissionError } from './isPermissionError';
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getErrorMessage } from './errorUtils';
 
 const execAsync = promisify(exec);
@@ -27,7 +27,10 @@ export const getFilesFromDirectory = async (
   isCancelled?: () => boolean
 ): Promise<void | null> => {
   if (isCancelled && isCancelled()) {
-    Logger.info(`Directory traversal cancelled at ${dir}`);
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: `Directory traversal cancelled at ${dir}`,
+    });
     return null;
   }
 
@@ -39,7 +42,11 @@ export const getFilesFromDirectory = async (
     try {
       await cb(dir);
     } catch (error) {
-      Logger.error(`Error processing file "${dir}": ${getErrorMessage(error)}`);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: `Error processing file "${dir}": ${getErrorMessage(error)}`,
+        error,
+      });
     }
     return;
   }
@@ -48,16 +55,21 @@ export const getFilesFromDirectory = async (
     items = await readdir(dir, { withFileTypes: true });
   } catch (error: unknown) {
     if (isPermissionError(error)) {
-      Logger.info(
-        `Skipping directory "${dir}" due to permission error: ${getErrorMessage(
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: `Skipping directory "${dir}" due to permission error: ${getErrorMessage(
           error
-        )}`
-      );
+        )}`,
+      });
       return null;
     }
 
     // Log other errors but continue scanning
-    Logger.warn(`Error reading directory "${dir}": ${getErrorMessage(error)}`);
+    logger.warn({
+      tag: 'ANTIVIRUS',
+      msg: `Error reading directory "${dir}": ${getErrorMessage(error)}`,
+      error,
+    });
     return null;
   }
 
@@ -65,7 +77,10 @@ export const getFilesFromDirectory = async (
 
   for (const item of nonTempItems) {
     if (isCancelled && isCancelled()) {
-      Logger.info(`Directory traversal cancelled during processing at ${dir}`);
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `Directory traversal cancelled during processing at ${dir}`,
+      });
       return null;
     }
 
@@ -78,27 +93,32 @@ export const getFilesFromDirectory = async (
         }
       } catch (error: unknown) {
         if (isPermissionError(error)) {
-          Logger.info(
-            `Skipping subdirectory "${fullPath}" due to permission error: ${getErrorMessage(
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: `Skipping subdirectory "${fullPath}" due to permission error: ${getErrorMessage(
               error
-            )}`
-          );
+            )}`,
+          });
         } else {
           // Log other errors but continue scanning
-          Logger.warn(
-            `Error accessing subdirectory "${fullPath}": ${getErrorMessage(
+          logger.warn({
+            tag: 'ANTIVIRUS',
+            msg: `Error accessing subdirectory "${fullPath}": ${getErrorMessage(
               error
-            )}`
-          );
+            )}`,
+            error,
+          });
         }
       }
     } else {
       try {
         await cb(fullPath);
       } catch (error: unknown) {
-        Logger.warn(
-          `Error processing file "${fullPath}": ${getErrorMessage(error)}`
-        );
+        logger.warn({
+          tag: 'ANTIVIRUS',
+          msg: `Error processing file "${fullPath}": ${getErrorMessage(error)}`,
+          error,
+        });
       }
     }
   }
@@ -114,7 +134,10 @@ export async function countSystemFiles(folder: string) {
     items = await readdir(folder, { withFileTypes: true });
   } catch (err) {
     if (isPermissionError(err)) {
-      Logger.warn(`Skipping directory "${folder}" due to permission error.`);
+      logger.warn({
+        tag: 'ANTIVIRUS',
+        msg: `Skipping directory "${folder}" due to permission error.`,
+      });
       return 0;
     }
     throw err;
@@ -132,9 +155,10 @@ export async function countSystemFiles(folder: string) {
           return await countSystemFiles(fullPath);
         } catch (err) {
           if (!isPermissionError(err)) throw err;
-          Logger.warn(
-            `Skipping subdirectory "${fullPath}" due to permission error.`
-          );
+          logger.warn({
+            tag: 'ANTIVIRUS',
+            msg: `Skipping subdirectory "${fullPath}" due to permission error.`,
+          });
           return 0;
         }
       } else {

@@ -13,7 +13,6 @@ import { SyncFileMessenger } from '../../../../context/virtual-drive/files/domai
 import { RemoteFileSystem } from '../../../../context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
 import { SDKRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/SDKRemoteFileSystem';
 import { MainProcessSyncFileMessenger } from '../../../../context/virtual-drive/files/infrastructure/SyncFileMessengers/MainProcessSyncFileMessenger';
-import { DependencyInjectionMainProcessStorageSdk } from '../../../shared/dependency-injection/main/DependencyInjectionMainProcessStorageSdk';
 import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { AuthorizedClients } from '../../../shared/HttpClient/Clients';
 import { FileRepository } from '../../../../context/virtual-drive/files/domain/FileRepository';
@@ -38,7 +37,6 @@ export async function registerFilesServices(
     .private();
 
   const user = DependencyInjectionUserProvider.get();
-  const sdk = await DependencyInjectionMainProcessStorageSdk.get();
 
   builder.register(SyncFileMessenger).use(MainProcessSyncFileMessenger);
 
@@ -47,7 +45,6 @@ export async function registerFilesServices(
     .useFactory(
       (c) =>
         new SDKRemoteFileSystem(
-          sdk,
           c.get(AuthorizedClients),
           crypt,
           user.bucket

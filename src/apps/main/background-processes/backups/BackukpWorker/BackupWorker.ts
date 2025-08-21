@@ -29,6 +29,13 @@ export class BackupWorker {
 
     worker.loadFile(this.getPath()).catch(Logger.error);
 
+    // Open DevTools in development mode for debugging
+    if (isDev()) {
+      worker.once('ready-to-show', () => {
+        worker.webContents.openDevTools();
+      });
+    }
+
     return new BackupWorker(id, worker);
   }
 

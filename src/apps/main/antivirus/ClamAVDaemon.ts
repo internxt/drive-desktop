@@ -1,7 +1,7 @@
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import net from 'net';
 import path from 'path';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import fs from 'fs';
 import { AntivirusError } from './AntivirusError';
 import {
@@ -34,13 +34,19 @@ export const ensureDirectories = () => {
   for (const dir of dirs) {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true, mode: DIRECTORY_MODE });
-      Logger.info(`[CLAM_AVD] Created directory: ${dir}`);
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[CLAM_AVD] Created directory: ${dir}`,
+      });
     }
   }
 
   if (!fs.existsSync(logFilePath)) {
     fs.writeFileSync(logFilePath, '', { mode: FILE_MODE });
-    Logger.info(`[CLAM_AVD] Created log file: ${logFilePath}`);
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: `[CLAM_AVD] Created log file: ${logFilePath}`,
+    });
   }
 
   const resourceDbDir = path.join(RESOURCES_PATH, 'db');
@@ -51,7 +57,10 @@ export const ensureDirectories = () => {
       const destPath = path.join(dbDir, file);
       if (!fs.existsSync(destPath)) {
         fs.copyFileSync(srcPath, destPath);
-        Logger.info(`[CLAM_AVD] Copied database file: ${file}`);
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] Copied database file: ${file}`,
+        });
       }
     }
   }
@@ -90,7 +99,10 @@ export const prepareConfigFiles = (): {
   fs.writeFileSync(tempClamdConfigPath, modifiedClamdConfig);
   fs.writeFileSync(tempFreshclamConfigPath, modifiedFreshclamConfig);
 
-  Logger.info(`[CLAM_AVD] Created modified config files in ${configDir}`);
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: `[CLAM_AVD] Created modified config files in ${configDir}`,
+  });
 
   return {
     clamdConfigPath: tempClamdConfigPath,
@@ -102,9 +114,10 @@ const restartClamdServerIfNeeded = async (): Promise<boolean> => {
   const now = Date.now();
 
   if (now - lastRestartTime < MIN_RESTART_INTERVAL) {
-    Logger.warn(
-      '[CLAM_AVD] Refusing to restart clamd too quickly after previous restart'
-    );
+    logger.warn({
+      tag: 'ANTIVIRUS',
+      msg: '[CLAM_AVD] Refusing to restart clamd too quickly after previous restart',
+    });
     return false;
   }
 
@@ -113,9 +126,10 @@ const restartClamdServerIfNeeded = async (): Promise<boolean> => {
   }
 
   if (serverStartAttempts >= MAX_SERVER_START_ATTEMPTS) {
-    Logger.error(
-      `[CLAM_AVD] Exceeded maximum clamd restart attempts (${MAX_SERVER_START_ATTEMPTS})`
-    );
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: `[CLAM_AVD] Exceeded maximum clamd restart attempts (${MAX_SERVER_START_ATTEMPTS})`,
+    });
     return false;
   }
 
@@ -128,15 +142,17 @@ const restartClamdServerIfNeeded = async (): Promise<boolean> => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     await startClamdServer();
-    Logger.info(
-      `[CLAM_AVD] Successfully restarted clamd server (attempt ${serverStartAttempts})`
-    );
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: `[CLAM_AVD] Successfully restarted clamd server (attempt ${serverStartAttempts})`,
+    });
     return true;
   } catch (error) {
-    Logger.error(
-      `[CLAM_AVD] Failed to restart clamd server (attempt ${serverStartAttempts}):`,
-      error
-    );
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: `[CLAM_AVD] Failed to restart clamd server (attempt ${serverStartAttempts}):`,
+      error,
+    });
     return false;
   }
 };
@@ -152,18 +168,20 @@ const checkClamdAvailability = (
     const tryConnect = () => {
       const client = new net.Socket();
       const timeout = setTimeout(() => {
-        Logger.debug(
-          `[CLAM_AVD] Connection to clamd timed out (${host}:${port})`
-        );
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] Connection to clamd timed out (${host}:${port})`,
+        });
         client.destroy();
         handleFailure('Connection timeout');
       }, 5000); // 5 second connection timeout
 
       client.connect(port, host, () => {
         clearTimeout(timeout);
-        Logger.debug(
-          `[CLAM_AVD] Successfully connected to clamd at ${host}:${port}`
-        );
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] Successfully connected to clamd at ${host}:${port}`,
+        });
 
         client.write('PING\n');
 
@@ -172,7 +190,10 @@ const checkClamdAvailability = (
           responseData += data.toString();
 
           if (responseData.includes('PONG')) {
-            Logger.debug('[CLAM_AVD] Received PONG response from clamd');
+            logger.debug({
+              tag: 'ANTIVIRUS',
+              msg: '[CLAM_AVD] Received PONG response from clamd',
+            });
             client.end();
             resolve(true);
           }
@@ -180,7 +201,10 @@ const checkClamdAvailability = (
 
         setTimeout(() => {
           if (!responseData.includes('PONG')) {
-            Logger.debug('[CLAM_AVD] Did not receive PONG response from clamd');
+            logger.debug({
+              tag: 'ANTIVIRUS',
+              msg: '[CLAM_AVD] Did not receive PONG response from clamd',
+            });
             client.destroy();
             handleFailure('No PONG response');
           }
@@ -194,16 +218,23 @@ const checkClamdAvailability = (
       });
 
       const handleFailure = (reason: string) => {
-        Logger.debug(`[CLAM_AVD] Connection to clamd failed: ${reason}`);
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] Connection to clamd failed: ${reason}`,
+        });
 
         if (retryCount < retries) {
           retryCount++;
-          Logger.debug(
-            `[CLAM_AVD] Retrying connection (${retryCount}/${retries})...`
-          );
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: `[CLAM_AVD] Retrying connection (${retryCount}/${retries})...`,
+          });
           setTimeout(tryConnect, 1000);
         } else {
-          Logger.debug('[CLAM_AVD] All connection attempts failed');
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: '[CLAM_AVD] All connection attempts failed',
+          });
           resolve(false);
         }
       };
@@ -219,12 +250,18 @@ export const getEnvWithLibraryPath = () => {
 
   env.LD_LIBRARY_PATH = `${libPath}:${env.LD_LIBRARY_PATH || ''}`;
 
-  Logger.info(`[CLAM_AVD] Setting library path to: ${libPath}`);
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: `[CLAM_AVD] Setting library path to: ${libPath}`,
+  });
   return env;
 };
 
 const startClamdServer = async (): Promise<void> => {
-  Logger.info('[CLAM_AVD] Starting clamd server...');
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: '[CLAM_AVD] Starting clamd server...',
+  });
 
   try {
     ensureDirectories();
@@ -244,16 +281,18 @@ const startClamdServer = async (): Promise<void> => {
       const setupProcessMonitoring = () => {
         clamdProcess?.on('close', async (code) => {
           if (code !== 0 && code !== null) {
-            Logger.error(
-              `[CLAM_AVD] clamd process unexpectedly exited with code ${code}, attempting restart`
-            );
+            logger.error({
+              tag: 'ANTIVIRUS',
+              msg: `[CLAM_AVD] clamd process unexpectedly exited with code ${code}, attempting restart`,
+            });
             clamdProcess = null;
 
             const success = await restartClamdServerIfNeeded();
             if (!success) {
-              Logger.error(
-                '[CLAM_AVD] Failed to automatically restart clamd server'
-              );
+              logger.error({
+                tag: 'ANTIVIRUS',
+                msg: '[CLAM_AVD] Failed to automatically restart clamd server',
+              });
             }
           }
         });
@@ -261,12 +300,16 @@ const startClamdServer = async (): Promise<void> => {
 
       clamdProcess.stdout.on('data', (data) => {
         const output = data.toString();
-        Logger.info(`[CLAM_AVD] [clamd stdout]: ${output}`);
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] [clamd stdout]: ${output}`,
+        });
 
         if (output.includes('Listening daemon')) {
-          Logger.info(
-            '[CLAM_AVD] clamd server started successfully (from stdout)'
-          );
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: '[CLAM_AVD] clamd server started successfully (from stdout)',
+          });
           setupProcessMonitoring();
           resolve();
         }
@@ -274,7 +317,10 @@ const startClamdServer = async (): Promise<void> => {
 
       clamdProcess.stderr.on('data', (data) => {
         const errorMsg = data.toString();
-        Logger.error(`[CLAM_AVD] [clamd stderr]: ${errorMsg}`);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] [clamd stderr]: ${errorMsg}`,
+        });
         if (
           errorMsg.includes('ERROR: Can not open/parse the config file') ||
           errorMsg.includes('Fatal error') ||
@@ -285,7 +331,11 @@ const startClamdServer = async (): Promise<void> => {
       });
 
       clamdProcess.on('error', (error) => {
-        Logger.error('[CLAM_AVD] Failed to start clamd server:', error);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: '[CLAM_AVD] Failed to start clamd server:',
+          error,
+        });
         reject(
           AntivirusError.clamdStartFailed('Failed to start clamd server', error)
         );
@@ -295,16 +345,20 @@ const startClamdServer = async (): Promise<void> => {
         checkClamdAvailability()
           .then((available) => {
             if (available) {
-              Logger.info('[CLAM_AVD] clamd server started successfully');
+              logger.debug({
+                tag: 'ANTIVIRUS',
+                msg: '[CLAM_AVD] clamd server started successfully',
+              });
               resolve();
             } else {
               setTimeout(() => {
                 checkClamdAvailability()
                   .then((available) => {
                     if (available) {
-                      Logger.info(
-                        '[CLAM_AVD] clamd server started successfully (second attempt)'
-                      );
+                      logger.debug({
+                        tag: 'ANTIVIRUS',
+                        msg: '[CLAM_AVD] clamd server started successfully (second attempt)',
+                      });
                       resolve();
                     } else {
                       reject(
@@ -322,7 +376,11 @@ const startClamdServer = async (): Promise<void> => {
       }, DEFAULT_CLAMD_CHECK_INTERVAL);
     });
   } catch (error) {
-    Logger.error('[CLAM_AVD] Error during clamd server startup:', error);
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: '[CLAM_AVD] Error during clamd server startup:',
+      error,
+    });
     throw AntivirusError.clamdStartFailed(
       'Error during clamd server startup',
       error
@@ -332,7 +390,10 @@ const startClamdServer = async (): Promise<void> => {
 
 const stopClamdServer = (): void => {
   if (clamdProcess) {
-    Logger.info('[CLAM_AVD] Stopping clamd server...');
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: '[CLAM_AVD] Stopping clamd server...',
+    });
     clamdProcess.kill();
     clamdProcess = null;
   }
@@ -351,9 +412,10 @@ const waitForClamd = async (
   let attempts = 0;
   let available = false;
 
-  Logger.info(
-    `[CLAM_AVD] Waiting for clamd server to become available (timeout: ${timeout}ms, interval: ${interval}ms)...`
-  );
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: `[CLAM_AVD] Waiting for clamd server to become available (timeout: ${timeout}ms, interval: ${interval}ms)...`,
+  });
 
   while (Date.now() - startTime < timeout && !available) {
     attempts++;
@@ -361,31 +423,35 @@ const waitForClamd = async (
       available = await checkClamdAvailability();
 
       if (available) {
-        Logger.info(
-          `[CLAM_AVD] clamd server is available after ${attempts} attempts (${
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] clamd server is available after ${attempts} attempts (${
             Date.now() - startTime
-          }ms)`
-        );
+          }ms)`,
+        });
         return;
       }
 
       if (attempts >= 3 && attempts % 3 === 0) {
-        Logger.warn(
-          `[CLAM_AVD] clamd server not responding after ${attempts} attempts, trying to restart...`
-        );
+        logger.warn({
+          tag: 'ANTIVIRUS',
+          msg: `[CLAM_AVD] clamd server not responding after ${attempts} attempts, trying to restart...`,
+        });
         await restartClamdServerIfNeeded();
       }
 
-      Logger.debug(
-        `[CLAM_AVD] clamd server not yet available (attempt ${attempts}), waiting ${interval}ms...`
-      );
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[CLAM_AVD] clamd server not yet available (attempt ${attempts}), waiting ${interval}ms...`,
+      });
 
       await new Promise((resolve) => setTimeout(resolve, interval));
     } catch (error) {
-      Logger.error(
-        `[CLAM_AVD] Error checking clamd availability (attempt ${attempts}):`,
-        error
-      );
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: `[CLAM_AVD] Error checking clamd availability (attempt ${attempts}):`,
+        error,
+      });
       await new Promise((resolve) => setTimeout(resolve, interval));
     }
   }
@@ -394,7 +460,10 @@ const waitForClamd = async (
     const message = `clamd server not available after ${attempts} attempts (${
       Date.now() - startTime
     }ms)`;
-    Logger.error(`[CLAM_AVD] ${message}`);
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: `[CLAM_AVD] ${message}`,
+    });
     throw AntivirusError.clamdNotAvailable(message);
   }
 };

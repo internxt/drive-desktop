@@ -43,9 +43,12 @@ export class DriveDependencyContainerFactory {
     await DriveDependencyContainerFactory.addEventSubscribers(container);
 
     // init
-    const { root_folder_id } = DependencyInjectionUserProvider.get();
+    const { root_folder_id, rootFolderId } =
+      DependencyInjectionUserProvider.get();
 
-    const tree = await container.get(RemoteTreeBuilder).run(root_folder_id);
+    const tree = await container
+      .get(RemoteTreeBuilder)
+      .run(root_folder_id, rootFolderId);
 
     await container.get(FolderRepositorySynchronizer).run(tree.folders);
 

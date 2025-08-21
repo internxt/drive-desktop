@@ -13,7 +13,14 @@ jest.mock('electron', () => ({
     getVersion: jest.fn(() => '1.0.0'),
   },
 }));
-jest.mock('electron-log');
+jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
+}));
 jest.mock('path', () => ({
   join: jest.fn((...args) => args.join('/')),
 }));

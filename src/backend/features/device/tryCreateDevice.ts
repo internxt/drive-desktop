@@ -1,7 +1,7 @@
 import { Device } from './../../../apps/main/device/service';
 import { left, right } from './../../../context/shared/domain/Either';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
-import { logger } from '../../../core/LoggerService/LoggerService'; //src/infra/drive-server/services/backup/backup.error'
+import { logger } from '../../../core/LoggerService/LoggerService';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 import { Either } from './../../../context/shared/domain/Either';
 import { DeviceIdentifierDTO } from './device.types';

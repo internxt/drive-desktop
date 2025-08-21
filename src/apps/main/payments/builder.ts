@@ -8,7 +8,8 @@ let paymentsServiceInstance: PaymentsService | null = null;
 
 export function buildPaymentsService(): PaymentsService {
   if (!paymentsServiceInstance) {
-    const paymentsUrl = `${process.env.PAYMENTS_URL}`;
+    const paymentsUrl = process.env.PAYMENTS_URL || '';
+    const desktopHeader = process.env.INTERNXT_DESKTOP_HEADER_KEY;
     const { name: clientName, version: clientVersion } = appInfo;
     const newToken = obtainToken('newToken');
 
@@ -17,6 +18,7 @@ export function buildPaymentsService(): PaymentsService {
       {
         clientName,
         clientVersion,
+        desktopHeader,
       },
       {
         unauthorizedCallback: onUserUnauthorized,

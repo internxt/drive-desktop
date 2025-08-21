@@ -1,7 +1,7 @@
-
-import { AuthService } from './services/auth/auth.service';
 import { DriveServerModule } from './drive-server.module';
+import { AuthService } from './services/auth/auth.service';
 import { BackupService } from './services/backup/backup.service';
+import { UserService } from './services/user/user.service';
 
 describe('DriveServerModule', () => {
   let module: DriveServerModule;
@@ -22,5 +22,10 @@ describe('DriveServerModule', () => {
   it('should have "backup" property as instance of BackupService', () => {
     expect(module.backup).toBeDefined();
     expect(module.backup).toBeInstanceOf(BackupService);
+  });
+
+  it('should have "user" property as instance of UserService', () => {
+    expect(module.user).toBeDefined();
+    expect(module.user).toBeInstanceOf(UserService);
   });
 });

@@ -1,5 +1,5 @@
 import { readFileSync } from 'fs';
-import { Result } from 'src/context/shared/domain/Result';
+import { Result } from '../../context/shared/domain/Result';
 
 export class MachineIdError extends Error {
   constructor(

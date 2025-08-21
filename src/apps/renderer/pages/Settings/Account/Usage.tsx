@@ -1,5 +1,5 @@
 import bytes from 'bytes';
-import { Usage as UsageType } from '../../../../main/usage/Usage';
+import { Usage as UsageType } from '../../../../../backend/features/usage/usage.types';
 import Button from '../../../components/Button';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { WarningCircle } from '@phosphor-icons/react';

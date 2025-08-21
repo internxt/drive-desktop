@@ -103,7 +103,7 @@ export function getHeaders(includeMnemonic = false): Record<string, string> {
   const header = {
     Authorization: `Bearer ${token}`,
     'content-type': 'application/json; charset=utf-8',
-    'internxt-client': 'drive-desktop',
+    'internxt-client': 'drive-desktop-linux',
     'internxt-version': packageConfig.version,
     'x-internxt-desktop-header': process.env.INTERNXT_DESKTOP_HEADER_KEY || '',
     ...(includeMnemonic
@@ -119,7 +119,7 @@ export function getHeaders(includeMnemonic = false): Record<string, string> {
 export function getBaseApiHeaders():  Record<string, string> {
   return {
     'content-type': 'application/json; charset=utf-8',
-    'internxt-client': 'drive-desktop',
+    'internxt-client': 'drive-desktop-linux',
     'internxt-version': packageConfig.version,
     'x-internxt-desktop-header': process.env.INTERNXT_DESKTOP_HEADER_KEY || '',
   };

@@ -41,7 +41,6 @@ export async function registerFolderServices(
       const clients = c.get(AuthorizedClients);
       return new HttpRemoteFileSystem(
         // @ts-ignore
-        clients.drive,
         clients.newDrive
       );
     })

@@ -183,19 +183,17 @@ describe('AuthService', () => {
         tfa: '123456',
       };
 
-      // --- mock de la respuesta correcta ---
       const data: LoginAccessResponse = {
         user: {
           id: 'user-1',
           email: 'test@example.com',
           name: 'Test User',
-        } as any,      // cast rápido; en tests no necesitamos todo el shape
+        } as any,
         token: 'jwt-token',
-        userTeam: {},  // tu API devuelve un objeto vacío
+        userTeam: {},
         newToken: 'refresh-jwt',
       };
 
-      // --- mocks de dependencias ---
       (authClient.POST as jest.Mock).mockResolvedValue({ data });
 
       const mockedHeaders: Record<string, string> = {
@@ -207,10 +205,8 @@ describe('AuthService', () => {
       };
       (getBaseApiHeaders as jest.Mock).mockReturnValue(mockedHeaders);
 
-      // --- llamada al SUT ---
       const result = await sut.access(credentials);
 
-      // --- aserciones ---
       expect(result.isRight()).toBe(true);
       expect(result.getRight()).toEqual(data);
       expect(authClient.POST).toHaveBeenCalledWith('/auth/login/access', {

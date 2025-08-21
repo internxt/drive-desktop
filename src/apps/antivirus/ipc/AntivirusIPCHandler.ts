@@ -1,4 +1,4 @@
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { shell, BrowserWindow, ipcMain } from 'electron';
 import { AntivirusIPCMain } from './AntivirusIPCMain';
 import { SelectedItemToScanProps } from '../../main/antivirus/Antivirus';
@@ -30,29 +30,33 @@ export class AntivirusScanService {
             const stats = fs.statSync(pathToCheck);
 
             if (stats.isFile() && itemPath.endsWith('/')) {
-              Logger.info(
-                `[Antivirus] Removing trailing slash from confirmed file path: ${itemPath}`
-              );
+              logger.debug({
+                tag: 'ANTIVIRUS',
+                msg: `Removing trailing slash from confirmed file path: ${itemPath}`,
+              });
               itemPath = pathToCheck;
             } else if (stats.isDirectory() && !itemPath.endsWith('/')) {
-              Logger.info(
-                `[Antivirus] Adding trailing slash to confirmed directory path: ${itemPath}`
-              );
+              logger.debug({
+                tag: 'ANTIVIRUS',
+                msg: `Adding trailing slash to confirmed directory path: ${itemPath}`,
+              });
               itemPath = `${pathToCheck}/`;
             }
           } else {
             if (!item.isDirectory && itemPath.endsWith('/')) {
-              Logger.info(
-                `[Antivirus] Removing trailing slash based on metadata: ${itemPath}`
-              );
+              logger.debug({
+                tag: 'ANTIVIRUS',
+                msg: `Removing trailing slash based on metadata: ${itemPath}`,
+              });
               itemPath = itemPath.replace(/\/+$/, '');
             }
           }
         } catch (error) {
           if (!item.isDirectory && itemPath.endsWith('/')) {
-            Logger.info(
-              `[Antivirus] Removing trailing slash based on metadata (fallback): ${itemPath}`
-            );
+            logger.debug({
+              tag: 'ANTIVIRUS',
+              msg: `Removing trailing slash based on metadata (fallback): ${itemPath}`,
+            });
             itemPath = itemPath.replace(/\/+$/, '');
           }
         }
@@ -77,24 +81,34 @@ export class AntivirusScanService {
       try {
         fileSystemMonitor = await getManualScanMonitorInstance();
       } catch (monitorError) {
-        Logger.error(
-          '[Antivirus] Error getting scanner instance:',
-          monitorError
-        );
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error getting scanner instance:',
+          error: monitorError,
+        });
         throw new Error('Failed to initialize scanner');
       }
 
       if (isSystemScan) {
-        Logger.info('[Antivirus] Starting full system scan');
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'Starting full system scan',
+        });
       } else {
-        Logger.info(`[Antivirus] Starting scan of ${itemsArray.length} items`);
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `Starting scan of ${itemsArray.length} items`,
+        });
       }
 
       let pathNames: string[] | undefined = undefined;
 
       if (!isSystemScan) {
         pathNames = this.normalizeScanPaths(itemsArray);
-        Logger.info(`[Antivirus] Normalized paths: ${pathNames.length} items`);
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `Normalized paths: ${pathNames.length} items`,
+        });
       }
 
       try {
@@ -107,10 +121,11 @@ export class AntivirusScanService {
           this.initializeSystemScanProgress(progressCallback);
         }
       } catch (progressError) {
-        Logger.error(
-          '[Antivirus] Error setting up progress tracking:',
-          progressError
-        );
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error setting up progress tracking:',
+          error: progressError,
+        });
       }
 
       const scanPromise = fileSystemMonitor.scanItems(
@@ -124,20 +139,35 @@ export class AntivirusScanService {
 
       try {
         await Promise.race([scanPromise, timeoutPromise]);
-        Logger.info('[Antivirus] Scan completed successfully');
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'Scan completed successfully',
+        });
       } catch (scanError) {
-        Logger.error('[Antivirus] Error or timeout during scan:', scanError);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error or timeout during scan:',
+          error: scanError,
+        });
         throw scanError;
       }
     } catch (error) {
-      Logger.error('[Antivirus] Error during scan process:', error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error during scan process:',
+        error,
+      });
       throw error;
     } finally {
       if (progressInterval) {
         try {
           clearInterval(progressInterval);
         } catch (clearError) {
-          Logger.error('[Antivirus] Error clearing interval:', clearError);
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: 'Error clearing interval:',
+            error: clearError,
+          });
         }
       }
 
@@ -151,16 +181,21 @@ export class AntivirusScanService {
             isCompleted: true,
           });
         } catch (callbackError) {
-          Logger.error(
-            '[Antivirus] Error sending final progress callback:',
-            callbackError
-          );
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: 'Error sending final progress callback:',
+            error: callbackError,
+          });
         }
-        Logger.info(
-          '[Antivirus] Scan process finalized, progress callback sent'
-        );
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'Scan process finalized, progress callback sent',
+        });
       } else {
-        Logger.info('[Antivirus] System scan process continuing in background');
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'System scan process continuing in background',
+        });
       }
     }
   }
@@ -221,37 +256,52 @@ export class AntivirusScanService {
     try {
       const filesToRemove = Array.isArray(infectedFiles) ? infectedFiles : [];
 
-      Logger.info(
-        `[Antivirus] Removing ${filesToRemove.length} infected files`
-      );
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `Removing ${filesToRemove.length} infected files`,
+      });
 
       if (filesToRemove.length === 0) {
-        Logger.info('[Antivirus] No infected files to remove');
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'No infected files to remove',
+        });
         return true;
       }
 
       await Promise.all(
         filesToRemove.map(async (infectedFile: string) => {
           if (!infectedFile) {
-            Logger.warn('[Antivirus] Invalid file path, skipping');
+            logger.warn({
+              tag: 'ANTIVIRUS',
+              msg: 'Invalid file path, skipping',
+            });
             return;
           }
 
           try {
             await shell.trashItem(infectedFile);
-            Logger.info(`[Antivirus] Moved to trash: ${infectedFile}`);
+            logger.debug({
+              tag: 'ANTIVIRUS',
+              msg: `Moved to trash: ${infectedFile}`,
+            });
           } catch (fileError) {
-            Logger.error(
-              `[Antivirus] Failed to trash file ${infectedFile}:`,
-              fileError
-            );
+            logger.error({
+              tag: 'ANTIVIRUS',
+              msg: `Failed to trash file ${infectedFile}:`,
+              error: fileError,
+            });
           }
         })
       );
 
       return true;
     } catch (error) {
-      Logger.error('[Antivirus] Error removing infected files:', error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error removing infected files:',
+        error,
+      });
       return false;
     }
   }
@@ -326,7 +376,11 @@ export class AntivirusIPCHandler {
           await this.paymentService.getAvailableProducts();
         return availableProducts.antivirus;
       } catch (error) {
-        Logger.error('[Antivirus] Error getting products: ', error);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error getting products: ',
+          error,
+        });
         throw error;
       }
     });
@@ -337,7 +391,10 @@ export class AntivirusIPCHandler {
    */
   private setupCancelScanHandler(): void {
     AntivirusIPCMain.handle('antivirus:cancel-scan', async () => {
-      Logger.info('[Antivirus] Handler called: antivirus:cancel-scan');
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: 'Handler called: antivirus:cancel-scan',
+      });
       const fileSystemMonitor = await getManualScanMonitorInstance();
       await fileSystemMonitor.stopScan();
     });
@@ -348,22 +405,30 @@ export class AntivirusIPCHandler {
    */
   private setupScanItemsHandler(): void {
     AntivirusIPCMain.handle('antivirus:scan-items', async (_, items = []) => {
-      Logger.info('[Antivirus] Handler called: antivirus:scan-items');
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: 'Handler called: antivirus:scan-items',
+      });
       try {
         const itemsArray = Array.isArray(items) ? items : [];
         const isSystemScan = itemsArray.length === 0;
 
-        Logger.info(
-          `[Antivirus] Request for ${
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `Request for ${
             isSystemScan ? 'system' : 'custom'
-          } scan received`
-        );
+          } scan received`,
+        });
 
         try {
           const fileSystemMonitor = await getManualScanMonitorInstance();
           await fileSystemMonitor.stopScan();
         } catch (stopError) {
-          Logger.error('[Antivirus] Error stopping previous scan:', stopError);
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: 'Error stopping previous scan:',
+            error: stopError,
+          });
         }
 
         // 1 hour for system scan, 10 mins for custom
@@ -382,12 +447,17 @@ export class AntivirusIPCHandler {
             itemsArray,
             this.broadcastScanProgress.bind(this)
           ).catch((error) => {
-            Logger.error('[Antivirus] Error in background system scan:', error);
+            logger.error({
+              tag: 'ANTIVIRUS',
+              msg: 'Error in background system scan:',
+              error,
+            });
           });
 
-          Logger.info(
-            '[Antivirus] System scan started in background, sending early success response'
-          );
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: 'System scan started in background, sending early success response',
+          });
           return { success: true, inProgress: true };
         }
 
@@ -398,31 +468,38 @@ export class AntivirusIPCHandler {
                 itemsArray,
                 this.broadcastScanProgress.bind(this)
               );
-              Logger.info(
-                '[Antivirus] Scan completed, sending response to renderer'
-              );
+              logger.debug({
+                tag: 'ANTIVIRUS',
+                msg: 'Scan completed, sending response to renderer',
+              });
               return true;
             } catch (scanError) {
-              Logger.error(
-                '[Antivirus] Error during scan operation:',
-                scanError
-              );
+              logger.error({
+                tag: 'ANTIVIRUS',
+                msg: 'Error during scan operation:',
+                error: scanError,
+              });
               return false;
             }
           })(),
           new Promise((resolve) =>
             setTimeout(() => {
-              Logger.warn(
-                `[Antivirus] Scan operation timed out after ${
+              logger.warn({
+                tag: 'ANTIVIRUS',
+                msg: `Scan operation timed out after ${
                   timeoutDuration / 60000
-                } minutes, forcing response`
-              );
+                } minutes, forcing response`,
+              });
               resolve(false);
             }, timeoutDuration)
           ),
         ]);
       } catch (error) {
-        Logger.error('[Antivirus] Error in scan-items handler:', error);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error in scan-items handler:',
+          error,
+        });
         return false;
       }
     });
@@ -432,12 +509,15 @@ export class AntivirusIPCHandler {
    * Setup handler for adding items to scan
    */
   private setupAddItemsToScanHandler(): void {
-    Logger.info(
-      '[Antivirus] Registering handler for antivirus:add-items-to-scan'
-    );
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'Registering handler for antivirus:add-items-to-scan',
+    });
     ipcMain.handle('antivirus:add-items-to-scan', async (_, getFiles) => {
       try {
-        Logger.info('[Antivirus] Handler called: antivirus:add-items-to-scan', {
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'Handler called: antivirus:add-items-to-scan',
           getFiles,
         });
 
@@ -445,14 +525,25 @@ export class AntivirusIPCHandler {
         const result = await getMultiplePathsFromDialog(shouldGetFiles);
 
         if (!result || !Array.isArray(result)) {
-          Logger.info('[Antivirus] No paths selected, returning empty array');
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: 'No paths selected, returning empty array',
+          });
           return [];
         }
 
-        Logger.info('[Antivirus] Selected paths:', result);
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'Selected paths:',
+          result,
+        });
         return result;
       } catch (error) {
-        Logger.error('[Antivirus] Error adding items to scan:', error);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error adding items to scan:',
+          error,
+        });
         return [];
       }
     });
@@ -462,19 +553,25 @@ export class AntivirusIPCHandler {
    * Setup handler for removing infected files
    */
   private setupRemoveInfectedFilesHandler(): void {
-    Logger.info(
-      '[Antivirus] Registering handler for antivirus:remove-infected-files'
-    );
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: 'Registering handler for antivirus:remove-infected-files',
+    });
     AntivirusIPCMain.handle(
       'antivirus:remove-infected-files',
       async (_, infectedFiles) => {
         try {
-          Logger.info(
-            '[Antivirus] Handler called: antivirus:remove-infected-files'
-          );
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: 'Handler called: antivirus:remove-infected-files',
+          });
           return await AntivirusScanService.removeInfectedFiles(infectedFiles);
         } catch (error) {
-          Logger.error('[Antivirus] Error removing infected files:', error);
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: 'Error removing infected files:',
+            error,
+          });
           return false;
         }
       }
@@ -503,20 +600,34 @@ export class AntivirusIPCHandler {
 
       for (const name of handlerNames) {
         try {
-          Logger.info(`[Antivirus] Removing handler: ${name}`);
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: `Removing handler: ${name}`,
+          });
           ipcMain.removeHandler(name);
           AntivirusIPCMain.removeHandler(name);
         } catch (error) {
-          Logger.warn(`[Antivirus] Error removing handler ${name}:`, error);
+          logger.warn({
+            tag: 'ANTIVIRUS',
+            msg: `Error removing handler ${name}:`,
+            error,
+          });
         }
       }
 
       ipcMain.removeAllListeners('antivirus:scan-progress');
       AntivirusIPCMain.removeAllListeners('antivirus:scan-progress');
 
-      Logger.info('[Antivirus] All handlers removed');
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: 'All handlers removed',
+      });
     } catch (error) {
-      Logger.error('[Antivirus] Error removing handlers:', error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error removing handlers:',
+        error,
+      });
     }
   }
 }

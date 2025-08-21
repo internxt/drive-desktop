@@ -11,6 +11,7 @@ export type FileDataToPersist = {
   path: FilePath;
   size: FileSize;
   folderId: FileFolderId;
+  folderUuid: string;
 };
 
 export type PersistedFileData = {
@@ -27,7 +28,7 @@ export abstract class RemoteFileSystem {
 
   abstract trash(contentsId: File['contentsId']): Promise<void>;
 
-  abstract move(file: File): Promise<void>;
+  abstract move(file: File, destinationFolderUuid: string): Promise<void>;
 
   abstract rename(file: File): Promise<void>;
 

@@ -42,10 +42,10 @@ export class FolderCreator {
     const folderPath = new FolderPath(path);
 
     await this.ensureItDoesNotExists(folderPath);
-
+    const parent = await this.parentFolderFinder.run(folderPath);
     const parentId = await this.findParentId(folderPath);
 
-    const response = await this.remote.persist(folderPath, parentId);
+    const response = await this.remote.persist(folderPath.name(), parent.uuid);
 
     if (response.isLeft()) {
       Logger.error(response.getLeft());

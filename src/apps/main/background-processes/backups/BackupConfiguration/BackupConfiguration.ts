@@ -2,10 +2,6 @@ import { DeviceModule } from './../../../../../backend/features/device/device.mo
 import { app, ipcMain } from 'electron';
 import configStore from '../../../config';
 import { BackupInfo } from '../../../../backups/BackupInfo';
-import {
-  getBackupsFromDevice
-} from '../../../device/service';
-
 type OnIntervalChangedListener = (interval: number) => void;
 
 class BackupConfiguration {
@@ -45,7 +41,10 @@ class BackupConfiguration {
     const device = await DeviceModule.getOrCreateDevice();
     if (device instanceof Error) return [];
 
-    const enabledBackupEntries = await getBackupsFromDevice(device, true);
+    const enabledBackupEntries = await DeviceModule.getBackupsFromDevice(
+      device,
+      true
+    );
 
     return this.map(enabledBackupEntries, device.bucket);
   }

@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
-import log from '../../utils/logger';
 import { SelectedItemToScanProps } from '../../../main/antivirus/Antivirus';
-import logger from '../../utils/logger';
 
 export type ScanType = 'files' | 'folders';
 
@@ -47,7 +45,11 @@ export const useAntivirus = (): AntivirusContext => {
     try {
       return await window.electron.antivirus.isAvailable();
     } catch (error) {
-      log.error('[Antivirus] Error checking availability:', error);
+      window.electron.logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error checking availability:',
+        error,
+      });
       return false;
     }
   };
@@ -125,7 +127,11 @@ export const useAntivirus = (): AntivirusContext => {
 
       return items;
     } catch (error) {
-      logger.error('[Antivirus] Error selecting items:', error);
+      window.electron.logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error selecting items:',
+        error,
+      });
       setShowErrorState(true);
       return null;
     }
@@ -162,7 +168,11 @@ export const useAntivirus = (): AntivirusContext => {
 
       await window.electron.antivirus.scanItems(scanItems);
     } catch (error) {
-      logger.error('[Antivirus] Error in custom scan:', error);
+      window.electron.logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error in custom scan:',
+        error,
+      });
       setShowErrorState(true);
     } finally {
       setIsScanning(false);
@@ -176,7 +186,11 @@ export const useAntivirus = (): AntivirusContext => {
     try {
       await window.electron.antivirus.scanItems([]);
     } catch (error) {
-      logger.error('[Antivirus] Error in system scan:', error);
+      window.electron.logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error in system scan:',
+        error,
+      });
       setShowErrorState(true);
       setIsScanning(false);
     }
@@ -196,7 +210,11 @@ export const useAntivirus = (): AntivirusContext => {
     try {
       await window.electron.antivirus.removeInfectedFiles(filesToRemove);
     } catch (error) {
-      log.error('ERROR WHILE REMOVING INFECTED ITEMS:', error);
+      window.electron.logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'ERROR WHILE REMOVING INFECTED ITEMS:',
+        error,
+      });
     }
 
     return Promise.resolve();
@@ -208,7 +226,11 @@ export const useAntivirus = (): AntivirusContext => {
       setView('chooseItems');
       resetStates();
     } catch (error) {
-      log.error('ERROR CANCELING SCAN:', error);
+      window.electron.logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'ERROR CANCELING SCAN:',
+        error,
+      });
     }
   };
 

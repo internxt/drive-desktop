@@ -1,20 +1,23 @@
 import { Axios } from 'axios';
 import { Service } from 'diod';
 import Logger from 'electron-log';
-import * as uuid from 'uuid';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { Folder } from '../domain/Folder';
 import { FolderId } from '../domain/FolderId';
 import { FolderPath } from '../domain/FolderPath';
-import { FolderUuid } from '../domain/FolderUuid';
 import {
   FolderPersistedDto,
   RemoteFileSystem,
   RemoteFileSystemErrors,
 } from '../domain/file-systems/RemoteFileSystem';
-import { CreateFolderDTO } from './dtos/CreateFolderDTO';
-import { UpdateFolderNameDTO } from './dtos/UpdateFolderNameDTO';
+import { mapToFolderPersistedDto } from '../../utils/map-to-folder-persisted-dto';
+import { FolderError } from '../../../../infra/drive-server/services/folder/folder.error';
+import {
+  createFolderIPC,
+  moveFolderIPC,
+  renameFolderIPC,
+} from '../../../../infra/ipc/folders-ipc';
 
 type NewServerFolder = Omit<ServerFolder, 'plain_name'> & { plainName: string };
 
@@ -24,7 +27,6 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   public folders: Record<string, Folder> = {};
 
   constructor(
-    private readonly driveClient: Axios,
     private readonly trashClient: Axios,
     private readonly maxRetries: number = 3
   ) {}
@@ -68,62 +70,32 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   }
 
   async persist(
-    path: FolderPath,
-    parentId: FolderId,
-    uuid?: FolderUuid,
+    plainName: string,
+    parentFolderUuid: string,
     attempt = 0
   ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
-    const body: CreateFolderDTO = {
-      folderName: path.name(),
-      parentFolderId: parentId.value,
-      uuid: uuid?.value,
-    };
-
-    try {
-      const response = await this.driveClient.post(
-        `${process.env.API_URL}/storage/folder`,
-        body
-      );
-
-      if (response.status !== 201) {
-        throw new Error('Folder creation failed');
-      }
-
-      const serverFolder = response.data as ServerFolder | null;
-
-      if (!serverFolder) {
-        throw new Error('Folder creation failed, no data returned');
-      }
-
-      return right({
-        id: serverFolder.id,
-        uuid: serverFolder.uuid,
-        parentId: parentId.value,
-        updatedAt: serverFolder.updatedAt,
-        createdAt: serverFolder.createdAt,
-      });
-    } catch (err: any) {
-      const { status } = err.response;
-
-      if (status === 400 && attempt < this.maxRetries) {
+    const { data, error } = await createFolderIPC(parentFolderUuid, plainName);
+    if (data) {
+      return right(mapToFolderPersistedDto(data));
+    }
+    if (error && typeof error === 'object' && 'cause' in error) {
+      const errorCause = (error as { cause: string }).cause;
+      if (errorCause === 'BAD_REQUEST' && attempt < this.maxRetries) {
         Logger.debug('Folder Creation failed with code 400');
         await new Promise((resolve) => {
           setTimeout(resolve, 1_000);
         });
         Logger.debug('Retrying');
-        return this.persist(path, parentId, uuid, attempt + 1);
+        return this.persist(plainName, parentFolderUuid, attempt + 1);
       }
-
-      if (status === 400) {
+      if (errorCause === 'BAD_REQUEST') {
         return left('WRONG_DATA');
       }
-
-      if (status === 409) {
+      if (errorCause === 'FOLDER_ALREADY_EXISTS') {
         return left('ALREADY_EXISTS');
       }
-
-      return left('UNHANDLED');
     }
+    return left('UNHANDLED');
   }
 
   async trash(id: Folder['id']): Promise<void> {
@@ -146,31 +118,22 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   }
 
   async rename(folder: Folder): Promise<void> {
-    const url = `${process.env.API_URL}/storage/folder/${folder.id}/meta`;
+    const response = await renameFolderIPC(folder.uuid, folder.name);
 
-    const body: UpdateFolderNameDTO = {
-      metadata: { itemName: folder.name },
-      relativePath: uuid.v4(),
-    };
-
-    const res = await this.driveClient.post(url, body);
-
-    if (res.status !== 200) {
+    if (response.error) {
       throw new Error(
-        `[FOLDER FILE SYSTEM] Error updating item metadata: ${res.status}`
+        `[FOLDER FILE SYSTEM] Error updating item metadata: ${response.error.message}`
       );
     }
   }
 
-  async move(folder: Folder): Promise<void> {
-    const url = `${process.env.API_URL}/storage/move/folder`;
+  async move(folderUuid: string, destinationFolderUuid: string): Promise<void> {
+    const response = await moveFolderIPC(folderUuid, destinationFolderUuid);
 
-    const body = { destination: folder.parentId, folderId: folder.id };
-
-    const res = await this.driveClient.post(url, body);
-
-    if (res.status !== 200) {
-      throw new Error(`[FOLDER FILE SYSTEM] Error moving item: ${res.status}`);
+    if (response.error) {
+      throw new Error(
+        `[FOLDER FILE SYSTEM] Error moving item: ${response.error.message}`
+      );
     }
   }
 }

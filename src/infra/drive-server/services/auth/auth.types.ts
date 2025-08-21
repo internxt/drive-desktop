@@ -1,4 +1,4 @@
-import { components } from 'src/infra/schemas';
+import { components } from '../../../../infra/schemas';
 
 export interface RefreshTokenResponse {
   token: string;

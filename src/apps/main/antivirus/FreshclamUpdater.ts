@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import {
   prepareConfigFiles,
   ensureDirectories,
@@ -10,7 +10,10 @@ import { AntivirusError } from './AntivirusError';
 
 export const runFreshclam = (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    Logger.info('[freshclam] Starting virus definitions update...');
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: '[freshclam] Starting virus definitions update...',
+    });
 
     ensureDirectories();
 
@@ -25,28 +28,42 @@ export const runFreshclam = (): Promise<void> => {
     );
 
     freshclamProcess.stdout.on('data', (data) => {
-      Logger.info(`[freshclam stdout]: ${data}`);
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[freshclam stdout]: ${data}`,
+      });
     });
 
     freshclamProcess.stderr.on('data', (data) => {
-      Logger.error(`[freshclam stderr]: ${data}`);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: `[freshclam stderr]: ${data}`,
+      });
     });
 
     freshclamProcess.on('close', (code) => {
       if (code !== 0) {
         const errorMessage = `freshclam process exited with code ${code}`;
-        Logger.error(errorMessage);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: errorMessage,
+        });
         reject(AntivirusError.databaseError(errorMessage));
       } else {
-        Logger.info(
-          '[freshclam] Virus definitions update completed successfully'
-        );
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: '[freshclam] Virus definitions update completed successfully',
+        });
         resolve();
       }
     });
 
     freshclamProcess.on('error', (error) => {
-      Logger.error('[freshclam] Failed to start update process:', error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: '[freshclam] Failed to start update process:',
+        error,
+      });
       reject(
         AntivirusError.databaseError('Failed to start update process', error)
       );

@@ -48,7 +48,7 @@ export class FilePathUpdater {
     file.moveTo(destinationFolder);
 
     Logger.debug('REMOTE CHANGES');
-    await this.remote.move(file);
+    await this.remote.move(file, destinationFolder.uuid);
     await this.repository.update(file);
 
     const events = file.pullDomainEvents();

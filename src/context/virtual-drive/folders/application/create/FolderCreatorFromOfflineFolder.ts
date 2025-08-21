@@ -24,9 +24,8 @@ export class FolderCreatorFromOfflineFolder {
     this.syncFolderMessenger.creating(offlineFolder.name);
 
     const either = await this.remote.persist(
-      new FolderPath(offlineFolder.path),
-      new FolderId(offlineFolder.parentId),
-      new FolderUuid(offlineFolder.uuid)
+      new FolderPath(offlineFolder.path).name(),
+      new FolderUuid(offlineFolder.uuid).value
     );
 
     if (either.isLeft()) {

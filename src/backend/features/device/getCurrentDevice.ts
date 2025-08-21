@@ -1,6 +1,6 @@
 import { left, right } from './../../../context/shared/domain/Either';
 import { Device } from './../../../apps/main/device/service';
-import { Either } from 'src/context/shared/domain/Either';
+import { Either } from '../../../context/shared/domain/Either';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
 import { getDeviceIdentifier } from './getDeviceIdentifier';
 

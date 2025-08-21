@@ -1,3 +1,4 @@
+/* IDK if to delete this. */
 import { logFormatter } from './../../core/utils/log-formatter';
 import { ipcMain, shell } from 'electron';
 import log from 'electron-log';

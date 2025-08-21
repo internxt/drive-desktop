@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Usage } from '../../main/usage/Usage';
+import { Usage } from '../../../backend/features/usage/usage.types';
 
 export default function useUsage() {
   const [usage, setUsage] = useState<Usage>();
@@ -13,12 +13,19 @@ export default function useUsage() {
       if (!userIsLoggedIn) {
         return;
       }
-      const usage = await window.electron.getUsage();
-
-      setUsage(usage);
-      setStatus('ready');
+      const getUsageResult = await window.electron.getUsage();
+      console.log('getUsageResult', getUsageResult);
+      if (getUsageResult.data) {
+        setUsage(getUsageResult.data);
+        setStatus('ready');
+      } else {
+        setStatus('error');
+      }
     } catch (err) {
-      console.error(err);
+      window.electron.logger.error({
+        msg: 'Error getting usage on useUsage',
+        error: err,
+      });
       setStatus('error');
     }
   }

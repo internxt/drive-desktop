@@ -25,7 +25,7 @@ function platformShortName(platform: string) {
 
 const deviceContext = {
   app: {
-    name: 'drive-desktop',
+    name: 'drive-desktop-linux',
     version: packageJson.version,
   },
   os: {

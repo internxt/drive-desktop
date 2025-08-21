@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 const path = require('path');
+const { logger } = require('@internxt/drive-desktop-core/build/backend');
 
 contextBridge.exposeInMainWorld('electron', {
   getConfigKey(key) {
@@ -418,8 +419,13 @@ contextBridge.exposeInMainWorld('electron', {
       return () => {
         ipcRenderer.removeListener('available-user-products-updated', listener);
       };
-    }
+    },
   },
   login: (email) => ipcRenderer.invoke('auth:login', email),
   access: (credentials) => ipcRenderer.invoke('auth:access', credentials),
+  logger: {
+    debug: (rawBody) => logger.debug(rawBody),
+    warn: (rawBody) => logger.warn(rawBody),
+    error: (rawBody) => logger.error(rawBody),
+  },
 });

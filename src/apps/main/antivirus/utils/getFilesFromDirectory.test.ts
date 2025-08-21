@@ -1,16 +1,20 @@
 import { PathTypeChecker } from '../../../shared/fs/PathTypeChecker ';
 import { isPermissionError } from './isPermissionError';
 import { readdir } from 'fs/promises';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 jest.mock('fs/promises');
 jest.mock('../../../shared/fs/PathTypeChecker ');
 jest.mock('./isPermissionError');
 jest.mock('child_process');
 jest.mock('util');
-jest.mock('electron-log', () => ({
-  info: jest.fn(),
-  error: jest.fn(),
+jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+  },
 }));
 
 import { getFilesFromDirectory } from './getFilesFromDirectory';
@@ -23,7 +27,7 @@ describe('getFilesFromDirectory', () => {
   const mockIsPermissionError = isPermissionError as jest.MockedFunction<
     typeof isPermissionError
   >;
-  const mockLogger = Logger as jest.Mocked<typeof Logger>;
+  const mockLogger = logger as jest.Mocked<typeof logger>;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -119,8 +123,11 @@ describe('getFilesFromDirectory', () => {
     const result = await getFilesFromDirectory(testDir, mockCallback);
 
     expect(mockIsPermissionError).toHaveBeenCalledWith(permissionError);
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      expect.stringContaining('Skipping directory')
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tag: 'ANTIVIRUS',
+        msg: expect.stringContaining('Skipping directory'),
+      })
     );
     expect(result).toBeNull();
     expect(mockCallback).not.toHaveBeenCalled();
@@ -161,8 +168,11 @@ describe('getFilesFromDirectory', () => {
     await getFilesFromDirectory(testDir, mockCallback);
 
     expect(mockCallback).toHaveBeenCalledWith('/path/to/dir/file1.txt');
-    expect(mockLogger.info).toHaveBeenCalledWith(
-      expect.stringContaining('Skipping subdirectory')
+    expect(mockLogger.debug).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tag: 'ANTIVIRUS',
+        msg: expect.stringContaining('Skipping subdirectory'),
+      })
     );
   });
 });

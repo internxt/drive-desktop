@@ -4,31 +4,31 @@
  */
 
 export interface paths {
-    "/files": {
+    '/files': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FileController_getFiles"];
+        get: operations['FileController_getFiles'];
         put?: never;
         /** Create File */
-        post: operations["FileController_createFile"];
+        post: operations['FileController_createFile'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/files/count": {
+    '/files/count': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FileController_getFileCount"];
+        get: operations['FileController_getFileCount'];
         put?: never;
         post?: never;
         delete?: never;
@@ -37,16 +37,16 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/{uuid}/meta": {
+    '/files/{uuid}/meta': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FileController_getFileMetadata"];
+        get: operations['FileController_getFileMetadata'];
         /** Update File data */
-        put: operations["FileController_updateFileMetadata"];
+        put: operations['FileController_updateFileMetadata'];
         post?: never;
         delete?: never;
         options?: never;
@@ -54,7 +54,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/{uuid}": {
+    '/files/{uuid}': {
         parameters: {
             query?: never;
             header?: never;
@@ -62,23 +62,23 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["FileController_replaceFile"];
+        put: operations['FileController_replaceFile'];
         post?: never;
         /** Delete file from storage and database */
-        delete: operations["FileController_deleteFileByUuid"];
+        delete: operations['FileController_deleteFileByUuid'];
         options?: never;
         head?: never;
-        patch: operations["FileController_moveFile"];
+        patch: operations['FileController_moveFile'];
         trace?: never;
     };
-    "/files/recents": {
+    '/files/recents': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FileController_getRecentFiles"];
+        get: operations['FileController_getRecentFiles'];
         put?: never;
         post?: never;
         delete?: never;
@@ -87,14 +87,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/meta": {
+    '/files/meta': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FileController_getFileMetaByPath"];
+        get: operations['FileController_getFileMetaByPath'];
         put?: never;
         post?: never;
         delete?: never;
@@ -103,7 +103,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/files/thumbnail": {
+    '/files/thumbnail': {
         parameters: {
             query?: never;
             header?: never;
@@ -113,14 +113,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Create Thumbnail */
-        post: operations["FileController_createThumbnail"];
+        post: operations['FileController_createThumbnail'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/files/{bucketId}/{fileId}": {
+    '/files/{bucketId}/{fileId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -131,37 +131,37 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete file from storage by fileId */
-        delete: operations["FileController_deleteFileByFileId"];
+        delete: operations['FileController_deleteFileByFileId'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/folders": {
+    '/folders': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolders"];
+        get: operations['FolderController_getFolders'];
         put?: never;
         /** Create Folder */
-        post: operations["FolderController_createFolder"];
-        delete: operations["FolderController_deleteFolders"];
+        post: operations['FolderController_createFolder'];
+        delete: operations['FolderController_deleteFolders'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/folders/count": {
+    '/folders/count': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderCount"];
+        get: operations['FolderController_getFolderCount'];
         put?: never;
         post?: never;
         delete?: never;
@@ -170,14 +170,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/content/{uuid}/files": {
+    '/folders/content/{uuid}/files': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderContentFiles"];
+        get: operations['FolderController_getFolderContentFiles'];
         put?: never;
         post?: never;
         delete?: never;
@@ -186,14 +186,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{id}/files": {
+    '/folders/{id}/files': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderFiles"];
+        get: operations['FolderController_getFolderFiles'];
         put?: never;
         post?: never;
         delete?: never;
@@ -202,14 +202,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{id}/file": {
+    '/folders/{id}/file': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_checkFileExistence"];
+        get: operations['FolderController_checkFileExistence'];
         put?: never;
         post?: never;
         delete?: never;
@@ -218,14 +218,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/content/{uuid}/folders": {
+    '/folders/content/{uuid}/folders': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderContentFolders"];
+        get: operations['FolderController_getFolderContentFolders'];
         put?: never;
         post?: never;
         delete?: never;
@@ -234,7 +234,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/content/{uuid}/folders/existence": {
+    '/folders/content/{uuid}/folders/existence': {
         parameters: {
             query?: never;
             header?: never;
@@ -245,17 +245,17 @@ export interface paths {
          * Checks folders existence in folder (use POST request over this)
          * @deprecated
          */
-        get: operations["FolderController_checkFoldersExistenceInFolderOld"];
+        get: operations['FolderController_checkFoldersExistenceInFolderOld'];
         put?: never;
         /** Checks folders existence in folder */
-        post: operations["FolderController_checkFoldersExistenceInFolder"];
+        post: operations['FolderController_checkFoldersExistenceInFolder'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/folders/content/{uuid}/files/existence": {
+    '/folders/content/{uuid}/files/existence': {
         parameters: {
             query?: never;
             header?: never;
@@ -264,14 +264,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["FolderController_checkFilesExistenceInFolder"];
+        post: operations['FolderController_checkFilesExistenceInFolder'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/folders/content/{uuid}": {
+    '/folders/content/{uuid}': {
         parameters: {
             query?: never;
             header?: never;
@@ -279,7 +279,7 @@ export interface paths {
             cookie?: never;
         };
         /** Gets folder content */
-        get: operations["FolderController_getFolderContent"];
+        get: operations['FolderController_getFolderContent'];
         put?: never;
         post?: never;
         delete?: never;
@@ -288,14 +288,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{id}/folders": {
+    '/folders/{id}/folders': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderFolders"];
+        get: operations['FolderController_getFolderFolders'];
         put?: never;
         post?: never;
         delete?: never;
@@ -304,15 +304,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{uuid}/meta": {
+    '/folders/{uuid}/meta': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolder"];
-        put: operations["FolderController_updateFolderMetadata"];
+        get: operations['FolderController_getFolder'];
+        put: operations['FolderController_updateFolderMetadata'];
         post?: never;
         delete?: never;
         options?: never;
@@ -320,14 +320,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{uuid}/ancestors": {
+    '/folders/{uuid}/ancestors': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderAncestors"];
+        get: operations['FolderController_getFolderAncestors'];
         put?: never;
         post?: never;
         delete?: never;
@@ -336,14 +336,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{uuid}/tree": {
+    '/folders/{uuid}/tree': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderTree"];
+        get: operations['FolderController_getFolderTree'];
         put?: never;
         post?: never;
         delete?: never;
@@ -352,14 +352,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{id}/metadata": {
+    '/folders/{id}/metadata': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderById"];
+        get: operations['FolderController_getFolderById'];
         put?: never;
         post?: never;
         delete?: never;
@@ -368,14 +368,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{uuid}/size": {
+    '/folders/{uuid}/size': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderSize"];
+        get: operations['FolderController_getFolderSize'];
         put?: never;
         post?: never;
         delete?: never;
@@ -384,7 +384,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/folders/{uuid}": {
+    '/folders/{uuid}': {
         parameters: {
             query?: never;
             header?: never;
@@ -395,20 +395,20 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete Folder */
-        delete: operations["FolderController_deleteFolder"];
+        delete: operations['FolderController_deleteFolder'];
         options?: never;
         head?: never;
-        patch: operations["FolderController_moveFolder"];
+        patch: operations['FolderController_moveFolder'];
         trace?: never;
     };
-    "/folders/meta": {
+    '/folders/meta': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["FolderController_getFolderMetaByPath"];
+        get: operations['FolderController_getFolderMetaByPath'];
         put?: never;
         post?: never;
         delete?: never;
@@ -417,7 +417,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/{sharingId}/meta": {
+    '/sharings/{sharingId}/meta': {
         parameters: {
             query?: never;
             header?: never;
@@ -425,7 +425,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get sharing metadata */
-        get: operations["SharingController_getPublicSharing"];
+        get: operations['SharingController_getPublicSharing'];
         put?: never;
         post?: never;
         delete?: never;
@@ -434,7 +434,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/public/{sharingId}/item": {
+    '/sharings/public/{sharingId}/item': {
         parameters: {
             query?: never;
             header?: never;
@@ -442,7 +442,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get sharing item info */
-        get: operations["SharingController_getPublicSharingItemInfo"];
+        get: operations['SharingController_getPublicSharingItemInfo'];
         put?: never;
         post?: never;
         delete?: never;
@@ -451,7 +451,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/{sharingId}/password": {
+    '/sharings/{sharingId}/password': {
         parameters: {
             query?: never;
             header?: never;
@@ -462,21 +462,21 @@ export interface paths {
         put?: never;
         post?: never;
         /** Remove password from public sharing */
-        delete: operations["SharingController_removePublicSharingPassword"];
+        delete: operations['SharingController_removePublicSharingPassword'];
         options?: never;
         head?: never;
         /** Set password for public sharing */
-        patch: operations["SharingController_setPublicSharingPassword"];
+        patch: operations['SharingController_setPublicSharingPassword'];
         trace?: never;
     };
-    "/sharings/{itemType}/{itemId}/invites": {
+    '/sharings/{itemType}/{itemId}/invites': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["SharingController_getInvites"];
+        get: operations['SharingController_getInvites'];
         put?: never;
         post?: never;
         delete?: never;
@@ -485,7 +485,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/{itemType}/{itemId}/type": {
+    '/sharings/{itemType}/{itemId}/type': {
         parameters: {
             query?: never;
             header?: never;
@@ -496,8 +496,8 @@ export interface paths {
          * @deprecated
          * @description Get sharing (private or public) type, deprecated in favor of :itemType/:itemId/info
          */
-        get: operations["SharingController_getSharingType"];
-        put: operations["SharingController_changeSharingType"];
+        get: operations['SharingController_getSharingType'];
+        put: operations['SharingController_changeSharingType'];
         post?: never;
         delete?: never;
         options?: never;
@@ -505,7 +505,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/{itemType}/{itemId}/info": {
+    '/sharings/{itemType}/{itemId}/info': {
         parameters: {
             query?: never;
             header?: never;
@@ -513,7 +513,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get info related to item sharing */
-        get: operations["SharingController_getItemSharingStatus"];
+        get: operations['SharingController_getItemSharingStatus'];
         put?: never;
         post?: never;
         delete?: never;
@@ -522,7 +522,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/invites": {
+    '/sharings/invites': {
         parameters: {
             query?: never;
             header?: never;
@@ -530,7 +530,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all the invites that a user has received */
-        get: operations["SharingController_getInvitesByUser"];
+        get: operations['SharingController_getInvitesByUser'];
         put?: never;
         post?: never;
         delete?: never;
@@ -539,7 +539,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/invites/send": {
+    '/sharings/invites/send': {
         parameters: {
             query?: never;
             header?: never;
@@ -548,21 +548,21 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["SharingController_createInvite"];
+        post: operations['SharingController_createInvite'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/sharings/invites/{id}/validate": {
+    '/sharings/invites/{id}/validate': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["SharingController_validateInvite"];
+        get: operations['SharingController_validateInvite'];
         put?: never;
         post?: never;
         delete?: never;
@@ -571,7 +571,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/invites/{id}/accept": {
+    '/sharings/invites/{id}/accept': {
         parameters: {
             query?: never;
             header?: never;
@@ -580,14 +580,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["SharingController_acceptInvite"];
+        post: operations['SharingController_acceptInvite'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/sharings/invites/{id}": {
+    '/sharings/invites/{id}': {
         parameters: {
             query?: never;
             header?: never;
@@ -597,13 +597,13 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["SharingController_removeInvite"];
+        delete: operations['SharingController_removeInvite'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/sharings/items/{sharedFolderId}/folders": {
+    '/sharings/items/{sharedFolderId}/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -611,7 +611,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all items shared by a user */
-        get: operations["SharingController_getSharedFoldersInsideSharedFolder"];
+        get: operations['SharingController_getSharedFoldersInsideSharedFolder'];
         put?: never;
         post?: never;
         delete?: never;
@@ -620,7 +620,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/items/{sharedFolderId}/files": {
+    '/sharings/items/{sharedFolderId}/files': {
         parameters: {
             query?: never;
             header?: never;
@@ -628,7 +628,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all items shared by a user */
-        get: operations["SharingController_getPrivateShareFiles"];
+        get: operations['SharingController_getPrivateShareFiles'];
         put?: never;
         post?: never;
         delete?: never;
@@ -637,7 +637,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/public/items/{sharedFolderId}/files": {
+    '/sharings/public/items/{sharedFolderId}/files': {
         parameters: {
             query?: never;
             header?: never;
@@ -645,7 +645,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all items shared by a user inside a sharing */
-        get: operations["SharingController_getPublicShareFiles"];
+        get: operations['SharingController_getPublicShareFiles'];
         put?: never;
         post?: never;
         delete?: never;
@@ -654,7 +654,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/public/items/{sharedFolderId}/folders": {
+    '/sharings/public/items/{sharedFolderId}/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -662,7 +662,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all items shared by a user inside a sharing */
-        get: operations["SharingController_getPublicSharedFolders"];
+        get: operations['SharingController_getPublicSharedFolders'];
         put?: never;
         post?: never;
         delete?: never;
@@ -671,7 +671,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings": {
+    '/sharings': {
         parameters: {
             query?: never;
             header?: never;
@@ -680,14 +680,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["SharingController_createSharing"];
+        post: operations['SharingController_createSharing'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/sharings/{itemType}/{itemId}": {
+    '/sharings/{itemType}/{itemId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -698,20 +698,20 @@ export interface paths {
         put?: never;
         post?: never;
         /** Stop sharing an item */
-        delete: operations["SharingController_removeSharing"];
+        delete: operations['SharingController_removeSharing'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/sharings/roles": {
+    '/sharings/roles': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["SharingController_getRoles"];
+        get: operations['SharingController_getRoles'];
         put?: never;
         post?: never;
         delete?: never;
@@ -720,15 +720,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/{sharingId}/role": {
+    '/sharings/{sharingId}/role': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["SharingController_getUserRole"];
-        put: operations["SharingController_updateSharingRole"];
+        get: operations['SharingController_getUserRole'];
+        put: operations['SharingController_updateSharingRole'];
         post?: never;
         delete?: never;
         options?: never;
@@ -736,7 +736,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/{sharingId}/roles/{sharingRoleId}": {
+    '/sharings/{sharingId}/roles/{sharingRoleId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -746,13 +746,13 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["SharingController_removeSharingRole"];
+        delete: operations['SharingController_removeSharingRole'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/sharings/shared-with-me/folders": {
+    '/sharings/shared-with-me/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -760,7 +760,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all folders shared with a user */
-        get: operations["SharingController_getSharedFoldersWithAUser"];
+        get: operations['SharingController_getSharedFoldersWithAUser'];
         put?: never;
         post?: never;
         delete?: never;
@@ -769,7 +769,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/shared-by-me/folders": {
+    '/sharings/shared-by-me/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -777,7 +777,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all folders shared by a user */
-        get: operations["SharingController_getSharedFolders"];
+        get: operations['SharingController_getSharedFolders'];
         put?: never;
         post?: never;
         delete?: never;
@@ -786,7 +786,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/folders": {
+    '/sharings/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -794,7 +794,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all folders shared by/with a user */
-        get: operations["SharingController_getAllSharedFolders"];
+        get: operations['SharingController_getAllSharedFolders'];
         put?: never;
         post?: never;
         delete?: never;
@@ -803,7 +803,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/files": {
+    '/sharings/files': {
         parameters: {
             query?: never;
             header?: never;
@@ -811,7 +811,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all files shared by/with a user */
-        get: operations["SharingController_getAllSharedFiles"];
+        get: operations['SharingController_getAllSharedFiles'];
         put?: never;
         post?: never;
         delete?: never;
@@ -820,7 +820,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/shared-with/{itemType}/{itemId}": {
+    '/sharings/shared-with/{itemType}/{itemId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -828,7 +828,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all users that have access to a file or folder */
-        get: operations["SharingController_getItemsSharedsWith"];
+        get: operations['SharingController_getItemsSharedsWith'];
         put?: never;
         post?: never;
         delete?: never;
@@ -837,7 +837,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/shared-with/{folderId}": {
+    '/sharings/shared-with/{folderId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -845,7 +845,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get all users that have access to a folder */
-        get: operations["SharingController_getSharedWithByFolderId"];
+        get: operations['SharingController_getSharedWithByFolderId'];
         put?: never;
         post?: never;
         delete?: never;
@@ -854,7 +854,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/{itemType}/{itemId}/users/{userId}": {
+    '/sharings/{itemType}/{itemId}/users/{userId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -865,20 +865,20 @@ export interface paths {
         put?: never;
         post?: never;
         /** Remove a user from a shared item */
-        delete: operations["SharingController_removeUserFromSharedItem"];
+        delete: operations['SharingController_removeUserFromSharedItem'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/sharings/public/{id}/folder/size": {
+    '/sharings/public/{id}/folder/size': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["SharingController_getPublicSharingFolderSize"];
+        get: operations['SharingController_getPublicSharingFolderSize'];
         put?: never;
         post?: never;
         delete?: never;
@@ -887,14 +887,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/sharings/public/domains": {
+    '/sharings/public/domains': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["SharingController_getPublicSharingDomains"];
+        get: operations['SharingController_getPublicSharingDomains'];
         put?: never;
         post?: never;
         delete?: never;
@@ -903,7 +903,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces": {
+    '/workspaces': {
         parameters: {
             query?: never;
             header?: never;
@@ -911,7 +911,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get available workspaces for the user */
-        get: operations["WorkspacesController_getAvailableWorkspaces"];
+        get: operations['WorkspacesController_getAvailableWorkspaces'];
         put?: never;
         post?: never;
         delete?: never;
@@ -920,7 +920,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/pending-setup": {
+    '/workspaces/pending-setup': {
         parameters: {
             query?: never;
             header?: never;
@@ -928,7 +928,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get owner workspaces ready to be setup */
-        get: operations["WorkspacesController_getUserWorkspacesToBeSetup"];
+        get: operations['WorkspacesController_getUserWorkspacesToBeSetup'];
         put?: never;
         post?: never;
         delete?: never;
@@ -937,7 +937,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/invitations": {
+    '/workspaces/invitations': {
         parameters: {
             query?: never;
             header?: never;
@@ -945,7 +945,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get current user pending invitations */
-        get: operations["WorkspacesController_getUserInvitations"];
+        get: operations['WorkspacesController_getUserInvitations'];
         put?: never;
         post?: never;
         delete?: never;
@@ -954,7 +954,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/invitations/accept": {
+    '/workspaces/invitations/accept': {
         parameters: {
             query?: never;
             header?: never;
@@ -964,14 +964,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Accepts invitation to workspace */
-        post: operations["WorkspacesController_acceptWorkspaceInvitation"];
+        post: operations['WorkspacesController_acceptWorkspaceInvitation'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/invitations/{inviteId}/validate": {
+    '/workspaces/invitations/{inviteId}/validate': {
         parameters: {
             query?: never;
             header?: never;
@@ -979,7 +979,7 @@ export interface paths {
             cookie?: never;
         };
         /** Validates if invitation is valid */
-        get: operations["WorkspacesController_validateWorkspaceInvitation"];
+        get: operations['WorkspacesController_validateWorkspaceInvitation'];
         put?: never;
         post?: never;
         delete?: never;
@@ -988,7 +988,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/invitations/{inviteId}": {
+    '/workspaces/invitations/{inviteId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -999,13 +999,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Declines invitation to workspace */
-        delete: operations["WorkspacesController_removeWorkspaceInvite"];
+        delete: operations['WorkspacesController_removeWorkspaceInvite'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/teams/{teamId}/members": {
+    '/workspaces/teams/{teamId}/members': {
         parameters: {
             query?: never;
             header?: never;
@@ -1013,7 +1013,7 @@ export interface paths {
             cookie?: never;
         };
         /** Gets team members */
-        get: operations["WorkspacesController_getTeamMembers"];
+        get: operations['WorkspacesController_getTeamMembers'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1022,7 +1022,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/teams/{teamId}": {
+    '/workspaces/teams/{teamId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1036,10 +1036,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Edits team data */
-        patch: operations["WorkspacesController_editTeam"];
+        patch: operations['WorkspacesController_editTeam'];
         trace?: never;
     };
-    "/workspaces/{workspaceId}/teams/{teamId}": {
+    '/workspaces/{workspaceId}/teams/{teamId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1050,13 +1050,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Deletes a team in a workspace */
-        delete: operations["WorkspacesController_deleteTeam"];
+        delete: operations['WorkspacesController_deleteTeam'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/teams/{teamId}/user/{userUuid}": {
+    '/workspaces/teams/{teamId}/user/{userUuid}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1066,49 +1066,49 @@ export interface paths {
         get?: never;
         put?: never;
         /** Add a user to a team */
-        post: operations["WorkspacesController_addUserToTeam"];
+        post: operations['WorkspacesController_addUserToTeam'];
         /** Remove user from team */
-        delete: operations["WorkspacesController_removeUserFromTeam"];
+        delete: operations['WorkspacesController_removeUserFromTeam'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/files": {
+    '/workspaces/{workspaceId}/files': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["WorkspacesController_getFiles"];
+        get: operations['WorkspacesController_getFiles'];
         put?: never;
         /** Create File */
-        post: operations["WorkspacesController_createFile"];
+        post: operations['WorkspacesController_createFile'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/folders": {
+    '/workspaces/{workspaceId}/folders': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["WorkspacesController_getFolders"];
+        get: operations['WorkspacesController_getFolders'];
         put?: never;
         /** Create folder */
-        post: operations["WorkspacesController_createFolder"];
+        post: operations['WorkspacesController_createFolder'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/teams/{teamId}/manager": {
+    '/workspaces/{workspaceId}/teams/{teamId}/manager': {
         parameters: {
             query?: never;
             header?: never;
@@ -1122,10 +1122,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Changes the manager of a team */
-        patch: operations["WorkspacesController_changeTeamManager"];
+        patch: operations['WorkspacesController_changeTeamManager'];
         trace?: never;
     };
-    "/workspaces/{workspaceId}/invitations": {
+    '/workspaces/{workspaceId}/invitations': {
         parameters: {
             query?: never;
             header?: never;
@@ -1133,7 +1133,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get workspace pending invitations */
-        get: operations["WorkspacesController_getWorkspacePendingInvitations"];
+        get: operations['WorkspacesController_getWorkspacePendingInvitations'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1142,7 +1142,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/setup": {
+    '/workspaces/{workspaceId}/setup': {
         parameters: {
             query?: never;
             header?: never;
@@ -1156,10 +1156,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Set up workspace that has been initialized */
-        patch: operations["WorkspacesController_setupWorkspace"];
+        patch: operations['WorkspacesController_setupWorkspace'];
         trace?: never;
     };
-    "/workspaces/{workspaceId}/avatar": {
+    '/workspaces/{workspaceId}/avatar': {
         parameters: {
             query?: never;
             header?: never;
@@ -1168,14 +1168,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["WorkspacesController_uploadAvatar"];
-        delete: operations["WorkspacesController_deleteAvatar"];
+        post: operations['WorkspacesController_uploadAvatar'];
+        delete: operations['WorkspacesController_deleteAvatar'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/credentials": {
+    '/workspaces/{workspaceId}/credentials': {
         parameters: {
             query?: never;
             header?: never;
@@ -1183,7 +1183,7 @@ export interface paths {
             cookie?: never;
         };
         /** Gets workspace credentials */
-        get: operations["WorkspacesController_getWorkspaceUser"];
+        get: operations['WorkspacesController_getWorkspaceUser'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1192,7 +1192,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/usage": {
+    '/workspaces/{workspaceId}/usage': {
         parameters: {
             query?: never;
             header?: never;
@@ -1200,7 +1200,7 @@ export interface paths {
             cookie?: never;
         };
         /** Gets workspace usage */
-        get: operations["WorkspacesController_getWorkspaceStorageUsage"];
+        get: operations['WorkspacesController_getWorkspaceStorageUsage'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1209,7 +1209,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/members/{memberId}/usage": {
+    '/workspaces/{workspaceId}/members/{memberId}/usage': {
         parameters: {
             query?: never;
             header?: never;
@@ -1223,10 +1223,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Change workspace member assigned space */
-        patch: operations["WorkspacesController_changeMemberAssignedSpace"];
+        patch: operations['WorkspacesController_changeMemberAssignedSpace'];
         trace?: never;
     };
-    "/workspaces/{workspaceId}/members": {
+    '/workspaces/{workspaceId}/members': {
         parameters: {
             query?: never;
             header?: never;
@@ -1234,7 +1234,7 @@ export interface paths {
             cookie?: never;
         };
         /** Gets workspace members */
-        get: operations["WorkspacesController_getWorkspaceMembers"];
+        get: operations['WorkspacesController_getWorkspaceMembers'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1243,7 +1243,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/members/invite": {
+    '/workspaces/{workspaceId}/members/invite': {
         parameters: {
             query?: never;
             header?: never;
@@ -1253,14 +1253,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Invite user to a workspace */
-        post: operations["WorkspacesController_inviteUsersToWorkspace"];
+        post: operations['WorkspacesController_inviteUsersToWorkspace'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/teams": {
+    '/workspaces/{workspaceId}/teams': {
         parameters: {
             query?: never;
             header?: never;
@@ -1268,17 +1268,17 @@ export interface paths {
             cookie?: never;
         };
         /** Gets workspace teams */
-        get: operations["WorkspacesController_getWorkspaceTeams"];
+        get: operations['WorkspacesController_getWorkspaceTeams'];
         put?: never;
         /** Creates a team in a workspace */
-        post: operations["WorkspacesController_createTeam"];
+        post: operations['WorkspacesController_createTeam'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/usage/member": {
+    '/workspaces/{workspaceId}/usage/member': {
         parameters: {
             query?: never;
             header?: never;
@@ -1286,7 +1286,7 @@ export interface paths {
             cookie?: never;
         };
         /** User usage in drive */
-        get: operations["WorkspacesController_calculateUserUsage"];
+        get: operations['WorkspacesController_calculateUserUsage'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1295,7 +1295,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/shared": {
+    '/workspaces/{workspaceId}/shared': {
         parameters: {
             query?: never;
             header?: never;
@@ -1305,14 +1305,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Share file or folder to workspace */
-        post: operations["WorkspacesController_shareItemWithMember"];
+        post: operations['WorkspacesController_shareItemWithMember'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/teams/{teamId}/shared/files": {
+    '/workspaces/{workspaceId}/teams/{teamId}/shared/files': {
         parameters: {
             query?: never;
             header?: never;
@@ -1320,7 +1320,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get shared files in teams */
-        get: operations["WorkspacesController_getSharedFilesInWorkspace[0]"];
+        get: operations['WorkspacesController_getSharedFilesInWorkspace[0]'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1329,7 +1329,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/shared/files": {
+    '/workspaces/{workspaceId}/shared/files': {
         parameters: {
             query?: never;
             header?: never;
@@ -1337,7 +1337,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get shared files in teams */
-        get: operations["WorkspacesController_getSharedFilesInWorkspace[1]"];
+        get: operations['WorkspacesController_getSharedFilesInWorkspace[1]'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1346,7 +1346,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/teams/{teamId}/shared/folders": {
+    '/workspaces/{workspaceId}/teams/{teamId}/shared/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -1354,7 +1354,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get shared folders in teams */
-        get: operations["WorkspacesController_getSharedFoldersInWorkspace[0]"];
+        get: operations['WorkspacesController_getSharedFoldersInWorkspace[0]'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1363,7 +1363,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/shared/folders": {
+    '/workspaces/{workspaceId}/shared/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -1371,7 +1371,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get shared folders in teams */
-        get: operations["WorkspacesController_getSharedFoldersInWorkspace[1]"];
+        get: operations['WorkspacesController_getSharedFoldersInWorkspace[1]'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1380,7 +1380,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/teams/{teamId}/shared/{sharedFolderId}/folders": {
+    '/workspaces/{workspaceId}/teams/{teamId}/shared/{sharedFolderId}/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -1388,7 +1388,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get folders inside a shared folder */
-        get: operations["WorkspacesController_getFoldersInSharingFolder[0]"];
+        get: operations['WorkspacesController_getFoldersInSharingFolder[0]'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1397,7 +1397,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/shared/{sharedFolderId}/folders": {
+    '/workspaces/{workspaceId}/shared/{sharedFolderId}/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -1405,7 +1405,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get folders inside a shared folder */
-        get: operations["WorkspacesController_getFoldersInSharingFolder[1]"];
+        get: operations['WorkspacesController_getFoldersInSharingFolder[1]'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1414,7 +1414,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/teams/{teamId}/shared/{sharedFolderId}/files": {
+    '/workspaces/{workspaceId}/teams/{teamId}/shared/{sharedFolderId}/files': {
         parameters: {
             query?: never;
             header?: never;
@@ -1422,7 +1422,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get files inside a shared folder */
-        get: operations["WorkspacesController_getFilesInSharingFolder[0]"];
+        get: operations['WorkspacesController_getFilesInSharingFolder[0]'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1431,7 +1431,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/shared/{sharedFolderId}/files": {
+    '/workspaces/{workspaceId}/shared/{sharedFolderId}/files': {
         parameters: {
             query?: never;
             header?: never;
@@ -1439,7 +1439,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get files inside a shared folder */
-        get: operations["WorkspacesController_getFilesInSharingFolder[1]"];
+        get: operations['WorkspacesController_getFilesInSharingFolder[1]'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1448,7 +1448,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/shared/{itemType}/{itemId}/shared-with": {
+    '/workspaces/{workspaceId}/shared/{itemType}/{itemId}/shared-with': {
         parameters: {
             query?: never;
             header?: never;
@@ -1456,7 +1456,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get users and teams an item is shared with */
-        get: operations["WorkspacesController_getItemSharedWith"];
+        get: operations['WorkspacesController_getItemSharedWith'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1465,7 +1465,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/trash": {
+    '/workspaces/{workspaceId}/trash': {
         parameters: {
             query?: never;
             header?: never;
@@ -1473,17 +1473,17 @@ export interface paths {
             cookie?: never;
         };
         /** Get current workspace user trash */
-        get: operations["WorkspacesController_getUserTrashedItems"];
+        get: operations['WorkspacesController_getUserTrashedItems'];
         put?: never;
         post?: never;
         /** Empty current member trash */
-        delete: operations["WorkspacesController_emptyTrash"];
+        delete: operations['WorkspacesController_emptyTrash'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/folders/{folderUuid}/folders": {
+    '/workspaces/{workspaceId}/folders/{folderUuid}/folders': {
         parameters: {
             query?: never;
             header?: never;
@@ -1491,7 +1491,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get folders in folder */
-        get: operations["WorkspacesController_getFoldersInFolder"];
+        get: operations['WorkspacesController_getFoldersInFolder'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1500,7 +1500,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/folders/{folderUuid}/files": {
+    '/workspaces/{workspaceId}/folders/{folderUuid}/files': {
         parameters: {
             query?: never;
             header?: never;
@@ -1508,7 +1508,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get files in folder */
-        get: operations["WorkspacesController_getFilesInFolder"];
+        get: operations['WorkspacesController_getFilesInFolder'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1517,7 +1517,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/teams/{teamId}/members/{memberId}/role": {
+    '/workspaces/{workspaceId}/teams/{teamId}/members/{memberId}/role': {
         parameters: {
             query?: never;
             header?: never;
@@ -1531,10 +1531,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Changes the role of a member in the workspace */
-        patch: operations["WorkspacesController_changeMemberRole"];
+        patch: operations['WorkspacesController_changeMemberRole'];
         trace?: never;
     };
-    "/workspaces/{workspaceId}": {
+    '/workspaces/{workspaceId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1542,17 +1542,17 @@ export interface paths {
             cookie?: never;
         };
         /** Get workspace details */
-        get: operations["WorkspacesController_getWorkspaceDetails"];
+        get: operations['WorkspacesController_getWorkspaceDetails'];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** Edit workspace details */
-        patch: operations["WorkspacesController_editWorkspaceDetails"];
+        patch: operations['WorkspacesController_editWorkspaceDetails'];
         trace?: never;
     };
-    "/workspaces/{workspaceId}/members/leave": {
+    '/workspaces/{workspaceId}/members/leave': {
         parameters: {
             query?: never;
             header?: never;
@@ -1563,13 +1563,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Leave a workspace */
-        delete: operations["WorkspacesController_leaveWorkspace"];
+        delete: operations['WorkspacesController_leaveWorkspace'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/members/{memberId}": {
+    '/workspaces/{workspaceId}/members/{memberId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1577,17 +1577,17 @@ export interface paths {
             cookie?: never;
         };
         /** Gets workspace member details */
-        get: operations["WorkspacesController_getWorkspaceMemberDetails"];
+        get: operations['WorkspacesController_getWorkspaceMemberDetails'];
         put?: never;
         post?: never;
         /** Remove member from workspace */
-        delete: operations["WorkspacesController_removeWorkspaceMember"];
+        delete: operations['WorkspacesController_removeWorkspaceMember'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/members/{memberId}/deactivate": {
+    '/workspaces/{workspaceId}/members/{memberId}/deactivate': {
         parameters: {
             query?: never;
             header?: never;
@@ -1601,10 +1601,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Deactivate user from workspace */
-        patch: operations["WorkspacesController_deactivateWorkspaceMember"];
+        patch: operations['WorkspacesController_deactivateWorkspaceMember'];
         trace?: never;
     };
-    "/workspaces/{workspaceId}/members/{memberId}/activate": {
+    '/workspaces/{workspaceId}/members/{memberId}/activate': {
         parameters: {
             query?: never;
             header?: never;
@@ -1618,10 +1618,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Activate workspace user */
-        patch: operations["WorkspacesController_activateWorkspaceMember"];
+        patch: operations['WorkspacesController_activateWorkspaceMember'];
         trace?: never;
     };
-    "/workspaces/{workspaceId}/fuzzy/{search}": {
+    '/workspaces/{workspaceId}/fuzzy/{search}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1629,7 +1629,7 @@ export interface paths {
             cookie?: never;
         };
         /** Search by name inside workspace */
-        get: operations["WorkspacesController_searchWorkspace"];
+        get: operations['WorkspacesController_searchWorkspace'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1638,7 +1638,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/access/logs": {
+    '/workspaces/{workspaceId}/access/logs': {
         parameters: {
             query?: never;
             header?: never;
@@ -1646,7 +1646,7 @@ export interface paths {
             cookie?: never;
         };
         /** Access Logs */
-        get: operations["WorkspacesController_accessLogs"];
+        get: operations['WorkspacesController_accessLogs'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1655,7 +1655,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/workspaces/{workspaceId}/{itemType}/{uuid}/ancestors": {
+    '/workspaces/{workspaceId}/{itemType}/{uuid}/ancestors': {
         parameters: {
             query?: never;
             header?: never;
@@ -1663,7 +1663,7 @@ export interface paths {
             cookie?: never;
         };
         /** See item ancestors */
-        get: operations["WorkspacesController_getWorkspaceItemAncestors"];
+        get: operations['WorkspacesController_getWorkspaceItemAncestors'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1672,7 +1672,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users": {
+    '/users': {
         parameters: {
             query?: never;
             header?: never;
@@ -1682,14 +1682,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Create a user */
-        post: operations["UserController_createUser"];
+        post: operations['UserController_createUser'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/user/{email}": {
+    '/users/user/{email}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1697,7 +1697,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get the user data by email and check if the user has subscription */
-        get: operations["UserController_getUserByEmail"];
+        get: operations['UserController_getUserByEmail'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1706,7 +1706,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/pre-created-users/register": {
+    '/users/pre-created-users/register': {
         parameters: {
             query?: never;
             header?: never;
@@ -1716,14 +1716,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Register Pre Created User */
-        post: operations["UserController_registerPreCreatedUser"];
+        post: operations['UserController_registerPreCreatedUser'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/pre-create": {
+    '/users/pre-create': {
         parameters: {
             query?: never;
             header?: never;
@@ -1733,14 +1733,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Pre create a user */
-        post: operations["UserController_preCreateUser"];
+        post: operations['UserController_preCreateUser'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/c/{uuid}": {
+    '/users/c/{uuid}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1748,7 +1748,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get user credentials */
-        get: operations["UserController_getUserCredentials"];
+        get: operations['UserController_getUserCredentials'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1757,7 +1757,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/refresh": {
+    '/users/refresh': {
         parameters: {
             query?: never;
             header?: never;
@@ -1765,7 +1765,7 @@ export interface paths {
             cookie?: never;
         };
         /** Refresh session token */
-        get: operations["UserController_refreshToken"];
+        get: operations['UserController_refreshToken'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1774,7 +1774,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/avatar/refresh": {
+    '/users/avatar/refresh': {
         parameters: {
             query?: never;
             header?: never;
@@ -1782,7 +1782,7 @@ export interface paths {
             cookie?: never;
         };
         /** Refresh avatar token */
-        get: operations["UserController_refreshAvatarUser"];
+        get: operations['UserController_refreshAvatarUser'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1791,7 +1791,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/password": {
+    '/users/password': {
         parameters: {
             query?: never;
             header?: never;
@@ -1804,10 +1804,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        patch: operations["UserController_updatePassword"];
+        patch: operations['UserController_updatePassword'];
         trace?: never;
     };
-    "/users/recover-account": {
+    '/users/recover-account': {
         parameters: {
             query?: never;
             header?: never;
@@ -1819,16 +1819,16 @@ export interface paths {
          * Recover account
          * @deprecated
          */
-        put: operations["UserController_recoverAccount"];
+        put: operations['UserController_recoverAccount'];
         /** Request account recovery */
-        post: operations["UserController_requestAccountRecovery"];
+        post: operations['UserController_requestAccountRecovery'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/unblock-account": {
+    '/users/unblock-account': {
         parameters: {
             query?: never;
             header?: never;
@@ -1837,16 +1837,16 @@ export interface paths {
         };
         get?: never;
         /** Resets user error login counter to unblock account */
-        put: operations["UserController_accountUnblock"];
+        put: operations['UserController_accountUnblock'];
         /** Request account unblock */
-        post: operations["UserController_requestAccountUnblock"];
+        post: operations['UserController_requestAccountUnblock'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/recover-account-v2": {
+    '/users/recover-account-v2': {
         parameters: {
             query?: never;
             header?: never;
@@ -1855,7 +1855,7 @@ export interface paths {
         };
         get?: never;
         /** Recover account */
-        put: operations["UserController_recoverAccountV2"];
+        put: operations['UserController_recoverAccountV2'];
         post?: never;
         delete?: never;
         options?: never;
@@ -1863,7 +1863,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/legacy-recover-account": {
+    '/users/legacy-recover-account': {
         parameters: {
             query?: never;
             header?: never;
@@ -1875,7 +1875,7 @@ export interface paths {
          * Recover accocunt with legacy backup file
          * @description Recover account with legacy backup file, mnemonic only files should be used
          */
-        put: operations["UserController_requestLegacyAccountRecovery"];
+        put: operations['UserController_requestLegacyAccountRecovery'];
         post?: never;
         delete?: never;
         options?: never;
@@ -1883,7 +1883,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/public-key/{email}": {
+    '/users/public-key/{email}': {
         parameters: {
             query?: never;
             header?: never;
@@ -1891,7 +1891,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get public key by email */
-        get: operations["UserController_getPublicKeyByEmail"];
+        get: operations['UserController_getPublicKeyByEmail'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1900,7 +1900,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/attempt-change-email": {
+    '/users/attempt-change-email': {
         parameters: {
             query?: never;
             header?: never;
@@ -1909,14 +1909,14 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["UserController_createAttemptChangeEmail"];
+        post: operations['UserController_createAttemptChangeEmail'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/attempt-change-email/{encryptedAttemptChangeEmailId}/accept": {
+    '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/accept': {
         parameters: {
             query?: never;
             header?: never;
@@ -1925,21 +1925,21 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["UserController_acceptAttemptChangeEmail"];
+        post: operations['UserController_acceptAttemptChangeEmail'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/attempt-change-email/{encryptedAttemptChangeEmailId}/verify-expiration": {
+    '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/verify-expiration': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["UserController_verifyAttemptChangeEmail"];
+        get: operations['UserController_verifyAttemptChangeEmail'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1948,7 +1948,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/meet-token/beta": {
+    '/users/meet-token/beta': {
         parameters: {
             query?: never;
             header?: never;
@@ -1956,7 +1956,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get the user Meet token */
-        get: operations["UserController_getMeetTokenBeta"];
+        get: operations['UserController_getMeetTokenBeta'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1965,7 +1965,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/meet-token/anon": {
+    '/users/meet-token/anon': {
         parameters: {
             query?: never;
             header?: never;
@@ -1973,7 +1973,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get an anonymous user Meet token */
-        get: operations["UserController_getMeetTokenAnon"];
+        get: operations['UserController_getMeetTokenAnon'];
         put?: never;
         post?: never;
         delete?: never;
@@ -1982,7 +1982,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/notification-token": {
+    '/users/notification-token': {
         parameters: {
             query?: never;
             header?: never;
@@ -1992,14 +1992,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Add a notification token */
-        post: operations["UserController_addNotificationToken"];
+        post: operations['UserController_addNotificationToken'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/email-verification/send": {
+    '/users/email-verification/send': {
         parameters: {
             query?: never;
             header?: never;
@@ -2009,14 +2009,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Send account verification email */
-        post: operations["UserController_sendAccountVerifyEmail"];
+        post: operations['UserController_sendAccountVerifyEmail'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/email-verification": {
+    '/users/email-verification': {
         parameters: {
             query?: never;
             header?: never;
@@ -2026,14 +2026,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Verify user email */
-        post: operations["UserController_verifyAccountEmail"];
+        post: operations['UserController_verifyAccountEmail'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/profile": {
+    '/users/profile': {
         parameters: {
             query?: never;
             header?: never;
@@ -2047,10 +2047,10 @@ export interface paths {
         options?: never;
         head?: never;
         /** Update user profile */
-        patch: operations["UserController_updateProfile"];
+        patch: operations['UserController_updateProfile'];
         trace?: never;
     };
-    "/users/avatar": {
+    '/users/avatar': {
         parameters: {
             query?: never;
             header?: never;
@@ -2058,15 +2058,15 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put: operations["UserController_uploadAvatar"];
+        put: operations['UserController_uploadAvatar'];
         post?: never;
-        delete: operations["UserController_deleteAvatar"];
+        delete: operations['UserController_deleteAvatar'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/deactivation/send": {
+    '/users/deactivation/send': {
         parameters: {
             query?: never;
             header?: never;
@@ -2076,14 +2076,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Send email to deactivate current user account */
-        post: operations["UserController_sendUserDeactivationEmail"];
+        post: operations['UserController_sendUserDeactivationEmail'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/deactivation/confirm": {
+    '/users/deactivation/confirm': {
         parameters: {
             query?: never;
             header?: never;
@@ -2093,14 +2093,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Confirm user deactivation */
-        post: operations["UserController_confirmUserDeactivation"];
+        post: operations['UserController_confirmUserDeactivation'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/users/usage": {
+    '/users/usage': {
         parameters: {
             query?: never;
             header?: never;
@@ -2108,7 +2108,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get User used storage space */
-        get: operations["UserController_getUserUsage"];
+        get: operations['UserController_getUserUsage'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2117,14 +2117,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/limit": {
+    '/users/limit': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["UserController_limit"];
+        get: operations['UserController_limit'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2133,7 +2133,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/me/upload-status": {
+    '/users/me/upload-status': {
         parameters: {
             query?: never;
             header?: never;
@@ -2141,7 +2141,7 @@ export interface paths {
             cookie?: never;
         };
         /** Check if user has uploaded any files */
-        get: operations["UserController_getUploadStatus"];
+        get: operations['UserController_getUploadStatus'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2150,14 +2150,14 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/generate-mnemonic": {
+    '/users/generate-mnemonic': {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get: operations["UserController_generateMnemonic"];
+        get: operations['UserController_generateMnemonic'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2166,7 +2166,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/storage/share/domains": {
+    '/storage/share/domains': {
         parameters: {
             query?: never;
             header?: never;
@@ -2177,7 +2177,7 @@ export interface paths {
          * Get the domains for the sharing links
          * @deprecated
          */
-        get: operations["ShareController_getDomains"];
+        get: operations['ShareController_getDomains'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2186,7 +2186,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/fuzzy/{search}": {
+    '/fuzzy/{search}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2194,7 +2194,7 @@ export interface paths {
             cookie?: never;
         };
         /** Search for items from a part of the name */
-        get: operations["FuzzySearchController_fuzzySearch"];
+        get: operations['FuzzySearchController_fuzzySearch'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2203,7 +2203,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/backup/activate": {
+    '/backup/activate': {
         parameters: {
             query?: never;
             header?: never;
@@ -2213,14 +2213,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Activate user backup */
-        post: operations["BackupController_activateBackup"];
+        post: operations['BackupController_activateBackup'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/backup/v2/devices": {
+    '/backup/v2/devices': {
         parameters: {
             query?: never;
             header?: never;
@@ -2231,20 +2231,20 @@ export interface paths {
          * List user backup devices
          * @description Retrieve all backup devices associated with the current user, along with their linked backup folders.
          */
-        get: operations["BackupController_getDevicesAndFolders"];
+        get: operations['BackupController_getDevicesAndFolders'];
         put?: never;
         /**
          * Create new device with backup folder
          * @description Register a new backup device and create a new backup folder for it.
          */
-        post: operations["BackupController_createDeviceAndFolder"];
+        post: operations['BackupController_createDeviceAndFolder'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/backup/v2/devices/migrate": {
+    '/backup/v2/devices/migrate': {
         parameters: {
             query?: never;
             header?: never;
@@ -2257,14 +2257,14 @@ export interface paths {
          * Register device for existing backup folder
          * @description Register a new device and link it to an existing backup folder. Primarily used for migrating existing backup folders to the new device-folder model.
          */
-        post: operations["BackupController_createDeviceForExistingFolder"];
+        post: operations['BackupController_createDeviceForExistingFolder'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/backup/v2/devices/{key}": {
+    '/backup/v2/devices/{key}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2275,14 +2275,14 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete device and its linked folder by key */
-        delete: operations["BackupController_deleteDeviceAndFolder"];
+        delete: operations['BackupController_deleteDeviceAndFolder'];
         options?: never;
         head?: never;
         /** Update device by key */
-        patch: operations["BackupController_updateDevice"];
+        patch: operations['BackupController_updateDevice'];
         trace?: never;
     };
-    "/backup/deviceAsFolder": {
+    '/backup/deviceAsFolder': {
         parameters: {
             query?: never;
             header?: never;
@@ -2290,17 +2290,17 @@ export interface paths {
             cookie?: never;
         };
         /** Get all devices as folder */
-        get: operations["BackupController_getDevicesAsFolder"];
+        get: operations['BackupController_getDevicesAsFolder'];
         put?: never;
         /** Create a folder using device name */
-        post: operations["BackupController_createDeviceAsFolder"];
+        post: operations['BackupController_createDeviceAsFolder'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/backup/deviceAsFolder/{uuid}": {
+    '/backup/deviceAsFolder/{uuid}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2308,18 +2308,18 @@ export interface paths {
             cookie?: never;
         };
         /** Get device as folder by uuid */
-        get: operations["BackupController_getDeviceAsFolder"];
+        get: operations['BackupController_getDeviceAsFolder'];
         put?: never;
         post?: never;
         /** Delete device as folder by uuid */
-        delete: operations["BackupController_deleteDeviceAsFolder"];
+        delete: operations['BackupController_deleteDeviceAsFolder'];
         options?: never;
         head?: never;
         /** Update device as folder by uuid */
-        patch: operations["BackupController_updateDeviceAsFolder"];
+        patch: operations['BackupController_updateDeviceAsFolder'];
         trace?: never;
     };
-    "/backup/deviceAsFolderById/{id}": {
+    '/backup/deviceAsFolderById/{id}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2330,7 +2330,7 @@ export interface paths {
          * Get device as folder by id (deprecated in favor of uuid)
          * @deprecated
          */
-        get: operations["BackupController_getDeviceAsFolderById"];
+        get: operations['BackupController_getDeviceAsFolderById'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2339,7 +2339,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/backup/devices": {
+    '/backup/devices': {
         parameters: {
             query?: never;
             header?: never;
@@ -2350,7 +2350,7 @@ export interface paths {
          * Get all user devices. Will not retrieve any device linked to a folder
          * @deprecated
          */
-        get: operations["BackupController_getAllDevices"];
+        get: operations['BackupController_getAllDevices'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2359,7 +2359,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/backup/devices/{deviceId}": {
+    '/backup/devices/{deviceId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2373,13 +2373,13 @@ export interface paths {
          * Delete user device
          * @deprecated
          */
-        delete: operations["BackupController_deleteDevice"];
+        delete: operations['BackupController_deleteDevice'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/backup/{mac}": {
+    '/backup/{mac}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2390,7 +2390,7 @@ export interface paths {
          * Get backups by mac
          * @deprecated
          */
-        get: operations["BackupController_getBackupsByMac"];
+        get: operations['BackupController_getBackupsByMac'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2399,7 +2399,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/backup/{backupId}": {
+    '/backup/{backupId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2410,13 +2410,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Delete backup */
-        delete: operations["BackupController_deleteBackup"];
+        delete: operations['BackupController_deleteBackup'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/storage/trash/paginated": {
+    '/storage/trash/paginated': {
         parameters: {
             query?: never;
             header?: never;
@@ -2424,7 +2424,7 @@ export interface paths {
             cookie?: never;
         };
         /** Gets trash content */
-        get: operations["TrashController_getTrashedFilesPaginated"];
+        get: operations['TrashController_getTrashedFilesPaginated'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2433,7 +2433,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/storage/trash/add": {
+    '/storage/trash/add': {
         parameters: {
             query?: never;
             header?: never;
@@ -2443,14 +2443,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Add items of files and folders to trash */
-        post: operations["TrashController_moveItemsToTrash"];
+        post: operations['TrashController_moveItemsToTrash'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/storage/trash/all": {
+    '/storage/trash/all': {
         parameters: {
             query?: never;
             header?: never;
@@ -2461,13 +2461,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Deletes all items from user's trash */
-        delete: operations["TrashController_clearTrash"];
+        delete: operations['TrashController_clearTrash'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/storage/trash/all/request": {
+    '/storage/trash/all/request': {
         parameters: {
             query?: never;
             header?: never;
@@ -2477,13 +2477,13 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete: operations["TrashController_requestEmptyTrash"];
+        delete: operations['TrashController_requestEmptyTrash'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/storage/trash": {
+    '/storage/trash': {
         parameters: {
             query?: never;
             header?: never;
@@ -2494,13 +2494,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Deletes items from user's trash */
-        delete: operations["TrashController_deleteItems"];
+        delete: operations['TrashController_deleteItems'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/storage/trash/file/{fileId}": {
+    '/storage/trash/file/{fileId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2511,13 +2511,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Deletes a single file from user's trash */
-        delete: operations["TrashController_deleteFile"];
+        delete: operations['TrashController_deleteFile'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/storage/trash/folder/{folderId}": {
+    '/storage/trash/folder/{folderId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2528,13 +2528,13 @@ export interface paths {
         put?: never;
         post?: never;
         /** Deletes a single file form user's trash */
-        delete: operations["TrashController_deleteFolder"];
+        delete: operations['TrashController_deleteFolder'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/login": {
+    '/auth/login': {
         parameters: {
             query?: never;
             header?: never;
@@ -2544,14 +2544,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Get security details to log in */
-        post: operations["AuthController_login"];
+        post: operations['AuthController_login'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/login/access": {
+    '/auth/login/access': {
         parameters: {
             query?: never;
             header?: never;
@@ -2561,14 +2561,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Access user account */
-        post: operations["AuthController_loginAccess"];
+        post: operations['AuthController_loginAccess'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/logout": {
+    '/auth/logout': {
         parameters: {
             query?: never;
             header?: never;
@@ -2576,7 +2576,7 @@ export interface paths {
             cookie?: never;
         };
         /** Log out of the account */
-        get: operations["AuthController_logout"];
+        get: operations['AuthController_logout'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2585,7 +2585,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/auth/tfa": {
+    '/auth/tfa': {
         parameters: {
             query?: never;
             header?: never;
@@ -2593,18 +2593,18 @@ export interface paths {
             cookie?: never;
         };
         /** Get two-factor authentication */
-        get: operations["AuthController_getTfa"];
+        get: operations['AuthController_getTfa'];
         /** Update two-factor authentication */
-        put: operations["AuthController_putTfa"];
+        put: operations['AuthController_putTfa'];
         post?: never;
         /** Delete two-factor authentication */
-        delete: operations["AuthController_deleteTfa"];
+        delete: operations['AuthController_deleteTfa'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/are-credentials-correct": {
+    '/auth/are-credentials-correct': {
         parameters: {
             query?: never;
             header?: never;
@@ -2612,7 +2612,7 @@ export interface paths {
             cookie?: never;
         };
         /** Check if current user credentials are correct */
-        get: operations["AuthController_areCredentialsCorrect"];
+        get: operations['AuthController_areCredentialsCorrect'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2621,7 +2621,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/links": {
+    '/links': {
         parameters: {
             query?: never;
             header?: never;
@@ -2631,14 +2631,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Create send link */
-        post: operations["SendController_createLinks"];
+        post: operations['SendController_createLinks'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/links/{linkId}": {
+    '/links/{linkId}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2646,7 +2646,7 @@ export interface paths {
             cookie?: never;
         };
         /** get Send Link by id and return files */
-        get: operations["SendController_getSendLink"];
+        get: operations['SendController_getSendLink'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2655,7 +2655,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/device/context": {
+    '/device/context': {
         parameters: {
             query?: never;
             header?: never;
@@ -2665,14 +2665,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Get Device Context */
-        post: operations["DeviceController_getDevice"];
+        post: operations['DeviceController_getDevice'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/device/geolocation": {
+    '/device/geolocation': {
         parameters: {
             query?: never;
             header?: never;
@@ -2682,14 +2682,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Get Geolocation by ip */
-        post: operations["DeviceController_getLocation"];
+        post: operations['DeviceController_getLocation'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/gateway/workspaces": {
+    '/gateway/workspaces': {
         parameters: {
             query?: never;
             header?: never;
@@ -2699,15 +2699,15 @@ export interface paths {
         get?: never;
         put?: never;
         /** Initiates a workspace */
-        post: operations["GatewayController_initializeWorkspace"];
+        post: operations['GatewayController_initializeWorkspace'];
         /** Destroy a workspace */
-        delete: operations["GatewayController_destroyWorkspace"];
+        delete: operations['GatewayController_destroyWorkspace'];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/gateway/workspaces/storage": {
+    '/gateway/workspaces/storage': {
         parameters: {
             query?: never;
             header?: never;
@@ -2716,7 +2716,7 @@ export interface paths {
         };
         get?: never;
         /** Update a workspace */
-        put: operations["GatewayController_updateWorkspaceStorage"];
+        put: operations['GatewayController_updateWorkspaceStorage'];
         post?: never;
         delete?: never;
         options?: never;
@@ -2724,7 +2724,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/gateway/workspaces/{workspaceId}/storage/upgrade-check": {
+    '/gateway/workspaces/{workspaceId}/storage/upgrade-check': {
         parameters: {
             query?: never;
             header?: never;
@@ -2734,14 +2734,14 @@ export interface paths {
         get?: never;
         put?: never;
         /** Precheck for updating a workspace */
-        post: operations["GatewayController_validateStorageForPlanChange"];
+        post: operations['GatewayController_validateStorageForPlanChange'];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/gateway/users": {
+    '/gateway/users': {
         parameters: {
             query?: never;
             header?: never;
@@ -2749,7 +2749,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get user details */
-        get: operations["GatewayController_getUserByEmail"];
+        get: operations['GatewayController_getUserByEmail'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2758,7 +2758,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/gateway/users/storage/stackability": {
+    '/gateway/users/storage/stackability': {
         parameters: {
             query?: never;
             header?: never;
@@ -2766,7 +2766,7 @@ export interface paths {
             cookie?: never;
         };
         /** Check if user can expand storage space */
-        get: operations["GatewayController_checkUserStorageExpansion"];
+        get: operations['GatewayController_checkUserStorageExpansion'];
         put?: never;
         post?: never;
         delete?: never;
@@ -2775,7 +2775,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/gateway/users/{uuid}": {
+    '/gateway/users/{uuid}': {
         parameters: {
             query?: never;
             header?: never;
@@ -2789,7 +2789,7 @@ export interface paths {
         options?: never;
         head?: never;
         /** Update user plan and storage */
-        patch: operations["GatewayController_updateUser"];
+        patch: operations['GatewayController_updateUser'];
         trace?: never;
     };
 }
@@ -2875,7 +2875,7 @@ export interface components {
             updatedAt: string;
             plainName: string;
             /** @enum {string} */
-            status: "EXISTS" | "TRASHED" | "DELETED";
+            status: 'EXISTS' | 'TRASHED' | 'DELETED';
         };
         ReplaceFileDto: {
             /**
@@ -3004,7 +3004,7 @@ export interface components {
             parentId: number;
             parentUuid: string;
             name: string;
-            parent: components["schemas"]["Folder"];
+            parent: components['schemas']['Folder'];
             bucket: string;
             userId: number;
             encryptVersion: string;
@@ -3020,18 +3020,18 @@ export interface components {
             /** Format: date-time */
             modificationTime: string;
             /** @enum {string} */
-            status: "EXISTS" | "TRASHED" | "DELETED";
+            status: 'EXISTS' | 'TRASHED' | 'DELETED';
             removed: boolean;
             deleted: boolean;
         };
         FilesDto: {
-            files: components["schemas"]["FileDto"][];
+            files: components['schemas']['FileDto'][];
         };
         ResultFilesDto: {
-            result: components["schemas"]["FileDto"][];
+            result: components['schemas']['FileDto'][];
         };
         FoldersDto: {
-            folders: components["schemas"]["FolderDto"][];
+            folders: components['schemas']['FolderDto'][];
         };
         CheckFoldersExistenceDto: {
             /**
@@ -3043,7 +3043,7 @@ export interface components {
             plainNames: string[];
         };
         ExistingFoldersDto: {
-            existentFolders: components["schemas"]["FolderDto"][];
+            existentFolders: components['schemas']['FolderDto'][];
         };
         CheckFileExistenceInFolderDto: {
             /** @description Array of files with names and types */
@@ -3055,7 +3055,7 @@ export interface components {
             parentId: number;
             parentUuid: string;
             name: string;
-            parent: components["schemas"]["Folder"];
+            parent: components['schemas']['Folder'];
             bucket: string;
             userId: number;
             encryptVersion: string;
@@ -3071,14 +3071,14 @@ export interface components {
             /** Format: date-time */
             modificationTime: string;
             /** @enum {string} */
-            status: "EXISTS" | "TRASHED" | "DELETED";
+            status: 'EXISTS' | 'TRASHED' | 'DELETED';
             removed: boolean;
             deleted: boolean;
-            children: components["schemas"]["FolderDto"][];
-            files: components["schemas"]["FileDto"][];
+            children: components['schemas']['FolderDto'][];
+            files: components['schemas']['FileDto'][];
         };
         ResultFoldersDto: {
-            result: components["schemas"]["FolderDto"][];
+            result: components['schemas']['FolderDto'][];
         };
         UpdateFolderMetaDto: {
             /**
@@ -3121,9 +3121,9 @@ export interface components {
              * @description Effective sharing type (PUBLIC or PRIVATE). If there are only pending invitations without an accepted sharing, it is considered PRIVATE
              * @enum {string}
              */
-            type: "public" | "private";
+            type: 'public' | 'private';
             /** @description Information about public sharing if it exists, otherwise null */
-            publicSharing: components["schemas"]["PublicSharingInfoDto"] | null;
+            publicSharing: components['schemas']['PublicSharingInfoDto'] | null;
             /** @description Number of pending invitations for this item */
             invitationsCount: number;
         };
@@ -3270,13 +3270,13 @@ export interface components {
             updatedAt: string;
         };
         WorkspaceDto: {
-            workspaceUser: components["schemas"]["WorkspaceUserToJSONDTO"];
-            workspace: components["schemas"]["WorkspaceAttributesDto"];
+            workspaceUser: components['schemas']['WorkspaceUserToJSONDTO'];
+            workspace: components['schemas']['WorkspaceAttributesDto'];
         };
         Workspace: Record<string, never>;
         GetAvailableWorkspacesResponseDto: {
-            availableWorkspaces: components["schemas"]["WorkspaceDto"][];
-            pendingWorkspaces: components["schemas"]["Workspace"][];
+            availableWorkspaces: components['schemas']['WorkspaceDto'][];
+            pendingWorkspaces: components['schemas']['Workspace'][];
         };
         AcceptWorkspaceInviteDto: {
             /**
@@ -3323,7 +3323,7 @@ export interface components {
             bucket: string;
             workspaceUserId: string;
             email: string;
-            credentials: components["schemas"]["WorkspaceCredentialsDetailsDto"];
+            credentials: components['schemas']['WorkspaceCredentialsDetailsDto'];
             tokenHeader: string;
         };
         ChangeUserAssignedSpaceDto: {
@@ -3469,7 +3469,7 @@ export interface components {
              * @example MANAGER
              * @enum {string}
              */
-            role: "manager" | "member";
+            role: 'manager' | 'member';
         };
         EditWorkspaceDetailsDto: {
             /**
@@ -3519,9 +3519,9 @@ export interface components {
         };
         KeysDto: {
             /** @description ECC keys */
-            ecc: components["schemas"]["EccKeysDto"];
+            ecc: components['schemas']['EccKeysDto'];
             /** @description Kyber keys */
-            kyber: components["schemas"]["KyberKeysDto"];
+            kyber: components['schemas']['KyberKeysDto'];
         };
         CreateUserDto: {
             /**
@@ -3574,7 +3574,7 @@ export interface components {
             /** @example  */
             registerCompleted: Record<string, never>;
             /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
-            keys: components["schemas"]["KeysDto"];
+            keys: components['schemas']['KeysDto'];
         };
         RegisterPreCreatedUserDto: {
             /**
@@ -3627,7 +3627,7 @@ export interface components {
             /** @example  */
             registerCompleted: Record<string, never>;
             /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
-            keys: components["schemas"]["KeysDto"];
+            keys: components['schemas']['KeysDto'];
             /**
              * @description id of the invitation
              * @example 0f8fad5b-d9cb-469f-a165-70867728950e
@@ -3674,7 +3674,7 @@ export interface components {
              */
             newToken: string;
             /** @description User information */
-            user: components["schemas"]["RefreshTokenUserResponseDto"];
+            user: components['schemas']['RefreshTokenUserResponseDto'];
         };
         RefreshUserAvatarDto: {
             /** @description A new avatar URL for the given user */
@@ -3781,7 +3781,7 @@ export interface components {
              *       "kyber": "encrypted kyber private key"
              *     }
              */
-            privateKeys: components["schemas"]["PrivateKeysDto"];
+            privateKeys: components['schemas']['PrivateKeysDto'];
         };
         EncryptedMnemonicDto: {
             /**
@@ -3826,9 +3826,9 @@ export interface components {
         };
         NewGeneratedKeysDto: {
             /** @description ECC keys (public and private) */
-            ecc: components["schemas"]["RecoverAccountEccKeysDto"];
+            ecc: components['schemas']['RecoverAccountEccKeysDto'];
             /** @description Kyber keys (public and private) */
-            kyber: components["schemas"]["RecoverAccountKeysPairDto"];
+            kyber: components['schemas']['RecoverAccountKeysPairDto'];
         };
         LegacyRecoverAccountDto: {
             /**
@@ -3852,9 +3852,9 @@ export interface components {
              */
             mnemonic: string;
             /** @description Mnemonic encrypted with asymmetric encryption algorithms */
-            asymmetricEncryptedMnemonic: components["schemas"]["EncryptedMnemonicDto"];
+            asymmetricEncryptedMnemonic: components['schemas']['EncryptedMnemonicDto'];
             /** @description User ecc and kyber keys */
-            keys: components["schemas"]["NewGeneratedKeysDto"];
+            keys: components['schemas']['NewGeneratedKeysDto'];
         };
         CreateAttemptChangeEmailDto: {
             /**
@@ -3937,23 +3937,23 @@ export interface components {
             id: string;
             itemId: string;
             /** @enum {string} */
-            itemType: "file" | "folder";
+            itemType: 'file' | 'folder';
             name: string;
             rank: number | null;
             similarity: number;
         };
         FuzzySearchResults: {
-            data: components["schemas"]["FuzzySearchResult"][];
+            data: components['schemas']['FuzzySearchResult'][];
         };
         /** @enum {string} */
-        DevicePlatform: "win32" | "darwin" | "linux" | "android";
+        DevicePlatform: 'win32' | 'darwin' | 'linux' | 'android';
         DeviceAsFolder: {
             type: string;
             id: number;
             parentId: number;
             parentUuid: string;
             name: string;
-            parent: components["schemas"]["Folder"];
+            parent: components['schemas']['Folder'];
             bucket: string;
             userId: number;
             encryptVersion: string;
@@ -3969,7 +3969,7 @@ export interface components {
             /** Format: date-time */
             modificationTime: string;
             /** @enum {string} */
-            status: "EXISTS" | "TRASHED" | "DELETED";
+            status: 'EXISTS' | 'TRASHED' | 'DELETED';
             removed: boolean;
             deleted: boolean;
             hasBackups: boolean;
@@ -3990,7 +3990,7 @@ export interface components {
              * @description Device platform
              * @example linux
              */
-            platform: components["schemas"]["DevicePlatform"];
+            platform: components['schemas']['DevicePlatform'];
             /**
              * @description Unique installation identifier
              * @example DESKTOP-ABC123ddd3
@@ -4013,7 +4013,7 @@ export interface components {
              * @example 2025-07-10T20:14:04.784Z
              */
             updatedAt: string;
-            folder: components["schemas"]["DeviceAsFolder"] | null;
+            folder: components['schemas']['DeviceAsFolder'] | null;
         };
         CreateDeviceAndFolderDto: {
             /**
@@ -4030,7 +4030,7 @@ export interface components {
              * @description Device platform
              * @example linux
              */
-            platform: components["schemas"]["DevicePlatform"];
+            platform: components['schemas']['DevicePlatform'];
             /**
              * @description Name of the device and folder to be created, this should be a readable name
              * @example Johns mac
@@ -4052,7 +4052,7 @@ export interface components {
              * @description Device platform
              * @example linux
              */
-            platform: components["schemas"]["DevicePlatform"];
+            platform: components['schemas']['DevicePlatform'];
             /**
              * @description Name of the device to be created, this should be a readable name. Use the already existent folder name if you are attaching a folder
              * @example Johns mac
@@ -4087,11 +4087,11 @@ export interface components {
              * @example file
              * @enum {string}
              */
-            type: "file" | "folder";
+            type: 'file' | 'folder';
         };
         MoveItemsToTrashDto: {
             /** @description Array of items with files and folders ids */
-            items: components["schemas"]["ItemToTrashDto"][];
+            items: components['schemas']['ItemToTrashDto'][];
         };
         DeleteItemDto: {
             /**
@@ -4110,11 +4110,11 @@ export interface components {
              * @example file
              * @enum {string}
              */
-            type: "file" | "folder";
+            type: 'file' | 'folder';
         };
         DeleteItemsDto: {
             /** @description Array of items with files and folders ids */
-            items: components["schemas"]["DeleteItemDto"][];
+            items: components['schemas']['DeleteItemDto'][];
         };
         LoginDto: {
             /**
@@ -4132,9 +4132,9 @@ export interface components {
         };
         OptionalKeyGroup: {
             /** @description ECC keys */
-            ecc?: components["schemas"]["EccKeysDto"];
+            ecc?: components['schemas']['EccKeysDto'];
             /** @description Kyber keys */
-            kyber?: components["schemas"]["KyberKeysDto"];
+            kyber?: components['schemas']['KyberKeysDto'];
         };
         LoginAccessDto: {
             /**
@@ -4174,15 +4174,15 @@ export interface components {
              * @description keys
              * @example newKeys
              */
-            keys?: components["schemas"]["OptionalKeyGroup"];
+            keys?: components['schemas']['OptionalKeyGroup'];
         };
         PublicAndPrivateKeyDto: {
             publicKey: string;
             privateKey: string;
         };
         UserKeysDto: {
-            ecc: components["schemas"]["PublicAndPrivateKeyDto"];
-            kyber: components["schemas"]["PublicAndPrivateKeyDto"];
+            ecc: components['schemas']['PublicAndPrivateKeyDto'];
+            kyber: components['schemas']['PublicAndPrivateKeyDto'];
         };
         UserDto: {
             email: string;
@@ -4199,7 +4199,7 @@ export interface components {
             privateKey: string;
             publicKey: string;
             revocateKey: string;
-            keys: components["schemas"]["UserKeysDto"];
+            keys: components['schemas']['UserKeysDto'];
             bucket: string;
             registerCompleted: boolean;
             teams: boolean;
@@ -4214,7 +4214,7 @@ export interface components {
             lastPasswordChangedAt: string;
         };
         LoginAccessResponseDto: {
-            user: components["schemas"]["UserDto"];
+            user: components['schemas']['UserDto'];
             token: string;
             userTeam: Record<string, never>;
             newToken: string;
@@ -4354,7 +4354,7 @@ export interface operations {
             query: {
                 limit: number;
                 offset: number;
-                status: "EXISTS" | "TRASHED" | "DELETED" | "ALL";
+                status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
                 bucket?: string;
                 sort?: string;
                 order?: string;
@@ -4371,7 +4371,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"][];
+                    'application/json': components['schemas']['FileDto'][];
                 };
             };
         };
@@ -4385,7 +4385,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateFileDto"];
+                'application/json': components['schemas']['CreateFileDto'];
             };
         };
         responses: {
@@ -4394,7 +4394,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"];
+                    'application/json': components['schemas']['FileDto'];
                 };
             };
         };
@@ -4434,7 +4434,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"];
+                    'application/json': components['schemas']['FileDto'];
                 };
             };
         };
@@ -4451,7 +4451,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateFileMetaDto"];
+                'application/json': components['schemas']['UpdateFileMetaDto'];
             };
         };
         responses: {
@@ -4460,7 +4460,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"];
+                    'application/json': components['schemas']['FileDto'];
                 };
             };
         };
@@ -4476,7 +4476,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReplaceFileDto"];
+                'application/json': components['schemas']['ReplaceFileDto'];
             };
         };
         responses: {
@@ -4485,7 +4485,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"];
+                    'application/json': components['schemas']['FileDto'];
                 };
             };
         };
@@ -4520,7 +4520,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MoveFileDto"];
+                'application/json': components['schemas']['MoveFileDto'];
             };
         };
         responses: {
@@ -4529,7 +4529,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"];
+                    'application/json': components['schemas']['FileDto'];
                 };
             };
         };
@@ -4569,7 +4569,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"];
+                    'application/json': components['schemas']['FileDto'];
                 };
             };
         };
@@ -4583,7 +4583,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateThumbnailDto"];
+                'application/json': components['schemas']['CreateThumbnailDto'];
             };
         };
         responses: {
@@ -4592,7 +4592,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ThumbnailDto"];
+                    'application/json': components['schemas']['ThumbnailDto'];
                 };
             };
         };
@@ -4622,7 +4622,7 @@ export interface operations {
             query: {
                 limit: number;
                 offset: number;
-                status: "EXISTS" | "TRASHED" | "DELETED" | "ALL";
+                status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
                 updatedAt?: string;
             };
             header?: never;
@@ -4636,7 +4636,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FolderDto"][];
+                    'application/json': components['schemas']['FolderDto'][];
                 };
             };
         };
@@ -4650,7 +4650,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateFolderDto"];
+                'application/json': components['schemas']['CreateFolderDto'];
             };
         };
         responses: {
@@ -4659,7 +4659,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FolderDto"];
+                    'application/json': components['schemas']['FolderDto'];
                 };
             };
         };
@@ -4723,7 +4723,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FilesDto"];
+                    'application/json': components['schemas']['FilesDto'];
                 };
             };
         };
@@ -4749,7 +4749,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ResultFilesDto"];
+                    'application/json': components['schemas']['ResultFilesDto'];
                 };
             };
         };
@@ -4797,7 +4797,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FoldersDto"];
+                    'application/json': components['schemas']['FoldersDto'];
                 };
             };
         };
@@ -4835,7 +4835,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CheckFoldersExistenceDto"];
+                'application/json': components['schemas']['CheckFoldersExistenceDto'];
             };
         };
         responses: {
@@ -4844,7 +4844,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ExistingFoldersDto"];
+                    'application/json': components['schemas']['ExistingFoldersDto'];
                 };
             };
         };
@@ -4860,7 +4860,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CheckFileExistenceInFolderDto"];
+                'application/json': components['schemas']['CheckFileExistenceInFolderDto'];
             };
         };
         responses: {
@@ -4894,7 +4894,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GetFolderContentDto"];
+                    'application/json': components['schemas']['GetFolderContentDto'];
                 };
             };
         };
@@ -4920,7 +4920,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ResultFoldersDto"];
+                    'application/json': components['schemas']['ResultFoldersDto'];
                 };
             };
         };
@@ -4941,7 +4941,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FolderDto"];
+                    'application/json': components['schemas']['FolderDto'];
                 };
             };
         };
@@ -4957,7 +4957,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateFolderMetaDto"];
+                'application/json': components['schemas']['UpdateFolderMetaDto'];
             };
         };
         responses: {
@@ -4966,7 +4966,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FolderDto"];
+                    'application/json': components['schemas']['FolderDto'];
                 };
             };
         };
@@ -5028,7 +5028,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FolderDto"];
+                    'application/json': components['schemas']['FolderDto'];
                 };
             };
         };
@@ -5082,7 +5082,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MoveFolderDto"];
+                'application/json': components['schemas']['MoveFolderDto'];
             };
         };
         responses: {
@@ -5091,7 +5091,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FolderDto"];
+                    'application/json': components['schemas']['FolderDto'];
                 };
             };
         };
@@ -5122,7 +5122,7 @@ export interface operations {
             };
             header: {
                 /** @description URI Encoded password to get access to the sharing */
-                "x-share-password": string;
+                'x-share-password': string;
             };
             path: {
                 /** @description Id of the sharing */
@@ -5195,7 +5195,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SetSharingPasswordDto"];
+                'application/json': components['schemas']['SetSharingPasswordDto'];
             };
         };
         responses: {
@@ -5254,7 +5254,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ChangeSharingType"];
+                'application/json': components['schemas']['ChangeSharingType'];
             };
         };
         responses: {
@@ -5287,7 +5287,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ItemSharingInfoDto"];
+                    'application/json': components['schemas']['ItemSharingInfoDto'];
                 };
             };
         };
@@ -5324,7 +5324,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateInviteDto"];
+                'application/json': components['schemas']['CreateInviteDto'];
             };
         };
         responses: {
@@ -5365,7 +5365,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AcceptInviteDto"];
+                'application/json': components['schemas']['AcceptInviteDto'];
             };
         };
         responses: {
@@ -5523,7 +5523,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateSharingDto"];
+                'application/json': components['schemas']['CreateSharingDto'];
             };
         };
         responses: {
@@ -5604,7 +5604,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateSharingRoleDto"];
+                'application/json': components['schemas']['UpdateSharingRoleDto'];
             };
         };
         responses: {
@@ -5860,7 +5860,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GetAvailableWorkspacesResponseDto"];
+                    'application/json': components['schemas']['GetAvailableWorkspacesResponseDto'];
                 };
             };
         };
@@ -5915,7 +5915,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["AcceptWorkspaceInviteDto"];
+                'application/json': components['schemas']['AcceptWorkspaceInviteDto'];
             };
         };
         responses: {
@@ -5993,7 +5993,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EditTeamDto"];
+                'application/json': components['schemas']['EditTeamDto'];
             };
         };
         responses: {
@@ -6092,7 +6092,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"][];
+                    'application/json': components['schemas']['FileDto'][];
                 };
             };
         };
@@ -6108,7 +6108,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateWorkspaceFileDto"];
+                'application/json': components['schemas']['CreateWorkspaceFileDto'];
             };
         };
         responses: {
@@ -6118,7 +6118,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FileDto"];
+                    'application/json': components['schemas']['FileDto'];
                 };
             };
         };
@@ -6144,7 +6144,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FolderDto"][];
+                    'application/json': components['schemas']['FolderDto'][];
                 };
             };
         };
@@ -6160,7 +6160,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateWorkspaceFolderDto"];
+                'application/json': components['schemas']['CreateWorkspaceFolderDto'];
             };
         };
         responses: {
@@ -6170,7 +6170,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FolderDto"];
+                    'application/json': components['schemas']['FolderDto'];
                 };
             };
         };
@@ -6229,7 +6229,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SetupWorkspaceDto"];
+                'application/json': components['schemas']['SetupWorkspaceDto'];
             };
         };
         responses: {
@@ -6299,7 +6299,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["WorkspaceCredentialsDto"];
+                    'application/json': components['schemas']['WorkspaceCredentialsDto'];
                 };
             };
         };
@@ -6335,7 +6335,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ChangeUserAssignedSpaceDto"];
+                'application/json': components['schemas']['ChangeUserAssignedSpaceDto'];
             };
         };
         responses: {
@@ -6381,7 +6381,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateWorkspaceInviteDto"];
+                'application/json': components['schemas']['CreateWorkspaceInviteDto'];
             };
         };
         responses: {
@@ -6425,7 +6425,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateTeamDto"];
+                'application/json': components['schemas']['CreateTeamDto'];
             };
         };
         responses: {
@@ -6468,7 +6468,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ShareItemWithTeamDto"];
+                'application/json': components['schemas']['ShareItemWithTeamDto'];
             };
         };
         responses: {
@@ -6481,7 +6481,7 @@ export interface operations {
             };
         };
     };
-    "WorkspacesController_getSharedFilesInWorkspace[0]": {
+    'WorkspacesController_getSharedFilesInWorkspace[0]': {
         parameters: {
             query: {
                 orderBy: string;
@@ -6506,7 +6506,7 @@ export interface operations {
             };
         };
     };
-    "WorkspacesController_getSharedFilesInWorkspace[1]": {
+    'WorkspacesController_getSharedFilesInWorkspace[1]': {
         parameters: {
             query: {
                 orderBy: string;
@@ -6531,7 +6531,7 @@ export interface operations {
             };
         };
     };
-    "WorkspacesController_getSharedFoldersInWorkspace[0]": {
+    'WorkspacesController_getSharedFoldersInWorkspace[0]': {
         parameters: {
             query: {
                 orderBy: string;
@@ -6556,7 +6556,7 @@ export interface operations {
             };
         };
     };
-    "WorkspacesController_getSharedFoldersInWorkspace[1]": {
+    'WorkspacesController_getSharedFoldersInWorkspace[1]': {
         parameters: {
             query: {
                 orderBy: string;
@@ -6581,7 +6581,7 @@ export interface operations {
             };
         };
     };
-    "WorkspacesController_getFoldersInSharingFolder[0]": {
+    'WorkspacesController_getFoldersInSharingFolder[0]': {
         parameters: {
             query?: {
                 /** @description Order by */
@@ -6607,7 +6607,7 @@ export interface operations {
             };
         };
     };
-    "WorkspacesController_getFoldersInSharingFolder[1]": {
+    'WorkspacesController_getFoldersInSharingFolder[1]': {
         parameters: {
             query?: {
                 /** @description Order by */
@@ -6633,7 +6633,7 @@ export interface operations {
             };
         };
     };
-    "WorkspacesController_getFilesInSharingFolder[0]": {
+    'WorkspacesController_getFilesInSharingFolder[0]': {
         parameters: {
             query?: {
                 /** @description Order by */
@@ -6659,7 +6659,7 @@ export interface operations {
             };
         };
     };
-    "WorkspacesController_getFilesInSharingFolder[1]": {
+    'WorkspacesController_getFilesInSharingFolder[1]': {
         parameters: {
             query?: {
                 /** @description Order by */
@@ -6781,7 +6781,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ResultFoldersDto"];
+                    'application/json': components['schemas']['ResultFoldersDto'];
                 };
             };
         };
@@ -6811,7 +6811,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ResultFilesDto"];
+                    'application/json': components['schemas']['ResultFilesDto'];
                 };
             };
         };
@@ -6829,7 +6829,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ChangeUserRoleDto"];
+                'application/json': components['schemas']['ChangeUserRoleDto'];
             };
         };
         responses: {
@@ -6873,7 +6873,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EditWorkspaceDetailsDto"];
+                'application/json': components['schemas']['EditWorkspaceDetailsDto'];
             };
         };
         responses: {
@@ -7066,7 +7066,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateUserDto"];
+                'application/json': components['schemas']['CreateUserDto'];
             };
         };
         responses: {
@@ -7122,7 +7122,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RegisterPreCreatedUserDto"];
+                'application/json': components['schemas']['RegisterPreCreatedUserDto'];
             };
         };
         responses: {
@@ -7151,7 +7151,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["PreCreateUserDto"];
+                'application/json': components['schemas']['PreCreateUserDto'];
             };
         };
         responses: {
@@ -7206,7 +7206,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RefreshTokenResponseDto"];
+                    'application/json': components['schemas']['RefreshTokenResponseDto'];
                 };
             };
         };
@@ -7226,7 +7226,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["RefreshUserAvatarDto"];
+                    'application/json': components['schemas']['RefreshUserAvatarDto'];
                 };
             };
         };
@@ -7240,7 +7240,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdatePasswordDto"];
+                'application/json': components['schemas']['UpdatePasswordDto'];
             };
         };
         responses: {
@@ -7264,7 +7264,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DeprecatedRecoverAccountDto"];
+                'application/json': components['schemas']['DeprecatedRecoverAccountDto'];
             };
         };
         responses: {
@@ -7285,7 +7285,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RequestRecoverAccountDto"];
+                'application/json': components['schemas']['RequestRecoverAccountDto'];
             };
         };
         responses: {
@@ -7323,7 +7323,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RequestAccountUnblock"];
+                'application/json': components['schemas']['RequestAccountUnblock'];
             };
         };
         responses: {
@@ -7347,7 +7347,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RecoverAccountDto"];
+                'application/json': components['schemas']['RecoverAccountDto'];
             };
         };
         responses: {
@@ -7368,7 +7368,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["LegacyRecoverAccountDto"];
+                'application/json': components['schemas']['LegacyRecoverAccountDto'];
             };
         };
         responses: {
@@ -7408,7 +7408,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateAttemptChangeEmailDto"];
+                'application/json': components['schemas']['CreateAttemptChangeEmailDto'];
             };
         };
         responses: {
@@ -7507,7 +7507,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["RegisterNotificationTokenDto"];
+                'application/json': components['schemas']['RegisterNotificationTokenDto'];
             };
         };
         responses: {
@@ -7547,7 +7547,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["VerifyEmailDto"];
+                'application/json': components['schemas']['VerifyEmailDto'];
             };
         };
         responses: {
@@ -7569,7 +7569,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateProfileDto"];
+                'application/json': components['schemas']['UpdateProfileDto'];
             };
         };
         responses: {
@@ -7644,7 +7644,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ConfirmAccountDeactivationDto"];
+                'application/json': components['schemas']['ConfirmAccountDeactivationDto'];
             };
         };
         responses: {
@@ -7670,7 +7670,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GetUserUsageDto"];
+                    'application/json': components['schemas']['GetUserUsageDto'];
                 };
             };
         };
@@ -7690,7 +7690,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GetUserLimitDto"];
+                    'application/json': components['schemas']['GetUserLimitDto'];
                 };
             };
         };
@@ -7710,7 +7710,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GetUploadStatusDto"];
+                    'application/json': components['schemas']['GetUploadStatusDto'];
                 };
             };
         };
@@ -7730,7 +7730,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GenerateMnemonicResponseDto"];
+                    'application/json': components['schemas']['GenerateMnemonicResponseDto'];
                 };
             };
         };
@@ -7772,7 +7772,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FuzzySearchResults"];
+                    'application/json': components['schemas']['FuzzySearchResults'];
                 };
             };
         };
@@ -7798,7 +7798,7 @@ export interface operations {
         parameters: {
             query: {
                 /** @description Device platform */
-                platform?: components["schemas"]["DevicePlatform"];
+                platform?: components['schemas']['DevicePlatform'];
                 /** @description OS Installation unique identifier */
                 key?: string;
                 /** @description Device hostname */
@@ -7818,7 +7818,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"][];
+                    'application/json': components['schemas']['DeviceDto'][];
                 };
             };
         };
@@ -7832,7 +7832,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateDeviceAndFolderDto"];
+                'application/json': components['schemas']['CreateDeviceAndFolderDto'];
             };
         };
         responses: {
@@ -7842,7 +7842,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"];
+                    'application/json': components['schemas']['DeviceDto'];
                 };
             };
         };
@@ -7856,7 +7856,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateDeviceAndAttachFolderDto"];
+                'application/json': components['schemas']['CreateDeviceAndAttachFolderDto'];
             };
         };
         responses: {
@@ -7866,7 +7866,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"];
+                    'application/json': components['schemas']['DeviceDto'];
                 };
             };
         };
@@ -7902,7 +7902,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateDeviceAndFolderDto"];
+                'application/json': components['schemas']['UpdateDeviceAndFolderDto'];
             };
         };
         responses: {
@@ -7912,7 +7912,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceDto"];
+                    'application/json': components['schemas']['DeviceDto'];
                 };
             };
         };
@@ -7931,7 +7931,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceAsFolder"][];
+                    'application/json': components['schemas']['DeviceAsFolder'][];
                 };
             };
         };
@@ -7945,7 +7945,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateDeviceAsFolderDto"];
+                'application/json': components['schemas']['CreateDeviceAsFolderDto'];
             };
         };
         responses: {
@@ -7954,7 +7954,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceAsFolder"];
+                    'application/json': components['schemas']['DeviceAsFolder'];
                 };
             };
         };
@@ -7975,7 +7975,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceAsFolder"];
+                    'application/json': components['schemas']['DeviceAsFolder'];
                 };
             };
         };
@@ -8010,7 +8010,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateDeviceAsFolderDto"];
+                'application/json': components['schemas']['CreateDeviceAsFolderDto'];
             };
         };
         responses: {
@@ -8019,7 +8019,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceAsFolder"];
+                    'application/json': components['schemas']['DeviceAsFolder'];
                 };
             };
         };
@@ -8040,7 +8040,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DeviceAsFolder"];
+                    'application/json': components['schemas']['DeviceAsFolder'];
                 };
             };
         };
@@ -8154,7 +8154,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MoveItemsToTrashDto"];
+                'application/json': components['schemas']['MoveItemsToTrashDto'];
             };
         };
         responses: {
@@ -8217,7 +8217,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DeleteItemsDto"];
+                'application/json': components['schemas']['DeleteItemsDto'];
             };
         };
         responses: {
@@ -8276,7 +8276,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["LoginDto"];
+                'application/json': components['schemas']['LoginDto'];
             };
         };
         responses: {
@@ -8286,7 +8286,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LoginResponseDto"];
+                    'application/json': components['schemas']['LoginResponseDto'];
                 };
             };
         };
@@ -8300,7 +8300,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["LoginAccessDto"];
+                'application/json': components['schemas']['LoginAccessDto'];
             };
         };
         responses: {
@@ -8310,7 +8310,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["LoginAccessResponseDto"];
+                    'application/json': components['schemas']['LoginAccessResponseDto'];
                 };
             };
         };
@@ -8360,7 +8360,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateTfaDto"];
+                'application/json': components['schemas']['UpdateTfaDto'];
             };
         };
         responses: {
@@ -8382,7 +8382,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DeleteTfaDto"];
+                'application/json': components['schemas']['DeleteTfaDto'];
             };
         };
         responses: {
@@ -8425,7 +8425,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateSendLinkDto"];
+                'application/json': components['schemas']['CreateSendLinkDto'];
             };
         };
         responses: {
@@ -8442,7 +8442,7 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                "x-send-password": string;
+                'x-send-password': string;
             };
             path: {
                 linkId: string;
@@ -8464,7 +8464,7 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
-                "user-agent": string;
+                'user-agent': string;
             };
             path?: never;
             cookie?: never;
@@ -8507,7 +8507,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["InitializeWorkspaceDto"];
+                'application/json': components['schemas']['InitializeWorkspaceDto'];
             };
         };
         responses: {
@@ -8529,7 +8529,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["DeleteWorkspaceDto"];
+                'application/json': components['schemas']['DeleteWorkspaceDto'];
             };
         };
         responses: {
@@ -8551,7 +8551,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateWorkspaceStorageDto"];
+                'application/json': components['schemas']['UpdateWorkspaceStorageDto'];
             };
         };
         responses: {
@@ -8573,7 +8573,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateWorkspaceStorageDto"];
+                'application/json': components['schemas']['UpdateWorkspaceStorageDto'];
             };
         };
         responses: {
@@ -8640,7 +8640,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UpdateUserDto"];
+                'application/json': components['schemas']['UpdateUserDto'];
             };
         };
         responses: {

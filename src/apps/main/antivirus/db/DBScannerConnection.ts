@@ -1,6 +1,6 @@
 import { ScannedItemCollection } from '../../database/collections/ScannedItemCollection';
 import { ScannedItem } from '../../database/entities/ScannedItem';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class DBScannerConnection {
   constructor(private db: ScannedItemCollection) {}
@@ -18,7 +18,11 @@ export class DBScannerConnection {
       const createdItem = await this.db.create(itemToAdd);
       return createdItem.success;
     } catch (error) {
-      Logger.error('Error adding an item to the DB:', error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error adding an item to the DB:',
+        error,
+      });
       return false;
     }
   };
@@ -38,7 +42,11 @@ export class DBScannerConnection {
       const createdItem = await this.db.update(itemId, itemToUpdate);
       return createdItem;
     } catch (error) {
-      Logger.error('Error updating the item in the DB:', error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: 'Error updating the item in the DB:',
+        error,
+      });
       return false;
     }
   };

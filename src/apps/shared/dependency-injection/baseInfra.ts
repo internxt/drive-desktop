@@ -1,3 +1,4 @@
+import { INTERNXT_CLIENT, INTERNXT_VERSION } from './../../../core/utils/utils';
 import { ContainerBuilder } from 'diod';
 import { DependencyInjectionUserProvider } from './DependencyInjectionUserProvider';
 import { Environment } from '@internxt/inxt-js';
@@ -22,6 +23,11 @@ export function baseInfra(): ContainerBuilder {
     bridgeUser: user.bridgeUser,
     bridgePass: user.userId,
     encryptionKey: mnemonic,
+    appDetails: {
+      clientName: INTERNXT_CLIENT,
+      clientVersion: INTERNXT_VERSION,
+      desktopHeader: process.env.INTERNXT_DESKTOP_HEADER_KEY,
+    },
   });
 
   builder.register(Environment).useInstance(environment).private();

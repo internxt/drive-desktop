@@ -4,7 +4,7 @@ import { stat } from 'fs/promises';
 import { extname } from 'path';
 import { ScannedItem } from '../../database/entities/ScannedItem';
 import { pipeline } from 'stream/promises';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 const hashItem = async (filePath: string): Promise<string> => {
   try {
@@ -19,7 +19,11 @@ const hashItem = async (filePath: string): Promise<string> => {
     await pipeline(stream, hasher);
     return hasher.digest('hex');
   } catch (error) {
-    Logger.error('Error hashing item:', error);
+    logger.error({
+      tag: 'ANTIVIRUS',
+      msg: 'Error hashing item:',
+      error,
+    });
     throw error;
   }
 };

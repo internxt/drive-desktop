@@ -19,14 +19,16 @@ export type RemoteFileSystemErrors =
 
 export abstract class RemoteFileSystem {
   abstract persist(
-    path: FolderPath,
-    parentId: FolderId,
-    uuid?: FolderUuid
+    plainName: string,
+    parentFolderUuid: string
   ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>>;
 
   abstract trash(id: Folder['id']): Promise<void>;
 
-  abstract move(folder: Folder): Promise<void>;
+  abstract move(
+    folderUuid: string,
+    destinationFolderUuid: string
+  ): Promise<void>;
 
   abstract rename(folder: Folder): Promise<void>;
 

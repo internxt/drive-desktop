@@ -7,7 +7,6 @@ import { FileFolderId } from '../../domain/FileFolderId';
 import { File } from '../../domain/File';
 import { Either, left, right } from '../../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
-
 @Service()
 export class SimpleFileCreator {
   constructor(private readonly remote: RemoteFileSystem) {}
@@ -16,12 +15,12 @@ export class SimpleFileCreator {
     contentsId: string,
     path: string,
     size: number,
-    folderId: number
+    folderId: number,
+    folderUuid: string
   ): Promise<Either<DriveDesktopError, File>> {
     const fileSize = new FileSize(size);
     const fileContentsId = new FileContentsId(contentsId);
     const filePath = new FilePath(path);
-
     const fileFolderId = new FileFolderId(folderId);
 
     const either = await this.remote.persist({
@@ -29,6 +28,7 @@ export class SimpleFileCreator {
       path: filePath,
       size: fileSize,
       folderId: fileFolderId,
+      folderUuid,
     });
 
     if (either.isLeft()) {

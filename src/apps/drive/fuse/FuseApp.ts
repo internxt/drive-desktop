@@ -39,7 +39,8 @@ export class FuseApp extends EventEmitter {
     private readonly virtualDrive: VirtualDrive,
     private readonly container: Container,
     private readonly localRoot: string,
-    private readonly remoteRoot: number
+    private readonly remoteRoot: number,
+    private readonly remoteRootUuid: string
   ) {
     super();
   }
@@ -157,7 +158,7 @@ export class FuseApp extends EventEmitter {
     try {
       const tree = await this.container
         .get(RemoteTreeBuilder)
-        .run(this.remoteRoot);
+        .run(this.remoteRoot, this.remoteRootUuid);
 
       await this.container.get(FileRepositorySynchronizer).run(tree.files);
       await this.container.get(ThumbnailSynchronizer).run(tree.files);

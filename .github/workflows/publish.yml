@@ -33,9 +33,7 @@ jobs:
           echo "MAGIC_IV=${{ secrets.MAGIC_IV }}" >> .env
           echo "MAGIC_SALT=${{ secrets.MAGIC_SALT }}" >> .env
           echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
-          echo "API_URL=https://api.internxt.com/drive-old" >> .env
-          echo "NEW_DRIVE_URL=https://api.internxt.com/drive" >> .env
-          echo "DRIVE_URL=https://drive.internxt.com" >> .env
+          echo "NEW_DRIVE_URL=https://gateway.internxt.com/drive" >> .env
           echo "DRIVE_API_URL=https://gateway.internxt.com/api" >> .env
           echo "BRIDGE_URL=https://api.internxt.com" >> .env
           echo "APP_SEGMENT_KEY=${{ secrets.APP_SEGMENT_KEY }}" >> .env

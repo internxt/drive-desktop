@@ -5,9 +5,7 @@ declare global {
       MAGIC_IV: string;
       MAGIC_SALT: string;
       NEW_CRYPTO_KEY: string;
-      API_URL: string;
       NEW_DRIVE_URL: string;
-      DRIVE_URL: string;
       BRIDGE_URL: string;
       APP_SEGMENT_KEY: string;
       APP_SEGMENT_KEY_TEST: string;

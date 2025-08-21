@@ -40,13 +40,14 @@ type DownloadFileFunction = (params: DownloadSharedFileParams | DownloadOwnFileP
 const downloadSharedFile: DownloadSharedFileFunction = (params) => {
   const { bucketId, fileId, encryptionKey, token, options } = params;
   const { name: clientName, version: clientVersion } = appInfo;
-
+  const desktopHeader = process.env.INTERNXT_DESKTOP_HEADER_KEY;
   return new NetworkFacade(
     Network.client(
       process.env.BRIDGE_URL as string,
       {
         clientName,
         clientVersion,
+        desktopHeader,
       },
       {
         bridgeUser: '',
@@ -72,19 +73,20 @@ const downloadOwnFile: DownloadOwnFileFunction = (params) => {
   const { bucketId, fileId, mnemonic, options } = params;
   const { name: clientName, version: clientVersion } = appInfo;
   const auth = getAuthFromCredentials(params.creds);
-
+  const desktopHeader = process.env.INTERNXT_DESKTOP_HEADER_KEY;
   return new NetworkFacade(
     Network.client(
       process.env.BRIDGE_URL as string,
       {
         clientName,
         clientVersion,
+        desktopHeader,
       },
       {
         bridgeUser: auth.username,
         userId: auth.password,
-      },
-    ),
+      }
+    )
   ).download(bucketId, fileId, mnemonic, {
     downloadingCallback: options?.notifyProgress,
     abortController: options?.abortController,

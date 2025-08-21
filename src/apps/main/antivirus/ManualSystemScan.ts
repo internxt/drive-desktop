@@ -12,8 +12,8 @@ import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './db/DBScannerConnection';
 import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
-import Logger from 'electron-log';
 import { AppDataSource } from '../database/data-source';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export interface ProgressData {
   totalScannedFiles: number;
@@ -249,13 +249,16 @@ export class ManualSystemScan {
         const isNearlyScanComplete = this.isNearlyScanComplete();
 
         if (isNearlyScanComplete) {
-          Logger.warn(
-            `[SYSTEM_SCAN] Scan appears stuck at ${this.totalScannedFiles}/${this.totalItemsToScan} files. ` +
-              `With ${this.errorCount} errors, total processed: ${
-                this.totalScannedFiles + this.errorCount
-              }/${this.totalItemsToScan}. ` +
-              'Forcing completion.'
-          );
+          logger.warn({
+            tag: 'ANTIVIRUS',
+            msg: `[SYSTEM_SCAN] Scan appears stuck at ${
+              this.totalScannedFiles
+            }/${this.totalItemsToScan} files. With ${
+              this.errorCount
+            } errors, total processed: ${
+              this.totalScannedFiles + this.errorCount
+            }/${this.totalItemsToScan}. Forcing completion.`,
+          });
 
           if (!scanCompleted && !hasReportedError) {
             this.emitCompletionEvent(
@@ -268,9 +271,10 @@ export class ManualSystemScan {
             shouldContinue = false;
           }
         } else if (isCustomScan && !hasReportedError) {
-          Logger.warn(
-            '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout after extended period'
-          );
+          logger.warn({
+            tag: 'ANTIVIRUS',
+            msg: '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout after extended period',
+          });
           this.cancelled = true;
 
           this.emitErrorEvent(
@@ -301,28 +305,31 @@ export class ManualSystemScan {
 
     while (activeScans > 0) {
       if (this.isNearlyScanComplete()) {
-        Logger.info(
-          `[SYSTEM_SCAN] Processed ${(
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: `[SYSTEM_SCAN] Processed ${(
             ((this.totalScannedFiles + this.errorCount) /
               this.totalItemsToScan) *
             100
           ).toFixed(
             2
-          )}% of files, continuing despite ${activeScans} active scans`
-        );
+          )}% of files, continuing despite ${activeScans} active scans`,
+        });
         break;
       }
 
       if (Date.now() - startTime > maxWaitTime) {
-        Logger.warn(
-          `[SYSTEM_SCAN] Timed out waiting for ${activeScans} active scans to complete`
-        );
+        logger.warn({
+          tag: 'ANTIVIRUS',
+          msg: `[SYSTEM_SCAN] Timed out waiting for ${activeScans} active scans to complete`,
+        });
         break;
       }
 
-      Logger.debug(
-        `[SYSTEM_SCAN] Waiting for ${activeScans} active scans to complete...`
-      );
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[SYSTEM_SCAN] Waiting for ${activeScans} active scans to complete...`,
+      });
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
   }
@@ -342,11 +349,12 @@ export class ManualSystemScan {
     this.totalScannedFiles++;
 
     if (isInfected || this.totalScannedFiles % 1000 === 0) {
-      Logger.info(
-        `[SYSTEM_SCAN] Progress: ${this.calculateProgress()}%, Scanned: ${
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[SYSTEM_SCAN] Progress: ${this.calculateProgress()}%, Scanned: ${
           this.totalScannedFiles
-        }/${this.totalItemsToScan}, Infected: ${this.totalInfectedFiles}`
-      );
+        }/${this.totalItemsToScan}, Infected: ${this.totalInfectedFiles}`,
+      });
     }
 
     const shouldEmitNow = isInfected;
@@ -382,14 +390,18 @@ export class ManualSystemScan {
         await this.antivirus.stopClamAv();
         this.antivirus = null;
       } catch (error) {
-        Logger.error('[SYSTEM_SCAN] Error stopping ClamAV:', error);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: '[SYSTEM_SCAN] Error stopping ClamAV:',
+          error,
+        });
         this.antivirus = null;
       }
     }
   };
 
   public stopScan = async () => {
-    Logger.info('[SYSTEM_SCAN] Stopping scan...');
+    logger.debug({ tag: 'ANTIVIRUS', msg: '[SYSTEM_SCAN] Stopping scan...' });
     this.cancelled = true;
     this.scanSessionId++;
     if (this.manualQueue) {
@@ -399,18 +411,25 @@ export class ManualSystemScan {
     try {
       await this.clearAntivirus();
     } catch (error) {
-      Logger.error(
-        '[SYSTEM_SCAN] Error clearing antivirus during stop:',
-        error
-      );
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: '[SYSTEM_SCAN] Error clearing antivirus during stop:',
+        error,
+      });
     }
 
     await this.resetCounters();
-    Logger.info('[SYSTEM_SCAN] Scan stopped successfully');
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: '[SYSTEM_SCAN] Scan stopped successfully',
+    });
   };
 
   private async resetCounters() {
-    Logger.info('[SYSTEM_SCAN] Resetting scan counters and state');
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: '[SYSTEM_SCAN] Resetting scan counters and state',
+    });
 
     this.totalScannedFiles = 0;
     this.totalInfectedFiles = 0;
@@ -427,17 +446,22 @@ export class ManualSystemScan {
         this.manualQueue.kill();
         this.manualQueue = null;
       } catch (error) {
-        Logger.error('[SYSTEM_SCAN] Error killing previous queue:', error);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: '[SYSTEM_SCAN] Error killing previous queue:',
+          error,
+        });
       }
     }
 
     try {
       await this.clearAntivirus();
     } catch (error) {
-      Logger.error(
-        '[SYSTEM_SCAN] Error clearing Antivirus during reset:',
-        error
-      );
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: '[SYSTEM_SCAN] Error clearing Antivirus during reset:',
+        error,
+      });
     }
   }
 
@@ -467,7 +491,10 @@ export class ManualSystemScan {
     pathNames: string[],
     scan: (filePath: string) => Promise<void>
   ): Promise<void> {
-    Logger.info('[SYSTEM_SCAN] Starting custom scan with selected paths');
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: '[SYSTEM_SCAN] Starting custom scan with selected paths',
+    });
     const pathsToScan: string[] = pathNames;
 
     this.manualQueue = queue(scan, 10);
@@ -477,12 +504,19 @@ export class ManualSystemScan {
       try {
         total += await countSystemFiles(p);
       } catch (error) {
-        Logger.error(`[SYSTEM_SCAN] Error counting files in path ${p}:`, error);
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: `[SYSTEM_SCAN] Error counting files in path ${p}:`,
+          error,
+        });
       }
     }
 
     this.totalItemsToScan = total;
-    Logger.info(`[SYSTEM_SCAN] Total files to scan: ${total}`);
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: `[SYSTEM_SCAN] Total files to scan: ${total}`,
+    });
 
     if (total === 0) {
       this.emitEmptyDirProgressEvent(pathNames.join(', '), currentSession);
@@ -502,15 +536,24 @@ export class ManualSystemScan {
     currentSession: number,
     scan: (filePath: string) => Promise<void>
   ): Promise<void> {
-    Logger.info('[SYSTEM_SCAN] Starting full system scan');
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: '[SYSTEM_SCAN] Starting full system scan',
+    });
 
     const userSystemPath = await getUserSystemPath();
     if (!userSystemPath) {
-      Logger.error('[SYSTEM_SCAN] Could not get user system path');
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: '[SYSTEM_SCAN] Could not get user system path',
+      });
       return;
     }
 
-    Logger.info(`[SYSTEM_SCAN] Using user system path: ${userSystemPath.path}`);
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: `[SYSTEM_SCAN] Using user system path: ${userSystemPath.path}`,
+    });
 
     this.manualQueue = queue(scan, 10);
 
@@ -518,7 +561,10 @@ export class ManualSystemScan {
       const total = await countSystemFiles(userSystemPath.path);
       this.totalItemsToScan = total;
 
-      Logger.info(`[SYSTEM_SCAN] Total system files to scan: ${total}`);
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[SYSTEM_SCAN] Total system files to scan: ${total}`,
+      });
 
       this.emitProgressEvent(
         {
@@ -540,7 +586,11 @@ export class ManualSystemScan {
         () => this.cancelled
       );
     } catch (error) {
-      Logger.error('[SYSTEM_SCAN] Error in system scan process:', error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: '[SYSTEM_SCAN] Error in system scan process:',
+        error,
+      });
       throw error;
     }
   }
@@ -597,10 +647,11 @@ export class ManualSystemScan {
           }
         } catch (error) {
           this.errorCount++;
-          Logger.error(
-            `[SYSTEM_SCAN] Error scanning file ${scannedItem.pathName}:`,
-            error
-          );
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: `[SYSTEM_SCAN] Error scanning file ${scannedItem.pathName}:`,
+            error,
+          });
 
           if (this.errorCount > maxToleratedErrors && !hasReportedError.value) {
             hasReportedError.value = true;
@@ -616,18 +667,20 @@ export class ManualSystemScan {
           }
 
           if (!isPermissionError(error)) {
-            Logger.warn(
-              `[SYSTEM_SCAN] Continuing scan despite error with file: ${scannedItem.pathName}`
-            );
+            logger.warn({
+              tag: 'ANTIVIRUS',
+              msg: `[SYSTEM_SCAN] Continuing scan despite error with file: ${scannedItem.pathName}`,
+            });
           }
         }
       } catch (error) {
         this.errorCount++;
         if (!isPermissionError(error)) {
-          Logger.error(
-            `[SYSTEM_SCAN] Error processing file ${filePath}:`,
-            error
-          );
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: `[SYSTEM_SCAN] Error processing file ${filePath}:`,
+            error,
+          });
         }
       } finally {
         activeScans.count--;
@@ -661,25 +714,28 @@ export class ManualSystemScan {
         if (!scanState.scanCompleted && !this.cancelled) {
           if (this.totalScannedFiles === scanState.lastProgressCount) {
             scanState.noProgressIntervals++;
-            Logger.debug(
-              `[SYSTEM_SCAN] No progress for ${
+            logger.debug({
+              tag: 'ANTIVIRUS',
+              msg: `[SYSTEM_SCAN] No progress for ${
                 scanState.noProgressIntervals
-              } intervals (${scanState.noProgressIntervals / 2} minutes)`
-            );
+              } intervals (${scanState.noProgressIntervals / 2} minutes)`,
+            });
 
             if (scanState.noProgressIntervals >= 40) {
-              Logger.warn(
-                `[SYSTEM_SCAN] No progress detected for ~${
+              logger.warn({
+                tag: 'ANTIVIRUS',
+                msg: `[SYSTEM_SCAN] No progress detected for ~${
                   scanState.noProgressIntervals / 2
                 } minutes: ` +
                   `${this.totalScannedFiles}/${this.totalItemsToScan} files scanned. ` +
-                  'Scan appears stalled but will continue.'
-              );
+                  'Scan appears stalled but will continue.',
+              });
 
               if (isCustomScan && !scanState.hasReportedError) {
-                Logger.warn(
-                  '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout after extended period'
-                );
+                logger.warn({
+                  tag: 'ANTIVIRUS',
+                  msg: '[SYSTEM_SCAN] Custom scan appears stuck, triggering safety timeout after extended period',
+                });
                 this.cancelled = true;
 
                 this.emitErrorEvent(
@@ -707,9 +763,10 @@ export class ManualSystemScan {
       () => {
         if (!this.cancelled && !scanState.scanCompleted) {
           if (this.isScanComplete()) {
-            Logger.info(
-              `[SYSTEM_SCAN] All files scanned (${this.totalScannedFiles}/${this.totalItemsToScan}). Stopping heartbeat.`
-            );
+            logger.debug({
+              tag: 'ANTIVIRUS',
+              msg: `[SYSTEM_SCAN] All files scanned (${this.totalScannedFiles}/${this.totalItemsToScan}). Stopping heartbeat.`,
+            });
 
             if (!scanState.scanCompleted && !scanState.hasReportedError) {
               this.emitCompletionEvent(
@@ -755,9 +812,10 @@ export class ManualSystemScan {
             currentSession
           );
 
-          Logger.debug(
-            `[SYSTEM_SCAN] Heartbeat: ${this.totalScannedFiles}/${this.totalItemsToScan} files scanned`
-          );
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: `[SYSTEM_SCAN] Heartbeat: ${this.totalScannedFiles}/${this.totalItemsToScan} files scanned`,
+          });
         } else {
           this.clearInterval(heartbeatInterval);
         }
@@ -787,16 +845,21 @@ export class ManualSystemScan {
   }
 
   public async scanItems(pathNames?: string[]): Promise<void> {
-    Logger.info(
-      `[SYSTEM_SCAN] Starting new scan with ${
+    logger.debug({
+      tag: 'ANTIVIRUS',
+      msg: `[SYSTEM_SCAN] Starting new scan with ${
         pathNames ? pathNames.length : 'all'
-      } paths`
-    );
+      } paths`,
+    });
 
     try {
       await this.stopScan();
     } catch (stopError) {
-      Logger.error('[SYSTEM_SCAN] Error stopping previous scan:', stopError);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: '[SYSTEM_SCAN] Error stopping previous scan:',
+        error: stopError,
+      });
     }
 
     this.cancelled = false;
@@ -819,7 +882,11 @@ export class ManualSystemScan {
         try {
           await AppDataSource.initialize();
         } catch (dbError) {
-          Logger.error('[SYSTEM_SCAN] Error initializing database:', dbError);
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: '[SYSTEM_SCAN] Error initializing database:',
+            error: dbError,
+          });
         }
       }
 
@@ -828,10 +895,11 @@ export class ManualSystemScan {
         antivirus = await Antivirus.createInstance();
         this.antivirus = antivirus;
       } catch (avError) {
-        Logger.error(
-          '[SYSTEM_SCAN] Error creating antivirus instance, retrying once:',
-          avError
-        );
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: '[SYSTEM_SCAN] Error creating antivirus instance, retrying once:',
+          error: avError,
+        });
 
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
@@ -839,16 +907,20 @@ export class ManualSystemScan {
           antivirus = await Antivirus.createInstance();
           this.antivirus = antivirus;
         } catch (retryError) {
-          Logger.error(
-            '[SYSTEM_SCAN] Failed to create antivirus instance after retry:',
-            retryError
-          );
+          logger.error({
+            tag: 'ANTIVIRUS',
+            msg: '[SYSTEM_SCAN] Failed to create antivirus instance after retry:',
+            error: retryError,
+          });
           throw new Error('Failed to initialize antivirus scanner');
         }
       }
 
       const currentSession = ++this.scanSessionId;
-      Logger.info(`[SYSTEM_SCAN] Starting scan session ${currentSession}`);
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[SYSTEM_SCAN] Starting scan session ${currentSession}`,
+      });
 
       const hasReportedErrorRef = { value: scanState.hasReportedError };
       const scan = this.createScanHandler(
@@ -894,14 +966,21 @@ export class ManualSystemScan {
         this.progressEvents = [];
 
         if (scanState.allFilesScanned) {
-          Logger.info('[SYSTEM_SCAN] Sending final done event directly');
+          logger.debug({
+            tag: 'ANTIVIRUS',
+            msg: '[SYSTEM_SCAN] Sending final done event directly',
+          });
           this.emitCompletionEvent('Scan complete', 1500);
         }
       }
 
       scanState.scanCompleted = scanState.allFilesScanned;
     } catch (error) {
-      Logger.error('[SYSTEM_SCAN] Error during manual scan:', error);
+      logger.error({
+        tag: 'ANTIVIRUS',
+        msg: '[SYSTEM_SCAN] Error during manual scan:',
+        error,
+      });
 
       if (!scanState.hasReportedError) {
         this.emitErrorEvent('Error occurred during scan');
@@ -934,26 +1013,21 @@ export class ManualSystemScan {
       scanState.scanCompleted = scanState.allFilesScanned;
 
       const scanDuration = (Date.now() - scanStartTime) / 1000;
-      Logger.info(
-        `[SYSTEM_SCAN] Scan finished in ${scanDuration.toFixed(
+      logger.debug({
+        tag: 'ANTIVIRUS',
+        msg: `[SYSTEM_SCAN] Scan finished in ${scanDuration.toFixed(
           2
-        )}s with state:`,
-        {
-          completed: scanState.scanCompleted,
-          filesScanned: this.totalScannedFiles,
-          infected: this.totalInfectedFiles,
-          errors: this.errorCount,
-          cancelled: this.cancelled,
-        }
-      );
+        )}s with state: completed=${scanState.scanCompleted}, filesScanned=${this.totalScannedFiles}, infected=${this.totalInfectedFiles}, errors=${this.errorCount}, cancelled=${this.cancelled}`,
+      });
 
       this.clearAllIntervals();
 
       await this.clearAntivirus().catch((err) => {
-        Logger.error(
-          '[SYSTEM_SCAN] Error during final antivirus cleanup:',
-          err
-        );
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: '[SYSTEM_SCAN] Error during final antivirus cleanup:',
+          error: err,
+        });
       });
     }
   }

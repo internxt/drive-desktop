@@ -40,6 +40,11 @@ describe('StorageFileService', () => {
         bridgeUser: 'test-bridge-user',
         bridgePass: 'test-bridge-pass',
         encryptionKey: 'test-encryption-key',
+        appDetails: {
+          clientName: 'test-client',
+          clientVersion: 'test-version',
+          desktopHeader: 'test-header',
+        },
       });
       bucket = 'test-bucket';
       mockedDownloader = jest.fn().mockReturnValue(mockStream);
