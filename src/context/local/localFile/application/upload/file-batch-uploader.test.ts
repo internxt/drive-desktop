@@ -23,7 +23,7 @@ describe('file-batch-uploader', () => {
       context: { backupsBucket: 'bucket' },
       tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: { [parentPath]: { uuid: 'parentUuid' } } },
-      added: [{ relativePath: path, size: { value: 1024 } }],
+      added: [{ relativePath: path, size: 1024 }],
     });
   });
 
