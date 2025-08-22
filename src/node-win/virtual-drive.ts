@@ -1,13 +1,12 @@
 import fs from 'fs';
-import path, { join, posix, win32 } from 'path';
+import { basename, dirname, join, posix, win32 } from 'path';
 
 import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
 import { Callbacks } from './types/callbacks.type';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { getConfig } from '@/apps/sync-engine/config';
 import { iconPath } from '@/apps/utils/icon';
 
 const PLACEHOLDER_ATTRIBUTES = {
@@ -19,15 +18,18 @@ const PLACEHOLDER_ATTRIBUTES = {
 
 export class VirtualDrive {
   addon: Addon;
-  syncRootPath = this.convertToWindowsPath({ path: getConfig().rootPath }) as AbsolutePath;
-  providerId = getConfig().providerId;
+  syncRootPath: AbsolutePath;
+  providerId: string;
 
-  constructor() {
-    this.addon = DependencyInjectionAddonProvider.get();
+  constructor({ rootPath, providerId, loggerPath }: { rootPath: string; providerId: string; loggerPath: string }) {
+    this.syncRootPath = this.convertToWindowsPath({ path: rootPath }) as AbsolutePath;
+    this.providerId = providerId;
+
+    this.addon = new Addon();
     this.addon.syncRootPath = this.syncRootPath;
 
     this.createSyncRootFolder();
-    this.addLoggerPath(this.convertToWindowsPath({ path: getConfig().loggerPath }));
+    this.addLoggerPath(this.convertToWindowsPath({ path: loggerPath }));
   }
 
   private convertToWindowsTime(jsTime: number) {
@@ -88,7 +90,7 @@ export class VirtualDrive {
     creationTime,
     lastWriteTime,
     lastAccessTime,
-    basePath = this.syncRootPath,
+    basePath,
   }: {
     fileName: string;
     fileId: string;
@@ -97,7 +99,7 @@ export class VirtualDrive {
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
-    basePath?: string;
+    basePath: string;
   }) {
     const creationTimeStr = this.convertToWindowsTime(creationTime).toString();
     const lastWriteTimeStr = this.convertToWindowsTime(lastWriteTime).toString();
@@ -124,7 +126,7 @@ export class VirtualDrive {
     creationTime,
     lastWriteTime,
     lastAccessTime,
-    path = this.syncRootPath,
+    path,
   }: {
     itemName: string;
     itemId: string;
@@ -134,7 +136,7 @@ export class VirtualDrive {
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
-    path?: string;
+    path: string;
   }) {
     const creationTimeStr = this.convertToWindowsTime(creationTime).toString();
     const lastWriteTimeStr = this.convertToWindowsTime(lastWriteTime).toString();
@@ -167,90 +169,74 @@ export class VirtualDrive {
     return DependencyInjectionAddonProvider.get().getRegisteredSyncRoots();
   }
 
-  unregisterSyncRoot() {
-    return this.addon.unregisterSyncRoot({ providerId: this.providerId });
-  }
-
-  static unRegisterSyncRootByProviderId({ providerId }: { providerId: string }) {
+  static unregisterSyncRoot({ providerId }: { providerId: string }) {
     return DependencyInjectionAddonProvider.get().unregisterSyncRoot({ providerId });
   }
 
   createFileByPath({
-    relativePath,
+    itemPath,
     itemId,
-    size = 0,
-    creationTime = Date.now(),
-    lastWriteTime = Date.now(),
+    size,
+    creationTime,
+    lastWriteTime,
   }: {
-    relativePath: string;
-    itemId: string;
-    size?: number;
-    creationTime?: number;
-    lastWriteTime?: number;
+    itemPath: RelativePath;
+    itemId: FilePlaceholderId;
+    size: number;
+    creationTime: number;
+    lastWriteTime: number;
   }) {
-    const fullPath = path.join(this.syncRootPath, relativePath);
-    const splitPath = relativePath.split('/').filter((p) => p);
-    const directoryPath = path.resolve(this.syncRootPath);
-    let currentPath = directoryPath;
-    try {
-      for (let i = 0; i < splitPath.length - 1; i++) {
-        // everything except last element
-        const dir = splitPath[i];
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Creating file placeholder', itemPath });
 
-        currentPath = path.join(currentPath, dir);
-      }
-      // last element is the file
+    const path = this.fixPath(itemPath);
+    const parentPath = dirname(path);
+
+    try {
       this.createPlaceholderFile({
-        fileName: path.basename(fullPath),
+        fileName: basename(itemPath),
         fileId: itemId,
         fileSize: size,
         fileAttributes: PLACEHOLDER_ATTRIBUTES.FILE_ATTRIBUTE_NORMAL,
         creationTime,
         lastWriteTime,
         lastAccessTime: Date.now(),
-        basePath: currentPath,
+        basePath: parentPath,
       });
-    } catch (error) {
-      logger.error({ msg: 'Error creating placeholder', error });
+    } catch (exc) {
+      logger.error({ msg: 'Error creating file placeholder', path, exc });
     }
   }
 
   createFolderByPath({
-    relativePath,
+    itemPath,
     itemId,
-    size = 0,
-    creationTime = Date.now(),
-    lastWriteTime = Date.now(),
+    creationTime,
+    lastWriteTime,
   }: {
-    relativePath: string;
-    itemId: string;
-    size?: number;
-    creationTime?: number;
-    lastWriteTime?: number;
+    itemPath: RelativePath;
+    itemId: FolderPlaceholderId;
+    creationTime: number;
+    lastWriteTime: number;
   }) {
-    const splitPath = relativePath.split('/').filter((p) => p);
-    const directoryPath = path.resolve(this.syncRootPath);
-    let currentPath = directoryPath;
-    // solo crear el ultimo directorio
-    for (let i = 0; i < splitPath.length; i++) {
-      const dir = splitPath[i];
-      const last = i === splitPath.length - 1;
-      if (last) {
-        if (fs.existsSync(currentPath)) {
-          this.createPlaceholderDirectory({
-            itemName: dir,
-            itemId,
-            isDirectory: true,
-            itemSize: size,
-            folderAttributes: PLACEHOLDER_ATTRIBUTES.FOLDER_ATTRIBUTE_READONLY,
-            creationTime,
-            lastWriteTime,
-            lastAccessTime: Date.now(),
-            path: currentPath,
-          });
-        }
-      }
-      currentPath = path.join(currentPath, dir);
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Creating folder placeholder', itemPath });
+
+    const path = this.fixPath(itemPath);
+    const parentPath = dirname(path);
+
+    try {
+      this.createPlaceholderDirectory({
+        itemName: basename(itemPath),
+        itemId,
+        isDirectory: true,
+        itemSize: 0,
+        folderAttributes: PLACEHOLDER_ATTRIBUTES.FOLDER_ATTRIBUTE_READONLY,
+        creationTime,
+        lastWriteTime,
+        lastAccessTime: Date.now(),
+        path: parentPath,
+      });
+    } catch (exc) {
+      logger.error({ msg: 'Error creating folder placeholder', path, exc });
     }
   }
 

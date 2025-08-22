@@ -1,43 +1,30 @@
-import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { logger } from '@/apps/shared/logger/logger';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { rename } from 'fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
 export class FolderPlaceholderUpdater {
-  constructor(
-    private readonly virtualDrive: VirtualDrive,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-  ) {}
+  constructor(private readonly virtualDrive: VirtualDrive) {}
 
-  async update({ remote, folders }: { remote: Folder; folders: InMemoryFolders }) {
+  async update({ remote, folders }: { remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
     const { path } = remote;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
       if (!isValid) return;
 
-      const remotePath = this.relativePathToAbsoluteConverter.run(path) as AbsolutePath;
+      const remotePath = remote.absolutePath;
       const localPath = folders[remote.uuid as FolderUuid];
 
       if (!localPath) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
-          msg: 'Creating folder placeholder',
-          path,
-        });
-
         this.virtualDrive.createFolderByPath({
-          relativePath: path,
-          itemId: remote.placeholderId,
-          size: 0,
-          creationTime: remote.createdAt.getTime(),
-          lastWriteTime: remote.updatedAt.getTime(),
+          itemPath: path,
+          itemId: `FOLDER:${remote.uuid}`,
+          creationTime: new Date(remote.createdAt).getTime(),
+          lastWriteTime: new Date(remote.updatedAt).getTime(),
         });
 
         return;
@@ -63,7 +50,7 @@ export class FolderPlaceholderUpdater {
     }
   }
 
-  async run({ remotes, folders }: { remotes: Folder[]; folders: InMemoryFolders }) {
+  async run({ remotes, folders }: { remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
     await Promise.all(
       remotes.map(async (remote) => {
         if (remote.path === '/') return;

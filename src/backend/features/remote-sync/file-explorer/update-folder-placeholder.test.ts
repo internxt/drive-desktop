@@ -1,7 +1,6 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { FolderPlaceholderUpdater } from './update-folder-placeholder';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as validateWindowsName from '@/context/virtual-drive/items/validate-windows-name';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -14,27 +13,27 @@ vi.mock(import('fs/promises'));
 
 describe('update-folder-placeholder', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
-  const relativePathToAbsoluteConverter = mockDeep<RelativePathToAbsoluteConverter>();
-  const service = new FolderPlaceholderUpdater(virtualDrive, relativePathToAbsoluteConverter);
+  const service = new FolderPlaceholderUpdater(virtualDrive);
 
   const validateWindowsNameMock = partialSpyOn(validateWindowsName, 'validateWindowsName');
   const hasToBeMovedMock = partialSpyOn(hasToBeMoved, 'hasToBeMoved');
   const renameMock = vi.mocked(rename);
 
+  const date = '2000-01-01T00:00:00.000Z';
+  const time = new Date(date).getTime();
   let props: Parameters<typeof service.update>[0];
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
-    relativePathToAbsoluteConverter.run.mockReturnValue('remotePath' as AbsolutePath);
 
     props = mockProps<typeof service.update>({
       folders: { ['uuid' as FolderUuid]: 'localPath' as AbsolutePath },
       remote: {
         path: createRelativePath('folder1', 'folder2'),
-        uuid: 'uuid',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        placeholderId: 'FOLDER:uuid',
+        absolutePath: 'remotePath' as AbsolutePath,
+        uuid: 'uuid' as FolderUuid,
+        createdAt: date,
+        updatedAt: date,
       },
     });
   });
@@ -45,7 +44,7 @@ describe('update-folder-placeholder', () => {
     // When
     await service.run(props);
     // Then
-    expect(relativePathToAbsoluteConverter.run).toBeCalledTimes(0);
+    expect(validateWindowsNameMock).toBeCalledTimes(0);
   });
 
   it('should do nothing if name is invalid', async () => {
@@ -54,7 +53,7 @@ describe('update-folder-placeholder', () => {
     // When
     await service.update(props);
     // Then
-    expect(relativePathToAbsoluteConverter.run).toBeCalledTimes(0);
+    expect(hasToBeMovedMock).toBeCalledTimes(0);
   });
 
   it('should create placeholder if folder does not exist locally', async () => {
@@ -66,11 +65,10 @@ describe('update-folder-placeholder', () => {
     expect(hasToBeMovedMock).toBeCalledTimes(0);
     expect(virtualDrive.createFolderByPath).toBeCalledTimes(1);
     expect(virtualDrive.createFolderByPath).toBeCalledWith({
-      relativePath: '/folder1/folder2',
+      itemPath: '/folder1/folder2',
       itemId: 'FOLDER:uuid',
-      size: 0,
-      creationTime: props.remote.createdAt.getTime(),
-      lastWriteTime: props.remote.updatedAt.getTime(),
+      creationTime: time,
+      lastWriteTime: time,
     });
   });
 
@@ -103,7 +101,7 @@ describe('update-folder-placeholder', () => {
     // When
     await service.update(props);
     // Then
-    expect(relativePathToAbsoluteConverter.run).toBeCalledTimes(0);
+    expect(hasToBeMovedMock).toBeCalledTimes(0);
     expect(loggerMock.error).toBeCalledTimes(1);
   });
 });

@@ -610,8 +610,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get all items shared by a user */
-    get: operations['SharingController_getSharedFoldersInsideSharedFolder'];
+    /** Get all files inside a shared folder */
+    get: operations['SharingController_getFoldersInPrivateSharedFolder'];
     put?: never;
     post?: never;
     delete?: never;
@@ -627,8 +627,8 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get all items shared by a user */
-    get: operations['SharingController_getPrivateShareFiles'];
+    /** Get all folders inside a shared folder */
+    get: operations['SharingController_getFilesInPrivateSharedFolder'];
     put?: never;
     post?: never;
     delete?: never;
@@ -1774,6 +1774,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/users/avatar/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Refresh avatar token */
+    get: operations['UserController_refreshAvatarUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/users/password': {
     parameters: {
       query?: never;
@@ -1798,7 +1815,10 @@ export interface paths {
       cookie?: never;
     };
     get?: never;
-    /** Recover account */
+    /**
+     * Recover account
+     * @deprecated
+     */
     put: operations['UserController_recoverAccount'];
     /** Request account recovery */
     post: operations['UserController_requestAccountRecovery'];
@@ -1820,6 +1840,23 @@ export interface paths {
     put: operations['UserController_accountUnblock'];
     /** Request account unblock */
     post: operations['UserController_requestAccountUnblock'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/recover-account-v2': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Recover account */
+    put: operations['UserController_recoverAccountV2'];
+    post?: never;
     delete?: never;
     options?: never;
     head?: never;
@@ -1853,9 +1890,13 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get public key by email */
+    /**
+     * Get public key by email
+     * @deprecated
+     */
     get: operations['UserController_getPublicKeyByEmail'];
-    put?: never;
+    /** Retieve public key (existing users) or pre-create user and retrieve key */
+    put: operations['UserController_getOrPreCreatePublicKeyByEmail'];
     post?: never;
     delete?: never;
     options?: never;
@@ -2183,6 +2224,68 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/backup/v2/devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List user backup devices
+     * @description Retrieve all backup devices associated with the current user, along with their linked backup folders.
+     */
+    get: operations['BackupController_getDevicesAndFolders'];
+    put?: never;
+    /**
+     * Create new device with backup folder
+     * @description Register a new backup device and create a new backup folder for it.
+     */
+    post: operations['BackupController_createDeviceAndFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/v2/devices/migrate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Register device for existing backup folder
+     * @description Register a new device and link it to an existing backup folder. Primarily used for migrating existing backup folders to the new device-folder model.
+     */
+    post: operations['BackupController_createDeviceForExistingFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/v2/devices/{key}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete device and its linked folder by key */
+    delete: operations['BackupController_deleteDeviceAndFolder'];
+    options?: never;
+    head?: never;
+    /** Update device by key */
+    patch: operations['BackupController_updateDevice'];
+    trace?: never;
+  };
   '/backup/deviceAsFolder': {
     parameters: {
       query?: never;
@@ -2247,7 +2350,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get all user devices */
+    /**
+     * Get all user devices. Will not retrieve any device linked to a folder
+     * @deprecated
+     */
     get: operations['BackupController_getAllDevices'];
     put?: never;
     post?: never;
@@ -2267,7 +2373,10 @@ export interface paths {
     get?: never;
     put?: never;
     post?: never;
-    /** Delete user device */
+    /**
+     * Delete user device
+     * @deprecated
+     */
     delete: operations['BackupController_deleteDevice'];
     options?: never;
     head?: never;
@@ -2281,7 +2390,10 @@ export interface paths {
       path?: never;
       cookie?: never;
     };
-    /** Get backups by mac */
+    /**
+     * Get backups by mac
+     * @deprecated
+     */
     get: operations['BackupController_getBackupsByMac'];
     put?: never;
     post?: never;
@@ -2781,6 +2893,12 @@ export interface components {
        * @example 3005
        */
       size: number;
+      /**
+       * Format: date-time
+       * @description The last modification time of the file (optional)
+       * @example 2025-08-05T12:34:56.000Z
+       */
+      modificationTime?: string;
     };
     UpdateFileMetaDto: {
       /**
@@ -2807,12 +2925,12 @@ export interface components {
        * @description The ID of the file. Deprecated in favor of fileUuid
        * @example 12345
        */
-      fileId: number;
+      fileId?: number;
       /**
        * @description The UUID of the file
        * @example ebe586db-eb56-429f-a037-6ba712b40c3c
        */
-      fileUuid?: string;
+      fileUuid: string;
       /**
        * @description The type of the file
        * @example text
@@ -3082,6 +3200,184 @@ export interface components {
        * @example encryption_algorithm
        */
       encryptionAlgorithm: Record<string, never>;
+    };
+    NetworkCredentialsDto: {
+      /**
+       * @description Network password for the user
+       * @example user123
+       */
+      networkPass: Record<string, never>;
+      /**
+       * @description Bridge user identifier
+       * @example bridge_user_123
+       */
+      networkUser: Record<string, never>;
+    };
+    ParentFolderDto: {
+      /**
+       * @description UUID of the parent folder
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      uuid: Record<string, never> | null;
+      /**
+       * @description Plain name of the parent folder
+       * @example Documents
+       */
+      name: Record<string, never> | null;
+    };
+    SharingOwnerInfoDto: {
+      /**
+       * @description Bridge user
+       * @example user@example.com
+       */
+      bridgeUser: string;
+      /**
+       * @description User id in the network
+       * @example $2a$08$...
+       */
+      userId: string;
+      /**
+       * @description User UUID
+       * @example 5668e3bc-ae08-4c0b-b70c-efd55efe183c
+       */
+      uuid: string;
+      /**
+       * @description User first name
+       * @example John
+       */
+      name: string;
+      /**
+       * @description User last name
+       * @example Doe
+       */
+      lastname: string;
+      /**
+       * @description User avatar URL
+       * @example https://example.com/avatar.jpg
+       */
+      avatar: string | null;
+    };
+    FolderInSharedFolderDto: {
+      type: string;
+      id: number;
+      parentId: number;
+      parentUuid: string;
+      name: string;
+      parent: components['schemas']['Folder'];
+      bucket: string;
+      userId: number;
+      encryptVersion: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      uuid: string;
+      plainName: string;
+      size: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
+      removed: boolean;
+      deleted: boolean;
+      /** @description Owner of the folder */
+      user: components['schemas']['SharingOwnerInfoDto'] | null;
+    };
+    GetFoldersInSharedFolderResponseDto: {
+      /** @description Network credentials for accessing the folder */
+      credentials: components['schemas']['NetworkCredentialsDto'];
+      /**
+       * @description Plain name of the current folder
+       * @example My Shared Folder
+       */
+      name: Record<string, never>;
+      /**
+       * @description Encryption key for the shared folder
+       * @example abc123def456
+       */
+      encryptionKey: Record<string, never> | null;
+      /**
+       * @description JWT token for folder access
+       * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      token: string;
+      /**
+       * @description Storage bucket identifier
+       * @example bucket-123456
+       */
+      bucket: string;
+      /** @description Parent folder information */
+      parent: components['schemas']['ParentFolderDto'];
+      /**
+       * @description User role in the shared folder
+       * @example EDITOR
+       * @enum {string}
+       */
+      role: 'OWNER' | 'EDITOR' | 'VIEWER';
+      /** @description List of folders in the shared folder */
+      items: components['schemas']['FolderInSharedFolderDto'][];
+    };
+    FileInSharedFolderDto: {
+      id: number;
+      uuid: string;
+      fileId: string;
+      name: string;
+      type: string;
+      size: string;
+      bucket: string;
+      folderId: number;
+      folderUuid: string;
+      encryptVersion: string;
+      userId: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      plainName: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
+      /** @description Owner of the file */
+      user: components['schemas']['SharingOwnerInfoDto'] | null;
+    };
+    GetFilesInSharedFolderResponseDto: {
+      /** @description Network credentials for accessing the folder */
+      credentials: components['schemas']['NetworkCredentialsDto'];
+      /**
+       * @description Plain name of the current folder
+       * @example My Shared Folder
+       */
+      name: Record<string, never>;
+      /**
+       * @description Encryption key for the shared folder
+       * @example abc123def456
+       */
+      encryptionKey: Record<string, never> | null;
+      /**
+       * @description JWT token for folder access
+       * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+       */
+      token: string;
+      /**
+       * @description Storage bucket identifier
+       * @example bucket-123456
+       */
+      bucket: string;
+      /** @description Parent folder information */
+      parent: components['schemas']['ParentFolderDto'];
+      /**
+       * @description User role in the shared folder
+       * @example EDITOR
+       * @enum {string}
+       */
+      role: 'OWNER' | 'EDITOR' | 'VIEWER';
+      /** @description List of files in the shared folder */
+      items: components['schemas']['FileInSharedFolderDto'][];
     };
     CreateSharingDto: {
       /**
@@ -3568,6 +3864,10 @@ export interface components {
       /** @description User information */
       user: components['schemas']['RefreshTokenUserResponseDto'];
     };
+    RefreshUserAvatarDto: {
+      /** @description A new avatar URL for the given user */
+      avatar: string;
+    };
     UpdatePasswordDto: {
       /**
        * @description Current password
@@ -3620,6 +3920,62 @@ export interface components {
        */
       email: string;
     };
+    DeprecatedRecoverAccountDto: {
+      /**
+       * @description New user pass hashed
+       * @example some_hashed_pass
+       */
+      password: string;
+      /**
+       * @description Hashed password salt
+       * @example some_salt
+       */
+      salt: string;
+      /**
+       * @description User mnemonic encrypted with the new pass
+       * @example some_encrypted_mnemonic
+       */
+      mnemonic: string;
+      /**
+       * @description User's private key encrypted with the user's plain password
+       * @example encrypted private key
+       */
+      privateKey: string;
+    };
+    PrivateKeysDto: {
+      ecc: string;
+      kyber: string;
+    };
+    RecoverAccountDto: {
+      /**
+       * @description New user pass hashed
+       * @example some_hashed_pass
+       */
+      password: string;
+      /**
+       * @description User uuid
+       * @example 123e4567-e89b-12d3-a456-426614174000
+       */
+      uuid: string;
+      /**
+       * @description Hashed password salt
+       * @example some_salt
+       */
+      salt: string;
+      /**
+       * @description User mnemonic encrypted with the new pass
+       * @example some_encrypted_mnemonic
+       */
+      mnemonic: string;
+      /**
+       * @description User's private keys encrypted with the user's plain password
+       * @example {
+       *       "ecc": "encrypted private key",
+       *       "kyber": "encrypted kyber private key"
+       *     }
+       */
+      privateKeys: components['schemas']['PrivateKeysDto'];
+    };
     EncryptedMnemonicDto: {
       /**
        * @description Mnemonic encrypted with ECC method
@@ -3669,6 +4025,11 @@ export interface components {
     };
     LegacyRecoverAccountDto: {
       /**
+       * @description Base64 encoded temporary auth token
+       * @example temporary_auth_token
+       */
+      token: string;
+      /**
        * @description New user pass hashed
        * @example hashed_password
        */
@@ -3687,6 +4048,18 @@ export interface components {
       asymmetricEncryptedMnemonic: components['schemas']['EncryptedMnemonicDto'];
       /** @description User ecc and kyber keys */
       keys: components['schemas']['NewGeneratedKeysDto'];
+    };
+    GetOrCreatePublicKeysDto: {
+      /**
+       * @description Public ecc key
+       * @example
+       */
+      publicKey: string;
+      /**
+       * @description Public kyber key
+       * @example
+       */
+      publicKyberKey: string;
     };
     CreateAttemptChangeEmailDto: {
       /**
@@ -3777,10 +4150,9 @@ export interface components {
     FuzzySearchResults: {
       data: components['schemas']['FuzzySearchResult'][];
     };
-    CreateDeviceAsFolderDto: {
-      deviceName: string;
-    };
-    DeviceDto: {
+    /** @enum {string} */
+    DevicePlatform: 'win32' | 'darwin' | 'linux' | 'android';
+    DeviceAsFolder: {
       type: string;
       id: number;
       parentId: number;
@@ -3809,9 +4181,104 @@ export interface components {
       /** Format: date-time */
       lastBackupAt: string;
     };
-    ItemToTrash: {
+    DeviceDto: {
+      /** @example 7 */
+      id: number;
       /**
-       * @description Id of file or folder
+       * @description MAC address of the device
+       * @example null
+       */
+      mac: string | null;
+      /** @example 1 */
+      userId: number;
+      /**
+       * @description Device platform
+       * @example linux
+       */
+      platform: components['schemas']['DevicePlatform'];
+      /**
+       * @description Unique installation identifier
+       * @example DESKTOP-ABC123ddd3
+       */
+      key: string;
+      /**
+       * @description Device hostname
+       * @example UNKNOWN_HOSTNAME
+       */
+      hostname: string;
+      /** @example 077e1ec6-9272-4719-ae1a-2ae35883a09e */
+      folderUuid: string;
+      /**
+       * Format: date-time
+       * @example 2025-07-10T20:14:04.784Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @example 2025-07-10T20:14:04.784Z
+       */
+      updatedAt: string;
+      folder: components['schemas']['DeviceAsFolder'] | null;
+    };
+    CreateDeviceAndFolderDto: {
+      /**
+       * @description OS Installation unique identifier
+       * @example 81CBB42C-73A0-9660-6C7D-2FE94627F3A3
+       */
+      key?: string;
+      /**
+       * @description Device hostname
+       * @example DESKTOP-ABC123
+       */
+      hostname?: string;
+      /**
+       * @description Device platform
+       * @example linux
+       */
+      platform: components['schemas']['DevicePlatform'];
+      /**
+       * @description Name of the device and folder to be created, this should be a readable name
+       * @example Johns mac
+       */
+      name: string;
+    };
+    CreateDeviceAndAttachFolderDto: {
+      /**
+       * @description OS Installation unique identifier
+       * @example 81CBB42C-73A0-9660-6C7D-2FE94627F3A3
+       */
+      key?: string;
+      /**
+       * @description Device hostname
+       * @example DESKTOP-ABC123
+       */
+      hostname?: string;
+      /**
+       * @description Device platform
+       * @example linux
+       */
+      platform: components['schemas']['DevicePlatform'];
+      /**
+       * @description Name of the device to be created, this should be a readable name. Use the already existent folder name if you are attaching a folder
+       * @example Johns mac
+       */
+      name: string;
+      /**
+       * @description Uuuid of the folder to attach to the device
+       * @example 0c303e45-3f5f-4224-9886-9c5afdea0e7e
+       */
+      folderUuid: string;
+    };
+    UpdateDeviceAndFolderDto: {
+      name: string;
+    };
+    CreateDeviceAsFolderDto: {
+      deviceName: string;
+    };
+    ItemToTrashDto: {
+      /**
+       * @deprecated
+       * @description Id of file or folder (deprecated in favor of uuid)
        * @example 4
        */
       id: string | null;
@@ -3823,16 +4290,36 @@ export interface components {
       /**
        * @description Type of item: file or folder
        * @example file
+       * @enum {string}
        */
-      type: string;
+      type: 'file' | 'folder';
     };
     MoveItemsToTrashDto: {
       /** @description Array of items with files and folders ids */
-      items: components['schemas']['ItemToTrash'][];
+      items: components['schemas']['ItemToTrashDto'][];
+    };
+    DeleteItemDto: {
+      /**
+       * @deprecated
+       * @description Id of file or folder (deprecated in favor of uuid)
+       * @example 4
+       */
+      id: string | null;
+      /**
+       * @description Uuid of file or folder
+       * @example 79a88429-b45a-4ae7-90f1-c351b6882670
+       */
+      uuid: string;
+      /**
+       * @description Type of item: file or folder
+       * @example file
+       * @enum {string}
+       */
+      type: 'file' | 'folder';
     };
     DeleteItemsDto: {
       /** @description Array of items with files and folders ids */
-      items: string[];
+      items: components['schemas']['DeleteItemDto'][];
     };
     LoginDto: {
       /**
@@ -5115,50 +5602,53 @@ export interface operations {
       };
     };
   };
-  SharingController_getSharedFoldersInsideSharedFolder: {
+  SharingController_getFoldersInPrivateSharedFolder: {
     parameters: {
       query: {
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
         /** @description Order by */
         orderBy?: string;
         /** @description Token that authorizes the access to the shared content */
         token: string;
-        /** @description Number of items per page ( default 50 ) */
-        perPage?: number;
-        /** @description Number of page to take by ( default 0 ) */
-        page?: number;
       };
       header?: never;
       path: {
-        /** @description Folder id of the shared folder */
+        /** @description Folder uuid of the shared folder */
         sharedFolderId: string;
       };
       cookie?: never;
     };
     requestBody?: never;
     responses: {
+      /** @description Get all folders inside a shared folder */
       200: {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['GetFoldersInSharedFolderResponseDto'];
+        };
       };
     };
   };
-  SharingController_getPrivateShareFiles: {
+  SharingController_getFilesInPrivateSharedFolder: {
     parameters: {
       query: {
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
         /** @description Order by */
         orderBy?: string;
         /** @description Token that authorizes the access to the shared content */
         token: string;
-        /** @description Number of items per page ( default 50 ) */
-        perPage?: number;
-        /** @description Number of page to take by ( default 0 ) */
-        page?: number;
       };
       header?: never;
       path: {
-        /** @description Folder id of the shared folder */
+        /** @description Folder uuid of the shared folder */
         sharedFolderId: string;
       };
       cookie?: never;
@@ -5170,7 +5660,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          'application/json': components['schemas']['GetFilesInSharedFolderResponseDto'];
+        };
       };
     };
   };
@@ -6929,6 +7421,26 @@ export interface operations {
       };
     };
   };
+  UserController_refreshAvatarUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a new avatar URL */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RefreshUserAvatarDto'];
+        };
+      };
+    };
+  };
   UserController_updatePassword: {
     parameters: {
       query?: never;
@@ -6960,7 +7472,11 @@ export interface operations {
       path?: never;
       cookie?: never;
     };
-    requestBody?: never;
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeprecatedRecoverAccountDto'];
+      };
+    };
     responses: {
       200: {
         headers: {
@@ -7029,11 +7545,33 @@ export interface operations {
       };
     };
   };
-  UserController_requestLegacyAccountRecovery: {
+  UserController_recoverAccountV2: {
     parameters: {
       query: {
         token: string;
+        reset: string;
       };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_requestLegacyAccountRecovery: {
+    parameters: {
+      query?: never;
       header?: never;
       path?: never;
       cookie?: never;
@@ -7068,6 +7606,28 @@ export interface operations {
           [name: string]: unknown;
         };
         content?: never;
+      };
+    };
+  };
+  UserController_getOrPreCreatePublicKeyByEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        email: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a public key */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetOrCreatePublicKeysDto'];
+        };
       };
     };
   };
@@ -7466,6 +8026,129 @@ export interface operations {
       };
     };
   };
+  BackupController_getDevicesAndFolders: {
+    parameters: {
+      query: {
+        /** @description Device platform */
+        platform?: components['schemas']['DevicePlatform'];
+        /** @description OS Installation unique identifier */
+        key?: string;
+        /** @description Device hostname */
+        hostname?: string;
+        limit: number;
+        offset: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of devices. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'][];
+        };
+      };
+    };
+  };
+  BackupController_createDeviceAndFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAndFolderDto'];
+      };
+    };
+    responses: {
+      /** @description The newly created device */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
+  BackupController_createDeviceForExistingFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAndAttachFolderDto'];
+      };
+    };
+    responses: {
+      /** @description The created device */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
+  BackupController_deleteDeviceAndFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        key: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successfully deleted the device and its linked folder. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_updateDevice: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        key: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDeviceAndFolderDto'];
+      };
+    };
+    responses: {
+      /** @description The updated device */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
   BackupController_getDevicesAsFolder: {
     parameters: {
       query?: never;
@@ -7480,7 +8163,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeviceDto'][];
+          'application/json': components['schemas']['DeviceAsFolder'][];
         };
       };
     };
@@ -7503,7 +8186,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeviceDto'];
+          'application/json': components['schemas']['DeviceAsFolder'];
         };
       };
     };
@@ -7524,7 +8207,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeviceDto'];
+          'application/json': components['schemas']['DeviceAsFolder'];
         };
       };
     };
@@ -7568,7 +8251,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeviceDto'];
+          'application/json': components['schemas']['DeviceAsFolder'];
         };
       };
     };
@@ -7589,7 +8272,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeviceDto'];
+          'application/json': components['schemas']['DeviceAsFolder'];
         };
       };
     };

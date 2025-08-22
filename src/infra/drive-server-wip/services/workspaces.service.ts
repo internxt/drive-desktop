@@ -4,6 +4,7 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getFilesByFolder } from './workspaces/get-files-by-folder';
 import { getFoldersByFolder } from './workspaces/get-folders-by-folder';
+import { parseFileDto } from '../out/dto';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
@@ -130,7 +131,7 @@ async function createFileInWorkspace(context: { workspaceId: string; path: strin
       body: context.body,
     });
 
-  return await clientWrapper({
+  const res = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -142,6 +143,12 @@ async function createFileInWorkspace(context: { workspaceId: string; path: strin
       },
     },
   });
+
+  if (res.data) {
+    return { data: parseFileDto({ fileDto: res.data }) };
+  } else {
+    return { error: res.error };
+  }
 }
 
 async function createFolderInWorkspace(context: { path: string; workspaceId: string; body: CreateFolderInWorkspaceBody }) {

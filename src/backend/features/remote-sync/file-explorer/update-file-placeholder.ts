@@ -1,49 +1,37 @@
-import { RelativePathToAbsoluteConverter } from '@/context/virtual-drive/shared/application/RelativePathToAbsoluteConverter';
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { logger } from '@/apps/shared/logger/logger';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { ExtendedDriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { rename } from 'fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { File } from '@/context/virtual-drive/files/domain/File';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 
 export class FilePlaceholderUpdater {
-  constructor(
-    private readonly virtualDrive: VirtualDrive,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-  ) {}
+  constructor(private readonly virtualDrive: VirtualDrive) {}
 
-  async update({ remote, files }: { remote: File; files: InMemoryFiles }) {
+  async update({ remote, files }: { remote: ExtendedDriveFile; files: InMemoryFiles }) {
     const { path } = remote;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
       if (!isValid) return;
 
-      const remotePath = this.relativePathToAbsoluteConverter.run(path) as AbsolutePath;
+      const remotePath = remote.absolutePath;
       const localPath = files[remote.uuid as FileUuid];
 
       if (!localPath) {
-        logger.debug({
-          tag: 'SYNC-ENGINE',
-          msg: 'Creating file placeholder',
-          path,
-        });
-
         this.virtualDrive.createFileByPath({
-          relativePath: path,
-          itemId: remote.placeholderId,
+          itemPath: path,
+          itemId: `FILE:${remote.uuid}`,
           size: remote.size,
-          creationTime: remote.createdAt.getTime(),
-          lastWriteTime: remote.updatedAt.getTime(),
+          creationTime: new Date(remote.createdAt).getTime(),
+          lastWriteTime: new Date(remote.updatedAt).getTime(),
         });
 
         return;
       }
 
-      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath })) {
+      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath: localPath.path })) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Moving file placeholder',
@@ -51,7 +39,7 @@ export class FilePlaceholderUpdater {
           localPath,
         });
 
-        await rename(localPath, remotePath);
+        await rename(localPath.path, remotePath);
       }
     } catch (exc) {
       logger.error({
@@ -63,7 +51,7 @@ export class FilePlaceholderUpdater {
     }
   }
 
-  async run({ remotes, files }: { remotes: File[]; files: InMemoryFiles }) {
+  async run({ remotes, files }: { remotes: ExtendedDriveFile[]; files: InMemoryFiles }) {
     const promises = remotes.map((remote) => this.update({ remote, files }));
     await Promise.all(promises);
   }

@@ -3,7 +3,7 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
-import { getConfig } from './config';
+import { getConfig, SyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
@@ -23,7 +23,7 @@ export class BindingsManager {
     this.controllers = buildControllers(this.container);
   }
 
-  async start() {
+  async start({ ctx }: { ctx: SyncContext }) {
     const callbacks: Callbacks = {
       fetchDataCallback: async (filePlaceholderId, callback) => {
         await fetchData({
@@ -47,8 +47,6 @@ export class BindingsManager {
 
     this.container.virtualDrive.connectSyncRoot({ callbacks });
 
-    void addPendingItems({ controllers: this.controllers });
-
     /**
      * Jonathan Arce v2.5.1
      * The goal is to create/update/delete placeholders once the sync engine process spawns,
@@ -57,10 +55,18 @@ export class BindingsManager {
      * and we have some placeholders pending from being created/updated/deleted
      */
     await trackRefreshItemPlaceholders({ container: this.container });
-    setInterval(async () => {
-      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Scheduled refreshing item placeholders', workspaceId: getConfig().workspaceId });
-      await trackRefreshItemPlaceholders({ container: this.container });
-    }, 60 * 1000);
+
+    /**
+     * v2.5.7 Daniel Jiménez
+     * If the cloud provider was not registered before it means that all items that
+     * were in the root folder have their placeholders gone, so we need to refresh first
+     * all item placeholders and the execute this function.
+     */
+    void addPendingItems({
+      ctx,
+      controllers: this.controllers,
+      fileContentsUploader: this.container.contentsUploader,
+    });
   }
 
   watch() {
@@ -70,7 +76,6 @@ export class BindingsManager {
         addController: this.controllers.addFile,
         updateContentsId: async ({ stats, path, uuid }) =>
           await updateContentsId({
-            virtualDrive: this.container.virtualDrive,
             stats,
             path,
             uuid,

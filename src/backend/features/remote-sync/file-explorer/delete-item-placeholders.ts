@@ -1,9 +1,9 @@
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { File } from '@/context/virtual-drive/files/domain/File';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
 import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 
-type Props = { remotes: File[]; type: 'file' } | { remotes: Folder[]; type: 'folder' };
+type Props = { remotes: ExtendedDriveFile[]; type: 'file' } | { remotes: ExtendedDriveFolder[]; type: 'folder' };
 
 export function deleteItemPlaceholders({ remotes, type }: Props) {
   for (const remote of remotes) {

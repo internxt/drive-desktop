@@ -2,7 +2,6 @@ import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
 import { Service } from 'diod';
-import { client } from '../../../../apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { basename } from 'path';
@@ -18,28 +17,43 @@ type TProps = {
 export class HttpRemoteFileSystem {
   constructor(
     private readonly bucket: string,
-    private readonly workspaceId?: string | null,
+    private readonly workspaceId: string | undefined,
   ) {}
+
+  static create(offline: {
+    bucket: string;
+    contentsId: string;
+    folderUuid: string;
+    path: string;
+    size: number;
+    workspaceId: string | undefined;
+  }) {
+    const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
+
+    const body = {
+      bucket: offline.bucket,
+      fileId: offline.contentsId,
+      encryptVersion: EncryptionVersion.Aes03,
+      folderUuid: offline.folderUuid,
+      plainName: name,
+      size: offline.size,
+      type: extension,
+    };
+
+    return offline.workspaceId
+      ? driveServerWip.workspaces.createFileInWorkspace({ body, workspaceId: offline.workspaceId, path: offline.path })
+      : driveServerWip.files.createFile({ body, path: offline.path });
+  }
 
   async persist(offline: { contentsId: string; folderUuid: string; path: string; size: number }) {
     try {
-      const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
-
-      const body = {
+      const { data, error } = await HttpRemoteFileSystem.create({
+        ...offline,
         bucket: this.bucket,
-        fileId: offline.contentsId,
-        encryptVersion: EncryptionVersion.Aes03,
-        folderUuid: offline.folderUuid,
-        plainName: name,
-        size: offline.size,
-        type: extension,
-      };
+        workspaceId: this.workspaceId,
+      });
 
-      const { data, error } = this.workspaceId
-        ? await driveServerWip.workspaces.createFileInWorkspace({ body, workspaceId: this.workspaceId, path: offline.path })
-        : await driveServerWip.files.createFile({ body, path: offline.path });
-
-      if (!data) throw error;
+      if (error) throw error;
 
       return data;
     } catch (error) {
@@ -65,13 +79,8 @@ export class HttpRemoteFileSystem {
   }
 
   async getFileByPath(filePath: string) {
-    const response = await client.GET('/files/meta', {
-      params: {
-        query: {
-          path: filePath,
-        },
-      },
-    });
+    const response = await driveServerWip.files.getByPath({ path: filePath });
+
     if (!response.data) {
       logger.error({
         msg: 'Error getting file by path',

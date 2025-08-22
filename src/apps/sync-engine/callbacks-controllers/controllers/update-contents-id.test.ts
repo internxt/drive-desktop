@@ -2,17 +2,17 @@ import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { updateContentsId } from './update-contents-id';
 import { mockDeep } from 'vitest-mock-extended';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
+import * as updateFileStatus from '@/backend/features/local-sync/placeholders/update-file-status';
 
 describe('update-contents-id', () => {
   const replaceFileSpy = partialSpyOn(driveServerWip.files, 'replaceFile');
+  const updateFileStatusMock = partialSpyOn(updateFileStatus, 'updateFileStatus');
 
-  const virtualDrive = mockDeep<VirtualDrive>();
   const fileContentsUploader = mockDeep<ContentsUploader>();
   const path = createRelativePath('folder', 'file.txt');
   const uuid = 'uuid';
@@ -22,11 +22,10 @@ describe('update-contents-id', () => {
   beforeEach(() => {
     fileContentsUploader.run.mockResolvedValue({ id: 'newContentsId' as ContentsId, size: 1 });
     props = mockProps<typeof updateContentsId>({
-      virtualDrive,
       fileContentsUploader,
       path,
       uuid,
-      stats: { size: 1024 },
+      stats: { size: 1024, mtime: new Date('2025-08-20T00:00:00.000Z') },
     });
   });
 
@@ -64,7 +63,13 @@ describe('update-contents-id', () => {
     // When
     await updateContentsId(props);
     // Then
-    expect(replaceFileSpy).toBeCalledWith({ uuid, newContentId: 'newContentsId', newSize: 1 });
+    expect(replaceFileSpy).toBeCalledWith({
+      uuid,
+      newContentId: 'newContentsId',
+      newSize: 1,
+      modificationTime: '2025-08-20T00:00:00.000Z',
+    });
+    expect(updateFileStatusMock).toBeCalledWith({ path });
     expect(loggerMock.error).toBeCalledTimes(0);
   });
 });

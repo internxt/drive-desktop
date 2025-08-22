@@ -50,7 +50,7 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-export async function spawnDefaultSyncEngineWorker({ context }: { context: AuthContext }) {
+export function spawnDefaultSyncEngineWorker({ context }: { context: AuthContext }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
@@ -71,7 +71,7 @@ export async function spawnDefaultSyncEngineWorker({ context }: { context: AuthC
     workspaceToken: '',
   };
 
-  await spawnSyncEngineWorker({ context: syncContext });
+  void spawnSyncEngineWorker({ context: syncContext });
 
   return { providerId };
 }

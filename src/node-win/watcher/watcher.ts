@@ -11,6 +11,7 @@ import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import { Stats } from 'fs';
 import { debounceOnRaw } from './events/debounce-on-raw';
+import { onAll } from './events/on-all.service';
 
 export type TWatcherCallbacks = {
   addController: AddController;
@@ -42,8 +43,15 @@ export class Watcher {
     try {
       this.chokidar = watch(this.syncRootPath, this.options);
       this.chokidar
+        .on('all', (event, path) => onAll({ event, path }))
+        /**
+         * v2.5.7 Daniel Jiménez
+         * add events are triggered when:
+         * - we create an item locally.
+         * - we move an item locally or when we move it using sync by checkpoint.
+         */
         .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ self: this, absolutePath, stats: stats! }))
-        .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ self: this, absolutePath, stats: stats! }))
+        .on('addDir', (absolutePath: AbsolutePath) => onAddDir({ self: this, absolutePath }))
         /**
          * v2.5.6 Daniel Jiménez
          * unlink events are triggered when:

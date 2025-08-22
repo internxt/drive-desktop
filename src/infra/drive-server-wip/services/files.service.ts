@@ -4,10 +4,12 @@ import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
 import { createFile } from './create-file.service';
+import { getByPath } from './files/get-by-path';
 
 export const files = {
   getFiles,
   getByUuid,
+  getByPath,
   createFile,
   moveFile,
   renameFile,
@@ -94,14 +96,18 @@ async function renameFile(context: { uuid: string; name: string; extension: stri
   });
 }
 
-async function replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
+async function replaceFile(context: { uuid: string; newContentId: string; newSize: number; modificationTime: string }) {
   const method = 'PUT';
   const endpoint = '/files/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PUT(endpoint, {
-      body: { fileId: context.newContentId, size: context.newSize },
+      body: {
+        fileId: context.newContentId,
+        size: context.newSize,
+        modificationTime: context.modificationTime,
+      },
       params: { path: { uuid: context.uuid } },
     });
 

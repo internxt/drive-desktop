@@ -18,7 +18,7 @@ export async function getByUuid(context: { uuid: FileUuid }) {
     promiseFn,
     key,
     loggerBody: {
-      msg: 'Get file by uuid',
+      msg: 'Get file by uuid request',
       context,
       attributes: {
         method,

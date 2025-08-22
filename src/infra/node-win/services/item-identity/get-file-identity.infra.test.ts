@@ -31,7 +31,7 @@ describe('get-file-identity', () => {
 
   afterAll(() => {
     virtualDrive.disconnectSyncRoot();
-    VirtualDrive.unRegisterSyncRootByProviderId({ providerId });
+    VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
   it('If get file identity of a placeholder file, then return the placeholder id', async () => {
