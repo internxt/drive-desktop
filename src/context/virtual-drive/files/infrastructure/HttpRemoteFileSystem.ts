@@ -6,12 +6,8 @@ import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { basename } from 'path';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
-
-type TProps = {
-  plainName: string;
-  parentUuid: string;
-  path: string;
-};
+import VirtualDrive from '@/node-win/virtual-drive';
+import { restoreParentFolder } from './restore-parent-folder';
 
 @Service()
 export class HttpRemoteFileSystem {
@@ -45,7 +41,7 @@ export class HttpRemoteFileSystem {
       : driveServerWip.files.createFile({ body, path: offline.path });
   }
 
-  async persist(offline: { contentsId: string; folderUuid: string; path: string; size: number }) {
+  async persist(offline: { contentsId: string; folderUuid: string; path: string; size: number; drive: VirtualDrive }) {
     try {
       const { data, error } = await HttpRemoteFileSystem.create({
         ...offline,
@@ -53,7 +49,12 @@ export class HttpRemoteFileSystem {
         workspaceId: this.workspaceId,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'FOLDER_NOT_FOUND') {
+          return await restoreParentFolder({ offline, bucket: this.bucket, workspaceId: this.workspaceId });
+        }
+        throw error;
+      }
 
       return data;
     } catch (error) {
@@ -136,45 +137,5 @@ export class HttpRemoteFileSystem {
     });
 
     return persistedFile;
-  }
-
-  async existParentFolder(offline: TProps) {
-    const { data } = await driveServerWip.folders.existsFolder({
-      parentUuid: offline.parentUuid,
-      basename: offline.plainName,
-    });
-
-    if (!data) return null;
-
-    return data.existentFolders[0];
-  }
-
-  async restoreAndRenameParentFolder({
-    uuid,
-    parentUuid,
-    name,
-    workspaceToken,
-  }: {
-    uuid: string;
-    parentUuid: string;
-    name: string;
-    workspaceToken: string;
-  }) {
-    const [{ error: moveError }, { error: renameError }] = await Promise.all([
-      driveServerWip.folders.moveFolder({
-        parentUuid,
-        workspaceToken,
-        uuid,
-      }),
-      driveServerWip.folders.renameFolder({
-        name,
-        workspaceToken,
-        uuid,
-      }),
-    ]);
-
-    if (moveError || renameError) {
-      throw logger.error({ msg: 'Error restoring parent folder', moveError, renameError });
-    }
   }
 }
