@@ -1,5 +1,4 @@
 import { ValueObject } from '../../../shared/domain/ValueObject';
-import { FileError } from '../../files/domain/FileError';
 
 export class BucketEntry extends ValueObject<number> {
   static readonly MAX_SIZE = 20 * 1024 * 1024 * 1024;
@@ -11,7 +10,7 @@ export class BucketEntry extends ValueObject<number> {
 
   private ensureIsValid(value: number) {
     if (value > BucketEntry.MAX_SIZE) {
-      throw new FileError({ code: 'FILE_SIZE_TOO_BIG', value });
+      throw new Error(`File size is too big: ${value}`);
     }
 
     if (value < 0) {

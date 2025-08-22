@@ -40,16 +40,16 @@ export async function loadInMemoryPaths() {
     if (stats) {
       if (stats.isDirectory()) {
         const { data: uuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
-        if (uuid) folders[uuid] = absolutePath;
+        if (uuid) {
+          folders[uuid] = absolutePath;
+        }
       }
 
       if (stats.isFile()) {
         const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
-        if (uuid)
-          files[uuid] = {
-            stats,
-            path: absolutePath,
-          };
+        if (uuid) {
+          files[uuid] = { stats, path: absolutePath };
+        }
       }
     }
   }

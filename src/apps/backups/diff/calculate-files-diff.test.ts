@@ -1,7 +1,5 @@
 import { calculateFilesDiff } from './calculate-files-diff';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FileMother } from 'tests/context/virtual-drive/files/domain/FileMother';
-import { FileStatuses } from '@/context/virtual-drive/files/domain/FileStatus';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
 
@@ -24,15 +22,10 @@ describe('calculate-files-diff', () => {
     },
     remote: {
       files: {
-        ['/file1' as RelativePath]: FileMother.fromPartial({ path: '/file1' as RelativePath }),
-        ['/file3' as RelativePath]: FileMother.fromPartial({ path: '/file3' as RelativePath }),
-        ['/file4' as RelativePath]: FileMother.fromPartial({ path: '/file4' as RelativePath, status: FileStatuses.DELETED }),
-        ['/file5' as RelativePath]: FileMother.fromPartial({ path: '/file5' as RelativePath, status: FileStatuses.TRASHED }),
-        ['/file6' as RelativePath]: FileMother.fromPartial({ path: '/file6' as RelativePath, updatedAt: new Date().toISOString() }),
-        ['/file7' as RelativePath]: FileMother.fromPartial({
-          path: '/file7' as RelativePath,
-          createdAt: new Date('2025-02-20').toISOString(),
-        }),
+        ['/file1' as RelativePath]: { path: '/file1' as RelativePath },
+        ['/file3' as RelativePath]: { path: '/file3' as RelativePath },
+        ['/file6' as RelativePath]: { path: '/file6' as RelativePath, updatedAt: new Date().toISOString() },
+        ['/file7' as RelativePath]: { path: '/file7' as RelativePath, createdAt: new Date('2025-02-20').toISOString() },
       },
       folders: {},
     },

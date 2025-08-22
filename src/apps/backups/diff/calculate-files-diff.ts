@@ -1,16 +1,14 @@
 import { LocalFile } from '../../../context/local/localFile/domain/LocalFile';
-import { RelativePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
-import { File } from '../../../context/virtual-drive/files/domain/File';
-import { FileStatuses } from '../../../context/virtual-drive/files/domain/FileStatus';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTree } from '../remote-tree/traverser';
 import { applyDangled, isDangledApplied } from './is-dangled-applied';
 import { logger } from '@/apps/shared/logger/logger';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 export type FilesDiff = {
   added: Array<LocalFile>;
-  deleted: Array<File>;
-  modified: Map<LocalFile, File>;
+  deleted: Array<ExtendedDriveFile>;
+  modified: Map<LocalFile, ExtendedDriveFile>;
   unmodified: Array<LocalFile>;
   total: number;
 };
@@ -22,9 +20,9 @@ type TProps = {
 
 export function calculateFilesDiff({ local, remote }: TProps) {
   const added: Array<LocalFile> = [];
-  const modified: Map<LocalFile, File> = new Map();
+  const modified: Map<LocalFile, ExtendedDriveFile> = new Map();
   const unmodified: Array<LocalFile> = [];
-  const deleted: Array<File> = [];
+  const deleted: Array<ExtendedDriveFile> = [];
 
   const { isApplied } = isDangledApplied();
 
@@ -36,10 +34,10 @@ export function calculateFilesDiff({ local, remote }: TProps) {
       return;
     }
 
-    const remoteModificationTime = Math.trunc(remoteFile.updatedAt.getTime() / 1000);
+    const remoteModificationTime = Math.trunc(new Date(remoteFile.updatedAt).getTime() / 1000);
     const localModificationTime = Math.trunc(local.modificationTime.getTime() / 1000);
 
-    const createdAt = remoteFile.createdAt.getTime();
+    const createdAt = new Date(remoteFile.createdAt).getTime();
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
     const endDate = new Date('2025-03-04T14:00:00.000Z').getTime();
 
@@ -64,10 +62,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
   });
 
   Object.values(remote.files).forEach((remoteFile) => {
-    // Already deleted
-    if (remoteFile.status.value !== FileStatuses.EXISTS) return;
-
-    if (!local.files[remoteFile.path as RelativePath]) {
+    if (!local.files[remoteFile.path]) {
       deleted.push(remoteFile);
     }
   });

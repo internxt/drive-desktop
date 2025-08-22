@@ -6,11 +6,9 @@ import {
   EnvironmentContentFileDownloader,
   FileDownloadEvents,
 } from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
-import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMother';
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
-import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ContentsSize } from '../domain/ContentsSize';
-import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as temporalFolderProvider from './temporalFolderProvider';
 
 describe('Contents Downloader', () => {
@@ -39,6 +37,14 @@ describe('Contents Downloader', () => {
 
   const SUT = new ContentsDownloader(factory, localWriter);
 
+  const props = mockProps<typeof SUT.run>({
+    callback: callbackFunction,
+    file: {
+      nameWithExtension: 'file.txt',
+      size: 1024,
+    },
+  });
+
   beforeEach(() => {
     temporalFolderProviderMock.mockResolvedValue('C:/temp');
   });
@@ -48,23 +54,21 @@ describe('Contents Downloader', () => {
     async (event: keyof FileDownloadEvents) => {
       factory.downloader.mockReturnValueOnce(environmentContentFileDownloader);
 
-      await SUT.run(FileMother.any() as unknown as SimpleDriveFile, callbackFunction);
+      await SUT.run(props);
 
       expect(environmentContentFileDownloader.on).toBeCalledWith(event, expect.any(Function));
     },
   );
 
   it('writes the downloaded content a local file', async () => {
-    const file = FileMother.any();
-
     factory.downloader.mockReturnValueOnce(environmentContentFileDownloader);
 
-    await SUT.run(file as unknown as SimpleDriveFile, callbackFunction);
+    await SUT.run(props);
 
     expect(localWriter.write).toBeCalledWith(
       expect.objectContaining({
-        nameWithExtension: `${file.name}.${file.type}`,
-        size: new ContentsSize(file.size),
+        nameWithExtension: 'file.txt',
+        size: new ContentsSize(1024),
       }),
     );
   });
