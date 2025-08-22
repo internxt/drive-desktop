@@ -1,5 +1,4 @@
 import { Container, Service, ContainerBuilder } from 'diod';
-import { registerFilesServices } from './virtual-drive/registerFilesServices';
 import { registerLocalFileServices } from './local/registerLocalFileServices';
 import { Backup } from '../Backups';
 import { BackupInfo } from '../BackupInfo';
@@ -14,9 +13,6 @@ export class BackupsDependencyContainerFactory {
     logger.debug({ tag: 'BACKUPS', msg: 'Shared infrastructure builder created' });
 
     try {
-      logger.debug({ tag: 'BACKUPS', msg: 'Registering file services' });
-      registerFilesServices(builder, data);
-
       logger.debug({ tag: 'BACKUPS', msg: 'Registering local file services' });
       registerLocalFileServices(builder, data);
 
