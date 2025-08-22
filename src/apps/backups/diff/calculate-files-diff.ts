@@ -35,7 +35,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
     }
 
     const remoteModificationTime = Math.trunc(new Date(remoteFile.updatedAt).getTime() / 1000);
-    const localModificationTime = Math.trunc(local.modificationTime / 1000);
+    const localModificationTime = Math.trunc(local.modificationTime.getTime() / 1000);
 
     const createdAt = new Date(remoteFile.createdAt).getTime();
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();

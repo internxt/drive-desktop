@@ -7,8 +7,15 @@ import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
+import { Stats } from 'fs';
 
-export type InMemoryFiles = Record<FileUuid, AbsolutePath>;
+export type InMemoryFiles = Record<
+  FileUuid,
+  {
+    path: AbsolutePath;
+    stats: Stats;
+  }
+>;
 export type InMemoryFolders = Record<FolderUuid, AbsolutePath>;
 
 export async function loadInMemoryPaths() {
@@ -33,12 +40,16 @@ export async function loadInMemoryPaths() {
     if (stats) {
       if (stats.isDirectory()) {
         const { data: uuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
-        if (uuid) folders[uuid] = absolutePath;
+        if (uuid) {
+          folders[uuid] = absolutePath;
+        }
       }
 
       if (stats.isFile()) {
         const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
-        if (uuid) files[uuid] = absolutePath;
+        if (uuid) {
+          files[uuid] = { stats, path: absolutePath };
+        }
       }
     }
   }

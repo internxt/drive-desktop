@@ -62,7 +62,11 @@ export class BindingsManager {
      * were in the root folder have their placeholders gone, so we need to refresh first
      * all item placeholders and the execute this function.
      */
-    void addPendingItems({ ctx, controllers: this.controllers });
+    void addPendingItems({
+      ctx,
+      controllers: this.controllers,
+      fileContentsUploader: this.container.contentsUploader,
+    });
   }
 
   watch() {

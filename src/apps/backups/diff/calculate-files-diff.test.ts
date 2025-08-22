@@ -13,10 +13,10 @@ describe('calculate-files-diff', () => {
     local: {
       root: { absolutePath: 'C:/root/' as AbsolutePath },
       files: {
-        ['/file1' as RelativePath]: { relativePath: '/file1' as RelativePath, modificationTime: 0 },
-        ['/file2' as RelativePath]: { relativePath: '/file2' as RelativePath, modificationTime: 0 },
-        ['/file6' as RelativePath]: { relativePath: '/file6' as RelativePath, modificationTime: new Date().getTime() + 1000 },
-        ['/file7' as RelativePath]: { relativePath: '/file7' as RelativePath, modificationTime: 0 },
+        ['/file1' as RelativePath]: { relativePath: '/file1' as RelativePath, modificationTime: new Date('2025-02-19T12:40:00.000Z') },
+        ['/file2' as RelativePath]: { relativePath: '/file2' as RelativePath, modificationTime: new Date('2025-05-19T12:40:00.000Z') },
+        ['/file6' as RelativePath]: { relativePath: '/file6' as RelativePath, modificationTime: new Date(Date.now() + 1000) },
+        ['/file7' as RelativePath]: { relativePath: '/file7' as RelativePath, modificationTime: new Date('2025-01-01T20:00:00.000Z') },
       },
       folders: {},
     },
