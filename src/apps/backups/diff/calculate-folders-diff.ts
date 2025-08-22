@@ -1,7 +1,6 @@
 import { RelativePath } from '../../../context/local/localFile/infrastructure/AbsolutePath';
 import { LocalFolder } from '../../../context/local/localFolder/domain/LocalFolder';
 import { Folder } from '../../../context/virtual-drive/folders/domain/Folder';
-import { FolderStatuses } from '../../../context/virtual-drive/folders/domain/FolderStatus';
 import { LocalTree } from '@/context/local/localTree/application/LocalTreeBuilder';
 import { RemoteTree } from '../remote-tree/traverser';
 
@@ -31,9 +30,6 @@ export function calculateFoldersDiff({ local, remote }: TProps) {
   });
 
   Object.values(remote.folders).forEach((folder) => {
-    // Already deleted
-    if (folder.status !== FolderStatuses.EXISTS) return;
-
     if (!local.folders[folder.path as RelativePath]) {
       deleted.push(folder);
     }

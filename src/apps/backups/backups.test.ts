@@ -58,37 +58,34 @@ describe('backups', () => {
     // Given
     // @ts-expect-error not sure why this error
     getFoldersByFolderMock.mockImplementation(({ folderUuid }) => {
-      return Promise.resolve({
-        data: (() => {
-          if (folderUuid === rootUuid) {
-            return [
-              { id: 1, uuid: unmodifiedFolderUuid, parentUuid: rootUuid, plainName: 'unmodifiedFolder', status: 'EXISTS' },
-              { id: 1, uuid: deletedFolderUuid, parentUuid: rootUuid, plainName: 'deletedFolder', status: 'EXISTS' },
-            ];
-          }
-          return [];
-        })(),
-      });
+      if (folderUuid === rootUuid) {
+        return {
+          data: [
+            { id: 1, uuid: unmodifiedFolderUuid, parentUuid: rootUuid, plainName: 'unmodifiedFolder', status: 'EXISTS' },
+            { id: 1, uuid: deletedFolderUuid, parentUuid: rootUuid, plainName: 'deletedFolder', status: 'EXISTS' },
+          ],
+        };
+      }
+
+      return { data: [] };
     });
 
     // @ts-expect-error not sure why this error
     getFilesByFolderMock.mockImplementation(({ folderUuid }) => {
-      return Promise.resolve({
-        data: () => {
-          if (folderUuid === rootUuid) {
-            return [
-              { folderUuid: rootUuid, plainName: 'unmodifiedFile', size: '7' },
-              { uuid: 'modifiedFile' as FileUuid, folderUuid: rootUuid, plainName: 'modifiedFile', size: '12' },
-            ];
-          }
+      if (folderUuid === rootUuid) {
+        return {
+          data: [
+            { folderUuid: rootUuid, plainName: 'unmodifiedFile', size: '7' },
+            { uuid: 'modifiedFile' as FileUuid, folderUuid: rootUuid, plainName: 'modifiedFile', size: '12' },
+          ],
+        };
+      }
 
-          if (folderUuid === unmodifiedFolderUuid) {
-            return [{ uuid: 'deletedFile' as FileUuid, folderUuid: unmodifiedFolderUuid, plainName: 'deleted' }];
-          }
+      if (folderUuid === unmodifiedFolderUuid) {
+        return { data: [{ uuid: 'deletedFile' as FileUuid, folderUuid: unmodifiedFolderUuid, plainName: 'deleted' }] };
+      }
 
-          return [];
-        },
-      });
+      return { data: [] };
     });
 
     fileUploader.run.mockResolvedValue({ data: 'newContentsId' as ContentsId });

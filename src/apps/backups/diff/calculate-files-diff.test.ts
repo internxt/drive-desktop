@@ -13,10 +13,10 @@ describe('calculate-files-diff', () => {
     local: {
       root: { absolutePath: 'C:/root/' as AbsolutePath },
       files: {
-        ['/file1' as RelativePath]: { relativePath: '/file1' as RelativePath, modificationTime: new Date('2025-02-19T12:40:00.000Z') },
-        ['/file2' as RelativePath]: { relativePath: '/file2' as RelativePath, modificationTime: new Date('2025-05-19T12:40:00.000Z') },
-        ['/file6' as RelativePath]: { relativePath: '/file6' as RelativePath, modificationTime: new Date(Date.now() + 1000) },
-        ['/file7' as RelativePath]: { relativePath: '/file7' as RelativePath, modificationTime: new Date('2025-01-01T20:00:00.000Z') },
+        ['/file1' as RelativePath]: { relativePath: '/file1' as RelativePath },
+        ['/file2' as RelativePath]: { relativePath: '/file2' as RelativePath },
+        ['/file6' as RelativePath]: { relativePath: '/file6' as RelativePath, size: 12 },
+        ['/file7' as RelativePath]: { relativePath: '/file7' as RelativePath },
       },
       folders: {},
     },
@@ -24,7 +24,7 @@ describe('calculate-files-diff', () => {
       files: {
         ['/file1' as RelativePath]: { path: '/file1' as RelativePath },
         ['/file3' as RelativePath]: { path: '/file3' as RelativePath },
-        ['/file6' as RelativePath]: { path: '/file6' as RelativePath, updatedAt: new Date().toISOString() },
+        ['/file6' as RelativePath]: { path: '/file6' as RelativePath, size: 10 },
         ['/file7' as RelativePath]: { path: '/file7' as RelativePath, createdAt: new Date('2025-02-20').toISOString() },
       },
       folders: {},

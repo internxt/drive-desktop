@@ -51,7 +51,7 @@ export class FileBatchUpdater {
       await driveServerWip.files.replaceFile({
         uuid: file.uuid,
         newContentId: contentsId,
-        newSize: localFile.size.value,
+        newSize: localFile.size,
         modificationTime: localFile.modificationTime.toISOString(),
       });
     } catch (exc) {

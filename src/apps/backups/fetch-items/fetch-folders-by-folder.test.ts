@@ -31,18 +31,6 @@ describe('fetch-folders-by-folder', () => {
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(0);
   });
 
-  it('Add only folders with status EXISTS', async () => {
-    // Given
-    getFoldersByFolderMock.mockResolvedValueOnce({ data: [{ status: 'EXISTS' }, { status: 'DELETED' }] });
-
-    // When
-    const { newFolders } = await fetchFoldersByFolder(props);
-
-    // Then
-    expect(newFolders).toStrictEqual([{ status: 'EXISTS' }]);
-    expect(props.allFolders).toStrictEqual([{ uuid: 'previous' }, { status: 'EXISTS' }]);
-  });
-
   it('If we fetch less than 50 folders, then do not fetch again', async () => {
     // Given
     getFoldersByFolderMock.mockResolvedValueOnce({ data: [] });

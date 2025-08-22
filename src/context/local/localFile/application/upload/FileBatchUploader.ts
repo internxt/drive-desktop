@@ -33,7 +33,7 @@ export class FileBatchUploader {
           contentsId,
           folderUuid: parent.uuid,
           path: localFile.relativePath,
-          size: localFile.size.value,
+          size: localFile.size,
           workspaceId: undefined,
         });
 

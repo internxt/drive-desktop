@@ -50,7 +50,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
       return;
     }
 
-    if (remoteFile.size !== local.size.value) {
+    if (remoteFile.size !== local.size) {
       modified.push({ local, remote: remoteFile });
       return;
     }
