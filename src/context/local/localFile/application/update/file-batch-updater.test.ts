@@ -16,7 +16,7 @@ describe('file-batch-updater', () => {
       self: { backed: 0 },
       tracker: { currentProcessed: vi.fn() },
       file: { uuid: 'uuid' as FileUuid },
-      localFile: { size: { value: 1024 }, modificationTime: new Date('2025-08-20T00:00:00.000Z') },
+      localFile: { size: 1024, modificationTime: new Date('2025-08-20T00:00:00.000Z') },
     });
   });
 

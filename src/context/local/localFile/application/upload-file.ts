@@ -14,7 +14,7 @@ export async function uploadFile({ context, localFile }: TProps) {
   const { data: contentsId, error } = await context.fileUploader.run({
     absolutePath: localFile.absolutePath,
     path: localFile.absolutePath,
-    size: localFile.size.value,
+    size: localFile.size,
     abortSignal: context.abortController.signal,
     readable,
     callbacks: getUploadCallbacks({ path: localFile.absolutePath }),

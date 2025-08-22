@@ -15,7 +15,7 @@ describe('upload-file', () => {
     context: { fileUploader: uploader, abortController: new AbortController(), addIssue: vi.fn() },
     localFile: {
       absolutePath: 'C:\\Users\\user\\backup' as AbsolutePath,
-      size: { value: 1024 },
+      size: 1024,
     },
   });
 
