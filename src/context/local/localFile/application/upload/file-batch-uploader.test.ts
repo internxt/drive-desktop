@@ -24,6 +24,7 @@ describe('file-batch-uploader', () => {
   beforeEach(() => {
     props = mockProps<typeof service.run>({
       self: { backed: 0 },
+      context: { backupsBucket: 'bucket' },
       tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: { [parentPath]: { uuid: 'parentUuid' } } },
       added: [{ relativePath: path, size: { value: 1024 } }],
