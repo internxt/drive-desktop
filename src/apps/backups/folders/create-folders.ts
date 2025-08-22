@@ -45,13 +45,6 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
        * TODO: add issue
        */
     } else {
-      logger.debug({
-        tag: 'BACKUPS',
-        msg: 'Creating folder',
-        relativePath: localFolder.relativePath,
-        parentPath,
-      });
-
       const { data } = await driveServerWip.folders.createFolder({
         path: localFolder.relativePath,
         body: {

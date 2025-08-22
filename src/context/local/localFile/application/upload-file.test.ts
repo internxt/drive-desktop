@@ -12,8 +12,7 @@ vi.mock(import('fs'));
 describe('upload-file', () => {
   const uploader = mockDeep<EnvironmentFileUploader>();
   const props = mockProps<typeof uploadFile>({
-    uploader,
-    context: { abortController: new AbortController(), addIssue: vi.fn() },
+    context: { fileUploader: uploader, abortController: new AbortController(), addIssue: vi.fn() },
     localFile: {
       absolutePath: 'C:\\Users\\user\\backup' as AbsolutePath,
       size: { value: 1024 },

@@ -8,7 +8,7 @@ import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 export type FilesDiff = {
   added: Array<LocalFile>;
   deleted: Array<ExtendedDriveFile>;
-  modified: Map<LocalFile, ExtendedDriveFile>;
+  modified: Array<{ local: LocalFile; remote: ExtendedDriveFile }>;
   unmodified: Array<LocalFile>;
   total: number;
 };
@@ -19,10 +19,10 @@ type TProps = {
 };
 
 export function calculateFilesDiff({ local, remote }: TProps) {
-  const added: Array<LocalFile> = [];
-  const modified: Map<LocalFile, ExtendedDriveFile> = new Map();
-  const unmodified: Array<LocalFile> = [];
-  const deleted: Array<ExtendedDriveFile> = [];
+  const added: FilesDiff['added'] = [];
+  const modified: FilesDiff['modified'] = [];
+  const unmodified: FilesDiff['unmodified'] = [];
+  const deleted: FilesDiff['deleted'] = [];
 
   const { isApplied } = isDangledApplied();
 
@@ -33,9 +33,6 @@ export function calculateFilesDiff({ local, remote }: TProps) {
       added.push(local);
       return;
     }
-
-    const remoteModificationTime = Math.trunc(new Date(remoteFile.updatedAt).getTime() / 1000);
-    const localModificationTime = Math.trunc(local.modificationTime.getTime() / 1000);
 
     const createdAt = new Date(remoteFile.createdAt).getTime();
     const startDate = new Date('2025-02-19T12:40:00.000Z').getTime();
@@ -49,12 +46,12 @@ export function calculateFilesDiff({ local, remote }: TProps) {
         remoteId: remoteFile.contentsId,
       });
 
-      modified.set(local, remoteFile);
+      modified.push({ local, remote: remoteFile });
       return;
     }
 
-    if (remoteModificationTime < localModificationTime) {
-      modified.set(local, remoteFile);
+    if (remoteFile.size !== local.size.value) {
+      modified.push({ local, remote: remoteFile });
       return;
     }
 
@@ -69,7 +66,7 @@ export function calculateFilesDiff({ local, remote }: TProps) {
 
   applyDangled();
 
-  const total = added.length + modified.size + deleted.length + unmodified.length;
+  const total = added.length + modified.length + deleted.length + unmodified.length;
 
   return {
     added,

@@ -11,11 +11,7 @@ type TProps = {
 
 export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps) {
   try {
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Fetch backup items started',
-      folderUuid,
-    });
+    logger.debug({ tag: 'BACKUPS', msg: 'Fetch backup items started' });
 
     const allFolders: FolderDto[] = [];
     const allFiles: SimpleDriveFile[] = [];
@@ -31,7 +27,6 @@ export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps)
     logger.debug({
       tag: 'BACKUPS',
       msg: 'Fetch backup items finished',
-      folderUuid,
       files: allFiles.length,
       folders: allFolders.length,
     });
@@ -41,7 +36,6 @@ export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps)
     throw logger.error({
       tag: 'BACKUPS',
       msg: 'Fetch backup items failed',
-      folderUuid,
       exc: error,
     });
   }
