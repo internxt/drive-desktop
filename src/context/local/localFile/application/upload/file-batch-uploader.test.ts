@@ -12,9 +12,9 @@ import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructu
 describe('file-batch-uploader', () => {
   partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
+  const createMock = partialSpyOn(HttpRemoteFileSystem, 'create');
   const uploader = mockDeep<EnvironmentFileUploader>();
-  const remote = mockDeep<HttpRemoteFileSystem>();
-  const service = new FileBatchUploader(uploader, remote);
+  const service = new FileBatchUploader(uploader);
 
   let props: Parameters<typeof service.run>[0];
 
@@ -24,6 +24,7 @@ describe('file-batch-uploader', () => {
   beforeEach(() => {
     props = mockProps<typeof service.run>({
       self: { backed: 0 },
+      context: { backupsBucket: 'bucket' },
       tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: { [parentPath]: { uuid: 'parentUuid' } } },
       added: [{ relativePath: path, size: { value: 1024 } }],
@@ -36,7 +37,7 @@ describe('file-batch-uploader', () => {
     // When
     await service.run(props);
     // Then
-    expect(remote.persist).toBeCalledTimes(0);
+    expect(createMock).toBeCalledTimes(0);
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });
@@ -47,7 +48,7 @@ describe('file-batch-uploader', () => {
     // When
     await service.run(props);
     // Then
-    expect(remote.persist).toBeCalledWith({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 });
+    expect(createMock).toBeCalledWith(expect.objectContaining({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 }));
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
   });
