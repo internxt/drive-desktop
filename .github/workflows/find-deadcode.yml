@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  pull_request:
+  find_deadcode:
     runs-on: windows-latest
     timeout-minutes: 5
 
