@@ -1,17 +1,18 @@
 import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
 import { createFolders } from './create-folders';
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderMother';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('create-folders', () => {
   const createFolderMock = deepMocked(driveServerWip.folders.createFolder);
 
-  const rootFolderUuid = v4();
+  const rootFolderUuid = v4() as FolderUuid;
   const baseProps = mockProps<typeof createFolders>({
     self: { backed: 0 },
     tracker: {
@@ -26,7 +27,7 @@ describe('create-folders', () => {
     },
     tree: {
       folders: {
-        ['/' as RelativePath]: FolderMother.fromPartial({ uuid: rootFolderUuid, path: '/' }),
+        ['/' as RelativePath]: { uuid: rootFolderUuid, path: createRelativePath('/') },
       },
     },
   });

@@ -26,9 +26,9 @@ describe('traverser', () => {
         { nameWithExtension: 'file4', parentUuid: folder3 },
       ],
       folders: [
-        { id: 1, uuid: folder1, plainName: 'folder1', parentUuid: folder, status: 'EXISTS' },
-        { id: 1, uuid: folder2, plainName: 'folder2', parentUuid: folder, status: 'EXISTS' },
-        { id: 1, uuid: folder3, plainName: 'folder3', parentUuid: folder1, status: 'EXISTS' },
+        { uuid: folder1, name: 'folder1', parentUuid: folder },
+        { uuid: folder2, name: 'folder2', parentUuid: folder },
+        { uuid: folder3, name: 'folder3', parentUuid: folder1 },
       ],
     });
   });
@@ -74,7 +74,7 @@ describe('traverser', () => {
     // Given
     fetchItemsMock.mockResolvedValueOnce({
       files: [],
-      folders: [{ uuid: v4(), parentUuid: folder, plainName: 'folder' }],
+      folders: [{ uuid: v4() as FolderUuid, parentUuid: folder, name: 'folder' }],
     });
 
     // When

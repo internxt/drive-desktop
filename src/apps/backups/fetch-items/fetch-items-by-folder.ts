@@ -1,11 +1,11 @@
-import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 
 type TProps = {
   folderUuid: string;
-  allFolders: FolderDto[];
+  allFolders: SimpleDriveFolder[];
   allFiles: SimpleDriveFile[];
   skipFiles: boolean;
   abortSignal: AbortSignal;

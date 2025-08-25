@@ -1,39 +1,36 @@
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
-import { FolderStatus } from '@/context/virtual-drive/folders/domain/FolderStatus';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { BackupsContext } from '../BackupInfo';
 import { fetchItems } from '../fetch-items/fetch-items';
-import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { join } from 'path';
+import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 
 export type RemoteTree = {
   files: Record<RelativePath, ExtendedDriveFile>;
-  folders: Record<RelativePath, Folder>;
+  folders: Record<RelativePath, ExtendedDriveFolder>;
 };
 
 type Items = {
   files: Array<SimpleDriveFile>;
-  folders: Array<FolderDto>;
+  folders: Array<SimpleDriveFolder>;
 };
 
 export class Traverser {
-  private createRootFolder({ id, uuid }: { id: number; uuid: string }): Folder {
-    return Folder.from({
-      id,
-      uuid,
-      parentId: null,
-      parentUuid: null,
+  private createRootFolder({ rootPath, rootUuid }: { rootPath: AbsolutePath; rootUuid: FolderUuid }): ExtendedDriveFolder {
+    return {
+      uuid: rootUuid,
+      parentUuid: undefined,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
-      path: '/',
-      status: FolderStatus.Exists.value,
-    });
+      path: createRelativePath('/'),
+      absolutePath: rootPath,
+      status: 'EXISTS',
+      name: '',
+    };
   }
 
-  private traverse(context: BackupsContext, tree: RemoteTree, items: Items, currentFolder: Folder) {
+  private traverse(context: BackupsContext, tree: RemoteTree, items: Items, currentFolder: ExtendedDriveFolder) {
     if (!items) return;
     if (context.abortController.signal.aborted) return;
 
@@ -48,36 +45,12 @@ export class Traverser {
       tree.files[path] = extendedFile;
     });
 
-    foldersInThisFolder.forEach((serverFolder) => {
-      try {
-        const decryptedName = Folder.decryptName({
-          plainName: serverFolder.plainName,
-          name: serverFolder.name,
-          parentId: serverFolder.parentId,
-        });
+    foldersInThisFolder.forEach((folder) => {
+      const path = createRelativePath(currentFolder.path, folder.name);
+      const absolutePath = join(context.pathname, path) as AbsolutePath;
+      const extendedFolder = { ...folder, path, absolutePath };
 
-        const relativePath = createRelativePath(currentFolder.path, decryptedName);
-
-        const folder = Folder.from({
-          ...serverFolder,
-          parentUuid: serverFolder.parentUuid || null,
-          path: relativePath,
-        });
-
-        tree.folders[relativePath] = folder;
-
-        this.traverse(context, tree, items, folder);
-      } catch (exc) {
-        /**
-         * v2.5.3 Daniel Jiménez
-         * TODO: Add issue to backups
-         */
-        logger.error({
-          tag: 'BACKUPS',
-          msg: 'Error adding folder to tree',
-          exc,
-        });
-      }
+      tree.folders[path] = extendedFolder;
     });
   }
 
@@ -88,7 +61,10 @@ export class Traverser {
       abortSignal: context.abortController.signal,
     });
 
-    const rootFolder = this.createRootFolder({ id: context.folderId, uuid: context.folderUuid });
+    const rootFolder = this.createRootFolder({
+      rootPath: context.pathname as AbsolutePath,
+      rootUuid: context.folderUuid as FolderUuid,
+    });
 
     const tree: RemoteTree = {
       files: {},

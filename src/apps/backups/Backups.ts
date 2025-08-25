@@ -1,7 +1,6 @@
 import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
-import { Folder } from '../../context/virtual-drive/folders/domain/Folder';
 import { BackupsContext } from './BackupInfo';
 import { logger } from '@/apps/shared/logger/logger';
 import { RemoteTree, Traverser } from './remote-tree/traverser';
@@ -83,7 +82,7 @@ export class Backup {
     ]);
   }
 
-  private async deleteRemoteFolders(context: BackupsContext, deleted: Array<Folder>) {
+  private async deleteRemoteFolders(context: BackupsContext, deleted: FoldersDiff['deleted']) {
     for (const folder of deleted) {
       if (context.abortController.signal.aborted) {
         return;

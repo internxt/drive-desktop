@@ -1,7 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { fetchItemsByFolder } from './fetch-items-by-folder';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 
 type TProps = {
   folderUuid: string;
@@ -13,7 +13,7 @@ export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps)
   try {
     logger.debug({ tag: 'BACKUPS', msg: 'Fetch backup items started' });
 
-    const allFolders: FolderDto[] = [];
+    const allFolders: SimpleDriveFolder[] = [];
     const allFiles: SimpleDriveFile[] = [];
 
     await fetchItemsByFolder({
