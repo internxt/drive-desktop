@@ -7,18 +7,19 @@ import { HttpRemoteFileSystem } from './HttpRemoteFileSystem';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { HttpRemoteFolderSystem } from '../../folders/infrastructure/HttpRemoteFolderSystem';
+import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type TProps = {
-  offline: { contentsId: string; path: string; size: number; folderUuid: string };
+  offline: { contentsId: string; path: RelativePath; size: number; folderUuid: string };
   bucket: string;
-  workspaceId?: string;
+  workspaceId: string;
   drive: VirtualDrive;
 };
 
 export async function restoreParentFolder({ offline, drive, bucket, workspaceId }: TProps) {
-  const posixDir = PlatformPathConverter.getFatherPathPosix(offline.path);
+  const posixDir = pathUtils.dirname(offline.path);
   const targetFolderName = path.posix.basename(posixDir);
-  const grandParentFolder = PlatformPathConverter.getFatherPathPosix(posixDir);
+  const grandParentFolder = pathUtils.dirname(posixDir);
 
   const { data: parentUuid } = NodeWin.getFolderUuid({
     drive,
