@@ -3,7 +3,7 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
-import { createFile } from './files/create-file.service';
+import { createFile } from './files/create-file';
 import { getByPath } from './files/get-by-path';
 
 export const files = {

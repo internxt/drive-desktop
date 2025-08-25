@@ -6,6 +6,7 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { HttpRemoteFileSystem } from './HttpRemoteFileSystem';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { HttpRemoteFolderSystem } from '../../folders/infrastructure/HttpRemoteFolderSystem';
 
 type TProps = {
   offline: { contentsId: string; path: string; drive: VirtualDrive; size: number; folderUuid: string };
@@ -24,14 +25,15 @@ export async function restoreParentFolder({ offline, bucket, workspaceId }: TPro
   });
 
   if (!parentUuid) {
-    throw logger.error({ msg: 'Local parentUuid not found' });
+    throw logger.error({ msg: 'Could not restore parent folder, parentUuid not found', grandParentFolder });
   }
 
-  const { data: existsData } = await driveServerWip.folders.existsFolder({
+  const existentFolder = await HttpRemoteFolderSystem.existFolder({
     parentUuid,
-    basename: targetFolderName,
+    plainName: targetFolderName,
+    path: grandParentFolder,
   });
-  const remoteParentFolder = existsData?.existentFolders?.[0] || null;
+  const remoteParentFolder = existentFolder || null;
 
   if (!remoteParentFolder) {
     const config = getConfig();

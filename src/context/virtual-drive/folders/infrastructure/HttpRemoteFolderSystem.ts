@@ -13,6 +13,17 @@ type TProps = {
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId: string) {}
 
+  static async existFolder(offline: TProps) {
+    const { data, error } = await driveServerWip.folders.existsFolder({
+      parentUuid: offline.parentUuid,
+      basename: offline.plainName,
+    });
+
+    if (!data) throw error;
+
+    return data.existentFolders[0];
+  }
+
   async persist(offline: TProps) {
     const body = {
       plainName: offline.plainName,
@@ -29,7 +40,7 @@ export class HttpRemoteFolderSystem {
 
       return data;
     } catch (exc) {
-      const existing = await this.existFolder(offline);
+      const existing = await HttpRemoteFolderSystem.existFolder(offline);
 
       if (existing.status !== FolderStatuses.EXISTS) {
         throw logger.error({
@@ -42,16 +53,5 @@ export class HttpRemoteFolderSystem {
 
       return existing;
     }
-  }
-
-  private async existFolder(offline: TProps) {
-    const { data, error } = await driveServerWip.folders.existsFolder({
-      parentUuid: offline.parentUuid,
-      basename: offline.plainName,
-    });
-
-    if (!data) throw error;
-
-    return data.existentFolders[0];
   }
 }
