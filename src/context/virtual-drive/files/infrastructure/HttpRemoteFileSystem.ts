@@ -50,7 +50,14 @@ export class HttpRemoteFileSystem {
 
       if (error) {
         if (error.code === 'FOLDER_NOT_FOUND') {
-          return await restoreParentFolder({ offline, drive: this.virtualDrive, bucket: this.bucket, workspaceId: this.workspaceId });
+          await restoreParentFolder({ offline, drive: this.virtualDrive });
+          const { data, error } = await HttpRemoteFileSystem.create({
+            ...offline,
+            bucket: this.bucket,
+            workspaceId: this.workspaceId,
+          });
+          if (error) throw error;
+          return data;
         }
         throw error;
       }
