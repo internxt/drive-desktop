@@ -1,40 +1,36 @@
-import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { uploadFile } from '../upload-file';
-import { File } from '@/context/virtual-drive/files/domain/File';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
 
 type Props = {
   self: Backup;
   context: BackupsContext;
   tracker: BackupsProcessTracker;
-  modified: Map<LocalFile, File>;
+  modified: FilesDiff['modified'];
 };
 
-@Service()
 export class FileBatchUpdater {
-  constructor(private readonly uploader: EnvironmentFileUploader) {}
-
-  async run({ self, context, tracker, modified }: Props) {
+  static async run({ self, context, tracker, modified }: Props) {
     await Promise.all(
-      modified.entries().map(([localFile, file]) =>
+      modified.map(({ local, remote }) =>
         this.process({
           self,
           context,
           tracker,
-          localFile,
-          file,
+          localFile: local,
+          file: remote,
         }),
       ),
     );
   }
 
-  async process({
+  static async process({
     self,
     context,
     tracker,
@@ -45,17 +41,17 @@ export class FileBatchUpdater {
     context: BackupsContext;
     tracker: BackupsProcessTracker;
     localFile: LocalFile;
-    file: File;
+    file: ExtendedDriveFile;
   }) {
     try {
-      const contentsId = await uploadFile({ context, localFile, uploader: this.uploader });
+      const contentsId = await uploadFile({ context, localFile });
 
       if (!contentsId) return;
 
       await driveServerWip.files.replaceFile({
         uuid: file.uuid,
         newContentId: contentsId,
-        newSize: localFile.size.value,
+        newSize: localFile.size,
         modificationTime: localFile.modificationTime.toISOString(),
       });
     } catch (exc) {

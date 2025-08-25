@@ -1,7 +1,5 @@
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
-import { FileStatuses } from '../domain/FileStatus';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
-import { Service } from 'diod';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { basename } from 'path';
@@ -9,7 +7,6 @@ import { getNameAndExtension } from '../domain/get-name-and-extension';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { restoreParentFolder } from './restore-parent-folder';
 
-@Service()
 export class HttpRemoteFileSystem {
   constructor(
     private readonly bucket: string,
@@ -89,7 +86,7 @@ export class HttpRemoteFileSystem {
     }
 
     const data = response.data;
-    if (data.status !== FileStatuses.EXISTS) return null;
+    if (data.status !== 'EXISTS') return null;
 
     return data;
   }

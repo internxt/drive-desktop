@@ -3,7 +3,6 @@ import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
 import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
 import { temporalFolderProvider } from '../../contents/application/temporalFolderProvider';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { File } from '../domain/File';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 import { FileContentsHardUpdater } from './FileContentsHardUpdater';
 import { EnvironmentContentFileDownloader } from '../../contents/infrastructure/download/EnvironmentContentFileDownloader';
@@ -71,7 +70,7 @@ export class FileOverwriteContent {
     });
   }
 
-  async run(input: { contentsIds: File['contentsId'][]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
+  async run(input: { contentsIds: string[]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
     const { contentsIds, downloaderManger } = input;
     logger.debug({ msg: 'Inside overrideDangledFiles' });
     const files = this.repository.searchByContentsIds(contentsIds);

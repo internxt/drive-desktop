@@ -1,7 +1,6 @@
 import path from 'path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
-import { LocalFileContents } from '../domain/LocalFileContents';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
@@ -65,7 +64,7 @@ export class ContentsDownloader {
     });
   }
 
-  async run(file: SimpleDriveFile, callback: CallbackDownload): Promise<string> {
+  async run({ file, callback }: { file: SimpleDriveFile; callback: CallbackDownload }): Promise<string> {
     // TODO: If we remove the wait, the tests fail
     // eslint-disable-next-line @typescript-eslint/await-thenable
     const downloader = await this.managerFactory.downloader();
@@ -77,9 +76,7 @@ export class ContentsDownloader {
 
     const readable = await downloader.download({ contentsId: file.contentsId });
 
-    const localContents = LocalFileContents.downloadedFrom(file, readable);
-
-    const write = await this.localWriter.write(localContents);
+    const write = await this.localWriter.write({ file, readable });
 
     return write;
   }

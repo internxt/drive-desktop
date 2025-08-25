@@ -35,9 +35,8 @@ export async function fetchFoldersByFolder({ folderUuid, allFolders, abortSignal
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;
 
-    const filteredData = data.filter((folder) => folder.status === 'EXISTS');
-    newFolders.push(...filteredData);
-    allFolders.push(...filteredData);
+    newFolders.push(...data);
+    allFolders.push(...data);
   }
 
   return { newFolders };

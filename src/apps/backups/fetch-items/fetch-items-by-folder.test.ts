@@ -2,7 +2,8 @@ import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
 import { fetchItemsByFolder } from './fetch-items-by-folder';
-import { FolderDto, FileDto } from '@/infra/drive-server-wip/out/dto';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('./fetch-files-by-folder'));
 vi.mock(import('./fetch-folders-by-folder'));
@@ -13,7 +14,7 @@ describe('fetch-items-by-folder', () => {
 
   const folderUuid = 'folderUuid';
   const allFolders: FolderDto[] = [];
-  const allFiles: FileDto[] = [];
+  const allFiles: SimpleDriveFile[] = [];
   const abortSignal = { aborted: false };
 
   let props: Parameters<typeof fetchItemsByFolder>[0];

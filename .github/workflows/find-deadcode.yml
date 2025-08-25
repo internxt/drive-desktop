@@ -1,13 +1,13 @@
-name: Pull request checks
+name: Find deadcode
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  pull_request:
+  find_deadcode:
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
 
     steps:
       - name: Checkout code
@@ -31,23 +31,5 @@ jobs:
       - name: Install dependencies
         run: npm run init:ci
 
-      - name: Run TypeScript compiler
-        run: npm run type-check
-
-      - name: Run Prettier
-        run: npm run format
-
-      - name: Run Eslint
-        run: npm run lint
-
-      - name: Run tests
-        run: npm run test:cov
-
-      - name: Run report coverage
-        if: always()
-        uses: davelosert/vitest-coverage-report-action@v2
-
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Find deadcode
+        run: npm run find-deadcode

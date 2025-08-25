@@ -1,6 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { FileDto, FolderDto } from '@/infra/drive-server-wip/out/dto';
+import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { fetchItemsByFolder } from './fetch-items-by-folder';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 type TProps = {
   folderUuid: string;
@@ -10,14 +11,10 @@ type TProps = {
 
 export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps) {
   try {
-    logger.debug({
-      tag: 'BACKUPS',
-      msg: 'Fetch backup items started',
-      folderUuid,
-    });
+    logger.debug({ tag: 'BACKUPS', msg: 'Fetch backup items started' });
 
     const allFolders: FolderDto[] = [];
-    const allFiles: FileDto[] = [];
+    const allFiles: SimpleDriveFile[] = [];
 
     await fetchItemsByFolder({
       folderUuid,
@@ -30,7 +27,6 @@ export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps)
     logger.debug({
       tag: 'BACKUPS',
       msg: 'Fetch backup items finished',
-      folderUuid,
       files: allFiles.length,
       folders: allFolders.length,
     });
@@ -40,7 +36,6 @@ export async function fetchItems({ folderUuid, skipFiles, abortSignal }: TProps)
     throw logger.error({
       tag: 'BACKUPS',
       msg: 'Fetch backup items failed',
-      folderUuid,
       exc: error,
     });
   }

@@ -1,26 +1,22 @@
-import { mockDeep } from 'vitest-mock-extended';
 import { FileBatchUpdater } from './FileBatchUpdater';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as uploadFile from '../upload-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('file-batch-updater', () => {
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
-  const uploader = mockDeep<EnvironmentFileUploader>();
-  const service = new FileBatchUpdater(uploader);
 
-  let props: Parameters<typeof service.process>[0];
+  let props: Parameters<typeof FileBatchUpdater.process>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof service.process>({
+    props = mockProps<typeof FileBatchUpdater.process>({
       self: { backed: 0 },
       tracker: { currentProcessed: vi.fn() },
-      file: { uuid: 'uuid' },
-      localFile: { size: { value: 1024 }, modificationTime: new Date('2025-08-20T00:00:00.000Z') },
+      file: { uuid: 'uuid' as FileUuid },
+      localFile: { size: 1024, modificationTime: new Date('2025-08-20T00:00:00.000Z') },
     });
   });
 
@@ -28,7 +24,7 @@ describe('file-batch-updater', () => {
     // Given
     uploadFileMock.mockResolvedValue(undefined);
     // When
-    await service.process(props);
+    await FileBatchUpdater.process(props);
     // Then
     expect(replaceFileMock).toBeCalledTimes(0);
     expect(props.self.backed).toBe(1);
@@ -39,7 +35,7 @@ describe('file-batch-updater', () => {
     // Given
     uploadFileMock.mockResolvedValue('contentsId' as ContentsId);
     // When
-    await service.process(props);
+    await FileBatchUpdater.process(props);
     // Then
     expect(replaceFileMock).toBeCalledWith({
       uuid: 'uuid',
@@ -55,7 +51,7 @@ describe('file-batch-updater', () => {
     // Given
     uploadFileMock.mockRejectedValue(new Error());
     // When
-    await service.process(props);
+    await FileBatchUpdater.process(props);
     // Then
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);

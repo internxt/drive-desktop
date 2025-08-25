@@ -1,6 +1,5 @@
 import { createReadStream } from 'fs';
 import { LocalFile } from '../domain/LocalFile';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { getUploadCallbacks } from '@/apps/backups/process-files/upload-callbacks';
 import { logger } from '@/apps/shared/logger/logger';
@@ -8,15 +7,14 @@ import { logger } from '@/apps/shared/logger/logger';
 type TProps = {
   context: BackupsContext;
   localFile: LocalFile;
-  uploader: EnvironmentFileUploader;
 };
 
-export async function uploadFile({ context, localFile, uploader }: TProps) {
+export async function uploadFile({ context, localFile }: TProps) {
   const readable = createReadStream(localFile.absolutePath);
-  const { data: contentsId, error } = await uploader.run({
+  const { data: contentsId, error } = await context.fileUploader.run({
     absolutePath: localFile.absolutePath,
     path: localFile.absolutePath,
-    size: localFile.size.value,
+    size: localFile.size,
     abortSignal: context.abortController.signal,
     readable,
     callbacks: getUploadCallbacks({ path: localFile.absolutePath }),

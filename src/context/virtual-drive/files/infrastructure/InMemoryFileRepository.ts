@@ -1,7 +1,5 @@
-import { Service } from 'diod';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
-@Service()
 export class InMemoryFileRepository {
   private files: Map<string, ExtendedDriveFile>;
 

@@ -1,4 +1,3 @@
-import { Service } from 'diod';
 import { FolderStatuses } from '../domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -9,7 +8,6 @@ type TProps = {
   path: string;
 };
 
-@Service()
 export class HttpRemoteFolderSystem {
   constructor(private readonly workspaceId: string) {}
 

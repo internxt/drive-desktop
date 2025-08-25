@@ -1,5 +1,3 @@
-import { mockDeep } from 'vitest-mock-extended';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as uploadFile from '../upload-file';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
@@ -13,21 +11,19 @@ describe('file-batch-uploader', () => {
   partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
   const createMock = partialSpyOn(HttpRemoteFileSystem, 'create');
-  const uploader = mockDeep<EnvironmentFileUploader>();
-  const service = new FileBatchUploader(uploader);
 
-  let props: Parameters<typeof service.run>[0];
+  let props: Parameters<typeof FileBatchUploader.run>[0];
 
   const path = createRelativePath('folder1', 'folder2', 'file.txt');
   const parentPath = pathUtils.dirname(path);
 
   beforeEach(() => {
-    props = mockProps<typeof service.run>({
+    props = mockProps<typeof FileBatchUploader.run>({
       self: { backed: 0 },
       context: { backupsBucket: 'bucket' },
       tracker: { currentProcessed: vi.fn() },
       remoteTree: { folders: { [parentPath]: { uuid: 'parentUuid' } } },
-      added: [{ relativePath: path, size: { value: 1024 } }],
+      added: [{ relativePath: path, size: 1024 }],
     });
   });
 
@@ -35,7 +31,7 @@ describe('file-batch-uploader', () => {
     // Given
     uploadFileMock.mockResolvedValue(undefined);
     // When
-    await service.run(props);
+    await FileBatchUploader.run(props);
     // Then
     expect(createMock).toBeCalledTimes(0);
     expect(props.self.backed).toBe(1);
@@ -46,7 +42,7 @@ describe('file-batch-uploader', () => {
     // Given
     uploadFileMock.mockResolvedValue('contentsId' as ContentsId);
     // When
-    await service.run(props);
+    await FileBatchUploader.run(props);
     // Then
     expect(createMock).toBeCalledWith(expect.objectContaining({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 }));
     expect(props.self.backed).toBe(1);
@@ -57,7 +53,7 @@ describe('file-batch-uploader', () => {
     // Given
     uploadFileMock.mockRejectedValue(new Error());
     // When
-    await service.run(props);
+    await FileBatchUploader.run(props);
     // Then
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
