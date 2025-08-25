@@ -1,4 +1,3 @@
-import { Service } from 'diod';
 import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import LocalTreeBuilder from '../../context/local/localTree/application/LocalTreeBuilder';
@@ -13,16 +12,15 @@ import { calculateFoldersDiff, FoldersDiff } from './diff/calculate-folders-diff
 import { createFolders } from './folders/create-folders';
 import { deleteRemoteFiles } from './process-files/delete-remote-files';
 
-@Service()
-export class Backup {
-  constructor(
-    private readonly fileBatchUploader: FileBatchUploader,
-    private readonly fileBatchUpdater: FileBatchUpdater,
-  ) {}
+type Props = {
+  tracker: BackupsProcessTracker;
+  context: BackupsContext;
+};
 
+export class Backup {
   backed = 0;
 
-  async run(tracker: BackupsProcessTracker, context: BackupsContext) {
+  async run({ tracker, context }: Props) {
     const local = await LocalTreeBuilder.run({ context });
     const remote = await new Traverser().run({ context });
 
@@ -33,7 +31,7 @@ export class Backup {
       tag: 'BACKUPS',
       msg: 'Files diff',
       added: filesDiff.added.length,
-      modified: filesDiff.modified.size,
+      modified: filesDiff.modified.length,
       deleted: filesDiff.deleted.length,
       unmodified: filesDiff.unmodified.length,
       total: filesDiff.total,
@@ -79,8 +77,8 @@ export class Backup {
     const { added, modified, deleted } = diff;
 
     await Promise.all([
-      this.fileBatchUploader.run({ self: this, tracker, context, remoteTree: remote, added }),
-      this.fileBatchUpdater.run({ self: this, tracker, context, modified }),
+      FileBatchUploader.run({ self: this, tracker, context, remoteTree: remote, added }),
+      FileBatchUpdater.run({ self: this, tracker, context, modified }),
       deleteRemoteFiles({ context, deleted }),
     ]);
   }

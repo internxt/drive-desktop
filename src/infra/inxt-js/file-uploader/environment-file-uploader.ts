@@ -1,5 +1,4 @@
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
-import { Service } from 'diod';
 import { Environment } from '@internxt/inxt-js/build';
 import { logger } from '@/apps/shared/logger/logger';
 import { EnvironmentFileUploaderError, processError } from './process-error';
@@ -25,7 +24,6 @@ type TProps = {
 
 type TReturn = Promise<{ data: ContentsId; error?: undefined } | { data?: undefined; error: EnvironmentFileUploaderError }>;
 
-@Service()
 export class EnvironmentFileUploader {
   constructor(
     private readonly environment: Environment,

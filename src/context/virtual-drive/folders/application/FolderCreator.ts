@@ -1,4 +1,3 @@
-import { Service } from 'diod';
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { posix } from 'path';
@@ -14,7 +13,6 @@ type TProps = {
   absolutePath: AbsolutePath;
 };
 
-@Service()
 export class FolderCreator {
   constructor(
     private readonly remote: HttpRemoteFolderSystem,

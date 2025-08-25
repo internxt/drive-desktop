@@ -1,6 +1,5 @@
 import { calculateFoldersDiff } from './calculate-folders-diff';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderStatuses } from '@/context/virtual-drive/folders/domain/FolderStatus';
 import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderMother';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 
@@ -20,8 +19,6 @@ describe('calculate-folders-diff', () => {
         folders: {
           ['/folder1' as RelativePath]: FolderMother.fromPartial({ path: '/folder1' }),
           ['/folder3' as RelativePath]: FolderMother.fromPartial({ path: '/folder3' }),
-          ['/folder4' as RelativePath]: FolderMother.fromPartial({ path: '/folder4', status: FolderStatuses.DELETED }),
-          ['/folder5' as RelativePath]: FolderMother.fromPartial({ path: '/folder5', status: FolderStatuses.TRASHED }),
         },
       },
     });

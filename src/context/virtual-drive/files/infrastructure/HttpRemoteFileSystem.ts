@@ -1,12 +1,10 @@
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
-import { Service } from 'diod';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { basename } from 'path';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
 
-@Service()
 export class HttpRemoteFileSystem {
   constructor(
     private readonly bucket: string,

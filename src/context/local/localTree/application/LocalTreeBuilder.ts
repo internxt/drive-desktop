@@ -3,7 +3,6 @@ import { createRelativePath, RelativePath } from '../../localFile/infrastructure
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 import { relative } from 'path';
-import { LocalFileSize } from '../../localFile/domain/LocalFileSize';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 
@@ -37,7 +36,7 @@ export default class LocalTreeBuilder {
         absolutePath: fileAttributes.path,
         relativePath,
         modificationTime: fileAttributes.modificationTime,
-        size: new LocalFileSize(fileAttributes.size),
+        size: fileAttributes.size,
       };
     }
 
