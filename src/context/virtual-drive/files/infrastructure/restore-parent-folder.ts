@@ -9,18 +9,19 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { HttpRemoteFolderSystem } from '../../folders/infrastructure/HttpRemoteFolderSystem';
 
 type TProps = {
-  offline: { contentsId: string; path: string; drive: VirtualDrive; size: number; folderUuid: string };
+  offline: { contentsId: string; path: string; size: number; folderUuid: string };
   bucket: string;
   workspaceId?: string;
+  drive: VirtualDrive;
 };
 
-export async function restoreParentFolder({ offline, bucket, workspaceId }: TProps) {
+export async function restoreParentFolder({ offline, drive, bucket, workspaceId }: TProps) {
   const posixDir = PlatformPathConverter.getFatherPathPosix(offline.path);
   const targetFolderName = path.posix.basename(posixDir);
   const grandParentFolder = PlatformPathConverter.getFatherPathPosix(posixDir);
 
   const { data: parentUuid } = NodeWin.getFolderUuid({
-    drive: offline.drive,
+    drive,
     path: grandParentFolder,
   });
 

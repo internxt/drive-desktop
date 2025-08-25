@@ -42,7 +42,6 @@ export class FileCreator {
         folderUuid,
         path,
         size: contents.size,
-        drive: this.virtualDrive,
       });
 
       const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {

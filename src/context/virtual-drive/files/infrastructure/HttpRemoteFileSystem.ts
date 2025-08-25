@@ -6,11 +6,11 @@ import { basename } from 'path';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { restoreParentFolder } from './restore-parent-folder';
-
 export class HttpRemoteFileSystem {
   constructor(
     private readonly bucket: string,
     private readonly workspaceId: string | undefined,
+    private readonly virtualDrive: VirtualDrive,
   ) {}
 
   static create(offline: {
@@ -38,7 +38,7 @@ export class HttpRemoteFileSystem {
       : driveServerWip.files.createFile({ body, path: offline.path });
   }
 
-  async persist(offline: { contentsId: string; folderUuid: string; path: string; size: number; drive: VirtualDrive }) {
+  async persist(offline: { contentsId: string; folderUuid: string; path: string; size: number }) {
     try {
       const { data, error } = await HttpRemoteFileSystem.create({
         ...offline,
@@ -48,7 +48,7 @@ export class HttpRemoteFileSystem {
 
       if (error) {
         if (error.code === 'FOLDER_NOT_FOUND') {
-          return await restoreParentFolder({ offline, bucket: this.bucket, workspaceId: this.workspaceId });
+          return await restoreParentFolder({ offline, drive: this.virtualDrive, bucket: this.bucket, workspaceId: this.workspaceId });
         }
         throw error;
       }
