@@ -1,10 +1,8 @@
 import { FileCreator } from '../../../../../src/context/virtual-drive/files/application/FileCreator';
-import { FilePath } from '../../../../../src/context/virtual-drive/files/domain/FilePath';
 import { mockDeep } from 'vitest-mock-extended';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { v4 } from 'uuid';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { FolderMother } from '@/tests/context/virtual-drive/folders/domain/FolderMother';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { GetFolderIdentityError } from '@/infra/node-win/services/item-identity/get-folder-identity';
@@ -12,7 +10,7 @@ import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine'
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
@@ -25,15 +23,14 @@ describe('File Creator', () => {
   const ipcRendererSyncEngineMock = vi.mocked(ipcRendererSyncEngine);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
-  const folderParent = FolderMother.any();
-  const filePath = new FilePath(folderParent.path + '/cat.png');
+  const path = createRelativePath('folder', 'cat.png');
   const contents = { id: 'contentsId' as ContentsId, size: 1024 };
   const absolutePath = 'C:\\Users\\user\\InternxtDrive\\cat.png' as AbsolutePath;
 
   const SUT = new FileCreator(remoteFileSystemMock, virtualDriveMock);
 
   beforeEach(() => {
-    getFolderUuid.mockReturnValue({ data: folderParent.uuid as FolderUuid });
+    getFolderUuid.mockReturnValue({ data: 'parentUuid' as FolderUuid });
     invokeMock.mockResolvedValue({});
   });
 
@@ -42,14 +39,14 @@ describe('File Creator', () => {
     getFolderUuid.mockReturnValue({ error: new GetFolderIdentityError('NON_EXISTS') });
 
     // When
-    const promise = SUT.run({ filePath, contents, absolutePath });
+    const promise = SUT.run({ path, contents, absolutePath });
 
     // Then
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
 
     expect(ipcRendererSyncEngineMock.send).toBeCalledWith('FILE_UPLOAD_ERROR', {
       key: 'C:\\Users\\user\\InternxtDrive\\cat.png',
-      nameWithExtension: filePath.nameWithExtension(),
+      nameWithExtension: 'cat.png',
     });
   });
 
@@ -57,36 +54,29 @@ describe('File Creator', () => {
     const file = {
       uuid: v4(),
       contentsId: contents.id,
-      folderId: folderParent.id,
-      folderUuid: folderParent.uuid,
-      path: filePath.value,
+      path: 'cat.png',
     };
 
     remoteFileSystemMock.persist.mockResolvedValueOnce({
       ...file,
     } as any);
 
-    await SUT.run({ filePath, contents, absolutePath });
+    await SUT.run({ path, contents, absolutePath });
 
     expect(invokeMock).toBeCalledTimes(1);
   });
 
   it('once the file entry is created the creation event should have been emitted', async () => {
-    const folderParent = FolderMother.any();
-    const path = new FilePath(folderParent.path + '/cat.png');
-
     const fileAttributes = {
-      path: path.value,
+      path,
       contentsId: contents.id,
-      folderId: folderParent.id,
-      folderUuid: folderParent.uuid,
     };
 
     remoteFileSystemMock.persist.mockResolvedValueOnce({
       ...fileAttributes,
     } as any);
 
-    await SUT.run({ filePath, contents, absolutePath });
+    await SUT.run({ path, contents, absolutePath });
 
     expect(invokeMock).toBeCalledTimes(1);
   });

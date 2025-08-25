@@ -1,7 +1,3 @@
-import { ContentsId } from '../../contents/domain/ContentsId';
-import { FilePath } from './FilePath';
-import { FileSize } from './FileSize';
-
 export type OfflineFileAttributes = {
   contentsId: string;
   path: string;
@@ -11,14 +7,14 @@ export type OfflineFileAttributes = {
 
 export class OfflineFile {
   private constructor(
-    private _contentsId: ContentsId,
+    private _contentsId: string,
     private _folderUuid: string,
-    private _path: FilePath,
-    private readonly _size: FileSize,
+    private _path: string,
+    private readonly _size: number,
   ) {}
 
   public get contentsId() {
-    return this._contentsId.value;
+    return this._contentsId;
   }
 
   public get folderUuid() {
@@ -26,27 +22,14 @@ export class OfflineFile {
   }
 
   public get path(): string {
-    return this._path.value;
-  }
-
-  public get type() {
-    return this._path.extension();
-  }
-
-  public get name() {
-    return this._path.name();
+    return this._path;
   }
 
   public get size(): number {
-    return this._size.value;
+    return this._size;
   }
 
   static from(attributes: OfflineFileAttributes): OfflineFile {
-    return new OfflineFile(
-      new ContentsId(attributes.contentsId),
-      attributes.folderUuid,
-      new FilePath(attributes.path),
-      new FileSize(attributes.size),
-    );
+    return new OfflineFile(attributes.contentsId, attributes.folderUuid, attributes.path, attributes.size);
   }
 }
