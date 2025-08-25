@@ -34,7 +34,7 @@ export async function detectContextMenuAction({ self, details, absolutePath, pat
     });
 
     self.fileInDevice.add(absolutePath);
-    await self.callbacks.updateContentsId({ stats: curr, path, uuid });
+    await self.callbacks.updateContentsId({ stats: curr, path, absolutePath, uuid });
     return;
   }
 
