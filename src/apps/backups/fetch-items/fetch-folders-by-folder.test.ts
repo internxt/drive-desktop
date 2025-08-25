@@ -1,13 +1,15 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import * as newParseFolderDto from '@/infra/drive-server-wip/out/dto';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('fetch-folders-by-folder', () => {
   const getFoldersByFolderMock = deepMocked(driveServerWip.folders.getFoldersByFolder);
+  partialSpyOn(newParseFolderDto, 'newParseFolderDto');
 
   let props: Parameters<typeof fetchFoldersByFolder>[0];
 

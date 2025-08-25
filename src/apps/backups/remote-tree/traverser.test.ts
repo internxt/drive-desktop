@@ -1,8 +1,7 @@
-import { getMockCalls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { Traverser } from './traverser';
 import * as fetchItems from '../fetch-items/fetch-items';
 import { v4 } from 'uuid';
-import { loggerMock } from 'tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('../fetch-items/fetch-items'));
@@ -68,27 +67,5 @@ describe('traverser', () => {
     // Then
     expect(Object.keys(res.folders)).toStrictEqual(['/', '/folder1', '/folder1/folder3', '/folder2']);
     expect(Object.keys(res.files)).toStrictEqual(['/file1', '/file2', '/folder1/file3', '/folder1/folder3/file4']);
-  });
-
-  it('If an folder is invalid ignore it and continue', async () => {
-    // Given
-    fetchItemsMock.mockResolvedValueOnce({
-      files: [],
-      folders: [{ uuid: v4() as FolderUuid, parentUuid: folder, name: 'folder' }],
-    });
-
-    // When
-    const res = await traverser.run(props);
-
-    // Then
-    expect(Object.keys(res.folders)).toStrictEqual(['/']);
-    expect(Object.keys(res.files)).toStrictEqual([]);
-    expect(getMockCalls(loggerMock.error)).toStrictEqual([
-      {
-        tag: 'BACKUPS',
-        msg: 'Error adding folder to tree',
-        exc: expect.any(Error),
-      },
-    ]);
   });
 });

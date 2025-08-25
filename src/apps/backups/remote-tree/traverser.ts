@@ -51,6 +51,7 @@ export class Traverser {
       const extendedFolder = { ...folder, path, absolutePath };
 
       tree.folders[path] = extendedFolder;
+      this.traverse(context, tree, items, extendedFolder);
     });
   }
 
