@@ -5,7 +5,6 @@ import { createFolderPlaceholderId } from './FolderPlaceholderId';
 import { FolderId } from './FolderId';
 import { FolderCreatedAt } from './FolderCreatedAt';
 import { FolderUpdatedAt } from './FolderUpdatedAt';
-import * as crypt from '@/context/shared/infrastructure/crypt';
 
 export type FolderAttributes = {
   id: number;
@@ -81,11 +80,6 @@ export class Folder {
       FolderCreatedAt.fromString(attributes.createdAt),
       FolderStatus.fromValue(attributes.status),
     );
-  }
-
-  static decryptName({ plainName, name, parentId }: { plainName?: string | null; name: string; parentId?: number | null }) {
-    const decryptedName = plainName || crypt.decryptName({ encryptedName: name, parentId });
-    return decryptedName;
   }
 
   attributes() {

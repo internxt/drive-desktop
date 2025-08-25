@@ -35,7 +35,7 @@ export async function fetchFilesByFolder({ folderUuid, allFiles, abortSignal, of
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;
 
-    const filteredData = data.map((file) => newParseFileDto({ fileDto: file }));
-    allFiles.push(...filteredData);
+    const parsedData = data.map((fileDto) => newParseFileDto({ fileDto }));
+    allFiles.push(...parsedData);
   }
 }

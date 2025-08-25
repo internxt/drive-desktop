@@ -9,14 +9,14 @@ import { DriveFile } from '../database/entities/DriveFile';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
-import { driveFilesCollection, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { driveFilesCollection, FETCH_LIMIT, getRemoteSyncManager, remoteSyncManagers } from './store';
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
-import { fetchItems } from '@/apps/backups/fetch-items/fetch-items';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export function addRemoteSyncManager({ context, worker }: { context: SyncContext; worker: TWorkerConfig }) {
   remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, worker, context.workspaceId));
@@ -205,21 +205,22 @@ ipcMain.handle('CHECK_SYNC_IN_PROGRESS', (_, workspaceId = '') => {
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {
   logger.debug({ msg: 'Getting items by folder uuid', folderUuid });
 
-  const abortController = new AbortController();
-
-  const { folders } = await fetchItems({
+  const { data: folders = [] } = await driveServerWip.folders.getFoldersByFolder({
     folderUuid,
-    skipFiles: true,
-    abortSignal: abortController.signal,
+    query: {
+      limit: FETCH_LIMIT,
+      offset: 0,
+      sort: 'updatedAt',
+      order: 'DESC',
+    },
   });
 
   return folders.map((folder) => ({
     id: folder.id,
     uuid: folder.uuid,
-    name: folder.plainName,
     plainName: folder.plainName,
     tmpPath: '',
     pathname: '',
-    backupsBucket: folder.bucket || '',
+    backupsBucket: folder.bucket,
   }));
 });
