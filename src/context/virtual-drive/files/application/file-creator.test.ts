@@ -74,7 +74,7 @@ describe('File Creator', () => {
     const folderParent = FolderMother.any();
 
     const fileAttributes = {
-      path: path,
+      path,
       contentsId: contents.id,
       folderId: folderParent.id,
       folderUuid: folderParent.uuid,
