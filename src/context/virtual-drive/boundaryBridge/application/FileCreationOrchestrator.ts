@@ -34,6 +34,6 @@ export class FileCreationOrchestrator {
       absolutePath,
     });
 
-    return createdFile.uuid;
+    return createdFile.uuid as FileUuid;
   }
 }
