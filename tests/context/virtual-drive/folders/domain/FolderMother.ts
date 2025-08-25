@@ -31,32 +31,6 @@ export class FolderMother {
     });
   }
 
-  static exists() {
-    return Folder.from({
-      id: 2048,
-      uuid: FolderUuid.random().value,
-      path: '/Zodseve',
-      parentId: chance.integer({ min: 1 }),
-      parentUuid: null,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      status: FolderStatuses.EXISTS,
-    });
-  }
-
-  static trashed() {
-    return Folder.from({
-      id: 2048,
-      uuid: FolderUuid.random().value,
-      path: '/Zodseve',
-      parentUuid: null,
-      parentId: null,
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-      status: FolderStatuses.TRASHED,
-    });
-  }
-
   static fromPartial(partial: Partial<FolderAttributes>) {
     const any = FolderMother.any();
     return Folder.from({ ...any.attributes(), ...partial });

@@ -1,6 +1,5 @@
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { FilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
-import { FileNotFoundError } from '@/context/virtual-drive/files/domain/errors/FileNotFoundError';
 import { trimPlaceholderId } from './placeholder-id';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { sleep } from '@/apps/main/util';
@@ -22,7 +21,7 @@ export class DownloadFileController {
   async fileFinderByUuid({ uuid }: { uuid: string }) {
     const { data: file } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
     if (!file) {
-      throw new FileNotFoundError(uuid);
+      throw new Error(`File ${uuid} not found`);
     }
     return file;
   }
