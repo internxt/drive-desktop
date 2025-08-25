@@ -66,8 +66,10 @@ describe('Contents Downloader', () => {
 
     expect(localWriter.write).toBeCalledWith(
       expect.objectContaining({
-        nameWithExtension: 'file.txt',
-        size: 1024,
+        file: {
+          nameWithExtension: 'file.txt',
+          size: 1024,
+        },
       }),
     );
   });
