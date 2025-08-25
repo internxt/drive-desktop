@@ -22,7 +22,7 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({ isOpen, onClose, onLogout }) 
   useEffect(() => {
     //TODO: Implement checkSyncPending function to check if sync is pending
     const checkSyncPending = async (): Promise<boolean> => {
-      const syncPending = syncStatus === 'SYNC PENDING' || syncStatus === 'RUNNING';
+      const syncPending = syncStatus === 'RUNNING';
       const wasSyncing = await window.electron.getRecentlywasSyncing();
 
       const existFileUnsync = await window.electron.getUnsycFileInSyncEngine();

@@ -4,7 +4,6 @@ import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
 import useSyncStatus from '../../hooks/useSyncStatus';
-import { WarningCircle } from 'phosphor-react';
 import { useNetworkRetry } from '../../hooks/useNetworkRetry';
 import { useGetUsage } from '../../api/use-get-usage';
 
@@ -58,15 +57,6 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                     <CheckCircle className="shrink-0" size={22} weight="fill" />
                   </div>
                   <span className="truncate">{translate('widget.footer.action-description.updated')}</span>
-                </>
-              )}
-              {isOnline && props.syncStatus === 'SYNC PENDING' && (
-                <>
-                  {/* UP TO DATE */}
-                  <div className="relative z-0 flex w-5 items-center justify-center text-primary before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
-                    <WarningCircle className="shrink-0" size={22} weight="fill" />
-                  </div>
-                  <span className="truncate">{translate('widget.footer.action-description.sync-pending')}</span>
                 </>
               )}
             </>

@@ -1,7 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { FileCreator } from '../../files/application/FileCreator';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FilePath } from '../../files/domain/FilePath';
 import { Stats } from 'fs';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -19,8 +18,6 @@ export class FileCreationOrchestrator {
   ) {}
 
   async run({ path, absolutePath, stats }: TProps): Promise<FileUuid> {
-    const filePath = new FilePath(path);
-
     const fileContents = await this.contentsUploader.run({ path, stats });
 
     logger.debug({
@@ -32,7 +29,7 @@ export class FileCreationOrchestrator {
     });
 
     const createdFile = await this.fileCreator.run({
-      filePath,
+      path,
       contents: fileContents,
       absolutePath,
     });

@@ -7,7 +7,6 @@ import {
   FileDownloadEvents,
 } from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
-import { ContentsSize } from '../domain/ContentsSize';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as temporalFolderProvider from './temporalFolderProvider';
 
@@ -68,7 +67,7 @@ describe('Contents Downloader', () => {
     expect(localWriter.write).toBeCalledWith(
       expect.objectContaining({
         nameWithExtension: 'file.txt',
-        size: new ContentsSize(1024),
+        size: 1024,
       }),
     );
   });
