@@ -28,6 +28,7 @@ export async function syncModifiedFile({ remoteFile, localFile, fileContentsUplo
     });
 
     const remoteDate = new Date(remoteFile.updatedAt);
+
     if (remoteDate > localFile.stats.mtime) {
       logger.debug({
         tag: 'SYNC-ENGINE',
