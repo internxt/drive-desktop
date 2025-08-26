@@ -3,7 +3,7 @@ import { BindingsManager } from '../BindingManager';
 import { DependencyContainerFactory } from '../dependency-injection/DependencyContainerFactory';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
-import { getConfig, setDefaultConfig, SyncContext } from '../config';
+import { getConfig, ProcessSyncContext, setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { deepMocked, getMockCalls, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
@@ -15,7 +15,7 @@ import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environme
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
-import { initializeVirtualDrive } from '../dependency-injection/common/virtualDrive';
+import { initializeVirtualDrive, virtualDrive } from '../dependency-injection/common/virtualDrive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 
@@ -57,11 +57,6 @@ describe('create-placeholder', () => {
       rootUuid: rootFolderUuid as FolderUuid,
       queueManagerPath,
     });
-
-    const ctx: SyncContext = {
-      ...getConfig(),
-      abortController: new AbortController(),
-    };
 
     invokeMock.mockImplementation((event) => {
       if (event === 'GET_UPDATED_REMOTE_ITEMS') {
@@ -105,9 +100,15 @@ describe('create-placeholder', () => {
     const container = DependencyContainerFactory.build();
     const bindingManager = new BindingsManager(container);
 
+    const ctx: ProcessSyncContext = {
+      ...getConfig(),
+      virtualDrive,
+      abortController: new AbortController(),
+    };
+
     // When
     await bindingManager.start({ ctx });
-    bindingManager.watch();
+    bindingManager.watch({ ctx });
 
     await sleep(100);
     await writeFile(file, 'content');

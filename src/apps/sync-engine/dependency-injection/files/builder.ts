@@ -17,7 +17,7 @@ export function buildFilesContainer(contentsContainer: ContentsContainer): {
 
   const repository = new InMemoryFileRepository();
 
-  const fileCreator = new FileCreator(remoteFileSystem, virtualDrive);
+  const fileCreator = new FileCreator(remoteFileSystem);
 
   const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive);
 
