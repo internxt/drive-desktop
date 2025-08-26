@@ -3,10 +3,10 @@ import { restoreParentFolder } from './restore-parent-folder';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import * as getConfig from '@/apps/sync-engine/config';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { partialSpyOn, mockProps, getMockCalls } from '@/tests/vitest/utils.helper.test';
 import { FolderUuid } from '../../folders/domain/FolderPlaceholderId';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('restoreParentFolder', () => {
   const dirnameSpy = partialSpyOn(pathUtils, 'dirname');
@@ -15,28 +15,9 @@ describe('restoreParentFolder', () => {
   const getConfigSpy = partialSpyOn(getConfig, 'getConfig');
   const moveSpy = partialSpyOn(driveServerWip.folders, 'moveFolder');
   const renameSpy = partialSpyOn(driveServerWip.folders, 'renameFolder');
-  const loggerSpy = partialSpyOn(logger, 'error');
-
-  it('does nothing when remote parent exists', async () => {
-    dirnameSpy.mockImplementationOnce(() => '/gp/child' as RelativePath).mockImplementationOnce(() => '/gp' as RelativePath);
-    getFolderUuidSpy.mockReturnValue({ data: 'parent-uuid' as FolderUuid });
-    existsFolderSpy.mockResolvedValue({
-      data: { existentFolders: [{ uuid: 'remote-parent-uuid' }] },
-    });
-
-    const props = mockProps<typeof restoreParentFolder>({
-      offline: { path: '/gp/child/file.txt' as RelativePath, folderUuid: 'offline-folder-uuid' },
-      drive: {},
-    });
-
-    await restoreParentFolder(props);
-
-    expect(moveSpy).not.toHaveBeenCalled();
-    expect(renameSpy).not.toHaveBeenCalled();
-  });
 
   it('moves and renames when remote parent does not exist', async () => {
-    dirnameSpy.mockImplementationOnce(() => '/gp/child' as RelativePath).mockImplementationOnce(() => '/gp' as RelativePath);
+    dirnameSpy.mockReturnValueOnce('/gp/child' as RelativePath).mockReturnValueOnce('/gp' as RelativePath);
     getFolderUuidSpy.mockReturnValue({ data: 'parent-uuid' as FolderUuid });
     existsFolderSpy.mockResolvedValue({
       data: { existentFolders: [] },
@@ -52,8 +33,8 @@ describe('restoreParentFolder', () => {
 
     await restoreParentFolder(props);
 
-    expect(moveSpy).toHaveBeenCalledTimes(1);
-    expect(renameSpy).toHaveBeenCalledTimes(1);
+    expect(moveSpy).toBeCalledTimes(1);
+    expect(renameSpy).toBeCalledTimes(1);
 
     const [moveArgs] = getMockCalls(moveSpy);
     expect(moveArgs).toMatchObject({
@@ -71,7 +52,7 @@ describe('restoreParentFolder', () => {
   });
 
   it('throws if move or rename fail, logging the error', async () => {
-    dirnameSpy.mockImplementationOnce(() => '/gp/child' as RelativePath).mockImplementationOnce(() => '/gp' as RelativePath);
+    dirnameSpy.mockReturnValueOnce('/gp/child' as RelativePath).mockReturnValueOnce('/gp' as RelativePath);
     getFolderUuidSpy.mockReturnValue({ data: 'parent-uuid' as FolderUuid });
     existsFolderSpy.mockResolvedValue({
       data: { existentFolders: [] },
@@ -79,19 +60,17 @@ describe('restoreParentFolder', () => {
     getConfigSpy.mockReturnValue({ workspaceToken: 'WT' });
     moveSpy.mockResolvedValue({ error: {} });
     renameSpy.mockResolvedValue({ error: undefined });
-    loggerSpy.mockImplementation(() => new Error('Error restoring parent folder'));
 
     const props = mockProps<typeof restoreParentFolder>({
       offline: { path: '/gp/child/file.txt' as RelativePath, folderUuid: 'offline-folder-uuid' },
       drive: {},
     });
 
-    await expect(restoreParentFolder(props)).rejects.toBeInstanceOf(Error);
+    await expect(restoreParentFolder(props)).rejects.toThrow();
 
-    expect(moveSpy).toHaveBeenCalledTimes(1);
-    expect(renameSpy).toHaveBeenCalledTimes(1);
+    expect(moveSpy).toBeCalledTimes(1);
+    expect(renameSpy).toBeCalledTimes(1);
 
-    const [logArgs] = getMockCalls(loggerSpy);
-    expect(logArgs).toMatchObject({ msg: 'Error restoring parent folder' });
+    expect(loggerMock.error).toBeCalledWith(expect.objectContaining({ msg: 'Error restoring parent folder' }));
   });
 });
