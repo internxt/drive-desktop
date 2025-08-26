@@ -8,7 +8,7 @@ import { virtualDrive } from '../common/virtualDrive';
 export function buildFoldersContainer(): FoldersContainer {
   const remoteFolderSystem = new HttpRemoteFolderSystem(getConfig().workspaceId);
 
-  const folderCreator = new FolderCreator(remoteFolderSystem, virtualDrive);
+  const folderCreator = new FolderCreator(remoteFolderSystem);
 
   const folderPlaceholderUpdater = new FolderPlaceholderUpdater(virtualDrive);
 
