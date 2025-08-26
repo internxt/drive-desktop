@@ -3,6 +3,7 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { DriveServerWipError, TDriveServerWipError } from '../../out/error.types';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper } from '../../in/client-wrapper.service';
+import { parseFileDto } from '../../out/dto';
 
 type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 
@@ -25,7 +26,7 @@ export async function createFile(context: { path: string; body: TCreateFileBody 
       body: context.body,
     });
 
-  const result = await clientWrapper({
+  const res = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -38,11 +39,16 @@ export async function createFile(context: { path: string; body: TCreateFileBody 
     },
   });
 
-  if (result.error?.code === 'UNKNOWN') {
+  if (res.error?.code === 'UNKNOWN') {
     switch (true) {
-      case result.error.response?.status === 404:
-        return { error: new CreateFileError('FOLDER_NOT_FOUND', result.error.cause) };
+      case res.error.response?.status === 404:
+        return { error: new CreateFileError('FOLDER_NOT_FOUND', res.error.cause) };
     }
   }
-  return result;
+
+  if (res.data) {
+    return { data: parseFileDto({ fileDto: res.data }) };
+  } else {
+    return { error: res.error };
+  }
 }

@@ -8,7 +8,6 @@ import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
 import { createAndUploadThumbnail } from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 type Props = {
   self: Backup;
@@ -42,7 +41,7 @@ export class FileBatchUploader {
 
         await createAndUploadThumbnail({
           bucket: context.backupsBucket,
-          fileUuid: file.uuid as FileUuid,
+          fileUuid: file.uuid,
           absolutePath: localFile.absolutePath,
         });
       } catch (error) {
