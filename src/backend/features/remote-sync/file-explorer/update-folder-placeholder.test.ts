@@ -26,6 +26,7 @@ describe('update-folder-placeholder', () => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
 
     props = mockProps<typeof FolderPlaceholderUpdater.update>({
+      ctx: { virtualDrive },
       folders: { ['uuid' as FolderUuid]: 'localPath' as AbsolutePath },
       remote: {
         path: createRelativePath('folder1', 'folder2'),
