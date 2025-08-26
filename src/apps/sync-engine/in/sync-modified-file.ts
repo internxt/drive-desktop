@@ -18,15 +18,29 @@ type Props = {
 export async function syncModifiedFile({ remoteFile, localFile, fileContentsUploader, virtualDrive }: Props) {
   if (localFile.stats.size !== remoteFile.size) {
     const path = pathUtils.absoluteToRelative({ base: virtualDrive.syncRootPath, path: localFile.path });
-    const { pinState } = virtualDrive.getPlaceholderState({ path });
 
     logger.debug({
       tag: 'SYNC-ENGINE',
-      msg: 'File has been modified locally, updating remote',
+      msg: 'File has been modified',
       path,
       localSize: localFile.stats.size,
       remoteSize: remoteFile.size,
     });
+
+    const remoteDate = new Date(remoteFile.updatedAt);
+
+    if (remoteDate > localFile.stats.mtime) {
+      logger.debug({
+        tag: 'SYNC-ENGINE',
+        msg: 'Remote file is newer, skipping',
+        path,
+        remoteDate,
+        localDate: localFile.stats.mtime,
+      });
+      return;
+    }
+
+    const { pinState } = virtualDrive.getPlaceholderState({ path });
 
     if (pinState !== PinState.AlwaysLocal) {
       logger.debug({
