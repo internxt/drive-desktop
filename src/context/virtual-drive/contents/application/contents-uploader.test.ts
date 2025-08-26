@@ -1,29 +1,27 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsUploader } from './ContentsUploader';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { EnvironmentFileUploaderError } from '@/infra/inxt-js/file-uploader/process-error';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('fs'));
 
 describe('contents-uploader', () => {
   const sendMock = partialSpyOn(ipcRendererSyncEngine, 'send');
   const remoteContentsManagersFactory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
-  const relativePathToAbsoluteConverter = mockDeep<RelativePathToAbsoluteConverter>();
   const uploader = mockDeep<EnvironmentFileUploader>();
-  const service = new ContentsUploader(remoteContentsManagersFactory, relativePathToAbsoluteConverter);
+  const service = new ContentsUploader(remoteContentsManagersFactory);
 
   const props = mockProps<typeof service.run>({
-    path: '',
+    path: createRelativePath('file.txt'),
     stats: { size: 1024 },
   });
 
   beforeEach(() => {
-    relativePathToAbsoluteConverter.run.mockReturnValue('abolutePath');
     remoteContentsManagersFactory.uploader.mockReturnValue(uploader);
   });
 
