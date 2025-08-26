@@ -9,12 +9,12 @@ describe('file-decrypt-name', () => {
 
   it('should throw an error if the encrypted name is invalid', () => {
     // When and Then
-    expect(() => fileDecryptName({ encryptedName: 'invalid', parentId, extension })).toThrowError();
+    expect(() => fileDecryptName({ plainName: undefined, encryptedName: 'invalid', parentId, extension })).toThrowError();
   });
 
   it('should return the name with extension', () => {
     // When
-    const { name, nameWithExtension } = fileDecryptName({ encryptedName, parentId, extension });
+    const { name, nameWithExtension } = fileDecryptName({ plainName: undefined, encryptedName, parentId, extension });
     // Then
     expect(name).toBe('latest');
     expect(nameWithExtension).toBe('latest.txt');
@@ -22,7 +22,7 @@ describe('file-decrypt-name', () => {
 
   it('should return the name without extension', () => {
     // When
-    const { name, nameWithExtension } = fileDecryptName({ encryptedName, parentId, extension: null });
+    const { name, nameWithExtension } = fileDecryptName({ plainName: undefined, encryptedName, parentId, extension: null });
     // Then
     expect(name).toBe('latest');
     expect(nameWithExtension).toBe('latest');

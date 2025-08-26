@@ -1,4 +1,3 @@
-import { FolderStatuses } from '../domain/FolderStatus';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
@@ -40,7 +39,7 @@ export class HttpRemoteFolderSystem {
     } catch (exc) {
       const existing = await HttpRemoteFolderSystem.existFolder(offline);
 
-      if (existing.status !== FolderStatuses.EXISTS) {
+      if (existing.status !== 'EXISTS') {
         throw logger.error({
           tag: 'SYNC-ENGINE',
           msg: 'Error creating folder',

@@ -1,13 +1,13 @@
 import { DriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
+import { folderDecryptName } from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 type TProps = {
   data: DriveFolder;
 };
 
 export function parseData({ data }: TProps) {
-  const name = Folder.decryptName({
-    name: data.name,
+  const name = folderDecryptName({
+    encryptedName: data.name,
     parentId: data.parentId,
     plainName: data.plainName,
   });

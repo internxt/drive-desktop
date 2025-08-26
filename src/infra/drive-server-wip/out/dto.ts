@@ -1,7 +1,8 @@
 import { ContentsId, FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { components } from '@/apps/shared/HttpClient/schema';
 import { fileDecryptName } from '@/context/virtual-drive/files/domain/file-decrypt-name';
+import { folderDecryptName } from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 export type FileDto = components['schemas']['FileDto'];
 export type FolderDto = components['schemas']['FolderDto'];
@@ -47,5 +48,22 @@ export function parseFolderDto({ folderDto }: { folderDto: FolderDto }): ParsedF
   return {
     ...folderDto,
     uuid: folderDto.uuid as FolderUuid,
+  };
+}
+
+export function newParseFolderDto({ folderDto }: { folderDto: FolderDto }): SimpleDriveFolder {
+  const name = folderDecryptName({
+    encryptedName: folderDto.name,
+    parentId: folderDto.parentId,
+    plainName: folderDto.plainName,
+  });
+
+  return {
+    uuid: folderDto.uuid as FolderUuid,
+    name,
+    parentUuid: folderDto.parentUuid,
+    createdAt: folderDto.createdAt,
+    updatedAt: folderDto.updatedAt,
+    status: folderDto.status,
   };
 }

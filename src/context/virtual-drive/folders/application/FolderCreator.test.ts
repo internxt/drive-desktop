@@ -3,12 +3,10 @@ import { mockDeep } from 'vitest-mock-extended';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderMother';
 import { FolderCreator } from './FolderCreator';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { v4 } from 'uuid';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderUuid as TFolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import * as updateFolderStatus from '@/backend/features/local-sync/placeholders/update-folder-status';
@@ -44,31 +42,30 @@ describe('Folder Creator', () => {
 
   it('If placeholder id is found, create folder', async () => {
     // Given
-    const folder = FolderMother.fromPartial({ parentId: 1, parentUuid: v4(), path });
-    remote.persist.mockResolvedValueOnce(folder.attributes() as any);
-    getFolderUuid.mockReturnValueOnce({ data: folder.parentUuid as TFolderUuid });
+    remote.persist.mockResolvedValueOnce({ uuid: 'uuid' } as any);
+    getFolderUuid.mockReturnValueOnce({ data: 'parentUuid' as FolderUuid });
 
     // When
     await SUT.run(props);
 
     // Then
     expect(remote.persist).toBeCalledWith({
-      parentUuid: folder.parentUuid,
+      parentUuid: 'parentUuid',
       plainName: 'folder2',
-      path: folder.path,
+      path: '/folder1/folder2',
     });
 
     expect(invokeMock).toBeCalledWith('folderCreateOrUpdate', {
       folder: {
-        ...folder.attributes(),
+        uuid: 'uuid',
         userUuid: '',
         workspaceId: '',
       },
     });
 
     expect(virtualDrive.convertToPlaceholder).toBeCalledWith({
-      itemPath: folder.path,
-      id: folder.placeholderId,
+      itemPath: '/folder1/folder2',
+      id: 'FOLDER:uuid',
     });
     expect(updateFolderStatusMock).toBeCalledTimes(1);
   });
