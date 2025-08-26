@@ -61,4 +61,20 @@ describe('restoreParentFolder', () => {
 
     expect(loggerMock.error).toBeCalledWith(expect.objectContaining({ msg: 'Error restoring parent folder' }));
   });
+
+  it('throws and logs when parentUuid is missing', async () => {
+    getFolderUuidSpy.mockReturnValue({ data: undefined });
+
+    await expect(restoreParentFolder(props)).rejects.toThrow();
+
+    expect(loggerMock.error).toBeCalledWith(
+      expect.objectContaining({
+        msg: 'Could not restore parent folder, parentUuid not found',
+        path: '/gp/child/file.txt',
+      }),
+    );
+
+    expect(moveSpy).not.toBeCalled();
+    expect(renameSpy).not.toBeCalled();
+  });
 });
