@@ -29,7 +29,7 @@ export async function addPendingItems({ ctx, controllers, fileContentsUploader }
       pendingFolders: pendingFolders.length,
     });
 
-    await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ pendingFolders, controllers })]);
+    await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders, controllers })]);
     await syncModifiedFiles({ fileContentsUploader, virtualDrive });
   } catch (exc) {
     logger.error({

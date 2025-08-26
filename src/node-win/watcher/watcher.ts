@@ -52,7 +52,7 @@ export class Watcher {
          * - we move an item locally or when we move it using sync by checkpoint.
          */
         .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ ctx, self: this, absolutePath, stats: stats! }))
-        .on('addDir', (absolutePath: AbsolutePath) => onAddDir({ self: this, absolutePath }))
+        .on('addDir', (absolutePath: AbsolutePath) => onAddDir({ ctx, self: this, absolutePath }))
         /**
          * v2.5.6 Daniel Jiménez
          * unlink events are triggered when:
