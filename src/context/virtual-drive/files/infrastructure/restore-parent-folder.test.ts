@@ -16,21 +16,21 @@ describe('restoreParentFolder', () => {
   const moveSpy = partialSpyOn(driveServerWip.folders, 'moveFolder');
   const renameSpy = partialSpyOn(driveServerWip.folders, 'renameFolder');
 
-  it('moves and renames when remote parent does not exist', async () => {
+  const props = mockProps<typeof restoreParentFolder>({
+    offline: { path: '/gp/child/file.txt' as RelativePath, folderUuid: 'offline-folder-uuid' },
+    drive: {},
+  });
+
+  beforeEach(() => {
     dirnameSpy.mockReturnValueOnce('/gp/child' as RelativePath).mockReturnValueOnce('/gp' as RelativePath);
     getFolderUuidSpy.mockReturnValue({ data: 'parent-uuid' as FolderUuid });
-    existsFolderSpy.mockResolvedValue({
-      data: { existentFolders: [] },
-    });
+    existsFolderSpy.mockResolvedValue({ data: { existentFolders: [] } });
     getConfigSpy.mockReturnValue({ workspaceToken: 'WT' });
     moveSpy.mockResolvedValue({ error: undefined });
     renameSpy.mockResolvedValue({ error: undefined });
+  });
 
-    const props = mockProps<typeof restoreParentFolder>({
-      offline: { path: '/gp/child/file.txt' as RelativePath, folderUuid: 'offline-folder-uuid' },
-      drive: {},
-    });
-
+  it('moves and renames when remote parent does not exist', async () => {
     await restoreParentFolder(props);
 
     expect(moveSpy).toBeCalledTimes(1);
@@ -52,19 +52,7 @@ describe('restoreParentFolder', () => {
   });
 
   it('throws if move or rename fail, logging the error', async () => {
-    dirnameSpy.mockReturnValueOnce('/gp/child' as RelativePath).mockReturnValueOnce('/gp' as RelativePath);
-    getFolderUuidSpy.mockReturnValue({ data: 'parent-uuid' as FolderUuid });
-    existsFolderSpy.mockResolvedValue({
-      data: { existentFolders: [] },
-    });
-    getConfigSpy.mockReturnValue({ workspaceToken: 'WT' });
     moveSpy.mockResolvedValue({ error: {} });
-    renameSpy.mockResolvedValue({ error: undefined });
-
-    const props = mockProps<typeof restoreParentFolder>({
-      offline: { path: '/gp/child/file.txt' as RelativePath, folderUuid: 'offline-folder-uuid' },
-      drive: {},
-    });
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
 
