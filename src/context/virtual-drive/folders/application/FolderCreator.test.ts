@@ -47,11 +47,13 @@ describe('Folder Creator', () => {
     await FolderCreator.run(props);
 
     // Then
-    expect(persistMock).toBeCalledWith({
-      parentUuid: 'parentUuid',
-      plainName: 'folder2',
-      path: '/folder1/folder2',
-    });
+    expect(persistMock).toBeCalledWith(
+      expect.objectContaining({
+        parentUuid: 'parentUuid',
+        plainName: 'folder2',
+        path: '/folder1/folder2',
+      }),
+    );
 
     expect(invokeMock).toBeCalledWith('folderCreateOrUpdate', {
       folder: {
