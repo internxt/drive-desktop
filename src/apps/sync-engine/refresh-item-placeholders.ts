@@ -4,6 +4,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ProcessSyncContext } from './config';
 import { FolderPlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-folder-placeholder';
+import { Traverser } from '@/context/virtual-drive/items/application/Traverser';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -13,7 +14,7 @@ type Props = {
 
 export async function refreshItemPlaceholders({ ctx, container, workspaceId }: Props) {
   try {
-    const tree = await container.traverser.run();
+    const tree = await Traverser.run({ ctx });
 
     logger.debug({
       tag: 'SYNC-ENGINE',
