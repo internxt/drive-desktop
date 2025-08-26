@@ -46,7 +46,8 @@ describe('detect-context-menu-action', () => {
     expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
     expect(props.self.callbacks.updateContentsId).toBeCalledWith({
       stats: props.details.curr,
-      path: props.path,
+      path: '/file.txt',
+      absolutePath: 'absolutePath',
       uuid: 'uuid',
     });
   });

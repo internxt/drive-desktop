@@ -8,10 +8,12 @@ import { createRelativePath } from '@/context/local/localFile/infrastructure/Abs
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import * as updateFileStatus from '@/backend/features/local-sync/placeholders/update-file-status';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 
 describe('update-contents-id', () => {
-  const replaceFileSpy = partialSpyOn(driveServerWip.files, 'replaceFile');
+  const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
   const updateFileStatusMock = partialSpyOn(updateFileStatus, 'updateFileStatus');
+  const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
 
   const fileContentsUploader = mockDeep<ContentsUploader>();
   const path = createRelativePath('folder', 'file.txt');
@@ -55,21 +57,24 @@ describe('update-contents-id', () => {
     // When
     await updateContentsId(props);
     // Then
-    expect(replaceFileSpy).toBeCalledTimes(0);
+    expect(replaceFileMock).toBeCalledTimes(0);
     expect(loggerMock.error).toBeCalledTimes(1);
   });
 
   it('should update contents id', async () => {
+    // Given
+    replaceFileMock.mockResolvedValue({ data: {} });
     // When
     await updateContentsId(props);
     // Then
-    expect(replaceFileSpy).toBeCalledWith({
+    expect(replaceFileMock).toBeCalledWith({
       uuid,
       newContentId: 'newContentsId',
       newSize: 1,
       modificationTime: '2025-08-20T00:00:00.000Z',
     });
     expect(updateFileStatusMock).toBeCalledWith({ path });
+    expect(invokeMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });
 });

@@ -16,7 +16,3 @@ export function isFolderPlaceholderId(input: string): input is FolderPlaceholder
 function typedCreate(id: string, prefix: FolderPlaceholderIdPrefixType = 'FOLDER:'): FolderPlaceholderId {
   return (prefix + id) as FolderPlaceholderId;
 }
-
-export function createFolderPlaceholderId(id: string): FolderPlaceholderId {
-  return typedCreate(id);
-}

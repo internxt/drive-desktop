@@ -6,6 +6,7 @@ import { createRelativePath, pathUtils } from '../../infrastructure/AbsolutePath
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import * as createAndUploadThumbnail from '@/apps/main/thumbnails/application/create-and-upload-thumbnail';
 import { HttpRemoteFileSystem } from '@/context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('file-batch-uploader', () => {
   partialSpyOn(createAndUploadThumbnail, 'createAndUploadThumbnail');
@@ -22,7 +23,7 @@ describe('file-batch-uploader', () => {
       self: { backed: 0 },
       context: { backupsBucket: 'bucket' },
       tracker: { currentProcessed: vi.fn() },
-      remoteTree: { folders: { [parentPath]: { uuid: 'parentUuid' } } },
+      remoteTree: { folders: { [parentPath]: { uuid: 'parentUuid' as FolderUuid } } },
       added: [{ relativePath: path, size: 1024 }],
     });
   });

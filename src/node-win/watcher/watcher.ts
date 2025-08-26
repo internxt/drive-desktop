@@ -15,7 +15,7 @@ import { onAll } from './events/on-all.service';
 
 export type TWatcherCallbacks = {
   addController: AddController;
-  updateContentsId: (_: { stats: Stats; path: RelativePath; uuid: string }) => Promise<void>;
+  updateContentsId: (_: { stats: Stats; path: RelativePath; absolutePath: AbsolutePath; uuid: string }) => Promise<void>;
 };
 
 export class Watcher {

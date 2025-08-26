@@ -1,12 +1,13 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { FolderDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
+import { SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { newParseFolderDto } from '@/infra/drive-server-wip/out/dto';
 
 type TProps = {
   folderUuid: string;
-  allFolders: FolderDto[];
+  allFolders: SimpleDriveFolder[];
   abortSignal: AbortSignal;
-  newFolders?: FolderDto[];
+  newFolders?: SimpleDriveFolder[];
   offset?: number;
 };
 
@@ -35,8 +36,9 @@ export async function fetchFoldersByFolder({ folderUuid, allFolders, abortSignal
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;
 
-    newFolders.push(...data);
-    allFolders.push(...data);
+    const parsedData = data.map((folderDto) => newParseFolderDto({ folderDto }));
+    newFolders.push(...parsedData);
+    allFolders.push(...parsedData);
   }
 
   return { newFolders };
