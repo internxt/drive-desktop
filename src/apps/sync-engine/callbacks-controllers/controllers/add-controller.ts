@@ -63,7 +63,7 @@ export class AddController {
     }
   }
 
-  async createFolder({ path, absolutePath }: { path: RelativePath; absolutePath: AbsolutePath }) {
-    await createFolder({ path, absolutePath, folderCreator: this.folderCreator });
+  async createFolder({ ctx, path, absolutePath }: { ctx: ProcessSyncContext; path: RelativePath; absolutePath: AbsolutePath }) {
+    await createFolder({ ctx, path, absolutePath, folderCreator: this.folderCreator });
   }
 }
