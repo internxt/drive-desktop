@@ -1,14 +1,18 @@
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
-import { OfflineFile, OfflineFileAttributes } from '../domain/OfflineFile';
+import { OfflineFileAttributes } from '../domain/OfflineFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { basename } from 'path';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
+import VirtualDrive from '@/node-win/virtual-drive';
+import { restoreParentFolder } from './restore-parent-folder';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export class HttpRemoteFileSystem {
   constructor(
     private readonly bucket: string,
-    private readonly workspaceId: string | undefined,
+    private readonly workspaceId: string,
+    private readonly virtualDrive: VirtualDrive,
   ) {}
 
   static create(offline: {
@@ -36,7 +40,7 @@ export class HttpRemoteFileSystem {
       : driveServerWip.files.createFile({ body, path: offline.path });
   }
 
-  async persist(offline: { contentsId: string; folderUuid: string; path: string; size: number }) {
+  async persist(offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
     try {
       const { data, error } = await HttpRemoteFileSystem.create({
         ...offline,
@@ -44,7 +48,19 @@ export class HttpRemoteFileSystem {
         workspaceId: this.workspaceId,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === 'FOLDER_NOT_FOUND') {
+          await restoreParentFolder({ offline, drive: this.virtualDrive });
+          const { data, error } = await HttpRemoteFileSystem.create({
+            ...offline,
+            bucket: this.bucket,
+            workspaceId: this.workspaceId,
+          });
+          if (error) throw error;
+          return data;
+        }
+        throw error;
+      }
 
       return data;
     } catch (error) {
@@ -117,9 +133,8 @@ export class HttpRemoteFileSystem {
     if (!isDeleted) {
       throw new Error(`File deletion not confirmed for path: ${attributes.path} after retries`);
     }
-    const offlineFile = OfflineFile.from({ ...attributes, contentsId: newContentsId });
 
-    const persistedFile = await this.persist(offlineFile);
+    const persistedFile = await this.persist({ ...attributes, contentsId: newContentsId });
     logger.debug({
       msg: `File persisted with new contents id ${newContentsId}, path: ${attributes.path}`,
     });
