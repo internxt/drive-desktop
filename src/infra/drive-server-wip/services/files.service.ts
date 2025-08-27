@@ -3,7 +3,7 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
-import { parseFileDto } from '../out/dto';
+import { createFile } from './files/create-file';
 import { getByPath } from './files/get-by-path';
 
 export const files = {
@@ -18,7 +18,6 @@ export const files = {
 };
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
-type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 async function getFiles(context: { query: TGetFilesQuery }) {
@@ -43,36 +42,6 @@ async function getFiles(context: { query: TGetFilesQuery }) {
       },
     },
   });
-}
-
-async function createFile(context: { path: string; body: TCreateFileBody }) {
-  const method = 'POST';
-  const endpoint = '/files';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.POST(endpoint, {
-      body: context.body,
-    });
-
-  const res = await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Create file request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-
-  if (res.data) {
-    return { data: parseFileDto({ fileDto: res.data }) };
-  } else {
-    return { error: res.error };
-  }
 }
 
 async function moveFile(context: { uuid: string; parentUuid: string; workspaceToken: string }) {

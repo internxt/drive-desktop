@@ -17,7 +17,7 @@ export function buildFilesContainer(
 ): {
   container: FilesContainer;
 } {
-  const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
+  const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId, virtualDrive);
 
   const repository = new InMemoryFileRepository();
 
