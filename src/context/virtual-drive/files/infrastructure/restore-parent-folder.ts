@@ -39,7 +39,7 @@ export async function restoreParentFolder({ offline, drive }: TProps) {
     }),
   ]);
 
-  if (moveError || renameError) {
+  if (moveError || (renameError && renameError.code !== 'FOLDER_ALREADY_EXISTS')) {
     throw logger.error({ msg: 'Error restoring parent folder', path: offline.path, moveError, renameError });
   }
 }
