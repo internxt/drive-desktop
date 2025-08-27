@@ -3,7 +3,7 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
-import { getConfig, SyncContext } from './config';
+import { getConfig, ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
@@ -23,7 +23,7 @@ export class BindingsManager {
     this.controllers = buildControllers(this.container);
   }
 
-  async start({ ctx }: { ctx: SyncContext }) {
+  async start({ ctx }: { ctx: ProcessSyncContext }) {
     const callbacks: Callbacks = {
       fetchDataCallback: async (filePlaceholderId, callback) => {
         await fetchData({
@@ -69,7 +69,7 @@ export class BindingsManager {
     });
   }
 
-  watch() {
+  watch({ ctx }: { ctx: ProcessSyncContext }) {
     const { queueManager, watcher } = createWatcher({
       virtulDrive: this.container.virtualDrive,
       watcherCallbacks: {
@@ -85,7 +85,7 @@ export class BindingsManager {
       },
     });
 
-    watcher.watchAndWait();
+    watcher.watchAndWait({ ctx });
 
     void this.polling();
     void queueManager.processQueue();

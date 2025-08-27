@@ -6,10 +6,10 @@ import { addPendingFolders } from './add-pending-folders';
 import { IControllers } from '../callbacks-controllers/buildControllers';
 import { syncModifiedFiles } from './sync-modified-files';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
-import { SyncContext } from '../config';
+import { ProcessSyncContext } from '../config';
 
 type Props = {
-  ctx: SyncContext;
+  ctx: ProcessSyncContext;
   controllers: IControllers;
   fileContentsUploader: ContentsUploader;
 };
@@ -29,7 +29,7 @@ export async function addPendingItems({ ctx, controllers, fileContentsUploader }
       pendingFolders: pendingFolders.length,
     });
 
-    await Promise.all([addPendingFiles({ pendingFiles, controllers }), addPendingFolders({ pendingFolders, controllers })]);
+    await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders, controllers })]);
     await syncModifiedFiles({ fileContentsUploader, virtualDrive });
   } catch (exc) {
     logger.error({

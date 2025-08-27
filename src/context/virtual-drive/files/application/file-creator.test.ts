@@ -8,7 +8,7 @@ import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundE
 import { GetFolderIdentityError } from '@/infra/node-win/services/item-identity/get-folder-identity';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
@@ -18,7 +18,7 @@ vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
 
 describe('File Creator', () => {
   const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
-  const virtualDriveMock = mockDeep<VirtualDrive>();
+  const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderUuid = vi.mocked(NodeWin.getFolderUuid);
   const ipcRendererSyncEngineMock = vi.mocked(ipcRendererSyncEngine);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
@@ -27,7 +27,9 @@ describe('File Creator', () => {
   const contents = { id: 'contentsId' as ContentsId, size: 1024 };
   const absolutePath = 'C:\\Users\\user\\InternxtDrive\\cat.png' as AbsolutePath;
 
-  const SUT = new FileCreator(remoteFileSystemMock, virtualDriveMock);
+  const SUT = new FileCreator(remoteFileSystemMock);
+
+  const props = mockProps<typeof SUT.run>({ ctx: { virtualDrive }, path, contents, absolutePath });
 
   beforeEach(() => {
     getFolderUuid.mockReturnValue({ data: 'parentUuid' as FolderUuid });
@@ -39,7 +41,7 @@ describe('File Creator', () => {
     getFolderUuid.mockReturnValue({ error: new GetFolderIdentityError('NON_EXISTS') });
 
     // When
-    const promise = SUT.run({ path, contents, absolutePath });
+    const promise = SUT.run(props);
 
     // Then
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
@@ -61,7 +63,7 @@ describe('File Creator', () => {
       ...file,
     } as any);
 
-    await SUT.run({ path, contents, absolutePath });
+    await SUT.run(props);
 
     expect(invokeMock).toBeCalledTimes(1);
   });
@@ -76,7 +78,7 @@ describe('File Creator', () => {
       ...fileAttributes,
     } as any);
 
-    await SUT.run({ path, contents, absolutePath });
+    await SUT.run(props);
 
     expect(invokeMock).toBeCalledTimes(1);
   });
