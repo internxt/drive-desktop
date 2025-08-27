@@ -60,9 +60,10 @@ export async function launchBackupProcesses(
       break;
     }
 
+    const { fileUploader } = buildFileUploader({ bucket: backupInfo.backupsBucket });
     const context: BackupsContext = {
       ...backupInfo,
-      fileUploader: buildFileUploader({ backupInfo }),
+      fileUploader,
       abortController,
       addIssue: (issue) => {
         addBackupsIssue({

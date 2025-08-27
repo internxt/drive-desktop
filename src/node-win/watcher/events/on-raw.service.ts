@@ -2,15 +2,17 @@ import { detectContextMenuAction } from '../detect-context-menu-action.service';
 import { Watcher } from '../watcher';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   self: Watcher;
   event: string;
   absolutePath: AbsolutePath;
   details: any;
 };
 
-export async function onRaw({ self, event, absolutePath, details }: TProps) {
+export async function onRaw({ ctx, self, event, absolutePath, details }: TProps) {
   const path = pathUtils.absoluteToRelative({
     base: self.virtualDrive.syncRootPath,
     path: absolutePath,
@@ -33,7 +35,7 @@ export async function onRaw({ self, event, absolutePath, details }: TProps) {
         return;
       }
 
-      await detectContextMenuAction({ self, details, absolutePath, path });
+      await detectContextMenuAction({ ctx, self, details, absolutePath, path });
     }
   } catch (error) {
     self.logger.error({ msg: 'Error on change', path, error });

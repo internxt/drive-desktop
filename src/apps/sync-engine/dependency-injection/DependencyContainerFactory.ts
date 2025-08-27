@@ -9,7 +9,7 @@ export class DependencyContainerFactory {
   static build(): DependencyContainer {
     const sharedContainer = buildSharedContainer();
     const contentsContainer = buildContentsContainer();
-    const { container: filesContainer } = buildFilesContainer(contentsContainer, sharedContainer);
+    const { container: filesContainer } = buildFilesContainer(sharedContainer);
     const boundaryBridgeContainer = buildBoundaryBridgeContainer(contentsContainer, filesContainer);
 
     const container = {

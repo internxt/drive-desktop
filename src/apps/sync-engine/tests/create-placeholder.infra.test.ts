@@ -30,7 +30,6 @@ describe('create-placeholder', () => {
   const getUserOrThrowMock = deepMocked(getUserOrThrow);
 
   const environmentFileUploader = mockDeep<EnvironmentFileUploader>();
-  vi.mocked(EnvironmentFileUploader).mockImplementation(() => environmentFileUploader);
 
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
@@ -103,6 +102,7 @@ describe('create-placeholder', () => {
     const ctx: ProcessSyncContext = {
       ...getConfig(),
       virtualDrive,
+      fileUploader: environmentFileUploader,
       abortController: new AbortController(),
     };
 

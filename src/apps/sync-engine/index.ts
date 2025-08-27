@@ -7,6 +7,7 @@ import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { initializeVirtualDrive, virtualDrive } from './dependency-injection/common/virtualDrive';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
+import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -72,10 +73,12 @@ ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
 
   initializeVirtualDrive();
 
+  const { fileUploader } = buildFileUploader({ bucket: config.bucket });
   const ctx: ProcessSyncContext = {
     ...config,
     abortController: new AbortController(),
     virtualDrive,
+    fileUploader,
   };
 
   if (config.workspaceToken) {
