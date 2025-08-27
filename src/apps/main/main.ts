@@ -17,10 +17,7 @@ import 'dotenv/config';
 import { PATHS } from '@/core/electron/paths';
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
-setupElectronLog({
-  logsPath: PATHS.ELECTRON_LOGS,
-  importantLogsPath: PATHS.ELECTRON_IMPORTANT_LOGS,
-});
+setupElectronLog({ logsPath: PATHS.LOGS });
 
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
