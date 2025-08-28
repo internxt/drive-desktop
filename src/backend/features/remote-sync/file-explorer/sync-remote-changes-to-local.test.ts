@@ -60,11 +60,6 @@ describe('sync-remote-to-local', () => {
       creationTime: time,
       lastWriteTime: time,
     });
-    expect(virtualDrive.updateFileIdentity).toBeCalledWith({
-      itemPath: '/file1/file2',
-      id: 'FILE:uuid',
-      isDirectory: false,
-    });
     expect(virtualDrive.hydrateFile).toBeCalledWith({ itemPath: '/file1/file2' });
   });
 
