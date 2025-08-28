@@ -2,7 +2,8 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { Stats } from 'fs';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
-import { stat, StatError } from './stat';
+import { StatError } from './stat';
+import { fileSystem } from '../file-system.module';
 
 type Results = Array<{ absolutePath: AbsolutePath } & ({ stats: Stats; error?: undefined } | { error: StatError; stats?: undefined })>;
 type Props = { rootFolder: string };
@@ -24,7 +25,7 @@ export async function syncWalk({ rootFolder }: Props) {
 
     for (const entry of entries) {
       const absolutePath = join(folder, entry) as AbsolutePath;
-      const { data: stats, error } = await stat({ absolutePath });
+      const { data: stats, error } = await fileSystem.stat({ absolutePath });
 
       if (stats) results.push({ absolutePath, stats });
       else results.push({ absolutePath, error });
