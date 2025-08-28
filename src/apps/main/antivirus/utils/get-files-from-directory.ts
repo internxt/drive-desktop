@@ -16,16 +16,9 @@ export async function getFilesFromDirectory({ rootFolder }: TProps) {
   const isFolder = await PathTypeChecker.isFolder(rootFolder);
   if (!isFolder) return [];
 
-  const files: string[] = [];
-
   try {
     const items = await fileSystem.walk({ rootFolder });
-
-    for (const item of items) {
-      if (item.isFile) {
-        files.push(item.absolutePath);
-      }
-    }
+    return items.filter((item) => item.isFile).map((item) => item.absolutePath);
   } catch (exc) {
     logger.error({
       tag: 'ANTIVIRUS',
@@ -34,5 +27,5 @@ export async function getFilesFromDirectory({ rootFolder }: TProps) {
     });
   }
 
-  return files;
+  return [];
 }
