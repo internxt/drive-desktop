@@ -11,19 +11,13 @@ function trackAddEvent<T>(map: Map<T, NodeJS.Timeout>, uuid: T) {
   let timeoutId = map.get(uuid);
   if (timeoutId) clearTimeout(timeoutId);
 
-  timeoutId = setTimeout(() => map.delete(uuid), 5_000);
+  timeoutId = setTimeout(() => map.delete(uuid), 10_000);
   map.set(uuid, timeoutId);
 }
 
 async function isMoveEvent<T>(map: Map<T, NodeJS.Timeout>, uuid: T) {
-  await sleep(2_000);
-
-  const timeoutId = map.get(uuid);
-  if (!timeoutId) return false;
-
-  clearTimeout(timeoutId);
-  map.delete(uuid);
-  return true;
+  await sleep(4_000);
+  return map.has(uuid);
 }
 
 export function trackAddFileEvent({ uuid }: { uuid: FileUuid }) {

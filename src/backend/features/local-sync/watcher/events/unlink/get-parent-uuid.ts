@@ -2,6 +2,7 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { dirname } from 'path';
 
 type Props = {
@@ -22,9 +23,8 @@ export async function getParentUuid({ absolutePath, virtualDrive }: Props) {
    * - if the parent doesn't exist it means that this item has been deleted because it's inside
    * of a folder that has been deleted and we need to find that folder to mark it as TRASHED.
    *
-   * Warning: Using just folderUuid is not going to work. If we have the following structure:
-   * /folder_and_subfolders/folder/file.txt
-   * If we delete /folder_and_subfolders we are still going to be able to find the parentUuid of file.txt.
+   * Warning: Using just folderUuid is not going to work. There are some times in which we are
+   * getting the parentUuid even when the parent folder is deleted.
    */
   if (parentUuid && stats) return parentUuid;
   return null;
