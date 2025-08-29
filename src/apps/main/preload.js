@@ -472,9 +472,6 @@ var api = {
     isAvailable() {
       return import_electron.ipcRenderer.invoke("antivirus:is-available");
     },
-    isDefenderActive() {
-      return import_electron.ipcRenderer.invoke("antivirus:is-Defender-active");
-    },
     scanItems(paths) {
       return import_electron.ipcRenderer.invoke("antivirus:scan-items", paths);
     },
