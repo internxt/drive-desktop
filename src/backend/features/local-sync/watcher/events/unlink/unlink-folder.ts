@@ -32,7 +32,10 @@ export async function unlinkFolder({ virtualDrive, absolutePath }: TProps) {
     }
 
     const isMove = await isMoveFolderEvent({ uuid: folder.uuid });
-    if (isMove) return;
+    if (isMove) {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Is move event', path });
+      return;
+    }
 
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'Folder unlinked', path });
 

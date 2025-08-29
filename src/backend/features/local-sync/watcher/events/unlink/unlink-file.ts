@@ -37,7 +37,10 @@ export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
     }
 
     const isMove = await isMoveFileEvent({ uuid: file.uuid });
-    if (isMove) return;
+    if (isMove) {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Is move event', path });
+      return;
+    }
 
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'File unlinked', path });
 
