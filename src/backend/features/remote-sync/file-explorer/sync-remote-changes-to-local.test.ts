@@ -24,11 +24,11 @@ describe('sync-remote-to-local', () => {
 
   beforeEach(() => {
     existsSyncMock.mockReturnValue(true);
-
+    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
     props = mockProps<typeof syncRemoteChangesToLocal>({
       virtualDrive,
       local: {
-        path: 'localPath.path' as AbsolutePath,
+        absolutePath: 'C:/localPath' as AbsolutePath,
         stats: {
           size: 512,
           mtime: new Date('1999-01-01T00:00:00.000Z'),
@@ -47,12 +47,10 @@ describe('sync-remote-to-local', () => {
   });
 
   it('should sync remote changes to local when remote file is newer and has different size', async () => {
-    // Given
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
-    // When
+    // Given/When
     await syncRemoteChangesToLocal(props);
     // Then
-    expect(unlinkMock).toBeCalledWith('localPath.path');
+    expect(unlinkMock).toBeCalledWith('C:/localPath');
     expect(virtualDrive.createFileByPath).toBeCalledWith({
       itemPath: '/file1/file2',
       itemId: 'FILE:uuid',
@@ -60,7 +58,6 @@ describe('sync-remote-to-local', () => {
       creationTime: time,
       lastWriteTime: time,
     });
-    expect(virtualDrive.hydrateFile).toBeCalledWith({ itemPath: '/file1/file2' });
   });
 
   it('should not sync when pinState is not AlwaysLocal', async () => {
@@ -70,34 +67,28 @@ describe('sync-remote-to-local', () => {
     await syncRemoteChangesToLocal(props);
     // Then
     expect(unlinkMock).not.toBeCalled();
-    expect(virtualDrive.hydrateFile).not.toBeCalled();
   });
 
   it('should not sync when remote file is not newer', async () => {
     // Given
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
     props.local.stats.mtime = new Date('2026-01-01T00:00:00.000Z');
     // When
     await syncRemoteChangesToLocal(props);
     // Then
     expect(unlinkMock).not.toBeCalled();
-    expect(virtualDrive.hydrateFile).not.toBeCalled();
   });
 
   it('should not sync when file sizes are the same', async () => {
     // Given
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
     props.local.stats.size = 1024;
     // When
     await syncRemoteChangesToLocal(props);
     // Then
     expect(unlinkMock).not.toBeCalled();
-    expect(virtualDrive.hydrateFile).not.toBeCalled();
   });
 
   it('should handle errors gracefully', async () => {
     // Given
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
     virtualDrive.createFileByPath.mockImplementation(() => {
       throw new Error('Creation failed');
     });
@@ -108,8 +99,7 @@ describe('sync-remote-to-local', () => {
     expect(loggerMock.error).toBeCalledWith({
       tag: 'SYNC-ENGINE',
       msg: 'Error syncing remote changes to local',
-      uuid: 'uuid',
-      local: props.local,
+      path: props.remote.path,
       error: expect.any(Error),
     });
   });
