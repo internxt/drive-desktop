@@ -4,8 +4,10 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { Stats } from 'fs';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   path: RelativePath;
   absolutePath: AbsolutePath;
   stats: Stats;
@@ -17,7 +19,7 @@ export class FileCreationOrchestrator {
     private readonly fileCreator: FileCreator,
   ) {}
 
-  async run({ path, absolutePath, stats }: TProps): Promise<FileUuid> {
+  async run({ ctx, path, absolutePath, stats }: TProps): Promise<FileUuid> {
     const fileContents = await this.contentsUploader.run({ path, stats });
 
     logger.debug({
@@ -29,6 +31,7 @@ export class FileCreationOrchestrator {
     });
 
     const createdFile = await this.fileCreator.run({
+      ctx,
       path,
       contents: fileContents,
       absolutePath,

@@ -20,10 +20,10 @@ describe('Folder Creator', () => {
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
   const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
 
-  const SUT = new FolderCreator(remote, virtualDrive);
+  const SUT = new FolderCreator(remote);
 
   const path = createRelativePath('folder1', 'folder2');
-  const props = mockProps<typeof SUT.run>({ path });
+  const props = mockProps<typeof SUT.run>({ ctx: { virtualDrive }, path });
 
   beforeEach(() => {
     invokeMock.mockResolvedValue({});

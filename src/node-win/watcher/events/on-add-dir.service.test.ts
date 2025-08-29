@@ -19,6 +19,7 @@ describe('on-add-dir', () => {
 
   beforeEach(() => {
     props = mockProps<typeof onAddDir>({
+      ctx: {},
       absolutePath: 'C:\\Users\\user\\drive\\folder' as AbsolutePath,
       self: {
         queueManager: { enqueue: vi.fn() },

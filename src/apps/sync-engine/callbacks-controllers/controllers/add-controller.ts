@@ -7,6 +7,7 @@ import { createFile } from '@/features/sync/add-item/create-file';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
 import { Stats } from 'fs';
+import { ProcessSyncContext } from '../../config';
 
 export class AddController {
   // Gets called when:
@@ -19,7 +20,17 @@ export class AddController {
     private readonly folderCreator: FolderCreator,
   ) {}
 
-  async createFile({ absolutePath, path, stats }: { absolutePath: AbsolutePath; path: RelativePath; stats: Stats }) {
+  async createFile({
+    ctx,
+    absolutePath,
+    path,
+    stats,
+  }: {
+    ctx: ProcessSyncContext;
+    absolutePath: AbsolutePath;
+    path: RelativePath;
+    stats: Stats;
+  }) {
     logger.debug({ msg: 'Create file', path });
 
     try {
@@ -40,6 +51,7 @@ export class AddController {
       }
 
       await createFile({
+        ctx,
         absolutePath,
         path,
         folderCreator: this.folderCreator,
@@ -51,7 +63,7 @@ export class AddController {
     }
   }
 
-  async createFolder({ path, absolutePath }: { path: RelativePath; absolutePath: AbsolutePath }) {
-    await createFolder({ path, absolutePath, folderCreator: this.folderCreator });
+  async createFolder({ ctx, path, absolutePath }: { ctx: ProcessSyncContext; path: RelativePath; absolutePath: AbsolutePath }) {
+    await createFolder({ ctx, path, absolutePath, folderCreator: this.folderCreator });
   }
 }
