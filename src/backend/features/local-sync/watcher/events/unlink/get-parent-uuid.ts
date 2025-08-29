@@ -2,7 +2,6 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { dirname } from 'path';
 
 type Props = {
