@@ -3,7 +3,7 @@ import { RelativePathToAbsoluteConverter } from '../../shared/application/Relati
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
-import { createReadStream, Stats } from 'fs';
+import { Stats } from 'fs';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
 type Props = {
@@ -24,9 +24,7 @@ export class ContentsUploader {
 
     const uploader = this.remoteContentsManagersFactory.uploader();
 
-    const readable = createReadStream(absolutePath);
     const { data: contentsId, error } = await uploader.run({
-      readable,
       absolutePath,
       size: stats.size,
       path,

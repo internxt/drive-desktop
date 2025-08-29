@@ -1,4 +1,3 @@
-import { createReadStream } from 'fs';
 import { LocalFile } from '../domain/LocalFile';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { getUploadCallbacks } from '@/apps/backups/process-files/upload-callbacks';
@@ -10,13 +9,11 @@ type TProps = {
 };
 
 export async function uploadFile({ context, localFile }: TProps) {
-  const readable = createReadStream(localFile.absolutePath);
   const { data: contentsId, error } = await context.fileUploader.run({
     absolutePath: localFile.absolutePath,
     path: localFile.absolutePath,
     size: localFile.size,
     abortSignal: context.abortController.signal,
-    readable,
     callbacks: getUploadCallbacks({ path: localFile.absolutePath }),
   });
 
