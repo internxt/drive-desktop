@@ -14,8 +14,7 @@ type Props = {
 
 export async function syncRemoteChangesToLocal({ remote, local, virtualDrive }: Props) {
   const remoteDate = new Date(remote.updatedAt);
-  const placeholderState = virtualDrive.getPlaceholderState({ path: local.absolutePath });
-  const { pinState } = placeholderState;
+  const { pinState } = virtualDrive.getPlaceholderState({ path: local.absolutePath });
   if (pinState === PinState.AlwaysLocal && remote.size !== local.stats.size && remoteDate > local.stats.mtime) {
     logger.debug({
       tag: 'SYNC-ENGINE',
