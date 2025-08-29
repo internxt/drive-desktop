@@ -27,7 +27,7 @@ describe('update-file-placeholder', () => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
 
     props = mockProps<typeof service.update>({
-      files: { ['uuid' as FileUuid]: { path: 'localPath.path' as AbsolutePath } },
+      files: { ['uuid' as FileUuid]: { absolutePath: 'localPath.absolutePath' as AbsolutePath } },
       remote: {
         path: createRelativePath('file1', 'file2'),
         absolutePath: 'remotePath' as AbsolutePath,
@@ -73,7 +73,7 @@ describe('update-file-placeholder', () => {
     // Then
     expect(virtualDrive.createFileByPath).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
-    expect(renameMock).toBeCalledWith('localPath.path', 'remotePath');
+    expect(renameMock).toBeCalledWith('localPath.absolutePath', 'remotePath');
   });
 
   it('should do nothing if not moved', async () => {
