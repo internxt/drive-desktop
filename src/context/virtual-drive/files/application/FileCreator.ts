@@ -1,16 +1,16 @@
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { basename } from 'path';
 
 type Props = {
+  ctx: ProcessSyncContext;
   path: RelativePath;
   absolutePath: AbsolutePath;
   contents: {
@@ -20,16 +20,13 @@ type Props = {
 };
 
 export class FileCreator {
-  constructor(
-    private readonly remote: HttpRemoteFileSystem,
-    private readonly virtualDrive: VirtualDrive,
-  ) {}
+  constructor(private readonly remote: HttpRemoteFileSystem) {}
 
-  async run({ path, absolutePath, contents }: Props) {
+  async run({ ctx, path, absolutePath, contents }: Props) {
     try {
       const parentPath = pathUtils.dirname(path);
       const { data: folderUuid } = NodeWin.getFolderUuid({
-        drive: this.virtualDrive,
+        drive: ctx.virtualDrive,
         path: parentPath,
       });
 
