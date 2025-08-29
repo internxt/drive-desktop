@@ -8,7 +8,6 @@ type TProps = {
   ctx: ProcessSyncContext;
   path: RelativePath;
   absolutePath: AbsolutePath;
-  folderCreator: FolderCreator;
 };
 
 export async function createParentFolder({ path, ...props }: TProps) {
@@ -16,7 +15,7 @@ export async function createParentFolder({ path, ...props }: TProps) {
   await createFolder({ path: posixDir, ...props });
 }
 
-export async function createFolder({ ctx, path, absolutePath, folderCreator }: TProps) {
+export async function createFolder({ ctx, path, absolutePath }: TProps) {
   logger.debug({
     tag: 'SYNC-ENGINE',
     msg: 'Create folder',
@@ -24,11 +23,11 @@ export async function createFolder({ ctx, path, absolutePath, folderCreator }: T
   });
 
   try {
-    await folderCreator.run({ ctx, path, absolutePath });
+    await FolderCreator.run({ ctx, path, absolutePath });
   } catch (error) {
     if (error instanceof FolderNotFoundError) {
-      await createParentFolder({ ctx, path, absolutePath, folderCreator });
-      await createFolder({ ctx, path, absolutePath, folderCreator });
+      await createParentFolder({ ctx, path, absolutePath });
+      await createFolder({ ctx, path, absolutePath });
     } else {
       logger.error({
         tag: 'SYNC-ENGINE',

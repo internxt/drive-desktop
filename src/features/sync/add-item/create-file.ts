@@ -1,5 +1,4 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createParentFolder } from './create-folder';
@@ -15,11 +14,10 @@ type TProps = {
   absolutePath: AbsolutePath;
   path: RelativePath;
   fileCreationOrchestrator: FileCreationOrchestrator;
-  folderCreator: FolderCreator;
   stats: Stats;
 };
 
-export async function createFile({ ctx, absolutePath, path, fileCreationOrchestrator, folderCreator, stats }: TProps) {
+export async function createFile({ ctx, absolutePath, path, fileCreationOrchestrator, stats }: TProps) {
   try {
     const uuid = await fileCreationOrchestrator.run({ ctx, path, absolutePath, stats });
     const placeholderId = createFilePlaceholderId(uuid);
@@ -27,13 +25,12 @@ export async function createFile({ ctx, absolutePath, path, fileCreationOrchestr
     updateFileStatus({ path });
   } catch (error) {
     if (error instanceof FolderNotFoundError) {
-      await createParentFolder({ ctx, path, absolutePath, folderCreator });
+      await createParentFolder({ ctx, path, absolutePath });
       return await createFile({
         ctx,
         absolutePath,
         path,
         fileCreationOrchestrator,
-        folderCreator,
         stats,
       });
     } else {

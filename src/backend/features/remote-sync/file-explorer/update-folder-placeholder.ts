@@ -3,13 +3,11 @@ import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { rename } from 'fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { InMemoryFolders } from '../sync-items-by-checkpoint/load-in-memory-paths';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FolderPlaceholderUpdater {
-  constructor(private readonly virtualDrive: VirtualDrive) {}
-
-  async update({ remote, folders }: { remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
+  static async update({ ctx, remote, folders }: { ctx: ProcessSyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
     const { path } = remote;
 
     try {
@@ -20,7 +18,7 @@ export class FolderPlaceholderUpdater {
       const localPath = folders[remote.uuid as FolderUuid];
 
       if (!localPath) {
-        this.virtualDrive.createFolderByPath({
+        ctx.virtualDrive.createFolderByPath({
           itemPath: path,
           itemId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),
@@ -30,7 +28,7 @@ export class FolderPlaceholderUpdater {
         return;
       }
 
-      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath })) {
+      if (hasToBeMoved({ drive: ctx.virtualDrive, remotePath, localPath })) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Moving folder placeholder',
@@ -50,11 +48,11 @@ export class FolderPlaceholderUpdater {
     }
   }
 
-  async run({ remotes, folders }: { remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
+  static async run({ ctx, remotes, folders }: { ctx: ProcessSyncContext; remotes: ExtendedDriveFolder[]; folders: InMemoryFolders }) {
     await Promise.all(
       remotes.map(async (remote) => {
         if (remote.path === '/') return;
-        await this.update({ remote, folders });
+        await this.update({ ctx, remote, folders });
       }),
     );
   }

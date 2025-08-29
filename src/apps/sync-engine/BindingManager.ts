@@ -54,7 +54,7 @@ export class BindingsManager {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await trackRefreshItemPlaceholders({ container: this.container });
+    await trackRefreshItemPlaceholders({ ctx, container: this.container });
 
     /**
      * v2.5.7 Daniel Jiménez
@@ -128,11 +128,11 @@ export class BindingsManager {
     });
   }
 
-  async updateAndCheckPlaceholders(): Promise<void> {
+  async updateAndCheckPlaceholders({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
     const workspaceId = getConfig().workspaceId;
 
     try {
-      await trackRefreshItemPlaceholders({ container: this.container });
+      await trackRefreshItemPlaceholders({ ctx, container: this.container });
       ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
     } catch (exc) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error updating and checking placeholder', workspaceId, exc });

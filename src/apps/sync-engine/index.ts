@@ -33,7 +33,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   const bindings = new BindingsManager(container);
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    await bindings.updateAndCheckPlaceholders();
+    await bindings.updateAndCheckPlaceholders({ ctx });
   });
 
   ipcRendererSyncEngine.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
