@@ -7,39 +7,44 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { GetFolderIdentityError } from '@/infra/node-win/services/item-identity/get-folder-identity';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { Dirent } from 'fs';
 
 vi.mock(import('fs/promises'));
 
 describe('get-pending-items', () => {
   const readdirMock = deepMocked(readdir);
+  const statMock = partialSpyOn(fileSystem, 'stat');
   const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
   const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
-  const statMock = partialSpyOn(fileSystem, 'stat');
 
-  type MockReaddirReturn = ReturnType<typeof readdir> extends Promise<infer T> ? T : never;
-
-  const props = mockProps<typeof getPendingItems>({ path: 'C:\\Users\\user\\InternxtDrive' });
+  const rootFolder = 'C:\\Users\\user\\InternxtDrive';
+  const props = mockProps<typeof getPendingItems>({ path: rootFolder });
 
   it('should return files and folders that are not uploaded', async () => {
-    readdirMock.mockResolvedValueOnce(['file1', 'folder1', 'folder1/file2', 'folder2'] as unknown as MockReaddirReturn);
+    readdirMock
+      .mockResolvedValueOnce(['file1', 'folder1', 'folder2'] as unknown as Dirent<Buffer>[])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce(['file2'] as unknown as Dirent<Buffer>[]);
 
-    getFileUuidMock.mockReturnValueOnce({ data: 'uuid' as FileUuid });
-    getFolderUuidMock.mockReturnValueOnce({ error: new GetFolderIdentityError('NON_EXISTS') });
-    getFolderUuidMock.mockReturnValueOnce({ data: 'uuid' as FolderUuid });
-    getFileUuidMock.mockReturnValueOnce({ error: new GetFileIdentityError('NON_EXISTS') });
+    statMock
+      .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } })
+      .mockResolvedValueOnce({ data: { isDirectory: () => true, isFile: () => false } })
+      .mockResolvedValueOnce({ data: { isDirectory: () => true, isFile: () => false } })
+      .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } });
 
-    statMock.mockImplementation(({ absolutePath }) => {
-      if (absolutePath.endsWith('folder1')) return Promise.resolve({ data: { isDirectory: () => true, isFile: () => false } });
-      if (absolutePath.endsWith('folder2')) return Promise.resolve({ data: { isDirectory: () => true, isFile: () => false } });
-      if (absolutePath.endsWith('file2')) return Promise.resolve({ data: { isDirectory: () => false, isFile: () => true } });
-      return Promise.resolve({ data: { isDirectory: () => false, isFile: () => true } });
-    });
+    getFileUuidMock
+      .mockReturnValueOnce({ data: 'uuid' as FileUuid })
+      .mockReturnValueOnce({ error: new GetFileIdentityError('NON_EXISTS') });
+
+    getFolderUuidMock
+      .mockReturnValueOnce({ error: new GetFolderIdentityError('NON_EXISTS') })
+      .mockReturnValueOnce({ data: 'uuid' as FolderUuid });
 
     // When
     const { pendingFiles, pendingFolders } = await getPendingItems(props);
 
     // Then
-    expect(pendingFiles).toStrictEqual([expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1\\file2' })]);
-    expect(pendingFolders).toStrictEqual([expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1' })]);
+    expect(pendingFiles).toMatchObject([{ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1\\file2' }]);
+    expect(pendingFolders).toMatchObject([{ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder1' }]);
   });
 });

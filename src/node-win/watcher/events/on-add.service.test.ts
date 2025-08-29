@@ -5,7 +5,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
-import * as trackAddEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import * as trackAddFileEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-file'));
@@ -13,7 +13,7 @@ vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move
 describe('on-add', () => {
   const getFileUuidMock = deepMocked(NodeWin.getFileUuid);
   const moveFileMock = vi.mocked(moveFile);
-  const trackAddEventMock = partialSpyOn(trackAddEvent, 'trackAddEvent');
+  const trackAddFileEventMock = partialSpyOn(trackAddFileEvent, 'trackAddFileEvent');
 
   const absolutePath = 'C:\\Users\\user\\drive\\file.txt' as AbsolutePath;
 
@@ -50,7 +50,7 @@ describe('on-add', () => {
     // When
     await onAdd(props);
     // Then
-    expect(trackAddEventMock).toBeCalledWith({ uuid: 'uuid' });
+    expect(trackAddFileEventMock).toBeCalledWith({ uuid: 'uuid' });
     expect(moveFileMock).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/file.txt',

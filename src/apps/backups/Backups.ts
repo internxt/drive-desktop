@@ -23,6 +23,8 @@ export class Backup {
     const local = await LocalTreeBuilder.run({ context });
     const remote = await new Traverser().run({ context });
 
+    if (context.abortController.signal.aborted) return;
+
     const foldersDiff = calculateFoldersDiff({ local, remote });
     const filesDiff = calculateFilesDiff({ local, remote });
 

@@ -22,9 +22,8 @@ export async function getParentUuid({ absolutePath, virtualDrive }: Props) {
    * - if the parent doesn't exist it means that this item has been deleted because it's inside
    * of a folder that has been deleted and we need to find that folder to mark it as TRASHED.
    *
-   * Warning: Using just folderUuid is not going to work. If we have the following structure:
-   * /folder_and_subfolders/folder/file.txt
-   * If we delete /folder_and_subfolders we are still going to be able to find the parentUuid of file.txt.
+   * Warning: Using just folderUuid is not going to work. There are some times in which we are
+   * getting the parentUuid even when the parent folder is deleted.
    */
   if (parentUuid && stats) return parentUuid;
   return null;

@@ -20,7 +20,7 @@ export function PasswordInput(props: TextInputProps) {
         onClick={toggleShowPassword}
         className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-60 hover:text-gray-80 focus:outline-none"
         aria-label={showPassword ? 'Hide password' : 'Show password'}>
-        {showPassword ? <UilEyeSlash size={20} /> : <UilEye size={20} />}
+        {showPassword ? <UilEye size={20} /> : <UilEyeSlash size={20} />}
       </button>
     </div>
   );

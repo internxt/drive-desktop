@@ -3,10 +3,10 @@ import { basename } from 'path';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { logger } from '@/apps/shared/logger/logger';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { isMoveEvent } from './is-move-event';
 import { getParentUuid } from './get-parent-uuid';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { getConfig } from '@/apps/sync-engine/config';
+import { isMoveFileEvent } from './is-move-event';
 
 type TProps = {
   virtualDrive: VirtualDrive;
@@ -36,8 +36,11 @@ export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
       return;
     }
 
-    const isMove = await isMoveEvent({ uuid: file.uuid });
-    if (isMove) return;
+    const isMove = await isMoveFileEvent({ uuid: file.uuid });
+    if (isMove) {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Is move event', path });
+      return;
+    }
 
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'File unlinked', path });
 

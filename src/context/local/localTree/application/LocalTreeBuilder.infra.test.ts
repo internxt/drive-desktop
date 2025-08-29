@@ -41,6 +41,6 @@ describe('LocalTreeBuilder', () => {
 
     // Then
     expect(Object.keys(tree.files)).toStrictEqual(['/file1', '/file2', '/folder1/file3', '/folder1/folder3/file4']);
-    expect(Object.keys(tree.folders)).toStrictEqual(['/', '/folder1', '/folder1/folder3', '/folder2']);
+    expect(Object.keys(tree.folders)).toStrictEqual(['/', '/folder1', '/folder2', '/folder1/folder3']);
   });
 });

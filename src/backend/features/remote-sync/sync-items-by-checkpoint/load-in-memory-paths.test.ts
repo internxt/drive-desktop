@@ -24,13 +24,17 @@ describe('load-in-memory-paths', () => {
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
     // Given
-    readdirMock.mockResolvedValueOnce(['folder', 'file1', 'folder/file2'] as unknown as Dirent<Buffer>[]);
-    statMock.mockResolvedValueOnce({ data: { isDirectory: () => true, isFile: () => false } });
-    statMock.mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } });
-    statMock.mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } });
+    readdirMock
+      .mockResolvedValueOnce(['folder', 'file1'] as unknown as Dirent<Buffer>[])
+      .mockResolvedValueOnce(['file2'] as unknown as Dirent<Buffer>[]);
+
+    statMock
+      .mockResolvedValueOnce({ data: { isDirectory: () => true, isFile: () => false } })
+      .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } })
+      .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } });
+
     getFolderUuidMock.mockReturnValueOnce({ data: 'folderUuid' as FolderUuid });
-    getFileUuidMock.mockReturnValueOnce({});
-    getFileUuidMock.mockReturnValueOnce({ data: 'fileUuid2' as FileUuid });
+    getFileUuidMock.mockReturnValueOnce({}).mockReturnValueOnce({ data: 'fileUuid2' as FileUuid });
     // When
     const { files, folders } = await loadInMemoryPaths();
     // Then

@@ -1,34 +1,34 @@
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { sleep } from '@/apps/main/util';
 
 export const store = {
-  addEvents: new Set<FileUuid>(),
-  addDirEvents: new Set<FolderUuid>(),
+  addFileEvents: new Map<FileUuid, NodeJS.Timeout>(),
+  addFolderEvents: new Map<FolderUuid, NodeJS.Timeout>(),
 };
 
-export async function trackAddEvent({ uuid }: { uuid: FileUuid }) {
-  store.addEvents.add(uuid);
-  await sleep(15_000);
-  store.addEvents.delete(uuid);
+function trackAddEvent<T>(map: Map<T, NodeJS.Timeout>, uuid: T) {
+  let timeoutId = map.get(uuid);
+  if (timeoutId) clearTimeout(timeoutId);
+
+  timeoutId = setTimeout(() => map.delete(uuid), 10_000);
+  map.set(uuid, timeoutId);
 }
 
-export async function trackAddDirEvent({ uuid }: { uuid: FolderUuid }) {
-  store.addDirEvents.add(uuid);
-  await sleep(15_000);
-  store.addDirEvents.delete(uuid);
+async function isMoveEvent<T>(map: Map<T, NodeJS.Timeout>, uuid: T) {
+  await sleep(4_000);
+  return map.has(uuid);
 }
 
-export async function isMoveEvent({ uuid }: { uuid: FileUuid }) {
-  await sleep(5_000);
-  const isMoveEvent = store.addEvents.has(uuid);
-  if (isMoveEvent) store.addEvents.delete(uuid);
-  return isMoveEvent;
+export function trackAddFileEvent({ uuid }: { uuid: FileUuid }) {
+  trackAddEvent(store.addFileEvents, uuid);
 }
-
-export async function isMoveDirEvent({ uuid }: { uuid: FolderUuid }) {
-  await sleep(5_000);
-  const isMoveEvent = store.addDirEvents.has(uuid);
-  if (isMoveEvent) store.addDirEvents.delete(uuid);
-  return isMoveEvent;
+export function trackAddFolderEvent({ uuid }: { uuid: FolderUuid }) {
+  trackAddEvent(store.addFolderEvents, uuid);
+}
+export function isMoveFileEvent({ uuid }: { uuid: FileUuid }) {
+  return isMoveEvent(store.addFileEvents, uuid);
+}
+export function isMoveFolderEvent({ uuid }: { uuid: FolderUuid }) {
+  return isMoveEvent(store.addFolderEvents, uuid);
 }

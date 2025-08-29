@@ -49,8 +49,6 @@ export default class LocalTreeBuilder {
       };
 
       tree.folders[relativePath] = folder;
-
-      await this.traverse({ context, tree, currentFolder: folder });
     }
   }
 

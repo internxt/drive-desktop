@@ -2,7 +2,7 @@ import { Watcher } from '../watcher';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
-import { trackAddDirEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import { trackAddFolderEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
@@ -28,7 +28,7 @@ export async function onAddDir({ ctx, self, absolutePath }: TProps) {
       return;
     }
 
-    void trackAddDirEvent({ uuid });
+    trackAddFolderEvent({ uuid });
     await moveFolder({ self, path, absolutePath, uuid });
   } catch (error) {
     self.logger.error({ msg: 'Error on event "addDir"', error });
