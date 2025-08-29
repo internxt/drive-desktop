@@ -5,7 +5,7 @@ import { ipcRenderer } from 'electron';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { getConfig, ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
-import { Tree } from '@/context/virtual-drive/items/application/Traverser';
+import { Traverser, Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
@@ -87,7 +87,7 @@ export class BindingsManager {
 
     watcher.watchAndWait({ ctx });
 
-    void this.polling();
+    void this.polling({ ctx });
     void queueManager.processQueue();
   }
 
@@ -101,7 +101,7 @@ export class BindingsManager {
     logger.debug({ msg: 'In memory repositories loaded', workspaceId: getConfig().workspaceId });
   }
 
-  async polling(): Promise<void> {
+  async polling({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
     const workspaceId = getConfig().workspaceId;
 
     logger.debug({
@@ -111,7 +111,7 @@ export class BindingsManager {
     });
 
     try {
-      const tree = await this.container.traverser.run();
+      const tree = await Traverser.run({ ctx });
       await this.load(tree);
       await this.container.fileDangledManager.run();
     } catch (error) {

@@ -3,19 +3,16 @@ import { buildBoundaryBridgeContainer } from './boundaryBridge/build';
 import { virtualDrive } from './common/virtualDrive';
 import { buildContentsContainer } from './contents/builder';
 import { buildFilesContainer } from './files/builder';
-import { buildItemsContainer } from './items/builder';
 import { buildSharedContainer } from './shared/builder';
 
 export class DependencyContainerFactory {
   static build(): DependencyContainer {
     const sharedContainer = buildSharedContainer();
-    const itemsContainer = buildItemsContainer();
-    const contentsContainer = buildContentsContainer(sharedContainer);
-    const { container: filesContainer } = buildFilesContainer(contentsContainer);
+    const contentsContainer = buildContentsContainer();
+    const { container: filesContainer } = buildFilesContainer(contentsContainer, sharedContainer);
     const boundaryBridgeContainer = buildBoundaryBridgeContainer(contentsContainer, filesContainer);
 
     const container = {
-      ...itemsContainer,
       ...contentsContainer,
       ...filesContainer,
       ...sharedContainer,
