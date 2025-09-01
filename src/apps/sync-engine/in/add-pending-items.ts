@@ -19,6 +19,8 @@ export async function addPendingItems({ ctx, controllers }: Props) {
       path: virtualDrive.syncRootPath,
     });
 
+    const startTime = performance.now();
+
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Pending items',
@@ -29,6 +31,15 @@ export async function addPendingItems({ ctx, controllers }: Props) {
 
     await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders })]);
     await syncModifiedFiles({ ctx });
+
+    const endTime = performance.now();
+
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: '[TIME] Finish pending items',
+      workspaceId: ctx.workspaceId,
+      time: `${(endTime - startTime) / 1000}s`,
+    });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

@@ -5,7 +5,7 @@ import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { EnvironmentFileUploaderError } from '@/infra/inxt-js/file-uploader/process-error';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('fs'));
 
@@ -16,6 +16,7 @@ describe('contents-uploader', () => {
   const props = mockProps<typeof ContentsUploader.run>({
     ctx: { fileUploader: uploader },
     path: createRelativePath('file.txt'),
+    absolutePath: 'C:/Users/user/InternxtDrive/file.txt' as AbsolutePath,
     stats: { size: 1024 },
   });
 
@@ -26,7 +27,7 @@ describe('contents-uploader', () => {
     const promise = ContentsUploader.run(props);
     // Then
     await expect(promise).rejects.toThrow();
-    expect(sendMock).toBeCalledWith('ADD_SYNC_ISSUE', { error: 'ABORTED', name: '' });
+    expect(sendMock).toBeCalledWith('ADD_SYNC_ISSUE', { error: 'ABORTED', name: '/file.txt' });
   });
 
   it('should return contents id if upload is successful', async () => {

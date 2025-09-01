@@ -12,6 +12,17 @@ type TProps = {
 };
 
 export class HttpRemoteFolderSystem {
+  static async existFolder(offline: { parentUuid: FolderUuid; plainName: string }) {
+    const { data, error } = await driveServerWip.folders.existsFolder({
+      parentUuid: offline.parentUuid,
+      basename: offline.plainName,
+    });
+
+    if (!data) throw error;
+
+    return data.existentFolders[0];
+  }
+
   static async persist({ ctx, plainName, parentUuid, path }: TProps) {
     const body = {
       plainName,
@@ -41,16 +52,5 @@ export class HttpRemoteFolderSystem {
 
       return existing;
     }
-  }
-
-  static async existFolder(offline: { parentUuid: FolderUuid; plainName: string }) {
-    const { data, error } = await driveServerWip.folders.existsFolder({
-      parentUuid: offline.parentUuid,
-      basename: offline.plainName,
-    });
-
-    if (!data) throw error;
-
-    return data.existentFolders[0];
   }
 }

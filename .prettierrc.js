@@ -1,18 +1,17 @@
 module.exports = {
-  arrowParens: "always",
+  arrowParens: 'always',
   bracketSameLine: true,
   bracketSpacing: true,
-  endOfLine: "lf",
+  endOfLine: 'lf',
   // importOrder: ["^@/(.*)$", "^[./]"],
   // importOrderParserPlugins: ["typescript", "decorators-legacy"],
   // importOrderSeparation: true,
   // plugins: [require.resolve("@trivago/prettier-plugin-sort-imports")],
   printWidth: 140,
-  proseWrap: "never",
+  proseWrap: 'never',
   semi: true,
   singleQuote: true,
   tabWidth: 2,
-  trailingComma: "all",
+  trailingComma: 'all',
   useTabs: false,
 };
-
