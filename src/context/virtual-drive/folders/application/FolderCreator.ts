@@ -1,28 +1,25 @@
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { posix } from 'path';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { updateFolderStatus } from '@/backend/features/local-sync/placeholders/update-folder-status';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   path: RelativePath;
   absolutePath: AbsolutePath;
 };
 
 export class FolderCreator {
-  constructor(
-    private readonly remote: HttpRemoteFolderSystem,
-    private readonly virtualDrive: VirtualDrive,
-  ) {}
+  constructor(private readonly remote: HttpRemoteFolderSystem) {}
 
-  async run({ path, absolutePath }: TProps) {
+  async run({ ctx, path, absolutePath }: TProps) {
     const posixDir = pathUtils.dirname(path);
     const { data: parentUuid } = NodeWin.getFolderUuid({
-      drive: this.virtualDrive,
+      drive: ctx.virtualDrive,
       path: posixDir,
     });
 
@@ -46,7 +43,7 @@ export class FolderCreator {
 
     if (error) throw error;
 
-    this.virtualDrive.convertToPlaceholder({ itemPath: path, id: `FOLDER:${folderDto.uuid}` });
+    ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: `FOLDER:${folderDto.uuid}` });
     await updateFolderStatus({ path, absolutePath });
   }
 }
