@@ -1,7 +1,6 @@
 import { ipcMain, shell } from 'electron';
 import { SelectedItemToScanProps } from '../antivirus/antivirus-clam-av';
 import { getMultiplePathsFromDialog } from '../device/service';
-import { exec } from 'node:child_process';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
 import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
@@ -9,19 +8,6 @@ import { PaymentsService } from '../payments/service';
 import { buildPaymentsService } from '../payments/builder';
 
 let paymentService: PaymentsService | null = null;
-
-export function isWindowsDefenderRealTimeProtectionActive(): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    exec('powershell -Command "Get-MpPreference | Select-Object -ExpandProperty DisableRealtimeMonitoring"', (error, stdout, stderr) => {
-      if (error) {
-        return reject(`ERROR DETECTING IF DEFENDER IS ACTIVATED: ${stderr}`);
-      }
-
-      const isDisabled = stdout.trim().toLowerCase() === 'true';
-      resolve(!isDisabled);
-    });
-  });
-}
 
 ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
   const result = await initializeAntivirusIfAvailable();
@@ -45,19 +31,6 @@ export async function isAvailableBackups(): Promise<boolean> {
 }
 
 ipcMain.handle('backups:is-available', isAvailableBackups);
-
-ipcMain.handle('antivirus:is-Defender-active', async () => {
-  try {
-    const isWinDefenderActive = await isWindowsDefenderRealTimeProtectionActive();
-    return isWinDefenderActive;
-  } catch (error) {
-    logger.warn({
-      msg: 'Error while getting the Win Defender status',
-      exc: error,
-    });
-    return false;
-  }
-});
 
 ipcMain.handle('antivirus:cancel-scan', async () => {
   const fileSystemMonitor = await getManualScanMonitorInstance();

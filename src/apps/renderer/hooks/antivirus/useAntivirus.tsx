@@ -13,7 +13,6 @@ export type UseAntivirusReturn = {
   isScanCompleted: boolean;
   progressRatio: number;
   isAntivirusAvailable: boolean;
-  isDefenderActive: boolean;
   showErrorState: boolean;
   onScanUserSystemButtonClicked: () => Promise<void>;
   onScanAgainButtonClicked: () => void;
@@ -21,7 +20,6 @@ export type UseAntivirusReturn = {
   isUserElegible: () => void;
   onCustomScanButtonClicked: (scanType: ScanType) => Promise<void>;
   onRemoveInfectedItems: (infectedFiles: string[]) => Promise<void>;
-  isWinDefenderActive: () => Promise<boolean>;
 };
 
 export const useAntivirus = (): UseAntivirusReturn => {
@@ -32,7 +30,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
   const [isScanCompleted, setIsScanCompleted] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isAntivirusAvailable, setIsAntivirusAvailable] = useState<boolean>(false);
-  const [isDefenderActive, setIsDefenderActive] = useState<boolean>(false);
   const [showErrorState, setShowErrorState] = useState<boolean>(false);
   const [countFiles, setIsCountFiles] = useState(true);
   const [view, setView] = useState<Views>('locked');
@@ -46,7 +43,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   useEffect(() => {
     isUserElegible();
-    isWinDefenderActive();
   }, []);
 
   const isUserElegible = async () => {
@@ -64,18 +60,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
     } catch {
       setIsAntivirusAvailable(false);
       setView('locked');
-    }
-  };
-
-  const isWinDefenderActive = async () => {
-    try {
-      const isWinDefenderActive = await window.electron.antivirus.isDefenderActive();
-
-      setIsDefenderActive(isWinDefenderActive);
-      return isWinDefenderActive;
-    } catch {
-      setIsDefenderActive(false);
-      return false;
     }
   };
 
@@ -187,7 +171,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
     isScanCompleted,
     progressRatio,
     isAntivirusAvailable,
-    isDefenderActive,
     showErrorState,
     countFiles,
     onScanUserSystemButtonClicked,
@@ -196,6 +179,5 @@ export const useAntivirus = (): UseAntivirusReturn => {
     isUserElegible,
     onRemoveInfectedItems,
     onCancelScan,
-    isWinDefenderActive,
   };
 };
