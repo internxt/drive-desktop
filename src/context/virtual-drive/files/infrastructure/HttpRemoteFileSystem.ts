@@ -7,6 +7,7 @@ import { getNameAndExtension } from '../domain/get-name-and-extension';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { restoreParentFolder } from './restore-parent-folder';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { sleep } from '@/apps/main/util';
 
 export class HttpRemoteFileSystem {
   constructor(
@@ -36,68 +37,53 @@ export class HttpRemoteFileSystem {
     };
 
     return offline.workspaceId
-      ? driveServerWip.workspaces.createFileInWorkspace({ body, workspaceId: offline.workspaceId, path: offline.path })
+      ? driveServerWip.workspaces.createFile({ body, workspaceId: offline.workspaceId, path: offline.path })
       : driveServerWip.files.createFile({ body, path: offline.path });
   }
 
   async persist(offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
-    try {
-      const { data, error } = await HttpRemoteFileSystem.create({
-        ...offline,
-        bucket: this.bucket,
-        workspaceId: this.workspaceId,
-      });
+    const props = {
+      ...offline,
+      bucket: this.bucket,
+      workspaceId: this.workspaceId,
+    };
 
-      if (error) {
-        if (error.code === 'FOLDER_NOT_FOUND') {
-          await restoreParentFolder({ offline, drive: this.virtualDrive });
-          const { data, error } = await HttpRemoteFileSystem.create({
-            ...offline,
-            bucket: this.bucket,
-            workspaceId: this.workspaceId,
-          });
-          if (error) throw error;
-          return data;
-        }
-        throw error;
-      }
+    const { data, error } = await HttpRemoteFileSystem.create(props);
 
-      return data;
-    } catch (error) {
-      logger.error({
-        msg: 'Error persisting file',
-        exc: error,
-      });
+    if (data) return data;
 
-      const existingFile = await this.getFileByPath(offline.path);
-      logger.debug({
-        msg: 'Existing file',
-        existingFile,
-      });
-
-      if (existingFile) return existingFile;
-
-      throw logger.error({
-        msg: 'Failed to persist file and no existing file found',
-      });
+    if (error.code === 'FOLDER_NOT_FOUND') {
+      await restoreParentFolder({ offline, drive: this.virtualDrive });
+      const { data } = await HttpRemoteFileSystem.create(props);
+      if (data) return data;
     }
+
+    if (error.code === 'FILE_ALREADY_EXISTS') {
+      const fileDto = await this.getFileByPath({ path: offline.path });
+      if (fileDto) return fileDto;
+    }
+
+    throw logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'Failed to persist file',
+      path: offline.path,
+    });
   }
 
-  async getFileByPath(filePath: string) {
-    const response = await driveServerWip.files.getByPath({ path: filePath });
+  async getFileByPath({ path }: { path: RelativePath }) {
+    const { data, error } = await driveServerWip.files.getByPath({ path });
 
-    if (!response.data) {
-      logger.error({
-        msg: 'Error getting file by path',
-        error: response.error,
-      });
-      return null;
-    }
+    if (error) return null;
+    if (data.status === 'EXISTS') return data;
 
-    const data = response.data;
-    if (data.status !== 'EXISTS') return null;
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'File does not exist',
+      path,
+      status: data.status,
+    });
 
-    return data;
+    return null;
   }
 
   async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }) {
@@ -119,8 +105,8 @@ export class HttpRemoteFileSystem {
     let isDeleted = false;
 
     for (const delay of delays) {
-      await new Promise((resolve) => setTimeout(resolve, delay));
-      const fileCheck = await this.getFileByPath(attributes.path);
+      await sleep(delay);
+      const fileCheck = await this.getFileByPath({ path: attributes.path });
       if (!fileCheck) {
         isDeleted = true;
         break;

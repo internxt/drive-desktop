@@ -5,8 +5,8 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
-import * as trackAddDirEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import * as createFolder from '@/features/sync/add-item/create-folder';
+import * as trackAddFolderEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-folder'));
@@ -15,7 +15,7 @@ describe('on-add-dir', () => {
   const getFolderUuidMock = deepMocked(NodeWin.getFolderUuid);
   const moveFolderMock = vi.mocked(moveFolder);
   const createFolderMock = partialSpyOn(createFolder, 'createFolder');
-  const trackAddDirEventMock = partialSpyOn(trackAddDirEvent, 'trackAddDirEvent');
+  const trackAddFolderEventMock = partialSpyOn(trackAddFolderEvent, 'trackAddFolderEvent');
 
   let props: Parameters<typeof onAddDir>[0];
 
@@ -54,7 +54,7 @@ describe('on-add-dir', () => {
     await onAddDir(props);
 
     // Then
-    expect(trackAddDirEventMock).toBeCalledWith({ uuid: 'uuid' });
+    expect(trackAddFolderEventMock).toBeCalledWith({ uuid: 'uuid' });
     expect(moveFolderMock).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/folder',
