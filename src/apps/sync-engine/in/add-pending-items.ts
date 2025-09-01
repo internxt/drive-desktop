@@ -31,7 +31,7 @@ export async function addPendingItems({ ctx, controllers, fileContentsUploader }
       pendingFolders: pendingFolders.length,
     });
 
-    await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders, controllers })]);
+    await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders })]);
     await syncModifiedFiles({ fileContentsUploader, virtualDrive });
 
     const endTime = performance.now();
