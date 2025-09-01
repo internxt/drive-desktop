@@ -31,7 +31,7 @@ export async function trackRefreshItemPlaceholders({ container }: Props) {
 
   logger.debug({
     tag: 'SYNC-ENGINE',
-    msg: 'Finish refreshing item placeholders',
+    msg: '[TIME] Finish refreshing item placeholders',
     workspaceId,
     time: `${(endTime - startTime) / 1000}s`,
   });
