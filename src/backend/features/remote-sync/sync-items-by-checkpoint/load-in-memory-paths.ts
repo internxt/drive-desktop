@@ -10,7 +10,7 @@ import { Stats } from 'fs';
 export type InMemoryFiles = Record<
   FileUuid,
   {
-    path: AbsolutePath;
+    absolutePath: AbsolutePath;
     stats: Stats;
   }
 >;
@@ -41,7 +41,7 @@ export async function loadInMemoryPaths() {
     if (stats.isFile()) {
       const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
       if (uuid) {
-        files[uuid] = { stats, path: absolutePath };
+        files[uuid] = { stats, absolutePath };
       }
     }
   }
