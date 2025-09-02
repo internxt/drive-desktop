@@ -7,14 +7,10 @@ import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/in
 import { getConfig } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
-import { ContentsContainer } from '../contents/ContentsContainer';
 import { virtualDrive } from '../common/virtualDrive';
 import { SharedContainer } from '../shared/SharedContainer';
 
-export function buildFilesContainer(
-  contentsContainer: ContentsContainer,
-  sharedContainer: SharedContainer,
-): {
+export function buildFilesContainer(sharedContainer: SharedContainer): {
   container: FilesContainer;
 } {
   const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId, virtualDrive);
@@ -25,11 +21,7 @@ export function buildFilesContainer(
 
   const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive);
 
-  const fileContentsHardUpdate = new FileContentsHardUpdater(
-    remoteFileSystem,
-    contentsContainer.contentsUploader,
-    sharedContainer.relativePathToAbsoluteConverter,
-  );
+  const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem, sharedContainer.relativePathToAbsoluteConverter);
 
   const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(virtualDrive);
 

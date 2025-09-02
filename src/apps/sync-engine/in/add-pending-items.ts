@@ -5,16 +5,14 @@ import { addPendingFiles } from './add-pending-files';
 import { addPendingFolders } from './add-pending-folders';
 import { IControllers } from '../callbacks-controllers/buildControllers';
 import { syncModifiedFiles } from './sync-modified-files';
-import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { ProcessSyncContext } from '../config';
 
 type Props = {
   ctx: ProcessSyncContext;
   controllers: IControllers;
-  fileContentsUploader: ContentsUploader;
 };
 
-export async function addPendingItems({ ctx, controllers, fileContentsUploader }: Props) {
+export async function addPendingItems({ ctx, controllers }: Props) {
   try {
     const { pendingFiles, pendingFolders } = await getPendingItems({
       virtualDrive,
@@ -32,7 +30,7 @@ export async function addPendingItems({ ctx, controllers, fileContentsUploader }
     });
 
     await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders })]);
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
+    await syncModifiedFiles({ ctx });
 
     const endTime = performance.now();
 

@@ -1,7 +1,6 @@
 import { Environment } from '@internxt/inxt-js/build';
 import { ContentsContainer } from './ContentsContainer';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
-import { ContentsUploader } from '../../../../context/virtual-drive/contents/application/ContentsUploader';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
 import { getConfig } from '../../config';
@@ -22,14 +21,11 @@ export function buildContentsContainer(): ContentsContainer {
 
   const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, getConfig().bucket);
 
-  const contentsUploader = new ContentsUploader(contentsManagerFactory);
-
   const localWriter = new FSLocalFileWriter();
 
   const contentsDownloader = new ContentsDownloader(contentsManagerFactory, localWriter);
 
   return {
-    contentsUploader,
     contentsDownloader,
     contentsManagerFactory,
   };

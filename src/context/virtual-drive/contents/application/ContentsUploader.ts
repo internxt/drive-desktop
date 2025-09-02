@@ -1,23 +1,20 @@
-import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
 import { createReadStream, Stats } from 'fs';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type Props = {
+  ctx: ProcessSyncContext;
   path: RelativePath;
   absolutePath: AbsolutePath;
   stats: Stats;
 };
 
 export class ContentsUploader {
-  constructor(private readonly remoteContentsManagersFactory: EnvironmentRemoteFileContentsManagersFactory) {}
-
-  async run({ path, absolutePath, stats }: Props) {
-    const uploader = this.remoteContentsManagersFactory.uploader();
-
+  static async run({ ctx, path, absolutePath, stats }: Props) {
     const readable = createReadStream(absolutePath);
-    const { data: contentsId, error } = await uploader.run({
+    const { data: contentsId, error } = await ctx.fileUploader.run({
       readable,
       absolutePath,
       size: stats.size,

@@ -8,7 +8,6 @@ import { logger } from '../shared/logger/logger';
 import { Traverser, Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
-import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
 import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
@@ -62,11 +61,7 @@ export class BindingsManager {
      * were in the root folder have their placeholders gone, so we need to refresh first
      * all item placeholders and the execute this function.
      */
-    void addPendingItems({
-      ctx,
-      controllers: this.controllers,
-      fileContentsUploader: this.container.contentsUploader,
-    });
+    void addPendingItems({ ctx, controllers: this.controllers });
   }
 
   watch({ ctx }: { ctx: ProcessSyncContext }) {
@@ -74,14 +69,6 @@ export class BindingsManager {
       virtulDrive: this.container.virtualDrive,
       watcherCallbacks: {
         addController: this.controllers.addFile,
-        updateContentsId: async ({ stats, path, absolutePath, uuid }) =>
-          await updateContentsId({
-            stats,
-            path,
-            absolutePath,
-            uuid,
-            fileContentsUploader: this.container.contentsUploader,
-          }),
       },
     });
 
@@ -113,7 +100,7 @@ export class BindingsManager {
     try {
       const tree = await Traverser.run({ ctx });
       await this.load(tree);
-      await this.container.fileDangledManager.run();
+      await this.container.fileDangledManager.run({ ctx });
     } catch (error) {
       logger.error({ msg: '[SYNC ENGINE] Polling error', workspaceId, error });
     }
