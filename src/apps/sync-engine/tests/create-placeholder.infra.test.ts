@@ -18,12 +18,14 @@ import { ipcRenderer } from 'electron';
 import { initializeVirtualDrive, virtualDrive } from '../dependency-injection/common/virtualDrive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
+import * as addPendingItems from '../in/add-pending-items';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('create-placeholder', () => {
+  partialSpyOn(addPendingItems, 'addPendingItems');
   const onAllMock = partialSpyOn(onAll, 'onAll');
   const invokeMock = partialSpyOn(ipcRenderer, 'invoke');
   const createFileMock = vi.mocked(driveServerWip.files.createFile);
@@ -47,7 +49,7 @@ describe('create-placeholder', () => {
     VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
-  it('Should create placeholder', async () => {
+  it('should create placeholder', async () => {
     // Given
     setDefaultConfig({
       rootPath,

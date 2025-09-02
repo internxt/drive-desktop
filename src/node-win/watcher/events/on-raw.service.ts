@@ -13,13 +13,13 @@ type TProps = {
 };
 
 export async function onRaw({ ctx, self, event, absolutePath, details }: TProps) {
-  const path = pathUtils.absoluteToRelative({
-    base: self.virtualDrive.syncRootPath,
-    path: absolutePath,
-  });
+  if (event === 'change' && details.prev && details.curr) {
+    const path = pathUtils.absoluteToRelative({
+      base: self.virtualDrive.syncRootPath,
+      path: absolutePath,
+    });
 
-  try {
-    if (event === 'change' && details.prev && details.curr) {
+    try {
       const { data, error } = await fileSystem.stat({ absolutePath });
 
       if (error) {
@@ -36,8 +36,8 @@ export async function onRaw({ ctx, self, event, absolutePath, details }: TProps)
       }
 
       await detectContextMenuAction({ ctx, self, details, absolutePath, path });
+    } catch (error) {
+      self.logger.error({ msg: 'Error on change event', path, error });
     }
-  } catch (error) {
-    self.logger.error({ msg: 'Error on change', path, error });
   }
 }
