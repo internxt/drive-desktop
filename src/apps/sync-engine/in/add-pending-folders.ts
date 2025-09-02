@@ -1,14 +1,15 @@
 import { PendingPaths } from './get-pending-items';
-import { IControllers } from '../callbacks-controllers/buildControllers';
 import { virtualDrive } from '../dependency-injection/common/virtualDrive';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ProcessSyncContext } from '../config';
+import { createFolder } from '@/features/sync/add-item/create-folder';
 
 type TProps = {
-  controllers: IControllers;
+  ctx: ProcessSyncContext;
   pendingFolders: PendingPaths[];
 };
 
-export async function addPendingFolders({ controllers, pendingFolders }: TProps) {
+export async function addPendingFolders({ ctx, pendingFolders }: TProps) {
   await Promise.all(
     pendingFolders.map(async ({ absolutePath }) => {
       const path = pathUtils.absoluteToRelative({
@@ -16,7 +17,7 @@ export async function addPendingFolders({ controllers, pendingFolders }: TProps)
         path: absolutePath,
       });
 
-      await controllers.addFile.createFolder({ path, absolutePath });
+      await createFolder({ ctx, path, absolutePath });
     }),
   );
 }

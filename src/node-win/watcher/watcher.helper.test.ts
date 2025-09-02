@@ -7,7 +7,7 @@ import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import VirtualDrive from '../virtual-drive';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { getMockCalls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { getMockCalls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as unlinkFile from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import * as unlinkFolder from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import * as onAll from './events/on-all.service';
@@ -35,7 +35,8 @@ export async function setupWatcher(syncRootPath: string) {
   }
 
   watcher = new Watcher(syncRootPath as AbsolutePath, {}, queueManager, logger, virtualDrive, watcherCallbacks);
-  watcher.watchAndWait();
+  const props = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
+  watcher.watchAndWait(props);
 }
 
 export function getEvents() {

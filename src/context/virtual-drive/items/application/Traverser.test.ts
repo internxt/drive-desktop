@@ -1,7 +1,7 @@
 import { v4 } from 'uuid';
 import { Traverser } from './Traverser';
 import * as crypt from '@/context/shared/infrastructure/crypt';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { getAllItems } from './RemoteItemsGenerator';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -16,7 +16,7 @@ describe('Traverser', () => {
 
   const rootPath = 'C:/Users/user/InternxtDrive' as AbsolutePath;
   const rootUuid = v4() as FolderUuid;
-  const SUT = new Traverser(rootPath, rootUuid);
+  const props = mockProps<typeof Traverser.run>({ ctx: { rootPath, rootUuid } });
 
   beforeAll(() => {
     cryptMock.decryptName.mockImplementation(({ encryptedName }) => encryptedName);
@@ -38,7 +38,7 @@ describe('Traverser', () => {
       folders: [],
     });
 
-    const tree = await SUT.run();
+    const tree = await Traverser.run(props);
 
     expect(extractPaths(tree.files)).toStrictEqual(['/file.txt']);
     expect(extractPaths(tree.folders)).toStrictEqual(['/']);
@@ -64,7 +64,7 @@ describe('Traverser', () => {
       ],
     });
 
-    const tree = await SUT.run();
+    const tree = await Traverser.run(props);
 
     expect(extractPaths(tree.files)).toStrictEqual(['/folder/file.txt']);
     expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder']);
@@ -89,7 +89,7 @@ describe('Traverser', () => {
       ],
     });
 
-    const tree = await SUT.run();
+    const tree = await Traverser.run(props);
 
     expect(extractPaths(tree.files)).toStrictEqual([]);
     expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder1', '/folder1/folder2']);
@@ -123,7 +123,7 @@ describe('Traverser', () => {
       ],
     });
 
-    const tree = await SUT.run();
+    const tree = await Traverser.run(props);
 
     expect(extractPaths(tree.files)).toStrictEqual(['/file1.txt']);
     expect(extractPaths(tree.folders)).toStrictEqual(['/', '/folder1']);

@@ -2,11 +2,12 @@ import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
-import { setConfig, Config, getConfig, setDefaultConfig, SyncContext } from './config';
+import { setConfig, Config, getConfig, setDefaultConfig, ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { initializeVirtualDrive } from './dependency-injection/common/virtualDrive';
+import { initializeVirtualDrive, virtualDrive } from './dependency-injection/common/virtualDrive';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
+import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -19,7 +20,7 @@ async function ensureTheFolderExist(path: string) {
   }
 }
 
-async function setUp({ ctx }: { ctx: SyncContext }) {
+async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Starting sync engine process' });
 
   const { rootPath } = getConfig();
@@ -28,14 +29,12 @@ async function setUp({ ctx }: { ctx: SyncContext }) {
 
   await ensureTheFolderExist(rootPath);
 
-  initializeVirtualDrive();
-
   const container = DependencyContainerFactory.build();
 
   const bindings = new BindingsManager(container);
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    await bindings.updateAndCheckPlaceholders();
+    await bindings.updateAndCheckPlaceholders({ ctx });
   });
 
   ipcRendererSyncEngine.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
@@ -54,7 +53,7 @@ async function setUp({ ctx }: { ctx: SyncContext }) {
   });
 
   await bindings.start({ ctx });
-  bindings.watch();
+  bindings.watch({ ctx });
 
   logger.debug({ msg: '[SYNC ENGINE] Second sync engine started' });
 }
@@ -72,9 +71,14 @@ async function refreshToken() {
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
   setConfig(config);
 
-  const ctx: SyncContext = {
+  initializeVirtualDrive();
+
+  const { fileUploader } = buildFileUploader({ bucket: config.bucket });
+  const ctx: ProcessSyncContext = {
     ...config,
     abortController: new AbortController(),
+    virtualDrive,
+    fileUploader,
   };
 
   if (config.workspaceToken) {

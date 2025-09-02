@@ -1,6 +1,8 @@
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { getUser } from '../main/auth/service';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
+import { VirtualDrive } from '@/node-win/virtual-drive';
+import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 
 export type Config = {
   userUuid: string;
@@ -19,6 +21,11 @@ export type Config = {
 };
 
 export type SyncContext = AuthContext & Config;
+
+export type ProcessSyncContext = SyncContext & {
+  virtualDrive: VirtualDrive;
+  fileUploader: EnvironmentFileUploader;
+};
 
 const emptyValues = (): Config => {
   return {
