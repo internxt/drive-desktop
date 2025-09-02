@@ -2,17 +2,18 @@ import { mockDeep } from 'vitest-mock-extended';
 import { EnvironmentFileUploader } from './environment-file-uploader';
 import { Environment } from '@internxt/inxt-js';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { ReadStream } from 'fs';
 import { ActionState, ActionTypes } from '@internxt/inxt-js/build/api';
 import { FileUploaderCallbacks } from './file-uploader';
 import * as processError from './process-error';
 import * as abortOnChangeSize from './abort-on-change-size';
+import * as fs from 'fs';
 
 vi.mock(import('fs'));
 
 describe('environment-file-uploader', () => {
   partialSpyOn(abortOnChangeSize, 'abortOnChangeSize');
   const processErrorMock = partialSpyOn(processError, 'processError');
+  const createReadStream = partialSpyOn(fs, 'createReadStream');
   const environment = mockDeep<Environment>();
   const bucket = 'bucket';
   const service = new EnvironmentFileUploader(environment, bucket);
@@ -21,6 +22,9 @@ describe('environment-file-uploader', () => {
   let abortController: AbortController;
   let props: Parameters<typeof service.upload>[0];
 
+  const mockedReadable = mockProps({ destroy: vi.fn(), close: vi.fn() });
+
+  createReadStream.mockReturnValue(mockedReadable);
   beforeEach(() => {
     abortController = new AbortController();
     props = mockProps<typeof service.upload>({ size: 100, callbacks, abortSignal: abortController.signal });
@@ -89,7 +93,6 @@ describe('environment-file-uploader', () => {
 
   it('should destroy read stream if signal aborted', async () => {
     // Given
-    props.readable = new ReadStream();
     environment.upload.mockImplementation((_, opts) => {
       setTimeout(() => {
         abortController.abort();
@@ -100,6 +103,6 @@ describe('environment-file-uploader', () => {
     // When
     await service.upload(props);
     // Then
-    expect(props.readable.destroy).toBeCalledTimes(1);
+    expect(mockedReadable.destroy).toBeCalledTimes(1);
   });
 });
