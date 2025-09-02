@@ -14,16 +14,14 @@ import * as updateFolderStatus from '@/backend/features/local-sync/placeholders/
 vi.mock(import('@/infra/node-win/node-win.module'));
 
 describe('Folder Creator', () => {
-  const remote = mockDeep<HttpRemoteFolderSystem>();
   const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderUuid = deepMocked(NodeWin.getFolderUuid);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
+  const persistMock = partialSpyOn(HttpRemoteFolderSystem, 'persist');
   const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
 
-  const SUT = new FolderCreator(remote);
-
   const path = createRelativePath('folder1', 'folder2');
-  const props = mockProps<typeof SUT.run>({ ctx: { virtualDrive }, path });
+  const props = mockProps<typeof FolderCreator.run>({ ctx: { virtualDrive }, path });
 
   beforeEach(() => {
     invokeMock.mockResolvedValue({});
@@ -34,7 +32,7 @@ describe('Folder Creator', () => {
     getFolderUuid.mockReturnValueOnce({ error: new Error() });
 
     // When
-    const promise = SUT.run(props);
+    const promise = FolderCreator.run(props);
 
     // Then
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
@@ -42,18 +40,20 @@ describe('Folder Creator', () => {
 
   it('If placeholder id is found, create folder', async () => {
     // Given
-    remote.persist.mockResolvedValueOnce({ uuid: 'uuid' } as any);
+    persistMock.mockResolvedValueOnce({ uuid: 'uuid' });
     getFolderUuid.mockReturnValueOnce({ data: 'parentUuid' as FolderUuid });
 
     // When
-    await SUT.run(props);
+    await FolderCreator.run(props);
 
     // Then
-    expect(remote.persist).toBeCalledWith({
-      parentUuid: 'parentUuid',
-      plainName: 'folder2',
-      path: '/folder1/folder2',
-    });
+    expect(persistMock).toBeCalledWith(
+      expect.objectContaining({
+        parentUuid: 'parentUuid',
+        plainName: 'folder2',
+        path: '/folder1/folder2',
+      }),
+    );
 
     expect(invokeMock).toBeCalledWith('folderCreateOrUpdate', {
       folder: {

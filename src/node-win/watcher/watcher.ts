@@ -5,18 +5,16 @@ import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
 import VirtualDrive from '../virtual-drive';
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
 import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
-import { Stats } from 'fs';
 import { debounceOnRaw } from './events/debounce-on-raw';
 import { onAll } from './events/on-all.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export type TWatcherCallbacks = {
   addController: AddController;
-  updateContentsId: (_: { stats: Stats; path: RelativePath; absolutePath: AbsolutePath; uuid: string }) => Promise<void>;
 };
 
 export class Watcher {
@@ -61,7 +59,7 @@ export class Watcher {
          */
         .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ virtualDrive: this.virtualDrive, absolutePath }))
         .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ virtualDrive: this.virtualDrive, absolutePath }))
-        .on('raw', (event, absolutePath: AbsolutePath, details) => debounceOnRaw({ self: this, event, absolutePath, details }))
+        .on('raw', (event, absolutePath: AbsolutePath, details) => debounceOnRaw({ ctx, self: this, event, absolutePath, details }))
         .on('error', this.onError)
         .on('ready', this.onReady);
     } catch (exc) {

@@ -1,16 +1,14 @@
 import { loadInMemoryPaths } from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
-import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { syncModifiedFile } from './sync-modified-file';
-import { VirtualDrive } from '@/node-win/virtual-drive';
 import { getExistingFiles } from '@/context/virtual-drive/items/application/RemoteItemsGenerator';
+import { ProcessSyncContext } from '../config';
 
 type Props = {
-  fileContentsUploader: ContentsUploader;
-  virtualDrive: VirtualDrive;
+  ctx: ProcessSyncContext;
 };
 
-export async function syncModifiedFiles({ fileContentsUploader, virtualDrive }: Props) {
+export async function syncModifiedFiles({ ctx }: Props) {
   const remoteDriveFiles = await getExistingFiles();
   const { files } = await loadInMemoryPaths();
 
@@ -18,7 +16,8 @@ export async function syncModifiedFiles({ fileContentsUploader, virtualDrive }: 
     const localFile = files[remoteDriveFile.uuid as FileUuid];
     if (!localFile) return;
 
-    await syncModifiedFile({ remoteFile: remoteDriveFile, localFile, fileContentsUploader, virtualDrive });
+    await syncModifiedFile({ ctx, remoteFile: remoteDriveFile, localFile });
   });
+
   await Promise.all(promises);
 }

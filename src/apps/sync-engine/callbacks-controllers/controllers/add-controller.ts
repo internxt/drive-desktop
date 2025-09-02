@@ -1,7 +1,5 @@
 import { FileCreationOrchestrator } from '../../../../context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
-import { FolderCreator } from '../../../../context/virtual-drive/folders/application/FolderCreator';
 import { logger } from '@/apps/shared/logger/logger';
-import { createFolder } from '@/features/sync/add-item/create-folder';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from '@/features/sync/add-item/create-file';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
@@ -15,10 +13,7 @@ export class AddController {
   // - a folder has been added
   // - a file has been saved
 
-  constructor(
-    private readonly fileCreationOrchestrator: FileCreationOrchestrator,
-    private readonly folderCreator: FolderCreator,
-  ) {}
+  constructor(private readonly fileCreationOrchestrator: FileCreationOrchestrator) {}
 
   async createFile({
     ctx,
@@ -54,16 +49,11 @@ export class AddController {
         ctx,
         absolutePath,
         path,
-        folderCreator: this.folderCreator,
         fileCreationOrchestrator: this.fileCreationOrchestrator,
         stats,
       });
     } catch (error) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error in file creation', path, error });
     }
-  }
-
-  async createFolder({ ctx, path, absolutePath }: { ctx: ProcessSyncContext; path: RelativePath; absolutePath: AbsolutePath }) {
-    await createFolder({ ctx, path, absolutePath, folderCreator: this.folderCreator });
   }
 }

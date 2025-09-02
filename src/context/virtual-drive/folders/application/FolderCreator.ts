@@ -14,9 +14,7 @@ type TProps = {
 };
 
 export class FolderCreator {
-  constructor(private readonly remote: HttpRemoteFolderSystem) {}
-
-  async run({ ctx, path, absolutePath }: TProps) {
+  static async run({ ctx, path, absolutePath }: TProps) {
     const posixDir = pathUtils.dirname(path);
     const { data: parentUuid } = NodeWin.getFolderUuid({
       drive: ctx.virtualDrive,
@@ -27,7 +25,8 @@ export class FolderCreator {
       throw new FolderNotFoundError(posixDir);
     }
 
-    const folderDto = await this.remote.persist({
+    const folderDto = await HttpRemoteFolderSystem.persist({
+      ctx,
       parentUuid,
       plainName: posix.basename(path),
       path,

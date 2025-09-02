@@ -5,6 +5,7 @@ import { FileOverwriteContent } from '../../files/application/FileOverwriteConte
 import { DangledFilesManager, PushAndCleanInput } from '../../shared/domain/DangledFilesManager';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FileDangledManager {
   constructor(
@@ -12,7 +13,7 @@ export class FileDangledManager {
     private readonly fileOverwriteContent: FileOverwriteContent,
   ) {}
 
-  async run(): Promise<void> {
+  async run({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
     await DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
       await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
         toUpdate: input.toUpdateContentsIds,
@@ -49,7 +50,7 @@ export class FileDangledManager {
 
     if (dangledFilesIds.length > 0) {
       logger.debug({ msg: `Dangled files: ${dangledFilesIds}` });
-      await this.fileOverwriteContent.run({
+      await this.fileOverwriteContent.run(ctx, {
         contentsIds: dangledFilesIds,
         downloaderManger: this.contentsManagerFactory,
       });
