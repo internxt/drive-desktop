@@ -1,14 +1,13 @@
-import { BackupInfo } from '@/apps/backups/BackupInfo';
 import { getConfig } from '@/apps/sync-engine/config';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { Environment } from '@internxt/inxt-js';
 
 type Props = {
-  backupInfo: BackupInfo;
+  bucket: string;
 };
 
-export function buildFileUploader({ backupInfo }: Props) {
+export function buildFileUploader({ bucket }: Props) {
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
     bridgeUser: getConfig().bridgeUser,
@@ -21,7 +20,7 @@ export function buildFileUploader({ backupInfo }: Props) {
     },
   });
 
-  const fileUploader = new EnvironmentFileUploader(environment, backupInfo.backupsBucket);
+  const fileUploader = new EnvironmentFileUploader(environment, bucket);
 
-  return fileUploader;
+  return { environment, fileUploader };
 }

@@ -6,17 +6,17 @@ import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { Stats } from 'fs';
-import { getConfig } from '../../config';
+import { getConfig, ProcessSyncContext } from '../../config';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   stats: Stats;
   path: RelativePath;
   absolutePath: AbsolutePath;
   uuid: string;
-  fileContentsUploader: ContentsUploader;
 };
 
-export async function updateContentsId({ stats, path, absolutePath, uuid, fileContentsUploader }: TProps) {
+export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }: TProps) {
   try {
     if (stats.size === 0 || stats.size > BucketEntry.MAX_SIZE) {
       logger.warn({
@@ -28,7 +28,7 @@ export async function updateContentsId({ stats, path, absolutePath, uuid, fileCo
       return;
     }
 
-    const contents = await fileContentsUploader.run({ path, stats });
+    const contents = await ContentsUploader.run({ ctx, path, absolutePath, stats });
 
     const { data: fileDto, error } = await driveServerWip.files.replaceFile({
       uuid,

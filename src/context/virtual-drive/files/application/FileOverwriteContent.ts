@@ -8,6 +8,7 @@ import { FileContentsHardUpdater } from './FileContentsHardUpdater';
 import { EnvironmentContentFileDownloader } from '../../contents/infrastructure/download/EnvironmentContentFileDownloader';
 import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FileOverwriteContent {
   private processingErrorQueue: boolean;
@@ -70,7 +71,7 @@ export class FileOverwriteContent {
     });
   }
 
-  async run(input: { contentsIds: string[]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
+  async run(ctx: ProcessSyncContext, input: { contentsIds: string[]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
     const { contentsIds, downloaderManger } = input;
     logger.debug({ msg: 'Inside overrideDangledFiles' });
     const files = this.repository.searchByContentsIds(contentsIds);
@@ -92,7 +93,7 @@ export class FileOverwriteContent {
       logger.debug({ msg: 'hydratedDangledRemoteFile ', id: hydratedDangledRemoteFile.contentsId, path: hydratedDangledRemoteFile.path });
 
       if (!hydratedDangledRemoteFile.parentUuid) return;
-      await this.fileContentsHardUpdater.run({
+      await this.fileContentsHardUpdater.run(ctx, {
         attributes: {
           contentsId: hydratedDangledRemoteFile.contentsId,
           folderUuid: hydratedDangledRemoteFile.parentUuid,

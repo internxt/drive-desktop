@@ -1,22 +1,19 @@
 import * as loadInMemoryPathsModule from '@/backend/features/remote-sync/sync-items-by-checkpoint/load-in-memory-paths';
 import { createRelativePath, AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { partialSpyOn, mockProps } from '@/tests/vitest/utils.helper.test';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as syncModifiedFileModule from './sync-modified-file';
 import * as remoteItemsGeneratorModule from '@/context/virtual-drive/items/application/RemoteItemsGenerator';
 import { syncModifiedFiles } from './sync-modified-files';
-import { VirtualDrive } from '@/node-win/virtual-drive';
-import { mockDeep } from 'vitest-mock-extended';
 import { Stats } from 'fs';
 
 describe('sync-modified-files', () => {
-  const virtualDrive = mockDeep<VirtualDrive>();
-  const fileContentsUploader = mockDeep<ContentsUploader>();
-
   const loadInMemoryPathsMock = partialSpyOn(loadInMemoryPathsModule, 'loadInMemoryPaths');
   const syncModifiedFileMock = partialSpyOn(syncModifiedFileModule, 'syncModifiedFile');
   const getExistingFilesMock = partialSpyOn(remoteItemsGeneratorModule, 'getExistingFiles');
+
+  const ctx = {};
+  const props = mockProps<typeof syncModifiedFiles>({ ctx });
 
   const createRemoteFile = (uuid: FileUuid, name = 'test.txt') =>
     mockProps({
@@ -61,21 +58,19 @@ describe('sync-modified-files', () => {
       folders: {},
     });
     // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
+    await syncModifiedFiles(props);
     // Then
     expect(syncModifiedFileMock).toBeCalledTimes(2);
     expect(syncModifiedFileMock).toHaveBeenNthCalledWith(1, {
       remoteFile: remoteFile1,
       localFile: localFile1,
-      fileContentsUploader,
-      virtualDrive,
+      ctx,
     });
 
     expect(syncModifiedFileMock).toHaveBeenNthCalledWith(2, {
       remoteFile: remoteFile2,
       localFile: localFile2,
-      fileContentsUploader,
-      virtualDrive,
+      ctx,
     });
   });
 
@@ -87,7 +82,7 @@ describe('sync-modified-files', () => {
       folders: {},
     });
     // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
+    await syncModifiedFiles(props);
     // Then
     expect(syncModifiedFileMock).not.toBeCalled();
   });
@@ -117,21 +112,19 @@ describe('sync-modified-files', () => {
       folders: {},
     });
     // When
-    await syncModifiedFiles({ fileContentsUploader, virtualDrive });
+    await syncModifiedFiles(props);
     // Then
     expect(syncModifiedFileMock).toBeCalledTimes(2);
     expect(syncModifiedFileMock).toHaveBeenNthCalledWith(1, {
       remoteFile: remoteFile1,
       localFile: localFile1,
-      fileContentsUploader,
-      virtualDrive,
+      ctx,
     });
 
     expect(syncModifiedFileMock).toHaveBeenNthCalledWith(2, {
       remoteFile: remoteFile4,
       localFile: localFile4,
-      fileContentsUploader,
-      virtualDrive,
+      ctx,
     });
   });
 
@@ -158,7 +151,7 @@ describe('sync-modified-files', () => {
 
     syncModifiedFileMock.mockRejectedValueOnce(new Error('Sync failed for file1')).mockResolvedValueOnce(undefined);
     // When
-    await expect(syncModifiedFiles({ fileContentsUploader, virtualDrive })).rejects.toThrow();
+    await expect(syncModifiedFiles(props)).rejects.toThrow();
     // Then
     expect(syncModifiedFileMock).toBeCalledTimes(2);
   });
@@ -168,7 +161,7 @@ describe('sync-modified-files', () => {
     getExistingFilesMock.mockResolvedValue([createRemoteFile('123e4567-e89b-12d3-a456-426614174000' as FileUuid)]);
     loadInMemoryPathsMock.mockRejectedValue(new Error('Failed to load in-memory paths'));
     // When / Then
-    await expect(syncModifiedFiles({ fileContentsUploader, virtualDrive })).rejects.toThrow('Failed to load in-memory paths');
+    await expect(syncModifiedFiles(props)).rejects.toThrow('Failed to load in-memory paths');
     expect(syncModifiedFileMock).not.toBeCalled();
   });
 });

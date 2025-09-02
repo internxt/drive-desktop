@@ -19,9 +19,9 @@ describe('sync-modified-file', () => {
     virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
 
     props = mockProps<typeof syncModifiedFile>({
+      ctx: { virtualDrive },
       localFile: { stats: { size: 1000, mtime: new Date('2000-01-02T00:00:00.000Z') } },
       remoteFile: { size: 1500, updatedAt: '2000-01-01T00:00:00.000Z' },
-      virtualDrive,
     });
   });
 

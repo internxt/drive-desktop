@@ -27,15 +27,15 @@ describe('get-files-from-directory', () => {
   it('Should return all files', async () => {
     // Given
     PathTypeCheckerMock.isFolder.mockResolvedValue(true);
-    readdirMock.mockResolvedValueOnce([
-      { name: 'file1' as unknown as Buffer, isFile: () => true, isDirectory: () => false },
-      { name: 'file2' as unknown as Buffer, isFile: () => true, isDirectory: () => false },
-      { name: 'tmpfile1' as unknown as Buffer, isFile: () => true, isDirectory: () => false },
-      { name: 'tempfile1' as unknown as Buffer, isFile: () => true, isDirectory: () => false },
-      { name: 'folder1' as unknown as Buffer, isFile: () => false, isDirectory: () => true },
-      { name: 'folder2' as unknown as Buffer, isFile: () => false, isDirectory: () => true },
-    ]);
-    readdirMock.mockResolvedValueOnce([{ name: 'file3' as unknown as Buffer, isFile: () => true, isDirectory: () => false }]);
+    readdirMock
+      .mockResolvedValueOnce([
+        { name: 'file1' as unknown as Buffer, isFile: () => true, isDirectory: () => false },
+        { name: 'file2' as unknown as Buffer, isFile: () => true, isDirectory: () => false },
+        { name: 'folder1' as unknown as Buffer, isFile: () => false, isDirectory: () => true },
+        { name: 'folder2' as unknown as Buffer, isFile: () => false, isDirectory: () => true },
+      ])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([{ name: 'file3' as unknown as Buffer, isFile: () => true, isDirectory: () => false }]);
 
     // When
     const files = await getFilesFromDirectory({ rootFolder });

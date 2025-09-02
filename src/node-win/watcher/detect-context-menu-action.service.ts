@@ -6,15 +6,18 @@ import { Watcher } from './watcher';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
+import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   self: Watcher;
   details: { prev: Stats; curr: Stats };
   absolutePath: AbsolutePath;
   path: RelativePath;
 };
 
-export async function detectContextMenuAction({ self, details, absolutePath, path }: TProps) {
+export async function detectContextMenuAction({ ctx, self, details, absolutePath, path }: TProps) {
   const { prev, curr } = details;
 
   const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
@@ -34,7 +37,7 @@ export async function detectContextMenuAction({ self, details, absolutePath, pat
     });
 
     self.fileInDevice.add(absolutePath);
-    await self.callbacks.updateContentsId({ stats: curr, path, absolutePath, uuid });
+    await updateContentsId({ ctx, stats: curr, path, absolutePath, uuid });
     return;
   }
 

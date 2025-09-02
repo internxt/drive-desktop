@@ -3,6 +3,10 @@ import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { logger } from '@/apps/shared/logger/logger';
+import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
+import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type FileContentsHardUpdaterRun = {
   attributes: OfflineFileAttributes;
@@ -10,10 +14,10 @@ type FileContentsHardUpdaterRun = {
 export class FileContentsHardUpdater {
   constructor(
     private readonly remote: HttpRemoteFileSystem,
-    private readonly contentsUploader: ContentsUploader,
+    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  async run(input: FileContentsHardUpdaterRun) {
+  async run(ctx: ProcessSyncContext, input: FileContentsHardUpdaterRun) {
     const { attributes } = input;
     try {
       logger.debug({ msg: 'Running hard update before upload' });
@@ -21,7 +25,12 @@ export class FileContentsHardUpdater {
       const { data: stats, error } = await fileSystem.stat({ absolutePath: attributes.path });
       if (error) throw error;
 
-      const content = await this.contentsUploader.run({ path: attributes.path, stats });
+      const { path } = attributes;
+      const win32RelativePath = PlatformPathConverter.posixToWin(path);
+
+      const absolutePath = this.relativePathToAbsoluteConverter.run(win32RelativePath) as AbsolutePath;
+
+      const content = await ContentsUploader.run({ ctx, path, absolutePath, stats });
 
       logger.debug({ msg: 'Running hard update after upload, Content id generated', content });
 

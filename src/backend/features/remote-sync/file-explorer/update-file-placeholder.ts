@@ -5,6 +5,7 @@ import { rename } from 'fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
+import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 
 export class FilePlaceholderUpdater {
   constructor(private readonly virtualDrive: VirtualDrive) {}
@@ -31,16 +32,22 @@ export class FilePlaceholderUpdater {
         return;
       }
 
-      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath: localPath.path })) {
+      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath: localPath.absolutePath })) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Moving file placeholder',
           remotePath,
-          localPath,
+          localPath: localPath.absolutePath,
         });
 
-        await rename(localPath.path, remotePath);
+        await rename(localPath.absolutePath, remotePath);
       }
+
+      await syncRemoteChangesToLocal({
+        virtualDrive: this.virtualDrive,
+        local: localPath,
+        remote,
+      });
     } catch (exc) {
       logger.error({
         tag: 'SYNC-ENGINE',
