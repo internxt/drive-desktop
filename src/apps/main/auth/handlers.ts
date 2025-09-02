@@ -2,7 +2,7 @@ import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
-import { checkUserData, createTokenSchedule } from './refresh-token';
+import { checkUserData, createTokenSchedule, RefreshError } from './refresh-token';
 import { canHisConfigBeRestored, encryptToken, getUser, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
@@ -48,7 +48,14 @@ export async function checkIfUserIsLoggedIn() {
 
   await checkUserData();
   encryptToken();
-  await createTokenSchedule();
+
+  try {
+    await createTokenSchedule();
+  } catch (exc) {
+    if (exc instanceof RefreshError) return;
+    else throw exc;
+  }
+
   await emitUserLoggedIn();
 }
 
