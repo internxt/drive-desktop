@@ -28,7 +28,7 @@ export async function updateContentsId({ stats, path, absolutePath, uuid, fileCo
       return;
     }
 
-    const contents = await fileContentsUploader.run({ path, stats });
+    const contents = await fileContentsUploader.run({ path, absolutePath, stats });
 
     const { data: fileDto, error } = await driveServerWip.files.replaceFile({
       uuid,
