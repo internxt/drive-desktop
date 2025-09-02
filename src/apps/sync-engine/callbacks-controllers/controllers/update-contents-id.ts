@@ -51,7 +51,7 @@ export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }:
       absolutePath,
     });
 
-    updateFileStatus({ path });
+    updateFileStatus({ ctx, path });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',
