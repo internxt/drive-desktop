@@ -6,18 +6,17 @@ import { createFile } from './create-file';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { initializeVirtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('create-file', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
-  initializeVirtualDrive(virtualDrive);
 
   const fileCreationOrchestratorMock = mockDeep<FileCreationOrchestrator>();
   const createParentFolderMock = partialSpyOn(createParentFolder, 'createParentFolder');
 
   const path = createRelativePath('folder', 'file.txt');
   const props = mockProps<typeof createFile>({
+    ctx: { virtualDrive },
     path,
     fileCreationOrchestrator: fileCreationOrchestratorMock,
   });
@@ -29,7 +28,7 @@ describe('create-file', () => {
     await createFile(props);
     // Then
     expect(fileCreationOrchestratorMock.run).toBeCalledTimes(1);
-    expect(fileCreationOrchestratorMock.run).toBeCalledWith({ path });
+    expect(fileCreationOrchestratorMock.run).toBeCalledWith(expect.objectContaining({ path }));
     expect(virtualDrive.convertToPlaceholder).toBeCalledTimes(1);
     expect(virtualDrive.convertToPlaceholder).toBeCalledWith({ itemPath: path, id: 'FILE:uuid' });
     expect(virtualDrive.updateSyncStatus).toBeCalledTimes(1);
@@ -44,6 +43,6 @@ describe('create-file', () => {
     // Then
     expect(fileCreationOrchestratorMock.run).toBeCalledTimes(2);
     expect(createParentFolderMock).toBeCalledTimes(1);
-    expect(createParentFolderMock).toBeCalledWith({ path });
+    expect(createParentFolderMock).toBeCalledWith(expect.objectContaining({ path }));
   });
 });

@@ -6,6 +6,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Dirent } from 'fs';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('fs/promises'));
 
@@ -15,7 +16,9 @@ describe('load-in-memory-paths', () => {
   const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
   const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
 
-  const props = mockProps<typeof loadInMemoryPaths>({ ctx: { virtualDrive: {} } });
+  const props = mockProps<typeof loadInMemoryPaths>({
+    ctx: { virtualDrive: { syncRootPath: 'C:/Users/user/InternxtDrive' as AbsolutePath } },
+  });
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
     // Given
