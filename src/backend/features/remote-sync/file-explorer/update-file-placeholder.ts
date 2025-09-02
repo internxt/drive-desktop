@@ -37,7 +37,7 @@ export class FilePlaceholderUpdater {
           tag: 'SYNC-ENGINE',
           msg: 'Moving file placeholder',
           remotePath,
-          localPath,
+          localPath: localPath.absolutePath,
         });
 
         await rename(localPath.absolutePath, remotePath);

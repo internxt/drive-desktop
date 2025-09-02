@@ -1,6 +1,5 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { PinState } from '@/node-win/types/placeholder.type';
 import { logger } from '@/apps/shared/logger/logger';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { existsSync, Stats } from 'fs';
@@ -14,8 +13,7 @@ type Props = {
 
 export async function syncRemoteChangesToLocal({ remote, local, virtualDrive }: Props) {
   const remoteDate = new Date(remote.updatedAt);
-  const { pinState } = virtualDrive.getPlaceholderState({ path: local.absolutePath });
-  if (pinState === PinState.AlwaysLocal && remote.size !== local.stats.size && remoteDate > local.stats.mtime) {
+  if (remote.size !== local.stats.size && remoteDate > local.stats.mtime) {
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Syncing remote changes to local',
