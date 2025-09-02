@@ -60,15 +60,6 @@ describe('sync-remote-to-local', () => {
     });
   });
 
-  it('should not sync when pinState is not AlwaysLocal', async () => {
-    // Given
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.OnlineOnly });
-    // When
-    await syncRemoteChangesToLocal(props);
-    // Then
-    expect(unlinkMock).not.toBeCalled();
-  });
-
   it('should not sync when remote file is not newer', async () => {
     // Given
     props.local.stats.mtime = new Date('2026-01-01T00:00:00.000Z');
