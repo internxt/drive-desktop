@@ -4,26 +4,18 @@ import { onUserUnauthorized } from './handlers';
 import { getUser, obtainTokens as obtainStoredTokens, setUser, updateCredentials } from './service';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 
-async function obtainTokens() {
+export class RefreshTokenError extends Error {}
+
+async function refreshToken() {
   logger.debug({ msg: 'Obtaining new tokens' });
   const { data, error } = await driveServerWipModule.auth.refresh();
 
   if (error) {
     onUserUnauthorized();
-    throw error;
+    throw new RefreshTokenError();
   }
 
-  return data;
-}
-
-async function refreshToken() {
-  const response = await obtainTokens();
-
-  if (!response) {
-    return;
-  }
-
-  const { token, newToken } = response;
+  const { token, newToken } = data;
 
   updateCredentials(token, newToken);
 
