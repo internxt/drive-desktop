@@ -1,8 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { readdir } from 'fs/promises';
-import { join } from 'path';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
@@ -26,30 +24,24 @@ export async function loadInMemoryPaths() {
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath });
 
-  /**
-   * v2.5.6 Daniel Jiménez
-   * We cannot use `withFileTypes` because it treats everything as a symbolic link,
-   * so we have to use `stat` for each entry.
-   */
-  const entries = await readdir(rootPath, { recursive: true });
+  const items = await fileSystem.syncWalk({ rootFolder: rootPath });
 
-  for (const entry of entries) {
-    const absolutePath = join(rootPath, entry) as AbsolutePath;
-    const { data: stats } = await fileSystem.stat({ absolutePath });
+  for (const item of items) {
+    const { absolutePath, stats } = item;
 
-    if (stats) {
-      if (stats.isDirectory()) {
-        const { data: uuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
-        if (uuid) {
-          folders[uuid] = absolutePath;
-        }
+    if (!stats) continue;
+
+    if (stats.isDirectory()) {
+      const { data: uuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
+      if (uuid) {
+        folders[uuid] = absolutePath;
       }
+    }
 
-      if (stats.isFile()) {
-        const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
-        if (uuid) {
-          files[uuid] = { stats, absolutePath };
-        }
+    if (stats.isFile()) {
+      const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
+      if (uuid) {
+        files[uuid] = { stats, absolutePath };
       }
     }
   }

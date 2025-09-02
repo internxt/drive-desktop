@@ -6,10 +6,10 @@ import { addPendingFolders } from './add-pending-folders';
 import { IControllers } from '../callbacks-controllers/buildControllers';
 import { syncModifiedFiles } from './sync-modified-files';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
-import { SyncContext } from '../config';
+import { ProcessSyncContext } from '../config';
 
 type Props = {
-  ctx: SyncContext;
+  ctx: ProcessSyncContext;
   controllers: IControllers;
   fileContentsUploader: ContentsUploader;
 };
@@ -21,6 +21,8 @@ export async function addPendingItems({ ctx, controllers, fileContentsUploader }
       path: virtualDrive.syncRootPath,
     });
 
+    const startTime = performance.now();
+
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Pending items',
@@ -29,8 +31,17 @@ export async function addPendingItems({ ctx, controllers, fileContentsUploader }
       pendingFolders: pendingFolders.length,
     });
 
-    await Promise.all([addPendingFiles({ pendingFiles, controllers }), addPendingFolders({ pendingFolders, controllers })]);
+    await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders, controllers })]);
     await syncModifiedFiles({ fileContentsUploader, virtualDrive });
+
+    const endTime = performance.now();
+
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: '[TIME] Finish pending items',
+      workspaceId: ctx.workspaceId,
+      time: `${(endTime - startTime) / 1000}s`,
+    });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

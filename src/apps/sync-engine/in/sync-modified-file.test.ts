@@ -12,19 +12,21 @@ describe('sync-modified-file', () => {
   const updateContentsIdMock = partialSpyOn(updateContentsIdModule, 'updateContentsId');
   const pathUtilsMock = partialSpyOn(pathUtils, 'absoluteToRelative');
 
-  const props = mockProps<typeof syncModifiedFile>({
-    localFile: { stats: {} },
-    remoteFile: {},
-    virtualDrive,
-  });
+  let props: Parameters<typeof syncModifiedFile>[0];
 
   beforeEach(() => {
     pathUtilsMock.mockReturnValue(createRelativePath('/test.txt'));
+    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
+
+    props = mockProps<typeof syncModifiedFile>({
+      localFile: { stats: { size: 1000, mtime: new Date('2000-01-02T00:00:00.000Z') } },
+      remoteFile: { size: 1500, updatedAt: '2000-01-01T00:00:00.000Z' },
+      virtualDrive,
+    });
   });
 
   it('should not update remote file if local and remote file sizes are equal', async () => {
     // Given
-    props.localFile.stats.size = 1000;
     props.remoteFile.size = 1000;
     // When
     await syncModifiedFile(props);
@@ -34,8 +36,6 @@ describe('sync-modified-file', () => {
 
   it('should not update remote file if local not hydrated', async () => {
     // Given
-    props.localFile.stats.size = 1000;
-    props.remoteFile.size = 1500;
     virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.OnlineOnly });
     // When
     await syncModifiedFile(props);
@@ -43,11 +43,16 @@ describe('sync-modified-file', () => {
     expect(updateContentsIdMock).not.toBeCalled();
   });
 
-  it('should update remote file if local and remote file sizes are different', async () => {
+  it('should not update remote file if remote is newer', async () => {
     // Given
-    props.localFile.stats.size = 1000;
-    props.remoteFile.size = 1500;
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
+    props.remoteFile.updatedAt = '2000-01-03T00:00:00.000Z';
+    // When
+    await syncModifiedFile(props);
+    // Then
+    expect(updateContentsIdMock).not.toBeCalled();
+  });
+
+  it('should update remote file if local and remote file sizes are different', async () => {
     // When
     await syncModifiedFile(props);
     // Then

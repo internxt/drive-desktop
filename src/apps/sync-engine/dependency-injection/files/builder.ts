@@ -13,11 +13,11 @@ import { virtualDrive } from '../common/virtualDrive';
 export function buildFilesContainer(contentsContainer: ContentsContainer): {
   container: FilesContainer;
 } {
-  const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
+  const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId, virtualDrive);
 
   const repository = new InMemoryFileRepository();
 
-  const fileCreator = new FileCreator(remoteFileSystem, virtualDrive);
+  const fileCreator = new FileCreator(remoteFileSystem);
 
   const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive);
 
