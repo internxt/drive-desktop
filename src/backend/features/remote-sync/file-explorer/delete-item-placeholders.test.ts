@@ -31,7 +31,7 @@ describe('delete-item-placeholders', () => {
 
     it('should not call deleteFileSyncRoot if folder uuids do not match', () => {
       // Given
-      getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
+      getFolderUuid.mockReturnValue({ data: 'different' as FolderUuid });
       // When
       deleteItemPlaceholders(props);
       // Then
@@ -57,7 +57,7 @@ describe('delete-item-placeholders', () => {
 
     it('should not call deleteFileSyncRoot if file uuids do not match', () => {
       // Given
-      getFileUuid.mockReturnValue({ data: 'uuid' as FileUuid });
+      getFileUuid.mockReturnValue({ data: 'different' as FileUuid });
       // When
       deleteItemPlaceholders(props);
       // Then
