@@ -40,6 +40,7 @@ describe('detect-context-menu-action', () => {
 
   it('should update contents id when file modification time changes', async () => {
     // Given
+    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
     props.details.curr.mtimeMs = 2;
     // When
     await detectContextMenuAction(props);
