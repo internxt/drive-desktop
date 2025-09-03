@@ -10,12 +10,12 @@ import { ProcessSyncContext } from '../config';
 type Props = {
   ctx: ProcessSyncContext;
   remoteFile: DriveFile;
-  localFile: { path: AbsolutePath; stats: Stats };
+  localFile: { absolutePath: AbsolutePath; stats: Stats };
 };
 
 export async function syncModifiedFile({ ctx, remoteFile, localFile }: Props) {
   if (localFile.stats.size !== remoteFile.size) {
-    const path = pathUtils.absoluteToRelative({ base: ctx.virtualDrive.syncRootPath, path: localFile.path });
+    const path = pathUtils.absoluteToRelative({ base: ctx.virtualDrive.syncRootPath, path: localFile.absolutePath });
 
     logger.debug({
       tag: 'SYNC-ENGINE',
@@ -54,7 +54,7 @@ export async function syncModifiedFile({ ctx, remoteFile, localFile }: Props) {
       ctx,
       stats: localFile.stats,
       path,
-      absolutePath: localFile.path,
+      absolutePath: localFile.absolutePath,
       uuid: remoteFile.uuid,
     });
   }

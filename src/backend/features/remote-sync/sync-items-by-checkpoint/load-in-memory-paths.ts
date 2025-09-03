@@ -10,7 +10,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 export type InMemoryFiles = Record<
   FileUuid,
   {
-    path: AbsolutePath;
+    absolutePath: AbsolutePath;
     stats: Stats;
   }
 >;
@@ -41,7 +41,7 @@ export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
     if (stats.isFile()) {
       const { data: uuid } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path: absolutePath });
       if (uuid) {
-        files[uuid] = { stats, path: absolutePath };
+        files[uuid] = { stats, absolutePath };
       }
     }
   }
