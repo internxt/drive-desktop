@@ -6,14 +6,14 @@ import { ActionState, ActionTypes } from '@internxt/inxt-js/build/api';
 import { FileUploaderCallbacks } from './file-uploader';
 import * as processError from './process-error';
 import * as abortOnChangeSize from './abort-on-change-size';
-import * as fs from 'fs';
+import { createReadStream, ReadStream } from 'fs';
 
 vi.mock(import('fs'));
 
 describe('environment-file-uploader', () => {
   partialSpyOn(abortOnChangeSize, 'abortOnChangeSize');
   const processErrorMock = partialSpyOn(processError, 'processError');
-  const createReadStream = partialSpyOn(fs, 'createReadStream');
+  const createReadStreamMock = vi.mocked(createReadStream);
   const environment = mockDeep<Environment>();
   const bucket = 'bucket';
   const service = new EnvironmentFileUploader(environment, bucket);
@@ -21,13 +21,12 @@ describe('environment-file-uploader', () => {
   const callbacks = mockDeep<FileUploaderCallbacks>();
   let abortController: AbortController;
   let props: Parameters<typeof service.upload>[0];
-
-  const mockedReadable = mockProps({ destroy: vi.fn(), close: vi.fn() });
-
-  createReadStream.mockReturnValue(mockedReadable);
+  let mockedReadable: ReadStream;
   beforeEach(() => {
     abortController = new AbortController();
     props = mockProps<typeof service.upload>({ size: 100, callbacks, abortSignal: abortController.signal });
+    mockedReadable = mockDeep<ReadStream>();
+    createReadStreamMock.mockReturnValue(mockedReadable);
   });
 
   it('should use upload if file is small than 100MB', async () => {
