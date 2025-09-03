@@ -18,7 +18,7 @@ describe('get-pending-items', () => {
   const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
 
   const rootFolder = 'C:\\Users\\user\\InternxtDrive';
-  const props = mockProps<typeof getPendingItems>({ path: rootFolder });
+  const props = mockProps<typeof getPendingItems>({ path: rootFolder, ctx: {} });
 
   it('should return files and folders that are not uploaded', async () => {
     readdirMock
