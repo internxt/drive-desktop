@@ -1,5 +1,4 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { virtualDrive } from '../dependency-injection/common/virtualDrive';
 import { getPendingItems } from './get-pending-items';
 import { addPendingFiles } from './add-pending-files';
 import { addPendingFolders } from './add-pending-folders';
@@ -15,8 +14,8 @@ type Props = {
 export async function addPendingItems({ ctx, controllers }: Props) {
   try {
     const { pendingFiles, pendingFolders } = await getPendingItems({
-      virtualDrive,
-      path: virtualDrive.syncRootPath,
+      ctx,
+      path: ctx.virtualDrive.syncRootPath,
     });
 
     const startTime = performance.now();

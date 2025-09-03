@@ -29,7 +29,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   await ensureTheFolderExist(rootPath);
 
-  const container = DependencyContainerFactory.build();
+  const container = DependencyContainerFactory.build({ ctx });
 
   const bindings = new BindingsManager(container);
 

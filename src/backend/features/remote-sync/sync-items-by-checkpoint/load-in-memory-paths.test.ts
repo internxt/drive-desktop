@@ -1,26 +1,24 @@
-import { deepMocked, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loadInMemoryPaths } from './load-in-memory-paths';
 import { readdir } from 'fs/promises';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { mockDeep } from 'vitest-mock-extended';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { Dirent } from 'fs';
-import { initializeVirtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('fs/promises'));
 
 describe('load-in-memory-paths', () => {
-  const drive = mockDeep<VirtualDrive>({ syncRootPath: 'C:\\Users\\user\\InternxtDrive' as AbsolutePath });
-  initializeVirtualDrive(drive);
-
   const readdirMock = deepMocked(readdir);
   const statMock = partialSpyOn(fileSystem, 'stat');
   const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
   const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
+
+  const props = mockProps<typeof loadInMemoryPaths>({
+    ctx: { virtualDrive: { syncRootPath: 'C:/Users/user/InternxtDrive' as AbsolutePath } },
+  });
 
   it('should iterate through folders and retrieve all files and folders with uuid', async () => {
     // Given
@@ -36,9 +34,9 @@ describe('load-in-memory-paths', () => {
     getFolderUuidMock.mockReturnValueOnce({ data: 'folderUuid' as FolderUuid });
     getFileUuidMock.mockReturnValueOnce({}).mockReturnValueOnce({ data: 'fileUuid2' as FileUuid });
     // When
-    const { files, folders } = await loadInMemoryPaths();
+    const { files, folders } = await loadInMemoryPaths(props);
     // Then
     expect(folders).toStrictEqual({ folderUuid: 'C:\\Users\\user\\InternxtDrive\\folder' });
-    expect(files).toStrictEqual({ fileUuid2: expect.objectContaining({ path: 'C:\\Users\\user\\InternxtDrive\\folder\\file2' }) });
+    expect(files).toStrictEqual({ fileUuid2: expect.objectContaining({ absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder\\file2' }) });
   });
 });
