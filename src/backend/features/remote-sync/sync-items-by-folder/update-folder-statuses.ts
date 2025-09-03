@@ -1,38 +1,50 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
-import { Config } from '@/apps/sync-engine/config';
-import { createOrUpdateFolder } from '../update-in-sqlite/create-or-update-folder';
+import { SyncContext } from '@/apps/sync-engine/config';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { updateItems } from './update-items/update-items';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type TProps = {
-  context: Config;
-  folderUuid: string;
+  context: SyncContext;
+  folderUuid: FolderUuid;
+  path: RelativePath;
 };
 
-export async function updateFolderStatuses({ context, folderUuid }: TProps) {
-  let folderUuids: string[] = [];
+export async function updateFolderStatuses({ context, folderUuid, path }: TProps) {
+  let innerFolders: Array<{ folderUuid: FolderUuid; path: RelativePath }> = [];
 
   try {
-    const folders = await fetchFoldersByFolder({ context, folderUuid });
-    folderUuids = folders.map((folder) => folder.uuid);
+    const [folderDtos, { data: folders }] = await Promise.all([
+      fetchFoldersByFolder({ context, folderUuid }),
+      SqliteModule.FolderModule.getByParentUuid({ parentUuid: folderUuid }),
+    ]);
 
-    const promises = folders.map((folderDto) =>
-      createOrUpdateFolder({
-        context,
-        folderDto: {
-          ...folderDto,
-          updatedAt: '2000-01-01T00:00:00Z',
-        },
-      }),
-    );
-    await Promise.all(promises);
+    if (folderDtos) {
+      innerFolders = folderDtos.map((folder) => ({
+        folderUuid: folder.uuid,
+        path: createRelativePath(path, folder.plainName),
+      }));
+
+      if (folders) {
+        void updateItems({
+          context,
+          type: 'folder',
+          itemDtos: folderDtos,
+          items: folders,
+        });
+      }
+    }
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',
       msg: 'Update folder statuses failed',
+      path,
       folderUuid,
       exc,
     });
   }
 
-  return folderUuids;
+  return innerFolders;
 }

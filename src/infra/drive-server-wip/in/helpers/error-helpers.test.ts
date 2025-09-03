@@ -1,4 +1,3 @@
-import { describe, it, expect, vi } from 'vitest';
 import { isNetworkConnectivityError, isServerError } from '@/infra/drive-server-wip/in/helpers/error-helpers';
 
 vi.mock('@/apps/main/background-processes/issues');
@@ -28,10 +27,12 @@ describe('error-helpers', () => {
       const exc = { cause: { code: 'ECONNREFUSED' } };
       expect(isNetworkConnectivityError({ exc })).toBe(true);
     });
+
     it('should return true when real code is under error.cause.code ("UND_ERR_SOCKET")', () => {
       const exc = { cause: { code: 'UND_ERR_SOCKET' } };
       expect(isNetworkConnectivityError({ exc })).toBe(true);
     });
+
     it('should return true when real code is under error.cause.code ("UND_ERR_CONNECT_TIMEOUT")', () => {
       const exc = { cause: { code: 'UND_ERR_CONNECT_TIMEOUT' } };
       expect(isNetworkConnectivityError({ exc })).toBe(true);

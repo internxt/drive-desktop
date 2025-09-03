@@ -1,27 +1,23 @@
-import { logger } from '@/apps/shared/logger/logger';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { fileSystem } from '@/infra/file-system/file-system.module';
-import { onAdd } from '@/node-win/watcher/events/on-add.service';
-import { Watcher } from '@/node-win/watcher/watcher';
+import { PendingPaths } from './get-pending-items';
+import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { IControllers } from '../callbacks-controllers/buildControllers';
+import { ProcessSyncContext } from '../config';
 
 type TProps = {
-  watcher: Watcher;
-  absolutePaths: AbsolutePath[];
+  ctx: ProcessSyncContext;
+  controllers: IControllers;
+  pendingFiles: PendingPaths[];
 };
 
-export async function addPendingFiles({ watcher, absolutePaths }: TProps) {
+export async function addPendingFiles({ ctx, controllers, pendingFiles }: TProps) {
   await Promise.all(
-    absolutePaths.map(async (absolutePath) => {
-      const { data: stats } = await fileSystem.stat({ absolutePath });
-      if (stats) {
-        await onAdd({ self: watcher, absolutePath, stats });
-      } else {
-        logger.warn({
-          tag: 'SYNC-ENGINE',
-          msg: 'Error adding pending file',
-          absolutePath,
-        });
-      }
+    pendingFiles.map(async ({ absolutePath, stats }) => {
+      const path = pathUtils.absoluteToRelative({
+        base: ctx.virtualDrive.syncRootPath,
+        path: absolutePath,
+      });
+
+      await controllers.addFile.createFile({ ctx, absolutePath, path, stats });
     }),
   );
 }

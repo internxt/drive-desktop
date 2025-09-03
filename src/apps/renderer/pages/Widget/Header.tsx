@@ -1,14 +1,11 @@
 import { MouseEventHandler, useEffect, useState } from 'react';
 import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
 import { Menu, Transition } from '@headlessui/react';
-import bytes from 'bytes';
-
 import { User } from '../../../main/types';
 import { useTranslationContext } from '../../context/LocalContext';
-// import useBackupFatalErrors from '../../hooks/BackupFatalErrors';
-import useUsage from '../../hooks/useUsage';
 import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
 import { useIssues } from '../../hooks/useIssues';
+import { UsageIndicator } from '../../components/UsageIndicator';
 
 interface HeadersProps {
   setIsLogoutModalOpen: (isOpen: boolean) => void;
@@ -47,7 +44,6 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
   };
 
   const AccountSection = () => {
-    const { translate } = useTranslationContext();
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
@@ -59,22 +55,6 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         });
     }, []);
 
-    const { usage, status } = useUsage();
-
-    let displayUsage: string;
-
-    if (status === 'loading') {
-      displayUsage = 'Loading...';
-    } else if (status === 'error') {
-      displayUsage = '';
-    } else if (usage) {
-      displayUsage = `${bytes.format(usage?.usageInBytes || 0)} ${translate(
-        'widget.header.usage.of',
-      )} ${usage.isInfinite ? '∞' : bytes.format(usage.limitInBytes)}`;
-    } else {
-      displayUsage = '';
-    }
-
     return (
       <div className="flex flex-1 space-x-2.5 truncate" data-automation-id="headerAccountSection">
         <div className="relative z-0 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-base font-semibold uppercase text-primary before:absolute before:inset-0 before:-z-1 before:rounded-full before:bg-primary/20 dark:text-white dark:before:bg-primary/75">
@@ -85,7 +65,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
           <p className="truncate text-sm font-medium text-gray-100" title={user?.email}>
             {user?.email}
           </p>
-          <p className="text-xs text-gray-50">{displayUsage}</p>
+          {user && <UsageIndicator />}
         </div>
       </div>
     );

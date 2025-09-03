@@ -1,9 +1,9 @@
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere } from 'typeorm';
 import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 
-export const folderRepository: Repository<DriveFolder> = AppDataSource.getRepository('drive_folder');
+export const folderRepository = AppDataSource.getRepository(DriveFolder);
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFolder>; payload: Partial<DriveFolder> };
 
@@ -38,14 +38,5 @@ export class DriveFolderCollection {
       success: match.affected ? true : false,
       affected: match.affected as number,
     };
-  }
-
-  async getLastUpdatedByWorkspace({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) {
-    const result = await folderRepository.findOne({
-      where: { userUuid, workspaceId },
-      order: { updatedAt: 'DESC' },
-    });
-
-    return result;
   }
 }

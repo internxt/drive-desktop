@@ -9,10 +9,6 @@ vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 describe('get-workspaces', () => {
   const getWorkspacesMock = deepMocked(driveServerWipModule.workspaces.getWorkspaces);
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('If get workspaces gives an error, then return empty array', async () => {
     // Given
     getWorkspacesMock.mockResolvedValueOnce({ error: new Error() });
@@ -52,7 +48,7 @@ describe('get-workspaces', () => {
       {
         id: 'workspaceId',
         providerId: '{PROVIDER_ID}',
-        mnemonic: 'mnemonic',
+        key: 'mnemonic',
         rootFolderId: 'rootFolderId',
         rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
       },

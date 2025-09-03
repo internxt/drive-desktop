@@ -1,29 +1,69 @@
-import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
-import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
-import { simpleFileOverride } from '@/context/virtual-drive/files/application/override/SimpleFileOverrider';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { uploadFile } from '../upload-file';
+import { logger } from '@/apps/shared/logger/logger';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { Backup } from '@/apps/backups/Backups';
+import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
 
-@Service()
+type Props = {
+  self: Backup;
+  context: BackupsContext;
+  tracker: BackupsProcessTracker;
+  modified: FilesDiff['modified'];
+};
+
 export class FileBatchUpdater {
-  constructor(private readonly uploader: EnvironmentFileUploader) {}
+  static async run({ self, context, tracker, modified }: Props) {
+    await Promise.all(
+      modified.map(({ local, remote }) =>
+        this.process({
+          self,
+          context,
+          tracker,
+          localFile: local,
+          file: remote,
+        }),
+      ),
+    );
+  }
 
-  async run(context: BackupsContext, remoteTree: RemoteTree, batch: Array<LocalFile>): Promise<void> {
-    for (const localFile of batch) {
-      const contentsId = await uploadFile({ context, localFile, uploader: this.uploader });
+  static async process({
+    self,
+    context,
+    tracker,
+    localFile,
+    file,
+  }: {
+    self: Backup;
+    context: BackupsContext;
+    tracker: BackupsProcessTracker;
+    localFile: LocalFile;
+    file: ExtendedDriveFile;
+  }) {
+    try {
+      const contentsId = await uploadFile({ context, localFile });
 
-      if (!contentsId) continue;
+      if (!contentsId) return;
 
-      const file = remoteTree.files[localFile.relativePath];
-
-      /**
-       * v2.5.3 Daniel Jiménez
-       * TODO: Check file can be null or contentsId maybe continue???
-       */
-
-      await simpleFileOverride(file, contentsId, localFile.size.value);
+      await driveServerWip.files.replaceFile({
+        uuid: file.uuid,
+        newContentId: contentsId,
+        newSize: localFile.size,
+        modificationTime: localFile.modificationTime.toISOString(),
+      });
+    } catch (exc) {
+      logger.error({
+        tag: 'BACKUPS',
+        msg: 'Error updating file',
+        path: localFile.relativePath,
+        exc,
+      });
+    } finally {
+      self.backed++;
+      tracker.currentProcessed(self.backed);
     }
   }
 }

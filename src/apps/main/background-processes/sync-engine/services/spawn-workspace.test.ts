@@ -4,6 +4,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
+import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 vi.mock(import('./spawn-sync-engine-worker'));
 vi.mock(import('@/apps/main/auth/service'));
@@ -21,32 +22,13 @@ describe('spawn-workspace.service', () => {
     workspace: {
       id: 'workspaceId',
       providerId: '{PROVIDER_ID}',
-      mnemonic: 'encryptedMnemonic',
+      key: 'encryptedMnemonic',
       rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
     },
   });
 
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it('If get credentials gives an error, then do nothing', async () => {
-    // Given
-    getCredentialsMock.mockResolvedValueOnce({ error: new Error() });
-
-    // When
-    await spawnWorkspace(props);
-
-    // Then
-    expect(getCredentialsMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncEngineWorkerMock).toHaveBeenCalledTimes(0);
-  });
-
-  it('If get credentials success, then spawn sync engine worker', async () => {
-    // Given
-    getUserOrThrowMock.mockReturnValue({});
-    decryptMessageWithPrivateKeyMock.mockResolvedValue('decryptedMnemonic');
-    getCredentialsMock.mockResolvedValueOnce({
+    getCredentialsMock.mockResolvedValue({
       data: {
         workspaceId: 'workspaceId',
         credentials: {
@@ -55,15 +37,37 @@ describe('spawn-workspace.service', () => {
         },
       },
     });
+    getUserOrThrowMock.mockReturnValue({});
+    decryptMessageWithPrivateKeyMock.mockResolvedValue('decryptedMnemonic');
+  });
 
+  it('If get credentials gives an error, then do nothing', async () => {
+    // Given
+    getCredentialsMock.mockResolvedValue({ error: new Error() });
     // When
     await spawnWorkspace(props);
+    // Then
+    expect(getCredentialsMock).toHaveBeenCalledTimes(1);
+    expect(spawnSyncEngineWorkerMock).toHaveBeenCalledTimes(0);
+  });
 
+  it('If decrypt throws an error, capture it', async () => {
+    // Given
+    decryptMessageWithPrivateKeyMock.mockRejectedValue(new Error());
+    // When
+    await spawnWorkspace(props);
+    // Then
+    expect(loggerMock.error).toBeCalledTimes(1);
+  });
+
+  it('If get credentials success, then spawn sync engine worker', async () => {
+    // When
+    await spawnWorkspace(props);
     // Then
     expect(getCredentialsMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncEngineWorkerMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncEngineWorkerMock).toHaveBeenCalledWith({
-      config: {
+      context: {
         bridgePass: 'pass',
         bridgeUser: 'user',
         bucket: undefined,

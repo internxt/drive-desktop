@@ -1,18 +1,17 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable no-use-before-define */
 import { aes } from '@internxt/lib';
-import { app, dialog } from 'electron';
+import { dialog } from 'electron';
 import fetch from 'electron-fetch';
 import os from 'os';
 import path from 'path';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
-import { getUser, setUser } from '../auth/service';
+import { getUser } from '../auth/service';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import fs, { PathLike } from 'fs';
 import { downloadFolder } from '../network/download';
-import Logger from 'electron-log';
 import { broadcastToWindows } from '../windows';
 import { randomUUID } from 'crypto';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
@@ -23,6 +22,7 @@ import { BackupFolderUuid } from './backup-folder-uuid';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { addGeneralIssue } from '@/apps/main/background-processes/issues';
 import { getAuthHeaders } from '../auth/headers';
+import { getBackupsFromDevice } from './get-backups-from-device';
 
 export type Device = {
   name: string;
@@ -72,13 +72,13 @@ export async function fetchDevice(deviceUuid: string) {
 
   if (data) {
     const device = decryptDeviceName(data);
-    logger.info({ tag: 'BACKUPS', msg: 'Found device', device: device.name });
+    logger.debug({ tag: 'BACKUPS', msg: 'Found device', device: device.name });
     return { data: device };
   }
 
   if (error?.code === 'NOT_FOUND') {
     const msg = `Device not found for deviceUuid: ${deviceUuid}`;
-    logger.info({ tag: 'BACKUPS', msg });
+    logger.debug({ tag: 'BACKUPS', msg });
     addUnknownDeviceIssue(new Error(msg));
     return { data: null };
   } else {
@@ -98,7 +98,7 @@ async function tryCreateDevice(deviceName: string) {
 
   if (error?.code === 'ALREADY_EXISTS') {
     return {
-      error: logger.info({
+      error: logger.debug({
         tag: 'BACKUPS',
         msg: 'Device name already exists',
         deviceName,
@@ -120,7 +120,7 @@ export async function createUniqueDevice(attempts = 1000) {
   const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
 
   for (const name of nameVariants) {
-    logger.info({ tag: 'BACKUPS', msg: `Trying to create device with name "${name}"` });
+    logger.debug({ tag: 'BACKUPS', msg: `Trying to create device with name "${name}"` });
     const { data, error } = await tryCreateDevice(name);
 
     if (data) return { data };
@@ -185,7 +185,7 @@ export function decryptDeviceName({ name, ...rest }: Device): Device {
   try {
     key = `${process.env.NEW_CRYPTO_KEY}-${rest.bucket}`;
     nameDevice = aes.decrypt(name, key);
-  } catch (error) {
+  } catch {
     key = `${process.env.NEW_CRYPTO_KEY}-${null}`;
     nameDevice = aes.decrypt(name, key);
   }
@@ -196,44 +196,6 @@ export function decryptDeviceName({ name, ...rest }: Device): Device {
     name: nameDevice,
     ...rest,
   };
-}
-
-export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
-  const folder = await fetchFolder({ folderUuid: device.uuid });
-
-  if (isCurrent) {
-    const backupsList = configStore.get('backupList');
-
-    await new BackupFolderUuid().ensureBackupUuidExists({ backupsList });
-
-    const user = getUser();
-
-    if (user && !user?.backupsBucket) {
-      user.backupsBucket = device.bucket;
-      setUser(user);
-    }
-
-    return folder.children
-      .map((backup) => ({ ...backup, pathname: findBackupPathnameFromId(backup.id) }))
-      .filter(({ pathname }) => pathname && backupsList[pathname].enabled)
-      .map((backup) => ({
-        ...backup,
-        pathname: backup.pathname as string,
-        folderId: backup.id,
-        folderUuid: backup.uuid,
-        tmpPath: app.getPath('temp'),
-        backupsBucket: device.bucket,
-      }));
-  } else {
-    return folder.children.map((backup) => ({
-      ...backup,
-      folderId: backup.id,
-      folderUuid: backup.uuid,
-      backupsBucket: device.bucket,
-      tmpPath: '',
-      pathname: '',
-    }));
-  }
 }
 
 /**
@@ -285,24 +247,25 @@ export async function addBackup(): Promise<void> {
     }
 
     const chosenPath = chosenItem.path;
-    Logger.debug(`[BACKUPS] Chosen item: ${chosenItem.path}`);
+    logger.debug({ msg: '[BACKUPS] Chosen item', chosenPath });
 
     const backupList = configStore.get('backupList');
 
-    Logger.debug(`[BACKUPS] Backup list: ${JSON.stringify(backupList)}`);
+    logger.debug({ msg: '[BACKUPS] Backup list', backupList });
     const existingBackup = backupList[chosenPath];
 
-    Logger.debug(`[BACKUPS] Existing backup: ${existingBackup}`);
+    logger.debug({ msg: '[BACKUPS] Existing backup', existingBackup });
 
     if (!existingBackup) {
       return createBackup(chosenPath);
     }
 
     let folderStillExists;
-    try {
-      const existFolder = await fetchFolder({ folderUuid: existingBackup.folderUuid });
-      folderStillExists = !existFolder.removed;
-    } catch {
+    const { data } = await driveServerWipModule.backup.fetchFolder({ folderUuid: existingBackup.folderUuid });
+
+    if (data) {
+      folderStillExists = !data.removed;
+    } else {
       folderStillExists = false;
     }
 
@@ -313,29 +276,22 @@ export async function addBackup(): Promise<void> {
       return createBackup(chosenPath);
     }
   } catch (error) {
-    Logger.error(error);
+    logger.error({ tag: 'BACKUPS', msg: 'Error adding backup', error });
   }
-}
-
-async function fetchFolder({ folderUuid }: { folderUuid: string }) {
-  const res = await client.GET('/folders/content/{uuid}', {
-    params: { path: { uuid: folderUuid } },
-  });
-
-  if (!res.data) {
-    throw new Error('Unsuccesful request to fetch folder');
-  }
-
-  return res.data;
 }
 
 async function fetchFolders({ folderUuids }: { folderUuids: string[] }) {
-  const folders = await Promise.all(folderUuids.map((folderUuid) => fetchFolder({ folderUuid })));
-  return folders;
+  const results = await Promise.all(
+    folderUuids.map(async (folderUuid) => {
+      return await driveServerWipModule.backup.fetchFolder({ folderUuid });
+    }),
+  );
+
+  return results;
 }
 
 async function fetchTreeFromApi(folderUuid: string): Promise<FolderTree> {
-  const res = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/tree`, {
+  const res = await fetch(`${process.env.DRIVE_URL}/folders/${folderUuid}/tree`, {
     method: 'GET',
     headers: getAuthHeaders(),
   });
@@ -475,7 +431,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
     return null;
   }
 
-  Logger.info(`[BACKUPS] Changing backup path from ${currentPath} to ${chosen.path}`);
+  logger.debug({ tag: 'BACKUPS', msg: 'Changing backup path from', currentPath, chosenPath: chosen.path });
   const chosenPath = chosen.path;
   if (backupsList[chosenPath]) {
     throw new Error('A backup with this path already exists');
@@ -485,7 +441,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   const newFolderName = path.basename(chosenPath);
 
   if (oldFolderName !== newFolderName) {
-    logger.info({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
+    logger.debug({ tag: 'BACKUPS', msg: 'Renaming backup', existingBackup });
 
     const folderUuid = await new BackupFolderUuid().getBackupFolderUuid({ backup: existingBackup });
 
@@ -512,7 +468,7 @@ export async function changeBackupPath(currentPath: string): Promise<string | nu
   return chosen.itemName;
 }
 
-function findBackupPathnameFromId(id: number): string | undefined {
+export function findBackupPathnameFromId(id: number): string | undefined {
   const backupsList = configStore.get('backupList');
   const entryfound = Object.entries(backupsList).find(([, b]) => b.folderId === id);
 
@@ -540,7 +496,7 @@ async function downloadDeviceBackupZip({
   if (!user) {
     throw new Error('No saved user');
   }
-  Logger.info(`[BACKUPS] Downloading backup for device ${device.name}`);
+  logger.debug({ tag: 'BACKUPS', msg: 'Downloading backup for device', deviceName: device.name });
 
   const folders = await fetchFolders({ folderUuids: folderUuidsToDownload });
 
@@ -550,7 +506,7 @@ async function downloadDeviceBackupZip({
 
   await downloadFolder(
     device.name,
-    folders.map((folder) => folder.uuid),
+    folders.filter((folder) => folder.data).map((folder) => folder.data!.uuid),
     path,
     {
       bridgeUser,
@@ -584,20 +540,20 @@ export async function downloadBackup(device: Device, folderUuids?: string[]): Pr
   const zipFilePath = chosenPath + 'Backup_' + now + '';
   // const zipFilePath = chosenPath + 'Backup_' + now + '.zip';
 
-  Logger.info(`[BACKUPS] Downloading backup to ${zipFilePath}`);
+  logger.debug({ tag: 'BACKUPS', msg: 'Downloading backup to', zipFilePath });
 
   const abortController = new AbortController();
 
   const abortListener = (_: IpcMainEvent, abortDeviceUuid: string) => {
     if (abortDeviceUuid === device.uuid) {
       try {
-        Logger.info(`[BACKUPS] Aborting download for device ${device.name}`);
+        logger.debug({ tag: 'BACKUPS', msg: 'Aborting download for device', deviceName: device.name });
         if (abortController && !abortController.signal.aborted) {
           abortController.abort();
           fs.unlinkSync(zipFilePath);
         }
       } catch (error) {
-        Logger.error(`[BACKUPS] Error while aborting download: ${error}`);
+        logger.error({ tag: 'BACKUPS', msg: 'Error while aborting download', error });
       }
     }
   };
@@ -624,13 +580,11 @@ export async function downloadBackup(device: Device, folderUuids?: string[]): Pr
       },
       abortController,
     });
-  } catch (_) {
+  } catch {
     // Try to delete zip if download backup has failed
     try {
       fs.unlinkSync(zipFilePath);
-    } catch (_) {
-      /* noop */
-    }
+    } catch {}
   }
 
   removeListenerIpc.removeListener(listenerName, abortListener);

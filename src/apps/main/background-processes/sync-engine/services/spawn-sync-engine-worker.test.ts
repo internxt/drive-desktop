@@ -21,12 +21,11 @@ describe('spawn-sync-engine-worker', () => {
 
   beforeEach(() => {
     delete workers[workspaceId];
-    vi.clearAllMocks();
   });
 
   it('If worker does not exist then create and start it', async () => {
     // Given
-    const props = mockProps<typeof spawnSyncEngineWorker>({ config: { workspaceId } });
+    const props = mockProps<typeof spawnSyncEngineWorker>({ context: { workspaceId } });
 
     // When
     await spawnSyncEngineWorker(props);
@@ -49,7 +48,7 @@ describe('spawn-sync-engine-worker', () => {
   it('If worker is already starting then do nothing', async () => {
     // Given
     workers[workspaceId] = { startingWorker: true } as unknown as TWorkerConfig;
-    const props = mockProps<typeof spawnSyncEngineWorker>({ config: { workspaceId } });
+    const props = mockProps<typeof spawnSyncEngineWorker>({ context: { workspaceId } });
 
     // When
     await spawnSyncEngineWorker(props);
@@ -64,7 +63,7 @@ describe('spawn-sync-engine-worker', () => {
   it('If worker is already running then do nothing', async () => {
     // Given
     workers[workspaceId] = { workerIsRunning: true } as unknown as TWorkerConfig;
-    const props = mockProps<typeof spawnSyncEngineWorker>({ config: { workspaceId } });
+    const props = mockProps<typeof spawnSyncEngineWorker>({ context: { workspaceId } });
 
     // When
     await spawnSyncEngineWorker(props);

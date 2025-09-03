@@ -6,10 +6,12 @@ import { ReadStream } from 'fs';
 import { ActionState, ActionTypes } from '@internxt/inxt-js/build/api';
 import { FileUploaderCallbacks } from './file-uploader';
 import * as processError from './process-error';
+import * as abortOnChangeSize from './abort-on-change-size';
 
 vi.mock(import('fs'));
 
 describe('environment-file-uploader', () => {
+  partialSpyOn(abortOnChangeSize, 'abortOnChangeSize');
   const processErrorMock = partialSpyOn(processError, 'processError');
   const environment = mockDeep<Environment>();
   const bucket = 'bucket';
@@ -20,8 +22,6 @@ describe('environment-file-uploader', () => {
   let props: Parameters<typeof service.upload>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     abortController = new AbortController();
     props = mockProps<typeof service.upload>({ size: 100, callbacks, abortSignal: abortController.signal });
   });

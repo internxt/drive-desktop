@@ -1,98 +1,72 @@
-import { FilePath } from '../domain/FilePath';
-import { File } from '../domain/File';
-import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
-import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
-import { OfflineFile } from '../domain/OfflineFile';
-import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { basename } from 'path';
+
+type Props = {
+  ctx: ProcessSyncContext;
+  path: RelativePath;
+  absolutePath: AbsolutePath;
+  contents: {
+    id: ContentsId;
+    size: number;
+  };
+};
 
 export class FileCreator {
-  constructor(
-    private readonly remote: HttpRemoteFileSystem,
-    private readonly repository: InMemoryFileRepository,
-    private readonly virtualDrive: VirtualDrive,
-  ) {}
+  constructor(private readonly remote: HttpRemoteFileSystem) {}
 
-  async run(filePath: FilePath, contents: RemoteFileContents): Promise<File> {
+  async run({ ctx, path, absolutePath, contents }: Props) {
     try {
-      const posixDir = PlatformPathConverter.getFatherPathPosix(filePath.value);
+      const parentPath = pathUtils.dirname(path);
       const { data: folderUuid } = NodeWin.getFolderUuid({
-        drive: this.virtualDrive,
-        path: posixDir,
+        drive: ctx.virtualDrive,
+        path: parentPath,
       });
 
       if (!folderUuid) {
-        throw new FolderNotFoundError(posixDir);
+        throw new FolderNotFoundError(parentPath);
       }
 
-      /**
-       * v2.5.5 Daniel Jiménez
-       * TODO: we need to delete the contentsId if the file exists? Check this,
-       * because technically we are adding not updating.
-       * Anyway, it doesn't matter for now, there is a check that runs every 3 months do delete unused content.
-       */
-
-      // const existingFile = this.repository.searchByPartial({
-      //   path: PlatformPathConverter.winToPosix(filePath.value),
-      //   status: FileStatuses.EXISTS,
-      // });
-
-      // if (existingFile) {
-      //   await this.fileDeleter.run(existingFile.contentsId);
-      // }
-
-      const offline = OfflineFile.from({
+      const fileDto = await this.remote.persist({
         contentsId: contents.id,
         folderUuid,
-        path: filePath.value,
+        path,
         size: contents.size,
       });
 
-      const persistedAttributes = await this.remote.persist(offline);
-
       const { error } = await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
         file: {
-          ...persistedAttributes.dto,
-          size: Number(persistedAttributes.dto.size),
+          ...fileDto,
+          size: Number(fileDto.size),
           isDangledStatus: false,
           userUuid: getConfig().userUuid,
           workspaceId: getConfig().workspaceId,
-          updatedAt: '2000-01-01T00:00:00Z',
         },
+        bucket: getConfig().bucket,
+        absolutePath,
       });
 
       if (error) throw error;
 
-      const file = File.from(persistedAttributes);
-      this.repository.add(file);
-
-      ipcRendererSyncEngine.send('FILE_CREATED', {
-        bucket: getConfig().bucket,
-        name: file.name,
-        extension: file.type,
-        nameWithExtension: file.nameWithExtension,
-        fileId: file.id,
-        path: file.path,
-      });
-
-      return file;
+      return fileDto;
     } catch (error) {
       logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Error in file creator',
-        filePath: filePath.value,
+        path,
         exc: error,
       });
 
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
-        nameWithExtension: filePath.nameWithExtension(),
+        key: absolutePath,
+        nameWithExtension: basename(path),
       });
 
       throw error;

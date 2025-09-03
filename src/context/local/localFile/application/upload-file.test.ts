@@ -12,30 +12,25 @@ vi.mock(import('fs'));
 describe('upload-file', () => {
   const uploader = mockDeep<EnvironmentFileUploader>();
   const props = mockProps<typeof uploadFile>({
-    uploader,
-    context: { abortController: new AbortController(), addIssue: vi.fn() },
+    context: { fileUploader: uploader, abortController: new AbortController(), addIssue: vi.fn() },
     localFile: {
       absolutePath: 'C:\\Users\\user\\backup' as AbsolutePath,
-      size: { value: 1024 },
+      size: 1024,
     },
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
   });
 
   it('should return contentsId if upload is successful', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
+    uploader.run.mockResolvedValueOnce({ data: 'contentsId' as ContentsId });
     // When
     const res = await uploadFile(props);
     // Then
     expect(res).toBe('contentsId');
   });
 
-  it('should not log if KILLED_BY_USER', async () => {
+  it('should not log if ABORTED', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('KILLED_BY_USER') });
+    uploader.run.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('ABORTED') });
     // When
     const res = await uploadFile(props);
     // Then
@@ -45,7 +40,7 @@ describe('upload-file', () => {
 
   it('should not add issue if UNKNOWN', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('UNKNOWN') });
+    uploader.run.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('UNKNOWN') });
     // When
     const res = await uploadFile(props);
     // Then
@@ -56,7 +51,7 @@ describe('upload-file', () => {
 
   it('should add issue if not unknown', async () => {
     // Given
-    uploader.upload.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('NOT_ENOUGH_SPACE') });
+    uploader.run.mockResolvedValueOnce({ error: new EnvironmentFileUploaderError('NOT_ENOUGH_SPACE') });
     // When
     const res = await uploadFile(props);
     // Then

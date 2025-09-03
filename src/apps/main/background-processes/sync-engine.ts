@@ -1,9 +1,8 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
 import eventBus from '../event-bus';
 import { workers } from './sync-engine/store';
 import { getUserOrThrow } from '../auth/service';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
 import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
@@ -12,10 +11,12 @@ import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'path';
-import { FolderStore } from '../remote-sync/folders/folder-store';
+import { AuthContext } from '@/backend/features/auth/utils/context';
+import { logger } from '@/apps/shared/logger/logger';
+import { FolderUuid } from '../database/entities/DriveFolder';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
-  Logger.debug(`[MAIN] SYNC ENGINE RUNNING for workspace ${workspaceId}`);
+  logger.debug({ msg: 'SYNC ENGINE RUNNING for workspace', workspaceId });
   if (workers[workspaceId]) {
     workers[workspaceId].workerIsRunning = true;
     workers[workspaceId].startingWorker = false;
@@ -23,7 +24,7 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => 
 });
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
-  Logger.debug(`[MAIN] SYNC ENGINE FAILED for workspace ${workspaceId}`);
+  logger.debug({ msg: 'SYNC ENGINE FAILED for workspace', workspaceId });
   if (workers[workspaceId]) {
     workers[workspaceId].workerIsRunning = false;
     workers[workspaceId].startingWorker = false;
@@ -37,7 +38,7 @@ export function updateSyncEngine(workspaceId: string) {
       browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
     }
   } catch (err) {
-    Logger.error(err);
+    logger.error({ msg: 'Error updating sync engine', error: err });
   }
 }
 
@@ -49,11 +50,12 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-export async function spawnDefaultSyncEngineWorker() {
+export function spawnDefaultSyncEngineWorker({ context }: { context: AuthContext }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
-  const config: Config = {
+  const syncContext: SyncContext = {
+    ...context,
     userUuid: user.uuid,
     providerId,
     rootPath: getRootVirtualDrive(),
@@ -61,7 +63,7 @@ export async function spawnDefaultSyncEngineWorker() {
     workspaceId: '',
     loggerPath: join(PATHS.LOGS, 'node-win.log'),
     queueManagerPath: join(PATHS.LOGS, `queue-manager-user-${user.uuid}.log`),
-    rootUuid: user.rootFolderId,
+    rootUuid: user.rootFolderId as FolderUuid,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
     bridgeUser: user.bridgeUser,
@@ -69,18 +71,12 @@ export async function spawnDefaultSyncEngineWorker() {
     workspaceToken: '',
   };
 
-  FolderStore.addWorkspace({
-    workspaceId: '',
-    rootId: user.root_folder_id,
-    rootUuid: user.rootFolderId,
-  });
-
-  await spawnSyncEngineWorker({ config });
+  void spawnSyncEngineWorker({ context: syncContext });
 
   return { providerId };
 }
 
-export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { providerId: string }) {
+export async function spawnWorkspaceSyncEngineWorkers({ context, providerId }: { context: AuthContext; providerId: string }) {
   const workspaces = await getWorkspaces();
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
 
@@ -89,17 +85,10 @@ export async function spawnWorkspaceSyncEngineWorkers({ providerId }: { provider
   unregisterVirtualDrives({ currentProviderIds });
 
   const spawnWorkspaces = workspaces.map(async (workspace) => {
-    FolderStore.addWorkspace({
-      workspaceId: workspace.id,
-      rootId: null,
-      rootUuid: workspace.rootFolderId,
-    });
-
-    await spawnWorkspace({ workspace });
+    await spawnWorkspace({ context, workspace });
   });
 
   await Promise.all(spawnWorkspaces);
 }
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
-eventBus.on('USER_WAS_UNAUTHORIZED', stopAndClearAllSyncEngineWatcher);

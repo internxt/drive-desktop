@@ -1,21 +1,24 @@
+import { Readable } from 'stream';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { WriteReadableToFile } from '../../../../apps/shared/fs/write-readable-to-file';
-import { LocalFileContents } from '../domain/LocalFileContents';
+import { temporalFolderProvider } from '../application/temporalFolderProvider';
 import path from 'path';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 
-type LocationProvider = () => Promise<string>;
+type Props = {
+  file: SimpleDriveFile;
+  readable: Readable;
+};
 
 export class FSLocalFileWriter {
-  constructor(private readonly getLocation: LocationProvider) {}
-
-  async write(contents: LocalFileContents): Promise<string> {
-    const location = await this.getLocation();
+  async write({ file, readable }: Props): Promise<string> {
+    const location = await temporalFolderProvider();
 
     ensureFolderExists(location);
 
-    const filePath = path.join(location, contents.nameWithExtension);
+    const filePath = path.join(location, file.nameWithExtension);
 
-    await WriteReadableToFile.write(contents.stream, filePath, contents.size);
+    await WriteReadableToFile.write(readable, filePath, file.size);
 
     return filePath;
   }

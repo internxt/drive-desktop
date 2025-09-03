@@ -1,16 +1,17 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
-
-import { AccessResponse } from '../../renderer/pages/Login/service';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
-import { checkUserData, createTokenSchedule } from './refresh-token';
-import { canHisConfigBeRestored, encryptToken, getUser, logout, setCredentials } from './service';
+import { checkUserData, createTokenSchedule, RefreshTokenError } from './refresh-token';
+import { canHisConfigBeRestored, encryptToken, getUser, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
 import { getAuthHeaders } from './headers';
+import { AccessResponse } from '@/apps/renderer/pages/Login/types';
+import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
+import { AuthContext } from '@/backend/features/auth/utils/context';
+import { createAuthWindow } from '../windows/auth';
 
 let isLoggedIn: boolean;
 
@@ -27,11 +28,8 @@ export function getIsLoggedIn() {
 }
 
 export function onUserUnauthorized() {
-  eventBus.emit('USER_WAS_UNAUTHORIZED');
   eventBus.emit('USER_LOGGED_OUT');
-
-  logout();
-  Logger.info('[AUTH] User has been logged out because it was unauthorized');
+  logger.debug({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
   setIsLoggedIn(false);
 }
 
@@ -44,15 +42,20 @@ export async function checkIfUserIsLoggedIn() {
     });
     eventBus.emit('USER_LOGGED_OUT');
     setIsLoggedIn(false);
-
-    logout();
   }
 
   if (!isLoggedIn) return;
 
   await checkUserData();
   encryptToken();
-  await createTokenSchedule();
+
+  try {
+    await createTokenSchedule();
+  } catch (exc) {
+    if (exc instanceof RefreshTokenError) return;
+    else throw exc;
+  }
+
   await emitUserLoggedIn();
 }
 
@@ -60,7 +63,6 @@ export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
   ipcMain.handle('GET_HEADERS', () => getAuthHeaders());
-  ipcMain.on('USER_IS_UNAUTHORIZED', onUserUnauthorized);
 
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
     setCredentials({
@@ -77,17 +79,24 @@ export function setupAuthIpcHandlers() {
     await emitUserLoggedIn();
   });
 
-  ipcMain.on('user-logged-out', () => {
+  ipcMainSyncEngine.on('USER_LOGGED_OUT', () => {
     eventBus.emit('USER_LOGGED_OUT');
 
     setIsLoggedIn(false);
-
-    logout();
   });
 }
 
 async function emitUserLoggedIn() {
+  const context: AuthContext = {
+    abortController: new AbortController(),
+  };
+
+  eventBus.once('USER_LOGGED_OUT', async () => {
+    context.abortController.abort();
+    await createAuthWindow();
+  });
+
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  await initSyncEngine();
+  await initSyncEngine({ context });
 }

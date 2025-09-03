@@ -1,10 +1,10 @@
-import Logger from 'electron-log';
-import { BindingsManager, CallbackDownload } from '../BindingManager';
+import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import * as fs from 'fs';
-import { dirname } from 'path';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { NodeWin } from '@/infra/node-win/node-win.module';
+import { logger } from '@/apps/shared/logger/logger';
+import { unlink } from 'fs/promises';
+import { CallbackDownload } from '@/node-win/types/callbacks.type';
 
 type TProps = {
   self: BindingsManager;
@@ -12,69 +12,58 @@ type TProps = {
   callback: CallbackDownload;
 };
 
-export class FetchDataService {
-  async run({ self, filePlaceholderId, callback }: TProps) {
+export async function fetchData({ self, filePlaceholderId, callback }: TProps) {
+  try {
+    logger.debug({ msg: '[Fetch Data Callback] Donwloading begins' });
+
+    const tmpPath = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
+
+    const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
+    const file = await self.controllers.downloadFile.fileFinderByUuid({ uuid });
+
+    logger.debug({ msg: '[Fetch Data Callback] Preparing begins', tmpPath });
+
+    let finished = false;
+    let progressBuffer = 0;
+
     try {
-      Logger.debug('[Fetch Data Callback] Donwloading begins');
+      while (!finished) {
+        const result = await callback(true, tmpPath);
+        finished = result.finished;
 
-      const path = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
+        logger.debug({ msg: 'Callback result', tmpPath, result });
 
-      const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
-      const file = self.controllers.downloadFile.fileFinderByUuid({ uuid });
-
-      Logger.debug('[Fetch Data Callback] Preparing begins', path);
-      Logger.debug('[Fetch Data Callback] Preparing begins', file.path);
-
-      try {
-        let finished = false;
-
-        while (!finished) {
-          const result = await callback(true, path);
-          finished = result.finished;
-
-          Logger.debug('Callback result', result);
-
-          if (result.progress > 1 || result.progress < 0) {
-            throw new Error('Result progress is not between 0 and 1');
-          } else if (finished && result.progress === 0) {
-            throw new Error('Result progress is 0');
-          } else if (self.progressBuffer == result.progress) {
-            break;
-          } else {
-            self.progressBuffer = result.progress;
-          }
-
-          ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-            nameWithExtension: file.nameWithExtension,
-            progress: result.progress,
-          });
+        if (result.progress > 1 || result.progress < 0) {
+          throw new Error('Result progress is not between 0 and 1');
+        } else if (finished && result.progress === 0) {
+          throw new Error('Result progress is 0');
+        } else if (progressBuffer == result.progress) {
+          break;
+        } else {
+          progressBuffer = result.progress;
         }
 
-        self.progressBuffer = 0;
-
-        ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
+        ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
+          key: uuid,
           nameWithExtension: file.nameWithExtension,
+          progress: result.progress,
         });
-      } catch (error) {
-        Logger.error('[Fetch Data Error]', error);
-        Logger.debug('[Fetch Data Error] Finish', path);
-        // await callback(false, '');
-        fs.unlinkSync(path);
-        return;
       }
 
-      fs.unlinkSync(path);
+      ipcRendererSyncEngine.send('FILE_DOWNLOADED', {
+        key: uuid,
+        nameWithExtension: file.nameWithExtension,
+      });
 
-      self.container.fileSyncStatusUpdater.run(file);
-
-      Logger.debug('[Fetch Data Callback] Finish', path);
+      logger.debug({ msg: '[Fetch Data Callback] Finish', tmpPath });
     } catch (error) {
-      Logger.error(error);
-      await callback(false, '');
+      logger.error({ msg: '[Fetch Data Callback] Error', tmpPath, error });
+      // await callback(false, '');
     }
-  }
 
-  normalizePath(path: string) {
-    return dirname(path).replace(/\\/g, '/');
+    await unlink(tmpPath);
+  } catch (error) {
+    logger.error({ msg: '[Fetch Data Callback] Error', filePlaceholderId, error });
+    await callback(false, '');
   }
 }

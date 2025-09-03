@@ -2,19 +2,17 @@ import * as auth from '@/apps/main/auth/service';
 import { folderRepository } from '../drive-folder';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getByUuid } from './get-by-uuid';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
+import * as folderDecryptName from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 describe('get-by-uuid', () => {
   const getUserOrThrowSpy = partialSpyOn(auth, 'getUserOrThrow');
   const findOneSpy = partialSpyOn(folderRepository, 'findOne');
-  const decryptNameSpy = vi.spyOn(Folder, 'decryptName');
+  partialSpyOn(folderDecryptName, 'folderDecryptName');
 
   const props = mockProps<typeof getByUuid>({});
 
   beforeEach(() => {
-    vi.clearAllMocks();
     getUserOrThrowSpy.mockResolvedValue({ uuid: 'uuid' });
-    decryptNameSpy.mockImplementation(({ name }) => name);
   });
 
   it('should return NOT_FOUND when folder is not found', async () => {

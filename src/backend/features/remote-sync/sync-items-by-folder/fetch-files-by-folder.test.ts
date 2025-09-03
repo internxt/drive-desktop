@@ -1,6 +1,7 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { fetchFilesByFolder } from './fetch-files-by-folder';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
@@ -11,11 +12,10 @@ describe('fetch-files-by-folder', () => {
   let props: Parameters<typeof fetchFilesByFolder>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof fetchFilesByFolder>({
-      folderUuid: 'folderUuid',
+      folderUuid: 'folderUuid' as FolderUuid,
       context: {
+        abortController: new AbortController(),
         workspaceId: '',
         workspaceToken: '',
       },
@@ -58,7 +58,7 @@ describe('fetch-files-by-folder', () => {
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(2);
   });
 
-  it('If fetch fails, do not throw an error', async () => {
+  it('If fetch fails return null', async () => {
     // Given
     getFilesByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
@@ -67,7 +67,7 @@ describe('fetch-files-by-folder', () => {
     const files = await fetchFilesByFolder(props);
 
     // Then
-    expect(files).toHaveLength(50);
+    expect(files).toBeNull();
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(2);
   });
 

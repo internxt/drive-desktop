@@ -1,13 +1,9 @@
-/* eslint-disable max-len */
-import { ScannedItem } from '../database/entities/ScannedItem';
 import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
-import { Antivirus } from './Antivirus';
-import { transformItem } from './utils/transformItem';
+import { AntivirusManager } from './antivirus-manager/antivirus-manager';
+import { AntivirusEngine } from './antivirus-manager/types';
 import { isPermissionError } from './utils/isPermissionError';
-import { DBScannerConnection } from './utils/dbConections';
-import { ScannedItemCollection } from '../database/collections/ScannedItemCollection';
 import { logger } from '@/apps/shared/logger/logger';
 import { getFilesFromDirectory } from './utils/get-files-from-directory';
 
@@ -29,7 +25,6 @@ export async function getManualScanMonitorInstance() {
 }
 
 class ManualSystemScan {
-  private dbConnection: DBScannerConnection;
   private manualQueue: QueueObject<string> | null;
   private progressEvents: ProgressData[];
   private totalScannedFiles: number;
@@ -39,8 +34,7 @@ class ManualSystemScan {
   private cancelled = false;
   private scanSessionId = 0;
 
-  private antivirus: Antivirus | null;
-
+  private antivirus: AntivirusEngine | null;
   constructor() {
     this.progressEvents = [];
     this.manualQueue = null;
@@ -51,9 +45,6 @@ class ManualSystemScan {
     this.antivirus = null;
     this.cancelled = false;
     this.scanSessionId = 0;
-
-    const scannedItemsAdapter = new ScannedItemCollection();
-    this.dbConnection = new DBScannerConnection(scannedItemsAdapter);
   }
 
   trackProgress = (currentSession: number, data: { file: string; isInfected: boolean }) => {
@@ -85,7 +76,7 @@ class ManualSystemScan {
     }
 
     if (this.antivirus) {
-      await this.antivirus.stopClamAv();
+      await this.antivirus.stop();
     }
 
     this.resetCounters();
@@ -114,24 +105,14 @@ class ManualSystemScan {
     this.antivirus = null;
   }
 
-  private handlePreviousScannedItem = async (currentSession: number, scannedItem: ScannedItem, previousScannedItem: ScannedItem) => {
-    if (currentSession !== this.scanSessionId) return;
-
-    if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
-      this.trackProgress(currentSession, {
-        file: previousScannedItem.pathName,
-        isInfected: previousScannedItem.isInfected,
-      });
-    }
-  };
-
   public async scanItems(pathNames?: string[]): Promise<void> {
     this.cancelled = false;
     this.scanSessionId++;
     const currentSession = this.scanSessionId;
 
     if (!this.antivirus) {
-      this.antivirus = await Antivirus.createInstance();
+      const antivirusManager = await AntivirusManager.getInstance();
+      this.antivirus = await antivirusManager.getActiveEngine();
     }
     const antivirus = this.antivirus;
 
@@ -149,20 +130,9 @@ class ManualSystemScan {
     const scan = async (filePath: string) => {
       if (this.cancelled) return;
       try {
-        const scannedItem = await transformItem(filePath);
-        const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
-        if (previousScannedItem) {
-          return this.handlePreviousScannedItem(currentSession, scannedItem, previousScannedItem);
-        }
-
-        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
+        const currentScannedFile = await antivirus?.scanFile({ filePath });
 
         if (currentScannedFile) {
-          await this.dbConnection.addItemToDatabase({
-            ...scannedItem,
-            isInfected: currentScannedFile.isInfected,
-          });
-
           this.trackProgress(currentSession, {
             file: currentScannedFile.file,
             isInfected: currentScannedFile.isInfected,
@@ -190,14 +160,9 @@ class ManualSystemScan {
         pathNames = [userSystemPath.path];
       }
 
-      const allFilePaths: string[] = [];
-
-      await Promise.all(
-        pathNames.map(async (p) => {
-          const filePaths = await getFilesFromDirectory({ rootFolder: p });
-          allFilePaths.push(...filePaths);
-        }),
-      );
+      const promises = pathNames.map((p) => getFilesFromDirectory({ rootFolder: p }));
+      const result = await Promise.all(promises);
+      const allFilePaths = result.flat();
 
       this.totalItemsToScan = allFilePaths.length;
 
@@ -226,7 +191,11 @@ class ManualSystemScan {
       this.finishScan(currentSession);
     } catch (error) {
       if (!isPermissionError(error)) {
-        throw error;
+        throw logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error during manual scan',
+          exc: error,
+        });
       }
       this.resetCounters();
       await this.manualQueue?.drain();

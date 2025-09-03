@@ -1,23 +1,26 @@
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { basename, extname } from 'path';
+import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { basename } from 'path';
 import { Watcher } from '@/node-win/watcher/watcher';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { getParentUuid } from './get-parent-uuid';
+import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
+import { updateFolderStatus } from '../../../placeholders/update-folder-status';
+import { updateFileStatus } from '../../../placeholders/update-file-status';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   self: Watcher;
   path: RelativePath;
-  uuid: FileUuid | FolderUuid;
-  type: 'file' | 'folder';
+  absolutePath: AbsolutePath;
   item?: {
     oldName: string;
     oldParentUuid: string | undefined;
   };
-};
+} & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });
 
-export async function moveItem({ self, path, uuid, item, type }: TProps) {
+export async function moveItem({ ctx, self, path, absolutePath, uuid, item, type }: TProps) {
   const props = { path, type, uuid };
 
   const res = getParentUuid({ self, path, props, item });
@@ -38,15 +41,15 @@ export async function moveItem({ self, path, uuid, item, type }: TProps) {
    */
   const isMoved = oldParentUuid !== parentUuid;
 
+  const workspaceToken = getConfig().workspaceToken;
+
   if (isRenamed) {
     self.logger.debug({ msg: 'Item renamed', ...props, oldName, name });
 
     if (type === 'file') {
-      const extension = extname(name);
-      const nameWithoutExtension = basename(name, extension);
-      await ipcRendererDriveServerWip.invoke('renameFileByUuid', { uuid, name: nameWithoutExtension, type: extension.slice(1) });
+      await ipcRendererDriveServerWip.invoke('renameFileByUuid', { uuid, nameWithExtension: name, workspaceToken });
     } else {
-      await ipcRendererDriveServerWip.invoke('renameFolderByUuid', { uuid, plainName: name });
+      await ipcRendererDriveServerWip.invoke('renameFolderByUuid', { uuid, name, workspaceToken });
     }
   }
 
@@ -54,13 +57,17 @@ export async function moveItem({ self, path, uuid, item, type }: TProps) {
     self.logger.debug({ msg: 'Item moved', ...props, oldParentUuid, parentUuid });
 
     if (type === 'file') {
-      await ipcRendererDriveServerWip.invoke('moveFileByUuid', { uuid, parentUuid });
+      await ipcRendererDriveServerWip.invoke('moveFileByUuid', { uuid, parentUuid, nameWithExtension: name, workspaceToken });
     } else {
-      await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid });
+      await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, name, workspaceToken });
     }
   }
 
-  if ((isRenamed || isMoved) && type === 'file') {
-    self.virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
+  if (isRenamed || isMoved) {
+    if (type === 'file') {
+      updateFileStatus({ ctx, path });
+    } else {
+      await updateFolderStatus({ ctx, path, absolutePath });
+    }
   }
 }

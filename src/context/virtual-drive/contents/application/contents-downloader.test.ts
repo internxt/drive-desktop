@@ -6,13 +6,12 @@ import {
   EnvironmentContentFileDownloader,
   FileDownloadEvents,
 } from '@/context/virtual-drive/contents/infrastructure/download/EnvironmentContentFileDownloader';
-import { FileMother } from '@/tests/context/virtual-drive/files/domain/FileMother';
 import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import * as temporalFolderProvider from './temporalFolderProvider';
 
 describe('Contents Downloader', () => {
-  const temporalFolderProvider = (): Promise<string> => {
-    return Promise.resolve('C:/temp');
-  };
+  const temporalFolderProviderMock = partialSpyOn(temporalFolderProvider, 'temporalFolderProvider');
 
   const localWriter = mockDeep<FSLocalFileWriter>();
   const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
@@ -35,35 +34,42 @@ describe('Contents Downloader', () => {
     });
   };
 
-  const SUT = new ContentsDownloader(factory, localWriter, temporalFolderProvider);
+  const SUT = new ContentsDownloader(factory, localWriter);
+
+  const props = mockProps<typeof SUT.run>({
+    callback: callbackFunction,
+    file: {
+      nameWithExtension: 'file.txt',
+      size: 1024,
+    },
+  });
 
   beforeEach(() => {
-    vi.resetAllMocks();
+    temporalFolderProviderMock.mockResolvedValue('C:/temp');
   });
 
   it.each(['start', 'progress', 'finish', 'error'] satisfies Array<keyof FileDownloadEvents>)(
     'tracks all the manager events ',
     async (event: keyof FileDownloadEvents) => {
-      factory.downloader.mockResolvedValueOnce(environmentContentFileDownloader);
+      factory.downloader.mockReturnValueOnce(environmentContentFileDownloader);
 
-      await SUT.run(FileMother.any(), callbackFunction);
+      await SUT.run(props);
 
       expect(environmentContentFileDownloader.on).toBeCalledWith(event, expect.any(Function));
     },
   );
 
   it('writes the downloaded content a local file', async () => {
-    const file = FileMother.any();
+    factory.downloader.mockReturnValueOnce(environmentContentFileDownloader);
 
-    factory.downloader.mockResolvedValueOnce(environmentContentFileDownloader);
-
-    await SUT.run(file, callbackFunction);
+    await SUT.run(props);
 
     expect(localWriter.write).toBeCalledWith(
       expect.objectContaining({
-        name: file.name,
-        extension: file.type,
-        size: file.size,
+        file: {
+          nameWithExtension: 'file.txt',
+          size: 1024,
+        },
       }),
     );
   });

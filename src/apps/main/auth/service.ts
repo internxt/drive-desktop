@@ -1,9 +1,8 @@
 import { parseAndDecryptUserKeys } from '../../../apps/shared/crypto/keys.service';
 import { safeStorage } from 'electron';
-import Logger from 'electron-log';
-import packageConfig from '../../../../package.json';
-import ConfigStore, { defaults, fieldsToSave } from '../config';
+import ConfigStore from '../config';
 import { User } from '../types';
+import { logger } from '@/apps/shared/logger/logger';
 
 const TOKEN_ENCODING = 'latin1';
 
@@ -25,7 +24,7 @@ export function encryptToken() {
     return;
   }
 
-  Logger.info('TOKEN WAS NOT ENCRYPTED, ENCRYPTING...');
+  logger.debug({ msg: 'TOKEN WAS NOT ENCRYPTED, ENCRYPTING...' });
 
   if (!safeStorage.isEncryptionAvailable()) {
     throw new Error('Safe Storage is not available');
@@ -128,12 +127,6 @@ export function obtainTokens(): Array<string> {
   return tokensKeys.map(obtainToken);
 }
 
-function resetCredentials() {
-  for (const field of ['mnemonic', 'userData', 'bearerToken', 'bearerTokenEncrypted', 'newToken'] as const) {
-    ConfigStore.set(field, defaults[field]);
-  }
-}
-
 export function canHisConfigBeRestored(uuid: string) {
   const savedConfigs = ConfigStore.get('savedConfigs');
 
@@ -149,45 +142,4 @@ export function canHisConfigBeRestored(uuid: string) {
   }
 
   return true;
-}
-
-function saveConfig() {
-  const user = getUser();
-  if (!user) {
-    return;
-  }
-
-  const { uuid } = user;
-
-  const savedConfigs = ConfigStore.get('savedConfigs');
-
-  const configToSave: Record<string, unknown> = {};
-
-  for (const field of fieldsToSave) {
-    const value = ConfigStore.get(field);
-    configToSave[field] = value;
-  }
-
-  ConfigStore.set('savedConfigs', {
-    ...savedConfigs,
-    [uuid]: configToSave,
-  });
-}
-
-const keepFields = ['preferedLanguage'];
-
-function resetConfig() {
-  for (const field of fieldsToSave) {
-    if (!keepFields.includes(field)) {
-      ConfigStore.set(field, defaults[field]);
-    }
-  }
-}
-
-export function logout() {
-  Logger.info('Loggin out');
-  saveConfig();
-  resetConfig();
-  resetCredentials();
-  Logger.info('[AUTH] User logged out');
 }

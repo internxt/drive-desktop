@@ -1,9 +1,9 @@
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { FindOptionsWhere } from 'typeorm';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { AppDataSource } from '@/apps/main/database/data-source';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 
-export const fileRepository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
+export const fileRepository = AppDataSource.getRepository(DriveFile);
 
 type UpdateInBatchPayload = { where: FindOptionsWhere<DriveFile>; payload: Partial<DriveFile> };
 
@@ -35,7 +35,7 @@ export class DriveFileCollection {
 
     return {
       success: match.affected ? true : false,
-      affected: match.affected as number,
+      affected: match.affected,
     };
   }
 
@@ -48,16 +48,7 @@ export class DriveFileCollection {
 
     return {
       success: match.affected ? true : false,
-      affected: match.affected as number,
+      affected: match.affected,
     };
-  }
-
-  async getLastUpdatedByWorkspace({ userUuid, workspaceId }: { userUuid: string; workspaceId: string }) {
-    const result = await fileRepository.findOne({
-      where: { userUuid, workspaceId },
-      order: { updatedAt: 'DESC' },
-    });
-
-    return result;
   }
 }

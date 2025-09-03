@@ -3,23 +3,16 @@ import { ChooseItemsState } from './views/ChooseItemsState';
 import { ScanState } from './views/ScanState';
 import { Views } from '../../../hooks/antivirus/useAntivirus';
 import { useAntivirusContext } from '../../../context/AntivirusContext';
-import { ActionDialog } from './components/ActionDialog';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { useEffect } from 'react';
 import { Spinner } from 'phosphor-react';
 
-interface AntivirusSectionProps {
+type AntivirusSectionProps = {
   active: boolean;
   onCancelDeactivateWinDefender: () => void;
   showItemsWithMalware: () => void;
-}
+};
 
-export default function AntivirusSection({
-  active,
-  onCancelDeactivateWinDefender,
-  showItemsWithMalware,
-}: AntivirusSectionProps): JSX.Element {
-  const { translate } = useTranslationContext();
+export default function AntivirusSection({ active, showItemsWithMalware }: AntivirusSectionProps): JSX.Element {
   const {
     isScanning,
     isScanCompleted,
@@ -30,20 +23,17 @@ export default function AntivirusSection({
     view,
     progressRatio,
     isAntivirusAvailable,
-    isDefenderActive,
     showErrorState,
     onScanUserSystemButtonClicked,
     onScanAgainButtonClicked,
     onCustomScanButtonClicked,
     isUserElegible,
     onCancelScan,
-    isWinDefenderActive,
   } = useAntivirusContext();
 
   useEffect(() => {
     if (!active) return;
     isUserElegible();
-    isWinDefenderActive();
   }, [active]);
 
   const viewStates: Record<Views, JSX.Element> = {
@@ -80,18 +70,6 @@ export default function AntivirusSection({
   return (
     <section className={`${active ? 'block' : 'hidden'} relative h-full w-full`}>
       <div className="flex h-full w-full flex-col">{viewStates[view]}</div>
-      {isDefenderActive && isAntivirusAvailable && active && (
-        <ActionDialog
-          showDialog={isDefenderActive && active}
-          title={translate('settings.antivirus.deactivateAntivirus.title')}
-          children={<p>{translate('settings.antivirus.deactivateAntivirus.description')}</p>}
-          confirmText={translate('settings.antivirus.deactivateAntivirus.retry')}
-          cancelText={translate('settings.antivirus.deactivateAntivirus.cancel')}
-          confirmButtonVariant="primary"
-          onCancel={onCancelDeactivateWinDefender}
-          onConfirm={async () => await isWinDefenderActive()}
-        />
-      )}
     </section>
   );
 }

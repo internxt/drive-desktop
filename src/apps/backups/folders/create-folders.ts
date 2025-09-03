@@ -7,7 +7,7 @@ import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath
 import { logger } from '@/apps/shared/logger/logger';
 import type { Backup } from '../Backups';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
+import { newParseFolderDto } from '@/infra/drive-server-wip/out/dto';
 
 type TProps = {
   self: Backup;
@@ -18,7 +18,7 @@ type TProps = {
 };
 
 export async function createFolders({ self, context, added, tree, tracker }: TProps) {
-  const sortedAdded = added.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+  const sortedAdded = added.toSorted((a, b) => a.relativePath.localeCompare(b.relativePath));
 
   for (const localFolder of sortedAdded) {
     if (context.abortController.signal.aborted) {
@@ -45,14 +45,7 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
        * TODO: add issue
        */
     } else {
-      logger.debug({
-        tag: 'BACKUPS',
-        msg: 'Creating folder',
-        relativePath: localFolder.relativePath,
-        parentPath,
-      });
-
-      const { data } = await driveServerWip.folders.createFolder({
+      const { data: folderDto } = await driveServerWip.folders.createFolder({
         path: localFolder.relativePath,
         body: {
           plainName: basename(localFolder.relativePath),
@@ -60,11 +53,12 @@ export async function createFolders({ self, context, added, tree, tracker }: TPr
         },
       });
 
-      if (data) {
-        tree.folders[localFolder.relativePath] = Folder.from({
-          ...data,
+      if (folderDto) {
+        tree.folders[localFolder.relativePath] = {
+          ...newParseFolderDto({ folderDto }),
           path: localFolder.relativePath,
-        });
+          absolutePath: localFolder.absolutePath,
+        };
       } else {
         /**
          * v2.5.3 Daniel Jiménez

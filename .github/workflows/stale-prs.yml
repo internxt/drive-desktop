@@ -10,8 +10,9 @@ permissions:
   pull-requests: write
 
 jobs:
-  stale:
+  stale_prs:
     runs-on: ubuntu-latest
+    timeout-minutes: 1
 
     steps:
       - uses: actions/stale@v9

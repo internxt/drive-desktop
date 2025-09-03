@@ -1,4 +1,4 @@
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { BrowserWindow } from 'electron';
 import path from 'path';
 import { cwd } from 'process';
@@ -8,16 +8,16 @@ import { monitorHealth } from './monitor-health';
 import { logger } from '@/apps/shared/logger/logger';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
-// import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
+import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
 
 type TProps = {
-  config: Config;
+  context: SyncContext;
 };
 
 let hasPrinted = false;
 
-export async function spawnSyncEngineWorker({ config }: TProps) {
-  const workspaceId = config.workspaceId;
+export async function spawnSyncEngineWorker({ context }: TProps) {
+  const workspaceId = context.workspaceId;
 
   if (!workers[workspaceId]) {
     workers[workspaceId] = {
@@ -47,10 +47,10 @@ export async function spawnSyncEngineWorker({ config }: TProps) {
    * Since we can have a different status in our local database that in remote,
    * we want to run also this sync in background to update the statuses.
    */
-  // void RemoteSyncModule.syncItemsByFolder({
-  //   rootFolderUuid: config.rootUuid,
-  //   context: config,
-  // });
+  void RemoteSyncModule.syncItemsByFolder({
+    rootFolderUuid: context.rootUuid,
+    context,
+  });
 
   try {
     const browserWindow = new BrowserWindow({
@@ -97,19 +97,19 @@ export async function spawnSyncEngineWorker({ config }: TProps) {
 
     logger.debug({ msg: '[MAIN] Browser window loaded', workspaceId });
 
-    browserWindow.webContents.send('SET_CONFIG', config);
+    browserWindow.webContents.send('SET_CONFIG', context);
 
     monitorHealth({
       browserWindow,
       stopAndSpawn: async () => {
         await stopAndClearSyncEngineWorker({ workspaceId });
-        await spawnSyncEngineWorker({ config });
+        await spawnSyncEngineWorker({ context });
       },
     });
 
     scheduleSync({ worker });
 
-    addRemoteSyncManager({ config, workspaceId, worker });
+    addRemoteSyncManager({ context, worker });
   } catch (exc) {
     logger.error({
       msg: '[MAIN] Error loading sync engine worker for workspace',

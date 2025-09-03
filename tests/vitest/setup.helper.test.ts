@@ -1,11 +1,9 @@
-import { vi } from 'vitest';
 import path from 'path';
 import { mkdirSync } from 'fs';
 import { TEST_FILES } from './mocks.helper.test';
 
 process.env.NEW_CRYPTO_KEY = 'crypto_key';
 process.env.NODE_ENV = 'development';
-process.env.ROOT_FOLDER_NAME = 'InternxtDrive';
 
 // We do not want to log anything
 vi.mock(import('@/apps/shared/logger/logger'));

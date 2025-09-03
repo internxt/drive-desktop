@@ -3,10 +3,10 @@ import { basename } from 'path';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { logger } from '@/apps/shared/logger/logger';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { isMoveDirEvent } from './is-move-event';
 import { getParentUuid } from './get-parent-uuid';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { getConfig } from '@/apps/sync-engine/config';
+import { isMoveFolderEvent } from './is-move-event';
 
 type TProps = {
   virtualDrive: VirtualDrive;
@@ -20,25 +20,29 @@ export async function unlinkFolder({ virtualDrive, absolutePath }: TProps) {
   });
 
   try {
-    const parentUuid = getParentUuid({ path, virtualDrive });
+    const parentUuid = await getParentUuid({ absolutePath, virtualDrive });
     if (!parentUuid) return;
 
-    const name = basename(path);
-    const { data: folder } = await ipcRendererSqlite.invoke('folderGetByName', { parentUuid, name });
+    const plainName = basename(path);
+    const { data: folder } = await ipcRendererSqlite.invoke('folderGetByName', { parentUuid, plainName });
 
     if (!folder) {
-      logger.warn({ tag: 'SYNC-ENGINE', msg: 'Folder not found or does not exist', path, parentUuid, name });
+      logger.warn({ tag: 'SYNC-ENGINE', msg: 'Cannot unlink folder, not found or does not exist', path, parentUuid, plainName });
       return;
     }
 
-    const isMove = await isMoveDirEvent({ uuid: folder.uuid });
-    if (isMove) return;
+    const isMove = await isMoveFolderEvent({ uuid: folder.uuid });
+    if (isMove) {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Is move event', path });
+      return;
+    }
 
     logger.debug({ tag: 'SYNC-ENGINE', msg: 'Folder unlinked', path });
 
     const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFolderByUuid', {
       uuid: folder.uuid,
       workspaceToken: getConfig().workspaceToken,
+      name: plainName,
     });
 
     if (error) throw error;

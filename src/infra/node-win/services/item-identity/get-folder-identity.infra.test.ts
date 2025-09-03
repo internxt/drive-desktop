@@ -3,12 +3,12 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import { v4 } from 'uuid';
-import { logger } from '@/apps/shared/logger/logger';
 import { mockDeep } from 'vitest-mock-extended';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
-import { iconPath } from '@/apps/utils/icon';
 import { getFolderIdentity, GetFolderIdentityError } from './get-folder-identity';
+import { initializeVirtualDrive, virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
+import { setDefaultConfig } from '@/apps/sync-engine/config';
 
 describe('get-folder-identity', () => {
   const callbacks = mockDeep<Callbacks>();
@@ -16,22 +16,22 @@ describe('get-folder-identity', () => {
   const providerId = `{${v4()}}`;
   const rootFolder = join(TEST_FILES, v4());
   const driveFolder = join(rootFolder, v4());
-  const loggerPath = join(rootFolder, 'logs');
-  const drive = new VirtualDrive({ syncRootPath: driveFolder, providerId, loggerPath, logger });
 
   beforeAll(() => {
-    drive.registerSyncRoot({
+    setDefaultConfig({ rootPath: driveFolder, providerId });
+    initializeVirtualDrive();
+
+    virtualDrive.registerSyncRoot({
       providerName: 'Internxt Drive',
       providerVersion: INTERNXT_VERSION,
-      logoPath: iconPath,
     });
 
-    drive.connectSyncRoot({ callbacks });
+    virtualDrive.connectSyncRoot({ callbacks });
   });
 
   afterAll(() => {
-    drive.disconnectSyncRoot();
-    VirtualDrive.unRegisterSyncRootByProviderId({ providerId });
+    virtualDrive.disconnectSyncRoot();
+    VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
   it('If get folder identity of a placeholder folder, then return the placeholder id', async () => {
@@ -39,10 +39,10 @@ describe('get-folder-identity', () => {
     const folder = join(driveFolder, v4());
     const id = `FOLDER:${v4()}` as const;
     await mkdir(folder);
-    drive.convertToPlaceholder({ itemPath: folder, id });
+    virtualDrive.convertToPlaceholder({ itemPath: folder, id });
 
     // When
-    const { data, error } = getFolderIdentity({ drive, path: folder });
+    const { data, error } = getFolderIdentity({ drive: virtualDrive, path: folder });
 
     // Then
     expect(data).toStrictEqual(id);
@@ -54,10 +54,10 @@ describe('get-folder-identity', () => {
     const file = join(driveFolder, v4());
     const id = `FILE:${v4()}` as const;
     await mkdir(file);
-    drive.convertToPlaceholder({ itemPath: file, id });
+    virtualDrive.convertToPlaceholder({ itemPath: file, id });
 
     // When
-    const { data, error } = getFolderIdentity({ drive, path: file });
+    const { data, error } = getFolderIdentity({ drive: virtualDrive, path: file });
 
     // Then
     expect(data).toStrictEqual(undefined);
@@ -69,7 +69,7 @@ describe('get-folder-identity', () => {
     const folder = join(driveFolder, v4());
 
     // When
-    const { data, error } = getFolderIdentity({ drive, path: folder });
+    const { data, error } = getFolderIdentity({ drive: virtualDrive, path: folder });
 
     // Then
     expect(data).toStrictEqual(undefined);

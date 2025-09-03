@@ -1,19 +1,13 @@
 import { folderRepository } from '../drive-folder';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdate } from './create-or-update';
-import { Folder } from '@/context/virtual-drive/folders/domain/Folder';
+import * as folderDecryptName from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 describe('create-or-update', () => {
   const saveMock = partialSpyOn(folderRepository, 'save');
-  const decryptNameSpy = partialSpyOn(Folder, 'decryptName');
+  partialSpyOn(folderDecryptName, 'folderDecryptName');
 
   const props = mockProps<typeof createOrUpdate>({});
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-
-    decryptNameSpy.mockImplementation(({ name }) => name);
-  });
 
   it('should return UNKNOWN when error is thrown', async () => {
     // Given

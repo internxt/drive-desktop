@@ -1,8 +1,9 @@
 import { Network } from '@internxt/sdk/dist/network';
-import { NetworkCredentials, sha256 } from './requests';
+import { NetworkCredentials } from './requests';
 import { NetworkFacade } from './NetworkFacade';
 import { IDownloadParams } from './download.types';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
+import { sha256 } from './get-auth-from-credentials';
 
 function getAuthFromCredentials(creds: NetworkCredentials): { username: string; password: string } {
   return {
@@ -17,7 +18,7 @@ function downloadOwnFile(params: IDownloadParams) {
 
   return new NetworkFacade(
     Network.client(
-      process.env.DRIVE_URL,
+      process.env.BRIDGE_URL,
       {
         clientName: INTERNXT_CLIENT,
         clientVersion: INTERNXT_VERSION,

@@ -7,11 +7,7 @@ vi.mock(import('@/apps/shared/logger/logger'));
 
 describe('unregister-virtual-drives', () => {
   const getRegisteredSyncRootsMock = deepMocked(VirtualDrive.getRegisteredSyncRoots);
-  const unRegisterSyncRootByProviderIdMock = deepMocked(VirtualDrive.unRegisterSyncRootByProviderId);
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+  const unregisterSyncRootMock = deepMocked(VirtualDrive.unregisterSyncRoot);
 
   it('Skip unregistration if they are already registered', () => {
     // Given
@@ -24,7 +20,7 @@ describe('unregister-virtual-drives', () => {
     unregisterVirtualDrives(props);
 
     // Then
-    expect(unRegisterSyncRootByProviderIdMock).toHaveBeenCalledTimes(0);
+    expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
   });
 
   it('Unregister {PROVIDER_ID} if it is not in currentProviderIds', () => {
@@ -38,7 +34,7 @@ describe('unregister-virtual-drives', () => {
     unregisterVirtualDrives(props);
 
     // Then
-    expect(getMockCalls(unRegisterSyncRootByProviderIdMock)).toStrictEqual([{ providerId: '{PROVIDER_ID}' }]);
+    expect(getMockCalls(unregisterSyncRootMock)).toStrictEqual([{ providerId: '{PROVIDER_ID}' }]);
   });
 
   it('Unregister {PROVIDER_ID} if it is not in currentProviderIds', () => {
@@ -52,6 +48,6 @@ describe('unregister-virtual-drives', () => {
     unregisterVirtualDrives(props);
 
     // Then
-    expect(getMockCalls(unRegisterSyncRootByProviderIdMock)).toStrictEqual([{ providerId: '{WORKSPACE_PROVIDER_ID}' }]);
+    expect(getMockCalls(unregisterSyncRootMock)).toStrictEqual([{ providerId: '{WORKSPACE_PROVIDER_ID}' }]);
   });
 });

@@ -5,7 +5,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
-import * as trackAddEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import * as trackAddFileEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-file'));
@@ -13,21 +13,16 @@ vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move
 describe('on-add', () => {
   const getFileUuidMock = deepMocked(NodeWin.getFileUuid);
   const moveFileMock = vi.mocked(moveFile);
-  const trackAddEventMock = partialSpyOn(trackAddEvent, 'trackAddEvent');
+  const trackAddFileEventMock = partialSpyOn(trackAddFileEvent, 'trackAddFileEvent');
 
-  const date1 = new Date();
-  const date2 = new Date(date1.getTime() + 1);
   const absolutePath = 'C:\\Users\\user\\drive\\file.txt' as AbsolutePath;
 
   let props: Parameters<typeof onAdd>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof onAdd>({
       absolutePath,
-      stats: { birthtime: date1, mtime: date2, size: 1024 },
       self: {
         fileInDevice: new Set(),
         logger: loggerMock,
@@ -55,23 +50,12 @@ describe('on-add', () => {
     // When
     await onAdd(props);
     // Then
-    expect(trackAddEventMock).toBeCalledWith({ uuid: 'uuid' });
+    expect(trackAddFileEventMock).toBeCalledWith({ uuid: 'uuid' });
     expect(moveFileMock).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/file.txt',
         uuid: 'uuid',
       }),
     );
-  });
-
-  it('should not do anything if the file is added from remote', async () => {
-    // Given
-    props.stats.birthtime = date1;
-    props.stats.mtime = date1;
-    // When
-    await onAdd(props);
-    // Then
-    expect(props.self.callbacks.addController.createFile).not.toBeCalled();
-    expect(moveFileMock).not.toBeCalled();
   });
 });

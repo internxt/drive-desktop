@@ -1,27 +1,23 @@
 import { logger } from '@/apps/shared/logger/logger';
+import { updateFileStatus } from '@/backend/features/local-sync/placeholders/update-file-status';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { RetryContentsUploader } from '@/context/virtual-drive/contents/application/RetryContentsUploader';
-import { InMemoryFileRepository } from '@/context/virtual-drive/files/infrastructure/InMemoryFileRepository';
+import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { fileSystem } from '@/infra/file-system/file-system.module';
-import VirtualDrive from '@/node-win/virtual-drive';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { Stats } from 'fs';
+import { getConfig, ProcessSyncContext } from '../../config';
 
 type TProps = {
-  virtualDrive: VirtualDrive;
-  absolutePath: AbsolutePath;
+  ctx: ProcessSyncContext;
+  stats: Stats;
   path: RelativePath;
+  absolutePath: AbsolutePath;
   uuid: string;
-  fileContentsUploader: RetryContentsUploader;
-  repository: InMemoryFileRepository;
 };
 
-export async function updateContentsId({ virtualDrive, absolutePath, path, uuid, fileContentsUploader, repository }: TProps) {
+export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }: TProps) {
   try {
-    const { data: stats, error } = await fileSystem.stat({ absolutePath });
-
-    if (error) throw error;
-
     if (stats.size === 0 || stats.size > BucketEntry.MAX_SIZE) {
       logger.warn({
         tag: 'SYNC-ENGINE',
@@ -32,21 +28,30 @@ export async function updateContentsId({ virtualDrive, absolutePath, path, uuid,
       return;
     }
 
-    const contents = await fileContentsUploader.run(path);
+    const contents = await ContentsUploader.run({ ctx, path, absolutePath, stats });
 
-    await driveServerWip.files.replaceFile({
+    const { data: fileDto, error } = await driveServerWip.files.replaceFile({
       uuid,
       newContentId: contents.id,
       newSize: contents.size,
+      modificationTime: stats.mtime.toISOString(),
     });
 
-    virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
+    if (error) throw error;
 
-    // TODO: repository not used
-    const file = repository.searchByPartial({ uuid });
-    if (file) {
-      repository.updateContentsAndSize(file, contents.id, contents.size);
-    }
+    await ipcRendererSqlite.invoke('fileCreateOrUpdate', {
+      file: {
+        ...fileDto,
+        size: Number(fileDto.size),
+        isDangledStatus: false,
+        userUuid: getConfig().userUuid,
+        workspaceId: getConfig().workspaceId,
+      },
+      bucket: getConfig().bucket,
+      absolutePath,
+    });
+
+    updateFileStatus({ ctx, path });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

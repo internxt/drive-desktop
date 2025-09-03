@@ -1,19 +1,20 @@
 import { watch, WatchOptions, FSWatcher } from 'chokidar';
 
 import { onAddDir } from './events/on-add-dir.service';
-import { OnRawService } from './events/on-raw.service';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
 import VirtualDrive from '../virtual-drive';
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
 import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
+import { debounceOnRaw } from './events/debounce-on-raw';
+import { onAll } from './events/on-all.service';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export type TWatcherCallbacks = {
   addController: AddController;
-  updateContentsId: (_: { absolutePath: AbsolutePath; path: RelativePath; uuid: string }) => Promise<void>;
 };
 
 export class Watcher {
@@ -27,7 +28,6 @@ export class Watcher {
     public readonly logger: TLogger,
     public readonly virtualDrive: VirtualDrive,
     public readonly callbacks: TWatcherCallbacks,
-    private readonly onRaw: OnRawService = new OnRawService(),
   ) {}
 
   private onError = (error: unknown) => {
@@ -38,15 +38,28 @@ export class Watcher {
     this.logger.debug({ msg: 'onReady' });
   };
 
-  watchAndWait() {
+  watchAndWait({ ctx }: { ctx: ProcessSyncContext }) {
     try {
       this.chokidar = watch(this.syncRootPath, this.options);
       this.chokidar
-        .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ self: this, absolutePath, stats: stats! }))
-        .on('addDir', (absolutePath: AbsolutePath, stats) => onAddDir({ self: this, absolutePath, stats: stats! }))
+        .on('all', (event, path) => onAll({ event, path }))
+        /**
+         * v2.5.7 Daniel Jiménez
+         * add events are triggered when:
+         * - we create an item locally.
+         * - we move an item locally or when we move it using sync by checkpoint.
+         */
+        .on('add', (absolutePath: AbsolutePath, stats) => onAdd({ ctx, self: this, absolutePath, stats: stats! }))
+        .on('addDir', (absolutePath: AbsolutePath) => onAddDir({ ctx, self: this, absolutePath }))
+        /**
+         * v2.5.6 Daniel Jiménez
+         * unlink events are triggered when:
+         * - we delete an item locally or when we delete it using sync by checkpoint.
+         * - we move an item locally or when we move it using sync by checkpoint.
+         */
         .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ virtualDrive: this.virtualDrive, absolutePath }))
         .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ virtualDrive: this.virtualDrive, absolutePath }))
-        .on('raw', (event, absolutePath: AbsolutePath, details) => this.onRaw.execute({ self: this, event, absolutePath, details }))
+        .on('raw', (event, absolutePath: AbsolutePath, details) => debounceOnRaw({ ctx, self: this, event, absolutePath, details }))
         .on('error', this.onError)
         .on('ready', this.onReady);
     } catch (exc) {

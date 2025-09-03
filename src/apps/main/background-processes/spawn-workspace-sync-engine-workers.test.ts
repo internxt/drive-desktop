@@ -1,4 +1,4 @@
-import { deepMocked, getMockCalls } from 'tests/vitest/utils.helper.test';
+import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { spawnWorkspaceSyncEngineWorkers } from './sync-engine';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
@@ -16,16 +16,20 @@ describe('spawn-workspace-sync-engine-workers', () => {
   const spawnWorkspaceMock = vi.mocked(spawnWorkspace);
   const unregisterVirtualDrivesMock = vi.mocked(unregisterVirtualDrives);
 
+  const props = mockProps<typeof spawnWorkspaceSyncEngineWorkers>({ providerId: '{PROVIDER_ID}' });
+
   it('Spawn workspace sync engine workers', async () => {
     // Given
     getUserOrThrowMock.mockReturnValue({ uuid: 'user_id' });
     getWorkspacesMock.mockResolvedValue([{ providerId: '{WORKSPACE_PROVIDER_ID}' }]);
 
     // When
-    await spawnWorkspaceSyncEngineWorkers({ providerId: '{PROVIDER_ID}' });
+    await spawnWorkspaceSyncEngineWorkers(props);
 
     // Then
-    expect(getMockCalls(spawnWorkspaceMock)).toStrictEqual([{ workspace: { providerId: '{WORKSPACE_PROVIDER_ID}' } }]);
+    expect(getMockCalls(spawnWorkspaceMock)).toStrictEqual([
+      expect.objectContaining({ workspace: { providerId: '{WORKSPACE_PROVIDER_ID}' } }),
+    ]);
     expect(getMockCalls(unregisterVirtualDrivesMock)).toStrictEqual([{ currentProviderIds: ['{WORKSPACE_PROVIDER_ID}', '{PROVIDER_ID}'] }]);
   });
 });

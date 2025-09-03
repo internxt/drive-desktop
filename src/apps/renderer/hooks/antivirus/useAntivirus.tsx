@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 export type ScanType = 'files' | 'folders';
 export type Views = 'locked' | 'chooseItems' | 'scan' | 'loading';
 
-export interface UseAntivirusReturn {
+export type UseAntivirusReturn = {
   infectedFiles: string[];
   currentScanPath?: string;
   countScannedFiles: number;
@@ -13,7 +13,6 @@ export interface UseAntivirusReturn {
   isScanCompleted: boolean;
   progressRatio: number;
   isAntivirusAvailable: boolean;
-  isDefenderActive: boolean;
   showErrorState: boolean;
   onScanUserSystemButtonClicked: () => Promise<void>;
   onScanAgainButtonClicked: () => void;
@@ -21,8 +20,7 @@ export interface UseAntivirusReturn {
   isUserElegible: () => void;
   onCustomScanButtonClicked: (scanType: ScanType) => Promise<void>;
   onRemoveInfectedItems: (infectedFiles: string[]) => Promise<void>;
-  isWinDefenderActive: () => Promise<boolean>;
-}
+};
 
 export const useAntivirus = (): UseAntivirusReturn => {
   const [infectedFiles, setInfectedFiles] = useState<string[]>([]);
@@ -32,7 +30,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
   const [isScanCompleted, setIsScanCompleted] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isAntivirusAvailable, setIsAntivirusAvailable] = useState<boolean>(false);
-  const [isDefenderActive, setIsDefenderActive] = useState<boolean>(false);
   const [showErrorState, setShowErrorState] = useState<boolean>(false);
   const [countFiles, setIsCountFiles] = useState(true);
   const [view, setView] = useState<Views>('locked');
@@ -46,7 +43,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   useEffect(() => {
     isUserElegible();
-    isWinDefenderActive();
   }, []);
 
   const isUserElegible = async () => {
@@ -61,21 +57,9 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
       setIsAntivirusAvailable(true);
       setView('chooseItems');
-    } catch (error) {
+    } catch {
       setIsAntivirusAvailable(false);
       setView('locked');
-    }
-  };
-
-  const isWinDefenderActive = async () => {
-    try {
-      const isWinDefenderActive = await window.electron.antivirus.isDefenderActive();
-
-      setIsDefenderActive(isWinDefenderActive);
-      return isWinDefenderActive;
-    } catch (error) {
-      setIsDefenderActive(false);
-      return false;
     }
   };
 
@@ -99,7 +83,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
     if (progress.done) {
       setIsScanning(false);
       setIsScanCompleted(true);
-      return;
     }
   };
 
@@ -129,8 +112,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const onCustomScanButtonClicked = async (scanType: ScanType) => {
     resetStates();
-    const isDefenderActive = await isWinDefenderActive();
-    if (isDefenderActive) return;
 
     const items = await onSelectItemsButtonClicked(scanType);
     if (!items || items.length === 0) return;
@@ -139,7 +120,7 @@ export const useAntivirus = (): UseAntivirusReturn => {
     try {
       await window.electron.antivirus.scanItems(items);
       setIsScanCompleted(true);
-    } catch (error) {
+    } catch {
       setShowErrorState(true);
     } finally {
       setIsScanning(false);
@@ -148,15 +129,13 @@ export const useAntivirus = (): UseAntivirusReturn => {
 
   const onScanUserSystemButtonClicked = async () => {
     resetStates();
-    const isDefenderActive = await isWinDefenderActive();
-    if (isDefenderActive) return;
 
     setView('scan');
 
     try {
       await window.electron.antivirus.scanItems();
       setIsScanCompleted(true);
-    } catch (error) {
+    } catch {
       setShowErrorState(true);
     } finally {
       setIsScanning(false);
@@ -192,7 +171,6 @@ export const useAntivirus = (): UseAntivirusReturn => {
     isScanCompleted,
     progressRatio,
     isAntivirusAvailable,
-    isDefenderActive,
     showErrorState,
     countFiles,
     onScanUserSystemButtonClicked,
@@ -201,6 +179,5 @@ export const useAntivirus = (): UseAntivirusReturn => {
     isUserElegible,
     onRemoveInfectedItems,
     onCancelScan,
-    isWinDefenderActive,
   };
 };

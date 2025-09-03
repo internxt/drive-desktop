@@ -1,21 +1,19 @@
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import { RetryContentsUploader } from '../../contents/application/RetryContentsUploader';
 import { DriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
 import { FileOverwriteContent } from '../../files/application/FileOverwriteContent';
-import Logger from 'electron-log';
 import { DangledFilesManager, PushAndCleanInput } from '../../shared/domain/DangledFilesManager';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FileDangledManager {
   constructor(
-    private readonly contentsUploader: RetryContentsUploader,
     private readonly contentsManagerFactory: EnvironmentRemoteFileContentsManagersFactory,
     private readonly fileOverwriteContent: FileOverwriteContent,
   ) {}
 
-  async run(): Promise<void> {
+  async run({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
     await DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
       await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
         toUpdate: input.toUpdateContentsIds,
@@ -36,7 +34,7 @@ export class FileDangledManager {
       const fileDate = new Date(file.createdAt).getTime();
 
       if (fileDate >= startDate && fileDate <= endDate) {
-        Logger.debug(`File ${file.plainName} is in the range`);
+        logger.debug({ msg: `File ${file.plainName} is in the range` });
         dangledFilesIds.push(file.fileId);
       } else {
         healthyFilesIds.push(file.fileId);
@@ -51,10 +49,9 @@ export class FileDangledManager {
     }
 
     if (dangledFilesIds.length > 0) {
-      Logger.debug(`Dangled files: ${dangledFilesIds}`);
-      await this.fileOverwriteContent.run({
+      logger.debug({ msg: `Dangled files: ${dangledFilesIds}` });
+      await this.fileOverwriteContent.run(ctx, {
         contentsIds: dangledFilesIds,
-        upload: this.contentsUploader.run.bind(this.contentsUploader),
         downloaderManger: this.contentsManagerFactory,
       });
     }

@@ -1,6 +1,5 @@
 import { AnimatePresence } from 'framer-motion';
 import { useOnSyncRunning } from '../../hooks/useOnSyncRunning';
-import { useOnSyncStopped } from '../../hooks/useOnSyncStopped';
 import { useSyncInfoSubscriber } from '../../hooks/useSyncInfoSubscriber';
 import { AnimationWrapper } from './AnimationWrapper';
 import { Item } from './Item';
@@ -8,9 +7,8 @@ import { NoInfoToShow } from './NoInfoToShow';
 import { useInterval } from '../../hooks/useInterval';
 
 export default function SyncInfo() {
-  const { processInfoUpdatedPayload, clearItems, removeOnProgressItems } = useSyncInfoSubscriber();
+  const { processInfoUpdatedPayload, clearItems } = useSyncInfoSubscriber();
 
-  useOnSyncStopped(removeOnProgressItems);
   useOnSyncRunning(clearItems);
 
   useInterval(clearItems, 15000);

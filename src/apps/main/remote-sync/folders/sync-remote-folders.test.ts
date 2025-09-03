@@ -23,10 +23,6 @@ describe('sync-remote-folders.service', () => {
   const worker = mockDeep<TWorkerConfig>();
   const remoteSyncManager = new RemoteSyncManager(config, worker, '');
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('If we fetch less than 50 files, then do not fetch again', async () => {
     // Given
     getFoldersMock.mockResolvedValueOnce({ data: [] });

@@ -6,8 +6,8 @@ import { LoadingFolders } from './LoadingFolders';
 import { BackupsList } from './BackupsList';
 import { BackupContext } from '../../../../context/BackupContext';
 import { DeviceContext } from '../../../../context/DeviceContext';
-import useGetItems from '../../../../hooks/folders/useGetItems';
 import { ItemBackup } from '../../../../../shared/types/items';
+import { useGetBackupFolders } from '@/apps/renderer/api/use-get-backup-folders';
 
 interface DownloadFolderSelectorProps {
   onClose: () => void;
@@ -21,7 +21,7 @@ function truncateText(text: string, prev: string[], maxLength: number) {
   // Concatenar los textos, truncando si es necesario y agregando ">"
   const truncatedTexts = [text, ...prev].map((str) => truncate(str, Math.floor(maxLength / prev.length)));
 
-  return truncatedTexts.reverse().join(' > ');
+  return truncatedTexts.toReversed().join(' > ');
 }
 
 export default function DownloadFolderSelector({ onClose }: DownloadFolderSelectorProps) {
@@ -42,7 +42,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
     tmpPath: '',
   });
 
-  const items = useGetItems(folder.uuid);
+  const { data: items, status: itemsStatus } = useGetBackupFolders({ folderUuid: folder.uuid });
 
   const [selectedBackup, setSelectedBackup] = useState<ItemBackup[]>([]);
 
@@ -89,7 +89,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
       try {
         abortDownloadBackups(selected!);
         onClose();
-      } catch (err) {
+      } catch {
         // error while aborting (aborting also throws an exception itself)
       } finally {
         setTimeout(() => {
@@ -118,10 +118,14 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
         </div>
       </div>
       <div className="border-l-neutral-30 h-72 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black">
-        {selected && items.length > 0 ? (
+        {selected && items && items.length > 0 ? (
           <BackupsList items={items} selected={selectedBackup} setSelected={addOrDeleteItem} onDobleClick={handleNavigateToFolder} />
         ) : (
-          <LoadingFolders state={backupsState} messageText="settings.backups.folders.no-folders-to-download" />
+          <LoadingFolders
+            state={backupsState}
+            loadingItems={itemsStatus === 'loading'}
+            messageText="settings.backups.folders.no-folders-to-download"
+          />
         )}
       </div>
       <div className=" flex items-center justify-end">

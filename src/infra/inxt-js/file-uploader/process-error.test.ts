@@ -8,18 +8,16 @@ describe('process-error', () => {
   let props: Parameters<typeof processError>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof processError>({ callbacks });
   });
 
-  it('should return KILLED_BY_USER', () => {
+  it('should return ABORTED', () => {
     // Given
     props.err = new Error('Process killed by user');
     // When
     const error = processError(props);
     // Then
-    expect(error.code).toBe('KILLED_BY_USER');
+    expect(error.code).toBe('ABORTED');
     expect(callbacks.onError).toBeCalledTimes(0);
   });
 

@@ -1,352 +1,321 @@
-/* eslint-disable no-undef */
-/* eslint-disable @typescript-eslint/no-var-requires */
-const { contextBridge, ipcRenderer } = require('electron');
-const path = require('path');
-const Logger = require('electron-log');
-const { inspect } = require('util');
+"use strict";
+var __create = Object.create;
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
+var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __copyProps = (to, from, except, desc) => {
+  if (from && typeof from === "object" || typeof from === "function") {
+    for (let key of __getOwnPropNames(from))
+      if (!__hasOwnProp.call(to, key) && key !== except)
+        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+  }
+  return to;
+};
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 
-contextBridge.exposeInMainWorld('electron', {
+// src/apps/main/preload.ts
+var import_backend = require("@internxt/drive-desktop-core/build/backend");
+var import_electron = require("electron");
+var import_path = __toESM(require("path"));
+var api = {
   getConfigKey(key) {
-    return ipcRenderer.invoke('get-config-key', key);
+    return import_electron.ipcRenderer.invoke("get-config-key", key);
   },
   setConfigKey(props) {
-    return ipcRenderer.send('set-config-key', props);
+    import_electron.ipcRenderer.send("set-config-key", props);
   },
   listenToConfigKeyChange(key, fn) {
     const eventName = `${key}-updated`;
     const callback = (_, v) => fn(v);
-    ipcRenderer.on(eventName, (_, v) => fn(v));
-
-    return () => ipcRenderer.removeListener(eventName, callback);
+    import_electron.ipcRenderer.on(eventName, (_, v) => fn(v));
+    return () => import_electron.ipcRenderer.removeListener(eventName, callback);
   },
-
-  isDarkModeActive() {
-    return ipcRenderer.invoke('is-dark-mode-active');
-  },
-
   logger: {
-    info: (rawBody) => Logger.info(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
-    error: (rawBody) => Logger.error(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
-    warn: (rawBody) => Logger.warn(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
-    debug: (rawBody) => Logger.debug(inspect(rawBody, { colors: true, depth: Infinity, breakLength: Infinity })),
+    debug: (rawBody) => import_backend.logger.debug(rawBody),
+    warn: (rawBody) => import_backend.logger.warn(rawBody),
+    error: (rawBody) => import_backend.logger.error(rawBody)
   },
-
   pathChanged(pathname) {
-    ipcRenderer.send('path-changed', pathname);
+    import_electron.ipcRenderer.send("path-changed", pathname);
   },
   userLoggedIn(data) {
-    return ipcRenderer.send('user-logged-in', data);
+    import_electron.ipcRenderer.send("user-logged-in", data);
   },
   isUserLoggedIn() {
-    return ipcRenderer.invoke('is-user-logged-in');
+    return import_electron.ipcRenderer.invoke("is-user-logged-in");
   },
   onUserLoggedInChanged(func) {
-    return ipcRenderer.on('user-logged-in-changed', (_, v) => func(v));
+    import_electron.ipcRenderer.on("user-logged-in-changed", (_, v) => func(v));
   },
   userLogginFailed(email) {
-    ipcRenderer.send('USER_LOGIN_FAILED', email);
+    import_electron.ipcRenderer.send("USER_LOGIN_FAILED", email);
   },
   logout() {
-    return ipcRenderer.send('user-logged-out');
+    import_electron.ipcRenderer.send("USER_LOGGED_OUT");
   },
   closeWindow() {
-    return ipcRenderer.send('user-closed-window');
+    import_electron.ipcRenderer.send("user-closed-window");
   },
   minimizeWindow() {
-    return ipcRenderer.send('user-minimized-window');
+    import_electron.ipcRenderer.send("user-minimized-window");
   },
   openVirtualDriveFolder() {
-    return ipcRenderer.invoke('open-virtual-drive-folder');
+    return import_electron.ipcRenderer.invoke("open-virtual-drive-folder");
   },
   quit() {
-    return ipcRenderer.send('user-quit');
+    import_electron.ipcRenderer.send("user-quit");
   },
   getUser() {
-    return ipcRenderer.invoke('get-user');
+    return import_electron.ipcRenderer.invoke("get-user");
   },
   startSyncProcess() {
-    return ipcRenderer.send('start-sync-process');
+    import_electron.ipcRenderer.send("start-sync-process");
   },
   stopSyncProcess() {
-    return ipcRenderer.send('stop-sync-process');
+    import_electron.ipcRenderer.send("stop-sync-process");
   },
   getSyncStatus() {
-    return ipcRenderer.invoke('get-sync-status');
-  },
-  onSyncStatusChanged(func) {
-    const eventName = 'sync-status-changed';
-    const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-    return () => ipcRenderer.removeListener(eventName, callback);
-  },
-  onSyncStopped(func) {
-    const eventName = 'sync-stopped';
-    const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-    return () => ipcRenderer.removeListener(eventName, callback);
+    return import_electron.ipcRenderer.invoke("get-sync-status");
   },
   onSyncInfoUpdate(func) {
-    const eventName = 'sync-info-update';
+    const eventName = "sync-info-update";
     const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-    return () => ipcRenderer.removeListener(eventName, callback);
+    import_electron.ipcRenderer.on(eventName, callback);
+    return () => import_electron.ipcRenderer.removeListener(eventName, callback);
   },
   getIssues() {
-    return ipcRenderer.invoke('get-issues');
+    return import_electron.ipcRenderer.invoke("get-issues");
   },
   onIssuesChanged(func) {
-    const eventName = 'issues-changed';
+    const eventName = "issues-changed";
     const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-    return () => ipcRenderer.removeListener(eventName, callback);
+    import_electron.ipcRenderer.on(eventName, callback);
+    return () => import_electron.ipcRenderer.removeListener(eventName, callback);
   },
   openProcessIssuesWindow() {
-    return ipcRenderer.send('open-process-issues-window');
+    import_electron.ipcRenderer.send("open-process-issues-window");
   },
   openLogs() {
-    return ipcRenderer.send('open-logs');
+    import_electron.ipcRenderer.send("open-logs");
   },
   openSettingsWindow(section) {
-    return ipcRenderer.send('open-settings-window', section);
+    import_electron.ipcRenderer.send("open-settings-window", section);
   },
   settingsWindowResized(payload) {
-    return ipcRenderer.send('settings-window-resized', payload);
+    import_electron.ipcRenderer.send("settings-window-resized", payload);
   },
   finishOnboarding() {
-    return ipcRenderer.send('user-finished-onboarding');
+    import_electron.ipcRenderer.send("user-finished-onboarding");
   },
   finishMigration() {
-    return ipcRenderer.send('user-finished-migration');
+    import_electron.ipcRenderer.send("user-finished-migration");
   },
   isAutoLaunchEnabled() {
-    return ipcRenderer.invoke('is-auto-launch-enabled');
+    return import_electron.ipcRenderer.invoke("is-auto-launch-enabled");
   },
   toggleAutoLaunch() {
-    return ipcRenderer.invoke('toggle-auto-launch');
+    return import_electron.ipcRenderer.invoke("toggle-auto-launch");
   },
   toggleDarkMode(mode) {
-    if (mode === 'light') {
-      return ipcRenderer.invoke('dark-mode:light');
-    } else if (mode === 'dark') {
-      return ipcRenderer.invoke('dark-mode:dark');
-    } else if (mode === 'system') {
-      return ipcRenderer.invoke('dark-mode:system');
-    }
+    if (mode === "light") return import_electron.ipcRenderer.invoke("dark-mode:light");
+    if (mode === "dark") return import_electron.ipcRenderer.invoke("dark-mode:dark");
+    return import_electron.ipcRenderer.invoke("dark-mode:system");
   },
   getBackupsInterval() {
-    return ipcRenderer.invoke('get-backups-interval');
+    return import_electron.ipcRenderer.invoke("get-backups-interval");
   },
   setBackupsInterval(value) {
-    return ipcRenderer.invoke('set-backups-interval', value);
+    return import_electron.ipcRenderer.invoke("set-backups-interval", value);
   },
   startBackupsProcess() {
-    return ipcRenderer.send('start-backups-process');
+    import_electron.ipcRenderer.send("start-backups-process");
   },
   stopBackupsProcess() {
-    return ipcRenderer.send('stop-backups-process');
+    import_electron.ipcRenderer.send("stop-backups-process");
   },
   getBackupsStatus() {
-    return ipcRenderer.invoke('get-backups-status');
+    return import_electron.ipcRenderer.invoke("get-backups-status");
   },
   openVirtualDrive() {
-    return ipcRenderer.invoke('open-virtual-drive');
+    return import_electron.ipcRenderer.invoke("open-virtual-drive");
   },
   moveSyncFolderToDesktop() {
-    return ipcRenderer.invoke('move-sync-folder-to-desktop');
+    return import_electron.ipcRenderer.invoke("move-sync-folder-to-desktop");
   },
   // Open the folder where we store the items
   // that we failed to migrate
   openMigrationFailedFolder() {
-    return ipcRenderer.invoke('open-migration-failed-folder');
+    return import_electron.ipcRenderer.invoke("open-migration-failed-folder");
   },
   onBackupsStatusChanged(func) {
-    const eventName = 'backups-status-changed';
+    const eventName = "backups-status-changed";
     const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-    return () => ipcRenderer.removeListener(eventName, callback);
+    import_electron.ipcRenderer.on(eventName, callback);
+    return () => import_electron.ipcRenderer.removeListener(eventName, callback);
   },
   chooseSyncRootWithDialog() {
-    return ipcRenderer.invoke('choose-sync-root-with-dialog');
+    return import_electron.ipcRenderer.invoke("choose-sync-root-with-dialog");
   },
   getOrCreateDevice() {
-    return ipcRenderer.invoke('get-or-create-device');
+    return import_electron.ipcRenderer.invoke("get-or-create-device");
   },
   renameDevice(deviceName) {
-    return ipcRenderer.invoke('rename-device', deviceName);
+    return import_electron.ipcRenderer.invoke("rename-device", deviceName);
   },
   getBackups() {
-    return ipcRenderer.invoke('get-backups');
+    return import_electron.ipcRenderer.invoke("get-backups");
   },
   devices: {
     getDevices: () => {
-      return ipcRenderer.invoke('devices.get-all');
-    },
+      return import_electron.ipcRenderer.invoke("devices.get-all");
+    }
   },
-  getBackupsFromDevice(device, isCurrent) {
-    return ipcRenderer.invoke('get-backups-from-device', device, isCurrent);
+  getBackupsFromDevice: (device, isCurrent) => {
+    return import_electron.ipcRenderer.invoke("get-backups-from-device", device, isCurrent);
   },
   addBackup() {
-    return ipcRenderer.invoke('add-backup');
+    return import_electron.ipcRenderer.invoke("add-backup");
   },
   addBackupsFromLocalPaths(localPaths) {
-    return ipcRenderer.invoke('add-multiple-backups', localPaths);
+    return import_electron.ipcRenderer.invoke("add-multiple-backups", localPaths);
   },
   deleteBackup(backup) {
-    return ipcRenderer.invoke('delete-backup', backup);
+    return import_electron.ipcRenderer.invoke("delete-backup", backup);
   },
   deleteBackupsFromDevice(device, isCurrent) {
-    return ipcRenderer.invoke('delete-backups-from-device', device, isCurrent);
+    return import_electron.ipcRenderer.invoke("delete-backups-from-device", device, isCurrent);
   },
   disableBackup(backup) {
-    return ipcRenderer.invoke('disable-backup', backup);
+    return import_electron.ipcRenderer.invoke("disable-backup", backup);
   },
   getBackupsEnabled() {
-    return ipcRenderer.invoke('get-backups-enabled');
+    return import_electron.ipcRenderer.invoke("get-backups-enabled");
   },
   toggleBackupsEnabled() {
-    return ipcRenderer.invoke('toggle-backups-enabled');
+    return import_electron.ipcRenderer.invoke("toggle-backups-enabled");
   },
   getLastBackupTimestamp() {
-    return ipcRenderer.invoke('get-last-backup-timestamp');
+    return import_electron.ipcRenderer.invoke("get-last-backup-timestamp");
   },
   getLastBackupProgress() {
-    return ipcRenderer.send('backups.get-last-progress');
+    import_electron.ipcRenderer.send("backups.get-last-progress");
   },
   onBackupProgress(func) {
-    const eventName = 'backup-progress';
+    const eventName = "backup-progress";
     const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-
-    return () => ipcRenderer.removeListener(eventName, callback);
+    import_electron.ipcRenderer.on(eventName, callback);
+    return () => import_electron.ipcRenderer.removeListener(eventName, callback);
   },
   onBackupDownloadProgress(func) {
-    const eventName = 'backup-download-progress';
+    const eventName = "backup-download-progress";
     const callback = (_, v) => func(v);
-    ipcRenderer.on(eventName, callback);
-
-    return () => ipcRenderer.removeListener(eventName, callback);
+    import_electron.ipcRenderer.on(eventName, callback);
+    return () => import_electron.ipcRenderer.removeListener(eventName, callback);
   },
   abortDownloadBackups(deviceUuid) {
-    return ipcRenderer.send('abort-download-backups-' + deviceUuid, deviceUuid);
+    import_electron.ipcRenderer.send("abort-download-backups-" + deviceUuid, deviceUuid);
   },
   getItemByFolderUuid(folderUuid) {
-    return ipcRenderer.invoke('get-item-by-folder-uuid', folderUuid);
+    return import_electron.ipcRenderer.invoke("get-item-by-folder-uuid", folderUuid);
   },
-
   deleteBackupError(folderId) {
-    return ipcRenderer.invoke('delete-backup-error', folderId);
+    return import_electron.ipcRenderer.invoke("delete-backup-error", folderId);
   },
   downloadBackup(backup, folderUuids) {
-    return ipcRenderer.invoke('download-backup', backup, folderUuids);
+    return import_electron.ipcRenderer.invoke("download-backup", backup, folderUuids);
   },
   changeBackupPath(currentPath) {
-    return ipcRenderer.invoke('change-backup-path', currentPath);
+    return import_electron.ipcRenderer.invoke("change-backup-path", currentPath);
   },
   getFolderPath() {
-    return ipcRenderer.invoke('get-folder-path');
+    return import_electron.ipcRenderer.invoke("get-folder-path");
   },
   startMigration() {
-    return ipcRenderer.invoke('open-migration-window');
+    return import_electron.ipcRenderer.invoke("open-migration-window");
   },
   getUsage() {
-    return ipcRenderer.invoke('get-usage');
-  },
-  resizeWindow(dimensions) {
-    return ipcRenderer.invoke('resize-focused-window', dimensions);
-  },
-  addFakeIssues(errorsName, process) {
-    return ipcRenderer.invoke('add-fake-sync-issues', { errorsName, process });
+    return import_electron.ipcRenderer.invoke("get-usage");
   },
   onRemoteSyncStatusChange(callback) {
-    const eventName = 'remote-sync-status-change';
-    const callbackWrapper = (_, v) => {
-      callback(v);
-    };
-    ipcRenderer.on(eventName, callbackWrapper);
-
-    return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+    const eventName = "remote-sync-status-change";
+    const callbackWrapper = (_, v) => callback(v);
+    import_electron.ipcRenderer.on(eventName, callbackWrapper);
+    return () => import_electron.ipcRenderer.removeListener(eventName, callbackWrapper);
   },
   getRemoteSyncStatus() {
-    return ipcRenderer.invoke('get-remote-sync-status');
+    return import_electron.ipcRenderer.invoke("get-remote-sync-status");
   },
   retryVirtualDriveMount() {
-    return ipcRenderer.invoke('retry-virtual-drive-mount');
-  },
-  onVirtualDriveStatusChange(callback) {
-    const eventName = 'virtual-drive-status-change';
-    const callbackWrapper = (_, v) => {
-      callback(v);
-    };
-    ipcRenderer.on(eventName, callbackWrapper);
-
-    return () => ipcRenderer.removeListener(eventName, callbackWrapper);
+    return import_electron.ipcRenderer.invoke("retry-virtual-drive-mount");
   },
   openUrl: (url) => {
-    ipcRenderer.invoke('open-url', url);
+    return import_electron.ipcRenderer.invoke("open-url", url);
   },
   getPreferredAppLanguage() {
-    return ipcRenderer.invoke('APP:PREFERRED_LANGUAGE');
+    return import_electron.ipcRenderer.invoke("APP:PREFERRED_LANGUAGE");
   },
   syncManually() {
-    return ipcRenderer.invoke('SYNC_MANUALLY');
+    return import_electron.ipcRenderer.invoke("SYNC_MANUALLY");
   },
   getUnsycFileInSyncEngine() {
-    return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
+    return import_electron.ipcRenderer.invoke("GET_UNSYNC_FILE_IN_SYNC_ENGINE");
   },
   getRecentlywasSyncing() {
-    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS');
+    return import_electron.ipcRenderer.invoke("CHECK_SYNC_IN_PROGRESS");
   },
-
   user: {
     hasDiscoveredBackups() {
-      return ipcRenderer.invoke('user.get-has-discovered-backups');
+      return import_electron.ipcRenderer.invoke("user.get-has-discovered-backups");
     },
     discoveredBackups() {
-      ipcRenderer.send('user.set-has-discovered-backups');
-    },
+      import_electron.ipcRenderer.send("user.set-has-discovered-backups");
+    }
   },
   backups: {
-    isAvailable: () => {
-      return ipcRenderer.invoke('backups:is-available');
-    },
+    isAvailable() {
+      return import_electron.ipcRenderer.invoke("backups:is-available");
+    }
   },
   antivirus: {
-    isAvailable: () => {
-      return ipcRenderer.invoke('antivirus:is-available');
+    isAvailable() {
+      return import_electron.ipcRenderer.invoke("antivirus:is-available");
     },
-    isDefenderActive: () => {
-      return ipcRenderer.invoke('antivirus:is-Defender-active');
+    scanItems(paths) {
+      return import_electron.ipcRenderer.invoke("antivirus:scan-items", paths);
     },
-    scanItems: (paths) => {
-      return ipcRenderer.invoke('antivirus:scan-items', paths);
-    },
-
     onScanProgress: (callback) => {
-      ipcRenderer.on('antivirus:scan-progress', (_, progress) => callback(progress));
+      import_electron.ipcRenderer.on("antivirus:scan-progress", (_, progress) => callback(progress));
     },
-    removeScanProgressListener: () => {
-      ipcRenderer.removeAllListeners('antivirus:scan-progress');
-    },
-    scanSystem: (systemPath) => {
-      return ipcRenderer.invoke('antivirus:scan-system', systemPath);
+    removeScanProgressListener() {
+      import_electron.ipcRenderer.removeAllListeners("antivirus:scan-progress");
     },
     addItemsToScan: (getFiles) => {
-      return ipcRenderer.invoke('antivirus:add-items-to-scan', getFiles);
+      return import_electron.ipcRenderer.invoke("antivirus:add-items-to-scan", getFiles);
     },
     removeInfectedFiles: (infectedFiles) => {
-      return ipcRenderer.invoke('antivirus:remove-infected-files', infectedFiles);
+      return import_electron.ipcRenderer.invoke("antivirus:remove-infected-files", infectedFiles);
     },
-    cancelScan: () => {
-      return ipcRenderer.invoke('antivirus:cancel-scan');
-    },
+    cancelScan() {
+      return import_electron.ipcRenderer.invoke("antivirus:cancel-scan");
+    }
   },
   authService: {
     access: (props) => {
-      return ipcRenderer.invoke('renderer.login-access', props);
+      return import_electron.ipcRenderer.invoke("renderer.login-access", props);
     },
     login: (props) => {
-      return ipcRenderer.invoke('renderer.login', props);
-    },
+      return import_electron.ipcRenderer.invoke("renderer.login", props);
+    }
   },
-  path,
-});
+  path: import_path.default
+};
+import_electron.contextBridge.exposeInMainWorld("electron", api);

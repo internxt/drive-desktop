@@ -1,4 +1,3 @@
-import { afterAll, beforeAll, beforeEach, describe, vi } from 'vitest';
 import os from 'os';
 import { aes } from '@internxt/lib';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
@@ -38,8 +37,8 @@ describe('Device Service', () => {
 
   beforeEach(() => {
     process.env.NEW_CRYPTO_KEY = 'test-key';
-    vi.clearAllMocks();
   });
+
   describe('fetchDevice', () => {
     const getDeviceMock = deepMocked(driveServerWipModule.backup.getDevice);
 
@@ -55,6 +54,7 @@ describe('Device Service', () => {
       });
       expect(error).toBe(undefined);
     });
+
     it('should return null if the device is not found', async () => {
       const http404Error = new GetDeviceError('NOT_FOUND', {
         cause: {
@@ -71,6 +71,7 @@ describe('Device Service', () => {
       expect(data).toBeNull();
       expect(error).toBe(undefined);
     });
+
     it('should return error if the request is not successful', async () => {
       const http500Error = new Error('Internal server error', {
         cause: {
@@ -89,6 +90,7 @@ describe('Device Service', () => {
       expect(result.error?.message).toContain('Error fetching device');
     });
   });
+
   describe('saveDeviceToConfig', () => {
     const configStoreMock = deepMocked(configStore.set);
 
@@ -101,6 +103,7 @@ describe('Device Service', () => {
       expect(configStoreMock).toHaveBeenCalledWith('backupList', {});
     });
   });
+
   describe('createUniqueDevice', () => {
     const osMock = deepMocked(os.hostname);
     const createDeviceMock = deepMocked(driveServerWipModule.backup.createDevice);
@@ -126,12 +129,14 @@ describe('Device Service', () => {
       expect(createDeviceMock).toHaveBeenCalledWith({
         deviceName: hostname,
       });
+
       expect(data).toStrictEqual({
         ...deviceMock,
         name: hostname,
       });
       expect(error).toBe(undefined);
     });
+
     it('should try multiple times to create a unique device with the name of the hostname plus the number of try', async () => {
       const attempts = 10;
       osMock.mockReturnValue(hostname);
@@ -171,6 +176,7 @@ describe('Device Service', () => {
       expect(createDeviceMock).toHaveBeenCalledTimes(11);
       expect(error).toBe(undefined);
     });
+
     it('should return an error if the device creation fails', async () => {
       const attempts = 11;
       osMock.mockReturnValue(hostname);
@@ -194,6 +200,7 @@ describe('Device Service', () => {
       expect(data).toBe(undefined);
     });
   });
+
   describe('decryptDeviceName', () => {
     it('should decrypt the device name with the correct key using bucket', () => {
       decryptMock.mockReturnValue(decryptedName);
@@ -205,6 +212,7 @@ describe('Device Service', () => {
         name: decryptedName,
       });
     });
+
     it('should fall back to using null in the key when first decryption fails', () => {
       decryptMock
         .mockImplementationOnce(() => {

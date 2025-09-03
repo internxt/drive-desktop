@@ -1,14 +1,14 @@
-import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
-import Logger from 'electron-log';
 import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
 import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
 import { temporalFolderProvider } from '../../contents/application/temporalFolderProvider';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { File } from '../domain/File';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 import { FileContentsHardUpdater } from './FileContentsHardUpdater';
 import { EnvironmentContentFileDownloader } from '../../contents/infrastructure/download/EnvironmentContentFileDownloader';
+import { logger } from '@/apps/shared/logger/logger';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FileOverwriteContent {
   private processingErrorQueue: boolean;
@@ -21,7 +21,7 @@ export class FileOverwriteContent {
   }
 
   private errorQueue: Array<{
-    file: File;
+    file: ExtendedDriveFile;
     callback: (remoteDangledFile: string) => Promise<void>;
   }> = [];
 
@@ -37,7 +37,7 @@ export class FileOverwriteContent {
     this.processingErrorQueue = false;
   }
 
-  private enqueueError(input: { file: File; callback: (remoteDangledFile: string) => Promise<void> }) {
+  private enqueueError(input: { file: ExtendedDriveFile; callback: (remoteDangledFile: string) => Promise<void> }) {
     const { file, callback } = input;
     this.errorQueue.push({ file, callback });
     void this.processErrorQueue();
@@ -45,7 +45,7 @@ export class FileOverwriteContent {
 
   private async registerEvents(input: {
     downloader: EnvironmentContentFileDownloader;
-    file: File;
+    file: ExtendedDriveFile;
     callback: (remoteDangledFile: string) => Promise<void>;
   }) {
     const { downloader, file, callback } = input;
@@ -53,58 +53,53 @@ export class FileOverwriteContent {
     ensureFolderExists(location);
 
     downloader.on('start', () => {
-      Logger.info(`Downloading file start${file.path}...`);
+      logger.debug({ msg: 'Downloading file start', path: file.path });
     });
 
     downloader.on('progress', () => {
-      Logger.info(`Downloading file force stop${file.path}...`);
+      logger.debug({ msg: 'Downloading file force stop', path: file.path });
       downloader.forceStop();
     });
 
     downloader.on('error', (error: Error) => {
-      Logger.error('[FileSyncronizer] Error downloading file', error.message, file.path);
+      logger.error({ msg: 'Error downloading file', error, path: file.path });
       if (error.message.includes('Object not found')) {
         this.enqueueError({ file, callback });
       } else {
-        Logger.error('Error downloading file', error);
+        logger.error({ msg: 'Error downloading file', error });
       }
     });
   }
 
-  async run(input: {
-    contentsIds: File['contentsId'][];
-    upload: (path: string) => Promise<RemoteFileContents>;
-    downloaderManger: EnvironmentRemoteFileContentsManagersFactory;
-  }) {
-    const { contentsIds, upload, downloaderManger } = input;
-    Logger.debug('Inside overrideDangledFiles');
+  async run(ctx: ProcessSyncContext, input: { contentsIds: string[]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
+    const { contentsIds, downloaderManger } = input;
+    logger.debug({ msg: 'Inside overrideDangledFiles' });
     const files = this.repository.searchByContentsIds(contentsIds);
 
-    Logger.info('files fetched in overrideDangledFiles', files);
+    logger.debug({ msg: 'files fetched in overrideDangledFiles', files });
 
     const filesWithContentLocally = this.fileCheckerStatusInRoot.isHydrated(files.map((file) => file.path));
 
-    Logger.debug('filesWithContentLocally', filesWithContentLocally);
+    logger.debug({ msg: 'filesWithContentLocally', filesWithContentLocally });
 
     const asynchronousFixingOfDangledFiles = async (remoteDangledFile: string) => {
       const hydratedDangledRemoteFile = files.find((file) => remoteDangledFile == file.contentsId);
 
       if (!hydratedDangledRemoteFile) {
-        Logger.error(`File ${remoteDangledFile} not found in local files`);
+        logger.error({ msg: 'File not found in local files', remoteDangledFile });
         return;
       }
 
-      Logger.info('hydratedDangledRemoteFile ', { id: hydratedDangledRemoteFile.contentsId, path: hydratedDangledRemoteFile.path });
+      logger.debug({ msg: 'hydratedDangledRemoteFile ', id: hydratedDangledRemoteFile.contentsId, path: hydratedDangledRemoteFile.path });
 
-      if (!hydratedDangledRemoteFile.folderUuid) return;
-      await this.fileContentsHardUpdater.run({
+      if (!hydratedDangledRemoteFile.parentUuid) return;
+      await this.fileContentsHardUpdater.run(ctx, {
         attributes: {
           contentsId: hydratedDangledRemoteFile.contentsId,
-          folderUuid: hydratedDangledRemoteFile.folderUuid.value,
+          folderUuid: hydratedDangledRemoteFile.parentUuid,
           size: hydratedDangledRemoteFile.size,
           path: hydratedDangledRemoteFile.path,
         },
-        upload,
       });
     };
 
@@ -113,13 +108,13 @@ export class FileOverwriteContent {
         const downloader = downloaderManger.downloader();
         void this.registerEvents({ downloader, file, callback: asynchronousFixingOfDangledFiles });
 
-        Logger.debug('Trying to download file ', file.uuid, ' ', file.name);
+        logger.debug({ msg: 'Trying to download file ', uuid: file.uuid, name: file.name });
         await downloader.download(file);
 
-        Logger.info(`Possible dangled file ${file.path} hydrated.`);
+        logger.debug({ msg: 'Possible dangled file hydrated', path: file.path });
         DangledFilesManager.getInstance().add({ contentId: file.contentsId, path: file.path });
       } else {
-        Logger.info(`Possible dangled file ${file.path} not hydrated.`);
+        logger.debug({ msg: 'Possible dangled file not hydrated', path: file.path });
       }
     }
   }

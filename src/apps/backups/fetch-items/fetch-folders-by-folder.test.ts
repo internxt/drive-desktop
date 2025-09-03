@@ -1,20 +1,21 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { fetchFoldersByFolder } from './fetch-folders-by-folder';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import * as newParseFolderDto from '@/infra/drive-server-wip/out/dto';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 
 describe('fetch-folders-by-folder', () => {
   const getFoldersByFolderMock = deepMocked(driveServerWip.folders.getFoldersByFolder);
+  partialSpyOn(newParseFolderDto, 'newParseFolderDto');
 
   let props: Parameters<typeof fetchFoldersByFolder>[0];
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     props = mockProps<typeof fetchFoldersByFolder>({
-      allFolders: [{ uuid: 'previous' }],
+      allFolders: [{ uuid: 'previous' as FolderUuid }],
       folderUuid: 'folderUuid',
       abortSignal: {
         aborted: false,
@@ -31,18 +32,6 @@ describe('fetch-folders-by-folder', () => {
 
     // Then
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(0);
-  });
-
-  it('Add only folders with status EXISTS', async () => {
-    // Given
-    getFoldersByFolderMock.mockResolvedValueOnce({ data: [{ status: 'EXISTS' }, { status: 'DELETED' }] });
-
-    // When
-    const { newFolders } = await fetchFoldersByFolder(props);
-
-    // Then
-    expect(newFolders).toStrictEqual([{ status: 'EXISTS' }]);
-    expect(props.allFolders).toStrictEqual([{ uuid: 'previous' }, { status: 'EXISTS' }]);
   });
 
   it('If we fetch less than 50 folders, then do not fetch again', async () => {

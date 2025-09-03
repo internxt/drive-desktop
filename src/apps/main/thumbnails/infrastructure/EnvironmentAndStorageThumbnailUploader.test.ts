@@ -1,4 +1,3 @@
-import { describe } from 'vitest';
 import { Environment } from '@internxt/inxt-js/build';
 import { EnvironmentAndStorageThumbnailUploader } from '@/apps/main/thumbnails/infrastructure/EnvironmentAndStorageThumbnailUploader';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -6,6 +5,8 @@ import { deepMocked } from '../../../../../tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
+import { FileUuid } from '../../database/entities/DriveFile';
+import { v4 } from 'uuid';
 
 vi.mock('@internxt/inxt-js/build');
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
@@ -13,14 +14,12 @@ vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 describe('EnvironmentAndStorageThumbnailUploader', () => {
   const createThumbnailMock = deepMocked(driveServerWipModule.files.createThumbnail);
   const mockBucket = 'test-bucket';
-  const mockFileId = 123;
+  const mockFileId = v4() as FileUuid;
   const mockThumbnail = Buffer.from('mock-thumbnail');
   const environmentMocked = mockDeep<Environment>();
   let sut: EnvironmentAndStorageThumbnailUploader;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     environmentMocked.upload.mockImplementation((_bucket, options) => {
       options.finishedCallback(null, 'env-id-default');
       return {} as ActionState;

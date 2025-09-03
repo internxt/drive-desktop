@@ -1,37 +1,29 @@
 import { HttpRemoteFolderSystem } from '@/context/virtual-drive/folders/infrastructure/HttpRemoteFolderSystem';
 import { mockDeep } from 'vitest-mock-extended';
-import { InMemoryFolderRepository } from '@/context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
-import { FolderId } from '@/context/virtual-drive/folders/domain/FolderId';
-import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderUuid';
-import { FolderPath } from '@/context/virtual-drive/folders/domain/FolderPath';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
+import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderMother';
 import { FolderCreator } from './FolderCreator';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { v4 } from 'uuid';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderUuid as TFolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import * as updateFolderStatus from '@/backend/features/local-sync/placeholders/update-folder-status';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 
 describe('Folder Creator', () => {
-  const repository = mockDeep<InMemoryFolderRepository>();
-  const remote = mockDeep<HttpRemoteFolderSystem>();
   const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderUuid = deepMocked(NodeWin.getFolderUuid);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
-
-  const SUT = new FolderCreator(repository, remote, virtualDrive);
+  const persistMock = partialSpyOn(HttpRemoteFolderSystem, 'persist');
+  const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
 
   const path = createRelativePath('folder1', 'folder2');
-  const props = { path };
+  const props = mockProps<typeof FolderCreator.run>({ ctx: { virtualDrive }, path });
 
   beforeEach(() => {
-    vi.resetAllMocks();
     invokeMock.mockResolvedValue({});
   });
 
@@ -40,7 +32,7 @@ describe('Folder Creator', () => {
     getFolderUuid.mockReturnValueOnce({ error: new Error() });
 
     // When
-    const promise = SUT.run(props);
+    const promise = FolderCreator.run(props);
 
     // Then
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
@@ -48,33 +40,33 @@ describe('Folder Creator', () => {
 
   it('If placeholder id is found, create folder', async () => {
     // Given
-    const folder = FolderMother.fromPartial({ parentId: 1, parentUuid: v4(), path });
-    remote.persist.mockResolvedValueOnce(folder.attributes() as any);
-    getFolderUuid.mockReturnValueOnce({ data: folder.parentUuid as TFolderUuid });
+    persistMock.mockResolvedValueOnce({ uuid: 'uuid' });
+    getFolderUuid.mockReturnValueOnce({ data: 'parentUuid' as FolderUuid });
 
     // When
-    await SUT.run({ path });
+    await FolderCreator.run(props);
 
     // Then
-    expect(remote.persist).toBeCalledWith({
-      parentUuid: folder.parentUuid,
-      basename: 'folder2',
-      path: folder.path,
-    });
-
-    expect(repository.add).toBeCalledWith(
+    expect(persistMock).toBeCalledWith(
       expect.objectContaining({
-        _id: new FolderId(folder.id),
-        _parentId: new FolderId(folder.parentId ?? 0),
-        _parentUuid: new FolderUuid(folder.parentUuid ?? ''),
-        _path: new FolderPath(folder.path),
-        _uuid: new FolderUuid(folder.uuid),
+        parentUuid: 'parentUuid',
+        plainName: 'folder2',
+        path: '/folder1/folder2',
       }),
     );
 
-    expect(virtualDrive.convertToPlaceholder).toBeCalledWith({
-      itemPath: folder.path,
-      id: folder.placeholderId,
+    expect(invokeMock).toBeCalledWith('folderCreateOrUpdate', {
+      folder: {
+        uuid: 'uuid',
+        userUuid: '',
+        workspaceId: '',
+      },
     });
+
+    expect(virtualDrive.convertToPlaceholder).toBeCalledWith({
+      itemPath: '/folder1/folder2',
+      id: 'FOLDER:uuid',
+    });
+    expect(updateFolderStatusMock).toBeCalledTimes(1);
   });
 });

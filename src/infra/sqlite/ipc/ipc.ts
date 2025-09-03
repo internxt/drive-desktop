@@ -1,3 +1,4 @@
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { SqliteModule } from '../sqlite.module';
 
 export type FromProcess = {
@@ -14,7 +15,7 @@ export type FromProcess = {
     props: Parameters<typeof SqliteModule.FolderModule.getByUuid>[0],
   ) => Awaited<ReturnType<typeof SqliteModule.FolderModule.getByUuid>>;
   fileCreateOrUpdate: (
-    props: Parameters<typeof SqliteModule.FileModule.createOrUpdate>[0],
+    props: Parameters<typeof SqliteModule.FileModule.createOrUpdate>[0] & { bucket: string; absolutePath: AbsolutePath },
   ) => Awaited<ReturnType<typeof SqliteModule.FileModule.createOrUpdate>>;
   folderCreateOrUpdate: (
     props: Parameters<typeof SqliteModule.FolderModule.createOrUpdate>[0],

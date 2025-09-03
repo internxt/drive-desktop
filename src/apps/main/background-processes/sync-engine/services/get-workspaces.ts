@@ -3,17 +3,7 @@ import { PATHS } from '@/core/electron/paths';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { join } from 'node:path';
 
-type TReturn = Promise<
-  Array<{
-    id: string;
-    providerId: string;
-    mnemonic: string;
-    rootFolderId: string;
-    rootPath: string;
-  }>
->;
-
-export async function getWorkspaces(): TReturn {
+export async function getWorkspaces() {
   logger.debug({
     tag: 'SYNC-ENGINE',
     msg: 'Get workspaces',
@@ -31,7 +21,7 @@ export async function getWorkspaces(): TReturn {
      * we are going to parse it too, and then both are the same string.
      */
     providerId: `{${workspaceUser.id.toUpperCase()}}`,
-    mnemonic: workspaceUser.key,
+    key: workspaceUser.key,
     rootFolderId: workspaceUser.rootFolderId,
     /**
      * v2.5.1 Daniel Jiménez

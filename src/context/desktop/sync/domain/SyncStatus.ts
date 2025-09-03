@@ -1,1 +1,1 @@
-export type SyncStatus = 'STANDBY' | 'RUNNING' | 'FAILED' | 'SYNC PENDING';
+export type SyncStatus = 'STANDBY' | 'RUNNING' | 'FAILED';

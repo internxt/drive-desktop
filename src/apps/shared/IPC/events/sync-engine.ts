@@ -1,48 +1,32 @@
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
-import { DriveFile } from '../../../main/database/entities/DriveFile';
-import { DriveFolder } from '../../../main/database/entities/DriveFolder';
+import { DriveFile, FileUuid, SimpleDriveFile } from '../../../main/database/entities/DriveFile';
+import { SimpleDriveFolder } from '../../../main/database/entities/DriveFolder';
 import { GeneralIssue, SyncIssue } from '@/apps/main/background-processes/issues';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
-type FileInfo = {
-  nameWithExtension: string;
-};
-
-type FileUpdatePayload = {
-  nameWithExtension: string;
-  progress: number;
-};
+type BaseFile = { nameWithExtension: string };
+type FileDownload = BaseFile & { key: FileUuid };
+type FileUpload = BaseFile & { key: AbsolutePath };
+type FileProgress = BaseFile & { progress: number };
+type FileDownloading = FileProgress & FileDownload;
+type FileUploading = FileProgress & FileUpload;
 
 type FilesEvents = {
-  FILE_UPLOADING: (payload: FileUpdatePayload) => void;
-  FILE_UPLOADED: (payload: FileInfo) => void;
-  FILE_UPLOAD_ERROR: (payload: FileInfo) => void;
+  FILE_UPLOADING: (payload: FileUploading) => void;
+  FILE_UPLOADED: (payload: FileUpload) => void;
+  FILE_UPLOAD_ERROR: (payload: FileUpload) => void;
 
-  FILE_DOWNLOADING: (payload: FileUpdatePayload) => void;
-  FILE_DOWNLOADED: (payload: FileInfo) => void;
-  FILE_DOWNLOAD_CANCEL: (payload: FileInfo) => void;
-  FILE_DOWNLOAD_ERROR: (payload: FileInfo) => void;
-
-  FILE_DELETED: (payload: FileInfo) => void;
-  FILE_DELETION_ERROR: (payload: FileInfo) => void;
-
-  FILE_RENAMING: (payload: FileInfo) => void;
-  FILE_RENAMED: (payload: FileInfo) => void;
-  FILE_RENAME_ERROR: (payload: FileInfo) => void;
-
-  FILE_CREATED: (payload: {
-    bucket: string;
-    name: string;
-    extension: string;
-    nameWithExtension: string;
-    fileId: number;
-    path: string;
-  }) => void;
+  FILE_DOWNLOADING: (payload: FileDownloading) => void;
+  FILE_DOWNLOADED: (payload: FileDownload) => void;
+  FILE_DOWNLOAD_CANCEL: (payload: FileDownload) => void;
+  FILE_DOWNLOAD_ERROR: (payload: FileDownload) => void;
 };
 
 type SyncEngineInvocableFunctions = {
-  GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: DriveFile[]; folders: DriveFolder[] }>;
+  GET_UPDATED_REMOTE_ITEMS: (workspaceId: string) => Promise<{ files: SimpleDriveFile[]; folders: SimpleDriveFolder[] }>;
   GET_HEADERS: () => Promise<Record<string, string>>;
-  USER_IS_UNAUTHORIZED: () => void;
+  USER_LOGGED_OUT: () => void;
+  FIND_EXISTING_FILES: (workspaceId: string) => Promise<DriveFile[]>;
 };
 
 type ProcessInfoUpdate = {
@@ -54,4 +38,7 @@ type ProcessInfoUpdate = {
 };
 
 export type FromProcess = FilesEvents & SyncEngineInvocableFunctions & ProcessInfoUpdate;
-export type FromMain = {};
+export type FromMain = {
+  UPDATE_SYNC_ENGINE_PROCESS: () => void;
+  STOP_AND_CLEAR_SYNC_ENGINE_PROCESS: () => void;
+};

@@ -2,12 +2,13 @@ import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../../in/client-wrapper.service';
+import { parseFolderDto } from '../../out/dto';
 
 type TQuery = paths['/workspaces/{workspaceId}/folders/{folderUuid}/folders']['get']['parameters']['query'];
 
 export async function getFoldersByFolder(
   context: { workspaceId: string; folderUuid: string; query: TQuery; workspaceToken: string },
-  extra?: { skipLog?: boolean },
+  extra: { skipLog?: boolean; abortSignal: AbortSignal },
 ) {
   const method = 'GET';
   const endpoint = '/workspaces/{workspaceId}/folders/{folderUuid}/folders';
@@ -19,12 +20,13 @@ export async function getFoldersByFolder(
         path: { workspaceId: context.workspaceId, folderUuid: context.folderUuid },
         query: context.query,
       },
+      signal: extra.abortSignal,
     });
 
   const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra?.skipLog,
+    skipLog: extra.skipLog,
     loggerBody: {
       msg: 'Get workspace folders by folder request',
       context,
@@ -36,7 +38,7 @@ export async function getFoldersByFolder(
   });
 
   if (data) {
-    return { data: data.result };
+    return { data: data.result.map((folderDto) => parseFolderDto({ folderDto })) };
   } else {
     return { error };
   }

@@ -1,133 +1,70 @@
-import { Folder } from '../../folders/domain/Folder';
-import { FolderStatus } from '../../folders/domain/FolderStatus';
-import { logger } from '@/apps/shared/logger/logger';
-import { File } from '../../files/domain/File';
 import { getAllItems } from './RemoteItemsGenerator';
-import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
-import { DriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { FileErrorHandler } from '../../files/domain/FileError';
-import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
-import { fileDecryptName } from '../../files/domain/file-decrypt-name';
+import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
+import { join } from 'path';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type Items = {
-  files: Array<DriveFile>;
-  folders: Array<DriveFolder>;
+  files: Array<SimpleDriveFile>;
+  folders: Array<SimpleDriveFolder>;
 };
 
 export type Tree = {
-  files: Array<File>;
-  folders: Array<Folder>;
-  trashedFiles: Array<File>;
-  trashedFolders: Array<Folder>;
+  files: Array<ExtendedDriveFile>;
+  folders: Array<ExtendedDriveFolder>;
+  trashedFiles: Array<ExtendedDriveFile>;
+  trashedFolders: Array<ExtendedDriveFolder>;
 };
 
 export class Traverser {
-  constructor(
-    private readonly baseFolderId: number,
-    private readonly baseFolderUuid: string,
-  ) {}
-
-  private createRootFolder(): Folder {
-    return Folder.from({
-      id: this.baseFolderId,
-      uuid: this.baseFolderUuid,
-      parentId: null,
-      parentUuid: null,
+  private static createRootFolder({ ctx }: { ctx: ProcessSyncContext }): ExtendedDriveFolder {
+    return {
+      uuid: ctx.rootUuid,
+      parentUuid: undefined,
       updatedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
-      path: '/',
-      status: FolderStatus.Exists.value,
-    });
+      path: createRelativePath('/'),
+      absolutePath: ctx.rootPath as AbsolutePath,
+      status: 'EXISTS',
+      name: '',
+    };
   }
 
-  private traverse(tree: Tree, items: Items, currentFolder: Folder) {
+  private static traverse(ctx: ProcessSyncContext, tree: Tree, items: Items, currentFolder: ExtendedDriveFolder) {
     if (!items) return;
 
-    const filesInThisFolder = items.files.filter((file) => file.folderUuid === currentFolder.uuid);
+    const filesInThisFolder = items.files.filter((file) => file.parentUuid === currentFolder.uuid);
     const foldersInThisFolder = items.folders.filter((folder) => folder.parentUuid === currentFolder.uuid);
 
-    filesInThisFolder.forEach((serverFile) => {
-      let relativePath: RelativePath | undefined;
+    filesInThisFolder.forEach((file) => {
+      const path = createRelativePath(currentFolder.path, file.nameWithExtension);
+      const absolutePath = join(ctx.rootPath, path) as AbsolutePath;
+      const extendedFile = { ...file, path, absolutePath };
 
-      try {
-        const { nameWithExtension } = fileDecryptName({
-          plainName: serverFile.plainName,
-          encryptedName: serverFile.name,
-          parentId: serverFile.folderId,
-          extension: serverFile.type,
-        });
-
-        relativePath = createRelativePath(currentFolder.path, nameWithExtension);
-
-        const file = File.from({
-          ...serverFile,
-          path: relativePath,
-          contentsId: serverFile.fileId,
-          size: Number(serverFile.size),
-        });
-
-        if (serverFile.status === 'DELETED' || serverFile.status === 'TRASHED') {
-          tree.trashedFiles.push(file);
-        } else {
-          tree.files.push(file);
-        }
-      } catch (exc) {
-        if (relativePath) {
-          const name = relativePath;
-          FileErrorHandler.handle({
-            exc,
-            addIssue: ({ code }) => ipcRendererSyncEngine.send('ADD_SYNC_ISSUE', { error: code, name }),
-          });
-        }
-
-        logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Error adding file to tree',
-          exc,
-        });
+      if (file.status === 'DELETED' || file.status === 'TRASHED') {
+        tree.trashedFiles.push(extendedFile);
+      } else {
+        tree.files.push(extendedFile);
       }
     });
 
-    foldersInThisFolder.forEach((serverFolder) => {
-      try {
-        const decryptedName = Folder.decryptName({
-          plainName: serverFolder.plainName,
-          name: serverFolder.name,
-          parentId: serverFolder.parentId,
-        });
+    foldersInThisFolder.forEach((folder) => {
+      const path = createRelativePath(currentFolder.path, folder.name);
+      const absolutePath = join(ctx.rootPath, path) as AbsolutePath;
+      const extendedFolder = { ...folder, path, absolutePath };
 
-        const relativePath = createRelativePath(currentFolder.path, decryptedName);
-
-        const folder = Folder.from({
-          ...serverFolder,
-          parentId: serverFolder.parentId || null,
-          parentUuid: serverFolder.parentUuid || null,
-          path: relativePath,
-        });
-
-        if (serverFolder.status === 'DELETED' || serverFolder.status === 'TRASHED') {
-          tree.trashedFolders.push(folder);
-        } else {
-          tree.folders.push(folder);
-          this.traverse(tree, items, folder);
-        }
-      } catch (exc) {
-        /**
-         * v2.5.3 Daniel Jiménez
-         * TODO: Add issue to sync
-         */
-        logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Error adding folder to tree',
-          exc,
-        });
+      if (folder.status === 'DELETED' || folder.status === 'TRASHED') {
+        tree.trashedFolders.push(extendedFolder);
+      } else {
+        tree.folders.push(extendedFolder);
+        this.traverse(ctx, tree, items, extendedFolder);
       }
     });
   }
 
-  async run() {
-    const rootFolder = this.createRootFolder();
+  static async run({ ctx }: { ctx: ProcessSyncContext }) {
+    const rootFolder = this.createRootFolder({ ctx });
     const items = await getAllItems();
 
     const tree: Tree = {
@@ -137,7 +74,7 @@ export class Traverser {
       trashedFolders: [],
     };
 
-    this.traverse(tree, items, rootFolder);
+    this.traverse(ctx, tree, items, rootFolder);
 
     return tree;
   }

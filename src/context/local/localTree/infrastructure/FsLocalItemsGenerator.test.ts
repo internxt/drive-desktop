@@ -2,18 +2,13 @@ import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { CLSFsLocalItemsGenerator } from './FsLocalItemsGenerator';
 import { join } from 'path';
 import { v4 } from 'uuid';
-import { mkdir, rm, writeFile } from 'fs/promises';
-import { fileSystem } from '@/infra/file-system/file-system.module';
-import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
+import { mkdir, writeFile } from 'fs/promises';
+import { mockProps } from 'tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-
-vi.mock(import('@/apps/main/background-processes/issues'));
-vi.mock(import('@/infra/file-system/file-system.module'));
+import { execSync } from 'child_process';
 
 describe('CLSFsLocalItemsGenerator', () => {
-  const statMock = deepMocked(fileSystem.stat);
-
   const folder = join(TEST_FILES, v4());
 
   const folder1 = join(folder, 'folder1');
@@ -39,44 +34,38 @@ describe('CLSFsLocalItemsGenerator', () => {
     await writeFile(file4, 'content');
   });
 
-  afterAll(async () => {
-    await rm(folder, { recursive: true });
-  });
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   it('It should add files and folders', async () => {
-    // Given
-    statMock.mockResolvedValue({ data: { mtime: new Date(), size: 7 } });
-
     // When
     const res = await CLSFsLocalItemsGenerator.getAll(props);
 
     // Then
     expect(res).toStrictEqual({
       files: [
-        { path: file1, modificationTime: expect.any(Number), size: 7 },
-        { path: file2, modificationTime: expect.any(Number), size: 7 },
+        { path: file1, modificationTime: expect.any(Date), size: 7 },
+        { path: file2, modificationTime: expect.any(Date), size: 7 },
+        { path: file3, modificationTime: expect.any(Date), size: 7 },
+        { path: file4, modificationTime: expect.any(Date), size: 7 },
       ],
-      folders: [{ path: folder1 }, { path: folder2 }],
+      folders: [{ path: folder1 }, { path: folder2 }, { path: folder3 }],
     });
   });
 
   it('If stat returns an error it should add an issue and continue', async () => {
     // Given
-    statMock.mockResolvedValue({ data: { mtime: new Date(), size: 7 } });
-    statMock.mockResolvedValueOnce({ error: { code: 'NON_EXISTS' } });
+    execSync(`icacls "${file3}" /deny "${process.env.USERNAME}":F`);
 
     // When
     const res = await CLSFsLocalItemsGenerator.getAll(props);
 
     // Then
-    expect(context.addIssue).toHaveBeenCalledWith({ name: file1, error: 'FOLDER_DOES_NOT_EXIST' });
+    expect(context.addIssue).toHaveBeenCalledWith({ name: file3, error: 'FOLDER_ACCESS_DENIED' });
     expect(res).toStrictEqual({
-      files: [{ path: file2, modificationTime: expect.any(Number), size: 7 }],
-      folders: [{ path: folder1 }, { path: folder2 }],
+      files: [
+        { path: file1, modificationTime: expect.any(Date), size: 7 },
+        { path: file2, modificationTime: expect.any(Date), size: 7 },
+        { path: file4, modificationTime: expect.any(Date), size: 7 },
+      ],
+      folders: [{ path: folder1 }, { path: folder2 }, { path: folder3 }],
     });
   });
 });

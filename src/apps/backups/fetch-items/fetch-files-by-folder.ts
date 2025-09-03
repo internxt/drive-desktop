@@ -1,10 +1,11 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { FileDto } from '@/infra/drive-server-wip/out/dto';
+import { newParseFileDto } from '@/infra/drive-server-wip/out/dto';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 type TProps = {
   folderUuid: string;
-  allFiles: FileDto[];
+  allFiles: SimpleDriveFile[];
   abortSignal: AbortSignal;
   offset?: number;
 };
@@ -34,7 +35,7 @@ export async function fetchFilesByFolder({ folderUuid, allFiles, abortSignal, of
     hasMore = data.length === FETCH_LIMIT;
     offset += FETCH_LIMIT;
 
-    const filteredData = data.filter((file) => file.status === 'EXISTS');
-    allFiles.push(...filteredData);
+    const parsedData = data.map((fileDto) => newParseFileDto({ fileDto }));
+    allFiles.push(...parsedData);
   }
 }

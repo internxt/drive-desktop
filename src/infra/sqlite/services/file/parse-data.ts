@@ -14,7 +14,6 @@ export function parseData({ data }: TProps) {
   });
 
   return {
-    id: data.id,
     uuid: data.uuid as FileUuid,
     name,
     nameWithExtension,

@@ -11,6 +11,6 @@ export function trimPlaceholderId<T extends FilePlaceholderId | FolderPlaceholde
    * - ASCII control characters (hex 00 to 1F) — e.g., \n, \r, \t, etc.
    * - Additional C1 control characters (hex 7F to 9F).
    */
-  // eslint-disable-next-line no-control-regex
+  // eslint-disable-next-line no-control-regex, sonarjs/no-control-regex
   return placeholderId.replace(/[\x00-\x1F\x7F-\x9F]/g, '').normalize() as T;
 }

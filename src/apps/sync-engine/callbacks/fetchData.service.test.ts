@@ -1,45 +1,22 @@
 import { mockDeep } from 'vitest-mock-extended';
-import { FetchDataService } from './fetchData.service';
 import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
-import { File } from '../../../context/virtual-drive/files/domain/File';
 import { DeepPartial } from 'ts-essentials';
-import fs from 'fs';
-import { it } from 'vitest';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { unlink } from 'fs/promises';
+import { fetchData } from './fetchData.service';
 
-vi.mock('fs');
-
-const fetchData = new FetchDataService();
+vi.mock(import('fs/promises'));
 
 describe('Fetch Data', () => {
   const self = mockDeep<BindingsManager>();
 
-  const file: DeepPartial<File> = { path: 'path' };
+  const file: DeepPartial<SimpleDriveFile> = { nameWithExtension: 'file.txt' };
   const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
   beforeEach(() => {
-    vi.clearAllMocks();
-
     self.controllers.downloadFile.execute.mockResolvedValue('path');
-    self.controllers.downloadFile.fileFinderByUuid.mockReturnValue(file as File);
-  });
-
-  describe('When call normalizePath', () => {
-    it('When using slash, then return the parent path', () => {
-      // Act
-      const result = fetchData.normalizePath('C:/windows/system32');
-
-      // Arrange
-      expect(result).toBe('C:/windows');
-    });
-
-    it('When using backslash, then parse and return the parent path', () => {
-      // Act
-      const result = fetchData.normalizePath('C:\\windows\\system32');
-
-      // Arrange
-      expect(result).toBe('C:/windows');
-    });
+    self.controllers.downloadFile.fileFinderByUuid.mockResolvedValue(file as SimpleDriveFile);
   });
 
   describe('When progress value is wrong', () => {
@@ -48,10 +25,10 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: false, progress: 2 });
 
       // Act
-      await fetchData.run({ self, filePlaceholderId, callback });
+      await fetchData({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
 
     it('When progress is less than 0, then throw an error', async () => {
@@ -59,10 +36,10 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: false, progress: -1 });
 
       // Act
-      await fetchData.run({ self, filePlaceholderId, callback });
+      await fetchData({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
 
     it('When finished but progress is 0, then throw an error', async () => {
@@ -70,10 +47,10 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: true, progress: 0 });
 
       // Act
-      await fetchData.run({ self, filePlaceholderId, callback });
+      await fetchData({ self, filePlaceholderId, callback });
 
       // Arrange
-      expect(fs.unlinkSync).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
   });
 });

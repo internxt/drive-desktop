@@ -7,10 +7,6 @@ describe('backup-folder-uuid', () => {
   const store = mockDeep<typeof configStore>();
   const service = new BackupFolderUuid(store);
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
   describe('ensureBackupUuidExists', () => {
     it('should handle empty backup list', async () => {
       // Given
