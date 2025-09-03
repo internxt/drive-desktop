@@ -56,7 +56,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
     }, []);
 
     return (
-      <div className="flex flex-1 space-x-2.5 truncate">
+      <div className="flex flex-1 space-x-2.5 truncate" data-automation-id="headerAccountSection">
         <div className="relative z-0 flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-base font-semibold uppercase text-primary before:absolute before:inset-0 before:-z-1 before:rounded-full before:bg-primary/20 dark:text-white dark:before:bg-primary/75">
           {`${user?.name.charAt(0) ?? ''}${user?.lastname.charAt(0) ?? ''}`}
         </div>
@@ -113,7 +113,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
         <Globe size={22} />
       </HeaderItemWrapper>
 
-      <HeaderItemWrapper onClick={window.electron.openVirtualDriveFolder}>
+      <HeaderItemWrapper onClick={window.electron.openVirtualDriveFolder} data-automation-id="openVirtualDriveFolder">
         <FolderSimple size={22} />
       </HeaderItemWrapper>
 
@@ -148,7 +148,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                   {({ active }) => {
                     return (
                       <div>
-                        <DropdownItem active={active} onClick={onSyncClick}>
+                        <DropdownItem active={active} onClick={onSyncClick} data-automation-id="menuItemSync">
                           <span>{translate('widget.header.dropdown.sync')}</span>
                         </DropdownItem>
                       </div>
@@ -158,7 +158,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem active={active} onClick={window.electron.openProcessIssuesWindow}>
+                      <DropdownItem active={active} onClick={window.electron.openProcessIssuesWindow} data-automation-id="menuItemIssues">
                         <div className="flex items-center justify-between">
                           <p>{translate('widget.header.dropdown.issues')}</p>
                           {numberOfIssues > 0 && <p className="text-sm font-medium text-red">{numberOfIssuesDisplay}</p>}
@@ -170,7 +170,10 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem active={active} onClick={() => handleOpenURL('https://help.internxt.com')}>
+                      <DropdownItem
+                        active={active}
+                        onClick={() => handleOpenURL('https://help.internxt.com')}
+                        data-automation-id="menuItemSupport">
                         <span>{translate('widget.header.dropdown.support')}</span>
                       </DropdownItem>
                     </div>
@@ -180,7 +183,10 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                   <Menu.Item>
                     {({ active }) => (
                       <div>
-                        <DropdownItem active={active} onClick={() => window.electron.openSettingsWindow('ANTIVIRUS')}>
+                        <DropdownItem
+                          active={active}
+                          onClick={() => window.electron.openSettingsWindow('ANTIVIRUS')}
+                          data-automation-id="menuItemAntivirus">
                           <div className="flex flex-row items-center justify-between">
                             <span>{translate('widget.header.dropdown.antivirus')}</span>
                             <div className="flex rounded-full border border-primary bg-primary/5 px-2 py-1 text-primary">
@@ -195,7 +201,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem active={active} onClick={handleLogoutModalOpen}>
+                      <DropdownItem active={active} onClick={handleLogoutModalOpen} data-automation-id="menuItemLogout">
                         <span>{translate('widget.header.dropdown.logout')}</span>
                       </DropdownItem>
                     </div>
@@ -204,7 +210,7 @@ const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
                 <Menu.Item>
                   {({ active }) => (
                     <div className="border-t border-t-gray-10">
-                      <DropdownItem active={active} onClick={onQuitClick}>
+                      <DropdownItem active={active} onClick={onQuitClick} data-automation-id="menuItemQuit">
                         <span>{translate('widget.header.dropdown.quit')}</span>
                       </DropdownItem>
                     </div>

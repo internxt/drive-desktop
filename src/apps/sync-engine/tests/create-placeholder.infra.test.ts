@@ -98,8 +98,6 @@ describe('create-placeholder', () => {
     });
 
     initializeVirtualDrive();
-    const container = DependencyContainerFactory.build();
-    const bindingManager = new BindingsManager(container);
 
     const ctx: ProcessSyncContext = {
       ...getConfig(),
@@ -107,6 +105,9 @@ describe('create-placeholder', () => {
       fileUploader: environmentFileUploader,
       abortController: new AbortController(),
     };
+
+    const container = DependencyContainerFactory.build({ ctx });
+    const bindingManager = new BindingsManager(container);
 
     // When
     await bindingManager.start({ ctx });

@@ -3,15 +3,15 @@ import { ContentsContainer } from './ContentsContainer';
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../../../context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FSLocalFileWriter } from '../../../../context/virtual-drive/contents/infrastructure/FSLocalFileWriter';
-import { getConfig } from '../../config';
+import { ProcessSyncContext } from '../../config';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 
-export function buildContentsContainer(): ContentsContainer {
+export function buildContentsContainer({ ctx }: { ctx: ProcessSyncContext }): ContentsContainer {
   const environment = new Environment({
     bridgeUrl: process.env.BRIDGE_URL,
-    bridgeUser: getConfig().bridgeUser,
-    bridgePass: getConfig().bridgePass,
-    encryptionKey: getConfig().mnemonic,
+    bridgeUser: ctx.bridgeUser,
+    bridgePass: ctx.bridgePass,
+    encryptionKey: ctx.mnemonic,
     appDetails: {
       clientName: INTERNXT_CLIENT,
       clientVersion: INTERNXT_VERSION,
@@ -19,7 +19,7 @@ export function buildContentsContainer(): ContentsContainer {
     },
   });
 
-  const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, getConfig().bucket);
+  const contentsManagerFactory = new EnvironmentRemoteFileContentsManagersFactory(environment, ctx.bucket);
 
   const localWriter = new FSLocalFileWriter();
 

@@ -26,10 +26,10 @@ export async function refreshItemPlaceholders({ ctx, container, workspaceId }: P
       trashedFolders: tree.trashedFolders.length,
     });
 
-    deleteItemPlaceholders({ remotes: tree.trashedFolders, type: 'folder' });
-    deleteItemPlaceholders({ remotes: tree.trashedFiles, type: 'file' });
+    deleteItemPlaceholders({ ctx, remotes: tree.trashedFolders, type: 'folder' });
+    deleteItemPlaceholders({ ctx, remotes: tree.trashedFiles, type: 'file' });
 
-    const { files, folders } = await loadInMemoryPaths();
+    const { files, folders } = await loadInMemoryPaths({ ctx });
     await Promise.all([
       FolderPlaceholderUpdater.run({ ctx, remotes: tree.folders, folders }),
       container.filePlaceholderUpdater.run({ remotes: tree.files, files }),

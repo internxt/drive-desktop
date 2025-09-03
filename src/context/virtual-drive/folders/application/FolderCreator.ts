@@ -43,6 +43,6 @@ export class FolderCreator {
     if (error) throw error;
 
     ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: `FOLDER:${folderDto.uuid}` });
-    await updateFolderStatus({ path, absolutePath });
+    await updateFolderStatus({ ctx, path, absolutePath });
   }
 }
