@@ -5,7 +5,6 @@ import { createParentFolder } from './create-folder';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import { createFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { Stats } from 'fs';
-import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 import { updateFileStatus } from '@/backend/features/local-sync/placeholders/update-file-status';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
@@ -21,8 +20,8 @@ export async function createFile({ ctx, absolutePath, path, fileCreationOrchestr
   try {
     const uuid = await fileCreationOrchestrator.run({ ctx, path, absolutePath, stats });
     const placeholderId = createFilePlaceholderId(uuid);
-    virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
-    updateFileStatus({ path });
+    ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
+    updateFileStatus({ ctx, path });
   } catch (error) {
     if (error instanceof FolderNotFoundError) {
       await createParentFolder({ ctx, path, absolutePath });

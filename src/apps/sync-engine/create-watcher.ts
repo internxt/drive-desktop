@@ -6,14 +6,14 @@ import VirtualDrive from '@/node-win/virtual-drive';
 
 type TProps = {
   watcherCallbacks: TWatcherCallbacks;
-  virtulDrive: VirtualDrive;
+  virtualDrive: VirtualDrive;
 };
 
-export function createWatcher({ watcherCallbacks, virtulDrive }: TProps) {
-  const queueManager = new QueueManager(virtulDrive, getConfig().queueManagerPath);
+export function createWatcher({ watcherCallbacks, virtualDrive }: TProps) {
+  const queueManager = new QueueManager(virtualDrive, getConfig().queueManagerPath);
 
   const watcher = new Watcher(
-    virtulDrive.syncRootPath,
+    virtualDrive.syncRootPath,
     {
       depth: undefined,
       followSymlinks: true,
@@ -28,7 +28,7 @@ export function createWatcher({ watcherCallbacks, virtulDrive }: TProps) {
     },
     queueManager,
     logger,
-    virtulDrive,
+    virtualDrive,
     watcherCallbacks,
   );
 

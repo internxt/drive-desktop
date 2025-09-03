@@ -5,11 +5,12 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { getParentUuid } from './get-parent-uuid';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
 import { updateFolderStatus } from '../../../placeholders/update-folder-status';
 import { updateFileStatus } from '../../../placeholders/update-file-status';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   self: Watcher;
   path: RelativePath;
   absolutePath: AbsolutePath;
@@ -19,7 +20,7 @@ type TProps = {
   };
 } & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });
 
-export async function moveItem({ self, path, absolutePath, uuid, item, type }: TProps) {
+export async function moveItem({ ctx, self, path, absolutePath, uuid, item, type }: TProps) {
   const props = { path, type, uuid };
 
   const res = getParentUuid({ self, path, props, item });
@@ -64,9 +65,9 @@ export async function moveItem({ self, path, absolutePath, uuid, item, type }: T
 
   if (isRenamed || isMoved) {
     if (type === 'file') {
-      updateFileStatus({ path });
+      updateFileStatus({ ctx, path });
     } else {
-      await updateFolderStatus({ path, absolutePath });
+      await updateFolderStatus({ ctx, path, absolutePath });
     }
   }
 }
