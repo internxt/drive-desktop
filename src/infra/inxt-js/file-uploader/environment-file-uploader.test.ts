@@ -21,11 +21,10 @@ describe('environment-file-uploader', () => {
   const callbacks = mockDeep<FileUploaderCallbacks>();
   let abortController: AbortController;
   let props: Parameters<typeof service.upload>[0];
-  let mockedReadable: ReadStream;
+  const mockedReadable = mockDeep<ReadStream>();
   beforeEach(() => {
     abortController = new AbortController();
     props = mockProps<typeof service.upload>({ size: 100, callbacks, abortSignal: abortController.signal });
-    mockedReadable = mockDeep<ReadStream>();
     createReadStreamMock.mockReturnValue(mockedReadable);
   });
 
