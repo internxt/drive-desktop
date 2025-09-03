@@ -6,7 +6,7 @@ process.env.NEW_CRYPTO_KEY = 'crypto_key';
 process.env.NODE_ENV = 'development';
 
 // We do not want to log anything
-vi.mock(import('@/apps/shared/logger/logger'));
+vi.mock(import('@internxt/drive-desktop-core/build/backend'));
 // We do not want to make network calls
 vi.mock(import('@/apps/shared/HttpClient/auth-client'));
 vi.mock(import('@/apps/shared/HttpClient/client'));
