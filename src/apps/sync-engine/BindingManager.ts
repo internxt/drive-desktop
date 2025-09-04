@@ -68,10 +68,7 @@ export class BindingsManager {
   }
 
   watch({ ctx }: { ctx: ProcessSyncContext }) {
-    const { queueManager, watcher } = createWatcher({
-      ctx,
-      virtualDrive: ctx.virtualDrive,
-    });
+    const { queueManager, watcher } = createWatcher({ ctx });
 
     watcher.watchAndWait({ ctx });
 
