@@ -1,25 +1,25 @@
-import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { logger } from '@/apps/shared/logger/logger';
 import { unlink } from 'fs/promises';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
+import { ProcessContainer } from '../build-process-container';
 
 type TProps = {
-  self: BindingsManager;
+  container: ProcessContainer;
   filePlaceholderId: FilePlaceholderId;
   callback: CallbackDownload;
 };
 
-export async function fetchData({ self, filePlaceholderId, callback }: TProps) {
+export async function fetchData({ container, filePlaceholderId, callback }: TProps) {
   try {
     logger.debug({ msg: '[Fetch Data Callback] Donwloading begins' });
 
-    const tmpPath = await self.controllers.downloadFile.execute(filePlaceholderId, callback);
+    const tmpPath = await container.downloadFile.execute(filePlaceholderId, callback);
 
     const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
-    const file = await self.controllers.downloadFile.fileFinderByUuid({ uuid });
+    const file = await container.downloadFile.fileFinderByUuid({ uuid });
 
     logger.debug({ msg: '[Fetch Data Callback] Preparing begins', tmpPath });
 
