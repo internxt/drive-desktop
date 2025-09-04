@@ -72,7 +72,7 @@ describe('update-contents-id', () => {
       newSize: 1,
       modificationTime: '2025-08-20T00:00:00.000Z',
     });
-    expect(updateFileStatusMock).toBeCalledWith(expect.objectContaining({ path }));
+    expect(updateFileStatusMock).toBeCalledWith({ ctx: {}, path });
     expect(invokeMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });

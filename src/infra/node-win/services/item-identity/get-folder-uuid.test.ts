@@ -13,6 +13,7 @@ describe('get-folder-uuid', () => {
   beforeEach(() => {
     props = mockProps<typeof getFolderUuid>({
       ctx: {
+        rootUuid: 'rootUuid' as FolderUuid,
         virtualDrive: { syncRootPath: 'C:\\Users\\user\\InternxtDrive\\' as AbsolutePath },
         rootUuid: 'rootUuid' as FolderUuid,
       },
