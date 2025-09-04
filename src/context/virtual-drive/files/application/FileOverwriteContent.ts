@@ -14,7 +14,6 @@ export class FileOverwriteContent {
   private processingErrorQueue: boolean;
   constructor(
     private readonly repository: InMemoryFileRepository,
-    private readonly fileCheckerStatusInRoot: FileCheckerStatusInRoot,
     private readonly fileContentsHardUpdater: FileContentsHardUpdater,
   ) {
     this.processingErrorQueue = false;
@@ -78,7 +77,7 @@ export class FileOverwriteContent {
 
     logger.debug({ msg: 'files fetched in overrideDangledFiles', files });
 
-    const filesWithContentLocally = this.fileCheckerStatusInRoot.isHydrated(files.map((file) => file.path));
+    const filesWithContentLocally = FileCheckerStatusInRoot.isHydrated({ ctx, paths: files.map((file) => file.path) });
 
     logger.debug({ msg: 'filesWithContentLocally', filesWithContentLocally });
 

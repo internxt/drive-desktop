@@ -17,7 +17,7 @@ vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));
 
 describe('File Creator', () => {
-  const remoteFileSystemMock = mockDeep<HttpRemoteFileSystem>();
+  const persistMock = partialSpyOn(HttpRemoteFileSystem, 'persist');
   const virtualDrive = mockDeep<VirtualDrive>();
   const getFolderUuid = vi.mocked(NodeWin.getFolderUuid);
   const ipcRendererSyncEngineMock = vi.mocked(ipcRendererSyncEngine);
@@ -27,9 +27,7 @@ describe('File Creator', () => {
   const contents = { id: 'contentsId' as ContentsId, size: 1024 };
   const absolutePath = 'C:\\Users\\user\\InternxtDrive\\cat.png' as AbsolutePath;
 
-  const SUT = new FileCreator(remoteFileSystemMock);
-
-  const props = mockProps<typeof SUT.run>({ ctx: { virtualDrive }, path, contents, absolutePath });
+  const props = mockProps<typeof FileCreator.run>({ ctx: { virtualDrive }, path, contents, absolutePath });
 
   beforeEach(() => {
     getFolderUuid.mockReturnValue({ data: 'parentUuid' as FolderUuid });
@@ -41,7 +39,7 @@ describe('File Creator', () => {
     getFolderUuid.mockReturnValue({ error: new GetFolderIdentityError('NON_EXISTS') });
 
     // When
-    const promise = SUT.run(props);
+    const promise = FileCreator.run(props);
 
     // Then
     await expect(promise).rejects.toThrowError(FolderNotFoundError);
@@ -59,11 +57,11 @@ describe('File Creator', () => {
       path: 'cat.png',
     };
 
-    remoteFileSystemMock.persist.mockResolvedValueOnce({
+    persistMock.mockResolvedValueOnce({
       ...file,
     } as any);
 
-    await SUT.run(props);
+    await FileCreator.run(props);
 
     expect(invokeMock).toBeCalledTimes(1);
   });
@@ -74,11 +72,11 @@ describe('File Creator', () => {
       contentsId: contents.id,
     };
 
-    remoteFileSystemMock.persist.mockResolvedValueOnce({
+    persistMock.mockResolvedValueOnce({
       ...fileAttributes,
     } as any);
 
-    await SUT.run(props);
+    await FileCreator.run(props);
 
     expect(invokeMock).toBeCalledTimes(1);
   });

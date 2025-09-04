@@ -4,7 +4,6 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as isMoveFolderEvent from './is-move-event';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import * as getConfig from '@/apps/sync-engine/config';
 import { ipcRenderer } from 'electron';
 import * as getParentUuid from './get-parent-uuid';
 
@@ -12,11 +11,11 @@ describe('unlink-folder', () => {
   const getParentUuidMock = partialSpyOn(getParentUuid, 'getParentUuid');
   const invokeMock = partialSpyOn(ipcRenderer, 'invoke');
   const isMoveFolderEventMock = partialSpyOn(isMoveFolderEvent, 'isMoveFolderEvent');
-  const getConfigMock = partialSpyOn(getConfig, 'getConfig');
 
   const props = mockProps<typeof unlinkFolder>({
     absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder\\folder' as AbsolutePath,
     ctx: {
+      workspaceToken: 'token',
       virtualDrive: {
         syncRootPath: 'C:\\Users\\user\\InternxtDrive' as AbsolutePath,
       },
@@ -24,7 +23,6 @@ describe('unlink-folder', () => {
   });
 
   beforeEach(() => {
-    getConfigMock.mockReturnValue({ workspaceToken: 'token' });
     getParentUuidMock.mockResolvedValue('parentUuid' as FolderUuid);
     invokeMock.mockResolvedValue({ data: { uuid: 'uuid' as FolderUuid } });
     isMoveFolderEventMock.mockResolvedValue(false);

@@ -21,7 +21,7 @@ describe('Folder Creator', () => {
   const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
 
   const path = createRelativePath('folder1', 'folder2');
-  const props = mockProps<typeof FolderCreator.run>({ ctx: { virtualDrive }, path });
+  const props = mockProps<typeof FolderCreator.run>({ ctx: { virtualDrive, workspaceId: '', userUuid: '' }, path });
 
   beforeEach(() => {
     invokeMock.mockResolvedValue({});

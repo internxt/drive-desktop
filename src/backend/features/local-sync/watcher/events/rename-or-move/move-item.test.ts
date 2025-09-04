@@ -24,9 +24,8 @@ describe('move-item', () => {
 
   beforeEach(() => {
     props = mockProps<typeof moveItem>({
-      self: {
-        logger: loggerMock,
-      },
+      ctx: { workspaceToken: '' },
+      self: { logger: loggerMock },
     });
   });
 

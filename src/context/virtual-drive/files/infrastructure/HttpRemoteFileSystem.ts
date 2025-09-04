@@ -4,19 +4,12 @@ import { logger } from '@/apps/shared/logger/logger';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { basename } from 'path';
 import { getNameAndExtension } from '../domain/get-name-and-extension';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { restoreParentFolder } from './restore-parent-folder';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { sleep } from '@/apps/main/util';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class HttpRemoteFileSystem {
-  constructor(
-    private readonly bucket: string,
-    private readonly workspaceId: string,
-    private readonly virtualDrive: VirtualDrive,
-  ) {}
-
   static create(offline: {
     bucket: string;
     contentsId: string;
@@ -42,11 +35,11 @@ export class HttpRemoteFileSystem {
       : driveServerWip.files.createFile({ body, path: offline.path });
   }
 
-  async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
+  static async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
     const props = {
       ...offline,
-      bucket: this.bucket,
-      workspaceId: this.workspaceId,
+      bucket: ctx.bucket,
+      workspaceId: ctx.workspaceId,
     };
 
     const { data, error } = await HttpRemoteFileSystem.create(props);
@@ -71,7 +64,7 @@ export class HttpRemoteFileSystem {
     });
   }
 
-  async getFileByPath({ path }: { path: RelativePath }) {
+  static async getFileByPath({ path }: { path: RelativePath }) {
     const { data, error } = await driveServerWip.files.getByPath({ path });
 
     if (error) return null;
@@ -87,7 +80,7 @@ export class HttpRemoteFileSystem {
     return null;
   }
 
-  async deleteAndPersist(ctx: ProcessSyncContext, input: { attributes: OfflineFileAttributes; newContentsId: string }) {
+  static async deleteAndPersist(ctx: ProcessSyncContext, input: { attributes: OfflineFileAttributes; newContentsId: string }) {
     const { attributes, newContentsId } = input;
     if (!newContentsId) {
       throw new Error('Failed to generate new contents id');

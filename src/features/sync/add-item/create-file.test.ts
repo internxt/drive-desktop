@@ -11,24 +11,23 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 describe('create-file', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
 
-  const fileCreationOrchestratorMock = mockDeep<FileCreationOrchestrator>();
+  const fileCreationOrchestratorMock = partialSpyOn(FileCreationOrchestrator, 'run');
   const createParentFolderMock = partialSpyOn(createParentFolder, 'createParentFolder');
 
   const path = createRelativePath('folder', 'file.txt');
   const props = mockProps<typeof createFile>({
     ctx: { virtualDrive },
     path,
-    fileCreationOrchestrator: fileCreationOrchestratorMock,
   });
 
   it('File does not exist, create it', async () => {
     // Given
-    fileCreationOrchestratorMock.run.mockResolvedValueOnce('uuid' as FileUuid);
+    fileCreationOrchestratorMock.mockResolvedValueOnce('uuid' as FileUuid);
     // When
     await createFile(props);
     // Then
-    expect(fileCreationOrchestratorMock.run).toBeCalledTimes(1);
-    expect(fileCreationOrchestratorMock.run).toBeCalledWith(expect.objectContaining({ path }));
+    expect(fileCreationOrchestratorMock).toBeCalledTimes(1);
+    expect(fileCreationOrchestratorMock).toBeCalledWith(expect.objectContaining({ path }));
     expect(virtualDrive.convertToPlaceholder).toBeCalledTimes(1);
     expect(virtualDrive.convertToPlaceholder).toBeCalledWith({ itemPath: path, id: 'FILE:uuid' });
     expect(virtualDrive.updateSyncStatus).toBeCalledTimes(1);
@@ -37,11 +36,11 @@ describe('create-file', () => {
 
   it('should run createParentFolder if parent folder does not exist', async () => {
     // Given
-    fileCreationOrchestratorMock.run.mockRejectedValueOnce(new FolderNotFoundError(''));
+    fileCreationOrchestratorMock.mockRejectedValueOnce(new FolderNotFoundError(''));
     // When
     await createFile(props);
     // Then
-    expect(fileCreationOrchestratorMock.run).toBeCalledTimes(2);
+    expect(fileCreationOrchestratorMock).toBeCalledTimes(2);
     expect(createParentFolderMock).toBeCalledTimes(1);
     expect(createParentFolderMock).toBeCalledWith(expect.objectContaining({ path }));
   });

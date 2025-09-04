@@ -23,6 +23,7 @@ describe('update-contents-id', () => {
   beforeEach(() => {
     contentsUploaderMock.mockResolvedValue({ id: 'newContentsId' as ContentsId, size: 1 });
     props = mockProps<typeof updateContentsId>({
+      ctx: {},
       path,
       uuid,
       stats: { size: 1024, mtime: new Date('2025-08-20T00:00:00.000Z') },
@@ -71,7 +72,7 @@ describe('update-contents-id', () => {
       newSize: 1,
       modificationTime: '2025-08-20T00:00:00.000Z',
     });
-    expect(updateFileStatusMock).toBeCalledWith({ path });
+    expect(updateFileStatusMock).toBeCalledWith(expect.objectContaining({ path }));
     expect(invokeMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });

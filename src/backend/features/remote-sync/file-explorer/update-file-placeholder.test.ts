@@ -13,7 +13,6 @@ vi.mock(import('fs/promises'));
 
 describe('update-file-placeholder', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
-  const service = new FilePlaceholderUpdater(virtualDrive);
 
   const validateWindowsNameMock = partialSpyOn(validateWindowsName, 'validateWindowsName');
   const hasToBeMovedMock = partialSpyOn(hasToBeMoved, 'hasToBeMoved');
@@ -21,12 +20,13 @@ describe('update-file-placeholder', () => {
 
   const date = '2000-01-01T00:00:00.000Z';
   const time = new Date(date).getTime();
-  let props: Parameters<typeof service.update>[0];
+  let props: Parameters<typeof FilePlaceholderUpdater.update>[0];
 
   beforeEach(() => {
     validateWindowsNameMock.mockReturnValue({ isValid: true });
 
-    props = mockProps<typeof service.update>({
+    props = mockProps<typeof FilePlaceholderUpdater.update>({
+      ctx: { virtualDrive },
       files: { ['uuid' as FileUuid]: { absolutePath: 'localPath.absolutePath' as AbsolutePath } },
       remote: {
         path: createRelativePath('file1', 'file2'),
@@ -43,7 +43,7 @@ describe('update-file-placeholder', () => {
     // Given
     validateWindowsNameMock.mockReturnValue({ isValid: false });
     // When
-    await service.update(props);
+    await FilePlaceholderUpdater.update(props);
     // Then
     expect(hasToBeMovedMock).toBeCalledTimes(0);
   });
@@ -52,7 +52,7 @@ describe('update-file-placeholder', () => {
     // Given
     props.files = {};
     // When
-    await service.update(props);
+    await FilePlaceholderUpdater.update(props);
     // Then
     expect(hasToBeMovedMock).toBeCalledTimes(0);
     expect(virtualDrive.createFileByPath).toBeCalledTimes(1);
@@ -69,7 +69,7 @@ describe('update-file-placeholder', () => {
     // Given
     hasToBeMovedMock.mockReturnValue(true);
     // When
-    await service.update(props);
+    await FilePlaceholderUpdater.update(props);
     // Then
     expect(virtualDrive.createFileByPath).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(1);
@@ -80,7 +80,7 @@ describe('update-file-placeholder', () => {
     // Given
     hasToBeMovedMock.mockReturnValue(false);
     // When
-    await service.update(props);
+    await FilePlaceholderUpdater.update(props);
     // Then
     expect(virtualDrive.createFileByPath).toBeCalledTimes(0);
     expect(renameMock).toBeCalledTimes(0);
@@ -92,7 +92,7 @@ describe('update-file-placeholder', () => {
       throw new Error('Something failed');
     });
     // When
-    await service.update(props);
+    await FilePlaceholderUpdater.update(props);
     // Then
     expect(hasToBeMovedMock).toBeCalledTimes(0);
     expect(loggerMock.error).toBeCalledTimes(1);
