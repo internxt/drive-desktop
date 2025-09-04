@@ -3,7 +3,7 @@ import { SelectedItemToScanProps } from '../antivirus/antivirus-clam-av';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
 import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
-import { getAvailableProducts } from '../payments/builder';
+import { getAvailableProducts } from '../payments/get-available-products';
 
 ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
   const result = await initializeAntivirusIfAvailable();

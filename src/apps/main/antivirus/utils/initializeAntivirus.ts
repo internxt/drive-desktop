@@ -1,4 +1,4 @@
-import { getAvailableProducts } from '../../payments/builder';
+import { getAvailableProducts } from '../../payments/get-available-products';
 import * as clamAVServer from '../ClamAVDaemon';
 import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 import { logger } from '@/apps/shared/logger/logger';
