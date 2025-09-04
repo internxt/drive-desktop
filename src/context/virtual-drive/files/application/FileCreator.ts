@@ -1,5 +1,5 @@
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
-import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
@@ -25,16 +25,13 @@ export class FileCreator {
   async run({ ctx, path, absolutePath, contents }: Props) {
     try {
       const parentPath = pathUtils.dirname(path);
-      const { data: folderUuid } = NodeWin.getFolderUuid({
-        drive: ctx.virtualDrive,
-        path: parentPath,
-      });
+      const { data: folderUuid } = NodeWin.getFolderUuid({ ctx, path: parentPath });
 
       if (!folderUuid) {
         throw new FolderNotFoundError(parentPath);
       }
 
-      const fileDto = await this.remote.persist({
+      const fileDto = await this.remote.persist(ctx, {
         contentsId: contents.id,
         folderUuid,
         path,

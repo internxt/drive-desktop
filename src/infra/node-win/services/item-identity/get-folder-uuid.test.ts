@@ -15,7 +15,9 @@ describe('get-folder-uuid', () => {
   beforeEach(() => {
     getConfigMock.mockReturnValue({ rootUuid: 'rootUuid' as FolderUuid });
     props = mockProps<typeof getFolderUuid>({
-      drive: { syncRootPath: 'C:\\Users\\user\\InternxtDrive\\' as AbsolutePath },
+      ctx: {
+        virtualDrive: { syncRootPath: 'C:\\Users\\user\\InternxtDrive\\' as AbsolutePath },
+      },
     });
   });
 

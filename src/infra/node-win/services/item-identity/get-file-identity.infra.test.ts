@@ -7,17 +7,14 @@ import { mockDeep } from 'vitest-mock-extended';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { getFileIdentity, GetFileIdentityError } from './get-file-identity';
-import { getConfig, setDefaultConfig } from '@/apps/sync-engine/config';
 
 describe('get-file-identity', () => {
   const callbacks = mockDeep<Callbacks>();
 
   const providerId = `{${v4()}}`;
-  const rootFolder = join(TEST_FILES, v4());
-  const driveFolder = join(rootFolder, v4());
-
-  setDefaultConfig({ rootPath: driveFolder, providerId });
-  const virtualDrive = new VirtualDrive(getConfig());
+  const testPath = join(TEST_FILES, v4());
+  const rootPath = join(testPath, v4());
+  const virtualDrive = new VirtualDrive({ rootPath, providerId, loggerPath: '' });
 
   beforeAll(() => {
     virtualDrive.registerSyncRoot({ providerName: 'Internxt Drive', providerVersion: INTERNXT_VERSION });
@@ -31,7 +28,7 @@ describe('get-file-identity', () => {
 
   it('If get file identity of a placeholder file, then return the placeholder id', async () => {
     // Given
-    const file = join(driveFolder, v4());
+    const file = join(rootPath, v4());
     const id = `FILE:${v4()}` as const;
     await writeFile(file, 'content');
     virtualDrive.convertToPlaceholder({ itemPath: file, id });
@@ -46,7 +43,7 @@ describe('get-file-identity', () => {
 
   it('If get file identity of a placeholder folder, then return error', async () => {
     // Given
-    const folder = join(driveFolder, v4());
+    const folder = join(rootPath, v4());
     const id = `FOLDER:${v4()}` as const;
     await mkdir(folder);
     virtualDrive.convertToPlaceholder({ itemPath: folder, id });
@@ -61,7 +58,7 @@ describe('get-file-identity', () => {
 
   it('If the path does not exist, then return error', () => {
     // Given
-    const file = join(driveFolder, v4());
+    const file = join(rootPath, v4());
 
     // When
     const { data, error } = getFileIdentity({ drive: virtualDrive, path: file });

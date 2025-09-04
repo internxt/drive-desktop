@@ -7,17 +7,14 @@ import { mockDeep } from 'vitest-mock-extended';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { getFolderIdentity, GetFolderIdentityError } from './get-folder-identity';
-import { getConfig, setDefaultConfig } from '@/apps/sync-engine/config';
 
 describe('get-folder-identity', () => {
   const callbacks = mockDeep<Callbacks>();
 
   const providerId = `{${v4()}}`;
-  const rootFolder = join(TEST_FILES, v4());
-  const driveFolder = join(rootFolder, v4());
-
-  setDefaultConfig({ rootPath: driveFolder, providerId });
-  const virtualDrive = new VirtualDrive(getConfig());
+  const testPath = join(TEST_FILES, v4());
+  const rootPath = join(testPath, v4());
+  const virtualDrive = new VirtualDrive({ rootPath, providerId, loggerPath: '' });
 
   beforeAll(() => {
     virtualDrive.registerSyncRoot({ providerName: 'Internxt Drive', providerVersion: INTERNXT_VERSION });
@@ -31,7 +28,7 @@ describe('get-folder-identity', () => {
 
   it('If get folder identity of a placeholder folder, then return the placeholder id', async () => {
     // Given
-    const folder = join(driveFolder, v4());
+    const folder = join(rootPath, v4());
     const id = `FOLDER:${v4()}` as const;
     await mkdir(folder);
     virtualDrive.convertToPlaceholder({ itemPath: folder, id });
@@ -46,7 +43,7 @@ describe('get-folder-identity', () => {
 
   it('If get folder identity of a placeholder file, then return error', async () => {
     // Given
-    const file = join(driveFolder, v4());
+    const file = join(rootPath, v4());
     const id = `FILE:${v4()}` as const;
     await mkdir(file);
     virtualDrive.convertToPlaceholder({ itemPath: file, id });
@@ -61,7 +58,7 @@ describe('get-folder-identity', () => {
 
   it('If the path does not exist, then return error', () => {
     // Given
-    const folder = join(driveFolder, v4());
+    const folder = join(rootPath, v4());
 
     // When
     const { data, error } = getFolderIdentity({ drive: virtualDrive, path: folder });
