@@ -3,8 +3,6 @@ import { AppStore } from './app-store.interface';
 import * as uuid from 'uuid';
 
 export const defaults: AppStore = {
-  bearerToken: '',
-  bearerTokenEncrypted: false,
   newToken: '',
   newTokenEncrypted: false,
   userData: {} as User,

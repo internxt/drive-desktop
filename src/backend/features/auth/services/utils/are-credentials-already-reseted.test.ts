@@ -15,14 +15,12 @@ describe('areCredentialsAlreadyReseted', () => {
     expect(result).toBe(true);
     expect(mockConfigStore).toHaveBeenCalledWith('mnemonic');
     expect(mockConfigStore).toHaveBeenCalledWith('userData');
-    expect(mockConfigStore).toHaveBeenCalledWith('bearerToken');
-    expect(mockConfigStore).toHaveBeenCalledWith('bearerTokenEncrypted');
     expect(mockConfigStore).toHaveBeenCalledWith('newToken');
   });
 
   it('should return false if credentials are not reset', () => {
     mockConfigStore.mockImplementation((field) => {
-      if (field === 'bearerToken') {
+      if (field === 'newToken') {
         return 'some-token';
       }
       return defaults[field as keyof typeof defaults];

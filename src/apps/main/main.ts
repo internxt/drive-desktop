@@ -28,7 +28,6 @@ import './windows';
 import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';
-import './usage/handlers';
 import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
@@ -77,6 +76,7 @@ setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();
 setupIpcSqlite();
+registerUsageHandlers();
 
 logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
 
@@ -114,7 +114,6 @@ app
 
     await migrate();
 
-    registerUsageHandlers();
     void setUpBackups();
 
     await checkIfUserIsLoggedIn();

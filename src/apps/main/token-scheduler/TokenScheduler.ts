@@ -1,6 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
 import nodeSchedule from 'node-schedule';
+import { onUserUnauthorized } from '../auth/handlers';
 
 const FIVE_SECONDS = 5 * 60;
 
@@ -10,7 +11,6 @@ export class TokenScheduler {
   constructor(
     private daysBefore: number,
     private tokens: Array<string>,
-    private unauthorized: () => void,
   ) {}
 
   private getExpiration(token: string): number {
@@ -56,7 +56,7 @@ export class TokenScheduler {
 
     if (expiration >= Date.now()) {
       logger.warn({ msg: '[TOKEN] TOKEN IS EXPIRED' });
-      this.unauthorized();
+      onUserUnauthorized();
 
       return;
     }
@@ -69,6 +69,6 @@ export class TokenScheduler {
   }
 
   public cancelAll(): void {
-    Object.keys(nodeSchedule.scheduledJobs).forEach((jobName: string) => nodeSchedule.cancelJob(jobName));
+    Object.keys(nodeSchedule.scheduledJobs).forEach((jobName) => nodeSchedule.cancelJob(jobName));
   }
 }
