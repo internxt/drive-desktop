@@ -5,15 +5,16 @@ import { logger } from '@/apps/shared/logger/logger';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { getParentUuid } from './get-parent-uuid';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
-import { getConfig } from '@/apps/sync-engine/config';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { isMoveFileEvent } from './is-move-event';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   virtualDrive: VirtualDrive;
   absolutePath: AbsolutePath;
 };
 
-export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
+export async function unlinkFile({ ctx, virtualDrive, absolutePath }: TProps) {
   const path = pathUtils.absoluteToRelative({
     base: virtualDrive.syncRootPath,
     path: absolutePath,
@@ -46,7 +47,7 @@ export async function unlinkFile({ virtualDrive, absolutePath }: TProps) {
 
     const { error } = await ipcRendererDriveServerWip.invoke('storageDeleteFileByUuid', {
       uuid: file.uuid,
-      workspaceToken: getConfig().workspaceToken,
+      workspaceToken: ctx.workspaceToken,
       nameWithExtension,
     });
 

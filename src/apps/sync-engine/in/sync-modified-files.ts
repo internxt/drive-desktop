@@ -9,7 +9,7 @@ type Props = {
 };
 
 export async function syncModifiedFiles({ ctx }: Props) {
-  const remoteDriveFiles = await getExistingFiles();
+  const remoteDriveFiles = await getExistingFiles({ ctx });
   const { files } = await loadInMemoryPaths({ ctx });
 
   const promises = remoteDriveFiles.map(async (remoteDriveFile) => {

@@ -15,7 +15,6 @@ import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environme
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { ipcRenderer } from 'electron';
-import { initializeVirtualDrive, virtualDrive } from '../dependency-injection/common/virtualDrive';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
@@ -97,17 +96,16 @@ describe('create-placeholder', () => {
       },
     });
 
-    initializeVirtualDrive();
-
+    const config = getConfig();
     const ctx: ProcessSyncContext = {
-      ...getConfig(),
-      virtualDrive,
+      ...config,
+      virtualDrive: new VirtualDrive(config),
       fileUploader: environmentFileUploader,
       abortController: new AbortController(),
     };
 
     const container = DependencyContainerFactory.build({ ctx });
-    const bindingManager = new BindingsManager(container);
+    const bindingManager = new BindingsManager(ctx, container);
 
     // When
     await bindingManager.start({ ctx });

@@ -7,8 +7,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { getFolderIdentity, GetFolderIdentityError } from './get-folder-identity';
-import { initializeVirtualDrive, virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
-import { setDefaultConfig } from '@/apps/sync-engine/config';
+import { getConfig, setDefaultConfig } from '@/apps/sync-engine/config';
 
 describe('get-folder-identity', () => {
   const callbacks = mockDeep<Callbacks>();
@@ -17,15 +16,11 @@ describe('get-folder-identity', () => {
   const rootFolder = join(TEST_FILES, v4());
   const driveFolder = join(rootFolder, v4());
 
+  setDefaultConfig({ rootPath: driveFolder, providerId });
+  const virtualDrive = new VirtualDrive(getConfig());
+
   beforeAll(() => {
-    setDefaultConfig({ rootPath: driveFolder, providerId });
-    initializeVirtualDrive();
-
-    virtualDrive.registerSyncRoot({
-      providerName: 'Internxt Drive',
-      providerVersion: INTERNXT_VERSION,
-    });
-
+    virtualDrive.registerSyncRoot({ providerName: 'Internxt Drive', providerVersion: INTERNXT_VERSION });
     virtualDrive.connectSyncRoot({ callbacks });
   });
 

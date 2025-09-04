@@ -7,7 +7,7 @@ import { buildSharedContainer } from './shared/builder';
 
 export class DependencyContainerFactory {
   static build({ ctx }: { ctx: ProcessSyncContext }): DependencyContainer {
-    const sharedContainer = buildSharedContainer();
+    const sharedContainer = buildSharedContainer({ ctx });
     const contentsContainer = buildContentsContainer({ ctx });
     const { container: filesContainer } = buildFilesContainer(ctx, sharedContainer);
     const boundaryBridgeContainer = buildBoundaryBridgeContainer(contentsContainer, filesContainer);

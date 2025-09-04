@@ -5,7 +5,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { getParentUuid } from './get-parent-uuid';
-import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { updateFolderStatus } from '../../../placeholders/update-folder-status';
 import { updateFileStatus } from '../../../placeholders/update-file-status';
 
@@ -41,7 +41,7 @@ export async function moveItem({ ctx, self, path, absolutePath, uuid, item, type
    */
   const isMoved = oldParentUuid !== parentUuid;
 
-  const workspaceToken = getConfig().workspaceToken;
+  const workspaceToken = ctx.workspaceToken;
 
   if (isRenamed) {
     self.logger.debug({ msg: 'Item renamed', ...props, oldName, name });

@@ -18,7 +18,7 @@ export function cleanAndStartRemoteNotifications() {
   socket = io(process.env.NOTIFICATIONS_URL, {
     transports: ['websocket'],
     auth: {
-      token: obtainToken('newToken'),
+      token: obtainToken(),
     },
     withCredentials: true,
   });

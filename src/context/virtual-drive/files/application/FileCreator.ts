@@ -46,10 +46,10 @@ export class FileCreator {
           ...fileDto,
           size: Number(fileDto.size),
           isDangledStatus: false,
-          userUuid: getConfig().userUuid,
-          workspaceId: getConfig().workspaceId,
+          userUuid: ctx.userUuid,
+          workspaceId: ctx.workspaceId,
         },
-        bucket: getConfig().bucket,
+        bucket: ctx.bucket,
         absolutePath,
       });
 

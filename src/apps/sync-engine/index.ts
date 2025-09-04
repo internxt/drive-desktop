@@ -2,12 +2,12 @@ import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
-import { setConfig, Config, getConfig, setDefaultConfig, ProcessSyncContext } from './config';
+import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
 import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { initializeVirtualDrive, virtualDrive } from './dependency-injection/common/virtualDrive';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
+import VirtualDrive from '@/node-win/virtual-drive';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -23,7 +23,7 @@ async function ensureTheFolderExist(path: string) {
 async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Starting sync engine process' });
 
-  const { rootPath } = getConfig();
+  const { rootPath } = ctx;
 
   logger.debug({ msg: '[SYNC ENGINE] Going to use root folder: ', rootPath });
 
@@ -31,7 +31,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   const container = DependencyContainerFactory.build({ ctx });
 
-  const bindings = new BindingsManager(container);
+  const bindings = new BindingsManager(ctx, container);
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await bindings.updateAndCheckPlaceholders({ ctx });
@@ -58,9 +58,9 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Second sync engine started' });
 }
 
-async function refreshToken() {
+async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Refreshing token' });
-  const { data: credentials } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: getConfig().workspaceId });
+  const { data: credentials } = await driveServerWipModule.workspaces.getCredentials({ workspaceId: ctx.workspaceId });
 
   if (credentials) {
     const newToken = credentials.tokenHeader;
@@ -71,18 +71,16 @@ async function refreshToken() {
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
   setConfig(config);
 
-  initializeVirtualDrive();
-
   const { fileUploader } = buildFileUploader({ bucket: config.bucket });
   const ctx: ProcessSyncContext = {
     ...config,
     abortController: new AbortController(),
-    virtualDrive,
+    virtualDrive: new VirtualDrive(config),
     fileUploader,
   };
 
   if (config.workspaceToken) {
-    setInterval(refreshToken, 23 * 60 * 60 * 1000);
+    setInterval(() => refreshToken({ ctx }), 23 * 60 * 60 * 1000);
   }
 
   setUp({ ctx })

@@ -1,7 +1,7 @@
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
 import { posix } from 'path';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
-import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -35,8 +35,8 @@ export class FolderCreator {
     const { error } = await ipcRendererSqlite.invoke('folderCreateOrUpdate', {
       folder: {
         ...folderDto,
-        userUuid: getConfig().userUuid,
-        workspaceId: getConfig().workspaceId,
+        userUuid: ctx.userUuid,
+        workspaceId: ctx.workspaceId,
       },
     });
 

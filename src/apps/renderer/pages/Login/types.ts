@@ -1,10 +1,7 @@
-import { User } from '@/apps/main/types';
+import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
 export type LoginState = 'ready' | 'loading' | 'error' | 'warning';
 
-export type AccessResponse = {
-  newToken: string;
-  token: string;
-  user: User;
+export type AccessResponse = Awaited<ReturnType<typeof driveServerWip.auth.access>> & {
   password: string;
 };
