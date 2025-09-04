@@ -20,7 +20,7 @@ describe('areCredentialsAlreadyReseted', () => {
 
   it('should return false if credentials are not reset', () => {
     mockConfigStore.mockImplementation((field) => {
-      if (field === 'bearerToken') {
+      if (field === 'newToken') {
         return 'some-token';
       }
       return defaults[field as keyof typeof defaults];
