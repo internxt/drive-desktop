@@ -5,7 +5,7 @@ import * as refreshItemPlaceholders from './refresh-item-placeholders';
 describe('track-refresh-item-placeholders', () => {
   const refreshItemPlaceholdersMock = partialSpyOn(refreshItemPlaceholders, 'refreshItemPlaceholders');
 
-  const props = mockProps<typeof trackRefreshItemPlaceholders>({});
+  const props = mockProps<typeof trackRefreshItemPlaceholders>({ ctx: {} });
 
   beforeEach(() => {
     store.running = false;
