@@ -16,10 +16,7 @@ type TProps = {
 export class FolderCreator {
   static async run({ ctx, path, absolutePath }: TProps) {
     const posixDir = pathUtils.dirname(path);
-    const { data: parentUuid } = NodeWin.getFolderUuid({
-      drive: ctx.virtualDrive,
-      path: posixDir,
-    });
+    const { data: parentUuid } = NodeWin.getFolderUuid({ ctx, path: posixDir });
 
     if (!parentUuid) {
       throw new FolderNotFoundError(posixDir);

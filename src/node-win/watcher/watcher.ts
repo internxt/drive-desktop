@@ -57,8 +57,8 @@ export class Watcher {
          * - we delete an item locally or when we delete it using sync by checkpoint.
          * - we move an item locally or when we move it using sync by checkpoint.
          */
-        .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ ctx, virtualDrive: this.virtualDrive, absolutePath }))
-        .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ ctx, virtualDrive: this.virtualDrive, absolutePath }))
+        .on('unlink', (absolutePath: AbsolutePath) => unlinkFile({ ctx, absolutePath }))
+        .on('unlinkDir', (absolutePath: AbsolutePath) => unlinkFolder({ ctx, absolutePath }))
         .on('raw', (event, absolutePath: AbsolutePath, details) => debounceOnRaw({ ctx, self: this, event, absolutePath, details }))
         .on('error', this.onError)
         .on('ready', this.onReady);

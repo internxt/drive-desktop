@@ -28,7 +28,7 @@ export class FolderPlaceholderUpdater {
         return;
       }
 
-      if (hasToBeMoved({ drive: ctx.virtualDrive, remotePath, localPath })) {
+      if (hasToBeMoved({ ctx, remotePath, localPath })) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Moving folder placeholder',

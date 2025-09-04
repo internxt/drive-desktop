@@ -15,10 +15,7 @@ export async function restoreParentFolder({ ctx, offline }: TProps) {
   const targetFolderName = path.posix.basename(posixDir);
   const grandParentFolder = pathUtils.dirname(posixDir);
 
-  const { data: parentUuid } = NodeWin.getFolderUuid({
-    ctx,
-    path: grandParentFolder,
-  });
+  const { data: parentUuid } = NodeWin.getFolderUuid({ ctx, path: grandParentFolder });
 
   if (!parentUuid) {
     throw logger.error({ msg: 'Could not restore parent folder, parentUuid not found', path: offline.path });

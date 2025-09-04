@@ -18,7 +18,7 @@ describe('restoreParentFolder', () => {
 
   const props = mockProps<typeof restoreParentFolder>({
     offline: { path: '/gp/child/file.txt' as RelativePath, folderUuid: 'offline-folder-uuid' },
-    drive: {},
+    ctx: {},
   });
 
   beforeEach(() => {
