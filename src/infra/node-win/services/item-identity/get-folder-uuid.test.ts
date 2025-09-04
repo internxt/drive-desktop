@@ -15,7 +15,6 @@ describe('get-folder-uuid', () => {
       ctx: {
         rootUuid: 'rootUuid' as FolderUuid,
         virtualDrive: { syncRootPath: 'C:\\Users\\user\\InternxtDrive\\' as AbsolutePath },
-        rootUuid: 'rootUuid' as FolderUuid,
       },
     });
   });
