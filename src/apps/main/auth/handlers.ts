@@ -89,6 +89,7 @@ async function emitUserLoggedIn() {
 
   eventBus.once('USER_LOGGED_OUT', async () => {
     context.abortController.abort();
+    setIsLoggedIn(false);
     await createAuthWindow();
   });
 
