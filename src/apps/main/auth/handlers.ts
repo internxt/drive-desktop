@@ -2,8 +2,8 @@ import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
-import { checkUserData, createTokenSchedule, RefreshTokenError } from './refresh-token';
-import { canHisConfigBeRestored, encryptToken, getUser, setCredentials } from './service';
+import { createTokenSchedule, RefreshTokenError } from './refresh-token';
+import { canHisConfigBeRestored, getUser, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
@@ -46,9 +46,6 @@ export async function checkIfUserIsLoggedIn() {
 
   if (!isLoggedIn) return;
 
-  await checkUserData();
-  encryptToken();
-
   try {
     await createTokenSchedule();
   } catch (exc) {
@@ -67,7 +64,6 @@ export function setupAuthIpcHandlers() {
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
     setCredentials({
       userData: data.user,
-      bearerToken: data.token,
       newToken: data.newToken,
       password: data.password,
     });

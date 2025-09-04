@@ -5,6 +5,7 @@ import { getOrCreateWidged, setBoundsOfWidgetByPath, toggleWidgetVisibility } fr
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { quitApp } from '../quit';
+import { cwd } from 'process';
 
 type TrayMenuState = 'IDLE' | 'SYNCING' | 'ALERT' | 'LOADING';
 
@@ -105,7 +106,7 @@ export const setTrayStatus = (status: TrayMenuState) => {
 };
 
 export function setupTrayIcon() {
-  const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'assets') : path.join(__dirname, '../../../../assets');
+  const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'assets') : path.join(cwd(), 'assets');
 
   const iconsPath = path.join(RESOURCES_PATH, 'tray');
 

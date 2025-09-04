@@ -15,8 +15,6 @@ describe('areCredentialsAlreadyReseted', () => {
     expect(result).toBe(true);
     expect(mockConfigStore).toHaveBeenCalledWith('mnemonic');
     expect(mockConfigStore).toHaveBeenCalledWith('userData');
-    expect(mockConfigStore).toHaveBeenCalledWith('bearerToken');
-    expect(mockConfigStore).toHaveBeenCalledWith('bearerTokenEncrypted');
     expect(mockConfigStore).toHaveBeenCalledWith('newToken');
   });
 
