@@ -1,19 +1,15 @@
-import { buildPaymentsService } from '../../payments/builder';
-import { PaymentsService } from '../../payments/service';
+import { getAvailableProducts } from '../../payments/get-available-products';
 import * as clamAVServer from '../ClamAVDaemon';
 import { isWindowsDefenderAvailable } from '../windows-defender/is-windows-defender-available';
 import { logger } from '@/apps/shared/logger/logger';
 
-let paymentService: PaymentsService | null = null;
 let isClamAVRunning = false;
 let clamAVInitializationPromise: Promise<{ antivirusEnabled: boolean }> | null = null;
 
 export async function initializeAntivirusIfAvailable() {
-  paymentService = buildPaymentsService();
-
   try {
-    const availableProducts = await paymentService.getAvailableProducts();
-    const isAntivirusEnabled = availableProducts.antivirus;
+    const availableProducts = await getAvailableProducts();
+    const isAntivirusEnabled = availableProducts?.antivirus;
 
     if (!isAntivirusEnabled) {
       logger.debug({
