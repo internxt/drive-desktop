@@ -70,7 +70,6 @@ export class BindingsManager {
   watch({ ctx }: { ctx: ProcessSyncContext }) {
     const { queueManager, watcher } = createWatcher({
       ctx,
-      virtualDrive: this.container.virtualDrive,
       watcherCallbacks: {
         addController: this.controllers.addFile,
       },
