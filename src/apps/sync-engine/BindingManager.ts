@@ -16,12 +16,7 @@ import { fetchData } from './callbacks/fetchData.service';
 export class BindingsManager {
   controllers: IControllers;
 
-  constructor(
-    ctx: ProcessSyncContext,
-    public readonly container: DependencyContainer,
-  ) {
-    logger.debug({ msg: 'Running sync engine', rootPath: ctx.rootPath });
-
+  constructor(public readonly container: DependencyContainer) {
     this.controllers = buildControllers(this.container);
   }
 

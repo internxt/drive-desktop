@@ -1,6 +1,6 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { mockDeep } from 'vitest-mock-extended';
-import VirtualDrive from '../virtual-drive';
+import { VirtualDrive } from '../virtual-drive';
 import { PinState } from '../types/placeholder.type';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
@@ -21,10 +21,10 @@ describe('detect-context-menu-action', () => {
   beforeEach(() => {
     getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof detectContextMenuAction>({
+      ctx: { virtualDrive },
       absolutePath: 'absolutePath' as AbsolutePath,
       path: createRelativePath('file.txt'),
       self: {
-        virtualDrive,
         fileInDevice: new Set(),
         logger: loggerMock,
         queueManager: { enqueue: vi.fn() },

@@ -33,7 +33,7 @@ export async function setupWatcher(syncRootPath: string) {
     await mkdir(syncRootPath);
   }
 
-  watcher = new Watcher(syncRootPath as AbsolutePath, {}, queueManager, logger, virtualDrive);
+  watcher = new Watcher(syncRootPath as AbsolutePath, {}, queueManager, logger);
   const props = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
   watcher.watchAndWait(props);
 }

@@ -26,7 +26,6 @@ export function createWatcher({ ctx }: TProps) {
     },
     queueManager,
     logger,
-    ctx.virtualDrive,
   );
 
   return { queueManager, watcher };

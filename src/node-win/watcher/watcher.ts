@@ -4,7 +4,6 @@ import { onAddDir } from './events/on-add-dir.service';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
-import VirtualDrive from '../virtual-drive';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
@@ -21,7 +20,6 @@ export class Watcher {
     public readonly options: WatchOptions,
     public readonly queueManager: QueueManager,
     public readonly logger: TLogger,
-    public readonly virtualDrive: VirtualDrive,
   ) {}
 
   private onError = (error: unknown) => {
