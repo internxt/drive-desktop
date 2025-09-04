@@ -1,6 +1,6 @@
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
-import { createReadStream, Stats } from 'fs';
+import { Stats } from 'fs';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
@@ -13,9 +13,7 @@ type Props = {
 
 export class ContentsUploader {
   static async run({ ctx, path, absolutePath, stats }: Props) {
-    const readable = createReadStream(absolutePath);
     const { data: contentsId, error } = await ctx.fileUploader.run({
-      readable,
       absolutePath,
       size: stats.size,
       path,
