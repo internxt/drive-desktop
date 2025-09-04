@@ -41,7 +41,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
     logger.debug({ msg: '[SYNC ENGINE] Stopping and clearing sync engine' });
 
     try {
-      bindings.stop();
+      bindings.stop({ ctx });
 
       logger.debug({ msg: '[SYNC ENGINE] sync engine stopped and cleared successfully' });
 

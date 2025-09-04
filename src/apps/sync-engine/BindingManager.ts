@@ -40,14 +40,14 @@ export class BindingsManager {
       },
     };
 
-    this.stop();
+    this.stop({ ctx });
 
-    this.container.virtualDrive.registerSyncRoot({
+    ctx.virtualDrive.registerSyncRoot({
       providerName: ctx.providerName,
       providerVersion: INTERNXT_VERSION,
     });
 
-    this.container.virtualDrive.connectSyncRoot({ callbacks });
+    ctx.virtualDrive.connectSyncRoot({ callbacks });
 
     /**
      * Jonathan Arce v2.5.1
@@ -76,8 +76,8 @@ export class BindingsManager {
     void queueManager.processQueue();
   }
 
-  stop() {
-    this.container.virtualDrive.disconnectSyncRoot();
+  stop({ ctx }: { ctx: ProcessSyncContext }) {
+    ctx.virtualDrive.disconnectSyncRoot();
   }
 
   async load(ctx: ProcessSyncContext, tree: Tree): Promise<void> {
