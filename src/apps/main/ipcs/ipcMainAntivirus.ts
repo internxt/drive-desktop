@@ -3,11 +3,7 @@ import { SelectedItemToScanProps } from '../antivirus/antivirus-clam-av';
 import { getMultiplePathsFromDialog } from '../device/service';
 import { getManualScanMonitorInstance } from '../antivirus/ManualSystemScan';
 import { initializeAntivirusIfAvailable } from '../antivirus/utils/initializeAntivirus';
-import { logger } from '@/apps/shared/logger/logger';
-import { PaymentsService } from '../payments/service';
-import { buildPaymentsService } from '../payments/builder';
-
-let paymentService: PaymentsService | null = null;
+import { getAvailableProducts } from '../payments/builder';
 
 ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
   const result = await initializeAntivirusIfAvailable();
@@ -15,19 +11,8 @@ ipcMain.handle('antivirus:is-available', async (): Promise<boolean> => {
 });
 
 export async function isAvailableBackups(): Promise<boolean> {
-  try {
-    paymentService = buildPaymentsService();
-
-    const availableProducts = await paymentService.getAvailableProducts();
-
-    return availableProducts.backups;
-  } catch (error) {
-    logger.warn({
-      msg: 'ERROR GETTING PRODUCTS FOR BACKUPS',
-      exc: error,
-    });
-    return false;
-  }
+  const availableProducts = await getAvailableProducts();
+  return Boolean(availableProducts?.backups);
 }
 
 ipcMain.handle('backups:is-available', isAvailableBackups);
