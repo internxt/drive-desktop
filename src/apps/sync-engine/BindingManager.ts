@@ -7,7 +7,6 @@ import { getConfig, ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { Traverser, Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
-import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
 import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
@@ -17,8 +16,6 @@ export class BindingsManager {
   controllers: IControllers;
 
   constructor(public readonly container: DependencyContainer) {
-    logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
-
     this.controllers = buildControllers(this.container);
   }
 
@@ -37,14 +34,10 @@ export class BindingsManager {
       },
     };
 
-    this.stop();
+    this.stop({ ctx });
 
-    this.container.virtualDrive.registerSyncRoot({
-      providerName: getConfig().providerName,
-      providerVersion: INTERNXT_VERSION,
-    });
-
-    this.container.virtualDrive.connectSyncRoot({ callbacks });
+    ctx.virtualDrive.registerSyncRoot({ providerName: ctx.providerName });
+    ctx.virtualDrive.connectSyncRoot({ callbacks });
 
     /**
      * Jonathan Arce v2.5.1
@@ -66,7 +59,7 @@ export class BindingsManager {
 
   watch({ ctx }: { ctx: ProcessSyncContext }) {
     const { queueManager, watcher } = createWatcher({
-      virtualDrive: this.container.virtualDrive,
+      virtualDrive: ctx.virtualDrive,
       watcherCallbacks: {
         addController: this.controllers.addFile,
       },
@@ -78,8 +71,8 @@ export class BindingsManager {
     void queueManager.processQueue();
   }
 
-  stop() {
-    this.container.virtualDrive.disconnectSyncRoot();
+  stop({ ctx }: { ctx: ProcessSyncContext }) {
+    ctx.virtualDrive.disconnectSyncRoot();
   }
 
   async load(tree: Tree): Promise<void> {

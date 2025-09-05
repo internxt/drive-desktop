@@ -5,9 +5,9 @@ import fs from 'fs/promises';
 import { setConfig, Config, getConfig, setDefaultConfig, ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { initializeVirtualDrive, virtualDrive } from './dependency-injection/common/virtualDrive';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
+import VirtualDrive from '@/node-win/virtual-drive';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -41,7 +41,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
     logger.debug({ msg: '[SYNC ENGINE] Stopping and clearing sync engine' });
 
     try {
-      bindings.stop();
+      bindings.stop({ ctx });
 
       logger.debug({ msg: '[SYNC ENGINE] sync engine stopped and cleared successfully' });
 
@@ -71,13 +71,11 @@ async function refreshToken() {
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
   setConfig(config);
 
-  initializeVirtualDrive();
-
   const { fileUploader } = buildFileUploader({ bucket: config.bucket });
   const ctx: ProcessSyncContext = {
     ...config,
     abortController: new AbortController(),
-    virtualDrive,
+    virtualDrive: new VirtualDrive(config),
     fileUploader,
   };
 
