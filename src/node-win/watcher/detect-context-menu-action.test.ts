@@ -7,11 +7,13 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
+import * as updateContentsId from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import { detectContextMenuAction } from './detect-context-menu-action.service';
 
 describe('detect-context-menu-action', () => {
   const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
+  const updateContentsIdMock = partialSpyOn(updateContentsId, 'updateContentsId');
   const virtualDrive = mockDeep<VirtualDrive>();
 
   let props: Parameters<typeof detectContextMenuAction>[0];
@@ -25,7 +27,6 @@ describe('detect-context-menu-action', () => {
         virtualDrive,
         fileInDevice: new Set(),
         logger: loggerMock,
-        callbacks: { updateContentsId: vi.fn() },
         queueManager: { enqueue: vi.fn() },
       },
       details: {
@@ -39,14 +40,16 @@ describe('detect-context-menu-action', () => {
 
   it('should update contents id when file modification time changes', async () => {
     // Given
+    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
     props.details.curr.mtimeMs = 2;
     // When
     await detectContextMenuAction(props);
     // Then
     expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
-    expect(props.self.callbacks.updateContentsId).toBeCalledWith({
+    expect(updateContentsIdMock).toBeCalledWith({
       stats: props.details.curr,
-      path: props.path,
+      path: '/file.txt',
+      absolutePath: 'absolutePath',
       uuid: 'uuid',
     });
   });

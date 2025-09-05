@@ -1,5 +1,3 @@
-import fs from 'fs/promises';
-import path from 'path';
 import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { BackupsIssue } from '@/apps/main/background-processes/issues';
@@ -8,7 +6,7 @@ import { BackupsContext } from '@/apps/backups/BackupInfo';
 
 type LocalFileDTO = {
   path: AbsolutePath;
-  modificationTime: number;
+  modificationTime: Date;
   size: number;
 };
 
@@ -64,14 +62,10 @@ export class CLSFsLocalItemsGenerator {
       folders: [] as LocalFolderDTO[],
     };
 
-    const dirents = await fs.readdir(dir, {
-      withFileTypes: true,
-    });
+    const items = await fileSystem.syncWalk({ rootFolder: dir });
 
-    for (const dirent of dirents) {
-      const absolutePath = path.join(dir, dirent.name) as AbsolutePath;
-
-      const { data, error } = await fileSystem.stat({ absolutePath });
+    for (const item of items) {
+      const { absolutePath, stats, error } = item;
 
       if (error) {
         if (error.code !== 'UNKNOWN') {
@@ -84,13 +78,13 @@ export class CLSFsLocalItemsGenerator {
         continue;
       }
 
-      if (dirent.isFile()) {
+      if (stats.isFile()) {
         res.files.push({
           path: absolutePath,
-          modificationTime: data.mtime.getTime(),
-          size: data.size,
+          modificationTime: stats.mtime,
+          size: stats.size,
         });
-      } else if (dirent.isDirectory()) {
+      } else if (stats.isDirectory()) {
         res.folders.push({
           path: absolutePath,
         });

@@ -29,13 +29,11 @@ export default function AntivirusSection({ active, showItemsWithMalware }: Antiv
     onCustomScanButtonClicked,
     isUserElegible,
     onCancelScan,
-    isWinDefenderActive,
   } = useAntivirusContext();
 
   useEffect(() => {
     if (!active) return;
     isUserElegible();
-    isWinDefenderActive();
   }, [active]);
 
   const viewStates: Record<Views, JSX.Element> = {

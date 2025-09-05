@@ -1,10 +1,8 @@
-import { Service } from 'diod';
 import { LocalFile } from '../../domain/LocalFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { RemoteTree } from '@/apps/backups/remote-tree/traverser';
 import { pathUtils } from '../../infrastructure/AbsolutePath';
-import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { uploadFile } from '../upload-file';
 import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
@@ -19,33 +17,31 @@ type Props = {
   added: LocalFile[];
 };
 
-@Service()
 export class FileBatchUploader {
-  constructor(
-    private readonly uploader: EnvironmentFileUploader,
-    private readonly remote: HttpRemoteFileSystem,
-  ) {}
-
-  async run({ self, context, tracker, remoteTree, added }: Props) {
+  static async run({ self, context, tracker, remoteTree, added }: Props) {
     const promises = added.map(async (localFile) => {
       try {
-        const contentsId = await uploadFile({ context, localFile, uploader: this.uploader });
+        const contentsId = await uploadFile({ context, localFile });
 
         if (!contentsId) return;
 
         const parentPath = pathUtils.dirname(localFile.relativePath);
         const parent = remoteTree.folders[parentPath];
 
-        const file = await this.remote.persist({
+        const { data: file, error } = await HttpRemoteFileSystem.create({
+          bucket: context.backupsBucket,
           contentsId,
           folderUuid: parent.uuid,
           path: localFile.relativePath,
-          size: localFile.size.value,
+          size: localFile.size,
+          workspaceId: undefined,
         });
+
+        if (error) throw error;
 
         await createAndUploadThumbnail({
           bucket: context.backupsBucket,
-          fileId: file.id,
+          fileUuid: file.uuid,
           absolutePath: localFile.absolutePath,
         });
       } catch (error) {

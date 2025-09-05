@@ -1,10 +1,10 @@
-import { File } from '@/context/virtual-drive/files/domain/File';
 import { BackupsContext } from '../BackupInfo';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 type TProps = {
   context: BackupsContext;
-  deleted: Array<File>;
+  deleted: Array<ExtendedDriveFile>;
 };
 
 export async function deleteRemoteFiles({ context, deleted }: TProps) {

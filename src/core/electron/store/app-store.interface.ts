@@ -2,8 +2,6 @@ import { User } from '@/apps/main/types';
 import { fieldsToSave } from './fields-to-save';
 
 export interface AppStore {
-  bearerToken: string;
-  bearerTokenEncrypted: boolean;
   newToken: string;
   newTokenEncrypted: boolean;
   userData: User;

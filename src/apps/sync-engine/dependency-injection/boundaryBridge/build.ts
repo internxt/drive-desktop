@@ -8,7 +8,7 @@ export function buildBoundaryBridgeContainer(
   contentsContainer: ContentsContainer,
   filesContainer: FilesContainer,
 ): BoundaryBridgeContainer {
-  const fileCreationOrchestrator = new FileCreationOrchestrator(contentsContainer.contentsUploader, filesContainer.fileCreator);
+  const fileCreationOrchestrator = new FileCreationOrchestrator(filesContainer.fileCreator);
 
   const fileDangledManager = new FileDangledManager(contentsContainer.contentsManagerFactory, filesContainer.fileOverwriteContent);
 

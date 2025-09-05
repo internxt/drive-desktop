@@ -3,11 +3,12 @@ import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
 import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
 import { temporalFolderProvider } from '../../contents/application/temporalFolderProvider';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
-import { File } from '../domain/File';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 import { FileContentsHardUpdater } from './FileContentsHardUpdater';
 import { EnvironmentContentFileDownloader } from '../../contents/infrastructure/download/EnvironmentContentFileDownloader';
 import { logger } from '@/apps/shared/logger/logger';
+import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FileOverwriteContent {
   private processingErrorQueue: boolean;
@@ -20,7 +21,7 @@ export class FileOverwriteContent {
   }
 
   private errorQueue: Array<{
-    file: File;
+    file: ExtendedDriveFile;
     callback: (remoteDangledFile: string) => Promise<void>;
   }> = [];
 
@@ -36,7 +37,7 @@ export class FileOverwriteContent {
     this.processingErrorQueue = false;
   }
 
-  private enqueueError(input: { file: File; callback: (remoteDangledFile: string) => Promise<void> }) {
+  private enqueueError(input: { file: ExtendedDriveFile; callback: (remoteDangledFile: string) => Promise<void> }) {
     const { file, callback } = input;
     this.errorQueue.push({ file, callback });
     void this.processErrorQueue();
@@ -44,7 +45,7 @@ export class FileOverwriteContent {
 
   private async registerEvents(input: {
     downloader: EnvironmentContentFileDownloader;
-    file: File;
+    file: ExtendedDriveFile;
     callback: (remoteDangledFile: string) => Promise<void>;
   }) {
     const { downloader, file, callback } = input;
@@ -70,7 +71,7 @@ export class FileOverwriteContent {
     });
   }
 
-  async run(input: { contentsIds: File['contentsId'][]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
+  async run(ctx: ProcessSyncContext, input: { contentsIds: string[]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
     const { contentsIds, downloaderManger } = input;
     logger.debug({ msg: 'Inside overrideDangledFiles' });
     const files = this.repository.searchByContentsIds(contentsIds);
@@ -91,11 +92,11 @@ export class FileOverwriteContent {
 
       logger.debug({ msg: 'hydratedDangledRemoteFile ', id: hydratedDangledRemoteFile.contentsId, path: hydratedDangledRemoteFile.path });
 
-      if (!hydratedDangledRemoteFile.folderUuid) return;
-      await this.fileContentsHardUpdater.run({
+      if (!hydratedDangledRemoteFile.parentUuid) return;
+      await this.fileContentsHardUpdater.run(ctx, {
         attributes: {
           contentsId: hydratedDangledRemoteFile.contentsId,
-          folderUuid: hydratedDangledRemoteFile.folderUuid.value,
+          folderUuid: hydratedDangledRemoteFile.parentUuid,
           size: hydratedDangledRemoteFile.size,
           path: hydratedDangledRemoteFile.path,
         },

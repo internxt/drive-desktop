@@ -3,12 +3,10 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
-import { getConfig } from './config';
+import { getConfig, ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
-import { Tree } from '@/context/virtual-drive/items/application/Traverser';
+import { Traverser, Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
-import { INTERNXT_VERSION } from '@/core/utils/utils';
-import { updateContentsId } from './callbacks-controllers/controllers/update-contents-id';
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
 import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
@@ -18,12 +16,10 @@ export class BindingsManager {
   controllers: IControllers;
 
   constructor(public readonly container: DependencyContainer) {
-    logger.debug({ msg: 'Running sync engine', rootPath: getConfig().rootPath });
-
     this.controllers = buildControllers(this.container);
   }
 
-  async start() {
+  async start({ ctx }: { ctx: ProcessSyncContext }) {
     const callbacks: Callbacks = {
       fetchDataCallback: async (filePlaceholderId, callback) => {
         await fetchData({
@@ -38,16 +34,10 @@ export class BindingsManager {
       },
     };
 
-    this.stop();
+    this.stop({ ctx });
 
-    this.container.virtualDrive.registerSyncRoot({
-      providerName: getConfig().providerName,
-      providerVersion: INTERNXT_VERSION,
-    });
-
-    this.container.virtualDrive.connectSyncRoot({ callbacks });
-
-    void addPendingItems({ controllers: this.controllers });
+    ctx.virtualDrive.registerSyncRoot({ providerName: ctx.providerName });
+    ctx.virtualDrive.connectSyncRoot({ callbacks });
 
     /**
      * Jonathan Arce v2.5.1
@@ -56,37 +46,33 @@ export class BindingsManager {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await trackRefreshItemPlaceholders({ container: this.container });
-    setInterval(async () => {
-      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Scheduled refreshing item placeholders', workspaceId: getConfig().workspaceId });
-      await trackRefreshItemPlaceholders({ container: this.container });
-    }, 60 * 1000);
+    await trackRefreshItemPlaceholders({ ctx, container: this.container });
+
+    /**
+     * v2.5.7 Daniel Jiménez
+     * If the cloud provider was not registered before it means that all items that
+     * were in the root folder have their placeholders gone, so we need to refresh first
+     * all item placeholders and the execute this function.
+     */
+    void addPendingItems({ ctx, controllers: this.controllers });
   }
 
-  watch() {
+  watch({ ctx }: { ctx: ProcessSyncContext }) {
     const { queueManager, watcher } = createWatcher({
-      virtulDrive: this.container.virtualDrive,
+      virtualDrive: ctx.virtualDrive,
       watcherCallbacks: {
         addController: this.controllers.addFile,
-        updateContentsId: async ({ stats, path, uuid }) =>
-          await updateContentsId({
-            virtualDrive: this.container.virtualDrive,
-            stats,
-            path,
-            uuid,
-            fileContentsUploader: this.container.contentsUploader,
-          }),
       },
     });
 
-    watcher.watchAndWait();
+    watcher.watchAndWait({ ctx });
 
-    void this.polling();
+    void this.polling({ ctx });
     void queueManager.processQueue();
   }
 
-  stop() {
-    this.container.virtualDrive.disconnectSyncRoot();
+  stop({ ctx }: { ctx: ProcessSyncContext }) {
+    ctx.virtualDrive.disconnectSyncRoot();
   }
 
   async load(tree: Tree): Promise<void> {
@@ -95,7 +81,7 @@ export class BindingsManager {
     logger.debug({ msg: 'In memory repositories loaded', workspaceId: getConfig().workspaceId });
   }
 
-  async polling(): Promise<void> {
+  async polling({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
     const workspaceId = getConfig().workspaceId;
 
     logger.debug({
@@ -105,9 +91,9 @@ export class BindingsManager {
     });
 
     try {
-      const tree = await this.container.traverser.run();
+      const tree = await Traverser.run({ ctx });
       await this.load(tree);
-      await this.container.fileDangledManager.run();
+      await this.container.fileDangledManager.run({ ctx });
     } catch (error) {
       logger.error({ msg: '[SYNC ENGINE] Polling error', workspaceId, error });
     }
@@ -122,11 +108,11 @@ export class BindingsManager {
     });
   }
 
-  async updateAndCheckPlaceholders(): Promise<void> {
+  async updateAndCheckPlaceholders({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
     const workspaceId = getConfig().workspaceId;
 
     try {
-      await trackRefreshItemPlaceholders({ container: this.container });
+      await trackRefreshItemPlaceholders({ ctx, container: this.container });
       ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
     } catch (exc) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error updating and checking placeholder', workspaceId, exc });

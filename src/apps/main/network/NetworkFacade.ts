@@ -7,7 +7,6 @@ import { buildProgressStream, getDecryptedStream } from './download';
 import fetch from 'electron-fetch';
 import { ReadableStream } from 'node:stream/web';
 import { Readable } from 'node:stream';
-import { Service } from 'diod';
 import { DownloadProgressCallback } from '@internxt/inxt-js/build/lib/core';
 
 interface DownloadOptions {
@@ -19,7 +18,6 @@ interface DownloadOptions {
  * The entry point for interacting with the network
  */
 
-@Service()
 export class NetworkFacade {
   private readonly cryptoLib: NetworkModule.Crypto;
 

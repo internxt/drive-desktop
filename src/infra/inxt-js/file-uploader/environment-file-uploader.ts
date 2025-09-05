@@ -1,14 +1,13 @@
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
-import { Service } from 'diod';
 import { Environment } from '@internxt/inxt-js/build';
 import { logger } from '@/apps/shared/logger/logger';
 import { EnvironmentFileUploaderError, processError } from './process-error';
-import { Readable } from 'stream';
 import { FileUploaderCallbacks } from './file-uploader';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import Bottleneck from 'bottleneck';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { abortOnChangeSize } from './abort-on-change-size';
+import { createReadStream } from 'fs';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
@@ -17,7 +16,6 @@ const limiter = new Bottleneck({ maxConcurrent: 4 });
 type TProps = {
   absolutePath: AbsolutePath;
   path: string;
-  readable: Readable;
   size: number;
   abortSignal: AbortSignal;
   callbacks: FileUploaderCallbacks;
@@ -25,14 +23,13 @@ type TProps = {
 
 type TReturn = Promise<{ data: ContentsId; error?: undefined } | { data?: undefined; error: EnvironmentFileUploaderError }>;
 
-@Service()
 export class EnvironmentFileUploader {
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
   ) {}
 
-  upload({ absolutePath, path, readable, size, abortSignal, callbacks }: TProps): TReturn {
+  upload({ absolutePath, path, size, abortSignal, callbacks }: TProps): TReturn {
     const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
     logger.debug({
@@ -42,7 +39,7 @@ export class EnvironmentFileUploader {
       bucket: this.bucket,
       useMultipartUpload,
     });
-
+    const readable = createReadStream(absolutePath);
     const fn: UploadStrategyFunction = useMultipartUpload
       ? this.environment.uploadMultipartFile.bind(this.environment)
       : this.environment.upload;
@@ -54,6 +51,7 @@ export class EnvironmentFileUploader {
         source: readable,
         fileSize: size,
         finishedCallback: (err, contentsId) => {
+          readable.close();
           if (contentsId) {
             callbacks.onFinish();
             return resolve({ data: contentsId as ContentsId });

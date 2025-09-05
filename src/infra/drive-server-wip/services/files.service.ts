@@ -3,10 +3,13 @@ import { clientWrapper } from '../in/client-wrapper.service';
 import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
+import { createFile } from './files/create-file';
+import { getByPath } from './files/get-by-path';
 
 export const files = {
   getFiles,
   getByUuid,
+  getByPath,
   createFile,
   moveFile,
   renameFile,
@@ -15,7 +18,6 @@ export const files = {
 };
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
-type TCreateFileBody = paths['/files']['post']['requestBody']['content']['application/json'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
 async function getFiles(context: { query: TGetFilesQuery }) {
@@ -33,30 +35,6 @@ async function getFiles(context: { query: TGetFilesQuery }) {
     key,
     loggerBody: {
       msg: 'Get files request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
-
-async function createFile(context: { path: string; body: TCreateFileBody }) {
-  const method = 'POST';
-  const endpoint = '/files';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.POST(endpoint, {
-      body: context.body,
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Create file request',
       context,
       attributes: {
         method,
@@ -118,14 +96,18 @@ async function renameFile(context: { uuid: string; name: string; extension: stri
   });
 }
 
-async function replaceFile(context: { uuid: string; newContentId: string; newSize: number }) {
+async function replaceFile(context: { uuid: string; newContentId: string; newSize: number; modificationTime: string }) {
   const method = 'PUT';
   const endpoint = '/files/{uuid}';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.PUT(endpoint, {
-      body: { fileId: context.newContentId, size: context.newSize },
+      body: {
+        fileId: context.newContentId,
+        size: context.newSize,
+        modificationTime: context.modificationTime,
+      },
       params: { path: { uuid: context.uuid } },
     });
 

@@ -5,6 +5,7 @@ import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFileDto, parseFolderDto } from '../out/dto';
 import { getByUuid } from './folders/get-by-uuid';
+import { renameFolder } from './files/rename-folder';
 
 export const folders = {
   getByUuid,
@@ -69,7 +70,7 @@ async function getFolders(context: { query: TGetFoldersQuery }) {
 
 async function getFoldersByFolder(
   context: { folderUuid: string; query: TGetFoldersByFolderQuery },
-  extra: { abortSignal: AbortSignal; skipLog?: boolean },
+  extra?: { abortSignal: AbortSignal; skipLog?: boolean },
 ) {
   const method = 'GET';
   const endpoint = '/folders/content/{uuid}/folders';
@@ -78,13 +79,13 @@ async function getFoldersByFolder(
   const promiseFn = () =>
     client.GET(endpoint, {
       params: { path: { uuid: context.folderUuid }, query: context.query },
-      signal: extra.abortSignal,
+      signal: extra?.abortSignal,
     });
 
   const res = await clientWrapper({
     promiseFn,
     key,
-    skipLog: extra.skipLog,
+    skipLog: extra?.skipLog,
     loggerBody: {
       msg: 'Get folders by folder request',
       context,
@@ -154,32 +155,6 @@ async function moveFolder(context: { uuid: string; parentUuid: string; workspace
     key,
     loggerBody: {
       msg: 'Move folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
-
-async function renameFolder(context: { uuid: string; name: string; workspaceToken: string }) {
-  const method = 'PUT';
-  const endpoint = '/folders/{uuid}/meta';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.PUT(endpoint, {
-      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
-      params: { path: { uuid: context.uuid } },
-      body: { plainName: context.name },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Rename folder request',
       context,
       attributes: {
         method,

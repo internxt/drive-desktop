@@ -1,34 +1,31 @@
-import { SharedContainer } from '../shared/SharedContainer';
 import { FilesContainer } from './FilesContainer';
 import { FileCreator } from '../../../../context/virtual-drive/files/application/FileCreator';
 import { InMemoryFileRepository } from '../../../../context/virtual-drive/files/infrastructure/InMemoryFileRepository';
 import { FileContentsHardUpdater } from '../../../..//context/virtual-drive/files/application/FileContentsHardUpdater';
 import { FileCheckerStatusInRoot } from '../../../../context/virtual-drive/files/application/FileCheckerStatusInRoot';
 import { HttpRemoteFileSystem } from '../../../../context/virtual-drive/files/infrastructure/HttpRemoteFileSystem';
-import { getConfig } from '../../config';
+import { ProcessSyncContext } from '../../config';
 import { FileOverwriteContent } from '../../../../context/virtual-drive/files/application/FileOverwriteContent';
 import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-explorer/update-file-placeholder';
-import { ContentsContainer } from '../contents/ContentsContainer';
-import { virtualDrive } from '../common/virtualDrive';
+import { SharedContainer } from '../shared/SharedContainer';
 
 export function buildFilesContainer(
-  contentsContainer: ContentsContainer,
+  ctx: ProcessSyncContext,
   sharedContainer: SharedContainer,
 ): {
   container: FilesContainer;
-  subscribers: unknown;
 } {
-  const remoteFileSystem = new HttpRemoteFileSystem(getConfig().bucket, getConfig().workspaceId);
+  const remoteFileSystem = new HttpRemoteFileSystem(ctx.bucket, ctx.workspaceId, ctx.virtualDrive);
 
   const repository = new InMemoryFileRepository();
 
-  const fileCreator = new FileCreator(remoteFileSystem, virtualDrive);
+  const fileCreator = new FileCreator(remoteFileSystem);
 
-  const filePlaceholderUpdater = new FilePlaceholderUpdater(virtualDrive, sharedContainer.relativePathToAbsoluteConverter);
+  const filePlaceholderUpdater = new FilePlaceholderUpdater(ctx.virtualDrive);
 
-  const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem, contentsContainer.contentsUploader);
+  const fileContentsHardUpdate = new FileContentsHardUpdater(remoteFileSystem, sharedContainer.relativePathToAbsoluteConverter);
 
-  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(virtualDrive);
+  const filesCheckerStatusInRoot = new FileCheckerStatusInRoot(ctx.virtualDrive);
 
   const fileOverwriteContent = new FileOverwriteContent(repository, filesCheckerStatusInRoot, fileContentsHardUpdate);
 
@@ -40,5 +37,5 @@ export function buildFilesContainer(
     fileOverwriteContent,
   };
 
-  return { container, subscribers: [] };
+  return { container };
 }

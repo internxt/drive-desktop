@@ -1,15 +1,19 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { Brand } from '@/context/shared/domain/Brand';
+import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 export type FolderUuid = Brand<string, 'FolderUuid'>;
 export type SimpleDriveFolder = {
-  id: number;
   uuid: FolderUuid;
   name: string;
   parentUuid: string | undefined;
   createdAt: string;
   updatedAt: string;
   status: 'EXISTS' | 'TRASHED' | 'DELETED';
+};
+export type ExtendedDriveFolder = SimpleDriveFolder & {
+  path: RelativePath;
+  absolutePath: AbsolutePath;
 };
 
 @Entity('drive_folder')

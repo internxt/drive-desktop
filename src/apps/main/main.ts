@@ -17,10 +17,7 @@ import 'dotenv/config';
 import { PATHS } from '@/core/electron/paths';
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
-setupElectronLog({
-  logsPath: PATHS.ELECTRON_LOGS,
-  importantLogsPath: PATHS.ELECTRON_IMPORTANT_LOGS,
-});
+setupElectronLog({ logsPath: PATHS.LOGS });
 
 import { setupVirtualDriveHandlers } from './virtual-root-folder/handlers';
 import { setupAutoLaunchHandlers } from './auto-launch/handlers';
@@ -31,7 +28,6 @@ import './windows';
 import './background-processes/sync-engine';
 import './background-processes/process-issues';
 import './device/handlers';
-import './usage/handlers';
 import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
@@ -80,6 +76,7 @@ setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();
 setupIpcSqlite();
+registerUsageHandlers();
 
 logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
 
@@ -117,8 +114,7 @@ app
 
     await migrate();
 
-    registerUsageHandlers();
-    await setUpBackups();
+    void setUpBackups();
 
     await checkIfUserIsLoggedIn();
     const isLoggedIn = getIsLoggedIn();

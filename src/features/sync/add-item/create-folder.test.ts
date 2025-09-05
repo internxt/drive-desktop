@@ -1,15 +1,15 @@
-import { mockDeep } from 'vitest-mock-extended';
 import { createFolder, createParentFolder } from './create-folder';
 import { FolderCreator } from '@/context/virtual-drive/folders/application/FolderCreator';
 import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/errors/FolderNotFoundError';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 describe('create-folder', () => {
-  const folderCreator = mockDeep<FolderCreator>();
+  const folderCreatorMock = partialSpyOn(FolderCreator, 'run');
 
   const path = createRelativePath('folder1', 'folder2');
   const parentPath = '/folder1';
-  const props = { path, folderCreator };
+  const props = mockProps<typeof createFolder>({ path });
 
   describe('createParentFolder', () => {
     it('Calls createFolder with parent path', async () => {
@@ -17,8 +17,8 @@ describe('create-folder', () => {
       await createParentFolder(props);
 
       // Then
-      expect(folderCreator.run).toHaveBeenCalledTimes(1);
-      expect(folderCreator.run).toHaveBeenCalledWith({ path: parentPath });
+      expect(folderCreatorMock).toHaveBeenCalledTimes(1);
+      expect(folderCreatorMock).toHaveBeenCalledWith({ path: parentPath });
     });
   });
 
@@ -28,20 +28,20 @@ describe('create-folder', () => {
       await createFolder(props);
 
       // Then
-      expect(folderCreator.run).toHaveBeenCalledTimes(1);
-      expect(folderCreator.run).toHaveBeenCalledWith({ path });
+      expect(folderCreatorMock).toHaveBeenCalledTimes(1);
+      expect(folderCreatorMock).toHaveBeenCalledWith({ path });
     });
 
-    it('folderCreator.run throws FolderNotFoundError', async () => {
+    it('folderCreatorMock throws FolderNotFoundError', async () => {
       // Given
-      folderCreator.run.mockRejectedValueOnce(new FolderNotFoundError(''));
+      folderCreatorMock.mockRejectedValueOnce(new FolderNotFoundError(''));
 
       // When
       await createFolder(props);
 
       // Then
-      expect(folderCreator.run).toHaveBeenCalledTimes(3);
-      expect(folderCreator.run).toHaveBeenCalledWith({ path });
+      expect(folderCreatorMock).toHaveBeenCalledTimes(3);
+      expect(folderCreatorMock).toHaveBeenCalledWith({ path });
     });
   });
 });

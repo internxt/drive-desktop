@@ -2,12 +2,12 @@ import { ipcRenderer } from 'electron';
 import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
-import { setConfig, Config, getConfig, setDefaultConfig } from './config';
+import { setConfig, Config, getConfig, setDefaultConfig, ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { initializeVirtualDrive } from './dependency-injection/common/virtualDrive';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
+import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
+import VirtualDrive from '@/node-win/virtual-drive';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -20,7 +20,7 @@ async function ensureTheFolderExist(path: string) {
   }
 }
 
-async function setUp() {
+async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Starting sync engine process' });
 
   const { rootPath } = getConfig();
@@ -29,25 +29,19 @@ async function setUp() {
 
   await ensureTheFolderExist(rootPath);
 
-  initializeVirtualDrive();
-
-  const container = DependencyContainerFactory.build();
+  const container = DependencyContainerFactory.build({ ctx });
 
   const bindings = new BindingsManager(container);
 
-  ipcRendererSyncEngine.on('REFRESH_ITEM_PLACEHOLDERS', async () => {
-    await trackRefreshItemPlaceholders({ container });
-  });
-
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    await bindings.updateAndCheckPlaceholders();
+    await bindings.updateAndCheckPlaceholders({ ctx });
   });
 
   ipcRendererSyncEngine.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
     logger.debug({ msg: '[SYNC ENGINE] Stopping and clearing sync engine' });
 
     try {
-      bindings.stop();
+      bindings.stop({ ctx });
 
       logger.debug({ msg: '[SYNC ENGINE] sync engine stopped and cleared successfully' });
 
@@ -58,8 +52,8 @@ async function setUp() {
     }
   });
 
-  await bindings.start();
-  bindings.watch();
+  await bindings.start({ ctx });
+  bindings.watch({ ctx });
 
   logger.debug({ msg: '[SYNC ENGINE] Second sync engine started' });
 }
@@ -77,11 +71,19 @@ async function refreshToken() {
 ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
   setConfig(config);
 
+  const { fileUploader } = buildFileUploader({ bucket: config.bucket });
+  const ctx: ProcessSyncContext = {
+    ...config,
+    abortController: new AbortController(),
+    virtualDrive: new VirtualDrive(config),
+    fileUploader,
+  };
+
   if (config.workspaceToken) {
     setInterval(refreshToken, 23 * 60 * 60 * 1000);
   }
 
-  setUp()
+  setUp({ ctx })
     .then(() => {
       logger.debug({ msg: '[SYNC ENGINE] Sync engine has successfully started' });
       ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', config.workspaceId);

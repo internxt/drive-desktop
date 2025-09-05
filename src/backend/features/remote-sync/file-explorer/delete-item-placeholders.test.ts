@@ -6,64 +6,62 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { mockDeep } from 'vitest-mock-extended';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { initializeVirtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
 
 describe('delete-item-placeholders', () => {
   const virtualDrive = mockDeep<VirtualDrive>();
-  initializeVirtualDrive(virtualDrive);
 
   const getFolderUuid = partialSpyOn(NodeWin, 'getFolderUuid');
   const getFileUuid = partialSpyOn(NodeWin, 'getFileUuid');
 
-  it('should call deleteFileSyncRoot if folder uuids match', () => {
-    // Given
-    getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
+  describe('what should happen for folders', () => {
     const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'uuid' }],
+      remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'uuid' as FolderUuid }],
       type: 'folder',
+      ctx: { virtualDrive },
     });
-    // When
-    deleteItemPlaceholders(props);
-    // Then
-    expect(virtualDrive.deleteFileSyncRoot).toBeCalledWith({ path: '/folder1/folder2' });
+
+    it('should call deleteFileSyncRoot if folder uuids match', () => {
+      // Given
+      getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
+      // When
+      deleteItemPlaceholders(props);
+      // Then
+      expect(virtualDrive.deleteFileSyncRoot).toBeCalledWith({ path: '/folder1/folder2' });
+    });
+
+    it('should not call deleteFileSyncRoot if folder uuids do not match', () => {
+      // Given
+      getFolderUuid.mockReturnValue({ data: 'different' as FolderUuid });
+      // When
+      deleteItemPlaceholders(props);
+      // Then
+      expect(virtualDrive.deleteFileSyncRoot).toBeCalledTimes(0);
+    });
   });
 
-  it('should not call deleteFileSyncRoot if folder uuids do not match', () => {
-    // Given
-    getFolderUuid.mockReturnValue({ data: 'uuid' as FolderUuid });
+  describe('what should happen for files', () => {
     const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ path: createRelativePath('folder1', 'folder2'), uuid: 'different' }],
-      type: 'folder',
-    });
-    // When
-    deleteItemPlaceholders(props);
-    // Then
-    expect(virtualDrive.deleteFileSyncRoot).toBeCalledTimes(0);
-  });
-
-  it('should call deleteFileSyncRoot if file uuids match', () => {
-    // Given
-    getFileUuid.mockReturnValue({ data: 'uuid' as FileUuid });
-    const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'uuid' }],
+      remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'uuid' as FileUuid }],
       type: 'file',
+      ctx: { virtualDrive },
     });
-    // When
-    deleteItemPlaceholders(props);
-    // Then
-    expect(virtualDrive.deleteFileSyncRoot).toBeCalledWith({ path: '/folder/file.txt' });
-  });
 
-  it('should not call deleteFileSyncRoot if file uuids do not match', () => {
-    // Given
-    getFileUuid.mockReturnValue({ data: 'uuid' as FileUuid });
-    const props = mockProps<typeof deleteItemPlaceholders>({
-      remotes: [{ path: createRelativePath('folder', 'file.txt'), uuid: 'different' }],
-      type: 'file',
+    it('should call deleteFileSyncRoot if file uuids match', () => {
+      // Given
+      getFileUuid.mockReturnValue({ data: 'uuid' as FileUuid });
+      // When
+      deleteItemPlaceholders(props);
+      // Then
+      expect(virtualDrive.deleteFileSyncRoot).toBeCalledWith({ path: '/folder/file.txt' });
     });
-    // When
-    deleteItemPlaceholders(props);
-    // Then
-    expect(virtualDrive.deleteFileSyncRoot).toBeCalledTimes(0);
+
+    it('should not call deleteFileSyncRoot if file uuids do not match', () => {
+      // Given
+      getFileUuid.mockReturnValue({ data: 'different' as FileUuid });
+      // When
+      deleteItemPlaceholders(props);
+      // Then
+      expect(virtualDrive.deleteFileSyncRoot).toBeCalledTimes(0);
+    });
   });
 });

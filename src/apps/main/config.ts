@@ -3,12 +3,6 @@ import { AppStore } from '@/core/electron/store/app-store.interface';
 import { defaults } from '@/core/electron/store/defaults';
 
 const schema: Schema<AppStore> = {
-  bearerToken: {
-    type: 'string',
-  },
-  bearerTokenEncrypted: {
-    type: 'boolean',
-  },
   newToken: {
     type: 'string',
   },

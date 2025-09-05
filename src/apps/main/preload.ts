@@ -281,9 +281,6 @@ const api = {
     isAvailable(): Promise<boolean> {
       return ipcRenderer.invoke('antivirus:is-available');
     },
-    isDefenderActive(): Promise<boolean> {
-      return ipcRenderer.invoke('antivirus:is-Defender-active');
-    },
     scanItems(paths?: SelectedItemToScanProps[]): Promise<void> {
       return ipcRenderer.invoke('antivirus:scan-items', paths);
     },

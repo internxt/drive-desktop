@@ -1,27 +1,27 @@
 import { calculateFoldersDiff } from './calculate-folders-diff';
-import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderStatuses } from '@/context/virtual-drive/folders/domain/FolderStatus';
-import { FolderMother } from 'tests/context/virtual-drive/folders/domain/FolderMother';
+import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 
 describe('calculate-folders-diff', () => {
   it('It should calculate folders diff', () => {
     // Given
+    const folder1 = createRelativePath('folder1');
+    const folder2 = createRelativePath('folder2');
+    const folder3 = createRelativePath('folder3');
+
     const props = mockProps<typeof calculateFoldersDiff>({
       local: {
         files: {},
         folders: {
-          ['/folder1' as RelativePath]: { relativePath: '/folder1' as RelativePath },
-          ['/folder2' as RelativePath]: { relativePath: '/folder2' as RelativePath },
+          [folder1]: { relativePath: folder1 },
+          [folder2]: { relativePath: folder2 },
         },
       },
       remote: {
         files: {},
         folders: {
-          ['/folder1' as RelativePath]: FolderMother.fromPartial({ path: '/folder1' }),
-          ['/folder3' as RelativePath]: FolderMother.fromPartial({ path: '/folder3' }),
-          ['/folder4' as RelativePath]: FolderMother.fromPartial({ path: '/folder4', status: FolderStatuses.DELETED }),
-          ['/folder5' as RelativePath]: FolderMother.fromPartial({ path: '/folder5', status: FolderStatuses.TRASHED }),
+          [folder1]: { path: folder1 },
+          [folder3]: { path: folder3 },
         },
       },
     });

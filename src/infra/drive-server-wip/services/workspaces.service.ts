@@ -4,10 +4,10 @@ import { paths } from '@/apps/shared/HttpClient/schema';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { getFilesByFolder } from './workspaces/get-files-by-folder';
 import { getFoldersByFolder } from './workspaces/get-folders-by-folder';
+import { createFile } from './workspaces/create-file';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
-type CreateFileInWorkspaceBody = paths['/workspaces/{workspaceId}/files']['post']['requestBody']['content']['application/json'];
 type CreateFolderInWorkspaceBody = paths['/workspaces/{workspaceId}/folders']['post']['requestBody']['content']['application/json'];
 
 export const workspaces = {
@@ -15,7 +15,7 @@ export const workspaces = {
   getCredentials,
   getFilesInWorkspace,
   getFoldersInWorkspace,
-  createFileInWorkspace,
+  createFile,
   createFolderInWorkspace,
   getFilesByFolder,
   getFoldersByFolder,
@@ -110,31 +110,6 @@ async function getFoldersInWorkspace(context: { workspaceId: string; query: Quer
     key,
     loggerBody: {
       msg: 'Get workspace folders request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
-
-async function createFileInWorkspace(context: { workspaceId: string; path: string; body: CreateFileInWorkspaceBody }) {
-  const method = 'POST';
-  const endpoint = '/workspaces/{workspaceId}/files';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.POST(endpoint, {
-      params: { path: { workspaceId: context.workspaceId } },
-      body: context.body,
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Create file in workspace request',
       context,
       attributes: {
         method,

@@ -2,46 +2,18 @@ import { parseAndDecryptUserKeys } from '../../../apps/shared/crypto/keys.servic
 import { safeStorage } from 'electron';
 import ConfigStore from '../config';
 import { User } from '../types';
-import { logger } from '@/apps/shared/logger/logger';
 
 const TOKEN_ENCODING = 'latin1';
 
-const tokensKeys = ['bearerToken', 'newToken'] as const;
-type TokenKey = (typeof tokensKeys)[number];
-type EncryptedTokenKey = `${(typeof tokensKeys)[number]}Encrypted`;
-
 type Credentials = {
   userData: User;
-  bearerToken: string;
   newToken: string;
   password: string;
 };
 
-export function encryptToken() {
-  const bearerTokenEncrypted = ConfigStore.get('bearerTokenEncrypted');
-
-  if (bearerTokenEncrypted) {
-    return;
-  }
-
-  logger.debug({ msg: 'TOKEN WAS NOT ENCRYPTED, ENCRYPTING...' });
-
-  if (!safeStorage.isEncryptionAvailable()) {
-    throw new Error('Safe Storage is not available');
-  }
-
-  const plainToken = ConfigStore.get('bearerToken');
-
-  const buffer = safeStorage.encryptString(plainToken);
-  const encryptedToken = buffer.toString(TOKEN_ENCODING);
-
-  ConfigStore.set('bearerToken', encryptedToken);
-  ConfigStore.set('bearerTokenEncrypted', true);
-}
-
-export function obtainToken(tokenName: TokenKey): string {
-  const token = ConfigStore.get(tokenName);
-  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(`${tokenName}Encrypted`);
+export function obtainToken(): string {
+  const token = ConfigStore.get('newToken');
+  const isEncrypted = ConfigStore.get('newTokenEncrypted');
 
   if (!isEncrypted) {
     return token;
@@ -69,7 +41,7 @@ export function setUser(userData: User) {
   });
 }
 
-export function setCredentials({ userData, bearerToken, newToken, password }: Credentials) {
+export function setCredentials({ userData, newToken, password }: Credentials) {
   const { publicKey, privateKey, publicKyberKey, privateKyberKey } = parseAndDecryptUserKeys(userData, password);
 
   userData.publicKey = publicKey;
@@ -80,34 +52,15 @@ export function setCredentials({ userData, bearerToken, newToken, password }: Cr
   userData.keys.kyber.privateKey = privateKyberKey;
 
   setUser(userData);
-
-  const isSafeStorageAvailable = safeStorage.isEncryptionAvailable();
-
-  const token = isSafeStorageAvailable ? ecnryptToken(bearerToken) : bearerToken;
-
-  ConfigStore.set('bearerToken', token);
-  ConfigStore.set('bearerTokenEncrypted', isSafeStorageAvailable);
-
-  const secondToken = isSafeStorageAvailable ? ecnryptToken(newToken) : newToken;
-
-  ConfigStore.set('newToken', secondToken);
-  ConfigStore.set('newTokenEncrypted', isSafeStorageAvailable);
+  updateCredentials({ newToken });
 }
-export function updateCredentials(bearerToken: string, newBearerToken?: string) {
+
+export function updateCredentials({ newToken }: { newToken: string }) {
   const isSafeStorageAvailable = safeStorage.isEncryptionAvailable();
 
-  const token = isSafeStorageAvailable ? ecnryptToken(bearerToken) : bearerToken;
+  const token = isSafeStorageAvailable ? ecnryptToken(newToken) : newToken;
 
-  ConfigStore.set('bearerToken', token);
-  ConfigStore.set('bearerTokenEncrypted', isSafeStorageAvailable);
-
-  if (!newBearerToken) {
-    return;
-  }
-
-  const secondToken = isSafeStorageAvailable ? ecnryptToken(newBearerToken) : newBearerToken;
-
-  ConfigStore.set('newToken', secondToken);
+  ConfigStore.set('newToken', token);
   ConfigStore.set('newTokenEncrypted', isSafeStorageAvailable);
 }
 
@@ -121,10 +74,6 @@ export function getUserOrThrow(): User {
   const user = getUser();
   if (!user) throw new Error('User not found');
   return user;
-}
-
-export function obtainTokens(): Array<string> {
-  return tokensKeys.map(obtainToken);
 }
 
 export function canHisConfigBeRestored(uuid: string) {

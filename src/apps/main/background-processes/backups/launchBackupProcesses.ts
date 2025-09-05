@@ -7,6 +7,7 @@ import { isAvailableBackups } from '../../ipcs/ipcMainAntivirus';
 import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
+import { buildFileUploader } from './build-file-uploader';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -59,8 +60,10 @@ export async function launchBackupProcesses(
       break;
     }
 
+    const { fileUploader } = buildFileUploader({ bucket: backupInfo.backupsBucket });
     const context: BackupsContext = {
       ...backupInfo,
+      fileUploader,
       abortController,
       addIssue: (issue) => {
         addBackupsIssue({

@@ -1,26 +1,23 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { FileCreator } from '../../files/application/FileCreator';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FilePath } from '../../files/domain/FilePath';
 import { Stats } from 'fs';
 import { ContentsUploader } from '../../contents/application/ContentsUploader';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   path: RelativePath;
   absolutePath: AbsolutePath;
   stats: Stats;
 };
 
 export class FileCreationOrchestrator {
-  constructor(
-    private readonly contentsUploader: ContentsUploader,
-    private readonly fileCreator: FileCreator,
-  ) {}
+  constructor(private readonly fileCreator: FileCreator) {}
 
-  async run({ path, absolutePath, stats }: TProps) {
-    const filePath = new FilePath(path);
-
-    const fileContents = await this.contentsUploader.run({ path, stats });
+  async run({ ctx, path, absolutePath, stats }: TProps): Promise<FileUuid> {
+    const fileContents = await ContentsUploader.run({ ctx, absolutePath, path, stats });
 
     logger.debug({
       tag: 'SYNC-ENGINE',
@@ -31,7 +28,8 @@ export class FileCreationOrchestrator {
     });
 
     const createdFile = await this.fileCreator.run({
-      filePath,
+      ctx,
+      path,
       contents: fileContents,
       absolutePath,
     });

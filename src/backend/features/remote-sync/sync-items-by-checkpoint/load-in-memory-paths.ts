@@ -1,53 +1,47 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { readdir } from 'fs/promises';
-import { join } from 'path';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { virtualDrive } from '@/apps/sync-engine/dependency-injection/common/virtualDrive';
+import { Stats } from 'fs';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
-export type InMemoryFiles = Record<FileUuid, AbsolutePath>;
+export type InMemoryFiles = Record<
+  FileUuid,
+  {
+    absolutePath: AbsolutePath;
+    stats: Stats;
+  }
+>;
 export type InMemoryFolders = Record<FolderUuid, AbsolutePath>;
 
-export async function loadInMemoryPaths() {
+export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
   const files: InMemoryFiles = {};
   const folders: InMemoryFolders = {};
 
-  const rootPath = virtualDrive.syncRootPath;
+  const rootPath = ctx.virtualDrive.syncRootPath;
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath });
 
-  const folderPaths = [rootPath];
+  const items = await fileSystem.syncWalk({ rootFolder: rootPath });
 
-  while (folderPaths.length > 0) {
-    const folderPath = folderPaths.shift();
-    if (!folderPath) continue;
+  for (const item of items) {
+    const { absolutePath, stats } = item;
 
-    /**
-     * v2.5.6 Daniel Jiménez
-     * We cannot use `withFileTypes` because it treats everything as a symbolic link,
-     * so we have to use `stat` for each entry.
-     */
-    const entries = await readdir(folderPath);
+    if (!stats) continue;
 
-    for (const entry of entries) {
-      const absolutePath = join(folderPath, entry) as AbsolutePath;
-      const { data: stats } = await fileSystem.stat({ absolutePath });
+    if (stats.isDirectory()) {
+      const { data: uuid } = NodeWin.getFolderUuid({ drive: ctx.virtualDrive, path: absolutePath });
+      if (uuid) {
+        folders[uuid] = absolutePath;
+      }
+    }
 
-      if (stats) {
-        if (stats.isDirectory()) {
-          folderPaths.push(absolutePath);
-
-          const { data: uuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: absolutePath });
-          if (uuid) folders[uuid] = absolutePath;
-        }
-
-        if (stats.isFile()) {
-          const { data: uuid } = NodeWin.getFileUuid({ drive: virtualDrive, path: absolutePath });
-          if (uuid) files[uuid] = absolutePath;
-        }
+    if (stats.isFile()) {
+      const { data: uuid } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path: absolutePath });
+      if (uuid) {
+        files[uuid] = { stats, absolutePath };
       }
     }
   }

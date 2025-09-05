@@ -2,8 +2,8 @@ import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
 import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
-import { checkUserData, createTokenSchedule } from './refresh-token';
-import { canHisConfigBeRestored, encryptToken, getUser, setCredentials } from './service';
+import { createTokenSchedule, RefreshTokenError } from './refresh-token';
+import { canHisConfigBeRestored, getUser, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
@@ -28,8 +28,8 @@ export function getIsLoggedIn() {
 }
 
 export function onUserUnauthorized() {
-  eventBus.emit('USER_LOGGED_OUT');
   logger.debug({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
+  eventBus.emit('USER_LOGGED_OUT');
   setIsLoggedIn(false);
 }
 
@@ -37,30 +37,31 @@ export async function checkIfUserIsLoggedIn() {
   const user = getUser();
 
   if (user && user.needLogout === undefined) {
-    logger.debug({
-      msg: 'User need logout is undefined',
-    });
+    logger.debug({ tag: 'AUTH', msg: 'User need logout is undefined' });
     eventBus.emit('USER_LOGGED_OUT');
     setIsLoggedIn(false);
   }
 
   if (!isLoggedIn) return;
 
-  await checkUserData();
-  encryptToken();
-  await createTokenSchedule();
+  try {
+    await createTokenSchedule();
+  } catch (exc) {
+    if (exc instanceof RefreshTokenError) return;
+    else throw exc;
+  }
+
   await emitUserLoggedIn();
 }
 
 export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
-  ipcMain.handle('GET_HEADERS', () => getAuthHeaders());
+  ipcMain.handle('GET_HEADERS', getAuthHeaders);
 
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
     setCredentials({
       userData: data.user,
-      bearerToken: data.token,
       newToken: data.newToken,
       password: data.password,
     });
@@ -74,7 +75,6 @@ export function setupAuthIpcHandlers() {
 
   ipcMainSyncEngine.on('USER_LOGGED_OUT', () => {
     eventBus.emit('USER_LOGGED_OUT');
-
     setIsLoggedIn(false);
   });
 }

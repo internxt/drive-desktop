@@ -1,44 +1,43 @@
-import { FilePath } from '../domain/FilePath';
-import { RemoteFileContents } from '../../contents/domain/RemoteFileContents';
-import { PlatformPathConverter } from '../../shared/application/PlatformPathConverter';
 import { HttpRemoteFileSystem } from '../infrastructure/HttpRemoteFileSystem';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderNotFoundError } from '../../folders/domain/errors/FolderNotFoundError';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ContentsId } from '@/apps/main/database/entities/DriveFile';
+import { basename } from 'path';
 
 type Props = {
-  filePath: FilePath;
+  ctx: ProcessSyncContext;
+  path: RelativePath;
   absolutePath: AbsolutePath;
-  contents: RemoteFileContents;
+  contents: {
+    id: ContentsId;
+    size: number;
+  };
 };
 
 export class FileCreator {
-  constructor(
-    private readonly remote: HttpRemoteFileSystem,
-    private readonly virtualDrive: VirtualDrive,
-  ) {}
+  constructor(private readonly remote: HttpRemoteFileSystem) {}
 
-  async run({ filePath, absolutePath, contents }: Props) {
+  async run({ ctx, path, absolutePath, contents }: Props) {
     try {
-      const posixDir = PlatformPathConverter.getFatherPathPosix(filePath.value);
+      const parentPath = pathUtils.dirname(path);
       const { data: folderUuid } = NodeWin.getFolderUuid({
-        drive: this.virtualDrive,
-        path: posixDir,
+        drive: ctx.virtualDrive,
+        path: parentPath,
       });
 
       if (!folderUuid) {
-        throw new FolderNotFoundError(posixDir);
+        throw new FolderNotFoundError(parentPath);
       }
 
       const fileDto = await this.remote.persist({
         contentsId: contents.id,
         folderUuid,
-        path: filePath.value,
+        path,
         size: contents.size,
       });
 
@@ -61,13 +60,13 @@ export class FileCreator {
       logger.error({
         tag: 'SYNC-ENGINE',
         msg: 'Error in file creator',
-        filePath: filePath.value,
+        path,
         exc: error,
       });
 
       ipcRendererSyncEngine.send('FILE_UPLOAD_ERROR', {
         key: absolutePath,
-        nameWithExtension: filePath.nameWithExtension(),
+        nameWithExtension: basename(path),
       });
 
       throw error;
