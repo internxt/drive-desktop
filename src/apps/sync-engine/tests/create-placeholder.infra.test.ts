@@ -39,24 +39,37 @@ describe('create-placeholder', () => {
   const file = join(rootPath, 'file.txt');
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 
+  setDefaultConfig({
+    rootPath,
+    providerName: 'Internxt Drive',
+    providerId,
+    rootUuid: rootFolderUuid as FolderUuid,
+    queueManagerPath,
+  });
+
+  const config = getConfig();
+  const ctx: ProcessSyncContext = {
+    ...config,
+    virtualDrive: new VirtualDrive(config),
+    fileUploader: environmentFileUploader,
+    abortController: new AbortController(),
+  };
+
+  const container = DependencyContainerFactory.build({ ctx });
+  const bindingManager = new BindingsManager(container);
+
   beforeEach(() => {
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
     environmentFileUploader.run.mockResolvedValueOnce({ data: '012345678901234567890123' as ContentsId });
   });
 
   afterAll(() => {
+    bindingManager.stop({ ctx });
     VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
   it('should create placeholder', async () => {
     // Given
-    setDefaultConfig({
-      rootPath,
-      providerName: 'Internxt Drive',
-      providerId,
-      rootUuid: rootFolderUuid as FolderUuid,
-      queueManagerPath,
-    });
 
     invokeMock.mockImplementation((event) => {
       if (event === 'GET_UPDATED_REMOTE_ITEMS') {
@@ -105,7 +118,7 @@ describe('create-placeholder', () => {
     };
 
     const container = DependencyContainerFactory.build({ ctx });
-    const bindingManager = new BindingsManager(ctx, container);
+    const bindingManager = new BindingsManager(container);
 
     // When
     await bindingManager.start({ ctx });
@@ -116,7 +129,7 @@ describe('create-placeholder', () => {
     await sleep(5000);
 
     // Then
-    const status = container.virtualDrive.getPlaceholderState({ path: file });
+    const status = ctx.virtualDrive.getPlaceholderState({ path: file });
     expect(status.pinState).toBe(PinState.AlwaysLocal);
     expect(getMockCalls(onAllMock)).toStrictEqual([{ event: 'add', path: file }]);
   });

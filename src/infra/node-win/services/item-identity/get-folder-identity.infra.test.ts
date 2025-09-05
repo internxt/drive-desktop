@@ -5,7 +5,6 @@ import { join } from 'path';
 import { v4 } from 'uuid';
 import { mockDeep } from 'vitest-mock-extended';
 import { Callbacks } from '@/node-win/types/callbacks.type';
-import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { getFolderIdentity, GetFolderIdentityError } from './get-folder-identity';
 
 describe('get-folder-identity', () => {
@@ -14,10 +13,11 @@ describe('get-folder-identity', () => {
   const providerId = `{${v4()}}`;
   const testPath = join(TEST_FILES, v4());
   const rootPath = join(testPath, v4());
+
   const virtualDrive = new VirtualDrive({ rootPath, providerId, loggerPath: '' });
 
   beforeAll(() => {
-    virtualDrive.registerSyncRoot({ providerName: 'Internxt Drive', providerVersion: INTERNXT_VERSION });
+    virtualDrive.registerSyncRoot({ providerName: 'Internxt Drive' });
     virtualDrive.connectSyncRoot({ callbacks });
   });
 
