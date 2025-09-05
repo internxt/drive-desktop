@@ -42,6 +42,7 @@ module.exports = {
     'no-async-promise-executor': 'warn',
     'no-await-in-loop': 'off',
     'no-empty': 'off',
+    'no-extra-boolean-cast': 'error',
     'no-throw-literal': 'error',
     'no-unused-expressions': 'off',
     'no-use-before-define': ['warn', { functions: false }],

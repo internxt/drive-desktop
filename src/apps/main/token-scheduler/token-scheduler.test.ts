@@ -42,9 +42,7 @@ describe('Token Scheduler', () => {
   });
 
   it.each(dataSet)('schedules the token refresh n days before fist token expiration', (data) => {
-    scheduler = new TokenScheduler(data.daysBefore, [jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays], () => {
-      // no op
-    });
+    scheduler = new TokenScheduler(data.daysBefore, [jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays]);
 
     const schedule = scheduler.schedule(task);
 
@@ -54,9 +52,7 @@ describe('Token Scheduler', () => {
   });
 
   it('shcedules to refresh even if a token does not expire', () => {
-    scheduler = new TokenScheduler(4, [jwtWithoutExpiration, jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays], () => {
-      // no op
-    });
+    scheduler = new TokenScheduler(4, [jwtWithoutExpiration, jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays]);
 
     const expectedExpireDay = calculateDayFromToday('26 days');
 
@@ -69,9 +65,7 @@ describe('Token Scheduler', () => {
   });
 
   it('schedules to refresh even if a token is not valid', () => {
-    scheduler = new TokenScheduler(4, [invalidToken, jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays], () => {
-      // no op
-    });
+    scheduler = new TokenScheduler(4, [invalidToken, jwtExpiresInThirtyDays, jwtExpiresInThirtyOneDays]);
 
     const schedule = scheduler.schedule(task);
 
@@ -79,9 +73,7 @@ describe('Token Scheduler', () => {
   });
 
   it('shedules to refresh even if a token is not valid or does not expire', () => {
-    scheduler = new TokenScheduler(7, [jwtWithoutExpiration, jwtExpiresInThirtyDays, invalidToken, jwtExpiresInThirtyOneDays], () => {
-      // no op
-    });
+    scheduler = new TokenScheduler(7, [jwtWithoutExpiration, jwtExpiresInThirtyDays, invalidToken, jwtExpiresInThirtyOneDays]);
 
     const schedule = scheduler.schedule(task);
 
@@ -89,9 +81,7 @@ describe('Token Scheduler', () => {
   });
 
   it('does not schedule if any token expires', () => {
-    scheduler = new TokenScheduler(7, [jwtWithoutExpiration], () => {
-      // no op
-    });
+    scheduler = new TokenScheduler(7, [jwtWithoutExpiration]);
 
     const schedule = scheduler.schedule(task);
 
@@ -99,9 +89,7 @@ describe('Token Scheduler', () => {
   });
 
   it('does not schedules if any token is valid', () => {
-    scheduler = new TokenScheduler(7, [invalidToken], () => {
-      // no op
-    });
+    scheduler = new TokenScheduler(7, [invalidToken]);
 
     const schedule = scheduler.schedule(task);
 
