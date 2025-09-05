@@ -2,7 +2,6 @@ import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { Callbacks } from '@/node-win/types/callbacks.type';
-import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
 import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
@@ -27,11 +26,7 @@ export class BindingsManager {
 
     this.stop({ ctx });
 
-    ctx.virtualDrive.registerSyncRoot({
-      providerName: ctx.providerName,
-      providerVersion: INTERNXT_VERSION,
-    });
-
+    ctx.virtualDrive.registerSyncRoot({ providerName: ctx.providerName });
     ctx.virtualDrive.connectSyncRoot({ callbacks });
 
     /**

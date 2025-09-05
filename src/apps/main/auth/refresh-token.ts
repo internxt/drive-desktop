@@ -29,7 +29,7 @@ export async function createTokenSchedule(refreshedToken?: string) {
   const schedule = shceduler.schedule(refreshToken);
 
   if (!schedule && !refreshedToken) {
-    logger.debug({ msg: 'Refreshing tokens' });
+    logger.debug({ msg: 'Refreshing token' });
     createTokenSchedule(await refreshToken());
   }
 }

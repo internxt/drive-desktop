@@ -5,7 +5,6 @@ import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { join } from 'path';
 import { getMockCalls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { writeFile } from 'fs/promises';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { mockDeep } from 'vitest-mock-extended';
@@ -22,10 +21,9 @@ describe('sync-remote-changes-to-local', () => {
   partialSpyOn(debounceOnRaw, 'debounceOnRaw');
   const onAllMock = partialSpyOn(onAll, 'onAll');
 
-  const providerName = 'Internxt Drive1';
-  const providerVersion = INTERNXT_VERSION;
+  const providerName = 'Internxt Drive';
   const testPath = join(TEST_FILES, v4());
-  const rootPath = join(testPath, 'root');
+  const rootPath = join(testPath, 'root') as AbsolutePath;
   const filePath = join(rootPath, 'file.txt');
   const rootUuid = v4();
   const providerId = `{${rootUuid.toUpperCase()}}`;
@@ -33,7 +31,7 @@ describe('sync-remote-changes-to-local', () => {
   const callbacks = mockDeep<Callbacks>();
 
   beforeEach(() => {
-    virtualDrive.registerSyncRoot({ providerName, providerVersion });
+    virtualDrive.registerSyncRoot({ providerName });
     virtualDrive.connectSyncRoot({ callbacks });
   });
 
@@ -46,7 +44,7 @@ describe('sync-remote-changes-to-local', () => {
     // Given
     const createWatcherProps = mockProps<typeof createWatcher>({ ctx: { virtualDrive } });
     const { watcher } = createWatcher(createWatcherProps);
-    const watcherProps = mockProps<typeof watcher.watchAndWait>({});
+    const watcherProps = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
     watcher.watchAndWait(watcherProps);
     await sleep(100);
 
