@@ -3,19 +3,17 @@ import jwtDecode, { JwtPayload } from 'jwt-decode';
 import nodeSchedule from 'node-schedule';
 import { onUserUnauthorized } from '../auth/handlers';
 
+const DAYS_BEFORE = 5;
 const FIVE_SECONDS = 5 * 60;
 
 export class TokenScheduler {
   private static MAX_TIME = 8640000000000000;
 
-  constructor(
-    private daysBefore: number,
-    private tokens: Array<string>,
-  ) {}
+  constructor(private token: string) {}
 
-  private getExpiration(token: string): number {
+  private getExpiration(): number {
     try {
-      const decoded = jwtDecode<JwtPayload>(token);
+      const decoded = jwtDecode<JwtPayload>(this.token);
 
       return decoded.exp || TokenScheduler.MAX_TIME;
     } catch (exc) {
@@ -24,14 +22,8 @@ export class TokenScheduler {
     }
   }
 
-  private nearestExpiration(): number {
-    const expirations = this.tokens.map(this.getExpiration);
-
-    return Math.min(...expirations);
-  }
-
   private calculateRenewDate(expiration: number): Date {
-    const renewSecondsBefore = this.daysBefore * 24 * 60 * 60;
+    const renewSecondsBefore = DAYS_BEFORE * 24 * 60 * 60;
 
     const renewDateInSeconds = expiration - renewSecondsBefore;
 
@@ -46,7 +38,7 @@ export class TokenScheduler {
   }
 
   public schedule(fn: () => void) {
-    const expiration = this.nearestExpiration();
+    const expiration = this.getExpiration();
 
     if (expiration === TokenScheduler.MAX_TIME) {
       logger.warn({ msg: '[TOKEN] Refresh token schedule will not be set' });

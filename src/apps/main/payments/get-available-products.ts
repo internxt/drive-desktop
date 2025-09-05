@@ -5,7 +5,7 @@ import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { getUserAvailableProducts, logger } from '@internxt/drive-desktop-core/build/backend';
 
 export function getAvailableProducts() {
-  const newToken = obtainToken('newToken');
+  const newToken = obtainToken();
 
   logger.debug({ msg: 'Get user products' });
 

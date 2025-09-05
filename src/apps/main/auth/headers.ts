@@ -9,7 +9,7 @@ export const HEADERS = {
 };
 
 export function getAuthHeaders(): Record<string, string> {
-  const token = obtainToken('newToken');
+  const token = obtainToken();
 
   return {
     Authorization: `Bearer ${token}`,

@@ -28,8 +28,8 @@ export function getIsLoggedIn() {
 }
 
 export function onUserUnauthorized() {
-  eventBus.emit('USER_LOGGED_OUT');
   logger.debug({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
+  eventBus.emit('USER_LOGGED_OUT');
   setIsLoggedIn(false);
 }
 
@@ -37,9 +37,7 @@ export async function checkIfUserIsLoggedIn() {
   const user = getUser();
 
   if (user && user.needLogout === undefined) {
-    logger.debug({
-      msg: 'User need logout is undefined',
-    });
+    logger.debug({ tag: 'AUTH', msg: 'User need logout is undefined' });
     eventBus.emit('USER_LOGGED_OUT');
     setIsLoggedIn(false);
   }
@@ -59,7 +57,7 @@ export async function checkIfUserIsLoggedIn() {
 export function setupAuthIpcHandlers() {
   ipcMain.handle('is-user-logged-in', getIsLoggedIn);
   ipcMain.handle('get-user', getUser);
-  ipcMain.handle('GET_HEADERS', () => getAuthHeaders());
+  ipcMain.handle('GET_HEADERS', getAuthHeaders);
 
   ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
     setCredentials({
@@ -77,7 +75,6 @@ export function setupAuthIpcHandlers() {
 
   ipcMainSyncEngine.on('USER_LOGGED_OUT', () => {
     eventBus.emit('USER_LOGGED_OUT');
-
     setIsLoggedIn(false);
   });
 }
