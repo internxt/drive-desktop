@@ -6,6 +6,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 import * as trackAddFileEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-file'));
@@ -13,6 +14,7 @@ vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move
 describe('on-add', () => {
   const getFileUuidMock = deepMocked(NodeWin.getFileUuid);
   const moveFileMock = vi.mocked(moveFile);
+  const createFileMock = partialSpyOn(AddController, 'createFile');
   const trackAddFileEventMock = partialSpyOn(trackAddFileEvent, 'trackAddFileEvent');
 
   const absolutePath = 'C:\\Users\\user\\drive\\file.txt' as AbsolutePath;
@@ -22,12 +24,11 @@ describe('on-add', () => {
   beforeEach(() => {
     getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof onAdd>({
+      ctx: { virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath } },
       absolutePath,
       self: {
         fileInDevice: new Set(),
         logger: loggerMock,
-        callbacks: { addController: { createFile: vi.fn() } },
-        virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },
       },
     });
   });
@@ -39,7 +40,7 @@ describe('on-add', () => {
     await onAdd(props);
     // Then
     expect(props.self.fileInDevice.has(absolutePath)).toBe(true);
-    expect(props.self.callbacks.addController.createFile).toBeCalledWith(
+    expect(createFileMock).toBeCalledWith(
       expect.objectContaining({
         path: '/drive/file.txt',
       }),

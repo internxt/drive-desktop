@@ -21,12 +21,11 @@ describe('on-add-dir', () => {
 
   beforeEach(() => {
     props = mockProps<typeof onAddDir>({
-      ctx: {},
+      ctx: { virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath } },
       absolutePath: 'C:\\Users\\user\\drive\\folder' as AbsolutePath,
       self: {
         queueManager: { enqueue: vi.fn() },
         logger: loggerMock,
-        virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath },
       },
     });
   });

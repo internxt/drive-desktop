@@ -3,17 +3,14 @@ import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exi
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
-import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { temporalFolderProvider } from './temporalFolderProvider';
 import { logger } from '@/apps/shared/logger/logger';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
+import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 
 export class ContentsDownloader {
-  constructor(
-    private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory,
-    private readonly localWriter: FSLocalFileWriter,
-  ) {}
+  constructor(private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory) {}
 
   private downloaderIntance: EnvironmentContentFileDownloader | null = null;
   private downloaderIntanceCB: CallbackDownload | null = null;
@@ -76,7 +73,7 @@ export class ContentsDownloader {
 
     const readable = await downloader.download({ contentsId: file.contentsId });
 
-    const write = await this.localWriter.write({ file, readable });
+    const write = await FSLocalFileWriter.write({ file, readable });
 
     return write;
   }

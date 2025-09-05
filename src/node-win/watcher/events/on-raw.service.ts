@@ -15,7 +15,7 @@ type TProps = {
 export async function onRaw({ ctx, self, event, absolutePath, details }: TProps) {
   if (event === 'change' && details.prev && details.curr) {
     const path = pathUtils.absoluteToRelative({
-      base: self.virtualDrive.syncRootPath,
+      base: ctx.virtualDrive.syncRootPath,
       path: absolutePath,
     });
 

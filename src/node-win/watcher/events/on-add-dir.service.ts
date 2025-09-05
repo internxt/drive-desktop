@@ -14,7 +14,7 @@ type TProps = {
 
 export async function onAddDir({ ctx, self, absolutePath }: TProps) {
   const path = pathUtils.absoluteToRelative({
-    base: self.virtualDrive.syncRootPath,
+    base: ctx.virtualDrive.syncRootPath,
     path: absolutePath,
   });
 

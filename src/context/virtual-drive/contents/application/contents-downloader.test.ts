@@ -12,8 +12,8 @@ import * as temporalFolderProvider from './temporalFolderProvider';
 
 describe('Contents Downloader', () => {
   const temporalFolderProviderMock = partialSpyOn(temporalFolderProvider, 'temporalFolderProvider');
+  const writeMock = partialSpyOn(FSLocalFileWriter, 'write');
 
-  const localWriter = mockDeep<FSLocalFileWriter>();
   const factory = mockDeep<EnvironmentRemoteFileContentsManagersFactory>();
 
   const environmentContentFileDownloader = mockDeep<EnvironmentContentFileDownloader>();
@@ -34,7 +34,7 @@ describe('Contents Downloader', () => {
     });
   };
 
-  const SUT = new ContentsDownloader(factory, localWriter);
+  const SUT = new ContentsDownloader(factory);
 
   const props = mockProps<typeof SUT.run>({
     callback: callbackFunction,
@@ -64,7 +64,7 @@ describe('Contents Downloader', () => {
 
     await SUT.run(props);
 
-    expect(localWriter.write).toBeCalledWith(
+    expect(writeMock).toBeCalledWith(
       expect.objectContaining({
         file: {
           nameWithExtension: 'file.txt',

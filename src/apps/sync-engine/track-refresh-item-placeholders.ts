@@ -1,11 +1,9 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ProcessSyncContext } from './config';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 
 type Props = {
   ctx: ProcessSyncContext;
-  container: DependencyContainer;
 };
 
 export const store = {
@@ -13,7 +11,7 @@ export const store = {
   queued: false,
 };
 
-export async function trackRefreshItemPlaceholders({ ctx, container }: Props) {
+export async function trackRefreshItemPlaceholders({ ctx }: Props) {
   if (store.running) {
     store.queued = true;
     return;
@@ -26,7 +24,7 @@ export async function trackRefreshItemPlaceholders({ ctx, container }: Props) {
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Refreshing item placeholders', workspaceId });
 
-  await refreshItemPlaceholders({ ctx, container, workspaceId });
+  await refreshItemPlaceholders({ ctx, workspaceId });
 
   const endTime = performance.now();
 
@@ -41,6 +39,6 @@ export async function trackRefreshItemPlaceholders({ ctx, container }: Props) {
 
   if (store.queued) {
     store.queued = false;
-    void trackRefreshItemPlaceholders({ ctx, container });
+    void trackRefreshItemPlaceholders({ ctx });
   }
 }

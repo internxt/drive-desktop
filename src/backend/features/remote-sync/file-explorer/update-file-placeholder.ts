@@ -3,15 +3,12 @@ import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { rename } from 'fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FilePlaceholderUpdater {
-  constructor(private readonly virtualDrive: VirtualDrive) {}
-
-  async update({ ctx, remote, files }: { ctx: ProcessSyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
+  static async update({ ctx, remote, files }: { ctx: ProcessSyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
     const { path } = remote;
 
     try {
@@ -22,7 +19,7 @@ export class FilePlaceholderUpdater {
       const localPath = files[remote.uuid as FileUuid];
 
       if (!localPath) {
-        this.virtualDrive.createFileByPath({
+        ctx.virtualDrive.createFileByPath({
           itemPath: path,
           itemId: `FILE:${remote.uuid}`,
           size: remote.size,
@@ -45,7 +42,7 @@ export class FilePlaceholderUpdater {
       }
 
       await syncRemoteChangesToLocal({
-        virtualDrive: this.virtualDrive,
+        virtualDrive: ctx.virtualDrive,
         local: localPath,
         remote,
       });
@@ -59,7 +56,7 @@ export class FilePlaceholderUpdater {
     }
   }
 
-  async run({ ctx, remotes, files }: { ctx: ProcessSyncContext; remotes: ExtendedDriveFile[]; files: InMemoryFiles }) {
+  static async run({ ctx, remotes, files }: { ctx: ProcessSyncContext; remotes: ExtendedDriveFile[]; files: InMemoryFiles }) {
     const promises = remotes.map((remote) => this.update({ ctx, remote, files }));
     await Promise.all(promises);
   }

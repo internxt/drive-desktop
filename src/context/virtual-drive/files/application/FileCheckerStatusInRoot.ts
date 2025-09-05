@@ -1,13 +1,18 @@
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { PinState } from '@/node-win/types/placeholder.type';
-import VirtualDrive from '@/node-win/virtual-drive';
+
+type Props = {
+  ctx: ProcessSyncContext;
+  paths: RelativePath[];
+};
 
 export class FileCheckerStatusInRoot {
-  constructor(private readonly virtualDrive: VirtualDrive) {}
+  static isHydrated({ ctx, paths }: Props) {
+    const fileOnlineOnly: Record<RelativePath, boolean> = {};
 
-  public isHydrated(paths: string[]): Record<string, boolean> {
-    const fileOnlineOnly: Record<string, boolean> = {};
     for (const path of paths) {
-      const placeholderStatus = this.virtualDrive.getPlaceholderState({ path });
+      const placeholderStatus = ctx.virtualDrive.getPlaceholderState({ path });
 
       if (placeholderStatus.pinState == PinState.OnlineOnly) {
         fileOnlineOnly[path] = false;

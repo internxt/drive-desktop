@@ -1,4 +1,3 @@
-import { FileCreationOrchestrator } from '../../../../context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import { logger } from '@/apps/shared/logger/logger';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createFile } from '@/features/sync/add-item/create-file';
@@ -13,9 +12,7 @@ export class AddController {
   // - a folder has been added
   // - a file has been saved
 
-  constructor(private readonly fileCreationOrchestrator: FileCreationOrchestrator) {}
-
-  async createFile({
+  static async createFile({
     ctx,
     absolutePath,
     path,
@@ -49,7 +46,6 @@ export class AddController {
         ctx,
         absolutePath,
         path,
-        fileCreationOrchestrator: this.fileCreationOrchestrator,
         stats,
       });
     } catch (error) {

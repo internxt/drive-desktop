@@ -17,7 +17,6 @@ export class DependencyContainerFactory {
       ...filesContainer,
       ...sharedContainer,
       ...boundaryBridgeContainer,
-      virtualDrive: ctx.virtualDrive,
     };
 
     return container;

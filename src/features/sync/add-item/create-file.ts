@@ -12,13 +12,12 @@ type TProps = {
   ctx: ProcessSyncContext;
   absolutePath: AbsolutePath;
   path: RelativePath;
-  fileCreationOrchestrator: FileCreationOrchestrator;
   stats: Stats;
 };
 
-export async function createFile({ ctx, absolutePath, path, fileCreationOrchestrator, stats }: TProps) {
+export async function createFile({ ctx, absolutePath, path, stats }: TProps) {
   try {
-    const uuid = await fileCreationOrchestrator.run({ ctx, path, absolutePath, stats });
+    const uuid = await FileCreationOrchestrator.run({ ctx, path, absolutePath, stats });
     const placeholderId = createFilePlaceholderId(uuid);
     ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
     updateFileStatus({ ctx, path });
@@ -29,7 +28,6 @@ export async function createFile({ ctx, absolutePath, path, fileCreationOrchestr
         ctx,
         absolutePath,
         path,
-        fileCreationOrchestrator,
         stats,
       });
     } else {
