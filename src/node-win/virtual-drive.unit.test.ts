@@ -6,6 +6,7 @@ import { addon } from '@/node-win/addon';
 import VirtualDrive from './virtual-drive';
 import { iconPath } from '@/apps/utils/icon';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { INTERNXT_VERSION } from '@/core/utils/utils';
 
 vi.mock(import('fs'));
 vi.mock(import('@/node-win/addon'));
@@ -159,11 +160,10 @@ describe('VirtualDrive', () => {
     it('Then it assigns callbacks and calls addon.registerSyncRoot', () => {
       // Given
       const providerName = 'InternxtDrive';
-      const providerVersion = '1.0.0';
       // When
-      drive.registerSyncRoot({ providerName, providerVersion });
+      drive.registerSyncRoot({ providerName });
       // Then
-      expect(addon.registerSyncRoot).toBeCalledWith('C:\\Users\\user\\InternxtDrive', providerName, providerVersion, providerId, iconPath);
+      expect(addon.registerSyncRoot).toBeCalledWith('C:\\Users\\user\\InternxtDrive', providerName, INTERNXT_VERSION, providerId, iconPath);
     });
   });
 });
