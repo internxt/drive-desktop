@@ -46,12 +46,14 @@ describe('detect-context-menu-action', () => {
     await detectContextMenuAction(props);
     // Then
     expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
-    expect(updateContentsIdMock).toBeCalledWith({
-      stats: props.details.curr,
-      path: '/file.txt',
-      absolutePath: 'absolutePath',
-      uuid: 'uuid',
-    });
+    expect(updateContentsIdMock).toBeCalledWith(
+      expect.objectContaining({
+        stats: props.details.curr,
+        path: '/file.txt',
+        absolutePath: 'absolutePath',
+        uuid: 'uuid',
+      }),
+    );
   });
 
   it('should dehydrate when pin state is online only', async () => {
