@@ -10,6 +10,7 @@ export default defineConfig({
       reportOnFailure: true,
     },
     clearMocks: true,
+    include: ['**/sync-remote-changes-to-local.infra.test.ts'],
     exclude: ['**/*.helper.test.ts', '**/node_modules', 'src/apps/renderer/**/*.test.{ts,tsx}'],
     globals: true,
     reporters: ['verbose'],
