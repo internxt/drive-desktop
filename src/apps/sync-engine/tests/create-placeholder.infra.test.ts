@@ -56,7 +56,7 @@ describe('create-placeholder', () => {
   };
 
   const container = DependencyContainerFactory.build({ ctx });
-  const bindingManager = new BindingsManager(ctx, container);
+  const bindingManager = new BindingsManager(container);
 
   beforeEach(() => {
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
@@ -64,7 +64,7 @@ describe('create-placeholder', () => {
   });
 
   afterAll(() => {
-    bindingManager.stop();
+    bindingManager.stop({ ctx });
     VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
@@ -109,6 +109,17 @@ describe('create-placeholder', () => {
       },
     });
 
+    const config = getConfig();
+    const ctx: ProcessSyncContext = {
+      ...config,
+      virtualDrive: new VirtualDrive(config),
+      fileUploader: environmentFileUploader,
+      abortController: new AbortController(),
+    };
+
+    const container = DependencyContainerFactory.build({ ctx });
+    const bindingManager = new BindingsManager(container);
+
     // When
     await bindingManager.start({ ctx });
     bindingManager.watch({ ctx });
@@ -118,7 +129,7 @@ describe('create-placeholder', () => {
     await sleep(5000);
 
     // Then
-    const status = container.virtualDrive.getPlaceholderState({ path: file });
+    const status = ctx.virtualDrive.getPlaceholderState({ path: file });
     expect(status.pinState).toBe(PinState.AlwaysLocal);
     expect(getMockCalls(onAllMock)).toStrictEqual([{ event: 'add', path: file }]);
   });
