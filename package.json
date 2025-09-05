@@ -21,7 +21,7 @@
     "format": "prettier src tests --check",
     "format:fix": "prettier src tests --write",
     "type-check": "tsc",
-    "find-deadcode": "ts-prune -i schema.d.ts -e",
+    "find-deadcode": "ts-prune -i schema.ts -e",
     "========== Start ==========": "",
     "start": "npm run start:renderer",
     "start:nodemon": "nodemon",
@@ -42,8 +42,8 @@
     "========== Other ==========": "",
     "clamav": "powershell release/clamAV.ps1",
     "prepare": "husky install",
-    "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",
-    "swagger_prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/apps/shared/HttpClient/schema.d.ts",
+    "swagger_dev": "openapi-typescript http://localhost:3004/api-json -o ./src/apps/shared/HttpClient/schema.ts",
+    "swagger_prod": "openapi-typescript https://gateway.internxt.com/drive/api-json -o ./src/apps/shared/HttpClient/schema.ts",
     "depcheck": "depcheck"
   },
   "build": {
