@@ -1,35 +1,25 @@
-import { IControllers, buildControllers } from './callbacks-controllers/buildControllers';
-import { DependencyContainer } from './dependency-injection/DependencyContainer';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
-import { ipcRenderer } from 'electron';
-import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
 import { ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
-import { Traverser, Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
 import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
 import { fetchData } from './callbacks/fetchData.service';
+import { ProcessContainer } from './build-process-container';
 
 export class BindingsManager {
-  controllers: IControllers;
-
-  constructor(public readonly container: DependencyContainer) {
-    this.controllers = buildControllers(this.container);
-  }
-
-  async start({ ctx }: { ctx: ProcessSyncContext }) {
+  static async start({ ctx, container }: { ctx: ProcessSyncContext; container: ProcessContainer }) {
     const callbacks: Callbacks = {
       fetchDataCallback: async (filePlaceholderId, callback) => {
         await fetchData({
-          self: this,
+          container,
           filePlaceholderId,
           callback,
         });
       },
       cancelFetchDataCallback: () => {
-        this.controllers.downloadFile.cancel();
+        container.downloadFile.cancel();
         logger.debug({ msg: 'cancelFetchDataCallback' });
       },
     };
@@ -57,53 +47,19 @@ export class BindingsManager {
     void addPendingItems({ ctx });
   }
 
-  watch({ ctx }: { ctx: ProcessSyncContext }) {
+  static watch({ ctx }: { ctx: ProcessSyncContext }) {
     const { queueManager, watcher } = createWatcher({ ctx });
 
     watcher.watchAndWait({ ctx });
 
-    void this.polling({ ctx });
     void queueManager.processQueue();
   }
 
-  stop({ ctx }: { ctx: ProcessSyncContext }) {
+  static stop({ ctx }: { ctx: ProcessSyncContext }) {
     ctx.virtualDrive.disconnectSyncRoot();
   }
 
-  async load(ctx: ProcessSyncContext, tree: Tree): Promise<void> {
-    const addFilePromises = tree.files.map((file) => this.container.fileRepository.add(file));
-    await Promise.all([addFilePromises]);
-    logger.debug({ msg: 'In memory repositories loaded', workspaceId: ctx.workspaceId });
-  }
-
-  async polling({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
-    const workspaceId = ctx.workspaceId;
-
-    logger.debug({
-      tag: 'SYNC-ENGINE',
-      msg: 'Polling',
-      workspaceId,
-    });
-
-    try {
-      const tree = await Traverser.run({ ctx });
-      await this.load(ctx, tree);
-      await this.container.fileDangledManager.run({ ctx });
-    } catch (error) {
-      logger.error({ msg: '[SYNC ENGINE] Polling error', workspaceId, error });
-    }
-
-    logger.debug({ msg: '[SYNC ENGINE] Polling finished', workspaceId });
-
-    void DangledFilesManager.getInstance().pushAndClean(async (input: PushAndCleanInput) => {
-      await ipcRenderer.invoke('UPDATE_FIXED_FILES', {
-        toUpdate: input.toUpdateContentsIds,
-        toDelete: input.toDeleteContentsIds,
-      });
-    });
-  }
-
-  async updateAndCheckPlaceholders({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
+  static async updateAndCheckPlaceholders({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
     const workspaceId = ctx.workspaceId;
 
     try {

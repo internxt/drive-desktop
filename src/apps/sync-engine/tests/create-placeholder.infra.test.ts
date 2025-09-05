@@ -1,6 +1,5 @@
 import { join } from 'node:path';
 import { BindingsManager } from '../BindingManager';
-import { DependencyContainerFactory } from '../dependency-injection/DependencyContainerFactory';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { getConfig, ProcessSyncContext, setDefaultConfig } from '../config';
@@ -18,6 +17,7 @@ import { ipcRenderer } from 'electron';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
+import { buildProcessContainer } from '../build-process-container';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -55,16 +55,13 @@ describe('create-placeholder', () => {
     abortController: new AbortController(),
   };
 
-  const container = DependencyContainerFactory.build({ ctx });
-  const bindingManager = new BindingsManager(container);
-
   beforeEach(() => {
     getUserOrThrowMock.mockReturnValueOnce({ root_folder_id: 1 });
     environmentFileUploader.run.mockResolvedValueOnce({ data: '012345678901234567890123' as ContentsId });
   });
 
   afterAll(() => {
-    bindingManager.stop({ ctx });
+    BindingsManager.stop({ ctx });
     VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
@@ -117,12 +114,11 @@ describe('create-placeholder', () => {
       abortController: new AbortController(),
     };
 
-    const container = DependencyContainerFactory.build({ ctx });
-    const bindingManager = new BindingsManager(container);
+    const container = buildProcessContainer({ ctx });
 
     // When
-    await bindingManager.start({ ctx });
-    bindingManager.watch({ ctx });
+    await BindingsManager.start({ ctx, container });
+    BindingsManager.watch({ ctx });
 
     await sleep(100);
     await writeFile(file, 'content');

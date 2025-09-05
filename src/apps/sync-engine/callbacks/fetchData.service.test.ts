@@ -1,22 +1,22 @@
 import { mockDeep } from 'vitest-mock-extended';
-import { BindingsManager } from '../BindingManager';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { DeepPartial } from 'ts-essentials';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { unlink } from 'fs/promises';
 import { fetchData } from './fetchData.service';
+import { ProcessContainer } from '../build-process-container';
 
 vi.mock(import('fs/promises'));
 
 describe('Fetch Data', () => {
-  const self = mockDeep<BindingsManager>();
+  const container = mockDeep<ProcessContainer>();
 
   const file: DeepPartial<SimpleDriveFile> = { nameWithExtension: 'file.txt' };
   const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
   beforeEach(() => {
-    self.controllers.downloadFile.execute.mockResolvedValue('path');
-    self.controllers.downloadFile.fileFinderByUuid.mockResolvedValue(file as SimpleDriveFile);
+    container.downloadFile.execute.mockResolvedValue('path');
+    container.downloadFile.fileFinderByUuid.mockResolvedValue(file as SimpleDriveFile);
   });
 
   describe('When progress value is wrong', () => {
@@ -25,7 +25,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: false, progress: 2 });
 
       // Act
-      await fetchData({ self, filePlaceholderId, callback });
+      await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
       expect(unlink).toHaveBeenCalledWith('path');
@@ -36,7 +36,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: false, progress: -1 });
 
       // Act
-      await fetchData({ self, filePlaceholderId, callback });
+      await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
       expect(unlink).toHaveBeenCalledWith('path');
@@ -47,7 +47,7 @@ describe('Fetch Data', () => {
       const callback = async () => await Promise.resolve({ finished: true, progress: 0 });
 
       // Act
-      await fetchData({ self, filePlaceholderId, callback });
+      await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
       expect(unlink).toHaveBeenCalledWith('path');
