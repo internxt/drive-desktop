@@ -31,7 +31,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   const container = DependencyContainerFactory.build({ ctx });
 
-  const bindings = new BindingsManager(ctx, container);
+  const bindings = new BindingsManager(container);
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
     await bindings.updateAndCheckPlaceholders({ ctx });
