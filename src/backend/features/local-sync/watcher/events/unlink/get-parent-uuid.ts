@@ -1,17 +1,17 @@
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { dirname } from 'path';
 
 type Props = {
+  ctx: ProcessSyncContext;
   absolutePath: AbsolutePath;
-  virtualDrive: VirtualDrive;
 };
 
-export async function getParentUuid({ absolutePath, virtualDrive }: Props) {
+export async function getParentUuid({ ctx, absolutePath }: Props) {
   const parentPath = dirname(absolutePath);
-  const { data: parentUuid } = NodeWin.getFolderUuid({ drive: virtualDrive, path: parentPath });
+  const { data: parentUuid } = NodeWin.getFolderUuid({ ctx, path: parentPath });
   const { data: stats } = await fileSystem.stat({ absolutePath: parentPath });
 
   /**

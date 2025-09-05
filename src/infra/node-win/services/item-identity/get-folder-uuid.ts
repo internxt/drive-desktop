@@ -1,19 +1,18 @@
 import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { getFolderIdentity } from './get-folder-identity';
-import VirtualDrive from '@/node-win/virtual-drive';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
-  drive: VirtualDrive;
+  ctx: ProcessSyncContext;
   path: string;
 };
 
-export function getFolderUuid({ drive, path }: TProps) {
-  if (path === '/' || path === drive.syncRootPath || `${path}\\` === drive.syncRootPath) {
+export function getFolderUuid({ ctx, path }: TProps) {
+  if (path === '/' || path === ctx.virtualDrive.syncRootPath || `${path}\\` === ctx.virtualDrive.syncRootPath) {
     return { data: getConfig().rootUuid as FolderUuid };
   }
 
-  const identity = getFolderIdentity({ drive, path });
+  const identity = getFolderIdentity({ drive: ctx.virtualDrive, path });
 
   if (identity.error) {
     return { error: identity.error };

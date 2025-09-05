@@ -6,11 +6,12 @@ import { hasToBeMoved } from './has-to-be-moved';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FilePlaceholderUpdater {
   constructor(private readonly virtualDrive: VirtualDrive) {}
 
-  async update({ remote, files }: { remote: ExtendedDriveFile; files: InMemoryFiles }) {
+  async update({ ctx, remote, files }: { ctx: ProcessSyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
     const { path } = remote;
 
     try {
@@ -32,7 +33,7 @@ export class FilePlaceholderUpdater {
         return;
       }
 
-      if (hasToBeMoved({ drive: this.virtualDrive, remotePath, localPath: localPath.absolutePath })) {
+      if (hasToBeMoved({ ctx, remotePath, localPath: localPath.absolutePath })) {
         logger.debug({
           tag: 'SYNC-ENGINE',
           msg: 'Moving file placeholder',
@@ -58,8 +59,8 @@ export class FilePlaceholderUpdater {
     }
   }
 
-  async run({ remotes, files }: { remotes: ExtendedDriveFile[]; files: InMemoryFiles }) {
-    const promises = remotes.map((remote) => this.update({ remote, files }));
+  async run({ ctx, remotes, files }: { ctx: ProcessSyncContext; remotes: ExtendedDriveFile[]; files: InMemoryFiles }) {
+    const promises = remotes.map((remote) => this.update({ ctx, remote, files }));
     await Promise.all(promises);
   }
 }

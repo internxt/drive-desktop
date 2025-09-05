@@ -17,8 +17,10 @@ describe('unlink-file', () => {
 
   const props = mockProps<typeof unlinkFile>({
     absolutePath: 'C:\\Users\\user\\InternxtDrive\\folder\\file.txt' as AbsolutePath,
-    virtualDrive: {
-      syncRootPath: 'C:\\Users\\user\\InternxtDrive' as AbsolutePath,
+    ctx: {
+      virtualDrive: {
+        syncRootPath: 'C:\\Users\\user\\InternxtDrive' as AbsolutePath,
+      },
     },
   });
 

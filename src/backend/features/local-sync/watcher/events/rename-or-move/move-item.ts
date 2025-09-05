@@ -23,7 +23,7 @@ type TProps = {
 export async function moveItem({ ctx, self, path, absolutePath, uuid, item, type }: TProps) {
   const props = { path, type, uuid };
 
-  const res = getParentUuid({ self, path, props, item });
+  const res = getParentUuid({ ctx, self, path, props, item });
   if (!res) return;
 
   const {

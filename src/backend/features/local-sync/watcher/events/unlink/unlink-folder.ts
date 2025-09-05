@@ -2,25 +2,24 @@ import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructur
 import { basename } from 'path';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { logger } from '@/apps/shared/logger/logger';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { getParentUuid } from './get-parent-uuid';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
-import { getConfig } from '@/apps/sync-engine/config';
+import { getConfig, ProcessSyncContext } from '@/apps/sync-engine/config';
 import { isMoveFolderEvent } from './is-move-event';
 
 type TProps = {
-  virtualDrive: VirtualDrive;
+  ctx: ProcessSyncContext;
   absolutePath: AbsolutePath;
 };
 
-export async function unlinkFolder({ virtualDrive, absolutePath }: TProps) {
+export async function unlinkFolder({ ctx, absolutePath }: TProps) {
   const path = pathUtils.absoluteToRelative({
-    base: virtualDrive.syncRootPath,
+    base: ctx.virtualDrive.syncRootPath,
     path: absolutePath,
   });
 
   try {
-    const parentUuid = await getParentUuid({ absolutePath, virtualDrive });
+    const parentUuid = await getParentUuid({ ctx, absolutePath });
     if (!parentUuid) return;
 
     const plainName = basename(path);

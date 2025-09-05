@@ -8,6 +8,7 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { restoreParentFolder } from './restore-parent-folder';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { sleep } from '@/apps/main/util';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class HttpRemoteFileSystem {
   constructor(
@@ -41,7 +42,7 @@ export class HttpRemoteFileSystem {
       : driveServerWip.files.createFile({ body, path: offline.path });
   }
 
-  async persist(offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
+  async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
     const props = {
       ...offline,
       bucket: this.bucket,
@@ -53,7 +54,7 @@ export class HttpRemoteFileSystem {
     if (data) return data;
 
     if (error.code === 'FOLDER_NOT_FOUND') {
-      await restoreParentFolder({ offline, drive: this.virtualDrive });
+      await restoreParentFolder({ ctx, offline });
       const { data } = await HttpRemoteFileSystem.create(props);
       if (data) return data;
     }
@@ -86,7 +87,7 @@ export class HttpRemoteFileSystem {
     return null;
   }
 
-  async deleteAndPersist(input: { attributes: OfflineFileAttributes; newContentsId: string }) {
+  async deleteAndPersist(ctx: ProcessSyncContext, input: { attributes: OfflineFileAttributes; newContentsId: string }) {
     const { attributes, newContentsId } = input;
     if (!newContentsId) {
       throw new Error('Failed to generate new contents id');
@@ -120,7 +121,7 @@ export class HttpRemoteFileSystem {
       throw new Error(`File deletion not confirmed for path: ${attributes.path} after retries`);
     }
 
-    const persistedFile = await this.persist({ ...attributes, contentsId: newContentsId });
+    const persistedFile = await this.persist(ctx, { ...attributes, contentsId: newContentsId });
     logger.debug({
       msg: `File persisted with new contents id ${newContentsId}, path: ${attributes.path}`,
     });
