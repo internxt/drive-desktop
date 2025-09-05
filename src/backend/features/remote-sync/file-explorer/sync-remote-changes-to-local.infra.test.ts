@@ -24,7 +24,7 @@ describe('sync-remote-changes-to-local', () => {
 
   const providerName = 'Internxt Drive';
   const testPath = join(TEST_FILES, v4());
-  const rootPath = join(testPath, 'root');
+  const rootPath = join(testPath, 'root') as AbsolutePath;
   const filePath = join(rootPath, 'file.txt');
   const rootUuid = v4();
   const providerId = `{${rootUuid.toUpperCase()}}`;
@@ -45,7 +45,7 @@ describe('sync-remote-changes-to-local', () => {
     // Given
     const watcherCallbacks = mockDeep<TWatcherCallbacks>();
     const { watcher } = createWatcher({ virtualDrive, watcherCallbacks });
-    const watcherProps = mockProps<typeof watcher.watchAndWait>({});
+    const watcherProps = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
     watcher.watchAndWait(watcherProps);
     await sleep(100);
 
