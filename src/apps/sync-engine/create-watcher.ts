@@ -1,19 +1,18 @@
 import { QueueManager } from '@/node-win/queue/queue-manager';
 import { TWatcherCallbacks, Watcher } from '@/node-win/watcher/watcher';
-import { getConfig } from './config';
+import { ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
-import VirtualDrive from '@/node-win/virtual-drive';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   watcherCallbacks: TWatcherCallbacks;
-  virtualDrive: VirtualDrive;
 };
 
-export function createWatcher({ watcherCallbacks, virtualDrive }: TProps) {
-  const queueManager = new QueueManager(virtualDrive, getConfig().queueManagerPath);
+export function createWatcher({ ctx, watcherCallbacks }: TProps) {
+  const queueManager = new QueueManager(ctx.virtualDrive, ctx.queueManagerPath);
 
   const watcher = new Watcher(
-    virtualDrive.syncRootPath,
+    ctx.virtualDrive.syncRootPath,
     {
       depth: undefined,
       followSymlinks: true,
@@ -28,7 +27,7 @@ export function createWatcher({ watcherCallbacks, virtualDrive }: TProps) {
     },
     queueManager,
     logger,
-    virtualDrive,
+    ctx.virtualDrive,
     watcherCallbacks,
   );
 

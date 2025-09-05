@@ -27,7 +27,7 @@ async function processFolder({ ctx, path }: TProps) {
     if (!stats) continue;
 
     if (stats.isDirectory()) {
-      const { error } = NodeWin.getFolderUuid({ drive: ctx.virtualDrive, path: absolutePath });
+      const { error } = NodeWin.getFolderUuid({ ctx, path: absolutePath });
 
       if (error && error.code === 'NON_EXISTS') {
         pendingFolders.push({ stats, absolutePath });

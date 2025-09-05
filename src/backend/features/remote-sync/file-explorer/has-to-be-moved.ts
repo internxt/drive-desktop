@@ -1,15 +1,15 @@
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import VirtualDrive from '@/node-win/virtual-drive';
 import { dirname } from 'path';
 
 type TProps = {
-  drive: VirtualDrive;
+  ctx: ProcessSyncContext;
   remotePath: AbsolutePath;
   localPath: AbsolutePath;
 };
 
-export function hasToBeMoved({ drive, remotePath, localPath }: TProps) {
+export function hasToBeMoved({ ctx, remotePath, localPath }: TProps) {
   if (remotePath === localPath) return false;
 
   const remoteParentPath = dirname(remotePath);
@@ -18,8 +18,8 @@ export function hasToBeMoved({ drive, remotePath, localPath }: TProps) {
   const isRenamed = remoteParentPath === localParentPath;
   if (isRenamed) return true;
 
-  const { data: remoteParentUuid } = NodeWin.getFolderUuid({ drive, path: remoteParentPath });
-  const { data: localParentUuid } = NodeWin.getFolderUuid({ drive, path: localParentPath });
+  const { data: remoteParentUuid } = NodeWin.getFolderUuid({ ctx, path: remoteParentPath });
+  const { data: localParentUuid } = NodeWin.getFolderUuid({ ctx, path: localParentPath });
 
   if (!remoteParentUuid || !localParentUuid) return false;
 

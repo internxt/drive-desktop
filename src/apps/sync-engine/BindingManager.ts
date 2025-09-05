@@ -3,7 +3,7 @@ import { DependencyContainer } from './dependency-injection/DependencyContainer'
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { ipcRenderer } from 'electron';
 import { DangledFilesManager, PushAndCleanInput } from '@/context/virtual-drive/shared/domain/DangledFilesManager';
-import { getConfig, ProcessSyncContext } from './config';
+import { ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 import { Traverser, Tree } from '@/context/virtual-drive/items/application/Traverser';
 import { Callbacks } from '@/node-win/types/callbacks.type';
@@ -59,7 +59,7 @@ export class BindingsManager {
 
   watch({ ctx }: { ctx: ProcessSyncContext }) {
     const { queueManager, watcher } = createWatcher({
-      virtualDrive: ctx.virtualDrive,
+      ctx,
       watcherCallbacks: {
         addController: this.controllers.addFile,
       },
@@ -75,14 +75,14 @@ export class BindingsManager {
     ctx.virtualDrive.disconnectSyncRoot();
   }
 
-  async load(tree: Tree): Promise<void> {
+  async load(ctx: ProcessSyncContext, tree: Tree): Promise<void> {
     const addFilePromises = tree.files.map((file) => this.container.fileRepository.add(file));
     await Promise.all([addFilePromises]);
-    logger.debug({ msg: 'In memory repositories loaded', workspaceId: getConfig().workspaceId });
+    logger.debug({ msg: 'In memory repositories loaded', workspaceId: ctx.workspaceId });
   }
 
   async polling({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
-    const workspaceId = getConfig().workspaceId;
+    const workspaceId = ctx.workspaceId;
 
     logger.debug({
       tag: 'SYNC-ENGINE',
@@ -92,7 +92,7 @@ export class BindingsManager {
 
     try {
       const tree = await Traverser.run({ ctx });
-      await this.load(tree);
+      await this.load(ctx, tree);
       await this.container.fileDangledManager.run({ ctx });
     } catch (error) {
       logger.error({ msg: '[SYNC ENGINE] Polling error', workspaceId, error });
@@ -109,7 +109,7 @@ export class BindingsManager {
   }
 
   async updateAndCheckPlaceholders({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {
-    const workspaceId = getConfig().workspaceId;
+    const workspaceId = ctx.workspaceId;
 
     try {
       await trackRefreshItemPlaceholders({ ctx, container: this.container });

@@ -1,6 +1,6 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { DependencyContainer } from './dependency-injection/DependencyContainer';
-import { getConfig, ProcessSyncContext } from './config';
+import { ProcessSyncContext } from './config';
 import { refreshItemPlaceholders } from './refresh-item-placeholders';
 
 type Props = {
@@ -22,7 +22,7 @@ export async function trackRefreshItemPlaceholders({ ctx, container }: Props) {
   store.running = true;
 
   const startTime = performance.now();
-  const workspaceId = getConfig().workspaceId;
+  const workspaceId = ctx.workspaceId;
 
   logger.debug({ tag: 'SYNC-ENGINE', msg: 'Refreshing item placeholders', workspaceId });
 

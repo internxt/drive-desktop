@@ -6,7 +6,7 @@ import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { Stats } from 'fs';
-import { getConfig, ProcessSyncContext } from '../../config';
+import { ProcessSyncContext } from '../../config';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -44,10 +44,10 @@ export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }:
         ...fileDto,
         size: Number(fileDto.size),
         isDangledStatus: false,
-        userUuid: getConfig().userUuid,
-        workspaceId: getConfig().workspaceId,
+        userUuid: ctx.userUuid,
+        workspaceId: ctx.workspaceId,
       },
-      bucket: getConfig().bucket,
+      bucket: ctx.bucket,
       absolutePath,
     });
 

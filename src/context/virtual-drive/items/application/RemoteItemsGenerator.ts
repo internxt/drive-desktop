@@ -1,10 +1,10 @@
-import { getConfig } from '@/apps/sync-engine/config';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
-export function getAllItems() {
-  return ipcRendererSyncEngine.invoke('GET_UPDATED_REMOTE_ITEMS', getConfig().workspaceId);
+export function getAllItems({ ctx }: { ctx: ProcessSyncContext }) {
+  return ipcRendererSyncEngine.invoke('GET_UPDATED_REMOTE_ITEMS', ctx.workspaceId);
 }
 
-export function getExistingFiles() {
-  return ipcRendererSyncEngine.invoke('FIND_EXISTING_FILES', getConfig().workspaceId);
+export function getExistingFiles({ ctx }: { ctx: ProcessSyncContext }) {
+  return ipcRendererSyncEngine.invoke('FIND_EXISTING_FILES', ctx.workspaceId);
 }

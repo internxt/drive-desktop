@@ -32,7 +32,7 @@ export async function refreshItemPlaceholders({ ctx, container, workspaceId }: P
     const { files, folders } = await loadInMemoryPaths({ ctx });
     await Promise.all([
       FolderPlaceholderUpdater.run({ ctx, remotes: tree.folders, folders }),
-      container.filePlaceholderUpdater.run({ remotes: tree.files, files }),
+      container.filePlaceholderUpdater.run({ ctx, remotes: tree.files, files }),
     ]);
   } catch (exc) {
     logger.error({
