@@ -44,12 +44,9 @@ describe('sync-remote-changes-to-local', () => {
   it('should sync remote changes to local', async () => {
     // Given
     const watcherCallbacks = mockDeep<TWatcherCallbacks>();
-    const createWatcherProps = mockProps<typeof createWatcher>({
-      ctx: { virtualDrive },
-      watcherCallbacks,
-    });
+    const createWatcherProps = mockProps<typeof createWatcher>({ ctx: { virtualDrive }, watcherCallbacks });
     const { watcher } = createWatcher(createWatcherProps);
-    const watcherProps = mockProps<typeof watcher.watchAndWait>({});
+    const watcherProps = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
     watcher.watchAndWait(watcherProps);
     await sleep(100);
 
