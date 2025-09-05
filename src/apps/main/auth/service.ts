@@ -5,19 +5,15 @@ import { User } from '../types';
 
 const TOKEN_ENCODING = 'latin1';
 
-const tokensKeys = ['newToken'] as const;
-type TokenKey = (typeof tokensKeys)[number];
-type EncryptedTokenKey = `${(typeof tokensKeys)[number]}Encrypted`;
-
 type Credentials = {
   userData: User;
   newToken: string;
   password: string;
 };
 
-export function obtainToken(tokenName: TokenKey): string {
-  const token = ConfigStore.get(tokenName);
-  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(`${tokenName}Encrypted`);
+export function obtainToken(): string {
+  const token = ConfigStore.get('newToken');
+  const isEncrypted = ConfigStore.get('newTokenEncrypted');
 
   if (!isEncrypted) {
     return token;
@@ -78,10 +74,6 @@ export function getUserOrThrow(): User {
   const user = getUser();
   if (!user) throw new Error('User not found');
   return user;
-}
-
-export function obtainTokens(): Array<string> {
-  return tokensKeys.map(obtainToken);
 }
 
 export function canHisConfigBeRestored(uuid: string) {
