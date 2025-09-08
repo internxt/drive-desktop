@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import { mkdir } from 'fs/promises';
 import { mockDeep } from 'vitest-mock-extended';
 
-import { TWatcherCallbacks, Watcher } from './watcher';
+import { Watcher } from './watcher';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import VirtualDrive from '../virtual-drive';
@@ -27,14 +27,13 @@ let watcher: Watcher | undefined;
 const virtualDrive = mockDeep<VirtualDrive>();
 const queueManager = mockDeep<QueueManager>();
 const logger = mockDeep<TLogger>();
-const watcherCallbacks = mockDeep<TWatcherCallbacks>();
 
 export async function setupWatcher(syncRootPath: string) {
   if (!existsSync(syncRootPath)) {
     await mkdir(syncRootPath);
   }
 
-  watcher = new Watcher(syncRootPath as AbsolutePath, {}, queueManager, logger, virtualDrive, watcherCallbacks);
+  watcher = new Watcher(syncRootPath as AbsolutePath, {}, queueManager, logger);
   const props = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
   watcher.watchAndWait(props);
 }

@@ -2,16 +2,14 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getPendingItems } from './get-pending-items';
 import { addPendingFiles } from './add-pending-files';
 import { addPendingFolders } from './add-pending-folders';
-import { IControllers } from '../callbacks-controllers/buildControllers';
 import { syncModifiedFiles } from './sync-modified-files';
 import { ProcessSyncContext } from '../config';
 
 type Props = {
   ctx: ProcessSyncContext;
-  controllers: IControllers;
 };
 
-export async function addPendingItems({ ctx, controllers }: Props) {
+export async function addPendingItems({ ctx }: Props) {
   try {
     const { pendingFiles, pendingFolders } = await getPendingItems({
       ctx,
@@ -28,7 +26,7 @@ export async function addPendingItems({ ctx, controllers }: Props) {
       pendingFolders: pendingFolders.length,
     });
 
-    await Promise.all([addPendingFiles({ ctx, pendingFiles, controllers }), addPendingFolders({ ctx, pendingFolders })]);
+    await Promise.all([addPendingFiles({ ctx, pendingFiles }), addPendingFolders({ ctx, pendingFolders })]);
     await syncModifiedFiles({ ctx });
 
     const endTime = performance.now();

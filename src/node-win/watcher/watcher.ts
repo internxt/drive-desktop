@@ -4,18 +4,12 @@ import { onAddDir } from './events/on-add-dir.service';
 import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
-import VirtualDrive from '../virtual-drive';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
 import { unlinkFile } from '@/backend/features/local-sync/watcher/events/unlink/unlink-file';
 import { unlinkFolder } from '@/backend/features/local-sync/watcher/events/unlink/unlink-folder';
 import { debounceOnRaw } from './events/debounce-on-raw';
 import { onAll } from './events/on-all.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-
-export type TWatcherCallbacks = {
-  addController: AddController;
-};
 
 export class Watcher {
   fileInDevice = new Set<AbsolutePath>();
@@ -26,8 +20,6 @@ export class Watcher {
     public readonly options: WatchOptions,
     public readonly queueManager: QueueManager,
     public readonly logger: TLogger,
-    public readonly virtualDrive: VirtualDrive,
-    public readonly callbacks: TWatcherCallbacks,
   ) {}
 
   private onError = (error: unknown) => {

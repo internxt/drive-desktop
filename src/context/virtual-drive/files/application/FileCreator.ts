@@ -20,9 +20,7 @@ type Props = {
 };
 
 export class FileCreator {
-  constructor(private readonly remote: HttpRemoteFileSystem) {}
-
-  async run({ ctx, path, absolutePath, contents }: Props) {
+  static async run({ ctx, path, absolutePath, contents }: Props) {
     try {
       const parentPath = pathUtils.dirname(path);
       const { data: folderUuid } = NodeWin.getFolderUuid({ ctx, path: parentPath });
@@ -31,7 +29,7 @@ export class FileCreator {
         throw new FolderNotFoundError(parentPath);
       }
 
-      const fileDto = await this.remote.persist(ctx, {
+      const fileDto = await HttpRemoteFileSystem.persist(ctx, {
         contentsId: contents.id,
         folderUuid,
         path,

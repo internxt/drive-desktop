@@ -21,8 +21,8 @@ type TProps = {
 export async function detectContextMenuAction({ ctx, self, details, absolutePath, path }: TProps) {
   const { prev, curr } = details;
 
-  const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
-  const { pinState } = self.virtualDrive.getPlaceholderState({ path });
+  const { data: uuid } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path });
+  const { pinState } = ctx.virtualDrive.getPlaceholderState({ path });
   const isInDevice = self.fileInDevice.has(absolutePath);
 
   const diff = getStatsDiff({ prev, curr });
@@ -49,6 +49,6 @@ export async function detectContextMenuAction({ ctx, self, details, absolutePath
 
   if (prev.ctimeMs !== curr.ctimeMs && pinState === PinState.OnlineOnly) {
     self.fileInDevice.delete(absolutePath);
-    handleDehydrate({ drive: self.virtualDrive, path });
+    handleDehydrate({ drive: ctx.virtualDrive, path });
   }
 }

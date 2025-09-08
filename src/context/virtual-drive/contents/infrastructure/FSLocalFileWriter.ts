@@ -11,7 +11,7 @@ type Props = {
 };
 
 export class FSLocalFileWriter {
-  async write({ file, readable }: Props): Promise<string> {
+  static async write({ file, readable }: Props): Promise<string> {
     const location = await temporalFolderProvider();
 
     ensureFolderExists(location);

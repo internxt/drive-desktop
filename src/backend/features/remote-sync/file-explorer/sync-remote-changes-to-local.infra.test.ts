@@ -8,7 +8,6 @@ import { getMockCalls, mockProps, partialSpyOn } from '@/tests/vitest/utils.help
 import { writeFile } from 'fs/promises';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { mockDeep } from 'vitest-mock-extended';
-import { TWatcherCallbacks } from '@/node-win/watcher/watcher';
 import { sleep } from '@/apps/main/util';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import { Callbacks } from '@/node-win/types/callbacks.type';
@@ -43,8 +42,7 @@ describe('sync-remote-changes-to-local', () => {
 
   it('should sync remote changes to local', async () => {
     // Given
-    const watcherCallbacks = mockDeep<TWatcherCallbacks>();
-    const createWatcherProps = mockProps<typeof createWatcher>({ ctx: { virtualDrive }, watcherCallbacks });
+    const createWatcherProps = mockProps<typeof createWatcher>({ ctx: { virtualDrive } });
     const { watcher } = createWatcher(createWatcherProps);
     const watcherProps = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
     watcher.watchAndWait(watcherProps);

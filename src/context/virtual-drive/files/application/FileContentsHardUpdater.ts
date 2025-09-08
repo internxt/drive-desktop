@@ -12,10 +12,7 @@ type FileContentsHardUpdaterRun = {
   attributes: OfflineFileAttributes;
 };
 export class FileContentsHardUpdater {
-  constructor(
-    private readonly remote: HttpRemoteFileSystem,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
-  ) {}
+  constructor(private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter) {}
 
   async run(ctx: ProcessSyncContext, input: FileContentsHardUpdaterRun) {
     const { attributes } = input;
@@ -37,7 +34,7 @@ export class FileContentsHardUpdater {
       const newContentsId = content.id;
 
       if (newContentsId) {
-        await this.remote.deleteAndPersist(ctx, { attributes, newContentsId });
+        await HttpRemoteFileSystem.deleteAndPersist(ctx, { attributes, newContentsId });
         logger.debug({ msg: 'Persisted new contents id', newContentsId, path: attributes.path });
       } else {
         throw new Error('Failed to upload file in hardUpdate');

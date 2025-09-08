@@ -46,7 +46,7 @@ export class BindingsManager {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await trackRefreshItemPlaceholders({ ctx, container: this.container });
+    await trackRefreshItemPlaceholders({ ctx });
 
     /**
      * v2.5.7 Daniel Jiménez
@@ -54,16 +54,11 @@ export class BindingsManager {
      * were in the root folder have their placeholders gone, so we need to refresh first
      * all item placeholders and the execute this function.
      */
-    void addPendingItems({ ctx, controllers: this.controllers });
+    void addPendingItems({ ctx });
   }
 
   watch({ ctx }: { ctx: ProcessSyncContext }) {
-    const { queueManager, watcher } = createWatcher({
-      ctx,
-      watcherCallbacks: {
-        addController: this.controllers.addFile,
-      },
-    });
+    const { queueManager, watcher } = createWatcher({ ctx });
 
     watcher.watchAndWait({ ctx });
 
@@ -112,7 +107,7 @@ export class BindingsManager {
     const workspaceId = ctx.workspaceId;
 
     try {
-      await trackRefreshItemPlaceholders({ ctx, container: this.container });
+      await trackRefreshItemPlaceholders({ ctx });
       ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
     } catch (exc) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error updating and checking placeholder', workspaceId, exc });

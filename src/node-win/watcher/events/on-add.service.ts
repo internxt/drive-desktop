@@ -6,6 +6,7 @@ import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructur
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
 import { trackAddFileEvent } from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
+import { AddController } from '@/apps/sync-engine/callbacks-controllers/controllers/add-controller';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -16,16 +17,16 @@ type TProps = {
 
 export async function onAdd({ ctx, self, absolutePath, stats }: TProps) {
   const path = pathUtils.absoluteToRelative({
-    base: self.virtualDrive.syncRootPath,
+    base: ctx.virtualDrive.syncRootPath,
     path: absolutePath,
   });
 
   try {
-    const { data: uuid } = NodeWin.getFileUuid({ drive: self.virtualDrive, path });
+    const { data: uuid } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path });
 
     if (!uuid) {
       self.fileInDevice.add(absolutePath);
-      await self.callbacks.addController.createFile({
+      await AddController.createFile({
         ctx,
         absolutePath,
         path,
