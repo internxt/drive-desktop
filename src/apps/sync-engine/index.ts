@@ -1,5 +1,4 @@
 import { ipcRenderer } from 'electron';
-import { DependencyContainerFactory } from './dependency-injection/DependencyContainerFactory';
 import { BindingsManager } from './BindingManager';
 import fs from 'fs/promises';
 import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
@@ -8,6 +7,8 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
 import VirtualDrive from '@/node-win/virtual-drive';
+import { runDangledFiles } from './run-dangled-files';
+import { buildProcessContainer } from './build-process-container';
 
 logger.debug({ msg: 'Running sync engine' });
 
@@ -29,19 +30,17 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   await ensureTheFolderExist(rootPath);
 
-  const container = DependencyContainerFactory.build({ ctx });
-
-  const bindings = new BindingsManager(container);
+  const container = buildProcessContainer({ ctx });
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
-    await bindings.updateAndCheckPlaceholders({ ctx });
+    await BindingsManager.updateAndCheckPlaceholders({ ctx });
   });
 
   ipcRendererSyncEngine.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
     logger.debug({ msg: '[SYNC ENGINE] Stopping and clearing sync engine' });
 
     try {
-      bindings.stop({ ctx });
+      BindingsManager.stop({ ctx });
 
       logger.debug({ msg: '[SYNC ENGINE] sync engine stopped and cleared successfully' });
 
@@ -52,8 +51,9 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
     }
   });
 
-  await bindings.start({ ctx });
-  bindings.watch({ ctx });
+  await BindingsManager.start({ ctx, container });
+  BindingsManager.watch({ ctx });
+  void runDangledFiles({ ctx, container });
 
   logger.debug({ msg: '[SYNC ENGINE] Second sync engine started' });
 }
