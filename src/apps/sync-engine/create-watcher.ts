@@ -1,14 +1,13 @@
 import { QueueManager } from '@/node-win/queue/queue-manager';
-import { TWatcherCallbacks, Watcher } from '@/node-win/watcher/watcher';
+import { Watcher } from '@/node-win/watcher/watcher';
 import { ProcessSyncContext } from './config';
 import { logger } from '../shared/logger/logger';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  watcherCallbacks: TWatcherCallbacks;
 };
 
-export function createWatcher({ ctx, watcherCallbacks }: TProps) {
+export function createWatcher({ ctx }: TProps) {
   const queueManager = new QueueManager(ctx.virtualDrive, ctx.queueManagerPath);
 
   const watcher = new Watcher(
@@ -27,8 +26,6 @@ export function createWatcher({ ctx, watcherCallbacks }: TProps) {
     },
     queueManager,
     logger,
-    ctx.virtualDrive,
-    watcherCallbacks,
   );
 
   return { queueManager, watcher };

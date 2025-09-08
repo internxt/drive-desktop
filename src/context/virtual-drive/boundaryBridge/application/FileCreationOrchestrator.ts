@@ -14,9 +14,7 @@ type TProps = {
 };
 
 export class FileCreationOrchestrator {
-  constructor(private readonly fileCreator: FileCreator) {}
-
-  async run({ ctx, path, absolutePath, stats }: TProps): Promise<FileUuid> {
+  static async run({ ctx, path, absolutePath, stats }: TProps): Promise<FileUuid> {
     const fileContents = await ContentsUploader.run({ ctx, absolutePath, path, stats });
 
     logger.debug({
@@ -27,7 +25,7 @@ export class FileCreationOrchestrator {
       size: fileContents.size,
     });
 
-    const createdFile = await this.fileCreator.run({
+    const createdFile = await FileCreator.run({
       ctx,
       path,
       contents: fileContents,
