@@ -62,9 +62,7 @@ export class ContentsDownloader {
   }
 
   async run({ file, callback }: { file: SimpleDriveFile; callback: CallbackDownload }): Promise<string> {
-    // TODO: If we remove the wait, the tests fail
-    // eslint-disable-next-line @typescript-eslint/await-thenable
-    const downloader = await this.managerFactory.downloader();
+    const downloader = this.managerFactory.downloader();
 
     this.downloaderIntance = downloader;
     this.downloaderIntanceCB = callback;

@@ -31,7 +31,6 @@ type TAddon = {
   dehydrateFile(path: string): z.infer<typeof addonZod.dehydrateFile>;
   connectSyncRoot(path: string, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: string, id: string): z.infer<typeof addonZod.convertToPlaceholder>;
-  deleteFileSyncRoot(path: string): any;
   getFileIdentity(path: string): z.infer<typeof addonZod.getFileIdentity>;
   /**
    * TODO: Not all paths return value
