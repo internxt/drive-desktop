@@ -29,7 +29,7 @@ export async function accessRequest({
   hashedPassword: string;
   tfa?: string;
 }) {
-  const res = await window.electron.authService.access({ email, password: hashedPassword, tfa });
+  const res = await window.electron.authAccess({ email, password: hashedPassword, tfa });
 
   res.user.mnemonic = CryptoJS.AES.decrypt(CryptoJS.enc.Hex.parse(res.user.mnemonic).toString(CryptoJS.enc.Base64), password).toString(
     CryptoJS.enc.Utf8,

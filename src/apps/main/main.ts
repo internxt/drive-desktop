@@ -37,7 +37,6 @@ import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
-import { setupSettingsIPCHandlers } from './windows/ipc/setup-ipc-handlers';
 import { autoUpdater } from 'electron-updater';
 import eventBus from './event-bus';
 import { AppDataSource } from './database/data-source';
@@ -49,7 +48,6 @@ import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
 import { Theme } from '../shared/types/Theme';
 import { clearAntivirus } from './antivirus/utils/initializeAntivirus';
-import { registerUsageHandlers } from './usage/handlers';
 import { setupQuitHandlers } from './quit';
 import { clearConfig, setDefaultConfig } from '../sync-engine/config';
 import { migrate } from '@/migrations/migrate';
@@ -61,6 +59,7 @@ import { setupIpcSqlite } from '@/infra/sqlite/ipc/ipc-main';
 import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { setupPreloadIpc } from './preload/ipc-main';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -70,13 +69,12 @@ if (!gotTheLock) {
 
 setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
-setupSettingsIPCHandlers();
+setupPreloadIpc();
 setupVirtualDriveHandlers();
 setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();
 setupIpcSqlite();
-registerUsageHandlers();
 
 logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
 

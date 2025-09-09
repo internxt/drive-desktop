@@ -65,7 +65,7 @@ export default function Login() {
     }
 
     try {
-      const body = await window.electron.authService.login({ email });
+      const body = await window.electron.authLogin({ email });
       sKey.current = body.sKey;
       if (body.tfa) {
         setState('ready');

@@ -9,7 +9,7 @@ import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-na
 const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
 export function setupIpcDriveServerWip() {
-  void ipcMainDriveServerWip.handle('storageDeleteFileByUuid', async (_, { uuid, workspaceToken, nameWithExtension }) => {
+  ipcMainDriveServerWip.handle('storageDeleteFileByUuid', async (_, { uuid, workspaceToken, nameWithExtension }) => {
     const res = await driveServerWip.storage.deleteFileByUuid({ uuid, workspaceToken });
 
     if (res.error) {
@@ -22,7 +22,7 @@ export function setupIpcDriveServerWip() {
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', async (_, { uuid, workspaceToken, name }) => {
+  ipcMainDriveServerWip.handle('storageDeleteFolderByUuid', async (_, { uuid, workspaceToken, name }) => {
     const res = await driveServerWip.storage.deleteFolderByUuid({ uuid, workspaceToken });
 
     if (res.error) {
@@ -35,7 +35,7 @@ export function setupIpcDriveServerWip() {
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('renameFileByUuid', async (_, { uuid, workspaceToken, nameWithExtension }) => {
+  ipcMainDriveServerWip.handle('renameFileByUuid', async (_, { uuid, workspaceToken, nameWithExtension }) => {
     const { name, extension } = getNameAndExtension({ nameWithExtension });
 
     const res = await driveServerWip.files.renameFile({ uuid, workspaceToken, name, extension });
@@ -50,7 +50,7 @@ export function setupIpcDriveServerWip() {
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('renameFolderByUuid', async (_, { uuid, workspaceToken, name }) => {
+  ipcMainDriveServerWip.handle('renameFolderByUuid', async (_, { uuid, workspaceToken, name }) => {
     const res = await driveServerWip.folders.renameFolder({ uuid, workspaceToken, name });
 
     if (res.error) {
@@ -63,7 +63,7 @@ export function setupIpcDriveServerWip() {
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('moveFileByUuid', async (_, { uuid, workspaceToken, parentUuid, nameWithExtension }) => {
+  ipcMainDriveServerWip.handle('moveFileByUuid', async (_, { uuid, workspaceToken, parentUuid, nameWithExtension }) => {
     const res = await driveServerWip.files.moveFile({ uuid, parentUuid, workspaceToken });
 
     if (res.error) {
@@ -76,7 +76,7 @@ export function setupIpcDriveServerWip() {
     return res;
   });
 
-  void ipcMainDriveServerWip.handle('moveFolderByUuid', async (_, { uuid, workspaceToken, parentUuid, name }) => {
+  ipcMainDriveServerWip.handle('moveFolderByUuid', async (_, { uuid, workspaceToken, parentUuid, name }) => {
     const res = await driveServerWip.folders.moveFolder({ uuid, parentUuid, workspaceToken });
 
     if (res.error) {
