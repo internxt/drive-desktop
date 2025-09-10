@@ -1,7 +1,6 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
 import { contextBridge, ipcRenderer } from 'electron';
 import path from 'path';
-import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { RemoteSyncStatus } from './remote-sync/helpers';
 import { setConfigKey, StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
@@ -15,8 +14,9 @@ import { chooseSyncRootWithDialog } from './virtual-root-folder/service';
 import { BackupInfo } from '../backups/BackupInfo';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { ItemBackup } from '../shared/types/items';
-import { Usage } from './usage/Usage';
 import { getBackupsFromDevice } from './device/get-backups-from-device';
+import { ipcPreloadRenderer } from './preload/ipc-renderer';
+import { FromProcess } from './preload/ipc';
 
 const api = {
   getConfigKey(key: StoredValues) {
@@ -198,9 +198,6 @@ const api = {
   getLastBackupTimestamp(): Promise<number> {
     return ipcRenderer.invoke('get-last-backup-timestamp');
   },
-  getLastBackupProgress() {
-    ipcRenderer.send('backups.get-last-progress');
-  },
   onBackupProgress(func: (_: BackupsProgress) => void): () => void {
     const eventName = 'backup-progress';
     const callback = (_: unknown, v: BackupsProgress) => func(v);
@@ -233,9 +230,6 @@ const api = {
   },
   startMigration(): Promise<void> {
     return ipcRenderer.invoke('open-migration-window');
-  },
-  getUsage(): Promise<Usage> {
-    return ipcRenderer.invoke('get-usage');
   },
   onRemoteSyncStatusChange(callback: (status: RemoteSyncStatus) => void): () => void {
     const eventName = 'remote-sync-status-change';
@@ -319,16 +313,12 @@ const api = {
       return ipcRenderer.invoke('antivirus:cancel-scan');
     },
   },
-  authService: {
-    access: (props: Parameters<typeof driveServerWip.auth.access>[0]): ReturnType<typeof driveServerWip.auth.access> => {
-      return ipcRenderer.invoke('renderer.login-access', props);
-    },
-    login: (props: Parameters<typeof driveServerWip.auth.login>[0]): ReturnType<typeof driveServerWip.auth.login> => {
-      return ipcRenderer.invoke('renderer.login', props);
-    },
-  },
   path,
-};
+  authAccess: async (props) => await ipcPreloadRenderer.invoke('authAccess', props),
+  authLogin: async (props) => await ipcPreloadRenderer.invoke('authLogin', props),
+  getLastBackupProgress: () => ipcPreloadRenderer.send('getLastBackupProgress'),
+  getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
+} satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);
 
