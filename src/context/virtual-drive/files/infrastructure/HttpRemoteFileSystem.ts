@@ -36,6 +36,8 @@ export class HttpRemoteFileSystem {
   }
 
   static async persist(ctx: ProcessSyncContext, offline: { contentsId: string; folderUuid: string; path: RelativePath; size: number }) {
+    const { name, extension } = getNameAndExtension({ nameWithExtension: basename(offline.path) });
+
     const props = {
       ...offline,
       bucket: ctx.bucket,
@@ -53,8 +55,8 @@ export class HttpRemoteFileSystem {
     }
 
     if (error.code === 'FILE_ALREADY_EXISTS') {
-      const fileDto = await this.getFileByPath({ path: offline.path });
-      if (fileDto) return fileDto;
+      const { data } = await driveServerWip.files.checkExistence({ parentUuid: props.folderUuid, name, extension });
+      if (data) return data;
     }
 
     throw logger.error({

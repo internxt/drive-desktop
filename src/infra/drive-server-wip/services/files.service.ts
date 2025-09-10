@@ -5,6 +5,7 @@ import { getRequestKey } from '../in/get-in-flight-request';
 import { getByUuid } from './files/get-by-uuid';
 import { createFile } from './files/create-file';
 import { getByPath } from './files/get-by-path';
+import { checkExistence } from './files/check-existance';
 
 export const files = {
   getFiles,
@@ -15,6 +16,7 @@ export const files = {
   renameFile,
   replaceFile,
   createThumbnail,
+  checkExistence,
 };
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
