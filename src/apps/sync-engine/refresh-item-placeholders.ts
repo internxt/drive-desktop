@@ -8,28 +8,26 @@ import { FilePlaceholderUpdater } from '@/backend/features/remote-sync/file-expl
 
 type Props = {
   ctx: ProcessSyncContext;
-  workspaceId: string;
 };
 
-export async function refreshItemPlaceholders({ ctx, workspaceId }: Props) {
+export async function refreshItemPlaceholders({ ctx }: Props) {
   try {
     const tree = await Traverser.run({ ctx });
 
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Tree built',
-      workspaceId,
+      workspaceId: ctx.workspaceId,
       files: tree.files.length,
       folders: tree.folders.length,
       trashedFiles: tree.trashedFiles.length,
       trashedFolders: tree.trashedFolders.length,
     });
 
-    deleteItemPlaceholders({ ctx, remotes: tree.trashedFolders, type: 'folder' });
-    deleteItemPlaceholders({ ctx, remotes: tree.trashedFiles, type: 'file' });
-
     const { files, folders } = await loadInMemoryPaths({ ctx });
     await Promise.all([
+      deleteItemPlaceholders({ ctx, remotes: tree.trashedFolders, type: 'folder' }),
+      deleteItemPlaceholders({ ctx, remotes: tree.trashedFiles, type: 'file' }),
       FolderPlaceholderUpdater.run({ ctx, remotes: tree.folders, folders }),
       FilePlaceholderUpdater.run({ ctx, remotes: tree.files, files }),
     ]);
@@ -37,7 +35,7 @@ export async function refreshItemPlaceholders({ ctx, workspaceId }: Props) {
     logger.error({
       tag: 'SYNC-ENGINE',
       msg: 'Error refreshing item placeholders',
-      workspaceId,
+      workspaceId: ctx.workspaceId,
       exc,
     });
   }
