@@ -5,7 +5,8 @@ import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFileDto, parseFolderDto } from '../out/dto';
 import { getByUuid } from './folders/get-by-uuid';
-import { renameFolder } from './files/rename-folder';
+import { renameFolder } from './folders/rename-folder';
+import { checkExistence } from './folders/check-existence';
 
 export const folders = {
   getByUuid,
@@ -16,7 +17,7 @@ export const folders = {
   getFilesByFolder,
   moveFolder,
   renameFolder,
-  existsFolder,
+  checkExistence,
 };
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
@@ -155,31 +156,6 @@ async function moveFolder(context: { uuid: string; parentUuid: string; workspace
     key,
     loggerBody: {
       msg: 'Move folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
-}
-
-async function existsFolder(context: { parentUuid: string; basename: string }) {
-  const method = 'POST';
-  const endpoint = '/folders/content/{uuid}/folders/existence';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.POST(endpoint, {
-      params: { path: { uuid: context.parentUuid } },
-      body: { plainNames: [context.basename] },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Check folder existence request',
       context,
       attributes: {
         method,

@@ -25,25 +25,18 @@ export async function createFolder(context: { path: string; body: TCreateFolderB
       body: context.body,
     });
 
-  const { data, error } = await clientWrapper({
+  const res = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Create folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Create folder request', context },
   });
 
-  if (error?.code === 'UNKNOWN') {
+  if (res.error?.code) {
     switch (true) {
-      case error.response?.status === 409:
-        return { error: new CreateFolderError('ALREADY_EXISTS', error.cause) };
+      case res.error.response?.status === 409:
+        return { error: new CreateFolderError('ALREADY_EXISTS', res.error.cause) };
     }
   }
 
-  return { data, error };
+  return res;
 }

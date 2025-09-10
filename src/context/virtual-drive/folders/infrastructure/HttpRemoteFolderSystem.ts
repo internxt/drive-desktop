@@ -1,5 +1,4 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { logger } from '@/apps/shared/logger/logger';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -12,17 +11,6 @@ type TProps = {
 };
 
 export class HttpRemoteFolderSystem {
-  static async existFolder(offline: { parentUuid: FolderUuid; plainName: string }) {
-    const { data, error } = await driveServerWip.folders.existsFolder({
-      parentUuid: offline.parentUuid,
-      basename: offline.plainName,
-    });
-
-    if (!data) throw error;
-
-    return data.existentFolders[0];
-  }
-
   static async persist({ ctx, plainName, parentUuid, path }: TProps) {
     const body = {
       plainName,
@@ -35,22 +23,15 @@ export class HttpRemoteFolderSystem {
         ? await driveServerWip.workspaces.createFolderInWorkspace({ path, body, workspaceId: ctx.workspaceId })
         : await driveServerWip.folders.createFolder({ path, body });
 
-      if (!data) throw error;
+      if (error) throw error;
 
       return data;
-    } catch (exc) {
-      const existing = await this.existFolder({ plainName, parentUuid });
+    } catch {
+      const { data, error } = await driveServerWip.folders.checkExistence({ parentUuid, name: plainName });
 
-      if (existing.status !== 'EXISTS') {
-        throw logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: 'Error creating folder',
-          path,
-          exc,
-        });
-      }
+      if (error) throw error;
 
-      return existing;
+      return data;
     }
   }
 }

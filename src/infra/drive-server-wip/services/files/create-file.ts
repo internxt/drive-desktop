@@ -36,18 +36,16 @@ export async function createFile(context: { path: string; body: TCreateFileBody 
 }
 
 export function parseCreateFileResponse(res: Awaited<TResponse<FileDto>>) {
-  if (res.error?.code === 'UNKNOWN') {
+  if (res.error) {
     switch (true) {
       case res.error.response?.status === 404:
         return { error: new CreateFileError('FOLDER_NOT_FOUND', res.error.cause) };
       case res.error.response?.status === 409:
         return { error: new CreateFileError('FILE_ALREADY_EXISTS', res.error.cause) };
+      default:
+        return { error: res.error };
     }
   }
 
-  if (res.data) {
-    return { data: parseFileDto({ fileDto: res.data }) };
-  } else {
-    return { error: res.error };
-  }
+  return { data: parseFileDto({ fileDto: res.data }) };
 }

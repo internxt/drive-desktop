@@ -10,7 +10,6 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 describe('restoreParentFolder', () => {
   const dirnameSpy = partialSpyOn(pathUtils, 'dirname');
   const getFolderUuidSpy = partialSpyOn(NodeWin, 'getFolderUuid');
-  const existsFolderSpy = partialSpyOn(driveServerWip.folders, 'existsFolder');
   const moveSpy = partialSpyOn(driveServerWip.folders, 'moveFolder');
   const renameSpy = partialSpyOn(driveServerWip.folders, 'renameFolder');
 
@@ -22,7 +21,6 @@ describe('restoreParentFolder', () => {
   beforeEach(() => {
     dirnameSpy.mockReturnValueOnce('/gp/child' as RelativePath).mockReturnValueOnce('/gp' as RelativePath);
     getFolderUuidSpy.mockReturnValue({ data: 'parent-uuid' as FolderUuid });
-    existsFolderSpy.mockResolvedValue({ data: { existentFolders: [] } });
     moveSpy.mockResolvedValue({ error: undefined });
     renameSpy.mockResolvedValue({ error: undefined });
   });

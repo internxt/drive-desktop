@@ -28,26 +28,17 @@ export async function renameFolder(context: { uuid: string; name: string; worksp
   const res = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Rename folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Rename folder request', context },
   });
 
-  if (res.error?.code === 'UNKNOWN') {
+  if (res.error) {
     switch (true) {
       case res.error.response?.status === 409:
         return { error: new RenameFolderError('FOLDER_ALREADY_EXISTS', res.error.cause) };
+      default:
+        return { error: res.error };
     }
   }
 
-  if (res.data) {
-    return { data: parseFolderDto({ folderDto: res.data }) };
-  } else {
-    return { error: res.error };
-  }
+  return { data: parseFolderDto({ folderDto: res.data }) };
 }
