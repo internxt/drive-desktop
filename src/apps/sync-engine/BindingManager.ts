@@ -4,7 +4,7 @@ import { logger } from '../shared/logger/logger';
 import { Callbacks } from '@/node-win/types/callbacks.type';
 import { createWatcher } from './create-watcher';
 import { addPendingItems } from './in/add-pending-items';
-import { trackRefreshItemPlaceholders } from './track-refresh-item-placeholders';
+import { refreshItemPlaceholders } from './refresh-item-placeholders';
 import { fetchData } from './callbacks/fetchData.service';
 import { ProcessContainer } from './build-process-container';
 
@@ -36,7 +36,7 @@ export class BindingsManager {
      * This one is for the first case, since maybe the sync engine failed in a previous fetching
      * and we have some placeholders pending from being created/updated/deleted
      */
-    await trackRefreshItemPlaceholders({ ctx });
+    await refreshItemPlaceholders({ ctx });
 
     /**
      * v2.5.7 Daniel Jiménez
@@ -63,7 +63,7 @@ export class BindingsManager {
     const workspaceId = ctx.workspaceId;
 
     try {
-      await trackRefreshItemPlaceholders({ ctx });
+      await refreshItemPlaceholders({ ctx });
       ipcRendererSyncEngine.send('CHANGE_SYNC_STATUS', workspaceId, 'SYNCED');
     } catch (exc) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error updating and checking placeholder', workspaceId, exc });

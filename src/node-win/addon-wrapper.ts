@@ -72,10 +72,6 @@ export class Addon {
     return this.parseAddonZod('getFileIdentity', result);
   }
 
-  deleteFileSyncRoot({ path }: { path: string }) {
-    return addon.deleteFileSyncRoot(path);
-  }
-
   createPlaceholderFile({
     fileName,
     fileId,
