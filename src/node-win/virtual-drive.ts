@@ -68,10 +68,6 @@ export class VirtualDrive {
     return this.addon.getFileIdentity({ path: this.fixPath(path) });
   }
 
-  deleteFileSyncRoot({ path }: { path: string }) {
-    return this.addon.deleteFileSyncRoot({ path: this.fixPath(path) });
-  }
-
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
     const connectionKey = this.addon.connectSyncRoot({ callbacks });
 
