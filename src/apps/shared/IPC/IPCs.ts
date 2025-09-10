@@ -16,7 +16,7 @@ type VoidParamsHandler<T extends CustomIPCEvents> = {
   [Property in keyof T as Parameters<T[Property]> extends never[] ? Property : never]: T[Property];
 };
 
-export interface CustomIpc<EmittedEvents extends CustomIPCEvents, ListenedEvents extends CustomIPCEvents> {
+export type CustomIpc<EmittedEvents extends CustomIPCEvents, ListenedEvents extends CustomIPCEvents> = {
   emit(event: keyof VoidParamsHandler<EmittedEvents>): void;
 
   send<Event extends keyof VoidReturnHandler<EmittedEvents>>(
@@ -41,6 +41,9 @@ export interface CustomIpc<EmittedEvents extends CustomIPCEvents, ListenedEvents
 
   handle<Event extends keyof NonVoidReturnHandler<ListenedEvents>>(
     event: Event,
-    listener: (event: IpcMainEvent, ...args: Parameters<NonVoidReturnHandler<ListenedEvents>[Event]>) => void,
-  ): Promise<ReturnType<ListenedEvents[Event]>>;
-}
+    listener: (
+      event: IpcMainEvent,
+      ...args: Parameters<NonVoidReturnHandler<ListenedEvents>[Event]>
+    ) => ReturnType<ListenedEvents[Event]> | Promise<ReturnType<ListenedEvents[Event]>>,
+  ): void;
+};

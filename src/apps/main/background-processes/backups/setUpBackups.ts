@@ -3,15 +3,14 @@ import eventBus from '../../event-bus';
 import { setupBackupConfig } from './BackupConfiguration/BackupConfiguration';
 import { BackupScheduler } from './BackupScheduler/BackupScheduler';
 import { handleBackupsStatusMessages } from './BackupsProcessStatus/handlers';
-import { initiateBackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import { launchBackupProcesses } from './launchBackupProcesses';
 import { logger } from '@/apps/shared/logger/logger';
+import { tracker } from './BackupsProcessTracker/BackupsProcessTracker';
 
 export async function setUpBackups() {
   logger.debug({ tag: 'BACKUPS', msg: 'Setting up backups' });
 
   const backupConfiguration = setupBackupConfig();
-  const tracker = initiateBackupsProcessTracker();
   const status = handleBackupsStatusMessages();
   const scheduler = new BackupScheduler(
     () => backupConfiguration.lastBackup,

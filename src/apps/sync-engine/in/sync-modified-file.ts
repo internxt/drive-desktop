@@ -1,7 +1,7 @@
 import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import { Stats } from 'fs';
 import { PinState } from '@/node-win/types/placeholder.type';
@@ -9,7 +9,7 @@ import { ProcessSyncContext } from '../config';
 
 type Props = {
   ctx: ProcessSyncContext;
-  remoteFile: DriveFile;
+  remoteFile: SimpleDriveFile;
   localFile: { absolutePath: AbsolutePath; stats: Stats };
 };
 
