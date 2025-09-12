@@ -1,4 +1,4 @@
-import { logger } from '../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { right } from './../../../context/shared/domain/Either';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
 import { Either } from './../../../context/shared/domain/Either';
@@ -13,7 +13,7 @@ export async function migrateLegacyDeviceIdentifier(
   const getDeviceIdentifierResult = getDeviceIdentifier();
   if (getDeviceIdentifierResult.isLeft()) {
     logger.warn({
-      tag: 'BACKUP',
+      tag: 'BACKUPS',
       msg: 'No valid identifier available for migration',
     });
     return right(device);
@@ -32,8 +32,8 @@ export async function migrateLegacyDeviceIdentifier(
   if (addIdentifierResult.isRight()) {
     configStore.set('deviceId', -1);
     configStore.set('deviceUUID', '');
-    logger.info({
-      tag: 'BACKUP',
+    logger.debug({
+      tag: 'BACKUPS',
       msg: 'Successfully migrated legacy device identifier',
       device: addIdentifierResult.getRight(),
     });
@@ -43,15 +43,15 @@ export async function migrateLegacyDeviceIdentifier(
   if (error instanceof BackupError && error.code === 'ALREADY_EXISTS') {
     configStore.set('deviceId', -1);
     configStore.set('deviceUUID', '');
-    logger.info({
-      tag: 'BACKUP',
+    logger.debug({
+      tag: 'BACKUPS',
       msg: 'Successfully migrated legacy device identifier',
       device: addIdentifierResult.getRight(),
     });
     return right(device);
   }
   logger.warn({
-    tag: 'BACKUP',
+    tag: 'BACKUPS',
     msg: 'Failed to migrate legacy device identifier',
     error,
   });

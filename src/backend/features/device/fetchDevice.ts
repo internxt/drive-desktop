@@ -1,7 +1,7 @@
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
 import { Either, left, right } from '../../../context/shared/domain/Either';
 import { decryptDeviceName, Device } from '../../../apps/main/device/service';
-import { logger } from '../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 import { addUnknownDeviceIssue } from './addUnknownDeviceIssue';
 import { DeviceIdentifierDTO } from './device.types';
@@ -61,7 +61,8 @@ export async function fetchDevice(
     const device = getDeviceEither.getRight();
     if (device && !device.removed) {
       const decryptedDevice = decryptDeviceName(device);
-      logger.info({
+      logger.debug({
+        tag: 'BACKUPS',
         msg: '[DEVICE] Found device',
         device: decryptedDevice.name,
       });
@@ -74,19 +75,19 @@ export async function fetchDevice(
 
     if (error instanceof BackupError && error.code === 'NOT_FOUND') {
       const msg = 'Device not found';
-      logger.info({ msg: `[DEVICE] ${msg}` });
+      logger.debug({ tag: 'BACKUPS', msg: `[DEVICE] ${msg}` });
       addUnknownDeviceIssue(new Error(msg));
       return right(null);
     }
 
     if (error instanceof BackupError && error.code === 'FORBIDDEN') {
       const msg = 'Device request returned forbidden';
-      logger.info({ msg: `[DEVICE] ${msg}` });
+      logger.debug({ tag: 'BACKUPS', msg: `[DEVICE] ${msg}` });
       addUnknownDeviceIssue(new Error(msg));
       return right(null);
     }
 
-    logger.error({ msg: '[DEVICE] Error fetching device', error });
+    logger.error({ tag: 'BACKUPS', msg: '[DEVICE] Error fetching device', error });
     return left(error);
   }
 

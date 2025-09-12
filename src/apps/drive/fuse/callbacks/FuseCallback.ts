@@ -1,7 +1,7 @@
 import { Either, right, left } from '../../../../context/shared/domain/Either';
 import { Stopwatch } from '../../../shared/types/Stopwatch';
 import { FuseError, FuseUnknownError } from './FuseErrors';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { PathsToIgnore } from './PathsToIgnore';
 import { FuseCodes } from './FuseCodes';
 
@@ -44,7 +44,7 @@ export abstract class FuseCallback<T> {
         const et = stopwatch.elapsedTime();
 
         if (et > 10) {
-          Logger.debug(`${this.name} ${params} is running for ${et}ms`);
+          logger.debug({ msg: `${this.name} ${params} is running for ${et}ms` });
         }
       }, 2_000);
     }
@@ -56,7 +56,7 @@ export abstract class FuseCallback<T> {
 
       return result;
     } catch (throwed: unknown) {
-      Logger.error(throwed);
+      logger.error({ msg: 'Error in FUSE callback', error: throwed });
       if (throwed instanceof FuseError) {
         return this.left(throwed);
       }
@@ -64,10 +64,10 @@ export abstract class FuseCallback<T> {
       return this.left(new FuseUnknownError());
     } finally {
       if (this.debug.elapsedTime) {
-        Logger.debug(
-          `Elapsed time for ${this.name}: ${params[0]} `,
-          stopwatch.elapsedTime()
-        );
+        logger.debug({
+          msg: `Elapsed time for ${this.name}: ${params[0]}`,
+          elapsedTime: stopwatch.elapsedTime()
+        });
       }
 
       if (interval) {
@@ -78,9 +78,9 @@ export abstract class FuseCallback<T> {
 
   protected right(value: T): Either<FuseError, T> {
     if (this.debug.output) {
-      Logger.debug(
-        `${this.name} Result: ${JSON.stringify({ value }, null, 2)}`
-      );
+      logger.debug({
+        msg: `${this.name} Result: ${JSON.stringify({ value }, null, 2)}`
+      });
     }
 
     return right(value);
@@ -91,18 +91,18 @@ export abstract class FuseCallback<T> {
 
   protected left(error: FuseError | unknown): Either<FuseError, T> {
     if (error instanceof FuseError) {
-      Logger.error(`${this.name} ${error}`);
+      logger.error({ msg: `${this.name}`, error });
       return left(error);
     }
 
-    Logger.error(`${this.name} Error: ${error}.`);
+    logger.error({ msg: `${this.name} Error:`, error });
     return left(new FuseUnknownError());
   }
 
   protected logDebugMessage(...message: Array<string>): void {
     if (!this.debug) return;
 
-    Logger.debug(`${this.name}: `, ...message);
+    logger.debug({ msg: `${this.name}: `, message });
   }
 
   async handle(...params: any[]): Promise<void> {
@@ -113,7 +113,7 @@ export abstract class FuseCallback<T> {
     }
 
     if (this.debug.input) {
-      Logger.debug(`${this.name}: `, ...params);
+      logger.debug({ msg: `${this.name}: `, params });
     }
 
     const result = await this.executeAndCatch(params);
@@ -140,7 +140,7 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
     const callback = params.pop() as Callback;
 
     if (this.debug.input) {
-      Logger.debug(`${this.name}: `, ...params);
+      logger.debug({ msg: `${this.name}: `, params });
     }
 
     const result = await this.executeAndCatch(params);
@@ -149,14 +149,14 @@ export abstract class NotifyFuseCallback extends FuseCallback<undefined> {
       const error = result.getLeft();
 
       if (this.debug.output) {
-        Logger.debug(`${this.name} ${error}`);
+        logger.debug({ msg: `${this.name}`, error });
       }
 
       return callback(error.code);
     }
 
     if (this.debug.output) {
-      Logger.debug(`${this.name} completed successfully ${params[0]}`);
+      logger.debug({ msg: `${this.name} completed successfully ${params[0]}` });
     }
 
     callback(NotifyFuseCallback.OK);

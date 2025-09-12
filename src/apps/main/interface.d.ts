@@ -1,7 +1,7 @@
 import { BackupInfo } from './../backups/BackupInfo';
 import { Usage } from '../../backend/features/usage/usage.types';
 import { Result } from './../../context/shared/domain/Result';
-import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
+import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 import { Device } from './device/service';
 import {
   AuthAccessResponseViewModel,
@@ -9,6 +9,8 @@ import {
   LoginAccessRequest,
 } from '../../infra/drive-server/services/auth/auth.types';
 import { TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
+import { CleanerReport, CleanerViewModel, CleanupProgress } from '../../backend/features/cleaner/cleaner.types';
+
 /** This interface and declare global will replace the preload.d.ts.
  * The thing is that instead of that, we will gradually will be declaring the interface here as we generate tests
  * And we need to mock the electron API.
@@ -37,11 +39,9 @@ export interface IElectronAPI {
   openUrl: (url: string) => Promise<void>;
 
   userAvailableProducts: {
-    get: () => Promise<AvailableProducts['featuresPerService'] | undefined>;
+    get: () => Promise<UserAvailableProducts | undefined>;
     subscribe: () => void;
-    onUpdate: (
-      callback: (products: AvailableProducts['featuresPerService']) => void
-    ) => void;
+    onUpdate: (callback: (products: UserAvailableProducts) => void) => void;
   };
   login(email: string): Promise<AuthLoginResponseViewModel>;
   access(credentials: LoginAccessRequest): Promise<AuthAccessResponseViewModel>;
@@ -51,6 +51,13 @@ export interface IElectronAPI {
     error: (rawBody: TLoggerBody) => void;
   };
   getUsage(): Promise<Result<Usage, Error>>;
+  cleaner: {
+    generateReport: (force?: boolean) => Promise<CleanerReport>;
+    startCleanup: (viewModel: CleanerViewModel) => Promise<void>;
+    stopCleanup: () => Promise<void>;
+    onCleanupProgress: (callback: (progressData: CleanupProgress) => void) => () => void;
+    getDiskSpace: () => Promise<number>;
+  };
 }
 
 declare global {

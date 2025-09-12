@@ -6,7 +6,7 @@ import { Folder } from '../../domain/Folder';
 import { FolderUuid } from '../../domain/FolderUuid';
 import { FolderCreatedAt } from '../../domain/FolderCreatedAt';
 import { FolderUpdatedAt } from '../../domain/FolderUpdatedAt';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 @Service()
 export class SimpleFolderCreator {
@@ -20,7 +20,10 @@ export class SimpleFolderCreator {
 
     const folder = await response.fold<Promise<Folder | undefined>>(
       async (error): Promise<Folder | undefined> => {
-        Logger.warn('The folder was not been able to create', error);
+        logger.warn({
+          msg: 'The folder was not been able to create',
+          error,
+        });
         if (error !== 'ALREADY_EXISTS') {
           return;
         }

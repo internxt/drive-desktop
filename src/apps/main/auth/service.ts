@@ -1,5 +1,5 @@
 import { safeStorage } from 'electron';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 import packageConfig from '../../../../package.json';
 import ConfigStore, { defaults, fieldsToSave } from '../config';
@@ -20,7 +20,7 @@ export function encryptToken() {
     return;
   }
 
-  Logger.info('TOKEN WAS NOT ENCRYPTED, ENCRYPTING...');
+  logger.debug({ msg: 'TOKEN WAS NOT ENCRYPTED, ENCRYPTING...' });
 
   if (!safeStorage.isEncryptionAvailable()) {
     throw new Error('Safe Storage is not available');
@@ -116,7 +116,7 @@ export function getHeaders(includeMnemonic = false): Record<string, string> {
   return header;
 }
 
-export function getBaseApiHeaders():  Record<string, string> {
+export function getBaseApiHeaders(): Record<string, string> {
   return {
     'content-type': 'application/json; charset=utf-8',
     'internxt-client': 'drive-desktop-linux',
@@ -124,7 +124,6 @@ export function getBaseApiHeaders():  Record<string, string> {
     'x-internxt-desktop-header': process.env.INTERNXT_DESKTOP_HEADER_KEY || '',
   };
 }
-
 
 export function getNewApiHeaders(): Record<string, string> {
   const token = obtainToken('newToken');
@@ -205,13 +204,13 @@ export function canHisConfigBeRestored(uuid: string) {
 
 export function logout() {
   const headers = getNewApiHeaders();
-  Logger.info('Logging out');
+  logger.debug({ msg: 'Logging out' });
 
   saveConfig();
   resetConfig();
   resetCredentials();
   void driveServerModule.auth.logout(headers);
-  Logger.info('[AUTH] User logged out');
+  logger.debug({ msg: '[AUTH] User logged out' });
 }
 
 function saveConfig() {

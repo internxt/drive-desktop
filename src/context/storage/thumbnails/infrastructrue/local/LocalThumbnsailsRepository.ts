@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import fs from 'fs';
 import path from 'path';
 import { Readable } from 'stream';
@@ -76,7 +76,7 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
     } catch (error) {
       if (isNodeError(error) && error.code !== 'ENOENT') {
         // The thumbnail not existing is not an error
-        Logger.error((error as Error).message);
+        logger.error({ msg: (error as Error).message });
       }
 
       return undefined;
@@ -93,7 +93,9 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
 
     await Promise.all(where.map((p) => WriteReadableToFile.write(stream, p)));
 
-    Logger.info(`Thumbnail Created for ${file.nameWithExtension} on ${where}`);
+    logger.debug({
+      msg: `Thumbnail Created for ${file.nameWithExtension} on ${where}`,
+    });
   }
 
   private getIconName(mimetype: string): string | undefined {
@@ -166,9 +168,9 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
     try {
       const thumbnail = fs.readFileSync(iconPath);
       where.forEach((p) => fs.writeFileSync(p, new Uint8Array(thumbnail)));
-      Logger.debug(file.nameWithExtension, 'thumbnail created');
+      logger.debug({ msg: `thumbnail created for ${file.nameWithExtension}` });
     } catch (err) {
-      Logger.error(file.nameWithExtension, err);
+      logger.error({ msg: `Error while trying to create thumbnail for ${file.nameWithExtension}`, err });
     }
   }
 

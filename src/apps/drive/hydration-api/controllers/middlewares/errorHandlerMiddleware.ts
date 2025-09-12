@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import Logger from 'electron-log';
-import * as Sentry from '@sentry/electron/main';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export function errorHandlerMiddleware(
   err: Error,
@@ -9,8 +8,7 @@ export function errorHandlerMiddleware(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ) {
-  Logger.error(err);
-  Sentry.captureException(err);
+  logger.error({ msg: '[HYDRATION API] Error:', error: err });
 
   res.sendStatus(500);
 }

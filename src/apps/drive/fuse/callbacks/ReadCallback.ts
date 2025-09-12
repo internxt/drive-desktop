@@ -1,5 +1,5 @@
 import { Container } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { TemporalFileByPathFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
 import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { Optional } from '../../../../shared/types/Optional';
@@ -62,7 +62,7 @@ export class ReadCallback {
           .run(path);
 
         if (!document) {
-          Logger.error('READ FILE NOT FOUND', path);
+          logger.error({ msg: 'READ FILE NOT FOUND', path });
           cb(fuse.ENOENT);
           return;
         }
@@ -80,7 +80,7 @@ export class ReadCallback {
       const bytesRead = await this.read(virtualFile.contentsId, buf, len, pos);
       cb(bytesRead);
     } catch (err) {
-      Logger.error(`Error reading file: ${err}`);
+      logger.error({ msg: 'Error reading file:', error: err });
       cb(fuse.EIO);
     }
   }

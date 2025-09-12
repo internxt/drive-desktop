@@ -3,7 +3,7 @@ jest.mock('@sentry/electron/main', () => ({
   captureException: () => jest.fn(),
 }));
 
-jest.mock('electron-log');
+jest.mock('@internxt/drive-desktop-core/build/backend');
 jest.mock('electron');
 jest.mock('electron-store');
 jest.mock('axios');

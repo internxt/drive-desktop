@@ -5,7 +5,7 @@ import { AllFilesInFolderAreAvailableOffline } from '../../../context/storage/St
 import { StorageFileIsAvailableOffline } from '../../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
 import { TemporalFileByPathFinder } from '../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
 import { VirtualDriveError } from '../errors/VirtualDriveError';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { CacheStorageFile } from '../../../context/storage/StorageFiles/application/offline/CacheStorageFile';
 
 export class VirtualDrive {
@@ -15,7 +15,7 @@ export class VirtualDrive {
     try {
       return await this.container.get(StorageFileIsAvailableOffline).run(path);
     } catch (error) {
-      Logger.debug((error as Error).message);
+      logger.error({ msg: 'Error checking if file is locally available:', error, path });
       // If the path is from a folder it will not find it as a file
       return false;
     }
@@ -27,7 +27,7 @@ export class VirtualDrive {
         .get(AllFilesInFolderAreAvailableOffline)
         .run(path);
     } catch (error) {
-      Logger.debug((error as Error).message);
+      logger.error({ msg: 'Error checking if folder is locally available:', error, path });
       // If the path is from a file it will not find it as a folder
       return false;
     }

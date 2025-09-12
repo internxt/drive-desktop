@@ -19,6 +19,11 @@ import AntivirusImageSpanish from '../../assets/onboarding/antivirus/es.svg';
 import AntivirusImageEnglish from '../../assets/onboarding/antivirus/en.svg';
 import AntivirusImageFrench from '../../assets/onboarding/antivirus/fr.svg';
 
+// Cleaner images
+import CleanerImageSpanish from '../../assets/onboarding/cleaner/es.svg';
+import CleanerImageEnglish from '../../assets/onboarding/cleaner/en.svg';
+import CleanerImageFrench from '../../assets/onboarding/cleaner/fr.svg';
+
 import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
 
 export type OnboardingSlideProps = {
@@ -42,6 +47,12 @@ export const getAntivirusImageSvg = (language: string) => {
   if (language === 'es') return AntivirusImageSpanish;
   if (language === 'fr') return AntivirusImageFrench;
   return AntivirusImageEnglish;
+};
+
+export const getCleanerImageSvg = (language: string) => {
+  if (language === 'es') return CleanerImageSpanish;
+  if (language === 'fr') return CleanerImageFrench;
+  return CleanerImageEnglish;
 };
 
 export const getOfflineImageSvg = (language: string) => {

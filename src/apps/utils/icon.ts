@@ -1,3 +1,4 @@
+/* TODO: DELETE DEAD CODE */
 import path from 'path';
 
 export const iconPath =

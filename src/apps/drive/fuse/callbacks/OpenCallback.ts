@@ -1,4 +1,4 @@
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { VirtualDrive } from '../../virtual-drive/VirtualDrive';
 import { FuseCallback } from './FuseCallback';
 import {
@@ -35,7 +35,7 @@ export class OpenCallback extends FuseCallback<number> {
         return this.left(new FuseFileOrDirectoryAlreadyExistsError());
       }
 
-      Logger.error('Error downloading file: ', err);
+      logger.error({ msg: 'Error downloading file: ', error: err });
       if (err instanceof Error) {
         return this.left(new FuseIOError());
       }

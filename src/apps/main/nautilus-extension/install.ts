@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/electron/main';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import {
   copyNautilusExtensionFile,
   deleteNautilusExtensionFile,
@@ -30,10 +30,9 @@ async function install(): Promise<void> {
     LATEST_NAUTILUS_EXTENSION_VERSION
   );
 
-  Logger.info(
-    '[NAUTILUS EXTENSION] Extension Installed with version #',
-    LATEST_NAUTILUS_EXTENSION_VERSION
-  );
+  logger.debug({
+    msg: `[NAUTILUS EXTENSION] Extension Installed with version #${LATEST_NAUTILUS_EXTENSION_VERSION}`,
+  });
 }
 
 export async function installNautilusExtension() {
@@ -44,27 +43,33 @@ export async function installNautilusExtension() {
     if (!installed) {
       await install();
       await reloadNautilus().catch((reloadError) => {
-        Logger.error(reloadError);
+        logger.error({
+          msg: 'catched error while reloading nautilus extension',
+          error: reloadError,
+        });
         Sentry.captureException(reloadError);
       });
       return;
     }
 
     if (installed && !hasLatestsVersion) {
-      Logger.info(
-        '[NAUTILUS EXTENSION] There is a newer version to be installed'
-      );
+      logger.debug({
+        msg: '[NAUTILUS EXTENSION] There is a newer version to be installed',
+      });
       await deleteNautilusExtensionFile();
       await install();
 
       return;
     }
 
-    Logger.info(
-      '[NAUTILUS EXTENSION] Extension already installed with the version'
-    );
+    logger.debug({
+      msg: '[NAUTILUS EXTENSION] Extension already installed with the version',
+    });
   } catch (error) {
-    Logger.error(error);
+    logger.error({
+      msg: '[NAUTILUS EXTENSION] Error while installing Nautilus extension: ',
+      error,
+    });
     Sentry.captureException(error);
   }
 }

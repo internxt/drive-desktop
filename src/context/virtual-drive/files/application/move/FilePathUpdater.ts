@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { ParentFolderFinder } from '../../../folders/application/ParentFolderFinder';
 import { EventBus } from '../../../shared/domain/EventBus';
 import { File } from '../../domain/File';
@@ -44,16 +44,16 @@ export class FilePathUpdater {
 
   private async move(file: File, destination: FilePath) {
     const destinationFolder = await this.parentFolderFinder.run(destination);
-    Logger.debug('destinationFolder', destinationFolder);
+    logger.debug({ msg: 'destinationFolder', destinationFolder });
     file.moveTo(destinationFolder);
 
-    Logger.debug('REMOTE CHANGES');
+    logger.debug({ msg: 'REMOTE CHANGES' });
     await this.remote.move(file, destinationFolder.uuid);
     await this.repository.update(file);
 
     const events = file.pullDomainEvents();
     this.eventBus.publish(events);
-    Logger.debug('DONE');
+    logger.debug({ msg: 'DONE' });
   }
 
   async run(contentsId: string, posixRelativePath: string) {
@@ -67,14 +67,14 @@ export class FilePathUpdater {
       throw new FileNotFoundError(contentsId);
     }
 
-    Logger.debug('FILE RENAMER FILE FOUNDED');
+    logger.debug({ msg: 'FILE RENAMER FILE FOUNDED' });
 
     if (file.dirname !== destination.dirname()) {
       if (file.nameWithExtension !== destination.nameWithExtension()) {
         throw new ActionNotPermittedError('rename and change folder');
       }
 
-      Logger.debug('MOVE');
+      logger.debug({ msg: 'MOVE' });
 
       await this.move(file, destination);
       return;

@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { promises as fs, constants as FsConstants } from 'fs';
 import path from 'path';
 import { RelativePathToAbsoluteConverter } from '../../shared/application/RelativePathToAbsoluteConverter';
@@ -86,7 +86,7 @@ export class FolderPlaceholderUpdater {
 
     if (!local) {
       if (remote.hasStatus(FolderStatuses.EXISTS)) {
-        Logger.debug('Creating folder placeholder: ', remote.path);
+        logger.debug({ msg: 'Creating folder placeholder:', path: remote.path });
         await this.repository.add(remote);
         this.local.createPlaceHolder(remote);
       }
@@ -94,12 +94,12 @@ export class FolderPlaceholderUpdater {
     }
 
     if (remote.name !== local.name || remote.parentId !== local.parentId) {
-      Logger.debug('Updating folder placeholder: ', remote.path);
+      logger.debug({ msg: 'Updating folder placeholder:', path: remote.path });
       await this.repository.update(remote);
 
       try {
         const stat = await fs.stat(remote.path);
-        Logger.debug('Placeholder already exists: ', stat);
+        logger.debug({ msg: 'Placeholder already exists:', stat });
         // Do nothing
       } catch {
         const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
@@ -109,7 +109,7 @@ export class FolderPlaceholderUpdater {
         const canBeWritten = this.canWrite(win32AbsolutePath);
 
         if (!canBeWritten) {
-          Logger.warn(`Cannot modify the folder placeholder ${local.path}`);
+          logger.warn({ msg: `Cannot modify the folder placeholder ${local.path}` });
           return;
         }
 
@@ -124,7 +124,7 @@ export class FolderPlaceholderUpdater {
             );
           }
         } catch (error) {
-          Logger.error(error);
+          logger.error({ msg: 'Error renaming folder placeholder:', error });
         }
       }
     }

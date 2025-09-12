@@ -7,7 +7,7 @@ import { handleBackupsStatusMessages } from './BackupsProcessStatus/handlers';
 import { initiateBackupsProcessTracker } from './BackupsProcessTracker/BackupsProcessTracker';
 import { BackupsStopController } from './BackupsStopController/BackupsStopController';
 import { launchBackupProcesses } from './launchBackupProcesses';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import configStore from '../../config';
 import { BACKUP_MANUAL_INTERVAL } from './types/types';
 
@@ -17,11 +17,11 @@ function userCanBackup(): boolean {
 }
 
 export async function setUpBackups() {
-  Logger.debug('[BACKUPS] Setting up backups');
+  logger.debug({ tag: 'BACKUPS', msg: 'Setting up backups' });
   const userHasBackupFeatureAvailable = userCanBackup();
 
   if (!userHasBackupFeatureAvailable) {
-    Logger.debug('[BACKUPS] User does not have the backup feature available');
+    logger.debug({ tag: 'BACKUPS', msg: 'User does not have the backup feature available' });
   }
 
   const backupConfiguration = setupBackupConfig();
@@ -38,12 +38,12 @@ export async function setUpBackups() {
   backupConfiguration.onBackupIntervalChanged = (interval: number) => {
     if (interval === BACKUP_MANUAL_INTERVAL) {
       scheduler.stop();
-      Logger.info('[BACKUPS] The backups schedule stopped');
+      logger.debug({ tag: 'BACKUPS', msg: 'The backups schedule stopped' });
       return;
     } else {
       if (userHasBackupFeatureAvailable) {
         scheduler.reschedule();
-        Logger.debug('[BACKUPS] The backups has been rescheduled');
+        logger.debug({ tag: 'BACKUPS', msg: 'The backups has been rescheduled' });
       }
     }
   };
@@ -63,19 +63,20 @@ export async function setUpBackups() {
   eventBus.on('USER_AVAILABLE_PRODUCTS_UPDATED', (updatedProducts) => {
     const userHasBackupFeatureNow = !!updatedProducts?.backups;
     if (userHasBackupFeatureNow && !userHasBackupFeatureAvailable) {
-      Logger.debug(
-        '[BACKUPS] User now has the backup feature available, setting up backups'
-      );
+      logger.debug({
+        tag: 'BACKUPS',
+        msg: 'User now has the backup feature available, setting up backups'
+      });
       setUpBackups();
     } else if (!userHasBackupFeatureNow && userHasBackupFeatureAvailable) {
-      Logger.debug('[BACKUPS] User no longer has the backup feature available');
+      logger.debug({ tag: 'BACKUPS', msg: 'User no longer has the backup feature available' });
       stopAndClearBackups();
     }
   });
 
   ipcMain.on('start-backups-process', async () => {
     if (userHasBackupFeatureAvailable) {
-      Logger.debug('Backups started manually');
+      logger.debug({ tag: 'BACKUPS', msg: 'Backups started manually' });
 
       await launchBackupProcesses(
         false,
@@ -90,21 +91,21 @@ export async function setUpBackups() {
   ipcMain.on('BACKUP_PROCESS_FINISHED', (event) => {
 
     if (event?.lastExitReason === 'FORCED_BY_USER') {
-      Logger.debug('[BACKUPS] Backups process finished by user');
+      logger.debug({ tag: 'BACKUPS', msg: 'Backups process finished by user' });
     } else {
-      Logger.debug('[BACKUPS] Backups process finished');
+      logger.debug({ tag: 'BACKUPS', msg: 'Backups process finished' });
     }
     stopAndClearBackups();
   });
 
   if (userHasBackupFeatureAvailable) {
-    Logger.debug('[BACKUPS] Start service');
+    logger.debug({ tag: 'BACKUPS', msg: 'Start service' });
     await scheduler.start();
 
     if (scheduler.isScheduled()) {
-      Logger.debug('[BACKUPS] Backups schedule is set');
+      logger.debug({ tag: 'BACKUPS', msg: 'Backups schedule is set' });
     }
 
-    Logger.debug('[BACKUPS] Backups ready');
+    logger.debug({ tag: 'BACKUPS', msg: 'Backups ready' });
   }
 }

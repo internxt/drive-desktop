@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/application/SingleFileMatchingFinder';
 import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFile } from '../../domain/StorageFile';
@@ -38,8 +38,8 @@ export class CacheStorageFile {
     const readable = await this.downloader.run(storage, virtual);
     await this.cache.pipe(id, readable);
 
-    Logger.debug(
-      `File "${virtual.nameWithExtension}" with ${storage.id.value} is cached`
-    );
+    logger.debug({
+      msg: `File "${virtual.nameWithExtension}" with ${storage.id.value} is cached`,
+    });
   }
 }

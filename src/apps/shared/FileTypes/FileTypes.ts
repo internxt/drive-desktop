@@ -1,3 +1,4 @@
+/*TODO: DELETE DEAD CODE */
 type FileExtensionMap = Record<string, readonly string[]>;
 
 const audioExtensions: FileExtensionMap = {

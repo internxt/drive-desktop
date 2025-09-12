@@ -3,6 +3,7 @@ interface CheckboxProps extends React.InputHTMLAttributes<CheckboxProps> {
   label: string;
   onClick: () => void;
   customClassName?: string;
+  disabled?: boolean;
 }
 
 export default function Checkbox(props: CheckboxProps) {
@@ -21,11 +22,15 @@ export default function Checkbox(props: CheckboxProps) {
     </svg>
   );
 
+  const isDisabled = props.disabled ?? false;
+
   return (
     <label
-      className={`group flex items-start space-x-2 text-base leading-5 text-gray-100 ${
-        props.customClassName ?? undefined
-      }`}
+      className={`group flex items-start space-x-2 text-base leading-5 ${
+        isDisabled 
+          ? 'text-gray-40 cursor-not-allowed' 
+          : 'text-gray-100'
+      } ${props.customClassName ?? undefined}`}
     >
       <div className="relative h-5 w-5">
         <input
@@ -33,19 +38,30 @@ export default function Checkbox(props: CheckboxProps) {
           type="checkbox"
           tabIndex={-1}
           checked={props.checked}
-          className={`h-5 w-5 shrink-0 cursor-pointer appearance-none rounded-md border border-gray-30 shadow-sm transition-all duration-75 ease-in-out ${
-            props.checked
-              ? 'border-primary-dark bg-primary group-active:bg-primary-dark'
-              : 'bg-surface group-active:bg-gray-1 dark:bg-gray-5'
+          disabled={isDisabled}
+          className={`h-5 w-5 shrink-0 appearance-none rounded-md border border-gray-30 shadow-sm transition-all duration-75 ease-in-out ${
+            isDisabled
+              ? 'cursor-not-allowed opacity-50 bg-gray-10 border-gray-20'
+              : `cursor-pointer ${
+                  props.checked
+                    ? 'border-primary-dark bg-primary group-active:bg-primary-dark'
+                    : 'bg-surface group-active:bg-gray-1 dark:bg-gray-5'
+                }`
           }`}
           onClick={(e) => {
             e.preventDefault();
-            props.onClick();
+            if (!isDisabled) {
+              props.onClick();
+            }
           }}
         />
         <div
-          className={`pointer-events-none absolute inset-0 flex items-center justify-center text-white transition-all duration-75 ease-in-out ${
-            props.checked ? 'opacity-100' : 'opacity-0'
+          className={`pointer-events-none absolute inset-0 flex items-center justify-center transition-all duration-75 ease-in-out ${
+            isDisabled 
+              ? 'text-gray-40'
+              : 'text-white'
+          } ${
+            props.checked && !isDisabled ? 'opacity-100' : 'opacity-0'
           }`}
         >
           <Check />

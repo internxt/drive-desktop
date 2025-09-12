@@ -2,7 +2,7 @@ import { driveServerModule } from '../../../../infra/drive-server/drive-server.m
 import { Either, left, right } from '../../../../context/shared/domain/Either';
 import { obtainTokens, refreshToken } from './refresh-token';
 import { RefreshTokenResponse } from '../../../../infra/drive-server/services/auth/auth.types';
-import { logger } from '../../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { updateCredentials } from '../service';
 
 jest.mock('../../../../infra/drive-server/drive-server.module', () => ({
@@ -13,7 +13,7 @@ jest.mock('../../../../infra/drive-server/drive-server.module', () => ({
   },
 }));
 
-jest.mock('../../../../core/LoggerService/LoggerService', () => ({
+jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
   logger: {
     error: jest.fn(),
     debug: jest.fn(),

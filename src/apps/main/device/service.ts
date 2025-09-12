@@ -1,11 +1,11 @@
 import { aes } from '@internxt/lib';
 import { dialog, IpcMainEvent } from 'electron';
 import fetch from 'electron-fetch';
-import logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import os from 'os';
 import path from 'path';
 import fs, { PathLike } from 'fs';
-import { getHeaders, getNewApiHeaders, getUser } from '../auth/service';
+import { getNewApiHeaders, getUser } from '../auth/service';
 import configStore from '../config';
 import { BackupInfo } from '../../backups/BackupInfo';
 import { downloadFolderAsZip } from '../network/download';
@@ -203,9 +203,12 @@ export async function downloadBackup(device: Device): Promise<void> {
   }
 
   const chosenPath = chosenItem.path;
-  logger.info(
-    `[BACKUPS] Downloading Device: "${device.name}", ChosenPath "${chosenPath}"`
-  );
+  logger.debug({
+    tag: 'BACKUPS',
+    msg: '[BACKUPS] Downloading Device',
+    deviceName: device.name,
+    chosenPath
+  });
 
   const date = new Date();
   const now =
@@ -326,8 +329,8 @@ export async function deleteBackupsFromDevice(
   isCurrent?: boolean
 ): Promise<void> {
   const backups = await DeviceModule.getBackupsFromDevice(device, isCurrent);
-  logger.info(`[BACKUPS] Deleting ${backups.length} backups from device`);
-  logger.debug(`[BACKUPS] Backups: ${JSON.stringify(backups)}`);
+  logger.debug({ tag: 'BACKUPS', msg: '[BACKUPS] Deleting backups from device', count: backups.length });
+  logger.debug({ tag: 'BACKUPS', msg: '[BACKUPS] Backups details', backups });
 
   let deletionPromises: Promise<any>[] = backups.map((backup) =>
     deleteBackup(backup, isCurrent)
@@ -357,7 +360,7 @@ export async function disableBackup(backup: BackupInfo): Promise<void> {
       await deleteBackup(backup, true);
     }
   } catch (error) {
-    logger.error('Error disabling backup folder', error);
+    logger.error({ tag: 'BACKUPS', msg: 'Error disabling backup folder', error });
   }
 }
 

@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Folder } from '../domain/Folder';
 import { FolderPath } from '../domain/FolderPath';
 import { FolderRepository } from '../domain/FolderRepository';
@@ -42,7 +42,7 @@ export class FolderPathUpdater {
     }
 
     if (nameChanged) {
-      Logger.debug('about to rename');
+      logger.debug({ msg: 'About to rename folder', uuid, currentPath: folder.path, desiredPath: desiredPath.value });
       return await this.folderRenamer.run(folder, desiredPath);
     }
 

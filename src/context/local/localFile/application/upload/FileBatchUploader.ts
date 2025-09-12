@@ -6,7 +6,7 @@ import { RemoteTree } from '../../../../virtual-drive/remoteTree/domain/RemoteTr
 import { relative } from '../../../../../apps/backups/utils/relative';
 import { LocalFileMessenger } from '../../domain/LocalFileMessenger';
 import { isFatalError } from '../../../../../shared/issues/SyncErrorCause';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 @Service()
 export class FileBatchUploader {
@@ -32,13 +32,13 @@ export class FileBatchUploader {
           signal
         );
       } catch (error) {
-        Logger.error('[UPLOAD ERROR]', error);
+        logger.error({ msg: '[UPLOAD ERROR]', error });
         continue;
       }
 
       if (uploadEither.isLeft()) {
         const error = uploadEither.getLeft();
-        Logger.error('[FILE UPLOAD FAILED]', error);
+        logger.error({ msg: '[FILE UPLOAD FAILED]', error });
 
         if (isFatalError(error.cause)) {
           throw error;
@@ -65,15 +65,15 @@ export class FileBatchUploader {
       );
 
       if (either.isLeft()) {
-        Logger.debug('[FILE CREATION FAILED]', either.getLeft());
+        logger.debug({ msg: '[FILE CREATION FAILED]', error: either.getLeft() });
         // eslint-disable-next-line no-await-in-loop
         await this.localHandler.delete(contentsId);
         const error = either.getLeft();
 
         if (error.cause === 'FILE_ALREADY_EXISTS') {
-          Logger.debug(
-            `[FILE ALREADY EXISTS] Skipping file ${localFile.path} - already exists remotely`
-          );
+          logger.debug({
+            msg: `[FILE ALREADY EXISTS] Skipping file ${localFile.path} - already exists remotely`
+        });
           continue;
         }
 

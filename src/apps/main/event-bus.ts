@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { ProgressData } from './antivirus/ManualSystemScan';
-import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
+import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 
 class EventBus extends EventEmitter {}
 
@@ -40,7 +40,7 @@ interface Events {
 
   GET_USER_AVAILABLE_PRODUCTS: () => void;
 
-  USER_AVAILABLE_PRODUCTS_UPDATED: (products: AvailableProducts['featuresPerService']) => void;
+  USER_AVAILABLE_PRODUCTS_UPDATED: (products: UserAvailableProducts) => void;
 }
 
 declare interface EventBus {

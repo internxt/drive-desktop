@@ -2,12 +2,12 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { shell, BrowserWindow, ipcMain } from 'electron';
 import { AntivirusIPCMain } from './AntivirusIPCMain';
 import { SelectedItemToScanProps } from '../../main/antivirus/Antivirus';
-import { PaymentsService } from '../../main/payments/service';
+
 import { getManualScanMonitorInstance } from '../../main/antivirus/ManualSystemScan';
-import { buildPaymentsService } from '../../main/payments/builder';
 import { getMultiplePathsFromDialog } from '../../main/device/service';
 import { ScanProgress } from './messages/BackgroundProcessMessages';
 import fs from 'fs';
+import { getStoredUserProducts } from '../../../backend/features/payments/services/get-stored-user-products';
 
 /**
  * Service class for handling antivirus scan operations
@@ -311,7 +311,6 @@ export class AntivirusScanService {
  * Handles antivirus IPC messaging between main and renderer processes
  */
 export class AntivirusIPCHandler {
-  private paymentService: PaymentsService | null = null;
 
   /**
    * Broadcast scan progress to all open windows
@@ -367,14 +366,10 @@ export class AntivirusIPCHandler {
    */
   private setupAvailabilityHandler(): void {
     AntivirusIPCMain.handle('antivirus:is-available', async () => {
-      if (!this.paymentService) {
-        this.paymentService = buildPaymentsService();
-      }
 
       try {
-        const availableProducts =
-          await this.paymentService.getAvailableProducts();
-        return availableProducts.antivirus;
+        const availableProducts = getStoredUserProducts();
+        return !!availableProducts?.antivirus;
       } catch (error) {
         logger.error({
           tag: 'ANTIVIRUS',
@@ -620,12 +615,12 @@ export class AntivirusIPCHandler {
 
       logger.debug({
         tag: 'ANTIVIRUS',
-        msg: 'All handlers removed',
+        msg: 'All Antivirus handlers removed',
       });
     } catch (error) {
       logger.error({
         tag: 'ANTIVIRUS',
-        msg: 'Error removing handlers:',
+        msg: 'Error removing Antivirus handlers:',
         error,
       });
     }

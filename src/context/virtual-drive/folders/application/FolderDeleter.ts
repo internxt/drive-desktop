@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Folder } from '../domain/Folder';
 import { FolderRepository } from '../domain/FolderRepository';
 import { ActionNotPermittedError } from '../domain/errors/ActionNotPermittedError';
@@ -35,9 +35,9 @@ export class FolderDeleter {
       );
 
       if (!allParentsExists) {
-        Logger.warn(
-          `Skipped folder deletion for ${folder.path}. A folder in a higher level is already marked as trashed`
-        );
+        logger.warn({
+          msg: `Skipped folder deletion for ${folder.path}. A folder in a higher level is already marked as trashed`,
+        });
         return;
       }
 
@@ -46,7 +46,10 @@ export class FolderDeleter {
       await this.remote.trash(folder.id);
       await this.repository.delete(folder.id);
     } catch (error: unknown) {
-      Logger.error(`Error deleting the folder ${folder.name}: `, error);
+      logger.error({
+        msg: `Error deleting the folder ${folder.name}:`,
+        error,
+      });
 
       this.local.createPlaceHolder(folder);
     }

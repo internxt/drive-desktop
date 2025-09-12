@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { TemporalFileRepository } from '../../domain/TemporalFileRepository';
 import { TemporalFilePath } from '../../domain/TemporalFilePath';
 import { TemporalFileUploaderFactory } from '../../domain/upload/TemporalFileUploaderFactory';
@@ -45,7 +45,7 @@ export class TemporalFileUploader {
 
     stopWatching();
 
-    Logger.debug(`${documentPath.value} uploaded with id ${contentsId}`);
+    logger.debug({ msg: `${documentPath.value} uploaded with id ${contentsId}` });
 
     const contentsUploadedEvent = new TemporalFileUploadedDomainEvent({
       aggregateId: contentsId,

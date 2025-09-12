@@ -1,17 +1,21 @@
 import { RemoteSyncErrorHandler, syncItemType } from './RemoteSyncErrorHandler';
-import { RemoteSyncError, RemoteSyncNetworkError, RemoteSyncServerError } from '../errors';
+import {
+  RemoteSyncError,
+  RemoteSyncNetworkError,
+  RemoteSyncServerError,
+} from '../errors';
 import { addVirtualDriveIssue } from '../../issues/virtual-drive';
 import { reportError } from '../../bug-report/service';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
 
-jest.mock('electron-log');
+jest.mock('@internxt/drive-desktop-core/build/backend');
 
 jest.mock('../../issues/virtual-drive', () => ({
-  addVirtualDriveIssue: jest.fn()
+  addVirtualDriveIssue: jest.fn(),
 }));
 
 jest.mock('../../bug-report/service', () => ({
-  reportError: jest.fn()
+  reportError: jest.fn(),
 }));
 
 describe('RemoteSyncErrorHandler', () => {
@@ -33,13 +37,23 @@ describe('RemoteSyncErrorHandler', () => {
 
       sut.handleSyncError(networkError, syncType, itemName, checkpoint);
 
-      expect(handleNetworkErrorSpy).toHaveBeenCalledWith(networkError, syncType, itemName);
-      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(networkError, syncType, checkpoint);
+      expect(handleNetworkErrorSpy).toHaveBeenCalledWith(
+        networkError,
+        syncType,
+        itemName
+      );
+      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(
+        networkError,
+        syncType,
+        checkpoint
+      );
       expect(addVirtualDriveIssue).toHaveBeenCalled();
     });
 
     it('should handle properly a type RemoteSyncServerError', () => {
-      const serverError = new RemoteSyncServerError(500, { message: 'Server error occurred' });
+      const serverError = new RemoteSyncServerError(500, {
+        message: 'Server error occurred',
+      });
       const syncType: syncItemType = 'folders';
       const itemName = 'Test Folder';
       const checkpoint = new Date('2025-02-24');
@@ -48,8 +62,16 @@ describe('RemoteSyncErrorHandler', () => {
 
       sut.handleSyncError(serverError, syncType, itemName, checkpoint);
 
-      expect(handleServerErrorSpy).toHaveBeenCalledWith(serverError, syncType, itemName);
-      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(serverError, syncType, checkpoint);
+      expect(handleServerErrorSpy).toHaveBeenCalledWith(
+        serverError,
+        syncType,
+        itemName
+      );
+      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(
+        serverError,
+        syncType,
+        checkpoint
+      );
       expect(addVirtualDriveIssue).toHaveBeenCalled();
     });
 
@@ -63,8 +85,16 @@ describe('RemoteSyncErrorHandler', () => {
 
       sut.handleSyncError(genericError, syncType, itemName, checkpoint);
 
-      expect(handleRemoteSyncErrorSpy).toHaveBeenCalledWith(genericError, syncType, itemName);
-      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(genericError, syncType, checkpoint);
+      expect(handleRemoteSyncErrorSpy).toHaveBeenCalledWith(
+        genericError,
+        syncType,
+        itemName
+      );
+      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(
+        genericError,
+        syncType,
+        checkpoint
+      );
       expect(addVirtualDriveIssue).toHaveBeenCalled();
     });
 
@@ -77,7 +107,11 @@ describe('RemoteSyncErrorHandler', () => {
 
       sut.handleSyncError(genericError, syncType, itemName, checkpoint);
 
-      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(genericError, syncType, checkpoint);
+      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(
+        genericError,
+        syncType,
+        checkpoint
+      );
     });
   });
 
@@ -90,21 +124,21 @@ describe('RemoteSyncErrorHandler', () => {
         issue: {
           error: 'UPLOAD_ERROR',
           cause: 'NO_INTERNET',
-          name: 'Test File'
-        } as VirtualDriveIssue
+          name: 'Test File',
+        } as VirtualDriveIssue,
       };
 
       const issues: Record<syncItemType, VirtualDriveIssue> = {
         files: {
           error: 'UPLOAD_ERROR',
           cause: 'NO_INTERNET',
-          name: 'Test File'
+          name: 'Test File',
         },
         folders: {
           error: 'UPLOAD_ERROR',
           cause: 'NO_INTERNET',
-          name: 'Test Folder'
-        }
+          name: 'Test Folder',
+        },
       };
 
       sut.handleSyncErrorWithIssue(genericError, syncType, errorDetail);

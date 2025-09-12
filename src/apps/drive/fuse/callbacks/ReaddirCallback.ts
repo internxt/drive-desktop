@@ -4,7 +4,7 @@ import { FilesByFolderPathSearcher } from '../../../../context/virtual-drive/fil
 import { FoldersByParentPathLister } from '../../../../context/virtual-drive/folders/application/FoldersByParentPathLister';
 import { TemporalFileByFolderFinder } from '../../../../context/storage/TemporalFiles/application/find/TemporalFileByFolderFinder';
 import { FuseIOError } from './FuseErrors';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class ReaddirCallback extends FuseCallback<Array<string>> {
   constructor(private readonly container: Container) {
@@ -21,9 +21,9 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
       ]);
 
       const endPromises = performance.now();
-      Logger.debug(
-        `[ReaddirCallback] Time taken on Promises: ${endPromises - start}ms`
-      );
+      logger.debug({
+        msg: `[ReaddirCallback] Time taken on Promises: ${endPromises - start}ms`
+      });
 
       const auxiliaryFileName = temporalFiles.reduce((acc, file) => {
         if (file.isAuxiliary()) {
@@ -33,12 +33,12 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
       }, [] as string[]);
 
       const endReduce = performance.now();
-      Logger.debug(
-        `[ReaddirCallback] Time taken on Reduce: ${endReduce - endPromises}ms`
-      );
+      logger.debug({
+        msg: `[ReaddirCallback] Time taken on Reduce: ${endReduce - endPromises}ms`
+      });
 
       const end = performance.now();
-      Logger.debug(`[ReaddirCallback] Time taken on Total: ${end - start}ms`);
+      logger.debug({ msg: `[ReaddirCallback] Time taken on Total: ${end - start}ms` });
 
       return this.right([
         '.',
@@ -48,7 +48,7 @@ export class ReaddirCallback extends FuseCallback<Array<string>> {
         ...auxiliaryFileName,
       ]);
     } catch (error) {
-      Logger.error('[ReaddirCallback] Error reading directory:', error);
+      logger.error({ msg: '[ReaddirCallback] Error reading directory:', error });
       return this.left(new FuseIOError());
     }
   }

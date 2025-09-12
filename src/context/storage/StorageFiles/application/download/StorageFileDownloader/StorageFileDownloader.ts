@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Readable } from 'stream';
 import { DownloadProgressTracker } from '../../../../../shared/domain/DownloadProgressTracker';
 import { DownloaderHandlerFactory } from '../../../domain/download/DownloaderHandlerFactory';
@@ -53,9 +53,9 @@ export class StorageFileDownloader {
 
     const stream = await downloader.download(file);
 
-    Logger.debug(
-      `stream created "${metadata.name}.${metadata.type}" with ${file.id.value}`
-    );
+    logger.debug({
+      msg: `stream created "${metadata.name}.${metadata.type}" with ${file.id.value}`,
+    });
 
     return stream;
   }

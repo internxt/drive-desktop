@@ -3,7 +3,7 @@ import { Device } from './../../../apps/main/device/service';
 import { createNewDevice } from './createNewDevice';
 import { BrowserWindow } from 'electron';
 import { broadcastToWindows } from '../../../apps/main/windows';
-import { logger } from '../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getDeviceIdentifier } from './getDeviceIdentifier';
 
 export async function createAndSetupNewDevice(): Promise<Device | Error> {
@@ -24,7 +24,8 @@ export async function createAndSetupNewDevice(): Promise<Device | Error> {
       mainWindow.webContents.send('reinitialize-backups');
     }
     broadcastToWindows('device-created', device);
-    logger.info({
+    logger.debug({
+      tag: 'BACKUPS',
       msg: '[DEVICE] Created new device',
       deviceUUID: device.uuid,
     });

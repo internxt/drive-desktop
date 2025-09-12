@@ -1,6 +1,6 @@
 import { Device } from '../../../apps/main/device/service';
 import os from 'os';
-import { logger } from '../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { tryCreateDevice } from './tryCreateDevice';
 import { Either, left, right } from '../../../context/shared/domain/Either';
 import { addUnknownDeviceIssue } from './addUnknownDeviceIssue';
@@ -21,8 +21,8 @@ export async function createUniqueDevice(
   ];
 
   for (const name of nameVariants) {
-    logger.info({
-      tag: 'BACKUP',
+    logger.debug({
+      tag: 'BACKUPS',
       msg: `Trying to create device with name "${name}"`,
     });
     const tryCreateDeviceEither = await tryCreateDevice(name, deviceIdentifier);
@@ -35,12 +35,9 @@ export async function createUniqueDevice(
       return left(tryCreateDeviceEither.getLeft());
     }
   }
-  const finalError = new Error(
-    'Could not create device trying different names'
-  );
-  logger.error({
-    tag: 'BACKUP',
-    msg: finalError.message,
+  const finalError = logger.error({
+    tag: 'BACKUPS',
+    msg: 'Could not create device trying different names',
   });
 
   addUnknownDeviceIssue(finalError);

@@ -2,7 +2,7 @@ import { Environment } from '@internxt/inxt-js';
 import { Service } from 'diod';
 import { Either, left, right } from '../../shared/domain/Either';
 import { customSafeDownloader } from './infrastructure/download/customSafeDownloader';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 @Service()
 export class StorageFileService {
@@ -14,9 +14,9 @@ export class StorageFileService {
   async isFileDownloadable(
     fileContentsId: string
   ): Promise<Either<Error, boolean>> {
-    Logger.info(
-      `[DOWNLOAD CHECK] Checking if file ${fileContentsId} is downloadable...`
-    );
+    logger.debug({
+      msg: `[DOWNLOAD CHECK] Checking if file ${fileContentsId} is downloadable...`,
+    });
 
     return new Promise<Either<Error, boolean>>((resolve) => {
       try {
@@ -27,16 +27,18 @@ export class StorageFileService {
 
         stream.on('data', () => {
           isDownloadable = true;
-          Logger.info(`[DOWNLOAD] File ${fileContentsId} is downloadable`);
+          logger.debug({
+            msg: `[DOWNLOAD] File ${fileContentsId} is downloadable`,
+          });
           stream.destroy();
           resolve(right(true));
         });
 
         stream.on('end', () => {
           if (!isDownloadable) {
-            Logger.warn(
-              `[DOWNLOAD] Stream ended but no data received for ${fileContentsId}`
-            );
+            logger.warn({
+              msg: `[DOWNLOAD] Stream ended but no data received for ${fileContentsId}`,
+            });
             resolve(left(new Error('Stream ended but no data received')));
           }
           stream.destroy();
@@ -47,14 +49,14 @@ export class StorageFileService {
             err.message?.includes('not found') ||
             err.message?.includes('404')
           ) {
-            Logger.warn(
-              `[DOWNLOAD] File not found ${fileContentsId}: ${err.message}`
-            );
+            logger.warn({
+              msg: `[DOWNLOAD] File not found ${fileContentsId}: ${err.message}`,
+            });
             resolve(right(false));
           } else {
-            Logger.error(
-              `[DOWNLOAD] Error downloading file ${fileContentsId}: ${err.message}`
-            );
+            logger.error({
+              msg: `[DOWNLOAD] Error downloading file ${fileContentsId}: ${err.message}`,
+            });
             resolve(left(err));
           }
           stream.destroy();
@@ -62,17 +64,17 @@ export class StorageFileService {
 
         setTimeout(() => {
           if (!isDownloadable) {
-            Logger.warn(
-              `[DOWNLOAD] Timeout reached for file ${fileContentsId}`
-            );
+            logger.warn({
+              msg: `[DOWNLOAD] Timeout reached for file ${fileContentsId}`,
+            });
             stream.destroy();
             resolve(left(new Error('Timeout reached')));
           }
         }, 10000);
       } catch (err: any) {
-        Logger.error(
-          `[DOWNLOAD] Error initializing downloader for file ${fileContentsId}: ${err}`
-        );
+        logger.error({
+          msg: `[DOWNLOAD] Error initializing downloader for file ${fileContentsId}: ${err}`,
+        });
         resolve(left(err));
       }
     });

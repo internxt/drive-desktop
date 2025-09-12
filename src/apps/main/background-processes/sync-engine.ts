@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron';
 import path from 'path';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import eventBus from '../event-bus';
 import nodeSchedule from 'node-schedule';
 import isDev from '../../../core/isDev/isDev';
@@ -43,7 +43,7 @@ function scheduleHeathCheck() {
         // Logger.debug('Health check succeeded');
       })
       .catch(() => {
-        Logger.warn('Health check failed, relaunching the worker');
+        logger.warn({ msg: 'Health check failed, relaunching the worker' });
         workerIsRunning = false;
         worker?.destroy();
         spawnSyncEngineWorker();
@@ -56,11 +56,11 @@ function scheduleHeathCheck() {
 
 function spawnSyncEngineWorker() {
   if (startingWorker) {
-    Logger.info('[MAIN] Worker is already starting');
+    logger.debug({ msg: '[MAIN] Worker is already starting' });
     return;
   }
   if (workerIsRunning) {
-    Logger.info('[MAIN] Worker is already running');
+    logger.debug({ msg: '[MAIN] Worker is already running' });
     return;
   }
 
@@ -82,43 +82,48 @@ function spawnSyncEngineWorker() {
         : `${path.join(__dirname, '..', 'sync-engine')}/index.html`
     )
     .then(() => {
-      Logger.info('[MAIN] Sync engine worker loaded');
+      logger.debug({ msg: '[MAIN] Sync engine worker loaded' });
       scheduleHeathCheck();
     })
     .catch((err) => {
-      Logger.error('[MAIN] Error loading sync engine worker', err);
+      logger.error({ msg: '[MAIN] Error loading sync engine worker', err });
     });
 
   worker.on('close', () => {
     worker?.destroy();
 
     if (workerIsRunning) {
-      Logger.warn('The sync engine process ended unexpectedly, relaunching');
+      logger.warn({
+        msg: 'The sync engine process ended unexpectedly, relaunching',
+      });
       workerIsRunning = false;
       spawnSyncEngineWorker();
     }
   });
 
   ipcMain.once('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', () => {
-    Logger.debug('[MAIN] SYNC ENGINE RUNNING');
+    logger.debug({ tag: 'SYNC-ENGINE', msg: '[MAIN] SYNC ENGINE RUNNING' });
     workerIsRunning = true;
     startingWorker = false;
   });
 
   ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', () => {
-    Logger.debug('[MAIN] SYNC ENGINE NOT RUNNING');
+    logger.debug({ tag: 'SYNC-ENGINE', msg: '[MAIN] SYNC ENGINE NOT RUNNING' });
     workerIsRunning = false;
     startingWorker = false;
   });
 }
 
 export async function stopSyncEngineWatcher() {
-  Logger.info('[MAIN] STOPPING SYNC ENGINE WORKER...');
+  logger.debug({
+    tag: 'SYNC-ENGINE',
+    msg: '[MAIN] STOPPING SYNC ENGINE WORKER...',
+  });
 
   healthCheckSchedule?.cancel(false);
 
   if (!workerIsRunning) {
-    Logger.info('[MAIN] WORKER WAS NOT RUNNING');
+    logger.debug({ tag: 'SYNC-ENGINE', msg: '[MAIN] WORKER WAS NOT RUNNING' });
     worker?.destroy();
     worker = null;
     return;
@@ -126,13 +131,17 @@ export async function stopSyncEngineWatcher() {
 
   const stopPromise = new Promise<void>((resolve, reject) => {
     ipcMain.once('SYNC_ENGINE_STOP_ERROR', (_, error: Error) => {
-      Logger.error('[MAIN] Error stopping sync engine worker', error);
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: '[MAIN] Error stopping sync engine worker',
+        error,
+      });
       reject(error);
     });
 
     ipcMain.once('SYNC_ENGINE_STOP_SUCCESS', () => {
       resolve();
-      Logger.info('[MAIN] Sync engine stopped');
+      logger.debug({ tag: 'SYNC-ENGINE', msg: '[MAIN] Sync engine stopped' });
     });
 
     const millisecondsToWait = 10_000;
@@ -150,9 +159,13 @@ export async function stopSyncEngineWatcher() {
     worker?.webContents.send('STOP_SYNC_ENGINE_PROCESS');
 
     await stopPromise;
-  } catch (err) {
+  } catch (error) {
     // TODO: handle error
-    Logger.error(err);
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'Error while stopping sync engine watcher',
+      error,
+    });
   } finally {
     worker?.destroy();
     workerIsRunning = false;
@@ -161,12 +174,15 @@ export async function stopSyncEngineWatcher() {
 }
 
 async function stopAndClearSyncEngineWatcher() {
-  Logger.info('[MAIN] STOPPING AND CLEAR SYNC ENGINE WORKER...');
+  logger.debug({
+    tag: 'SYNC-ENGINE',
+    msg: '[MAIN] STOPPING AND CLEAR SYNC ENGINE WORKER...',
+  });
 
   healthCheckSchedule?.cancel(false);
 
   if (!workerIsRunning) {
-    Logger.info('[MAIN] WORKER WAS NOT RUNNING');
+    logger.debug({ tag: 'SYNC-ENGINE', msg: '[MAIN] WORKER WAS NOT RUNNING' });
     worker?.destroy();
     worker = null;
     return;
@@ -176,14 +192,21 @@ async function stopAndClearSyncEngineWatcher() {
     ipcMain.once(
       'ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS',
       (_, error: Error) => {
-        Logger.error('[MAIN] Error stopping sync engine worker', error);
+        logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: '[MAIN] Error stopping sync engine worker',
+          error,
+        });
         reject(error);
       }
     );
 
     ipcMain.once('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS', () => {
       resolve();
-      Logger.info('[MAIN] Sync engine stopped and cleared');
+      logger.debug({
+        tag: 'SYNC-ENGINE',
+        msg: '[MAIN] Sync engine stopped and cleared',
+      });
     });
 
     const millisecondsToWait = 10_000;
@@ -201,9 +224,13 @@ async function stopAndClearSyncEngineWatcher() {
     worker?.webContents.send('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
 
     await response;
-  } catch (err) {
+  } catch (error) {
     // TODO: handle error
-    Logger.error(err);
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'Error while stopping and clearing sync engine watcher',
+      error,
+    });
   } finally {
     worker?.destroy();
     workerIsRunning = false;
@@ -214,9 +241,13 @@ async function stopAndClearSyncEngineWatcher() {
 export function updateSyncEngine() {
   try {
     worker?.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
-  } catch (err) {
+  } catch (error) {
     // TODO: handle error
-    Logger.error(err);
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'Error while updating sync engine: ',
+      error,
+    });
   }
 }
 

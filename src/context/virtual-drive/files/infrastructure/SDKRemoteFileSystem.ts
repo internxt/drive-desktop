@@ -1,6 +1,6 @@
 import { EncryptionVersion } from '@internxt/sdk/dist/drive/storage/types';
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { AuthorizedClients } from '../../../../apps/shared/HttpClient/Clients';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { DriveDesktopError } from '../../../shared/domain/errors/DriveDesktopError';
@@ -101,11 +101,11 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
     );
 
     if (result.status !== 200) {
-      Logger.error(
-        '[FILE FILE SYSTEM] File deletion failed with status: ',
-        result.status,
-        result.statusText
-      );
+      logger.error({
+        msg: '[FILE SYSTEM] File deletion failed with status:',
+        status: result.status,
+        statusText: result.statusText,
+      });
 
       throw new Error('Error when deleting file');
     }
@@ -139,7 +139,9 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       }
     );
 
-    Logger.info(`File ${file.path} overridden`);
+    logger.debug({
+      msg: `File ${file.path} overridden`,
+    });
   }
 
   async hardDelete(contentsId: string): Promise<void> {
@@ -147,10 +149,10 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       `${process.env.NEW_DRIVE_URL}/storage/trash/file/${contentsId}`
     );
     if (result.status > 204) {
-      Logger.error(
-        '[FILE FILE SYSTEM] Hard delete failed with status:',
-        result.status
-      );
+      logger.error({
+        msg: '[FILE SYSTEM] Hard delete failed with status:',
+        status: result.status,
+      });
 
       throw new Error('Error when hard deleting file');
     }

@@ -1,6 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Readable } from 'stream';
 import { UploadProgressTracker } from '../../../../shared/domain/UploadProgressTracker';
 import { EnvironmentTemporalFileUploader } from './EnvironmentTemporalFileUploader';
@@ -52,7 +52,7 @@ export class EnvironmentTemporalFileUploaderFactory
 
     uploader.on('error', (error: Error) => {
       // TODO: use error to determine the cause
-      Logger.error('[ETFUF ERROR]', error);
+      logger.error({msg: '[ETFUF ERROR]', error });
       this.progressTracker.uploadError(name, extension, 'UNKNOWN');
     });
 

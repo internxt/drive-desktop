@@ -1,6 +1,6 @@
 import { Axios } from 'axios';
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Either, left, right } from '../../../shared/domain/Either';
 import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { Folder } from '../domain/Folder';
@@ -81,11 +81,11 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     if (error && typeof error === 'object' && 'cause' in error) {
       const errorCause = (error as { cause: string }).cause;
       if (errorCause === 'BAD_REQUEST' && attempt < this.maxRetries) {
-        Logger.debug('Folder Creation failed with code 400');
+        logger.debug({ msg: 'Folder Creation failed with code 400' });
         await new Promise((resolve) => {
           setTimeout(resolve, 1_000);
         });
-        Logger.debug('Retrying');
+        logger.debug({ msg: 'Retrying'});
         return this.persist(plainName, parentFolderUuid, attempt + 1);
       }
       if (errorCause === 'BAD_REQUEST') {
@@ -107,11 +107,11 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     );
 
     if (result.status !== 200) {
-      Logger.error(
-        '[FOLDER FILE SYSTEM] Folder deletion failed with status: ',
-        result.status,
-        result.statusText
-      );
+      logger.error({
+        msg: '[FOLDER FILE SYSTEM] Folder deletion failed with status:',
+        status: result.status,
+        statusText: result.statusText
+      });
 
       throw new Error('Error when deleting folder');
     }

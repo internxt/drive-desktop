@@ -1,7 +1,7 @@
 import { Device } from './../../../apps/main/device/service';
 import { left, right } from './../../../context/shared/domain/Either';
 import { driveServerModule } from './../../../infra/drive-server/drive-server.module';
-import { logger } from '../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 import { Either } from './../../../context/shared/domain/Either';
 import { DeviceIdentifierDTO } from './device.types';
@@ -22,19 +22,17 @@ export async function tryCreateDevice(
 
   const createDeviceError = createDeviceEither.getLeft();
   if (createDeviceError instanceof BackupError && createDeviceError?.code === 'ALREADY_EXISTS') {
-    logger.info({
-        tag: 'BACKUP',
+    logger.debug({
+        tag: 'BACKUPS',
         msg: 'Device name already exists',
         deviceName,
       });
     return left(createDeviceEither.getLeft());
   };
 
-  const error = new Error('Error creating device');
-  logger.error({
-    tag: 'BACKUP',
-    msg: error.message,
-    error,
+  const error = logger.error({
+    tag: 'BACKUPS',
+    msg: 'Error creating device',
   });
   return left(error);
 }

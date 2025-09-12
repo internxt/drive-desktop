@@ -1,5 +1,6 @@
-import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
+import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 import { AuthLoginResponseViewModel } from '../../infra/drive-server/services/auth/auth.types';
+import { CleanerReport } from '../../backend/features/cleaner/cleaner.types';
 
 declare interface Window {
   electron: {
@@ -276,13 +277,18 @@ declare interface Window {
     };
 
     userAvailableProducts: {
-      get: () => Promise<AvailableProducts['featuresPerService'] | undefined>;
+      get: () => Promise<UserAvailableProducts | undefined>;
       subscribe: () => void;
-      onUpdated: (
-        callback: (products: AvailableProducts['featuresPerService']) => void
-      ) => void;
+      onUpdated: (callback: (products: UserAvailableProducts) => void) => void;
     };
 
     login(email: string): Promise<AuthLoginResponseViewModel>;
+    cleaner: {
+      generateReport: (force?: boolean) => Promise<CleanerReport>;
+      startCleanup: (viewModel: import('../../backend/features/cleaner/cleaner.types').CleanerViewModel) => Promise<void>;
+      stopCleanup: () => Promise<void>;
+      onCleanupProgress: (callback: (progressData: import('../../backend/features/cleaner/cleaner.types').CleanupProgress) => void) => () => void;
+      getDiskSpace: () => Promise<number>;
+    };
   };
 }

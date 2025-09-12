@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { broadcastToWindows } from '../../../windows';
 import { BackupsIPCMain } from '../BackupsIpc';
@@ -82,7 +82,7 @@ export class BackupsProcessTracker {
   }
 
   getExitReason(id: number): WorkerExitCause | undefined {
-    Logger.debug(this.exitReasons.keys(), id);
+    logger.debug({ tag: 'BACKUPS', msg: 'Getting exit reason', exitReasons: Array.from(this.exitReasons.keys()), id });
     return this.exitReasons.get(id);
   }
 
@@ -99,7 +99,7 @@ export class BackupsProcessTracker {
 
 export function initiateBackupsProcessTracker(): BackupsProcessTracker {
   const notifyUI = (progress: BackupsProgress) => {
-    Logger.debug('Progress', progress);
+    logger.debug({ tag: 'BACKUPS', msg: 'Progress update', progress });
     broadcastToWindows('backup-progress', progress);
   };
 

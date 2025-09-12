@@ -5,7 +5,7 @@ import { VirtualDrive } from './virtual-drive/VirtualDrive';
 import { DriveDependencyContainerFactory } from './dependency-injection/DriveDependencyContainerFactory';
 import { FuseApp } from './fuse/FuseApp';
 import { HydrationApi } from './hydration-api/HydrationApi';
-import { logAndTrackError } from './trackError';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 let fuseApp: FuseApp;
 let hydrationApi: HydrationApi;
@@ -53,7 +53,7 @@ export async function stopAndClearFuseApp() {
     await fuseApp.clearCache();
     await fuseApp.stop();
   } catch (error) {
-    logAndTrackError(error);
+    logger.error({ msg: 'Error stopping and clearing FUSE app:', error });
   }
 }
 

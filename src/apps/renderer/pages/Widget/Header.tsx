@@ -255,13 +255,13 @@ export default function Header() {
                         <DropdownItem
                           active={active}
                           onClick={() =>
-                            window.electron.openSettingsWindow('ANTIVIRUS')
+                            window.electron.openSettingsWindow('CLEANER')
                           }
-                          data-automation-id="menuItemAntivirus"
+                          data-automation-id="menuItemCleaner"
                         >
                           <div className="flex flex-row items-center justify-end gap-4">
                             <span>
-                              {translate('widget.header.dropdown.antivirus')}
+                              {translate('widget.header.dropdown.cleaner')}
                             </span>
                             <div className="flex rounded-full border border-primary bg-primary/5 px-2 py-1 text-primary">
                               {translate('widget.header.dropdown.new')}

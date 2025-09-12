@@ -12,8 +12,7 @@ import { PATHS } from '../../core/electron/paths';
 import { setupElectronLog } from '@internxt/drive-desktop-core/build/backend';
 
 setupElectronLog({
-  logsPath: PATHS.ELECTRON_LOGS,
-  importantLogsPath: PATHS.ELECTRON_IMPORTANT_LOGS,
+  logsPath: PATHS.LOGS,
 });
 import './virtual-root-folder/handlers';
 import './auto-launch/handlers';
@@ -38,8 +37,8 @@ import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
+import './../../backend/features/cleaner/ipc/handlers';
 import './virtual-drive';
-import './payments/handler';
 
 import { app, nativeTheme, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
@@ -65,12 +64,12 @@ import { installNautilusExtension } from './nautilus-extension/install';
 import { uninstallNautilusExtension } from './nautilus-extension/uninstall';
 import { setUpBackups } from './background-processes/backups/setUpBackups';
 import dns from 'node:dns';
-import { setupAntivirusIpc } from './background-processes/antivirus/setupAntivirusIPC';
-import { registerAvailableUserProductsHandlers } from './payments/ipc/AvailableUserProductsIPCHandler';
+import { registerAvailableUserProductsHandlers } from '../../backend/features/payments/ipc/register-available-user-products-handlers';
 import { getAntivirusManager } from './antivirus/antivirusManager';
 import { registerAuthIPCHandlers } from '../../infra/ipc/auth-ipc-handlers';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { trySetupAntivirusIpcAndInitialize } from './background-processes/antivirus/try-setup-antivirus-ipc-and-initialize';
+import { getUserAvailableProductsAndStore } from '../../backend/features/payments/services/get-user-available-products-and-store';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -140,6 +139,7 @@ app
 
     checkForUpdates();
     registerAvailableUserProductsHandlers();
+    getUserAvailableProductsAndStore({ forceStorage: true});
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 

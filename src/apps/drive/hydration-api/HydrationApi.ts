@@ -1,6 +1,6 @@
 import { Container } from 'diod';
 import express, { Router } from 'express';
-import { HydrationApiLogger } from './HydrationApiLogger';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { buildHydrationRouter } from './routes/contents';
 import { buildFilesRouter } from './routes/files';
 import { errorHandlerMiddleware } from './controllers/middlewares/errorHandlerMiddleware';
@@ -15,13 +15,10 @@ export interface HydrationApiOptions {
 export class HydrationApi {
   private static readonly PORT = 4567;
   private readonly app;
-  private readonly logger: HydrationApiLogger;
-
   private server: Server | null = null;
 
   constructor(private readonly container: Container) {
     this.app = express();
-    this.logger = new HydrationApiLogger();
   }
 
   private async buildRouters() {
@@ -40,9 +37,9 @@ export class HydrationApi {
 
     if (options.debug) {
       this.app.use((req, _res, next) => {
-        this.logger.debug(
-          `[${new Date().toLocaleString()}] ${req.method} ${req.url}`
-        );
+        logger.debug({
+          msg: `[HYDRATION API] [${new Date().toLocaleString()}] ${req.method} ${req.url}`
+        });
         next();
       });
     }
@@ -57,9 +54,9 @@ export class HydrationApi {
 
           const path = decodedBuffer.toString('utf-8').replaceAll('%20', ' ');
 
-          this.logger.debug(
-            `${req.method} ${req.originalUrl} ${path} took ${duration} ms`
-          );
+          logger.debug({
+            msg: `[HYDRATION API] ${req.method} ${req.originalUrl} ${path} took ${duration} ms`
+          });
         });
 
         stopwatch.start();
@@ -73,7 +70,9 @@ export class HydrationApi {
 
     return new Promise((resolve) => {
       this.server = this.app.listen(HydrationApi.PORT, () => {
-        this.logger.info(`running on port ${HydrationApi.PORT}`);
+        logger.debug({
+          msg: `[HYDRATION API] running on port ${HydrationApi.PORT}`
+        });
         resolve();
       });
     });

@@ -6,7 +6,7 @@ import { Thumbnail } from '../../domain/Thumbnail';
 import { ThumbnailCollection } from '../../domain/ThumbnailCollection';
 import { ThumbnailsRepository } from '../../domain/ThumbnailsRepository';
 import { EnvironmentThumbnailDownloader } from './EnvironmentThumbnailDownloader';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 type FileMetaDataResponse = {
   thumbnails: [
@@ -67,7 +67,7 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
 
       return thumbnails;
     } catch (err) {
-      Logger.error(err);
+      logger.error({ msg: 'Error while trying to obtain thumbnails:', error: err });
       return [];
     }
   }

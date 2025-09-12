@@ -1,3 +1,4 @@
+/**TODO: DELETE DEAD CODE */
 const itemIsOnFolder = (pathLike: string): boolean => pathLike.includes('/');
 
 const extractFilePath = (fileName: string): string =>

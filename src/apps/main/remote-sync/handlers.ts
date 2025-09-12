@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { reportError } from '../bug-report/service';
 import eventBus from '../event-bus';
 import { setInitialSyncState } from './InitialSyncReady';
@@ -16,7 +16,10 @@ MainProcessSyncEngineIPC.handle('remote-sync-manager.refresh', async () => {
 });
 
 ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', async () => {
-  Logger.debug('[MAIN] Getting updated remote items');
+  logger.debug({
+    tag: 'SYNC-ENGINE',
+    msg: '[MAIN] Getting updated remote items',
+  });
   return getUpdatedRemoteItems();
 });
 
@@ -37,7 +40,11 @@ eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
 
 eventBus.on('APP_DATA_SOURCE_INITIALIZED', async () => {
   await remoteSyncManager.startRemoteSync().catch((error) => {
-    Logger.error('Error starting remote sync manager', error);
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: 'Error starting remote sync manager',
+      error,
+    });
     reportError(error);
   });
 });

@@ -1,13 +1,13 @@
 import { aes } from '@internxt/lib';
 import CryptoJS from 'crypto-js';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 // Webpack dotenv plugin won't replace if you destructure
 // eslint-disable-next-line prefer-destructuring
 const CRYPTO_KEY = process.env.NEW_CRYPTO_KEY;
 
 if (!CRYPTO_KEY) {
-  Logger.error('No encryption key provided');
+  logger.error({ msg: 'No encryption key provided' });
   throw Error('No encryption key provided');
 }
 
@@ -37,17 +37,19 @@ function decryptName(cipherText: string, salt: string, encryptVersion: string) {
 
     return possibleAesResult;
   } catch (e) {
-    Logger.warn(
-      `AES Decrypt failed cipher: ${cipherText}, salt: ${salt}, message: ${
-        (e as Error).message
-      }, encryptVersion: ${encryptVersion}`
-    );
-    Logger.warn((e as Error).stack);
+    logger.warn({
+      msg: 'AES Decrypt failed',
+      cipher: cipherText,
+      salt: salt,
+      message: (e as Error).message,
+      encryptVersion: encryptVersion,
+      stack: (e as Error).stack
+    });
   }
   const decrypted = deterministicDecryption(cipherText, salt);
 
   if (!decrypted) {
-    Logger.warn('Error decrypting on a deterministic way');
+    logger.warn({ msg: 'Error decrypting on a deterministic way' });
 
     return probabilisticDecryption(cipherText);
   }

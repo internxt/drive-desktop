@@ -4,7 +4,7 @@ import {
   RemoteSyncNetworkError,
   RemoteSyncServerError,
 } from '../errors';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { addVirtualDriveIssue } from '../../issues/virtual-drive';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
 import { reportError } from '../../bug-report/service';
@@ -47,10 +47,11 @@ export class RemoteSyncErrorHandler {
       issue: VirtualDriveIssue;
     }
   ): void {
-    Logger.error(
-      `[SYNC MANAGER] Remote ${syncItemType} sync failed with ${errorDetail.errorLabel} error: `,
-      error
-    );
+    logger.error({
+      tag: 'SYNC-ENGINE',
+      msg: `[SYNC MANAGER] Remote ${syncItemType} sync failed with ${errorDetail.errorLabel} error: `,
+      error,
+    });
     addVirtualDriveIssue(errorDetail.issue);
   }
 

@@ -1,3 +1,4 @@
+/**TODO: DELETE DEAD CODE*/
 import { ipcRenderer } from 'electron';
 import Logger from 'electron-log';
 

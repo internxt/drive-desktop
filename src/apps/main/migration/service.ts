@@ -3,7 +3,7 @@ import path from 'path';
 import { app, shell } from 'electron';
 import fsExtra from 'fs-extra';
 import configStore from '../config';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 const DESKTOP_FOLDER_NAME = 'Moved files (Internxt Drive)';
 
 export const openMigrationFailedFolder = async () => {
@@ -31,14 +31,16 @@ export const moveSyncFolderToDesktop = async () => {
 
   if (!syncRootFolder) throw new Error('Sync Root Folder not found');
 
-  Logger.info(`Sync root folder is at ${syncRootFolder}`);
+  logger.debug({ msg: `Sync root folder is at ${syncRootFolder}` });
   const exists = await checkExistsDesktopFolder();
 
   if (!exists) {
-    Logger.info(`Creating folder at ${desktopFolderPath}`);
+    logger.debug({ msg: `Creating folder at ${desktopFolderPath}` });
     await fs.mkdir(desktopFolderPath, { recursive: true });
   }
 
-  Logger.info(`Moving from ${syncRootFolder} to ${desktopFolderPath}`);
+  logger.debug({
+    msg: `Moving from ${syncRootFolder} to ${desktopFolderPath}`,
+  });
   await fsExtra.move(syncRootFolder, desktopFolderPath, { overwrite: true });
 };

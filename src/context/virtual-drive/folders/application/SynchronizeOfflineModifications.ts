@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { EventRepository } from '../../shared/domain/EventRepository';
 import { Folder } from '../domain/Folder';
 import { FolderPath } from '../domain/FolderPath';
@@ -19,12 +19,12 @@ export class SynchronizeOfflineModifications {
   ) {}
 
   async run(uuid: Folder['uuid']) {
-    Logger.debug('Synchronize potential offline changes for folder: ', uuid);
+    logger.debug({ msg: 'Synchronize potential offline changes for folder:', uuid });
 
     const offlineFolder = this.offlineRepository.searchByPartial({ uuid });
 
     if (!offlineFolder) {
-      Logger.debug(`There is no offline folder with ${uuid}`);
+      logger.debug({ msg: `There is no offline folder with ${uuid}` });
       return;
     }
 
@@ -48,11 +48,11 @@ export class SynchronizeOfflineModifications {
       }
 
       try {
-        Logger.debug('Updating the folder with path: ', offlineFolder.path);
+        logger.debug({ msg: 'Updating the folder with path:', path: offlineFolder.path });
         await this.renamer.run(folder, new FolderPath(offlineFolder.path));
-        Logger.debug('Folder updated with the path: ', offlineFolder.path);
+        logger.debug({ msg: 'Folder updated with the path:', path: offlineFolder.path });
       } catch (error: unknown) {
-        Logger.error(error);
+        logger.error({ msg: 'Error synchronizing offline folder modifications:', error });
       }
     }
 

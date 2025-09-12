@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import { logAndTrackError } from '../../drive/trackError';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import {
   addBackup,
   changeBackupPath,
@@ -25,7 +25,7 @@ ipcMain.handle('get-backups-from-device', (_, d, c?) =>
 
 ipcMain.handle('add-backup', () =>
   addBackup().catch((err) => {
-    logAndTrackError(err);
+    logger.error({ tag: 'BACKUPS', msg: 'Error adding backup:', error: err });
   })
 );
 ipcMain.handle('add-multiple-backups', (_, folderPaths) =>

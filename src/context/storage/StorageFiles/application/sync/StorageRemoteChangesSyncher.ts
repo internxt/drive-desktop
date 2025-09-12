@@ -4,7 +4,7 @@ import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus'
 import { StorageFile } from '../../domain/StorageFile';
 import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
 import { StorageFileDownloader } from '../download/StorageFileDownloader/StorageFileDownloader';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 @Service()
 export class StorageRemoteChangesSyncher {
@@ -40,9 +40,9 @@ export class StorageRemoteChangesSyncher {
     const readable = await this.downloader.run(newer, virtualFile);
     await this.repository.store(newer, readable);
 
-    Logger.debug(
-      `File "${virtualFile.nameWithExtension}" with ${newer.id.value} is avaliable offline`
-    );
+    logger.debug({
+      msg: `File "${virtualFile.nameWithExtension}" with ${newer.id.value} is avaliable offline`,
+    });
   }
 
   async run(): Promise<void> {

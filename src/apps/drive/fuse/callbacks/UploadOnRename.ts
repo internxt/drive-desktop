@@ -1,7 +1,7 @@
 import { FileStatuses } from '../../../../context/virtual-drive/files/domain/FileStatus';
 import { Either, right } from '../../../../context/shared/domain/Either';
 import { FuseError } from './FuseErrors';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { File } from '../../../../context/virtual-drive/files/domain/File';
 import { Container } from 'diod';
 import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
@@ -36,11 +36,11 @@ export class UploadOnRename {
         .get(TemporalFileByteByByteComparator)
         .run(new TemporalFilePath(filePath), document.path);
 
-      Logger.info(`Contents of <${virtual.path}> did not change`);
+      logger.debug({ msg: `Contents of <${virtual.path}> did not change` });
 
       return !areEqual;
     } catch (err) {
-      Logger.error(err);
+      logger.error({ msg: 'Error comparing file contents', error: err });
     }
 
     return false;
@@ -53,7 +53,7 @@ export class UploadOnRename {
     });
 
     if (!fileToOverride) {
-      Logger.debug('[UPLOAD ON RENAME] file to override not found', dest);
+      logger.debug({ msg: '[UPLOAD ON RENAME] file to override not found', dest });
       return right(UploadOnRename.NO_OP);
     }
 
@@ -62,7 +62,7 @@ export class UploadOnRename {
       .run(src);
 
     if (!document) {
-      Logger.debug('[UPLOAD ON RENAME] offline file not found', src);
+      logger.debug({ msg: '[UPLOAD ON RENAME] offline file not found', src });
       return right(UploadOnRename.NO_OP);
     }
 

@@ -35,7 +35,9 @@ jobs:
           echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
           echo "NEW_DRIVE_URL=https://gateway.internxt.com/drive" >> .env
           echo "DRIVE_API_URL=https://gateway.internxt.com/api" >> .env
-          echo "BRIDGE_URL=https://api.internxt.com" >> .env
+          echo "PAYMENTS_URL=https://gateway.internxt.com/payments" >> .env
+          echo "INTERNXT_DESKTOP_HEADER_KEY=${{ secrets.INTERNXT_DESKTOP_HEADER_KEY }}" >> .env
+          echo "BRIDGE_URL=https://gateway.internxt.com/network" >> .env
           echo "APP_SEGMENT_KEY=${{ secrets.APP_SEGMENT_KEY }}" >> .env
           echo "APP_SEGMENT_KEY_TEST=${{ secrets.APP_SEGMENT_KEY_TEST }}" >> .env
           echo "BUG_REPORTING_URL=https://desktop-bug-reporting.inxt.workers.dev" >> .env

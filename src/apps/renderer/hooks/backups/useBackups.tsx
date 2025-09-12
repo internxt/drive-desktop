@@ -80,7 +80,7 @@ export function useBackups(): BackupContextProps {
       setBackupsState('SUCCESS');
       return true;
     } catch (err) {
-      console.log(err);
+      window.electron.logger.error({ tag: 'BACKUPS', msg: 'Error deleting backups from device', error: err });
       setBackupsState('ERROR');
       return false;
     }

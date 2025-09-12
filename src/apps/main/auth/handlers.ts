@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 import { AccessResponse } from '../../renderer/pages/Login/service';
 import { applicationOpened } from '../analytics/service';
@@ -55,7 +55,9 @@ export function onUserUnauthorized() {
   eventBus.emit('USER_WAS_UNAUTHORIZED');
 
   logout();
-  Logger.info('[AUTH] User has been logged out because it was unauthorized');
+  logger.debug({
+    msg: '[AUTH] User has been logged out because it was unauthorized',
+  });
   setIsLoggedIn(false);
 }
 
@@ -75,8 +77,11 @@ ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
 
     setIsLoggedIn(true);
     eventBus.emit('USER_LOGGED_IN');
-  } catch (err) {
-    Logger.error(err);
+  } catch (error) {
+    logger.error({
+      msg: 'Error while handling ipc event user-logged-in',
+      error,
+    });
   }
 });
 

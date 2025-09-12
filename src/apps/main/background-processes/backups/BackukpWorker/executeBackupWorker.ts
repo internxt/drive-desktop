@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupInfo } from '../../../../backups/BackupInfo';
 import { BackupWorker } from './BackupWorker';
 import { BackupsStopController } from '../BackupsStopController/BackupsStopController';
@@ -17,7 +17,7 @@ function addMessagesHandlers(
   });
 
   BackupsIPCMain.on('backups.backup-failed', (_, _folderId, error) => {
-    Logger.error(`[Backup] error: ${error}`);
+    logger.error({ tag: 'BACKUPS', msg: 'error occurred', error });
     stopController.failed(error);
   });
 }

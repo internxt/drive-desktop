@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { TemporalFileUploadedDomainEvent } from '../../../../storage/TemporalFiles/domain/upload/TemporalFileUploadedDomainEvent';
 import { DomainEventClass } from '../../../../shared/domain/DomainEvent';
 import { DomainEventSubscriber } from '../../../../shared/domain/DomainEventSubscriber';
@@ -36,7 +36,7 @@ export class CreateFileOnTemporalFileUploaded
     try {
       this.create(event);
     } catch (err) {
-      Logger.error('[CreateFileOnOfflineFileUploaded]:', err);
+      logger.error({ msg: '[CreateFileOnOfflineFileUploaded] Error creating file:', error: err });
     }
   }
 }

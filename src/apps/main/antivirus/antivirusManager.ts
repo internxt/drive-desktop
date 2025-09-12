@@ -4,7 +4,7 @@ import { runFreshclam } from './FreshclamUpdater';
 import { scheduleDailyScan, clearDailyScan } from './scanCronJob';
 import configStore from '../config';
 import eventBus from '../event-bus';
-import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
+import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 
 /**
  * Manages the initialization, shutdown, and lifecycle
@@ -151,11 +151,11 @@ export class AntivirusManager {
    * Handle product updates by starting/stopping ClamAV based on availability
    */
   private async handleProductsUpdate(
-    products: AvailableProducts['featuresPerService']
+    products: UserAvailableProducts
   ): Promise<void> {
     try {
       const isAntivirusEnabled = !!(products && products.antivirus);
-      
+
       // Only proceed if antivirus state has actually changed
       if (this.lastAntivirusState === isAntivirusEnabled) {
         return;

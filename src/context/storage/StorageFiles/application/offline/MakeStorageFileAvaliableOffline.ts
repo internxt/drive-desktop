@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { SingleFileMatchingFinder } from '../../../../virtual-drive/files/application/SingleFileMatchingFinder';
 import { FileStatuses } from '../../../../virtual-drive/files/domain/FileStatus';
 import { StorageFile } from '../../domain/StorageFile';
@@ -38,8 +38,8 @@ export class MakeStorageFileAvaliableOffline {
     const readable = await this.downloader.run(storage, virtual);
     await this.repository.store(storage, readable);
 
-    Logger.debug(
-      `File "${virtual.nameWithExtension}" with ${storage.id.value} is now avaliable locally`
-    );
+    logger.debug({
+      msg: `File "${virtual.nameWithExtension}" with ${storage.id.value} is now avaliable locally`,
+    });
   }
 }

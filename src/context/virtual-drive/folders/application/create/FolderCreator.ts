@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { EventBus } from '../../../shared/domain/EventBus';
 import { Folder } from '../../domain/Folder';
 import { FolderCreatedAt } from '../../domain/FolderCreatedAt';
@@ -48,7 +48,10 @@ export class FolderCreator {
     const response = await this.remote.persist(folderPath.name(), parent.uuid);
 
     if (response.isLeft()) {
-      Logger.error(response.getLeft());
+      logger.error({
+        msg: 'Error creating folder:',
+        error: response.getLeft(),
+      });
       return;
     }
 

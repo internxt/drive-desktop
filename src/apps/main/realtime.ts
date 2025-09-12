@@ -1,8 +1,8 @@
-import logger from 'electron-log';
 import { io, Socket } from 'socket.io-client';
 import { getUser, obtainToken } from './auth/service';
 import eventBus from './event-bus';
 import { broadcastToWindows } from './windows';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 type XHRRequest = {
   getResponseHeader: (headerName: string) => string[] | null;
@@ -57,15 +57,18 @@ function cleanAndStartRemoteNotifications() {
   });
 
   socket.on('connect', () => {
-    logger.log('✅ Remote notifications connected');
+    logger.debug({ msg: '✅ Remote notifications connected' });
   });
 
   socket.on('disconnect', (reason) => {
-    logger.log('❌ Remote notifications disconnected, reason: ', reason);
+    logger.debug({
+      msg: '❌ Remote notifications disconnected, reason: ',
+      reason,
+    });
   });
 
   socket.on('connect_error', () => {
-    logger.error('❌ Remote notifications connect error');
+    logger.error({ msg: '❌ Remote notifications connect error' });
   });
 
   socket.on('event', (data) => {
@@ -91,7 +94,6 @@ function cleanAndStartRemoteNotifications() {
 
     broadcastToWindows('remote-changes', eventPayload);
 
-
     if (!user) {
       user = getUser();
     }
@@ -99,14 +101,21 @@ function cleanAndStartRemoteNotifications() {
     if (data.payload.bucket !== user?.backupsBucket) {
       // create an object with properties if present in the payload
 
-      logger.log('Notification received: ', { eventPayload });
+      logger.debug({
+        msg: 'Notification received: ',
+        eventPayload,
+      });
       eventBus.emit('RECEIVED_REMOTE_CHANGES');
       return;
     }
 
     const { event, payload } = data;
 
-    logger.log('Notification received: ', event, payload.plain_name);
+    logger.debug({
+      msg: 'Notification received: ',
+      event,
+      payloadPlainName: payload.plain_name,
+    });
   });
 }
 

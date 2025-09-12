@@ -1,5 +1,5 @@
 import { BrowserWindow } from 'electron';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import path from 'path';
 import isDev from '../../../../../core/isDev/isDev';
 
@@ -27,7 +27,9 @@ export class BackupWorker {
       show: false,
     });
 
-    worker.loadFile(this.getPath()).catch(Logger.error);
+    worker.loadFile(this.getPath()).catch((error) => {
+      logger.error({ tag: 'BACKUPS', msg: 'Failed to load backup worker file', error });
+    });
 
     // Open DevTools in development mode for debugging
     if (isDev()) {

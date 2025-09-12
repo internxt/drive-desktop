@@ -5,8 +5,8 @@ import { LocalTree } from '../../../context/local/localTree/domain/LocalTree';
 import { File } from '../../../context/virtual-drive/files/domain/File';
 import { RemoteTree } from '../../../context/virtual-drive/remoteTree/domain/RemoteTree';
 import { relative } from '../utils/relative';
-import Logger from 'electron-log';
 import configStore from '../../main/config';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export type FilesDiff = {
   added: Array<LocalFile>;
@@ -39,7 +39,7 @@ export class DiffFilesCalculatorService {
       const remoteNode = remote.get(remotePath);
 
       if (remoteNode.isFolder()) {
-        Logger.debug('Folder should be a file', remoteNode.name);
+        logger.debug({ tag: 'BACKUPS', msg: 'Folder should be a file', fileName: remoteNode.name });
         return;
       }
 
@@ -49,9 +49,11 @@ export class DiffFilesCalculatorService {
       const localModificationTime = Math.trunc(local.modificationTime / 1000);
 
       if (this.isDangledFile(remoteNode.createdAt)) {
-        Logger.debug(
-          `Possible Dangled File Found with name ${remoteNode.name} while backing up`
-        );
+        logger.debug({
+          tag: 'BACKUPS',
+          msg: 'Possible Dangled File Found while backing up',
+          fileName: remoteNode.name
+        });
         dangling.set(local, remoteNode);
         return;
       }

@@ -1,5 +1,5 @@
 import { exec } from 'child_process';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
@@ -46,7 +46,7 @@ export async function copyNautilusExtensionFile(): Promise<void> {
 
   await fs.cp(source, destination);
 
-  Logger.info('Added extension file to ', destination);
+  logger.debug({ msg: 'Added extension file to ', destination });
 }
 
 export async function deleteNautilusExtensionFile(): Promise<void> {
@@ -55,7 +55,7 @@ export async function deleteNautilusExtensionFile(): Promise<void> {
 
   await fs.rm(destination);
 
-  Logger.info('Deleted extension file from ', destination);
+  logger.debug({ msg: 'Deleted extension file from ', destination });
 }
 
 export function reloadNautilus(): Promise<void> {

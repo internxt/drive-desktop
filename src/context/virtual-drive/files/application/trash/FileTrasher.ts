@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { DriveDesktopError } from '../../../../shared/domain/errors/DriveDesktopError';
 import { AllParentFoldersStatusIsExists } from '../../../folders/application/AllParentFoldersStatusIsExists';
 import { File } from '../../domain/File';
@@ -30,7 +30,7 @@ export class FileTrasher {
     }
 
     if (file.status.is(FileStatuses.TRASHED)) {
-      Logger.warn(`File ${file.path} is already trashed. Will ignore...`);
+      logger.warn({ msg: `File ${file.path} is already trashed. Will ignore...` });
       return;
     }
 
@@ -39,9 +39,9 @@ export class FileTrasher {
     );
 
     if (!allParentsExists) {
-      Logger.warn(
-        `Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`
-      );
+      logger.warn({
+        msg: `Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`
+      });
       return;
     }
     await this.notifier.trashing(file.name, file.type, file.size);
@@ -55,7 +55,7 @@ export class FileTrasher {
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Unknown error';
 
-      Logger.error('[File Deleter]', message);
+      logger.error({ msg: '[File Deleter]', error: message });
 
       const cause =
         error instanceof DriveDesktopError ? error.cause : 'UNKNOWN';

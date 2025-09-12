@@ -69,6 +69,10 @@
         "title": "Keep your computer safe from virus",
         "description": "Internxt's Desktop app now also features the brand new Internxt Antivirus, with which you can scan and remove any potential malware from your device."
       },
+      "cleaner": {
+        "title": "Free up space locally and optimize your device's performance.",
+        "description": "Our cleaner finds and removes unnecessary files, so your device runs smoothly."
+      },
       "onboarding-completed": {
         "title": "You're all set, enjoy your privacy!",
         "backups-completed": {
@@ -144,6 +148,7 @@
         "logout": "Log out",
         "quit": "Quit",
         "antivirus": "Antivirus",
+        "cleaner": "Cleaner",
         "new": "New"
       }
     },
@@ -213,10 +218,11 @@
   "settings": {
     "header": {
       "section": {
-        "GENERAL": "general",
-        "ACCOUNT": "account",
-        "BACKUPS": "backups",
-        "ANTIVIRUS": "antivirus"
+        "GENERAL": "General",
+        "ACCOUNT": "Account",
+        "BACKUPS": "Backups",
+        "ANTIVIRUS": "Antivirus",
+        "CLEANER": "Cleaner"
       }
     },
     "general": {
@@ -406,6 +412,46 @@
         "actions": {
           "cancel": "Cancel",
           "remove": "Remove"
+        }
+      }
+    },
+    "cleaner": {
+      "selectAllCheckbox": "Select all",
+      "mainView": {
+        "cleanup": "Clean Up"
+      },
+      "generateReportView": {
+        "title": "No report found",
+        "description": "Generate a report to see which files can be cleaned up.",
+        "generateReport": "Generate report"
+      },
+      "loadingView": {
+        "title": "Please wait a moment.",
+        "description": "We are generating your report..."
+      },
+      "sizeIndicatorView": {
+        "selectCategory": "Select a category to",
+        "previewContent": "preview content",
+        "saveUpTo": "Save up to",
+        "ofYourSpace": "of your space"
+      },
+      "cleanupConfirmDialogView": {
+        "title": "Confirm cleanup",
+        "description": "This action will permanently delete the selected files from your device. This cannot be undone. Please, confirm to continue.",
+        "cancelButton": "Cancel",
+        "confirmButton": "Delete files"
+      },
+      "cleaningView": {
+        "cleaningProcess": {
+          "title": "Cleaning...",
+          "stopCleanButton": "Stop clean",
+          "deletedFiles": "Deleted files",
+          "freeSpaceGained": "Free space gained"
+        },
+        "cleaningFinished": {
+          "title": "Your device is clean",
+          "subtitle": "No further actions are necessary",
+          "finish": "Finish"
         }
       }
     }

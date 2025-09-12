@@ -4,7 +4,7 @@ import { TemporalFileUploader } from '../../../../context/storage/TemporalFiles/
 import { FirstsFileSearcher } from '../../../../context/virtual-drive/files/application/search/FirstsFileSearcher';
 import { NotifyFuseCallback } from './FuseCallback';
 import { FuseIOError } from './FuseErrors';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { StorageCacheDeleter } from '../../../../context/storage/StorageFiles/application/delete/StorageCacheDeleter';
 import { TemporalFileDeleter } from '../../../../context/storage/TemporalFiles/application/deletion/TemporalFileDeleter';
 
@@ -28,7 +28,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
       this.logDebugMessage(`File with ${path} not found`);
       return this.right();
     } catch (err: unknown) {
-      Logger.error(err);
+      logger.error({ msg: 'Error in ReleaseCallback', error: err });
       return this.left(
         new FuseIOError('An unexpected error occurred during file release.')
       );
@@ -54,7 +54,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
       this.logDebugMessage('File has been uploaded');
       return this.right();
     } catch (uploadError) {
-      Logger.error('Upload failed:', uploadError);
+      logger.error({ msg: 'Upload failed:', error: uploadError });
       await this.container.get(TemporalFileDeleter).run(path);
       return this.left(
         new FuseIOError(

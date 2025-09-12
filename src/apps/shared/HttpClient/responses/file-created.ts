@@ -1,3 +1,4 @@
+/* TODO: DELETE DEAD CODE */
 export type FileCreatedResponseDTO = {
   created_at: string;
   deleted: boolean;

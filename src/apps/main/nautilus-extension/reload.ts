@@ -1,4 +1,4 @@
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import {
   copyNautilusExtensionFile,
   reloadNautilus,
@@ -16,8 +16,8 @@ async function reload() {
 
 reload()
   .then(() => {
-    Logger.info('Nautilus extension reloaded');
+    logger.debug({ msg: 'Nautilus extension reloaded' });
   })
-  .catch((err) => {
-    Logger.error(err);
+  .catch((error) => {
+    logger.error({ msg: 'Error while realoading Nautilus extension:', error });
   });

@@ -1,5 +1,5 @@
 import { Either, left, right } from './../../../context/shared/domain/Either';
-import { logger } from '../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getMachineId } from '../../../infra/device/getMachineId';
 import os from 'os';
 import { DeviceIdentifierDTO, isAllowedPlatform } from './device.types';
@@ -19,11 +19,10 @@ export function getDeviceIdentifier(): Either<Error, DeviceIdentifierDTO> {
     return right({ key, platform, hostname });
   }
 
-  const err = new Error('No valid identifier available for device');
-  logger.error({
-    tag: 'BACKUP',
-    msg: err.message,
-    exc: error,
+  const err = logger.error({
+    tag: 'BACKUPS',
+    msg: 'No valid identifier available for device',
+    error,
     context: { platform, hostname, key },
   });
   return left(err);

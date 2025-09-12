@@ -1,5 +1,4 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
 import { FileBatchUpdater } from '../../context/local/localFile/application/update/FileBatchUpdater';
 import { FileBatchUploader } from '../../context/local/localFile/application/upload/FileBatchUploader';
 import { LocalFile } from '../../context/local/localFile/domain/LocalFile';
@@ -30,6 +29,7 @@ import { RetryOptions } from '../shared/retry/types';
 import { RetryHandler } from '../shared/retry/RetryHandler';
 import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
 import { UsageModule } from  '../../backend/features/usage/usage.module';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 @Service()
 export class BackupService {
@@ -50,36 +50,36 @@ export class BackupService {
     info: BackupInfo,
     abortController: AbortController
   ): Promise<DriveDesktopError | undefined> {
-    Logger.info('[BACKUPS] Starting backup for:', info.pathname);
+    logger.debug({ tag: 'BACKUPS', msg: 'Starting backup for:', pathname: info.pathname });
 
     try {
-      Logger.info('[BACKUPS] Generating local tree');
+      logger.debug({ tag: 'BACKUPS', msg: 'Generating local tree' });
       const localTreeEither = await this.localTreeBuilder.run(
         info.pathname as AbsolutePath
       );
 
       if (localTreeEither.isLeft()) {
         const error = localTreeEither.getLeft();
-        Logger.error('[BACKUPS] Error generating local tree:', error);
+        logger.error({ tag: 'BACKUPS', msg: 'Error generating local tree:', error });
         return error;
       }
 
       const local = localTreeEither.getRight();
-      Logger.info('[BACKUPS] Local tree generated successfully');
+      logger.debug({ tag: 'BACKUPS', msg: 'Local tree generated successfully' });
 
-      Logger.info('[BACKUPS] Generating remote tree');
+      logger.debug({ tag: 'BACKUPS', msg: 'Generating remote tree' });
       const remote = await this.remoteTreeBuilder.run(info.folderId, info.folderUuid);
-      Logger.info('[BACKUPS] Remote tree generated successfully');
+      logger.debug({ tag: 'BACKUPS', msg: 'Remote tree generated successfully' });
 
-      Logger.info('[BACKUPS] Calculating folder differences');
+      logger.debug({ tag: 'BACKUPS', msg: 'Calculating folder differences' });
       const foldersDiff = FoldersDiffCalculator.calculate(local, remote);
-      Logger.info('[BACKUPS] Folder differences calculated');
+      logger.debug({ tag: 'BACKUPS', msg: 'Folder differences calculated' });
 
-      Logger.info('[BACKUPS] Calculating file differences');
+      logger.debug({ tag: 'BACKUPS', msg: 'Calculating file differences' });
       const filesDiff = DiffFilesCalculatorService.calculate(local, remote);
 
       if (filesDiff.dangling.size > 0) {
-        Logger.info('[BACKUPS] Dangling files found, handling them');
+        logger.debug({ tag: 'BACKUPS', msg: 'Dangling files found, handling them' });
         const filesToResync =
           await this.backupsDanglingFilesService.handleDanglingFilesOnBackup(
             filesDiff.dangling
@@ -87,14 +87,14 @@ export class BackupService {
         for (const [localFile, remoteFile] of filesToResync) {
           filesDiff.modified.set(localFile, remoteFile);
         }
-        Logger.info(`[BACKUPS] ${filesToResync.size} dangling files to resync`);
+        logger.debug({ tag: 'BACKUPS', msg: `${filesToResync.size} dangling files to resync` });
         filesDiff.total += filesDiff.dangling.size;
       }
-      Logger.info('[BACKUPS] File differences calculated');
+      logger.debug({ tag: 'BACKUPS', msg: 'File differences calculated' });
 
-      Logger.info('[BACKUPS] Checking available space');
+      logger.debug({ tag: 'BACKUPS', msg: 'Checking available space' });
       await this.isThereEnoughSpace(filesDiff);
-      Logger.info('[BACKUPS] Space check completed');
+      logger.debug({ tag: 'BACKUPS', msg: 'Space check completed' });
 
       const itemsAlreadyBacked =
         filesDiff.unmodified.length + foldersDiff.unmodified.length;
@@ -106,20 +106,20 @@ export class BackupService {
         itemsAlreadyBacked
       );
 
-      Logger.info('[BACKUPS] Starting folder backup');
+      logger.debug({ tag: 'BACKUPS', msg: 'Starting folder backup' });
       await this.backupFolders(foldersDiff, local, remote);
-      Logger.info('[BACKUPS] Folder backup completed');
+      logger.debug({ tag: 'BACKUPS', msg: 'Folder backup completed' });
 
-      Logger.info('[BACKUPS] Starting file backup');
+      logger.debug({ tag: 'BACKUPS', msg: 'Starting file backup' });
       await this.backupFiles(filesDiff, local, remote, abortController);
-      Logger.info('[BACKUPS] File backup completed');
+      logger.debug({ tag: 'BACKUPS', msg: 'File backup completed' });
 
-      Logger.info('[BACKUPS] Backup process completed successfully');
+      logger.debug({ tag: 'BACKUPS', msg: 'Backup process completed successfully' });
       return undefined;
     } catch (error) {
-      Logger.error('[BACKUPS] Backup process failed with error:', error);
+      logger.error({ tag: 'BACKUPS', msg: 'Backup process failed with error:', error });
       if (error instanceof DriveDesktopError) {
-        Logger.error('[BACKUPS] DriveDesktopError cause:', error.cause);
+        logger.error({ tag: 'BACKUPS', msg: 'DriveDesktopError cause:', cause: error.cause });
         return error;
       }
       return new DriveDesktopError('UNKNOWN', 'An unknown error occurred');
@@ -193,9 +193,9 @@ export class BackupService {
     local: LocalTree,
     remote: RemoteTree
   ) {
-    Logger.info('[BACKUPS] Backing folders');
+    logger.debug({ tag: 'BACKUPS', msg: 'Backing folders' });
 
-    Logger.info('[BACKUPS] Folders added', diff.added.length);
+    logger.debug({ tag: 'BACKUPS', msg: 'Folders added', count: diff.added.length });
 
     for (const localFolder of diff.added) {
       const remoteParentPath = relative(local.root.path, localFolder.basedir());
@@ -230,17 +230,17 @@ export class BackupService {
     remote: RemoteTree,
     abortController: AbortController
   ) {
-    Logger.info('[BACKUPS] Backing files');
+    logger.debug({ tag: 'BACKUPS', msg: 'Backing files' });
 
     const { added, modified, deleted } = filesDiff;
 
-    Logger.info('[BACKUPS] Files added', added.length);
+    logger.debug({ tag: 'BACKUPS', msg: 'Files added', count: added.length });
     await this.uploadAndCreate(local.root.path, added, remote, abortController);
 
-    Logger.info('[BACKUPS] Files modified', modified.size);
+    logger.debug({ tag: 'BACKUPS', msg: 'Files modified', count: modified.size });
     await this.uploadAndUpdate(modified, local, remote, abortController);
 
-    Logger.info('[BACKUPS] Files deleted', deleted.length);
+    logger.debug({ tag: 'BACKUPS', msg: 'Files deleted', count: deleted.length });
     await this.deleteRemoteFiles(deleted, abortController);
   }
 
@@ -278,7 +278,7 @@ export class BackupService {
     const batches = ModifiedFilesBatchCreator.run(modified);
 
     for (const batch of batches) {
-      Logger.debug('Signal aborted', abortController.signal.aborted);
+      logger.debug({ tag: 'BACKUPS', msg: 'Signal aborted', aborted: abortController.signal.aborted });
       if (abortController.signal.aborted) {
         return;
       }
@@ -313,7 +313,7 @@ export class BackupService {
   }
 
   private logAndReportError(error: unknown) {
-    Logger.error(error);
+    logger.error({ tag: 'BACKUPS', msg: 'Error occurred', error });
     const message = error instanceof Error ? error.message : 'unknown';
     BackupsIPCRenderer.send('backups.process-error', message);
   }

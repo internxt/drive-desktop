@@ -8,7 +8,7 @@ import {
   DownloadEvents,
   DownloaderHandler,
 } from '../../domain/download/DownloaderHandler';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class EnvironmentContentFileDownloader implements DownloaderHandler {
   private eventEmitter: EventEmitter;
@@ -75,7 +75,7 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
           }
         );
       } catch (err) {
-        Logger.error('Error in downloader:', err);
+        logger.error({ msg: 'Error in downloader:', err });
         this.eventEmitter.emit('error', err);
         return reject(err);
       }

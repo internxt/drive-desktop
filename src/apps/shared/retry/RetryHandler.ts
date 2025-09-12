@@ -1,7 +1,7 @@
 import { Either, left, right } from '../../../context/shared/domain/Either';
 import { RetryError } from './RetryError';
 import { RetryOptions } from './types';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 const DEFAULT_MAX_DELAY = 30000;
 const DEFAULT_BACKOFF_FACTOR = 2;
@@ -93,12 +93,12 @@ export class RetryHandler {
     error: unknown
   ): Promise<void> {
     const waitTime = this.getWaitingTime(delay, maxDelay, jitter);
-    Logger.warn(
-      `[Retry] Attempt ${attempt} failed, retrying in ${Math.round(
+    logger.warn({
+      msg: `[Retry] Attempt ${attempt} failed, retrying in ${Math.round(
         waitTime
       )}ms...`,
-      error
-    );
+      error,
+    });
 
     await new Promise((resolve) => setTimeout(resolve, waitTime));
   }

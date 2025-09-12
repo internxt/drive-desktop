@@ -7,7 +7,7 @@ import {
 import { driveServerModule } from '../../../../infra/drive-server/drive-server.module';
 import { Either, left, right } from '../../../../context/shared/domain/Either';
 import { RefreshTokenResponse } from '../../../../infra/drive-server/services/auth/auth.types';
-import { logger } from '../../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export async function obtainTokens(): Promise<
   Either<Error, RefreshTokenResponse>

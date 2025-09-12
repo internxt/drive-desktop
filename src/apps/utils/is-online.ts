@@ -1,3 +1,4 @@
+/* TODO: DELETE DEAD CODE*/
 export default async function isOnline() {
   if (!window.navigator.onLine) {
     return false;

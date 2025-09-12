@@ -12,6 +12,7 @@ import {
   SideImageAnimation,
   SideTextAnimation,
   getAntivirusImageSvg,
+  getCleanerImageSvg,
   getFinderImage,
   getOfflineImageSvg,
   getOnlineImageSvg,
@@ -22,6 +23,7 @@ import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
 import { AntivirusSlide } from './slides/AntivirusSlide';
+import { CleanerSlide } from './slides/CleanerSlide';
 export const SLIDES: OnboardingSlide[] = [
   {
     name: 'Welcome Slide',
@@ -251,14 +253,13 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
   },
-  /* [BACKUPS] onboarding backups slide disabled while beta developing
   {
-    name: 'Backups Slide',
+    name: 'Cleaner Slide',
     component: (props) => {
       return (
         <div className="flex h-full w-full ">
           <SideTextAnimation display>
-            <BackupsSlide {...props} />
+            <CleanerSlide {...props} />
           </SideTextAnimation>
         </div>
       );
@@ -267,19 +268,8 @@ export const SLIDES: OnboardingSlide[] = [
       const { translate } = useTranslationContext();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
-          <Button
-            onClick={props.onSetupBackups}
-            variant="primary"
-            size="lg"
-          >
-            {translate('onboarding.slides.backups.setup-backups')}
-          </Button>
-          <Button
-            onClick={props.onFinish}
-            variant="secondary"
-            size="lg"
-          >
-            {translate('onboarding.common.skip')}
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
+            {translate('onboarding.common.continue')}
           </Button>
           <span className="ml-auto text-gray-50">
             {translate('onboarding.common.onboarding-progress', {
@@ -291,13 +281,17 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
+      const { language } = useTranslationContext();
+      const Image = getCleanerImageSvg(language);
       return (
-        <div className="flex h-full w-full items-center justify-center">
-          <BackupsSVG />
+        <div className="relative flex h-full w-full items-center justify-center ">
+          <SideImageAnimation display>
+            <Image />
+          </SideImageAnimation>
         </div>
       );
     },
-  },*/
+  },
   {
     name: 'Onboarding Completed',
     component: (props) => {

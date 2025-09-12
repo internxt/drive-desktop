@@ -1,5 +1,5 @@
 import { AntivirusIPCHandler } from '../../../antivirus/ipc/AntivirusIPCHandler';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 /**
  * Setup all antivirus IPC handlers to ensure window.electron.antivirus works correctly
@@ -10,33 +10,34 @@ import Logger from 'electron-log';
  * @returns Object with method to remove all handlers
  */
 export function setupAntivirusIpc() {
-  Logger.info(
-    '[Antivirus] Setting up IPC handlers for window.electron.antivirus interface'
-  );
+  logger.debug({
+    tag: 'ANTIVIRUS',
+    msg: 'Setting up IPC handlers for window.electron.antivirus interface'
+  });
 
   try {
     const handler = new AntivirusIPCHandler();
 
     handler.setupHandlers();
 
-    Logger.info('[Antivirus] IPC handlers registered successfully');
+    logger.debug({ tag: 'ANTIVIRUS', msg: 'IPC handlers registered successfully' });
 
     return {
       removeMessagesHandlers: () => {
-        Logger.info('[Antivirus] Removing IPC handlers');
+        logger.debug({ tag: 'ANTIVIRUS', msg: 'Removing IPC handlers' });
         try {
           handler.removeHandlers();
         } catch (error) {
-          Logger.error('[Antivirus] Error removing handlers:', error);
+          logger.error({ tag: 'ANTIVIRUS', msg: 'Error removing handlers:', error });
         }
       },
     };
   } catch (error) {
-    Logger.error('[Antivirus] Error setting up IPC handlers:', error);
+    logger.error({ tag: 'ANTIVIRUS', msg: 'Error setting up IPC handlers:', error });
 
     return {
       removeMessagesHandlers: () => {
-        Logger.warn('[Antivirus] No handlers to remove due to setup error');
+        logger.warn({ tag: 'ANTIVIRUS', msg: 'No handlers to remove due to setup error' });
       },
     };
   }

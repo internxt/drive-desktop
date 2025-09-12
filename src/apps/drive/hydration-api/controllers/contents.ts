@@ -1,5 +1,5 @@
 import { Container } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { NextFunction, Request, Response } from 'express';
 import { extname } from 'path';
 import { StorageFileDeleter } from '../../../../context/storage/StorageFiles/application/delete/StorageFileDeleter';
@@ -21,7 +21,7 @@ export function buildContentsController(container: Container) {
 
       return Optional.of(fileIsAvaliable);
     } catch (error) {
-      Logger.debug((error as Error).message);
+      logger.debug({ msg: '[HYDRATION API] Error checking if file is locally available:', error, path });
       // If the path is from a folder it will not find it as a file
       return Optional.empty();
     }
@@ -36,7 +36,7 @@ export function buildContentsController(container: Container) {
         .run(path);
       return Optional.of(folderIsAvaliable);
     } catch (error) {
-      Logger.debug((error as Error).message);
+      logger.debug({ msg: '[HYDRATION API] Error checking if folder is locally available:', error, path });
       // If the path is from a file it will not find it as a folder
       return Optional.empty();
     }

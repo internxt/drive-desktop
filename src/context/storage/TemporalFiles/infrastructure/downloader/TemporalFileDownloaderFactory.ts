@@ -1,6 +1,6 @@
 import { Environment } from '@internxt/inxt-js';
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Readable } from 'stream';
 import { UploadProgressTracker } from '../../../../shared/domain/UploadProgressTracker';
 import { EnvironmentTemporalFileUploader } from '../upload/EnvironmentTemporalFileUploader';
@@ -50,7 +50,7 @@ export class TemporalFileDownloaderFactory
 
     uploader.on('error', (error: Error) => {
       // TODO: use error to determine the cause
-      Logger.error('[TFDF ERROR]', error);
+      logger.error({ msg: '[TFDF ERROR]', error });
       this.progressTracker.uploadError(name, extension, 'UNKNOWN');
     });
 

@@ -1,4 +1,4 @@
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 import { ThumbnailUploaderFactory } from '../infrastructure/ThumbnailUploaderFactory';
 import { obtainImageToThumbnailIt } from './obtain-image-to-thumbnail-it';
@@ -16,6 +16,6 @@ export async function createAndUploadThumbnail(id: number, name: string) {
   const thumbnail = await reziseImage(image);
 
   await uploader.upload(id, thumbnail).catch((err) => {
-    Logger.error('[THUMBNAIL] Error uploading thumbnail: ', err);
+    logger.error({ msg: '[THUMBNAIL] Error uploading thumbnail: ', err });
   });
 }

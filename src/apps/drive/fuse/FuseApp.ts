@@ -1,5 +1,5 @@
 import { Container } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { StorageClearer } from '../../../context/storage/StorageFiles/application/delete/StorageClearer';
 import { FileRepositorySynchronizer } from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
 import { FolderRepositorySynchronizer } from '../../../context/virtual-drive/folders/application/FolderRepositorySynchronizer/FolderRepositorySynchronizer';
@@ -64,16 +64,16 @@ export class FuseApp extends EventEmitter {
         .map((file) => file.fileId);
 
       if (affectedFilesIds.length > 0) {
-        Logger.info('[FUSE] Dangling files found:');
+        logger.debug({ msg: '[FUSE] Dangling files found:', count: affectedFilesIds.length });
         const allDanglingFilesFixed = await fileRepository.fixDanglingFiles(affectedFilesIds);
         if (allDanglingFilesFixed) {
           configStore.set('shouldFixDanglingFiles', false);
         }
       }
 
-      Logger.info('[FUSE] Dangling files done');
+      logger.debug({ msg: '[FUSE] Dangling files done' });
     } catch (err) {
-      Logger.error('[FUSE] Error fixing dangling files', err);
+      logger.error({ msg: '[FUSE] Error fixing dangling files:', error: err });
     }
   }
 
@@ -122,25 +122,25 @@ export class FuseApp extends EventEmitter {
     try {
       await mountPromise(this._fuse);
       this.status = 'MOUNTED';
-      Logger.info('[FUSE] mounted');
+      logger.debug({ msg: '[FUSE] mounted' });
       this.emit('mounted');
 
       // Run after mount is complete
       await this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE);
     } catch (firstMountError) {
-      Logger.error(`[FUSE] mount error first try: ${firstMountError}`);
+      logger.error({ msg: '[FUSE] mount error first try:', error: firstMountError });
       try {
         await unmountPromise(this._fuse);
         await mountPromise(this._fuse);
         this.status = 'MOUNTED';
-        Logger.info('[FUSE] mounted');
+        logger.debug({ msg: '[FUSE] mounted' });
         this.emit('mounted');
 
         // Run after mount is complete (retry)
         await this.fixDanglingFiles(STORAGE_MIGRATION_DATE, FIX_DEPLOYMENT_DATE);
       } catch (err) {
         this.status = 'ERROR';
-        Logger.error(`[FUSE] mount error final try: ${err}`);
+        logger.error({ msg: '[FUSE] mount error final try:', error: err });
         this.emit('mount-error');
       }
     }
@@ -167,9 +167,9 @@ export class FuseApp extends EventEmitter {
 
       await this.container.get(StorageRemoteChangesSyncher).run();
 
-      Logger.info('[FUSE] Tree updated successfully');
+      logger.debug({ msg: '[FUSE] Tree updated successfully' });
     } catch (err) {
-      Logger.error('[FUSE] Updating the tree ', err);
+      logger.error({ msg: '[FUSE] Error Updating the tree:', error: err });
     }
   }
 
@@ -184,7 +184,7 @@ export class FuseApp extends EventEmitter {
       this.status = 'MOUNTED';
     } catch (err) {
       this.status = 'ERROR';
-      Logger.error(`[FUSE] mount error: ${err}`);
+      logger.error({ msg: '[FUSE] mount error:', error: err });
     }
 
     this.emit('mounted');

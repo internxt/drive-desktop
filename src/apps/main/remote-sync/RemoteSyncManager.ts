@@ -1,4 +1,4 @@
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import {
   RemoteSyncStatus,
   RemoteSyncedFolder,
@@ -93,7 +93,7 @@ export class RemoteSyncManager {
     await this.db.files.connect();
     await this.db.folders.connect();
 
-    Logger.info('[SYNC MANAGER] Starting');
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Starting' });
     this.changeStatus('SYNCING');
     try {
       await Promise.all([
@@ -114,11 +114,14 @@ export class RemoteSyncManager {
       this.changeStatus('SYNC_FAILED');
       reportError(error as Error);
     } finally {
-      Logger.info('[SYNC MANAGER] Total synced files: ', this.totalFilesSynced);
-      Logger.info(
-        '[SYNC MANAGER] Total synced folders: ',
-        this.totalFoldersSynced
-      );
+      logger.debug({
+        tag: 'SYNC-ENGINE',
+        msg: `Total synced files: ${this.totalFilesSynced}`,
+      });
+      logger.debug({
+        tag: 'SYNC-ENGINE',
+        msg: `Total synced folders: ${this.totalFoldersSynced}`,
+      });
     }
   }
 
@@ -127,9 +130,10 @@ export class RemoteSyncManager {
    */
   private smokeTest() {
     if (this.status === 'SYNCING') {
-      Logger.warn(
-        '[SYNC MANAGER] RemoteSyncManager should not be in SYNCING status to start, not starting again'
-      );
+      logger.warn({
+        tag: 'SYNC-ENGINE',
+        msg: 'RemoteSyncManager should not be in SYNCING status to start, not starting again',
+      });
 
       return false;
     }
@@ -139,9 +143,10 @@ export class RemoteSyncManager {
 
   private changeStatus(newStatus: RemoteSyncStatus) {
     if (newStatus === this.status) return;
-    Logger.info(
-      `[SYNC MANAGER] RemoteSyncManager ${this.status} -> ${newStatus}`
-    );
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: `RemoteSyncManager ${this.status} -> ${newStatus}`,
+    });
     this.status = newStatus;
     this.onStatusChangeCallbacks.forEach((callback) => {
       if (typeof callback !== 'function') return;
@@ -223,7 +228,10 @@ export class RemoteSyncManager {
       }
 
       if (!hasMore) {
-        Logger.info('[SYNC MANAGER] Remote files sync finished');
+        logger.debug({
+          tag: 'SYNC-ENGINE',
+          msg: 'Remote files sync finished',
+        });
         this.filesSyncStatus = 'SYNCED';
         this.checkRemoteSyncStatus();
         return;
@@ -244,10 +252,11 @@ export class RemoteSyncManager {
           fileCheckPoint
         );
       } else {
-        Logger.error(
-          '[SYNC MANAGER] Remote files sync failed with uncontrolled error: ',
-          error
-        );
+        logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Remote files sync failed with uncontrolled error: ',
+          error,
+        });
       }
       if (syncConfig.retry >= syncConfig.maxRetries) {
         // No more retries allowed,
@@ -318,10 +327,11 @@ export class RemoteSyncManager {
           folderCheckPoint
         );
       } else {
-        Logger.error(
-          '[SYNC MANAGER] Remote folders sync failed with uncontrolled error: ',
-          error
-        );
+        logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Remote folders sync failed with uncontrolled error: ',
+          error,
+        });
       }
 
       if (syncConfig.retry >= syncConfig.maxRetries) {
@@ -369,13 +379,14 @@ export class RemoteSyncManager {
       }
 
       if (!Array.isArray(response.data)) {
-        Logger.info(
-          `[SYNC MANAGER] Expected to receive an array of files, but received: ${JSON.stringify(
+        logger.debug({
+          tag: 'SYNC-ENGINE',
+          msg: `Expected to receive an array of files, but received: ${JSON.stringify(
             response,
             null,
             2
-          )}`
-        );
+          )}`,
+        });
         throw new RemoteSyncInvalidResponseError(response);
       }
 
@@ -435,13 +446,14 @@ export class RemoteSyncManager {
       }
 
       if (!Array.isArray(response.data)) {
-        Logger.info(
-          `[SYNC MANAGER] Expected to receive an array of folders, but instead received: ${JSON.stringify(
+        logger.debug({
+          tag: 'SYNC-ENGINE',
+          msg: `Expected to receive an array of folders, but instead received: ${JSON.stringify(
             response,
             null,
             2
-          )}`
-        );
+          )}`,
+        });
         throw new RemoteSyncInvalidResponseError(response);
       }
 

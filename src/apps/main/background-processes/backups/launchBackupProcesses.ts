@@ -1,5 +1,5 @@
 import { ipcMain, powerSaveBlocker } from 'electron';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { executeBackupWorker } from './BackukpWorker/executeBackupWorker';
 import { backupsConfig } from './BackupConfiguration/BackupConfiguration';
 import { BackupFatalErrors } from './BackupFatalErrors/BackupFatalErrors';
@@ -21,11 +21,11 @@ export async function launchBackupProcesses(
   stopController: BackupsStopController
 ): Promise<void> {
   if (!backupsCanRun(status)) {
-    Logger.debug('[BACKUPS] Already running');
+    logger.debug({ tag: 'BACKUPS', msg: 'Already running' });
     return;
   }
 
-  Logger.debug('[BACKUPS] Launching backups process');
+  logger.debug({ tag: 'BACKUPS', msg: 'Launching backups process' });
   status.set('RUNNING');
 
   const suspensionBlockId = powerSaveBlocker.start('prevent-display-sleep');
@@ -37,7 +37,7 @@ export async function launchBackupProcesses(
   tracker.track(backups);
 
   stopController.on('forced-by-user', () => {
-    Logger.debug('[BACKUPS] Stopping backups');
+    logger.debug({ tag: 'BACKUPS', msg: 'Stopping backups' });
 
     ipcMain.emit('BACKUP_PROCESS_FINISHED', {
       scheduled,
@@ -62,7 +62,7 @@ export async function launchBackupProcesses(
     tracker.backing(backupInfo);
 
     if (stopController.hasStopped()) {
-      Logger.debug('[BACKUPS] Stop controller stopped');
+      logger.debug({ tag: 'BACKUPS', msg: 'Stop controller stopped' });
       continue;
     }
 
@@ -73,9 +73,12 @@ export async function launchBackupProcesses(
       errors.add({ name: backupInfo.name, error: endReason });
     }
 
-    Logger.info(
-      `Backup process for ${backupInfo.folderId} ended with ${endReason}`
-    );
+    logger.debug({
+      tag: 'BACKUPS',
+      msg: 'Backup process ended',
+      folderId: backupInfo.folderId,
+      endReason
+    });
 
     tracker.backupFinished(backupInfo.folderId, endReason);
   }

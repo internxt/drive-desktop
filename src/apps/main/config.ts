@@ -2,7 +2,7 @@ import Store, { Schema } from 'electron-store';
 import * as uuid from 'uuid';
 
 import { User } from './types';
-import { AvailableProducts } from '@internxt/sdk/dist/drive/payments/types';
+import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 
 // Fields to persist between user sessions
 export const fieldsToSave = [
@@ -49,7 +49,7 @@ export interface AppStore {
   virtualdriveWindowsLetter: string;
   nautilusExtensionVersion: number;
   discoveredBackup: number;
-  availableUserProducts?: AvailableProducts['featuresPerService'];
+  availableUserProducts?: UserAvailableProducts;
   shouldFixDanglingFiles: boolean;
   storageMigrationDate: string;
   fixDeploymentDate: string;

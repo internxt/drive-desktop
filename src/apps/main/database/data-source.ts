@@ -5,7 +5,7 @@ import { DataSource } from 'typeorm';
 import { DriveFile } from './entities/DriveFile';
 import { DriveFolder } from './entities/DriveFolder';
 import { ScannedItem } from './entities/ScannedItem';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 const dbPath = app.getPath('appData') + '/internxt-drive/internxt_desktop.db';
 
@@ -17,7 +17,7 @@ export const AppDataSource = new DataSource({
   entities: [DriveFile, DriveFolder, ScannedItem],
 });
 
-Logger.info(`Using database file at ${dbPath}`);
+logger.debug({ msg: `Using database file at ${dbPath}` });
 
 eventBus.on('USER_LOGGED_OUT', () => {
   AppDataSource.dropDatabase().catch((error) => {

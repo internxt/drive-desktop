@@ -1,3 +1,4 @@
+/**TODO: DELTE DEAD CODE */
 export function getDateFromSeconds(seconds: number): Date {
   return new Date(seconds * 1000);
 }

@@ -1,5 +1,5 @@
 import { Service } from 'diod';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import fs, { createReadStream, watch } from 'fs';
 import { readFile } from 'fs/promises';
 import path from 'path';
@@ -42,7 +42,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
   }
 
   create(documentPath: TemporalFilePath): Promise<void> {
-    Logger.debug('Creating file', documentPath.value);
+    logger.debug({ msg: `Creating file: ${documentPath.value}` });
     const id = uuid.v4();
 
     const pathToWrite = path.join(this.folder, id);
@@ -96,9 +96,9 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
       fs.unlink(pathToDelete, (err: NodeJS.ErrnoException | null) => {
         if (err) {
           if (err.code !== 'ENOENT') {
-            Logger.debug(
-              `Could not delete ${pathToDelete}, it already does not exists`
-            );
+            logger.debug({
+              msg: `Could not delete ${pathToDelete}, it already does not exists`,
+            });
             resolve();
             return;
           }
@@ -166,7 +166,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
   }
 
   async find(documentPath: TemporalFilePath): Promise<Optional<TemporalFile>> {
-    Logger.debug('Finding file', documentPath.value);
+    logger.debug({ msg: `Finding file: ${documentPath.value}` });
     const pathToSearch = this.map.get(documentPath.value);
 
     if (!pathToSearch) {
@@ -188,7 +188,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
   watchFile(documentPath: TemporalFilePath, callback: () => void): () => void {
     const pathToWatch = this.map.get(documentPath.value);
 
-    Logger.debug('Watching file', documentPath.value);
+    logger.debug({ msg: `Watching file: ${documentPath.value}` });
 
     if (!pathToWatch) {
       throw new Error(`Document with path ${documentPath.value} not found`);
@@ -199,7 +199,7 @@ export class NodeTemporalFileRepository implements TemporalFileRepository {
         return;
       }
 
-      Logger.warn(filename, ' has been changed');
+      logger.warn({ msg:`Filename: ${filename}, has been changed` });
 
       callback();
     });

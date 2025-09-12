@@ -1,3 +1,4 @@
+/*TODO: DELETE DEAD CODE */
 import { Network } from '@internxt/sdk/dist/network';
 import { sha256 } from './requests';
 import { NetworkFacade } from './NetworkFacade';

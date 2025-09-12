@@ -4,8 +4,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from 'axios';
-import Logger from 'electron-log';
-
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 export type HeadersProvider = () => Promise<Record<string, string>>;
 export type UnauthorizedNotifier = () => void;
 export type SyncBlockedTracker = () => Promise<void>;
@@ -29,7 +28,7 @@ export class AuthorizedHttpClient {
 
   private responseInterceptor(error: AxiosError) {
     if (error?.response?.status === 401) {
-      Logger.warn('[AUTH] Request unauthorized', error.config.url);
+      logger.warn({ msg: '[AUTH] Request unauthorized', error: error.config.url });
       if (this.unauthorizedNotifier) this.unauthorizedNotifier();
     }
 

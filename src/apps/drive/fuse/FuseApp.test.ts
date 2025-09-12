@@ -2,7 +2,7 @@ import { FuseApp } from './FuseApp';
 import {
   FileRepositorySynchronizer
 } from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
-import Logger from 'electron-log';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Container } from 'diod';
 import { VirtualDrive } from '../virtual-drive/VirtualDrive';
 import configStore from '../../main/config';
@@ -43,8 +43,8 @@ describe('FuseApp', () => {
 
     fuseApp = new FuseApp(virtualDriveMock, containerMock, '/local/root', 123);
 
-    jest.spyOn(Logger, 'info').mockImplementation(() => {});
-    jest.spyOn(Logger, 'error').mockImplementation(() => {});
+    jest.spyOn(logger, 'debug').mockImplementation(jest.fn());
+    jest.spyOn(logger, 'error').mockImplementation(jest.fn());
   });
 
   afterEach(() => {

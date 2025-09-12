@@ -1,7 +1,7 @@
 import { Device } from '../../../apps/main/device/service';
 import { Either } from './../../../context/shared/domain/Either';
 import configStore from '../../../apps/main/config';
-import { logger } from '../../../core/LoggerService/LoggerService';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { fetchDeviceLegacyAndMigrate } from './fetchDeviceLegacyAndMigrate';
 import { fetchDeviceByIdentifier } from './fetchDeviceByIdentifier';
 import { createAndSetupNewDevice } from './createAndSetupNewDevice';
@@ -24,7 +24,7 @@ async function handleFetchDeviceResult(
     if (device) {
       return device;
     } else {
-      logger.debug({ msg: '[DEVICE] Device not found, creating a new one' });
+      logger.debug({ tag: 'BACKUPS', msg: '[DEVICE] Device not found, creating a new one' });
       return await createAndSetupNewDevice();
     }
   }
@@ -40,10 +40,12 @@ export async function getOrCreateDevice(): Promise<Device | Error> {
   const legacyId = configStore.get('deviceId');
   const savedUUID = configStore.get('deviceUUID');
   logger.debug({
+    tag: 'BACKUPS',
     msg: '[DEVICE] Saved device with legacy deviceId',
     savedDeviceId: legacyId,
   });
   logger.debug({
+    tag: 'BACKUPS',
     msg: '[DEVICE] Saved device with UUID',
     savedDeviceId: savedUUID,
   });
