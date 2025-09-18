@@ -9,11 +9,6 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 5
 
-    permissions:
-      contents: read
-      packages: read
-      pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
