@@ -71,7 +71,7 @@
     ]
   },
   "devDependencies": {
-    "@internxt/eslint-config-internxt": "^1.0.9",
+    "@internxt/eslint-config-internxt": "1.0.9",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.6.1",
     "@svgr/webpack": "^6.1.2",
     "@tanstack/eslint-plugin-query": "^4.39.1",
@@ -159,11 +159,11 @@
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
     "@internxt/drive-desktop-core": "0.1.1",
-    "@internxt/inxt-js": "2.2.5",
+    "@internxt/inxt-js": "2.2.9",
     "@internxt/lib": "1.3.1",
     "@internxt/node-win": "1.0.22",
     "@internxt/scan": "1.0.7",
-    "@internxt/sdk": "1.10.6",
+    "@internxt/sdk": "1.11.10",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
     "@tanstack/react-query": "^4.39.2",
