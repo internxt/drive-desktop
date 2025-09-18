@@ -1,17 +1,18 @@
-import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
 import { Environment } from '@internxt/inxt-js/build';
 import { logger } from '@/apps/shared/logger/logger';
-import { EnvironmentFileUploaderError, processError } from './process-error';
+import { EnvironmentFileUploaderError } from './process-error';
 import { FileUploaderCallbacks } from './file-uploader';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import Bottleneck from 'bottleneck';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { abortOnChangeSize } from './abort-on-change-size';
 import { createReadStream } from 'fs';
+import { uploadFile } from './upload-file';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;
 
 const limiter = new Bottleneck({ maxConcurrent: 4 });
+
+export type TResolve = (_: { data: ContentsId; error?: undefined } | { data?: undefined; error: EnvironmentFileUploaderError }) => void;
 
 type TProps = {
   absolutePath: AbsolutePath;
@@ -21,15 +22,13 @@ type TProps = {
   callbacks: FileUploaderCallbacks;
 };
 
-type TReturn = Promise<{ data: ContentsId; error?: undefined } | { data?: undefined; error: EnvironmentFileUploaderError }>;
-
 export class EnvironmentFileUploader {
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
   ) {}
 
-  upload({ absolutePath, path, size, abortSignal, callbacks }: TProps): TReturn {
+  upload({ absolutePath, path, size, abortSignal, callbacks }: TProps) {
     const useMultipartUpload = size > MULTIPART_UPLOAD_SIZE_THRESHOLD;
 
     logger.debug({
@@ -39,42 +38,21 @@ export class EnvironmentFileUploader {
       bucket: this.bucket,
       useMultipartUpload,
     });
+
     const readable = createReadStream(absolutePath);
-    const fn: UploadStrategyFunction = useMultipartUpload
-      ? this.environment.uploadMultipartFile.bind(this.environment)
-      : this.environment.upload;
+    const fn = useMultipartUpload ? this.environment.uploadMultipartFile : this.environment.upload;
 
     callbacks.onProgress({ progress: 0 });
 
-    return new Promise((resolve) => {
-      const state = fn(this.bucket, {
-        source: readable,
-        fileSize: size,
-        finishedCallback: (err, contentsId) => {
-          readable.close();
-          if (contentsId) {
-            callbacks.onFinish();
-            return resolve({ data: contentsId as ContentsId });
-          }
-
-          return resolve({ error: processError({ path, err, callbacks }) });
-        },
-        progressCallback: (progress) => {
-          callbacks.onProgress({ progress });
-        },
-      });
-
-      function stopUpload() {
-        state.stop();
-        readable.destroy();
-      }
-
-      void abortOnChangeSize({ absolutePath, size, resolve, stopUpload });
-
-      abortSignal.addEventListener('abort', () => {
-        logger.debug({ msg: 'Aborting upload', path });
-        stopUpload();
-      });
+    return uploadFile({
+      fn,
+      bucket: this.bucket,
+      readable,
+      size,
+      absolutePath,
+      path,
+      callbacks,
+      abortSignal,
     });
   }
 
