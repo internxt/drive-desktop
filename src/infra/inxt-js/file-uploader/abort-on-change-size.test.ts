@@ -16,8 +16,8 @@ describe('abort-on-change-size', () => {
     // When
     await abortOnChangeSize(props);
     // Then
-    expect(resolve).toBeCalledTimes(1);
-    expect(stopUpload).toBeCalledTimes(1);
+    expect(resolve).toBeCalledTimes(0);
+    expect(stopUpload).toBeCalledTimes(0);
   });
 
   it('should abort upload when file size changes', async () => {

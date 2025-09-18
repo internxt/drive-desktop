@@ -19,7 +19,7 @@ describe('upload-file', () => {
   let props: Parameters<typeof uploadFile>[0];
 
   beforeEach(() => {
-    vi.useRealTimers();
+    vi.useFakeTimers();
 
     abortController = new AbortController();
     props = mockProps<typeof uploadFile>({
@@ -28,6 +28,11 @@ describe('upload-file', () => {
       callbacks,
       abortSignal: abortController.signal,
     });
+  });
+
+  afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
   });
 
   it('should upload file', async () => {
@@ -71,7 +76,7 @@ describe('upload-file', () => {
     expect(processErrorMock).toBeCalledTimes(1);
   });
 
-  it('should destroy read stream if signal aborted', async () => {
+  it('should destroy read stream if signal aborted', () => {
     // Given
     environment.upload.mockImplementation((_, opts) => {
       setTimeout(() => {
@@ -81,18 +86,27 @@ describe('upload-file', () => {
       return new ActionState(ActionTypes.Upload);
     });
     // When
-    await uploadFile(props);
+    void uploadFile(props);
+    vi.advanceTimersByTime(50);
     // Then
     expect(readable.destroy).toBeCalledTimes(1);
   });
 
   it('should call abort on change size after 5s', () => {
     // Given
-    vi.useFakeTimers();
+    const clearIntervalSpy = vi.spyOn(global, 'clearInterval');
+    environment.upload.mockImplementation((_, opts) => {
+      setTimeout(() => {
+        abortController.abort();
+        opts.finishedCallback(null, 'contentsId');
+      }, 11000);
+      return new ActionState(ActionTypes.Upload);
+    });
     // When
     void uploadFile(props);
-    vi.advanceTimersByTime(10000);
+    vi.advanceTimersByTime(11000);
     // Then
     expect(abortOnChangeSizeMock).toBeCalledTimes(2);
+    expect(clearIntervalSpy).toBeCalledTimes(1);
   });
 });
