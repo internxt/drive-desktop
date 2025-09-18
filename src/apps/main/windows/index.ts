@@ -7,13 +7,17 @@ import { getProcessIssuesWindow } from './process-issues';
 import { getSettingsWindow } from './settings';
 import { getWidget } from './widget';
 import { openVirtualDriveRootFolder } from '../virtual-root-folder/service';
-import { BroadcastToWindows } from './broadcast-to-windows';
+import { BroadcastToWidget, BroadcastToWindows } from './broadcast-to-windows';
 
 function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
   getSettingsWindow()?.close();
   getOnboardingWindow()?.close();
   getMigrationWindow()?.close();
+}
+
+export function broadcastToWidget({ name, data }: BroadcastToWidget) {
+  getWidget()?.webContents.send(name, data);
 }
 
 export function broadcastToWindows({ name, data }: BroadcastToWindows) {

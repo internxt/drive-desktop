@@ -1,4 +1,4 @@
-import { broadcastToWindows } from '@/apps/main/windows';
+import { broadcastToWidget, broadcastToWindows } from '@/apps/main/windows';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUploaderCallbacks } from '@/infra/inxt-js/file-uploader/file-uploader';
 import { basename } from 'path';
@@ -12,19 +12,19 @@ export function getUploadCallbacks({ path }: TProps): FileUploaderCallbacks {
 
   return {
     onProgress({ progress }: { progress: number }) {
-      broadcastToWindows({
+      broadcastToWidget({
         name: 'sync-info-update',
         data: { action: 'UPLOADING', name: nameWithExtension, progress, key: path },
       });
     },
     onFinish() {
-      broadcastToWindows({
+      broadcastToWidget({
         name: 'sync-info-update',
         data: { action: 'UPLOADED', name: nameWithExtension, key: path },
       });
     },
     onError() {
-      broadcastToWindows({
+      broadcastToWidget({
         name: 'sync-info-update',
         data: { action: 'UPLOAD_ERROR', name: nameWithExtension, key: path },
       });
