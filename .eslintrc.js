@@ -1,11 +1,6 @@
 module.exports = {
   plugins: ['import', 'unicorn', '@tanstack/query', 'sonarjs'],
-  extends: [
-    '@internxt/eslint-config-internxt',
-    'plugin:prettier/recommended',
-    'plugin:@tanstack/eslint-plugin-query/recommended',
-    'plugin:sonarjs/recommended-legacy',
-  ],
+  extends: ['plugin:prettier/recommended', 'plugin:@tanstack/eslint-plugin-query/recommended', 'plugin:sonarjs/recommended-legacy'],
   parser: '@typescript-eslint/parser',
   ignorePatterns: ['assets.d.ts', 'node_modules', 'schema.ts'],
   overrides: [
