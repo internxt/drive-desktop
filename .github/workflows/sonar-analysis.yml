@@ -21,11 +21,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Create .npmrc file
-        run: |
-          echo "@internxt:registry=https://npm.pkg.github.com" > .npmrc
-          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
-
       - name: Install dependencies
         run: npm run init:ci
 
