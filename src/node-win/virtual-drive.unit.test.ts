@@ -24,7 +24,6 @@ describe('VirtualDrive', () => {
 
   beforeEach(() => {
     addonMock.addLoggerPath.mockReturnValue(true);
-    addonMock.registerSyncRoot.mockReturnValue(0);
     addonMock.createEntry.mockReturnValue({ success: true });
   });
 

@@ -67,8 +67,8 @@ export function setupRootFolder(user: User): void {
    * Previously, the drive name in Explorer was "Internxt Drive" and when you logged out and logged in,
    * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
    * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
-   * login called "Internxt Drive - {user.uuid}."
-   * So, we need to rename "Internxt Drive" to "Internxt Drive - { user.uuid}".
+   * login called "InternxtDrive - {user.uuid}."
+   * So, we need to rename "InternxtDrive" to "InternxtDrive - {user.uuid}".
    */
   // If the current path doesn't match the default path format, we'll still update the sync root
   if (current === pathNameWithSepInTheEnd) {

@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { basename, dirname, join, posix, win32 } from 'path';
 
 import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
@@ -28,9 +27,7 @@ export class VirtualDrive {
 
     this.addon = new Addon();
     this.addon.syncRootPath = this.syncRootPath;
-
-    this.createSyncRootFolder();
-    this.addLoggerPath(this.convertToWindowsPath({ path: loggerPath }));
+    this.addon.addLogger({ path: this.convertToWindowsPath({ path: loggerPath }) });
   }
 
   private convertToWindowsTime(jsTime: number) {
@@ -50,18 +47,8 @@ export class VirtualDrive {
     }
   }
 
-  addLoggerPath(logPath: string) {
-    this.addon.addLogger({ logPath });
-  }
-
   getPlaceholderState({ path }: { path: string }) {
     return this.addon.getPlaceholderState({ path: this.fixPath(path) });
-  }
-
-  createSyncRootFolder() {
-    if (!fs.existsSync(this.syncRootPath)) {
-      fs.mkdirSync(this.syncRootPath, { recursive: true });
-    }
   }
 
   getFileIdentity({ path }: { path: string }) {
@@ -260,10 +247,6 @@ export class VirtualDrive {
     }
 
     return result.success;
-  }
-
-  updateFileIdentity({ itemPath, id, isDirectory }: { itemPath: string; id: string; isDirectory: boolean }) {
-    return this.addon.updateFileIdentity({ path: this.fixPath(itemPath), id, isDirectory });
   }
 
   dehydrateFile({ itemPath }: { itemPath: string }) {
