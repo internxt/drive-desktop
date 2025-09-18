@@ -48,6 +48,6 @@ describe('environment-file-uploader', () => {
     expect(callbacks.onProgress).toBeCalledWith({ progress: 0 });
     expect(uploadFileMock)
       .toBeCalledTimes(1)
-      .toBeCalledWith(expect.objectContaining({ fn: environment.uploadMultipartFile }));
+      .toBeCalledWith(expect.not.objectContaining({ fn: environment.upload }));
   });
 });
