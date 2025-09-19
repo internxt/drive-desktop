@@ -29,6 +29,8 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   logger.debug({ msg: '[SYNC ENGINE] Going to use root folder: ', rootPath });
 
+  await createRootFolder({ ctx });
+
   const container = buildProcessContainer({ ctx });
 
   ipcRendererSyncEngine.on('UPDATE_SYNC_ENGINE_PROCESS', async () => {
@@ -78,8 +80,6 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
       virtualDrive: new VirtualDrive(config),
       fileUploader,
     };
-
-    await createRootFolder({ ctx });
 
     if (config.workspaceToken) {
       setInterval(() => refreshToken({ ctx }), 23 * 60 * 60 * 1000);
