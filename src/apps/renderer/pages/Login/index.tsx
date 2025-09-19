@@ -61,7 +61,7 @@ export default function Login() {
       return;
     }
 
-    const { data, error } = await window.electron.authLogin({ email });
+    const { data } = await window.electron.authLogin({ email });
 
     if (data) {
       sKey.current = data.sKey;
