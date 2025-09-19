@@ -1,53 +1,58 @@
-import { deepMocked, getMockCalls, mockProps } from 'tests/vitest/utils.helper.test';
+import { getMockCalls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { unregisterVirtualDrives } from './unregister-virtual-drives';
 import VirtualDrive from '@/node-win/virtual-drive';
 
-vi.mock(import('@/node-win/virtual-drive'));
-vi.mock(import('@/apps/shared/logger/logger'));
-
 describe('unregister-virtual-drives', () => {
-  const getRegisteredSyncRootsMock = deepMocked(VirtualDrive.getRegisteredSyncRoots);
-  const unregisterSyncRootMock = deepMocked(VirtualDrive.unregisterSyncRoot);
+  const getRegisteredSyncRootsMock = partialSpyOn(VirtualDrive, 'getRegisteredSyncRoots');
+  const unregisterSyncRootMock = partialSpyOn(VirtualDrive, 'unregisterSyncRoot');
 
-  it('Skip unregistration if they are already registered', () => {
-    // Given
-    getRegisteredSyncRootsMock.mockReturnValue([{ id: '{PROVIDER_ID}' }, { id: '{WORKSPACE_PROVIDER_ID}' }]);
+  let props: Parameters<typeof unregisterVirtualDrives>[0];
 
-    // When
-    const props = mockProps<typeof unregisterVirtualDrives>({
-      currentProviderIds: ['{PROVIDER_ID}', '{WORKSPACE_PROVIDER_ID}'],
-    });
-    unregisterVirtualDrives(props);
-
-    // Then
-    expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
+  beforeEach(() => {
+    getRegisteredSyncRootsMock.mockReturnValue([{ id: '{PROVIDER_ID}', displayName: 'Internxt' }]);
+    props = mockProps<typeof unregisterVirtualDrives>({ currentProviderIds: ['{PROVIDER_ID}'] });
   });
 
-  it('Unregister {PROVIDER_ID} if it is not in currentProviderIds', () => {
+  it('should unregister if displayName contains internxt', () => {
     // Given
-    getRegisteredSyncRootsMock.mockReturnValue([{ id: '{PROVIDER_ID}' }, { id: '{WORKSPACE_PROVIDER_ID}' }]);
-
+    getRegisteredSyncRootsMock.mockReturnValue([{ id: '{OLD_PROVIDER_ID}', displayName: 'Internxt', path: 'Other' }]);
     // When
-    const props = mockProps<typeof unregisterVirtualDrives>({
-      currentProviderIds: ['{WORKSPACE_PROVIDER_ID}'],
-    });
     unregisterVirtualDrives(props);
+    // Then
+    expect(getMockCalls(unregisterSyncRootMock)).toStrictEqual([{ providerId: '{OLD_PROVIDER_ID}' }]);
+  });
 
+  it('should unregister if path contains internxt', () => {
+    // Given
+    getRegisteredSyncRootsMock.mockReturnValue([{ id: '{OLD_PROVIDER_ID}', displayName: 'Other', path: 'Internxt' }]);
+    // When
+    unregisterVirtualDrives(props);
+    // Then
+    expect(getMockCalls(unregisterSyncRootMock)).toStrictEqual([{ providerId: '{OLD_PROVIDER_ID}' }]);
+  });
+
+  it('should unregister if it not already registered', () => {
+    // Given
+    props.currentProviderIds = ['{NEW_PROVIDER_ID}'];
+    // When
+    unregisterVirtualDrives(props);
     // Then
     expect(getMockCalls(unregisterSyncRootMock)).toStrictEqual([{ providerId: '{PROVIDER_ID}' }]);
   });
 
-  it('Unregister {PROVIDER_ID} if it is not in currentProviderIds', () => {
+  it('should do nothing if nothing was registered', () => {
     // Given
-    getRegisteredSyncRootsMock.mockReturnValue([{ id: '{PROVIDER_ID}' }, { id: '{WORKSPACE_PROVIDER_ID}' }]);
-
+    getRegisteredSyncRootsMock.mockReturnValue([]);
     // When
-    const props = mockProps<typeof unregisterVirtualDrives>({
-      currentProviderIds: ['{PROVIDER_ID}'],
-    });
     unregisterVirtualDrives(props);
-
     // Then
-    expect(getMockCalls(unregisterSyncRootMock)).toStrictEqual([{ providerId: '{WORKSPACE_PROVIDER_ID}' }]);
+    expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
+  });
+
+  it('should not unregister if it is already registered', () => {
+    // When
+    unregisterVirtualDrives(props);
+    // Then
+    expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
   });
 });

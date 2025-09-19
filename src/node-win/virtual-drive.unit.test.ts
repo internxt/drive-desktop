@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { v4 } from 'uuid';
 
 import { addon } from '@/node-win/addon';
@@ -12,7 +11,6 @@ vi.mock(import('fs'));
 vi.mock(import('@/node-win/addon'));
 
 describe('VirtualDrive', () => {
-  const existsSyncMock = vi.mocked(fs.existsSync);
   const addonMock = vi.mocked(addon);
 
   const rootPath = 'C:/Users/user/InternxtDrive';
@@ -69,24 +67,6 @@ describe('VirtualDrive', () => {
   });
 
   describe('When VirtualDrive is created', () => {
-    it('When rootPath does not exist, then it creates it', () => {
-      // Given
-      existsSyncMock.mockReturnValue(false);
-      // When
-      new VirtualDrive(props);
-      // Then
-      expect(fs.mkdirSync).toBeCalledWith('C:\\Users\\user\\InternxtDrive', { recursive: true });
-    });
-
-    it('When rootPath exists, then it does not create it', () => {
-      // Given
-      existsSyncMock.mockReturnValue(true);
-      // When
-      new VirtualDrive(props);
-      // Then
-      expect(fs.mkdirSync).not.toBeCalled();
-    });
-
     it('Then it calls addon.addLoggerPath with logPath provided', () => {
       // When
       new VirtualDrive(props);
