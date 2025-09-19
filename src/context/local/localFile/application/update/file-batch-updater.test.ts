@@ -4,19 +4,26 @@ import * as uploadFile from '../upload-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ContentsId, FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 
 describe('file-batch-updater', () => {
   const uploadFileMock = partialSpyOn(uploadFile, 'uploadFile');
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
+  const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
 
-  let props: Parameters<typeof FileBatchUpdater.process>[0];
+  let props: Parameters<typeof FileBatchUpdater.run>[0];
 
   beforeEach(() => {
-    props = mockProps<typeof FileBatchUpdater.process>({
+    props = mockProps<typeof FileBatchUpdater.run>({
       self: { backed: 0 },
+      context: { abortController: new AbortController() },
       tracker: { currentProcessed: vi.fn() },
-      file: { uuid: 'uuid' as FileUuid },
-      localFile: { size: 1024, modificationTime: new Date('2025-08-20T00:00:00.000Z') },
+      modified: [
+        {
+          remote: { uuid: 'uuid' as FileUuid },
+          local: { size: 1024, modificationTime: new Date('2025-08-20T00:00:00.000Z') },
+        },
+      ],
     });
   });
 
@@ -24,7 +31,7 @@ describe('file-batch-updater', () => {
     // Given
     uploadFileMock.mockResolvedValue(undefined);
     // When
-    await FileBatchUpdater.process(props);
+    await FileBatchUpdater.run(props);
     // Then
     expect(replaceFileMock).toBeCalledTimes(0);
     expect(props.self.backed).toBe(1);
@@ -34,24 +41,29 @@ describe('file-batch-updater', () => {
   it('should increase backed if content is updated', async () => {
     // Given
     uploadFileMock.mockResolvedValue('contentsId' as ContentsId);
+    replaceFileMock.mockResolvedValue({ data: {} });
     // When
-    await FileBatchUpdater.process(props);
+    await FileBatchUpdater.run(props);
     // Then
-    expect(replaceFileMock).toBeCalledWith({
-      uuid: 'uuid',
-      newContentId: 'contentsId',
-      newSize: 1024,
-      modificationTime: '2025-08-20T00:00:00.000Z',
-    });
+    expect(replaceFileMock).toBeCalledWith(
+      {
+        uuid: 'uuid',
+        newContentId: 'contentsId',
+        newSize: 1024,
+        modificationTime: '2025-08-20T00:00:00.000Z',
+      },
+      { abortSignal: props.context.abortController.signal },
+    );
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
+    expect(createOrUpdateFileMock).toBeCalledTimes(1);
   });
 
   it('should increase backed if there is an error', async () => {
     // Given
     uploadFileMock.mockRejectedValue(new Error());
     // When
-    await FileBatchUpdater.process(props);
+    await FileBatchUpdater.run(props);
     // Then
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);

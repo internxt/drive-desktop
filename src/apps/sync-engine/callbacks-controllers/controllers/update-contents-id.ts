@@ -30,12 +30,15 @@ export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }:
 
     const contents = await ContentsUploader.run({ ctx, path, absolutePath, stats });
 
-    const { data: fileDto, error } = await driveServerWip.files.replaceFile({
-      uuid,
-      newContentId: contents.id,
-      newSize: contents.size,
-      modificationTime: stats.mtime.toISOString(),
-    });
+    const { data: fileDto, error } = await driveServerWip.files.replaceFile(
+      {
+        uuid,
+        newContentId: contents.id,
+        newSize: contents.size,
+        modificationTime: stats.mtime.toISOString(),
+      },
+      { abortSignal: ctx.abortController.signal },
+    );
 
     if (error) throw error;
 

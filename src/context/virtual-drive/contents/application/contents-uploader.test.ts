@@ -14,7 +14,7 @@ describe('contents-uploader', () => {
   const uploader = mockDeep<EnvironmentFileUploader>();
 
   const props = mockProps<typeof ContentsUploader.run>({
-    ctx: { fileUploader: uploader },
+    ctx: { fileUploader: uploader, abortController: new AbortController() },
     path: createRelativePath('file.txt'),
     absolutePath: 'C:/Users/user/InternxtDrive/file.txt' as AbsolutePath,
     stats: { size: 1024 },

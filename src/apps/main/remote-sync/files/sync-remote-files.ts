@@ -1,6 +1,6 @@
+import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FETCH_LIMIT } from '../store';
-import { syncRemoteFile } from './sync-remote-file';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
@@ -40,8 +40,8 @@ export async function syncRemoteFiles({ self, from, offset = 0 }: TProps) {
     offset += FETCH_LIMIT;
 
     await Promise.all(
-      data.map(async (remoteFile) => {
-        await syncRemoteFile({ self, remoteFile });
+      data.map(async (fileDto) => {
+        await createOrUpdateFile({ context: self.context, fileDto });
       }),
     );
 
