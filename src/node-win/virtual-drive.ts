@@ -8,6 +8,8 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { fileSystem } from '@/infra/file-system/file-system.module';
+import { mkdir } from 'fs/promises';
 
 const PLACEHOLDER_ATTRIBUTES = {
   FILE_ATTRIBUTE_READONLY: 0x1,
@@ -49,6 +51,15 @@ export class VirtualDrive {
 
   getPlaceholderState({ path }: { path: string }) {
     return this.addon.getPlaceholderState({ path: this.fixPath(path) });
+  }
+
+  async createSyncRootFolder() {
+    const { error } = await fileSystem.stat({ absolutePath: this.syncRootPath });
+
+    if (error) {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: error.code });
+      await mkdir(this.syncRootPath, { recursive: true });
+    }
   }
 
   getFileIdentity({ path }: { path: string }) {

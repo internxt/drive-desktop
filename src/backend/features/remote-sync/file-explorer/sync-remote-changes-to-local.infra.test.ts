@@ -30,7 +30,8 @@ describe('sync-remote-changes-to-local', () => {
   const virtualDrive = new VirtualDrive({ loggerPath: '', providerId, rootPath });
   const callbacks = mockDeep<Callbacks>();
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await virtualDrive.createSyncRootFolder();
     virtualDrive.registerSyncRoot({ providerName });
     virtualDrive.connectSyncRoot({ callbacks });
   });

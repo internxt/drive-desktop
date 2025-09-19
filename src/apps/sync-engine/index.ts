@@ -8,19 +8,8 @@ import { buildFileUploader } from '../main/background-processes/backups/build-fi
 import VirtualDrive from '@/node-win/virtual-drive';
 import { runDangledFiles } from './run-dangled-files';
 import { buildProcessContainer } from './build-process-container';
-import { fileSystem } from '@/infra/file-system/file-system.module';
-import { mkdir } from 'fs/promises';
 
 logger.debug({ msg: 'Running sync engine' });
-
-async function createRootFolder({ ctx }: { ctx: ProcessSyncContext }) {
-  const { error } = await fileSystem.stat({ absolutePath: ctx.rootPath });
-
-  if (error) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: error.code });
-    await mkdir(ctx.rootPath, { recursive: true });
-  }
-}
 
 async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Starting sync engine process' });
@@ -29,7 +18,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   logger.debug({ msg: '[SYNC ENGINE] Going to use root folder: ', rootPath });
 
-  await createRootFolder({ ctx });
+  await ctx.virtualDrive.createSyncRootFolder();
 
   const container = buildProcessContainer({ ctx });
 
