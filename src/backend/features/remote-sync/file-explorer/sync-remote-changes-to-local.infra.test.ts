@@ -83,6 +83,7 @@ describe('sync-remote-changes-to-local', () => {
     ]);
 
     expect(getMockCalls(loggerMock.debug)).toStrictEqual([
+      { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Registering sync root', syncRootPath: rootPath },
       { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },
       { msg: 'onReady' },
