@@ -44,13 +44,14 @@ describe('file-batch-uploader', () => {
   it('should increase backed if content is updated', async () => {
     // Given
     uploadFileMock.mockResolvedValue('contentsId' as ContentsId);
+    createMock.mockResolvedValue({ data: {} });
     // When
     await FileBatchUploader.run(props);
     // Then
     expect(createMock).toBeCalledWith(expect.objectContaining({ folderUuid: 'parentUuid', path, contentsId: 'contentsId', size: 1024 }));
+    expect(createOrUpdateFileMock).toBeCalledTimes(1);
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
-    expect(createOrUpdateFileMock).toBeCalledTimes(1);
   });
 
   it('should increase backed if there is an error', async () => {

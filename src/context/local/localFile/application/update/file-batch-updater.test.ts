@@ -16,6 +16,7 @@ describe('file-batch-updater', () => {
   beforeEach(() => {
     props = mockProps<typeof FileBatchUpdater.run>({
       self: { backed: 0 },
+      context: { abortController: new AbortController() },
       tracker: { currentProcessed: vi.fn() },
       modified: [
         {
@@ -40,15 +41,19 @@ describe('file-batch-updater', () => {
   it('should increase backed if content is updated', async () => {
     // Given
     uploadFileMock.mockResolvedValue('contentsId' as ContentsId);
+    replaceFileMock.mockResolvedValue({ data: {} });
     // When
     await FileBatchUpdater.run(props);
     // Then
-    expect(replaceFileMock).toBeCalledWith({
-      uuid: 'uuid',
-      newContentId: 'contentsId',
-      newSize: 1024,
-      modificationTime: '2025-08-20T00:00:00.000Z',
-    });
+    expect(replaceFileMock).toBeCalledWith(
+      {
+        uuid: 'uuid',
+        newContentId: 'contentsId',
+        newSize: 1024,
+        modificationTime: '2025-08-20T00:00:00.000Z',
+      },
+      { abortSignal: props.context.abortController.signal },
+    );
     expect(props.self.backed).toBe(1);
     expect(props.tracker.currentProcessed).toBeCalledTimes(1);
     expect(createOrUpdateFileMock).toBeCalledTimes(1);
