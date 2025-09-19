@@ -83,19 +83,4 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
   ]);
 }
 
-export async function spawnWorkspaceSyncEngineWorkers({ context, providerId }: { context: AuthContext; providerId: string }) {
-  const workspaces = await getWorkspaces();
-  const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
-
-  const currentProviderIds = workspaceProviderIds.concat([providerId]);
-
-  unregisterVirtualDrives({ currentProviderIds });
-
-  const spawnWorkspaces = workspaces.map(async (workspace) => {
-    await spawnWorkspace({ context, workspace });
-  });
-
-  await Promise.all(spawnWorkspaces);
-}
-
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
