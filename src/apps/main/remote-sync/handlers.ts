@@ -3,7 +3,7 @@ import { In } from 'typeorm';
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { ipcMain } from 'electron';
-import { spawnDefaultSyncEngineWorker, spawnWorkspaceSyncEngineWorkers, updateSyncEngine } from '../background-processes/sync-engine';
+import { spawnSyncEngineWorkers, updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { DriveFile } from '../database/entities/DriveFile';
 import { ItemBackup } from '../../shared/types/items';
@@ -175,8 +175,7 @@ ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', (_, workspaceId = '') => {
 
 export async function initSyncEngine({ context }: { context: AuthContext }) {
   try {
-    const { providerId } = spawnDefaultSyncEngineWorker({ context });
-    void spawnWorkspaceSyncEngineWorkers({ context, providerId });
+    void spawnSyncEngineWorkers({ context });
     await debouncedSynchronization();
   } catch (error) {
     throw logger.error({

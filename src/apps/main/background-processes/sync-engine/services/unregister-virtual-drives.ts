@@ -8,9 +8,22 @@ type TProps = {
 export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
   const syncRoots = VirtualDrive.getRegisteredSyncRoots();
 
+  const internxtSyncRoots = syncRoots.filter((syncRoot) => {
+    const isFromInternxt = syncRoot.displayName.toLowerCase().includes('internxt') || syncRoot.path.toLowerCase().includes('internxt');
+
+    logger.debug({
+      tag: 'SYNC-ENGINE',
+      msg: 'Sync root',
+      isFromInternxt,
+      syncRoot,
+    });
+
+    return isFromInternxt;
+  });
+
   logger.debug({ msg: 'Current provider ids', currentProviderIds });
 
-  syncRoots.forEach((syncRoot) => {
+  internxtSyncRoots.forEach((syncRoot) => {
     if (!currentProviderIds.includes(syncRoot.id)) {
       logger.debug({ msg: 'Unregistering sync root', syncRoot });
       /**

@@ -16,7 +16,8 @@ describe('get-folder-identity', () => {
 
   const virtualDrive = new VirtualDrive({ rootPath, providerId, loggerPath: '' });
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    await virtualDrive.createSyncRootFolder();
     virtualDrive.registerSyncRoot({ providerName: 'Internxt Drive' });
     virtualDrive.connectSyncRoot({ callbacks });
   });

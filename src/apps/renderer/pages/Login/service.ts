@@ -29,11 +29,13 @@ export async function accessRequest({
   hashedPassword: string;
   tfa?: string;
 }) {
-  const res = await window.electron.authAccess({ email, password: hashedPassword, tfa });
+  const { data, error } = await window.electron.authAccess({ email, password: hashedPassword, tfa });
 
-  res.user.mnemonic = CryptoJS.AES.decrypt(CryptoJS.enc.Hex.parse(res.user.mnemonic).toString(CryptoJS.enc.Base64), password).toString(
+  if (error) return { error };
+
+  data.user.mnemonic = CryptoJS.AES.decrypt(CryptoJS.enc.Hex.parse(data.user.mnemonic).toString(CryptoJS.enc.Base64), password).toString(
     CryptoJS.enc.Utf8,
   );
 
-  return res;
+  return { data };
 }

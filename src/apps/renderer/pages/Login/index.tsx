@@ -27,14 +27,12 @@ export default function Login() {
 
     const encryptedHash = hashPassword(password, sKey.current);
 
-    try {
-      const res = await accessRequest({ email, password, hashedPassword: encryptedHash, tfa: twoFA });
-      window.electron.userLoggedIn({
-        ...res,
-        password,
-      });
-    } catch (err) {
-      const { message } = err as Error;
+    const { data, error } = await accessRequest({ email, password, hashedPassword: encryptedHash, tfa: twoFA });
+
+    if (data) {
+      window.electron.userLoggedIn({ ...data, password });
+    } else {
+      const { message } = error;
 
       const phaseToSet = message === TOWFA_ERROR_MESSAGE ? '2fa' : 'credentials';
 
@@ -43,7 +41,6 @@ export default function Login() {
       // TODO: adjust styles to acomodate longer error messages
       setErrorDetails(translate('login.2fa.wrong-code'));
       window.electron.userLogginFailed(email);
-      reportError(err);
     }
   }
 
@@ -64,16 +61,17 @@ export default function Login() {
       return;
     }
 
-    try {
-      const body = await window.electron.authLogin({ email });
-      sKey.current = body.sKey;
-      if (body.tfa) {
+    const { data } = await window.electron.authLogin({ email });
+
+    if (data) {
+      sKey.current = data.sKey;
+      if (data.tfa) {
         setState('ready');
         setPhase('2fa');
       } else {
         access();
       }
-    } catch {
+    } else {
       setState('error');
       setErrorDetails(translate('login.2fa.wrong-code'));
     }

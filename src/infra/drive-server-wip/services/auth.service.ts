@@ -12,44 +12,26 @@ export const auth = {
   logout,
 };
 
-async function access({ email, password, tfa }: { email: string; password: string; tfa?: string }) {
+async function access(context: { email: string; password: string; tfa?: string }) {
   const method = 'POST';
   const endpoint = '/auth/login/access';
-  const key = getRequestKey({
-    method,
-    endpoint,
-    context: {
-      email,
-      password,
-      tfa,
-    },
-  });
+  const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     authClient.POST(endpoint, {
-      body: { email, password, tfa },
+      body: context,
       headers: HEADERS,
     });
 
-  const { data, error } = await clientWrapper({
+  return await clientWrapper({
     sleepMs: 1_000,
     promiseFn,
     key,
     loggerBody: {
       msg: 'Access request',
-      context: {
-        email,
-      },
-      attributes: {
-        tag: 'AUTH',
-        method,
-        endpoint,
-      },
+      context: { email: context.email },
     },
   });
-
-  if (error) throw error;
-  return data;
 }
 
 async function login(context: { email: string }) {
@@ -63,23 +45,12 @@ async function login(context: { email: string }) {
       headers: HEADERS,
     });
 
-  const { data, error } = await clientWrapper({
+  return await clientWrapper({
     sleepMs: 1_000,
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Login request',
-      context,
-      attributes: {
-        tag: 'AUTH',
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Login request', context },
   });
-
-  if (error) throw error;
-  return data;
 }
 
 async function refresh() {
