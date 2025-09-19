@@ -31,6 +31,15 @@ describe('unregister-virtual-drives', () => {
     expect(getMockCalls(unregisterSyncRootMock)).toStrictEqual([{ providerId: '{OLD_PROVIDER_ID}' }]);
   });
 
+  it('should ignore if it is not from internxt', () => {
+    // Given
+    getRegisteredSyncRootsMock.mockReturnValue([{ id: '{PROVIDER_ID}', displayName: 'Other', path: 'Other' }]);
+    // When
+    unregisterVirtualDrives(props);
+    // Then
+    expect(unregisterSyncRootMock).toHaveBeenCalledTimes(0);
+  });
+
   it('should unregister if it not already registered', () => {
     // Given
     props.currentProviderIds = ['{NEW_PROVIDER_ID}'];
