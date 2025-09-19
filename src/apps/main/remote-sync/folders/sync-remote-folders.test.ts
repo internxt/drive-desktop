@@ -1,27 +1,26 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
-import { syncRemoteFolder } from './sync-remote-folder';
+import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFolders } from './sync-remote-folders';
 import { TWorkerConfig } from '../../background-processes/sync-engine/store';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
+import * as createOrUpdateFolder from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 
 vi.mock(import('@/apps/main/util'));
-vi.mock(import('./sync-remote-folder'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 vi.mock(import('@/infra/lokijs/lokijs.module'));
 
 describe('sync-remote-folders.service', () => {
-  const syncRemoteFolderMock = deepMocked(syncRemoteFolder);
   const getFoldersMock = deepMocked(driveServerWip.folders.getFolders);
   const updateCheckpointMock = vi.mocked(LokijsModule.CheckpointsModule.updateCheckpoint);
+  const createOrUpdateFolderMock = partialSpyOn(createOrUpdateFolder, 'createOrUpdateFolder');
 
-  const config = mockDeep<Config>();
-  config.userUuid = 'uuid';
+  const context = mockDeep<SyncContext>();
+  context.userUuid = 'uuid';
   const worker = mockDeep<TWorkerConfig>();
-  const remoteSyncManager = new RemoteSyncManager(config, worker, '');
+  const remoteSyncManager = new RemoteSyncManager(context, worker, '');
 
   it('If we fetch less than 50 files, then do not fetch again', async () => {
     // Given
@@ -74,7 +73,7 @@ describe('sync-remote-folders.service', () => {
 
     // Then
     expect(getFoldersMock).toHaveBeenCalledTimes(2);
-    expect(syncRemoteFolderMock).toHaveBeenCalledTimes(50);
+    expect(createOrUpdateFolderMock).toHaveBeenCalledTimes(50);
   });
 
   it('If fetch fails, then throw error', async () => {

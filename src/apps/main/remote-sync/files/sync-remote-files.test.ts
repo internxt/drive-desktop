@@ -1,27 +1,26 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
-import { syncRemoteFile } from './sync-remote-file';
+import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFiles } from './sync-remote-files';
 import { TWorkerConfig } from '../../background-processes/sync-engine/store';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
-import { Config } from '@/apps/sync-engine/config';
+import { SyncContext } from '@/apps/sync-engine/config';
+import * as createOrUpdateFile from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 
 vi.mock(import('@/apps/main/util'));
-vi.mock(import('./sync-remote-file'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 vi.mock(import('@/infra/lokijs/lokijs.module'));
 
 describe('sync-remote-files.service', () => {
-  const syncRemoteFileMock = deepMocked(syncRemoteFile);
   const getFilesMock = deepMocked(driveServerWip.files.getFiles);
   const updateCheckpointMock = vi.mocked(LokijsModule.CheckpointsModule.updateCheckpoint);
+  const createOrUpdateFileMock = partialSpyOn(createOrUpdateFile, 'createOrUpdateFile');
 
-  const config = mockDeep<Config>();
-  config.userUuid = 'uuid';
+  const context = mockDeep<SyncContext>();
+  context.userUuid = 'uuid';
   const worker = mockDeep<TWorkerConfig>();
-  const remoteSyncManager = new RemoteSyncManager(config, worker, '');
+  const remoteSyncManager = new RemoteSyncManager(context, worker, '');
 
   it('If we fetch less than 50 files, then do not fetch again', async () => {
     // Given
@@ -74,7 +73,7 @@ describe('sync-remote-files.service', () => {
 
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(2);
-    expect(syncRemoteFileMock).toHaveBeenCalledTimes(50);
+    expect(createOrUpdateFileMock).toHaveBeenCalledTimes(50);
   });
 
   it('If fetch fails, then throw error', async () => {

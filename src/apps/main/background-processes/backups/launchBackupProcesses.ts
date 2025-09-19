@@ -8,6 +8,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { addBackupsIssue, clearBackupsIssues } from '../issues';
 import { buildFileUploader } from './build-file-uploader';
+import { getUserOrThrow } from '../../auth/service';
 
 function backupsCanRun(status: BackupsProcessStatus) {
   return status.isIn('STANDBY') && backupsConfig.enabled;
@@ -60,9 +61,12 @@ export async function launchBackupProcesses(
       break;
     }
 
+    const user = getUserOrThrow();
     const { fileUploader } = buildFileUploader({ bucket: backupInfo.backupsBucket });
     const context: BackupsContext = {
       ...backupInfo,
+      userUuid: user.uuid,
+      workspaceId: '',
       fileUploader,
       abortController,
       addIssue: (issue) => {

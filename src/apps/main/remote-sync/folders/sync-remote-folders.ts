@@ -1,6 +1,6 @@
+import { createOrUpdateFolder } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
 import { RemoteSyncManager } from '../RemoteSyncManager';
 import { FETCH_LIMIT } from '../store';
-import { syncRemoteFolder } from './sync-remote-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 
@@ -40,8 +40,8 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
     offset += FETCH_LIMIT;
 
     await Promise.all(
-      data.map(async (remoteFolder) => {
-        await syncRemoteFolder({ self, remoteFolder });
+      data.map(async (folderDto) => {
+        await createOrUpdateFolder({ context: self.context, folderDto });
       }),
     );
 
