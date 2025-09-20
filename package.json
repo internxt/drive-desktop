@@ -1,10 +1,10 @@
 {
   "name": "internxt-drive",
-  "version": "2.5.7",
+  "version": "2.5.8",
   "author": "Internxt <hello@internxt.com>",
   "description": "Internxt client UI",
   "main": "./dist/main/main.js",
-  "license": "AGPL-3.0",
+  "license": "MIT",
   "scripts": {
     "build": "concurrently \"npm run build:main\" \"npm run build:renderer\" \"npm run build:sync-engine\" \"npm run build:preload\"",
     "build:main": "cross-env NODE_ENV=production TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.main.prod.ts",
@@ -161,7 +161,7 @@
     "@internxt/drive-desktop-core": "0.1.1",
     "@internxt/inxt-js": "2.2.9",
     "@internxt/lib": "1.3.1",
-    "@internxt/node-win": "1.0.22",
+    "@internxt/node-win": "1.0.23",
     "@internxt/scan": "1.0.7",
     "@internxt/sdk": "1.11.10",
     "@phosphor-icons/react": "2.0.9",
