@@ -32,10 +32,7 @@ type TAddon = {
   connectSyncRoot(path: string, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: string, id: string): z.infer<typeof addonZod.convertToPlaceholder>;
   getFileIdentity(path: string): z.infer<typeof addonZod.getFileIdentity>;
-  /**
-   * TODO: Not all paths return value
-   */
-  disconnectSyncRoot(path: string): unknown;
+  disconnectSyncRoot(path: string): z.infer<typeof addonZod.disconnectSyncRoot>;
   getPlaceholderState(path: string): z.infer<typeof addonZod.getPlaceholderState>;
   registerSyncRoot(
     syncRootPath: string,
@@ -46,10 +43,6 @@ type TAddon = {
   ): z.infer<typeof addonZod.registerSyncRoot>;
   unregisterSyncRoot(path: string): z.infer<typeof addonZod.unregisterSyncRoot>;
   updateSyncStatus(path: string, sync: boolean, isDirectory: boolean): z.infer<typeof addonZod.updateSyncStatus>;
-  /**
-   * TODO: Returns a type in c++ that is not initialized
-   */
-  updateFileIdentity(itemPath: string, id: string, isDirectory: boolean): any;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
 };
 

@@ -57,8 +57,8 @@ export class Addon {
     return addon.disconnectSyncRoot(syncRootPath);
   }
 
-  addLogger({ logPath }: { logPath: string }) {
-    const result = addon.addLoggerPath(logPath);
+  addLogger({ path }: { path: string }) {
+    const result = addon.addLoggerPath(path);
     return this.parseAddonZod('addLoggerPath', result);
   }
 
@@ -175,10 +175,6 @@ export class Addon {
   convertToPlaceholder({ path, id }: { path: string; id: FilePlaceholderId | FolderPlaceholderId }) {
     const result = addon.convertToPlaceholder(path, id);
     return this.parseAddonZod('convertToPlaceholder', result);
-  }
-
-  updateFileIdentity({ path, id, isDirectory }: { path: string; id: string; isDirectory: boolean }) {
-    addon.updateFileIdentity(path, id, isDirectory);
   }
 
   dehydrateFile({ path }: { path: string }) {
