@@ -5,7 +5,7 @@ import { join } from 'path';
 import { StatError } from './stat';
 import { fileSystem } from '../file-system.module';
 
-type Results = Array<{ absolutePath: AbsolutePath } & ({ stats: Stats; error?: undefined } | { error: StatError; stats?: undefined })>;
+export type SyncWalkItem = { absolutePath: AbsolutePath } & ({ stats: Stats; error?: undefined } | { error: StatError; stats?: undefined });
 type Props = { rootFolder: string };
 
 /**
@@ -15,7 +15,7 @@ type Props = { rootFolder: string };
  */
 export async function syncWalk({ rootFolder }: Props) {
   const stack = [rootFolder];
-  const results: Results = [];
+  const results: SyncWalkItem[] = [];
 
   while (stack.length > 0) {
     const folder = stack.pop();
