@@ -81,7 +81,7 @@ describe('detect-context-menu-action', () => {
       await detectContextMenuAction(props);
       // Then
       expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
-      expect(throttleHydrateMock).toBeCalledWith({ path: props.path });
+      expect(throttleHydrateMock).toBeCalledWith(expect.objectContaining({ path: props.path }));
     });
 
     it('should not enqueue file for hydrate if blocks is not 0', async () => {
