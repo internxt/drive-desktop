@@ -1,11 +1,11 @@
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ProcessSyncContext } from '../config';
 import { AddController } from '../callbacks-controllers/controllers/add-controller';
-import { FileExplorerItem } from '../file-explorer-state/get-file-explorer-state';
+import { PendingFileExplorerItem } from '../file-explorer-state/file-explorer-state.types';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  createFiles: FileExplorerItem[];
+  createFiles: PendingFileExplorerItem[];
 };
 
 export async function addPendingFiles({ ctx, createFiles }: TProps) {
