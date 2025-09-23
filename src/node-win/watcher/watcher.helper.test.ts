@@ -3,7 +3,6 @@ import { mkdir } from 'fs/promises';
 import { mockDeep } from 'vitest-mock-extended';
 
 import { Watcher } from './watcher';
-import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import VirtualDrive from '../virtual-drive';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -25,7 +24,6 @@ partialSpyOn(onRaw, 'onRaw');
 let watcher: Watcher | undefined;
 
 const virtualDrive = mockDeep<VirtualDrive>();
-const queueManager = mockDeep<QueueManager>();
 const logger = mockDeep<TLogger>();
 
 export async function setupWatcher(syncRootPath: string) {
@@ -33,7 +31,7 @@ export async function setupWatcher(syncRootPath: string) {
     await mkdir(syncRootPath);
   }
 
-  watcher = new Watcher(syncRootPath as AbsolutePath, {}, queueManager, logger);
+  watcher = new Watcher(syncRootPath as AbsolutePath, {}, logger);
   const props = mockProps<typeof watcher.watchAndWait>({ ctx: { virtualDrive } });
   watcher.watchAndWait(props);
 }

@@ -8,12 +8,14 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import * as handleDehydrate from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import * as updateContentsId from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
+import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { detectContextMenuAction } from './detect-context-menu-action.service';
 
 describe('detect-context-menu-action', () => {
   const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
   const updateContentsIdMock = partialSpyOn(updateContentsId, 'updateContentsId');
+  const throttleHydrateMock = partialSpyOn(throttleHydrate, 'throttleHydrate');
   const virtualDrive = mockDeep<VirtualDrive>();
 
   let props: Parameters<typeof detectContextMenuAction>[0];
@@ -27,7 +29,6 @@ describe('detect-context-menu-action', () => {
       self: {
         fileInDevice: new Set(),
         logger: loggerMock,
-        queueManager: { enqueue: vi.fn() },
       },
       details: {
         prev: { ctimeMs: 1, mtimeMs: 1 },
@@ -64,7 +65,7 @@ describe('detect-context-menu-action', () => {
     await detectContextMenuAction(props);
     // Then
     expect(props.self.fileInDevice.has(props.absolutePath)).toBe(false);
-    expect(props.self.queueManager.enqueue).toBeCalledTimes(0);
+    expect(throttleHydrateMock).toBeCalledTimes(0);
     expect(handleDehydrateMock).toBeCalledWith({ drive: virtualDrive, path: props.path });
   });
 
@@ -80,7 +81,7 @@ describe('detect-context-menu-action', () => {
       await detectContextMenuAction(props);
       // Then
       expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
-      expect(props.self.queueManager.enqueue).toBeCalledWith({ path: props.path });
+      expect(throttleHydrateMock).toBeCalledWith({ path: props.path });
     });
 
     it('should not enqueue file for hydrate if blocks is not 0', async () => {
@@ -90,7 +91,7 @@ describe('detect-context-menu-action', () => {
       await detectContextMenuAction(props);
       // Then
       expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
-      expect(props.self.queueManager.enqueue).toBeCalledTimes(0);
+      expect(throttleHydrateMock).toBeCalledTimes(0);
       expect(loggerMock.debug).toBeCalledWith({ msg: 'Double click on file', path: props.path });
     });
 
@@ -101,7 +102,7 @@ describe('detect-context-menu-action', () => {
       await detectContextMenuAction(props);
       // Then
       expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
-      expect(props.self.queueManager.enqueue).toBeCalledTimes(0);
+      expect(throttleHydrateMock).toBeCalledTimes(0);
     });
   });
 });

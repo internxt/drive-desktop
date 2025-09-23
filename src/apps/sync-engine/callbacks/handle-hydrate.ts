@@ -1,37 +1,40 @@
-import VirtualDrive from '@/node-win/virtual-drive';
 import { logger } from '@/apps/shared/logger/logger';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import Bottleneck from 'bottleneck';
+import { ProcessSyncContext } from '../config';
 
-export type Task = {
+const limiter = new Bottleneck({ maxConcurrent: 1 });
+
+type TProps = {
+  ctx: ProcessSyncContext;
   path: RelativePath;
 };
 
-type TProps = {
-  drive: VirtualDrive;
-  task: Task;
-};
-
-export async function handleHydrate({ drive, task }: TProps) {
+export async function handleHydrate({ ctx, path }: TProps) {
   try {
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'Hydrating file',
-      path: task.path,
+      path,
     });
 
-    await drive.hydrateFile({ itemPath: task.path });
+    await ctx.virtualDrive.hydrateFile({ itemPath: path });
 
     logger.debug({
       tag: 'SYNC-ENGINE',
       msg: 'File hydrated',
-      path: task.path,
+      path,
     });
   } catch (error) {
     logger.error({
       tag: 'SYNC-ENGINE',
       msg: 'Error hydrating file',
-      path: task.path,
+      path,
       error,
     });
   }
+}
+
+export async function throttleHydrate(props: TProps) {
+  return await limiter.schedule(() => handleHydrate(props));
 }

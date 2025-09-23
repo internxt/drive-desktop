@@ -48,11 +48,9 @@ export class BindingsManager {
   }
 
   static watch({ ctx }: { ctx: ProcessSyncContext }) {
-    const { queueManager, watcher } = createWatcher({ ctx });
+    const { watcher } = createWatcher({ ctx });
 
     watcher.watchAndWait({ ctx });
-
-    void queueManager.processQueue();
   }
 
   static stop({ ctx }: { ctx: ProcessSyncContext }) {
