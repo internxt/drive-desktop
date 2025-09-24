@@ -6,6 +6,7 @@ import { getByUuid } from './files/get-by-uuid';
 import { createFile } from './files/create-file';
 import { getByPath } from './files/get-by-path';
 import { checkExistence } from './files/check-existance';
+import { newParseFileDto } from '../out/dto';
 
 export const files = {
   getFiles,
@@ -32,7 +33,7 @@ async function getFiles(context: { query: TGetFilesQuery }) {
       params: { query: context.query },
     });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -44,6 +45,12 @@ async function getFiles(context: { query: TGetFilesQuery }) {
       },
     },
   });
+
+  if (data) {
+    return { data: data.map((fileDto) => newParseFileDto({ fileDto })) };
+  } else {
+    return { error };
+  }
 }
 
 async function moveFile(context: { uuid: string; parentUuid: string; workspaceToken: string }) {

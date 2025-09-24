@@ -12,6 +12,7 @@ import { AccessResponse } from '@/apps/renderer/pages/Login/types';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { createAuthWindow } from '../windows/auth';
+import { recoverySync } from '@/backend/features/remote-sync/recovery-sync/recovery-sync';
 
 let isLoggedIn: boolean;
 
@@ -92,5 +93,6 @@ async function emitUserLoggedIn() {
 
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  await initSyncEngine({ context });
+  await recoverySync();
+  // await initSyncEngine({ context });
 }
