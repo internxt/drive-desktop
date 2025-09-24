@@ -11,13 +11,6 @@ import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { mkdir } from 'fs/promises';
 
-const PLACEHOLDER_ATTRIBUTES = {
-  FILE_ATTRIBUTE_READONLY: 0x1,
-  FILE_ATTRIBUTE_HIDDEN: 0x2,
-  FOLDER_ATTRIBUTE_READONLY: 0x1,
-  FILE_ATTRIBUTE_NORMAL: 0x1,
-};
-
 export class VirtualDrive {
   addon: Addon;
   syncRootPath: AbsolutePath;
@@ -30,10 +23,6 @@ export class VirtualDrive {
     this.addon = new Addon();
     this.addon.syncRootPath = this.syncRootPath;
     this.addon.addLogger({ path: this.convertToWindowsPath({ path: loggerPath }) });
-  }
-
-  private convertToWindowsTime(jsTime: number) {
-    return BigInt(jsTime) * 10000n + 116444736000000000n;
   }
 
   convertToWindowsPath({ path }: { path: string }) {
@@ -81,7 +70,6 @@ export class VirtualDrive {
     fileName,
     fileId,
     fileSize,
-    fileAttributes,
     creationTime,
     lastWriteTime,
     lastAccessTime,
@@ -90,24 +78,18 @@ export class VirtualDrive {
     fileName: string;
     fileId: string;
     fileSize: number;
-    fileAttributes: number;
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
     basePath: string;
   }) {
-    const creationTimeStr = this.convertToWindowsTime(creationTime).toString();
-    const lastWriteTimeStr = this.convertToWindowsTime(lastWriteTime).toString();
-    const lastAccessTimeStr = this.convertToWindowsTime(lastAccessTime).toString();
-
     return this.addon.createPlaceholderFile({
       fileName,
       fileId,
       fileSize,
-      fileAttributes,
-      creationTime: creationTimeStr,
-      lastWriteTime: lastWriteTimeStr,
-      lastAccessTime: lastAccessTimeStr,
+      creationTime,
+      lastWriteTime,
+      lastAccessTime,
       basePath,
     });
   }
@@ -115,9 +97,6 @@ export class VirtualDrive {
   private createPlaceholderDirectory({
     itemName,
     itemId,
-    isDirectory,
-    itemSize,
-    folderAttributes,
     creationTime,
     lastWriteTime,
     lastAccessTime,
@@ -125,27 +104,17 @@ export class VirtualDrive {
   }: {
     itemName: string;
     itemId: string;
-    isDirectory: boolean;
-    itemSize: number;
-    folderAttributes: number;
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
     path: string;
   }) {
-    const creationTimeStr = this.convertToWindowsTime(creationTime).toString();
-    const lastWriteTimeStr = this.convertToWindowsTime(lastWriteTime).toString();
-    const lastAccessTimeStr = this.convertToWindowsTime(lastAccessTime).toString();
-
     return this.addon.createPlaceholderDirectory({
       itemName,
       itemId,
-      isDirectory,
-      itemSize,
-      folderAttributes,
-      creationTime: creationTimeStr,
-      lastWriteTime: lastWriteTimeStr,
-      lastAccessTime: lastAccessTimeStr,
+      creationTime,
+      lastWriteTime,
+      lastAccessTime,
       path,
     });
   }
@@ -191,7 +160,6 @@ export class VirtualDrive {
         fileName: basename(itemPath),
         fileId: itemId,
         fileSize: size,
-        fileAttributes: PLACEHOLDER_ATTRIBUTES.FILE_ATTRIBUTE_NORMAL,
         creationTime,
         lastWriteTime,
         lastAccessTime: Date.now(),
@@ -222,9 +190,6 @@ export class VirtualDrive {
       this.createPlaceholderDirectory({
         itemName: basename(itemPath),
         itemId,
-        isDirectory: true,
-        itemSize: 0,
-        folderAttributes: PLACEHOLDER_ATTRIBUTES.FOLDER_ATTRIBUTE_READONLY,
         creationTime,
         lastWriteTime,
         lastAccessTime: Date.now(),

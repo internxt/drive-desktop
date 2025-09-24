@@ -11,12 +11,7 @@ export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
   const internxtSyncRoots = syncRoots.filter((syncRoot) => {
     const isFromInternxt = syncRoot.displayName.toLowerCase().includes('internxt') || syncRoot.path.toLowerCase().includes('internxt');
 
-    logger.debug({
-      tag: 'SYNC-ENGINE',
-      msg: 'Sync root',
-      isFromInternxt,
-      syncRoot,
-    });
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Sync root', isFromInternxt, syncRoot });
 
     return isFromInternxt;
   });
@@ -32,7 +27,16 @@ export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
        * and we lose them - it happened). Also, do not clear the database, because since we are keeping the files, we also need to keep
        * the lastSyncCheckpoint of files and folders.
        */
-      VirtualDrive.unregisterSyncRoot({ providerId: syncRoot.id });
+      try {
+        VirtualDrive.unregisterSyncRoot({ providerId: syncRoot.id });
+      } catch (exc) {
+        logger.error({
+          tag: 'SYNC-ENGINE',
+          msg: 'Error unregistering sync root',
+          syncRoot,
+          exc,
+        });
+      }
     }
   });
 }
