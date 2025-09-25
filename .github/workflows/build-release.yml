@@ -23,6 +23,7 @@ jobs:
           node-version: 20
 
       - name: Create .env file
+        shell: bash
         env:
           ANALYZE: ${{ secrets.ANALYZE }}
           BRIDGE_URL: ${{ secrets.BRIDGE_URL }}
