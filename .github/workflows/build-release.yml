@@ -51,6 +51,8 @@ jobs:
           echo "SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD" >> .env
           echo "SM_CLIENT_CERT_FILE_B64=$SM_CLIENT_CERT_FILE_B64" >> .env
 
+      - run: cat .env
+
       - name: Install dependencies
         run: npm run init:ci
 
