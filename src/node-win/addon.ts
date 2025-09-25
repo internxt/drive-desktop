@@ -10,21 +10,17 @@ type TAddon = {
     fileName: string,
     fileId: string,
     fileSize: number,
-    fileAttributes: number,
-    creationTime: string,
-    lastWriteTime: string,
-    lastAccessTime: string,
+    creationTime: number,
+    lastWriteTime: number,
+    lastAccessTime: number,
     path: string,
   ): z.infer<typeof addonZod.createPlaceholderFile>;
   createEntry(
     itemName: string,
     itemId: string,
-    isDirectory: boolean,
-    itemSize: number,
-    fileAttributes: number,
-    creationTime: string,
-    lastWriteTime: string,
-    lastAccessTime: string,
+    creationTime: number,
+    lastWriteTime: number,
+    lastAccessTime: number,
     path: string,
   ): z.infer<typeof addonZod.createEntry>;
   hydrateFile(path: string): Promise<z.infer<typeof addonZod.hydrateFile>>;
