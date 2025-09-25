@@ -42,7 +42,7 @@ describe('is-hydration-pending', () => {
     expect(res).toBe(false);
   });
 
-  it('should return false if blocks are less than size', () => {
+  it('should return true if blocks are less than size', () => {
     // Given
     props.stats.blocks = 7;
     // When
