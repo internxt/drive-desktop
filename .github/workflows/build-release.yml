@@ -1,8 +1,7 @@
 name: Build release
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
   build_release:
@@ -14,6 +13,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Setup clamAV
+        run: release\clamAV.ps1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Create .env file
         shell: bash
@@ -44,4 +51,23 @@ jobs:
           echo "SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD" >> .env
           echo "SM_CLIENT_CERT_FILE_B64=$SM_CLIENT_CERT_FILE_B64" >> .env
 
-      - run: cat .env
+      - name: Install dependencies
+        run: npm run init:ci
+
+      - name: Create package
+        run: npm run package
+
+      - name: Code signing with Software Trust Manager
+        uses: digicert/ssm-code-signing@9476ceec3ea1c63298d4403b983e1ccf2556ff4c #v1.1.0
+
+      - name: Sign build
+        run: release\sign.ps1
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-windows-build
+          path: |
+            build/Internxt-Setup-*.exe
+            build/Internxt-Setup-*.exe.blockmap
+            build/latest.yml
