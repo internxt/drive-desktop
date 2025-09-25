@@ -30,17 +30,19 @@ jobs:
           SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
           SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
         run: |
-          echo "ANALYZE=$ANALYZE" > .env
-          echo "BRIDGE_URL=$BRIDGE_URL" >> .env
-          echo "CRYPTO_KEY=$CRYPTO_KEY" >> .env
-          echo "DESKTOP_HEADER=$DESKTOP_HEADER" >> .env
-          echo "DRIVE_URL=$DRIVE_URL" >> .env
-          echo "NEW_CRYPTO_KEY=$NEW_CRYPTO_KEY" >> .env
-          echo "NOTIFICATIONS_URL=$NOTIFICATIONS_URL" >> .env
-          echo "PAYMENTS_URL=$PAYMENTS_URL" >> .env
-          echo "PORT=$PORT" >> .env
-          echo "SM_API_KEY=$SM_API_KEY" >> .env
-          echo "SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD" >> .env
-          echo "SM_CLIENT_CERT_FILE_B64=$SM_CLIENT_CERT_FILE_B64" >> .env
+          {
+            echo "ANALYZE=$ANALYZE"
+            echo "BRIDGE_URL=$BRIDGE_URL"
+            echo "CRYPTO_KEY=$CRYPTO_KEY"
+            echo "DESKTOP_HEADER=$DESKTOP_HEADER"
+            echo "DRIVE_URL=$DRIVE_URL"
+            echo "NEW_CRYPTO_KEY=$NEW_CRYPTO_KEY"
+            echo "NOTIFICATIONS_URL=$NOTIFICATIONS_URL"
+            echo "PAYMENTS_URL=$PAYMENTS_URL"
+            echo "PORT=$PORT"
+            echo "SM_API_KEY=$SM_API_KEY"
+            echo "SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD"
+            echo "SM_CLIENT_CERT_FILE_B64=$SM_CLIENT_CERT_FILE_B64"
+          } > .env
 
       - run: cat .env
