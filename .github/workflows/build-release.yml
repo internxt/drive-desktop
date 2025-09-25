@@ -1,8 +1,7 @@
 name: Build release
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
   build_release:
@@ -15,8 +14,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      # - name: Setup clamAV
-      #   run: release\clamAV.ps1
+      - name: Setup clamAV
+        run: release\clamAV.ps1
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -64,17 +63,17 @@ jobs:
       - name: Create package
         run: npm run package
 
-      # - name: Code signing with Software Trust Manager
-      #   uses: digicert/ssm-code-signing@9476ceec3ea1c63298d4403b983e1ccf2556ff4c #v1.1.0
+      - name: Code signing with Software Trust Manager
+        uses: digicert/ssm-code-signing@9476ceec3ea1c63298d4403b983e1ccf2556ff4c #v1.1.0
 
-      # - name: Sign build
-      #   run: release\sign.ps1
+      - name: Sign build
+        run: release\sign.ps1
 
-      # - name: Upload build artifacts
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: signed-windows-build
-      #     path: |
-      #       build/Internxt-Setup-*.exe
-      #       build/Internxt-Setup-*.exe.blockmap
-      #       build/latest.yml
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: signed-windows-build
+          path: |
+            build/Internxt-Setup-*.exe
+            build/Internxt-Setup-*.exe.blockmap
+            build/latest.yml
