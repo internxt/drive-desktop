@@ -16,7 +16,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
-  logger.debug({ msg: 'SYNC ENGINE RUNNING for workspace', workspaceId });
+  logger.debug({ msg: 'SYNC ENGINE RUNNING', workspaceId });
   if (workers[workspaceId]) {
     workers[workspaceId].workerIsRunning = true;
     workers[workspaceId].startingWorker = false;
@@ -24,7 +24,7 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => 
 });
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
-  logger.debug({ msg: 'SYNC ENGINE FAILED for workspace', workspaceId });
+  logger.debug({ msg: 'SYNC ENGINE FAILED', workspaceId });
   if (workers[workspaceId]) {
     workers[workspaceId].workerIsRunning = false;
     workers[workspaceId].startingWorker = false;
@@ -50,7 +50,7 @@ export const stopAndClearAllSyncEngineWatcher = async () => {
   );
 };
 
-export function spawnDefaultSyncEngineWorker({ context }: { context: AuthContext }) {
+export async function spawnSyncEngineWorkers({ context }: { context: AuthContext }) {
   const user = getUserOrThrow();
 
   const providerId = `{${user.uuid.toUpperCase()}}`;
@@ -62,7 +62,6 @@ export function spawnDefaultSyncEngineWorker({ context }: { context: AuthContext
     providerName: 'Internxt Drive',
     workspaceId: '',
     loggerPath: join(PATHS.LOGS, 'node-win.log'),
-    queueManagerPath: join(PATHS.LOGS, `queue-manager-user-${user.uuid}.log`),
     rootUuid: user.rootFolderId as FolderUuid,
     mnemonic: user.mnemonic,
     bucket: user.bucket,
@@ -71,24 +70,16 @@ export function spawnDefaultSyncEngineWorker({ context }: { context: AuthContext
     workspaceToken: '',
   };
 
-  void spawnSyncEngineWorker({ context: syncContext });
-
-  return { providerId };
-}
-
-export async function spawnWorkspaceSyncEngineWorkers({ context, providerId }: { context: AuthContext; providerId: string }) {
   const workspaces = await getWorkspaces();
   const workspaceProviderIds = workspaces.map((workspace) => workspace.providerId);
-
   const currentProviderIds = workspaceProviderIds.concat([providerId]);
 
   unregisterVirtualDrives({ currentProviderIds });
 
-  const spawnWorkspaces = workspaces.map(async (workspace) => {
-    await spawnWorkspace({ context, workspace });
-  });
-
-  await Promise.all(spawnWorkspaces);
+  await Promise.all([
+    spawnSyncEngineWorker({ context: syncContext }),
+    workspaces.map((workspace) => spawnWorkspace({ context, workspace })),
+  ]);
 }
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);

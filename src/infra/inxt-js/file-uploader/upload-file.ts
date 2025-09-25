@@ -48,7 +48,7 @@ export function uploadFile({ fn, bucket, readable, size, absolutePath, abortSign
       readable.destroy();
     }
 
-    interval = setInterval(() => abortOnChangeSize({ absolutePath, size, resolve, stopUpload }), 5_000);
+    interval = setInterval(() => abortOnChangeSize({ path, absolutePath, size, resolve, stopUpload }), 5_000);
 
     abortSignal.addEventListener('abort', () => {
       logger.debug({ msg: 'Aborting upload', path });

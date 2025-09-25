@@ -1,6 +1,6 @@
 import { join } from 'node:path';
 import { BindingsManager } from '../BindingManager';
-import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
+import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { getConfig, ProcessSyncContext, setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
@@ -35,7 +35,6 @@ describe('create-placeholder', () => {
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
   const rootPath = join(testFolder, 'root');
-  const queueManagerPath = join(testFolder, 'queue-manager.json');
   const file = join(rootPath, 'file.txt');
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 
@@ -44,7 +43,6 @@ describe('create-placeholder', () => {
     providerName: 'Internxt Drive',
     providerId,
     rootUuid: rootFolderUuid as FolderUuid,
-    queueManagerPath,
   });
 
   const config = getConfig();
@@ -84,6 +82,7 @@ describe('create-placeholder', () => {
       return Promise.resolve();
     });
 
+    const fileUuid = v4() as FileUuid;
     createFileMock.mockResolvedValueOnce({
       data: {
         bucket: 'bucket',
@@ -98,7 +97,7 @@ describe('create-placeholder', () => {
         size: '1',
         status: 'EXISTS',
         updatedAt: new Date().toISOString(),
-        uuid: v4() as FileUuid,
+        uuid: fileUuid,
         modificationTime: new Date().toISOString(),
         plainName: 'plainName',
         userId: 1,
@@ -117,6 +116,7 @@ describe('create-placeholder', () => {
     const container = buildProcessContainer({ ctx });
 
     // When
+    await ctx.virtualDrive.createSyncRootFolder();
     await BindingsManager.start({ ctx, container });
     BindingsManager.watch({ ctx });
 
@@ -128,5 +128,22 @@ describe('create-placeholder', () => {
     const status = ctx.virtualDrive.getPlaceholderState({ path: file });
     expect(status.pinState).toBe(PinState.AlwaysLocal);
     expect(getMockCalls(onAllMock)).toStrictEqual([{ event: 'add', path: file }]);
+    expect(getMockCalls(loggerMock.debug)).toStrictEqual([
+      { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
+      { msg: 'Registering sync root', syncRootPath: rootPath },
+      { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },
+      { tag: 'SYNC-ENGINE', msg: 'Tree built', workspaceId: '', files: 0, folders: 1, trashedFiles: 0, trashedFolders: 0 },
+      { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
+      { msg: 'onReady' },
+      { msg: 'Create file', path: '/file.txt' },
+      { tag: 'SYNC-ENGINE', msg: 'File uploaded', path: '/file.txt', contentsId: '012345678901234567890123', size: 7 },
+      { msg: 'Convert to placeholder succeeded', itemPath: '/file.txt', id: `FILE:${fileUuid}` },
+      {
+        msg: 'Change event triggered',
+        path: '/file.txt',
+        pinState: 1,
+        diff: { ctimeMs: { curr: expect.any(Number), prev: expect.any(Number) } },
+      },
+    ]);
   });
 });

@@ -1,9 +1,10 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { getPendingItems } from './get-pending-items';
 import { addPendingFiles } from './add-pending-files';
 import { addPendingFolders } from './add-pending-folders';
-import { syncModifiedFiles } from './sync-modified-files';
 import { ProcessSyncContext } from '../config';
+import { getFileExplorerState } from '../file-explorer-state/get-file-explorer-state';
+import { throttleHydrate } from '../callbacks/handle-hydrate';
+import { updateContentsId } from '../callbacks-controllers/controllers/update-contents-id';
 
 type Props = {
   ctx: ProcessSyncContext;
@@ -11,23 +12,16 @@ type Props = {
 
 export async function addPendingItems({ ctx }: Props) {
   try {
-    const { pendingFiles, pendingFolders } = await getPendingItems({
-      ctx,
-      path: ctx.virtualDrive.syncRootPath,
-    });
-
     const startTime = performance.now();
 
-    logger.debug({
-      tag: 'SYNC-ENGINE',
-      msg: 'Pending items',
-      workspaceId: ctx.workspaceId,
-      pendingFiles: pendingFiles.length,
-      pendingFolders: pendingFolders.length,
-    });
+    const { createFiles, createFolders, hydrateFiles, modifiedFiles } = await getFileExplorerState({ ctx });
 
-    await Promise.all([addPendingFiles({ ctx, pendingFiles }), addPendingFolders({ ctx, pendingFolders })]);
-    await syncModifiedFiles({ ctx });
+    await Promise.all([
+      addPendingFiles({ ctx, createFiles }),
+      addPendingFolders({ ctx, createFolders }),
+      hydrateFiles.map((file) => throttleHydrate({ ctx, path: file.path })),
+      modifiedFiles.map((file) => updateContentsId({ ctx, ...file })),
+    ]);
 
     const endTime = performance.now();
 

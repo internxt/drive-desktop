@@ -9,6 +9,7 @@ import { handleDehydrate } from '@/apps/sync-engine/callbacks/handle-dehydrate';
 import { updateContentsId } from '@/apps/sync-engine/callbacks-controllers/controllers/update-contents-id';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { getStatsDiff } from './get-stats-diff';
+import { throttleHydrate } from '@/apps/sync-engine/callbacks/handle-hydrate';
 
 type TProps = {
   ctx: ProcessSyncContext;
@@ -41,7 +42,7 @@ export async function detectContextMenuAction({ ctx, self, details, absolutePath
     self.fileInDevice.add(absolutePath);
 
     if (curr.blocks === 0) {
-      self.queueManager.enqueue({ path });
+      void throttleHydrate({ ctx, path });
     } else {
       self.logger.debug({ msg: 'Double click on file', path });
     }

@@ -11,7 +11,6 @@ export type Config = {
   rootUuid: FolderUuid;
   providerName: string;
   loggerPath: string;
-  queueManagerPath: string;
   workspaceId: string;
   workspaceToken: string;
   bucket: string;
@@ -34,7 +33,6 @@ const emptyValues = (): Config => {
     rootPath: '',
     providerName: '',
     loggerPath: '',
-    queueManagerPath: '',
     workspaceId: '',
     rootUuid: '' as FolderUuid,
     bucket: '',
@@ -60,7 +58,6 @@ const defaultValues = (): Config => {
     rootPath: config.rootPath,
     providerName: config.providerName,
     loggerPath: config.loggerPath,
-    queueManagerPath: config.queueManagerPath,
     workspaceId: config.workspaceId,
     rootUuid: config.rootUuid,
     bucket: user.bucket || config.bucket,
