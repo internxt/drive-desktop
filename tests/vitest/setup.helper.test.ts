@@ -31,7 +31,7 @@ vi.mock('electron', async () => {
       ...actual.app,
       getPath: vi.fn((string) => {
         if (string === 'home') {
-          return path.join(process.cwd(), 'tests/temp-test');
+          return path.join(TEST_FILES, 'setup-root-folder');
         }
         return '/mock/logs';
       }),

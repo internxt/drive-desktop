@@ -1,4 +1,4 @@
-name: Mark stale PRs
+name: Stale PRs
 
 on:
   schedule:
