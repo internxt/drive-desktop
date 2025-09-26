@@ -23,7 +23,7 @@ foreach ($line in $envVars) {
 
 smctl.exe creds save $SM_API_KEY $SM_CLIENT_CERT_PASSWORD
 
-$env:SM_HOST = "http://clientauth.one.digicert.com/"
+$env:SM_HOST = "https://clientauth.one.digicert.com/"
 $env:SM_CLIENT_CERT_FILE = $certPath
 
 smctl.exe healthcheck

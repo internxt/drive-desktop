@@ -96,10 +96,9 @@ describe('VirtualDrive', () => {
         'file.txt',
         'FILE:uuid',
         1024,
-        1,
-        '125911584000000000',
-        '125912448000000000',
-        expect.any(String),
+        946684800000,
+        946771200000,
+        expect.any(Number),
         'C:\\Users\\user\\InternxtDrive\\folder1\\folder2',
       );
     });
@@ -124,12 +123,9 @@ describe('VirtualDrive', () => {
       expect(addon.createEntry).toBeCalledWith(
         'folder2',
         'FOLDER:uuid',
-        true,
-        0,
-        1,
-        '125911584000000000',
-        '125912448000000000',
-        expect.any(String),
+        946684800000,
+        946771200000,
+        expect.any(Number),
         'C:\\Users\\user\\InternxtDrive\\folder1',
       );
     });
