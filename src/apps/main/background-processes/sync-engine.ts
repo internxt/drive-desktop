@@ -62,7 +62,6 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
     providerName: 'Internxt Drive',
     workspaceId: '',
     loggerPath: join(PATHS.LOGS, 'node-win.log'),
-    queueManagerPath: join(PATHS.LOGS, `queue-manager-user-${user.uuid}.log`),
     rootUuid: user.rootFolderId as FolderUuid,
     mnemonic: user.mnemonic,
     bucket: user.bucket,

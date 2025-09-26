@@ -35,7 +35,6 @@ describe('create-placeholder', () => {
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
   const rootPath = join(testFolder, 'root');
-  const queueManagerPath = join(testFolder, 'queue-manager.json');
   const file = join(rootPath, 'file.txt');
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 
@@ -44,7 +43,6 @@ describe('create-placeholder', () => {
     providerName: 'Internxt Drive',
     providerId,
     rootUuid: rootFolderUuid as FolderUuid,
-    queueManagerPath,
   });
 
   const config = getConfig();
