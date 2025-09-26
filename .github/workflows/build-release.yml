@@ -59,7 +59,7 @@ jobs:
         run: npm run package
 
       - name: Code signing with Software Trust Manager
-        uses: digicert/ssm-code-signing@9476ceec3ea1c63298d4403b983e1ccf2556ff4c #v1.1.0
+        uses: digicert/ssm-code-signing@fb61e357690ad6aaa11c372000c37fb74d35c000 #v1.1.1
 
       - name: Sign build
         run: release\sign.ps1
