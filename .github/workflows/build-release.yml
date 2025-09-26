@@ -5,7 +5,7 @@ on:
 
 jobs:
   build_release:
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 15
 
     steps:
@@ -50,12 +50,6 @@ jobs:
           echo "SM_API_KEY=$SM_API_KEY" >> .env
           echo "SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD" >> .env
           echo "SM_CLIENT_CERT_FILE_B64=$SM_CLIENT_CERT_FILE_B64" >> .env
-
-      - name: Install Windows SDK 10.0.22621.0
-        uses: ChristopheLav/windows-sdk-install@88d72875fb873886ea398ed04041446da6f26f86 # v1.0.3
-        with:
-          version-sdk: 22621
-          features: 'OptionId.DesktopCPPx86,OptionId.DesktopCPPx64'
 
       - name: Install dependencies
         run: npm run init:ci
