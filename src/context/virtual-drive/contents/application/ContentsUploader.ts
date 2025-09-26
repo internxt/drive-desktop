@@ -17,7 +17,7 @@ export class ContentsUploader {
       absolutePath,
       size: stats.size,
       path,
-      abortSignal: new AbortController().signal,
+      abortSignal: ctx.abortController.signal,
       callbacks: getUploadCallbacks({ path: absolutePath }),
     });
 

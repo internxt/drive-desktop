@@ -10,6 +10,7 @@ import { mockDeep } from 'vitest-mock-extended';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { ContentsId, FileUuid } from '../main/database/entities/DriveFile';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 describe('backups', () => {
   const getFilesByFolderMock = partialSpyOn(driveServerWip.folders, 'getFilesByFolder');
@@ -19,6 +20,7 @@ describe('backups', () => {
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
   const deleteFileByUuidMock = partialSpyOn(driveServerWip.storage, 'deleteFileByUuid');
   const deleteFolderByUuidMock = partialSpyOn(driveServerWip.storage, 'deleteFolderByUuid');
+  const createOrUpdateFileMock = partialSpyOn(SqliteModule.FileModule, 'createOrUpdate');
 
   const testPath = join(TEST_FILES, v4());
   const unmodifiedFolder = join(testPath, 'unmodifiedFolder');
@@ -91,6 +93,7 @@ describe('backups', () => {
     fileUploader.run.mockResolvedValue({ data: 'newContentsId' as ContentsId });
     createFolderMock.mockResolvedValue({ data: { id: 1, uuid: v4(), status: 'EXISTS', plainName: 'folder' } });
     createFileMock.mockResolvedValue({ data: { id: 1, uuid: v4() as FileUuid, status: 'EXISTS', plainName: 'file' } });
+    replaceFileMock.mockResolvedValue({ data: { id: 1, uuid: v4() as FileUuid, status: 'EXISTS', plainName: 'file' } });
 
     // When
     await service.run(props);
@@ -99,6 +102,7 @@ describe('backups', () => {
     expect(fileUploader.run).toBeCalledTimes(2);
     expect(deleteFileByUuidMock).toBeCalledTimes(1).toBeCalledWith({ uuid: 'deletedFile', workspaceToken: '' });
     expect(deleteFolderByUuidMock).toBeCalledTimes(1).toBeCalledWith({ uuid: deletedFolderUuid, workspaceToken: '' });
+    expect(createOrUpdateFileMock).toBeCalledTimes(2);
 
     expect(createFolderMock)
       .toBeCalledTimes(1)
@@ -130,6 +134,7 @@ describe('backups', () => {
           newContentId: 'newContentsId',
           newSize: 7,
         }),
+        { abortSignal: props.context.abortController.signal },
       );
 
     expect(loggerMock.error).toBeCalledTimes(0);

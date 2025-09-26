@@ -23,7 +23,7 @@ describe('update-contents-id', () => {
   beforeEach(() => {
     contentsUploaderMock.mockResolvedValue({ id: 'newContentsId' as ContentsId, size: 1 });
     props = mockProps<typeof updateContentsId>({
-      ctx: {},
+      ctx: { abortController: new AbortController() },
       path,
       uuid,
       stats: { size: 1024, mtime: new Date('2025-08-20T00:00:00.000Z') },
@@ -66,13 +66,16 @@ describe('update-contents-id', () => {
     // When
     await updateContentsId(props);
     // Then
-    expect(replaceFileMock).toBeCalledWith({
-      uuid,
-      newContentId: 'newContentsId',
-      newSize: 1,
-      modificationTime: '2025-08-20T00:00:00.000Z',
-    });
-    expect(updateFileStatusMock).toBeCalledWith({ ctx: {}, path });
+    expect(replaceFileMock).toBeCalledWith(
+      {
+        uuid,
+        newContentId: 'newContentsId',
+        newSize: 1,
+        modificationTime: '2025-08-20T00:00:00.000Z',
+      },
+      { abortSignal: props.ctx.abortController.signal },
+    );
+    expect(updateFileStatusMock).toBeCalledTimes(1);
     expect(invokeMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });

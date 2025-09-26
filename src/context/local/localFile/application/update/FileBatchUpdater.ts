@@ -7,6 +7,7 @@ import { Backup } from '@/apps/backups/Backups';
 import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FilesDiff } from '@/apps/backups/diff/calculate-files-diff';
+import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 
 type Props = {
   self: Backup;
@@ -18,42 +19,33 @@ type Props = {
 export class FileBatchUpdater {
   static async run({ self, context, tracker, modified }: Props) {
     await Promise.all(
-      modified.map(({ local, remote }) =>
-        this.process({
-          self,
-          context,
-          tracker,
-          localFile: local,
-          file: remote,
-        }),
-      ),
+      modified.map(async ({ local, remote }) => {
+        await this.process({ context, localFile: local, file: remote });
+        self.backed++;
+        tracker.currentProcessed(self.backed);
+      }),
     );
   }
 
-  static async process({
-    self,
-    context,
-    tracker,
-    localFile,
-    file,
-  }: {
-    self: Backup;
-    context: BackupsContext;
-    tracker: BackupsProcessTracker;
-    localFile: LocalFile;
-    file: ExtendedDriveFile;
-  }) {
+  static async process({ context, localFile, file }: { context: BackupsContext; localFile: LocalFile; file: ExtendedDriveFile }) {
     try {
       const contentsId = await uploadFile({ context, localFile });
 
       if (!contentsId) return;
 
-      await driveServerWip.files.replaceFile({
-        uuid: file.uuid,
-        newContentId: contentsId,
-        newSize: localFile.size,
-        modificationTime: localFile.modificationTime.toISOString(),
-      });
+      const { data: fileDto } = await driveServerWip.files.replaceFile(
+        {
+          uuid: file.uuid,
+          newContentId: contentsId,
+          newSize: localFile.size,
+          modificationTime: localFile.modificationTime.toISOString(),
+        },
+        { abortSignal: context.abortController.signal },
+      );
+
+      if (fileDto) {
+        await createOrUpdateFile({ context, fileDto });
+      }
     } catch (exc) {
       logger.error({
         tag: 'BACKUPS',
@@ -61,9 +53,6 @@ export class FileBatchUpdater {
         path: localFile.relativePath,
         exc,
       });
-    } finally {
-      self.backed++;
-      tracker.currentProcessed(self.backed);
     }
   }
 }
