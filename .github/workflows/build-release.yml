@@ -5,7 +5,7 @@ on:
 
 jobs:
   build_release:
-    runs-on: windows-latest
+    runs-on: windows-2022
     timeout-minutes: 15
 
     steps:
@@ -23,19 +23,33 @@ jobs:
           node-version: 20
 
       - name: Create .env file
+        shell: bash
+        env:
+          ANALYZE: ${{ secrets.ANALYZE }}
+          BRIDGE_URL: ${{ secrets.BRIDGE_URL }}
+          CRYPTO_KEY: ${{ secrets.CRYPTO_KEY }}
+          DESKTOP_HEADER: ${{ secrets.DESKTOP_HEADER }}
+          DRIVE_URL: ${{ secrets.DRIVE_URL }}
+          NEW_CRYPTO_KEY: ${{ secrets.NEW_CRYPTO_KEY }}
+          NOTIFICATIONS_URL: ${{ secrets.NOTIFICATIONS_URL }}
+          PAYMENTS_URL: ${{ secrets.PAYMENTS_URL }}
+          PORT: ${{ secrets.PORT }}
+          SM_API_KEY: ${{ secrets.SM_API_KEY }}
+          SM_CLIENT_CERT_PASSWORD: ${{ secrets.SM_CLIENT_CERT_PASSWORD }}
+          SM_CLIENT_CERT_FILE_B64: ${{ secrets.SM_CLIENT_CERT_FILE_B64 }}
         run: |
-          echo "ANALYZE=${{ secrets.ANALYZE }}" > .env
-          echo "BRIDGE_URL=${{ secrets.BRIDGE_URL }}" >> .env
-          echo "CRYPTO_KEY=${{ secrets.CRYPTO_KEY }}" >> .env
-          echo "DESKTOP_HEADER=${{ secrets.DESKTOP_HEADER }}" >> .env
-          echo "DRIVE_URL=${{ secrets.DRIVE_URL }}" >> .env
-          echo "NEW_CRYPTO_KEY=${{ secrets.NEW_CRYPTO_KEY }}" >> .env
-          echo "NOTIFICATIONS_URL=${{ secrets.NOTIFICATIONS_URL }}" >> .env
-          echo "PAYMENTS_URL=${{ secrets.PAYMENTS_URL }}" >> .env
-          echo "PORT=${{ secrets.PORT }}" >> .env
-          echo "SM_API_KEY=${{ secrets.SM_API_KEY }}" >> .env
-          echo "SM_CLIENT_CERT_PASSWORD=${{ secrets.SM_CLIENT_CERT_PASSWORD }}" >> .env
-          echo "SM_CLIENT_CERT_FILE_B64=${{ secrets.SM_CLIENT_CERT_FILE_B64 }}" >> .env
+          echo "ANALYZE=$ANALYZE" > .env
+          echo "BRIDGE_URL=$BRIDGE_URL" >> .env
+          echo "CRYPTO_KEY=$CRYPTO_KEY" >> .env
+          echo "DESKTOP_HEADER=$DESKTOP_HEADER" >> .env
+          echo "DRIVE_URL=$DRIVE_URL" >> .env
+          echo "NEW_CRYPTO_KEY=$NEW_CRYPTO_KEY" >> .env
+          echo "NOTIFICATIONS_URL=$NOTIFICATIONS_URL" >> .env
+          echo "PAYMENTS_URL=$PAYMENTS_URL" >> .env
+          echo "PORT=$PORT" >> .env
+          echo "SM_API_KEY=$SM_API_KEY" >> .env
+          echo "SM_CLIENT_CERT_PASSWORD=$SM_CLIENT_CERT_PASSWORD" >> .env
+          echo "SM_CLIENT_CERT_FILE_B64=$SM_CLIENT_CERT_FILE_B64" >> .env
 
       - name: Install dependencies
         run: npm run init:ci
@@ -44,7 +58,7 @@ jobs:
         run: npm run package
 
       - name: Code signing with Software Trust Manager
-        uses: digicert/ssm-code-signing@v1.1.0
+        uses: digicert/ssm-code-signing@fb61e357690ad6aaa11c372000c37fb74d35c000 #v1.1.1
 
       - name: Sign build
         run: release\sign.ps1

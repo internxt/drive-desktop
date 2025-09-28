@@ -5,6 +5,7 @@ import configStore from '../config';
 import { User } from '../types';
 import { getRootVirtualDrive, setupRootFolder } from './service';
 import { ROOT_FOLDER_NAME } from '@/core/utils/utils';
+import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 
 vi.mock('./service', async () => {
   const actual = await vi.importActual('./service');
@@ -14,7 +15,7 @@ vi.mock('./service', async () => {
   };
 });
 
-const tempDir = path.join(process.cwd(), 'tests/temp-test');
+const tempDir = path.join(TEST_FILES, 'setup-root-folder');
 let renameSpy: MockInstance<(oldPath: string, newPath: string) => void>;
 
 beforeEach(() => {
