@@ -15,7 +15,7 @@ describe('Fetch Data', () => {
   const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
   beforeEach(() => {
-    container.downloadFile.execute.mockResolvedValue('node:path');
+    container.downloadFile.execute.mockResolvedValue('path');
     container.downloadFile.fileFinderByUuid.mockResolvedValue(file as SimpleDriveFile);
   });
 
