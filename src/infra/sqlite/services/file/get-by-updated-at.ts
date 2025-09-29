@@ -18,14 +18,14 @@ export async function getByUpdatedAt({ workspaceId, from, to }: Props) {
     });
 
     return { data: items.map((item) => parseData({ data: item })) };
-  } catch (exc) {
+  } catch (error) {
     logger.error({
       msg: 'Error getting files by updated at',
       from,
       to,
-      exc,
+      error,
     });
 
-    return { error: new SqliteError('UNKNOWN', exc) };
+    return { error: new SqliteError('UNKNOWN', error) };
   }
 }
