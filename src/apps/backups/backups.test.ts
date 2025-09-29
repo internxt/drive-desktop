@@ -1,10 +1,10 @@
 import { getMockCalls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { Backup } from './Backups';
 import { beforeAll } from 'vitest';
-import { join } from 'path';
+import { join } from 'node:path';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
-import { mkdir, writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { mockDeep } from 'vitest-mock-extended';
 import { BackupsProcessTracker } from '../main/background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';

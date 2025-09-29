@@ -1,5 +1,5 @@
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import path from 'path';
+import path from 'node:path';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { logger } from '@/apps/shared/logger/logger';

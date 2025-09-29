@@ -2,7 +2,7 @@ import { BackupsProcessTracker } from '@/apps/main/background-processes/backups/
 import { BackupsContext } from '../BackupInfo';
 import { LocalFolder } from '@/context/local/localFolder/domain/LocalFolder';
 import { RemoteTree } from '../remote-tree/traverser';
-import { basename } from 'path';
+import { basename } from 'node:path';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@/apps/shared/logger/logger';
 import type { Backup } from '../Backups';

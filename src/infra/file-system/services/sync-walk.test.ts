@@ -1,11 +1,11 @@
 import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { readdir } from 'fs/promises';
+import { readdir } from 'node:fs/promises';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { Dirent } from 'fs';
+import { Dirent } from 'node:fs';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { syncWalk } from './sync-walk';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 
 describe('sync-walk', () => {
   const readdirMock = deepMocked(readdir);

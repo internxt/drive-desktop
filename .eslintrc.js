@@ -67,6 +67,7 @@ module.exports = {
     'sonarjs/slow-regex': 'off',
     'sonarjs/todo-tag': 'off',
     'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
+    'unicorn/prefer-node-protocol': 'error',
     'padding-line-between-statements': [
       'warn',
       { blankLine: 'always', prev: '*', next: 'block' },

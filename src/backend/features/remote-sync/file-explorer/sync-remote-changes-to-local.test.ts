@@ -4,13 +4,13 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { deepMocked, mockProps } from '@/tests/vitest/utils.helper.test';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { unlink } from 'fs/promises';
+import { unlink } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { PinState } from '@/node-win/types/placeholder.type';
-import { existsSync } from 'fs';
+import { existsSync } from 'node:fs';
 
-vi.mock(import('fs/promises'));
-vi.mock(import('fs'));
+vi.mock(import('node:fs/promises'));
+vi.mock(import('node:fs'));
 
 describe('sync-remote-to-local', () => {
   const virtualDrive = mockDeep<VirtualDrive>();

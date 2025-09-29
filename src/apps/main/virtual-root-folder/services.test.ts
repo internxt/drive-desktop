@@ -1,6 +1,6 @@
 import { MockInstance } from 'vitest';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import configStore from '../config';
 import { User } from '../types';
 import { getRootVirtualDrive, setupRootFolder } from './service';

@@ -1,6 +1,6 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
 import { contextBridge, ipcRenderer } from 'electron';
-import path from 'path';
+import path from 'node:path';
 import { RemoteSyncStatus } from './remote-sync/helpers';
 import { setConfigKey, StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';

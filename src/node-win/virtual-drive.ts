@@ -1,4 +1,4 @@
-import { basename, dirname, join, posix, win32 } from 'path';
+import { basename, dirname, join, posix, win32 } from 'node:path';
 
 import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
 import { Callbacks } from './types/callbacks.type';
@@ -9,7 +9,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { fileSystem } from '@/infra/file-system/file-system.module';
-import { mkdir } from 'fs/promises';
+import { mkdir } from 'node:fs/promises';
 
 export class VirtualDrive {
   addon: Addon;

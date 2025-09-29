@@ -6,9 +6,9 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { mockDeep } from 'vitest-mock-extended';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { rm } from 'fs/promises';
+import { rm } from 'node:fs/promises';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 
 describe('delete-item-placeholders', () => {
   const virtualDrive = mockDeep<VirtualDrive>();

@@ -1,6 +1,6 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { readdir } from 'fs/promises';
-import { join } from 'path';
+import { readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 
 type Results = Array<{ absolutePath: AbsolutePath; isFile: boolean; isFolder: boolean }>;
 type Props = { rootFolder: string };

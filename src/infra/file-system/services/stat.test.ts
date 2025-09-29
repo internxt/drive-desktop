@@ -1,10 +1,10 @@
-import { cwd } from 'process';
+import { cwd } from 'node:process';
 import { stat } from './stat';
-import { join } from 'path';
-import { mkdir, writeFile } from 'fs/promises';
+import { join } from 'node:path';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 
 describe('stat', () => {
   it('If file exists', async () => {

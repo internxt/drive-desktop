@@ -4,9 +4,9 @@ import { Environment } from '@internxt/inxt-js';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { FileUploaderCallbacks } from './file-uploader';
 import * as uploadFile from './upload-file';
-import { createReadStream, ReadStream } from 'fs';
+import { createReadStream, ReadStream } from 'node:fs';
 
-vi.mock(import('fs'));
+vi.mock(import('node:fs'));
 
 describe('environment-file-uploader', () => {
   const createReadStreamMock = vi.mocked(createReadStream);

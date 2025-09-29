@@ -1,5 +1,5 @@
 import { ipcMain, app } from 'electron';
-import { join } from 'path';
+import { join } from 'node:path';
 
 ipcMain.handle('APP:TEMPORAL_FILES_FOLDER', () => {
   return join(app.getPath('temp'), 'internxt');

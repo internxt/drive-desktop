@@ -1,5 +1,5 @@
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { basename } from 'path';
+import { basename } from 'node:path';
 import { Watcher } from '@/node-win/watcher/watcher';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';

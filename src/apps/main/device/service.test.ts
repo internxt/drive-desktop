@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 import { aes } from '@internxt/lib';
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';

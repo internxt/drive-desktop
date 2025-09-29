@@ -1,7 +1,7 @@
 import VirtualDrive from '@/node-win/virtual-drive';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { mkdir, writeFile } from 'fs/promises';
-import { join } from 'path';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { v4 } from 'uuid';
 import { mockDeep } from 'vitest-mock-extended';
 import { Callbacks } from '@/node-win/types/callbacks.type';

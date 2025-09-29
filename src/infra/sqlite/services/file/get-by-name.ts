@@ -1,7 +1,7 @@
 import { fileRepository } from '../drive-file';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { logger } from '@/apps/shared/logger/logger';
-import { basename, extname } from 'path';
+import { basename, extname } from 'node:path';
 import { parseData } from './parse-data';
 import { SingleItemError } from '../common/single-item-error';
 

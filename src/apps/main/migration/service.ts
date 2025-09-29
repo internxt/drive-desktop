@@ -1,5 +1,5 @@
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { app, shell } from 'electron';
 import fsExtra from 'fs-extra';
 import configStore from '../config';

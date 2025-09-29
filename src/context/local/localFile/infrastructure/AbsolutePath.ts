@@ -1,4 +1,4 @@
-import { posix, win32 } from 'path';
+import { posix, win32 } from 'node:path';
 import { Brand } from '../../../shared/domain/Brand';
 
 export type AbsolutePath = Brand<string, 'AbsolutePath'>;

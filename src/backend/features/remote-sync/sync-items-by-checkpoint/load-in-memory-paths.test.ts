@@ -1,14 +1,14 @@
 import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loadInMemoryPaths } from './load-in-memory-paths';
-import { readdir } from 'fs/promises';
+import { readdir } from 'node:fs/promises';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Dirent } from 'fs';
+import { Dirent } from 'node:fs';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 
 describe('load-in-memory-paths', () => {
   const readdirMock = deepMocked(readdir);

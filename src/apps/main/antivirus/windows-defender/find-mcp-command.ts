@@ -1,5 +1,5 @@
-import { join } from 'path';
-import { access, constants } from 'fs/promises';
+import { join } from 'node:path';
+import { access, constants } from 'node:fs/promises';
 import { getDefenderVersions } from './get-defender-version';
 import { logger } from '@/apps/shared/logger/logger';
 

@@ -1,4 +1,4 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 import { ProgressData } from './antivirus/ManualSystemScan';
 import { BroadcastToWindows } from './windows/broadcast-to-windows';
 

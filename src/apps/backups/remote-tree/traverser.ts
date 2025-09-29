@@ -3,7 +3,7 @@ import { BackupsContext } from '../BackupInfo';
 import { fetchItems } from '../fetch-items/fetch-items';
 import { RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { join } from 'path';
+import { join } from 'node:path';
 import { ExtendedDriveFolder, FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 
 export type RemoteTree = {

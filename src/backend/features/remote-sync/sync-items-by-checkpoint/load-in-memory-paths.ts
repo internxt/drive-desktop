@@ -4,7 +4,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { fileSystem } from '@/infra/file-system/file-system.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export type InMemoryFiles = Record<

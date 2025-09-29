@@ -1,6 +1,6 @@
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { readdir } from 'fs/promises';
+import { readdir } from 'node:fs/promises';
 
 type Props = {
   ctx: ProcessSyncContext;
