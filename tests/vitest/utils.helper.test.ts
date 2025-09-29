@@ -7,6 +7,12 @@ export function getMockCalls(object: { mock: { calls: any[] } }) {
   return object.mock.calls.map((call) => call[0]);
 }
 
+export function calls(object: { mock: { calls: any[] } }) {
+  const calls = object.mock.calls.map((call) => call[0]);
+  if (calls.length === 1) return expect(calls[0]);
+  return expect(calls);
+}
+
 export function mockProps<T extends (...args: any[]) => unknown>(props: DeepPartial<Parameters<T>[0]>) {
   return props as Parameters<T>[0];
 }
