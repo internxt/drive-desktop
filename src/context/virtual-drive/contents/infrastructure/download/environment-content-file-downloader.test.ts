@@ -1,4 +1,4 @@
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 import { EnvironmentContentFileDownloader } from './EnvironmentContentFileDownloader';
 import { Environment } from '@internxt/inxt-js';
 import { mockDeep } from 'vitest-mock-extended';

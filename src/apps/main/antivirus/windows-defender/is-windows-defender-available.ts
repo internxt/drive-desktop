@@ -1,6 +1,6 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { exec } from 'node:child_process';
-import { promisify } from 'util';
+import { promisify } from 'node:util';
 import { findMpCmdRun } from './find-mcp-command';
 
 const execPromise = promisify(exec);

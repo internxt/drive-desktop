@@ -1,6 +1,6 @@
 import fs, { PathLike } from 'node:fs';
 import { stat } from 'node:fs/promises';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 
 export class WriteReadableToFile {
   static write(readable: Readable, path: PathLike, expectedSize?: number): Promise<void> {

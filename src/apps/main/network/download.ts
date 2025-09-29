@@ -3,7 +3,7 @@ import { items } from '@internxt/lib';
 import fs, { PathLike } from 'node:fs';
 import { FileInfo, Mirror, NetworkCredentials } from './requests';
 import { GenerateFileKey } from '@internxt/inxt-js/build/lib/utils/crypto';
-import { createDecipheriv, Decipher } from 'crypto';
+import { createDecipheriv, Decipher } from 'node:crypto';
 import { downloadFileV2 } from './downloadv2';
 import { fetchArrayFolderTree } from '../device/service';
 import { ReadableStream } from 'node:stream/web';

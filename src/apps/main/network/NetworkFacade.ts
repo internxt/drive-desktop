@@ -1,6 +1,6 @@
 import { Environment } from '@internxt/inxt-js/build';
 import { Network as NetworkModule } from '@internxt/sdk';
-import { createDecipheriv, randomBytes } from 'crypto';
+import { createDecipheriv, randomBytes } from 'mode:crypto';
 import { validateMnemonic } from 'bip39';
 import { downloadFile } from '@internxt/sdk/dist/network/download';
 import { buildProgressStream, getDecryptedStream } from './download';

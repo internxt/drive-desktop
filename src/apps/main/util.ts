@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { URL } from 'url';
+import { URL } from 'node:url';
 
 export let resolveHtmlPath: (pathname: string, query?: string) => string;
 const htmlFileName = 'index.html';

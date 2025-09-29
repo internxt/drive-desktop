@@ -4,7 +4,7 @@ import { readdir, access } from 'node:fs/promises';
 import { Dirent } from 'node:fs';
 
 vi.mock(import('node:fs/promises'));
-vi.mock(import('path'));
+vi.mock(import('node:path'));
 
 describe('getDefenderVersions', () => {
   const accessMock = deepMocked(access);

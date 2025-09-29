@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import * as getDefenderVersionsModule from './get-defender-version';
 
 vi.mock(import('node:fs/promises'));
-vi.mock(import('path'));
+vi.mock(import('node:path'));
 
 describe('findMpCmdRun', () => {
   const accessMock = deepMocked(access);

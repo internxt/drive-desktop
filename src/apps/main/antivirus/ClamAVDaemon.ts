@@ -1,7 +1,7 @@
 import { logger } from '@/apps/shared/logger/logger';
 import { spawn, ChildProcessWithoutNullStreams } from 'node:child_process';
 import { app } from 'electron';
-import net from 'net';
+import net from 'node:net';
 import path from 'node:path';
 import { cwd } from 'node:process';
 

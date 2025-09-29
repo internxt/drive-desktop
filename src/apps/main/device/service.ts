@@ -3,7 +3,7 @@
 import { aes } from '@internxt/lib';
 import { dialog } from 'electron';
 import fetch from 'electron-fetch';
-import os from 'os';
+import os from 'node:os';
 import path from 'node:path';
 import { IpcMainEvent, ipcMain } from 'electron';
 import { FolderTree } from '@internxt/sdk/dist/drive/storage/types';
@@ -13,7 +13,7 @@ import { BackupInfo } from '../../backups/BackupInfo';
 import fs, { PathLike } from 'node:fs';
 import { downloadFolder } from '../network/download';
 import { broadcastToWindows } from '../windows';
-import { randomUUID } from 'crypto';
+import { randomUUID } from 'node:crypto';
 import { PathTypeChecker } from '../../shared/fs/PathTypeChecker';
 import { logger } from '@/apps/shared/logger/logger';
 import { client } from '@/apps/shared/HttpClient/client';

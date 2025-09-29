@@ -15,7 +15,7 @@ describe('Fetch Data', () => {
   const filePlaceholderId: FilePlaceholderId = 'FILE:1';
 
   beforeEach(() => {
-    container.downloadFile.execute.mockResolvedValue('path');
+    container.downloadFile.execute.mockResolvedValue('node:path');
     container.downloadFile.fileFinderByUuid.mockResolvedValue(file as SimpleDriveFile);
   });
 
@@ -28,7 +28,7 @@ describe('Fetch Data', () => {
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
-      expect(unlink).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('node:path');
     });
 
     it('When progress is less than 0, then throw an error', async () => {
@@ -39,7 +39,7 @@ describe('Fetch Data', () => {
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
-      expect(unlink).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('node:path');
     });
 
     it('When finished but progress is 0, then throw an error', async () => {
@@ -50,7 +50,7 @@ describe('Fetch Data', () => {
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
-      expect(unlink).toHaveBeenCalledWith('path');
+      expect(unlink).toHaveBeenCalledWith('node:path');
     });
   });
 });
