@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';

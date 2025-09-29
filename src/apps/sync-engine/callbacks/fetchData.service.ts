@@ -2,7 +2,7 @@ import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/P
 import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { logger } from '@/apps/shared/logger/logger';
-import { unlink } from 'fs/promises';
+import { unlink } from 'node:fs/promises';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { ProcessContainer } from '../build-process-container';
 

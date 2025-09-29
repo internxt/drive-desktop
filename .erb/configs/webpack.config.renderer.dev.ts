@@ -1,12 +1,12 @@
-import path from 'path';
-import fs from 'fs';
+import path from 'node:path';
+import fs from 'node:fs';
 import webpack from 'webpack';
 import webpackDevServer from 'webpack-dev-server';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import Dotenv from 'dotenv-webpack';
 import chalk from 'chalk';
 import { merge } from 'webpack-merge';
-import { spawn, execSync } from 'child_process';
+import { spawn, execSync } from 'node:child_process';
 import baseConfig from './webpack.config.base';
 import webpackPaths from './webpack.paths';
 import checkNodeEnv from '../scripts/check-node-env';

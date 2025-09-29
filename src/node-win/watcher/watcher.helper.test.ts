@@ -1,5 +1,5 @@
-import { existsSync } from 'fs';
-import { mkdir } from 'fs/promises';
+import { existsSync } from 'node:fs';
+import { mkdir } from 'node:fs/promises';
 import { mockDeep } from 'vitest-mock-extended';
 
 import { Watcher } from './watcher';

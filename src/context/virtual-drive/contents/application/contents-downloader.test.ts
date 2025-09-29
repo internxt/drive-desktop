@@ -1,6 +1,6 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { ContentsDownloader } from '../../../../../src/context/virtual-drive/contents/application/ContentsDownloader';
-import { EventEmitter, Readable } from 'stream';
+import { EventEmitter, Readable } from 'node:stream';
 import { EnvironmentRemoteFileContentsManagersFactory } from '@/context/virtual-drive/contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import {
   EnvironmentContentFileDownloader,

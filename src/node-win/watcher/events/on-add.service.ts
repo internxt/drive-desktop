@@ -1,4 +1,4 @@
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 
 import { Watcher } from '../watcher';
 import { NodeWin } from '@/infra/node-win/node-win.module';

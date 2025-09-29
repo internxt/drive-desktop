@@ -3,7 +3,7 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { createFile } from '@/features/sync/add-item/create-file';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { isTemporaryFile } from '@/apps/utils/isTemporalFile';
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '../../config';
 
 export class AddController {

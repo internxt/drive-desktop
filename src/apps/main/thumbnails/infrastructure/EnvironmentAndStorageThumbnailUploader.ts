@@ -1,6 +1,6 @@
 import { Environment } from '@internxt/inxt-js/build';
 import { StorageTypes } from '@internxt/sdk/dist/drive';
-import { Readable } from 'stream';
+import { Readable } from 'node:stream';
 
 import { ThumbnailProperties } from '../domain/ThumbnailProperties';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';

@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import { join } from 'path';
+import { join } from 'node:path';
 
 const HOME_FOLDER_PATH = app.getPath('home');
 const SQLITE_DB = join(app.getPath('appData'), 'internxt-drive', 'internxt_desktop.db');

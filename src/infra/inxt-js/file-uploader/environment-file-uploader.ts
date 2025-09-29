@@ -5,7 +5,7 @@ import { FileUploaderCallbacks } from './file-uploader';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import Bottleneck from 'bottleneck';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { createReadStream } from 'fs';
+import { createReadStream } from 'node:fs';
 import { uploadFile } from './upload-file';
 
 const MULTIPART_UPLOAD_SIZE_THRESHOLD = 100 * 1024 * 1024;

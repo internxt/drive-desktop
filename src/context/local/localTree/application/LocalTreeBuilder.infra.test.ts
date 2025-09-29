@@ -1,8 +1,8 @@
-import { mkdir, rm, writeFile } from 'fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import LocalTreeBuilder from './LocalTreeBuilder';
 import { v4 } from 'uuid';
 import { TEST_FILES } from 'tests/vitest/mocks.helper.test';
-import { join } from 'path';
+import { join } from 'node:path';
 import { mockProps } from 'tests/vitest/utils.helper.test';
 
 describe('LocalTreeBuilder', () => {

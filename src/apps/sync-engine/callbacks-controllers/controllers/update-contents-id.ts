@@ -5,7 +5,7 @@ import { ContentsUploader } from '@/context/virtual-drive/contents/application/C
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { ProcessSyncContext } from '../../config';
 
 type TProps = {

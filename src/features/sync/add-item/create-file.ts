@@ -4,7 +4,7 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { createParentFolder } from './create-folder';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
 import { createFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { updateFileStatus } from '@/backend/features/local-sync/placeholders/update-file-status';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 

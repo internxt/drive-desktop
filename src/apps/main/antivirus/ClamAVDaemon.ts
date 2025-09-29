@@ -1,9 +1,9 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { spawn, ChildProcessWithoutNullStreams } from 'node:child_process';
 import { app } from 'electron';
-import net from 'net';
-import path from 'path';
-import { cwd } from 'process';
+import net from 'node:net';
+import path from 'node:path';
+import { cwd } from 'node:process';
 
 const SERVER_HOST = '127.0.0.1';
 const SERVER_PORT = 3310;

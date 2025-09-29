@@ -2,7 +2,7 @@ import { LocalFile } from '../../localFile/domain/LocalFile';
 import { createRelativePath, RelativePath } from '../../localFile/infrastructure/AbsolutePath';
 import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
-import { relative } from 'path';
+import { relative } from 'node:path';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
 import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 

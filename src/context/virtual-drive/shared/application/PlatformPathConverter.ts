@@ -1,4 +1,4 @@
-import path, { posix } from 'path';
+import path, { posix } from 'node:path';
 
 export class PlatformPathConverter {
   static winToPosix(win: string): string {

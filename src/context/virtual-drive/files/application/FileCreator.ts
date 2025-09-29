@@ -7,7 +7,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { basename } from 'path';
+import { basename } from 'node:path';
 
 type Props = {
   ctx: ProcessSyncContext;

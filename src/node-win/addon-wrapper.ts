@@ -76,7 +76,6 @@ export class Addon {
     fileName,
     fileId,
     fileSize,
-    fileAttributes,
     creationTime,
     lastWriteTime,
     lastAccessTime,
@@ -85,22 +84,12 @@ export class Addon {
     fileName: string;
     fileId: string;
     fileSize: number;
-    fileAttributes: number;
-    creationTime: string;
-    lastWriteTime: string;
-    lastAccessTime: string;
+    creationTime: number;
+    lastWriteTime: number;
+    lastAccessTime: number;
     basePath: string;
   }) {
-    const result = addon.createPlaceholderFile(
-      fileName,
-      fileId,
-      fileSize,
-      fileAttributes,
-      creationTime,
-      lastWriteTime,
-      lastAccessTime,
-      basePath,
-    );
+    const result = addon.createPlaceholderFile(fileName, fileId, fileSize, creationTime, lastWriteTime, lastAccessTime, basePath);
 
     this.parseAddonZod('createPlaceholderFile', result);
 
@@ -121,9 +110,6 @@ export class Addon {
   createPlaceholderDirectory({
     itemName,
     itemId,
-    isDirectory,
-    itemSize,
-    folderAttributes,
     creationTime,
     lastWriteTime,
     lastAccessTime,
@@ -131,25 +117,12 @@ export class Addon {
   }: {
     itemName: string;
     itemId: string;
-    isDirectory: boolean;
-    itemSize: number;
-    folderAttributes: number;
-    creationTime: string;
-    lastWriteTime: string;
-    lastAccessTime: string;
+    creationTime: number;
+    lastWriteTime: number;
+    lastAccessTime: number;
     path: string;
   }) {
-    const result = addon.createEntry(
-      itemName,
-      itemId,
-      isDirectory,
-      itemSize,
-      folderAttributes,
-      creationTime,
-      lastWriteTime,
-      lastAccessTime,
-      path,
-    );
+    const result = addon.createEntry(itemName, itemId, creationTime, lastWriteTime, lastAccessTime, path);
 
     this.parseAddonZod('createEntry', result);
 

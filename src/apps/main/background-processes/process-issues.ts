@@ -1,7 +1,7 @@
 import { Notification } from 'electron';
 
 import eventBus from '../event-bus';
-import path from 'path';
+import path from 'node:path';
 import { clearIssues } from './issues';
 import { logger } from '@/apps/shared/logger/logger';
 

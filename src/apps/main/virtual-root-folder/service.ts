@@ -1,6 +1,6 @@
 import { dialog, shell } from 'electron';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 import configStore from '../config';
 import eventBus from '../event-bus';
