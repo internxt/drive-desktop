@@ -28,7 +28,7 @@ describe('Fetch Data', () => {
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
-      expect(unlink).toHaveBeenCalledWith('node:path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
 
     it('When progress is less than 0, then throw an error', async () => {
@@ -39,7 +39,7 @@ describe('Fetch Data', () => {
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
-      expect(unlink).toHaveBeenCalledWith('node:path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
 
     it('When finished but progress is 0, then throw an error', async () => {
@@ -50,7 +50,7 @@ describe('Fetch Data', () => {
       await fetchData({ container, filePlaceholderId, callback });
 
       // Arrange
-      expect(unlink).toHaveBeenCalledWith('node:path');
+      expect(unlink).toHaveBeenCalledWith('path');
     });
   });
 });
