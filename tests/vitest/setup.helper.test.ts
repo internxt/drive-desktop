@@ -1,5 +1,5 @@
-import path from 'path';
-import { mkdirSync } from 'fs';
+import path from 'node:path';
+import { mkdirSync } from 'node:fs';
 import { TEST_FILES } from './mocks.helper.test';
 
 process.env.NEW_CRYPTO_KEY = 'crypto_key';

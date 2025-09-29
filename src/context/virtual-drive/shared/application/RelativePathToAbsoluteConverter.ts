@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 
 export class RelativePathToAbsoluteConverter {
   constructor(private readonly baseFolder: string) {}

@@ -1,6 +1,6 @@
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
-import { ReadStream } from 'fs';
+import { ReadStream } from 'node:fs';
 import { abortOnChangeSize } from './abort-on-change-size';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { processError } from './process-error';

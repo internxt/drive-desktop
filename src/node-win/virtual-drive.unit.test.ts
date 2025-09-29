@@ -7,7 +7,7 @@ import { iconPath } from '@/apps/utils/icon';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 
-vi.mock(import('fs'));
+vi.mock(import('node:fs'));
 vi.mock(import('@/node-win/addon'));
 
 describe('VirtualDrive', () => {

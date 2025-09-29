@@ -1,4 +1,4 @@
-import * as path from 'path';
+import * as path from 'node:path';
 import { logger } from '../shared/logger/logger';
 
 export const isTemporaryFile = (filePath: string): boolean => {

@@ -1,6 +1,6 @@
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { getUploadCallbacks } from '@/backend/features/local-sync/upload-file/upload-callbacks';
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 

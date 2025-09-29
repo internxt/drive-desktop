@@ -1,11 +1,11 @@
 import { app, Menu, nativeImage, Tray } from 'electron';
-import path from 'path';
+import path from 'node:path';
 import PackageJson from '../../../../package.json';
 import { getOrCreateWidged, setBoundsOfWidgetByPath, toggleWidgetVisibility } from '../windows/widget';
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { quitApp } from '../quit';
-import { cwd } from 'process';
+import { cwd } from 'node:process';
 
 type TrayMenuState = 'IDLE' | 'SYNCING' | 'ALERT' | 'LOADING';
 

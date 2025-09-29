@@ -6,10 +6,10 @@ import * as validateWindowsName from '@/context/virtual-drive/items/validate-win
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as hasToBeMoved from './has-to-be-moved';
-import { rename } from 'fs/promises';
+import { rename } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 
 describe('update-file-placeholder', () => {
   const virtualDrive = mockDeep<VirtualDrive>();

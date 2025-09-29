@@ -1,8 +1,8 @@
 import { authClient } from '@/apps/shared/HttpClient/auth-client';
 import { client } from '@/apps/shared/HttpClient/client';
 import { logger } from '@/apps/shared/logger/logger';
-import { join } from 'path';
-import { cwd } from 'process';
+import { join } from 'node:path';
+import { cwd } from 'node:process';
 
 export const TEST_FILES = join(cwd(), 'test-files');
 export const loggerMock = vi.mocked(logger);

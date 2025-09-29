@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import { URL } from 'url';
 
 export let resolveHtmlPath: (pathname: string, query?: string) => string;

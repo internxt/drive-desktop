@@ -2,7 +2,7 @@ import { Readable } from 'stream';
 import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
 import { WriteReadableToFile } from '../../../../apps/shared/fs/write-readable-to-file';
 import { temporalFolderProvider } from '../application/temporalFolderProvider';
-import path from 'path';
+import path from 'node:path';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 type Props = {

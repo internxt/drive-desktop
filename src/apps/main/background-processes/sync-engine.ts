@@ -10,7 +10,7 @@ import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtu
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
 import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { PATHS } from '@/core/electron/paths';
-import { join } from 'path';
+import { join } from 'node:path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { logger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';

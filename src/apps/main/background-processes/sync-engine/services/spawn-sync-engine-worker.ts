@@ -1,7 +1,7 @@
 import { SyncContext } from '@/apps/sync-engine/config';
 import { BrowserWindow } from 'electron';
-import path from 'path';
-import { cwd } from 'process';
+import path from 'node:path';
+import { cwd } from 'node:process';
 import { workers } from '../store';
 import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worker';
 import { monitorHealth } from './monitor-health';

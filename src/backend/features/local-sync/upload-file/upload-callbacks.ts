@@ -1,7 +1,7 @@
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUploaderCallbacks } from '@/infra/inxt-js/file-uploader/file-uploader';
-import { basename } from 'path';
+import { basename } from 'node:path';
 
 type TProps = {
   path: AbsolutePath;

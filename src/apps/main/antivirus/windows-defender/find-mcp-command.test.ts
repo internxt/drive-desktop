@@ -1,10 +1,10 @@
 import { findMpCmdRun } from './find-mcp-command';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { access } from 'fs/promises';
-import { join } from 'path';
+import { access } from 'node:fs/promises';
+import { join } from 'node:path';
 import * as getDefenderVersionsModule from './get-defender-version';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 vi.mock(import('path'));
 
 describe('findMpCmdRun', () => {

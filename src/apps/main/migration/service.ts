@@ -1,7 +1,7 @@
-import fs from 'fs/promises';
-import path from 'path';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { app, shell } from 'electron';
-import fsExtra from 'fs-extra';
+import fsExtra from 'node:fs-extra';
 import configStore from '../config';
 import { logger } from '@/apps/shared/logger/logger';
 const DESKTOP_FOLDER_NAME = 'Moved files (Internxt)';

@@ -1,4 +1,4 @@
-import { Stats } from 'fs';
+import { Stats } from 'node:fs';
 
 import { PinState } from '@/node-win/types/placeholder.type';
 

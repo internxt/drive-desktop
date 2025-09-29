@@ -2,7 +2,7 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { rm } from 'fs/promises';
+import { rm } from 'node:fs/promises';
 
 type Props = { ctx: ProcessSyncContext } & (
   | { remotes: ExtendedDriveFile[]; type: 'file' }

@@ -1,5 +1,5 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { exec } from 'child_process';
+import { exec } from 'node:child_process';
 import { promisify } from 'util';
 import { findMpCmdRun } from './find-mcp-command';
 

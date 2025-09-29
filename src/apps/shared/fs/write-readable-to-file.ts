@@ -1,5 +1,5 @@
-import fs, { PathLike } from 'fs';
-import { stat } from 'fs/promises';
+import fs, { PathLike } from 'node:fs';
+import { stat } from 'node:fs/promises';
 import { Readable } from 'stream';
 
 export class WriteReadableToFile {

@@ -2,11 +2,11 @@ import { mockDeep } from 'vitest-mock-extended';
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { DeepPartial } from 'ts-essentials';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { unlink } from 'fs/promises';
+import { unlink } from 'node:fs/promises';
 import { fetchData } from './fetchData.service';
 import { ProcessContainer } from '../build-process-container';
 
-vi.mock(import('fs/promises'));
+vi.mock(import('node:fs/promises'));
 
 describe('Fetch Data', () => {
   const container = mockDeep<ProcessContainer>();
