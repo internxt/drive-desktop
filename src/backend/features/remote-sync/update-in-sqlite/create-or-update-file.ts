@@ -1,9 +1,10 @@
-import { Config } from '@/apps/sync-engine/config';
+import { BackupsContext } from '@/apps/backups/BackupInfo';
+import { SyncContext } from '@/apps/sync-engine/config';
 import { FileDto } from '@/infra/drive-server-wip/out/dto';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type TProps = {
-  context: Config;
+  context: SyncContext | BackupsContext;
   fileDto: FileDto;
 };
 
