@@ -8,12 +8,6 @@ type Props = {
 };
 
 export async function recoverySync({ ctx }: Props) {
-  /**
-   * v2.6.0 Daniel Jiménez
-   * Workspaces limit 1000 is not implemented yet in drive-server-wip.
-   */
-  if (ctx.workspaceId) return;
-
   let moreFiles = true;
   let filesOffset = 0;
 

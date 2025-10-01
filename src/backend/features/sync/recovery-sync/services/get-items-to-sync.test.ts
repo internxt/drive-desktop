@@ -20,7 +20,7 @@ describe('get-items-to-sync', () => {
     const res = getItemsToSync(props);
     // Then
     expect(res).toHaveLength(1);
-    calls(loggerMock.error).toMatchObject([{ msg: 'Local file does not exist' }]);
+    calls(loggerMock.error).toMatchObject([{ msg: 'Local item does not exist' }]);
   });
 
   it('should return file if has different updatedAt', () => {
@@ -30,10 +30,10 @@ describe('get-items-to-sync', () => {
     const res = getItemsToSync(props);
     // Then
     expect(res).toHaveLength(1);
-    calls(loggerMock.error).toMatchObject([{ msg: 'Local file has a different updatedAt' }]);
+    calls(loggerMock.error).toMatchObject([{ msg: 'Local item has a different updatedAt' }]);
   });
 
-  it('should not return file if updatedAt and status are equal', () => {
+  it('should not return item if updatedAt and status are equal', () => {
     // When
     const res = getItemsToSync(props);
     // Then
