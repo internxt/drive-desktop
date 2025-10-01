@@ -5,7 +5,7 @@ import { BrowserWindow } from 'electron';
 import { monitorHealth } from './monitor-health';
 import { scheduleSync } from './schedule-sync';
 import { loggerMock } from 'tests/vitest/mocks.helper.test';
-// import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
+import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
 
 vi.mock(import('./stop-and-clear-sync-engine-worker'));
 vi.mock(import('./monitor-health'));
@@ -15,26 +15,23 @@ vi.mock(import('@/backend/features/remote-sync/remote-sync.module'));
 describe('spawn-sync-engine-worker', () => {
   const monitorHealthMock = vi.mocked(monitorHealth);
   const scheduleSyncMock = vi.mocked(scheduleSync);
-  // const RemoteSyncModuleMock = vi.mocked(RemoteSyncModule);
+  const RemoteSyncModuleMock = vi.mocked(RemoteSyncModule);
 
   const workspaceId = 'workspaceId';
+  const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { logger: loggerMock, workspaceId } });
 
   beforeEach(() => {
     delete workers[workspaceId];
   });
 
   it('If worker does not exist then create and start it', async () => {
-    // Given
-    const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { logger: loggerMock, workspaceId } });
-
     // When
     await spawnSyncEngineWorker(props);
-
     // Then
     expect(BrowserWindow).toHaveBeenCalledTimes(1);
     expect(monitorHealthMock).toHaveBeenCalledTimes(1);
     expect(scheduleSyncMock).toHaveBeenCalledTimes(1);
-    // expect(RemoteSyncModuleMock.syncItemsByFolder).toHaveBeenCalledTimes(1);
+    expect(RemoteSyncModuleMock.syncItemsByFolder).toHaveBeenCalledTimes(1);
     expect(workers[workspaceId]).toStrictEqual(
       expect.objectContaining({
         startingWorker: true,
@@ -48,13 +45,10 @@ describe('spawn-sync-engine-worker', () => {
   it('If worker is already starting then do nothing', async () => {
     // Given
     workers[workspaceId] = { startingWorker: true } as unknown as TWorkerConfig;
-    const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { workspaceId } });
-
     // When
     await spawnSyncEngineWorker(props);
-
     // Then
-    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: '[MAIN] Sync engine worker is already starting', workspaceId });
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Sync engine worker is already starting' });
     expect(BrowserWindow).toHaveBeenCalledTimes(0);
     expect(monitorHealthMock).toHaveBeenCalledTimes(0);
     expect(scheduleSyncMock).toHaveBeenCalledTimes(0);
@@ -63,13 +57,10 @@ describe('spawn-sync-engine-worker', () => {
   it('If worker is already running then do nothing', async () => {
     // Given
     workers[workspaceId] = { workerIsRunning: true } as unknown as TWorkerConfig;
-    const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { workspaceId } });
-
     // When
     await spawnSyncEngineWorker(props);
-
     // Then
-    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: '[MAIN] Sync engine worker is already running', workspaceId });
+    expect(loggerMock.debug).toHaveBeenCalledWith({ msg: 'Sync engine worker is already running' });
     expect(BrowserWindow).toHaveBeenCalledTimes(0);
     expect(monitorHealthMock).toHaveBeenCalledTimes(0);
     expect(scheduleSyncMock).toHaveBeenCalledTimes(0);
