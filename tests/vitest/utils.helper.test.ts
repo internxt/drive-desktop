@@ -8,6 +8,16 @@ export function getMockCalls(object: { mock: { calls: any[] } }) {
   return object.mock.calls.map((call) => call[0]);
 }
 
+export function calls(object: any) {
+  return expect(object.mock.calls.map((call: any) => call[0]));
+}
+
+export function call(object: any) {
+  const calls = object.mock.calls.map((call: any) => call[0]);
+  if (calls.length !== 1) throw new Error('Invalid length');
+  return expect(calls[0]);
+}
+
 export function mockProps<T extends (...args: any[]) => unknown>(props: DeepPartial<Parameters<T>[0]>) {
   const result = props as Parameters<T>[0];
   result.ctx = { ...result.ctx, logger: loggerMock } as any;

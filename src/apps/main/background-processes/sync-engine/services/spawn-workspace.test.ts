@@ -1,4 +1,4 @@
-import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
+import { call, deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { spawnWorkspace } from './spawn-workspace';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
@@ -65,8 +65,7 @@ describe('spawn-workspace.service', () => {
     await spawnWorkspace(props);
     // Then
     expect(getCredentialsMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncEngineWorkerMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncEngineWorkerMock).toMatchObject({
+    call(spawnSyncEngineWorkerMock).toMatchObject({
       ctx: {
         bridgePass: 'pass',
         bridgeUser: 'user',
