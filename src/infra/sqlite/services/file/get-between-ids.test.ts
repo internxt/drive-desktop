@@ -35,7 +35,7 @@ describe('get-between-ids', () => {
     // Then
     expect(data).toBeDefined();
     call(findMock).toMatchObject({
-      order: { updatedAt: 'ASC' },
+      order: { id: 'ASC' },
       where: {
         workspaceId: 'workspaceId',
         status: 'EXISTS',
