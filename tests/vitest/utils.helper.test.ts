@@ -9,7 +9,7 @@ export function calls(object: any) {
 
 export function call(object: any) {
   const calls = object.mock.calls.map((call: any) => call[0]);
-  expect(calls).toHaveLength(1);
+  if (calls.length !== 1) throw new Error('Invalid length');
   return expect(calls[0]);
 }
 
