@@ -1,19 +1,13 @@
 import * as fileDecryptName from '@/context/virtual-drive/files/domain/file-decrypt-name';
 import { fileRepository } from '../drive-file';
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { getBetweenUuids } from './get-between-uuids';
-import { Between } from 'typeorm';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { getByStatus } from './get-by-status';
 
-describe('get-between-uuids', () => {
+describe('get-by-status', () => {
   const findMock = partialSpyOn(fileRepository, 'find');
   const fileDecryptNameMock = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
-  const props = mockProps<typeof getBetweenUuids>({
-    workspaceId: 'workspaceId',
-    from: 'uuid1' as FileUuid,
-    to: 'uuid2' as FileUuid,
-  });
+  const props = mockProps<typeof getByStatus>({ workspaceId: 'workspaceId', status: 'EXISTS' });
 
   beforeEach(() => {
     fileDecryptNameMock.mockResolvedValue({});
@@ -23,7 +17,7 @@ describe('get-between-uuids', () => {
     // Given
     findMock.mockRejectedValue(new Error());
     // When
-    const { error } = await getBetweenUuids(props);
+    const { error } = await getByStatus(props);
     // Then
     expect(error?.code).toBe('UNKNOWN');
   });
@@ -32,11 +26,11 @@ describe('get-between-uuids', () => {
     // Given
     findMock.mockResolvedValue([]);
     // When
-    const { data } = await getBetweenUuids(props);
+    const { data } = await getByStatus(props);
     // Then
     expect(data).toBeDefined();
     call(findMock).toMatchObject({
-      where: { workspaceId: 'workspaceId', uuid: Between('uuid1', 'uuid2') },
+      where: { workspaceId: 'workspaceId', status: 'EXISTS' },
       order: { updatedAt: 'ASC' },
     });
   });
