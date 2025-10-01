@@ -4,7 +4,7 @@ import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
 import { getConfig, ProcessSyncContext, setDefaultConfig } from '../config';
 import { VirtualDrive } from '@/node-win/virtual-drive';
-import { deepMocked, getMockCalls, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
@@ -127,8 +127,8 @@ describe('create-placeholder', () => {
     // Then
     const status = ctx.virtualDrive.getPlaceholderState({ path: file });
     expect(status.pinState).toBe(PinState.AlwaysLocal);
-    expect(getMockCalls(onAllMock)).toStrictEqual([{ event: 'add', path: file }]);
-    expect(getMockCalls(loggerMock.debug)).toStrictEqual([
+    call(onAllMock).toStrictEqual({ event: 'add', path: file });
+    calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Registering sync root', syncRootPath: rootPath },
       { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },

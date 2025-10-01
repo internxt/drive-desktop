@@ -1,6 +1,6 @@
 import * as fileDecryptName from '@/context/virtual-drive/files/domain/file-decrypt-name';
 import { fileRepository } from '../drive-file';
-import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getByUpdatedAt } from './get-by-updated-at';
 import { Between } from 'typeorm';
 
@@ -34,7 +34,7 @@ describe('get-by-updated-at', () => {
     const { data } = await getByUpdatedAt(props);
     // Then
     expect(data).toBeDefined();
-    calls(findBy).toMatchObject({
+    call(findBy).toMatchObject({
       workspaceId: 'workspaceId',
       updatedAt: Between('from', 'to'),
     });

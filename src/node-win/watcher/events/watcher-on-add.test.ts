@@ -22,12 +22,10 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    expect(getEvents()).toStrictEqual(
-      expect.arrayContaining([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'addDir', path: folder },
-      ]),
-    );
+    getEvents().toMatchObject([
+      { event: 'addDir', path: syncRootPath },
+      { event: 'addDir', path: folder },
+    ]);
   });
 
   it('When add a file, then emit one add event', async () => {
@@ -42,12 +40,10 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    expect(getEvents()).toStrictEqual(
-      expect.arrayContaining([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'add', path: file },
-      ]),
-    );
+    getEvents().toMatchObject([
+      { event: 'addDir', path: syncRootPath },
+      { event: 'add', path: file },
+    ]);
   });
 
   it('When add a file of zero size, then emit one add event', async () => {
@@ -69,12 +65,10 @@ describe('[Watcher] When add items', () => {
       }),
     );
 
-    expect(getEvents()).toStrictEqual(
-      expect.arrayContaining([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'add', path: file },
-      ]),
-    );
+    getEvents().toMatchObject([
+      { event: 'addDir', path: syncRootPath },
+      { event: 'add', path: file },
+    ]);
   });
 
   it('When add a folder and a file inside, then emit one addDir and one add event', async () => {
@@ -91,12 +85,10 @@ describe('[Watcher] When add items', () => {
     await sleep(50);
 
     // Assert
-    expect(getEvents()).toStrictEqual(
-      expect.arrayContaining([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'addDir', path: folder },
-        { event: 'add', path: file },
-      ]),
-    );
+    getEvents().toMatchObject([
+      { event: 'addDir', path: syncRootPath },
+      { event: 'addDir', path: folder },
+      { event: 'add', path: file },
+    ]);
   });
 });
