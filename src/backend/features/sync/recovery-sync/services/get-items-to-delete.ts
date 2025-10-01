@@ -5,8 +5,8 @@ import { FileProps, FolderProps } from '../recovery-sync.types';
 
 type Props = FileProps | FolderProps;
 
-export function getItemsToDelete(props: FileProps): SimpleDriveFile[];
 export function getItemsToDelete(props: FolderProps): SimpleDriveFolder[];
+export function getItemsToDelete(props: FileProps): SimpleDriveFile[];
 export function getItemsToDelete({ remotes, locals }: Props) {
   const remotesMap = new Map(remotes.map((file) => [file.uuid, file]));
 

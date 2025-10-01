@@ -1,7 +1,7 @@
 import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
-import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { getItemsToDelete } from './get-items-to-delete';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('get-items-to-delete', () => {
   let props: Parameters<typeof getItemsToDelete>[0];

@@ -4,8 +4,8 @@ import { FileProps, FolderProps } from '../recovery-sync.types';
 
 type Props = FileProps | FolderProps;
 
-export function getItemsToSync(props: FileProps): ParsedFileDto[];
 export function getItemsToSync(props: FolderProps): ParsedFolderDto[];
+export function getItemsToSync(props: FileProps): ParsedFileDto[];
 export function getItemsToSync({ remotes, locals }: Props) {
   const localFilesMap = new Map(locals.map((file) => [file.uuid, file]));
 
