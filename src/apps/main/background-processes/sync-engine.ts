@@ -12,7 +12,7 @@ import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'node:path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
-import { logger } from '@/apps/shared/logger/logger';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
 
 ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
@@ -68,6 +68,7 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
     bridgeUser: user.bridgeUser,
     bridgePass: user.userId,
     workspaceToken: '',
+    logger: createLogger({ tag: 'SYNC-ENGINE' }),
   };
 
   const workspaces = await getWorkspaces();

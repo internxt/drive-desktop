@@ -48,6 +48,7 @@ describe('create-placeholder', () => {
   const config = getConfig();
   const ctx: ProcessSyncContext = {
     ...config,
+    logger: loggerMock,
     virtualDrive: new VirtualDrive(config),
     fileUploader: environmentFileUploader,
     abortController: new AbortController(),
@@ -108,6 +109,7 @@ describe('create-placeholder', () => {
     const config = getConfig();
     const ctx: ProcessSyncContext = {
       ...config,
+      logger: loggerMock,
       virtualDrive: new VirtualDrive(config),
       fileUploader: environmentFileUploader,
       abortController: new AbortController(),
