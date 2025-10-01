@@ -1,6 +1,5 @@
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { getItemsToSync } from './get-items-to-sync';
 import { getItemsToDelete } from './get-items-to-delete';
 import { SyncContext } from '@/apps/sync-engine/config';
@@ -34,8 +33,7 @@ export async function filesRecoverySync({ ctx, limit, offset }: Props) {
 
   if (!localFiles) return [];
 
-  logger.debug({
-    tag: 'SYNC-ENGINE',
+  ctx.logger.debug({
     msg: 'Files recovery sync',
     remotes: remoteFiles.length,
     locals: remoteFiles.length,
@@ -43,8 +41,8 @@ export async function filesRecoverySync({ ctx, limit, offset }: Props) {
     last: { name: last.plainName, updatedAt: last.updatedAt },
   });
 
-  const filesToSync = getItemsToSync({ remotes: remoteFiles, locals: localFiles });
-  const filesToDelete = getItemsToDelete({ remotes: remoteFiles, locals: localFiles });
+  const filesToSync = getItemsToSync({ ctx, remotes: remoteFiles, locals: localFiles });
+  const filesToDelete = getItemsToDelete({ ctx, remotes: remoteFiles, locals: localFiles });
 
   await Promise.all([
     filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto })),

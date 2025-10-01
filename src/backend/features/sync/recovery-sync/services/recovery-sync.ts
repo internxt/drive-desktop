@@ -24,12 +24,8 @@ export async function recoverySync({ ctx }: Props) {
 
       moreFiles = fileDtos.length === FETCH_LIMIT;
       filesOffset += FETCH_LIMIT;
-    } catch (exc) {
-      logger.error({
-        tag: 'SYNC-ENGINE',
-        msg: 'Error in recovery sync',
-        exc,
-      });
+    } catch (error) {
+      ctx.logger.error({ msg: 'Error in recovery sync', error });
     }
 
     await sleep(60 * 1000);
