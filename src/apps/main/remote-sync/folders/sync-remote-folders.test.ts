@@ -23,7 +23,7 @@ describe('sync-remote-folders.service', () => {
   const worker = mockDeep<TWorkerConfig>();
   const remoteSyncManager = new RemoteSyncManager(config, worker, '');
 
-  it('If we fetch less than 1000 files, then do not fetch again', async () => {
+  it('If we fetch less than 50 files, then do not fetch again', async () => {
     // Given
     getFoldersMock.mockResolvedValueOnce({ data: [] });
 
@@ -64,9 +64,9 @@ describe('sync-remote-folders.service', () => {
     });
   });
 
-  it('If we fetch 1000 files, then fetch again', async () => {
+  it('If we fetch 50 files, then fetch again', async () => {
     // Given
-    getFoldersMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) });
+    getFoldersMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFoldersMock.mockResolvedValueOnce({ data: [] });
 
     // When
@@ -74,7 +74,7 @@ describe('sync-remote-folders.service', () => {
 
     // Then
     expect(getFoldersMock).toHaveBeenCalledTimes(2);
-    expect(syncRemoteFolderMock).toHaveBeenCalledTimes(1000);
+    expect(syncRemoteFolderMock).toHaveBeenCalledTimes(50);
   });
 
   it('If fetch fails, then throw error', async () => {
@@ -90,7 +90,7 @@ describe('sync-remote-folders.service', () => {
 
   it('Update checkpoint after fetch', async () => {
     // Given
-    getFoldersMock.mockResolvedValueOnce({ data: Array(1000).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) });
+    getFoldersMock.mockResolvedValueOnce({ data: Array(50).fill({ updatedAt: '2025-06-28T12:25:07.000Z' }) });
     getFoldersMock.mockResolvedValueOnce({ data: [{ updatedAt: '2025-06-29T12:25:07.000Z' }] });
 
     // When

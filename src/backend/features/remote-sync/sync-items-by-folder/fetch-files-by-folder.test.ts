@@ -33,7 +33,7 @@ describe('fetch-files-by-folder', () => {
     expect(files).toStrictEqual([{ status: 'EXISTS' }]);
   });
 
-  it('If we fetch less than 1000 files, then do not fetch again', async () => {
+  it('If we fetch less than 50 files, then do not fetch again', async () => {
     // Given
     getFilesByFolderMock.mockResolvedValueOnce({ data: [] });
 
@@ -45,22 +45,22 @@ describe('fetch-files-by-folder', () => {
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(1);
   });
 
-  it('If we fetch 1000 files, then fetch again', async () => {
+  it('If we fetch 50 files, then fetch again', async () => {
     // Given
-    getFilesByFolderMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) });
+    getFilesByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFilesByFolderMock.mockResolvedValueOnce({ data: [] });
 
     // When
     const files = await fetchFilesByFolder(props);
 
     // Then
-    expect(files).toHaveLength(1000);
+    expect(files).toHaveLength(50);
     expect(getFilesByFolderMock).toHaveBeenCalledTimes(2);
   });
 
   it('If fetch fails return null', async () => {
     // Given
-    getFilesByFolderMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) });
+    getFilesByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFilesByFolderMock.mockResolvedValueOnce({ error: new Error() });
 
     // When

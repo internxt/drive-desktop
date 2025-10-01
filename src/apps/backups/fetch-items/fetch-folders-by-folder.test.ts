@@ -34,7 +34,7 @@ describe('fetch-folders-by-folder', () => {
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(0);
   });
 
-  it('If we fetch less than 1000 folders, then do not fetch again', async () => {
+  it('If we fetch less than 50 folders, then do not fetch again', async () => {
     // Given
     getFoldersByFolderMock.mockResolvedValueOnce({ data: [] });
 
@@ -46,17 +46,17 @@ describe('fetch-folders-by-folder', () => {
     expect(props.allFolders).toStrictEqual([{ uuid: 'previous' }]);
   });
 
-  it('If we fetch 1000 folders, then fetch again', async () => {
+  it('If we fetch 50 folders, then fetch again', async () => {
     // Given
-    getFoldersByFolderMock.mockResolvedValueOnce({ data: Array(1000).fill({ status: 'EXISTS' }) });
+    getFoldersByFolderMock.mockResolvedValueOnce({ data: Array(50).fill({ status: 'EXISTS' }) });
     getFoldersByFolderMock.mockResolvedValueOnce({ data: [] });
 
     // When
     const { newFolders } = await fetchFoldersByFolder(props);
 
     // Then
-    expect(newFolders).toHaveLength(1000);
-    expect(props.allFolders).toHaveLength(1001);
+    expect(newFolders).toHaveLength(50);
+    expect(props.allFolders).toHaveLength(51);
     expect(getFoldersByFolderMock).toHaveBeenCalledTimes(2);
   });
 
