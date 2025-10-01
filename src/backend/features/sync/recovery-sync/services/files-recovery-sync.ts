@@ -27,22 +27,9 @@ export async function filesRecoverySync({ ctx, limit, offset }: Props) {
 
   if (!remotes) return [];
 
-  const first = remotes.at(0);
-  const last = remotes.at(-1);
-
-  if (!first || !last) return [];
-
-  const locals = await getLocalFiles({ ctx, first, last });
+  const locals = await getLocalFiles({ ctx, remotes });
 
   if (!locals) return [];
-
-  ctx.logger.debug({
-    msg: 'Files recovery sync',
-    remotes: remotes.length,
-    locals: locals.length,
-    first: { uuid: first.uuid, name: first.plainName, updatedAt: first.updatedAt },
-    last: { uuid: last.uuid, name: last.plainName, updatedAt: last.updatedAt },
-  });
 
   const filesToSync = getItemsToSync({ ctx, remotes, locals });
   const filesToDelete = getItemsToDelete({ ctx, remotes, locals });
