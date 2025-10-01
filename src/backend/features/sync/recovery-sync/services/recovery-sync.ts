@@ -14,6 +14,11 @@ export async function recoverySync({ ctx }: Props) {
   let filesOffset = 0;
 
   while (moreFiles) {
+    if (ctx.abortController.signal.aborted) {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Aborted recovery sync', workspaceId: ctx.workspaceId });
+      break;
+    }
+
     try {
       const fileDtos = await filesRecoverySync({ ctx, limit: FETCH_LIMIT, offset: filesOffset });
 
