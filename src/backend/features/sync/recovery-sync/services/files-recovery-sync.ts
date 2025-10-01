@@ -1,9 +1,10 @@
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { getItemsToSync } from './get-items-to-sync';
 import { getItemsToDelete } from './get-items-to-delete';
 import { SyncContext } from '@/apps/sync-engine/config';
+import { getLocalFiles } from './get-local-files';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = {
   ctx: SyncContext;
@@ -12,37 +13,39 @@ type Props = {
 };
 
 export async function filesRecoverySync({ ctx, limit, offset }: Props) {
-  const query = { limit, offset, status: 'EXISTS' as const };
+  const query = {
+    limit,
+    offset,
+    status: 'EXISTS' as const,
+    sort: 'updatedAt',
+    order: 'ASC',
+  };
 
-  const { data: remoteFiles } = ctx.workspaceId
+  const { data: remotes } = ctx.workspaceId
     ? await DriveServerWipModule.WorkspaceModule.getFilesInWorkspace({ workspaceId: ctx.workspaceId, query })
     : await DriveServerWipModule.FileModule.getFiles({ query });
 
-  if (!remoteFiles) return [];
+  if (!remotes) return [];
 
-  const first = remoteFiles.at(0);
-  const last = remoteFiles.at(-1);
+  const first = remotes.at(0);
+  const last = remotes.at(-1);
 
   if (!first || !last) return [];
 
-  const { data: localFiles } = await SqliteModule.FileModule.getByUpdatedAt({
-    workspaceId: ctx.workspaceId,
-    from: first.updatedAt,
-    to: last.updatedAt,
-  });
+  const locals = await getLocalFiles({ ctx, first, last });
 
-  if (!localFiles) return [];
+  if (!locals) return [];
 
   ctx.logger.debug({
     msg: 'Files recovery sync',
-    remotes: remoteFiles.length,
-    locals: remoteFiles.length,
-    first: { name: first.plainName, updatedAt: first.updatedAt },
-    last: { name: last.plainName, updatedAt: last.updatedAt },
+    remotes: remotes.length,
+    locals: locals.length,
+    first: { uuid: first.uuid, name: first.plainName, updatedAt: first.updatedAt },
+    last: { uuid: last.uuid, name: last.plainName, updatedAt: last.updatedAt },
   });
 
-  const filesToSync = getItemsToSync({ ctx, remotes: remoteFiles, locals: localFiles });
-  const filesToDelete = getItemsToDelete({ ctx, remotes: remoteFiles, locals: localFiles });
+  const filesToSync = getItemsToSync({ ctx, remotes, locals });
+  const filesToDelete = getItemsToDelete({ ctx, remotes, locals });
 
   await Promise.all([
     filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto })),
@@ -54,5 +57,5 @@ export async function filesRecoverySync({ ctx, limit, offset }: Props) {
     ),
   ]);
 
-  return remoteFiles;
+  return remotes;
 }

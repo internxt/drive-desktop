@@ -1,7 +1,6 @@
 import { SyncContext } from '@/apps/sync-engine/config';
 import { filesRecoverySync } from './files-recovery-sync';
 import { sleep } from '@/apps/main/util';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 const FETCH_LIMIT = 1000;
 
@@ -10,12 +9,18 @@ type Props = {
 };
 
 export async function recoverySync({ ctx }: Props) {
+  /**
+   * v2.6.0 Daniel Jiménez
+   * Workspaces limit 1000 is not implemented yet in drive-server-wip.
+   */
+  if (ctx.workspaceId) return;
+
   let moreFiles = true;
   let filesOffset = 0;
 
   while (moreFiles) {
     if (ctx.abortController.signal.aborted) {
-      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Aborted recovery sync', workspaceId: ctx.workspaceId });
+      ctx.logger.debug({ msg: 'Aborted recovery sync' });
       break;
     }
 
@@ -24,10 +29,11 @@ export async function recoverySync({ ctx }: Props) {
 
       moreFiles = fileDtos.length === FETCH_LIMIT;
       filesOffset += FETCH_LIMIT;
+
+      await sleep(60 * 1000);
     } catch (error) {
       ctx.logger.error({ msg: 'Error in recovery sync', error });
+      break;
     }
-
-    await sleep(60 * 1000);
   }
 }
