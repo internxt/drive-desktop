@@ -1,5 +1,5 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { updateContentsId } from './update-contents-id';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
@@ -72,7 +72,7 @@ describe('update-contents-id', () => {
       newSize: 1,
       modificationTime: '2025-08-20T00:00:00.000Z',
     });
-    expect(updateFileStatusMock).toBeCalledWith({ ctx: {}, path });
+    call(updateFileStatusMock).toMatchObject({ path });
     expect(invokeMock).toBeCalledTimes(1);
     expect(loggerMock.error).toBeCalledTimes(0);
   });

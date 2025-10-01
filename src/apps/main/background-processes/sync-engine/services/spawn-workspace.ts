@@ -1,7 +1,7 @@
 import { SyncContext } from '@/apps/sync-engine/config';
 import { decryptMessageWithPrivateKey } from '@/apps/shared/crypto/service';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
-import { logger } from '@/apps/shared/logger/logger';
+import { createLogger, logger } from '@/apps/shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { PATHS } from '@/core/electron/paths';
@@ -35,7 +35,7 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       privateKeyInBase64: user.privateKey,
     });
 
-    const syncContext: SyncContext = {
+    const syncCtx: SyncContext = {
       ...context,
       userUuid: user.uuid,
       mnemonic,
@@ -49,9 +49,10 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       bucket: credentials.bucket,
       bridgeUser: credentials.credentials.networkUser,
       bridgePass: credentials.credentials.networkPass,
+      logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: workspace.id }),
     };
 
-    await spawnSyncEngineWorker({ context: syncContext });
+    await spawnSyncEngineWorker({ ctx: syncCtx });
   } catch (exc) {
     logger.error({ tag: 'SYNC-ENGINE', msg: 'Error spawning workspace', exc });
   }

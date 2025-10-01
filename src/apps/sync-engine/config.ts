@@ -3,6 +3,7 @@ import { getUser } from '../main/auth/service';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export type Config = {
   userUuid: string;
@@ -19,7 +20,7 @@ export type Config = {
   bridgePass: string;
 };
 
-export type SyncContext = AuthContext & Config;
+export type SyncContext = AuthContext & Config & { logger: typeof logger };
 
 export type ProcessSyncContext = SyncContext & {
   virtualDrive: VirtualDrive;
