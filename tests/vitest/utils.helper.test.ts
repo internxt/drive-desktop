@@ -20,7 +20,7 @@ export function call(object: any) {
 
 export function mockProps<T extends (...args: any[]) => unknown>(props: DeepPartial<Parameters<T>[0]>) {
   const result = props as Parameters<T>[0];
-  result.ctx = { ...result.ctx, logger: loggerMock } as any;
+  result.ctx = { ...result.ctx, logger: loggerMock };
   return result;
 }
 
