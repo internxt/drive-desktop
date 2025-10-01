@@ -6,10 +6,11 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as getItemsToSyncModule from './get-items-to-sync';
 import * as getItemsToDeleteModule from './get-items-to-delete';
 import * as createOrUpdateFileModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import * as getLocalFilesModule from './get-local-files';
 
 describe('files-recovery-sync', () => {
   const getFilesMock = partialSpyOn(DriveServerWipModule.FileModule, 'getFiles');
-  const getBetweenIdsMock = partialSpyOn(SqliteModule.FileModule, 'getBetweenIds');
+  const getLocalFilesMock = partialSpyOn(getLocalFilesModule, 'getLocalFiles');
   const getItemsToSyncMock = partialSpyOn(getItemsToSyncModule, 'getItemsToSync');
   const getItemsToDeleteMock = partialSpyOn(getItemsToDeleteModule, 'getItemsToDelete');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFileModule, 'createOrUpdateFile');
@@ -19,7 +20,7 @@ describe('files-recovery-sync', () => {
 
   beforeEach(() => {
     getFilesMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
-    getBetweenIdsMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
+    getLocalFilesMock.mockResolvedValue([{ uuid: 'uuid' as FileUuid }]);
     getItemsToSyncMock.mockReturnValue([{ uuid: 'create' as FileUuid }]);
     getItemsToDeleteMock.mockReturnValue([{ uuid: 'delete' as FileUuid }]);
   });
@@ -35,7 +36,7 @@ describe('files-recovery-sync', () => {
 
   it('should return empty if no local files', async () => {
     // Given
-    getBetweenIdsMock.mockResolvedValue({});
+    getLocalFilesMock.mockResolvedValue(undefined);
     // When
     const res = await filesRecoverySync(props);
     // Then

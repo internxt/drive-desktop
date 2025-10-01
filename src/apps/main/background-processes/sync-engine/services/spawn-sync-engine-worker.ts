@@ -7,7 +7,7 @@ import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worke
 import { monitorHealth } from './monitor-health';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
-import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
+// import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
 
 type TProps = {
   ctx: SyncContext;
