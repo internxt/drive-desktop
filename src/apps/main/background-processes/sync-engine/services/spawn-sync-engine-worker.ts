@@ -46,7 +46,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
    * Since we can have a different status in our local database that in remote,
    * we want to run also this sync in background to update the statuses.
    */
-  void RecoverySyncModule.recoverySync({ ctx });
+  // void RecoverySyncModule.recoverySync({ ctx });
 
   try {
     const browserWindow = new BrowserWindow({

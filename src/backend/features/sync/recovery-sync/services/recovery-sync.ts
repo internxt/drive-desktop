@@ -1,8 +1,7 @@
 import { SyncContext } from '@/apps/sync-engine/config';
 import { filesRecoverySync } from './files-recovery-sync';
 import { sleep } from '@/apps/main/util';
-
-const FETCH_LIMIT = 1000;
+import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
 
 type Props = {
   ctx: SyncContext;
@@ -25,7 +24,7 @@ export async function recoverySync({ ctx }: Props) {
     }
 
     try {
-      const fileDtos = await filesRecoverySync({ ctx, limit: FETCH_LIMIT, offset: filesOffset });
+      const fileDtos = await filesRecoverySync({ ctx, offset: filesOffset });
 
       moreFiles = fileDtos.length === FETCH_LIMIT;
       filesOffset += FETCH_LIMIT;

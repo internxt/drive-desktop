@@ -5,19 +5,19 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { getLocalFiles } from './get-local-files';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
 
 type Props = {
   ctx: SyncContext;
-  limit: number;
   offset: number;
 };
 
-export async function filesRecoverySync({ ctx, limit, offset }: Props) {
+export async function filesRecoverySync({ ctx, offset }: Props) {
   const query = {
-    limit,
+    limit: FETCH_LIMIT,
     offset,
     status: 'EXISTS' as const,
-    sort: 'updatedAt',
+    sort: 'id',
     order: 'ASC',
   };
 

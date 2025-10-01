@@ -5,6 +5,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 export type FileUuid = Brand<string, 'FileUuid'>;
 export type ContentsId = Brand<string, 'ContentsId'>;
 export type SimpleDriveFile = {
+  id: number;
   uuid: FileUuid;
   name: string;
   nameWithExtension: string;
@@ -25,20 +26,35 @@ export type ExtendedDriveFile = SimpleDriveFile & {
 
 @Entity('drive_file')
 export class DriveFile {
-  @Column({ nullable: false, type: 'varchar' })
-  fileId!: string;
-
   @Column({ nullable: false, type: 'int' })
   id!: number;
 
   @PrimaryColumn({ nullable: false, unique: true, type: 'varchar' })
   uuid!: string;
 
-  @Column({ nullable: true, default: '', type: 'varchar' })
-  workspaceId?: string;
+  @Column({ nullable: false, type: 'varchar' })
+  status!: 'EXISTS' | 'TRASHED' | 'DELETED';
+
+  @Column({ nullable: true, type: 'varchar' })
+  plainName?: string;
 
   @Column({ nullable: true, default: '', type: 'varchar' })
   type!: string;
+
+  @Column({ nullable: false, type: 'varchar' })
+  createdAt!: string;
+
+  @Column({ nullable: false, type: 'varchar' })
+  updatedAt!: string;
+
+  @Column({ nullable: true, default: '', type: 'varchar' })
+  workspaceId?: string;
+
+  @Column({ nullable: true, type: 'varchar' })
+  folderUuid?: string;
+
+  @Column({ nullable: false, type: 'varchar' })
+  fileId!: string;
 
   @Column({ nullable: false, type: 'int' })
   size!: number;
@@ -48,9 +64,6 @@ export class DriveFile {
 
   @Column({ nullable: false, type: 'int' })
   folderId!: number;
-
-  @Column({ nullable: true, type: 'varchar' })
-  folderUuid?: string;
 
   @Column({ nullable: false, type: 'int' })
   userId!: number;
@@ -67,19 +80,7 @@ export class DriveFile {
   modificationTime!: string;
 
   @Column({ nullable: false, type: 'varchar' })
-  createdAt!: string;
-
-  @Column({ nullable: false, type: 'varchar' })
-  updatedAt!: string;
-
-  @Column({ nullable: true, type: 'varchar' })
-  plainName?: string;
-
-  @Column({ nullable: false, type: 'varchar' })
   name!: string;
-
-  @Column({ nullable: false, type: 'varchar' })
-  status!: 'EXISTS' | 'TRASHED' | 'DELETED';
 
   @Column({ nullable: false, default: true, type: 'boolean' })
   isDangledStatus!: boolean;
