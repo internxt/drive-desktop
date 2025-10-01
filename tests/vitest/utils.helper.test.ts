@@ -2,13 +2,16 @@
 
 import { DeepPartial } from 'ts-essentials';
 import { MockedFunction, MockInstance } from 'vitest';
+import { loggerMock } from './mocks.helper.test';
 
 export function getMockCalls(object: { mock: { calls: any[] } }) {
   return object.mock.calls.map((call) => call[0]);
 }
 
 export function mockProps<T extends (...args: any[]) => unknown>(props: DeepPartial<Parameters<T>[0]>) {
-  return props as Parameters<T>[0];
+  const result = props as Parameters<T>[0];
+  result.ctx = { ...result.ctx, logger: loggerMock } as any;
+  return result;
 }
 
 export function deepMocked<T extends (...args: any[]) => unknown>(fn: T) {

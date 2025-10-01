@@ -18,7 +18,7 @@ describe('spawn-sync-engine-worker', () => {
   const RemoteSyncModuleMock = vi.mocked(RemoteSyncModule);
 
   const workspaceId = 'workspaceId';
-  const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { logger: loggerMock, workspaceId } });
+  const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { workspaceId } });
 
   beforeEach(() => {
     delete workers[workspaceId];
