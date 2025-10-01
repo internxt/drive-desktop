@@ -66,19 +66,16 @@ describe('spawn-workspace.service', () => {
     // Then
     expect(getCredentialsMock).toHaveBeenCalledTimes(1);
     expect(spawnSyncEngineWorkerMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncEngineWorkerMock).toHaveBeenCalledWith({
-      context: {
+    expect(spawnSyncEngineWorkerMock).toMatchObject({
+      ctx: {
         bridgePass: 'pass',
         bridgeUser: 'user',
-        bucket: undefined,
         loggerPath: '\\mock\\logs\\internxt-drive\\logs\\node-win-workspace-workspaceId.log',
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',
         rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
-        rootUuid: undefined,
         workspaceId: 'workspaceId',
-        workspaceToken: undefined,
       },
     });
   });

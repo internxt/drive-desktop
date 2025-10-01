@@ -25,7 +25,7 @@ describe('spawn-sync-engine-worker', () => {
 
   it('If worker does not exist then create and start it', async () => {
     // Given
-    const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { workspaceId } });
+    const props = mockProps<typeof spawnSyncEngineWorker>({ ctx: { logger: loggerMock, workspaceId } });
 
     // When
     await spawnSyncEngineWorker(props);
