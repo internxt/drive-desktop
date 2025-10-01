@@ -2,17 +2,23 @@ import { fileRepository } from '../drive-file';
 import { logger } from '@/apps/shared/logger/logger';
 import { parseData } from './parse-data';
 import { SqliteError } from '../common/sqlite-error';
+import { Between } from 'typeorm';
 
 type Props = {
   workspaceId: string;
-  status: 'EXISTS' | 'TRASHED' | 'DELETED';
+  firstId: number;
+  lastId: number;
 };
 
-export async function getByStatus({ workspaceId, status }: Props) {
+export async function getBetweenIds({ workspaceId, firstId, lastId }: Props) {
   try {
     const items = await fileRepository.find({
-      where: { workspaceId, status },
-      order: { updatedAt: 'ASC' },
+      order: { id: 'ASC' },
+      where: {
+        workspaceId,
+        status: 'EXISTS',
+        id: Between(firstId, lastId),
+      },
     });
 
     return { data: items.map((item) => parseData({ data: item })) };

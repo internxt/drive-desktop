@@ -1,7 +1,7 @@
 import { createOrUpdate } from './file/create-or-update';
 import { getByName } from './file/get-by-name';
 import { getByParentUuid } from './file/get-by-parent-uuid';
-import { getByStatus } from './file/get-by-status';
+import { getBetweenIds } from './file/get-between-ids';
 import { getByUuid } from './file/get-by-uuid';
 import { getByWorkspaceId } from './file/get-by-workspace-id';
 import { updateByUuid } from './file/update-by-uuid';
@@ -10,7 +10,7 @@ export const FileModule = {
   getByName,
   getByUuid,
   getByParentUuid,
-  getByStatus,
+  getBetweenIds,
   getByWorkspaceId,
   createOrUpdate,
   updateByUuid,
