@@ -1,16 +1,16 @@
-import { calls } from '@/tests/vitest/utils.helper.test';
+import { calls, mockProps } from '@/tests/vitest/utils.helper.test';
 import { getItemsToSync } from './get-items-to-sync';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { FileProps } from '../recovery-sync.types';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('get-items-to-sync', () => {
-  let props: FileProps;
+  let props: Parameters<typeof getItemsToSync>[0];
 
   beforeEach(() => {
-    props = {
-      remotes: [{ uuid: 'uuid', updatedAt: 'datetime' }],
-      locals: [{ uuid: 'uuid', updatedAt: 'datetime' }],
-    } as FileProps;
+    props = mockProps<typeof getItemsToSync>({
+      remotes: [{ uuid: 'uuid' as FileUuid, updatedAt: 'datetime' }],
+      locals: [{ uuid: 'uuid' as FileUuid, updatedAt: 'datetime' }],
+    });
   });
 
   it('should return file if not exists locally', () => {
