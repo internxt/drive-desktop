@@ -63,6 +63,10 @@
         "title": "Backup your device on the cloud",
         "description": "With Internxt's upgraded backup feature, you can now safely backup folders on the cloud in order to free up space locally."
       },
+      "cleaner": {
+        "title": "Free up space locally and optimize your device's performance.",
+        "description": "Our cleaner finds and removes unnecessary files, so your device runs smoothly."
+      },
       "onboarding-completed": {
         "title": "You're all set, enjoy your privacy!",
         "backups-completed": {
@@ -226,7 +230,8 @@
         "GENERAL": "general",
         "ACCOUNT": "account",
         "BACKUPS": "backups",
-        "ANTIVIRUS": "Antivirus"
+        "ANTIVIRUS": "Antivirus",
+        "CLEANER": "Cleaner"
       }
     },
     "general": {
@@ -411,6 +416,46 @@
         "actions": {
           "cancel": "Cancel",
           "remove": "Remove"
+        }
+      }
+    },
+    "cleaner": {
+      "selectAllCheckbox": "Select all",
+      "mainView": {
+        "cleanup": "Clean Up"
+      },
+      "generateReportView": {
+        "title": "No report found",
+        "description": "Generate a report to see which files can be cleaned up.",
+        "generateReport": "Generate report"
+      },
+      "loadingView": {
+        "title": "Please wait a moment.",
+        "description": "We are generating your report..."
+      },
+      "sizeIndicatorView": {
+        "selectCategory": "Select a category to",
+        "previewContent": "preview content",
+        "saveUpTo": "Save up to",
+        "ofYourSpace": "of your space"
+      },
+      "cleanupConfirmDialogView": {
+        "title": "Confirm cleanup",
+        "description": "This action will permanently delete the selected files from your device. This cannot be undone. Please, confirm to continue.",
+        "cancelButton": "Cancel",
+        "confirmButton": "Delete files"
+      },
+      "cleaningView": {
+        "cleaningProcess": {
+          "title": "Cleaning...",
+          "stopCleanButton": "Stop clean",
+          "deletedFiles": "Deleted files",
+          "freeSpaceGained": "Free space gained"
+        },
+        "cleaningFinished": {
+          "title": "Your device is clean",
+          "subtitle": "No further actions are necessary",
+          "finish": "Finish"
         }
       }
     }
