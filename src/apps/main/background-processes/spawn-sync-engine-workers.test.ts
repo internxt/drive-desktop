@@ -1,4 +1,4 @@
-import { getMockCalls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as getUserOrThrow from '@/apps/main/auth/service';
 import * as getWorkspaces from './sync-engine/services/get-workspaces';
 import * as unregisterVirtualDrives from './sync-engine/services/unregister-virtual-drives';
@@ -22,10 +22,10 @@ describe('spawn-sync-engine-workers', () => {
     // When
     await spawnSyncEngineWorkers(props);
     // Then
-    expect(spawnSyncEngineWorkerMock).toBeCalledTimes(1);
-    expect(spawnWorkspaceMock).toBeCalledTimes(2);
-    expect(getMockCalls(unregisterVirtualDrivesMock)).toStrictEqual([
-      { currentProviderIds: ['{WORKSPACE_ID1}', '{WORKSPACE_ID2}', '{USER_ID}'] },
-    ]);
+    calls(spawnSyncEngineWorkerMock).toHaveLength(1);
+    calls(spawnWorkspaceMock).toHaveLength(2);
+    call(unregisterVirtualDrivesMock).toStrictEqual({
+      currentProviderIds: ['{WORKSPACE_ID1}', '{WORKSPACE_ID2}', '{USER_ID}'],
+    });
   });
 });

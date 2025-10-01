@@ -3,7 +3,7 @@ import { restoreParentFolder } from './restore-parent-folder';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { partialSpyOn, mockProps, getMockCalls } from '@/tests/vitest/utils.helper.test';
+import { partialSpyOn, mockProps, call, calls } from '@/tests/vitest/utils.helper.test';
 import { FolderUuid } from '../../folders/domain/FolderPlaceholderId';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
@@ -28,18 +28,13 @@ describe('restoreParentFolder', () => {
   it('moves and renames when remote parent does not exist', async () => {
     await restoreParentFolder(props);
 
-    expect(moveSpy).toBeCalledTimes(1);
-    expect(renameSpy).toBeCalledTimes(1);
-
-    const [moveArgs] = getMockCalls(moveSpy);
-    expect(moveArgs).toMatchObject({
+    call(moveSpy).toMatchObject({
       parentUuid: 'parent-uuid',
       workspaceToken: 'WT',
       uuid: 'offline-folder-uuid',
     });
 
-    const [renameArgs] = getMockCalls(renameSpy);
-    expect(renameArgs).toMatchObject({
+    call(renameSpy).toMatchObject({
       name: 'child',
       workspaceToken: 'WT',
       uuid: 'offline-folder-uuid',
@@ -51,10 +46,9 @@ describe('restoreParentFolder', () => {
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
 
-    expect(moveSpy).toBeCalledTimes(1);
-    expect(renameSpy).toBeCalledTimes(1);
-
-    expect(loggerMock.error).toBeCalledWith(expect.objectContaining({ msg: 'Error restoring parent folder' }));
+    calls(moveSpy).toHaveLength(1);
+    calls(renameSpy).toHaveLength(1);
+    call(loggerMock.error).toMatchObject({ msg: 'Error restoring parent folder' });
   });
 
   it('throws and logs when parentUuid is missing', async () => {
@@ -62,12 +56,10 @@ describe('restoreParentFolder', () => {
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
 
-    expect(loggerMock.error).toBeCalledWith(
-      expect.objectContaining({
-        msg: 'Could not restore parent folder, parentUuid not found',
-        path: '/gp/child/file.txt',
-      }),
-    );
+    call(loggerMock.error).toMatchObject({
+      msg: 'Could not restore parent folder, parentUuid not found',
+      path: '/gp/child/file.txt',
+    });
 
     expect(moveSpy).not.toBeCalled();
     expect(renameSpy).not.toBeCalled();

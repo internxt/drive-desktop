@@ -3,14 +3,14 @@
 import { DeepPartial } from 'ts-essentials';
 import { MockedFunction, MockInstance } from 'vitest';
 
-export function getMockCalls(object: { mock: { calls: any[] } }) {
-  return object.mock.calls.map((call) => call[0]);
+export function calls(object: any) {
+  return expect(object.mock.calls.map((call: any) => call[0]));
 }
 
-export function calls(object: { mock: { calls: any[] } }) {
-  const calls = object.mock.calls.map((call) => call[0]);
-  if (calls.length === 1) return expect(calls[0]);
-  return expect(calls);
+export function call(object: any) {
+  const calls = object.mock.calls.map((call: any) => call[0]);
+  expect(calls).toHaveLength(1);
+  return expect(calls[0]);
 }
 
 export function mockProps<T extends (...args: any[]) => unknown>(props: DeepPartial<Parameters<T>[0]>) {
