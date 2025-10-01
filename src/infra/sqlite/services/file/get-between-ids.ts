@@ -24,7 +24,7 @@ export async function getBetweenIds({ workspaceId, firstId, lastId }: Props) {
     return { data: items.map((item) => parseData({ data: item })) };
   } catch (error) {
     logger.error({
-      msg: 'Error getting files by status',
+      msg: 'Error getting files between ids',
       error,
     });
 
