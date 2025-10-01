@@ -6,8 +6,8 @@ import { Between } from 'typeorm';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('get-between-uuids', () => {
-  const findBy = partialSpyOn(fileRepository, 'findBy');
-  const fileDecryptNameSpy = partialSpyOn(fileDecryptName, 'fileDecryptName');
+  const findMock = partialSpyOn(fileRepository, 'find');
+  const fileDecryptNameMock = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
   const props = mockProps<typeof getBetweenUuids>({
     workspaceId: 'workspaceId',
@@ -16,12 +16,12 @@ describe('get-between-uuids', () => {
   });
 
   beforeEach(() => {
-    fileDecryptNameSpy.mockResolvedValue({});
+    fileDecryptNameMock.mockResolvedValue({});
   });
 
   it('should return UNKNOWN when error is thrown', async () => {
     // Given
-    findBy.mockRejectedValue(new Error());
+    findMock.mockRejectedValue(new Error());
     // When
     const { error } = await getBetweenUuids(props);
     // Then
@@ -30,14 +30,14 @@ describe('get-between-uuids', () => {
 
   it('should return files', async () => {
     // Given
-    findBy.mockResolvedValue([]);
+    findMock.mockResolvedValue([]);
     // When
     const { data } = await getBetweenUuids(props);
     // Then
     expect(data).toBeDefined();
-    call(findBy).toMatchObject({
-      workspaceId: 'workspaceId',
-      updatedAt: Between('from', 'to'),
+    call(findMock).toMatchObject({
+      where: { workspaceId: 'workspaceId', uuid: Between('uuid1', 'uuid2') },
+      order: { updatedAt: 'ASC' },
     });
   });
 });
