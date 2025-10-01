@@ -35,7 +35,7 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       privateKeyInBase64: user.privateKey,
     });
 
-    const syncContext: SyncContext = {
+    const syncCtx: SyncContext = {
       ...context,
       userUuid: user.uuid,
       mnemonic,
@@ -52,7 +52,7 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: workspace.id }),
     };
 
-    await spawnSyncEngineWorker({ context: syncContext });
+    await spawnSyncEngineWorker({ ctx: syncCtx });
   } catch (exc) {
     logger.error({ tag: 'SYNC-ENGINE', msg: 'Error spawning workspace', exc });
   }
