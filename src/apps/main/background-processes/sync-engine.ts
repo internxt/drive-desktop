@@ -77,7 +77,8 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
 
   unregisterVirtualDrives({ currentProviderIds });
 
-  await Promise.all([spawnSyncEngineWorker({ ctx: syncContext }), workspaces.map((workspace) => spawnWorkspace({ context, workspace }))]);
+  const promises = workspaces.map((workspace) => spawnWorkspace({ context, workspace }));
+  await Promise.all([spawnSyncEngineWorker({ ctx: syncContext }), promises]);
 }
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
