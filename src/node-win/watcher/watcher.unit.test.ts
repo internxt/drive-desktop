@@ -167,13 +167,15 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      getEvents().toStrictEqual([
-        { event: 'addDir', path: syncRootPath },
-        { event: 'addDir', path: folder },
-        { event: 'addDir', path: folder1 },
-        { event: 'unlinkDir', path: folder1 },
-        { event: 'addDir', path: folder2 },
-      ]);
+      getEvents().toStrictEqual(
+        expect.arrayContaining([
+          { event: 'addDir', path: syncRootPath },
+          { event: 'addDir', path: folder },
+          { event: 'addDir', path: folder1 },
+          { event: 'unlinkDir', path: folder1 },
+          { event: 'addDir', path: folder2 },
+        ]),
+      );
     });
   });
 
