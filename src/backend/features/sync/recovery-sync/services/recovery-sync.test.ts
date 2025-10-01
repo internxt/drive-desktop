@@ -26,10 +26,10 @@ describe('recovery-sync', () => {
 
   it('should repeat if we have more files', async () => {
     // Given
-    filesRecoverySyncMock.mockResolvedValueOnce(Array(1000)).mockResolvedValueOnce(Array(999));
+    filesRecoverySyncMock.mockResolvedValueOnce(Array(50)).mockResolvedValueOnce(Array(49));
     // When
     await recoverySync(props);
     // Then
-    calls(filesRecoverySyncMock).toMatchObject([{ offset: 0 }, { offset: 1000 }]);
+    calls(filesRecoverySyncMock).toMatchObject([{ offset: 0 }, { offset: 50 }]);
   });
 });
