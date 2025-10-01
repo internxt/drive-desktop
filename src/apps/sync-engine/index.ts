@@ -1,7 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { BindingsManager } from './BindingManager';
 import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
-import { logger } from '../shared/logger/logger';
+import { createLogger, logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
@@ -65,6 +65,7 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
     const { fileUploader } = buildFileUploader({ bucket: config.bucket });
     const ctx: ProcessSyncContext = {
       ...config,
+      logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: config.workspaceId }),
       abortController: new AbortController(),
       virtualDrive: new VirtualDrive(config),
       fileUploader,
