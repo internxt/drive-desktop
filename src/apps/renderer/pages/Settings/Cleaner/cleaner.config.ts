@@ -1,9 +1,9 @@
 import { CleanerContext } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
-import { CLEANER_SECTION_KEYS, CleanerSectionKey } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import { CleanerSectionKey } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { SectionConfig } from '@internxt/drive-desktop-core/build/frontend/features/cleaner/cleaner.types';
 import { WindowsCleanerReport } from './cleaner.types';
 
-export const cleanerSectionKeys: CleanerSectionKey<WindowsCleanerReport>[] = [...CLEANER_SECTION_KEYS, 'windowsSpecific'];
+export const cleanerSectionKeys: CleanerSectionKey<WindowsCleanerReport>[] = ['windowsSpecific'];
 
 export const sectionConfig: SectionConfig = {
   appCache: { name: 'App Cache', color: '#3B82F6' },
