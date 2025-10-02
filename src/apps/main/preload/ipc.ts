@@ -1,6 +1,7 @@
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { calculateUsage } from '../usage/service';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { getAvailableProducts } from '../payments/get-available-products';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Mirror<T extends (...args: any[]) => unknown> =
@@ -11,6 +12,7 @@ export type FromProcess = {
   authLogin: Mirror<typeof driveServerWipModule.auth.login>;
   getLastBackupProgress: Mirror<typeof getLastBackupProgress>;
   getUsage: Mirror<typeof calculateUsage>;
+  getAvailableProducts: Mirror<typeof getAvailableProducts>;
 };
 
 export type FromMain = {};

@@ -1,0 +1,93 @@
+import { CleanerContext } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import { CLEANER_SECTION_KEYS, CleanerSectionKey } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import { SectionConfig } from '@internxt/drive-desktop-core/build/frontend/features/cleaner/cleaner.types';
+import { WindowsCleanerReport } from './cleaner.types';
+
+export const cleanerSectionKeys: CleanerSectionKey<WindowsCleanerReport>[] = [...CLEANER_SECTION_KEYS, 'windowsSpecific'];
+
+export const sectionConfig: SectionConfig = {
+  appCache: { name: 'App Cache', color: '#3B82F6' },
+  logFiles: { name: 'Log Files', color: '#10B981' },
+  trash: { name: 'Trash', color: '#F59E0B' },
+  webStorage: { name: 'Web Storage', color: '#EF4444' },
+  webCache: { name: 'Web Cache', color: '#8B5CF6' },
+  windowsSpecific: { name: 'Windows Specific', color: '#ff00a2ff' },
+};
+
+export const cleanerCtx: CleanerContext = {
+  browser: {
+    criticalExtensions: [
+      '.exe',
+      '.dll',
+      '.sys',
+      '.ini',
+      '.bat',
+      '.cmd',
+      '.json',
+      '.sqlite',
+      '.sqlite3',
+      '.db',
+      '.ldb',
+      '.pref',
+      '.cfg',
+      '.conf',
+      '.ini',
+      '.p12',
+      '.pfx',
+      '.crt',
+      '.cer',
+      '.key',
+      '.crx',
+      '.xpi',
+      '.nex',
+    ],
+    criticalFilenames: [
+      'LOCK',
+      'LOG',
+      'MANIFEST-000001',
+      'CURRENT',
+      'LOG.old',
+      'Preferences',
+      'Secure Preferences',
+      'Local State',
+      'Web Data',
+      'Login Data',
+      'History',
+      'Bookmarks',
+      'Favicons',
+      'Top Sites',
+      'Shortcuts',
+      'Visited Links',
+      'Extension Cookies',
+      'Extension State',
+      'prefs.js',
+      'user.js',
+      'userChrome.css',
+      'userContent.css',
+      'places.sqlite',
+      'formhistory.sqlite',
+      'permissions.sqlite',
+      'content-prefs.sqlite',
+      'cookies.sqlite',
+      'webappsstore.sqlite',
+      'addons.sqlite',
+      'extensions.sqlite',
+      'search.sqlite',
+      'Protected Storage',
+      'TransportSecurity',
+      'manifest.json',
+      'background.js',
+      'content_script.js',
+      'Extensions',
+      'External Extensions',
+      'User Scripts',
+    ],
+  },
+  appCache: {
+    criticalExtensions: ['.exe', '.dll', '.sys'],
+    criticalKeywords: ['.log', '.txt', '.db', '.json', '.xml'],
+  },
+  logFiles: {
+    safeExtensions: ['.log', '.txt', '.out'],
+  },
+};

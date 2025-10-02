@@ -4,6 +4,7 @@ import { FromMain, FromProcess } from './ipc';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { calculateUsage } from '../usage/service';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
+import { getAvailableProducts } from '../payments/get-available-products';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -12,4 +13,5 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('authAccess', (_, props) => driveServerWip.auth.access(props));
   ipcPreloadMain.on('getLastBackupProgress', () => getLastBackupProgress());
   ipcPreloadMain.handle('getUsage', () => calculateUsage());
+  ipcPreloadMain.handle('getAvailableProducts', () => getAvailableProducts());
 }
