@@ -10,8 +10,7 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 describe('restoreParentFolder', () => {
   const dirnameSpy = partialSpyOn(pathUtils, 'dirname');
   const getFolderUuidSpy = partialSpyOn(NodeWin, 'getFolderUuid');
-  const moveSpy = partialSpyOn(driveServerWip.folders, 'moveFolder');
-  const renameSpy = partialSpyOn(driveServerWip.folders, 'renameFolder');
+  const moveSpy = partialSpyOn(driveServerWip.folders, 'move');
 
   const props = mockProps<typeof restoreParentFolder>({
     offline: { path: '/gp/child/file.txt' as RelativePath, folderUuid: 'offline-folder-uuid' },
@@ -22,42 +21,33 @@ describe('restoreParentFolder', () => {
     dirnameSpy.mockReturnValueOnce('/gp/child' as RelativePath).mockReturnValueOnce('/gp' as RelativePath);
     getFolderUuidSpy.mockReturnValue({ data: 'parent-uuid' as FolderUuid });
     moveSpy.mockResolvedValue({ error: undefined });
-    renameSpy.mockResolvedValue({ error: undefined });
   });
 
-  it('moves and renames when remote parent does not exist', async () => {
+  it('should move when remote parent does not exist', async () => {
     await restoreParentFolder(props);
 
     expect(moveSpy).toBeCalledTimes(1);
-    expect(renameSpy).toBeCalledTimes(1);
 
     const [moveArgs] = getMockCalls(moveSpy);
     expect(moveArgs).toMatchObject({
       parentUuid: 'parent-uuid',
-      workspaceToken: 'WT',
-      uuid: 'offline-folder-uuid',
-    });
-
-    const [renameArgs] = getMockCalls(renameSpy);
-    expect(renameArgs).toMatchObject({
       name: 'child',
       workspaceToken: 'WT',
       uuid: 'offline-folder-uuid',
     });
   });
 
-  it('throws if move or rename fail, logging the error', async () => {
+  it('should throw if move fails, logging the error', async () => {
     moveSpy.mockResolvedValue({ error: {} });
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
 
     expect(moveSpy).toBeCalledTimes(1);
-    expect(renameSpy).toBeCalledTimes(1);
 
     expect(loggerMock.error).toBeCalledWith(expect.objectContaining({ msg: 'Error restoring parent folder' }));
   });
 
-  it('throws and logs when parentUuid is missing', async () => {
+  it('should throw and log if parentUuid is missing', async () => {
     getFolderUuidSpy.mockReturnValue({ data: undefined });
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
@@ -70,6 +60,5 @@ describe('restoreParentFolder', () => {
     );
 
     expect(moveSpy).not.toBeCalled();
-    expect(renameSpy).not.toBeCalled();
   });
 });

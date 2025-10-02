@@ -167,8 +167,7 @@
           "uploaded": "Téléchargé",
           "deleting": "Déplacement vers les poubelles",
           "deleted": "Déplacé vers la poubelle",
-          "renaming": "Renommer",
-          "renamed": "Renommé"
+          "moved": "Déplacé"
         }
       },
       "no-activity": {

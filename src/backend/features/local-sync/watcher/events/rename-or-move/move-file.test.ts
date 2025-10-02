@@ -28,8 +28,8 @@ describe('move-file', () => {
       expect.objectContaining({
         type: 'file',
         item: {
-          oldName: 'plainName.exe',
-          oldParentUuid: 'folderUuid',
+          name: 'plainName.exe',
+          parentUuid: 'folderUuid',
         },
       }),
     );
