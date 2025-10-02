@@ -27,7 +27,7 @@ describe('move-folder', () => {
         type: 'folder',
         item: {
           name: 'plainName',
-          ParentUuid: 'folderUuid',
+          parentUuid: 'folderUuid',
         },
       }),
     );
