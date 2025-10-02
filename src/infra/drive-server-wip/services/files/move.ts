@@ -32,11 +32,10 @@ export async function move(context: { uuid: string; parentUuid: string; name: st
   });
 
   if (error) {
-    switch (true) {
-      case error.response?.status === 409:
-        return { error: new MoveFileError('FILE_ALREADY_EXISTS', error.cause) };
-      default:
-        return { error };
+    if (error.response?.status === 409) {
+      return { error: new MoveFileError('FILE_ALREADY_EXISTS', error.cause) };
+    } else {
+      return { error };
     }
   }
 
