@@ -17,6 +17,7 @@ import { ItemBackup } from '../shared/types/items';
 import { getBackupsFromDevice } from './device/get-backups-from-device';
 import { ipcPreloadRenderer } from './preload/ipc-renderer';
 import { FromProcess } from './preload/ipc';
+import { CleanerViewModel, CleanupProgress } from '@internxt/drive-desktop-core/src/backend/features/cleaner/types/cleaner.types';
 
 const api = {
   getConfigKey(key: StoredValues) {
@@ -318,6 +319,23 @@ const api = {
   authLogin: async (props) => await ipcPreloadRenderer.invoke('authLogin', props),
   getLastBackupProgress: () => ipcPreloadRenderer.send('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
+  cleaner: {
+    isAvailable(): Promise<boolean> {
+      return ipcRenderer.invoke('cleaner:is-available');
+    },
+    generateReport: (force = false) => ipcRenderer.invoke('cleaner:generate-report', force),
+    startCleanup: (viewModel: CleanerViewModel) => ipcRenderer.invoke('cleaner:start-cleanup', viewModel),
+    stopCleanup: () => ipcRenderer.invoke('cleaner:stop-cleanup'),
+    onCleanupProgress: (callback: (progressData: CleanupProgress) => void) => {
+      const eventName = 'cleaner:cleanup-progress';
+      const callbackWrapper = (_: unknown, progressData: CleanupProgress) => callback(progressData);
+      ipcRenderer.on(eventName, callbackWrapper);
+      return () => {
+        ipcRenderer.removeListener(eventName, callbackWrapper);
+      };
+    },
+    getDiskSpace: () => ipcRenderer.invoke('cleaner:get-disk-space'),
+  },
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);
