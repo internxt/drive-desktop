@@ -7,7 +7,7 @@ import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worke
 import { monitorHealth } from './monitor-health';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
-import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
+import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
 
 type TProps = {
   ctx: SyncContext;
@@ -46,7 +46,10 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
    * Since we can have a different status in our local database that in remote,
    * we want to run also this sync in background to update the statuses.
    */
-  void RecoverySyncModule.recoverySync({ ctx });
+  void RemoteSyncModule.syncItemsByFolder({
+    rootFolderUuid: ctx.rootUuid,
+    context: ctx,
+  });
 
   try {
     const browserWindow = new BrowserWindow({
