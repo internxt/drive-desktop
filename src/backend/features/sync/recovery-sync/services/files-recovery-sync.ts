@@ -34,15 +34,15 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
   const filesToSync = getItemsToSync({ ctx, remotes, locals });
   const filesToDelete = getItemsToDelete({ ctx, remotes, locals });
 
-  await Promise.all([
-    filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto })),
-    filesToDelete.map((file) =>
-      SqliteModule.FileModule.updateByUuid({
-        uuid: file.uuid,
-        payload: { status: 'DELETED' },
-      }),
-    ),
-  ]);
+  const filesToSyncPromises = filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto }));
+  const filesToDeletePromises = filesToDelete.map((file) =>
+    SqliteModule.FileModule.updateByUuid({
+      uuid: file.uuid,
+      payload: { status: 'DELETED' },
+    }),
+  );
+
+  await Promise.all([filesToSyncPromises, filesToDeletePromises]);
 
   return remotes;
 }
