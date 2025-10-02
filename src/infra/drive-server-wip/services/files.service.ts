@@ -6,14 +6,14 @@ import { getByUuid } from './files/get-by-uuid';
 import { createFile } from './files/create-file';
 import { getByPath } from './files/get-by-path';
 import { checkExistence } from './files/check-existance';
+import { move } from './files/move';
 
 export const files = {
   getFiles,
   getByUuid,
   getByPath,
   createFile,
-  moveFile,
-  renameFile,
+  move,
   replaceFile,
   createThumbnail,
   checkExistence,
@@ -61,14 +61,7 @@ async function moveFile(context: { uuid: string; parentUuid: string; workspaceTo
   return await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Move file request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    loggerBody: { msg: 'Move file request', context },
   });
 }
 

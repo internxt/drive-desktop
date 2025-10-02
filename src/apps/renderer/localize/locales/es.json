@@ -167,8 +167,7 @@
           "uploaded": "Subido",
           "deleting": "Moviendo a la papelera",
           "deleted": "Movido a la papelera",
-          "renaming": "Renombrando",
-          "renamed": "Renombrado"
+          "moved": "Movido"
         }
       },
       "no-activity": {

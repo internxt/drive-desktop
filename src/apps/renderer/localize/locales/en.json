@@ -167,8 +167,7 @@
           "uploaded": "Uploaded",
           "deleting": "Moving to trash",
           "deleted": "Moved to trash",
-          "renaming": "Renaming",
-          "renamed": "Renamed"
+          "moved": "Moved"
         }
       },
       "no-activity": {

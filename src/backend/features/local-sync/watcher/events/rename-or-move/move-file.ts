@@ -15,11 +15,17 @@ type TProps = {
 
 export async function moveFile({ ctx, self, path, absolutePath, uuid }: TProps) {
   try {
-    const { data: file } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
+    const { data: item } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
 
-    const item = file ? { oldParentUuid: file.parentUuid, oldName: file.nameWithExtension } : undefined;
-
-    await moveItem({ ctx, self, path, absolutePath, uuid, item, type: 'file' });
+    await moveItem({
+      ctx,
+      self,
+      path,
+      absolutePath,
+      uuid,
+      item,
+      type: 'file',
+    });
   } catch (exc) {
     self.logger.error({ msg: 'Error moving file', path, uuid, exc });
   }

@@ -16,9 +16,6 @@ export type SyncInfoUpdateEvent = {
       | 'DOWNLOADING'
       | 'MOVE_ERROR'
       | 'MOVED'
-      | 'RENAME_ERROR'
-      | 'RENAMED'
-      | 'RENAMING'
       | 'UPLOAD_ERROR'
       | 'UPLOADED'
       | 'UPLOADING';

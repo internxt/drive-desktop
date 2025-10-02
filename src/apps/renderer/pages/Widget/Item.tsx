@@ -29,10 +29,8 @@ export function Item({
     description = translate('widget.body.activity.operation.uploaded');
   } else if (action === 'DELETED') {
     description = translate('widget.body.activity.operation.deleted');
-  } else if (action === 'RENAMING') {
-    description = translate('widget.body.activity.operation.renaming');
-  } else if (action === 'RENAMED') {
-    description = translate('widget.body.activity.operation.renamed');
+  } else if (action === 'MOVED') {
+    description = translate('widget.body.activity.operation.moved');
   }
 
   return (
@@ -46,12 +44,12 @@ export function Item({
           </p>
           <p
             className={`truncate text-xs text-gray-50 ${
-              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR')
+              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR')
                 ? 'text-red'
                 : undefined
             }`}
             title={
-              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR')
+              action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR')
                 ? description
                 : undefined
             }>
@@ -61,7 +59,7 @@ export function Item({
 
         <div className="flex w-7 items-center justify-center">
           {/* PROGRESS */}
-          {action && (action === 'UPLOADING' || action === 'DOWNLOADING' || action === 'RENAMING') && (
+          {action && (action === 'UPLOADING' || action === 'DOWNLOADING') && (
             <CircularProgressbar
               value={progress ?? 0}
               minValue={0}
@@ -82,13 +80,12 @@ export function Item({
               action === 'DOWNLOADED' ||
               action === 'DOWNLOAD_CANCEL' ||
               action === 'UPLOADED' ||
-              action === 'RENAMED') && <Check size={24} className="text-green" weight="bold" />}
+              action === 'MOVED') && <Check size={24} className="text-green" weight="bold" />}
 
           {/* ERROR */}
-          {action &&
-            (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'RENAME_ERROR') && (
-              <WarningCircle size={24} className="text-red" weight="regular" />
-            )}
+          {action && (action === 'DELETE_ERROR' || action === 'DOWNLOAD_ERROR' || action === 'UPLOAD_ERROR' || action === 'MOVE_ERROR') && (
+            <WarningCircle size={24} className="text-red" weight="regular" />
+          )}
         </div>
       </div>
     </div>

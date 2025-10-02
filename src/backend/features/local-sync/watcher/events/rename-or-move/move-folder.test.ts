@@ -26,8 +26,8 @@ describe('move-folder', () => {
       expect.objectContaining({
         type: 'folder',
         item: {
-          oldName: 'plainName',
-          oldParentUuid: 'folderUuid',
+          name: 'plainName',
+          parentUuid: 'folderUuid',
         },
       }),
     );
