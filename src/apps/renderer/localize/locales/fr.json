@@ -59,6 +59,13 @@
         "title": "Protégez votre ordinateur contre les virus",
         "description": "L'application de bureau d'Internxt intègre désormais le tout nouveau Internxt Antivirus, qui vous permet d'analyser et de supprimer tout malware potentiel de votre appareil."
       },
+      "sync-folder": {
+        "title": "Choisissez l'emplacement de votre dossier de synchronisation",
+        "description": "Sélectionnez où vous souhaitez stocker vos fichiers Internxt Drive sur votre ordinateur.",
+        "current-path": "Emplacement sélectionné :",
+        "default-path": "Par défaut : C:\\Users\\<utilisateur>\\InternxtDrive",
+        "choose-folder": "Choisir un dossier"
+      },
       "backups": {
         "title": "Sauvegardez votre appareil sur le cloud",
         "description": "Avec la fonction de sauvegarde améliorée d'Internxt, vous pouvez désormais sauvegarder vos dossiers en toute sécurité sur le cloud afin de libérer de l'espace localement."

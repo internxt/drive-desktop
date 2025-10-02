@@ -32,9 +32,9 @@ export function getRootVirtualDrive(): string {
     current,
   });
 
-  if (!current.includes(user.uuid)) {
+  if (!current) {
     logger.debug({
-      msg: 'Root virtual drive not found for user',
+      msg: 'Root virtual drive not set, setting up default',
     });
     setupRootFolder(user);
     const newRoot = configStore.get('syncRoot');

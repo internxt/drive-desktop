@@ -1,6 +1,7 @@
 import AppInfo from './AppInfo';
 import DeviceName from './DeviceName';
 import LanguagePicker from './LanguagePicker';
+import SyncFolder from './SyncFolder';
 import ThemePicker from './ThemePicker';
 import StartAutomatically from './StartAutomatically';
 
@@ -16,6 +17,8 @@ export default function GeneralSection({ active }: { active: boolean }) {
           <LanguagePicker />
           <ThemePicker />
         </div>
+
+        <SyncFolder />
       </div>
       <div className="relative flex h-12 before:absolute before:inset-x-0 before:top-1/2 before:h-px before:-translate-y-1/2 before:bg-gray-10" />
       <AppInfo />

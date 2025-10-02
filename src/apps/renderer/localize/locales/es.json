@@ -59,6 +59,13 @@
         "title": "Mantén tu ordenador protegido contra virus",
         "description": "La aplicación de escritorio de Internxt ahora también cuenta con el nuevo Internxt Antivirus, con el que puedes escanear y eliminar cualquier posible malware de tu dispositivo."
       },
+      "sync-folder": {
+        "title": "Elige la ubicación de tu carpeta de sincronización",
+        "description": "Selecciona dónde quieres almacenar tus archivos de Internxt Drive en tu computadora.",
+        "current-path": "Ubicación seleccionada:",
+        "default-path": "Predeterminado: C:\\Users\\<usuario>\\InternxtDrive",
+        "choose-folder": "Elegir carpeta"
+      },
       "backups": {
         "title": "Haz copias de seguridad de tu dispositivo en la nube",
         "description": "Con la función mejorada de copias de seguridad de Internxt, ahora puedes hacer copias de seguridad de tus carpetas en la nube de manera segura para liberar espacio localmente."

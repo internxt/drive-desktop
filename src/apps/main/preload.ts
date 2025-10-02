@@ -157,6 +157,9 @@ const api = {
   chooseSyncRootWithDialog(): ReturnType<typeof chooseSyncRootWithDialog> {
     return ipcRenderer.invoke('choose-sync-root-with-dialog');
   },
+  getSyncRoot(): Promise<string> {
+    return ipcRenderer.invoke('get-sync-root');
+  },
   getOrCreateDevice(): ReturnType<typeof getOrCreateDevice> {
     return ipcRenderer.invoke('get-or-create-device');
   },

@@ -59,6 +59,13 @@
         "title": "Keep your computer safe from virus",
         "description": "Internxt's Desktop app now also features the brand new Internxt Antivirus, with which you can scan and remove any potential malware from your device."
       },
+      "sync-folder": {
+        "title": "Choose your sync folder location",
+        "description": "Select where you want to store your Internxt Drive files on your computer.",
+        "current-path": "Selected location:",
+        "default-path": "Default: C:\\Users\\<username>\\InternxtDrive",
+        "choose-folder": "Choose folder"
+      },
       "backups": {
         "title": "Backup your device on the cloud",
         "description": "With Internxt's upgraded backup feature, you can now safely backup folders on the cloud in order to free up space locally."
