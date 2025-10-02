@@ -47,11 +47,11 @@ export class DriveFile {
   @Column({ nullable: false, type: 'varchar' })
   updatedAt!: string;
 
-  @Column({ nullable: true, default: '', type: 'varchar' })
-  workspaceId?: string;
-
   @Column({ nullable: true, type: 'varchar' })
   folderUuid?: string;
+
+  @Column({ nullable: true, default: '', type: 'varchar' })
+  workspaceId?: string;
 
   @Column({ nullable: false, type: 'varchar' })
   fileId!: string;
