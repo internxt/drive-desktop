@@ -14,15 +14,19 @@ type TProps = {
 };
 
 export async function moveFolder({ ctx, self, path, absolutePath, uuid }: TProps) {
-  const { data: item } = await ipcRendererSqlite.invoke('folderGetByUuid', { uuid });
+  try {
+    const { data: item } = await ipcRendererSqlite.invoke('folderGetByUuid', { uuid });
 
-  await moveItem({
-    ctx,
-    self,
-    path,
-    absolutePath,
-    uuid,
-    item,
-    type: 'folder',
-  });
+    await moveItem({
+      ctx,
+      self,
+      path,
+      absolutePath,
+      uuid,
+      item,
+      type: 'folder',
+    });
+  } catch (exc) {
+    self.logger.error({ msg: 'Error moving folder', path, uuid, exc });
+  }
 }
