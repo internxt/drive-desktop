@@ -1,5 +1,4 @@
 import { createContext, ReactNode, useState, useEffect, useMemo } from 'react';
-import { getAvailableProducts } from '@/apps/main/payments/get-available-products';
 import { CleanerViewModel, CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { CleanerModule } from '@internxt/drive-desktop-core/build/frontend';
 import { CleanerContextType } from '@internxt/drive-desktop-core/build/frontend/features/cleaner/cleaner.types';
