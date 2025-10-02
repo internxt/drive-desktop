@@ -35,55 +35,28 @@ export function setupIpcDriveServerWip() {
     return res;
   });
 
-  ipcMainDriveServerWip.handle('renameFileByUuid', async (_, { uuid, workspaceToken, nameWithExtension }) => {
-    const { name, extension } = getNameAndExtension({ nameWithExtension });
-
-    const res = await driveServerWip.files.renameFile({ uuid, workspaceToken, name, extension });
-
-    if (res.error) {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAME_ERROR', name: nameWithExtension, key: uuid } });
-    } else {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAMED', name: nameWithExtension, key: uuid } });
-      await SqliteModule.FileModule.updateByUuid({ uuid, payload: { name, extension } });
-    }
-
-    return res;
-  });
-
-  ipcMainDriveServerWip.handle('renameFolderByUuid', async (_, { uuid, workspaceToken, name }) => {
-    const res = await driveServerWip.folders.renameFolder({ uuid, workspaceToken, name });
-
-    if (res.error) {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAME_ERROR', name, key: uuid } });
-    } else {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'RENAMED', name, key: uuid } });
-      await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { name } });
-    }
-
-    return res;
-  });
-
   ipcMainDriveServerWip.handle('moveFileByUuid', async (_, { uuid, workspaceToken, parentUuid, nameWithExtension }) => {
-    const res = await driveServerWip.files.moveFile({ uuid, parentUuid, workspaceToken });
+    const { name, extension } = getNameAndExtension({ nameWithExtension });
+    const res = await driveServerWip.files.move({ uuid, parentUuid, name, extension, workspaceToken });
 
     if (res.error) {
       broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVE_ERROR', name: nameWithExtension, key: uuid } });
     } else {
       broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVED', name: nameWithExtension, key: uuid } });
-      await SqliteModule.FileModule.updateByUuid({ uuid, payload: { parentUuid } });
+      await SqliteModule.FileModule.updateByUuid({ uuid, payload: { parentUuid, name, extension, status: 'EXISTS' } });
     }
 
     return res;
   });
 
   ipcMainDriveServerWip.handle('moveFolderByUuid', async (_, { uuid, workspaceToken, parentUuid, name }) => {
-    const res = await driveServerWip.folders.moveFolder({ uuid, parentUuid, workspaceToken });
+    const res = await driveServerWip.folders.move({ uuid, parentUuid, name, workspaceToken });
 
     if (res.error) {
       broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVE_ERROR', name, key: uuid } });
     } else {
       broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVED', name, key: uuid } });
-      await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { parentUuid } });
+      await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { parentUuid, name, status: 'EXISTS' } });
     }
 
     return res;

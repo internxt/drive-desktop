@@ -1,12 +1,12 @@
-import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
+import { client } from '@/apps/shared/HttpClient/client';
 import { paths } from '@/apps/shared/HttpClient/schema';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { createFolder } from './folders/create-folder';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { parseFileDto, parseFolderDto } from '../out/dto';
 import { getByUuid } from './folders/get-by-uuid';
-import { renameFolder } from './folders/rename-folder';
 import { checkExistence } from './folders/check-existence';
+import { move } from './folders/move';
 
 export const folders = {
   getByUuid,
@@ -15,8 +15,7 @@ export const folders = {
   getFolders,
   getFoldersByFolder,
   getFilesByFolder,
-  moveFolder,
-  renameFolder,
+  move,
   checkExistence,
 };
 
@@ -137,30 +136,4 @@ async function getFilesByFolder(
   } else {
     return { error: res.error };
   }
-}
-
-async function moveFolder(context: { uuid: string; parentUuid: string; workspaceToken: string }) {
-  const method = 'PATCH';
-  const endpoint = '/folders/{uuid}';
-  const key = getRequestKey({ method, endpoint, context });
-
-  const promiseFn = () =>
-    client.PATCH(endpoint, {
-      headers: getWorkspaceHeader({ workspaceToken: context.workspaceToken }),
-      params: { path: { uuid: context.uuid } },
-      body: { destinationFolder: context.parentUuid },
-    });
-
-  return await clientWrapper({
-    promiseFn,
-    key,
-    loggerBody: {
-      msg: 'Move folder request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
-  });
 }
