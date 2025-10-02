@@ -2,6 +2,8 @@ import { client, getWorkspaceHeader } from '@/apps/shared/HttpClient/client';
 import { noContentWrapper } from '../in/no-content-wrapper.service';
 import { clientWrapper } from '../in/client-wrapper.service';
 import { getRequestKey } from '../in/get-in-flight-request';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 export const storage = {
   deleteFile,
@@ -62,7 +64,7 @@ async function deleteFolder(context: { folderId: number }) {
   });
 }
 
-async function deleteFileByUuid(context: { uuid: string; workspaceToken: string }) {
+async function deleteFileByUuid(context: { uuid: FileUuid; workspaceToken: string }) {
   const method = 'POST';
   const endpoint = '/storage/trash/add';
   const key = getRequestKey({ method, endpoint, context });
@@ -89,7 +91,7 @@ async function deleteFileByUuid(context: { uuid: string; workspaceToken: string 
   });
 }
 
-async function deleteFolderByUuid(context: { uuid: string; workspaceToken: string }) {
+async function deleteFolderByUuid(context: { uuid: FolderUuid; workspaceToken: string }) {
   const method = 'POST';
   const endpoint = '/storage/trash/add';
   const key = getRequestKey({ method, endpoint, context });

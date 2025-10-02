@@ -26,6 +26,8 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
       offset,
       status: from ? ('ALL' as const) : ('EXISTS' as const),
       updatedAt: from?.toISOString(),
+      sort: 'updatedAt',
+      order: 'ASC',
     };
 
     const promise = self.workspaceId

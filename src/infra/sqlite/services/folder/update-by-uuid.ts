@@ -4,7 +4,7 @@ import { DriveFolder, FolderUuid } from '@/apps/main/database/entities/DriveFold
 import { SingleItemError } from '../common/single-item-error';
 
 type Props = {
-  uuid: string;
+  uuid: FolderUuid;
   payload: {
     name?: string;
     parentUuid?: FolderUuid;
