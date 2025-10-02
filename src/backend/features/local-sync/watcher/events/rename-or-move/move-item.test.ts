@@ -15,15 +15,13 @@ describe('move-item', () => {
   const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
   const invokeMock = vi.spyOn(ipcRendererDriveServerWip, 'invoke');
 
-  const existingItem = {
-    oldName: 'oldName.exe',
-    oldParentUuid: 'oldParentUuid' as FolderUuid,
-  };
-
   let props: Parameters<typeof moveItem>[0];
 
   beforeEach(() => {
+    getParentUuidMock.mockReturnValue('newParentUuid' as FolderUuid);
+
     props = mockProps<typeof moveItem>({
+      path: createRelativePath('folder', 'newName'),
       ctx: { workspaceToken: '' },
       self: { logger: loggerMock },
     });
@@ -39,82 +37,35 @@ describe('move-item', () => {
     expect(updateFileStatusMock).toBeCalledTimes(0);
   });
 
-  it('should not do anything if not renamed or moved', async () => {
+  it('should move file', async () => {
     // Given
-    props.path = createRelativePath('folder', 'oldName.exe');
-    getParentUuidMock.mockReturnValue({ parentUuid: 'oldParentUuid' as FolderUuid, existingItem });
+    props.type = 'file';
+    props.uuid = 'uuid' as FileUuid;
     // When
     await moveItem(props);
     // Then
-    expect(invokeMock).toBeCalledTimes(0);
-    expect(updateFileStatusMock).toBeCalledTimes(0);
+    expect(invokeMock).toBeCalledWith('moveFileByUuid', {
+      nameWithExtension: 'newName',
+      uuid: 'uuid',
+      parentUuid: 'newParentUuid',
+      workspaceToken: '',
+    });
+    expect(updateFileStatusMock).toBeCalledTimes(1);
   });
 
-  describe('file', () => {
-    beforeEach(() => {
-      props.uuid = 'uuid' as FileUuid;
-      props.type = 'file';
+  it('should move folder', async () => {
+    // Given
+    props.type = 'folder';
+    props.uuid = 'uuid' as FolderUuid;
+    // When
+    await moveItem(props);
+    // Then
+    expect(invokeMock).toBeCalledWith('moveFolderByUuid', {
+      name: 'newName',
+      uuid: 'uuid',
+      parentUuid: 'newParentUuid',
+      workspaceToken: '',
     });
-
-    it('should rename if it is renamed', async () => {
-      // Given
-      props.path = createRelativePath('folder', 'newName.exe');
-      getParentUuidMock.mockReturnValue({ parentUuid: 'oldParentUuid' as FolderUuid, existingItem });
-      // When
-      await moveItem(props);
-      // Then
-      expect(invokeMock).toBeCalledWith('renameFileByUuid', { uuid: 'uuid', nameWithExtension: 'newName.exe', workspaceToken: '' });
-      expect(updateFileStatusMock).toBeCalledTimes(1);
-    });
-
-    it('should move if it is moved', async () => {
-      // Given
-      props.path = createRelativePath('folder', 'oldName.exe');
-      getParentUuidMock.mockReturnValue({ parentUuid: 'newParentUuid' as FolderUuid, existingItem });
-      // When
-      await moveItem(props);
-      // Then
-      expect(invokeMock).toBeCalledWith('moveFileByUuid', {
-        nameWithExtension: 'oldName.exe',
-        uuid: 'uuid',
-        parentUuid: 'newParentUuid',
-        workspaceToken: '',
-      });
-      expect(updateFileStatusMock).toBeCalledTimes(1);
-    });
-  });
-
-  describe('folder', () => {
-    beforeEach(() => {
-      props.uuid = 'uuid' as FolderUuid;
-      props.type = 'folder';
-    });
-
-    it('should rename if it is renamed', async () => {
-      // Given
-      getParentUuidMock.mockReturnValue({ parentUuid: 'oldParentUuid' as FolderUuid, existingItem });
-      props.path = createRelativePath('folder', 'newName');
-      // When
-      await moveItem(props);
-      // Then
-      expect(invokeMock).toBeCalledWith('renameFolderByUuid', { uuid: 'uuid', name: 'newName', workspaceToken: '' });
-      expect(updateFolderStatusMock).toBeCalledTimes(1);
-    });
-
-    it('should move if it is moved', async () => {
-      // Given
-      getParentUuidMock.mockReturnValue({ parentUuid: 'newParentUuid' as FolderUuid, existingItem });
-      props.path = createRelativePath('folder', 'oldName.exe');
-      // When
-      await moveItem(props);
-      // Then
-      expect(invokeMock).toBeCalledWith('moveFolderByUuid', {
-        name: 'oldName.exe',
-        uuid: 'uuid',
-        parentUuid: 'newParentUuid',
-        workspaceToken: '',
-      });
-      expect(updateFolderStatusMock).toBeCalledTimes(1);
-    });
+    expect(updateFolderStatusMock).toBeCalledTimes(1);
   });
 });
