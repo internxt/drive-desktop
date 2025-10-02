@@ -1,16 +1,17 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getLocalFiles } from './get-local-files';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('get-local-files', () => {
-  const getBetweenIdsMock = partialSpyOn(SqliteModule.FileModule, 'getBetweenIds');
+  const getBetweenUuidsMock = partialSpyOn(SqliteModule.FileModule, 'getBetweenUuids');
 
   let props: Parameters<typeof getLocalFiles>[0];
 
   beforeEach(() => {
-    getBetweenIdsMock.mockResolvedValue({ data: [{ id: 1 }] });
+    getBetweenUuidsMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
 
-    props = mockProps<typeof getLocalFiles>({ remotes: [{ id: 1 }] });
+    props = mockProps<typeof getLocalFiles>({ remotes: [{ uuid: 'uuid' as FileUuid }] });
   });
 
   it('should return if there are no remotes', async () => {
@@ -24,7 +25,7 @@ describe('get-local-files', () => {
 
   it('should return if there are is an error retrieving locals', async () => {
     // Given
-    getBetweenIdsMock.mockResolvedValue({ error: new Error() });
+    getBetweenUuidsMock.mockResolvedValue({ error: new Error() });
     // When
     const res = await getLocalFiles(props);
     // Then
@@ -33,7 +34,7 @@ describe('get-local-files', () => {
 
   it('should return empty if locals is empty', async () => {
     // Given
-    getBetweenIdsMock.mockResolvedValue({ data: [] });
+    getBetweenUuidsMock.mockResolvedValue({ data: [] });
     // When
     const res = await getLocalFiles(props);
     // Then
@@ -44,6 +45,6 @@ describe('get-local-files', () => {
     // When
     const res = await getLocalFiles(props);
     // Then
-    expect(res).toStrictEqual([{ id: 1 }]);
+    expect(res).toStrictEqual([{ uuid: 'uuid' }]);
   });
 });
