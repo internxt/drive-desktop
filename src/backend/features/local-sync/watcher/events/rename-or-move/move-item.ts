@@ -28,13 +28,9 @@ export async function moveItem({ ctx, self, path, absolutePath, uuid, item, type
 
   if (type === 'file') {
     await ipcRendererDriveServerWip.invoke('moveFileByUuid', { uuid, parentUuid, nameWithExtension: name, workspaceToken });
-  } else {
-    await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, name, workspaceToken });
-  }
-
-  if (type === 'file') {
     updateFileStatus({ ctx, path });
   } else {
+    await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, name, workspaceToken });
     await updateFolderStatus({ ctx, path, absolutePath });
   }
 }
