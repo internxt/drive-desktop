@@ -42,7 +42,7 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
         uuid: file.uuid,
       });
 
-      return [];
+      return Promise.resolve();
     }
 
     /**

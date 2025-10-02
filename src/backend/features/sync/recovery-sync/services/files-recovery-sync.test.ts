@@ -21,7 +21,7 @@ describe('files-recovery-sync', () => {
     getFilesMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
     getLocalFilesMock.mockResolvedValue([{ uuid: 'uuid' as FileUuid }]);
     getItemsToSyncMock.mockReturnValue([{ uuid: 'create' as FileUuid }]);
-    getDeletedItemsMock.mockReturnValue([{ uuid: 'deleted' as FileUuid }]);
+    getDeletedItemsMock.mockReturnValue([{ uuid: 'deleted' as FileUuid, parentUuid: 'parentUuid' }]);
   });
 
   it('should return empty if no remote files', async () => {
