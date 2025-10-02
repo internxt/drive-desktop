@@ -29,7 +29,6 @@ export function newParseFileDto({ fileDto }: { fileDto: FileDto }): SimpleDriveF
   });
 
   return {
-    id: fileDto.id,
     uuid: fileDto.uuid as FileUuid,
     contentsId: fileDto.fileId as ContentsId,
     extension: fileDto.type,
