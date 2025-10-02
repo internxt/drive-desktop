@@ -3,28 +3,29 @@ import { logger } from '@/apps/shared/logger/logger';
 import { parseData } from './parse-data';
 import { SqliteError } from '../common/sqlite-error';
 import { Between } from 'typeorm';
+import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 type Props = {
   workspaceId: string;
-  firstId: number;
-  lastId: number;
+  firstUuid: FileUuid;
+  lastUuid: FileUuid;
 };
 
-export async function getBetweenIds({ workspaceId, firstId, lastId }: Props) {
+export async function getBetweenUuids({ workspaceId, firstUuid, lastUuid }: Props) {
   try {
     const items = await fileRepository.find({
-      order: { id: 'ASC' },
+      order: { uuid: 'ASC' },
       where: {
         workspaceId,
         status: 'EXISTS',
-        id: Between(firstId, lastId),
+        uuid: Between(firstUuid, lastUuid),
       },
     });
 
     return { data: items.map((item) => parseData({ data: item })) };
   } catch (error) {
     logger.error({
-      msg: 'Error getting files between ids',
+      msg: 'Error getting files between uuids',
       error,
     });
 
