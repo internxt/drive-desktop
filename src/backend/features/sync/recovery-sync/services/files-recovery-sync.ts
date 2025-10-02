@@ -16,7 +16,7 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
     limit: FETCH_LIMIT,
     offset,
     status: 'EXISTS' as const,
-    sort: 'id',
+    sort: 'uuid',
     order: 'ASC',
   };
 
