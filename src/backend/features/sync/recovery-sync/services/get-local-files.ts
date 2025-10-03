@@ -2,11 +2,16 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { ParsedFileDto } from '@/infra/drive-server-wip/out/dto';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-export async function getLocalFiles({ ctx, remotes }: { ctx: SyncContext; remotes: ParsedFileDto[] }) {
+type Props = { ctx: SyncContext; remotes: ParsedFileDto[] };
+
+export async function getLocalFiles({ ctx, remotes }: Props) {
   const first = remotes.at(0);
   const last = remotes.at(-1);
 
-  if (!first || !last) return;
+  if (!first || !last) {
+    ctx.logger.debug({ msg: 'There are no remotes files to run the recovery sync' });
+    return;
+  }
 
   const { data: locals } = await SqliteModule.FileModule.getBetweenUuids({
     workspaceId: ctx.workspaceId,

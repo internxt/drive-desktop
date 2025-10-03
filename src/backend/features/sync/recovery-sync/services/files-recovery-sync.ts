@@ -4,7 +4,7 @@ import { getDeletedItems } from './get-deleted-items';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { getLocalFiles } from './get-local-files';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
-import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
+import { FETCH_LIMIT_1000 } from '@/apps/main/remote-sync/store';
 
 type Props = {
   ctx: SyncContext;
@@ -12,8 +12,9 @@ type Props = {
 };
 
 export async function filesRecoverySync({ ctx, offset }: Props) {
+  const extra = { abortSignal: ctx.abortController.signal, skipLog: true };
   const query = {
-    limit: FETCH_LIMIT,
+    limit: FETCH_LIMIT_1000,
     offset,
     status: 'EXISTS' as const,
     sort: 'uuid',
@@ -21,8 +22,8 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
   };
 
   const { data: remotes } = ctx.workspaceId
-    ? await DriveServerWipModule.WorkspaceModule.getFilesInWorkspace({ workspaceId: ctx.workspaceId, query })
-    : await DriveServerWipModule.FileModule.getFiles({ query });
+    ? await DriveServerWipModule.WorkspaceModule.getFilesInWorkspace({ workspaceId: ctx.workspaceId, query }, extra)
+    : await DriveServerWipModule.FileModule.getFiles({ query }, extra);
 
   if (!remotes) return [];
 
@@ -30,8 +31,8 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
 
   if (!locals) return [];
 
-  const filesToSync = getItemsToSync({ ctx, remotes, locals });
-  const deletedFiles = getDeletedItems({ ctx, remotes, locals });
+  const filesToSync = await getItemsToSync({ ctx, type: 'file', remotes, locals });
+  const deletedFiles = getDeletedItems({ ctx, type: 'file', remotes, locals });
 
   const filesToSyncPromises = filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto }));
 
