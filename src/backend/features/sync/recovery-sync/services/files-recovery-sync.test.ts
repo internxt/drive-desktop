@@ -15,7 +15,9 @@ describe('files-recovery-sync', () => {
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFileModule, 'createOrUpdateFile');
   const moveMock = partialSpyOn(DriveServerWipModule.FileModule, 'move');
 
-  const props = mockProps<typeof filesRecoverySync>({ ctx: {} });
+  const props = mockProps<typeof filesRecoverySync>({
+    ctx: { abortController: new AbortController() },
+  });
 
   beforeEach(() => {
     getFilesMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
