@@ -63,6 +63,10 @@
         "title": "Backup your device on the cloud",
         "description": "With Internxt's upgraded backup feature, you can now safely backup folders on the cloud in order to free up space locally."
       },
+      "cleaner": {
+        "title": "Free up space locally and optimize your device's performance.",
+        "description": "Our cleaner finds and removes unnecessary files, so your device runs smoothly."
+      },
       "onboarding-completed": {
         "title": "You're all set, enjoy your privacy!",
         "backups-completed": {

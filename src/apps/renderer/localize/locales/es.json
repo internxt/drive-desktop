@@ -63,6 +63,10 @@
         "title": "Haz copias de seguridad de tu dispositivo en la nube",
         "description": "Con la función mejorada de copias de seguridad de Internxt, ahora puedes hacer copias de seguridad de tus carpetas en la nube de manera segura para liberar espacio localmente."
       },
+      "cleaner": {
+        "title": "Libera espacio localmente y optimiza el rendimiento de tu dispositivo.",
+        "description": "Nuestro Cleaner encuentra y elimina archivos innecesarios para que tu dispositivo funcione sin problemas."
+      },
       "onboarding-completed": {
         "title": "Ya está todo listo, ¡disfruta de tu privacidad!",
         "backups-completed": {
