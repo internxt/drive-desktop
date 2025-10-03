@@ -1,6 +1,6 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ParsedFolderDto } from '@/infra/drive-server-wip/out/dto';
-import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
+import { FETCH_LIMIT_50 } from '@/apps/main/remote-sync/store';
 import { SyncContext } from '@/apps/sync-engine/config';
 
 type TProps = {
@@ -22,7 +22,7 @@ export async function fetchFoldersByFolder({ context, folderUuid }: TProps) {
         workspaceToken: context.workspaceToken,
         folderUuid,
         query: {
-          limit: FETCH_LIMIT,
+          limit: FETCH_LIMIT_50,
           offset,
           sort: 'updatedAt',
           order: 'DESC',
@@ -33,8 +33,8 @@ export async function fetchFoldersByFolder({ context, folderUuid }: TProps) {
 
     if (error) return null;
 
-    hasMore = data.length === FETCH_LIMIT;
-    offset += FETCH_LIMIT;
+    hasMore = data.length === FETCH_LIMIT_50;
+    offset += FETCH_LIMIT_50;
 
     const filteredData = data.filter((folder) => folder.status === 'EXISTS');
     folders.push(...filteredData);
