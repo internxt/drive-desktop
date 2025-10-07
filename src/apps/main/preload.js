@@ -312,6 +312,19 @@ var api = {
   authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
   getLastBackupProgress: () => ipcPreloadRenderer.send("getLastBackupProgress"),
-  getUsage: async () => await ipcPreloadRenderer.invoke("getUsage")
+  getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
+  getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
+  cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke("cleanerGenerateReport", props),
+  cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
+  cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
+  cleanerStopCleanup: () => ipcPreloadRenderer.send("cleanerStopCleanup"),
+  cleanerOnProgress: (callback) => {
+    const eventName = "cleaner:cleanup-progress";
+    const callbackWrapper = (_, progressData) => callback(progressData);
+    import_electron2.ipcRenderer.on(eventName, callbackWrapper);
+    return () => {
+      import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
+    };
+  }
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

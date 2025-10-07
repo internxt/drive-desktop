@@ -156,7 +156,8 @@
             "cancel": "Forcer la synchronisation"
           }
         }
-      }
+      },
+      "cleaner": "Cleaner"
     },
     "body": {
       "activity": {
@@ -226,7 +227,8 @@
         "GENERAL": "Général",
         "ACCOUNT": "Compte",
         "BACKUPS": "Sauvegardes",
-        "ANTIVIRUS": "Antivirus"
+        "ANTIVIRUS": "Antivirus",
+        "CLEANER": "Cleaner"
       }
     },
     "general": {
@@ -393,6 +395,46 @@
         "actions": {
           "cancel": "Annuler",
           "remove": "Supprimer"
+        }
+      }
+    },
+    "cleaner": {
+      "selectAllCheckbox": "Tout sélectionner",
+      "mainView": {
+        "cleanup": "Nettoyer"
+      },
+      "generateReportView": {
+        "title": "Aucun rapport trouvé",
+        "description": "Générer un rapport pour voir quels fichiers peuvent être nettoyés.",
+        "generateReport": "Générer un rapport"
+      },
+      "loadingView": {
+        "title": "Attendez un instant.",
+        "description": "Nous générons votre rapport..."
+      },
+      "sizeIndicatorView": {
+        "selectCategory": "Sélectionnez une catégorie pour",
+        "previewContent": "aperçu du contenu",
+        "saveUpTo": "Économisez jusqu'à",
+        "ofYourSpace": "de votre espace"
+      },
+      "cleanupConfirmDialog": {
+        "title": "Confirmer le nettoyage",
+        "description": "Cette action supprimera définitivement les fichiers sélectionnés de votre appareil. Cette action ne peut pas être annulée. Veuillez confirmer pour continuer.",
+        "cancelButton": "Annuler",
+        "confirmButton": "Supprimer les fichiers "
+      },
+      "cleaningView": {
+        "cleaningProcess": {
+          "title": "Nettoyage...",
+          "stopCleanButton": "Arrêter le nettoyage",
+          "deletedFiles": "Fichiers supprimés",
+          "freeSpaceGained": "Espace libre gagné"
+        },
+        "cleaningFinished": {
+          "title": "Votre appareil est propre",
+          "subtitle": "Aucune autre action n'est nécessaire",
+          "finish": "Terminer"
         }
       }
     }

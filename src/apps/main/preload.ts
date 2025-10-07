@@ -17,6 +17,7 @@ import { ItemBackup } from '../shared/types/items';
 import { getBackupsFromDevice } from './device/get-backups-from-device';
 import { ipcPreloadRenderer } from './preload/ipc-renderer';
 import { FromProcess } from './preload/ipc';
+import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 
 const api = {
   getConfigKey(key: StoredValues) {
@@ -99,7 +100,7 @@ const api = {
   openLogs() {
     ipcRenderer.send('open-logs');
   },
-  openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS') {
+  openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS' | 'CLEANER') {
     ipcRenderer.send('open-settings-window', section);
   },
   settingsWindowResized(payload: { width: number; height: number }) {
@@ -318,6 +319,19 @@ const api = {
   authLogin: async (props) => await ipcPreloadRenderer.invoke('authLogin', props),
   getLastBackupProgress: () => ipcPreloadRenderer.send('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
+  getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),
+  cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke('cleanerGenerateReport', props),
+  cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke('cleanerStartCleanup', props),
+  cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke('cleanerGetDiskSpace'),
+  cleanerStopCleanup: () => ipcPreloadRenderer.send('cleanerStopCleanup'),
+  cleanerOnProgress: (callback: (progressData: CleanupProgress) => void) => {
+    const eventName = 'cleaner:cleanup-progress';
+    const callbackWrapper = (_: unknown, progressData: CleanupProgress) => callback(progressData);
+    ipcRenderer.on(eventName, callbackWrapper);
+    return () => {
+      ipcRenderer.removeListener(eventName, callbackWrapper);
+    };
+  },
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

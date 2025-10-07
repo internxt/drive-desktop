@@ -155,7 +155,8 @@
             "confirm": "Cerrar sesión",
             "cancel": "Forzar sincronización"
           }
-        }
+        },
+        "cleaner": "Cleaner"
       }
     },
     "body": {
@@ -229,7 +230,8 @@
         "GENERAL": "General",
         "ACCOUNT": "Cuenta",
         "BACKUPS": "Backups",
-        "ANTIVIRUS": "Antivirus"
+        "ANTIVIRUS": "Antivirus",
+        "CLEANER": "Cleaner"
       }
     },
     "general": {
@@ -397,6 +399,46 @@
         "actions": {
           "cancel": "Cancelar",
           "remove": "Eliminar"
+        }
+      }
+    },
+    "cleaner": {
+      "selectAllCheckbox": "Seleccionar todo",
+      "mainView": {
+        "cleanup": "Limpiar"
+      },
+      "generateReportView": {
+        "title": "No se ha encontrado ningún informe.",
+        "description": "Genere un informe para ver qué archivos se pueden limpiar.",
+        "generateReport": "Generar informe"
+      },
+      "loadingView": {
+        "title": "Espera un momento",
+        "description": "Estamos generando tu informe..."
+      },
+      "sizeIndicatorView": {
+        "selectCategory": "Seleccione una categoría para",
+        "previewContent": "obtener una vista previa del contenido",
+        "saveUpTo": "Ahorra hasta",
+        "ofYourSpace": "de tu espacio"
+      },
+      "cleanupConfirmDialog": {
+        "title": "Confirmar borrado",
+        "description": "Esta acción eliminará permanentemente los archivos seleccionados de tu dispositivo. Esta acción no se puede deshacer. Confirme para continuar.",
+        "cancelButton": "Cancelar",
+        "confirmButton": "Eliminar archivos"
+      },
+      "cleaningView": {
+        "cleaningProcess": {
+          "title": "Limpiando...",
+          "stopCleanButton": "Detener limpieza",
+          "deletedFiles": "Archivos eliminados",
+          "freeSpaceGained": "Espacio libre ganado"
+        },
+        "cleaningFinished": {
+          "title": "Tu dispositivo está limpio",
+          "subtitle": "No es necesario realizar ninguna otra acción",
+          "finish": "Finalizar"
         }
       }
     }
