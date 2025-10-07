@@ -313,6 +313,7 @@ var api = {
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
   getLastBackupProgress: () => ipcPreloadRenderer.send("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
+  getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
   cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke("cleanerGenerateReport", props),
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
   cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
@@ -324,7 +325,6 @@ var api = {
     return () => {
       import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
     };
-  },
-  getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts")
+  }
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);
