@@ -1,16 +1,16 @@
-.github/copilot-instructions.md
 /.env
 /.erb/dll
+/.github/copilot-instructions.md
 /.idea
 /.npmrc
 /.vscode
 /build
 /clamAV/*
+/CLAUDE.md
 /coverage
 /dist
 /node_modules
 /test-files
-CLAUDE.md
 
 !/clamAV/clamd.conf
 !/clamAV/freshclam.conf
