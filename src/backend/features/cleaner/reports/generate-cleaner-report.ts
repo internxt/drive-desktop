@@ -12,10 +12,6 @@ export function getStoredCleanerReport(): CleanerReport | null {
   return storedCleanerReport;
 }
 
-export function clearCleanerReportCache() {
-  storedCleanerReport = null;
-}
-
 function getCleanerSectionOrFallback(result: PromiseSettledResult<CleanerSection>) {
   if (result.status === 'fulfilled') {
     return result.value;
