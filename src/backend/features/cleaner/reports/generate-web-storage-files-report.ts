@@ -1,13 +1,10 @@
-import { CleanableItem, CleanerSection } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
-import { getFilePathsToClean } from './get-file-paths-to-clean';
 import { CleanerModule } from '@internxt/drive-desktop-core/build/backend';
 import { cleanerCtx } from '../cleaner.config';
+import { generateReport } from './generate-report';
+import { pathsToClean } from './paths-to-clean';
 
-export async function generateWebStorageFileReport(): Promise<CleanerSection> {
-  const pathsToClean = getFilePathsToClean();
-  let allItems: CleanableItem[] = [];
-
-  const scanSubSectionPromises = [
+export async function generateWebStorageFileReport() {
+  const promises = [
     CleanerModule.scanDirectory({
       ctx: cleanerCtx,
       dirPath: pathsToClean.webStorage.chrome.cookies,
@@ -31,15 +28,5 @@ export async function generateWebStorageFileReport(): Promise<CleanerSection> {
     }),
   ];
 
-  const results = await Promise.allSettled(scanSubSectionPromises);
-
-  allItems = results.filter((result) => result.status === 'fulfilled').flatMap((result) => result.value);
-
-  const totalSizeInBytes = allItems.reduce((sum, item) => sum + item.sizeInBytes, 0);
-
-  const result = {
-    totalSizeInBytes,
-    items: allItems,
-  };
-  return result;
+  return await generateReport({ promises });
 }

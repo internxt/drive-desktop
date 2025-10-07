@@ -1,13 +1,10 @@
-import { CleanerSection, CleanableItem } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 import { CleanerModule } from '@internxt/drive-desktop-core/build/backend';
 import { cleanerCtx } from '../cleaner.config';
-import { getFilePathsToClean } from './get-file-paths-to-clean';
+import { generateReport } from './generate-report';
+import { pathsToClean } from './paths-to-clean';
 
-export async function generateAppCacheReport(): Promise<CleanerSection> {
-  const pathsToClean = getFilePathsToClean();
-  let allItems: CleanableItem[] = [];
-
-  const scanSubSectionPromises = [
+export async function generateAppCacheReport() {
+  const promises = [
     CleanerModule.scanDirectory({
       ctx: cleanerCtx,
       dirPath: pathsToClean.cache.tempDir,
@@ -38,15 +35,5 @@ export async function generateAppCacheReport(): Promise<CleanerSection> {
     }),
   ];
 
-  const results = await Promise.allSettled(scanSubSectionPromises);
-
-  allItems = results.filter((result) => result.status === 'fulfilled').flatMap((result) => result.value);
-
-  const totalSizeInBytes = allItems.reduce((sum, item) => sum + item.sizeInBytes, 0);
-
-  const result = {
-    totalSizeInBytes,
-    items: allItems,
-  };
-  return result;
+  return await generateReport({ promises });
 }
