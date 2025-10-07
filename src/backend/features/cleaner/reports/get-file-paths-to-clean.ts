@@ -1,15 +1,13 @@
 import { join } from 'node:path';
 
 export function getFilePathsToClean() {
-  /* eslint-disable @typescript-eslint/no-non-null-assertion */
-  const localAppData = process.env.LOCALAPPDATA!;
-  const roamingAppData = process.env.APPDATA!;
+  const localAppData = process.env.LOCALAPPDATA;
+  const roamingAppData = process.env.APPDATA;
   // eslint-disable-next-line sonarjs/publicly-writable-directories
-  const tempDir = process.env.TEMP!;
-  const windir = process.env.WINDIR!;
-  const userProfile = process.env.USERPROFILE!;
-  const programData = process.env.ProgramData!;
-  /* eslint-enable @typescript-eslint/no-non-null-assertion */
+  const tempDir = process.env.TEMP;
+  const windir = process.env.WINDIR;
+  const userProfile = process.env.USERPROFILE;
+  const programData = process.env.ProgramData;
 
   return {
     localAppData,
