@@ -42,8 +42,8 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
     setReport(null);
     setLoading(true);
     try {
-      const report: CleanerReport = await window.electron.cleaner.generateReport(force);
-      const diskSpace = await window.electron.cleaner.getDiskSpace();
+      const report = await globalThis.window.electron.cleanerGenerateReport(force);
+      const diskSpace = await globalThis.window.electron.cleanerGetDiskSpace();
       setReport(report);
       setDiskSpace(diskSpace);
     } finally {
@@ -52,11 +52,11 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
   };
 
   const startCleanup = async (viewModel: CleanerViewModel) => {
-    await window.electron.cleaner.startCleanup(viewModel);
+    await globalThis.window.electron.cleanerStartCleanup(viewModel);
   };
 
-  const stopCleanup = async () => {
-    await window.electron.cleaner.stopCleanup();
+  const stopCleanup = () => {
+    globalThis.window.electron.cleanerStopCleanup();
   };
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
       });
     };
 
-    const removeListener = window.electron.cleaner.onCleanupProgress(handleCleanupProgress);
+    const removeListener = globalThis.window.electron.cleanerOnProgress(handleCleanupProgress);
 
     return () => {
       if (typeof removeListener === 'function') {

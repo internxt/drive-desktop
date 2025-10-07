@@ -313,19 +313,17 @@ var api = {
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
   getLastBackupProgress: () => ipcPreloadRenderer.send("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
-  cleaner: {
-    generateReport: (force = false) => import_electron2.ipcRenderer.invoke("cleaner:generate-report", force),
-    startCleanup: (viewModel) => import_electron2.ipcRenderer.invoke("cleaner:start-cleanup", viewModel),
-    stopCleanup: () => import_electron2.ipcRenderer.invoke("cleaner:stop-cleanup"),
-    onCleanupProgress: (callback) => {
-      const eventName = "cleaner:cleanup-progress";
-      const callbackWrapper = (_, progressData) => callback(progressData);
-      import_electron2.ipcRenderer.on(eventName, callbackWrapper);
-      return () => {
-        import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
-      };
-    },
-    getDiskSpace: () => import_electron2.ipcRenderer.invoke("cleaner:get-disk-space")
+  cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke("cleanerGenerateReport", props),
+  cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
+  cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
+  cleanerStopCleanup: () => ipcPreloadRenderer.send("cleanerStopCleanup"),
+  cleanerOnProgress: (callback) => {
+    const eventName = "cleaner:cleanup-progress";
+    const callbackWrapper = (_, progressData) => callback(progressData);
+    import_electron2.ipcRenderer.on(eventName, callbackWrapper);
+    return () => {
+      import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
+    };
   },
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts")
 };
