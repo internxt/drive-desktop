@@ -6,9 +6,13 @@ import { generateWebStorageFileReport } from './generate-web-storage-files-repor
 import { generateWebCacheReport } from './generate-web-cache-report';
 import { generateWindowsSpecificFileReport } from './generate-windows-specific-file-report';
 
-export let storedCleanerReport: CleanerReport | null = null;
+let storedCleanerReport: CleanerReport | null = null;
 
-export function clearCleanerReportCache(): void {
+export function getStoredCleanerReport(): CleanerReport | null {
+  return storedCleanerReport;
+}
+
+export function clearCleanerReportCache() {
   storedCleanerReport = null;
 }
 
