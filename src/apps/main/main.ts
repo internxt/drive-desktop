@@ -31,6 +31,7 @@ import './device/handlers';
 import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
+import './ipcs/ipc-main-cleaner';
 import './platform/handlers';
 import './migration/handlers';
 import './config/handlers';
