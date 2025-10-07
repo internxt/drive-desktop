@@ -13,6 +13,7 @@ import {
   OnboardingSlide,
   SideImageAnimation,
   SideTextAnimation,
+  getCleanerImageSvg,
   getOfflineImageSvg,
   getOnlineImageSvg,
 } from './helpers';
@@ -27,6 +28,7 @@ import { BackupsSlide } from './slides/BackupsSlide';
 import useConfig from '../../hooks/useConfig';
 import { Theme } from '../../../shared/types/Theme';
 import { AntivirusSlide } from './slides/AntivirusSlide';
+import { CleanerSlide } from './slides/cleaner-slide';
 
 export const SLIDES: OnboardingSlide[] = [
   {
@@ -291,6 +293,45 @@ export const SLIDES: OnboardingSlide[] = [
       return (
         <div className="flex h-full w-full items-center justify-center">
           <BackupsImage />
+        </div>
+      );
+    },
+  },
+  {
+    name: 'Cleaner Slide',
+    component: (props) => {
+      return (
+        <div className="flex h-full w-full ">
+          <SideTextAnimation display>
+            <CleanerSlide />
+          </SideTextAnimation>
+        </div>
+      );
+    },
+    footer: (props) => {
+      const { translate } = useTranslationContext();
+      return (
+        <div className="flex w-full flex-1 items-end justify-center">
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
+            {translate('onboarding.common.continue')}
+          </Button>
+          <span className="ml-auto text-gray-50">
+            {translate('onboarding.common.onboarding-progress', {
+              current_slide: props.currentSlide,
+              total_slides: props.totalSlides,
+            })}
+          </span>
+        </div>
+      );
+    },
+    image: () => {
+      const { language } = useTranslationContext();
+      const Image = getCleanerImageSvg(language);
+      return (
+        <div className="relative flex h-full w-full items-center justify-center ">
+          <SideImageAnimation display>
+            <Image />
+          </SideImageAnimation>
         </div>
       );
     },

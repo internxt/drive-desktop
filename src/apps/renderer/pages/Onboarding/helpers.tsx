@@ -12,6 +12,11 @@ import AvailableOfflineImageFrench from '../../assets/onboarding/folder-with-ove
 // Finder images
 import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
 
+//Cleaner images
+import CleanerImageSpanish from '../../assets/onboarding/cleaner/es.svg';
+import CleanerImageEnglish from '../../assets/onboarding/cleaner/en.svg';
+import CleanerImageFrench from '../../assets/onboarding/cleaner/fr.svg';
+
 export type OnboardingSlideProps = {
   onGoNextSlide: () => void;
   onSkipOnboarding: () => void;
@@ -33,6 +38,12 @@ export const getOfflineImageSvg = (language: string) => {
   if (language === 'es') return AvailableOfflineImageSpanish;
   if (language === 'fr') return AvailableOfflineImageFrench;
   return AvailableOfflineImageEnglish;
+};
+
+export const getCleanerImageSvg = (language: string) => {
+  if (language === 'es') return CleanerImageSpanish;
+  if (language === 'fr') return CleanerImageFrench;
+  return CleanerImageEnglish;
 };
 
 export type OnboardingSlide = {

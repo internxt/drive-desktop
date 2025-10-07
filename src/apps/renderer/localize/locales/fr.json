@@ -63,6 +63,10 @@
         "title": "Sauvegardez votre appareil sur le cloud",
         "description": "Avec la fonction de sauvegarde améliorée d'Internxt, vous pouvez désormais sauvegarder vos dossiers en toute sécurité sur le cloud afin de libérer de l'espace localement."
       },
+      "cleaner": {
+        "title": "Libérez de l'espace localement et optimisez les performances de votre appareil.",
+        "description": "Notre nettoyeur trouve et supprime les fichiers inutiles afin que votre appareil fonctionne correctement."
+      },
       "onboarding-completed": {
         "title": "Vous êtes prêt, profitez de votre vie privée !",
         "backups-completed": {
