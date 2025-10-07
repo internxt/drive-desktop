@@ -28,7 +28,7 @@ import { BackupsSlide } from './slides/BackupsSlide';
 import useConfig from '../../hooks/useConfig';
 import { Theme } from '../../../shared/types/Theme';
 import { AntivirusSlide } from './slides/AntivirusSlide';
-import { CleanerSlide } from './slides/CleanerSlide';
+import { CleanerSlide } from './slides/cleaner-slide';
 
 export const SLIDES: OnboardingSlide[] = [
   {
