@@ -12,7 +12,6 @@ import AvailableOfflineImageFrench from '../../assets/onboarding/folder-with-ove
 // Finder images
 import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
 
-//Cleaner images
 import CleanerLightImageSpanish from '../../assets/onboarding/cleaner/ES-Light.svg';
 import CleanerLightImageFrench from '../../assets/onboarding/cleaner/FR-Light.svg';
 import CleanerLightImageEnglish from '../../assets/onboarding/cleaner/EN-Light.svg';
@@ -20,7 +19,6 @@ import CleanerDarkImageSpanish from '../../assets/onboarding/cleaner/ES-Dark.svg
 import CleanerDarkImageFrench from '../../assets/onboarding/cleaner/FR-Dark.svg';
 import CleanerDarkImageEnglish from '../../assets/onboarding/cleaner/EN-Dark.svg';
 
-// Drive images
 import DriveLightImageSpanish from '../../assets/onboarding/drive/ES-Light.svg';
 import DriveLightImageFrench from '../../assets/onboarding/drive/FR-Light.svg';
 import DriveLightImageEnglish from '../../assets/onboarding/drive/EN-Light.svg';
@@ -28,13 +26,14 @@ import DriveDarkImageSpanish from '../../assets/onboarding/drive/ES-Dark.svg';
 import DriveDarkImageFrench from '../../assets/onboarding/drive/FR-Dark.svg';
 import DriveDarkImageEnglish from '../../assets/onboarding/drive/EN-Dark.svg';
 
-// Antivirus images
 import AntivirusLightImageSpanish from '../../assets/onboarding/antivirus/ES-Light.svg';
 import AntivirusLightImageFrench from '../../assets/onboarding/antivirus/FR-Light.svg';
 import AntivirusLightImageEnglish from '../../assets/onboarding/antivirus/EN-Light.svg';
 import AntivirusDarkImageSpanish from '../../assets/onboarding/antivirus/ES-Dark.svg';
 import AntivirusDarkImageFrench from '../../assets/onboarding/antivirus/FR-Dark.svg';
 import AntivirusDarkImageEnglish from '../../assets/onboarding/antivirus/EN-Dark.svg';
+
+import { OnboardingImages } from './types';
 
 export type OnboardingSlideProps = {
   onGoNextSlide: () => void;
@@ -45,17 +44,6 @@ export type OnboardingSlideProps = {
   currentSlide: number;
   totalSlides: number;
   platform: string;
-};
-
-export type OnboardingImagesItem = {
-  light: React.FC<React.SVGProps<SVGSVGElement>>;
-  dark: React.FC<React.SVGProps<SVGSVGElement>>;
-};
-
-export type OnboardingImages = {
-  es: OnboardingImagesItem;
-  fr: OnboardingImagesItem;
-  en: OnboardingImagesItem;
 };
 
 export const getOnlineImageSvg = (language: string) => {
