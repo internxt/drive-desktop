@@ -13,9 +13,28 @@ import AvailableOfflineImageFrench from '../../assets/onboarding/folder-with-ove
 import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
 
 //Cleaner images
-import CleanerImageSpanish from '../../assets/onboarding/cleaner/es.svg';
-import CleanerImageEnglish from '../../assets/onboarding/cleaner/en.svg';
-import CleanerImageFrench from '../../assets/onboarding/cleaner/fr.svg';
+import CleanerLightImageSpanish from '../../assets/onboarding/cleaner/ES-Light.svg';
+import CleanerLightImageFrench from '../../assets/onboarding/cleaner/FR-Light.svg';
+import CleanerLightImageEnglish from '../../assets/onboarding/cleaner/EN-Light.svg';
+import CleanerDarkImageSpanish from '../../assets/onboarding/cleaner/ES-Dark.svg';
+import CleanerDarkImageFrench from '../../assets/onboarding/cleaner/FR-Dark.svg';
+import CleanerDarkImageEnglish from '../../assets/onboarding/cleaner/EN-Dark.svg';
+
+// Drive images
+import DriveLightImageSpanish from '../../assets/onboarding/drive/ES-Light.svg';
+import DriveLightImageFrench from '../../assets/onboarding/drive/FR-Light.svg';
+import DriveLightImageEnglish from '../../assets/onboarding/drive/EN-Light.svg';
+import DriveDarkImageSpanish from '../../assets/onboarding/drive/ES-Dark.svg';
+import DriveDarkImageFrench from '../../assets/onboarding/drive/FR-Dark.svg';
+import DriveDarkImageEnglish from '../../assets/onboarding/drive/EN-Dark.svg';
+
+// Antivirus images
+import AntivirusLightImageSpanish from '../../assets/onboarding/antivirus/ES-Light.svg';
+import AntivirusLightImageFrench from '../../assets/onboarding/antivirus/FR-Light.svg';
+import AntivirusLightImageEnglish from '../../assets/onboarding/antivirus/EN-Light.svg';
+import AntivirusDarkImageSpanish from '../../assets/onboarding/antivirus/ES-Dark.svg';
+import AntivirusDarkImageFrench from '../../assets/onboarding/antivirus/FR-Dark.svg';
+import AntivirusDarkImageEnglish from '../../assets/onboarding/antivirus/EN-Dark.svg';
 
 export type OnboardingSlideProps = {
   onGoNextSlide: () => void;
@@ -26,6 +45,17 @@ export type OnboardingSlideProps = {
   currentSlide: number;
   totalSlides: number;
   platform: string;
+};
+
+export type OnboardingImagesItem = {
+  light: React.FC<React.SVGProps<SVGSVGElement>>;
+  dark: React.FC<React.SVGProps<SVGSVGElement>>;
+};
+
+export type OnboardingImages = {
+  es: OnboardingImagesItem;
+  fr: OnboardingImagesItem;
+  en: OnboardingImagesItem;
 };
 
 export const getOnlineImageSvg = (language: string) => {
@@ -40,10 +70,64 @@ export const getOfflineImageSvg = (language: string) => {
   return AvailableOfflineImageEnglish;
 };
 
-export const getCleanerImageSvg = (language: string) => {
-  if (language === 'es') return CleanerImageSpanish;
-  if (language === 'fr') return CleanerImageFrench;
-  return CleanerImageEnglish;
+export const getCleanerImageSvg = (language: string, theme: 'light' | 'dark') => {
+  const images: OnboardingImages = {
+    es: {
+      light: CleanerLightImageSpanish,
+      dark: CleanerDarkImageSpanish,
+    },
+    fr: {
+      light: CleanerLightImageFrench,
+      dark: CleanerDarkImageFrench,
+    },
+    en: {
+      light: CleanerLightImageEnglish,
+      dark: CleanerDarkImageEnglish,
+    },
+  };
+
+  const lang = images[language as keyof OnboardingImages] || images.en;
+  return lang[theme];
+};
+
+export const getDriveImageSvg = (language: string, theme: 'light' | 'dark') => {
+  const images: OnboardingImages = {
+    es: {
+      light: DriveLightImageSpanish,
+      dark: DriveDarkImageSpanish,
+    },
+    fr: {
+      light: DriveLightImageFrench,
+      dark: DriveDarkImageFrench,
+    },
+    en: {
+      light: DriveLightImageEnglish,
+      dark: DriveDarkImageEnglish,
+    },
+  };
+
+  const lang = images[language as keyof OnboardingImages] || images.en;
+  return lang[theme];
+};
+
+export const getAntivirusImageSvg = (language: string, theme: 'light' | 'dark') => {
+  const images: OnboardingImages = {
+    es: {
+      light: AntivirusLightImageSpanish,
+      dark: AntivirusDarkImageSpanish,
+    },
+    fr: {
+      light: AntivirusLightImageFrench,
+      dark: AntivirusDarkImageFrench,
+    },
+    en: {
+      light: AntivirusLightImageEnglish,
+      dark: AntivirusDarkImageEnglish,
+    },
+  };
+
+  const lang = images[language as keyof OnboardingImages] || images.en;
+  return lang[theme];
 };
 
 export type OnboardingSlide = {

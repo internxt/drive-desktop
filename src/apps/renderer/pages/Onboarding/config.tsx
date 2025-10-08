@@ -1,12 +1,6 @@
 // Slides
-import { AvailableOnlineSlide } from './slides/AvailableOnlineSlide';
-import { AvailableOfflineSlide } from './slides/AvailableOfflineSlide';
-import { ContextMenuSlide } from './slides/ContextMenuSlide';
-// import { BackupsSlide } from './slides/BackupsSlide';
 import { WelcomeSlide } from './slides/WelcomeSlide';
-import { FilesOrganizationSlide } from './slides/FilesOrganizationSlide';
-import AntivirusSvg from '../../assets/onboarding/scanner.svg';
-import AntivirusDarkSvg from '../../assets/onboarding/scanner-dark.svg';
+import { DriveSlide } from './slides/DriveSlide';
 import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import {
   // BackupsSVG,
@@ -14,11 +8,10 @@ import {
   SideImageAnimation,
   SideTextAnimation,
   getCleanerImageSvg,
-  getOfflineImageSvg,
-  getOnlineImageSvg,
+  getDriveImageSvg,
+  getAntivirusImageSvg,
 } from './helpers';
 
-import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
 import BackupsSvg from '../../assets/onboarding/backups.svg';
 import BackupsDarkSvg from '../../assets/onboarding/backups-dark.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
@@ -64,12 +57,12 @@ export const SLIDES: OnboardingSlide[] = [
     },
   },
   {
-    name: 'Files Organization',
+    name: 'Drive Slide',
     component: (props) => {
       return (
         <div className="flex h-full w-full">
           <SideTextAnimation display>
-            <FilesOrganizationSlide {...props} />
+            <DriveSlide {...props} />
           </SideTextAnimation>
         </div>
       );
@@ -91,166 +84,18 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
-      return (
-        <div className="relative ml-20 mt-20">
-          <WindowsFinderImage />
-        </div>
-      );
-    },
-  },
-  {
-    name: 'Available for Online usage Slide',
-    component: (props) => {
-      return (
-        <div className="flex h-full w-full">
-          <SideTextAnimation display>
-            <AvailableOnlineSlide {...props} />
-          </SideTextAnimation>
-        </div>
-      );
-    },
-    footer: (props) => {
-      const { translate } = useTranslationContext();
-      return (
-        <div className="flex w-full flex-1 items-end justify-center">
-          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
-            {translate('onboarding.common.continue')}
-          </Button>
-          <span className="ml-auto text-gray-50">
-            {translate('onboarding.common.onboarding-progress', {
-              current_slide: props.currentSlide,
-              total_slides: props.totalSlides,
-            })}
-          </span>
-        </div>
-      );
-    },
-    image: () => {
-      const { language } = useTranslationContext();
-      const Image = getOnlineImageSvg(language);
-      return (
-        <div className="relative flex h-full w-full items-center justify-center ">
-          <SideImageAnimation display>
-            <Image />
-          </SideImageAnimation>
-        </div>
-      );
-    },
-  },
-  {
-    name: 'Available for Offline usage Slide',
-    component: (props) => {
-      return (
-        <div className="flex h-full w-full">
-          <SideTextAnimation display>
-            <AvailableOfflineSlide {...props} />
-          </SideTextAnimation>
-        </div>
-      );
-    },
-    footer: (props) => {
-      const { translate } = useTranslationContext();
-      return (
-        <div className="flex w-full flex-1 items-end justify-center">
-          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
-            {translate('onboarding.common.continue')}
-          </Button>
-          <span className="ml-auto text-gray-50">
-            {translate('onboarding.common.onboarding-progress', {
-              current_slide: props.currentSlide,
-              total_slides: props.totalSlides,
-            })}
-          </span>
-        </div>
-      );
-    },
-    image: () => {
-      const { language } = useTranslationContext();
-      const Image = getOfflineImageSvg(language);
-      return (
-        <div className="relative flex h-full w-full items-center justify-center ">
-          <SideImageAnimation display>
-            <Image />
-          </SideImageAnimation>
-        </div>
-      );
-    },
-  },
-
-  {
-    name: 'Context Menu Slide',
-    component: (props) => {
-      return (
-        <div className="flex h-full w-full ">
-          <SideTextAnimation display>
-            <ContextMenuSlide {...props} />
-          </SideTextAnimation>
-        </div>
-      );
-    },
-    footer: (props) => {
-      const { translate } = useTranslationContext();
-      return (
-        <div className="flex w-full flex-1 items-end justify-center">
-          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
-            {translate('onboarding.common.continue')}
-          </Button>
-          <span className="ml-auto text-gray-50">
-            {translate('onboarding.common.onboarding-progress', {
-              current_slide: props.currentSlide,
-              total_slides: props.totalSlides,
-            })}
-          </span>
-        </div>
-      );
-    },
-    image: () => {
-      return (
-        <div className=" mt-10 flex h-full w-full items-center justify-center ">
-          <ContextMenuSvg />
-        </div>
-      );
-    },
-  },
-
-  {
-    name: 'Antivirus Slide',
-    component: (props) => {
-      return (
-        <div className="flex h-full w-full ">
-          <SideTextAnimation display>
-            <AntivirusSlide {...props} />
-          </SideTextAnimation>
-        </div>
-      );
-    },
-    footer: (props) => {
-      const { translate } = useTranslationContext();
-      return (
-        <div className="flex w-full flex-1 items-end justify-center">
-          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
-            {translate('onboarding.common.continue')}
-          </Button>
-          <span className="ml-auto text-gray-50">
-            {translate('onboarding.common.onboarding-progress', {
-              current_slide: props.currentSlide,
-              total_slides: props.totalSlides,
-            })}
-          </span>
-        </div>
-      );
-    },
-    image: () => {
-      const AntivirusImage = () => {
+      const DriveImage = () => {
+        const { language } = useTranslationContext();
         const preferredTheme = useConfig('preferedTheme') as Theme;
         const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const DriveImage = getDriveImageSvg(language, theme);
+        if (!DriveImage) return null;
 
-        return theme === 'dark' ? <AntivirusDarkSvg /> : <AntivirusSvg />;
+        return <DriveImage />;
       };
-
       return (
-        <div className="flex h-full w-full items-center justify-center">
-          <AntivirusImage />
+        <div className="relative ml-20 mt-20">
+          <DriveImage />
         </div>
       );
     },
@@ -286,7 +131,6 @@ export const SLIDES: OnboardingSlide[] = [
       const BackupsImage = () => {
         const preferredTheme = useConfig('preferedTheme') as Theme;
         const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
-
         return theme === 'dark' ? <BackupsDarkSvg /> : <BackupsSvg />;
       };
 
@@ -298,8 +142,53 @@ export const SLIDES: OnboardingSlide[] = [
     },
   },
   {
-    name: 'Cleaner Slide',
+    name: 'Antivirus Slide',
     component: (props) => {
+      return (
+        <div className="flex h-full w-full ">
+          <SideTextAnimation display>
+            <AntivirusSlide {...props} />
+          </SideTextAnimation>
+        </div>
+      );
+    },
+    footer: (props) => {
+      const { translate } = useTranslationContext();
+      return (
+        <div className="flex w-full flex-1 items-end justify-center">
+          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
+            {translate('onboarding.common.continue')}
+          </Button>
+          <span className="ml-auto text-gray-50">
+            {translate('onboarding.common.onboarding-progress', {
+              current_slide: props.currentSlide,
+              total_slides: props.totalSlides,
+            })}
+          </span>
+        </div>
+      );
+    },
+    image: () => {
+      const AntivirusImage = () => {
+        const { language } = useTranslationContext();
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const AntivirusImage = getAntivirusImageSvg(language, theme);
+        if (!AntivirusImage) return null;
+
+        return <AntivirusImage />;
+      };
+
+      return (
+        <div className="flex h-full w-full items-center justify-center">
+          <AntivirusImage />
+        </div>
+      );
+    },
+  },
+  {
+    name: 'Cleaner Slide',
+    component: () => {
       return (
         <div className="flex h-full w-full ">
           <SideTextAnimation display>
@@ -325,12 +214,20 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
-      const { language } = useTranslationContext();
-      const Image = getCleanerImageSvg(language);
+      const CleanerImage = () => {
+        const { language } = useTranslationContext();
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const CleanerImage = getCleanerImageSvg(language, theme);
+        if (!CleanerImage) return null;
+
+        return <CleanerImage />;
+      };
+
       return (
         <div className="relative flex h-full w-full items-center justify-center ">
           <SideImageAnimation display>
-            <Image />
+            <CleanerImage />
           </SideImageAnimation>
         </div>
       );

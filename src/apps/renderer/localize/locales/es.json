@@ -31,41 +31,25 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "¡Bienvenido a Internxt!",
-        "description": "Empieza haciendo una copia de seguridad de todos tus archivos y carpetas importantes en la barra lateral del buscador.",
+        "title": "Internxt Desktop",
+        "description": "¡Bienvenido a Internxt!\n\nHaz copias de seguridad de tus archivos con Drive, protégelos contra malware con Antivirus y optimiza el rendimiento con Cleaner — todo mientras mantienes tu privacidad protegida.",
         "take-tour": "Hacer recorrido"
       },
-      "files-organization": {
-        "title": "Accede y organiza todos tus archivos almacenados desde la barra lateral",
-        "description": "Tu carpeta personal de Internxt Drive se encuentra en tu barra lateral de {{platform_app}}."
-      },
-      "available-online": {
-        "title": "Ahorra espacio en tu dispositivo con la descarga inteligente",
-        "description": "Guarda los archivos no esenciales como solo online para ahorrar espacio en la unidad local.",
-        "description-2": "Al guardarlos de esta forma, los archivos se eliminan automáticamente de tu dispositivo y se suben a la nube."
-      },
-      "available-offline": {
-        "title": "Sincronización entre dispositivos y acceso a archivos sin conexión",
-        "description": "Almacena tus archivos esenciales como disponibles sin conexión para tenerlos siempre a mano.",
-        "description-2": "Al guardar como disponibles sin conexión, los archivos se almacenan localmente y se sincronizan automáticamente en todos tus dispositivos."
-      },
-      "context-menu": {
-        "title": "Organiza tus archivos con un solo clic",
-        "description": "Basta con hacer clic con el botón derecho en uno o varios archivos y seleccionar cómo deseas almacenarlos.",
-        "list-1": "Etiqueta los archivos disponibles sin conexión para acceder a ellos en cualquier momento, con o sin internet",
-        "list-2": "Etiqueta los archivos sólo en línea para ahorrar espacio físico en el disco duro"
+      "drive": {
+        "title": "Drive",
+        "description": "Accede a todos tus archivos desde la carpeta de Internxt Drive en la barra lateral de {{platform_app}}.\n\nElige ahorrar espacio con archivos disponibles solo en línea o mantener los esenciales sin conexión — todo permanece seguro y sincronizado en todos tus dispositivos."
       },
       "antivirus": {
-        "title": "Mantén tu ordenador protegido contra virus",
-        "description": "La aplicación de escritorio de Internxt ahora también cuenta con el nuevo Internxt Antivirus, con el que puedes escanear y eliminar cualquier posible malware de tu dispositivo."
+        "title": "Antivirus",
+        "description": "Protege tu dispositivo contra el malware y las amenazas en línea.\n\nInternxt Antivirus te mantiene seguro con análisis en tiempo real y una seguridad que prioriza tu privacidad."
       },
       "backups": {
-        "title": "Haz copias de seguridad de tu dispositivo en la nube",
-        "description": "Con la función mejorada de copias de seguridad de Internxt, ahora puedes hacer copias de seguridad de tus carpetas en la nube de manera segura para liberar espacio localmente."
+        "title": "Backup",
+        "description": "Con la función de copia de seguridad mejorada de Internxt, ahora puedes hacer copias seguras de tus carpetas en la nube para liberar espacio localmente.\n\nTambién puedes ajustar la frecuencia de las copias de seguridad según tus necesidades."
       },
       "cleaner": {
-        "title": "Libera espacio localmente y optimiza el rendimiento de tu dispositivo.",
-        "description": "Nuestro Cleaner encuentra y elimina archivos innecesarios para que tu dispositivo funcione sin problemas."
+        "title": "Cleaner",
+        "description": "Libera espacio localmente y optimiza el rendimiento de tu dispositivo.\n\nNuestro limpiador detecta y elimina archivos innecesarios para que tu dispositivo funcione sin problemas."
       },
       "onboarding-completed": {
         "title": "Ya está todo listo, ¡disfruta de tu privacidad!",
@@ -86,7 +70,8 @@
       "skip": "Saltar",
       "platform-phrase": {
         "windows": "explorador de archivos"
-      }
+      },
+      "new": "Nuevo"
     }
   },
   "migration": {
