@@ -4,10 +4,10 @@ import { SectionConfig } from '@internxt/drive-desktop-core/build/frontend/featu
 export const cleanerSectionKeys: CleanerSectionKey[] = ['appCache', 'logFiles', 'trash', 'webCache', 'webStorage', 'platformSpecific'];
 
 export const sectionConfig: SectionConfig = {
-  appCache: { name: 'App Cache', color: '#3B82F6' },
-  logFiles: { name: 'Log Files', color: '#10B981' },
-  trash: { name: 'Trash', color: '#F59E0B' },
-  webStorage: { name: 'Web Storage', color: '#EF4444' },
-  webCache: { name: 'Web Cache', color: '#8B5CF6' },
-  platformSpecific: { name: 'Windows Specific', color: '#69ed28ff' },
+  appCache: { name: 'App Cache', color: '#3384FF' },
+  logFiles: { name: 'Log Files', color: '#5BCF77' },
+  trash: { name: 'Trash', color: '#FFCC00' },
+  webStorage: { name: 'Web Storage', color: '#FF3D33' },
+  webCache: { name: 'Web Cache', color: '#7371DC' },
+  platformSpecific: { name: 'Windows Specific', color: '#33CEC1' },
 };
