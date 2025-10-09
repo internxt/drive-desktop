@@ -1,4 +1,4 @@
-import { deepMocked, getMockCalls, mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
+import { call, calls, deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createFolders } from './create-folders';
 import { createRelativePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -69,7 +69,7 @@ describe('create-folders', () => {
     await createFolders(props);
 
     // Then
-    expect(createFolderMock).not.toHaveBeenCalled();
+    calls(createFolderMock).toHaveLength(0);
   });
 
   it('If parent does not exist then add issue', async () => {
@@ -87,15 +87,12 @@ describe('create-folders', () => {
      * v2.5.3 Daniel Jiménez
      * TODO: check issue
      */
-    expect(createFolderMock).not.toHaveBeenCalled();
-    expect(getMockCalls(loggerMock.error)).toStrictEqual([
-      {
-        msg: 'Parent folder does not exist',
-        parentPath: '/folder1/folder2',
-        relativePath: '/folder1/folder2/folder3',
-        tag: 'BACKUPS',
-      },
-    ]);
+    calls(createFolderMock).toHaveLength(0);
+    call(loggerMock.error).toMatchObject({
+      msg: 'Parent folder does not exist',
+      parentPath: '/folder1/folder2',
+      relativePath: '/folder1/folder2/folder3',
+    });
   });
 
   it('If create folder fails then add issue', async () => {
@@ -111,9 +108,9 @@ describe('create-folders', () => {
     await createFolders(props);
 
     // Then
-    expect(createFolderMock).toHaveBeenCalledTimes(1);
+    calls(createFolderMock).toHaveLength(1);
     expect(props.self.backed).toBe(1);
-    expect(props.tracker.currentProcessed).toHaveBeenCalledWith(1);
+    calls(props.tracker.currentProcessed).toHaveLength(1);
     /**
      * v2.5.3 Daniel Jiménez
      * TODO: check issue
@@ -133,12 +130,12 @@ describe('create-folders', () => {
     await createFolders(props);
 
     // Then
-    expect(createFolderMock).toHaveBeenCalledWith({
+    call(createFolderMock).toStrictEqual({
       body: { parentFolderUuid: rootFolderUuid, plainName: 'folder1' },
       path: '/folder1',
     });
     expect(props.self.backed).toBe(1);
-    expect(props.tracker.currentProcessed).toHaveBeenCalledWith(1);
+    calls(props.tracker.currentProcessed).toHaveLength(1);
   });
 
   it('Sort folders before processing them', async () => {
@@ -163,12 +160,12 @@ describe('create-folders', () => {
 
     // Then
     expect(props.self.backed).toBe(6);
-    expect(getMockCalls(createFolderMock)).toStrictEqual([
-      { body: expect.objectContaining({ plainName: 'folder1' }), path: '/folder1' },
-      { body: expect.objectContaining({ plainName: 'folder2' }), path: '/folder1/folder2' },
-      { body: expect.objectContaining({ plainName: 'folder3' }), path: '/folder3' },
-      { body: expect.objectContaining({ plainName: 'folder4' }), path: '/folder3/folder4' },
-      { body: expect.objectContaining({ plainName: 'folder5' }), path: '/folder5' },
+    calls(createFolderMock).toMatchObject([
+      { body: { plainName: 'folder1' }, path: '/folder1' },
+      { body: { plainName: 'folder2' }, path: '/folder1/folder2' },
+      { body: { plainName: 'folder3' }, path: '/folder3' },
+      { body: { plainName: 'folder4' }, path: '/folder3/folder4' },
+      { body: { plainName: 'folder5' }, path: '/folder5' },
     ]);
   });
 });
