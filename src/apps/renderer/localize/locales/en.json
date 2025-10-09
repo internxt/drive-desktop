@@ -140,9 +140,9 @@
             "confirm": "Log out",
             "cancel": "Force sync"
           }
-        }
-      },
-      "cleaner": "Cleaner"
+        },
+        "cleaner": "Cleaner"
+      }
     },
     "body": {
       "activity": {
