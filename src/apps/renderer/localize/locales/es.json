@@ -422,7 +422,7 @@
         "saveUpTo": "Ahorra hasta",
         "ofYourSpace": "de tu espacio"
       },
-      "cleanupConfirmDialog": {
+      "cleanupConfirmDialogView": {
         "title": "Confirmar borrado",
         "description": "Esta acción eliminará permanentemente los archivos seleccionados de tu dispositivo. Esta acción no se puede deshacer. Confirme para continuar.",
         "cancelButton": "Cancelar",

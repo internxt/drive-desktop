@@ -155,9 +155,9 @@
             "confirm": "Se déconnecter",
             "cancel": "Forcer la synchronisation"
           }
-        }
-      },
-      "cleaner": "Cleaner"
+        },
+        "cleaner": "Cleaner"
+      }
     },
     "body": {
       "activity": {
@@ -418,7 +418,7 @@
         "saveUpTo": "Économisez jusqu'à",
         "ofYourSpace": "de votre espace"
       },
-      "cleanupConfirmDialog": {
+      "cleanupConfirmDialogView": {
         "title": "Confirmer le nettoyage",
         "description": "Cette action supprimera définitivement les fichiers sélectionnés de votre appareil. Cette action ne peut pas être annulée. Veuillez confirmer pour continuer.",
         "cancelButton": "Annuler",
