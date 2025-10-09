@@ -42,7 +42,7 @@ export const SLIDES: OnboardingSlide[] = [
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.slides.welcome.take-tour')}
           </Button>
-          <Button onClick={props.onSkipOnboarding} variant="secondary" size="lg">
+          <Button onClick={props.onSkipOnboarding} variant="outline" size="lg">
             {translate('onboarding.common.skip')}
           </Button>
         </div>
