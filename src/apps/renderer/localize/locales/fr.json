@@ -31,41 +31,25 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "Bienvenue dans Internxt!",
-        "description": "Commençons par sauvegarder tous vos fichiers et dossiers importants dans la barre latérale de votre finder.",
+        "title": "Internxt Desktop",
+        "description": "Bienvenue dans Internxt!\n\nSauvegardez vos fichiers avec Drive, protégez-les contre les logiciels malveillants avec Antivirus et optimisez les performances avec Cleaner — tout en préservant votre vie privée.",
         "take-tour": "Visite guidée"
       },
-      "files-organization": {
-        "title": "Accédez à tous vos fichiers sauvegardés et organisez-les à partir de la barre latérale",
-        "description": "Votre dossier personnel Internxt Drive est situé dans votre barre latérale {{platform_app}}."
-      },
-      "available-online": {
-        "title": "Économisez de l'espace sur votre appareil grâce au téléchargement intelligent",
-        "description": "Stockez les fichiers non essentiels comme uniquement en ligne pour économiser de l'espace sur le disque local.",
-        "description-2": "En enregistrant les fichiers uniquement en ligne, ils sont automatiquement supprimés de votre appareil et téléchargés sur le cloud."
-      },
-      "available-offline": {
-        "title": "Synchronisation entre appareils et accès aux fichiers hors ligne",
-        "description": "Stockez les fichiers essentiels en tant que disponibles hors ligne pour les avoir toujours à portée de main.",
-        "description-2": "En enregistrant les fichiers comme étant disponibles hors ligne, ils sont stockés localement et automatiquement synchronisés sur tous vos appareils."
-      },
-      "context-menu": {
-        "title": "Organisez vos fichiers en un seul clic",
-        "description": "Cliquez simplement avec le bouton droit sur un ou plusieurs fichiers et sélectionnez la manière dont vous souhaitez les stocker.",
-        "list-1": "Identifiez les fichiers disponibles hors ligne pour y accéder à tout moment, avec ou sans internet",
-        "list-2": "Étiqueter les fichiers uniquement en ligne pour économiser de l'espace sur le disque dur"
+      "drive": {
+        "title": "Drive",
+        "description": "Accédez à tous vos fichiers depuis le dossier Internxt Drive dans la barre latérale de {{platform_app}}.\n\nChoisissez d’économiser de l’espace avec des fichiers disponibles uniquement en ligne, ou gardez l’essentiel accessible hors ligne — tout reste sécurisé et synchronisé sur tous vos appareils."
       },
       "antivirus": {
-        "title": "Protégez votre ordinateur contre les virus",
-        "description": "L'application de bureau d'Internxt intègre désormais le tout nouveau Internxt Antivirus, qui vous permet d'analyser et de supprimer tout malware potentiel de votre appareil."
+        "title": "Antivirus",
+        "description": "Protégez votre appareil contre les logiciels malveillants et les menaces en ligne.\n\nInternxt Antivirus vous protège grâce à des analyses en temps réel et une sécurité axée sur la confidentialité."
       },
       "backups": {
-        "title": "Sauvegardez votre appareil sur le cloud",
-        "description": "Avec la fonction de sauvegarde améliorée d'Internxt, vous pouvez désormais sauvegarder vos dossiers en toute sécurité sur le cloud afin de libérer de l'espace localement."
+        "title": "Backup",
+        "description": "Avec la fonction de sauvegarde améliorée d’Internxt, vous pouvez désormais sauvegarder vos dossiers en toute sécurité sur le cloud afin de libérer de l’espace localement.\n\nVous pouvez également ajuster la fréquence des sauvegardes selon vos besoins."
       },
       "cleaner": {
-        "title": "Libérez de l'espace localement et optimisez les performances de votre appareil.",
-        "description": "Notre nettoyeur trouve et supprime les fichiers inutiles afin que votre appareil fonctionne correctement."
+        "title": "Cleaner",
+        "description": "Libérez de l’espace localement et optimisez les performances de votre appareil.\n\nNotre nettoyeur détecte et supprime les fichiers inutiles afin que votre appareil fonctionne sans encombre."
       },
       "onboarding-completed": {
         "title": "Vous êtes prêt, profitez de votre vie privée !",
@@ -86,7 +70,8 @@
       "skip": "Sauter",
       "platform-phrase": {
         "windows": "navigateur de fichiers"
-      }
+      },
+      "new": "Nouveau"
     }
   },
   "migration": {

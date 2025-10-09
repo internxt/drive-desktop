@@ -5,8 +5,15 @@ export function CleanerSlide() {
 
   return (
     <div className="flex h-full w-full flex-col">
-      <h1 className="mb-6 text-3xl font-semibold text-gray-100">{translate('onboarding.slides.cleaner.title')}</h1>
-      <h3 className="font-regular mb-4 text-lg leading-[22px] text-gray-100">{translate('onboarding.slides.cleaner.description')}</h3>
+      <div className="mb-6 flex items-start gap-2">
+        <h1 className="text-3xl font-semibold text-gray-100">{translate('onboarding.slides.cleaner.title')}</h1>
+        <span className="rounded bg-primary/20 px-2 py-0.5 text-xs font-bold leading-tight text-primary">
+          {translate('onboarding.common.new')}
+        </span>
+      </div>
+      <h3 className="font-regular mb-4 text-lg leading-[22px] text-gray-100 whitespace-pre-line">
+        {translate('onboarding.slides.cleaner.description')}
+      </h3>
     </div>
   );
 }
