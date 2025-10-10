@@ -5,6 +5,7 @@ import { generateLogFilesReport } from './generate-log-files-report';
 import { generateWebStorageFileReport } from './generate-web-storage-files-report';
 import { generateWebCacheReport } from './generate-web-cache-report';
 import { generateWindowsSpecificFileReport } from './generate-windows-specific-file-report';
+import { generateRecycleBinReport } from './trash-bin/generate-recycle-bin-report';
 
 let storedCleanerReport: CleanerReport | null = null;
 
@@ -31,9 +32,10 @@ export async function generateCleanerReport(refreshReport = false) {
   try {
     logger.debug({ msg: 'Starting cleaner report generation...' });
 
-    const [appCache, logfiles, webStorage, webCache, windowsSpecific] = await Promise.allSettled([
+    const [appCache, logfiles, recycleBin, webStorage, webCache, windowsSpecific] = await Promise.allSettled([
       generateAppCacheReport(),
       generateLogFilesReport(),
+      generateRecycleBinReport(),
       generateWebStorageFileReport(),
       generateWebCacheReport(),
       generateWindowsSpecificFileReport(),
@@ -42,7 +44,7 @@ export async function generateCleanerReport(refreshReport = false) {
     const cleanerReport = {
       appCache: getCleanerSectionOrFallback(appCache),
       logFiles: getCleanerSectionOrFallback(logfiles),
-      trash: { totalSizeInBytes: 0, items: [] },
+      trash: getCleanerSectionOrFallback(recycleBin),
       webStorage: getCleanerSectionOrFallback(webStorage),
       webCache: getCleanerSectionOrFallback(webCache),
       platformSpecific: getCleanerSectionOrFallback(windowsSpecific),
