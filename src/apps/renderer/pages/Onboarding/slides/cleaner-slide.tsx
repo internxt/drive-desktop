@@ -11,7 +11,7 @@ export function CleanerSlide() {
           {translate('onboarding.common.new')}
         </span>
       </div>
-      <h3 className="font-regular mb-4 text-lg leading-[22px] text-gray-100 whitespace-pre-line">
+      <h3 className="font-regular mb-4 text-lg leading-[22px] text-gray-100 whitespace-pre-line text-left">
         {translate('onboarding.slides.cleaner.description')}
       </h3>
     </div>

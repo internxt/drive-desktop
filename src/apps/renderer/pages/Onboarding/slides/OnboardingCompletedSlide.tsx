@@ -34,7 +34,7 @@ export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = (props) 
           <h3 className="font-regular mb-0.5 text-lg leading-[22px] text-gray-100">
             {translate('onboarding.slides.onboarding-completed.desktop-ready.title')}
           </h3>
-          <h4 className="font-regular text-base leading-[19px] text-gray-50">
+          <h4 className="font-regular text-base leading-[19px] text-gray-100 text-left">
             {translate('onboarding.slides.onboarding-completed.desktop-ready.description', {
               platform_phrase: translate('onboarding.common.platform-phrase.windows'),
             })}

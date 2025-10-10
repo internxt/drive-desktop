@@ -13,7 +13,7 @@ export const AntivirusSlide: React.FC<OnboardingSlideProps> = () => {
           {translate('onboarding.common.new')}
         </span>
       </div>
-      <h3 className="font-regular mb-4 text-lg leading-[22px] text-gray-100 whitespace-pre-wrap">
+      <h3 className="font-regular mb-4 text-lg leading-[22px] text-gray-100 whitespace-pre-wrap text-left">
         {translate('onboarding.slides.antivirus.description')}
       </h3>
     </div>
