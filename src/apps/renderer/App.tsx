@@ -5,7 +5,7 @@ import { Suspense, useEffect } from 'react';
 import { HashRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 import { TranslationProvider } from './context/LocalContext';
-import useLanguageChangedListener from './hooks/useLanguage';
+import { useLanguage } from './hooks/useLanguage';
 import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import Settings from './pages/Settings';
@@ -26,7 +26,7 @@ function LocationWrapper({ children }: { children: JSX.Element }) {
 }
 
 export default function App() {
-  useLanguageChangedListener();
+  useLanguage();
 
   return (
     <Router>

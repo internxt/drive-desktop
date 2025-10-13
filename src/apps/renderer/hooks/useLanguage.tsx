@@ -1,19 +1,27 @@
 import i18next from 'i18next';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
-import { DEFAULT_LANGUAGE, Language } from '../../shared/Locale/Language';
+import { isLanguage, Language } from '../../shared/Locale/Language';
+import { setLanguage } from '../localize/language.store';
+import dayjs from 'dayjs';
+import DayJsLocales from '@/apps/shared/Locale/DayJsLocales';
 
-export default function useLanguage() {
-  const [lang, setLang] = useState<Language>(DEFAULT_LANGUAGE);
+export function useLanguage() {
+  function updateLanguage(language: Language) {
+    if (isLanguage(language)) {
+      setLanguage({ language });
+      void i18next.changeLanguage(language);
+      dayjs.locale(DayJsLocales[language]);
+    }
+  }
 
-  const updated = (l: Language) => {
-    i18next.changeLanguage(l);
-    setLang(l);
-  };
+  async function refreshLanguage() {
+    const language = await window.electron.getConfigKey('preferedLanguage');
+    setLanguage({ language });
+  }
 
   useEffect(() => {
-    return window.electron.listenToConfigKeyChange<Language>('preferedLanguage', updated);
+    void refreshLanguage();
+    return window.electron.listenToConfigKeyChange<Language>('preferedLanguage', updateLanguage);
   }, []);
-
-  return lang;
 }
