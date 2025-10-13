@@ -11,7 +11,7 @@ function getNestedValue(obj: any, path: string) {
   return path.split('.').reduce((current, key) => current?.[key], obj);
 }
 
-function globalI18n(translations: Translations, key: string, ...args: string[]) {
+export function i18n(key: TranslationKey, ...args: string[]) {
   const language = i18nStore((s) => s.language);
   const translation = translations[language];
 
@@ -24,8 +24,4 @@ function globalI18n(translations: Translations, key: string, ...args: string[]) 
   }
 
   return value;
-}
-
-export function i18n(key: TranslationKey, ...args: string[]) {
-  return globalI18n(translations, key, ...args);
 }
