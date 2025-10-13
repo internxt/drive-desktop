@@ -1,5 +1,5 @@
 import { globalI18n } from '../../localize/global.i18n';
-import { TLanguage } from '../../localize/language.store';
+import { Language } from '../../localize/language.store';
 
 type Translations =
   | 'ABORTED'
@@ -18,7 +18,7 @@ type Translations =
   | 'UNKNOWN_DEVICE_NAME'
   | 'WEBSOCKET_CONNECTION_ERROR';
 
-const translations: Record<TLanguage, Record<Translations, string>> = {
+const translations: Record<Language, Record<Translations, string>> = {
   en: {
     ABORTED: 'Aborted',
     CREATE_FOLDER_FAILED: 'Failed to create folder',

@@ -198,7 +198,8 @@
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
     "typeorm": "^0.3.16",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "zustand": "^4.5.7"
   },
   "engines": {
     "node": ">=20.19.0",

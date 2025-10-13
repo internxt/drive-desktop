@@ -229,22 +229,6 @@
         }
       },
       "auto-startup": "Start Internxt on system startup",
-      "language": {
-        "label": "Language",
-        "options": {
-          "es": "Español (Spanish)",
-          "en": "English (English)",
-          "fr": "Français (French)"
-        }
-      },
-      "theme": {
-        "label": "Appearance",
-        "options": {
-          "system": "System",
-          "light": "Light",
-          "dark": "Dark"
-        }
-      },
       "sync": {
         "folder": "Internxt Folder",
         "change-folder": "Change folder"
