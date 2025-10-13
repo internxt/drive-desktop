@@ -1,36 +1,16 @@
 import { useEffect, useState } from 'react';
-import { SyncStatus } from '../../../context/desktop/sync/domain/SyncStatus';
+import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 
-export default function useSyncStatus(onChange?: (curentState: SyncStatus) => void) {
-  const [syncStatus, setSyncStatus] = useState<SyncStatus>('RUNNING');
+export default function useSyncStatus(onChange?: (curentState: RemoteSyncStatus) => void) {
+  const [syncStatus, setSyncStatus] = useState<RemoteSyncStatus>('SYNCING');
 
   useEffect(() => {
-    window.electron.getRemoteSyncStatus().then((status) => {
-      if (status === 'SYNCING') {
-        setSyncStatus('RUNNING');
-      }
-
-      if (status === 'IDLE' || status === 'SYNCED') {
-        setSyncStatus('STANDBY');
-      }
-
-      if (status === 'SYNC_FAILED') {
-        setSyncStatus('FAILED');
-      }
+    void window.electron.getRemoteSyncStatus().then((status) => {
+      setSyncStatus(status);
     });
 
-    const removeListener = window.electron.onRemoteSyncStatusChange((newStatus) => {
-      if (newStatus === 'SYNCING') {
-        setSyncStatus('RUNNING');
-      }
-
-      if (newStatus === 'IDLE' || newStatus === 'SYNCED') {
-        setSyncStatus('STANDBY');
-      }
-
-      if (newStatus === 'SYNC_FAILED') {
-        setSyncStatus('FAILED');
-      }
+    const removeListener = window.electron.onRemoteSyncStatusChange((status) => {
+      setSyncStatus(status);
     });
 
     return removeListener;

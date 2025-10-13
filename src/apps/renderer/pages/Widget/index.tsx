@@ -11,27 +11,15 @@ export default function Widget() {
   const { syncStatus } = useSyncStatus();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState<boolean>(false);
 
-  const handleRetrySync = () => {
-    window.electron.syncManually().catch((err) => {
-      reportError(err);
-    });
-  };
-
-  const displayErrorInWidget = syncStatus && syncStatus === 'FAILED';
-
-  const renderWidgetError = () => {
-    if (syncStatus === 'FAILED') {
-      return <SyncFailed onRetrySync={handleRetrySync} />;
-    }
-    return <></>;
-  };
-
   return (
     <div className="flex h-screen flex-col overflow-hidden">
       <Header setIsLogoutModalOpen={setIsLogoutModalOpen} />
       <InfoBanners />
-      {displayErrorInWidget ? renderWidgetError() : <SyncInfo />}
+
+      {syncStatus === 'SYNC_FAILED' ? <SyncFailed /> : <SyncInfo />}
+
       <SyncAction syncStatus={syncStatus} />
+
       {isLogoutModalOpen && (
         <ModalLogout
           onClose={() => setIsLogoutModalOpen(false)}
