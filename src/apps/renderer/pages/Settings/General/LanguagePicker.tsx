@@ -1,9 +1,9 @@
 import Select, { SelectOptionsType } from '../../../components/Select';
-import { languageStore } from '@/apps/renderer/localize/language.store';
+import { i18nStore } from '@/apps/renderer/localize/i18n.store';
 import { i18n } from '@/apps/renderer/localize/i18n';
 
 export default function LanguagePicker(): JSX.Element {
-  const selectedLanguage = languageStore((state) => state.language);
+  const selectedLanguage = i18nStore((state) => state.language);
 
   const languages: SelectOptionsType[] = [
     {

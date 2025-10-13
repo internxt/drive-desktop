@@ -1,6 +1,7 @@
 import { en } from './languages/en';
 
-export type Language = 'en' | 'es' | 'fr';
+export const languages = ['es', 'en', 'fr'] as const;
+export type Language = (typeof languages)[number];
 export type Translation = typeof en;
 export type Translations = Record<Language, Translation>;
 

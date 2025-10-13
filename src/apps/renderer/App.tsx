@@ -5,7 +5,6 @@ import { Suspense, useEffect } from 'react';
 import { HashRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 import { TranslationProvider } from './context/LocalContext';
-import { useLanguage } from './hooks/useLanguage';
 import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import Settings from './pages/Settings';
@@ -15,6 +14,7 @@ import IssuesPage from './pages/Issues';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './core/tanstack-query/query-client';
 import { AuthGuard } from './components/AuthGuard';
+import { useI18n } from './localize/use-i18n';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -26,7 +26,7 @@ function LocationWrapper({ children }: { children: JSX.Element }) {
 }
 
 export default function App() {
-  useLanguage();
+  useI18n();
 
   return (
     <Router>
