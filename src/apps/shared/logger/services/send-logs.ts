@@ -1,9 +1,8 @@
 import { PATHS } from '@/core/electron/paths';
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, join } from 'node:path/posix';
 import JSZip from 'jszip';
 import { logger } from '../logger';
-import { writeFile } from 'node:fs/promises';
 import { shell } from 'electron';
 
 export async function sendLogs() {
