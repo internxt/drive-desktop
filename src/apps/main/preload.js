@@ -110,9 +110,6 @@ var api = {
   openProcessIssuesWindow() {
     import_electron2.ipcRenderer.send("open-process-issues-window");
   },
-  openLogs() {
-    import_electron2.ipcRenderer.send("open-logs");
-  },
   openSettingsWindow(section) {
     import_electron2.ipcRenderer.send("open-settings-window", section);
   },
@@ -325,6 +322,7 @@ var api = {
     return () => {
       import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
     };
-  }
+  },
+  sendLogs: async () => await ipcPreloadRenderer.invoke("sendLogs")
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

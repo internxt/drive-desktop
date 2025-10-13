@@ -97,9 +97,6 @@ const api = {
   openProcessIssuesWindow() {
     ipcRenderer.send('open-process-issues-window');
   },
-  openLogs() {
-    ipcRenderer.send('open-logs');
-  },
   openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS' | 'CLEANER') {
     ipcRenderer.send('open-settings-window', section);
   },
@@ -332,6 +329,7 @@ const api = {
       ipcRenderer.removeListener(eventName, callbackWrapper);
     };
   },
+  sendLogs: async () => await ipcPreloadRenderer.invoke('sendLogs'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);
