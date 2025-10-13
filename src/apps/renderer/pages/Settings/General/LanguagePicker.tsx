@@ -5,7 +5,7 @@ import DayJsLocales from '../../../../shared/Locale/DayJsLocales';
 import { DEFAULT_LANGUAGE, Language } from '../../../../shared/Locale/Language';
 import Select, { SelectOptionsType } from '../../../components/Select';
 import useConfig from '../../../hooks/useConfig';
-import { languageStore, setLanguage } from '@/apps/renderer/localize/language.store';
+import { setLanguage } from '@/apps/renderer/localize/language.store';
 import { i18n } from '@/apps/renderer/localize/i18n';
 
 export default function LanguagePicker(): JSX.Element {

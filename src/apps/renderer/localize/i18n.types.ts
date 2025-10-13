@@ -1,21 +1,20 @@
 import { en } from './languages/en';
 
 export type Language = 'en' | 'es' | 'fr';
-export type Translations = typeof en;
+export type Translation = typeof en;
+export type Translations = Record<Language, Translation>;
 
-// Helper type to create dot notation paths
-type Join<K, P> = K extends string | number ? (P extends string | number ? `${K}${'' extends P ? '' : '.'}${P}` : never) : never;
-
-// Depth counter to prevent infinite recursion
 type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-// Recursive type to generate all possible paths through the object
 type Paths<T, D extends number = 10> = [D] extends [never]
   ? never
   : T extends object
     ? {
-        [K in keyof T]-?: K extends string | number ? `${K}` | Join<K, Paths<T[K], Prev[D]>> : never;
+        [K in keyof T]-?: K extends string | number
+          ? `${K}` | (Paths<T[K], Prev[D]> extends never ? never : `${K}.${Paths<T[K], Prev[D]>}`)
+          : never;
       }[keyof T]
-    : '';
+    : never;
 
-export type TranslationKey = Paths<Translations>;
+// eslint-disable-next-line sonarjs/redundant-type-aliases
+export type TranslationKey = Paths<Translation>;
