@@ -32,14 +32,15 @@ export default function Widget() {
       <InfoBanners />
       {displayErrorInWidget ? renderWidgetError() : <SyncInfo />}
       <SyncAction syncStatus={syncStatus} />
-      <ModalLogout
-        isOpen={isLogoutModalOpen}
-        onClose={() => setIsLogoutModalOpen(false)}
-        onLogout={() => {
-          setIsLogoutModalOpen(false);
-          window.electron.logout();
-        }}
-      />
+      {isLogoutModalOpen && (
+        <ModalLogout
+          onClose={() => setIsLogoutModalOpen(false)}
+          onLogout={() => {
+            setIsLogoutModalOpen(false);
+            window.electron.logout();
+          }}
+        />
+      )}
     </div>
   );
 }

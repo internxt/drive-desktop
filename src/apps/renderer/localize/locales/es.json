@@ -122,24 +122,15 @@
         "preferences": "Preferencias",
         "sync": "Sincronizar",
         "issues": "Lista de errores",
-        "send-feedback": "Enviar feedback",
         "support": "Ayuda",
         "antivirus": "Antivirus",
         "logout": "Cerrar sesión",
         "quit": "Salir",
         "logout-confirmation": {
-          "no-sync-pending": {
-            "title": "¿Cerrar sesión en este dispositivo?",
-            "message": "Internxt no se mostrará sin una cuenta iniciada.",
-            "confirm": "Cerrar sesión",
-            "cancel": "Cancelar"
-          },
-          "sync-pending": {
-            "title": "Algunos elementos no están sincronizados",
-            "message": "Si cierras sesión ahora, estos archivos no se sincronizarán y se moverán a una carpeta en el escritorio.",
-            "confirm": "Cerrar sesión",
-            "cancel": "Forzar sincronización"
-          }
+          "title": "¿Cerrar sesión en este dispositivo?",
+          "message": "Internxt no se mostrará sin una cuenta iniciada.",
+          "confirm": "Cerrar sesión",
+          "cancel": "Cancelar"
         },
         "cleaner": "Cleaner"
       }
@@ -426,40 +417,6 @@
       "find-folder": "Buscar la carpeta",
       "try-again": "Volver a intentar"
     },
-    "short-error-messages": {
-      "unknown": "Error desconocido",
-      "emtpy-file": "Archivos vacios no son soportados",
-      "bad-response": "Error de los servidores de Internxt",
-      "no-remote-connection": "No pudimos conectar con los servidores de Internxt",
-      "no-internet-connection": "No hay conexión a Internet",
-      "no-permission": "Permisos insuficientes",
-      "file-does-not-exist": "El archivo no existe",
-      "folder-does-not-exist": "La carpeta no existe",
-      "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
-      "file-non-extension": "Archivos sin extensión no son soportados",
-      "duplicated-node": "Hay un conflicto con el elemento",
-      "not-enough-space": "No tienes suficiente espacio para completar la operación.",
-      "invalid-windows-name": "Windows no permite nombres que incluyen los caracteres \\ / : * ? \" < > |",
-      "delete-error": "No se pudo eliminar el elemento"
-    },
-    "error-messages": {
-      "no-internet": "No estás conectado a Internet, lo intentaremos más tarde",
-      "no-remote-connection": "No hemos podido conectar con los servidores de Internxt, lo intentaremos más tarde",
-      "cannot-get-current-listings": "No pudimos obtener el estado de tus archivos actuales, lo intentaremos más tarde",
-      "base-directory-does-not-exist": "No se pudo encontrar su carpeta de sincronización",
-      "insuficient-permision-accessing-base-directory": "Internxt App no tiene permiso para acceder a su carpeta de sincronización",
-      "cannot-access-base-directory": "No hemos podido acceder a su carpeta local",
-      "cannot-access-tmp-directory": "No hemos podido acceder a su carpeta local",
-      "unknown": "Error desconocido al intentar sincronizar sus archivos",
-      "empty-file": "No admitimos archivos con un tamaño de 0 bytes debido a nuestros procesos de cifrado",
-      "bad-response": "Error de servidor al procesar este archivo. Por favor, intente iniciar de nuevo el proceso de sincronización",
-      "file-does-not-exist": "Este archivo estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a él. Si has eliminado este archivo, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
-      "folder-does-not-exist": "Esta carpeta estaba presente cuando comparamos su carpeta local con su unidad Internxt, pero desapareció cuando intentamos acceder a ella. Si has eliminado esta carpeta, no te preocupes, este error debería desaparecer la próxima vez que se inicie el proceso de sincronización",
-      "file-too-big": "El tamaño máximo de carga es de 20GB. Por favor, intenta con archivos más pequeños.",
-      "file-non-extension": "Los archivos sin extensiones no son soportados. No sincronizado",
-      "duplicated-node": "Hay dos elementos (archivo o carpeta) con el mismo nombre en una carpeta. Cambia el nombre de uno de ellos para sincronizar ambos.",
-      "not-enough-space": "No tienes suficiente espacio para completar la operación."
-    },
     "report-modal": {
       "actions": {
         "close": "Cerrar",
@@ -472,17 +429,6 @@
       "user-comments": "Comentarios",
       "include-logs": "Incluir los registros de este proceso de sincronización con fines de solucionar el error"
     }
-  },
-  "feedback": {
-    "window-title": "Comentarios sobre Internxt para Escritorio",
-    "title": "Comparte tus opiniones con Internxt",
-    "description": "Tus comentarios hacen que mejoremos y creemos mejores experiencias de producto",
-    "placeholder": "Haznos saber lo que tienes en mente, lo que te gustaría mejorar o describe el error o problema",
-    "characters-count": "{{character_count}}/{{character_limit}}",
-    "send-feedback": "Enviar comentarios",
-    "sent-title": "Gracias por compartir tus comentarios",
-    "sent-message": "Apreciamos tu tiempo y esfuerzo para ayudarnos a mejorar nuestros servicios.",
-    "close": "Cerrar"
   },
   "common": {
     "cancel": "Cancelar"

@@ -122,24 +122,15 @@
         "preferences": "Preferences",
         "sync": "Sync",
         "issues": "Issues",
-        "send-feedback": "Send feedback",
         "support": "Support",
         "antivirus": "Antivirus",
         "logout": "Log out",
         "quit": "Quit",
         "logout-confirmation": {
-          "no-sync-pending": {
-            "title": "Log out from this device?",
-            "message": "Internxt Drive will not show up without an account logged in.",
-            "confirm": "Log out",
-            "cancel": "Cancel"
-          },
-          "sync-pending": {
-            "title": "Some items are not synced",
-            "message": "If you log out now, these files won’t be synced and will be moved to a folder on the desktop.",
-            "confirm": "Log out",
-            "cancel": "Force sync"
-          }
+          "title": "Log out from this device?",
+          "message": "Internxt Drive will not show up without an account logged in.",
+          "confirm": "Log out",
+          "cancel": "Cancel"
         },
         "cleaner": "Cleaner"
       }
@@ -443,40 +434,6 @@
       "find-folder": "Find folder",
       "try-again": "Try again"
     },
-    "short-error-messages": {
-      "unknown": "Unknown error",
-      "empty-file": "Empty files are not supported.",
-      "bad-response": "Bad response from Internxt servers",
-      "no-remote-connection": "Can't connect to Internxt servers",
-      "no-internet-connection": "No internet connection",
-      "no-permission": "Insufficient permissions",
-      "file-does-not-exist": "File doesn't exist",
-      "folder-does-not-exist": "Folder doesn't exist",
-      "file-too-big": "Max upload size is 20GB. Please try smaller files.",
-      "file-non-extension": "Files without extensions are not supported.",
-      "duplicated-node": "It appears that there are duplicate file or folder names in this directory. Please rename one of them to ensure synchronization",
-      "not-enough-space": "You have not enough space to complete the operation",
-      "invalid-windows-name": "Windows does not allow names that include the characters \\ / : * ? \" < > |",
-      "delete-error": "Cannot delete item"
-    },
-    "error-messages": {
-      "no-internet": "Looks like you are not connected to the internet, we'll try again later",
-      "no-remote-connection": "We could not connect to Internxt servers, we'll try again later",
-      "cannot-get-current-listings": "We could not get the status of your current files, we'll try again later",
-      "base-directory-does-not-exist": "Unable to find your sync folder",
-      "insuficient-permision-accessing-base-directory": "Internxt App does not have permission to access your sync folder",
-      "cannot-access-base-directory": "We could not access your local folder",
-      "cannot-access-tmp-directory": "We could not access your  local folder",
-      "unknown": "An unknown error ocurred while trying to sync your files",
-      "empty-file": "We don't support files with a size of 0 bytes because of our processes of sharding and encryption",
-      "bad-response": "We got a bad response from our servers while processing this file. Please, try starting the sync process again.",
-      "file-does-not-exist": "This file was present when we compared your local folder with your Internxt drive but disappeared when we tried to access it. If you deleted this file, don't worry, this error should dissapear the next time the sync process starts.",
-      "folder-does-not-exist": "This folder was present when we compared your local folder with your Internxt drive but disappeared when we tried to access it. If you deleted this folder, don't worry, this error should dissapear the next time the sync process starts.",
-      "file-too-big": "Max upload size is 20GB. Please try smaller files.",
-      "file-non-extension": "Files without extensions are not supported. Not synchronized.",
-      "duplicated-node": "There are two elements (file or folder) with the same name on a folder. Rename one of them to sync them both",
-      "not-enough-space": "You have not enough space to complete the operation"
-    },
     "report-modal": {
       "actions": {
         "close": "Close",
@@ -489,17 +446,6 @@
       "user-comments": "Comments",
       "include-logs": "Include the logs of this sync process for debug purposes"
     }
-  },
-  "feedback": {
-    "window-title": "Internxt Desktop feedback",
-    "title": "Share feedback with Internxt",
-    "description": "Your feedback makes Internxt improve and helps us to create better product experiences",
-    "placeholder": "Let us know what's in your mind, what you'd like to improve or describe the bug or issue",
-    "characters-count": "{{character_count}}/{{character_limit}}",
-    "send-feedback": "Send feedback",
-    "sent-title": "Thank you for sharing your feedback",
-    "sent-message": "We really appreciate your time and effort to help us improve our services.",
-    "close": "Close"
   },
   "common": {
     "cancel": "Cancel"
