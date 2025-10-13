@@ -19,6 +19,7 @@ module.exports = {
     {
       files: ['*.test.*'],
       rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
         'sonarjs/assertions-in-tests': 'off',
         'sonarjs/constructor-for-side-effects': 'off',
         'sonarjs/function-return-type': 'off',
