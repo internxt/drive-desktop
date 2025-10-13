@@ -6,7 +6,7 @@ import { i18nStore } from '../localize/i18n.store';
 import dayjs from 'dayjs';
 import DayJsLocales from '@/apps/shared/Locale/DayJsLocales';
 
-function updateLanguage(language: Language) {
+function updateLanguage(language: string) {
   if (isLanguage(language)) {
     i18nStore.setState({ language });
     void i18next.changeLanguage(language);

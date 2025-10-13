@@ -11,11 +11,8 @@ type Paths<T, D extends number = 10> = [D] extends [never]
   ? never
   : T extends object
     ? {
-        [K in keyof T]-?: K extends string | number
-          ? `${K}` | (Paths<T[K], Prev[D]> extends never ? never : `${K}.${Paths<T[K], Prev[D]>}`)
-          : never;
+        [K in keyof T]-?: K extends string | number ? (T[K] extends object ? `${K}.${Paths<T[K], Prev[D]> & string}` : `${K}`) : never;
       }[keyof T]
     : never;
 
-// eslint-disable-next-line sonarjs/redundant-type-aliases
 export type TranslationKey = Paths<Translation>;

@@ -64,6 +64,7 @@ module.exports = {
     'sonarjs/prefer-read-only-props': 'off',
     'sonarjs/pseudo-random': 'warn',
     'sonarjs/public-static-readonly': 'warn',
+    'sonarjs/redundant-type-aliases': 'off',
     'sonarjs/slow-regex': 'off',
     'sonarjs/todo-tag': 'off',
     'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
