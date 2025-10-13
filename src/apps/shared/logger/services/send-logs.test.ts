@@ -1,9 +1,9 @@
 import { sendLogs } from './send-logs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
-import { Dirent } from 'node:original-fs';
 import { call, calls } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { shell } from 'electron';
+import { Dirent } from 'node:fs';
 
 vi.mock(import('node:fs/promises'));
 
