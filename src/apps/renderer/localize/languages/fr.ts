@@ -30,7 +30,7 @@ export const fr: Translation = {
       FILE_SIZE_TOO_BIG: 'Le fichier est trop grand (max 20GB)',
       FOLDER_ACCESS_DENIED: "L'app n'a pas le droit d'accéder à cette dossier",
       FOLDER_DOES_NOT_EXIST: 'Dossier non existant',
-      INVALID_WINDOWS_NAME: 'Windows ne permet pas les noms contenant les caractères \\ / : * ? " < > |',
+      INVALID_WINDOWS_NAME: String.raw`Windows ne permet pas les noms contenant les caractères \ / : * ? " < > |`,
       NETWORK_CONNECTIVITY_ERROR: 'Erreur de connectivité réseau',
       NOT_ENOUGH_SPACE: "Vous n'avez pas assez d'espace pour compléter l'opération",
       PARENT_FOLDER_DOES_NOT_EXIST: 'Dossier parent non existant',

@@ -15,13 +15,13 @@ function updateLanguage(language: string) {
 }
 
 async function refreshLanguage() {
-  const language = await window.electron.getConfigKey('preferedLanguage');
+  const language = await globalThis.window.electron.getConfigKey('preferedLanguage');
   updateLanguage(language);
 }
 
 export function useI18n() {
   useEffect(() => {
     void refreshLanguage();
-    return window.electron.listenToConfigKeyChange<Language>('preferedLanguage', updateLanguage);
+    return globalThis.window.electron.listenToConfigKeyChange<Language>('preferedLanguage', updateLanguage);
   }, []);
 }
