@@ -2,23 +2,24 @@ import { useEffect, useState } from 'react';
 import { DEFAULT_THEME, Theme } from '../../../../shared/types/Theme';
 import Select, { SelectOptionsType } from '../../../components/Select';
 import useConfig from '../../../hooks/useConfig';
-import { i18n } from '@/apps/renderer/localize/i18n';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export default function ThemePicker(): JSX.Element {
+  const { t: translate } = useI18n();
   const [selectedTheme, setSelectedTheme] = useState<Theme | null>((useConfig('preferedTheme') as Theme) || null);
 
   const themes: SelectOptionsType[] = [
     {
       value: 'system',
-      name: i18n('settings.general.theme.options.system'),
+      name: translate('settings.general.theme.options.system'),
     },
     {
       value: 'light',
-      name: i18n('settings.general.theme.options.light'),
+      name: translate('settings.general.theme.options.light'),
     },
     {
       value: 'dark',
-      name: i18n('settings.general.theme.options.dark'),
+      name: translate('settings.general.theme.options.dark'),
     },
   ];
 
@@ -43,7 +44,7 @@ export default function ThemePicker(): JSX.Element {
 
   return (
     <div id="theme-picker" className="flex flex-1 flex-col items-start space-y-2">
-      <p className="text-sm font-medium leading-4 text-gray-80">{i18n('settings.general.theme.label')}</p>
+      <p className="text-sm font-medium leading-4 text-gray-80">{translate('settings.general.theme.label')}</p>
 
       {selectedTheme && <Select options={themes} value={selectedTheme} onValueChange={updatePreferedTheme} />}
     </div>
