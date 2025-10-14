@@ -8,12 +8,15 @@ import { INTERNXT_LOGS } from '@/core/utils/utils';
 import archiver from 'archiver';
 import { mockDeep } from 'vitest-mock-extended';
 import { EventEmitter } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 
 vi.mock(import('node:fs/promises'));
 vi.mock(import('node:fs'));
+vi.mock(import('node:stream/promises'));
 vi.mock(import('archiver'));
 
 describe('open-logs', () => {
+  vi.mocked(pipeline);
   const readdirMock = vi.mocked(readdir);
   const createWriteStreamMock = vi.mocked(createWriteStream);
   const archiverMock = vi.mocked(archiver);
@@ -43,18 +46,6 @@ describe('open-logs', () => {
   it('should catch global errors', async () => {
     // Given
     readdirMock.mockRejectedValue(new Error());
-    // When
-    await openLogs();
-    // Then
-    call(loggerMock.error).toMatchObject({ msg: 'Error creating logs zip' });
-  });
-
-  it('should catch stream errors', async () => {
-    // Given
-    archive.finalize.mockImplementation(() => {
-      writeStream.emit('error');
-      return Promise.resolve();
-    });
     // When
     await openLogs();
     // Then

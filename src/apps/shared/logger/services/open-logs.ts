@@ -6,22 +6,19 @@ import { shell } from 'electron';
 import { INTERNXT_LOGS } from '@/core/utils/utils';
 import { createWriteStream } from 'node:fs';
 import archiver from 'archiver';
+import { pipeline } from 'node:stream/promises';
 
 export async function openLogs() {
   logger.debug({ msg: 'Open logs' });
+
+  void shell.openPath(PATHS.LOGS);
 
   try {
     const output = join(PATHS.LOGS, INTERNXT_LOGS);
     const writeStream = createWriteStream(output);
     const archive = archiver('zip', { zlib: { level: 9 } });
 
-    archive.pipe(writeStream);
-
-    const completionPromise = new Promise<void>((resolve, reject) => {
-      writeStream.on('close', resolve);
-      writeStream.on('error', reject);
-      archive.on('error', reject);
-    });
+    const pipelinePromise = pipeline(archive, writeStream);
 
     const logFiles = await readdir(PATHS.LOGS);
     const logPaths = logFiles.filter((fileName) => fileName.endsWith('.log')).map((fileName) => join(PATHS.LOGS, fileName));
@@ -38,10 +35,8 @@ export async function openLogs() {
     }
 
     await archive.finalize();
-    await completionPromise;
+    await pipelinePromise;
   } catch (error) {
     logger.error({ msg: 'Error creating logs zip', error });
   }
-
-  void shell.openPath(PATHS.LOGS);
 }
