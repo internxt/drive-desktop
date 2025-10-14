@@ -21,7 +21,7 @@ import useConfig from '../../hooks/useConfig';
 import { Theme } from '../../../shared/types/Theme';
 import { AntivirusSlide } from './slides/AntivirusSlide';
 import { CleanerSlide } from './slides/cleaner-slide';
-import { WindowsFileExplorerImage } from './slides-images/windows-file-explorer';
+import { WindowsFileExplorerImage } from './slides-images/windows-file-explorer-image';
 
 export const SLIDES: OnboardingSlide[] = [
   {

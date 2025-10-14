@@ -12,7 +12,7 @@ import { ContextMenuSlide } from '../Onboarding/slides/ContextMenuSlide';
 import { AvailableOfflineSlide } from '../Onboarding/slides/AvailableOfflineSlide';
 import { useTranslationContext } from '../../context/LocalContext';
 import Button from '../../components/Button';
-import { WindowsFileExplorerImage } from '../Onboarding/slides-images/windows-file-explorer';
+import { WindowsFileExplorerImage } from '../Onboarding/slides-images/windows-file-explorer-image';
 
 export const SLIDES: MigrationSlide[] = [
   {
