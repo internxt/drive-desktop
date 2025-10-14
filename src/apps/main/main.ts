@@ -32,7 +32,6 @@ import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';
-import './migration/handlers';
 import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
