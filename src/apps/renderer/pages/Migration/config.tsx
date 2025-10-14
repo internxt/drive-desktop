@@ -1,18 +1,19 @@
 import { MigrationSlide, UploadSuccessAnimation } from './helpers';
-import { SideImageAnimation, SideTextAnimation, getOfflineImageSvg, getOnlineImageSvg } from '../Onboarding/helpers';
+import { SideImageAnimation, SideTextAnimation, getOfflineImageSvg, getOnlineImageSvg, fileExplorerImageSvg } from '../Onboarding/helpers';
 import Spinner from '../../assets/spinner.svg';
 import WidgetSvg from '../../assets/migration/widget.svg';
 
 import { MigrationFailedSlide } from './slides/MigrationFailedSlide';
 import UploadErrorSvg from '../../assets/migration/upload-error.svg';
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
-import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import { DeleteOldDriveFolderSlide } from './slides/DeleteOldDriveFolderSlide';
 import { AvailableOnlineSlide } from '../Onboarding/slides/AvailableOnlineSlide';
 import { ContextMenuSlide } from '../Onboarding/slides/ContextMenuSlide';
 import { AvailableOfflineSlide } from '../Onboarding/slides/AvailableOfflineSlide';
 import { useTranslationContext } from '../../context/LocalContext';
 import Button from '../../components/Button';
+import { Theme } from '@/apps/shared/types/Theme';
+import useConfig from '../../hooks/useConfig';
 
 export const SLIDES: MigrationSlide[] = [
   {
@@ -50,6 +51,14 @@ export const SLIDES: MigrationSlide[] = [
       );
     },
     image: (props) => {
+      const WindowsFinderImage = () => {
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const FinderImage = fileExplorerImageSvg(theme);
+        if (!FinderImage) return null;
+
+        return <FinderImage />;
+      };
       return (
         <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
@@ -160,6 +169,14 @@ export const SLIDES: MigrationSlide[] = [
       );
     },
     image: (props) => {
+      const WindowsFinderImage = () => {
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const FinderImage = fileExplorerImageSvg(theme);
+        if (!FinderImage) return null;
+
+        return <FinderImage />;
+      };
       return (
         <div className="relative ml-20 mt-20">
           <SideImageAnimation display>

@@ -33,6 +33,9 @@ import AntivirusDarkImageSpanish from '../../assets/onboarding/antivirus/ES-Dark
 import AntivirusDarkImageFrench from '../../assets/onboarding/antivirus/FR-Dark.svg';
 import AntivirusDarkImageEnglish from '../../assets/onboarding/antivirus/EN-Dark.svg';
 
+import FileExplorerLightImage from '../../assets/onboarding/finder/windows-light.svg';
+import FileExplorerDarkImage from '../../assets/onboarding/finder/windows-dark.svg';
+
 import { OnboardingImages } from './types';
 
 export type OnboardingSlideProps = {
@@ -116,6 +119,10 @@ export const getAntivirusImageSvg = (language: string, theme: 'light' | 'dark') 
 
   const lang = images[language as keyof OnboardingImages] || images.en;
   return lang[theme];
+};
+
+export const fileExplorerImageSvg = (theme: 'light' | 'dark') => {
+  return theme === 'light' ? FileExplorerLightImage : FileExplorerDarkImage;
 };
 
 export type OnboardingSlide = {
