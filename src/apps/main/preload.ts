@@ -329,7 +329,7 @@ const api = {
       ipcRenderer.removeListener(eventName, callbackWrapper);
     };
   },
-  sendLogs: async () => await ipcPreloadRenderer.invoke('sendLogs'),
+  openLogs: async () => await ipcPreloadRenderer.invoke('openLogs'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

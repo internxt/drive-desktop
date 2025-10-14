@@ -23,7 +23,7 @@ export default function AppInfo() {
           </button>
         )}
 
-        <button type="button" className="text-primary active:text-primary-dark" onClick={window.electron.sendLogs}>
+        <button type="button" className="text-primary active:text-primary-dark" onClick={window.electron.openLogs}>
           {translate('settings.general.app-info.open-logs')}
         </button>
 

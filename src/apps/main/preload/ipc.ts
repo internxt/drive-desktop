@@ -19,7 +19,7 @@ export type FromProcess = {
   cleanerStartCleanup: Mirror<typeof CleanerModule.startCleanup>;
   cleanerStopCleanup: Mirror<typeof CleanerModule.stopCleanup>;
   cleanerGetDiskSpace: Mirror<typeof CleanerModule.getDiskSpace>;
-  sendLogs: Mirror<typeof LoggerModule.sendLogs>;
+  openLogs: Mirror<typeof LoggerModule.openLogs>;
 };
 
 export type FromMain = {};

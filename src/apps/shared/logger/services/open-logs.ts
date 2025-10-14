@@ -6,8 +6,8 @@ import { logger } from '../logger';
 import { shell } from 'electron';
 import { INTERNXT_LOGS } from '@/core/utils/utils';
 
-export async function sendLogs() {
-  logger.debug({ msg: 'Send logs' });
+export async function openLogs() {
+  logger.debug({ msg: 'Open logs' });
 
   try {
     const zip = new JSZip();

@@ -1,4 +1,4 @@
-import { sendLogs } from './send-logs';
+import { openLogs } from './open-logs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { call, calls } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
@@ -8,7 +8,7 @@ import { INTERNXT_LOGS } from '@/core/utils/utils';
 
 vi.mock(import('node:fs/promises'));
 
-describe('send-logs', () => {
+describe('open-logs', () => {
   const readdirMock = vi.mocked(readdir);
   const readFileMock = vi.mocked(readFile);
   const writeFileMock = vi.mocked(writeFile);
@@ -26,7 +26,7 @@ describe('send-logs', () => {
     // Given
     readdirMock.mockRejectedValue(new Error());
     // When
-    await sendLogs();
+    await openLogs();
     // Then
     call(loggerMock.error).toMatchObject({ msg: 'Error creating logs zip' });
   });
@@ -35,7 +35,7 @@ describe('send-logs', () => {
     // Given
     readFileMock.mockRejectedValueOnce(new Error());
     // When
-    await sendLogs();
+    await openLogs();
     // Then
     call(writeFileMock).toStrictEqual(`/mock/logs/internxt-drive/logs/${INTERNXT_LOGS}`);
     call(loggerMock.error).toMatchObject({ msg: 'Error adding log file to zip' });
@@ -43,7 +43,7 @@ describe('send-logs', () => {
 
   it('should create the zip', async () => {
     // When
-    await sendLogs();
+    await openLogs();
     // Then
     calls(loggerMock.error).toHaveLength(0);
     call(writeFileMock).toStrictEqual(`/mock/logs/internxt-drive/logs/${INTERNXT_LOGS}`);

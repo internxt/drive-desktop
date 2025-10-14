@@ -20,5 +20,5 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('cleanerStartCleanup', (_, props) => CleanerModule.startCleanup(props));
   ipcPreloadMain.handle('cleanerGetDiskSpace', () => CleanerModule.getDiskSpace());
   ipcPreloadMain.on('cleanerStopCleanup', () => CleanerModule.stopCleanup());
-  ipcPreloadMain.handle('sendLogs', () => LoggerModule.sendLogs());
+  ipcPreloadMain.handle('openLogs', () => LoggerModule.openLogs());
 }

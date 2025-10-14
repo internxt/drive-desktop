@@ -1,5 +1,5 @@
-import { sendLogs } from './services/send-logs';
+import { openLogs } from './services/open-logs';
 
 export const LoggerModule = {
-  sendLogs,
+  openLogs,
 };
