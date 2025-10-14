@@ -4,6 +4,7 @@ import { call, calls } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { shell } from 'electron';
 import { Dirent } from 'node:fs';
+import { INTERNXT_LOGS } from '@/core/utils/utils';
 
 vi.mock(import('node:fs/promises'));
 
@@ -14,7 +15,7 @@ describe('send-logs', () => {
   const openPathMock = vi.mocked(shell.openPath);
 
   beforeEach(() => {
-    readdirMock.mockResolvedValue(['drive.log', 'drive-important.log', 'customer_support_logs.zip'] as unknown as Dirent<Buffer>[]);
+    readdirMock.mockResolvedValue(['drive.log', 'drive-important.log', INTERNXT_LOGS] as unknown as Dirent<Buffer>[]);
   });
 
   afterEach(() => {
@@ -36,7 +37,7 @@ describe('send-logs', () => {
     // When
     await sendLogs();
     // Then
-    call(writeFileMock).toStrictEqual('/mock/logs/internxt-drive/logs/customer_support_logs.zip');
+    call(writeFileMock).toStrictEqual(`/mock/logs/internxt-drive/logs/${INTERNXT_LOGS}`);
     call(loggerMock.error).toMatchObject({ msg: 'Error adding log file to zip' });
   });
 
@@ -45,7 +46,7 @@ describe('send-logs', () => {
     await sendLogs();
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    call(writeFileMock).toStrictEqual('/mock/logs/internxt-drive/logs/customer_support_logs.zip');
+    call(writeFileMock).toStrictEqual(`/mock/logs/internxt-drive/logs/${INTERNXT_LOGS}`);
     calls(readFileMock).toStrictEqual([
       '/mock/logs/internxt-drive/logs/drive.log',
       '/mock/logs/internxt-drive/logs/drive-important.log',

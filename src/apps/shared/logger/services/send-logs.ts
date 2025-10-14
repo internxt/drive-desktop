@@ -4,6 +4,7 @@ import { basename, join } from 'node:path/posix';
 import JSZip from 'jszip';
 import { logger } from '../logger';
 import { shell } from 'electron';
+import { INTERNXT_LOGS } from '@/core/utils/utils';
 
 export async function sendLogs() {
   logger.debug({ msg: 'Send logs' });
@@ -30,7 +31,7 @@ export async function sendLogs() {
 
     const zipContent = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
 
-    const output = join(PATHS.LOGS, 'customer_support_logs.zip');
+    const output = join(PATHS.LOGS, INTERNXT_LOGS);
     await writeFile(output, zipContent);
   } catch (error) {
     logger.error({ msg: 'Error creating logs zip', error });
