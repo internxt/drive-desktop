@@ -323,6 +323,6 @@ var api = {
       import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
     };
   },
-  sendLogs: async () => await ipcPreloadRenderer.invoke("sendLogs")
+  openLogs: async () => await ipcPreloadRenderer.invoke("openLogs")
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);
