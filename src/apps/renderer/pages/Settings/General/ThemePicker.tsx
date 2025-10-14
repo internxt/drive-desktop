@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { DEFAULT_THEME, Theme } from '../../../../shared/types/Theme';
 import Select, { SelectOptionsType } from '../../../components/Select';
 import useConfig from '../../../hooks/useConfig';
-import { i18n } from '@/apps/renderer/localize/i18n';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export default function ThemePicker(): JSX.Element {
