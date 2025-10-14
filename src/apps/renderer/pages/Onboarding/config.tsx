@@ -1,7 +1,6 @@
 // Slides
 import { WelcomeSlide } from './slides/WelcomeSlide';
 import { DriveSlide } from './slides/DriveSlide';
-import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import {
   // BackupsSVG,
   OnboardingSlide,
@@ -10,10 +9,11 @@ import {
   getCleanerImageSvg,
   getDriveImageSvg,
   getAntivirusImageSvg,
+  fileExplorerImageSvg,
 } from './helpers';
 
-import BackupsSvg from '../../assets/onboarding/backups.svg';
-import BackupsDarkSvg from '../../assets/onboarding/backups-dark.svg';
+import BackupsSvg from '../../assets/onboarding/backups/backups-light.svg';
+import BackupsDarkSvg from '../../assets/onboarding/backups/backups-dark.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
@@ -49,6 +49,14 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
+      const WindowsFinderImage = () => {
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const FinderImage = fileExplorerImageSvg(theme);
+        if (!FinderImage) return null;
+
+        return <FinderImage />;
+      };
       return (
         <div className="relative ml-20 mt-20">
           <WindowsFinderImage />
@@ -255,6 +263,14 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     image: () => {
+      const WindowsFinderImage = () => {
+        const preferredTheme = useConfig('preferedTheme') as Theme;
+        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const FinderImage = fileExplorerImageSvg(theme);
+        if (!FinderImage) return null;
+
+        return <FinderImage />;
+      };
       return (
         <div className="relative ml-20 mt-20 ">
           <SideImageAnimation display>
