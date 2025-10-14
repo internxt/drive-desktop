@@ -14,28 +14,28 @@ export async function generateLogFilesReport() {
     CleanerModule.scanSubDirectory({
       ctx: cleanerCtx,
       baseDir: pathsToClean.localAppData,
-      subPath: 'log',
+      subPath: 'logs',
       customFileFilter: CleanerModule.logFileFilter,
     }),
 
     CleanerModule.scanSubDirectory({
       ctx: cleanerCtx,
       baseDir: pathsToClean.roamingAppData,
-      subPath: 'log',
+      subPath: 'logs',
       customFileFilter: CleanerModule.logFileFilter,
     }),
 
     CleanerModule.scanSubDirectory({
       ctx: cleanerCtx,
       baseDir: pathsToClean.programData,
-      subPath: 'log',
+      subPath: 'logs',
       customFileFilter: CleanerModule.logFileFilter,
     }),
 
     CleanerModule.scanSubDirectory({
       ctx: cleanerCtx,
       baseDir: pathsToClean.logs.userProfileLogs,
-      subPath: 'log',
+      subPath: 'logs',
       customFileFilter: CleanerModule.logFileFilter,
     }),
   ];
