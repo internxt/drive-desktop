@@ -14,4 +14,4 @@ type Paths<T, D extends number = 10> = [D] extends [never]
       }[keyof T]
     : never;
 
-export type TranslationKey = Paths<Translation>;
+export type TranslationPath = Paths<Translation>;

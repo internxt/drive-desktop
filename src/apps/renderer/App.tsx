@@ -14,7 +14,7 @@ import IssuesPage from './pages/Issues';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './core/tanstack-query/query-client';
 import { AuthGuard } from './components/AuthGuard';
-import { useI18n } from './localize/use-i18n';
+import { useI18nSetup } from './localize/use-i18n-setup';
 
 function LocationWrapper({ children }: { children: JSX.Element }) {
   const { pathname } = useLocation();
@@ -26,7 +26,7 @@ function LocationWrapper({ children }: { children: JSX.Element }) {
 }
 
 export default function App() {
-  useI18n();
+  useI18nSetup();
 
   return (
     <Router>

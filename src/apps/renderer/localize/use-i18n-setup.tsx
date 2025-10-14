@@ -19,7 +19,7 @@ async function refreshLanguage() {
   updateLanguage(language);
 }
 
-export function useI18n() {
+export function useI18nSetup() {
   useEffect(() => {
     void refreshLanguage();
     return globalThis.window.electron.listenToConfigKeyChange<Language>('preferedLanguage', updateLanguage);
