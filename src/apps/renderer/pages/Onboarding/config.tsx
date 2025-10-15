@@ -1,7 +1,6 @@
 // Slides
 import { WelcomeSlide } from './slides/WelcomeSlide';
 import { DriveSlide } from './slides/DriveSlide';
-import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import {
   // BackupsSVG,
   OnboardingSlide,
@@ -12,8 +11,8 @@ import {
   getAntivirusImageSvg,
 } from './helpers';
 
-import BackupsSvg from '../../assets/onboarding/backups.svg';
-import BackupsDarkSvg from '../../assets/onboarding/backups-dark.svg';
+import BackupsSvg from '../../assets/onboarding/backups/backups-light.svg';
+import BackupsDarkSvg from '../../assets/onboarding/backups/backups-dark.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
@@ -22,6 +21,7 @@ import useConfig from '../../hooks/useConfig';
 import { Theme } from '../../../shared/types/Theme';
 import { AntivirusSlide } from './slides/AntivirusSlide';
 import { CleanerSlide } from './slides/cleaner-slide';
+import { WindowsFileExplorerImage } from './slides-images/windows-file-explorer-image';
 
 export const SLIDES: OnboardingSlide[] = [
   {
@@ -51,7 +51,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: () => {
       return (
         <div className="relative ml-20 mt-20">
-          <WindowsFinderImage />
+          <WindowsFileExplorerImage />
         </div>
       );
     },
@@ -258,7 +258,7 @@ export const SLIDES: OnboardingSlide[] = [
       return (
         <div className="relative ml-20 mt-20 ">
           <SideImageAnimation display>
-            <WindowsFinderImage />
+            <WindowsFileExplorerImage />
           </SideImageAnimation>
         </div>
       );
