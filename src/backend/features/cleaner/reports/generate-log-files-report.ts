@@ -33,5 +33,5 @@ export async function generateLogFilesReport() {
     }),
   ];
 
-  return await generateReport({ promises });
+  return await generateReport({ promises, sectionKey: 'logFiles' });
 }

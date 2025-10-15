@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { join } from 'node:path/posix';
 
 const localAppData = process.env.LOCALAPPDATA;
 const roamingAppData = process.env.APPDATA;
