@@ -44,7 +44,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
     try {
       const report = await globalThis.window.electron.cleanerGenerateReport(force);
       const diskSpace = await globalThis.window.electron.cleanerGetDiskSpace();
-      setReport(report);
+      setReport(report as Partial<CleanerReport> as CleanerReport);
       setDiskSpace(diskSpace);
     } finally {
       setLoading(false);
