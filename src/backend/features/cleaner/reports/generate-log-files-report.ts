@@ -31,13 +31,6 @@ export async function generateLogFilesReport() {
       subPath: 'logs',
       customFileFilter: CleanerModule.logFileFilter,
     }),
-
-    CleanerModule.scanSubDirectory({
-      ctx: cleanerCtx,
-      baseDir: pathsToClean.logs.userProfileLogs,
-      subPath: 'logs',
-      customFileFilter: CleanerModule.logFileFilter,
-    }),
   ];
 
   return await generateReport({ promises });

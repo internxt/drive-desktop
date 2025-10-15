@@ -5,7 +5,6 @@ const roamingAppData = process.env.APPDATA;
 // eslint-disable-next-line sonarjs/publicly-writable-directories
 const tempDir = process.env.TEMP;
 const windir = process.env.WINDIR;
-const userProfile = process.env.USERPROFILE;
 const programData = process.env.ProgramData;
 
 export const pathsToClean = {
@@ -18,7 +17,6 @@ export const pathsToClean = {
   },
   logs: {
     systemLogs: join(windir, 'Logs'),
-    userProfileLogs: join(userProfile, 'AppData', 'Local'),
   },
   webCache: {
     chrome: join(localAppData, 'Google', 'Chrome', 'User Data', 'Default', 'Cache'),

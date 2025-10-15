@@ -17,7 +17,6 @@ const ENV_SCHEMA = z.object({
   LOCALAPPDATA: z.string(),
   ProgramData: z.string(),
   TEMP: z.string(),
-  USERPROFILE: z.string(),
   WINDIR: z.string(),
 });
 
