@@ -17,7 +17,7 @@ export default function useConfig(key: StoredValues) {
   return value;
 }
 
-export function useReactiveConfig<T>(key: StoredValues) {
+function useReactiveConfig<T>(key: StoredValues) {
   const [value, setValue] = useState<T | undefined>(undefined);
 
   const retrieveValue = (key: StoredValues) => {
