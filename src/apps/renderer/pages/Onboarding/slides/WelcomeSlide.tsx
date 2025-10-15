@@ -1,6 +1,7 @@
 import { OnboardingSlideProps } from '../helpers';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { useTheme } from '../../../hooks/useConfig';
+
 export const WelcomeSlide: React.FC<OnboardingSlideProps> = () => {
   const { translate } = useTranslationContext();
   const theme = useTheme();
