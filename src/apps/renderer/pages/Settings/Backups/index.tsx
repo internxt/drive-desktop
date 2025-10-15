@@ -3,7 +3,6 @@ import { DeviceContext } from '../../../context/DeviceContext';
 import { DeviceSettings } from './DeviceSettings';
 import { DevicesList } from './DevicesList';
 import { ScrollableContent } from '../../../components/ScrollableContent';
-import Spinner from '../../../assets/spinner.svg';
 import { BackupContext } from '@/apps/renderer/context/BackupContext';
 import { LockedState } from '../Antivirus/views/LockedState';
 import { SectionSpinner } from '@internxt/drive-desktop-core/build/frontend';
