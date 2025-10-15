@@ -1,13 +1,10 @@
-import React from 'react';
 import { OnboardingSlideProps } from '../helpers';
 import { useTranslationContext } from '../../../context/LocalContext';
-import useConfig from '../../../hooks/useConfig';
-import { Theme } from '../../../../shared/types/Theme';
+import { useTheme } from '../../../hooks/useConfig';
 
-export const DriveSlide: React.FC<OnboardingSlideProps> = (props) => {
+export const DriveSlide: React.FC<OnboardingSlideProps> = () => {
   const { translate } = useTranslationContext();
-  const preferredTheme = useConfig('preferedTheme') as Theme;
-  const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+  const theme = useTheme();
 
   return (
     <div className="flex h-full w-full flex-col">

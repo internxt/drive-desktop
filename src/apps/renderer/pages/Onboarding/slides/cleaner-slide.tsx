@@ -1,11 +1,9 @@
 import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
-import useConfig from '@/apps/renderer/hooks/useConfig';
-import { Theme } from '../../../../shared/types/Theme';
+import { useTheme } from '@/apps/renderer/hooks/useConfig';
 
 export function CleanerSlide() {
   const { translate } = useTranslationContext();
-  const preferredTheme = useConfig('preferedTheme') as Theme;
-  const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+  const theme = useTheme();
 
   return (
     <div className="flex h-full w-full flex-col">

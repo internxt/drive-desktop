@@ -1,14 +1,11 @@
 import { CheckCircle } from 'phosphor-react';
-import React from 'react';
 import { OnboardingSlideProps } from '../helpers';
 import { useTranslationContext } from '../../../context/LocalContext';
-import useConfig from '../../../hooks/useConfig';
-import { Theme } from '../../../../shared/types/Theme';
+import { useTheme } from '../../../hooks/useConfig';
 
 export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = (props) => {
   const { translate } = useTranslationContext();
-  const preferredTheme = useConfig('preferedTheme') as Theme;
-  const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+  const theme = useTheme();
 
   return (
     <div className="flex w-full flex-col">
