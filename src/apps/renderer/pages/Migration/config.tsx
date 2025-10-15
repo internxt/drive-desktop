@@ -6,13 +6,13 @@ import WidgetSvg from '../../assets/migration/widget.svg';
 import { MigrationFailedSlide } from './slides/MigrationFailedSlide';
 import UploadErrorSvg from '../../assets/migration/upload-error.svg';
 import ContextMenuSvg from '../../assets/onboarding/context-menu.svg';
-import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import { DeleteOldDriveFolderSlide } from './slides/DeleteOldDriveFolderSlide';
 import { AvailableOnlineSlide } from '../Onboarding/slides/AvailableOnlineSlide';
 import { ContextMenuSlide } from '../Onboarding/slides/ContextMenuSlide';
 import { AvailableOfflineSlide } from '../Onboarding/slides/AvailableOfflineSlide';
 import { useTranslationContext } from '../../context/LocalContext';
 import Button from '../../components/Button';
+import { WindowsFileExplorerImage } from '../Onboarding/slides-images/windows-file-explorer-image';
 
 export const SLIDES: MigrationSlide[] = [
   {
@@ -53,7 +53,7 @@ export const SLIDES: MigrationSlide[] = [
       return (
         <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
-            <WindowsFinderImage />
+            <WindowsFileExplorerImage />
           </SideImageAnimation>
         </div>
       );
@@ -163,7 +163,7 @@ export const SLIDES: MigrationSlide[] = [
       return (
         <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
-            <WindowsFinderImage />
+            <WindowsFileExplorerImage />
           </SideImageAnimation>
         </div>
       );
