@@ -123,6 +123,12 @@ const api = {
     if (mode === 'dark') return ipcRenderer.invoke('dark-mode:dark');
     return ipcRenderer.invoke('dark-mode:system');
   },
+  listenToSystemThemeChange(fn: (theme: 'light' | 'dark') => void): () => void {
+    const eventName = 'system-theme-updated';
+    const callback = (_: unknown, theme: 'light' | 'dark') => fn(theme);
+    ipcRenderer.on(eventName, callback);
+    return () => ipcRenderer.removeListener(eventName, callback);
+  },
   getBackupsInterval(): Promise<number> {
     return ipcRenderer.invoke('get-backups-interval');
   },
@@ -319,6 +325,7 @@ const api = {
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke('cleanerStartCleanup', props),
   cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke('cleanerGetDiskSpace'),
   cleanerStopCleanup: () => ipcPreloadRenderer.send('cleanerStopCleanup'),
+  getSystemTheme: async () => await ipcPreloadRenderer.invoke('getSystemTheme'),
   cleanerOnProgress: (callback: (progressData: CleanupProgress) => void) => {
     const eventName = 'cleaner:cleanup-progress';
     const callbackWrapper = (_: unknown, progressData: CleanupProgress) => callback(progressData);

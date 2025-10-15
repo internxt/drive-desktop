@@ -60,6 +60,7 @@ import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
+import { setupSystemThemeListener } from './system-theme/service';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -70,6 +71,7 @@ if (!gotTheLock) {
 setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
 setupPreloadIpc();
+setupSystemThemeListener();
 setupVirtualDriveHandlers();
 setupQuitHandlers();
 setupIssueHandlers();
