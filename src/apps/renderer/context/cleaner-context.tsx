@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState, useEffect, useMemo } from 'react';
+import { createContext, ReactNode, useState, useEffect } from 'react';
 import {
   CleanerReport,
   CleanerViewModel,
@@ -10,23 +10,13 @@ import { cleanerSectionKeys } from '@/apps/renderer/pages/Settings/cleaner/clean
 
 export const CleanerContext = createContext<CleanerContextType | undefined>(undefined);
 
-export function CleanerProvider({ children }: { children: ReactNode }) {
+type Props = { children: ReactNode };
+
+export function CleanerProvider({ children }: Props) {
   const [report, setReport] = useState<CleanerReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [diskSpace, setDiskSpace] = useState(0);
-  const [products, setProducts] = useState<{ backups: boolean; antivirus: boolean; cleaner: boolean } | null>(null);
 
-  useEffect(() => {
-    const loadProducts = async () => {
-      const products = await window.electron.getAvailableProducts();
-      setProducts(products ?? null);
-    };
-    void loadProducts();
-  }, []);
-
-  const isCleanerAvailable = useMemo(() => {
-    return Boolean(products?.cleaner);
-  }, [products]);
   const initialCleaningState = {
     cleaning: false,
     cleaningCompleted: false,
@@ -89,7 +79,6 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
       value={{
         report,
         loading,
-        isCleanerAvailable,
         cleaningState,
         diskSpace,
         generateReport,

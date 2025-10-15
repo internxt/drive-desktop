@@ -280,11 +280,6 @@ var api = {
       import_electron2.ipcRenderer.send("user.set-has-discovered-backups");
     }
   },
-  backups: {
-    isAvailable() {
-      return import_electron2.ipcRenderer.invoke("backups:is-available");
-    }
-  },
   antivirus: {
     isAvailable() {
       return import_electron2.ipcRenderer.invoke("antivirus:is-available");
