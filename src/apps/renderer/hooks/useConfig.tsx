@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { StoredValues } from '../../main/config/service';
+import { Theme } from '@/apps/shared/types/Theme';
 
 export default function useConfig(key: StoredValues) {
   const [value, setValue] = useState<StoredValues | undefined>(undefined);
@@ -14,4 +15,10 @@ export default function useConfig(key: StoredValues) {
   }, []);
 
   return value;
+}
+
+export function useTheme() {
+  const preferredTheme = useConfig('preferedTheme') as Theme;
+  const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+  return theme;
 }
