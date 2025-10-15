@@ -17,12 +17,14 @@ import { CleanerProvider } from '../../context/cleaner-context';
 import { useTranslationContext } from '../../context/LocalContext';
 import { useCleaner } from './cleaner/context/use-cleaner';
 import { sectionConfig } from './cleaner/cleaner.config';
+import { useGetAvailableProducts } from '../../api/use-get-available-products';
 
 export const SHOW_ANTIVIRUS_TOOL = true;
 
 export default function Settings() {
   const [activeSection, setActiveSection] = useState<Section>('GENERAL');
   const [subsection, setSubsection] = useState<'panel' | 'list' | 'download_list'>('panel');
+  const { data: availableProducts, isLoading: isAvailableProductsLoading } = useGetAvailableProducts();
 
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -75,6 +77,8 @@ export default function Settings() {
                     <AccountSection active={activeSection === 'ACCOUNT'} data-automation-id="itemSettingsAccount" />
                     <BackupsSection
                       active={activeSection === 'BACKUPS'}
+                      isAvailable={Boolean(availableProducts?.backups)}
+                      isSectionLoading={isAvailableProductsLoading}
                       showBackedFolders={() => setSubsection('list')}
                       showDownloadFolers={() => setSubsection('download_list')}
                       showIssues={() => window.electron.openProcessIssuesWindow()}
@@ -83,13 +87,15 @@ export default function Settings() {
                     {SHOW_ANTIVIRUS_TOOL && (
                       <AntivirusSection
                         onCancelDeactivateWinDefender={() => setActiveSection('GENERAL')}
-                        active={SHOW_ANTIVIRUS_TOOL && activeSection === 'ANTIVIRUS'}
+                        active={activeSection === 'ANTIVIRUS'}
                         showItemsWithMalware={() => setSubsection('list')}
                         data-automation-id="itemSettingsAntivirus"
                       />
                     )}
                     <CleanerModule.CleanerSection
                       active={activeSection === 'CLEANER'}
+                      isAvailable={Boolean(availableProducts?.cleaner)}
+                      isSectionLoading={isAvailableProductsLoading}
                       data-automation-id="itemSettingsCleaner"
                       useCleaner={useCleaner}
                       useTranslationContext={useTranslationContext}

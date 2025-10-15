@@ -4,12 +4,12 @@ import { onUserUnauthorized } from '../auth/handlers';
 import { INTERNXT_CLIENT, INTERNXT_VERSION } from '@/core/utils/utils';
 import { PaymentsModule, logger } from '@internxt/drive-desktop-core/build/backend';
 
-export function getAvailableProducts() {
+export async function getAvailableProducts() {
   const newToken = obtainToken();
 
   logger.debug({ msg: 'Get user products' });
 
-  return PaymentsModule.getUserAvailableProducts({
+  const data = await PaymentsModule.getUserAvailableProducts({
     paymentsClientConfig: {
       paymentsUrl: process.env.PAYMENTS_URL,
       clientName: INTERNXT_CLIENT,
@@ -19,4 +19,8 @@ export function getAvailableProducts() {
       token: newToken,
     },
   });
+
+  logger.debug({ msg: 'HEREEEEEEEEEEEEEEEEEEEEE', data });
+
+  return data;
 }

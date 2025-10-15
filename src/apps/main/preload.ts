@@ -267,11 +267,6 @@ const api = {
       ipcRenderer.send('user.set-has-discovered-backups');
     },
   },
-  backups: {
-    isAvailable(): Promise<boolean> {
-      return ipcRenderer.invoke('backups:is-available');
-    },
-  },
   antivirus: {
     isAvailable(): Promise<boolean> {
       return ipcRenderer.invoke('antivirus:is-available');
