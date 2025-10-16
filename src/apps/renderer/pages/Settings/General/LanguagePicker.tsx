@@ -5,7 +5,7 @@ import DayJsLocales from '../../../../shared/Locale/DayJsLocales';
 import { DEFAULT_LANGUAGE, Language } from '../../../../shared/Locale/Language';
 import Select, { SelectOptionsType } from '../../../components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
-import { useConfig } from '../../../hooks/useConfig';
+import useConfig from '../../../hooks/useConfig';
 
 export default function LanguagePicker(): JSX.Element {
   const { translate } = useTranslationContext();
