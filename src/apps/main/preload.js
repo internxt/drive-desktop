@@ -136,6 +136,12 @@ var api = {
     if (mode === "dark") return import_electron2.ipcRenderer.invoke("dark-mode:dark");
     return import_electron2.ipcRenderer.invoke("dark-mode:system");
   },
+  listenToSystemThemeChange(fn) {
+    const eventName = "system-theme-updated";
+    const callback = (_, theme) => fn(theme);
+    import_electron2.ipcRenderer.on(eventName, callback);
+    return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
+  },
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
   },
