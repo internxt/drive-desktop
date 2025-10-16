@@ -6,6 +6,7 @@ import { getLastBackupProgress } from '../background-processes/backups/BackupsPr
 import { getAvailableProducts } from '../payments/get-available-products';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
 import { getTheme } from '../theme/theme';
+import { LoggerModule } from '@/apps/shared/logger/logger.module';
 
 type AsyncMirror<T extends (...args: any[]) => unknown> =
   Parameters<T> extends [] ? () => ReturnType<T> : (props: Parameters<T>[0]) => ReturnType<T>;
@@ -24,6 +25,7 @@ export type FromProcess = {
   cleanerStopCleanup: Mirror<typeof CleanerModule.stopCleanup>;
   cleanerGetDiskSpace: AsyncMirror<typeof CleanerModule.getDiskSpace>;
   getTheme: Mirror<typeof getTheme>;
+  openLogs: Mirror<typeof LoggerModule.openLogs>;
 };
 
 export type FromMain = {};
