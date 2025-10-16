@@ -17,5 +17,5 @@ export async function generateWindowsSpecificFileReport() {
     }),
   ];
 
-  return await generateReport({ promises });
+  return await generateReport({ promises, sectionKey: 'platformSpecific' });
 }

@@ -28,5 +28,5 @@ export async function generateWebStorageFileReport() {
     }),
   ];
 
-  return await generateReport({ promises });
+  return await generateReport({ promises, sectionKey: 'webStorage' });
 }

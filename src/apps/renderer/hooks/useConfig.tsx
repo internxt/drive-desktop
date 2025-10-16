@@ -1,17 +1,27 @@
 import { useEffect, useState } from 'react';
 
 import { StoredValues } from '../../main/config/service';
+import { DEFAULT_THEME, ThemeData } from '@/apps/shared/types/Theme';
 
-export default function useConfig(key: StoredValues) {
+export function useConfig(key: StoredValues) {
   const [value, setValue] = useState<StoredValues | undefined>(undefined);
 
-  const retriveValue = async (key: StoredValues) => {
-    return window.electron.getConfigKey(key);
-  };
-
   useEffect(() => {
-    retriveValue(key).then(setValue);
+    void window.electron.getConfigKey(key).then(setValue);
   }, []);
+
+  return value;
+}
+
+export function useTheme() {
+  const [value, setValue] = useState<ThemeData>({ configTheme: DEFAULT_THEME, theme: DEFAULT_THEME });
+
+  function updateTheme() {
+    void window.electron.getTheme().then(setValue);
+    return window.electron.listenToConfigKeyChange<ThemeData>('preferedTheme', setValue);
+  }
+
+  useEffect(() => updateTheme(), []);
 
   return value;
 }
