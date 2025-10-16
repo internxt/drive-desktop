@@ -106,9 +106,6 @@ const api = {
   finishOnboarding() {
     ipcRenderer.send('user-finished-onboarding');
   },
-  finishMigration() {
-    ipcRenderer.send('user-finished-migration');
-  },
   isAutoLaunchEnabled() {
     return ipcRenderer.invoke('is-auto-launch-enabled');
   },
@@ -129,17 +126,6 @@ const api = {
   },
   getBackupsStatus(): Promise<BackupsStatus> {
     return ipcRenderer.invoke('get-backups-status');
-  },
-  openVirtualDrive(): Promise<void> {
-    return ipcRenderer.invoke('open-virtual-drive');
-  },
-  moveSyncFolderToDesktop() {
-    return ipcRenderer.invoke('move-sync-folder-to-desktop');
-  },
-  // Open the folder where we store the items
-  // that we failed to migrate
-  openMigrationFailedFolder(): Promise<void> {
-    return ipcRenderer.invoke('open-migration-failed-folder');
   },
   onBackupsStatusChanged(func: (_: BackupsStatus) => void): () => void {
     const eventName = 'backups-status-changed';
@@ -209,9 +195,6 @@ const api = {
   getItemByFolderUuid(folderUuid: string): Promise<ItemBackup[]> {
     return ipcRenderer.invoke('get-item-by-folder-uuid', folderUuid);
   },
-  deleteBackupError(folderId: number): Promise<void> {
-    return ipcRenderer.invoke('delete-backup-error', folderId);
-  },
   downloadBackup(backup: Device, folderUuids?: string[]): Promise<void> {
     return ipcRenderer.invoke('download-backup', backup, folderUuids);
   },
@@ -221,9 +204,6 @@ const api = {
   getFolderPath(): ReturnType<typeof getPathFromDialog> {
     return ipcRenderer.invoke('get-folder-path');
   },
-  startMigration(): Promise<void> {
-    return ipcRenderer.invoke('open-migration-window');
-  },
   onRemoteSyncStatusChange(callback: (status: RemoteSyncStatus) => void): () => void {
     const eventName = 'remote-sync-status-change';
     const callbackWrapper = (_: unknown, v: RemoteSyncStatus) => callback(v);
@@ -232,9 +212,6 @@ const api = {
   },
   getRemoteSyncStatus(): Promise<RemoteSyncStatus> {
     return ipcRenderer.invoke('get-remote-sync-status');
-  },
-  retryVirtualDriveMount(): Promise<void> {
-    return ipcRenderer.invoke('retry-virtual-drive-mount');
   },
   openUrl: (url: string): Promise<void> => {
     return ipcRenderer.invoke('open-url', url);

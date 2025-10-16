@@ -1,13 +1,4 @@
 import { Transition } from '@headlessui/react';
-// Available Online Slide images
-import AvailableOnlineImageSpanish from '../../assets/onboarding/folder-with-overlay-icons/online/es.svg';
-import AvailableOnlineImageEnglish from '../../assets/onboarding/folder-with-overlay-icons/online/en.svg';
-import AvailableOnlineImageFrench from '../../assets/onboarding/folder-with-overlay-icons/online/fr.svg';
-
-// Available Offline Slide images
-import AvailableOfflineImageSpanish from '../../assets/onboarding/folder-with-overlay-icons/offline/es.svg';
-import AvailableOfflineImageEnglish from '../../assets/onboarding/folder-with-overlay-icons/offline/en.svg';
-import AvailableOfflineImageFrench from '../../assets/onboarding/folder-with-overlay-icons/offline/fr.svg';
 
 // Finder images
 import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
@@ -44,18 +35,6 @@ export type OnboardingSlideProps = {
   currentSlide: number;
   totalSlides: number;
   platform: string;
-};
-
-export const getOnlineImageSvg = (language: string) => {
-  if (language === 'es') return AvailableOnlineImageSpanish;
-  if (language === 'fr') return AvailableOnlineImageFrench;
-  return AvailableOnlineImageEnglish;
-};
-
-export const getOfflineImageSvg = (language: string) => {
-  if (language === 'es') return AvailableOfflineImageSpanish;
-  if (language === 'fr') return AvailableOfflineImageFrench;
-  return AvailableOfflineImageEnglish;
 };
 
 export const getCleanerImageSvg = (language: string, theme: 'light' | 'dark') => {
