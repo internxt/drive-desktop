@@ -2,7 +2,6 @@ import { AppStore } from '@/core/electron/store/app-store.interface';
 import store from '../config';
 import { broadcastToWindows } from '../windows';
 import { Theme } from '@/apps/shared/types/Theme';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export type StoredValues = keyof AppStore;
 
@@ -13,10 +12,6 @@ export const getConfigKey = <T extends StoredValues>(key: T): AppStore[T] => {
 type SetConfigKeyProps = { key: 'preferedLanguage'; value: string } | { key: 'preferedTheme'; value: Theme };
 
 export const setConfigKey = ({ key, value }: SetConfigKeyProps): void => {
-  logger.debug({ msg: 'Config key updated', key, value });
-
   store.set(key, value);
-
-  if (key === 'preferedLanguage') broadcastToWindows({ name: 'preferedLanguage-updated', data: value });
-  else broadcastToWindows({ name: 'preferedTheme-updated', data: value });
+  broadcastToWindows({ name: `${key}-updated`, data: value });
 };

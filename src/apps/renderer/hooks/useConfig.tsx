@@ -13,8 +13,8 @@ export function useConfig(key: StoredValues) {
   return value;
 }
 
-function useReactiveConfig<T>(key: StoredValues, initial: T) {
-  const [value, setValue] = useState<T>(initial);
+function useReactiveConfig<T>(key: StoredValues) {
+  const [value, setValue] = useState<T | undefined>(undefined);
 
   useEffect(() => {
     void window.electron.getConfigKey(key).then(setValue);
@@ -25,11 +25,19 @@ function useReactiveConfig<T>(key: StoredValues, initial: T) {
 }
 
 export function useTheme() {
-  const preferredTheme = useReactiveConfig<Theme>('preferedTheme', 'system');
+  const preferredTheme = useReactiveConfig<Theme>('preferedTheme');
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('dark');
+
+  async function getInitialSystemTheme() {
+    if (preferredTheme === 'system') {
+      const theme = await window.electron.getSystemTheme();
+      setSystemTheme(theme);
+    }
+  }
 
   useEffect(() => {
-    void window.electron.toggleDarkMode(preferredTheme);
+    void getInitialSystemTheme();
   }, [preferredTheme]);
 
-  return preferredTheme;
+  return systemTheme;
 }
