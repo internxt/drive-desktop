@@ -3,6 +3,7 @@ import { calculateUsage } from '../usage/service';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { getAvailableProducts } from '../payments/get-available-products';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
+import { getSystemTheme } from '../system-theme/service';
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -19,7 +20,10 @@ export type FromProcess = {
   cleanerStartCleanup: Mirror<typeof CleanerModule.startCleanup>;
   cleanerStopCleanup: Mirror<typeof CleanerModule.stopCleanup>;
   cleanerGetDiskSpace: Mirror<typeof CleanerModule.getDiskSpace>;
+  getSystemTheme: Mirror<typeof getSystemTheme>;
   openLogs: Mirror<typeof LoggerModule.openLogs>;
 };
 
-export type FromMain = {};
+export type FromMain = {
+  listenToSystemThemeChange: (callback: (theme: 'light' | 'dark') => void) => () => void;
+};

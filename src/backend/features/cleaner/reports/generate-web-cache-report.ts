@@ -26,5 +26,5 @@ export async function generateWebCacheReport() {
     }),
   ];
 
-  return await generateReport({ promises });
+  return await generateReport({ promises, sectionKey: 'webCache' });
 }

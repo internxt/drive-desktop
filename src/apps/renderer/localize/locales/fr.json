@@ -389,9 +389,9 @@
         "cleanup": "Nettoyer"
       },
       "generateReportView": {
-        "title": "Aucun rapport trouvé",
-        "description": "Générer un rapport pour voir quels fichiers peuvent être nettoyés.",
-        "generateReport": "Générer un rapport"
+        "title": "Pas encore de scans",
+        "description": "Analysez votre système pour trouver les fichiers que vous pouvez supprimer en toute sécurité pour libérer de l'espace.",
+        "generateReport": "Exécuter l'analyse"
       },
       "loadingView": {
         "title": "Attendez un instant.",

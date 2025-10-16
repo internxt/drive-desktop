@@ -4,7 +4,7 @@ import { ScanState } from './views/ScanState';
 import { Views } from '../../../hooks/antivirus/useAntivirus';
 import { useAntivirusContext } from '../../../context/AntivirusContext';
 import { useEffect } from 'react';
-import { Spinner } from 'phosphor-react';
+import { SectionSpinner } from '@internxt/drive-desktop-core/build/frontend';
 
 type AntivirusSectionProps = {
   active: boolean;
@@ -60,11 +60,7 @@ export default function AntivirusSection({ active, showItemsWithMalware }: Antiv
         showItemsWithMalware={showItemsWithMalware}
       />
     ),
-    loading: (
-      <div className="flex h-[200px] w-full flex-col items-center justify-center">
-        <Spinner className="animate-spin" />
-      </div>
-    ),
+    loading: <SectionSpinner />,
   };
 
   return (

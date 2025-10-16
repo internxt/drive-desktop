@@ -6,6 +6,7 @@ import { calculateUsage } from '../usage/service';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { getAvailableProducts } from '../payments/get-available-products';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
+import { getSystemTheme } from '../system-theme/service';
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
@@ -20,5 +21,6 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('cleanerStartCleanup', (_, props) => CleanerModule.startCleanup(props));
   ipcPreloadMain.handle('cleanerGetDiskSpace', () => CleanerModule.getDiskSpace());
   ipcPreloadMain.on('cleanerStopCleanup', () => CleanerModule.stopCleanup());
+  ipcPreloadMain.handle('getSystemTheme', () => getSystemTheme());
   ipcPreloadMain.handle('openLogs', () => LoggerModule.openLogs());
 }

@@ -10,9 +10,6 @@ export const cleanerCtx: CleanerContext = {
       '.bat',
       '.cmd',
       '.json',
-      '.sqlite',
-      '.sqlite3',
-      '.db',
       '.ldb',
       '.pref',
       '.cfg',
@@ -26,6 +23,7 @@ export const cleanerCtx: CleanerContext = {
       '.xpi',
       '.nex',
       '.bin',
+      '.lz4',
     ],
     criticalFilenames: [
       'lock',

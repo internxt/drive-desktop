@@ -133,6 +133,12 @@ var api = {
     if (mode === "dark") return import_electron2.ipcRenderer.invoke("dark-mode:dark");
     return import_electron2.ipcRenderer.invoke("dark-mode:system");
   },
+  listenToSystemThemeChange(fn) {
+    const eventName = "system-theme-updated";
+    const callback = (_, theme) => fn(theme);
+    import_electron2.ipcRenderer.on(eventName, callback);
+    return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
+  },
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
   },
@@ -277,11 +283,6 @@ var api = {
       import_electron2.ipcRenderer.send("user.set-has-discovered-backups");
     }
   },
-  backups: {
-    isAvailable() {
-      return import_electron2.ipcRenderer.invoke("backups:is-available");
-    }
-  },
   antivirus: {
     isAvailable() {
       return import_electron2.ipcRenderer.invoke("antivirus:is-available");
@@ -315,6 +316,7 @@ var api = {
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
   cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
   cleanerStopCleanup: () => ipcPreloadRenderer.send("cleanerStopCleanup"),
+  getSystemTheme: async () => await ipcPreloadRenderer.invoke("getSystemTheme"),
   cleanerOnProgress: (callback) => {
     const eventName = "cleaner:cleanup-progress";
     const callbackWrapper = (_, progressData) => callback(progressData);

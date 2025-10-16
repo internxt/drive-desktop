@@ -1,7 +1,9 @@
 import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
+import { useTheme } from '@/apps/renderer/hooks/useConfig';
 
 export function CleanerSlide() {
   const { translate } = useTranslationContext();
+  const theme = useTheme();
 
   return (
     <div className="flex h-full w-full flex-col">
@@ -11,7 +13,8 @@ export function CleanerSlide() {
           {translate('onboarding.common.new')}
         </span>
       </div>
-      <h3 className="font-regular mb-4 text-lg leading-[22px] text-gray-100 whitespace-pre-line">
+      <h3
+        className={`font-regular mb-4 text-lg leading-[22px] whitespace-pre-line text-left ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
         {translate('onboarding.slides.cleaner.description')}
       </h3>
     </div>

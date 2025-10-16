@@ -35,5 +35,5 @@ export async function generateAppCacheReport() {
     }),
   ];
 
-  return await generateReport({ promises });
+  return await generateReport({ promises, sectionKey: 'appCache' });
 }
