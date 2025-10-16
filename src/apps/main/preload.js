@@ -128,17 +128,6 @@ var api = {
   toggleAutoLaunch() {
     return import_electron2.ipcRenderer.invoke("toggle-auto-launch");
   },
-  toggleDarkMode(mode) {
-    if (mode === "light") return import_electron2.ipcRenderer.invoke("dark-mode:light");
-    if (mode === "dark") return import_electron2.ipcRenderer.invoke("dark-mode:dark");
-    return import_electron2.ipcRenderer.invoke("dark-mode:system");
-  },
-  listenToSystemThemeChange(fn) {
-    const eventName = "system-theme-updated";
-    const callback = (_, theme) => fn(theme);
-    import_electron2.ipcRenderer.on(eventName, callback);
-    return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
-  },
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
   },
@@ -309,14 +298,14 @@ var api = {
   path: import_node_path.default,
   authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
-  getLastBackupProgress: () => ipcPreloadRenderer.send("getLastBackupProgress"),
+  getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
   cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke("cleanerGenerateReport", props),
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
   cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
-  cleanerStopCleanup: () => ipcPreloadRenderer.send("cleanerStopCleanup"),
-  getSystemTheme: async () => await ipcPreloadRenderer.invoke("getSystemTheme"),
+  cleanerStopCleanup: async () => await ipcPreloadRenderer.invoke("cleanerStopCleanup"),
+  getTheme: async () => await ipcPreloadRenderer.invoke("getTheme"),
   cleanerOnProgress: (callback) => {
     const eventName = "cleaner:cleanup-progress";
     const callbackWrapper = (_, progressData) => callback(progressData);

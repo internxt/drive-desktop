@@ -4,7 +4,7 @@ import { useTheme } from '../../../hooks/useConfig';
 
 export const DriveSlide: React.FC<OnboardingSlideProps> = () => {
   const { translate } = useTranslationContext();
-  const theme = useTheme();
+  const { theme } = useTheme();
 
   return (
     <div className="flex h-full w-full flex-col">
