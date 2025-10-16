@@ -42,21 +42,19 @@ export async function generateCleanerReport(refreshReport = false) {
     const cleanerReport = {
       appCache: getCleanerSectionOrFallback(appCache),
       logFiles: getCleanerSectionOrFallback(logfiles),
-      trash: { totalSizeInBytes: 0, items: [] },
       webStorage: getCleanerSectionOrFallback(webStorage),
       webCache: getCleanerSectionOrFallback(webCache),
       platformSpecific: getCleanerSectionOrFallback(windowsSpecific),
     };
 
     logger.debug({ tag: 'CLEANER', msg: 'Cleaner report generation Finished' });
-    storedCleanerReport = cleanerReport;
+    storedCleanerReport = cleanerReport as Partial<CleanerReport> as CleanerReport;
     return storedCleanerReport;
   } catch (error) {
     logger.error({ tag: 'CLEANER', msg: 'Error generating cleaner report:', error });
     return {
       appCache: { totalSizeInBytes: 0, items: [] },
       logFiles: { totalSizeInBytes: 0, items: [] },
-      trash: { totalSizeInBytes: 0, items: [] },
       webStorage: { totalSizeInBytes: 0, items: [] },
       webCache: { totalSizeInBytes: 0, items: [] },
       platformSpecific: { totalSizeInBytes: 0, items: [] },

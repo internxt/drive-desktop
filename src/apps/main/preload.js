@@ -110,9 +110,6 @@ var api = {
   openProcessIssuesWindow() {
     import_electron2.ipcRenderer.send("open-process-issues-window");
   },
-  openLogs() {
-    import_electron2.ipcRenderer.send("open-logs");
-  },
   openSettingsWindow(section) {
     import_electron2.ipcRenderer.send("open-settings-window", section);
   },
@@ -130,11 +127,6 @@ var api = {
   },
   toggleAutoLaunch() {
     return import_electron2.ipcRenderer.invoke("toggle-auto-launch");
-  },
-  toggleDarkMode(mode) {
-    if (mode === "light") return import_electron2.ipcRenderer.invoke("dark-mode:light");
-    if (mode === "dark") return import_electron2.ipcRenderer.invoke("dark-mode:dark");
-    return import_electron2.ipcRenderer.invoke("dark-mode:system");
   },
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
@@ -280,11 +272,6 @@ var api = {
       import_electron2.ipcRenderer.send("user.set-has-discovered-backups");
     }
   },
-  backups: {
-    isAvailable() {
-      return import_electron2.ipcRenderer.invoke("backups:is-available");
-    }
-  },
   antivirus: {
     isAvailable() {
       return import_electron2.ipcRenderer.invoke("antivirus:is-available");
@@ -311,13 +298,14 @@ var api = {
   path: import_node_path.default,
   authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
-  getLastBackupProgress: () => ipcPreloadRenderer.send("getLastBackupProgress"),
+  getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
   getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
   cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke("cleanerGenerateReport", props),
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
   cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
-  cleanerStopCleanup: () => ipcPreloadRenderer.send("cleanerStopCleanup"),
+  cleanerStopCleanup: async () => await ipcPreloadRenderer.invoke("cleanerStopCleanup"),
+  getTheme: async () => await ipcPreloadRenderer.invoke("getTheme"),
   cleanerOnProgress: (callback) => {
     const eventName = "cleaner:cleanup-progress";
     const callbackWrapper = (_, progressData) => callback(progressData);
@@ -325,6 +313,7 @@ var api = {
     return () => {
       import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
     };
-  }
+  },
+  openLogs: async () => await ipcPreloadRenderer.invoke("openLogs")
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

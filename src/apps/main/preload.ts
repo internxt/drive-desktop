@@ -97,9 +97,6 @@ const api = {
   openProcessIssuesWindow() {
     ipcRenderer.send('open-process-issues-window');
   },
-  openLogs() {
-    ipcRenderer.send('open-logs');
-  },
   openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS' | 'CLEANER') {
     ipcRenderer.send('open-settings-window', section);
   },
@@ -117,11 +114,6 @@ const api = {
   },
   toggleAutoLaunch() {
     return ipcRenderer.invoke('toggle-auto-launch');
-  },
-  toggleDarkMode(mode: 'system' | 'light' | 'dark') {
-    if (mode === 'light') return ipcRenderer.invoke('dark-mode:light');
-    if (mode === 'dark') return ipcRenderer.invoke('dark-mode:dark');
-    return ipcRenderer.invoke('dark-mode:system');
   },
   getBackupsInterval(): Promise<number> {
     return ipcRenderer.invoke('get-backups-interval');
@@ -267,11 +259,6 @@ const api = {
       ipcRenderer.send('user.set-has-discovered-backups');
     },
   },
-  backups: {
-    isAvailable(): Promise<boolean> {
-      return ipcRenderer.invoke('backups:is-available');
-    },
-  },
   antivirus: {
     isAvailable(): Promise<boolean> {
       return ipcRenderer.invoke('antivirus:is-available');
@@ -317,13 +304,14 @@ const api = {
   path,
   authAccess: async (props) => await ipcPreloadRenderer.invoke('authAccess', props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke('authLogin', props),
-  getLastBackupProgress: () => ipcPreloadRenderer.send('getLastBackupProgress'),
+  getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
   getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),
   cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke('cleanerGenerateReport', props),
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke('cleanerStartCleanup', props),
   cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke('cleanerGetDiskSpace'),
-  cleanerStopCleanup: () => ipcPreloadRenderer.send('cleanerStopCleanup'),
+  cleanerStopCleanup: async () => await ipcPreloadRenderer.invoke('cleanerStopCleanup'),
+  getTheme: async () => await ipcPreloadRenderer.invoke('getTheme'),
   cleanerOnProgress: (callback: (progressData: CleanupProgress) => void) => {
     const eventName = 'cleaner:cleanup-progress';
     const callbackWrapper = (_: unknown, progressData: CleanupProgress) => callback(progressData);
@@ -332,6 +320,7 @@ const api = {
       ipcRenderer.removeListener(eventName, callbackWrapper);
     };
   },
+  openLogs: async () => await ipcPreloadRenderer.invoke('openLogs'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);
