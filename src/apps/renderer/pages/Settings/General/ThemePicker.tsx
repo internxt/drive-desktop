@@ -5,7 +5,7 @@ import { useTheme } from '../../../hooks/useConfig';
 
 export function ThemePicker() {
   const { translate } = useTranslationContext();
-  const { configTheme } = useTheme();
+  const theme = useTheme();
 
   const themes: SelectOptionsType[] = [
     {
@@ -29,7 +29,7 @@ export function ThemePicker() {
   return (
     <div id="theme-picker" className="flex flex-1 flex-col items-start space-y-2">
       <p className="text-sm font-medium leading-4 text-gray-80">{translate('settings.general.theme.label')}</p>
-      <Select options={themes} value={configTheme} onValueChange={updatePreferedTheme} />
+      <Select options={themes} value={theme} onValueChange={updatePreferedTheme} />
     </div>
   );
 }

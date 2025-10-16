@@ -313,7 +313,6 @@ var api = {
   cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
   cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
   cleanerStopCleanup: () => ipcPreloadRenderer.send("cleanerStopCleanup"),
-  getSystemTheme: async () => await ipcPreloadRenderer.invoke("getSystemTheme"),
   cleanerOnProgress: (callback) => {
     const eventName = "cleaner:cleanup-progress";
     const callbackWrapper = (_, progressData) => callback(progressData);

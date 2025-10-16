@@ -5,7 +5,7 @@ import { useTheme } from '../../../hooks/useConfig';
 
 export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = (props) => {
   const { translate } = useTranslationContext();
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   return (
     <div className="flex w-full flex-col">

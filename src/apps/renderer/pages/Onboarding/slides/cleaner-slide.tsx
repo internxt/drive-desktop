@@ -3,7 +3,7 @@ import { useTheme } from '@/apps/renderer/hooks/useConfig';
 
 export function CleanerSlide() {
   const { translate } = useTranslationContext();
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   return (
     <div className="flex h-full w-full flex-col">

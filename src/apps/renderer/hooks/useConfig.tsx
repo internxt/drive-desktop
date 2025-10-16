@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { StoredValues } from '../../main/config/service';
-import { DEFAULT_THEME, Theme } from '@/apps/shared/types/Theme';
+import { Theme } from '@/apps/shared/types/Theme';
 
 export function useConfig(key: StoredValues) {
   const [value, setValue] = useState<StoredValues | undefined>(undefined);
@@ -25,22 +25,11 @@ function useReactiveConfig<T>(key: StoredValues, initial: T) {
 }
 
 export function useTheme() {
-  const configTheme = useReactiveConfig<Theme>('preferedTheme', DEFAULT_THEME);
-  const [theme, setTheme] = useState<'light' | 'dark'>(DEFAULT_THEME);
-
-  async function updateTheme() {
-    if (configTheme === 'system') {
-      setTheme(await window.electron.getSystemTheme());
-    } else {
-      setTheme(configTheme);
-    }
-
-    void window.electron.toggleDarkMode(configTheme);
-  }
+  const preferredTheme = useReactiveConfig<Theme>('preferedTheme', 'system');
 
   useEffect(() => {
-    void updateTheme();
-  }, [configTheme]);
+    void window.electron.toggleDarkMode(preferredTheme);
+  }, [preferredTheme]);
 
-  return { configTheme, theme };
+  return preferredTheme;
 }
