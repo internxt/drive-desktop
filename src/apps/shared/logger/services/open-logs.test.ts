@@ -3,11 +3,10 @@ import { readdir } from 'node:fs/promises';
 import { call, calls } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { shell } from 'electron';
-import { createWriteStream, Dirent, WriteStream } from 'node:fs';
+import { createWriteStream, Dirent } from 'node:fs';
 import { INTERNXT_LOGS } from '@/core/utils/utils';
 import archiver from 'archiver';
 import { mockDeep } from 'vitest-mock-extended';
-import { EventEmitter } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 
 vi.mock(import('node:fs/promises'));
@@ -22,20 +21,11 @@ describe('open-logs', () => {
   const archiverMock = vi.mocked(archiver);
   const openPathMock = vi.mocked(shell.openPath);
 
-  let writeStream: EventEmitter;
   const archive = mockDeep<archiver.Archiver>();
 
   beforeEach(() => {
     readdirMock.mockResolvedValue(['drive.log', 'drive-important.log', INTERNXT_LOGS] as unknown as Dirent<Buffer>[]);
     archiverMock.mockReturnValue(archive);
-
-    writeStream = new EventEmitter();
-    createWriteStreamMock.mockReturnValue(writeStream as WriteStream);
-
-    archive.finalize.mockImplementation(() => {
-      writeStream.emit('close');
-      return Promise.resolve();
-    });
   });
 
   afterEach(() => {

@@ -222,9 +222,6 @@ var api = {
   getItemByFolderUuid(folderUuid) {
     return import_electron2.ipcRenderer.invoke("get-item-by-folder-uuid", folderUuid);
   },
-  deleteBackupError(folderId) {
-    return import_electron2.ipcRenderer.invoke("delete-backup-error", folderId);
-  },
   downloadBackup(backup, folderUuids) {
     return import_electron2.ipcRenderer.invoke("download-backup", backup, folderUuids);
   },
