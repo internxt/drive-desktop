@@ -14,7 +14,7 @@ export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = (props) 
         <>
           <div className="flex flex-row items-start">
             <div className="mr-2 w-4">
-              <CheckCircle weight="fill" className=" text-primary" size={20} />
+              <CheckCircle weight="fill" className="text-primary" size={20} />
             </div>
             <div className="flex flex-col">
               <h3 className="font-regular mb-0.5 text-lg leading-[22px] text-gray-100">
@@ -29,13 +29,13 @@ export const OnboardingCompletedSlide: React.FC<OnboardingSlideProps> = (props) 
       ) : null}
       <div className="mt-6 flex flex-row items-start">
         <div className="mr-2 w-4">
-          <CheckCircle weight="fill" className=" text-primary" size={20} />
+          <CheckCircle weight="fill" className="text-primary" size={20} />
         </div>
         <div className="flex flex-col">
-          <h3 className="font-medium mb-0.5 text-lg leading-[22px] text-gray-100">
+          <h3 className="mb-0.5 text-lg font-medium leading-[22px] text-gray-100">
             {translate('onboarding.slides.onboarding-completed.desktop-ready.title')}
           </h3>
-          <h4 className={`font-regular text-base leading-[19px] text-left ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
+          <h4 className={`font-regular text-left text-base leading-[19px] ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
             {translate('onboarding.slides.onboarding-completed.desktop-ready.description', {
               platform_phrase: translate('onboarding.common.platform-phrase.windows'),
             })}

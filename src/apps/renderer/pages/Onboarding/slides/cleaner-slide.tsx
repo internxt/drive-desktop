@@ -14,7 +14,7 @@ export function CleanerSlide() {
         </span>
       </div>
       <h3
-        className={`font-regular mb-4 text-lg leading-[22px] whitespace-pre-line text-left ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
+        className={`font-regular mb-4 whitespace-pre-line text-left text-lg leading-[22px] ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
         {translate('onboarding.slides.cleaner.description')}
       </h3>
     </div>
