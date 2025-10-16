@@ -131,7 +131,7 @@
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
     "prettier": "^3.5.1",
-    "prettier-plugin-tailwindcss": "^0.6.11",
+    "prettier-plugin-tailwindcss": "^0.6.14",
     "react-refresh": "^0.17.0",
     "rimraf": "^6.0.1",
     "sass": "^1.45.1",

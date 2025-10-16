@@ -15,7 +15,7 @@ export const AntivirusSlide: React.FC<OnboardingSlideProps> = () => {
         </span>
       </div>
       <h3
-        className={`font-regular mb-4 text-lg leading-[22px] whitespace-pre-wrap text-left ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
+        className={`font-regular mb-4 whitespace-pre-wrap text-left text-lg leading-[22px] ${theme === 'light' ? 'text-gray-60' : 'text-[#ECECEC]'}`}>
         {translate('onboarding.slides.antivirus.description')}
       </h3>
     </div>

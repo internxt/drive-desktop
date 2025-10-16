@@ -128,7 +128,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
           />
         )}
       </div>
-      <div className=" flex items-center justify-end">
+      <div className="flex items-center justify-end">
         <span className="flex gap-2">
           <Button onClick={onClose} variant="secondary">
             {translate('settings.backups.folders.cancel')}

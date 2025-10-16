@@ -102,7 +102,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Backups Slide',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <BackupsSlide {...props} />
           </SideTextAnimation>
@@ -142,7 +142,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Antivirus Slide',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <AntivirusSlide {...props} />
           </SideTextAnimation>
@@ -186,7 +186,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Cleaner Slide',
     component: () => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <CleanerSlide />
           </SideTextAnimation>
@@ -220,7 +220,7 @@ export const SLIDES: OnboardingSlide[] = [
       };
 
       return (
-        <div className="relative flex h-full w-full items-center justify-center ">
+        <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
             <CleanerImage />
           </SideImageAnimation>
@@ -232,7 +232,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Onboarding Completed',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <OnboardingCompletedSlide {...props} />
           </SideTextAnimation>
@@ -251,7 +251,7 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       return (
-        <div className="relative ml-20 mt-20 ">
+        <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
             <WindowsFileExplorerImage />
           </SideImageAnimation>
