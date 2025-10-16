@@ -4,6 +4,7 @@ import { getLastBackupProgress } from '../background-processes/backups/BackupsPr
 import { getAvailableProducts } from '../payments/get-available-products';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
 import { getSystemTheme } from '../system-theme/service';
+import { LoggerModule } from '@/apps/shared/logger/logger.module';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Mirror<T extends (...args: any[]) => unknown> =
@@ -20,6 +21,7 @@ export type FromProcess = {
   cleanerStopCleanup: Mirror<typeof CleanerModule.stopCleanup>;
   cleanerGetDiskSpace: Mirror<typeof CleanerModule.getDiskSpace>;
   getSystemTheme: Mirror<typeof getSystemTheme>;
+  openLogs: Mirror<typeof LoggerModule.openLogs>;
 };
 
 export type FromMain = {
