@@ -3,7 +3,8 @@ import FileExplorerLightImage from '@/apps/renderer/assets/onboarding/finder/win
 import FileExplorerDarkImage from '@/apps/renderer/assets/onboarding/finder/windows-dark.svg';
 
 export function WindowsFileExplorerImage() {
-  const theme = useTheme();
+  const theme = useTheme() ?? 'dark';
   const FileExplorer = theme === 'light' ? FileExplorerLightImage : FileExplorerDarkImage;
+
   return <FileExplorer />;
 }

@@ -3,7 +3,7 @@ import { calculateUsage } from '../usage/service';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { getAvailableProducts } from '../payments/get-available-products';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
-import { getSystemTheme } from '../system-theme/system-theme';
+import { getSystemTheme } from '../system-theme/service';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Mirror<T extends (...args: any[]) => unknown> =

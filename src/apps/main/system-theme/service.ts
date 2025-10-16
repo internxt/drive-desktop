@@ -8,6 +8,6 @@ export function getSystemTheme(): Promise<'light' | 'dark'> {
 export function setupSystemThemeListener() {
   nativeTheme.on('updated', async () => {
     const systemTheme = await getSystemTheme();
-    broadcastToWindows({ name: 'preferedTheme-updated', data: systemTheme });
+    broadcastToWindows({ name: 'system-theme-updated', data: systemTheme });
   });
 }
