@@ -60,5 +60,5 @@ export function useTheme() {
     return systemTheme;
   }
 
-  return preferredTheme ?? 'dark';
+  return preferredTheme || 'dark';
 }
