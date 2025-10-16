@@ -1,13 +1,11 @@
-import { useEffect, useState } from 'react';
-import { DEFAULT_THEME, Theme } from '../../../../shared/types/Theme';
+import { Theme } from '../../../../shared/types/Theme';
 import Select, { SelectOptionsType } from '../../../components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
 import { useTheme } from '../../../hooks/useConfig';
 
-export default function ThemePicker(): JSX.Element {
+export function ThemePicker() {
   const { translate } = useTranslationContext();
   const theme = useTheme();
-  const [selectedTheme, setSelectedTheme] = useState<Theme>(theme);
 
   const themes: SelectOptionsType[] = [
     {
@@ -24,30 +22,14 @@ export default function ThemePicker(): JSX.Element {
     },
   ];
 
-  const refreshPreferedTheme = async () => {
-    const theme = await window.electron.getConfigKey('preferedTheme');
-    if (theme === '' || theme === null) {
-      setSelectedTheme(DEFAULT_THEME);
-    } else {
-      setSelectedTheme(theme as Theme);
-    }
-  };
-
   const updatePreferedTheme = (theme: string) => {
-    window.electron.toggleDarkMode(theme as Theme);
-    window.electron.setConfigKey({ key: 'preferedTheme', value: theme });
-    refreshPreferedTheme();
+    window.electron.setConfigKey({ key: 'preferedTheme', value: theme as Theme });
   };
-
-  useEffect(() => {
-    refreshPreferedTheme();
-  }, []);
 
   return (
     <div id="theme-picker" className="flex flex-1 flex-col items-start space-y-2">
       <p className="text-sm font-medium leading-4 text-gray-80">{translate('settings.general.theme.label')}</p>
-
-      {selectedTheme && <Select options={themes} value={selectedTheme} onValueChange={updatePreferedTheme} />}
+      <Select options={themes} value={theme} onValueChange={updatePreferedTheme} />
     </div>
   );
 }
