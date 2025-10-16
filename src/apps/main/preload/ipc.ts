@@ -25,7 +25,7 @@ export type FromProcess = {
   cleanerStopCleanup: Mirror<typeof CleanerModule.stopCleanup>;
   cleanerGetDiskSpace: AsyncMirror<typeof CleanerModule.getDiskSpace>;
   getTheme: Mirror<typeof getTheme>;
-  openLogs: Mirror<typeof LoggerModule.openLogs>;
+  openLogs: AsyncMirror<typeof LoggerModule.openLogs>;
 };
 
 export type FromMain = {};
