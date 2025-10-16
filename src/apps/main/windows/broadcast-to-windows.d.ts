@@ -27,8 +27,7 @@ export type SyncInfoUpdateEvent = {
 
 export type BroadcastToWindows =
   | { name: 'preferedLanguage-updated'; data: string }
-  | { name: 'preferedTheme-updated'; data: string }
-  | { name: 'system-theme-updated'; data: 'light' | 'dark' }
+  | { name: 'preferedTheme-updated'; data: 'dark' | 'light' }
   | { name: 'issues-changed'; data: Issue[] }
   | { name: 'remote-sync-status-change'; data: RemoteSyncStatus }
   | { name: 'backups-status-changed'; data: BackupsStatus }

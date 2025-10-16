@@ -123,12 +123,6 @@ const api = {
     if (mode === 'dark') return ipcRenderer.invoke('dark-mode:dark');
     return ipcRenderer.invoke('dark-mode:system');
   },
-  listenToSystemThemeChange(fn: (theme: 'light' | 'dark') => void): () => void {
-    const eventName = 'system-theme-updated';
-    const callback = (_: unknown, theme: 'light' | 'dark') => fn(theme);
-    ipcRenderer.on(eventName, callback);
-    return () => ipcRenderer.removeListener(eventName, callback);
-  },
   getBackupsInterval(): Promise<number> {
     return ipcRenderer.invoke('get-backups-interval');
   },
