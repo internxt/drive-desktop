@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { DEFAULT_THEME, Theme } from '../../../../shared/types/Theme';
 import Select, { SelectOptionsType } from '../../../components/Select';
 import { useTranslationContext } from '../../../context/LocalContext';
-import useConfig from '../../../hooks/useConfig';
+import { useTheme } from '../../../hooks/useConfig';
 
 export default function ThemePicker(): JSX.Element {
   const { translate } = useTranslationContext();
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>((useConfig('preferedTheme') as Theme) || null);
+  const theme = useTheme();
+  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(theme || null);
 
   const themes: SelectOptionsType[] = [
     {

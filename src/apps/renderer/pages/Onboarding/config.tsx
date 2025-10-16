@@ -85,7 +85,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: () => {
       const DriveImage = () => {
         const { language } = useTranslationContext();
-        const theme = useTheme() ?? 'dark';
+        const theme = useTheme();
         const DriveImage = getDriveImageSvg(language, theme);
         if (!DriveImage) return null;
 
@@ -127,7 +127,7 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       const BackupsImage = () => {
-        const theme = useTheme() ?? 'dark';
+        const theme = useTheme();
         return theme === 'dark' ? <BackupsDarkSvg /> : <BackupsSvg />;
       };
 
@@ -168,7 +168,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: () => {
       const AntivirusImage = () => {
         const { language } = useTranslationContext();
-        const theme = useTheme() ?? 'dark';
+        const theme = useTheme();
         const AntivirusImage = getAntivirusImageSvg(language, theme);
         if (!AntivirusImage) return null;
 
@@ -212,7 +212,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: () => {
       const CleanerImage = () => {
         const { language } = useTranslationContext();
-        const theme = useTheme() ?? 'dark';
+        const theme = useTheme();
         const CleanerImage = getCleanerImageSvg(language, theme);
         if (!CleanerImage) return null;
 

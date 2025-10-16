@@ -3,15 +3,15 @@ import { useEffect, useState } from 'react';
 import { StoredValues } from '../../main/config/service';
 import { Theme } from '@/apps/shared/types/Theme';
 
-export default function useConfig(key: StoredValues) {
+export function useConfig(key: StoredValues) {
   const [value, setValue] = useState<StoredValues | undefined>(undefined);
 
-  const retriveValue = async (key: StoredValues) => {
+  const retriveValue = (key: StoredValues) => {
     return window.electron.getConfigKey(key);
   };
 
   useEffect(() => {
-    retriveValue(key).then(setValue);
+    void retriveValue(key).then(setValue);
   }, []);
 
   return value;
