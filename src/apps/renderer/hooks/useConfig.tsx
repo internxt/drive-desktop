@@ -38,9 +38,7 @@ export function useTheme() {
     void window.electron.toggleDarkMode(configTheme);
   }
 
-  useEffect(() => {
-    void updateTheme();
-  }, [configTheme]);
+  useEffect(() => void updateTheme(), [configTheme]);
 
   return { configTheme, theme };
 }
