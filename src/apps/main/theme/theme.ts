@@ -5,16 +5,21 @@ import { DEFAULT_THEME, Theme } from '@/apps/shared/types/Theme';
 
 export function getTheme() {
   const configTheme = getConfigKey('preferedTheme') ?? DEFAULT_THEME;
+  let theme: Theme;
+
   if (configTheme === 'system') {
-    const theme: Theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
-    return { configTheme, theme };
+    theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
   } else {
-    return { configTheme, theme: configTheme };
+    theme = configTheme;
   }
+
+  return { configTheme, theme };
+}
+
+export function broadcastTheme() {
+  broadcastToWindows({ name: 'preferedTheme-updated', data: getTheme() });
 }
 
 export function setupThemeListener() {
-  nativeTheme.on('updated', () => {
-    broadcastToWindows({ name: 'preferedTheme-updated', data: getTheme() });
-  });
+  nativeTheme.on('updated', () => broadcastTheme());
 }

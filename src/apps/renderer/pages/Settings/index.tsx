@@ -58,7 +58,7 @@ export default function Settings() {
         <AntivirusProvider>
           <CleanerProvider>
             <div
-              className="bg-gray-1"
+              className="flex flex-col bg-gray-1"
               ref={rootRef}
               style={{
                 minWidth: subsection === 'list' ? 'auto' : 400,
@@ -73,7 +73,7 @@ export default function Settings() {
                 <>
                   <WindowTopBar title="Internxt" className="bg-surface dark:bg-gray-5" />
                   <Header active={activeSection} onClick={setActiveSection} />
-                  <div className="relative p-5">
+                  <div className="flex flex-col flex-grow justify-center p-5">
                     <GeneralSection active={activeSection === 'GENERAL'} data-automation-id="itemSettingsGeneral" />
                     <AccountSection active={activeSection === 'ACCOUNT'} data-automation-id="itemSettingsAccount" />
                     <BackupsSection

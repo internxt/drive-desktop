@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { StoredValues } from '../../main/config/service';
-import { DEFAULT_THEME, Theme } from '@/apps/shared/types/Theme';
+import { DEFAULT_THEME, ThemeData } from '@/apps/shared/types/Theme';
 
 export function useConfig(key: StoredValues) {
   const [value, setValue] = useState<StoredValues | undefined>(undefined);
@@ -13,32 +13,15 @@ export function useConfig(key: StoredValues) {
   return value;
 }
 
-function useReactiveConfig<T>(key: StoredValues, initial: T) {
-  const [value, setValue] = useState<T>(initial);
-
-  useEffect(() => {
-    void window.electron.getConfigKey(key).then(setValue);
-    return window.electron.listenToConfigKeyChange<T>(key, setValue);
-  }, [key]);
-
-  return value;
-}
-
 export function useTheme() {
-  const configTheme = useReactiveConfig<Theme>('preferedTheme', DEFAULT_THEME);
-  const [theme, setTheme] = useState<'light' | 'dark'>(DEFAULT_THEME);
+  const [value, setValue] = useState<ThemeData>({ configTheme: DEFAULT_THEME, theme: DEFAULT_THEME });
 
-  async function updateTheme() {
-    if (configTheme === 'system') {
-      setTheme(await window.electron.getSystemTheme());
-    } else {
-      setTheme(configTheme);
-    }
-
-    void window.electron.toggleDarkMode(configTheme);
+  function updateTheme() {
+    void window.electron.getTheme().then(setValue);
+    return window.electron.listenToConfigKeyChange<ThemeData>('preferedTheme', setValue);
   }
 
-  useEffect(() => void updateTheme(), [configTheme]);
+  useEffect(() => updateTheme(), [JSON.stringify(value)]);
 
-  return { configTheme, theme };
+  return value;
 }
