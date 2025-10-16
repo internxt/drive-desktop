@@ -2,10 +2,13 @@ import { nativeTheme } from 'electron';
 import { broadcastToWindows } from '../windows';
 import { getConfigKey } from '../config/service';
 import { DEFAULT_THEME, Theme } from '@/apps/shared/types/Theme';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export function getTheme() {
   const configTheme = getConfigKey('preferedTheme') ?? DEFAULT_THEME;
   let theme: Theme;
+
+  nativeTheme.themeSource = configTheme;
 
   if (configTheme === 'system') {
     theme = nativeTheme.shouldUseDarkColors ? 'dark' : 'light';
@@ -21,5 +24,8 @@ export function broadcastTheme() {
 }
 
 export function setupThemeListener() {
-  nativeTheme.on('updated', () => broadcastTheme());
+  nativeTheme.on('updated', () => {
+    logger.debug({ msg: 'System theme changed' });
+    broadcastTheme();
+  });
 }

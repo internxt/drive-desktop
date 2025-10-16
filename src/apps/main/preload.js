@@ -131,11 +131,6 @@ var api = {
   toggleAutoLaunch() {
     return import_electron2.ipcRenderer.invoke("toggle-auto-launch");
   },
-  toggleDarkMode(mode) {
-    if (mode === "light") return import_electron2.ipcRenderer.invoke("dark-mode:light");
-    if (mode === "dark") return import_electron2.ipcRenderer.invoke("dark-mode:dark");
-    return import_electron2.ipcRenderer.invoke("dark-mode:system");
-  },
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
   },

@@ -21,7 +21,7 @@ export function useTheme() {
     return window.electron.listenToConfigKeyChange<ThemeData>('preferedTheme', setValue);
   }
 
-  useEffect(() => updateTheme(), [JSON.stringify(value)]);
+  useEffect(() => updateTheme(), []);
 
   return value;
 }

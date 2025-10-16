@@ -118,11 +118,6 @@ const api = {
   toggleAutoLaunch() {
     return ipcRenderer.invoke('toggle-auto-launch');
   },
-  toggleDarkMode(mode: 'system' | 'light' | 'dark') {
-    if (mode === 'light') return ipcRenderer.invoke('dark-mode:light');
-    if (mode === 'dark') return ipcRenderer.invoke('dark-mode:dark');
-    return ipcRenderer.invoke('dark-mode:system');
-  },
   getBackupsInterval(): Promise<number> {
     return ipcRenderer.invoke('get-backups-interval');
   },

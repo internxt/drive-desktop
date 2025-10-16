@@ -1,4 +1,4 @@
-import { app, nativeTheme } from 'electron';
+import { app } from 'electron';
 
 void app.whenReady().then(() => {
   app.setAppUserModelId('com.internxt.app');
@@ -46,7 +46,6 @@ import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
-import { Theme } from '../shared/types/Theme';
 import { clearAntivirus } from './antivirus/utils/initializeAntivirus';
 import { setupQuitHandlers } from './quit';
 import { clearConfig, setDefaultConfig } from '../sync-engine/config';
@@ -133,8 +132,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     setDefaultConfig({});
 
     getAuthWindow()?.hide();
-
-    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
 
     const widget = await getOrCreateWidged();
     const tray = getTray();
