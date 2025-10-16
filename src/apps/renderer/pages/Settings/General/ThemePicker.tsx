@@ -7,7 +7,7 @@ import { useTheme } from '../../../hooks/useConfig';
 export default function ThemePicker(): JSX.Element {
   const { translate } = useTranslationContext();
   const theme = useTheme();
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>(theme || null);
+  const [selectedTheme, setSelectedTheme] = useState<Theme>(theme);
 
   const themes: SelectOptionsType[] = [
     {
