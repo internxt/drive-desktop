@@ -22,4 +22,6 @@ export type FromProcess = {
   getSystemTheme: Mirror<typeof getSystemTheme>;
 };
 
-export type FromMain = {};
+export type FromMain = {
+  listenToSystemThemeChange: (callback: (theme: 'light' | 'dark') => void) => () => void;
+};
