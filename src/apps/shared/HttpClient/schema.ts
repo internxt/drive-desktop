@@ -2669,6 +2669,23 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  '/auth/cli/login/access': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** CLI platform login access */
+    post: operations['AuthController_cliLoginAccess'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   '/links': {
     parameters: {
       query?: never;
@@ -4715,6 +4732,11 @@ export interface components {
        * @example 123456
        */
       maxSpaceBytes: number;
+      /**
+       * @description Tier ID to update user tier (optional)
+       * @example a1b2c3d4-e5f6-7890-abcd-ef1234567890
+       */
+      tierId?: string;
     };
   };
   responses: never;
@@ -6451,12 +6473,12 @@ export interface operations {
   };
   WorkspacesController_getFiles: {
     parameters: {
-      query: {
+      query?: {
         /** @description Items per page */
         limit?: number;
         /** @description Offset for pagination */
         offset?: number;
-        status: string;
+        status?: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
         bucket?: string;
         sort?: string;
         order?: string;
@@ -6513,6 +6535,7 @@ export interface operations {
         limit?: number;
         /** @description Offset for pagination */
         offset?: number;
+        status?: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
       };
       header?: never;
       path: {
@@ -8880,6 +8903,37 @@ export interface operations {
     responses: {
       /** @description Credentials are correct */
       200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_cliLoginAccess: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LoginAccessDto'];
+      };
+    };
+    responses: {
+      /** @description CLI user successfully accessed their account */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LoginAccessResponseDto'];
+        };
+      };
+      /** @description This user current tier does not allow CLI access */
+      402: {
         headers: {
           [name: string]: unknown;
         };

@@ -2,7 +2,7 @@ import AppInfo from './AppInfo';
 import DeviceName from './DeviceName';
 import LanguagePicker from './LanguagePicker';
 import SyncFolder from './SyncFolder';
-import ThemePicker from './ThemePicker';
+import { ThemePicker } from './ThemePicker';
 import StartAutomatically from './StartAutomatically';
 
 export default function GeneralSection({ active }: { active: boolean }) {

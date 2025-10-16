@@ -9,9 +9,8 @@ type StartBackupProps = {
 };
 
 export function StartBackup({ className }: StartBackupProps) {
-  const { backups, backupStatus, thereIsDownloadProgress, isBackupAvailable } = useContext(BackupContext);
+  const { backups, backupStatus, thereIsDownloadProgress } = useContext(BackupContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
-  const [avalaibleAlert, setAvalaibleAlert] = useState(false);
 
   function toggleConfirmation() {
     setAskConfirmation(!askConfirmation);
@@ -35,11 +34,6 @@ export function StartBackup({ className }: StartBackupProps) {
         variant={backupStatus === 'STANDBY' ? 'primary' : 'danger'}
         size="md"
         onClick={() => {
-          if (!isBackupAvailable) {
-            setAvalaibleAlert(true);
-            return;
-          }
-
           if (backupStatus === 'STANDBY') {
             startBackupsProcess();
           } else {
@@ -58,19 +52,6 @@ export function StartBackup({ className }: StartBackupProps) {
         explanation2={translate('settings.backups.stop.modal.explanation-2')}
         cancelText={translate('settings.backups.stop.modal.cancel')}
         confirmText={translate('settings.backups.stop.modal.confirm')}
-        variantButton="primary"
-      />
-      <ConfirmationModal
-        show={avalaibleAlert}
-        onCanceled={() => setAvalaibleAlert(false)}
-        onConfirmed={async () => {
-          await window.electron.openUrl('https://internxt.com/pricing');
-          setAvalaibleAlert(false);
-        }}
-        title={translate('settings.antivirus.featureLocked.title')}
-        explanation={translate('settings.antivirus.featureLocked.subtitle')}
-        cancelText={translate('settings.backups.stop.modal.cancel')}
-        confirmText={translate('settings.antivirus.featureLocked.action')}
         variantButton="primary"
       />
     </>

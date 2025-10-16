@@ -10,7 +10,6 @@ import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
 import Settings from './pages/Settings';
 import Widget from './pages/Widget';
-import Migration from './pages/Migration';
 import IssuesPage from './pages/Issues';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './core/tanstack-query/query-client';
@@ -39,7 +38,6 @@ export default function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/process-issues" element={<IssuesPage />} />
                   <Route path="/onboarding" element={<Onboarding />} />
-                  <Route path="/migration" element={<Migration />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="/" element={<Widget />} />
                 </Routes>

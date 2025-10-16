@@ -1,40 +1,40 @@
 function SkeletonBox({ className }: { className?: string }) {
-  return <div className={`animate-pulse bg-gray-20 dark:bg-gray-10 rounded ${className}`} />;
+  return <div className={`animate-pulse rounded bg-gray-20 dark:bg-gray-10 ${className}`} />;
 }
 
 export function WidgetSkeleton() {
   return (
-    <div className="w-[340px] h-[400px] flex flex-col justify-between rounded-xl bg-surface dark:bg-gray-1 shadow-lg overflow-hidden">
+    <div className="flex h-[400px] w-[340px] flex-col justify-between overflow-hidden rounded-xl bg-surface shadow-lg dark:bg-gray-1">
       {/* Top Section (Header + Body) */}
-      <div className="p-4 flex flex-col h-full">
+      <div className="flex h-full flex-col p-4">
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            <SkeletonBox className="w-10 h-10 rounded-full" />
+            <SkeletonBox className="h-10 w-10 rounded-full" />
             <div className="space-y-1">
-              <SkeletonBox className="w-32 h-4" />
-              <SkeletonBox className="w-24 h-3" />
+              <SkeletonBox className="h-4 w-32" />
+              <SkeletonBox className="h-3 w-24" />
             </div>
           </div>
-          <div className="flex items-center space-x-2 pt-1 mr-2">
-            <SkeletonBox className="w-5 h-5 rounded" />
-            <SkeletonBox className="w-5 h-5 rounded" />
-            <SkeletonBox className="w-5 h-5 rounded" />
+          <div className="mr-2 flex items-center space-x-2 pt-1">
+            <SkeletonBox className="h-5 w-5 rounded" />
+            <SkeletonBox className="h-5 w-5 rounded" />
+            <SkeletonBox className="h-5 w-5 rounded" />
           </div>
         </div>
 
         {/* Sync Status Center */}
-        <div className="flex flex-col items-center justify-center text-center space-y-3 flex-grow">
-          <SkeletonBox className="w-20 h-20 rounded-xl" />
-          <SkeletonBox className="w-40 h-5" />
-          <SkeletonBox className="w-48 h-4" />
+        <div className="flex flex-grow flex-col items-center justify-center space-y-3 text-center">
+          <SkeletonBox className="h-20 w-20 rounded-xl" />
+          <SkeletonBox className="h-5 w-40" />
+          <SkeletonBox className="h-4 w-48" />
         </div>
       </div>
 
       {/* Footer */}
-      <div className="border-t flex flex-row items-center space-x-2 border-gray-10 dark:border-gray-5 mb-3 px-4 py-3 bg-surface dark:bg-gray-1">
-        <SkeletonBox className="w-6 h-6 rounded-full" />
-        <SkeletonBox className="w-16 h-4 rounded-md" />
+      <div className="mb-3 flex flex-row items-center space-x-2 border-t border-gray-10 bg-surface px-4 py-3 dark:border-gray-5 dark:bg-gray-1">
+        <SkeletonBox className="h-6 w-6 rounded-full" />
+        <SkeletonBox className="h-4 w-16 rounded-md" />
       </div>
     </div>
   );

@@ -31,33 +31,17 @@
   "onboarding": {
     "slides": {
       "welcome": {
-        "title": "¡Bienvenido a Internxt!",
-        "description": "Empieza haciendo una copia de seguridad de todos tus archivos y carpetas importantes en la barra lateral del buscador.",
+        "title": "Internxt Desktop",
+        "description": "¡Bienvenido a Internxt!\n\nHaz copias de seguridad de tus archivos con Drive, protégelos contra malware con Antivirus y optimiza el rendimiento con Cleaner — todo mientras mantienes tu privacidad protegida.",
         "take-tour": "Hacer recorrido"
       },
-      "files-organization": {
-        "title": "Accede y organiza todos tus archivos almacenados desde la barra lateral",
-        "description": "Tu carpeta personal de Internxt Drive se encuentra en tu barra lateral de {{platform_app}}."
-      },
-      "available-online": {
-        "title": "Ahorra espacio en tu dispositivo con la descarga inteligente",
-        "description": "Guarda los archivos no esenciales como solo online para ahorrar espacio en la unidad local.",
-        "description-2": "Al guardarlos de esta forma, los archivos se eliminan automáticamente de tu dispositivo y se suben a la nube."
-      },
-      "available-offline": {
-        "title": "Sincronización entre dispositivos y acceso a archivos sin conexión",
-        "description": "Almacena tus archivos esenciales como disponibles sin conexión para tenerlos siempre a mano.",
-        "description-2": "Al guardar como disponibles sin conexión, los archivos se almacenan localmente y se sincronizan automáticamente en todos tus dispositivos."
-      },
-      "context-menu": {
-        "title": "Organiza tus archivos con un solo clic",
-        "description": "Basta con hacer clic con el botón derecho en uno o varios archivos y seleccionar cómo deseas almacenarlos.",
-        "list-1": "Etiqueta los archivos disponibles sin conexión para acceder a ellos en cualquier momento, con o sin internet",
-        "list-2": "Etiqueta los archivos sólo en línea para ahorrar espacio físico en el disco duro"
+      "drive": {
+        "title": "Drive",
+        "description": "Accede a todos tus archivos desde la carpeta de Internxt Drive en la barra lateral de {{platform_app}}.\n\nElige ahorrar espacio con archivos disponibles solo en línea o mantener los esenciales sin conexión — todo permanece seguro y sincronizado en todos tus dispositivos."
       },
       "antivirus": {
-        "title": "Mantén tu ordenador protegido contra virus",
-        "description": "La aplicación de escritorio de Internxt ahora también cuenta con el nuevo Internxt Antivirus, con el que puedes escanear y eliminar cualquier posible malware de tu dispositivo."
+        "title": "Antivirus",
+        "description": "Protege tu dispositivo contra el malware y las amenazas en línea.\n\nInternxt Antivirus te mantiene seguro con análisis en tiempo real y una seguridad que prioriza tu privacidad."
       },
       "sync-folder": {
         "title": "Elige la ubicación de tu carpeta de sincronización",
@@ -67,8 +51,12 @@
         "choose-folder": "Elegir carpeta"
       },
       "backups": {
-        "title": "Haz copias de seguridad de tu dispositivo en la nube",
-        "description": "Con la función mejorada de copias de seguridad de Internxt, ahora puedes hacer copias de seguridad de tus carpetas en la nube de manera segura para liberar espacio localmente."
+        "title": "Backup",
+        "description": "Con la función de copia de seguridad mejorada de Internxt, ahora puedes hacer copias seguras de tus carpetas en la nube para liberar espacio localmente.\n\nTambién puedes ajustar la frecuencia de las copias de seguridad según tus necesidades."
+      },
+      "cleaner": {
+        "title": "Cleaner",
+        "description": "Libera espacio localmente y optimiza el rendimiento de tu dispositivo.\n\nNuestro limpiador detecta y elimina archivos innecesarios para que tu dispositivo funcione sin problemas."
       },
       "onboarding-completed": {
         "title": "Ya está todo listo, ¡disfruta de tu privacidad!",
@@ -89,44 +77,8 @@
       "skip": "Saltar",
       "platform-phrase": {
         "windows": "explorador de archivos"
-      }
-    }
-  },
-  "migration": {
-    "slides": {
-      "welcome": {
-        "title": "Nueva actualización de la aplicación de escritorio de Internxt!",
-        "features": {
-          "title": "Novedades en esta versión:",
-          "feature-1": "Selecciona lo que desees descargar y ahorra espacio en el disco duro.",
-          "feature-2": "Apariencia y sensación nativa del sistema operativo para gestionar tus archivos y carpetas."
-        }
       },
-      "migration": {
-        "title": "Nos aseguramos de que todos tus archivos están a salvo",
-        "in-progress": "Subiendo archivos pendientes",
-        "item-progress": "{{processed_items}} de {{total_items}} archivos subidos"
-      },
-      "migration-failed": {
-        "title": "Nos aseguramos de que todos tus archivos están a salvo",
-        "message": "No se han podido cargar algunos archivos",
-        "description": "Hemos movido esos archivos a tu escritorio, arrástralos y suéltalos en tu Internxt Drive",
-        "show-files": "Mostrar archivos"
-      },
-      "delete-old-drive-folder": {
-        "title": "Tu Internxt de siempre, en una nueva ubicación",
-        "message": "Tu carpeta personal de Internxt Drive se encuentra en la barra lateral {{platform_app}}."
-      },
-      "new-widget": {
-        "title": "Sé más productivo con nuestro widget rediseñado",
-        "message": "Hemos rediseñado y reconstruido nuestro widget para aumentar la productividad, la comodidad y la velocidad.",
-        "message-2": "Todos los cambios se actualizan en tiempo real."
-      }
-    },
-    "common": {
-      "continue": "Continuar",
-      "cancel": "Cancelar",
-      "open-drive": "Abrir Internxt"
+      "new": "Nuevo"
     }
   },
   "widget": {
@@ -158,7 +110,8 @@
             "confirm": "Cerrar sesión",
             "cancel": "Forzar sincronización"
           }
-        }
+        },
+        "cleaner": "Cleaner"
       }
     },
     "body": {
@@ -174,8 +127,7 @@
           "uploaded": "Subido",
           "deleting": "Moviendo a la papelera",
           "deleted": "Movido a la papelera",
-          "renaming": "Renombrando",
-          "renamed": "Renombrado"
+          "moved": "Movido"
         }
       },
       "no-activity": {
@@ -233,7 +185,8 @@
         "GENERAL": "General",
         "ACCOUNT": "Cuenta",
         "BACKUPS": "Backups",
-        "ANTIVIRUS": "Antivirus"
+        "ANTIVIRUS": "Antivirus",
+        "CLEANER": "Cleaner"
       }
     },
     "general": {
@@ -268,7 +221,6 @@
       },
       "app-info": {
         "open-logs": "Abrir registros",
-        "open-migration": "Empezar migración",
         "more": "Más información sobre Internxt"
       }
     },
@@ -401,6 +353,46 @@
         "actions": {
           "cancel": "Cancelar",
           "remove": "Eliminar"
+        }
+      }
+    },
+    "cleaner": {
+      "selectAllCheckbox": "Seleccionar todo",
+      "mainView": {
+        "cleanup": "Limpiar"
+      },
+      "generateReportView": {
+        "title": "Ningún escaneo todavía",
+        "description": "Escanee su sistema para encontrar archivos que pueda eliminar de forma segura y liberar espacio.",
+        "generateReport": "Ejecutar escaneo"
+      },
+      "loadingView": {
+        "title": "Espera un momento",
+        "description": "Estamos generando tu informe..."
+      },
+      "sizeIndicatorView": {
+        "selectCategory": "Seleccione una categoría para",
+        "previewContent": "obtener una vista previa del contenido",
+        "saveUpTo": "Ahorra hasta",
+        "ofYourSpace": "de tu espacio"
+      },
+      "cleanupConfirmDialogView": {
+        "title": "Confirmar borrado",
+        "description": "Esta acción eliminará permanentemente los archivos seleccionados de tu dispositivo. Esta acción no se puede deshacer. Confirme para continuar.",
+        "cancelButton": "Cancelar",
+        "confirmButton": "Eliminar archivos"
+      },
+      "cleaningView": {
+        "cleaningProcess": {
+          "title": "Limpiando...",
+          "stopCleanButton": "Detener limpieza",
+          "deletedFiles": "Archivos eliminados",
+          "freeSpaceGained": "Espacio libre ganado"
+        },
+        "cleaningFinished": {
+          "title": "Tu dispositivo está limpio",
+          "subtitle": "No es necesario realizar ninguna otra acción",
+          "finish": "Finalizar"
         }
       }
     }

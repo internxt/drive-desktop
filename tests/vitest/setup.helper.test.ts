@@ -1,4 +1,4 @@
-import path from 'node:path';
+import path from 'node:path/posix';
 import { mkdirSync } from 'node:fs';
 import { TEST_FILES } from './mocks.helper.test';
 
@@ -36,6 +36,9 @@ vi.mock('electron', async () => {
         return '/mock/logs';
       }),
       on: vi.fn(),
+    },
+    shell: {
+      openPath: vi.fn(),
     },
     ipcMain: {
       on: vi.fn((event, callback) => {
