@@ -5,15 +5,8 @@ export default function useSyncStatus(onChange?: (curentState: RemoteSyncStatus)
   const [syncStatus, setSyncStatus] = useState<RemoteSyncStatus>('SYNCING');
 
   useEffect(() => {
-    void window.electron.getRemoteSyncStatus().then((status) => {
-      setSyncStatus(status);
-    });
-
-    const removeListener = window.electron.onRemoteSyncStatusChange((status) => {
-      setSyncStatus(status);
-    });
-
-    return removeListener;
+    void window.electron.getRemoteSyncStatus().then(setSyncStatus);
+    return window.electron.onRemoteSyncStatusChange(setSyncStatus);
   }, []);
 
   useEffect(() => {
