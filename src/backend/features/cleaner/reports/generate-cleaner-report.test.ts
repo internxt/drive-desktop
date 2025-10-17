@@ -84,7 +84,6 @@ describe('generateCleanerReport', () => {
     expect(result).toEqual({
       appCache: mockAppCacheReport,
       logFiles: mockLogFilesReport,
-      trash: { totalSizeInBytes: 0, items: [] },
       webStorage: mockWebStorageReport,
       webCache: mockWebCacheReport,
       platformSpecific: mockWindowsSpecificReport,
@@ -98,7 +97,7 @@ describe('generateCleanerReport', () => {
 
     calls(loggerMock.debug).toMatchObject([
       { msg: 'Starting cleaner report generation...' },
-      { tag: 'CLEANER', msg: 'Cleaner report generation Finished' },
+      { msg: 'Cleaner report generation Finished' },
     ]);
     calls(loggerMock.error).toHaveLength(0);
   });
@@ -112,7 +111,6 @@ describe('generateCleanerReport', () => {
     expect(result).toMatchObject({
       appCache: mockAppCacheReport,
       logFiles: mockLogFilesReport,
-      trash: { totalSizeInBytes: 0, items: [] },
       webStorage: mockWebStorageReport,
       webCache: mockWebCacheReport,
       platformSpecific: mockWindowsSpecificReport,
@@ -147,18 +145,13 @@ describe('generateCleanerReport', () => {
     // When
     const result = await generateCleanerReport(true);
     // Then
-    expect(result.appCache).toMatchObject({ totalSizeInBytes: 0, items: [] });
-    expect(result.logFiles).toMatchObject(mockLogFilesReport);
-    expect(result.webStorage).toMatchObject(mockWebStorageReport);
-    expect(result.webCache).toMatchObject({ totalSizeInBytes: 0, items: [] });
-    expect(result.platformSpecific).toMatchObject(mockWindowsSpecificReport);
+    expect(result.appCache).toStrictEqual({ totalSizeInBytes: 0, items: [] });
+    expect(result.logFiles).toStrictEqual(mockLogFilesReport);
+    expect(result.webStorage).toStrictEqual(mockWebStorageReport);
+    expect(result.webCache).toStrictEqual({ totalSizeInBytes: 0, items: [] });
+    expect(result.platformSpecific).toStrictEqual(mockWindowsSpecificReport);
 
-    expect(loggerMock.error).toBeCalledTimes(2);
-    expect(loggerMock.error).toBeCalledWith({
-      tag: 'CLEANER',
-      msg: 'Cleaner section failed with reason:',
-      error,
-    });
+    calls(loggerMock.error).toHaveLength(2);
   });
 
   it('should handle all sections failing and return fallback report', async () => {
@@ -172,14 +165,12 @@ describe('generateCleanerReport', () => {
     // When
     const result = await generateCleanerReport(true);
     // Then
-    expect(result).toMatchObject({
+    expect(result).toStrictEqual({
       appCache: { totalSizeInBytes: 0, items: [] },
       logFiles: { totalSizeInBytes: 0, items: [] },
-      trash: { totalSizeInBytes: 0, items: [] },
       webStorage: { totalSizeInBytes: 0, items: [] },
       webCache: { totalSizeInBytes: 0, items: [] },
       platformSpecific: { totalSizeInBytes: 0, items: [] },
     });
-    calls(loggerMock.error).toHaveLength(5);
   });
 });

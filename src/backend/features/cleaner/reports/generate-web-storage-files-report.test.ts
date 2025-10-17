@@ -98,6 +98,6 @@ describe('generateWebStorageFileReport', () => {
       ]),
     });
 
-    expect(result).toEqual(mockReport);
+    expect(result).toStrictEqual(mockReport);
   });
 });

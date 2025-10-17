@@ -31,11 +31,6 @@ describe('generateLogFilesReport', () => {
       fileName: 'system.log',
       sizeInBytes: 512,
     },
-    {
-      fullPath: 'G:\\Users\\User\\AppData\\Local\\log\\debug.log',
-      fileName: 'debug.log',
-      sizeInBytes: 8192,
-    },
   ];
 
   const mockReport = {
@@ -53,15 +48,13 @@ describe('generateLogFilesReport', () => {
     const localAppDataLogsItems = [mockCleanableItems[1]];
     const roamingAppDataLogsItems = [mockCleanableItems[2]];
     const programDataLogsItems = [mockCleanableItems[3]];
-    const userProfileLogsItems = [mockCleanableItems[4]];
 
     scanDirectoryMock.mockResolvedValueOnce(systemLogsItems);
 
     scanSubDirectoryMock
       .mockResolvedValueOnce(localAppDataLogsItems)
       .mockResolvedValueOnce(roamingAppDataLogsItems)
-      .mockResolvedValueOnce(programDataLogsItems)
-      .mockResolvedValueOnce(userProfileLogsItems);
+      .mockResolvedValueOnce(programDataLogsItems);
     // When
     const result = await generateLogFilesReport();
     // Then
@@ -72,7 +65,7 @@ describe('generateLogFilesReport', () => {
       customFileFilter: CleanerModule.logFileFilter,
     });
 
-    calls(scanSubDirectoryMock).toHaveLength(4);
+    calls(scanSubDirectoryMock).toHaveLength(3);
     calls(scanSubDirectoryMock).toMatchObject([
       {
         baseDir: pathsToClean.localAppData,
@@ -83,22 +76,13 @@ describe('generateLogFilesReport', () => {
       {
         baseDir: pathsToClean.programData,
       },
-      {
-        baseDir: pathsToClean.logs.userProfileLogs,
-      },
     ]);
 
     calls(generateReportMock).toHaveLength(1);
     call(generateReportMock).toMatchObject({
-      promises: expect.arrayContaining([
-        expect.any(Promise),
-        expect.any(Promise),
-        expect.any(Promise),
-        expect.any(Promise),
-        expect.any(Promise),
-      ]),
+      promises: expect.arrayContaining([expect.any(Promise), expect.any(Promise), expect.any(Promise), expect.any(Promise)]),
     });
 
-    expect(result).toEqual(mockReport);
+    expect(result).toStrictEqual(mockReport);
   });
 });
