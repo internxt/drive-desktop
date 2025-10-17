@@ -192,22 +192,6 @@
         }
       },
       "auto-startup": "Iniciar Internxt al arrancar el sistema",
-      "language": {
-        "label": "Idioma",
-        "options": {
-          "es": "Español (Español)",
-          "en": "English (Inglés)",
-          "fr": "Français (Francés)"
-        }
-      },
-      "theme": {
-        "label": "Apariencia",
-        "options": {
-          "system": "Sistema",
-          "light": "Claro",
-          "dark": "Oscuro"
-        }
-      },
       "sync": {
         "folder": "Carpeta Internxt",
         "change-folder": "Cambiar carpeta"
