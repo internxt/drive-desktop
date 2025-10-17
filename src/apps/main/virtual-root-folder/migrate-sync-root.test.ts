@@ -3,7 +3,7 @@ import { migrateSyncRoot } from './migrate-sync-root';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { PATHS } from '@/core/electron/paths';
-import configStore from '../config';
+import { configStore } from '../config';
 
 vi.mock(import('node:fs'));
 
@@ -12,7 +12,7 @@ describe('migrate-old-sync-root', () => {
   const renameSyncMock = vi.mocked(renameSync);
   const setMock = partialSpyOn(configStore, 'set');
 
-  const props = mockProps<typeof migrateSyncRoot>({ user: { userId: 'userId' } });
+  const props = mockProps<typeof migrateSyncRoot>({});
   PATHS.HOME_FOLDER_PATH = 'C:/Users/user';
 
   afterEach(() => {
@@ -26,7 +26,6 @@ describe('migrate-old-sync-root', () => {
     migrateSyncRoot(props);
     // Then
     calls(loggerMock.debug).toContainEqual({ msg: 'New sync root already exists, skiping' });
-    // expect(configStore.get).toHaveBeenCalledWith('syncRoot');
   });
 
   it('should set a new syncRoot when the user changes the root', () => {
