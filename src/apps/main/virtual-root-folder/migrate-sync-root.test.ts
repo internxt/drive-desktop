@@ -1,5 +1,5 @@
 import { existsSync, renameSync } from 'node:fs';
-import { migrateOldSyncRoot } from './migrate-old-sync-root';
+import { migrateSyncRoot } from './migrate-sync-root';
 import { call, calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { PATHS } from '@/core/electron/paths';
@@ -12,7 +12,7 @@ describe('migrate-old-sync-root', () => {
   const renameSyncMock = vi.mocked(renameSync);
   const setMock = partialSpyOn(configStore, 'set');
 
-  const props = mockProps<typeof migrateOldSyncRoot>({ user: { userId: 'userId' } });
+  const props = mockProps<typeof migrateSyncRoot>({ user: { userId: 'userId' } });
   PATHS.HOME_FOLDER_PATH = 'C:/Users/user';
 
   afterEach(() => {
@@ -23,7 +23,7 @@ describe('migrate-old-sync-root', () => {
     // Given
     existsSyncMock.mockReturnValueOnce(true);
     // When
-    migrateOldSyncRoot(props);
+    migrateSyncRoot(props);
     // Then
     calls(loggerMock.debug).toContainEqual({ msg: 'New sync root already exists, skiping' });
     // expect(configStore.get).toHaveBeenCalledWith('syncRoot');
@@ -33,7 +33,7 @@ describe('migrate-old-sync-root', () => {
     // Given
     existsSyncMock.mockReturnValueOnce(false).mockReturnValueOnce(true);
     // When
-    migrateOldSyncRoot(props);
+    migrateSyncRoot(props);
     // Then
     calls(loggerMock.debug).toContainEqual({ msg: 'Migrate old sync root' });
     calls(renameSyncMock).toHaveLength(1);
@@ -43,7 +43,7 @@ describe('migrate-old-sync-root', () => {
     // Given
     existsSyncMock.mockReturnValue(false);
     // When
-    migrateOldSyncRoot(props);
+    migrateSyncRoot(props);
     // Then
     calls(loggerMock.debug).toContainEqual({ msg: 'Old sync root does not exist, skiping' });
   });

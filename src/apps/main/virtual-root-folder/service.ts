@@ -1,17 +1,13 @@
 import { dialog, shell } from 'electron';
-import path from 'node:path';
 
 import { configStore } from '../config';
 import { getUserOrThrow } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { migrateOldSyncRoot, OLD_SYNC_ROOT } from './migrate-old-sync-root';
+import { migrateSyncRoot } from './migrate-sync-root';
+import { PATHS } from '@/core/electron/paths';
 
-function setSyncRoot(pathname: string): void {
-  const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
-
-  configStore.set('syncRoot', pathNameWithSepInTheEnd);
-}
+const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
 export function getRootVirtualDrive() {
   const user = getUserOrThrow();
@@ -20,7 +16,8 @@ export function getRootVirtualDrive() {
   logger.debug({ msg: 'Current root virtual drive', syncRoot });
 
   if (OLD_SYNC_ROOT === syncRoot) {
-    const newSyncRoot = migrateOldSyncRoot({ user });
+    const newSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
+    migrateSyncRoot({ oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot });
     return newSyncRoot;
   }
 
@@ -29,12 +26,17 @@ export function getRootVirtualDrive() {
 
 export async function chooseSyncRootWithDialog(): Promise<string | null> {
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
+
   if (!result.canceled) {
+    const user = getUserOrThrow();
+
     const chosenPath = result.filePaths[0];
+    const newSyncRoot = createAbsolutePath(chosenPath, `InternxtDrive - ${user.uuid}`);
+    const oldSyncRoot = createAbsolutePath(configStore.get('syncRoot'));
 
-    setSyncRoot(chosenPath);
+    migrateSyncRoot({ oldSyncRoot, newSyncRoot });
 
-    return chosenPath;
+    return newSyncRoot;
   }
 
   return null;
