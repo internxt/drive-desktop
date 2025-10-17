@@ -1,8 +1,8 @@
 import { useContext, useState } from 'react';
 import Button from '../../../components/Button';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { BackupContext } from '../../../context/BackupContext';
 import { ConfirmationModal } from '../../../components/Backups/Delete/ConfirmationModal';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 type StartBackupProps = {
   className: string;
@@ -25,7 +25,7 @@ export function StartBackup({ className }: StartBackupProps) {
     window.electron.startBackupsProcess();
   }
 
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <>

@@ -1,11 +1,12 @@
 import { Usage } from '@/apps/main/usage/Usage';
 import { QueryStatus } from '@tanstack/react-query';
 import bytes from 'bytes';
+import { TranslationPath } from '../../localize/i18n.types';
 
 interface Props {
   usage: Usage;
   status: QueryStatus;
-  translate: (key: string) => string;
+  translate: (key: TranslationPath) => string;
 }
 
 export function getUsageIndicatorValue({ usage, status, translate }: Props) {

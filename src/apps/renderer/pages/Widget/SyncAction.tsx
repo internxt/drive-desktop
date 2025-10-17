@@ -1,15 +1,15 @@
 import { CheckCircle, XCircle } from '@phosphor-icons/react';
 import Spinner from '../../assets/spinner.svg';
 import Button from '../../components/Button';
-import { useTranslationContext } from '../../context/LocalContext';
 import { useNetworkRetry } from '../../hooks/useNetworkRetry';
 import { useGetUsage } from '../../api/use-get-usage';
 import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
+import { useI18n } from '../../localize/use-i18n';
 
 type Props = { syncStatus: RemoteSyncStatus };
 
-export default function SyncAction({ syncStatus }: Readonly<Props>) {
-  const { translate } = useTranslationContext();
+export default function SyncAction({ syncStatus }: Props) {
+  const { translate } = useI18n();
 
   const { isOnline } = useNetworkRetry(3000, 5);
   const { data: usage, status } = useGetUsage();

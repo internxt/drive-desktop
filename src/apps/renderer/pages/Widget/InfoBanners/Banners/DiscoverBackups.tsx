@@ -1,8 +1,8 @@
 import Button from '../../../../components/Button';
 import { X } from '@phosphor-icons/react';
 import Illustration from '../../../../assets/backups/Illustration.svg';
-import { useTranslationContext } from '../../../../context/LocalContext';
 import { useDiscoverBackups } from '../../../../hooks/backups/useDiscoverBackups';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export function DiscoverBackups() {
   const { hasDiscovered, discover } = useDiscoverBackups();
@@ -13,7 +13,7 @@ export function DiscoverBackups() {
 
   const openBackupsSettings = () => window.electron.openSettingsWindow('BACKUPS');
 
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <div className="m-3 grid grid-cols-2 gap-3 rounded-lg border border-gray-30 bg-gray-5 p-4">

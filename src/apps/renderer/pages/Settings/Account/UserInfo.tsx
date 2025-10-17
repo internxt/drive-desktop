@@ -1,9 +1,9 @@
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { User } from '../../../../main/types';
 import Button from '../../../components/Button';
-import { useTranslationContext } from '../../../context/LocalContext';
 
 export default function UserInfo({ user }: { user: User }) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const Avatar = () => {
     return (
