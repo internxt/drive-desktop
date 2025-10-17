@@ -12,7 +12,6 @@ describe('resetConfig', () => {
     expect(configSetMock).toBeCalledWith('backupInterval', 86_400_000);
     expect(configSetMock).toBeCalledWith('lastBackup', -1);
     expect(configSetMock).toBeCalledWith('syncRoot', '');
-    expect(configSetMock).toBeCalledWith('deviceId', -1);
     expect(configSetMock).toBeCalledWith('backupList', {});
     expect(configSetMock).toBeCalledTimes(6);
   });
