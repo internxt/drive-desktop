@@ -119,9 +119,6 @@ var api = {
   finishOnboarding() {
     import_electron2.ipcRenderer.send("user-finished-onboarding");
   },
-  finishMigration() {
-    import_electron2.ipcRenderer.send("user-finished-migration");
-  },
   isAutoLaunchEnabled() {
     return import_electron2.ipcRenderer.invoke("is-auto-launch-enabled");
   },
@@ -142,17 +139,6 @@ var api = {
   },
   getBackupsStatus() {
     return import_electron2.ipcRenderer.invoke("get-backups-status");
-  },
-  openVirtualDrive() {
-    return import_electron2.ipcRenderer.invoke("open-virtual-drive");
-  },
-  moveSyncFolderToDesktop() {
-    return import_electron2.ipcRenderer.invoke("move-sync-folder-to-desktop");
-  },
-  // Open the folder where we store the items
-  // that we failed to migrate
-  openMigrationFailedFolder() {
-    return import_electron2.ipcRenderer.invoke("open-migration-failed-folder");
   },
   onBackupsStatusChanged(func) {
     const eventName = "backups-status-changed";
@@ -222,9 +208,6 @@ var api = {
   getItemByFolderUuid(folderUuid) {
     return import_electron2.ipcRenderer.invoke("get-item-by-folder-uuid", folderUuid);
   },
-  deleteBackupError(folderId) {
-    return import_electron2.ipcRenderer.invoke("delete-backup-error", folderId);
-  },
   downloadBackup(backup, folderUuids) {
     return import_electron2.ipcRenderer.invoke("download-backup", backup, folderUuids);
   },
@@ -234,9 +217,6 @@ var api = {
   getFolderPath() {
     return import_electron2.ipcRenderer.invoke("get-folder-path");
   },
-  startMigration() {
-    return import_electron2.ipcRenderer.invoke("open-migration-window");
-  },
   onRemoteSyncStatusChange(callback) {
     const eventName = "remote-sync-status-change";
     const callbackWrapper = (_, v) => callback(v);
@@ -245,9 +225,6 @@ var api = {
   },
   getRemoteSyncStatus() {
     return import_electron2.ipcRenderer.invoke("get-remote-sync-status");
-  },
-  retryVirtualDriveMount() {
-    return import_electron2.ipcRenderer.invoke("retry-virtual-drive-mount");
   },
   openUrl: (url) => {
     return import_electron2.ipcRenderer.invoke("open-url", url);

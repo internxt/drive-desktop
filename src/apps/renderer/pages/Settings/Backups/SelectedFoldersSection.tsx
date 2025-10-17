@@ -28,7 +28,7 @@ export function SelectedFoldersSection({ className, onGoToList }: SelectedFolder
         })}
       </SecondaryText>
       {backupIssues.length > 0 && (
-        <SecondaryText className="ml-2 inline  text-red">
+        <SecondaryText className="ml-2 inline text-red">
           <WarningCircle size={18} weight="fill" className="mr-1 inline" />
           {backupIssues.length} issues
         </SecondaryText>
