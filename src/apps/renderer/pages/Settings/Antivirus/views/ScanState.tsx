@@ -165,13 +165,13 @@ export const ScanState = ({
         )}
 
         {!showErrorState && (
-          <div className="flex h-full w-full items-stretch  gap-5 rounded-xl bg-surface py-4">
+          <div className="flex h-full w-full items-stretch gap-5 rounded-xl bg-surface py-4">
             <div className="flex w-full flex-row justify-center gap-5">
               <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
                 <p>{scannedFilesCount}</p>
                 <p>{translate('settings.antivirus.scanProcess.scannedFiles')}</p>
               </div>
-              <div className="flex flex-col border  border-gray-10" />
+              <div className="flex flex-col border border-gray-10" />
               <div className="flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center">
                 <p>{corruptedFiles.length}</p>
                 <p>{translate('settings.antivirus.scanProcess.detectedFiles')}</p>

@@ -27,7 +27,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
   };
 
   return (
-    <div className="flex flex-col gap-3 p-4 ">
+    <div className="flex flex-col gap-3 p-4">
       <div className="draggable flex">
         <h1 className="text-lg font-normal">{translate('settings.backups.title')}</h1>
         <div className="ml-auto text-gray-50">
@@ -38,7 +38,7 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
         </div>
       </div>
       <div
-        className="border-l-neutral-30  h-44 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black"
+        className="border-l-neutral-30 h-44 overflow-y-auto rounded-lg border border-gray-20 bg-white dark:bg-black"
         onClick={() => setSelectedBackup([])}
         role="none">
         {backupsState === 'SUCCESS' && backups.length > 0 ? (

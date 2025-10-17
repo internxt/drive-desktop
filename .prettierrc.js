@@ -6,7 +6,7 @@ module.exports = {
   // importOrder: ["^@/(.*)$", "^[./]"],
   // importOrderParserPlugins: ["typescript", "decorators-legacy"],
   // importOrderSeparation: true,
-  // plugins: [require.resolve("@trivago/prettier-plugin-sort-imports")],
+  plugins: [/*require.resolve("@trivago/prettier-plugin-sort-imports")*/ require.resolve('prettier-plugin-tailwindcss')],
   printWidth: 140,
   proseWrap: 'never',
   semi: true,

@@ -1,7 +1,6 @@
 // Slides
 import { WelcomeSlide } from './slides/WelcomeSlide';
 import { DriveSlide } from './slides/DriveSlide';
-import WindowsFinderImage from '../../assets/onboarding/finder/windows.svg';
 import {
   // BackupsSVG,
   OnboardingSlide,
@@ -12,16 +11,16 @@ import {
   getAntivirusImageSvg,
 } from './helpers';
 
-import BackupsSvg from '../../assets/onboarding/backups.svg';
-import BackupsDarkSvg from '../../assets/onboarding/backups-dark.svg';
+import BackupsSvg from '../../assets/onboarding/backups/backups-light.svg';
+import BackupsDarkSvg from '../../assets/onboarding/backups/backups-dark.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
 import { BackupsSlide } from './slides/BackupsSlide';
-import useConfig from '../../hooks/useConfig';
-import { Theme } from '../../../shared/types/Theme';
+import { useTheme } from '../../hooks/useConfig';
 import { AntivirusSlide } from './slides/AntivirusSlide';
 import { CleanerSlide } from './slides/cleaner-slide';
+import { WindowsFileExplorerImage } from './slides-images/windows-file-explorer-image';
 
 export const SLIDES: OnboardingSlide[] = [
   {
@@ -42,7 +41,7 @@ export const SLIDES: OnboardingSlide[] = [
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
             {translate('onboarding.slides.welcome.take-tour')}
           </Button>
-          <Button onClick={props.onSkipOnboarding} variant="secondary" size="lg">
+          <Button onClick={props.onSkipOnboarding} variant="outline" size="lg">
             {translate('onboarding.common.skip')}
           </Button>
         </div>
@@ -51,7 +50,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: () => {
       return (
         <div className="relative ml-20 mt-20">
-          <WindowsFinderImage />
+          <WindowsFileExplorerImage />
         </div>
       );
     },
@@ -86,8 +85,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: () => {
       const DriveImage = () => {
         const { language } = useTranslationContext();
-        const preferredTheme = useConfig('preferedTheme') as Theme;
-        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const { theme } = useTheme();
         const DriveImage = getDriveImageSvg(language, theme);
         if (!DriveImage) return null;
 
@@ -104,7 +102,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Backups Slide',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <BackupsSlide {...props} />
           </SideTextAnimation>
@@ -129,8 +127,7 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       const BackupsImage = () => {
-        const preferredTheme = useConfig('preferedTheme') as Theme;
-        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const { theme } = useTheme();
         return theme === 'dark' ? <BackupsDarkSvg /> : <BackupsSvg />;
       };
 
@@ -145,7 +142,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Antivirus Slide',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <AntivirusSlide {...props} />
           </SideTextAnimation>
@@ -171,8 +168,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: () => {
       const AntivirusImage = () => {
         const { language } = useTranslationContext();
-        const preferredTheme = useConfig('preferedTheme') as Theme;
-        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const { theme } = useTheme();
         const AntivirusImage = getAntivirusImageSvg(language, theme);
         if (!AntivirusImage) return null;
 
@@ -190,7 +186,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Cleaner Slide',
     component: () => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <CleanerSlide />
           </SideTextAnimation>
@@ -216,8 +212,7 @@ export const SLIDES: OnboardingSlide[] = [
     image: () => {
       const CleanerImage = () => {
         const { language } = useTranslationContext();
-        const preferredTheme = useConfig('preferedTheme') as Theme;
-        const theme = preferredTheme === 'system' ? 'dark' : preferredTheme;
+        const { theme } = useTheme();
         const CleanerImage = getCleanerImageSvg(language, theme);
         if (!CleanerImage) return null;
 
@@ -225,7 +220,7 @@ export const SLIDES: OnboardingSlide[] = [
       };
 
       return (
-        <div className="relative flex h-full w-full items-center justify-center ">
+        <div className="relative flex h-full w-full items-center justify-center">
           <SideImageAnimation display>
             <CleanerImage />
           </SideImageAnimation>
@@ -237,7 +232,7 @@ export const SLIDES: OnboardingSlide[] = [
     name: 'Onboarding Completed',
     component: (props) => {
       return (
-        <div className="flex h-full w-full ">
+        <div className="flex h-full w-full">
           <SideTextAnimation display>
             <OnboardingCompletedSlide {...props} />
           </SideTextAnimation>
@@ -256,9 +251,9 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       return (
-        <div className="relative ml-20 mt-20 ">
+        <div className="relative ml-20 mt-20">
           <SideImageAnimation display>
-            <WindowsFinderImage />
+            <WindowsFileExplorerImage />
           </SideImageAnimation>
         </div>
       );

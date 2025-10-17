@@ -4,8 +4,12 @@ export type Language = 'es' | 'en' | 'fr';
 export type Translation = typeof en;
 export type Translations = Record<Language, Translation>;
 
+/**
+ * v2.6.0 Daniel Jiménez
+ * This type generates all possible paths from the translations.
+ * We set a maximum depth of 10 for a translation path.
+ */
 type Prev = [never, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-
 type Paths<T, D extends number = 10> = [D] extends [never]
   ? never
   : T extends object
