@@ -165,14 +165,6 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
   await updateAllRemoteSync();
 });
 
-ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', (_, workspaceId = '') => {
-  logger.debug({ msg: '[Get UnSync] Received Get UnSync File event' });
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  logger.debug({ msg: 'Total files unsynced', totalFilesUnsynced: manager.totalFilesUnsynced });
-  return manager.totalFilesUnsynced;
-});
-
 export async function initSyncEngine({ context }: { context: AuthContext }) {
   try {
     void spawnSyncEngineWorkers({ context });

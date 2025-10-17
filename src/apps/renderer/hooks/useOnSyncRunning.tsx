@@ -1,9 +1,9 @@
-import { SyncStatus } from '../../../context/desktop/sync/domain/SyncStatus';
+import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 import useSyncStatus from './useSyncStatus';
 
 export function useOnSyncRunning(fn: () => void) {
-  function isRunning(status: SyncStatus) {
-    return status === 'RUNNING';
+  function isRunning(status: RemoteSyncStatus) {
+    return status === 'SYNCING';
   }
 
   useSyncStatus((status) => {
