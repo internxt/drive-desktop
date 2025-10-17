@@ -2,7 +2,7 @@ import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { configStore } from '../config';
 import { getRootVirtualDrive } from './service';
 import * as getUserOrThrowModule from '../auth/service';
-import * as migrateOldSyncRootModule from './migrate-old-root-folder';
+import * as migrateOldSyncRootModule from './migrate-old-sync-root';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('getRootVirtualDrive', () => {
