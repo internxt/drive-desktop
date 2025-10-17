@@ -27,15 +27,22 @@ export function getRootVirtualDrive() {
   return syncRoot;
 }
 
-export async function chooseSyncRootWithDialog(): Promise<string | null> {
+export async function chooseSyncRootWithDialog() {
+  logger.debug({ msg: 'Choose sync root with dialog' });
+
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
-  if (!result.canceled) {
-    const chosenPath = result.filePaths[0];
 
-    setSyncRoot(chosenPath);
+  if (result.canceled) return;
 
-    return chosenPath;
-  }
+  const chosenPath = result.filePaths[0];
 
-  return null;
+  logger.debug({ msg: 'Chosen path', chosenPath });
+}
+
+export async function openVirtualDriveRootFolder() {
+  const syncFolderPath = getRootVirtualDrive();
+
+  const errorMessage = await shell.openPath(syncFolderPath);
+
+  if (errorMessage) throw new Error(errorMessage);
 }
