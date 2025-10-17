@@ -35,7 +35,7 @@ describe('generateReport', () => {
     // Given
     const promises = [Promise.resolve(mockCleanableItems1), Promise.resolve(mockCleanableItems2), Promise.resolve(mockCleanableItems3)];
     // When
-    const result = await generateReport({ promises });
+    const result = await generateReport({ promises, sectionKey: 'appCache' });
     // Then
     expect(result.items).toHaveLength(4);
     expect(result.items).toMatchObject([...mockCleanableItems1, ...mockCleanableItems2, ...mockCleanableItems3]);
@@ -50,7 +50,7 @@ describe('generateReport', () => {
       Promise.resolve(mockCleanableItems3),
     ];
     // When
-    const result = await generateReport({ promises });
+    const result = await generateReport({ promises, sectionKey: 'appCache' });
     // Then
     expect(result.items).toHaveLength(3);
     expect(result.items).toMatchObject([...mockCleanableItems1, ...mockCleanableItems3]);
@@ -61,7 +61,7 @@ describe('generateReport', () => {
     // Given
     const promises = [Promise.reject(new Error('Error 1')), Promise.reject(new Error('Error 2')), Promise.reject(new Error('Error 3'))];
     // When
-    const result = await generateReport({ promises });
+    const result = await generateReport({ promises, sectionKey: 'appCache' });
     // Then
     expect(result.items).toHaveLength(0);
     expect(result.items).toMatchObject([]);

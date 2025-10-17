@@ -76,9 +76,9 @@ describe('generateAppCacheReport', () => {
 
     calls(generateReportMock).toHaveLength(1);
     call(generateReportMock).toMatchObject({
-      promises: expect.arrayContaining([expect.any(Promise), expect.any(Promise), expect.any(Promise), expect.any(Promise)]),
+      promises: [expect.any(Promise), expect.any(Promise), expect.any(Promise), expect.any(Promise)],
     });
 
-    expect(result).toEqual(mockReport);
+    expect(result).toStrictEqual(mockReport);
   });
 });
