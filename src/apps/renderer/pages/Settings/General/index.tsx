@@ -1,7 +1,7 @@
 import AppInfo from './AppInfo';
 import DeviceName from './DeviceName';
 import LanguagePicker from './LanguagePicker';
-import SyncFolder from './SyncFolder';
+import { SyncFolder } from './sync-folder';
 import { ThemePicker } from './ThemePicker';
 import StartAutomatically from './StartAutomatically';
 

@@ -24,22 +24,20 @@ export function getRootVirtualDrive() {
   return syncRoot;
 }
 
-export async function chooseSyncRootWithDialog(): Promise<string | null> {
+export async function chooseSyncRootWithDialog() {
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
 
-  if (!result.canceled) {
-    const user = getUserOrThrow();
+  if (result.canceled) return;
 
-    const chosenPath = result.filePaths[0];
-    const newSyncRoot = createAbsolutePath(chosenPath, `InternxtDrive - ${user.uuid}`);
-    const oldSyncRoot = createAbsolutePath(configStore.get('syncRoot'));
+  const user = getUserOrThrow();
 
-    migrateSyncRoot({ oldSyncRoot, newSyncRoot });
+  const chosenPath = result.filePaths[0];
+  const newSyncRoot = createAbsolutePath(chosenPath, `InternxtDrive - ${user.uuid}`);
+  const oldSyncRoot = createAbsolutePath(configStore.get('syncRoot'));
 
-    return newSyncRoot;
-  }
+  migrateSyncRoot({ oldSyncRoot, newSyncRoot });
 
-  return null;
+  return newSyncRoot;
 }
 
 export async function openVirtualDriveRootFolder() {

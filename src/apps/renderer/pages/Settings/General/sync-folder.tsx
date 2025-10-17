@@ -1,32 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useTranslationContext } from '../../../context/LocalContext';
 
-export default function SyncFolder() {
+export function SyncFolder() {
   const { translate } = useTranslationContext();
-  const [syncRoot, setSyncRoot] = useState<string>('');
+  const [syncRoot, setSyncRoot] = useState('');
 
   useEffect(() => {
-    const fetchSyncRoot = async () => {
-      try {
-        const path = await window.electron.getSyncRoot();
-        setSyncRoot(path);
-      } catch (error) {
-        console.error('Error getting sync root:', error);
-      }
-    };
-    fetchSyncRoot();
+    void window.electron.getSyncRoot().then(setSyncRoot);
   }, []);
 
-  const handleChangeFolder = async () => {
-    try {
-      const newPath = await window.electron.chooseSyncRootWithDialog();
-      if (newPath) {
-        setSyncRoot(newPath);
-      }
-    } catch (error) {
-      console.error('Error changing sync root:', error);
+  async function handleChangeFolder() {
+    const newPath = await window.electron.chooseSyncRootWithDialog();
+    if (newPath) {
+      setSyncRoot(newPath);
     }
-  };
+  }
 
   return (
     <section>
