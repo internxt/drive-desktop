@@ -9,7 +9,7 @@ import { DeviceContext } from '../../../context/DeviceContext';
 import { useBackupProgress } from '../../../hooks/backups/useBackupProgress';
 
 export function DeleteBackups() {
-  const { backups, deleteBackups, backupStatus, isBackupAvailable } = useContext(BackupContext);
+  const { backups, deleteBackups, backupStatus } = useContext(BackupContext);
   const { selected, current } = useContext(DeviceContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
@@ -18,7 +18,7 @@ export function DeleteBackups() {
 
   const { translate } = useTranslationContext();
 
-  const isDeleteDisabled = !isBackupAvailable || backups.length === 0 || backupStatus !== 'STANDBY' || thereIsDownloadProgress;
+  const isDeleteDisabled = backups.length === 0 || backupStatus !== 'STANDBY' || thereIsDownloadProgress;
 
   function toggleConfirmation() {
     setAskConfirmation(!askConfirmation);

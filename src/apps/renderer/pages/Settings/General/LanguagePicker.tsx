@@ -1,5 +1,5 @@
-import Select, { SelectOptionsType } from '../../../components/Select';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import Select, { SelectOptionsType } from '../../../components/Select';
 
 export default function LanguagePicker(): JSX.Element {
   const { t: translate, language } = useI18n();
