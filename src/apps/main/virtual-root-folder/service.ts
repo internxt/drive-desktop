@@ -1,7 +1,7 @@
 import { dialog, shell } from 'electron';
 import path from 'node:path';
 
-import configStore from '../config';
+import { configStore } from '../config';
 import { getUserOrThrow } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
