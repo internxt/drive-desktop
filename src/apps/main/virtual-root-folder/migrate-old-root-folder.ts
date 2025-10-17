@@ -3,7 +3,7 @@ import { PATHS } from '@/core/electron/paths';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { existsSync, renameSync } from 'node:fs';
 import { User } from '../types';
-import configStore from '../config';
+import { configStore } from '../config';
 
 export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
