@@ -7,7 +7,7 @@ import { createAbsolutePath } from '@/context/local/localFile/infrastructure/Abs
 import { migrateSyncRoot } from './migrate-sync-root';
 import { PATHS } from '@/core/electron/paths';
 
-const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
+export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
 export function getRootVirtualDrive() {
   const user = getUserOrThrow();
