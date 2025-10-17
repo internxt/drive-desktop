@@ -2,7 +2,7 @@ import { X } from '@phosphor-icons/react';
 
 export default function WindowTopBar({ title, className }: { title: string; className?: string }) {
   return (
-    <div className={`draggable relative flex-shrink-0 flex-grow-0 truncate px-1 h-10 ${className ?? ''}`}>
+    <div className={`draggable relative h-10 flex-shrink-0 flex-grow-0 truncate px-1 ${className ?? ''}`}>
       <div
         role="button"
         tabIndex={0}

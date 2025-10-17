@@ -45,7 +45,7 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const displayIssues = backupIssues.length > 0;
 
   return (
-    <div className="rounded-lg  border border-gray-10 bg-surface px-6 py-4 shadow-sm dark:bg-gray-5">
+    <div className="rounded-lg border border-gray-10 bg-surface px-6 py-4 shadow-sm dark:bg-gray-5">
       <div className="flex w-full items-center">
         <div className="grow">
           {selected?.name}

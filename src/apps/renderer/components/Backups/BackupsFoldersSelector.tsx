@@ -107,7 +107,7 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (pr
           className={`non-draggable flex h-9 w-full shrink-0 items-center px-2.5 transition-colors duration-75 ${
             isSelected ? 'bg-primary text-white' : index % 2 !== 0 ? 'bg-white text-gray-100' : 'bg-gray-10 text-gray-100'
           }`}>
-          <FolderIcon className="mr-2 h-[19px] w-[22px] " />
+          <FolderIcon className="mr-2 h-[19px] w-[22px]" />
           <p className="select-none truncate text-lg" style={{ top: '1px' }}>
             {backupFolder.itemName}
           </p>
@@ -117,7 +117,7 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (pr
   };
   return (
     <div className="backups-modal-shadow flex h-full rounded-lg bg-white px-5 py-5">
-      <div className="flex flex-1 flex-col items-center justify-between ">
+      <div className="flex flex-1 flex-col items-center justify-between">
         <div className="flex w-full flex-row justify-between">
           <h1 className="font-medium text-gray-80">{translate('settings.backups.title')}</h1>
           <h4 className="text-gray-50">{getBackupFoldersCount()}</h4>
