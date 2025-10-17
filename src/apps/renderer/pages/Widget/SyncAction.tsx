@@ -8,7 +8,7 @@ import { RemoteSyncStatus } from '@/apps/main/remote-sync/helpers';
 
 type Props = { syncStatus: RemoteSyncStatus };
 
-export default function SyncAction({ syncStatus }: Props) {
+export default function SyncAction({ syncStatus }: Readonly<Props>) {
   const { translate } = useTranslationContext();
 
   const { isOnline } = useNetworkRetry(3000, 5);
