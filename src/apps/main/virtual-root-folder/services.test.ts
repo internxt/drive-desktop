@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import configStore from '../config';
 import { User } from '../types';
-import { getRootVirtualDrive, setupRootFolder } from './service';
+import { getRootVirtualDrive } from './service';
 import { ROOT_FOLDER_NAME } from '@/core/utils/utils';
 import { TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 

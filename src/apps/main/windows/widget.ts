@@ -1,6 +1,5 @@
 import { BrowserWindow, screen } from 'electron';
 
-import eventBus from '../event-bus';
 import { TrayMenu } from '../tray/tray';
 import { preloadPath, resolveHtmlPath } from '../util';
 import { setUpCommonWindowHandlers } from '.';
@@ -64,7 +63,6 @@ const createWidget = async () => {
   });
 
   await widgetLoaded;
-  eventBus.emit('WIDGET_IS_READY');
 };
 
 export async function getOrCreateWidged(): Promise<BrowserWindow | null> {

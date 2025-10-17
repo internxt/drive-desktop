@@ -1,116 +1,35 @@
 import { dialog, shell } from 'electron';
-import fs from 'node:fs';
-import path from 'node:path';
 
 import configStore from '../config';
-import eventBus from '../event-bus';
-import { getUser } from '../auth/service';
+import { getUserOrThrow } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
-import { User } from '../types';
-import { PATHS } from '@/core/electron/paths';
-import { ROOT_FOLDER_NAME } from '@/core/utils/utils';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { migrateOldSyncRoot, OLD_SYNC_ROOT } from './migrate-old-root-folder';
 
-const VIRTUAL_DRIVE_FOLDER = path.join(PATHS.HOME_FOLDER_PATH, ROOT_FOLDER_NAME);
+export function getRootVirtualDrive() {
+  const user = getUserOrThrow();
+  const syncRoot = createAbsolutePath(configStore.get('syncRoot'));
 
-function setSyncRoot(pathname: string): void {
-  const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
+  logger.debug({ msg: 'Current root virtual drive', syncRoot });
 
-  configStore.set('syncRoot', pathNameWithSepInTheEnd);
-}
-
-export function getRootVirtualDrive(): string {
-  const current = configStore.get('syncRoot');
-  const user = getUser();
-  if (!user) {
-    throw logger.error({
-      msg: 'User not found when getting root virtual drive',
-    });
+  if (OLD_SYNC_ROOT === syncRoot) {
+    const newSyncRoot = migrateOldSyncRoot({ user });
+    return newSyncRoot;
   }
 
-  logger.debug({
-    msg: 'Current root virtual drive',
-    current,
-  });
-
-  if (!current.includes(user.uuid)) {
-    logger.debug({
-      msg: 'Root virtual drive not found for user',
-    });
-    setupRootFolder(user);
-    const newRoot = configStore.get('syncRoot');
-
-    logger.debug({
-      msg: 'New root virtual drive',
-      newRoot,
-    });
-    return newRoot;
-  }
-
-  return current;
+  return syncRoot;
 }
 
-export function setupRootFolder(user: User): void {
-  const current = configStore.get('syncRoot');
+export async function chooseSyncRootWithDialog() {
+  logger.debug({ msg: 'Choose sync root with dialog' });
 
-  const pathNameWithSepInTheEnd = VIRTUAL_DRIVE_FOLDER + path.sep;
-  const syncFolderPath = `${VIRTUAL_DRIVE_FOLDER} - ${user.uuid}`;
-
-  logger.debug({
-    msg: 'Virtual drive folder',
-    pathNameWithSepInTheEnd,
-    current,
-    syncFolderPath,
-  });
-
-  /**
-   * v2.5.1 Jonathan Arce
-   * Previously, the drive name in Explorer was "Internxt Drive" and when you logged out and logged in,
-   * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
-   * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
-   * login called "InternxtDrive - {user.uuid}."
-   * So, we need to rename "InternxtDrive" to "InternxtDrive - {user.uuid}".
-   */
-  // If the current path doesn't match the default path format, we'll still update the sync root
-  if (current === pathNameWithSepInTheEnd) {
-    // Check if we need to migrate to the new format with UUID
-    const oldFormatExists = fs.existsSync(current);
-    const newFormatExists = fs.existsSync(syncFolderPath);
-
-    if (newFormatExists) {
-      logger.debug({
-        msg: 'Root virtual drive with new name format already exists',
-        path: syncFolderPath,
-      });
-    } else if (oldFormatExists) {
-      logger.debug({
-        msg: 'Migrating root virtual drive to new format with UUID',
-        from: current,
-        to: syncFolderPath,
-      });
-      fs.renameSync(current, syncFolderPath);
-    } else {
-      logger.debug({
-        msg: 'Neither old nor new format of virtual drive exists yet',
-        path: syncFolderPath,
-      });
-    }
-  }
-
-  setSyncRoot(syncFolderPath);
-}
-
-export async function chooseSyncRootWithDialog(): Promise<string | null> {
   const result = await dialog.showOpenDialog({ properties: ['openDirectory'] });
-  if (!result.canceled) {
-    const chosenPath = result.filePaths[0];
 
-    setSyncRoot(chosenPath);
-    eventBus.emit('SYNC_ROOT_CHANGED', chosenPath);
+  if (result.canceled) return;
 
-    return chosenPath;
-  }
+  const chosenPath = result.filePaths[0];
 
-  return null;
+  logger.debug({ msg: 'Chosen path', chosenPath });
 }
 
 export async function openVirtualDriveRootFolder() {
