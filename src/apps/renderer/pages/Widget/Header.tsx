@@ -2,17 +2,17 @@ import { MouseEventHandler, useEffect, useState } from 'react';
 import { FolderSimple, Gear, Globe } from '@phosphor-icons/react';
 import { Menu, Transition } from '@headlessui/react';
 import { User } from '../../../main/types';
-import { useTranslationContext } from '../../context/LocalContext';
 import { SHOW_ANTIVIRUS_TOOL } from '../Settings';
 import { useIssues } from '../../hooks/useIssues';
 import { UsageIndicator } from '../../components/UsageIndicator';
+import { useI18n } from '../../localize/use-i18n';
 
 interface HeadersProps {
   setIsLogoutModalOpen: (isOpen: boolean) => void;
 }
 
 const Header: React.FC<HeadersProps> = ({ setIsLogoutModalOpen }) => {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const { issues } = useIssues();
 

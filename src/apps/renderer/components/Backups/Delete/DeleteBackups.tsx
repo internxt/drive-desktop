@@ -3,10 +3,10 @@ import { SectionHeader } from '../../SectionHeader';
 import Button from '../../Button';
 import { ConfirmationModal } from './ConfirmationModal';
 import { useContext, useEffect, useState } from 'react';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { BackupContext } from '../../../context/BackupContext';
 import { DeviceContext } from '../../../context/DeviceContext';
 import { useBackupProgress } from '../../../hooks/backups/useBackupProgress';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export function DeleteBackups() {
   const { backups, deleteBackups, backupStatus } = useContext(BackupContext);
@@ -16,7 +16,7 @@ export function DeleteBackups() {
   const { thereIsProgress } = useBackupProgress();
   const { thereIsDownloadProgress } = useContext(BackupContext);
 
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const isDeleteDisabled = backups.length === 0 || backupStatus !== 'STANDBY' || thereIsDownloadProgress;
 

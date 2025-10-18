@@ -1,8 +1,8 @@
-import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
 import { useTheme } from '@/apps/renderer/hooks/useConfig';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export function CleanerSlide() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const { theme } = useTheme();
 
   return (

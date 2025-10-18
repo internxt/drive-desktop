@@ -1,8 +1,8 @@
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import packageJson from '../../../../../../package.json';
-import { useTranslationContext } from '../../../context/LocalContext';
 
 export default function AppInfo() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const handleOpenURL = async (URL: string) => {
     try {

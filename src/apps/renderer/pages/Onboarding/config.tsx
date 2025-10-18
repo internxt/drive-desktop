@@ -21,6 +21,7 @@ import { useTheme } from '../../hooks/useConfig';
 import { AntivirusSlide } from './slides/AntivirusSlide';
 import { CleanerSlide } from './slides/cleaner-slide';
 import { WindowsFileExplorerImage } from './slides-images/windows-file-explorer-image';
+import { useI18n } from '../../localize/use-i18n';
 
 export const SLIDES: OnboardingSlide[] = [
   {
@@ -35,7 +36,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     footer: (props) => {
-      const { translate } = useTranslationContext();
+      const { translate } = useI18n();
       return (
         <div className="flex w-full flex-1 items-end space-x-2">
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
@@ -84,7 +85,7 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       const DriveImage = () => {
-        const { language } = useTranslationContext();
+        const { language } = useI18n();
         const { theme } = useTheme();
         const DriveImage = getDriveImageSvg(language, theme);
         if (!DriveImage) return null;
@@ -167,7 +168,7 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       const AntivirusImage = () => {
-        const { language } = useTranslationContext();
+        const { language } = useI18n();
         const { theme } = useTheme();
         const AntivirusImage = getAntivirusImageSvg(language, theme);
         if (!AntivirusImage) return null;
@@ -211,7 +212,7 @@ export const SLIDES: OnboardingSlide[] = [
     },
     image: () => {
       const CleanerImage = () => {
-        const { language } = useTranslationContext();
+        const { language } = useI18n();
         const { theme } = useTheme();
         const CleanerImage = getCleanerImageSvg(language, theme);
         if (!CleanerImage) return null;
@@ -240,7 +241,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     footer: (props) => {
-      const { translate } = useTranslationContext();
+      const { translate } = useI18n();
       return (
         <div className="flex w-full flex-1 items-end">
           <Button onClick={props.onFinish} variant="primary" size="lg">

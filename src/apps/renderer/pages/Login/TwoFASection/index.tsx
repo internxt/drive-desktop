@@ -1,6 +1,6 @@
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import TwoFA from '../TwoFA';
 import { LoginState } from '../types';
-import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
 
 interface Props {
   state: LoginState;
@@ -9,7 +9,7 @@ interface Props {
 }
 
 export function TwoFASection({ state, resetForm, setTwoFA }: Props) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <>

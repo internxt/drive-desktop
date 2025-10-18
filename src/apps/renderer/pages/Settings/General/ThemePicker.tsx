@@ -4,7 +4,7 @@ import Select, { SelectOptionsType } from '../../../components/Select';
 import { useTheme } from '../../../hooks/useConfig';
 
 export function ThemePicker() {
-  const { t: translate } = useI18n();
+  const { translate } = useI18n();
   const { configTheme } = useTheme();
 
   const themes: SelectOptionsType[] = [

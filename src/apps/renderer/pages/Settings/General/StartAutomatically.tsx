@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 
 import Checkbox from '../../../components/Checkbox';
-import { useTranslationContext } from '../../../context/LocalContext';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export default function StartAutomatically() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const [checked, setChecked] = useState<boolean>(false);
 
   function refreshValue() {

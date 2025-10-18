@@ -1,6 +1,6 @@
 import Button from '../../components/Button';
-import { useTranslationContext } from '../../context/LocalContext';
 import { CloudSlash } from '@phosphor-icons/react';
+import { useI18n } from '../../localize/use-i18n';
 
 function handleRetrySync() {
   globalThis.window.electron.syncManually().catch((err) => {
@@ -9,7 +9,7 @@ function handleRetrySync() {
 }
 
 export function SyncFailed() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center space-y-5 px-8">

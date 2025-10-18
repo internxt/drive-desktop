@@ -1,12 +1,12 @@
 import Select from '../../../components/Select';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { useBackupsInterval } from '../../../hooks/backups/useBackupsInterval';
 import { SectionHeader } from '../../../components/SectionHeader';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export function Frequency() {
   const { backupsInterval, updateBackupsInterval } = useBackupsInterval();
 
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const intervals = [
     {

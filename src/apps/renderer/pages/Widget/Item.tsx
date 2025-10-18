@@ -1,9 +1,9 @@
 import { Check, WarningCircle } from '@phosphor-icons/react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
-import { useTranslationContext } from '../../context/LocalContext';
 import { getBaseName, getExtension } from '../../utils/path';
 import { ProcessInfoUpdatePayload } from '../../../shared/types';
 import { fileIcon } from '../../assets/icons/getIcon';
+import { useI18n } from '../../localize/use-i18n';
 
 export function Item({
   name,
@@ -12,7 +12,7 @@ export function Item({
 }: ProcessInfoUpdatePayload & {
   progress?: number;
 }) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 
   let description = '';

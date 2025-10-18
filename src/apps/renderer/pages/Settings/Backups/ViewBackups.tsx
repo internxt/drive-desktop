@@ -1,12 +1,12 @@
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Button from '../../../components/Button';
-import { useTranslationContext } from '../../../context/LocalContext';
 
 type ViewBackupsProps = React.HTMLAttributes<HTMLBaseElement> & {
   showDownloadFolers: () => void;
 };
 
 export function ViewBackups({ className, showDownloadFolers }: ViewBackupsProps) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <>

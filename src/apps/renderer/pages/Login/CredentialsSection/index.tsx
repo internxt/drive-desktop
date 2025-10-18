@@ -1,8 +1,8 @@
 import TextInput from '@/apps/renderer/components/TextInput';
-import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
 import { LoginState } from '../types';
 import { PasswordInput } from '@/apps/renderer/components/password-input';
 import Button from '@/apps/renderer/components/Button';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 interface Props {
   state: LoginState;
@@ -15,7 +15,7 @@ interface Props {
 }
 
 export function CredentialsSection({ state, email, password, openURL, onSubmit, setEmail, setPassword }: Props) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <>

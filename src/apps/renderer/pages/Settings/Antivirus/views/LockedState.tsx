@@ -1,8 +1,8 @@
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Button from '../../../../components/Button';
-import { useTranslationContext } from '../../../../context/LocalContext';
 
 export const LockedState = () => {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const handleOpenPricingPage = async () => {
     try {

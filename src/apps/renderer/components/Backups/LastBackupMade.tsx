@@ -1,10 +1,10 @@
 import { useContext } from 'react';
-import { useTranslationContext } from '../../context/LocalContext';
 import { BackupContext } from '../../context/BackupContext';
 import { DeviceContext } from '../../context/DeviceContext';
+import { useI18n } from '../../localize/use-i18n';
 
 export function LastBackupMade() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const { lastBackupTimestamp, fromNow } = useContext(BackupContext);
   const { selected, current } = useContext(DeviceContext);
 

@@ -1,6 +1,7 @@
 import { ShieldCheck, ShieldWarning } from 'phosphor-react';
-import { useTranslationContext } from '../../../../context/LocalContext';
 import Button from '../../../../components/Button';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { TranslationPath } from '@/apps/renderer/localize/i18n.types';
 
 interface ScanStateProps {
   isScanning: boolean;
@@ -16,7 +17,7 @@ interface ScanStateProps {
   showItemsWithMalware: () => void;
 }
 
-const ScanSuccessful = ({ translate }: { translate: (key: string, keysToReplace?: Record<string, string | number>) => string }) => (
+const ScanSuccessful = ({ translate }: { translate: (key: TranslationPath) => string }) => (
   <div className="flex flex-col items-center gap-4">
     <ShieldCheck size={64} className="text-green" weight="fill" />
     <div className="flex flex-col gap-1 text-center">
@@ -30,7 +31,7 @@ const CorruptedItemsFound = ({
   translate,
   onRemoveMalwareButtonClicked,
 }: {
-  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  translate: (key: TranslationPath) => string;
   onRemoveMalwareButtonClicked: () => void;
 }) => (
   <div className="flex flex-col items-center gap-4">
@@ -47,7 +48,7 @@ const ErrorWhileScanningItems = ({
   translate,
   onScanAgainButtonClicked,
 }: {
-  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  translate: (key: TranslationPath) => string;
   onScanAgainButtonClicked: () => void;
 }) => (
   <div className="flex flex-col items-center gap-4">
@@ -65,7 +66,7 @@ const ScanResult = ({
   translate,
   onRemoveMalwareButtonClicked,
 }: {
-  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  translate: (key: TranslationPath) => string;
   onScanAgainButtonClicked: () => void;
   onRemoveMalwareButtonClicked: () => void;
   thereAreCorruptedFiles: boolean;
@@ -91,7 +92,7 @@ const ScanProcess = ({
   currentScanPath?: string;
   stopScanProcess: () => void;
   scannedProcess: number;
-  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
+  translate: (key: TranslationPath) => string;
 }) => (
   <div className="flex w-full flex-col items-center gap-4">
     <div className="flex h-20 w-full max-w-[450px] flex-col text-center">
@@ -128,7 +129,7 @@ export const ScanState = ({
   onScanAgainButtonClicked,
   showItemsWithMalware,
 }: ScanStateProps) => {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const thereAreCorruptedFiles = corruptedFiles.length > 0;
 

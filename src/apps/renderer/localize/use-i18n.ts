@@ -31,7 +31,7 @@ export function useI18n() {
     [language],
   );
 
-  return { t, language };
+  return { t, translate: t, language };
 }
 
 // export function t(path: TranslationPath, ...args: string[]) {
