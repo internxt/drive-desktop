@@ -62,6 +62,5 @@ const schema: Schema<AppStore> = {
   },
 } as const;
 
-const configStore = new Store({ schema, defaults });
-
+export const configStore = new Store({ schema, defaults });
 export default configStore;
