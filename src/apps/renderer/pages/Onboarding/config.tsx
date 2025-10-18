@@ -14,7 +14,6 @@ import {
 import BackupsSvg from '../../assets/onboarding/backups/backups-light.svg';
 import BackupsDarkSvg from '../../assets/onboarding/backups/backups-dark.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
-import { SyncFolderSlide } from './slides/SyncFolderSlide';
 import Button from '../../components/Button';
 import { useTranslationContext } from '../../context/LocalContext';
 import { BackupsSlide } from './slides/BackupsSlide';
@@ -225,41 +224,6 @@ export const SLIDES: OnboardingSlide[] = [
           <SideImageAnimation display>
             <CleanerImage />
           </SideImageAnimation>
-        </div>
-      );
-    },
-  },
-  {
-    name: 'Sync Folder',
-    component: (props) => {
-      return (
-        <div className="flex h-full w-full">
-          <SideTextAnimation display>
-            <SyncFolderSlide {...props} />
-          </SideTextAnimation>
-        </div>
-      );
-    },
-    footer: (props) => {
-      const { translate } = useTranslationContext();
-      return (
-        <div className="flex w-full flex-1 items-end justify-center">
-          <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
-            {translate('onboarding.common.continue')}
-          </Button>
-          <span className="ml-auto text-gray-50">
-            {translate('onboarding.common.onboarding-progress', {
-              current_slide: props.currentSlide,
-              total_slides: props.totalSlides,
-            })}
-          </span>
-        </div>
-      );
-    },
-    image: () => {
-      return (
-        <div className="relative ml-20 mt-20">
-          <WindowsFileExplorerImage />
         </div>
       );
     },
