@@ -8,6 +8,7 @@ import { monitorHealth } from './monitor-health';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
 import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
+import { getRootVirtualDrive } from '@/apps/main/virtual-root-folder/service';
 
 type TProps = {
   ctx: SyncContext;
@@ -21,9 +22,11 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
   if (!workers[workspaceId]) {
     workers[workspaceId] = {
       worker: null,
+      browserWindow: null,
       workerIsRunning: false,
       startingWorker: false,
       syncSchedule: null,
+      providerId: null,
     };
   }
 
@@ -85,6 +88,8 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
 
     worker.startingWorker = true;
     worker.worker = browserWindow;
+    worker.browserWindow = browserWindow;
+    worker.providerId = ctx.providerId;
 
     await browserWindow.loadFile(
       process.env.NODE_ENV === 'development'
@@ -102,7 +107,13 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
       browserWindow,
       stopAndSpawn: async () => {
         await stopAndClearSyncEngineWorker({ workspaceId });
-        await spawnSyncEngineWorker({ ctx });
+        await spawnSyncEngineWorker({
+          ctx: {
+            ...ctx,
+            // Temporal test
+            rootPath: getRootVirtualDrive(),
+          },
+        });
       },
     });
 
