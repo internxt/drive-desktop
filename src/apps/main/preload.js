@@ -149,6 +149,9 @@ var api = {
   chooseSyncRootWithDialog() {
     return import_electron2.ipcRenderer.invoke("choose-sync-root-with-dialog");
   },
+  getSyncRoot() {
+    return import_electron2.ipcRenderer.invoke("get-sync-root");
+  },
   getOrCreateDevice() {
     return import_electron2.ipcRenderer.invoke("get-or-create-device");
   },

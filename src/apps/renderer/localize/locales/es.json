@@ -43,6 +43,13 @@
         "title": "Antivirus",
         "description": "Protege tu dispositivo contra el malware y las amenazas en línea.\n\nInternxt Antivirus te mantiene seguro con análisis en tiempo real y una seguridad que prioriza tu privacidad."
       },
+      "sync-folder": {
+        "title": "Elige la ubicación de tu carpeta de sincronización",
+        "description": "Selecciona dónde quieres almacenar tus archivos de Internxt Drive en tu computadora.",
+        "current-path": "Ubicación seleccionada:",
+        "default-path": "Predeterminado: C:\\Users\\<usuario>\\InternxtDrive",
+        "choose-folder": "Elegir carpeta"
+      },
       "backups": {
         "title": "Backup",
         "description": "Con la función de copia de seguridad mejorada de Internxt, ahora puedes hacer copias seguras de tus carpetas en la nube para liberar espacio localmente.\n\nTambién puedes ajustar la frecuencia de las copias de seguridad según tus necesidades."

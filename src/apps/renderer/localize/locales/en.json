@@ -43,6 +43,13 @@
         "title": "Antivirus",
         "description": "Protect your device from malware and online threats.\n\nInternxt Antivirus keeps you safe with real-time scans and privacy-first security."
       },
+      "sync-folder": {
+        "title": "Choose your sync folder location",
+        "description": "Select where you want to store your Internxt Drive files on your computer.",
+        "current-path": "Selected location:",
+        "default-path": "Default: C:\\Users\\<username>\\InternxtDrive",
+        "choose-folder": "Choose folder"
+      },
       "backups": {
         "title": "Backup",
         "description": "With Internxt's upgraded backup feature, you can now safely backup folders on the cloud in order to free up space locally. You can also adjust the backup frequency as you need."
