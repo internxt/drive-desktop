@@ -29,4 +29,11 @@ describe('use-i18n', () => {
     // Then
     expect(res).toBe('Language');
   });
+
+  it('should replace args', () => {
+    // When
+    const res = getI18nValue('en', 'settings.account.usage.display', { used: 10, total: 90 });
+    // Then
+    expect(res).toBe('Used 10 of 90');
+  });
 });

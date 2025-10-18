@@ -1,8 +1,6 @@
 import { Transition } from '@headlessui/react';
 
 // Finder images
-import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
-
 import CleanerLightImageSpanish from '../../assets/onboarding/cleaner/ES-Light.svg';
 import CleanerLightImageFrench from '../../assets/onboarding/cleaner/FR-Light.svg';
 import CleanerLightImageEnglish from '../../assets/onboarding/cleaner/EN-Light.svg';
@@ -29,9 +27,7 @@ import { OnboardingImages } from './types';
 export type OnboardingSlideProps = {
   onGoNextSlide: () => void;
   onSkipOnboarding: () => void;
-  onSetupBackups: () => void;
   onFinish: () => void;
-  backupFolders: BackupFolder[];
   currentSlide: number;
   totalSlides: number;
   platform: string;

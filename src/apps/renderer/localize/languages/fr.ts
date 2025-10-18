@@ -60,10 +60,6 @@ export const fr: Translation = {
       },
       'onboarding-completed': {
         title: 'Vous êtes prêt, profitez de votre vie privée !',
-        'backups-completed': {
-          title: '{{folders}} dossiers ajoutés aux sauvegardes',
-          description: "Ajoutez d'autres dossiers et planifiez des sauvegardes automatiques dans les Paramètres",
-        },
         'desktop-ready': {
           title: 'Internxt est prêt',
           description: 'Accédez à vos fichiers stockés depuis la barre latérale de votre {{platform_phrase}}.',

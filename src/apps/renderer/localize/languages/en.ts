@@ -58,10 +58,6 @@ export const en = {
       },
       'onboarding-completed': {
         title: "You're all set, enjoy your privacy!",
-        'backups-completed': {
-          title: '{{folders}} folders added to backups',
-          description: 'Add more folders and schedule automatic backups in Settings',
-        },
         'desktop-ready': {
           title: 'Internxt is ready',
           description: 'Access your stored files from your {{platform_phrase}}’s sidebar',

@@ -2,17 +2,17 @@ import { useContext } from 'react';
 import Button from '../../../components/Button';
 import { SecondaryText } from '../../../components/SecondaryText';
 import { SectionHeader } from '../../../components/SectionHeader';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { BackupContext } from '../../../context/BackupContext';
 import { WarningCircle } from 'phosphor-react';
 import { useIssues } from '@/apps/renderer/hooks/useIssues';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 interface SelectedFoldersSectionProps extends React.HTMLAttributes<HTMLBaseElement> {
   onGoToList: () => void;
 }
 
 export function SelectedFoldersSection({ className, onGoToList }: SelectedFoldersSectionProps) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const { backupIssues } = useIssues();
   const { backups, backupStatus } = useContext(BackupContext);
 
@@ -23,7 +23,7 @@ export function SelectedFoldersSection({ className, onGoToList }: SelectedFolder
         {translate('settings.backups.select-folders')}
       </Button>
       <SecondaryText className="ml-2 inline">
-        {translate('settings.backups.selected-folder', {
+        {translate('settings.backups.selected-folder_other', {
           count: backups.length,
         })}
       </SecondaryText>

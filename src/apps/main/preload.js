@@ -169,9 +169,6 @@ var api = {
   addBackup() {
     return import_electron2.ipcRenderer.invoke("add-backup");
   },
-  addBackupsFromLocalPaths(localPaths) {
-    return import_electron2.ipcRenderer.invoke("add-multiple-backups", localPaths);
-  },
   deleteBackup(backup) {
     return import_electron2.ipcRenderer.invoke("delete-backup", backup);
   },
