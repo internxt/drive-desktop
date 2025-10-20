@@ -1,20 +1,18 @@
 import { useEffect } from 'react';
 
-import { isLanguage, Language } from '../../shared/Locale/Language';
 import { i18nStore } from '../localize/i18n.store';
 import dayjs from 'dayjs';
 import DayJsLocales from '@/apps/shared/Locale/DayJsLocales';
+import { Language } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 
-function updateLanguage(language: string) {
-  if (isLanguage(language)) {
-    i18nStore.setState({ language });
-    dayjs.locale(DayJsLocales[language]);
-  }
+function updateLanguage(language: Language) {
+  i18nStore.setState({ language });
+  dayjs.locale(DayJsLocales[language]);
 }
 
 async function refreshLanguage() {
   const language = await globalThis.window.electron.getConfigKey('preferedLanguage');
-  updateLanguage(language);
+  updateLanguage(language as Language);
 }
 
 export function useI18nSetup() {
