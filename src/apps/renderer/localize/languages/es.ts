@@ -60,10 +60,6 @@ export const es: Translation = {
       },
       'onboarding-completed': {
         title: 'Ya está todo listo, ¡disfruta de tu privacidad!',
-        'backups-completed': {
-          title: '{{folders}} carpetas añadidas a las copias de seguridad',
-          description: 'Añade más carpetas y programa copias de seguridad automáticas en Configuración',
-        },
         'desktop-ready': {
           title: 'Internxt está listo',
           description: 'Accede a tus archivos almacenados desde la barra lateral de tu {{platform_phrase}}.',

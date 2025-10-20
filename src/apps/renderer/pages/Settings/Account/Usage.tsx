@@ -1,11 +1,11 @@
 import bytes from 'bytes';
 import { Usage as UsageType } from '../../../../main/usage/Usage';
 import Button from '../../../components/Button';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { WarningCircle } from '@phosphor-icons/react';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export default function Usage({ isInfinite, offerUpgrade, usageInBytes, limitInBytes }: UsageType) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const percentageUsed = (usageInBytes / limitInBytes) * 100;
   const percentageDisplay = `${percentageUsed.toFixed(0)}%`;
 
