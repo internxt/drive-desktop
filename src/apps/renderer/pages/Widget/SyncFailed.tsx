@@ -1,14 +1,16 @@
-import React from 'react';
 import Button from '../../components/Button';
-import { useTranslationContext } from '../../context/LocalContext';
 import { CloudSlash } from '@phosphor-icons/react';
+import { useI18n } from '../../localize/use-i18n';
 
-interface SyncFailedProps {
-  onRetrySync: () => void;
+function handleRetrySync() {
+  globalThis.window.electron.syncManually().catch((err) => {
+    reportError(err);
+  });
 }
 
-export const SyncFailed: React.FC<SyncFailedProps> = (props) => {
-  const { translate } = useTranslationContext();
+export function SyncFailed() {
+  const { translate } = useI18n();
+
   return (
     <div className="relative flex flex-1 flex-col items-center justify-center space-y-5 px-8">
       <CloudSlash className="text-gray-50" size={64} weight="thin" />
@@ -18,9 +20,9 @@ export const SyncFailed: React.FC<SyncFailedProps> = (props) => {
         <h3 className="text-sm leading-base text-gray-60">{translate('widget.sync-error.message')}</h3>
       </div>
 
-      <Button variant="secondary" onClick={props.onRetrySync}>
+      <Button variant="secondary" onClick={handleRetrySync}>
         {translate('widget.sync-error.button')}
       </Button>
     </div>
   );
-};
+}
