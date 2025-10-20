@@ -1,13 +1,15 @@
 import { useCallback } from 'react';
 import { i18nStore } from './i18n.store';
-import { Language, TranslationPath, Translations } from './i18n.types';
-import { en } from './languages/en';
-import { es } from './languages/es';
-import { fr } from './languages/fr';
+import { Language, TranslationArgs, TranslationPath } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
+import { I18nModule } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 
-const translations: Translations = { en, es, fr };
+const translations = {
+  en: I18nModule.en,
+  es: I18nModule.es,
+  fr: I18nModule.fr,
+};
 
-export function getI18nValue(language: Language, path: TranslationPath, args?: Record<string, unknown>) {
+export function getI18nValue(language: Language, path: TranslationPath, args?: TranslationArgs) {
   const translation = translations[language];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let value = path.split('.').reduce((current: any, key) => current?.[key], translation);
@@ -27,7 +29,7 @@ export function useI18n() {
   const language = i18nStore((s) => s.language);
 
   const t = useCallback(
-    (path: TranslationPath, args?: Record<string, unknown>) => {
+    (path: TranslationPath, args?: TranslationArgs) => {
       return getI18nValue(language, path, args);
     },
     [language],

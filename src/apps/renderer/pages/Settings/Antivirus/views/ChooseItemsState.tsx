@@ -2,7 +2,7 @@ import Button from '../../../../components/Button';
 import { Menu, Transition } from '@headlessui/react';
 import { ScanType } from '../../../../hooks/antivirus/useAntivirus';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
-import { TranslationPath } from '@/apps/renderer/localize/i18n.types';
+import { TranslationFn } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 
 const DropdownItem = ({ children, active, onClick }: { children: JSX.Element; active?: boolean; onClick?: () => void }) => {
   return (
@@ -24,7 +24,7 @@ const CustomScanItemsSelectorDropdown = ({
   onScanItemsButtonClicked,
 }: {
   disabled: boolean;
-  translate: (key: TranslationPath) => string;
+  translate: TranslationFn;
   onScanItemsButtonClicked: (scanType: ScanType) => void;
 }) => {
   return (
