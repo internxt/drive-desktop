@@ -1,9 +1,8 @@
 import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
-import { setupRootFolder } from '../virtual-root-folder/service';
 import { getWidget } from '../windows/widget';
 import { createTokenSchedule, RefreshTokenError } from './refresh-token';
-import { canHisConfigBeRestored, getUser, setCredentials } from './service';
+import { getUser, restoreSavedConfig, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
 import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
@@ -65,9 +64,8 @@ export function setupAuthIpcHandlers() {
       newToken: data.newToken,
       password: data.password,
     });
-    if (!canHisConfigBeRestored(data.user.uuid)) {
-      setupRootFolder(data.user);
-    }
+
+    restoreSavedConfig({ uuid: data.user.uuid });
 
     setIsLoggedIn(true);
     await emitUserLoggedIn();
