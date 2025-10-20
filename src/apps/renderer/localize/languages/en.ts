@@ -431,7 +431,7 @@ export const en = {
       CREATE_FOLDER_FAILED: 'Failed to create folder',
       DELETE_ERROR: 'Cannot delete item',
       FILE_MODIFIED: 'File modified while uploading',
-      FILE_SIZE_TOO_BIG: 'File size too big (max 20GB)',
+      FILE_SIZE_TOO_BIG: 'File size too big (max 40GB)',
       FOLDER_ACCESS_DENIED: 'The app does not have permission to access this folder',
       FOLDER_DOES_NOT_EXIST: 'Folder does not exist',
       INVALID_WINDOWS_NAME: String.raw`Windows does not allow names that include the characters \ / : * ? " < > |`,

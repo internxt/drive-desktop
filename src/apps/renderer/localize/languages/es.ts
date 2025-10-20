@@ -435,7 +435,7 @@ export const es: Translation = {
       CREATE_FOLDER_FAILED: 'Error al crear la carpeta',
       DELETE_ERROR: 'No se pudo eliminar el elemento',
       FILE_MODIFIED: 'Archivo modificado durante la subida',
-      FILE_SIZE_TOO_BIG: 'Archivo es demasiado grande (máximo 20GB)',
+      FILE_SIZE_TOO_BIG: 'Archivo es demasiado grande (máximo 40GB)',
       FOLDER_ACCESS_DENIED: 'La app no tiene permiso para acceder a esta carpeta',
       FOLDER_DOES_NOT_EXIST: 'Carpeta no existe',
       INVALID_WINDOWS_NAME: String.raw`Windows no permite nombres que incluyen los caracteres \ / : * ? " < > |`,

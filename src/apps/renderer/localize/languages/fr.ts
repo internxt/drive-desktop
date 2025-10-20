@@ -437,7 +437,7 @@ export const fr: Translation = {
       CREATE_FOLDER_FAILED: 'Erreur lors de la création de la dossier',
       DELETE_ERROR: "Impossible de supprimer l'élément",
       FILE_MODIFIED: 'Fichier modifié lors du téléchargement',
-      FILE_SIZE_TOO_BIG: 'Le fichier est trop grand (max 20GB)',
+      FILE_SIZE_TOO_BIG: 'Le fichier est trop grand (max 40GB)',
       FOLDER_ACCESS_DENIED: "L'app n'a pas le droit d'accéder à cette dossier",
       FOLDER_DOES_NOT_EXIST: 'Dossier non existant',
       INVALID_WINDOWS_NAME: String.raw`Windows ne permet pas les noms contenant les caractères \ / : * ? " < > |`,
