@@ -1,5 +1,5 @@
+import { Language } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 import { create } from 'zustand';
-import { Language } from './i18n.types';
 
 type Store = {
   language: Language;
