@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState, useEffect, useMemo } from 'react';
+import { createContext, ReactNode, useState, useEffect } from 'react';
 import {
   CleanerReport,
   CleanerViewModel,
@@ -61,33 +61,24 @@ export function CleanerProvider({ children }: Readonly<Props>) {
       });
     };
 
-    const removeListener = globalThis.window.electron.cleanerOnProgress(handleCleanupProgress);
-
-    return () => {
-      if (typeof removeListener === 'function') {
-        removeListener();
-      }
-    };
+    return globalThis.window.electron.cleanerOnProgress(handleCleanupProgress);
   }, []);
 
   function setInitialCleaningState() {
     setCleaningState(initialCleaningState);
   }
 
-  const value = useMemo(
-    () => ({
-      report,
-      loading,
-      cleaningState,
-      diskSpace,
-      generateReport,
-      startCleanup,
-      stopCleanup,
-      setInitialCleaningState,
-      sectionKeys: cleanerSectionKeys,
-    }),
-    [report, loading, cleaningState, diskSpace, generateReport, startCleanup, stopCleanup, setInitialCleaningState],
-  );
+  const value = {
+    report,
+    loading,
+    cleaningState,
+    diskSpace,
+    generateReport,
+    startCleanup,
+    stopCleanup,
+    setInitialCleaningState,
+    sectionKeys: cleanerSectionKeys,
+  };
 
   return <CleanerContext.Provider value={value}>{children}</CleanerContext.Provider>;
 }
