@@ -2,6 +2,7 @@ import { AbsolutePath } from '../../localFile/infrastructure/AbsolutePath';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 import LocalTreeBuilder from './LocalTreeBuilder';
 import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
+import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 
 vi.mock(import('../infrastructure/FsLocalItemsGenerator'));
 
@@ -28,7 +29,7 @@ describe('LocalTreeBuilder', () => {
   it('If file size is too big it should add an issue', async () => {
     // Given
     getAllLocalItemsMock.mockResolvedValueOnce({
-      files: [{ size: 20 * 1024 * 1024 * 1024 + 1, path: 'file.txt' as AbsolutePath }],
+      files: [{ size: BucketEntry.MAX_SIZE + 1, path: 'file.txt' as AbsolutePath }],
       folders: [],
     });
 
