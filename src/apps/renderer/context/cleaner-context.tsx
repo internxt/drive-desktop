@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState, useEffect } from 'react';
+import { createContext, ReactNode, useState, useEffect, useMemo } from 'react';
 import {
   CleanerReport,
   CleanerViewModel,
@@ -68,17 +68,20 @@ export function CleanerProvider({ children }: Readonly<Props>) {
     setCleaningState(initialCleaningState);
   }
 
-  const value = {
-    report,
-    loading,
-    cleaningState,
-    diskSpace,
-    generateReport,
-    startCleanup,
-    stopCleanup,
-    setInitialCleaningState,
-    sectionKeys: cleanerSectionKeys,
-  };
+  const value = useMemo(
+    () => ({
+      report,
+      loading,
+      cleaningState,
+      diskSpace,
+      generateReport,
+      startCleanup,
+      stopCleanup,
+      setInitialCleaningState,
+      sectionKeys: cleanerSectionKeys,
+    }),
+    [report, loading, cleaningState, diskSpace, generateReport, startCleanup, stopCleanup, setInitialCleaningState],
+  );
 
   return <CleanerContext.Provider value={value}>{children}</CleanerContext.Provider>;
 }
