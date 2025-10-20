@@ -1,7 +1,6 @@
 import { watch, WatchOptions, FSWatcher } from 'chokidar';
 
 import { onAddDir } from './events/on-add-dir.service';
-import { QueueManager } from '../queue/queue-manager';
 import { TLogger } from '../logger';
 import { onAdd } from './events/on-add.service';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
@@ -18,7 +17,6 @@ export class Watcher {
   constructor(
     public readonly syncRootPath: AbsolutePath,
     public readonly options: WatchOptions,
-    public readonly queueManager: QueueManager,
     public readonly logger: TLogger,
   ) {}
 

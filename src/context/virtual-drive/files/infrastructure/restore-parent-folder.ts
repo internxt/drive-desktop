@@ -1,5 +1,5 @@
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import path from 'path';
+import path from 'node:path';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { logger } from '@/apps/shared/logger/logger';
@@ -21,20 +21,18 @@ export async function restoreParentFolder({ ctx, offline }: TProps) {
     throw logger.error({ msg: 'Could not restore parent folder, parentUuid not found', path: offline.path });
   }
 
-  const [{ error: moveError }, { error: renameError }] = await Promise.all([
-    driveServerWip.folders.moveFolder({
-      parentUuid,
-      workspaceToken: ctx.workspaceToken,
-      uuid: offline.folderUuid,
-    }),
-    driveServerWip.folders.renameFolder({
-      name: targetFolderName,
-      workspaceToken: ctx.workspaceToken,
-      uuid: offline.folderUuid,
-    }),
-  ]);
+  const { error } = await driveServerWip.folders.move({
+    parentUuid,
+    name: targetFolderName,
+    workspaceToken: ctx.workspaceToken,
+    uuid: offline.folderUuid,
+  });
 
-  if (moveError || (renameError && renameError.code !== 'FOLDER_ALREADY_EXISTS')) {
-    throw logger.error({ msg: 'Error restoring parent folder', path: offline.path, moveError, renameError });
+  if (error && error.code !== 'FOLDER_ALREADY_EXISTS') {
+    throw logger.error({
+      msg: 'Error restoring parent folder',
+      path: offline.path,
+      error,
+    });
   }
 }

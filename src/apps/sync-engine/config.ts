@@ -3,6 +3,7 @@ import { getUser } from '../main/auth/service';
 import { FolderUuid } from '../main/database/entities/DriveFolder';
 import { VirtualDrive } from '@/node-win/virtual-drive';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
+import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export type Config = {
   userUuid: string;
@@ -11,7 +12,6 @@ export type Config = {
   rootUuid: FolderUuid;
   providerName: string;
   loggerPath: string;
-  queueManagerPath: string;
   workspaceId: string;
   workspaceToken: string;
   bucket: string;
@@ -20,7 +20,7 @@ export type Config = {
   bridgePass: string;
 };
 
-export type SyncContext = AuthContext & Config;
+export type SyncContext = AuthContext & Config & { logger: typeof logger };
 
 export type ProcessSyncContext = SyncContext & {
   virtualDrive: VirtualDrive;
@@ -34,7 +34,6 @@ const emptyValues = (): Config => {
     rootPath: '',
     providerName: '',
     loggerPath: '',
-    queueManagerPath: '',
     workspaceId: '',
     rootUuid: '' as FolderUuid,
     bucket: '',
@@ -60,7 +59,6 @@ const defaultValues = (): Config => {
     rootPath: config.rootPath,
     providerName: config.providerName,
     loggerPath: config.loggerPath,
-    queueManagerPath: config.queueManagerPath,
     workspaceId: config.workspaceId,
     rootUuid: config.rootUuid,
     bucket: user.bucket || config.bucket,

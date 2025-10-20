@@ -2,8 +2,8 @@ import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsoluteP
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { logger } from '@/apps/shared/logger/logger';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { existsSync, Stats } from 'fs';
-import { unlink } from 'fs/promises';
+import { existsSync, Stats } from 'node:fs';
+import { unlink } from 'node:fs/promises';
 
 type Props = {
   virtualDrive: VirtualDrive;

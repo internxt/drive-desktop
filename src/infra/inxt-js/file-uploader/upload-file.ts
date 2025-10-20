@@ -1,6 +1,6 @@
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { UploadStrategyFunction } from '@internxt/inxt-js/build/lib/core';
-import { ReadStream } from 'fs';
+import { ReadStream } from 'node:fs';
 import { abortOnChangeSize } from './abort-on-change-size';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { processError } from './process-error';
@@ -48,7 +48,7 @@ export function uploadFile({ fn, bucket, readable, size, absolutePath, abortSign
       readable.destroy();
     }
 
-    interval = setInterval(() => abortOnChangeSize({ absolutePath, size, resolve, stopUpload }), 5_000);
+    interval = setInterval(() => abortOnChangeSize({ path, absolutePath, size, resolve, stopUpload }), 5_000);
 
     abortSignal.addEventListener('abort', () => {
       logger.debug({ msg: 'Aborting upload', path });

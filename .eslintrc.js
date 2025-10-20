@@ -19,6 +19,7 @@ module.exports = {
     {
       files: ['*.test.*'],
       rules: {
+        '@typescript-eslint/no-explicit-any': 'off',
         'sonarjs/assertions-in-tests': 'off',
         'sonarjs/constructor-for-side-effects': 'off',
         'sonarjs/function-return-type': 'off',
@@ -64,9 +65,12 @@ module.exports = {
     'sonarjs/prefer-read-only-props': 'off',
     'sonarjs/pseudo-random': 'warn',
     'sonarjs/public-static-readonly': 'warn',
+    'sonarjs/redundant-type-aliases': 'off',
     'sonarjs/slow-regex': 'off',
     'sonarjs/todo-tag': 'off',
     'unicorn/filename-case': ['warn', { case: 'kebabCase' }],
+    'unicorn/prefer-node-protocol': 'error',
+    'unicorn/prefer-string-raw': 'warn',
     'padding-line-between-statements': [
       'warn',
       { blankLine: 'always', prev: '*', next: 'block' },

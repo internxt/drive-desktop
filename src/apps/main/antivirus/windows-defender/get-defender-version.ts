@@ -1,5 +1,5 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { access, constants, readdir } from 'fs/promises';
+import { access, constants, readdir } from 'node:fs/promises';
 
 export async function getDefenderVersions({ path }: { path: string }) {
   try {

@@ -1,5 +1,5 @@
-import path from 'path';
-import { mkdirSync } from 'fs';
+import path from 'node:path/posix';
+import { mkdirSync } from 'node:fs';
 import { TEST_FILES } from './mocks.helper.test';
 
 process.env.NEW_CRYPTO_KEY = 'crypto_key';
@@ -31,11 +31,14 @@ vi.mock('electron', async () => {
       ...actual.app,
       getPath: vi.fn((string) => {
         if (string === 'home') {
-          return path.join(process.cwd(), 'tests/temp-test');
+          return path.join(TEST_FILES, 'setup-root-folder');
         }
         return '/mock/logs';
       }),
       on: vi.fn(),
+    },
+    shell: {
+      openPath: vi.fn(),
     },
     ipcMain: {
       on: vi.fn((event, callback) => {

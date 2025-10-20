@@ -1,6 +1,6 @@
 import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend';
 import { contextBridge, ipcRenderer } from 'electron';
-import path from 'path';
+import path from 'node:path';
 import { RemoteSyncStatus } from './remote-sync/helpers';
 import { setConfigKey, StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
@@ -17,6 +17,7 @@ import { ItemBackup } from '../shared/types/items';
 import { getBackupsFromDevice } from './device/get-backups-from-device';
 import { ipcPreloadRenderer } from './preload/ipc-renderer';
 import { FromProcess } from './preload/ipc';
+import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 
 const api = {
   getConfigKey(key: StoredValues) {
@@ -96,10 +97,7 @@ const api = {
   openProcessIssuesWindow() {
     ipcRenderer.send('open-process-issues-window');
   },
-  openLogs() {
-    ipcRenderer.send('open-logs');
-  },
-  openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS') {
+  openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS' | 'CLEANER') {
     ipcRenderer.send('open-settings-window', section);
   },
   settingsWindowResized(payload: { width: number; height: number }) {
@@ -108,19 +106,11 @@ const api = {
   finishOnboarding() {
     ipcRenderer.send('user-finished-onboarding');
   },
-  finishMigration() {
-    ipcRenderer.send('user-finished-migration');
-  },
   isAutoLaunchEnabled() {
     return ipcRenderer.invoke('is-auto-launch-enabled');
   },
   toggleAutoLaunch() {
     return ipcRenderer.invoke('toggle-auto-launch');
-  },
-  toggleDarkMode(mode: 'system' | 'light' | 'dark') {
-    if (mode === 'light') return ipcRenderer.invoke('dark-mode:light');
-    if (mode === 'dark') return ipcRenderer.invoke('dark-mode:dark');
-    return ipcRenderer.invoke('dark-mode:system');
   },
   getBackupsInterval(): Promise<number> {
     return ipcRenderer.invoke('get-backups-interval');
@@ -136,17 +126,6 @@ const api = {
   },
   getBackupsStatus(): Promise<BackupsStatus> {
     return ipcRenderer.invoke('get-backups-status');
-  },
-  openVirtualDrive(): Promise<void> {
-    return ipcRenderer.invoke('open-virtual-drive');
-  },
-  moveSyncFolderToDesktop() {
-    return ipcRenderer.invoke('move-sync-folder-to-desktop');
-  },
-  // Open the folder where we store the items
-  // that we failed to migrate
-  openMigrationFailedFolder(): Promise<void> {
-    return ipcRenderer.invoke('open-migration-failed-folder');
   },
   onBackupsStatusChanged(func: (_: BackupsStatus) => void): () => void {
     const eventName = 'backups-status-changed';
@@ -216,9 +195,6 @@ const api = {
   getItemByFolderUuid(folderUuid: string): Promise<ItemBackup[]> {
     return ipcRenderer.invoke('get-item-by-folder-uuid', folderUuid);
   },
-  deleteBackupError(folderId: number): Promise<void> {
-    return ipcRenderer.invoke('delete-backup-error', folderId);
-  },
   downloadBackup(backup: Device, folderUuids?: string[]): Promise<void> {
     return ipcRenderer.invoke('download-backup', backup, folderUuids);
   },
@@ -228,9 +204,6 @@ const api = {
   getFolderPath(): ReturnType<typeof getPathFromDialog> {
     return ipcRenderer.invoke('get-folder-path');
   },
-  startMigration(): Promise<void> {
-    return ipcRenderer.invoke('open-migration-window');
-  },
   onRemoteSyncStatusChange(callback: (status: RemoteSyncStatus) => void): () => void {
     const eventName = 'remote-sync-status-change';
     const callbackWrapper = (_: unknown, v: RemoteSyncStatus) => callback(v);
@@ -239,9 +212,6 @@ const api = {
   },
   getRemoteSyncStatus(): Promise<RemoteSyncStatus> {
     return ipcRenderer.invoke('get-remote-sync-status');
-  },
-  retryVirtualDriveMount(): Promise<void> {
-    return ipcRenderer.invoke('retry-virtual-drive-mount');
   },
   openUrl: (url: string): Promise<void> => {
     return ipcRenderer.invoke('open-url', url);
@@ -264,11 +234,6 @@ const api = {
     },
     discoveredBackups() {
       ipcRenderer.send('user.set-has-discovered-backups');
-    },
-  },
-  backups: {
-    isAvailable(): Promise<boolean> {
-      return ipcRenderer.invoke('backups:is-available');
     },
   },
   antivirus: {
@@ -316,8 +281,23 @@ const api = {
   path,
   authAccess: async (props) => await ipcPreloadRenderer.invoke('authAccess', props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke('authLogin', props),
-  getLastBackupProgress: () => ipcPreloadRenderer.send('getLastBackupProgress'),
+  getLastBackupProgress: async () => await ipcPreloadRenderer.invoke('getLastBackupProgress'),
   getUsage: async () => await ipcPreloadRenderer.invoke('getUsage'),
+  getAvailableProducts: async () => await ipcPreloadRenderer.invoke('getAvailableProducts'),
+  cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke('cleanerGenerateReport', props),
+  cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke('cleanerStartCleanup', props),
+  cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke('cleanerGetDiskSpace'),
+  cleanerStopCleanup: async () => await ipcPreloadRenderer.invoke('cleanerStopCleanup'),
+  getTheme: async () => await ipcPreloadRenderer.invoke('getTheme'),
+  cleanerOnProgress: (callback: (progressData: CleanupProgress) => void) => {
+    const eventName = 'cleaner:cleanup-progress';
+    const callbackWrapper = (_: unknown, progressData: CleanupProgress) => callback(progressData);
+    ipcRenderer.on(eventName, callbackWrapper);
+    return () => {
+      ipcRenderer.removeListener(eventName, callbackWrapper);
+    };
+  },
+  openLogs: async () => await ipcPreloadRenderer.invoke('openLogs'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

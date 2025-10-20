@@ -1,11 +1,11 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { Stats } from 'fs';
-import { readdir } from 'fs/promises';
-import { join } from 'path';
+import { Stats } from 'node:fs';
+import { readdir } from 'node:fs/promises';
+import { join } from 'node:path';
 import { StatError } from './stat';
 import { fileSystem } from '../file-system.module';
 
-type Results = Array<{ absolutePath: AbsolutePath } & ({ stats: Stats; error?: undefined } | { error: StatError; stats?: undefined })>;
+export type SyncWalkItem = { absolutePath: AbsolutePath } & ({ stats: Stats; error?: undefined } | { error: StatError; stats?: undefined });
 type Props = { rootFolder: string };
 
 /**
@@ -15,7 +15,7 @@ type Props = { rootFolder: string };
  */
 export async function syncWalk({ rootFolder }: Props) {
   const stack = [rootFolder];
-  const results: Results = [];
+  const results: SyncWalkItem[] = [];
 
   while (stack.length > 0) {
     const folder = stack.pop();

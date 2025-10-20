@@ -1,5 +1,4 @@
-import fs from 'fs';
-import { basename, dirname, join, posix, win32 } from 'path';
+import { basename, dirname, join, posix, win32 } from 'node:path';
 
 import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
 import { Callbacks } from './types/callbacks.type';
@@ -9,13 +8,8 @@ import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastruc
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
-
-const PLACEHOLDER_ATTRIBUTES = {
-  FILE_ATTRIBUTE_READONLY: 0x1,
-  FILE_ATTRIBUTE_HIDDEN: 0x2,
-  FOLDER_ATTRIBUTE_READONLY: 0x1,
-  FILE_ATTRIBUTE_NORMAL: 0x1,
-};
+import { fileSystem } from '@/infra/file-system/file-system.module';
+import { mkdir } from 'node:fs/promises';
 
 export class VirtualDrive {
   addon: Addon;
@@ -28,13 +22,7 @@ export class VirtualDrive {
 
     this.addon = new Addon();
     this.addon.syncRootPath = this.syncRootPath;
-
-    this.createSyncRootFolder();
-    this.addLoggerPath(this.convertToWindowsPath({ path: loggerPath }));
-  }
-
-  private convertToWindowsTime(jsTime: number) {
-    return BigInt(jsTime) * 10000n + 116444736000000000n;
+    this.addon.addLogger({ path: this.convertToWindowsPath({ path: loggerPath }) });
   }
 
   convertToWindowsPath({ path }: { path: string }) {
@@ -50,17 +38,16 @@ export class VirtualDrive {
     }
   }
 
-  addLoggerPath(logPath: string) {
-    this.addon.addLogger({ logPath });
-  }
-
   getPlaceholderState({ path }: { path: string }) {
     return this.addon.getPlaceholderState({ path: this.fixPath(path) });
   }
 
-  createSyncRootFolder() {
-    if (!fs.existsSync(this.syncRootPath)) {
-      fs.mkdirSync(this.syncRootPath, { recursive: true });
+  async createSyncRootFolder() {
+    const { error } = await fileSystem.stat({ absolutePath: this.syncRootPath });
+
+    if (error) {
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: error.code });
+      await mkdir(this.syncRootPath, { recursive: true });
     }
   }
 
@@ -83,7 +70,6 @@ export class VirtualDrive {
     fileName,
     fileId,
     fileSize,
-    fileAttributes,
     creationTime,
     lastWriteTime,
     lastAccessTime,
@@ -92,24 +78,18 @@ export class VirtualDrive {
     fileName: string;
     fileId: string;
     fileSize: number;
-    fileAttributes: number;
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
     basePath: string;
   }) {
-    const creationTimeStr = this.convertToWindowsTime(creationTime).toString();
-    const lastWriteTimeStr = this.convertToWindowsTime(lastWriteTime).toString();
-    const lastAccessTimeStr = this.convertToWindowsTime(lastAccessTime).toString();
-
     return this.addon.createPlaceholderFile({
       fileName,
       fileId,
       fileSize,
-      fileAttributes,
-      creationTime: creationTimeStr,
-      lastWriteTime: lastWriteTimeStr,
-      lastAccessTime: lastAccessTimeStr,
+      creationTime,
+      lastWriteTime,
+      lastAccessTime,
       basePath,
     });
   }
@@ -117,9 +97,6 @@ export class VirtualDrive {
   private createPlaceholderDirectory({
     itemName,
     itemId,
-    isDirectory,
-    itemSize,
-    folderAttributes,
     creationTime,
     lastWriteTime,
     lastAccessTime,
@@ -127,27 +104,17 @@ export class VirtualDrive {
   }: {
     itemName: string;
     itemId: string;
-    isDirectory: boolean;
-    itemSize: number;
-    folderAttributes: number;
     creationTime: number;
     lastWriteTime: number;
     lastAccessTime: number;
     path: string;
   }) {
-    const creationTimeStr = this.convertToWindowsTime(creationTime).toString();
-    const lastWriteTimeStr = this.convertToWindowsTime(lastWriteTime).toString();
-    const lastAccessTimeStr = this.convertToWindowsTime(lastAccessTime).toString();
-
     return this.addon.createPlaceholderDirectory({
       itemName,
       itemId,
-      isDirectory,
-      itemSize,
-      folderAttributes,
-      creationTime: creationTimeStr,
-      lastWriteTime: lastWriteTimeStr,
-      lastAccessTime: lastAccessTimeStr,
+      creationTime,
+      lastWriteTime,
+      lastAccessTime,
       path,
     });
   }
@@ -193,7 +160,6 @@ export class VirtualDrive {
         fileName: basename(itemPath),
         fileId: itemId,
         fileSize: size,
-        fileAttributes: PLACEHOLDER_ATTRIBUTES.FILE_ATTRIBUTE_NORMAL,
         creationTime,
         lastWriteTime,
         lastAccessTime: Date.now(),
@@ -224,9 +190,6 @@ export class VirtualDrive {
       this.createPlaceholderDirectory({
         itemName: basename(itemPath),
         itemId,
-        isDirectory: true,
-        itemSize: 0,
-        folderAttributes: PLACEHOLDER_ATTRIBUTES.FOLDER_ATTRIBUTE_READONLY,
         creationTime,
         lastWriteTime,
         lastAccessTime: Date.now(),
@@ -260,10 +223,6 @@ export class VirtualDrive {
     }
 
     return result.success;
-  }
-
-  updateFileIdentity({ itemPath, id, isDirectory }: { itemPath: string; id: string; isDirectory: boolean }) {
-    return this.addon.updateFileIdentity({ path: this.fixPath(itemPath), id, isDirectory });
   }
 
   dehydrateFile({ itemPath }: { itemPath: string }) {

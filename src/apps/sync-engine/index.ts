@@ -1,8 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { BindingsManager } from './BindingManager';
-import fs from 'fs/promises';
 import { setConfig, setDefaultConfig, ProcessSyncContext, Config } from './config';
-import { logger } from '../shared/logger/logger';
+import { createLogger, logger } from '../shared/logger/logger';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { ipcRendererSyncEngine } from './ipcRendererSyncEngine';
 import { buildFileUploader } from '../main/background-processes/backups/build-file-uploader';
@@ -12,15 +11,6 @@ import { buildProcessContainer } from './build-process-container';
 
 logger.debug({ msg: 'Running sync engine' });
 
-async function ensureTheFolderExist(path: string) {
-  try {
-    await fs.access(path);
-  } catch {
-    logger.debug({ msg: `Folder <${path}> does not exists, going to  create it` });
-    await fs.mkdir(path);
-  }
-}
-
 async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
   logger.debug({ msg: '[SYNC ENGINE] Starting sync engine process' });
 
@@ -28,7 +18,7 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
 
   logger.debug({ msg: '[SYNC ENGINE] Going to use root folder: ', rootPath });
 
-  await ensureTheFolderExist(rootPath);
+  await ctx.virtualDrive.createSyncRootFolder();
 
   const container = buildProcessContainer({ ctx });
 
@@ -68,31 +58,29 @@ async function refreshToken({ ctx }: { ctx: ProcessSyncContext }) {
   }
 }
 
-ipcRenderer.once('SET_CONFIG', (event, config: Config) => {
-  setConfig(config);
+ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
+  try {
+    setConfig(config);
 
-  const { fileUploader } = buildFileUploader({ bucket: config.bucket });
-  const ctx: ProcessSyncContext = {
-    ...config,
-    abortController: new AbortController(),
-    virtualDrive: new VirtualDrive(config),
-    fileUploader,
-  };
+    const { fileUploader } = buildFileUploader({ bucket: config.bucket });
+    const ctx: ProcessSyncContext = {
+      ...config,
+      logger: createLogger({ tag: 'SYNC-ENGINE', workspaceId: config.workspaceId }),
+      abortController: new AbortController(),
+      virtualDrive: new VirtualDrive(config),
+      fileUploader,
+    };
 
-  if (config.workspaceToken) {
-    setInterval(() => refreshToken({ ctx }), 23 * 60 * 60 * 1000);
+    if (config.workspaceToken) {
+      setInterval(() => refreshToken({ ctx }), 23 * 60 * 60 * 1000);
+    }
+
+    await setUp({ ctx });
+
+    logger.debug({ msg: '[SYNC ENGINE] Sync engine has successfully started' });
+    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', config.workspaceId);
+  } catch (exc) {
+    logger.error({ msg: '[SYNC ENGINE] Error setting up', exc });
+    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
   }
-
-  setUp({ ctx })
-    .then(() => {
-      logger.debug({ msg: '[SYNC ENGINE] Sync engine has successfully started' });
-      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', config.workspaceId);
-    })
-    .catch((error) => {
-      logger.error({ msg: '[SYNC ENGINE] Error setting up', error });
-      if (error.toString().includes('Error: ConnectSyncRoot failed')) {
-        logger.debug({ msg: '[SYNC ENGINE] We need to restart the app virtual drive' });
-      }
-      ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
-    });
 });

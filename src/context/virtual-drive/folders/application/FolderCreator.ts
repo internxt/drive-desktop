@@ -1,5 +1,5 @@
 import { HttpRemoteFolderSystem } from '../infrastructure/HttpRemoteFolderSystem';
-import { posix } from 'path';
+import { posix } from 'node:path';
 import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';

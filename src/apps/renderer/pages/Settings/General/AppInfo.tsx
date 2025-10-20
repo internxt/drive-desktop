@@ -17,12 +17,6 @@ export default function AppInfo() {
       <p className="text-sm leading-4 text-gray-100">Internxt v{packageJson.version}</p>
 
       <div className="flex flex-col items-start space-y-1 text-base leading-5">
-        {process.env.NODE_ENV !== 'production' && (
-          <button type="button" className="text-primary active:text-primary-dark" onClick={window.electron.startMigration}>
-            {translate('settings.general.app-info.open-migration')}
-          </button>
-        )}
-
         <button type="button" className="text-primary active:text-primary-dark" onClick={window.electron.openLogs}>
           {translate('settings.general.app-info.open-logs')}
         </button>

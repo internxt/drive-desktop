@@ -2,7 +2,7 @@ import { getAllItems } from './RemoteItemsGenerator';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ExtendedDriveFile, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ExtendedDriveFolder, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
-import { join } from 'path';
+import { join } from 'node:path';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 type Items = {

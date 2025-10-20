@@ -1,4 +1,4 @@
-import { deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
+import { call, deepMocked, mockProps } from 'tests/vitest/utils.helper.test';
 import { spawnWorkspace } from './spawn-workspace';
 import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
@@ -65,9 +65,8 @@ describe('spawn-workspace.service', () => {
     await spawnWorkspace(props);
     // Then
     expect(getCredentialsMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncEngineWorkerMock).toHaveBeenCalledTimes(1);
-    expect(spawnSyncEngineWorkerMock).toHaveBeenCalledWith({
-      context: {
+    call(spawnSyncEngineWorkerMock).toMatchObject({
+      ctx: {
         bridgePass: 'pass',
         bridgeUser: 'user',
         bucket: undefined,
@@ -75,7 +74,6 @@ describe('spawn-workspace.service', () => {
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',
-        queueManagerPath: '\\mock\\logs\\internxt-drive\\logs\\queue-manager-workspace-workspaceId.log',
         rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
         rootUuid: undefined,
         workspaceId: 'workspaceId',

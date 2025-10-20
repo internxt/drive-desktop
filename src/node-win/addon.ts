@@ -10,21 +10,17 @@ type TAddon = {
     fileName: string,
     fileId: string,
     fileSize: number,
-    fileAttributes: number,
-    creationTime: string,
-    lastWriteTime: string,
-    lastAccessTime: string,
+    creationTime: number,
+    lastWriteTime: number,
+    lastAccessTime: number,
     path: string,
   ): z.infer<typeof addonZod.createPlaceholderFile>;
   createEntry(
     itemName: string,
     itemId: string,
-    isDirectory: boolean,
-    itemSize: number,
-    fileAttributes: number,
-    creationTime: string,
-    lastWriteTime: string,
-    lastAccessTime: string,
+    creationTime: number,
+    lastWriteTime: number,
+    lastAccessTime: number,
     path: string,
   ): z.infer<typeof addonZod.createEntry>;
   hydrateFile(path: string): Promise<z.infer<typeof addonZod.hydrateFile>>;
@@ -32,10 +28,7 @@ type TAddon = {
   connectSyncRoot(path: string, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: string, id: string): z.infer<typeof addonZod.convertToPlaceholder>;
   getFileIdentity(path: string): z.infer<typeof addonZod.getFileIdentity>;
-  /**
-   * TODO: Not all paths return value
-   */
-  disconnectSyncRoot(path: string): unknown;
+  disconnectSyncRoot(path: string): z.infer<typeof addonZod.disconnectSyncRoot>;
   getPlaceholderState(path: string): z.infer<typeof addonZod.getPlaceholderState>;
   registerSyncRoot(
     syncRootPath: string,
@@ -46,10 +39,6 @@ type TAddon = {
   ): z.infer<typeof addonZod.registerSyncRoot>;
   unregisterSyncRoot(path: string): z.infer<typeof addonZod.unregisterSyncRoot>;
   updateSyncStatus(path: string, sync: boolean, isDirectory: boolean): z.infer<typeof addonZod.updateSyncStatus>;
-  /**
-   * TODO: Returns a type in c++ that is not initialized
-   */
-  updateFileIdentity(itemPath: string, id: string, isDirectory: boolean): any;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
 };
 

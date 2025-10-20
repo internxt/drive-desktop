@@ -1,5 +1,5 @@
 import { NetworkCredentials } from './requests';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 export function getAuthFromCredentials({ creds }: { creds: NetworkCredentials }): { Authorization: string } {
   const username = creds.user;

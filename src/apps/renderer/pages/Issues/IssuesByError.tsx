@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Accordion } from './Accordion';
 import { Issue } from '@/apps/main/background-processes/issues';
-import { i18n } from './IssuesByError.i18n';
+import { useI18n } from '../../localize/use-i18n';
 
 function groupAppIssuesByErrorName(issues: Issue[]) {
   return issues.reduce(
@@ -25,6 +25,7 @@ type Props = {
 };
 
 export function IssuesByError({ issues }: Props) {
+  const { t } = useI18n();
   const [selected, setSelected] = useState<Issue['error'] | null>(null);
 
   const issuesByCauseArray = groupAppIssuesByErrorName(issues);
@@ -48,7 +49,7 @@ export function IssuesByError({ issues }: Props) {
 
         return (
           <li className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5" onClick={toggleOrSelectCause(error)} key={error} role="button">
-            <Accordion title={i18n(error)} collapsed={!isSelected(error)} elements={issues.map((issue) => issue.name)} />
+            <Accordion title={t(`issues.errors.${error}`)} collapsed={!isSelected(error)} elements={issues.map((issue) => issue.name)} />
           </li>
         );
       })}

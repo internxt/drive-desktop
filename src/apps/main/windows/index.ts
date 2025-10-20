@@ -2,7 +2,6 @@ import { BrowserWindow } from 'electron';
 
 import eventBus from '../event-bus';
 import { getOnboardingWindow } from './onboarding';
-import { getMigrationWindow } from './migration';
 import { getProcessIssuesWindow } from './process-issues';
 import { getSettingsWindow } from './settings';
 import { getWidget } from './widget';
@@ -13,7 +12,6 @@ function closeAuxWindows() {
   getProcessIssuesWindow()?.close();
   getSettingsWindow()?.close();
   getOnboardingWindow()?.close();
-  getMigrationWindow()?.close();
 }
 
 export function broadcastToWidget({ name, data }: BroadcastToWidget) {
@@ -21,7 +19,7 @@ export function broadcastToWidget({ name, data }: BroadcastToWidget) {
 }
 
 export function broadcastToWindows({ name, data }: BroadcastToWindows) {
-  const renderers = [getWidget(), getProcessIssuesWindow(), getSettingsWindow(), getOnboardingWindow(), getMigrationWindow()];
+  const renderers = [getWidget(), getProcessIssuesWindow(), getSettingsWindow(), getOnboardingWindow()];
 
   renderers.forEach((r) => r?.webContents.send(name, data));
 }
@@ -41,10 +39,6 @@ export function setUpCommonWindowHandlers(window: BrowserWindow) {
     if (channel === 'user-finished-onboarding') {
       window?.close();
       openVirtualDriveRootFolder();
-    }
-
-    if (channel === 'user-finished-migration') {
-      window?.close();
     }
   });
 }

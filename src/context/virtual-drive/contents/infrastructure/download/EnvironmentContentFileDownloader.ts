@@ -1,4 +1,4 @@
-import { EventEmitter, Readable } from 'stream';
+import { EventEmitter, Readable } from 'node:stream';
 import { ActionState } from '@internxt/inxt-js/build/api';
 import { logger } from '@/apps/shared/logger/logger';
 import { Environment } from '@internxt/inxt-js';

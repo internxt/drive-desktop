@@ -3,9 +3,9 @@ import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
-import { join } from 'path';
+import { join } from 'node:path';
 import { getMockCalls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import { writeFile } from 'fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { mockDeep } from 'vitest-mock-extended';
 import { sleep } from '@/apps/main/util';
@@ -30,7 +30,8 @@ describe('sync-remote-changes-to-local', () => {
   const virtualDrive = new VirtualDrive({ loggerPath: '', providerId, rootPath });
   const callbacks = mockDeep<Callbacks>();
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    await virtualDrive.createSyncRootFolder();
     virtualDrive.registerSyncRoot({ providerName });
     virtualDrive.connectSyncRoot({ callbacks });
   });
@@ -82,6 +83,7 @@ describe('sync-remote-changes-to-local', () => {
     ]);
 
     expect(getMockCalls(loggerMock.debug)).toStrictEqual([
+      { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Registering sync root', syncRootPath: rootPath },
       { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },
       { msg: 'onReady' },

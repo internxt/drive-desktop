@@ -1,16 +1,16 @@
-import { PendingPaths } from './get-pending-items';
 import { pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ProcessSyncContext } from '../config';
 import { AddController } from '../callbacks-controllers/controllers/add-controller';
+import { PendingFileExplorerItem } from '../file-explorer-state/file-explorer-state.types';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  pendingFiles: PendingPaths[];
+  createFiles: PendingFileExplorerItem[];
 };
 
-export async function addPendingFiles({ ctx, pendingFiles }: TProps) {
+export async function addPendingFiles({ ctx, createFiles }: TProps) {
   await Promise.all(
-    pendingFiles.map(async ({ absolutePath, stats }) => {
+    createFiles.map(async ({ absolutePath, stats }) => {
       const path = pathUtils.absoluteToRelative({
         base: ctx.virtualDrive.syncRootPath,
         path: absolutePath,

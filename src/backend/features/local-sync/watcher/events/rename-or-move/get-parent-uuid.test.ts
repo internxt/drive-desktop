@@ -9,11 +9,6 @@ import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 describe('get-parent-uuid', () => {
   const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
 
-  const item = {
-    oldName: 'oldName.exe',
-    oldParentUuid: 'oldParentUuid',
-  };
-
   let props: Parameters<typeof getParentUuid>[0];
 
   beforeEach(() => {
@@ -22,7 +17,7 @@ describe('get-parent-uuid', () => {
     props = mockProps<typeof getParentUuid>({
       self: { logger: loggerMock },
       path: createRelativePath('folder', 'file.txt'),
-      item,
+      item: {},
     });
   });
 
@@ -47,13 +42,13 @@ describe('get-parent-uuid', () => {
     expect(loggerMock.error).toBeCalledTimes(1);
   });
 
-  it('should call return parentUuid if parent is found', () => {
+  it('should return parentUuid if parent is found', () => {
     // Given
     getFolderUuidMock.mockReturnValue({ data: 'newParentUuid' as FolderUuid });
     // When
     const parentUuid = getParentUuid(props);
     // Then
     expect(getFolderUuidMock).toBeCalledWith(expect.objectContaining({ path: '/folder' }));
-    expect(parentUuid).toStrictEqual({ parentUuid: 'newParentUuid', existingItem: item });
+    expect(parentUuid).toBe('newParentUuid');
   });
 });

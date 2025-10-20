@@ -1,7 +1,7 @@
 import { validateWindowsName } from '@/context/virtual-drive/items/validate-windows-name';
 import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
-import { rename } from 'fs/promises';
+import { rename } from 'node:fs/promises';
 import { hasToBeMoved } from './has-to-be-moved';
 import { InMemoryFiles } from '../sync-items-by-checkpoint/load-in-memory-paths';
 import { syncRemoteChangesToLocal } from './sync-remote-changes-to-local';

@@ -3,6 +3,7 @@ import type { RemoteSyncStatus } from '../remote-sync/helpers';
 import type { BackupsStatus } from '../background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import type { BackupsProgress } from '../background-processes/backups/types/BackupsProgress';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { ThemeData } from '@/apps/shared/types/Theme';
 
 export type SyncInfoUpdateEvent = {
   name: 'sync-info-update';
@@ -16,9 +17,6 @@ export type SyncInfoUpdateEvent = {
       | 'DOWNLOADING'
       | 'MOVE_ERROR'
       | 'MOVED'
-      | 'RENAME_ERROR'
-      | 'RENAMED'
-      | 'RENAMING'
       | 'UPLOAD_ERROR'
       | 'UPLOADED'
       | 'UPLOADING';
@@ -32,7 +30,7 @@ export type BroadcastToWidget = SyncInfoUpdateEvent | { name: 'remote-sync-statu
 
 export type BroadcastToWindows =
   | { name: 'preferedLanguage-updated'; data: string }
-  | { name: 'preferedTheme-updated'; data: string }
+  | { name: 'preferedTheme-updated'; data: ThemeData }
   | { name: 'issues-changed'; data: Issue[] }
   | { name: 'backups-status-changed'; data: BackupsStatus }
   | { name: 'backup-download-progress'; data: { id: string; progress: number } }

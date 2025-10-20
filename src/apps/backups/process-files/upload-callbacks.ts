@@ -1,7 +1,7 @@
 import { broadcastToWidget } from '@/apps/main/windows';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUploaderCallbacks } from '@/infra/inxt-js/file-uploader/file-uploader';
-import { basename } from 'path';
+import { basename } from 'node:path';
 
 type TProps = {
   path: AbsolutePath;

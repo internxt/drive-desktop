@@ -1,4 +1,3 @@
-import fs from 'fs';
 import { v4 } from 'uuid';
 
 import { addon } from '@/node-win/addon';
@@ -8,11 +7,10 @@ import { iconPath } from '@/apps/utils/icon';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 
-vi.mock(import('fs'));
+vi.mock(import('node:fs'));
 vi.mock(import('@/node-win/addon'));
 
 describe('VirtualDrive', () => {
-  const existsSyncMock = vi.mocked(fs.existsSync);
   const addonMock = vi.mocked(addon);
 
   const rootPath = 'C:/Users/user/InternxtDrive';
@@ -24,7 +22,6 @@ describe('VirtualDrive', () => {
 
   beforeEach(() => {
     addonMock.addLoggerPath.mockReturnValue(true);
-    addonMock.registerSyncRoot.mockReturnValue(0);
     addonMock.createEntry.mockReturnValue({ success: true });
   });
 
@@ -70,24 +67,6 @@ describe('VirtualDrive', () => {
   });
 
   describe('When VirtualDrive is created', () => {
-    it('When rootPath does not exist, then it creates it', () => {
-      // Given
-      existsSyncMock.mockReturnValue(false);
-      // When
-      new VirtualDrive(props);
-      // Then
-      expect(fs.mkdirSync).toBeCalledWith('C:\\Users\\user\\InternxtDrive', { recursive: true });
-    });
-
-    it('When rootPath exists, then it does not create it', () => {
-      // Given
-      existsSyncMock.mockReturnValue(true);
-      // When
-      new VirtualDrive(props);
-      // Then
-      expect(fs.mkdirSync).not.toBeCalled();
-    });
-
     it('Then it calls addon.addLoggerPath with logPath provided', () => {
       // When
       new VirtualDrive(props);
@@ -117,10 +96,9 @@ describe('VirtualDrive', () => {
         'file.txt',
         'FILE:uuid',
         1024,
-        1,
-        '125911584000000000',
-        '125912448000000000',
-        expect.any(String),
+        946684800000,
+        946771200000,
+        expect.any(Number),
         'C:\\Users\\user\\InternxtDrive\\folder1\\folder2',
       );
     });
@@ -145,12 +123,9 @@ describe('VirtualDrive', () => {
       expect(addon.createEntry).toBeCalledWith(
         'folder2',
         'FOLDER:uuid',
-        true,
-        0,
-        1,
-        '125911584000000000',
-        '125912448000000000',
-        expect.any(String),
+        946684800000,
+        946771200000,
+        expect.any(Number),
         'C:\\Users\\user\\InternxtDrive\\folder1',
       );
     });

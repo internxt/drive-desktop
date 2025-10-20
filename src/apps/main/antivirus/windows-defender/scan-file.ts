@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 import { ScanResult } from './types';
 import { parseVirusNames } from './parse-virus-names';
 import { logger } from '@/apps/shared/logger/logger';

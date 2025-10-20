@@ -1,4 +1,4 @@
-import { PathLike, mkdirSync } from 'fs';
+import { PathLike, mkdirSync } from 'node:fs';
 
 export function ensureFolderExists(folder: PathLike) {
   mkdirSync(folder, { recursive: true });
