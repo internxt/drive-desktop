@@ -2,10 +2,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 import syncedStackLight from '../../assets/illustrations/syncedStack-light.png';
 import syncedStackDark from '../../assets/illustrations/syncedStack-dark.png';
-import { useTranslationContext } from '../../context/LocalContext';
+import { useI18n } from '../../localize/use-i18n';
 
 export function NoInfoToShow() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <AnimatePresence>

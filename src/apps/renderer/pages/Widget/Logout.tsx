@@ -1,4 +1,4 @@
-import { useTranslationContext } from '../../context/LocalContext';
+import { useI18n } from '../../localize/use-i18n';
 
 interface ModalLogoutProps {
   onClose: () => void;
@@ -6,7 +6,7 @@ interface ModalLogoutProps {
 }
 
 const ModalLogout: React.FC<ModalLogoutProps> = ({ onClose, onLogout }) => {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <div className="fixed inset-0 z-50 flex h-full w-screen overflow-auto bg-gray-20 bg-opacity-50" onClick={onClose}>

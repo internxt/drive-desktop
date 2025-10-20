@@ -1,7 +1,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react/jsx-runtime';
-import { useTranslationContext } from '../../../context/LocalContext';
 import Button from '../../Button';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 interface ConfirmationModalProps {
   show: boolean;
@@ -26,7 +26,7 @@ export function ConfirmationModal({
   cancelText,
   variantButton,
 }: ConfirmationModalProps) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <Transition appear show={show} as={Fragment}>
