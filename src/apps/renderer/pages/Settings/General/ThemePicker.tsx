@@ -1,10 +1,10 @@
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import { Theme } from '../../../../shared/types/Theme';
 import Select, { SelectOptionsType } from '../../../components/Select';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { useTheme } from '../../../hooks/useConfig';
 
 export function ThemePicker() {
-  const { translate } = useTranslationContext();
+  const { t: translate } = useI18n();
   const { configTheme } = useTheme();
 
   const themes: SelectOptionsType[] = [

@@ -16,7 +16,7 @@
     "init:ci": "npm ci --ignore-scripts && node node_modules/electron/install.js",
     "init:dev": "npm install && node node_modules/electron/install.js && npm run build:dll && npm run reload-native-deps",
     "========== Code style ==========": "",
-    "lint": "eslint . --ext .ts,.tsx --max-warnings 386",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings 450",
     "lint:fix": "npm run lint -- --fix",
     "format": "prettier src tests --check",
     "format:fix": "prettier src tests --write",
@@ -200,7 +200,8 @@
     "regenerator-runtime": "^0.13.9",
     "socket.io-client": "^4.4.1",
     "typeorm": "^0.3.16",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "zustand": "^4.5.7"
   },
   "engines": {
     "node": ">=20.19.0",

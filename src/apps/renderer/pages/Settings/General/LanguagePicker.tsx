@@ -1,15 +1,8 @@
-import dayjs from 'dayjs';
-import i18next from 'i18next';
-import { useEffect, useState } from 'react';
-import DayJsLocales from '../../../../shared/Locale/DayJsLocales';
-import { DEFAULT_LANGUAGE, Language } from '../../../../shared/Locale/Language';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Select, { SelectOptionsType } from '../../../components/Select';
-import { useTranslationContext } from '../../../context/LocalContext';
-import { useConfig } from '../../../hooks/useConfig';
 
 export default function LanguagePicker(): JSX.Element {
-  const { translate } = useTranslationContext();
-  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>((useConfig('preferedLanguage') as Language) || null);
+  const { t: translate, language } = useI18n();
 
   const languages: SelectOptionsType[] = [
     {
@@ -26,31 +19,15 @@ export default function LanguagePicker(): JSX.Element {
     },
   ];
 
-  const refreshPreferedLanguage = async () => {
-    const lang = await window.electron.getConfigKey('preferedLanguage');
-    if (lang === '' || lang === null) {
-      setSelectedLanguage(DEFAULT_LANGUAGE);
-    } else {
-      setSelectedLanguage(lang);
-    }
-  };
-
   const updatePreferedLanguage = (lang: string) => {
-    i18next.changeLanguage(lang);
-    dayjs.locale(DayJsLocales[lang as Language]);
     window.electron.setConfigKey({ key: 'preferedLanguage', value: lang });
-    refreshPreferedLanguage();
   };
-
-  useEffect(() => {
-    refreshPreferedLanguage();
-  }, []);
 
   return (
     <div id="language-picker" className="flex flex-1 flex-col items-start space-y-2">
       <p className="text-sm font-medium leading-4 text-gray-80">{translate('settings.general.language.label')}</p>
 
-      {selectedLanguage && <Select options={languages} value={selectedLanguage} onValueChange={updatePreferedLanguage} />}
+      <Select options={languages} value={language} onValueChange={updatePreferedLanguage} />
     </div>
   );
 }
