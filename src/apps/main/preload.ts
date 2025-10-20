@@ -156,9 +156,6 @@ const api = {
   addBackup(): Promise<void> {
     return ipcRenderer.invoke('add-backup');
   },
-  addBackupsFromLocalPaths(localPaths: string[]): Promise<void> {
-    return ipcRenderer.invoke('add-multiple-backups', localPaths);
-  },
   deleteBackup(backup: BackupInfo): Promise<void> {
     return ipcRenderer.invoke('delete-backup', backup);
   },

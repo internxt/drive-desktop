@@ -7,15 +7,17 @@ import { fr } from './languages/fr';
 
 const translations: Translations = { en, es, fr };
 
-export function getI18nValue(language: Language, path: TranslationPath, ...args: string[]) {
+export function getI18nValue(language: Language, path: TranslationPath, args?: Record<string, unknown>) {
   const translation = translations[language];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let value = path.split('.').reduce((current: any, key) => current?.[key], translation);
 
   if (typeof value !== 'string') return path;
 
-  for (const [index, arg] of args.entries()) {
-    value = value.replace(`{${index}}`, arg);
+  if (args) {
+    for (const [key, arg] of Object.entries(args)) {
+      value = value.replace(`{{${key}}}`, arg);
+    }
   }
 
   return value;
@@ -25,8 +27,8 @@ export function useI18n() {
   const language = i18nStore((s) => s.language);
 
   const t = useCallback(
-    (path: TranslationPath, ...args: string[]) => {
-      return getI18nValue(language, path, ...args);
+    (path: TranslationPath, args?: Record<string, unknown>) => {
+      return getI18nValue(language, path, args);
     },
     [language],
   );

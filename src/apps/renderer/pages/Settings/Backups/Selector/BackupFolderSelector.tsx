@@ -1,18 +1,18 @@
 import { UilMinus, UilPlus } from '@iconscout/react-unicons';
 import { useContext, useEffect, useState } from 'react';
 import Button from '../../../../components/Button';
-import { useTranslationContext } from '../../../../context/LocalContext';
 import { LoadingFolders } from './LoadingFolders';
 import { BackupContext } from '../../../../context/BackupContext';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { BackupsList } from './BackupsList';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 interface BackupFolderSelectorProps {
   onClose: () => void;
 }
 
 export default function BackupFolderSelector({ onClose }: BackupFolderSelectorProps) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const { backups, backupsState, addBackup, disableBackup, refreshBackups } = useContext(BackupContext);
 
@@ -32,9 +32,9 @@ export default function BackupFolderSelector({ onClose }: BackupFolderSelectorPr
         <h1 className="text-lg font-normal">{translate('settings.backups.title')}</h1>
         <div className="ml-auto text-gray-50">
           {backupsState === 'SUCCESS' &&
-            translate('settings.backups.selected-folder', {
+            translate('settings.backups.selected-folder_other', {
               count: backups.length,
-            })}{' '}
+            })}
         </div>
       </div>
       <div
