@@ -15,7 +15,6 @@ import BackupsSvg from '../../assets/onboarding/backups/backups-light.svg';
 import BackupsDarkSvg from '../../assets/onboarding/backups/backups-dark.svg';
 import { OnboardingCompletedSlide } from './slides/OnboardingCompletedSlide';
 import Button from '../../components/Button';
-import { useTranslationContext } from '../../context/LocalContext';
 import { BackupsSlide } from './slides/BackupsSlide';
 import { useTheme } from '../../hooks/useConfig';
 import { AntivirusSlide } from './slides/AntivirusSlide';
@@ -68,7 +67,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     footer: (props) => {
-      const { translate } = useTranslationContext();
+      const { translate } = useI18n();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
@@ -111,7 +110,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     footer: (props) => {
-      const { translate } = useTranslationContext();
+      const { translate } = useI18n();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
@@ -151,7 +150,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     footer: (props) => {
-      const { translate } = useTranslationContext();
+      const { translate } = useI18n();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
@@ -195,7 +194,7 @@ export const SLIDES: OnboardingSlide[] = [
       );
     },
     footer: (props) => {
-      const { translate } = useTranslationContext();
+      const { translate } = useI18n();
       return (
         <div className="flex w-full flex-1 items-end justify-center">
           <Button onClick={props.onGoNextSlide} variant="primary" size="lg">
