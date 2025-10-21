@@ -47,24 +47,22 @@ async function getMetadata(context: { folderId: number }) {
   });
 }
 
-async function getFolders(context: { query: TGetFoldersQuery }) {
+async function getFolders(context: { query: TGetFoldersQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/folders';
   const key = getRequestKey({ method, endpoint, context });
 
-  const promiseFn = () => client.GET(endpoint, { params: { query: context.query } });
+  const promiseFn = () =>
+    client.GET(endpoint, {
+      signal: extra?.abortSignal,
+      params: { query: context.query },
+    });
 
   return await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get folders request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    skipLog: extra?.skipLog,
+    loggerBody: { msg: 'Get folders request', context },
   });
 }
 

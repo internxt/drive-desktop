@@ -24,27 +24,22 @@ export const FileModule = files;
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
 
-async function getFiles(context: { query: TGetFilesQuery }) {
+async function getFiles(context: { query: TGetFilesQuery }, extra?: { abortSignal: AbortSignal; skipLog?: boolean }) {
   const method = 'GET';
   const endpoint = '/files';
   const key = getRequestKey({ method, endpoint, context });
 
   const promiseFn = () =>
     client.GET(endpoint, {
+      signal: extra?.abortSignal,
       params: { query: context.query },
     });
 
   const { data, error } = await clientWrapper({
     promiseFn,
     key,
-    loggerBody: {
-      msg: 'Get files request',
-      context,
-      attributes: {
-        method,
-        endpoint,
-      },
-    },
+    skipLog: extra?.skipLog,
+    loggerBody: { msg: 'Get files request', context },
   });
 
   if (data) {

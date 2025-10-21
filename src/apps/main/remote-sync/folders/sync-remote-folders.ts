@@ -1,5 +1,5 @@
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { FETCH_LIMIT } from '../store';
+import { FETCH_LIMIT_1000 } from '../store';
 import { syncRemoteFolder } from './sync-remote-folder';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
@@ -22,7 +22,7 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
      * In that situation, fetch only EXISTS folders.
      */
     const query = {
-      limit: FETCH_LIMIT,
+      limit: FETCH_LIMIT_1000,
       offset,
       status: from ? ('ALL' as const) : ('EXISTS' as const),
       updatedAt: from?.toISOString(),
@@ -38,8 +38,8 @@ export async function syncRemoteFolders({ self, from, offset = 0 }: TProps) {
 
     if (!data) throw error;
 
-    hasMore = data.length === FETCH_LIMIT;
-    offset += FETCH_LIMIT;
+    hasMore = data.length === FETCH_LIMIT_1000;
+    offset += FETCH_LIMIT_1000;
 
     await Promise.all(
       data.map(async (remoteFolder) => {
