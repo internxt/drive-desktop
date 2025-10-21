@@ -1,7 +1,7 @@
 {
   "exec": "npm run start:reload",
-  "ext": "ts",
+  "ext": "ts,tsx",
   "ignore": ["src/apps/renderer", "**/*.test.ts"],
   "verbose": true,
-  "watch": ["src"]
+  "watch": ["src", "../drive-desktop-core/src"]
 }

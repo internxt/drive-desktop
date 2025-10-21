@@ -8,7 +8,9 @@ type BackupContext = LastBackupContextProps & BackupContextProps & BackupStatusC
 
 export const BackupContext = createContext<BackupContext>({} as BackupContext);
 
-export function BackupProvider({ children }: { children: ReactNode }) {
+type Props = { children: ReactNode };
+
+export function BackupProvider({ children }: Props) {
   const lastBackup = useLastBackup();
   const backupsManager = useBackups();
   const backupStatus = useBackupStatus();

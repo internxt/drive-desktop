@@ -600,17 +600,6 @@ function getDeviceUuid(): string {
   return deviceUuid;
 }
 
-export async function createBackupsFromLocalPaths(folderPaths: string[]) {
-  configStore.set('backupsEnabled', true);
-
-  const { error } = await getOrCreateDevice();
-  if (error) throw error;
-
-  const operations = folderPaths.map((folderPath) => createBackup(folderPath));
-
-  await Promise.all(operations);
-}
-
 export async function getUserSystemPath() {
   const filePath = os.homedir();
   if (!filePath) return;

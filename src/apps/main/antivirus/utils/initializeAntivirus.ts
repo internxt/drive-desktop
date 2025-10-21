@@ -9,7 +9,7 @@ let clamAVInitializationPromise: Promise<{ antivirusEnabled: boolean }> | null =
 export async function initializeAntivirusIfAvailable() {
   try {
     const availableProducts = await getAvailableProducts();
-    const isAntivirusEnabled = availableProducts?.antivirus;
+    const isAntivirusEnabled = Boolean(availableProducts?.antivirus);
 
     if (!isAntivirusEnabled) {
       logger.debug({

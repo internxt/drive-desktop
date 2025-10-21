@@ -1,7 +1,7 @@
 import { client } from '@/apps/shared/HttpClient/client';
 import { getRequestKey } from '../../in/get-in-flight-request';
 import { clientWrapper } from '../../in/client-wrapper.service';
-import { paths } from '@internxt/drive-desktop-core/build/backend';
+import { paths } from '@/apps/shared/HttpClient/schema';
 import { parseCreateFileResponse } from '../files/create-file';
 
 type CreateFileInWorkspaceBody = paths['/workspaces/{workspaceId}/files']['post']['requestBody']['content']['application/json'];
