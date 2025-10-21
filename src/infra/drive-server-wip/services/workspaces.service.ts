@@ -5,6 +5,7 @@ import { getRequestKey } from '../in/get-in-flight-request';
 import { getFilesByFolder } from './workspaces/get-files-by-folder';
 import { getFoldersByFolder } from './workspaces/get-folders-by-folder';
 import { createFile } from './workspaces/create-file';
+import { parseFileDto } from '../out/dto';
 
 type QueryFilesInWorkspace = paths['/workspaces/{workspaceId}/files']['get']['parameters']['query'];
 type QueryFoldersInWorkspace = paths['/workspaces/{workspaceId}/folders']['get']['parameters']['query'];
@@ -20,6 +21,7 @@ export const workspaces = {
   getFilesByFolder,
   getFoldersByFolder,
 };
+export const WorkspaceModule = workspaces;
 
 async function getWorkspaces() {
   const method = 'GET';
@@ -78,7 +80,7 @@ async function getFilesInWorkspace(context: { workspaceId: string; query: QueryF
       },
     });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -90,6 +92,12 @@ async function getFilesInWorkspace(context: { workspaceId: string; query: QueryF
       },
     },
   });
+
+  if (data) {
+    return { data: data.map((fileDto) => parseFileDto({ fileDto })) };
+  } else {
+    return { error };
+  }
 }
 
 async function getFoldersInWorkspace(context: { workspaceId: string; query: QueryFoldersInWorkspace }) {
