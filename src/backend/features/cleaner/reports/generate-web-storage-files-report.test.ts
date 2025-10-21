@@ -2,13 +2,11 @@ import { CleanerModule } from '@internxt/drive-desktop-core/build/backend';
 import { generateWebStorageFileReport } from './generate-web-storage-files-report';
 import { cleanerCtx } from '../cleaner.config';
 import { pathsToClean } from './paths-to-clean';
-import * as generateReportModule from './generate-report';
 import { calls, call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 
 describe('generateWebStorageFileReport', () => {
   const scanDirectoryMock = partialSpyOn(CleanerModule, 'scanDirectory');
   const scanFirefoxProfilesMock = partialSpyOn(CleanerModule, 'scanFirefoxProfiles');
-  const generateReportMock = partialSpyOn(generateReportModule, 'generateReport');
 
   const mockCleanableItems = [
     {
@@ -43,10 +41,6 @@ describe('generateWebStorageFileReport', () => {
     items: mockCleanableItems,
   };
 
-  beforeEach(() => {
-    generateReportMock.mockResolvedValue(mockReport);
-  });
-
   it('should scan Chrome, Firefox, and Edge web storage directories and generate a report', async () => {
     // Given
     const chromeCookiesItems = [mockCleanableItems[0]];
@@ -65,7 +59,6 @@ describe('generateWebStorageFileReport', () => {
     // When
     const result = await generateWebStorageFileReport();
     // Then
-    calls(scanDirectoryMock).toHaveLength(4);
     calls(scanDirectoryMock).toMatchObject([
       {
         dirPath: pathsToClean.webStorage.chrome.cookies,
@@ -81,21 +74,9 @@ describe('generateWebStorageFileReport', () => {
       },
     ]);
 
-    calls(scanFirefoxProfilesMock).toHaveLength(1);
     call(scanFirefoxProfilesMock).toMatchObject({
       ctx: cleanerCtx,
       firefoxProfilesDir: pathsToClean.webStorage.firefox,
-    });
-
-    calls(generateReportMock).toHaveLength(1);
-    call(generateReportMock).toMatchObject({
-      promises: expect.arrayContaining([
-        expect.any(Promise),
-        expect.any(Promise),
-        expect.any(Promise),
-        expect.any(Promise),
-        expect.any(Promise),
-      ]),
     });
 
     expect(result).toStrictEqual(mockReport);

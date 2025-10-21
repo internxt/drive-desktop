@@ -81,7 +81,7 @@ describe('generateCleanerReport', () => {
     // When
     const result = await generateCleanerReport(true);
     // Then
-    expect(result).toEqual({
+    expect(result).toStrictEqual({
       appCache: mockAppCacheReport,
       logFiles: mockLogFilesReport,
       webStorage: mockWebStorageReport,
