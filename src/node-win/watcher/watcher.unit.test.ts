@@ -27,7 +27,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual([{ event: 'addDir', path: syncRootPath }]);
+      getEvents().toStrictEqual([{ event: 'addDir', path: syncRootPath }]);
     });
 
     it('When folder has one file, then emit one addDir and one add event', async () => {
@@ -43,7 +43,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
@@ -67,7 +67,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
@@ -94,7 +94,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file1 },
@@ -117,7 +117,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'addDir', path: folder1 },
@@ -146,7 +146,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
@@ -177,7 +177,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'addDir', path: folder },
@@ -203,7 +203,7 @@ describe('Watcher', () => {
       await sleep(150);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
@@ -225,7 +225,7 @@ describe('Watcher', () => {
       await sleep(150);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'addDir', path: folder },
@@ -250,7 +250,7 @@ describe('Watcher', () => {
       await sleep(100);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
@@ -272,7 +272,7 @@ describe('Watcher', () => {
       await sleep(100);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'addDir', path: folder },
@@ -298,7 +298,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
@@ -323,7 +323,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'addDir', path: folder },
@@ -347,7 +347,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'add', path: file },
@@ -369,7 +369,7 @@ describe('Watcher', () => {
       await sleep(50);
 
       // Assert
-      expect(getEvents()).toStrictEqual(
+      getEvents().toStrictEqual(
         expect.arrayContaining([
           { event: 'addDir', path: syncRootPath },
           { event: 'addDir', path: folder },

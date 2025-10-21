@@ -4,10 +4,6 @@ import { DeepPartial } from 'ts-essentials';
 import { MockedFunction, MockInstance } from 'vitest';
 import { loggerMock } from './mocks.helper.test';
 
-export function getMockCalls(object: { mock: { calls: any[] } }) {
-  return object.mock.calls.map((call) => call[0]);
-}
-
 export function calls(object: any) {
   return expect(object.mock.calls.map((call: any) => call[0]));
 }
