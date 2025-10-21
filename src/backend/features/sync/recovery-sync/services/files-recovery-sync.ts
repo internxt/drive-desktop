@@ -24,11 +24,11 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
     ? await DriveServerWipModule.WorkspaceModule.getFilesInWorkspace({ workspaceId: ctx.workspaceId, query })
     : await DriveServerWipModule.FileModule.getFiles({ query });
 
-  if (!remotes) return [];
+  if (remotes === undefined) return [];
 
   const locals = await getLocalFiles({ ctx, remotes });
 
-  if (!locals) return [];
+  if (locals === undefined) return [];
 
   const filesToSync = getItemsToSync({ ctx, remotes, locals });
   const deletedFiles = getDeletedItems({ ctx, remotes, locals });
