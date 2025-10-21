@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState, useEffect } from 'react';
+import { createContext, ReactNode, useState, useEffect, useMemo } from 'react';
 import {
   CleanerReport,
   CleanerViewModel,
@@ -12,7 +12,7 @@ export const CleanerContext = createContext<CleanerContextType | undefined>(unde
 
 type Props = { children: ReactNode };
 
-export function CleanerProvider({ children }: Props) {
+export function CleanerProvider({ children }: Readonly<Props>) {
   const [report, setReport] = useState<CleanerReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [diskSpace, setDiskSpace] = useState(0);
@@ -61,33 +61,27 @@ export function CleanerProvider({ children }: Props) {
       });
     };
 
-    const removeListener = globalThis.window.electron.cleanerOnProgress(handleCleanupProgress);
-
-    return () => {
-      if (typeof removeListener === 'function') {
-        removeListener();
-      }
-    };
+    return globalThis.window.electron.cleanerOnProgress(handleCleanupProgress);
   }, []);
 
   function setInitialCleaningState() {
     setCleaningState(initialCleaningState);
   }
 
-  return (
-    <CleanerContext.Provider
-      value={{
-        report,
-        loading,
-        cleaningState,
-        diskSpace,
-        generateReport,
-        startCleanup,
-        stopCleanup,
-        setInitialCleaningState,
-        sectionKeys: cleanerSectionKeys,
-      }}>
-      {children}
-    </CleanerContext.Provider>
+  const value = useMemo(
+    () => ({
+      report,
+      loading,
+      cleaningState,
+      diskSpace,
+      generateReport,
+      startCleanup,
+      stopCleanup,
+      setInitialCleaningState,
+      sectionKeys: cleanerSectionKeys,
+    }),
+    [report, loading, cleaningState, diskSpace, generateReport, startCleanup, stopCleanup, setInitialCleaningState],
   );
+
+  return <CleanerContext.Provider value={value}>{children}</CleanerContext.Provider>;
 }

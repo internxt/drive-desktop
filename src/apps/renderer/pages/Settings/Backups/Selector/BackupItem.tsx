@@ -3,9 +3,9 @@ import FolderIcon from '../../../../assets/folder.svg';
 import Button from '../../../../components/Button';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { useIssues } from '@/apps/renderer/hooks/useIssues';
-import { useTranslationContext } from '@/apps/renderer/context/LocalContext';
 import { useContext } from 'react';
 import { DeviceContext } from '@/apps/renderer/context/DeviceContext';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 interface BackupListItemProps {
   backup: ItemBackup;
@@ -13,7 +13,7 @@ interface BackupListItemProps {
 }
 
 export function BackupListItem({ backup, selected }: BackupListItemProps) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const { current: currentDevice, selected: selectedDevice } = useContext(DeviceContext);
 
   const { backupIssues } = useIssues();

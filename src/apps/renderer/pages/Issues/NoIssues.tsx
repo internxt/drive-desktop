@@ -1,7 +1,7 @@
-import { useTranslationContext } from '../../context/LocalContext';
+import { useI18n } from '../../localize/use-i18n';
 
 export function NoIssues() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <div className="flex flex-1 items-center justify-center">

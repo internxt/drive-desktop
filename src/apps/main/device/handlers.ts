@@ -10,7 +10,6 @@ import {
   getOrCreateDevice,
   getDevices,
   renameDevice,
-  createBackupsFromLocalPaths,
   downloadBackup,
 } from './service';
 import { getBackupsFromDevice } from './get-backups-from-device';
@@ -24,8 +23,6 @@ ipcMain.handle('devices.get-all', () => getDevices());
 ipcMain.handle('get-backups-from-device', (_, d, c?) => getBackupsFromDevice(d, c));
 
 ipcMain.handle('add-backup', addBackup);
-
-ipcMain.handle('add-multiple-backups', (_, folderPaths) => createBackupsFromLocalPaths(folderPaths));
 
 ipcMain.handle('delete-backup', (_, v) => deleteBackup(v));
 
