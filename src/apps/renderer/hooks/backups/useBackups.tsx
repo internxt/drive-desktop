@@ -15,7 +15,6 @@ export interface BackupContextProps {
   downloadBackups: (device: Device, folderUuids?: string[]) => Promise<void>;
   abortDownloadBackups: (device: Device) => void;
   refreshBackups: () => Promise<void>;
-  isBackupAvailable: boolean;
   existsBackup: boolean;
 }
 
@@ -23,7 +22,6 @@ export function useBackups(): BackupContextProps {
   const { selected, current } = useContext(DeviceContext);
   const [backupsState, setBackupsState] = useState<BackupsState>('LOADING');
   const [backups, setBackups] = useState<Array<BackupInfo>>([]);
-  const [isBackupAvailable, setIsBackupAvailable] = useState<boolean>(false);
   const [existsBackup, setExistsBackup] = useState<boolean>(false);
 
   const { devices } = useDevices();
@@ -52,11 +50,6 @@ export function useBackups(): BackupContextProps {
     setExistsBackup(existsBackup);
   };
 
-  const isUserElegible = async () => {
-    const isAntivirusAvailable = await window.electron.backups.isAvailable();
-    setIsBackupAvailable(isAntivirusAvailable);
-  };
-
   async function loadBackups() {
     setBackupsState('LOADING');
     setBackups([]);
@@ -71,7 +64,6 @@ export function useBackups(): BackupContextProps {
   }
 
   useEffect(() => {
-    isUserElegible();
     validateIfBackupExists();
     loadBackups();
   }, [selected, devices]);
@@ -122,7 +114,6 @@ export function useBackups(): BackupContextProps {
     deleteBackups,
     downloadBackups,
     abortDownloadBackups,
-    isBackupAvailable,
     existsBackup,
   };
 }
