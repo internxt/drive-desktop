@@ -23,7 +23,7 @@ describe('get-local-files', () => {
     expect(res).toBeUndefined();
   });
 
-  it('should return if there are is an error retrieving locals', async () => {
+  it('should return if there is an error retrieving locals', async () => {
     // Given
     getBetweenUuidsMock.mockResolvedValue({ error: new Error() });
     // When
