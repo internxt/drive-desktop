@@ -13,17 +13,17 @@ describe('get-deleted-items', () => {
     });
   });
 
-  it('should return file if not exists remotely', () => {
+  it('should return item if not exists remotely', () => {
     // Given
     props.remotes = [];
     // When
     const res = getDeletedItems(props);
     // Then
     expect(res).toHaveLength(1);
-    calls(loggerMock.error).toMatchObject([{ msg: 'Remote file does not exist' }]);
+    calls(loggerMock.error).toMatchObject([{ msg: 'Remote item does not exist' }]);
   });
 
-  it('should not return file if updatedAt and status are equal', () => {
+  it('should not return item if updatedAt and status are equal', () => {
     // When
     const res = getDeletedItems(props);
     // Then
