@@ -20,7 +20,7 @@ export function useUsageIndicator() {
         return `${used} ${ofText} ${limit}`;
       }
     }
-  }, [status]);
+  }, [JSON.stringify(usage), status]);
 
   return { usageValue };
 }

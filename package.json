@@ -34,6 +34,7 @@
     "test:one": "vitest --watch related x",
     "test:infra": "vitest --config vitest.config.infra.mts",
     "test:renderer": "vitest --config vitest.config.renderer.mts",
+    "test:renderer:one": "vitest --config vitest.config.renderer.mts",
     "========== Native deps ==========": "",
     "electron-rebuild": "electron-rebuild --sequential --force --types prod,dev,optional --module-dir .",
     "reload-native-deps": "ts-node .erb/scripts/check-native-deps.ts && npm run electron-rebuild",
