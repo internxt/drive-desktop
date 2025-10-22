@@ -11,8 +11,8 @@ function updateLanguage(language: Language) {
 }
 
 async function refreshLanguage() {
-  const language = await globalThis.window.electron.getConfigKey('preferedLanguage');
-  updateLanguage(language as Language);
+  const language = await globalThis.window.electron.getLanguage();
+  updateLanguage(language);
 }
 
 export function useI18nSetup() {

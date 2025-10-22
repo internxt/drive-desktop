@@ -1,7 +1,7 @@
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
-import { Theme } from '../../../../shared/types/Theme';
 import Select, { SelectOptionsType } from '../../../components/Select';
 import { useTheme } from '../../../hooks/useConfig';
+import { Theme } from '@/apps/main/config/theme.types';
 
 export function ThemePicker() {
   const { translate } = useI18n();
@@ -22,8 +22,8 @@ export function ThemePicker() {
     },
   ];
 
-  const updatePreferedTheme = (theme: string) => {
-    window.electron.setConfigKey({ key: 'preferedTheme', value: theme as Theme });
+  const updatePreferedTheme = (value: string) => {
+    void globalThis.window.electron.setConfigKey({ key: 'preferedTheme', value: value as Theme });
   };
 
   return (
