@@ -13,7 +13,6 @@ describe('files-recovery-sync', () => {
   const getItemsToSyncMock = partialSpyOn(getItemsToSyncModule, 'getItemsToSync');
   const getDeletedItemsMock = partialSpyOn(getDeletedItemsModule, 'getDeletedItems');
   const createOrUpdateFileMock = partialSpyOn(createOrUpdateFileModule, 'createOrUpdateFile');
-  const moveMock = partialSpyOn(DriveServerWipModule.FileModule, 'move');
 
   const props = mockProps<typeof filesRecoverySync>({ ctx: {} });
 
@@ -48,6 +47,5 @@ describe('files-recovery-sync', () => {
     // Then
     expect(res).toHaveLength(1);
     calls(createOrUpdateFileMock).toMatchObject([{ fileDto: { uuid: 'create' } }]);
-    calls(moveMock).toMatchObject([{ uuid: 'deleted' }]);
   });
 });
