@@ -31,7 +31,7 @@
     "start:sync-engine": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config .erb/configs/webpack.config.sync-engine.ts",
     "========== Testing ==========": "",
     "test": "vitest",
-    "test:one": "vitest -- related x",
+    "test:one": "vitest --watch related x",
     "test:infra": "vitest --config vitest.config.infra.mts",
     "test:renderer": "vitest --config vitest.config.renderer.mts",
     "========== Native deps ==========": "",

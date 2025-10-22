@@ -26,15 +26,15 @@ jobs:
       - name: Install dependencies
         run: npm run init:ci
 
-      - name: Run unit Tests
+      - name: Run unit tests
         id: unit-tests
         run: npm run test -- --coverage --run
 
-      - name: Run infra Tests
+      - name: Run infra tests
         id: infra-tests
         run: npm run test:infra -- --coverage --run
 
-      - name: Run renderer Tests
+      - name: Run renderer tests
         id: renderer-tests
         run: npm run test:renderer -- --coverage --run
 
