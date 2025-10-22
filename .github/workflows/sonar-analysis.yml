@@ -26,8 +26,17 @@ jobs:
       - name: Install dependencies
         run: npm run init:ci
 
-      - name: Run tests
-        run: npm run test:cov
+      - name: Run unit Tests
+        id: unit-tests
+        run: npm run test -- --coverage --run
+
+      - name: Run infra Tests
+        id: infra-tests
+        run: npm run test:infra -- --coverage --run
+
+      - name: Run renderer Tests
+        id: renderer-tests
+        run: npm run test:renderer -- --coverage --run
 
       - name: Run report coverage
         if: always()

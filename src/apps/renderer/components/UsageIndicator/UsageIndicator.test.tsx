@@ -2,10 +2,10 @@ import { renderHook } from '@testing-library/react-hooks';
 import { useUsageIndicator } from '.';
 import { Usage } from '@/apps/main/usage/Usage';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as useGetUsage from '../../api/use-get-usage';
+import * as useGetUsageModule from '../../api/use-get-usage';
 
 describe('usage-indicator', () => {
-  const useGetUsageMock = partialSpyOn(useGetUsage, 'useGetUsage');
+  const useGetUsageMock = partialSpyOn(useGetUsageModule, 'useGetUsage');
 
   let mockUsage: Partial<Usage>;
 
