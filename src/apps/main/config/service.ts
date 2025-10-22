@@ -9,9 +9,7 @@ import { ConfigTheme } from './theme.types';
 export type StoredValues = keyof AppStore;
 
 export const getConfigKey = <T extends StoredValues>(key: T): AppStore[T] => {
-  const config = store.get(key);
-  logger.debug({ msg: 'ALOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO', key, config });
-  return config;
+  return store.get(key);
 };
 
 type SetConfigKeyProps = { key: 'preferedLanguage'; value: Language } | { key: 'preferedTheme'; value: ConfigTheme };
