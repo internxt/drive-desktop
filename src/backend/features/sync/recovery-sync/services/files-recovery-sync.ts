@@ -35,29 +35,15 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
 
   const filesToSyncPromises = filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto }));
 
-  const deletedFilesPromises = deletedFiles.map((file) => {
-    if (!file.parentUuid) {
-      ctx.logger.error({
-        msg: 'File does not have parentUuid and cannot be recreated',
-        uuid: file.uuid,
-      });
-
-      return Promise.resolve();
-    }
-
+  // eslint-disable-next-line array-callback-return
+  const deletedFilesPromises = deletedFiles.map(() => {
     /**
      * v2.6.0 Daniel Jiménez
      * This should never happen. Basically if we reach this point it means that there was an
      * item in web that is marked as TRASHED/DELETED but as EXISTS in local. We are going to
-     * try to mark it as EXISTS in web since it's better to not remove anything locally.
+     * try upload it again since it's better to not remove anything locally.
+     * TODO: check if we can upload from here without doing an ipc call.
      */
-    return DriveServerWipModule.FileModule.move({
-      uuid: file.uuid,
-      parentUuid: file.parentUuid,
-      name: file.name,
-      extension: file.extension,
-      workspaceToken: ctx.workspaceToken,
-    });
   });
 
   await Promise.all([filesToSyncPromises, deletedFilesPromises]);
