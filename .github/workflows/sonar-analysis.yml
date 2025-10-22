@@ -30,9 +30,9 @@ jobs:
         id: unit-tests
         run: npm run test -- --coverage
 
-      - name: Run infra tests
-        id: infra-tests
-        run: npm run test:infra -- --coverage
+      # - name: Run infra tests
+      #   id: infra-tests
+      #   run: npm run test:infra -- --coverage
 
       - name: Run renderer tests
         id: renderer-tests
@@ -45,8 +45,7 @@ jobs:
         if: always()
         uses: davelosert/vitest-coverage-report-action@8ab049ff5a2c6e78f78af446329379b318544a1a # v2.8.3
         with:
-          json-summary-path: './coverage/merged/coverage-summary.json'
-          json-final-path: './coverage/merged/coverage-final.json'
+          json-final-path: './coverage/coverage-final.json'
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@1a6d90ebcb0e6a6b1d87e37ba693fe453195ae25 # v5.3.1

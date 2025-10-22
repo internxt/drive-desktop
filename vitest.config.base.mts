@@ -6,8 +6,8 @@ export function getConfigBase(): ViteUserConfig {
     plugins: [tsconfigPaths()],
     test: {
       coverage: {
-        provider: 'v8',
-        reporter: ['lcov', 'json-summary'],
+        provider: 'istanbul',
+        reporter: ['lcov', 'json-summary', 'json'],
         reportOnFailure: true,
       },
       clearMocks: true,
@@ -16,6 +16,7 @@ export function getConfigBase(): ViteUserConfig {
       root: './',
       setupFiles: './tests/vitest/setup.helper.test.ts',
       testTimeout: 5000,
+      watch: false,
     },
   };
 }
