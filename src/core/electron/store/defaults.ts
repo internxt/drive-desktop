@@ -18,7 +18,7 @@ export const defaults: AppStore = {
   deviceUuid: '',
   backupList: {},
   clientId: uuid.v4(),
-  preferedLanguage: '',
+  preferedLanguage: 'en',
   preferedTheme: 'system',
   virtualdriveWindowsLetter: 'I',
   dataIntegrityMaintenance: false,

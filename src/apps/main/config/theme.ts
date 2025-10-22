@@ -1,11 +1,11 @@
 import { nativeTheme } from 'electron';
 import { broadcastToWindows } from '../windows';
 import { getConfigKey } from '../config/service';
-import { DEFAULT_THEME, Theme } from '@/apps/shared/types/Theme';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { DEFAULT_THEME, Theme } from './theme.types';
 
 export function getTheme() {
-  const configTheme = getConfigKey('preferedTheme') ?? DEFAULT_THEME;
+  const configTheme = getConfigKey('preferedTheme') || DEFAULT_THEME;
   let theme: Theme;
 
   nativeTheme.themeSource = configTheme;

@@ -23,6 +23,8 @@ import AntivirusDarkImageFrench from '../../assets/onboarding/antivirus/FR-Dark.
 import AntivirusDarkImageEnglish from '../../assets/onboarding/antivirus/EN-Dark.svg';
 
 import { OnboardingImages } from './types';
+import { Language } from '@/apps/main/config/language.types';
+import { Theme } from '@/apps/main/config/theme.types';
 
 export type OnboardingSlideProps = {
   onGoNextSlide: () => void;
@@ -73,7 +75,7 @@ export const getDriveImageSvg = (language: string, theme: 'light' | 'dark') => {
   return lang[theme];
 };
 
-export const getAntivirusImageSvg = (language: string, theme: 'light' | 'dark') => {
+export const getAntivirusImageSvg = (language: Language, theme: Theme) => {
   const images: OnboardingImages = {
     es: {
       light: AntivirusLightImageSpanish,

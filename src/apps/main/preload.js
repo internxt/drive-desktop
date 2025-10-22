@@ -33,12 +33,6 @@ var ipcPreloadRenderer = import_electron.ipcRenderer;
 
 // src/apps/main/preload.ts
 var api = {
-  getConfigKey(key) {
-    return import_electron2.ipcRenderer.invoke("get-config-key", key);
-  },
-  setConfigKey(props) {
-    import_electron2.ipcRenderer.send("set-config-key", props);
-  },
   listenToConfigKeyChange(key, fn) {
     const eventName = `${key}-updated`;
     const callback = (_, v) => fn(v);
@@ -288,6 +282,8 @@ var api = {
       import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
     };
   },
-  openLogs: async () => await ipcPreloadRenderer.invoke("openLogs")
+  openLogs: async () => await ipcPreloadRenderer.invoke("openLogs"),
+  getLanguage: async () => await ipcPreloadRenderer.invoke("getLanguage"),
+  setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);
