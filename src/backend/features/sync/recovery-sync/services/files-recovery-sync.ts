@@ -5,6 +5,7 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { getLocalFiles } from './get-local-files';
 import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = {
   ctx: SyncContext;
@@ -34,17 +35,12 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
   const deletedFiles = getDeletedItems({ ctx, remotes, locals });
 
   const filesToSyncPromises = filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto }));
-
-  // eslint-disable-next-line array-callback-return
-  const deletedFilesPromises = deletedFiles.map(() => {
-    /**
-     * v2.6.0 Daniel Jiménez
-     * This should never happen. Basically if we reach this point it means that there was an
-     * item in web that is marked as TRASHED/DELETED but as EXISTS in local. We are going to
-     * try upload it again since it's better to not remove anything locally.
-     * TODO: check if we can upload from here without doing an ipc call.
-     */
-  });
+  const deletedFilesPromises = deletedFiles.map((file) =>
+    SqliteModule.FileModule.updateByUuid({
+      uuid: file.uuid,
+      payload: { status: 'DELETED' },
+    }),
+  );
 
   await Promise.all([filesToSyncPromises, deletedFilesPromises]);
 
