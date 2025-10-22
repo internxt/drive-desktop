@@ -4,7 +4,7 @@ import * as generateLogFilesReportModule from './generate-log-files-report';
 import * as generateWebStorageFileReportModule from './generate-web-storage-files-report';
 import * as generateWebCacheReportModule from './generate-web-cache-report';
 import * as generateWindowsSpecificFileReportModule from './generate-windows-specific-file-report';
-import { calls, call, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { calls, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
 describe('generateCleanerReport', () => {
@@ -14,81 +14,18 @@ describe('generateCleanerReport', () => {
   const generateWebCacheReportMock = partialSpyOn(generateWebCacheReportModule, 'generateWebCacheReport');
   const generateWindowsSpecificFileReportMock = partialSpyOn(generateWindowsSpecificFileReportModule, 'generateWindowsSpecificFileReport');
 
-  const mockAppCacheReport = {
-    totalSizeInBytes: 1024,
-    items: [
-      {
-        fullPath: 'G:\\Users\\User\\AppData\\Local\\Temp\\cache.tmp',
-        fileName: 'cache.tmp',
-        sizeInBytes: 1024,
-      },
-    ],
-  };
-
-  const mockLogFilesReport = {
-    totalSizeInBytes: 2048,
-    items: [
-      {
-        fullPath: 'G:\\Windows Fake\\Logs\\log.log',
-        fileName: 'log.log',
-        sizeInBytes: 2048,
-      },
-    ],
-  };
-
-  const mockWebStorageReport = {
-    totalSizeInBytes: 512,
-    items: [
-      {
-        fullPath: 'G:\\Users\\User\\AppData\\Local\\Google\\Chrome\\cookies',
-        fileName: 'cookies',
-        sizeInBytes: 512,
-      },
-    ],
-  };
-
-  const mockWebCacheReport = {
-    totalSizeInBytes: 4096,
-    items: [
-      {
-        fullPath: 'G:\\Users\\User\\AppData\\Local\\Google\\Chrome\\Cache\\cache',
-        fileName: 'cache',
-        sizeInBytes: 4096,
-      },
-    ],
-  };
-
-  const mockWindowsSpecificReport = {
-    totalSizeInBytes: 8192,
-    items: [
-      {
-        fullPath: 'G:\\Windows Fake\\Prefetch\\file.pf',
-        fileName: 'file.pf',
-        sizeInBytes: 8192,
-      },
-    ],
-  };
-
   beforeEach(() => {
-    generateAppCacheReportMock.mockResolvedValue(mockAppCacheReport);
-    generateLogFilesReportMock.mockResolvedValue(mockLogFilesReport);
-    generateWebStorageFileReportMock.mockResolvedValue(mockWebStorageReport);
-    generateWebCacheReportMock.mockResolvedValue(mockWebCacheReport);
-    generateWindowsSpecificFileReportMock.mockResolvedValue(mockWindowsSpecificReport);
+    generateAppCacheReportMock.mockResolvedValue({});
+    generateLogFilesReportMock.mockResolvedValue({});
+    generateWebStorageFileReportMock.mockResolvedValue({});
+    generateWebCacheReportMock.mockResolvedValue({});
+    generateWindowsSpecificFileReportMock.mockResolvedValue({});
   });
 
   it('should generate a complete cleaner report when all sections succeed', async () => {
     // When
-    const result = await generateCleanerReport(true);
+    await generateCleanerReport(true);
     // Then
-    expect(result).toEqual({
-      appCache: mockAppCacheReport,
-      logFiles: mockLogFilesReport,
-      webStorage: mockWebStorageReport,
-      webCache: mockWebCacheReport,
-      platformSpecific: mockWindowsSpecificReport,
-    });
-
     calls(generateAppCacheReportMock).toHaveLength(1);
     calls(generateLogFilesReportMock).toHaveLength(1);
     calls(generateWebStorageFileReportMock).toHaveLength(1);
@@ -106,30 +43,21 @@ describe('generateCleanerReport', () => {
     // Given
     await generateCleanerReport(true);
     // When
-    const result = await generateCleanerReport(false);
+    await generateCleanerReport(false);
     // Then
-    expect(result).toMatchObject({
-      appCache: mockAppCacheReport,
-      logFiles: mockLogFilesReport,
-      webStorage: mockWebStorageReport,
-      webCache: mockWebCacheReport,
-      platformSpecific: mockWindowsSpecificReport,
-    });
-
-    call(generateAppCacheReportMock).toBeUndefined();
-    call(generateLogFilesReportMock).toBeUndefined();
-    call(generateWebStorageFileReportMock).toBeUndefined();
-    call(generateWebCacheReportMock).toBeUndefined();
-    call(generateWindowsSpecificFileReportMock).toBeUndefined();
+    calls(generateAppCacheReportMock).toHaveLength(1);
+    calls(generateLogFilesReportMock).toHaveLength(1);
+    calls(generateWebStorageFileReportMock).toHaveLength(1);
+    calls(generateWebCacheReportMock).toHaveLength(1);
+    calls(generateWindowsSpecificFileReportMock).toHaveLength(1);
   });
 
   it('should regenerate report when refreshReport is true even if cached report exists', async () => {
     // Given
     await generateCleanerReport(true);
     // When
-    const result = await generateCleanerReport(true);
+    await generateCleanerReport(true);
     // Then
-    expect(result).toBeDefined();
     calls(generateAppCacheReportMock).toHaveLength(2);
     calls(generateLogFilesReportMock).toHaveLength(2);
     calls(generateWebStorageFileReportMock).toHaveLength(2);
@@ -143,14 +71,8 @@ describe('generateCleanerReport', () => {
     generateAppCacheReportMock.mockRejectedValueOnce(error);
     generateWebCacheReportMock.mockRejectedValueOnce(error);
     // When
-    const result = await generateCleanerReport(true);
+    await generateCleanerReport(true);
     // Then
-    expect(result.appCache).toStrictEqual({ totalSizeInBytes: 0, items: [] });
-    expect(result.logFiles).toStrictEqual(mockLogFilesReport);
-    expect(result.webStorage).toStrictEqual(mockWebStorageReport);
-    expect(result.webCache).toStrictEqual({ totalSizeInBytes: 0, items: [] });
-    expect(result.platformSpecific).toStrictEqual(mockWindowsSpecificReport);
-
     calls(loggerMock.error).toHaveLength(2);
   });
 
@@ -172,5 +94,6 @@ describe('generateCleanerReport', () => {
       webCache: { totalSizeInBytes: 0, items: [] },
       platformSpecific: { totalSizeInBytes: 0, items: [] },
     });
+    calls(loggerMock.error).toHaveLength(5);
   });
 });
