@@ -1,11 +1,11 @@
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Select, { SelectOptionsType } from '../../../components/Select';
-import { useTheme } from '../../../hooks/useConfig';
 import { Theme } from '@/apps/main/config/theme.types';
+import { configStore } from '@/apps/renderer/features/config/config.store';
 
 export function ThemePicker() {
   const { translate } = useI18n();
-  const { configTheme } = useTheme();
+  const configTheme = configStore((s) => s.configTheme);
 
   const themes: SelectOptionsType[] = [
     {

@@ -1,10 +1,10 @@
 import { OnboardingSlideProps } from '../helpers';
-import { useTheme } from '../../../hooks/useConfig';
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { configStore } from '@/apps/renderer/features/config/config.store';
 
 export const AntivirusSlide: React.FC<OnboardingSlideProps> = () => {
   const { translate } = useI18n();
-  const { theme } = useTheme();
+  const theme = configStore((s) => s.theme);
 
   return (
     <div className="flex h-full w-full flex-col">
