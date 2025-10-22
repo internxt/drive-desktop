@@ -9,76 +9,41 @@ describe('generateAppCacheReport', () => {
   const scanSubDirectoryMock = partialSpyOn(CleanerModule, 'scanSubDirectory');
   const generateReportMock = partialSpyOn(generateReportModule, 'generateReport');
 
-  const mockCleanableItems = [
-    {
-      fullPath: 'G:\\Users\\User\\AppData\\Local\\Temp\\cache1.tmp',
-      fileName: 'cache1.tmp',
-      sizeInBytes: 2048,
-    },
-    {
-      fullPath: 'G:\\Windows Fake\\Temp\\cache2.tmp',
-      fileName: 'cache2.tmp',
-      sizeInBytes: 4096,
-    },
-    {
-      fullPath: 'G:\\Users\\User\\AppData\\Local\\cache\\app.cache',
-      fileName: 'app.cache',
-      sizeInBytes: 1024,
-    },
-    {
-      fullPath: 'G:\\Users\\User\\AppData\\Roaming\\cache\\service.cache',
-      fileName: 'service.cache',
-      sizeInBytes: 512,
-    },
-  ];
-
-  const mockReport = {
-    totalSizeInBytes: 7680,
-    items: mockCleanableItems,
-  };
-
-  beforeEach(() => {
-    generateReportMock.mockResolvedValue(mockReport);
-  });
-
   it('should scan temp directories and cache subdirectories and generate a report', async () => {
     // Given
-    const tempDirItems = [mockCleanableItems[0]];
-    const systemTmpDirItems = [mockCleanableItems[1]];
-    const localAppDataCacheItems = [mockCleanableItems[2]];
-    const roamingAppDataCacheItems = [mockCleanableItems[3]];
+    scanDirectoryMock.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
 
-    scanDirectoryMock.mockResolvedValueOnce(tempDirItems).mockResolvedValueOnce(systemTmpDirItems);
-
-    scanSubDirectoryMock.mockResolvedValueOnce(localAppDataCacheItems).mockResolvedValueOnce(roamingAppDataCacheItems);
+    scanSubDirectoryMock.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
     // When
-    const result = await generateAppCacheReport();
+    await generateAppCacheReport();
     // Then
-    calls(scanDirectoryMock).toHaveLength(2);
     calls(scanDirectoryMock).toMatchObject([
       {
         dirPath: pathsToClean.cache.tempDir,
+        customFileFilter: CleanerModule.appCacheFileFilter,
+        customDirectoryFilter: CleanerModule.isDirectoryWebBrowserRelated,
       },
       {
         dirPath: pathsToClean.cache.systemTmpDir,
+        customFileFilter: CleanerModule.appCacheFileFilter,
       },
     ]);
 
-    calls(scanSubDirectoryMock).toHaveLength(2);
     calls(scanSubDirectoryMock).toMatchObject([
       {
         baseDir: pathsToClean.localAppData,
+        customFileFilter: CleanerModule.appCacheFileFilter,
+        customDirectoryFilter: CleanerModule.isDirectoryWebBrowserRelated,
       },
       {
         baseDir: pathsToClean.roamingAppData,
+        customFileFilter: CleanerModule.appCacheFileFilter,
+        customDirectoryFilter: CleanerModule.isDirectoryWebBrowserRelated,
       },
     ]);
 
-    calls(generateReportMock).toHaveLength(1);
     call(generateReportMock).toMatchObject({
       promises: [expect.any(Promise), expect.any(Promise), expect.any(Promise), expect.any(Promise)],
     });
-
-    expect(result).toStrictEqual(mockReport);
   });
 });

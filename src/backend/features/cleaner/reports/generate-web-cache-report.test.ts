@@ -9,74 +9,35 @@ describe('generateWebCacheReport', () => {
   const scanFirefoxCacheProfilesMock = partialSpyOn(CleanerModule, 'scanFirefoxCacheProfiles');
   const generateReportMock = partialSpyOn(generateReportModule, 'generateReport');
 
-  const mockCleanableItems = [
-    {
-      fullPath: 'G:\\Users\\User\\AppData\\Local\\Google\\Chrome\\User Data\\Default\\Cache\\cache1',
-      fileName: 'cache1',
-      sizeInBytes: 2048,
-    },
-    {
-      fullPath: 'G:\\Users\\User\\AppData\\Local\\Mozilla\\Firefox\\Profiles\\profile.default\\cache2',
-      fileName: 'cache2',
-      sizeInBytes: 4096,
-    },
-    {
-      fullPath: 'G:\\Users\\User\\AppData\\Local\\Microsoft\\Edge\\User Data\\Default\\Cache\\cache3',
-      fileName: 'cache3',
-      sizeInBytes: 1024,
-    },
-    {
-      fullPath: 'G:\\Users\\User\\AppData\\Local\\Microsoft\\Windows\\INetCache\\cache4',
-      fileName: 'cache4',
-      sizeInBytes: 512,
-    },
-  ];
-
-  const mockReport = {
-    totalSizeInBytes: 7680,
-    items: mockCleanableItems,
-  };
-
-  beforeEach(() => {
-    generateReportMock.mockResolvedValue(mockReport);
-  });
-
   it('should scan Chrome, Firefox, Edge, and Edge IE cache directories and generate a report', async () => {
     // Given
-    const chromeCacheItems = [mockCleanableItems[0]];
-    const firefoxCacheItems = [mockCleanableItems[1]];
-    const edgeCacheItems = [mockCleanableItems[2]];
-    const edgeIECacheItems = [mockCleanableItems[3]];
+    scanDirectoryMock.mockResolvedValueOnce([]).mockResolvedValueOnce([]).mockResolvedValueOnce([]);
 
-    scanDirectoryMock.mockResolvedValueOnce(chromeCacheItems).mockResolvedValueOnce(edgeCacheItems).mockResolvedValueOnce(edgeIECacheItems);
-
-    scanFirefoxCacheProfilesMock.mockResolvedValueOnce(firefoxCacheItems);
+    scanFirefoxCacheProfilesMock.mockResolvedValueOnce([]);
     // When
-    const result = await generateWebCacheReport();
+    await generateWebCacheReport();
     // Then
-    calls(scanDirectoryMock).toHaveLength(3);
     calls(scanDirectoryMock).toMatchObject([
       {
         dirPath: pathsToClean.webCache.chrome,
+        customFileFilter: CleanerModule.isSafeWebBrowserFile,
       },
       {
         dirPath: pathsToClean.webCache.edge,
+        customFileFilter: CleanerModule.isSafeWebBrowserFile,
       },
       {
         dirPath: pathsToClean.webCache.edgeIECache,
+        customFileFilter: CleanerModule.isSafeWebBrowserFile,
       },
     ]);
 
-    calls(scanFirefoxCacheProfilesMock).toHaveLength(1);
     call(scanFirefoxCacheProfilesMock).toMatchObject({
       firefoxCacheDir: pathsToClean.webCache.firefox,
     });
 
-    calls(generateReportMock).toHaveLength(1);
     call(generateReportMock).toMatchObject({
       promises: [expect.any(Promise), expect.any(Promise), expect.any(Promise), expect.any(Promise)],
     });
-
-    expect(result).toStrictEqual(mockReport);
   });
 });

@@ -37,7 +37,6 @@ describe('generateReport', () => {
     // When
     const result = await generateReport({ promises, sectionKey: 'appCache' });
     // Then
-    expect(result.items).toHaveLength(4);
     expect(result.items).toMatchObject([...mockCleanableItems1, ...mockCleanableItems2, ...mockCleanableItems3]);
     expect(result.totalSizeInBytes).toBe(7680);
   });
@@ -52,7 +51,6 @@ describe('generateReport', () => {
     // When
     const result = await generateReport({ promises, sectionKey: 'appCache' });
     // Then
-    expect(result.items).toHaveLength(3);
     expect(result.items).toMatchObject([...mockCleanableItems1, ...mockCleanableItems3]);
     expect(result.totalSizeInBytes).toBe(7168);
   });
@@ -63,8 +61,7 @@ describe('generateReport', () => {
     // When
     const result = await generateReport({ promises, sectionKey: 'appCache' });
     // Then
-    expect(result.items).toHaveLength(0);
-    expect(result.items).toMatchObject([]);
+    expect(result.items).toStrictEqual([]);
     expect(result.totalSizeInBytes).toBe(0);
   });
 });
