@@ -2,10 +2,10 @@ import { renderHook } from '@testing-library/react-hooks';
 import { useUsageIndicator } from '.';
 import { Usage } from '@/apps/main/usage/Usage';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
-import * as useGetUsage from '../../api/use-get-usage';
+import * as useGetUsageModule from '../../api/use-get-usage';
 
 describe('usage-indicator', () => {
-  const useGetUsageMock = partialSpyOn(useGetUsage, 'useGetUsage');
+  const useGetUsageMock = partialSpyOn(useGetUsageModule, 'useGetUsage');
 
   let mockUsage: Partial<Usage>;
 
@@ -23,7 +23,7 @@ describe('usage-indicator', () => {
     // When
     const { result } = renderHook(() => useUsageIndicator());
     // Then
-    expect(result.current.usageValue).toBe('Loading...');
+    expect(result.current).toBe('Loading...');
   });
 
   it('should display empty string when error status', () => {
@@ -32,7 +32,7 @@ describe('usage-indicator', () => {
     // When
     const { result } = renderHook(() => useUsageIndicator());
     // Then
-    expect(result.current.usageValue).toBe('');
+    expect(result.current).toBe('');
   });
 
   it('should display usage with finite limit', () => {
@@ -41,7 +41,7 @@ describe('usage-indicator', () => {
     // When
     const { result } = renderHook(() => useUsageIndicator());
     // Then
-    expect(result.current.usageValue).toBe('500MB of 1GB');
+    expect(result.current).toBe('500MB of 1GB');
   });
 
   it('should display zero usage', () => {
@@ -51,7 +51,7 @@ describe('usage-indicator', () => {
     // When
     const { result } = renderHook(() => useUsageIndicator());
     // Then
-    expect(result.current.usageValue).toBe('0B of 1GB');
+    expect(result.current).toBe('0B of 1GB');
   });
 
   it('should handle large usage amounts', () => {
@@ -61,7 +61,7 @@ describe('usage-indicator', () => {
     // When
     const { result } = renderHook(() => useUsageIndicator());
     // Then
-    expect(result.current.usageValue).toBe('500MB of 5TB');
+    expect(result.current).toBe('500MB of 5TB');
   });
 
   it('should display infinite symbol for unlimited storage', () => {
@@ -71,7 +71,7 @@ describe('usage-indicator', () => {
     // When
     const { result } = renderHook(() => useUsageIndicator());
     // Then
-    expect(result.current.usageValue).toBe('500MB of ∞');
+    expect(result.current).toBe('500MB of ∞');
   });
 
   it('should update display when usage changes', () => {
@@ -80,13 +80,13 @@ describe('usage-indicator', () => {
     // When
     const { result, rerender } = renderHook(() => useUsageIndicator());
     // Then
-    expect(result.current.usageValue).toBe('500MB of 1GB');
+    expect(result.current).toBe('500MB of 1GB');
     // Given
     mockUsage.usageInBytes = 600 * 1024 * 1024;
     useGetUsageMock.mockReturnValue({ status: 'success', data: mockUsage });
     // When
     rerender();
     // Then
-    expect(result.current.usageValue).toBe('600MB of 1GB');
+    expect(result.current).toBe('600MB of 1GB');
   });
 });
