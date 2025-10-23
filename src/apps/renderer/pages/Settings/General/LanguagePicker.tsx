@@ -1,7 +1,8 @@
 import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Select, { SelectOptionsType } from '../../../components/Select';
+import { Language } from '@/apps/main/config/language.types';
 
-export default function LanguagePicker(): JSX.Element {
+export function LanguagePicker() {
   const { translate, language } = useI18n();
 
   const languages: SelectOptionsType[] = [
@@ -19,8 +20,8 @@ export default function LanguagePicker(): JSX.Element {
     },
   ];
 
-  const updatePreferedLanguage = (lang: string) => {
-    window.electron.setConfigKey({ key: 'preferedLanguage', value: lang });
+  const updatePreferedLanguage = (value: string) => {
+    void globalThis.window.electron.setConfigKey({ key: 'preferedLanguage', value: value as Language });
   };
 
   return (

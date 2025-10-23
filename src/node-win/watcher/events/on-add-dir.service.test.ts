@@ -2,7 +2,6 @@ import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper
 import { onAddDir } from './on-add-dir.service';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
 import * as createFolder from '@/features/sync/add-item/create-folder';
@@ -23,9 +22,6 @@ describe('on-add-dir', () => {
     props = mockProps<typeof onAddDir>({
       ctx: { virtualDrive: { syncRootPath: 'C:\\Users\\user' as AbsolutePath } },
       absolutePath: 'C:\\Users\\user\\drive\\folder' as AbsolutePath,
-      self: {
-        logger: loggerMock,
-      },
     });
   });
 

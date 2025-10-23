@@ -6,8 +6,10 @@ import { calculateUsage } from '../usage/service';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { getAvailableProducts } from '../payments/get-available-products';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
-import { getTheme } from '../theme/theme';
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
+import { setConfigKey } from '../config/service';
+import { getLanguage } from '../config/language';
+import { getTheme } from '../config/theme';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -21,6 +23,8 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('cleanerStartCleanup', (_, props) => CleanerModule.startCleanup(props));
   ipcPreloadMain.handle('cleanerGetDiskSpace', () => CleanerModule.getDiskSpace());
   ipcPreloadMain.handle('cleanerStopCleanup', () => Promise.resolve(CleanerModule.stopCleanup()));
-  ipcPreloadMain.handle('getTheme', () => Promise.resolve(getTheme()));
   ipcPreloadMain.handle('openLogs', () => LoggerModule.openLogs());
+  ipcPreloadMain.handle('getTheme', () => Promise.resolve(getTheme()));
+  ipcPreloadMain.handle('getLanguage', () => Promise.resolve(getLanguage()));
+  ipcPreloadMain.handle('setConfigKey', (_, props) => Promise.resolve(setConfigKey(props)));
 }

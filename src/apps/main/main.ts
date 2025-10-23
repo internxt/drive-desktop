@@ -32,7 +32,6 @@ import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';
-import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
@@ -58,7 +57,7 @@ import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
-import { setupThemeListener } from './theme/theme';
+import { setupThemeListener } from './config/theme';
 
 const gotTheLock = app.requestSingleInstanceLock();
 

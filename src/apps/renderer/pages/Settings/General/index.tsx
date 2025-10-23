@@ -1,6 +1,6 @@
 import AppInfo from './AppInfo';
 import DeviceName from './DeviceName';
-import LanguagePicker from './LanguagePicker';
+import { LanguagePicker } from './LanguagePicker';
 import { ThemePicker } from './ThemePicker';
 import StartAutomatically from './StartAutomatically';
 

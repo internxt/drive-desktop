@@ -10,9 +10,12 @@ type Props = {
 
 export async function createOrUpdate({ folder }: Props) {
   try {
-    const data = await folderRepository.save(folder);
+    await folderRepository.upsert(folder, {
+      conflictPaths: ['uuid'],
+      skipUpdateIfNoValuesChanged: true,
+    });
 
-    return { data: parseData({ data }) };
+    return { data: parseData({ data: folder }) };
   } catch (exc) {
     logger.error({
       msg: 'Error creating or updating folder',

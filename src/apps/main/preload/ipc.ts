@@ -5,8 +5,10 @@ import { calculateUsage } from '../usage/service';
 import { getLastBackupProgress } from '../background-processes/backups/BackupsProcessTracker/BackupsProcessTracker';
 import { getAvailableProducts } from '../payments/get-available-products';
 import { CleanerModule } from '@/backend/features/cleaner/cleaner.module';
-import { getTheme } from '../theme/theme';
+import { getTheme } from '../config/theme';
 import { LoggerModule } from '@/apps/shared/logger/logger.module';
+import { setConfigKey } from '../config/service';
+import { getLanguage } from '../config/language';
 
 type AsyncMirror<T extends (...args: any[]) => unknown> =
   Parameters<T> extends [] ? () => ReturnType<T> : (props: Parameters<T>[0]) => ReturnType<T>;
@@ -26,6 +28,8 @@ export type FromProcess = {
   cleanerGetDiskSpace: AsyncMirror<typeof CleanerModule.getDiskSpace>;
   getTheme: Mirror<typeof getTheme>;
   openLogs: AsyncMirror<typeof LoggerModule.openLogs>;
+  getLanguage: Mirror<typeof getLanguage>;
+  setConfigKey: Mirror<typeof setConfigKey>;
 };
 
 export type FromMain = {};

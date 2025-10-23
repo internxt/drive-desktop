@@ -11,10 +11,12 @@ import IssuesPage from './pages/Issues';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from './core/tanstack-query/query-client';
 import { AuthGuard } from './components/AuthGuard';
-import { useI18nSetup } from './localize/use-i18n-setup';
+import { useI18nSetup } from './features/config/use-i18n-setup';
+import { useThemeSetup } from './features/config/use-theme-setup';
 
 export default function App() {
   useI18nSetup();
+  useThemeSetup();
 
   return (
     <Router>

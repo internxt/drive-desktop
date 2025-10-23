@@ -10,9 +10,12 @@ type Props = {
 
 export async function createOrUpdate({ file }: Props) {
   try {
-    const data = await fileRepository.save(file);
+    await fileRepository.upsert(file, {
+      conflictPaths: ['uuid'],
+      skipUpdateIfNoValuesChanged: true,
+    });
 
-    return { data: parseData({ data }) };
+    return { data: parseData({ data: file }) };
   } catch (exc) {
     logger.error({
       msg: 'Error creating or updating file',
