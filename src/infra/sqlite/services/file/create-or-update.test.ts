@@ -7,7 +7,7 @@ describe('create-or-update', () => {
   const upsertMock = partialSpyOn(fileRepository, 'upsert');
   const fileDecryptNameSpy = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
-  const props = mockProps<typeof createOrUpdate>({});
+  const props = mockProps<typeof createOrUpdate>({ file: {} });
 
   beforeEach(() => {
     fileDecryptNameSpy.mockImplementation(({ encryptedName }) => ({

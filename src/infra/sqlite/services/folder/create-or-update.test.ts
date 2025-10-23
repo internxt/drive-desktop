@@ -7,7 +7,7 @@ describe('create-or-update', () => {
   const upsertMock = partialSpyOn(folderRepository, 'upsert');
   partialSpyOn(folderDecryptName, 'folderDecryptName');
 
-  const props = mockProps<typeof createOrUpdate>({});
+  const props = mockProps<typeof createOrUpdate>({ folder: {} });
 
   it('should return UNKNOWN when error is thrown', async () => {
     // Given
