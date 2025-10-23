@@ -58,7 +58,7 @@ describe('open-logs', () => {
     await openLogs();
     // Then
     calls(loggerMock.error).toHaveLength(0);
-    calls(archive.file).toMatchObject([
+    calls(archive.file).toStrictEqual([
       ['/mock/logs/internxt-drive/logs/drive.log', { name: 'drive.log' }],
       ['/mock/logs/internxt-drive/logs/drive-important.log', { name: 'drive-important.log' }],
       ['/mock/logs/internxt-drive/internxt_desktop.db', { name: 'internxt_desktop.db' }],
