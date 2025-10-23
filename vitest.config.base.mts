@@ -6,8 +6,8 @@ export function getConfigBase(): ViteUserConfig {
     plugins: [tsconfigPaths()],
     test: {
       coverage: {
-        provider: 'istanbul',
-        reporter: ['lcov'],
+        provider: 'v8',
+        reporter: ['lcov', 'json-summary'],
         reportOnFailure: true,
       },
       clearMocks: true,
