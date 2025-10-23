@@ -2,34 +2,30 @@ import { generateReport } from './generate-report';
 import { CleanableItem } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 
 describe('generateReport', () => {
-  const mockCleanableItems1: CleanableItem[] = [
+  const mockCleanableItems1 = [
     {
-      fullPath: 'G:\\Users\\User\\file1.tmp',
       fileName: 'file1.tmp',
       sizeInBytes: 1024,
     },
     {
-      fullPath: 'G:\\Users\\User\\file2.tmp',
       fileName: 'file2.tmp',
       sizeInBytes: 2048,
     },
-  ];
+  ] as CleanableItem[];
 
-  const mockCleanableItems2: CleanableItem[] = [
+  const mockCleanableItems2 = [
     {
-      fullPath: 'G:\\Users\\User\\file3.cache',
       fileName: 'file3.cache',
       sizeInBytes: 512,
     },
-  ];
+  ] as CleanableItem[];
 
-  const mockCleanableItems3: CleanableItem[] = [
+  const mockCleanableItems3 = [
     {
-      fullPath: 'G:\\Users\\User\\file4.log',
       fileName: 'file4.log',
       sizeInBytes: 4096,
     },
-  ];
+  ] as CleanableItem[];
 
   it('should generate a report with all items and total size when all promises are fulfilled', async () => {
     // Given
