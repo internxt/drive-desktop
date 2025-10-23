@@ -4,14 +4,14 @@ import { createOrUpdate } from './create-or-update';
 import * as folderDecryptName from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 describe('create-or-update', () => {
-  const saveMock = partialSpyOn(folderRepository, 'save');
+  const upsertMock = partialSpyOn(folderRepository, 'upsert');
   partialSpyOn(folderDecryptName, 'folderDecryptName');
 
   const props = mockProps<typeof createOrUpdate>({});
 
   it('should return UNKNOWN when error is thrown', async () => {
     // Given
-    saveMock.mockRejectedValue(new Error());
+    upsertMock.mockRejectedValue(new Error());
     // When
     const { error } = await createOrUpdate(props);
     // Then
@@ -20,7 +20,7 @@ describe('create-or-update', () => {
 
   it('should return folder', async () => {
     // Given
-    saveMock.mockResolvedValue({});
+    upsertMock.mockResolvedValue({});
     // When
     const { data } = await createOrUpdate(props);
     // Then

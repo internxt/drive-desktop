@@ -4,7 +4,7 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { createOrUpdate } from './create-or-update';
 
 describe('create-or-update', () => {
-  const saveMock = partialSpyOn(fileRepository, 'save');
+  const upsertMock = partialSpyOn(fileRepository, 'upsert');
   const fileDecryptNameSpy = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
   const props = mockProps<typeof createOrUpdate>({});
@@ -18,7 +18,7 @@ describe('create-or-update', () => {
 
   it('should return UNKNOWN when error is thrown', async () => {
     // Given
-    saveMock.mockRejectedValue(new Error());
+    upsertMock.mockRejectedValue(new Error());
     // When
     const { error } = await createOrUpdate(props);
     // Then
@@ -27,7 +27,7 @@ describe('create-or-update', () => {
 
   it('should return file', async () => {
     // Given
-    saveMock.mockResolvedValue({});
+    upsertMock.mockResolvedValue({});
     // When
     const { data } = await createOrUpdate(props);
     // Then
