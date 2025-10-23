@@ -1,20 +1,10 @@
-import tsconfigPaths from 'vite-tsconfig-paths';
 import { defineConfig } from 'vitest/config';
+import { getConfigBase } from './vitest.config.base.mts';
 
-export default defineConfig({
-  plugins: [tsconfigPaths()],
-  test: {
-    coverage: {
-      provider: 'v8',
-      reporter: ['lcov', 'json-summary'],
-      reportOnFailure: true,
-    },
-    clearMocks: true,
-    exclude: ['**/*.helper.test.ts', '**/node_modules', 'src/apps/renderer/**/*.test.{ts,tsx}'],
-    globals: true,
-    reporters: ['verbose'],
-    root: './',
-    setupFiles: './tests/vitest/setup.helper.test.ts',
-    testTimeout: 20000,
-  },
-});
+const config = getConfigBase();
+
+config!.test!.coverage!.reportsDirectory = './coverage/infra';
+config!.test!.include = ['src/**/*.infra.test.ts'];
+config!.test!.testTimeout = 20000;
+
+export default defineConfig(config);

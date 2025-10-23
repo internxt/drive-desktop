@@ -2,10 +2,11 @@ import { v4 } from 'uuid';
 
 import { addon } from '@/node-win/addon';
 
-import VirtualDrive from './virtual-drive';
+import { VirtualDrive } from './virtual-drive';
 import { iconPath } from '@/apps/utils/icon';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
+import { call } from '@/tests/vitest/utils.helper.test';
 
 vi.mock(import('node:fs'));
 vi.mock(import('@/node-win/addon'));
@@ -71,7 +72,7 @@ describe('VirtualDrive', () => {
       // When
       new VirtualDrive(props);
       // Then
-      expect(addon.addLoggerPath).toBeCalledWith('C:\\Users\\user\\InternxtDrive\\logs');
+      call(addon.addLoggerPath).toBe('C:\\Users\\user\\InternxtDrive\\logs');
     });
   });
 
@@ -92,7 +93,7 @@ describe('VirtualDrive', () => {
       });
 
       // Then
-      expect(addon.createPlaceholderFile).toBeCalledWith(
+      call(addon.createPlaceholderFile).toStrictEqual([
         'file.txt',
         'FILE:uuid',
         1024,
@@ -100,7 +101,7 @@ describe('VirtualDrive', () => {
         946771200000,
         expect.any(Number),
         'C:\\Users\\user\\InternxtDrive\\folder1\\folder2',
-      );
+      ]);
     });
   });
 
@@ -120,14 +121,14 @@ describe('VirtualDrive', () => {
       });
 
       // Then
-      expect(addon.createEntry).toBeCalledWith(
+      call(addon.createEntry).toStrictEqual([
         'folder2',
         'FOLDER:uuid',
         946684800000,
         946771200000,
         expect.any(Number),
         'C:\\Users\\user\\InternxtDrive\\folder1',
-      );
+      ]);
     });
   });
 
@@ -138,7 +139,7 @@ describe('VirtualDrive', () => {
       // When
       drive.registerSyncRoot({ providerName });
       // Then
-      expect(addon.registerSyncRoot).toBeCalledWith('C:\\Users\\user\\InternxtDrive', providerName, INTERNXT_VERSION, providerId, iconPath);
+      call(addon.registerSyncRoot).toStrictEqual(['C:\\Users\\user\\InternxtDrive', providerName, INTERNXT_VERSION, providerId, iconPath]);
     });
   });
 });
