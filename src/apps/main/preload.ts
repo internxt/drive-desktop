@@ -31,9 +31,6 @@ const api = {
     warn: (rawBody: TLoggerBody) => logger.warn(rawBody),
     error: (rawBody: TLoggerBody) => logger.error(rawBody),
   },
-  pathChanged(pathname: string) {
-    ipcRenderer.send('path-changed', pathname);
-  },
   userLoggedIn(data: AccessResponse) {
     ipcRenderer.send('user-logged-in', data);
   },

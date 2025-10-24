@@ -4,7 +4,7 @@ import { LocalFolder } from '../../localFolder/domain/LocalFolder';
 import { CLSFsLocalItemsGenerator } from '../infrastructure/FsLocalItemsGenerator';
 import { relative } from 'node:path';
 import { BackupsContext } from '@/apps/backups/BackupInfo';
-import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
+import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 export type LocalTree = {
   root: LocalFolder;
@@ -21,7 +21,7 @@ export default class LocalTreeBuilder {
         continue;
       }
 
-      if (fileAttributes.size >= BucketEntry.MAX_SIZE) {
+      if (fileAttributes.size >= SyncModule.MAX_FILE_SIZE) {
         context.addIssue({
           error: 'FILE_SIZE_TOO_BIG',
           name: fileAttributes.path,
