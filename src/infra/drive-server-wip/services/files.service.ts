@@ -6,6 +6,7 @@ import { getByUuid } from './files/get-by-uuid';
 import { createFile } from './files/create-file';
 import { getByPath } from './files/get-by-path';
 import { checkExistence } from './files/check-existance';
+import { parseFileDto } from '../out/dto';
 import { move } from './files/move';
 
 export const files = {
@@ -18,6 +19,7 @@ export const files = {
   createThumbnail,
   checkExistence,
 };
+export const FileModule = files;
 
 type TGetFilesQuery = paths['/files']['get']['parameters']['query'];
 type TCreateThumnailBody = paths['/files/thumbnail']['post']['requestBody']['content']['application/json'];
@@ -32,7 +34,7 @@ async function getFiles(context: { query: TGetFilesQuery }) {
       params: { query: context.query },
     });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
     loggerBody: {
@@ -44,6 +46,12 @@ async function getFiles(context: { query: TGetFilesQuery }) {
       },
     },
   });
+
+  if (data) {
+    return { data: data.map((fileDto) => parseFileDto({ fileDto })) };
+  } else {
+    return { error };
+  }
 }
 
 async function replaceFile(context: { uuid: string; newContentId: string; newSize: number; modificationTime: string }) {
