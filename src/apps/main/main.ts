@@ -58,6 +58,7 @@ import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
 import { setupThemeListener } from './config/theme';
+import { release, version } from 'node:os';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -75,7 +76,13 @@ setupIssueHandlers();
 setupIpcDriveServerWip();
 setupIpcSqlite();
 
-logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
+logger.debug({
+  msg: 'Starting app',
+  version: INTERNXT_VERSION,
+  isPackaged: app.isPackaged,
+  osVersion: version(),
+  osRelease: release(),
+});
 
 async function checkForUpdates() {
   autoUpdater.logger = {
