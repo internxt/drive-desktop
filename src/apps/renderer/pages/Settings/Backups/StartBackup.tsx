@@ -9,6 +9,7 @@ type StartBackupProps = {
 };
 
 export function StartBackup({ className }: StartBackupProps) {
+  const { translate } = useI18n();
   const { backups, backupStatus, thereIsDownloadProgress } = useContext(BackupContext);
   const [askConfirmation, setAskConfirmation] = useState(false);
 
@@ -24,8 +25,6 @@ export function StartBackup({ className }: StartBackupProps) {
   function startBackupsProcess() {
     window.electron.startBackupsProcess();
   }
-
-  const { translate } = useI18n();
 
   return (
     <>
