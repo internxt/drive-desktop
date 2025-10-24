@@ -1,30 +1,33 @@
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { basename } from 'node:path';
-import { Watcher } from '@/node-win/watcher/watcher';
 import { FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
-import { getParentUuid } from './get-parent-uuid';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { updateFolderStatus } from '../../../placeholders/update-folder-status';
 import { updateFileStatus } from '../../../placeholders/update-file-status';
+import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type TProps = {
   ctx: ProcessSyncContext;
-  self: Watcher;
   path: RelativePath;
   absolutePath: AbsolutePath;
-  item?: SimpleDriveFile | SimpleDriveFolder;
+  itemName: string;
+  item: SimpleDriveFile | SimpleDriveFolder;
 } & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });
 
-export async function moveItem({ ctx, self, path, absolutePath, uuid, item, type }: TProps) {
-  const parentUuid = getParentUuid({ ctx, self, type, path, item });
-  if (!parentUuid) return;
-
-  const workspaceToken = ctx.workspaceToken;
+export async function moveItem({ ctx, path, absolutePath, itemName, uuid, item, type }: TProps) {
+  const parentPath = pathUtils.dirname(path);
   const name = basename(path);
 
-  self.logger.debug({ msg: 'Item moved', type, path });
+  const { data: parentUuid, error } = NodeWin.getFolderUuid({ ctx, path: parentPath });
+
+  if (error) throw error;
+
+  // Neither move nor renamed
+  if (item.parentUuid === parentUuid && itemName === name) return;
+
+  const workspaceToken = ctx.workspaceToken;
 
   if (type === 'file') {
     await ipcRendererDriveServerWip.invoke('moveFileByUuid', { uuid, parentUuid, nameWithExtension: name, workspaceToken });
