@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
-import { i18nStore } from './i18n.store';
 import { Language, TranslationArgs, TranslationPath } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 import { I18nModule } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
+import { configStore } from '../features/config/config.store';
 
 const translations = {
   en: I18nModule.en,
@@ -26,7 +26,7 @@ export function getI18nValue(language: Language, path: TranslationPath, args?: T
 }
 
 export function useI18n() {
-  const language = i18nStore((s) => s.language);
+  const language = configStore((s) => s.language);
 
   const t = useCallback(
     (path: TranslationPath, args?: TranslationArgs) => {

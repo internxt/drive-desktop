@@ -2,10 +2,12 @@ import { useContext } from 'react';
 import Button from '../../../components/Button';
 import { DeviceContext } from '../../../context/DeviceContext';
 import { BackupContext } from '../../../context/BackupContext';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 type ViewBackupsProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DownloadBackups({ className }: ViewBackupsProps) {
+  const { t } = useI18n();
   const { selected } = useContext(DeviceContext);
   const { backups, downloadBackups, abortDownloadBackups, thereIsDownloadProgress, clearBackupDownloadProgress, backupStatus } =
     useContext(BackupContext);
@@ -33,7 +35,7 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
         variant={thereIsDownloadProgress ? 'danger' : 'secondary'}
         onClick={handleDownloadBackup}
         disabled={backups.length === 0 || backupStatus !== 'STANDBY'}>
-        {thereIsDownloadProgress ? 'Stop download' : 'Download'}
+        {thereIsDownloadProgress ? t('settings.backups.action.stopDownload') : t('settings.backups.action.download')}
       </Button>
     </>
   );
