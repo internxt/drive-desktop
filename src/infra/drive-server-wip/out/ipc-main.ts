@@ -3,7 +3,7 @@ import { ipcMain } from 'electron';
 import { FromMain, FromProcess } from './ipc';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
-import { broadcastToWindows } from '@/apps/main/windows';
+import { broadcastToWidget } from '@/apps/main/windows';
 import { getNameAndExtension } from '@/context/virtual-drive/files/domain/get-name-and-extension';
 
 const ipcMainDriveServerWip = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
@@ -13,9 +13,9 @@ export function setupIpcDriveServerWip() {
     const res = await driveServerWip.storage.deleteFileByUuid({ uuid, workspaceToken });
 
     if (res.error) {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'DELETE_ERROR', name: nameWithExtension, key: uuid } });
+      broadcastToWidget({ name: 'sync-info-update', data: { action: 'DELETE_ERROR', name: nameWithExtension, key: uuid } });
     } else {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'DELETED', name: nameWithExtension, key: uuid } });
+      broadcastToWidget({ name: 'sync-info-update', data: { action: 'DELETED', name: nameWithExtension, key: uuid } });
       await SqliteModule.FileModule.updateByUuid({ uuid, payload: { status: 'TRASHED' } });
     }
 
@@ -26,9 +26,9 @@ export function setupIpcDriveServerWip() {
     const res = await driveServerWip.storage.deleteFolderByUuid({ uuid, workspaceToken });
 
     if (res.error) {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'DELETE_ERROR', name, key: uuid } });
+      broadcastToWidget({ name: 'sync-info-update', data: { action: 'DELETE_ERROR', name, key: uuid } });
     } else {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'DELETED', name, key: uuid } });
+      broadcastToWidget({ name: 'sync-info-update', data: { action: 'DELETED', name, key: uuid } });
       await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { status: 'TRASHED' } });
     }
 
@@ -40,9 +40,9 @@ export function setupIpcDriveServerWip() {
     const res = await driveServerWip.files.move({ uuid, parentUuid, name, extension, workspaceToken });
 
     if (res.error) {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVE_ERROR', name: nameWithExtension, key: uuid } });
+      broadcastToWidget({ name: 'sync-info-update', data: { action: 'MOVE_ERROR', name: nameWithExtension, key: uuid } });
     } else {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVED', name: nameWithExtension, key: uuid } });
+      broadcastToWidget({ name: 'sync-info-update', data: { action: 'MOVED', name: nameWithExtension, key: uuid } });
       await SqliteModule.FileModule.updateByUuid({ uuid, payload: { parentUuid, name, extension, status: 'EXISTS' } });
     }
 
@@ -53,9 +53,9 @@ export function setupIpcDriveServerWip() {
     const res = await driveServerWip.folders.move({ uuid, parentUuid, name, workspaceToken });
 
     if (res.error) {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVE_ERROR', name, key: uuid } });
+      broadcastToWidget({ name: 'sync-info-update', data: { action: 'MOVE_ERROR', name, key: uuid } });
     } else {
-      broadcastToWindows({ name: 'sync-info-update', data: { action: 'MOVED', name, key: uuid } });
+      broadcastToWidget({ name: 'sync-info-update', data: { action: 'MOVED', name, key: uuid } });
       await SqliteModule.FolderModule.updateByUuid({ uuid, payload: { parentUuid, name, status: 'EXISTS' } });
     }
 

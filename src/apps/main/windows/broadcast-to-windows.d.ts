@@ -26,12 +26,12 @@ export type SyncInfoUpdateEvent = {
   };
 };
 
+export type BroadcastToWidget = SyncInfoUpdateEvent | { name: 'remote-sync-status-change'; data: RemoteSyncStatus };
+
 export type BroadcastToWindows =
   | { name: 'preferedLanguage-updated'; data: string }
   | { name: 'preferedTheme-updated'; data: ThemeData }
   | { name: 'issues-changed'; data: Issue[] }
-  | { name: 'remote-sync-status-change'; data: RemoteSyncStatus }
   | { name: 'backups-status-changed'; data: BackupsStatus }
   | { name: 'backup-download-progress'; data: { id: string; progress: number } }
-  | { name: 'backup-progress'; data: BackupsProgress }
-  | SyncInfoUpdateEvent;
+  | { name: 'backup-progress'; data: BackupsProgress };
