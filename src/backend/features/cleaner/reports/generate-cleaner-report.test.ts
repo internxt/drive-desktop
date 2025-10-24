@@ -14,14 +14,6 @@ describe('generateCleanerReport', () => {
   const generateWebCacheReportMock = partialSpyOn(generateWebCacheReportModule, 'generateWebCacheReport');
   const generateWindowsSpecificFileReportMock = partialSpyOn(generateWindowsSpecificFileReportModule, 'generateWindowsSpecificFileReport');
 
-  beforeEach(() => {
-    generateAppCacheReportMock.mockResolvedValue({});
-    generateLogFilesReportMock.mockResolvedValue({});
-    generateWebStorageFileReportMock.mockResolvedValue({});
-    generateWebCacheReportMock.mockResolvedValue({});
-    generateWindowsSpecificFileReportMock.mockResolvedValue({});
-  });
-
   it('should generate a complete cleaner report when all sections succeed', async () => {
     // When
     await generateCleanerReport(true);
