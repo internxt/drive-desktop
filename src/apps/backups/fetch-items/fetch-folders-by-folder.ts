@@ -1,5 +1,5 @@
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
-import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
+import { FETCH_LIMIT_50 } from '@/apps/main/remote-sync/store';
 import { SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { newParseFolderDto } from '@/infra/drive-server-wip/out/dto';
 
@@ -19,7 +19,7 @@ export async function fetchFoldersByFolder({ folderUuid, allFolders, abortSignal
       {
         folderUuid,
         query: {
-          limit: FETCH_LIMIT,
+          limit: FETCH_LIMIT_50,
           offset,
           sort: 'updatedAt',
           order: 'DESC',
@@ -33,8 +33,8 @@ export async function fetchFoldersByFolder({ folderUuid, allFolders, abortSignal
       throw error;
     }
 
-    hasMore = data.length === FETCH_LIMIT;
-    offset += FETCH_LIMIT;
+    hasMore = data.length === FETCH_LIMIT_50;
+    offset += FETCH_LIMIT_50;
 
     const parsedData = data.map((folderDto) => newParseFolderDto({ folderDto }));
     newFolders.push(...parsedData);

@@ -13,7 +13,7 @@ const ModalLogout: React.FC<ModalLogoutProps> = ({ onClose, onLogout }) => {
       <div
         className="z-100 relative m-auto flex w-11/12 max-w-md flex-col rounded-lg bg-white p-4 shadow-lg dark:bg-surface"
         onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-lg leading-3 text-gray-80">{translate('widget.header.dropdown.logout-confirmation.title')}</h2>
+        <h2 className="text-lg leading-snug text-gray-80">{translate('widget.header.dropdown.logout-confirmation.title')}</h2>
         <p className="my-3 text-supporting-3 leading-5 text-gray-70">{translate('widget.header.dropdown.logout-confirmation.message')}</p>
         <div className="flex justify-center space-x-4">
           <button
