@@ -50,9 +50,6 @@ var api = {
     warn: (rawBody) => import_backend.logger.warn(rawBody),
     error: (rawBody) => import_backend.logger.error(rawBody)
   },
-  pathChanged(pathname) {
-    import_electron2.ipcRenderer.send("path-changed", pathname);
-  },
   userLoggedIn(data) {
     import_electron2.ipcRenderer.send("user-logged-in", data);
   },

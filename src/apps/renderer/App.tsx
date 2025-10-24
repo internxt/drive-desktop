@@ -1,7 +1,7 @@
 import './App.css';
 
-import { Suspense, useEffect } from 'react';
-import { HashRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { Suspense } from 'react';
+import { HashRouter as Router, Route, Routes } from 'react-router-dom';
 
 import Login from './pages/Login';
 import Onboarding from './pages/Onboarding';
@@ -13,15 +13,6 @@ import { queryClient } from './core/tanstack-query/query-client';
 import { AuthGuard } from './components/AuthGuard';
 import { useI18nSetup } from './localize/use-i18n-setup';
 
-function LocationWrapper({ children }: { children: JSX.Element }) {
-  const { pathname } = useLocation();
-  useEffect(() => {
-    window.electron.pathChanged(pathname);
-  }, [pathname]);
-
-  return children;
-}
-
 export default function App() {
   useI18nSetup();
 
@@ -29,17 +20,15 @@ export default function App() {
     <Router>
       <Suspense fallback={<></>}>
         <QueryClientProvider client={queryClient}>
-          <LocationWrapper>
-            <AuthGuard>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/process-issues" element={<IssuesPage />} />
-                <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/" element={<Widget />} />
-              </Routes>
-            </AuthGuard>
-          </LocationWrapper>
+          <AuthGuard>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/process-issues" element={<IssuesPage />} />
+              <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/" element={<Widget />} />
+            </Routes>
+          </AuthGuard>
         </QueryClientProvider>
       </Suspense>
     </Router>
