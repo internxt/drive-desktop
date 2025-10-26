@@ -3,8 +3,8 @@ import { getItemsToSync } from './get-items-to-sync';
 import { getDeletedItems } from './get-deleted-items';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { getLocalFiles } from './get-local-files';
-import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
-import { FETCH_LIMIT } from '@/apps/main/remote-sync/store';
+import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { FETCH_LIMIT_1000 } from '@/apps/main/remote-sync/store';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = {
@@ -14,7 +14,7 @@ type Props = {
 
 export async function filesRecoverySync({ ctx, offset }: Props) {
   const query = {
-    limit: FETCH_LIMIT,
+    limit: FETCH_LIMIT_1000,
     offset,
     status: 'EXISTS' as const,
     sort: 'uuid',
@@ -34,7 +34,7 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
   const filesToSync = getItemsToSync({ ctx, remotes, locals });
   const deletedFiles = getDeletedItems({ ctx, remotes, locals });
 
-  const filesToSyncPromises = filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto }));
+  const filesToSyncPromises = createOrUpdateFiles({ context: ctx, fileDtos: filesToSync });
   const deletedFilesPromises = deletedFiles.map((file) =>
     SqliteModule.FileModule.updateByUuid({
       uuid: file.uuid,
