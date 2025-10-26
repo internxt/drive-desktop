@@ -2,7 +2,7 @@ import { AddController } from './add-controller';
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import * as createFile from '@/features/sync/add-item/create-file';
 import * as isTemporaryFile from '@/apps/utils/isTemporalFile';
-import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
+import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 describe('add-controller', () => {
   const createFileMock = partialSpyOn(createFile, 'createFile');
@@ -26,7 +26,7 @@ describe('add-controller', () => {
 
     it('should not call add controller if the file is larger than MAX_SIZE', async () => {
       // Given
-      props.stats.size = BucketEntry.MAX_SIZE + 1;
+      props.stats.size = SyncModule.MAX_FILE_SIZE + 1;
       // When
       await AddController.createFile(props);
       // Then

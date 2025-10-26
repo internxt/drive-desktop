@@ -1,7 +1,8 @@
-import { useTranslationContext } from '../../../../context/LocalContext';
 import Button from '../../../../components/Button';
 import { Menu, Transition } from '@headlessui/react';
 import { ScanType } from '../../../../hooks/antivirus/useAntivirus';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
+import { TranslationFn } from '@internxt/drive-desktop-core/build/frontend/core/i18n';
 
 const DropdownItem = ({ children, active, onClick }: { children: JSX.Element; active?: boolean; onClick?: () => void }) => {
   return (
@@ -23,7 +24,7 @@ const CustomScanItemsSelectorDropdown = ({
   onScanItemsButtonClicked,
 }: {
   disabled: boolean;
-  translate: (key: string) => string;
+  translate: TranslationFn;
   onScanItemsButtonClicked: (scanType: ScanType) => void;
 }) => {
   return (
@@ -72,7 +73,7 @@ interface ChooseItemsStateProps {
 }
 
 export const ChooseItemsState = ({ isUserElegible, onScanButtonClicked, onScanUserSystemButtonClicked }: ChooseItemsStateProps) => {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   return (
     <div className="flex flex-col gap-4 p-10">

@@ -2,7 +2,7 @@ import { logger, TLoggerBody } from '@internxt/drive-desktop-core/build/backend'
 import { contextBridge, ipcRenderer } from 'electron';
 import path from 'node:path';
 import { RemoteSyncStatus } from './remote-sync/helpers';
-import { setConfigKey, StoredValues } from './config/service';
+import { StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
 import { AccessResponse } from '../renderer/pages/Login/types';
 import { getUser } from './auth/service';
@@ -20,12 +20,6 @@ import { FromProcess } from './preload/ipc';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
 
 const api = {
-  getConfigKey(key: StoredValues) {
-    return ipcRenderer.invoke('get-config-key', key);
-  },
-  setConfigKey(props: Parameters<typeof setConfigKey>[0]) {
-    ipcRenderer.send('set-config-key', props);
-  },
   listenToConfigKeyChange<T>(key: StoredValues, fn: (_: T) => void): () => void {
     const eventName = `${key}-updated`;
     const callback = (_: unknown, v: T) => fn(v);
@@ -36,9 +30,6 @@ const api = {
     debug: (rawBody: TLoggerBody) => logger.debug(rawBody),
     warn: (rawBody: TLoggerBody) => logger.warn(rawBody),
     error: (rawBody: TLoggerBody) => logger.error(rawBody),
-  },
-  pathChanged(pathname: string) {
-    ipcRenderer.send('path-changed', pathname);
   },
   userLoggedIn(data: AccessResponse) {
     ipcRenderer.send('user-logged-in', data);
@@ -155,9 +146,6 @@ const api = {
   },
   addBackup(): Promise<void> {
     return ipcRenderer.invoke('add-backup');
-  },
-  addBackupsFromLocalPaths(localPaths: string[]): Promise<void> {
-    return ipcRenderer.invoke('add-multiple-backups', localPaths);
   },
   deleteBackup(backup: BackupInfo): Promise<void> {
     return ipcRenderer.invoke('delete-backup', backup);
@@ -298,6 +286,8 @@ const api = {
     };
   },
   openLogs: async () => await ipcPreloadRenderer.invoke('openLogs'),
+  getLanguage: async () => await ipcPreloadRenderer.invoke('getLanguage'),
+  setConfigKey: async (props) => await ipcPreloadRenderer.invoke('setConfigKey', props),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

@@ -4,7 +4,7 @@ import VirtualDrive from '@/node-win/virtual-drive';
 import { v4 } from 'uuid';
 import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { join } from 'node:path';
-import { getMockCalls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
+import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { mockDeep } from 'vitest-mock-extended';
@@ -77,12 +77,12 @@ describe('sync-remote-changes-to-local', () => {
     // Then
     status = virtualDrive.getPlaceholderState({ path: filePath });
     expect(status.pinState).toBe(PinState.OnlineOnly);
-    expect(getMockCalls(onAllMock)).toStrictEqual([
+    calls(onAllMock).toStrictEqual([
       { event: 'add', path: filePath },
       { event: 'change', path: filePath },
     ]);
 
-    expect(getMockCalls(loggerMock.debug)).toStrictEqual([
+    calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Registering sync root', syncRootPath: rootPath },
       { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },

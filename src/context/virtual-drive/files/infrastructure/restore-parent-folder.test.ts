@@ -3,7 +3,7 @@ import { restoreParentFolder } from './restore-parent-folder';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { partialSpyOn, mockProps, getMockCalls } from '@/tests/vitest/utils.helper.test';
+import { partialSpyOn, mockProps, call, calls } from '@/tests/vitest/utils.helper.test';
 import { FolderUuid } from '../../folders/domain/FolderPlaceholderId';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 
@@ -26,10 +26,7 @@ describe('restoreParentFolder', () => {
   it('should move when remote parent does not exist', async () => {
     await restoreParentFolder(props);
 
-    expect(moveSpy).toBeCalledTimes(1);
-
-    const [moveArgs] = getMockCalls(moveSpy);
-    expect(moveArgs).toMatchObject({
+    call(moveSpy).toMatchObject({
       parentUuid: 'parent-uuid',
       name: 'child',
       workspaceToken: 'WT',
@@ -42,9 +39,8 @@ describe('restoreParentFolder', () => {
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
 
-    expect(moveSpy).toBeCalledTimes(1);
-
-    expect(loggerMock.error).toBeCalledWith(expect.objectContaining({ msg: 'Error restoring parent folder' }));
+    calls(moveSpy).toHaveLength(1);
+    call(loggerMock.error).toMatchObject({ msg: 'Error restoring parent folder' });
   });
 
   it('should throw and log if parentUuid is missing', async () => {
@@ -52,12 +48,10 @@ describe('restoreParentFolder', () => {
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
 
-    expect(loggerMock.error).toBeCalledWith(
-      expect.objectContaining({
-        msg: 'Could not restore parent folder, parentUuid not found',
-        path: '/gp/child/file.txt',
-      }),
-    );
+    call(loggerMock.error).toMatchObject({
+      msg: 'Could not restore parent folder, parentUuid not found',
+      path: '/gp/child/file.txt',
+    });
 
     expect(moveSpy).not.toBeCalled();
   });

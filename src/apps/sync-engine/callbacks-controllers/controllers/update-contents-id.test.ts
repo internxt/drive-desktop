@@ -4,10 +4,10 @@ import { updateContentsId } from './update-contents-id';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { BucketEntry } from '@/context/virtual-drive/shared/domain/BucketEntry';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import * as updateFileStatus from '@/backend/features/local-sync/placeholders/update-file-status';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { SyncModule } from '@internxt/drive-desktop-core/build/backend';
 
 describe('update-contents-id', () => {
   const replaceFileMock = partialSpyOn(driveServerWip.files, 'replaceFile');
@@ -42,7 +42,7 @@ describe('update-contents-id', () => {
 
   it('should not update contents id if file size is greater than MAX_SIZE', async () => {
     // Given
-    props.stats.size = BucketEntry.MAX_SIZE + 1;
+    props.stats.size = SyncModule.MAX_FILE_SIZE + 1;
     // When
     await updateContentsId(props);
     // Then
