@@ -25,15 +25,15 @@ export function migrateOldSyncRoot({ user }: Props) {
 
   try {
     if (existsSync(newSyncRoot)) {
-      logger.debug({ msg: 'New sync root already exists, skiping' });
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'New sync root already exists, skiping' });
     } else if (existsSync(OLD_SYNC_ROOT)) {
-      logger.debug({ msg: 'Migrate old sync root' });
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Migrate old sync root' });
       renameSync(OLD_SYNC_ROOT, newSyncRoot);
     } else {
-      logger.debug({ msg: 'Old sync root does not exist, skiping' });
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Old sync root does not exist, skiping' });
     }
   } catch (error) {
-    logger.error({ msg: 'Error migrating old sync root', error });
+    logger.error({ tag: 'SYNC-ENGINE', msg: 'Error migrating old sync root', error });
   }
 
   configStore.set('syncRoot', newSyncRoot);
