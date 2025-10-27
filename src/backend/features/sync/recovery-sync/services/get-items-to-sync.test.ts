@@ -12,7 +12,6 @@ describe('get-items-to-sync', () => {
 
   beforeEach(() => {
     getCheckpointMock.mockResolvedValue({ data: 'datetime' });
-    isItemToSyncMock.mockReturnValue(true);
 
     props = mockProps<typeof getItemsToSync>({
       remotes: [{ uuid: 'uuid' as FileUuid, updatedAt: 'datetime' }],
@@ -20,7 +19,7 @@ describe('get-items-to-sync', () => {
     });
   });
 
-  it('should return empty if not checkpoint', async () => {
+  it('should return empty if there is no checkpoint', async () => {
     // Given
     getCheckpointMock.mockResolvedValue({ data: undefined });
     // When
@@ -29,7 +28,7 @@ describe('get-items-to-sync', () => {
     expect(res).toHaveLength(0);
   });
 
-  it('should return empty if is not item to sync', async () => {
+  it('should return empty if it is not item to sync', async () => {
     // Given
     isItemToSyncMock.mockReturnValue(false);
     // When
@@ -38,7 +37,9 @@ describe('get-items-to-sync', () => {
     expect(res).toHaveLength(0);
   });
 
-  it('should return remotes', async () => {
+  it('should return remote if it is item to sync', async () => {
+    // Given
+    isItemToSyncMock.mockReturnValue(true);
     // When
     const res = await getItemsToSync(props);
     // Then
