@@ -40,7 +40,7 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
 
   const filesToSyncPromises = createOrUpdateFiles({ context: ctx, fileDtos: filesToSync });
   const deletedFilesPromises = deletedFiles.map(async (file) => {
-    await SqliteModule.FileModule.updateByUuid({
+    return await SqliteModule.FileModule.updateByUuid({
       uuid: file.uuid,
       payload: { status: 'DELETED' },
     });
