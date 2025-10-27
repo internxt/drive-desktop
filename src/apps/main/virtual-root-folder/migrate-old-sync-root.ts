@@ -5,7 +5,7 @@ import { existsSync, renameSync } from 'node:fs';
 import { User } from '../types';
 import { configStore } from '../config';
 
-export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
+const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
 type Props = { user: User };
 
