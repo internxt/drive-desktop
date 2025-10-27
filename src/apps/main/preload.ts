@@ -6,7 +6,6 @@ import { StoredValues } from './config/service';
 import { SelectedItemToScanProps } from './antivirus/antivirus-clam-av';
 import { AccessResponse } from '../renderer/pages/Login/types';
 import { getUser } from './auth/service';
-import { ProcessInfoUpdatePayload } from '../shared/types';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import { changeBackupPath, Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
@@ -18,6 +17,7 @@ import { getBackupsFromDevice } from './device/get-backups-from-device';
 import { ipcPreloadRenderer } from './preload/ipc-renderer';
 import { FromProcess } from './preload/ipc';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
+import { SyncStateItem } from '@/backend/features/local-sync/sync-state/sync-state.meta';
 
 const api = {
   listenToConfigKeyChange<T>(key: StoredValues, fn: (_: T) => void): () => void {
@@ -70,9 +70,9 @@ const api = {
   getSyncStatus() {
     return ipcRenderer.invoke('get-sync-status');
   },
-  onSyncInfoUpdate(func: (_: ProcessInfoUpdatePayload) => void): () => void {
+  onSyncInfoUpdate(func: (_: SyncStateItem[]) => void): () => void {
     const eventName = 'sync-info-update';
-    const callback = (_: unknown, v: ProcessInfoUpdatePayload) => func(v);
+    const callback = (_: unknown, v: SyncStateItem[]) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
   },
