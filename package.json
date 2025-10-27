@@ -62,6 +62,14 @@
       "node_modules",
       "package.json"
     ],
+    "protocols": [
+      {
+        "name": "Internxt Login Protocol",
+        "schemes": [
+          "internxt"
+        ]
+      }
+    ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
       "target": {

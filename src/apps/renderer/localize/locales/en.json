@@ -27,8 +27,7 @@
     },
     "warning": {
       "no-internet": "No internet connection"
-    },
-    "or": "Or"
+    }
   },
   "onboarding": {
     "slides": {

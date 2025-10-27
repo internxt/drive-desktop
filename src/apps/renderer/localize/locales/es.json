@@ -12,7 +12,8 @@
     },
     "action": {
       "login": "Iniciar sesión",
-      "is-logging-in": "Iniciando sesión..."
+      "is-logging-in": "Iniciando sesión...",
+      "sign-in-browser": "Iniciar sesión en el navegador"
     },
     "create-account": "Crear cuenta",
     "2fa": {

@@ -70,7 +70,7 @@ import { registerAuthIPCHandlers } from '../../infra/ipc/auth-ipc-handlers';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { trySetupAntivirusIpcAndInitialize } from './background-processes/antivirus/try-setup-antivirus-ipc-and-initialize';
 import { getUserAvailableProductsAndStore } from '../../backend/features/payments/services/get-user-available-products-and-store';
-import { handleDeeplink } from './auth/deeplink-handler';
+import { handleDeeplink } from './auth/deeplink/handle-deeplink';
 
 const gotTheLock = app.requestSingleInstanceLock();
 app.setAsDefaultProtocolClient('internxt');
