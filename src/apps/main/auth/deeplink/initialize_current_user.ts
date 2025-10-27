@@ -29,7 +29,6 @@ export async function initializeCurrentUser() {
 
     logger.debug({ msg: 'Current user initialized successfully', userEmail: updatedUser.email });
   } catch (error) {
-    logger.error({ msg: 'Failed to initialize current user', error });
-    throw error;
+    throw logger.error({ msg: 'Failed to initialize current user', error });
   }
 }

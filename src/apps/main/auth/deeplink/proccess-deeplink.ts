@@ -37,14 +37,7 @@ export async function processDeeplink({ url }: Props) {
     const base64PrivateKey = params.get('privateKey');
 
     if (!base64Mnemonic || !base64LegacyToken || !base64Token || !base64PrivateKey) {
-      logger.error({
-        tag: 'AUTH',
-        msg: 'Missing required parameters in deeplink',
-        hasM: !!base64Mnemonic,
-        hasLT: !!base64LegacyToken,
-        hasT: !!base64Token,
-        hasPK: !!base64PrivateKey
-      });
+      logger.error({ tag: 'AUTH', msg: 'Missing required parameters in deeplink' });
       return;
     }
 
