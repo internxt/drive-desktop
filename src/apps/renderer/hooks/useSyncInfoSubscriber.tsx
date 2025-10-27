@@ -5,7 +5,7 @@ export function useSyncInfoSubscriber() {
   const [processInfoUpdatedPayload, setProcessInfoUpdatedPayload] = useState<SyncStateItem[]>([]);
 
   useEffect(() => {
-    return window.electron.onSyncInfoUpdate(setProcessInfoUpdatedPayload);
+    return globalThis.window.electron.onSyncInfoUpdate(setProcessInfoUpdatedPayload);
   }, []);
 
   return {
