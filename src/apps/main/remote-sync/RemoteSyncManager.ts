@@ -23,16 +23,16 @@ export class RemoteSyncManager {
       const syncFilesPromise = syncRemoteFiles({
         self: this,
         from: await RemoteSyncModule.getCheckpoint({
+          ctx: this.context,
           type: 'file',
-          workspaceId: this.workspaceId,
         }),
       });
 
       const syncFoldersPromise = syncRemoteFolders({
         self: this,
         from: await RemoteSyncModule.getCheckpoint({
+          ctx: this.context,
           type: 'folder',
-          workspaceId: this.workspaceId,
         }),
       });
 
