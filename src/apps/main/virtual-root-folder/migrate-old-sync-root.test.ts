@@ -25,7 +25,7 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateOldSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toContainEqual({ msg: 'New sync root already exists, skiping' });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate old sync root' }, { msg: 'New sync root already exists, skiping' }]);
   });
 
   it('should set a new syncRoot when the user changes the root', () => {
@@ -34,7 +34,7 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateOldSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toContainEqual({ msg: 'Migrate old sync root' });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate old sync root' }, { msg: 'Migrate old sync root' }]);
     calls(renameSyncMock).toHaveLength(1);
   });
 
@@ -44,6 +44,6 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateOldSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toContainEqual({ msg: 'Old sync root does not exist, skiping' });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate old sync root' }, { msg: 'Old sync root does not exist, skiping' }]);
   });
 });

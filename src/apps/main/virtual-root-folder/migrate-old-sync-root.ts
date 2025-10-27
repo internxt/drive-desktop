@@ -12,7 +12,7 @@ type Props = { user: User };
 export function migrateOldSyncRoot({ user }: Props) {
   const newSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
 
-  logger.debug({ msg: 'Check migrate old sync root', oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot });
+  logger.debug({ tag: 'SYNC-ENGINE', msg: 'Check migrate old sync root', oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot });
 
   /**
    * v2.5.1 Jonathan Arce
