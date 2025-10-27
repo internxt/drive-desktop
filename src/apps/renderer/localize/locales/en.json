@@ -12,7 +12,8 @@
     },
     "action": {
       "login": "Log in",
-      "is-logging-in": "Logging you in..."
+      "is-logging-in": "Logging you in...",
+      "sign-in-browser": "Sign in with browser"
     },
     "create-account": "Create account",
     "2fa": {
@@ -26,7 +27,8 @@
     },
     "warning": {
       "no-internet": "No internet connection"
-    }
+    },
+    "or": "Or"
   },
   "onboarding": {
     "slides": {

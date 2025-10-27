@@ -70,12 +70,15 @@ import { registerAuthIPCHandlers } from '../../infra/ipc/auth-ipc-handlers';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { trySetupAntivirusIpcAndInitialize } from './background-processes/antivirus/try-setup-antivirus-ipc-and-initialize';
 import { getUserAvailableProductsAndStore } from '../../backend/features/payments/services/get-user-available-products-and-store';
+import { handleDeeplink } from './auth/deeplink-handler';
 
 const gotTheLock = app.requestSingleInstanceLock();
+app.setAsDefaultProtocolClient('internxt');
 
 if (!gotTheLock) {
   app.quit();
 }
+
 registerAuthIPCHandlers();
 
 logger.debug({ msg: `Running ${packageJson.version}` });
@@ -142,6 +145,20 @@ app
     getUserAvailableProductsAndStore({ forceStorage: true});
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
+
+app.on('second-instance', async (_, argv) => {
+  logger.warn({ tag: 'AUTH', msg: 'Received internxt deeplink', argv });
+  const deeplinkArg = argv.find(arg => arg.startsWith('internxt://'));
+  if (!deeplinkArg) return;
+
+  logger.debug({ tag: 'AUTH', msg: `Deeplink found in arguments: ${deeplinkArg}` });
+
+  try {
+    await handleDeeplink({url: deeplinkArg });
+  } catch (error) {
+    logger.error({ tag: 'AUTH', msg: 'Error handling deeplink', error });
+  }
+});
 
 eventBus.on('WIDGET_IS_READY', () => {
   setUpBackups();

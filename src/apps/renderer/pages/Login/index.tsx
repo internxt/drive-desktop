@@ -38,7 +38,7 @@ export default function Login() {
 
     try {
       const res = await accessRequest(email, password, encryptedHash, twoFA);
-      window.electron.userLoggedIn(res);
+      //window.electron.userLoggedIn(res);
     } catch (err) {
       const { message } = err as Error;
 
@@ -49,7 +49,7 @@ export default function Login() {
       setPhase(phaseToSet);
       // TODO: adjust styles to acomodate longer error messages
       setErrorDetails(translate('login.2fa.wrong-code'));
-      window.electron.userLogginFailed(email);
+      //window.electron.userLogginFailed(email);
     }
   }
 
@@ -179,11 +179,23 @@ export default function Login() {
         )}
       </Button>
 
+      <Button
+        type="button"
+        variant="secondary"
+        size="lg"
+        disabled={state === 'loading'}
+        tabIndex={5}
+        onClick={() => handleOpenURL('https://drive.internxt.com/login?universalLink=true')}
+        data-automation-id="buttonSignInBrowser"
+      >
+        {translate('login.action.sign-in-browser') || 'Sign in with Browser'}
+      </Button>
+
       <button
         type="button"
         disabled={state === 'loading'}
         onClick={() => handleOpenURL('https://drive.internxt.com/new')}
-        tabIndex={5}
+        tabIndex={6}
         data-automation-id="buttonCreateAccountLogin"
         className={`text-sm font-medium outline-none ${
           state === 'loading' ? 'text-gray-30' : 'text-primary'

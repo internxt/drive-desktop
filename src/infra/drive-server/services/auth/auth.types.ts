@@ -3,6 +3,7 @@ import { components } from '../../../../infra/schemas';
 export interface RefreshTokenResponse {
   token: string;
   newToken: string;
+  user: components['schemas']['RefreshTokenUserResponseDto'];
 }
 
 export interface LoginResponse {
