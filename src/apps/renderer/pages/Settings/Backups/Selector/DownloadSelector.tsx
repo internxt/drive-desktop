@@ -1,13 +1,13 @@
 import { UilArrowLeft } from '@iconscout/react-unicons';
 import { useContext, useEffect, useState } from 'react';
 import Button from '../../../../components/Button';
-import { useTranslationContext } from '../../../../context/LocalContext';
 import { LoadingFolders } from './LoadingFolders';
 import { BackupsList } from './BackupsList';
 import { BackupContext } from '../../../../context/BackupContext';
 import { DeviceContext } from '../../../../context/DeviceContext';
 import { ItemBackup } from '../../../../../shared/types/items';
 import { useGetBackupFolders } from '@/apps/renderer/api/use-get-backup-folders';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 interface DownloadFolderSelectorProps {
   onClose: () => void;
@@ -25,7 +25,7 @@ function truncateText(text: string, prev: string[], maxLength: number) {
 }
 
 export default function DownloadFolderSelector({ onClose }: DownloadFolderSelectorProps) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const { backupsState, downloadBackups, abortDownloadBackups, thereIsDownloadProgress, clearBackupDownloadProgress } =
     useContext(BackupContext);
@@ -112,7 +112,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
         </h1>
         <div className="ml-auto text-gray-50">
           {showText &&
-            translate('settings.backups.selected-folder', {
+            translate('settings.backups.selected-folder_other', {
               count: selectedBackup.length,
             })}
         </div>
@@ -124,7 +124,7 @@ export default function DownloadFolderSelector({ onClose }: DownloadFolderSelect
           <LoadingFolders
             state={backupsState}
             loadingItems={itemsStatus === 'loading'}
-            messageText="settings.backups.folders.no-folders-to-download"
+            messageText={translate('settings.backups.folders.no-folders-to-download')}
           />
         )}
       </div>

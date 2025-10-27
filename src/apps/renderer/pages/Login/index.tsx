@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import packageJson from '../../../../../package.json';
-import { useTranslationContext } from '../../context/LocalContext';
 import ErrorBanner from './ErrorBanner';
 import { accessRequest, hashPassword } from './service';
 import { LoginState } from './types';
@@ -8,11 +7,12 @@ import WarningBanner from './WarningBanner';
 import WindowTopBar from '../../components/WindowTopBar';
 import { TwoFASection } from './TwoFASection';
 import { CredentialsSection } from './CredentialsSection';
+import { useI18n } from '../../localize/use-i18n';
 
 const TOWFA_ERROR_MESSAGE = 'Wrong 2-factor auth code';
 
 export default function Login() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const [phase, setPhase] = useState<'credentials' | '2fa'>('credentials');
   const [state, setState] = useState<LoginState>('ready');
   const [email, setEmail] = useState('');

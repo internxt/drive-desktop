@@ -12,11 +12,11 @@ describe('migrate-old-sync-root', () => {
   const renameSyncMock = vi.mocked(renameSync);
   const setMock = partialSpyOn(configStore, 'set');
 
-  const props = mockProps<typeof migrateOldSyncRoot>({ user: { userId: 'userId' } });
+  const props = mockProps<typeof migrateOldSyncRoot>({ user: { uuid: 'uuid' } });
   PATHS.HOME_FOLDER_PATH = 'C:/Users/user';
 
   afterEach(() => {
-    call(setMock).toStrictEqual('syncRoot');
+    call(setMock).toStrictEqual(['syncRoot', 'C:/Users/user/InternxtDrive - uuid']);
   });
 
   it('should skip if new sync root folder already exists', () => {
@@ -25,8 +25,7 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateOldSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toContainEqual({ msg: 'New sync root already exists, skiping' });
-    // expect(configStore.get).toHaveBeenCalledWith('syncRoot');
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate old sync root' }, { msg: 'New sync root already exists, skiping' }]);
   });
 
   it('should set a new syncRoot when the user changes the root', () => {
@@ -35,7 +34,7 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateOldSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toContainEqual({ msg: 'Migrate old sync root' });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate old sync root' }, { msg: 'Migrate old sync root' }]);
     calls(renameSyncMock).toHaveLength(1);
   });
 
@@ -45,6 +44,6 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateOldSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toContainEqual({ msg: 'Old sync root does not exist, skiping' });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate old sync root' }, { msg: 'Old sync root does not exist, skiping' }]);
   });
 });

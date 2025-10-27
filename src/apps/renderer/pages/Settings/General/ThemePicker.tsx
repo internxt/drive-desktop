@@ -1,11 +1,11 @@
-import { Theme } from '../../../../shared/types/Theme';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Select, { SelectOptionsType } from '../../../components/Select';
-import { useTranslationContext } from '../../../context/LocalContext';
-import { useTheme } from '../../../hooks/useConfig';
+import { Theme } from '@/apps/main/config/theme.types';
+import { configStore } from '@/apps/renderer/features/config/config.store';
 
 export function ThemePicker() {
-  const { translate } = useTranslationContext();
-  const { configTheme } = useTheme();
+  const { translate } = useI18n();
+  const configTheme = configStore((s) => s.configTheme);
 
   const themes: SelectOptionsType[] = [
     {
@@ -22,8 +22,8 @@ export function ThemePicker() {
     },
   ];
 
-  const updatePreferedTheme = (theme: string) => {
-    window.electron.setConfigKey({ key: 'preferedTheme', value: theme as Theme });
+  const updatePreferedTheme = (value: string) => {
+    void globalThis.window.electron.setConfigKey({ key: 'preferedTheme', value: value as Theme });
   };
 
   return (

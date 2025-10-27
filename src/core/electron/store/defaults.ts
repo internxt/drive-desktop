@@ -14,6 +14,6 @@ export const defaults: AppStore = {
   lastOnboardingShown: '',
   deviceUuid: '',
   backupList: {},
-  preferedLanguage: '',
+  preferedLanguage: 'en',
   preferedTheme: 'system',
 };

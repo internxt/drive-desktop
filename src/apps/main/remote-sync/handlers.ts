@@ -9,7 +9,7 @@ import { DriveFile } from '../database/entities/DriveFile';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
-import { driveFilesCollection, FETCH_LIMIT, getRemoteSyncManager, remoteSyncManagers } from './store';
+import { driveFilesCollection, FETCH_LIMIT_50, getRemoteSyncManager, remoteSyncManagers } from './store';
 import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
@@ -165,14 +165,6 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
   await updateAllRemoteSync();
 });
 
-ipcMain.handle('GET_UNSYNC_FILE_IN_SYNC_ENGINE', (_, workspaceId = '') => {
-  logger.debug({ msg: '[Get UnSync] Received Get UnSync File event' });
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-  logger.debug({ msg: 'Total files unsynced', totalFilesUnsynced: manager.totalFilesUnsynced });
-  return manager.totalFilesUnsynced;
-});
-
 export async function initSyncEngine({ context }: { context: AuthContext }) {
   try {
     void spawnSyncEngineWorkers({ context });
@@ -207,7 +199,7 @@ ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBac
   const { data: folders = [] } = await driveServerWip.folders.getFoldersByFolder({
     folderUuid,
     query: {
-      limit: FETCH_LIMIT,
+      limit: FETCH_LIMIT_50,
       offset: 0,
       sort: 'updatedAt',
       order: 'DESC',
