@@ -1,5 +1,7 @@
 import { User } from '@/apps/main/types';
 import { fieldsToSave } from './fields-to-save';
+import { ConfigTheme } from '@/apps/main/config/theme.types';
+import { Language } from '@/apps/main/config/language.types';
 
 export interface AppStore {
   newToken: string;
@@ -17,8 +19,8 @@ export interface AppStore {
   deviceUuid: string;
   backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
   clientId: string;
-  preferedLanguage?: string;
-  preferedTheme?: string;
+  preferedLanguage?: Language;
+  preferedTheme?: ConfigTheme;
   virtualdriveWindowsLetter: string;
   dataIntegrityMaintenance?: boolean;
 }

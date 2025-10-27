@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
-import { DEFAULT_THEME, Theme } from '../../../../shared/types/Theme';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import Select, { SelectOptionsType } from '../../../components/Select';
-import { useTranslationContext } from '../../../context/LocalContext';
-import useConfig from '../../../hooks/useConfig';
+import { Theme } from '@/apps/main/config/theme.types';
+import { configStore } from '@/apps/renderer/features/config/config.store';
 
-export default function ThemePicker(): JSX.Element {
-  const { translate } = useTranslationContext();
-  const [selectedTheme, setSelectedTheme] = useState<Theme | null>((useConfig('preferedTheme') as Theme) || null);
+export function ThemePicker() {
+  const { translate } = useI18n();
+  const configTheme = configStore((s) => s.configTheme);
 
   const themes: SelectOptionsType[] = [
     {
@@ -23,30 +22,14 @@ export default function ThemePicker(): JSX.Element {
     },
   ];
 
-  const refreshPreferedTheme = async () => {
-    const theme = await window.electron.getConfigKey('preferedTheme');
-    if (theme === '' || theme === null) {
-      setSelectedTheme(DEFAULT_THEME);
-    } else {
-      setSelectedTheme(theme as Theme);
-    }
+  const updatePreferedTheme = (value: string) => {
+    void globalThis.window.electron.setConfigKey({ key: 'preferedTheme', value: value as Theme });
   };
-
-  const updatePreferedTheme = (theme: string) => {
-    window.electron.toggleDarkMode(theme as Theme);
-    window.electron.setConfigKey({ key: 'preferedTheme', value: theme });
-    refreshPreferedTheme();
-  };
-
-  useEffect(() => {
-    refreshPreferedTheme();
-  }, []);
 
   return (
     <div id="theme-picker" className="flex flex-1 flex-col items-start space-y-2">
       <p className="text-sm font-medium leading-4 text-gray-80">{translate('settings.general.theme.label')}</p>
-
-      {selectedTheme && <Select options={themes} value={selectedTheme} onValueChange={updatePreferedTheme} />}
+      <Select options={themes} value={configTheme} onValueChange={updatePreferedTheme} />
     </div>
   );
 }

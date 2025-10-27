@@ -1,11 +1,11 @@
-import { At, Gear, Icon } from '@phosphor-icons/react';
+import { At, Gear, Icon, Sparkle } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 
-import { useTranslationContext } from '../../context/LocalContext';
 import { UilHistory } from '@iconscout/react-unicons';
 import { Shield } from 'phosphor-react';
+import { useI18n } from '../../localize/use-i18n';
 
-const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS', 'ANTIVIRUS'] as const;
+const sectionValues = ['GENERAL', 'ACCOUNT', 'BACKUPS', 'ANTIVIRUS', 'CLEANER'] as const;
 export type Section = (typeof sectionValues)[number];
 
 function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; onClick: () => void; isActive: boolean }) {
@@ -23,7 +23,7 @@ function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; o
 }
 
 export default function Header({ onClick, active }: { onClick: (active: Section) => void; active: Section }) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const sections: {
     label: Section;
     icon: Icon;
@@ -32,6 +32,7 @@ export default function Header({ onClick, active }: { onClick: (active: Section)
     { label: 'ACCOUNT', icon: At },
     { label: 'BACKUPS', icon: UilHistory },
     { label: 'ANTIVIRUS', icon: Shield },
+    { label: 'CLEANER', icon: Sparkle },
   ];
 
   const animationVariants: Record<Section, { left: string }> = sectionValues.reduce(

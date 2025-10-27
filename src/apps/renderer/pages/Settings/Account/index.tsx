@@ -4,11 +4,11 @@ import Spinner from '../../../assets/spinner.svg';
 import Usage from './Usage';
 import UserInfo from './UserInfo';
 import Button from '../../../components/Button';
-import { useTranslationContext } from '../../../context/LocalContext';
 import { useGetUsage } from '../../../api/use-get-usage';
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 
 export default function AccountSection({ active }: { active: boolean }) {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
   const [user, setUser] = useState<User | null>(null);
   const { data: usage, status, refetch: refreshUsage } = useGetUsage();
 

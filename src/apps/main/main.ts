@@ -1,4 +1,4 @@
-import { app, nativeTheme } from 'electron';
+import { app } from 'electron';
 
 void app.whenReady().then(() => {
   app.setAppUserModelId('com.internxt.app');
@@ -32,8 +32,6 @@ import './realtime';
 import './fordwardToWindows';
 import './ipcs/ipcMainAntivirus';
 import './platform/handlers';
-import './migration/handlers';
-import './config/handlers';
 import './app-info/handlers';
 import './remote-sync/handlers';
 
@@ -46,7 +44,6 @@ import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus, setupTrayIcon } from './tray/tray';
 import { openOnboardingWindow } from './windows/onboarding';
-import { Theme } from '../shared/types/Theme';
 import { clearAntivirus } from './antivirus/utils/initializeAntivirus';
 import { setupQuitHandlers } from './quit';
 import { clearConfig, setDefaultConfig } from '../sync-engine/config';
@@ -60,6 +57,8 @@ import { AuthModule } from '@/backend/features/auth/auth.module';
 import { logger } from '../shared/logger/logger';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { setupPreloadIpc } from './preload/ipc-main';
+import { setupThemeListener } from './config/theme';
+import { release, version } from 'node:os';
 
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -70,13 +69,20 @@ if (!gotTheLock) {
 setupAutoLaunchHandlers();
 setupAuthIpcHandlers();
 setupPreloadIpc();
+setupThemeListener();
 setupVirtualDriveHandlers();
 setupQuitHandlers();
 setupIssueHandlers();
 setupIpcDriveServerWip();
 setupIpcSqlite();
 
-logger.debug({ msg: 'Starting app', version: INTERNXT_VERSION, isPackaged: app.isPackaged });
+logger.debug({
+  msg: 'Starting app',
+  version: INTERNXT_VERSION,
+  isPackaged: app.isPackaged,
+  osVersion: version(),
+  osRelease: release(),
+});
 
 async function checkForUpdates() {
   autoUpdater.logger = {
@@ -131,8 +137,6 @@ eventBus.on('USER_LOGGED_IN', async () => {
     setDefaultConfig({});
 
     getAuthWindow()?.hide();
-
-    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
 
     const widget = await getOrCreateWidged();
     const tray = getTray();

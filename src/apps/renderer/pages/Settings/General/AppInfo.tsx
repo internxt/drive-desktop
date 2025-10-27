@@ -1,8 +1,8 @@
+import { useI18n } from '@/apps/renderer/localize/use-i18n';
 import packageJson from '../../../../../../package.json';
-import { useTranslationContext } from '../../../context/LocalContext';
 
 export default function AppInfo() {
-  const { translate } = useTranslationContext();
+  const { translate } = useI18n();
 
   const handleOpenURL = async (URL: string) => {
     try {
@@ -17,12 +17,6 @@ export default function AppInfo() {
       <p className="text-sm leading-4 text-gray-100">Internxt v{packageJson.version}</p>
 
       <div className="flex flex-col items-start space-y-1 text-base leading-5">
-        {process.env.NODE_ENV !== 'production' && (
-          <button type="button" className="text-primary active:text-primary-dark" onClick={window.electron.startMigration}>
-            {translate('settings.general.app-info.open-migration')}
-          </button>
-        )}
-
         <button type="button" className="text-primary active:text-primary-dark" onClick={window.electron.openLogs}>
           {translate('settings.general.app-info.open-logs')}
         </button>

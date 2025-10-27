@@ -3,8 +3,9 @@ import { getItemsToSync } from './get-items-to-sync';
 import { getDeletedItems } from './get-deleted-items';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { getLocalFiles } from './get-local-files';
-import { createOrUpdateFile } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
+import { createOrUpdateFiles } from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import { FETCH_LIMIT_1000 } from '@/apps/main/remote-sync/store';
+import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
 type Props = {
   ctx: SyncContext;
@@ -34,30 +35,11 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
   const filesToSync = await getItemsToSync({ ctx, type: 'file', remotes, locals });
   const deletedFiles = getDeletedItems({ ctx, type: 'file', remotes, locals });
 
-  const filesToSyncPromises = filesToSync.map((fileDto) => createOrUpdateFile({ context: ctx, fileDto }));
-
-  const deletedFilesPromises = deletedFiles.map((file) => {
-    if (!file.parentUuid) {
-      ctx.logger.error({
-        msg: 'File does not have parentUuid and cannot be recreated',
-        uuid: file.uuid,
-      });
-
-      return Promise.resolve();
-    }
-
-    /**
-     * v2.6.0 Daniel Jiménez
-     * This should never happen. Basically if we reach this point it means that there was an
-     * item in web that is marked as TRASHED/DELETED but as EXISTS in local. We are going to
-     * try to mark it as EXISTS in web since it's better to not remove anything locally.
-     */
-    return DriveServerWipModule.FileModule.move({
+  const filesToSyncPromises = createOrUpdateFiles({ context: ctx, fileDtos: filesToSync });
+  const deletedFilesPromises = deletedFiles.map(async (file) => {
+    await SqliteModule.FileModule.updateByUuid({
       uuid: file.uuid,
-      parentUuid: file.parentUuid,
-      name: file.name,
-      extension: file.extension,
-      workspaceToken: ctx.workspaceToken,
+      payload: { status: 'DELETED' },
     });
   });
 

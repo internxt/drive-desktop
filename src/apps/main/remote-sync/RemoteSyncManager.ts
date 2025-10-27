@@ -9,7 +9,6 @@ import { Config } from '@/apps/sync-engine/config';
 
 export class RemoteSyncManager {
   status: RemoteSyncStatus = 'IDLE';
-  totalFilesUnsynced: string[] = [];
 
   constructor(
     public readonly context: Config,
@@ -19,8 +18,6 @@ export class RemoteSyncManager {
 
   async startRemoteSync() {
     logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId });
-
-    this.totalFilesUnsynced = [];
 
     try {
       const syncFilesPromise = syncRemoteFiles({

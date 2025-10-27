@@ -33,12 +33,6 @@ var ipcPreloadRenderer = import_electron.ipcRenderer;
 
 // src/apps/main/preload.ts
 var api = {
-  getConfigKey(key) {
-    return import_electron2.ipcRenderer.invoke("get-config-key", key);
-  },
-  setConfigKey(props) {
-    import_electron2.ipcRenderer.send("set-config-key", props);
-  },
   listenToConfigKeyChange(key, fn) {
     const eventName = `${key}-updated`;
     const callback = (_, v) => fn(v);
@@ -49,9 +43,6 @@ var api = {
     debug: (rawBody) => import_backend.logger.debug(rawBody),
     warn: (rawBody) => import_backend.logger.warn(rawBody),
     error: (rawBody) => import_backend.logger.error(rawBody)
-  },
-  pathChanged(pathname) {
-    import_electron2.ipcRenderer.send("path-changed", pathname);
   },
   userLoggedIn(data) {
     import_electron2.ipcRenderer.send("user-logged-in", data);
@@ -110,9 +101,6 @@ var api = {
   openProcessIssuesWindow() {
     import_electron2.ipcRenderer.send("open-process-issues-window");
   },
-  openLogs() {
-    import_electron2.ipcRenderer.send("open-logs");
-  },
   openSettingsWindow(section) {
     import_electron2.ipcRenderer.send("open-settings-window", section);
   },
@@ -122,19 +110,11 @@ var api = {
   finishOnboarding() {
     import_electron2.ipcRenderer.send("user-finished-onboarding");
   },
-  finishMigration() {
-    import_electron2.ipcRenderer.send("user-finished-migration");
-  },
   isAutoLaunchEnabled() {
     return import_electron2.ipcRenderer.invoke("is-auto-launch-enabled");
   },
   toggleAutoLaunch() {
     return import_electron2.ipcRenderer.invoke("toggle-auto-launch");
-  },
-  toggleDarkMode(mode) {
-    if (mode === "light") return import_electron2.ipcRenderer.invoke("dark-mode:light");
-    if (mode === "dark") return import_electron2.ipcRenderer.invoke("dark-mode:dark");
-    return import_electron2.ipcRenderer.invoke("dark-mode:system");
   },
   getBackupsInterval() {
     return import_electron2.ipcRenderer.invoke("get-backups-interval");
@@ -150,17 +130,6 @@ var api = {
   },
   getBackupsStatus() {
     return import_electron2.ipcRenderer.invoke("get-backups-status");
-  },
-  openVirtualDrive() {
-    return import_electron2.ipcRenderer.invoke("open-virtual-drive");
-  },
-  moveSyncFolderToDesktop() {
-    return import_electron2.ipcRenderer.invoke("move-sync-folder-to-desktop");
-  },
-  // Open the folder where we store the items
-  // that we failed to migrate
-  openMigrationFailedFolder() {
-    return import_electron2.ipcRenderer.invoke("open-migration-failed-folder");
   },
   onBackupsStatusChanged(func) {
     const eventName = "backups-status-changed";
@@ -190,9 +159,6 @@ var api = {
   },
   addBackup() {
     return import_electron2.ipcRenderer.invoke("add-backup");
-  },
-  addBackupsFromLocalPaths(localPaths) {
-    return import_electron2.ipcRenderer.invoke("add-multiple-backups", localPaths);
   },
   deleteBackup(backup) {
     return import_electron2.ipcRenderer.invoke("delete-backup", backup);
@@ -230,9 +196,6 @@ var api = {
   getItemByFolderUuid(folderUuid) {
     return import_electron2.ipcRenderer.invoke("get-item-by-folder-uuid", folderUuid);
   },
-  deleteBackupError(folderId) {
-    return import_electron2.ipcRenderer.invoke("delete-backup-error", folderId);
-  },
   downloadBackup(backup, folderUuids) {
     return import_electron2.ipcRenderer.invoke("download-backup", backup, folderUuids);
   },
@@ -242,9 +205,6 @@ var api = {
   getFolderPath() {
     return import_electron2.ipcRenderer.invoke("get-folder-path");
   },
-  startMigration() {
-    return import_electron2.ipcRenderer.invoke("open-migration-window");
-  },
   onRemoteSyncStatusChange(callback) {
     const eventName = "remote-sync-status-change";
     const callbackWrapper = (_, v) => callback(v);
@@ -253,9 +213,6 @@ var api = {
   },
   getRemoteSyncStatus() {
     return import_electron2.ipcRenderer.invoke("get-remote-sync-status");
-  },
-  retryVirtualDriveMount() {
-    return import_electron2.ipcRenderer.invoke("retry-virtual-drive-mount");
   },
   openUrl: (url) => {
     return import_electron2.ipcRenderer.invoke("open-url", url);
@@ -278,11 +235,6 @@ var api = {
     },
     discoveredBackups() {
       import_electron2.ipcRenderer.send("user.set-has-discovered-backups");
-    }
-  },
-  backups: {
-    isAvailable() {
-      return import_electron2.ipcRenderer.invoke("backups:is-available");
     }
   },
   antivirus: {
@@ -311,7 +263,24 @@ var api = {
   path: import_node_path.default,
   authAccess: async (props) => await ipcPreloadRenderer.invoke("authAccess", props),
   authLogin: async (props) => await ipcPreloadRenderer.invoke("authLogin", props),
-  getLastBackupProgress: () => ipcPreloadRenderer.send("getLastBackupProgress"),
-  getUsage: async () => await ipcPreloadRenderer.invoke("getUsage")
+  getLastBackupProgress: async () => await ipcPreloadRenderer.invoke("getLastBackupProgress"),
+  getUsage: async () => await ipcPreloadRenderer.invoke("getUsage"),
+  getAvailableProducts: async () => await ipcPreloadRenderer.invoke("getAvailableProducts"),
+  cleanerGenerateReport: async (props) => await ipcPreloadRenderer.invoke("cleanerGenerateReport", props),
+  cleanerStartCleanup: async (props) => await ipcPreloadRenderer.invoke("cleanerStartCleanup", props),
+  cleanerGetDiskSpace: async () => await ipcPreloadRenderer.invoke("cleanerGetDiskSpace"),
+  cleanerStopCleanup: async () => await ipcPreloadRenderer.invoke("cleanerStopCleanup"),
+  getTheme: async () => await ipcPreloadRenderer.invoke("getTheme"),
+  cleanerOnProgress: (callback) => {
+    const eventName = "cleaner:cleanup-progress";
+    const callbackWrapper = (_, progressData) => callback(progressData);
+    import_electron2.ipcRenderer.on(eventName, callbackWrapper);
+    return () => {
+      import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
+    };
+  },
+  openLogs: async () => await ipcPreloadRenderer.invoke("openLogs"),
+  getLanguage: async () => await ipcPreloadRenderer.invoke("getLanguage"),
+  setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

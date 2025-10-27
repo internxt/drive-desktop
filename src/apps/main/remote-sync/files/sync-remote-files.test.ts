@@ -1,20 +1,19 @@
 import { mockDeep } from 'vitest-mock-extended';
 import { RemoteSyncManager } from '../RemoteSyncManager';
-import { deepMocked } from 'tests/vitest/utils.helper.test';
-import { syncRemoteFile } from './sync-remote-file';
+import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFiles } from './sync-remote-files';
 import { TWorkerConfig } from '../../background-processes/sync-engine/store';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 import { Config } from '@/apps/sync-engine/config';
+import * as createOrUpdateFilesModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 
 vi.mock(import('@/apps/main/util'));
-vi.mock(import('./sync-remote-file'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
 vi.mock(import('@/infra/lokijs/lokijs.module'));
 
 describe('sync-remote-files.service', () => {
-  const syncRemoteFileMock = deepMocked(syncRemoteFile);
+  const createOrUpdateFilesMock = partialSpyOn(createOrUpdateFilesModule, 'createOrUpdateFiles');
   const getFilesMock = deepMocked(driveServerWip.files.getFiles);
   const updateCheckpointMock = vi.mocked(LokijsModule.CheckpointsModule.updateCheckpoint);
 
@@ -74,7 +73,7 @@ describe('sync-remote-files.service', () => {
 
     // Then
     expect(getFilesMock).toHaveBeenCalledTimes(2);
-    expect(syncRemoteFileMock).toHaveBeenCalledTimes(1000);
+    expect(createOrUpdateFilesMock).toHaveBeenCalledTimes(2);
   });
 
   it('If fetch fails, then throw error', async () => {
