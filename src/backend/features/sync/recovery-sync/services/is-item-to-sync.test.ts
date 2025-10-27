@@ -9,8 +9,8 @@ describe('is-item-to-sync', () => {
   beforeEach(() => {
     props = mockProps<typeof isItemToSync>({
       checkpointDate: new Date('2024-01-03'),
-      remote: { uuid: 'uuid' as FileUuid, updatedAt: '2024-01-01' },
-      localsMap: new Map([['uuid' as FileUuid, { uuid: 'uuid' as FileUuid, updatedAt: '2024-01-01' }]]),
+      remote: { uuid: 'uuid' as FileUuid },
+      localsMap: new Map([['uuid' as FileUuid, { updatedAt: '2024-01-01' }]]),
     });
   });
 
@@ -44,7 +44,7 @@ describe('is-item-to-sync', () => {
     calls(loggerMock.error).toMatchObject([{ msg: 'Local item does not exist' }]);
   });
 
-  it('should return true if has different updatedAt', () => {
+  it('should return true if updatedAt is different', () => {
     // Given
     props.remote.updatedAt = '2024-01-02';
     // When
@@ -54,7 +54,9 @@ describe('is-item-to-sync', () => {
     calls(loggerMock.error).toMatchObject([{ msg: 'Local item has a different updatedAt' }]);
   });
 
-  it('should not return item if updatedAt is equal', () => {
+  it('should return false if updatedAt is equal', () => {
+    // Given
+    props.remote.updatedAt = '2024-01-01';
     // When
     const res = isItemToSync(props);
     // Then
