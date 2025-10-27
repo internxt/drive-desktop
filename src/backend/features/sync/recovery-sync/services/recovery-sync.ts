@@ -21,7 +21,7 @@ export async function recoverySync({ ctx }: Props) {
       const fileDtos = await filesRecoverySync({ ctx, offset: filesOffset });
 
       moreFiles = fileDtos.length === FETCH_LIMIT_1000;
-      filesOffset += FETCH_LIMIT_1000 - 1;
+      filesOffset += FETCH_LIMIT_1000;
 
       await sleep(60 * 1000);
     } catch (error) {

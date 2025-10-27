@@ -30,6 +30,6 @@ describe('recovery-sync', () => {
     // When
     await recoverySync(props);
     // Then
-    calls(filesRecoverySyncMock).toMatchObject([{ offset: 0 }, { offset: 999 }]);
+    calls(filesRecoverySyncMock).toMatchObject([{ offset: 0 }, { offset: 1000 }]);
   });
 });

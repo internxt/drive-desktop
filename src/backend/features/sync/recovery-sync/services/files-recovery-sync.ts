@@ -26,7 +26,10 @@ export async function filesRecoverySync({ ctx, offset }: Props) {
     ? await DriveServerWipModule.WorkspaceModule.getFilesInWorkspace({ workspaceId: ctx.workspaceId, query }, extra)
     : await DriveServerWipModule.FileModule.getFiles({ query }, extra);
 
-  if (!remotes) return [];
+  if (!remotes) {
+    ctx.logger.debug({ msg: 'There are no remotes files to run the recovery sync' });
+    return [];
+  }
 
   const locals = await getLocalFiles({ ctx, remotes });
 

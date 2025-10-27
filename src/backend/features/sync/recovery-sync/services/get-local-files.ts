@@ -8,10 +8,7 @@ export async function getLocalFiles({ ctx, remotes }: Props) {
   const first = remotes.at(0);
   const last = remotes.at(-1);
 
-  if (!first || !last) {
-    ctx.logger.debug({ msg: 'There are no remotes files to run the recovery sync' });
-    return;
-  }
+  if (!first || !last) return;
 
   const { data: locals } = await SqliteModule.FileModule.getBetweenUuids({
     workspaceId: ctx.workspaceId,

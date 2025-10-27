@@ -22,7 +22,7 @@ describe('get-items-to-sync', () => {
 
   it('should return empty if not checkpoint', async () => {
     // Given
-    getCheckpointMock.mockResolvedValue({});
+    getCheckpointMock.mockResolvedValue({ data: undefined });
     // When
     const res = await getItemsToSync(props);
     // Then
