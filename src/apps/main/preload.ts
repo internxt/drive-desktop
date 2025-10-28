@@ -17,7 +17,7 @@ import { getBackupsFromDevice } from './device/get-backups-from-device';
 import { ipcPreloadRenderer } from './preload/ipc-renderer';
 import { FromProcess } from './preload/ipc';
 import { CleanupProgress } from '@internxt/drive-desktop-core/build/backend/features/cleaner/types/cleaner.types';
-import { SyncStateItem } from '@/backend/features/local-sync/sync-state/sync-state.meta';
+import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 
 const api = {
   listenToConfigKeyChange<T>(key: StoredValues, fn: (_: T) => void): () => void {

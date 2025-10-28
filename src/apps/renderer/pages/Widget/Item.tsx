@@ -3,7 +3,7 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import { getBaseName, getExtension } from '../../utils/path';
 import { fileIcon } from '../../assets/icons/getIcon';
 import { useI18n } from '../../localize/use-i18n';
-import { SyncStateItem } from '@/backend/features/local-sync/sync-state/sync-state.meta';
+import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 
 export function Item({ name, action, progress }: Readonly<SyncStateItem>) {
   const { translate } = useI18n();

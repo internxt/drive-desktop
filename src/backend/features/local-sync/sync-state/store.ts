@@ -1,4 +1,4 @@
-import { ExtendedSyncStateItem, SyncStateItem } from './sync-state.meta';
+import { ExtendedSyncStateItem, SyncStateItem } from './defs';
 
 type Store = {
   items: Record<SyncStateItem['key'], ExtendedSyncStateItem>;

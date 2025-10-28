@@ -1,6 +1,6 @@
 import { broadcastToWidget } from '@/apps/main/windows';
 import { clearStore, store } from '../store';
-import { ExtendedSyncStateItem, PRIORITIES } from '../sync-state.meta';
+import { ExtendedSyncStateItem, PRIORITIES } from '../defs';
 
 export function getSortedItems(items: ExtendedSyncStateItem[]) {
   return items

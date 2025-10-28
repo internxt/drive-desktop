@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { SyncStateItem } from '@/backend/features/local-sync/sync-state/sync-state.meta';
+import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 
 export function useSyncInfoSubscriber() {
   const [processInfoUpdatedPayload, setProcessInfoUpdatedPayload] = useState<SyncStateItem[]>([]);

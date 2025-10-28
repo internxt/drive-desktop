@@ -3,7 +3,7 @@ import type { RemoteSyncStatus } from '../remote-sync/helpers';
 import type { BackupsStatus } from '../background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import type { BackupsProgress } from '../background-processes/backups/types/BackupsProgress';
 import type { ThemeData } from '@/apps/shared/types/Theme';
-import type { SyncStateItem } from '@/backend/features/local-sync/sync-state/sync-state.meta';
+import type { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 
 export type BroadcastToWidget =
   | { name: 'sync-info-update'; data: SyncStateItem[] }
