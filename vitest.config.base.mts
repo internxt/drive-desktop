@@ -7,7 +7,7 @@ export function getConfigBase(): ViteUserConfig {
     test: {
       coverage: {
         provider: 'istanbul',
-        reporter: ['lcov', 'json-summary'],
+        reporter: ['lcov'],
         reportOnFailure: true,
       },
       clearMocks: true,
