@@ -2,7 +2,9 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { ParsedFileDto } from '@/infra/drive-server-wip/out/dto';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 
-export async function getLocalFiles({ ctx, remotes }: { ctx: SyncContext; remotes: ParsedFileDto[] }) {
+type Props = { ctx: SyncContext; remotes: ParsedFileDto[] };
+
+export async function getLocalFiles({ ctx, remotes }: Props) {
   const first = remotes.at(0);
   const last = remotes.at(-1);
 

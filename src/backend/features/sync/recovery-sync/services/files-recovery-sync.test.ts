@@ -16,12 +16,14 @@ describe('files-recovery-sync', () => {
   const createOrUpdateFilesMock = partialSpyOn(createOrUpdateFilesModule, 'createOrUpdateFiles');
   const updateByUuidMock = partialSpyOn(SqliteModule.FileModule, 'updateByUuid');
 
-  const props = mockProps<typeof filesRecoverySync>({ ctx: {} });
+  const props = mockProps<typeof filesRecoverySync>({
+    ctx: { abortController: new AbortController() },
+  });
 
   beforeEach(() => {
     getFilesMock.mockResolvedValue({ data: [{ uuid: 'uuid' as FileUuid }] });
     getLocalFilesMock.mockResolvedValue([{ uuid: 'uuid' as FileUuid }]);
-    getItemsToSyncMock.mockReturnValue([{ uuid: 'create' as FileUuid }]);
+    getItemsToSyncMock.mockResolvedValue([{ uuid: 'create' as FileUuid }]);
     getDeletedItemsMock.mockReturnValue([{ uuid: 'deleted' as FileUuid, parentUuid: 'parentUuid' }]);
   });
 
