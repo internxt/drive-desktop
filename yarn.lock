@@ -1341,18 +1341,14 @@
   resolved "https://registry.yarnpkg.com/@inquirer/type/-/type-3.0.6.tgz#2500e435fc2014c5250eec3279f42b70b64089bd"
   integrity sha512-/mKVCtVpyBu3IDarv0G+59KC4stsD5mDsGpYh+GKs1NZT88Jh52+cuoA1AtLk2Q0r/quNl+1cSUyLRHBFeD0XA==
 
-"@internxt/drive-desktop-core@^0.1.8":
-  version "0.1.8"
-  resolved "https://registry.yarnpkg.com/@internxt/drive-desktop-core/-/drive-desktop-core-0.1.8.tgz#c38ea9eb15d9a8d27e41733e9cf36776693b85ce"
-  integrity sha512-wDDgXePz9OP628JTVk8ogf/flRHWb+4n5BAZHs+grB3XjAPvsG3RMSrnWMGB5KAkwT7+hcBq0QPQIEU14eLJtA==
+"@internxt/drive-desktop-core@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@internxt/drive-desktop-core/-/drive-desktop-core-0.1.1.tgz#44618bf4a9233d7a370326479769f4ccfffc12c6"
+  integrity sha512-1ar3uiiWBvT/5crB4OOYJXZmOMcS9N8+PZrCXUKqwNFOVx+tN14/6kl9I+0c6WK29wkwC9tp19Qt2KAHwp1g7w==
   dependencies:
-    "@internxt/sdk" "^1.11.10"
-    "@phosphor-icons/react" "2.0.9"
-    "@tanstack/react-virtual" "^3.13.12"
-    check-disk-space "^3.4.0"
+    "@internxt/sdk" "^1.11.1"
     electron-log "^5.4.1"
-    react "^17.0.2"
-    uuid "^13.0.0"
+    zod "^4.0.13"
 
 "@internxt/eslint-config-internxt@^2.0.1":
   version "2.0.1"
@@ -1393,7 +1389,7 @@
     axios "^1.12.2"
     uuid "11.1.0"
 
-"@internxt/sdk@^1.11.10", "@internxt/sdk@^1.11.12":
+"@internxt/sdk@^1.11.1", "@internxt/sdk@^1.11.12":
   version "1.11.12"
   resolved "https://registry.yarnpkg.com/@internxt/sdk/-/sdk-1.11.12.tgz#17077cf244e61406b2183a0b6ea380c944bab030"
   integrity sha512-ubYhtGy5QyM4bLpu2us5QgONjC6VHBT7u2xuh5/MuUV0+F/A+qQlFPf2x7L+TGydGz91JOj10Th+EJ76gS5Rtg==
@@ -12791,11 +12787,6 @@ uuid@11.1.0:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-11.1.0.tgz#9549028be1753bb934fc96e2bca09bb4105ae912"
   integrity sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==
 
-uuid@^13.0.0:
-  version "13.0.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-13.0.0.tgz#263dc341b19b4d755eb8fe36b78d95a6b65707e8"
-  integrity sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==
-
 uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
@@ -13361,3 +13352,8 @@ yoctocolors-cjs@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/yoctocolors-cjs/-/yoctocolors-cjs-2.1.2.tgz#f4b905a840a37506813a7acaa28febe97767a242"
   integrity sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA==
+
+zod@^4.0.13:
+  version "4.1.12"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-4.1.12.tgz#64f1ea53d00eab91853195653b5af9eee68970f0"
+  integrity sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==
