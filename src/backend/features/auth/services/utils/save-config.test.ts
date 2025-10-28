@@ -122,7 +122,6 @@ describe('saveConfig', () => {
 
   it('should retrieve all fields specified in fieldsToSave constant', () => {
     getUserMock.mockReturnValue({ uuid: 'validation-user-uuid' });
-    const allRequiredFields = ['backupsEnabled', 'backupInterval', 'lastBackup', 'syncRoot', 'deviceUuid', 'backupList'];
 
     configGetMock.mockImplementation((key: string) => {
       if (key === 'savedConfigs') return {};
@@ -131,9 +130,9 @@ describe('saveConfig', () => {
 
     saveConfig();
 
-    allRequiredFields.forEach((field) => {
+    fieldsToSave.forEach((field) => {
       expect(configGetMock).toHaveBeenCalledWith(field);
     });
-    expect(configGetMock).toHaveBeenCalledTimes(allRequiredFields.length + 1);
+    expect(configGetMock).toHaveBeenCalledTimes(fieldsToSave.length + 1);
   });
 });

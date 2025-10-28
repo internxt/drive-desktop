@@ -4,12 +4,12 @@ import { BroadcastToWindows } from './windows/broadcast-to-windows';
 
 class EventBus extends EventEmitter {}
 
-interface Events {
+type Events = {
   USER_LOGGED_IN: () => void;
   USER_LOGGED_OUT: () => void;
   ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
   BROADCAST_TO_WINDOWS: (_: BroadcastToWindows) => void;
-}
+};
 
 declare interface EventBus {
   on<U extends keyof Events>(event: U, listener: Events[U]): this;
