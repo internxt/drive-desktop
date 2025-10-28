@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { useTranslationContext } from '../../context/LocalContext';
 import { Section } from './Section';
+import { useI18n } from '../../localize/use-i18n';
 
 function TabPill({ value, name, active, setAsActive }: { value: Section; name: string; active: boolean; setAsActive: () => void }) {
   return (
@@ -17,7 +17,7 @@ function TabPill({ value, name, active, setAsActive }: { value: Section; name: s
 }
 
 export function IssuesTabs({ active, onChangeTab }: { active: Section; onChangeTab: (section: Section) => void }) {
-  const { translate, language } = useTranslationContext();
+  const { translate, language } = useI18n();
   const [tabsWidth, setTabsWidth] = useState<[number, number]>([0, 0]);
 
   useEffect(() => {

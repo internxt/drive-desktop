@@ -9,7 +9,6 @@ import { Config } from '@/apps/sync-engine/config';
 
 export class RemoteSyncManager {
   status: RemoteSyncStatus = 'IDLE';
-  totalFilesUnsynced: string[] = [];
 
   constructor(
     public readonly context: Config,
@@ -20,22 +19,20 @@ export class RemoteSyncManager {
   async startRemoteSync() {
     logger.debug({ msg: 'Starting remote to local sync', workspaceId: this.workspaceId });
 
-    this.totalFilesUnsynced = [];
-
     try {
       const syncFilesPromise = syncRemoteFiles({
         self: this,
         from: await RemoteSyncModule.getCheckpoint({
+          ctx: this.context,
           type: 'file',
-          workspaceId: this.workspaceId,
         }),
       });
 
       const syncFoldersPromise = syncRemoteFolders({
         self: this,
         from: await RemoteSyncModule.getCheckpoint({
+          ctx: this.context,
           type: 'folder',
-          workspaceId: this.workspaceId,
         }),
       });
 

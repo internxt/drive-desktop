@@ -23,10 +23,10 @@ export function migrateSyncRoot({ oldSyncRoot, newSyncRoot }: Props) {
       logger.debug({ msg: 'Migrate old sync root' });
       renameSync(oldSyncRoot, newSyncRoot);
     } else {
-      logger.debug({ msg: 'Old sync root does not exist, skiping' });
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Old sync root does not exist, skiping' });
     }
   } catch (error) {
-    logger.error({ msg: 'Error migrating old sync root', error });
+    logger.error({ tag: 'SYNC-ENGINE', msg: 'Error migrating old sync root', error });
   }
 
   configStore.set('syncRoot', newSyncRoot);

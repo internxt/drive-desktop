@@ -1,8 +1,6 @@
 import { Transition } from '@headlessui/react';
 
 // Finder images
-import { BackupFolder } from '../../components/Backups/BackupsFoldersSelector';
-
 import CleanerLightImageSpanish from '../../assets/onboarding/cleaner/ES-Light.svg';
 import CleanerLightImageFrench from '../../assets/onboarding/cleaner/FR-Light.svg';
 import CleanerLightImageEnglish from '../../assets/onboarding/cleaner/EN-Light.svg';
@@ -25,13 +23,13 @@ import AntivirusDarkImageFrench from '../../assets/onboarding/antivirus/FR-Dark.
 import AntivirusDarkImageEnglish from '../../assets/onboarding/antivirus/EN-Dark.svg';
 
 import { OnboardingImages } from './types';
+import { Language } from '@/apps/main/config/language.types';
+import { Theme } from '@/apps/main/config/theme.types';
 
 export type OnboardingSlideProps = {
   onGoNextSlide: () => void;
   onSkipOnboarding: () => void;
-  onSetupBackups: () => void;
   onFinish: () => void;
-  backupFolders: BackupFolder[];
   currentSlide: number;
   totalSlides: number;
   platform: string;
@@ -77,7 +75,7 @@ export const getDriveImageSvg = (language: string, theme: 'light' | 'dark') => {
   return lang[theme];
 };
 
-export const getAntivirusImageSvg = (language: string, theme: 'light' | 'dark') => {
+export const getAntivirusImageSvg = (language: Language, theme: Theme) => {
   const images: OnboardingImages = {
     es: {
       light: AntivirusLightImageSpanish,

@@ -14,10 +14,10 @@ import { RemoveMalwareState } from './Antivirus/views/RemoveMalwareState';
 import { AntivirusProvider } from '../../context/AntivirusContext';
 import { CleanerModule } from '@internxt/drive-desktop-core/build/frontend';
 import { CleanerProvider } from '../../context/cleaner-context';
-import { useTranslationContext } from '../../context/LocalContext';
 import { useCleaner } from './cleaner/context/use-cleaner';
 import { sectionConfig } from './cleaner/cleaner.config';
 import { useGetAvailableProducts } from '../../api/use-get-available-products';
+import { useI18n } from '../../localize/use-i18n';
 
 export const SHOW_ANTIVIRUS_TOOL = true;
 
@@ -99,7 +99,7 @@ export default function Settings() {
                       isSectionLoading={isAvailableProductsLoading}
                       data-automation-id="itemSettingsCleaner"
                       useCleaner={useCleaner}
-                      useTranslationContext={useTranslationContext}
+                      useTranslationContext={useI18n}
                       openUrl={window.electron.openUrl}
                       sectionConfig={sectionConfig}
                     />

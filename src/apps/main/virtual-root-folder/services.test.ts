@@ -12,8 +12,6 @@ describe('getRootVirtualDrive', () => {
 
   const absolutePath = createAbsolutePath('C:/Users/user/InternxtDrive - uuid');
 
-  beforeEach(() => {});
-
   it('should migrate the syncRoot if it is the old one', () => {
     // Given
     getMock.mockReturnValue(OLD_SYNC_ROOT);

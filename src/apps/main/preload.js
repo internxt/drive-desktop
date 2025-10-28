@@ -33,12 +33,6 @@ var ipcPreloadRenderer = import_electron.ipcRenderer;
 
 // src/apps/main/preload.ts
 var api = {
-  getConfigKey(key) {
-    return import_electron2.ipcRenderer.invoke("get-config-key", key);
-  },
-  setConfigKey(props) {
-    import_electron2.ipcRenderer.send("set-config-key", props);
-  },
   listenToConfigKeyChange(key, fn) {
     const eventName = `${key}-updated`;
     const callback = (_, v) => fn(v);
@@ -49,9 +43,6 @@ var api = {
     debug: (rawBody) => import_backend.logger.debug(rawBody),
     warn: (rawBody) => import_backend.logger.warn(rawBody),
     error: (rawBody) => import_backend.logger.error(rawBody)
-  },
-  pathChanged(pathname) {
-    import_electron2.ipcRenderer.send("path-changed", pathname);
   },
   userLoggedIn(data) {
     import_electron2.ipcRenderer.send("user-logged-in", data);
@@ -172,9 +163,6 @@ var api = {
   addBackup() {
     return import_electron2.ipcRenderer.invoke("add-backup");
   },
-  addBackupsFromLocalPaths(localPaths) {
-    return import_electron2.ipcRenderer.invoke("add-multiple-backups", localPaths);
-  },
   deleteBackup(backup) {
     return import_electron2.ipcRenderer.invoke("delete-backup", backup);
   },
@@ -294,6 +282,8 @@ var api = {
       import_electron2.ipcRenderer.removeListener(eventName, callbackWrapper);
     };
   },
-  openLogs: async () => await ipcPreloadRenderer.invoke("openLogs")
+  openLogs: async () => await ipcPreloadRenderer.invoke("openLogs"),
+  getLanguage: async () => await ipcPreloadRenderer.invoke("getLanguage"),
+  setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props)
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

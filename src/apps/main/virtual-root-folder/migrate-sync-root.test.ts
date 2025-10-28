@@ -16,7 +16,7 @@ describe('migrate-old-sync-root', () => {
   PATHS.HOME_FOLDER_PATH = 'C:/Users/user';
 
   afterEach(() => {
-    call(setMock).toStrictEqual('syncRoot');
+    call(setMock).toStrictEqual(['syncRoot', 'C:/Users/user/InternxtDrive - uuid']);
   });
 
   it('should skip if new sync root folder already exists', () => {
@@ -34,7 +34,7 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toContainEqual({ msg: 'Migrate old sync root' });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate old sync root' }, { msg: 'Migrate old sync root' }]);
     calls(renameSyncMock).toHaveLength(1);
   });
 
@@ -44,6 +44,6 @@ describe('migrate-old-sync-root', () => {
     // When
     migrateSyncRoot(props);
     // Then
-    calls(loggerMock.debug).toContainEqual({ msg: 'Old sync root does not exist, skiping' });
+    calls(loggerMock.debug).toMatchObject([{ msg: 'Check migrate old sync root' }, { msg: 'Old sync root does not exist, skiping' }]);
   });
 });

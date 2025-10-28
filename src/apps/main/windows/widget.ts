@@ -55,13 +55,6 @@ const createWidget = async () => {
     widget = null;
   });
 
-  widget.webContents.on('ipc-message', (_, channel, payload) => {
-    // Current widget pathname
-    if (channel === 'path-changed') {
-      console.log('Renderer navigated to ', payload);
-    }
-  });
-
   await widgetLoaded;
 };
 

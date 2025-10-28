@@ -2,10 +2,10 @@ import { logger } from '@/apps/shared/logger/logger';
 import { fileRepository } from '../drive-file';
 import { SingleItemError } from '../common/single-item-error';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { DriveFile } from '@/apps/main/database/entities/DriveFile';
+import { DriveFile, FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 type Props = {
-  uuid: string;
+  uuid: FileUuid;
   payload: {
     name?: string;
     extension?: string;
