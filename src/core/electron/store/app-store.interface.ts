@@ -12,15 +12,10 @@ export interface AppStore {
   backupInterval: number;
   lastBackup: number;
   syncRoot: string;
-  lastSync: number;
   savedConfigs: Record<string, Pick<AppStore, (typeof fieldsToSave)[number]>>;
   lastOnboardingShown: string;
-  deviceId: number;
   deviceUuid: string;
   backupList: Record<string, { enabled: boolean; folderId: number; folderUuid: string }>;
-  clientId: string;
   preferedLanguage?: Language;
   preferedTheme?: ConfigTheme;
-  virtualdriveWindowsLetter: string;
-  dataIntegrityMaintenance?: boolean;
 }
