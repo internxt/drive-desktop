@@ -8,11 +8,3 @@ function typedCheck(input: string, prefix: FilePlaceholderIdPrefixType = 'FILE:'
 export function isFilePlaceholderId(input: string): input is FilePlaceholderId {
   return typedCheck(input);
 }
-
-function typedCreate(id: string, prefix: FilePlaceholderIdPrefixType = 'FILE:'): FilePlaceholderId {
-  return (prefix + id) as FilePlaceholderId;
-}
-
-export function createFilePlaceholderId(id: string): FilePlaceholderId {
-  return typedCreate(id);
-}

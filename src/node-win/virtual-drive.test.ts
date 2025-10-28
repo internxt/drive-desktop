@@ -23,7 +23,6 @@ describe('VirtualDrive', () => {
 
   beforeEach(() => {
     addonMock.addLoggerPath.mockReturnValue(true);
-    addonMock.createEntry.mockReturnValue({ success: true });
   });
 
   describe('When convertToWindowsPath is called', () => {
@@ -85,7 +84,7 @@ describe('VirtualDrive', () => {
 
       // When
       drive.createFileByPath({
-        itemId: 'FILE:uuid',
+        placeholderId: 'FILE:uuid',
         itemPath: createRelativePath('folder1', 'folder2', 'file.txt'),
         creationTime,
         lastWriteTime,
@@ -93,7 +92,7 @@ describe('VirtualDrive', () => {
       });
 
       // Then
-      call(addon.createPlaceholderFile).toStrictEqual([
+      call(addon.createFilePlaceholder).toStrictEqual([
         'file.txt',
         'FILE:uuid',
         1024,
@@ -114,14 +113,14 @@ describe('VirtualDrive', () => {
 
       // When
       drive.createFolderByPath({
-        itemId: 'FOLDER:uuid',
+        placeholderId: 'FOLDER:uuid',
         itemPath: createRelativePath('folder1', 'folder2'),
         creationTime,
         lastWriteTime,
       });
 
       // Then
-      call(addon.createEntry).toStrictEqual([
+      call(addon.createFolderPlaceholder).toStrictEqual([
         'folder2',
         'FOLDER:uuid',
         946684800000,

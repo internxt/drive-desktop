@@ -20,12 +20,12 @@ export async function onAddDir({ ctx, absolutePath }: TProps) {
     const { data: uuid } = NodeWin.getFolderUuid({ ctx, path });
 
     if (!uuid) {
-      await createFolder({ ctx, path, absolutePath });
+      await createFolder({ ctx, path });
       return;
     }
 
     trackAddFolderEvent({ uuid });
-    await moveFolder({ ctx, path, absolutePath, uuid });
+    await moveFolder({ ctx, path, uuid });
   } catch (error) {
     ctx.logger.error({ msg: 'Error on event "addDir"', error });
   }
