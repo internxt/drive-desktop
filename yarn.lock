@@ -1329,14 +1329,18 @@
   resolved "https://registry.yarnpkg.com/@inquirer/type/-/type-3.0.6.tgz#2500e435fc2014c5250eec3279f42b70b64089bd"
   integrity sha512-/mKVCtVpyBu3IDarv0G+59KC4stsD5mDsGpYh+GKs1NZT88Jh52+cuoA1AtLk2Q0r/quNl+1cSUyLRHBFeD0XA==
 
-"@internxt/drive-desktop-core@0.1.1":
-  version "0.1.1"
-  resolved "https://npm.pkg.github.com/download/@internxt/drive-desktop-core/0.1.1/44618bf4a9233d7a370326479769f4ccfffc12c6#44618bf4a9233d7a370326479769f4ccfffc12c6"
-  integrity sha512-1ar3uiiWBvT/5crB4OOYJXZmOMcS9N8+PZrCXUKqwNFOVx+tN14/6kl9I+0c6WK29wkwC9tp19Qt2KAHwp1g7w==
+"@internxt/drive-desktop-core@0.1.7":
+  version "0.1.7"
+  resolved "https://npm.pkg.github.com/download/@internxt/drive-desktop-core/0.1.7/40157e3392ad13ff1c52de20fece450d0fa68801#40157e3392ad13ff1c52de20fece450d0fa68801"
+  integrity sha512-XzuQ/oqBUrzLP55mjUXjS/KwGidsON3IWqWO/dMGytnRz38Bb2I9Lt4Iw2hM69+AMX1psFwTEE5/uDxXHY4tRQ==
   dependencies:
-    "@internxt/sdk" "^1.11.1"
+    "@internxt/sdk" "^1.11.10"
+    "@phosphor-icons/react" "2.0.9"
+    "@tanstack/react-virtual" "^3.13.12"
+    check-disk-space "^3.4.0"
     electron-log "^5.4.1"
-    zod "^4.0.13"
+    react "^17.0.2"
+    uuid "^13.0.0"
 
 "@internxt/eslint-config-internxt@^1.0.9":
   version "1.0.9"
@@ -1391,12 +1395,12 @@
     query-string "^7.1.0"
     uuid "^8.3.2"
 
-"@internxt/sdk@^1.11.1":
-  version "1.11.4"
-  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.11.4/fdf31a68ba6a102f5a58057f647eb00d2b62d64b#fdf31a68ba6a102f5a58057f647eb00d2b62d64b"
-  integrity sha512-uFVl/5khHQ2t3G2JSHwpcEpqvHgi4U6yUcu8y57mORvH0/UC4nlI/5lVIKdCng2mnOATjx9DngbjdEgWaDgdsA==
+"@internxt/sdk@^1.11.10":
+  version "1.11.12"
+  resolved "https://npm.pkg.github.com/download/@internxt/sdk/1.11.12/8209f1d9f40b0df98a72d4ac939390c5a197284e#8209f1d9f40b0df98a72d4ac939390c5a197284e"
+  integrity sha512-epScwHI0A0mtEHsy/8YR3o7z+FPSXlyKDDh0v60KVuyNf8Pz+GbZr0E1dewzg9Ub3OVgC43WYY5E0cf0hWMt4Q==
   dependencies:
-    axios "1.11.0"
+    axios "^1.12.2"
     uuid "11.1.0"
 
 "@isaacs/cliui@^8.0.2":
@@ -3970,15 +3974,6 @@ axios@1.10.0:
     form-data "^4.0.0"
     proxy-from-env "^1.1.0"
 
-axios@1.11.0:
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-1.11.0.tgz#c2ec219e35e414c025b2095e8b8280278478fdb6"
-  integrity sha512-1Lx3WLFQWm3ooKDYZD1eXmoGO9fxYQjrycfHFC8P0sCfQVXyROp0p9PFWBehewBOdCwHc+f/b8I0fMto5eSfwA==
-  dependencies:
-    follow-redirects "^1.15.6"
-    form-data "^4.0.4"
-    proxy-from-env "^1.1.0"
-
 axios@^0.24.0:
   version "0.24.0"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.24.0.tgz#804e6fa1e4b9c5288501dd9dff56a7a0940d20d6"
@@ -3993,6 +3988,15 @@ axios@^1.1.3:
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
+axios@^1.12.2:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.13.0.tgz#ead6f495f41f9c8869dcf7b0f24f5a4ab89707f0"
+  integrity sha512-zt40Pz4zcRXra9CVV31KeyofwiNvAbJ5B6YPz9pMJ+yOSLikvPT4Yi5LjfgjRa9CawVYBaD1JQzIVcIvBejKeA==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.4"
     proxy-from-env "^1.1.0"
 
 axobject-query@^3.1.1, axobject-query@^3.2.1:
@@ -12659,6 +12663,11 @@ uuid@11.1.0:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-11.1.0.tgz#9549028be1753bb934fc96e2bca09bb4105ae912"
   integrity sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==
 
+uuid@^13.0.0:
+  version "13.0.0"
+  resolved "https://registry.yarnpkg.com/uuid/-/uuid-13.0.0.tgz#263dc341b19b4d755eb8fe36b78d95a6b65707e8"
+  integrity sha512-XQegIaBTVUjSHliKqcnFqYypAd4S+WCYt5NIeRs6w/UAry7z8Y9j5ZwRRL4kzq9U3sD6v+85er9FvkEaBpji2w==
+
 uuid@^8.3.2:
   version "8.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
@@ -13224,8 +13233,3 @@ yoctocolors-cjs@^2.1.2:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/yoctocolors-cjs/-/yoctocolors-cjs-2.1.2.tgz#f4b905a840a37506813a7acaa28febe97767a242"
   integrity sha512-cYVsTjKl8b+FrnidjibDWskAv7UKOfcwaVZdp/it9n1s9fU3IkgDbhdIRKCW4JDsAlECJY0ytoVPT3sK6kideA==
-
-zod@^4.0.13:
-  version "4.1.5"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-4.1.5.tgz#7a21fc3178928ede50a28f7d0db4414c4cdb0161"
-  integrity sha512-rcUUZqlLJgBC33IT3PNMgsCq6TzLQEG/Ei/KTCU0PedSWRMAXoOUN+4t/0H+Q8bdnLPdqUYnvboJT0bn/229qg==
