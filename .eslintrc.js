@@ -1,10 +1,11 @@
 module.exports = {
   extends: ['@internxt/eslint-config-internxt'],
+  ignorePatterns: ['src/infra/schemas.d.ts'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
       parserOptions: {
-        project: ['./tsconfig.json'],
+        project: ['./tsconfig.json', './tsconfig.test.json'],
       },
       env: {
         jest: true,

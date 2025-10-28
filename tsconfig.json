@@ -44,5 +44,9 @@
     "src/workers/backups",
     "src/workers/filesystems",
   ],
-  "include": ["src"]
+  "include": [
+    "src",
+    "*.d.ts",
+    "assets/**/*.d.ts"
+  ]
 }

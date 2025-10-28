@@ -14,7 +14,8 @@
   },
   "include": [
     "src/**/*",
-    "src/types/**/*"
+    "src/types/**/*",
+    "tests/**/*"
   ],
   "exclude": [
     "__mock__"
