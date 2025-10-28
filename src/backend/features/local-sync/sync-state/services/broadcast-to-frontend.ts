@@ -1,8 +1,8 @@
 import { broadcastToWidget } from '@/apps/main/windows';
 import { clearStore, store } from '../store';
-import { ExtendedSyncStateItem, PRIORITIES } from '../defs';
+import { ExtendedSyncStateItem, PRIORITIES, SyncStateItem } from '../defs';
 
-export function getSortedItems(items: ExtendedSyncStateItem[]) {
+export function getSortedItems(items: ExtendedSyncStateItem[]): SyncStateItem[] {
   return items
     .toSorted((a, b) => {
       const priorityDiff = PRIORITIES[a.action] - PRIORITIES[b.action];
