@@ -14,12 +14,11 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
-          registry-url: 'https://npm.pkg.github.com'
-            
+          node-version: 18
+
       - run: echo "registry=https://registry.yarnpkg.com/" > .npmrc
       - run: echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
       # You cannot read packages from other private repos with GITHUB_TOKEN
