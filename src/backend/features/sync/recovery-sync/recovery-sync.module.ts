@@ -1,4 +1,4 @@
-import { recoverySync } from './services/recovery-sync';
+import { recoverySync } from './common/recovery-sync';
 
 export const RecoverySyncModule = {
   recoverySync,
