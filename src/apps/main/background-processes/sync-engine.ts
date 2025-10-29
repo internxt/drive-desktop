@@ -33,7 +33,7 @@ ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
 
 export function updateSyncEngine(workspaceId: string) {
   try {
-    const browserWindow = workers[workspaceId]?.worker;
+    const { browserWindow } = workers[workspaceId];
     if (browserWindow && !browserWindow.isDestroyed() && !browserWindow.webContents.isDestroyed()) {
       browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
     }

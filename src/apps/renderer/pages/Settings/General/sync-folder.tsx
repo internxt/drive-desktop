@@ -6,11 +6,11 @@ export function SyncFolder() {
   const [syncRoot, setSyncRoot] = useState('');
 
   useEffect(() => {
-    void window.electron.getSyncRoot().then(setSyncRoot);
+    void window.electron.driveGetSyncRoot().then(setSyncRoot);
   }, []);
 
   async function handleChangeFolder() {
-    const newPath = await window.electron.chooseSyncRootWithDialog();
+    const newPath = await window.electron.driveChooseSyncRootWithDialog();
     if (newPath) {
       setSyncRoot(newPath);
     }

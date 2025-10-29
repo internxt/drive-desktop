@@ -21,7 +21,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
 
   if (!workers[workspaceId]) {
     workers[workspaceId] = {
-      worker: null,
       browserWindow: null,
       workerIsRunning: false,
       startingWorker: false,
@@ -84,7 +83,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     });
 
     worker.startingWorker = true;
-    worker.worker = browserWindow;
     worker.browserWindow = browserWindow;
     worker.providerId = ctx.providerId;
 

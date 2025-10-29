@@ -52,9 +52,6 @@ const api = {
   minimizeWindow() {
     ipcRenderer.send('user-minimized-window');
   },
-  openVirtualDriveFolder(): Promise<void> {
-    return ipcRenderer.invoke('open-virtual-drive-folder');
-  },
   quit() {
     ipcRenderer.send('user-quit');
   },
@@ -123,12 +120,6 @@ const api = {
     const callback = (_: unknown, v: BackupsStatus) => func(v);
     ipcRenderer.on(eventName, callback);
     return () => ipcRenderer.removeListener(eventName, callback);
-  },
-  chooseSyncRootWithDialog(): ReturnType<typeof chooseSyncRootWithDialog> {
-    return ipcRenderer.invoke('choose-sync-root-with-dialog');
-  },
-  getSyncRoot(): Promise<string> {
-    return ipcRenderer.invoke('get-sync-root');
   },
   getOrCreateDevice(): ReturnType<typeof getOrCreateDevice> {
     return ipcRenderer.invoke('get-or-create-device');
@@ -291,6 +282,9 @@ const api = {
   openLogs: async () => await ipcPreloadRenderer.invoke('openLogs'),
   getLanguage: async () => await ipcPreloadRenderer.invoke('getLanguage'),
   setConfigKey: async (props) => await ipcPreloadRenderer.invoke('setConfigKey', props),
+  driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke('driveGetSyncRoot'),
+  driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke('driveChooseSyncRootWithDialog'),
+  driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke('driveOpenSyncRootFolder'),
 } satisfies FromProcess & Record<string, unknown>;
 
 contextBridge.exposeInMainWorld('electron', api);

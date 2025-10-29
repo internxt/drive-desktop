@@ -13,7 +13,7 @@ export async function stopAndClearSyncEngineWorker({ workspaceId }: TProps) {
 
   if (worker && !worker.workerIsRunning) {
     logger.debug({ msg: '[MAIN] Sync engine worker was not running', workspaceId });
-    worker.worker?.destroy();
+    worker.browserWindow?.destroy();
     delete workers[workspaceId];
     return;
   }
@@ -35,7 +35,7 @@ export async function stopAndClearSyncEngineWorker({ workspaceId }: TProps) {
   });
 
   try {
-    worker.worker?.webContents.send('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
+    worker.browserWindow?.webContents.send('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
     await response;
   } catch (exc) {
     logger.error({
@@ -44,8 +44,8 @@ export async function stopAndClearSyncEngineWorker({ workspaceId }: TProps) {
       exc,
     });
   } finally {
-    worker.worker?.destroy();
+    worker.browserWindow?.destroy();
     worker.workerIsRunning = false;
-    worker.worker = null;
+    worker.browserWindow = null;
   }
 }
