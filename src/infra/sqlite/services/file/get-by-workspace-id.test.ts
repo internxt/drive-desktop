@@ -34,7 +34,7 @@ describe('get-by-workspace-id', () => {
     expect(data).toBeDefined();
     expect(findBy).toBeCalledWith({
       userUuid: 'userUuid',
-      workspaceId: 'uuid',
+      workspaceId: 'workspaceId',
     });
   });
 });
