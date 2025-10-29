@@ -1,5 +1,6 @@
 module.exports = {
   extends: ['@internxt/eslint-config-internxt'],
+  ignorePatterns: ['src/infra/schemas.d.ts'],
   overrides: [
     {
       files: ['*.ts', '*.tsx'],
