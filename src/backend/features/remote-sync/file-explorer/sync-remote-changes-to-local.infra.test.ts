@@ -87,7 +87,7 @@ describe('sync-remote-changes-to-local', () => {
       { msg: 'Registering sync root', syncRootPath: rootPath },
       { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },
       { msg: 'onReady' },
-      { msg: 'Convert to placeholder succeeded', itemPath: filePath, id: 'FILE:uuid' },
+      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: filePath, id: 'FILE:uuid' },
       {
         tag: 'SYNC-ENGINE',
         msg: 'Syncing remote changes to local',
