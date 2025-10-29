@@ -6,9 +6,9 @@ import { logger } from '@/apps/shared/logger/logger';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { migrateSyncRoot } from './migrate-sync-root';
 import { PATHS } from '@/core/electron/paths';
-import { workers } from '../background-processes/sync-engine/store';
 import VirtualDrive from '@/node-win/virtual-drive';
-import { sleep } from '../util';
+import { workers } from '../remote-sync/store';
+import { stopSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
 
 export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
@@ -44,21 +44,16 @@ export async function chooseSyncRootWithDialog() {
   if (newSyncRoot === oldSyncRoot) return;
 
   try {
-    const worker = workers[''];
+    const worker = workers.get('');
 
-    if (worker && worker.browserWindow && worker.providerId) {
-      const pid = worker.browserWindow.webContents.getOSProcessId();
+    if (worker) {
+      const { ctx } = worker;
 
-      logger.debug({
-        tag: 'SYNC-ENGINE',
-        msg: 'Kill sync engine worker',
-        pid,
-        providerId: worker.providerId,
-      });
+      stopSyncEngineWorker({ worker });
+      VirtualDrive.unregisterSyncRoot({ providerId: ctx.providerId });
 
-      process.kill(pid);
-      await sleep(2000);
-      VirtualDrive.unregisterSyncRoot({ providerId: worker.providerId });
+      // process.kill(pid);
+      // await sleep(2000);
     }
   } catch (error) {
     logger.error({ msg: 'Error stopping sync engine worker', error });

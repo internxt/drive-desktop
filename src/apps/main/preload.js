@@ -65,9 +65,6 @@ var api = {
   minimizeWindow() {
     import_electron2.ipcRenderer.send("user-minimized-window");
   },
-  openVirtualDriveFolder() {
-    return import_electron2.ipcRenderer.invoke("open-virtual-drive-folder");
-  },
   quit() {
     import_electron2.ipcRenderer.send("user-quit");
   },
@@ -136,12 +133,6 @@ var api = {
     const callback = (_, v) => func(v);
     import_electron2.ipcRenderer.on(eventName, callback);
     return () => import_electron2.ipcRenderer.removeListener(eventName, callback);
-  },
-  chooseSyncRootWithDialog() {
-    return import_electron2.ipcRenderer.invoke("choose-sync-root-with-dialog");
-  },
-  getSyncRoot() {
-    return import_electron2.ipcRenderer.invoke("get-sync-root");
   },
   getOrCreateDevice() {
     return import_electron2.ipcRenderer.invoke("get-or-create-device");
@@ -229,9 +220,6 @@ var api = {
   getUnsycFileInSyncEngine() {
     return import_electron2.ipcRenderer.invoke("GET_UNSYNC_FILE_IN_SYNC_ENGINE");
   },
-  getRecentlywasSyncing() {
-    return import_electron2.ipcRenderer.invoke("CHECK_SYNC_IN_PROGRESS");
-  },
   user: {
     hasDiscoveredBackups() {
       return import_electron2.ipcRenderer.invoke("user.get-has-discovered-backups");
@@ -284,6 +272,9 @@ var api = {
   },
   openLogs: async () => await ipcPreloadRenderer.invoke("openLogs"),
   getLanguage: async () => await ipcPreloadRenderer.invoke("getLanguage"),
-  setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props)
+  setConfigKey: async (props) => await ipcPreloadRenderer.invoke("setConfigKey", props),
+  driveGetSyncRoot: async () => await ipcPreloadRenderer.invoke("driveGetSyncRoot"),
+  driveChooseSyncRootWithDialog: async () => await ipcPreloadRenderer.invoke("driveChooseSyncRootWithDialog"),
+  driveOpenSyncRootFolder: async () => await ipcPreloadRenderer.invoke("driveOpenSyncRootFolder")
 };
 import_electron2.contextBridge.exposeInMainWorld("electron", api);

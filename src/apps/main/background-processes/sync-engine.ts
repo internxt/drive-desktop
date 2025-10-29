@@ -1,10 +1,7 @@
-import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
-import { workers } from './sync-engine/store';
 import { getUserOrThrow } from '../auth/service';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
-import { stopAndClearSyncEngineWorker } from './sync-engine/services/stop-and-clear-sync-engine-worker';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
@@ -12,43 +9,17 @@ import { getWorkspaces } from './sync-engine/services/get-workspaces';
 import { PATHS } from '@/core/electron/paths';
 import { join } from 'node:path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
-import { createLogger, logger } from '@/apps/shared/logger/logger';
+import { createLogger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
-
-ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', (event, workspaceId = '') => {
-  logger.debug({ msg: 'SYNC ENGINE RUNNING', workspaceId });
-  if (workers[workspaceId]) {
-    workers[workspaceId].workerIsRunning = true;
-    workers[workspaceId].startingWorker = false;
-  }
-});
-
-ipcMain.on('SYNC_ENGINE_PROCESS_SETUP_FAILED', (event, workspaceId) => {
-  logger.debug({ msg: 'SYNC ENGINE FAILED', workspaceId });
-  if (workers[workspaceId]) {
-    workers[workspaceId].workerIsRunning = false;
-    workers[workspaceId].startingWorker = false;
-  }
-});
+import { workers } from '../remote-sync/store';
+import { stopSyncEngineWorkers } from './sync-engine/services/stop-sync-engine-worker';
 
 export function updateSyncEngine(workspaceId: string) {
-  try {
-    const { browserWindow } = workers[workspaceId];
-    if (browserWindow && !browserWindow.isDestroyed() && !browserWindow.webContents.isDestroyed()) {
-      browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
-    }
-  } catch (err) {
-    logger.error({ msg: 'Error updating sync engine', error: err });
+  const worker = workers.get(workspaceId);
+  if (worker) {
+    worker.browserWindow.webContents.send('UPDATE_SYNC_ENGINE_PROCESS');
   }
 }
-
-export const stopAndClearAllSyncEngineWatcher = async () => {
-  await Promise.all(
-    Object.keys(workers).map(async (workspaceId) => {
-      await stopAndClearSyncEngineWorker({ workspaceId });
-    }),
-  );
-};
 
 export async function spawnSyncEngineWorkers({ context }: { context: AuthContext }) {
   const user = getUserOrThrow();
@@ -81,4 +52,4 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
   await Promise.all([spawnSyncEngineWorker({ ctx: syncContext }), promises]);
 }
 
-eventBus.on('USER_LOGGED_OUT', stopAndClearAllSyncEngineWatcher);
+eventBus.on('USER_LOGGED_OUT', stopSyncEngineWorkers);

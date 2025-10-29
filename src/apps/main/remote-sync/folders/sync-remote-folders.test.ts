@@ -3,7 +3,6 @@ import { RemoteSyncManager } from '../RemoteSyncManager';
 import { deepMocked, partialSpyOn } from 'tests/vitest/utils.helper.test';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { syncRemoteFolders } from './sync-remote-folders';
-import { TWorkerConfig } from '../../background-processes/sync-engine/store';
 import { LokijsModule } from '@/infra/lokijs/lokijs.module';
 import { Config } from '@/apps/sync-engine/config';
 import * as createOrUpdateFoldersModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-folder';
@@ -19,8 +18,7 @@ describe('sync-remote-folders.service', () => {
 
   const config = mockDeep<Config>();
   config.userUuid = 'uuid';
-  const worker = mockDeep<TWorkerConfig>();
-  const remoteSyncManager = new RemoteSyncManager(config, worker, '');
+  const remoteSyncManager = new RemoteSyncManager(config, '');
 
   it('If we fetch less than 1000 files, then do not fetch again', async () => {
     // Given

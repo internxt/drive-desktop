@@ -207,9 +207,6 @@ const api = {
   getUnsycFileInSyncEngine(): Promise<string[]> {
     return ipcRenderer.invoke('GET_UNSYNC_FILE_IN_SYNC_ENGINE');
   },
-  getRecentlywasSyncing(): Promise<boolean> {
-    return ipcRenderer.invoke('CHECK_SYNC_IN_PROGRESS');
-  },
   user: {
     hasDiscoveredBackups(): Promise<boolean> {
       return ipcRenderer.invoke('user.get-has-discovered-backups');
