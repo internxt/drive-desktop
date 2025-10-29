@@ -9,7 +9,7 @@ type TProps = {
 
 export function getFolderUuid({ ctx, path }: TProps) {
   if (path === '/' || path === ctx.virtualDrive.syncRootPath || `${path}\\` === ctx.virtualDrive.syncRootPath) {
-    return { data: ctx.rootUuid as FolderUuid };
+    return { data: ctx.rootUuid };
   }
 
   const identity = getFolderIdentity({ drive: ctx.virtualDrive, path });
