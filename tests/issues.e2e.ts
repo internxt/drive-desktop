@@ -17,6 +17,9 @@ import { DEFAULT_LANGUAGE } from '../src/apps/shared/Locale/Language';
 import { FatalError } from '../src/shared/issues/FatalError';
 import { SyncError } from '../src/shared/issues/SyncErrorCause';
 import { AppIssue } from '../src/shared/issues/AppIssue';
+import { setIsLoggedIn } from 'src/apps/main/auth/handlers';
+import { setCredentials } from 'src/apps/main/auth/service';
+import { User } from 'src/apps/main/types';
 
 const activeTabSelector = 'button.text-neutral-500';
 const tabSelector = (name: 'Sync' | 'Backups' | 'General') =>
@@ -59,7 +62,13 @@ test.describe('process issues', () => {
       },
     });
 
-    await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
+    await setCredentials(
+      AccessResponseFixtures.user.mnemonic,
+      AccessResponseFixtures.token,
+      AccessResponseFixtures.newToken,
+      AccessResponseFixtures.user as User
+    );
+    setIsLoggedIn(true);
     await ipcMainCallFirstListener(electronApp, 'set-config-key', {
       key: 'preferedLanguage',
       value: DEFAULT_LANGUAGE,

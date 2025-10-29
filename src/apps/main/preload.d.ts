@@ -45,10 +45,6 @@ declare interface Window {
 
     userIsUnauthorized(): void;
 
-    userLoggedIn(
-      data: import('../renderer/pages/Login/service').AccessResponse
-    ): void;
-
     isUserLoggedIn(): Promise<boolean>;
 
     checkInternetConnection(): Promise<boolean>;

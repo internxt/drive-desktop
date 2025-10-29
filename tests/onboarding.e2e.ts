@@ -1,9 +1,12 @@
 import { ElectronApplication, expect, Page, test } from '@playwright/test';
 import { ipcMainEmit } from 'electron-playwright-helpers';
 import { _electron as electron } from 'playwright';
+import { setCredentials } from 'src/apps/main/auth/service';
+import { setIsLoggedIn } from 'src/apps/main/auth/handlers';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
 import { wait } from './utils';
+import { User } from 'src/apps/main/types';
 
 test.describe('onboarding', () => {
   let electronApp: ElectronApplication;
@@ -13,8 +16,13 @@ test.describe('onboarding', () => {
     electronApp = await electron.launch({
       args: ['release/app/dist/main/main.js'],
     });
-
-    await ipcMainEmit(electronApp, 'user-logged-in', AccessResponseFixtures);
+    await setCredentials(
+      AccessResponseFixtures.user.mnemonic,
+      AccessResponseFixtures.token,
+      AccessResponseFixtures.newToken,
+      AccessResponseFixtures.user as User
+    );
+    setIsLoggedIn(true);
   });
 
   test.describe('onboarding window', () => {

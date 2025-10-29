@@ -1,8 +1,12 @@
 import { ElectronApplication, expect, test } from '@playwright/test';
 import { ipcMainEmit, ipcMainInvokeHandler } from 'electron-playwright-helpers';
 import { _electron as electron } from 'playwright';
+import { setCredentials } from 'src/apps/main/auth/service';
+import { setIsLoggedIn } from 'src/apps/main/auth/handlers'; 
+import { User } from 'src/apps/main/types';
 
 import AccessResponseFixtures from './fixtures/AccessResponse.json';
+import { set } from 'lodash';
 
 test.describe('user gets unauthorized', () => {
   let electronApp: ElectronApplication;
@@ -11,6 +15,13 @@ test.describe('user gets unauthorized', () => {
     electronApp = await electron.launch({
       args: ['release/app/dist/main/main.js'],
     });
+    await setCredentials(
+      'invalid token',
+      'invalid token',
+      'invalid refresh token',
+      AccessResponseFixtures.user as User
+    );
+    setIsLoggedIn(true);
   });
 
   test('app is defined', () => {
@@ -18,11 +29,6 @@ test.describe('user gets unauthorized', () => {
   });
 
   test('user is logged in right after credentials are set', async () => {
-    await ipcMainEmit(electronApp, 'user-logged-in', {
-      ...AccessResponseFixtures,
-      token: 'invalid token',
-      newToken: 'invalid token',
-    });
     const isLoggedIn = await ipcMainInvokeHandler(
       electronApp,
       'is-user-logged-in'
@@ -31,11 +37,6 @@ test.describe('user gets unauthorized', () => {
   });
 
   test('when a http request is made with invalid token is gets unauthorized', async () => {
-    await ipcMainEmit(electronApp, 'user-logged-in', {
-      ...AccessResponseFixtures,
-      token: 'invalid token',
-      newToken: 'invalid token',
-    });
     const isLoggedInBefore = await ipcMainInvokeHandler(
       electronApp,
       'is-user-logged-in'
