@@ -17,6 +17,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
 import { buildProcessContainer } from '../build-process-container';
+import { PinState } from '@/node-win/types/placeholder.type';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -140,7 +141,7 @@ describe('create-placeholder', () => {
       {
         msg: 'Change event triggered',
         path: '/file.txt',
-        pinState: 1,
+        pinState: PinState.Unspecified,
         diff: { ctimeMs: { curr: expect.any(Number), prev: expect.any(Number) } },
       },
     ]);

@@ -152,6 +152,7 @@ export class VirtualDrive {
   convertToPlaceholder({ itemPath, id }: { itemPath: string; id: FilePlaceholderId | FolderPlaceholderId }) {
     try {
       this.addon.convertToPlaceholder({ path: this.fixPath(itemPath), id });
+      logger.debug({ tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath, id });
     } catch (error) {
       logger.error({ tag: 'SYNC-ENGINE', msg: 'Error converting to placeholder', itemPath, error });
     }
