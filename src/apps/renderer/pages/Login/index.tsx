@@ -30,15 +30,12 @@ export default function Login() {
     <div className="relative flex h-screen flex-col overflow-hidden bg-surface dark:bg-gray-1">
       <WindowTopBar className="bg-surface dark:bg-gray-1" />
 
-      {/* Main content centered */}
       <div className="flex flex-1 items-center justify-center px-8">
         <div className="flex flex-col items-center justify-center space-y-4 max-w-xs w-full">
-          {/* Welcome title */}
           <h1 className="text-3xl font-normal text-gray-900 text-center leading-tight mb-2">
             {translate('login.welcome') || 'Bienvenido a Internxt'}
           </h1>
 
-          {/* Sign in with browser button */}
           <Button
             type="button"
             variant="primary"
@@ -51,10 +48,8 @@ export default function Login() {
             {translate('login.action.sign-in-browser') || 'Inicia sesión con el navegador'}
           </Button>
 
-          {/* Divider line */}
           <div className="w-full border-t border-gray-300 my-4" />
 
-          {/* Create account link */}
           <div className="text-center">
             <span className="text-base text-gray-700">
               {translate('login.no-account') || '¿No tienes cuenta?'}
