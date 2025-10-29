@@ -7,6 +7,7 @@ type Props = FileProps | FolderProps;
 
 export async function getItemsToSync(props: FolderProps): Promise<ParsedFolderDto[]>;
 export async function getItemsToSync(props: FileProps): Promise<ParsedFileDto[]>;
+
 export async function getItemsToSync({ ctx, type, remotes, locals }: Props) {
   const { data: checkpoint } = await CheckpointsModule.getCheckpoint({
     userUuid: ctx.userUuid,

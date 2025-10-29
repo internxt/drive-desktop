@@ -6,16 +6,18 @@ import { Between } from 'typeorm';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 type Props = {
+  userUuid: string;
   workspaceId: string;
   firstUuid: FileUuid;
   lastUuid: FileUuid;
 };
 
-export async function getBetweenUuids({ workspaceId, firstUuid, lastUuid }: Props) {
+export async function getBetweenUuids({ userUuid, workspaceId, firstUuid, lastUuid }: Props) {
   try {
     const items = await fileRepository.find({
       order: { uuid: 'ASC' },
       where: {
+        userUuid,
         workspaceId,
         status: 'EXISTS',
         uuid: Between(firstUuid, lastUuid),

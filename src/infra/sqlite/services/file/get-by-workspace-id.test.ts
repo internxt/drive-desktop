@@ -7,7 +7,10 @@ describe('get-by-workspace-id', () => {
   const findBy = partialSpyOn(fileRepository, 'findBy');
   const fileDecryptNameSpy = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
-  const props = mockProps<typeof getByWorkspaceId>({ workspaceId: 'uuid' });
+  const props = mockProps<typeof getByWorkspaceId>({
+    userUuid: 'userUuid',
+    workspaceId: 'workspaceId',
+  });
 
   beforeEach(() => {
     fileDecryptNameSpy.mockResolvedValue({});
@@ -29,6 +32,9 @@ describe('get-by-workspace-id', () => {
     const { data } = await getByWorkspaceId(props);
     // Then
     expect(data).toBeDefined();
-    expect(findBy).toBeCalledWith({ workspaceId: 'uuid' });
+    expect(findBy).toBeCalledWith({
+      userUuid: 'userUuid',
+      workspaceId: 'uuid',
+    });
   });
 });

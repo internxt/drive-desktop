@@ -5,7 +5,7 @@ type TProps = {
   data: DriveFile;
 };
 
-export function parseData({ data }: TProps) {
+export function parseData({ data }: TProps): SimpleDriveFile {
   const { name, nameWithExtension } = fileDecryptName({
     encryptedName: data.name,
     parentId: data.folderId,
@@ -26,5 +26,5 @@ export function parseData({ data }: TProps) {
     updatedAt: data.updatedAt,
     modificationTime: data.modificationTime,
     status: data.status,
-  } satisfies SimpleDriveFile;
+  };
 }

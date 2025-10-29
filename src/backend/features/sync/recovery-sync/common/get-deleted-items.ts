@@ -6,6 +6,7 @@ type Props = FileProps | FolderProps;
 
 export function getDeletedItems(props: FolderProps): SimpleDriveFolder[];
 export function getDeletedItems(props: FileProps): SimpleDriveFile[];
+
 export function getDeletedItems({ ctx, remotes, locals }: Props) {
   const remotesMap = new Map(remotes.map((item) => [item.uuid, item]));
 

@@ -11,6 +11,7 @@ export async function getLocalFolders({ ctx, remotes }: Props) {
   if (!first || !last) return;
 
   const { data: locals } = await SqliteModule.FolderModule.getBetweenUuids({
+    userUuid: ctx.userUuid,
     workspaceId: ctx.workspaceId,
     firstUuid: first.uuid,
     lastUuid: last.uuid,
