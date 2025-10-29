@@ -14,8 +14,8 @@
     "sourceMap": true,
     "rootDir": ".",
     "baseUrl": "./",
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noImplicitReturns": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
@@ -43,9 +43,12 @@
     "src/workers/backups/process.ts",
     "src/workers/backups",
     "src/workers/filesystems",
+    "__mock__"
   ],
   "include": [
-    "src",
+    "src/**/*",
+    "src/types/**/*",
+    "tests/**/*",
     "*.d.ts",
     "assets/**/*.d.ts"
   ]

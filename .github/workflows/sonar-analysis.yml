@@ -19,9 +19,6 @@ jobs:
         with:
           node-version: 18
 
-      - run: echo "registry=https://registry.yarnpkg.com/" > .npmrc
-      - run: echo "@internxt:registry=https://npm.pkg.github.com" >> .npmrc
-
       - name: Install dependencies
         run: yarn
 

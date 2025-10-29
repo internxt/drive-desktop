@@ -8,7 +8,7 @@ module.exports = {
     '<rootDir>/src/apps/renderer/'
   ],
   transform: {
-    '^.+\\.(ts|tsx|js)$': ['ts-jest', { tsconfig: 'tsconfig.test.json', useESM: true }],
+    '^.+\\.(ts|tsx|js)$': ['ts-jest', { tsconfig: 'tsconfig.json', useESM: true }],
   },
   extensionsToTreatAsEsm: ['.ts', '.tsx'],
   transformIgnorePatterns: ['node_modules/(?!axios|openapi-fetch)'],
