@@ -16,6 +16,8 @@
       "sign-in-browser": "Se connecter avec le navigateur"
     },
     "create-account": "Créer un compte",
+    "welcome": "Bienvenue chez Internxt",
+    "no-account": "Vous n'avez pas de compte ?",
     "2fa": {
       "section": "Code d'authentification",
       "description": "Vous avez configuré l'authentification en deux étapes (2FA), veuillez saisir le code à 6 chiffres",
