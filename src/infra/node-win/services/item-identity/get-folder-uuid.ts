@@ -1,4 +1,4 @@
-import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { getFolderIdentity } from './get-folder-identity';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
