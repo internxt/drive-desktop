@@ -54,6 +54,25 @@ describe('refresh-token', () => {
       const refreshResult: Either<Error, RefreshTokenResponse> = right({
         token: 'abc',
         newToken: 'xyz',
+        user: {
+          email: 'user@example.com',
+          userId: 'user-id',
+          mnemonic: 'user mnemonic',
+          root_folder_id: 1,
+          rootFolderId: 'root-folder-id',
+          name: 'John',
+          lastname: 'Doe',
+          uuid: 'user-uuid',
+          credit: 100,
+          createdAt: new Date().toISOString(),
+          registerCompleted: true,
+          username: 'johndoe',
+          bridgeUser: 'bridge-user-id',
+          backupsBucket: 'backups-bucket-id',
+          avatar: 'avatar-url',
+          emailVerified: true,
+          lastPasswordChangedAt: new Date().toISOString(),
+        }
       });
       (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(
         refreshResult

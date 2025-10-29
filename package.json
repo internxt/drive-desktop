@@ -63,6 +63,14 @@
       "node_modules",
       "package.json"
     ],
+    "protocols": [
+      {
+        "name": "Internxt Login Protocol",
+        "schemes": [
+          "internxt"
+        ]
+      }
+    ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
       "target": {
@@ -278,7 +286,7 @@
   "dependencies": {
     "@headlessui/react": "^1.4.2",
     "@iconscout/react-unicons": "^1.1.6",
-    "@internxt/drive-desktop-core": "0.1.1",
+    "@internxt/drive-desktop-core": "0.1.7",
     "@internxt/inxt-js": "^2.2.3",
     "@internxt/lib": "^1.1.6",
     "@internxt/scan": "^1.0.7",

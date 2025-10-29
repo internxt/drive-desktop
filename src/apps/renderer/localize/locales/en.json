@@ -12,9 +12,12 @@
     },
     "action": {
       "login": "Log in",
-      "is-logging-in": "Logging you in..."
+      "is-logging-in": "Logging you in...",
+      "sign-in-browser": "Sign in with browser"
     },
     "create-account": "Create account",
+    "welcome": "Welcome to Internxt",
+    "no-account": "Don't have an account?",
     "2fa": {
       "section": "Authentication code",
       "description": "You have configured two factor authentication, please enter the 6 digit code",

@@ -42,13 +42,13 @@ function ecnryptToken(token: string): string {
 }
 
 export async function setCredentials(
-  userData: User,
   mnemonic: string,
   bearerToken: string,
-  newToken: string
+  newToken: string,
+  userData?: User
 ) {
   ConfigStore.set('mnemonic', mnemonic);
-  ConfigStore.set('userData', userData);
+  if (userData) ConfigStore.set('userData', userData);
 
   await Delay.ms(1_000);
   // In the version of electron we are using calling

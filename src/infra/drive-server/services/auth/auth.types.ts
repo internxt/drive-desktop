@@ -1,9 +1,6 @@
 import { components } from '../../../../infra/schemas';
 
-export interface RefreshTokenResponse {
-  token: string;
-  newToken: string;
-}
+export type RefreshTokenResponse =  components['schemas']['RefreshTokenResponseDto'];
 
 export interface LoginResponse {
   hasKeys: boolean;

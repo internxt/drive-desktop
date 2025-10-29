@@ -12,9 +12,12 @@
     },
     "action": {
       "login": "Iniciar sesión",
-      "is-logging-in": "Iniciando sesión..."
+      "is-logging-in": "Iniciando sesión...",
+      "sign-in-browser": "Iniciar sesión en el navegador"
     },
     "create-account": "Crear cuenta",
+    "welcome": "Bienvenido a Internxt",
+    "no-account": "¿No tienes cuenta?",
     "2fa": {
       "section": "Código de autenticación",
       "description": "Has configurado la autenticación en dos pasos, por favor introduce el código de 6 dígitos",
