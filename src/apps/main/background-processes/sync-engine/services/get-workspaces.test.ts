@@ -2,6 +2,7 @@ import { driveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.
 import { deepMocked } from 'tests/vitest/utils.helper.test';
 import { getWorkspaces } from './get-workspaces';
 import { PATHS } from '@/core/electron/paths';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('@/apps/main/util'));
 vi.mock(import('@/infra/drive-server-wip/drive-server-wip.module'));
@@ -23,7 +24,7 @@ describe('get-workspaces', () => {
 
   it('If get workspaces success, then spawn workspaces', async () => {
     // Given
-    PATHS.HOME_FOLDER_PATH = 'C:\\Users\\user';
+    PATHS.HOME_FOLDER_PATH = createAbsolutePath('C:/Users/user');
     getWorkspacesMock.mockResolvedValue({
       data: {
         availableWorkspaces: [

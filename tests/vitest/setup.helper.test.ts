@@ -104,16 +104,6 @@ vi.mock('electron', async () => {
   };
 });
 
-vi.mock('@/apps/main/virtual-root-folder/service.ts', () => {
-  return {
-    getLoggersPaths: vi.fn(() => '/mock/logs'),
-    getRootVirtualDrive: vi.fn(() => '/mock/path'),
-    getRootWorkspace: vi.fn(() => ({
-      syncRoot: '/mock/path',
-    })),
-  };
-});
-
 vi.mock('@/apps/main/windows/widget.ts', () => {
   return {
     getWidget: vi.fn(() => ({
