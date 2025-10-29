@@ -15,7 +15,7 @@ export function parseData({ data }: TProps) {
   return {
     uuid: data.uuid as FolderUuid,
     name,
-    parentUuid: data.parentUuid as FolderUuid,
+    parentUuid: data.parentUuid,
     createdAt: data.createdAt,
     updatedAt: data.updatedAt,
     status: data.status,
