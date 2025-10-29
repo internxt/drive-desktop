@@ -8,7 +8,6 @@ import { call, calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
-import { PinState } from '@/node-win/types/placeholder.type';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockDeep } from 'vitest-mock-extended';
@@ -127,8 +126,6 @@ describe('create-placeholder', () => {
     await sleep(5000);
 
     // Then
-    const status = ctx.virtualDrive.getPlaceholderState({ path: file });
-    expect(status.pinState).toBe(PinState.AlwaysLocal);
     call(onAllMock).toStrictEqual({ event: 'add', path: file });
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },

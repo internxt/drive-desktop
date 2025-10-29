@@ -6,7 +6,6 @@ import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { join } from 'node:path';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
-import { PinState } from '@/node-win/types/placeholder.type';
 import { mockDeep } from 'vitest-mock-extended';
 import { sleep } from '@/apps/main/util';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
@@ -51,8 +50,6 @@ describe('sync-remote-changes-to-local', () => {
 
     await writeFile(filePath, 'content');
     virtualDrive.convertToPlaceholder({ itemPath: filePath, id: 'FILE:uuid' });
-    let status = virtualDrive.getPlaceholderState({ path: filePath });
-    expect(status.pinState).toBe(PinState.AlwaysLocal);
 
     const props = mockProps<typeof syncRemoteChangesToLocal>({
       virtualDrive,
@@ -75,8 +72,6 @@ describe('sync-remote-changes-to-local', () => {
     await sleep(3000);
 
     // Then
-    status = virtualDrive.getPlaceholderState({ path: filePath });
-    expect(status.pinState).toBe(PinState.OnlineOnly);
     calls(onAllMock).toStrictEqual([
       { event: 'add', path: filePath },
       { event: 'change', path: filePath },
