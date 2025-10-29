@@ -53,7 +53,7 @@ describe('sync-remote-to-local', () => {
     expect(unlinkMock).toBeCalledWith('C:/localPath');
     expect(virtualDrive.createFileByPath).toBeCalledWith({
       itemPath: '/file1/file2',
-      itemId: 'FILE:uuid',
+      placeholderId: 'FILE:uuid',
       size: 1024,
       creationTime: time,
       lastWriteTime: time,
