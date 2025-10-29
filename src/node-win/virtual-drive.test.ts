@@ -76,7 +76,7 @@ describe('VirtualDrive', () => {
   });
 
   describe('When call createFileByPath', () => {
-    it('Then it calls addon.createPlaceholderFile', () => {
+    it('Then it calls addon.createFilePlaceholder', () => {
       // Given
       const creationTime = new Date('2000-01-01T00:00:00Z').getTime();
       const lastWriteTime = new Date('2000-01-02T00:00:00Z').getTime();
@@ -105,7 +105,7 @@ describe('VirtualDrive', () => {
   });
 
   describe('When call createFolderByPath', () => {
-    it('Then it calls addon.createEntry', () => {
+    it('Then it calls addon.createFolderPlaceholder', () => {
       // Given
       const creationTime = new Date('2000-01-01T00:00:00Z').getTime();
       const lastWriteTime = new Date('2000-01-02T00:00:00Z').getTime();
