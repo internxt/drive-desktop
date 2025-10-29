@@ -29,6 +29,7 @@
     "test:e2e": "playwright test --config=src/test",
     "test:renderer": "jest --config jest.config.renderer.js",
     "test:antivirus": "jest --config jest.config.renderer.js \"src/apps/renderer/pages/Settings/Antivirus\"",
+    "test:cov": "jest --coverage",
     "type-check": "tsc --noEmit --pretty --skipLibCheck",
     "prepare": "husky install",
     "generate_schema": "openapi-typescript http://localhost:3005/api-json -o ./src/infra/schemas.d.ts",
@@ -135,7 +136,7 @@
     ],
     "globals": {
       "ts-jest": {
-        "tsconfig": "tsconfig.test.json"
+        "tsconfig": "tsconfig.json"
       }
     },
     "testURL": "http://localhost/",
@@ -199,8 +200,8 @@
     "@types/terser-webpack-plugin": "^5.0.4",
     "@types/uuid": "^8.3.4",
     "@types/webpack-env": "^1.16.3",
-    "@typescript-eslint/eslint-plugin": "^5.8.1",
-    "@typescript-eslint/parser": "^5.8.1",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
     "autoprefixer": "^10.4.1",
     "axios-mock-adapter": "^1.21.2",
     "browserslist-config-erb": "^0.0.3",
@@ -280,7 +281,7 @@
     "@internxt/drive-desktop-core": "0.1.1",
     "@internxt/inxt-js": "^2.2.3",
     "@internxt/lib": "^1.1.6",
-    "@internxt/scan": "1.0.3",
+    "@internxt/scan": "^1.0.7",
     "@internxt/sdk": "1.9.12",
     "@phosphor-icons/react": "2.0.9",
     "@radix-ui/react-select": "^1.2.2",
