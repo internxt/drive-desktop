@@ -9,6 +9,8 @@ import { PATHS } from '@/core/electron/paths';
 import VirtualDrive from '@/node-win/virtual-drive';
 import { workers } from '../remote-sync/store';
 import { stopSyncEngineWorker } from '../background-processes/sync-engine/services/stop-sync-engine-worker';
+import { sleep } from '../util';
+import { spawnSyncEngineWorker } from '../background-processes/sync-engine/services/spawn-sync-engine-worker';
 
 export const OLD_SYNC_ROOT = createAbsolutePath(PATHS.HOME_FOLDER_PATH, 'InternxtDrive');
 
@@ -18,6 +20,14 @@ export function getRootVirtualDrive() {
 
   logger.debug({ msg: 'Current root virtual drive', syncRoot });
 
+  /**
+   * v2.5.1 Jonathan Arce
+   * Previously, the drive name in Explorer was "InternxtDrive" and when you logged out and logged in,
+   * you would delete the folder and recreate it. However, if some files weren't synced, deleting the folder
+   * would cause them to be lost. Now, we won't delete the folder; instead, we'll create a new drive for each
+   * login called "InternxtDrive - {user.uuid}."
+   * So, we need to rename "InternxtDrive" to "InternxtDrive - {user.uuid}".
+   */
   if (OLD_SYNC_ROOT === syncRoot) {
     const newSyncRoot = createAbsolutePath(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
     migrateSyncRoot({ oldSyncRoot: OLD_SYNC_ROOT, newSyncRoot });
@@ -50,16 +60,17 @@ export async function chooseSyncRootWithDialog() {
       const { ctx } = worker;
 
       stopSyncEngineWorker({ worker });
+      await sleep(2000);
       VirtualDrive.unregisterSyncRoot({ providerId: ctx.providerId });
 
-      // process.kill(pid);
-      // await sleep(2000);
+      ctx.rootPath = newSyncRoot;
+
+      migrateSyncRoot({ oldSyncRoot, newSyncRoot });
+      await spawnSyncEngineWorker({ ctx });
     }
   } catch (error) {
-    logger.error({ msg: 'Error stopping sync engine worker', error });
+    logger.error({ msg: 'Error migrating sync root', error });
   }
-
-  migrateSyncRoot({ oldSyncRoot, newSyncRoot });
 
   return newSyncRoot;
 }

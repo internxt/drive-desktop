@@ -1,8 +1,8 @@
 import { app, ipcMain } from 'electron';
 import { stopSyncEngineWorkers } from './background-processes/sync-engine/services/stop-sync-engine-worker';
 
-export function quitApp() {
-  stopSyncEngineWorkers();
+export async function quitApp() {
+  await stopSyncEngineWorkers();
   app.quit();
 }
 

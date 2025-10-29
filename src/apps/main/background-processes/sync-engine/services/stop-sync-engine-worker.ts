@@ -1,5 +1,6 @@
 import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { unregisterVirtualDrives } from './unregister-virtual-drives';
+import { sleep } from '@/apps/main/util';
 
 type Props = {
   worker: WorkerConfig;
@@ -15,10 +16,11 @@ export function stopSyncEngineWorker({ worker }: Props) {
   workers.delete(ctx.workspaceId);
 }
 
-export function stopSyncEngineWorkers() {
+export async function stopSyncEngineWorkers() {
   workers.forEach((worker) => {
     stopSyncEngineWorker({ worker });
   });
 
+  await sleep(2000);
   unregisterVirtualDrives({});
 }
