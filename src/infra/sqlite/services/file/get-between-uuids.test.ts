@@ -1,4 +1,4 @@
-import * as fileDecryptName from '@/context/virtual-drive/files/domain/file-decrypt-name';
+import * as fileDecryptNameModule from '@/context/virtual-drive/files/domain/file-decrypt-name';
 import { fileRepository } from '../drive-file';
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getBetweenUuids } from './get-between-uuids';
@@ -6,17 +6,13 @@ import { Between } from 'typeorm';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('get-between-uuids', () => {
+  partialSpyOn(fileDecryptNameModule, 'fileDecryptName');
   const findMock = partialSpyOn(fileRepository, 'find');
-  const fileDecryptNameMock = partialSpyOn(fileDecryptName, 'fileDecryptName');
 
   const props = mockProps<typeof getBetweenUuids>({
     workspaceId: 'workspaceId',
     firstUuid: 'uuid1' as FileUuid,
     lastUuid: 'uuid2' as FileUuid,
-  });
-
-  beforeEach(() => {
-    fileDecryptNameMock.mockResolvedValue({});
   });
 
   it('should return UNKNOWN when error is thrown', async () => {

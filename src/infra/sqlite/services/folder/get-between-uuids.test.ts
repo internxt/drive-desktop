@@ -1,22 +1,18 @@
-import * as fileDecryptName from '@/context/virtual-drive/files/domain/file-decrypt-name';
-import { fileRepository } from '../drive-file';
+import { folderRepository } from '../drive-folder';
 import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { getBetweenUuids } from './get-between-uuids';
 import { Between } from 'typeorm';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
+import * as folderDecryptNameModule from '@/context/virtual-drive/folders/domain/folder-decrypt-name';
 
 describe('get-between-uuids', () => {
-  const findMock = partialSpyOn(fileRepository, 'find');
-  const fileDecryptNameMock = partialSpyOn(fileDecryptName, 'fileDecryptName');
+  partialSpyOn(folderDecryptNameModule, 'folderDecryptName');
+  const findMock = partialSpyOn(folderRepository, 'find');
 
   const props = mockProps<typeof getBetweenUuids>({
     workspaceId: 'workspaceId',
     firstUuid: 'uuid1' as FolderUuid,
     lastUuid: 'uuid2' as FolderUuid,
-  });
-
-  beforeEach(() => {
-    fileDecryptNameMock.mockResolvedValue({});
   });
 
   it('should return UNKNOWN when error is thrown', async () => {
@@ -28,7 +24,7 @@ describe('get-between-uuids', () => {
     expect(error?.code).toBe('UNKNOWN');
   });
 
-  it('should return files', async () => {
+  it('should return folders', async () => {
     // Given
     findMock.mockResolvedValue([]);
     // When
