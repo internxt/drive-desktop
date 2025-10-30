@@ -23,9 +23,6 @@ contextBridge.exposeInMainWorld('electron', {
   userIsUnauthorized() {
     ipcRenderer.send('user-is-unauthorized');
   },
-  userLoggedIn(data) {
-    return ipcRenderer.send('user-logged-in', data);
-  },
   isUserLoggedIn() {
     return ipcRenderer.invoke('is-user-logged-in');
   },
