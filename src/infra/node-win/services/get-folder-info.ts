@@ -1,7 +1,7 @@
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { trimPlaceholderId } from '@/apps/sync-engine/callbacks-controllers/controllers/placeholder-id';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { isFolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
+import { FolderPlaceholderId, isFolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { PinState } from '@/node-win/types/placeholder.type';
 
 export class GetFolderInfoError extends Error {
@@ -20,7 +20,13 @@ type TProps = {
 
 export function getFolderInfo({ ctx, path }: TProps) {
   if (path === '/' || path === ctx.virtualDrive.syncRootPath || `${path}\\` === ctx.virtualDrive.syncRootPath) {
-    return { data: { placeholderId: `FOLDER:${ctx.rootUuid}`, uuid: ctx.rootUuid, pinState: PinState.Unspecified } };
+    return {
+      data: {
+        placeholderId: `FOLDER:${ctx.rootUuid}` as FolderPlaceholderId,
+        uuid: ctx.rootUuid,
+        pinState: PinState.Unspecified,
+      },
+    };
   }
 
   try {
