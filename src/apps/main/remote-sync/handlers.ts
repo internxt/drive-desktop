@@ -54,31 +54,23 @@ export const deleteFileInBatch = async (itemsIds: string[]) => {
   });
 };
 
-export async function getUpdatedRemoteItems(workspaceId: string) {
-  try {
-    const promise = Promise.all([
-      SqliteModule.FileModule.getByWorkspaceId({ workspaceId }),
-      SqliteModule.FolderModule.getByWorkspaceId({ workspaceId }),
-    ]);
+ipcMainSyncEngine.handle('FIND_EXISTING_FILES', async (_, { userUuid, workspaceId }) => {
+  const { data: files = [] } = await SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId });
+  return files;
+});
 
-    const [{ data: files = [] }, { data: folders = [] }] = await promise;
+ipcMainSyncEngine.handle('GET_UPDATED_REMOTE_ITEMS', async (_, { userUuid, workspaceId }) => {
+  const [{ data: files = [] }, { data: folders = [] }] = await Promise.all([
+    SqliteModule.FileModule.getByWorkspaceId({ userUuid, workspaceId }),
+    SqliteModule.FolderModule.getByWorkspaceId({ userUuid, workspaceId }),
+  ]);
 
-    return { files, folders };
-  } catch (error) {
-    throw logger.error({
-      msg: 'Error getting updated remote items',
-      exc: error,
-    });
-  }
-}
-
-ipcMainSyncEngine.handle('FIND_EXISTING_FILES', async (_, workspaceId: string) => {
-  const existingFiles = await SqliteModule.FileModule.getByWorkspaceId({ workspaceId });
-  return existingFiles.data ?? [];
+  return { files, folders };
 });
 
 ipcMainSyncEngine.handle('FIND_DANGLED_FILES', async () => {
-  return await getLocalDangledFiles();
+  const files = await driveFilesCollection.getAll({ status: 'EXISTS', isDangledStatus: true });
+  return files;
 });
 
 ipcMainSyncEngine.handle('SET_HEALTHY_FILES', async (_, inputData) => {
@@ -89,16 +81,6 @@ ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
   logger.debug({ msg: 'Updating fixed files', inputData });
   await updateFileInBatch({ itemsId: inputData.toUpdate, file: { isDangledStatus: false } });
   await deleteFileInBatch(inputData.toDelete);
-});
-
-ipcMain.handle('GET_UPDATED_REMOTE_ITEMS', (_, workspaceId: string) => {
-  logger.debug({
-    tag: 'SYNC-ENGINE',
-    msg: 'Getting updated remote items',
-    workspaceId,
-  });
-
-  return getUpdatedRemoteItems(workspaceId);
 });
 
 export async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
