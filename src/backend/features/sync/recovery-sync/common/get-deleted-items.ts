@@ -6,7 +6,8 @@ type Props = FileProps | FolderProps;
 
 export function getDeletedItems(props: FolderProps): SimpleDriveFolder[];
 export function getDeletedItems(props: FileProps): SimpleDriveFile[];
-export function getDeletedItems({ ctx, remotes, locals }: Props) {
+
+export function getDeletedItems({ ctx, type, remotes, locals }: Props) {
   const remotesMap = new Map(remotes.map((item) => [item.uuid, item]));
 
   const itemsToDelete = locals.filter((local) => {
@@ -15,6 +16,7 @@ export function getDeletedItems({ ctx, remotes, locals }: Props) {
     if (!remote) {
       ctx.logger.error({
         msg: 'Remote item does not exist',
+        type,
         name: local.name,
         updatedAt: local.updatedAt,
       });

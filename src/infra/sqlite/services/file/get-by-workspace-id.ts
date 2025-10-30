@@ -4,12 +4,16 @@ import { parseData } from './parse-data';
 import { SqliteError } from '../common/sqlite-error';
 
 type Props = {
+  userUuid: string;
   workspaceId: string;
 };
 
-export async function getByWorkspaceId({ workspaceId }: Props) {
+export async function getByWorkspaceId({ userUuid, workspaceId }: Props) {
   try {
-    const items = await fileRepository.findBy({ workspaceId });
+    const items = await fileRepository.findBy({
+      userUuid,
+      workspaceId,
+    });
 
     return { data: items.map((item) => parseData({ data: item })) };
   } catch (exc) {
