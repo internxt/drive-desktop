@@ -62,7 +62,7 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     const worker: WorkerConfig = {
       ctx,
       browserWindow,
-      syncSchedule: scheduleSync({ workspaceId: ctx.workspaceId }),
+      syncSchedule: scheduleSync({ ctx }),
     };
 
     workers.set(ctx.workspaceId, worker);
