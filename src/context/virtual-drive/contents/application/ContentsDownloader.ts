@@ -7,8 +7,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path/posix';
-import { createWriteStream } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
+import { WriteReadableToFile } from '@/apps/shared/fs/write-readable-to-file';
 
 export class ContentsDownloader {
   constructor(private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory) {}
@@ -23,7 +22,6 @@ export class ContentsDownloader {
     const location = await temporalFolderProvider();
     await mkdir(location, { recursive: true });
     const path = join(location, file.nameWithExtension);
-    const writable = createWriteStream(path);
 
     this.downloaderIntance = downloader;
     this.downloaderIntanceCB = callback;
@@ -39,7 +37,7 @@ export class ContentsDownloader {
 
     if (!readable) throw error;
 
-    await pipeline(readable, writable);
+    await WriteReadableToFile.write(readable, path, file.size);
 
     return path;
   }
