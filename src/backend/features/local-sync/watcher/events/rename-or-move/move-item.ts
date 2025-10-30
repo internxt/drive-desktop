@@ -1,4 +1,4 @@
-import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { basename } from 'node:path';
 import { FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
@@ -11,12 +11,11 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 type TProps = {
   ctx: ProcessSyncContext;
   path: RelativePath;
-  absolutePath: AbsolutePath;
   itemName: string;
   item: SimpleDriveFile | SimpleDriveFolder;
 } & ({ type: 'file'; uuid: FileUuid } | { type: 'folder'; uuid: FolderUuid });
 
-export async function moveItem({ ctx, path, absolutePath, itemName, uuid, item, type }: TProps) {
+export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps) {
   const parentPath = pathUtils.dirname(path);
   const name = basename(path);
 
@@ -34,6 +33,6 @@ export async function moveItem({ ctx, path, absolutePath, itemName, uuid, item, 
     updateFileStatus({ ctx, path });
   } else {
     await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, name, workspaceToken });
-    await updateFolderStatus({ ctx, path, absolutePath });
+    updateFolderStatus({ ctx, path });
   }
 }

@@ -7,5 +7,5 @@ type Props = {
 };
 
 export function updateFileStatus({ ctx, path }: Props) {
-  ctx.virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false, sync: true });
+  ctx.virtualDrive.updateSyncStatus({ itemPath: path, isDirectory: false });
 }
