@@ -21,7 +21,7 @@ export class FilePlaceholderUpdater {
       if (!localPath) {
         ctx.virtualDrive.createFileByPath({
           itemPath: path,
-          itemId: `FILE:${remote.uuid}`,
+          placeholderId: `FILE:${remote.uuid}`,
           size: remote.size,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),

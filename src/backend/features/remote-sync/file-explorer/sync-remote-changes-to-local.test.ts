@@ -6,7 +6,6 @@ import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infr
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { unlink } from 'node:fs/promises';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
-import { PinState } from '@/node-win/types/placeholder.type';
 import { existsSync } from 'node:fs';
 
 vi.mock(import('node:fs/promises'));
@@ -24,7 +23,6 @@ describe('sync-remote-to-local', () => {
 
   beforeEach(() => {
     existsSyncMock.mockReturnValue(true);
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
     props = mockProps<typeof syncRemoteChangesToLocal>({
       virtualDrive,
       local: {
@@ -53,7 +51,7 @@ describe('sync-remote-to-local', () => {
     expect(unlinkMock).toBeCalledWith('C:/localPath');
     expect(virtualDrive.createFileByPath).toBeCalledWith({
       itemPath: '/file1/file2',
-      itemId: 'FILE:uuid',
+      placeholderId: 'FILE:uuid',
       size: 1024,
       creationTime: time,
       lastWriteTime: time,

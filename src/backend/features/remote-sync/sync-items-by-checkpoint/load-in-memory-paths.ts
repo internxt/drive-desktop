@@ -32,16 +32,16 @@ export async function loadInMemoryPaths({ ctx }: { ctx: ProcessSyncContext }) {
     if (!stats) continue;
 
     if (stats.isDirectory()) {
-      const { data: uuid } = NodeWin.getFolderUuid({ ctx, path: absolutePath });
-      if (uuid) {
-        folders[uuid] = absolutePath;
+      const { data: folderInfo } = NodeWin.getFolderInfo({ ctx, path: absolutePath });
+      if (folderInfo) {
+        folders[folderInfo.uuid] = absolutePath;
       }
     }
 
     if (stats.isFile()) {
-      const { data: uuid } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path: absolutePath });
-      if (uuid) {
-        files[uuid] = { stats, absolutePath };
+      const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path: absolutePath });
+      if (fileInfo) {
+        files[fileInfo.uuid] = { stats, absolutePath };
       }
     }
   }
