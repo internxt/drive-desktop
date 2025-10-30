@@ -1,10 +1,9 @@
 import { ContentsDownloader } from '../../../../context/virtual-drive/contents/application/ContentsDownloader';
-import { FilePlaceholderId } from '../../../../context/virtual-drive/files/domain/PlaceholderId';
-import { trimPlaceholderId } from './placeholder-id';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { sleep } from '@/apps/main/util';
 import { logger } from '@/apps/shared/logger/logger';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
+import { FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 
 export class DownloadFileController {
   constructor(private readonly downloader: ContentsDownloader) {}
@@ -12,30 +11,16 @@ export class DownloadFileController {
   private MAX_RETRY = 3;
   private RETRY_DELAY = 100;
 
-  private async action(uuid: string, callback: CallbackDownload): Promise<string> {
-    const file = await this.fileFinderByUuid({ uuid });
-
-    return await this.downloader.run({ file, callback });
-  }
-
-  async fileFinderByUuid({ uuid }: { uuid: string }) {
-    const { data: file } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
-    if (!file) {
-      throw new Error(`File ${uuid} not found`);
-    }
+  async fileFinderByUuid({ uuid }: { uuid: FileUuid }) {
+    const { data: file, error } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
+    if (error) throw error;
     return file;
   }
 
-  async execute(filePlaceholderId: FilePlaceholderId, callback: CallbackDownload): Promise<string> {
-    const trimmedId = trimPlaceholderId({ placeholderId: filePlaceholderId });
-    const [, uuid] = trimmedId.split(':');
-
-    return await this.withRetries(() => this.action(uuid, callback));
-  }
-  private async withRetries<T>(action: () => Promise<T>): Promise<T> {
+  async execute(file: SimpleDriveFile, callback: CallbackDownload) {
     for (let attempt = 1; attempt <= this.MAX_RETRY; attempt++) {
       try {
-        return await action();
+        return await this.downloader.run({ file, callback });
       } catch (error) {
         logger.error({ msg: `Attempt ${attempt} failed:`, error });
         if (attempt === this.MAX_RETRY) {

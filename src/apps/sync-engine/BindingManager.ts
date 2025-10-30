@@ -11,10 +11,10 @@ import { ProcessContainer } from './build-process-container';
 export class BindingsManager {
   static async start({ ctx, container }: { ctx: ProcessSyncContext; container: ProcessContainer }) {
     const callbacks: Callbacks = {
-      fetchDataCallback: async (filePlaceholderId, callback) => {
+      fetchDataCallback: async (placeholderId, callback) => {
         await fetchData({
           container,
-          filePlaceholderId,
+          placeholderId,
           callback,
         });
       },

@@ -8,18 +8,18 @@ import { ProcessContainer } from '../build-process-container';
 
 type TProps = {
   container: ProcessContainer;
-  filePlaceholderId: FilePlaceholderId;
+  placeholderId: FilePlaceholderId;
   callback: CallbackDownload;
 };
 
-export async function fetchData({ container, filePlaceholderId, callback }: TProps) {
+export async function fetchData({ container, placeholderId, callback }: TProps) {
   try {
     logger.debug({ msg: '[Fetch Data Callback] Donwloading begins' });
 
-    const tmpPath = await container.downloadFile.execute(filePlaceholderId, callback);
-
-    const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId: filePlaceholderId });
+    const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId });
     const file = await container.downloadFile.fileFinderByUuid({ uuid });
+
+    const tmpPath = await container.downloadFile.execute(file, callback);
 
     logger.debug({ msg: '[Fetch Data Callback] Preparing begins', tmpPath });
 
@@ -63,7 +63,7 @@ export async function fetchData({ container, filePlaceholderId, callback }: TPro
 
     await unlink(tmpPath);
   } catch (error) {
-    logger.error({ msg: '[Fetch Data Callback] Error', filePlaceholderId, error });
+    logger.error({ msg: '[Fetch Data Callback] Error', placeholderId, error });
     await callback(false, '');
   }
 }
