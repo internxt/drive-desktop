@@ -1,17 +1,24 @@
-import { resizeImage } from './resize-image';
+import { ThumbnailConfig } from '../domain/ThumbnailProperties';
 
 type Props = {
   absolutePath: string;
 };
 
-export function generatePDFThumbnail({ absolutePath }: Props) {
+export async function generatePDFThumbnail({ absolutePath }: Props): Promise<Buffer> {
   // eslint-disable-next-line @typescript-eslint/no-var-requires
   const gm = require('gm').subClass({ imageMagick: true });
 
-  const pdfFirstPage = gm(absolutePath + '[0]')
-    .density(300, 300)
-    .quality(100)
-    .stream('png');
-
-  return resizeImage({ file: pdfFirstPage });
+  return new Promise((resolve, reject) => {
+    gm(absolutePath + '[0]')
+      .density(300, 300)
+      .quality(ThumbnailConfig.Quality)
+      .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight)
+      .toBuffer(ThumbnailConfig.Type, (err: Error | null, buffer: Buffer) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(buffer);
+        }
+      });
+  });
 }
