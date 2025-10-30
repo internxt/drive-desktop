@@ -141,7 +141,7 @@ describe('create-placeholder', () => {
       {
         msg: 'Change event triggered',
         path: '/file.txt',
-        pinState: PinState.Unspecified,
+        pinState: PinState.Excluded,
         diff: { ctimeMs: { curr: expect.any(Number), prev: expect.any(Number) } },
       },
     ]);
