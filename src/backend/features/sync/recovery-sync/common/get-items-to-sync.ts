@@ -20,7 +20,7 @@ export async function getItemsToSync({ ctx, type, remotes, locals }: Props) {
   const checkpointDate = new Date(checkpoint);
 
   const localsMap = new Map(locals.map((file) => [file.uuid, file]));
-  const itemsToSync = remotes.filter((remote) => isItemToSync({ ctx, localsMap, remote, checkpointDate }));
+  const itemsToSync = remotes.filter((remote) => isItemToSync({ ctx, type, localsMap, remote, checkpointDate }));
 
   return itemsToSync;
 }
