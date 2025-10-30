@@ -1,11 +1,8 @@
 import { EnvironmentRemoteFileContentsManagersFactory } from '../../contents/infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { FileCheckerStatusInRoot } from './FileCheckerStatusInRoot';
-import { ensureFolderExists } from '@/apps/shared/fs/ensure-folder-exists';
-import { temporalFolderProvider } from '../../contents/application/temporalFolderProvider';
 import { InMemoryFileRepository } from '../infrastructure/InMemoryFileRepository';
 import { DangledFilesManager } from '../../shared/domain/DangledFilesManager';
 import { FileContentsHardUpdater } from './FileContentsHardUpdater';
-import { EnvironmentContentFileDownloader } from '../../contents/infrastructure/download/EnvironmentContentFileDownloader';
 import { logger } from '@/apps/shared/logger/logger';
 import { ExtendedDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
@@ -40,34 +37,6 @@ export class FileOverwriteContent {
     const { file, callback } = input;
     this.errorQueue.push({ file, callback });
     void this.processErrorQueue();
-  }
-
-  private async registerEvents(input: {
-    downloader: EnvironmentContentFileDownloader;
-    file: ExtendedDriveFile;
-    callback: (remoteDangledFile: string) => Promise<void>;
-  }) {
-    const { downloader, file, callback } = input;
-    const location = await temporalFolderProvider();
-    ensureFolderExists(location);
-
-    downloader.on('start', () => {
-      logger.debug({ msg: 'Downloading file start', path: file.path });
-    });
-
-    downloader.on('progress', () => {
-      logger.debug({ msg: 'Downloading file force stop', path: file.path });
-      downloader.forceStop();
-    });
-
-    downloader.on('error', (error: Error) => {
-      logger.error({ msg: 'Error downloading file', error, path: file.path });
-      if (error.message.includes('Object not found')) {
-        this.enqueueError({ file, callback });
-      } else {
-        logger.error({ msg: 'Error downloading file', error });
-      }
-    });
   }
 
   async run(ctx: ProcessSyncContext, input: { contentsIds: string[]; downloaderManger: EnvironmentRemoteFileContentsManagersFactory }) {
@@ -105,10 +74,16 @@ export class FileOverwriteContent {
     for (const file of files) {
       if (filesWithContentLocally[file.path]) {
         const downloader = downloaderManger.downloader();
-        void this.registerEvents({ downloader, file, callback: asynchronousFixingOfDangledFiles });
 
         logger.debug({ msg: 'Trying to download file ', uuid: file.uuid, name: file.name });
-        await downloader.download(file);
+        const { error } = await downloader.download({
+          onProgress: () => downloader.forceStop(),
+          file,
+        });
+
+        if (error?.message.includes('Object not found')) {
+          this.enqueueError({ file, callback: asynchronousFixingOfDangledFiles });
+        }
 
         logger.debug({ msg: 'Possible dangled file hydrated', path: file.path });
         DangledFilesManager.getInstance().add({ contentId: file.contentsId, path: file.path });
