@@ -20,7 +20,7 @@ export class FolderPlaceholderUpdater {
       if (!localPath) {
         ctx.virtualDrive.createFolderByPath({
           itemPath: path,
-          itemId: `FOLDER:${remote.uuid}`,
+          placeholderId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),
         });
