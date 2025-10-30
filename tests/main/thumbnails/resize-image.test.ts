@@ -17,7 +17,7 @@ describe.skip('GM Resize Image', () => {
       path.join(__dirname, 'fixtures', '1000x1000.jpg')
     );
 
-    const buffer = await resizeImage(image);
+    const buffer = await resizeImage({ file: image });
 
     expect(buffer).not.toBeNull();
     expect(buffer.length).toBeGreaterThan(0);
@@ -27,7 +27,7 @@ describe.skip('GM Resize Image', () => {
     const image = createReadStream(
       path.join(__dirname, 'fixtures', '1000x1000.jpg')
     );
-    const buffer = await resizeImage(image);
+    const buffer = await resizeImage({ file: image });
 
     const { width, height } = await getFileSize(buffer);
 

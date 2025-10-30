@@ -13,5 +13,5 @@ export function generatePDFThumbnail({ absolutePath }: Props) {
     .quality(100)
     .stream('png');
 
-  return resizeImage(pdfFirstPage);
+  return resizeImage({ file: pdfFirstPage });
 }

@@ -2,7 +2,11 @@ import gm from 'gm';
 import { Readable } from 'stream';
 import { ThumbnailConfig } from '../domain/ThumbnailProperties';
 
-export async function resizeImage(file: Readable): Promise<Buffer> {
+type Props = {
+  file: Readable;
+};
+
+export async function resizeImage({ file }: Props): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     gm(file)
       .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight)
