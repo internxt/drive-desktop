@@ -1,7 +1,9 @@
 import eventBus from '../event-bus';
+import { workers } from '../remote-sync/store';
 import { getUserOrThrow } from '../auth/service';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
+import { stopSyncEngineWorkers } from './sync-engine/services/stop-sync-engine-worker';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
@@ -11,8 +13,6 @@ import { join } from 'node:path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { createLogger } from '@/apps/shared/logger/logger';
 import { FolderUuid } from '../database/entities/DriveFolder';
-import { workers } from '../remote-sync/store';
-import { stopSyncEngineWorkers } from './sync-engine/services/stop-sync-engine-worker';
 
 export function updateSyncEngine(workspaceId: string) {
   const worker = workers.get(workspaceId);

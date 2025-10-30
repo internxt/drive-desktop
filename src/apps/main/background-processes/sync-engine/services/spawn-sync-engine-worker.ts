@@ -2,10 +2,10 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { BrowserWindow } from 'electron';
 import path from 'node:path';
 import { cwd } from 'node:process';
+import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { monitorHealth } from './monitor-health';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
-import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { scheduleSync } from './schedule-sync';
 import { stopSyncEngineWorker } from './stop-sync-engine-worker';
 

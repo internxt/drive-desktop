@@ -2,8 +2,8 @@ import { call, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test'
 import { filesRecoverySync } from './files-recovery-sync';
 import { DriveServerWipModule } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
-import * as getItemsToSyncModule from './get-items-to-sync';
-import * as getDeletedItemsModule from './get-deleted-items';
+import * as getItemsToSyncModule from '../common/get-items-to-sync';
+import * as getDeletedItemsModule from '../common/get-deleted-items';
 import * as createOrUpdateFilesModule from '@/backend/features/remote-sync/update-in-sqlite/create-or-update-file';
 import * as getLocalFilesModule from './get-local-files';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';

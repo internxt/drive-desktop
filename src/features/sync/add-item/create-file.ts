@@ -3,7 +3,6 @@ import { FolderNotFoundError } from '@/context/virtual-drive/folders/domain/erro
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { createParentFolder } from './create-folder';
 import { FileCreationOrchestrator } from '@/context/virtual-drive/boundaryBridge/application/FileCreationOrchestrator';
-import { createFilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { Stats } from 'node:fs';
 import { updateFileStatus } from '@/backend/features/local-sync/placeholders/update-file-status';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
@@ -18,8 +17,7 @@ type TProps = {
 export async function createFile({ ctx, absolutePath, path, stats }: TProps) {
   try {
     const uuid = await FileCreationOrchestrator.run({ ctx, path, absolutePath, stats });
-    const placeholderId = createFilePlaceholderId(uuid);
-    ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: placeholderId });
+    ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: `FILE:${uuid}` });
     updateFileStatus({ ctx, path });
   } catch (error) {
     if (error instanceof FolderNotFoundError) {

@@ -18,6 +18,7 @@ export const folders = {
   move,
   checkExistence,
 };
+export const FolderModule = folders;
 
 type TGetFoldersQuery = paths['/folders']['get']['parameters']['query'];
 type TGetFoldersByFolderQuery = paths['/folders/content/{uuid}/folders']['get']['parameters']['query'];
@@ -58,12 +59,18 @@ async function getFolders(context: { query: TGetFoldersQuery }, extra?: { abortS
       params: { query: context.query },
     });
 
-  return await clientWrapper({
+  const { data, error } = await clientWrapper({
     promiseFn,
     key,
     skipLog: extra?.skipLog,
     loggerBody: { msg: 'Get folders request', context },
   });
+
+  if (data) {
+    return { data: data.map((folderDto) => parseFolderDto({ folderDto })) };
+  } else {
+    return { error };
+  }
 }
 
 async function getFoldersByFolder(
