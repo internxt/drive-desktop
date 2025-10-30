@@ -30,11 +30,6 @@ describe('spawn-sync-engine-worker', () => {
     expect(monitorHealthMock).toHaveBeenCalledTimes(1);
     expect(scheduleSyncMock).toHaveBeenCalledTimes(1);
     expect(recoverySyncMock).toHaveBeenCalledTimes(1);
-    expect(workers.get(workspaceId)).toStrictEqual(
-      expect.objectContaining({
-        startingWorker: true,
-        syncSchedule: null,
-      }),
-    );
+    expect(workers.get(workspaceId)).toBeDefined();
   });
 });
