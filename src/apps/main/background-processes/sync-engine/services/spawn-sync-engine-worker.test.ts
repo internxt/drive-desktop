@@ -1,7 +1,6 @@
 import { spawnSyncEngineWorker } from './spawn-sync-engine-worker';
 import { mockProps, partialSpyOn } from 'tests/vitest/utils.helper.test';
-import { workers } from '@/apps/main/remote-sync/store';
-import { BrowserWindow } from 'electron';
+import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { monitorHealth } from './monitor-health';
 import { scheduleSync } from './schedule-sync';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
