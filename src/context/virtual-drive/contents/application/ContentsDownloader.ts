@@ -5,9 +5,10 @@ import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { temporalFolderProvider } from './temporalFolderProvider';
 import { logger } from '@/apps/shared/logger/logger';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
-import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path/posix';
+import { createWriteStream } from 'node:fs';
+import { pipeline } from 'node:stream/promises';
 
 export class ContentsDownloader {
   constructor(private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory) {}
@@ -22,6 +23,7 @@ export class ContentsDownloader {
     const location = await temporalFolderProvider();
     await mkdir(location, { recursive: true });
     const path = join(location, file.nameWithExtension);
+    const writable = createWriteStream(path);
 
     this.downloaderIntance = downloader;
     this.downloaderIntanceCB = callback;
@@ -37,9 +39,9 @@ export class ContentsDownloader {
 
     if (!readable) throw error;
 
-    const write = await FSLocalFileWriter.write({ file, readable });
+    await pipeline(readable, writable);
 
-    return write;
+    return path;
   }
 
   stop() {
