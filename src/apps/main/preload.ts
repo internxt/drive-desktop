@@ -9,7 +9,6 @@ import { getUser } from './auth/service';
 import { Issue } from './background-processes/issues';
 import { BackupsStatus } from './background-processes/backups/BackupsProcessStatus/BackupsStatus';
 import { changeBackupPath, Device, getOrCreateDevice, getPathFromDialog, renameDevice } from './device/service';
-import { chooseSyncRootWithDialog } from './virtual-root-folder/service';
 import { BackupInfo } from '../backups/BackupInfo';
 import { BackupsProgress } from './background-processes/backups/types/BackupsProgress';
 import { ItemBackup } from '../shared/types/items';
