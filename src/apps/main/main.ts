@@ -142,7 +142,7 @@ app
 
     checkForUpdates();
     registerAvailableUserProductsHandlers();
-    getUserAvailableProductsAndStore({ forceStorage: true});
+    getUserAvailableProductsAndStore({ forceStorage: true });
   })
   .catch((exc) => logger.error({ msg: 'Error starting app', exc }));
 
