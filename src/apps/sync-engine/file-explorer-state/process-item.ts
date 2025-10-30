@@ -22,7 +22,7 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   const pendingFileExplorerItem = { path, absolutePath, stats };
 
   if (stats.isDirectory()) {
-    const { error } = NodeWin.getFolderUuid({ ctx, path });
+    const { error } = NodeWin.getFolderInfo({ ctx, path });
 
     if (error && error.code === 'NON_EXISTS') {
       state.createFolders.push(pendingFileExplorerItem);
@@ -30,10 +30,10 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   }
 
   if (stats.isFile()) {
-    const { data: uuid, error } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path });
+    const { data: fileInfo, error } = NodeWin.getFileInfo({ ctx, path });
 
-    if (uuid) {
-      const { pinState } = ctx.virtualDrive.getPlaceholderState({ path });
+    if (fileInfo) {
+      const { uuid, pinState } = fileInfo;
       const localFile = { ...pendingFileExplorerItem, uuid };
 
       if (isHydrationPending({ stats, pinState })) {

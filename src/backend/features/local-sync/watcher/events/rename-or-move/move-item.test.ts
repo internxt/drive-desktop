@@ -3,21 +3,17 @@ import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test
 import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
-import * as updateFileStatus from '../../../placeholders/update-file-status';
-import * as updateFolderStatus from '../../../placeholders/update-folder-status';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 
 describe('move-item', () => {
-  const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
-  const updateFileStatusMock = partialSpyOn(updateFileStatus, 'updateFileStatus');
-  const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const invokeMock = vi.spyOn(ipcRendererDriveServerWip, 'invoke');
 
   let props: Parameters<typeof moveItem>[0];
 
   beforeEach(() => {
-    getFolderUuidMock.mockReturnValue({ data: 'newParentUuid' as FolderUuid });
+    getFolderInfoMock.mockReturnValue({ data: { uuid: 'newParentUuid' as FolderUuid } });
 
     props = mockProps<typeof moveItem>({
       type: 'file',
@@ -25,13 +21,16 @@ describe('move-item', () => {
       item: { parentUuid: 'parentUuid' },
       itemName: 'name',
       path: createRelativePath('folder', 'newName'),
-      ctx: { workspaceToken: '' },
+      ctx: {
+        workspaceToken: '',
+        virtualDrive: { updateSyncStatus: vi.fn() },
+      },
     });
   });
 
   it('should not do anything if cannot find parent uuid', async () => {
     // Given
-    getFolderUuidMock.mockReturnValue({ error: new Error() });
+    getFolderInfoMock.mockReturnValue({ error: new Error() });
     // When
     const promise = moveItem(props);
     // Then
@@ -40,7 +39,7 @@ describe('move-item', () => {
 
   it('should not do anything if neither move nor renamed', async () => {
     // Given
-    getFolderUuidMock.mockReturnValue({ data: 'parentUuid' as FolderUuid });
+    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     props.path = createRelativePath('folder', 'name');
     // When
     await moveItem(props);
@@ -60,7 +59,7 @@ describe('move-item', () => {
       parentUuid: 'newParentUuid',
       workspaceToken: '',
     });
-    expect(updateFileStatusMock).toBeCalledTimes(1);
+    expect(props.ctx.virtualDrive.updateSyncStatus).toBeCalledTimes(1);
   });
 
   it('should move folder', async () => {
@@ -75,6 +74,6 @@ describe('move-item', () => {
       parentUuid: 'newParentUuid',
       workspaceToken: '',
     });
-    expect(updateFolderStatusMock).toBeCalledTimes(1);
+    expect(props.ctx.virtualDrive.updateSyncStatus).toBeCalledTimes(1);
   });
 });

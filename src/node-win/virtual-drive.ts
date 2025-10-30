@@ -51,10 +51,6 @@ export class VirtualDrive {
     }
   }
 
-  getFileIdentity({ path }: { path: string }) {
-    return this.addon.getFileIdentity({ path: this.fixPath(path) });
-  }
-
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
     const connectionKey = this.addon.connectSyncRoot({ callbacks });
 
@@ -145,8 +141,8 @@ export class VirtualDrive {
     }
   }
 
-  updateSyncStatus({ itemPath, isDirectory }: { itemPath: string; isDirectory: boolean }) {
-    return this.addon.updateSyncStatus({ path: this.fixPath(itemPath), isDirectory });
+  updateSyncStatus({ itemPath }: { itemPath: string }) {
+    return this.addon.updateSyncStatus({ path: this.fixPath(itemPath) });
   }
 
   convertToPlaceholder({ itemPath, id }: { itemPath: string; id: FilePlaceholderId | FolderPlaceholderId }) {

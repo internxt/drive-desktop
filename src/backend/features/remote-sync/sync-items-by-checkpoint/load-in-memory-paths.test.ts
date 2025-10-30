@@ -13,8 +13,8 @@ vi.mock(import('node:fs/promises'));
 describe('load-in-memory-paths', () => {
   const readdirMock = deepMocked(readdir);
   const statMock = partialSpyOn(fileSystem, 'stat');
-  const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
-  const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
+  const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
 
   const props = mockProps<typeof loadInMemoryPaths>({
     ctx: { virtualDrive: { syncRootPath: 'C:/Users/user/InternxtDrive' as AbsolutePath } },
@@ -31,8 +31,8 @@ describe('load-in-memory-paths', () => {
       .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } })
       .mockResolvedValueOnce({ data: { isDirectory: () => false, isFile: () => true } });
 
-    getFolderUuidMock.mockReturnValueOnce({ data: 'folderUuid' as FolderUuid });
-    getFileUuidMock.mockReturnValueOnce({}).mockReturnValueOnce({ data: 'fileUuid2' as FileUuid });
+    getFolderInfoMock.mockReturnValueOnce({ data: { uuid: 'folderUuid' as FolderUuid } });
+    getFileInfoMock.mockReturnValueOnce({}).mockReturnValueOnce({ data: { uuid: 'fileUuid2' as FileUuid } });
     // When
     const { files, folders } = await loadInMemoryPaths(props);
     // Then
