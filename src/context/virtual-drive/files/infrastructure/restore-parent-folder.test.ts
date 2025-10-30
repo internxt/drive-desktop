@@ -4,8 +4,8 @@ import { NodeWin } from '@/infra/node-win/node-win.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { partialSpyOn, mockProps, call, calls } from '@/tests/vitest/utils.helper.test';
-import { FolderUuid } from '../../folders/domain/FolderPlaceholderId';
 import { loggerMock } from '@/tests/vitest/mocks.helper.test';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('restoreParentFolder', () => {
   const dirnameSpy = partialSpyOn(pathUtils, 'dirname');

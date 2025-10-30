@@ -2,10 +2,10 @@ import { deepMocked, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper
 import { onAddDir } from './on-add-dir.service';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { FolderUuid } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { moveFolder } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-folder';
 import * as createFolder from '@/features/sync/add-item/create-folder';
 import * as trackAddFolderEvent from '@/backend/features/local-sync/watcher/events/unlink/is-move-event';
+import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/backend/features/local-sync/watcher/events/rename-or-move/move-folder'));

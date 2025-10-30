@@ -1,18 +1,5 @@
-import { Brand } from '@/context/shared/domain/Brand';
-
-export type FolderUuid = Brand<string, 'FolderUuid'>;
-type FolderPlaceholderIdPrefixType = 'FOLDER:';
-
-export type FolderPlaceholderId = `${FolderPlaceholderIdPrefixType}${string}`;
-
-function typedCheck(input: string, prefix: FolderPlaceholderIdPrefixType = 'FOLDER:'): input is FolderPlaceholderId {
-  return input.startsWith(prefix);
-}
+export type FolderPlaceholderId = `FOLDER:${string}`;
 
 export function isFolderPlaceholderId(input: string): input is FolderPlaceholderId {
-  return typedCheck(input);
-}
-
-function typedCreate(id: string, prefix: FolderPlaceholderIdPrefixType = 'FOLDER:'): FolderPlaceholderId {
-  return (prefix + id) as FolderPlaceholderId;
+  return input.startsWith('FOLDER:');
 }
