@@ -2,20 +2,24 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 import { ThumbnailUploaderFactory } from '../infrastructure/ThumbnailUploaderFactory';
 import { obtainImageToThumbnailIt } from './obtain-image-to-thumbnail-it';
-import { reziseImage } from './resize-image';
 
-export async function createAndUploadThumbnail(id: number, name: string) {
-  const uploader = ThumbnailUploaderFactory.build();
+type Props = {
+  id: number;
+  absolutePath: string;
+};
 
-  const image = await obtainImageToThumbnailIt(name);
+export async function createAndUploadThumbnail({id, absolutePath}: Props) {
+    try {
+    const uploader = ThumbnailUploaderFactory.build();
 
-  if (!image) {
-    return;
+    const image = await obtainImageToThumbnailIt({ absolutePath });
+    if (!image) {
+      return;
+    }
+
+    logger.debug({ msg: 'Create thumbnail', absolutePath });
+    await uploader.upload(id, image);
+  } catch (err) {
+    throw logger.error({ msg: '[THUMBNAIL] Error uploading thumbnail: ', err });
   }
-
-  const thumbnail = await reziseImage(image);
-
-  await uploader.upload(id, thumbnail).catch((err) => {
-    logger.error({ msg: '[THUMBNAIL] Error uploading thumbnail: ', err });
-  });
 }

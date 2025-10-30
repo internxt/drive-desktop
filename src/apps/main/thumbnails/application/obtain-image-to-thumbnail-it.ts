@@ -1,13 +1,9 @@
-import { createReadStream } from 'fs';
 import path from 'path';
-import { Readable } from 'stream';
 
 import configStore from '../../config';
-import {
-  isImageThumbnailable,
-  isPdfThumbnailable,
-} from '../domain/ThumbnableExtension';
-import { extractFirstPageAsReadablePNG } from './extract-pdf-page';
+import { isImageThumbnailable, isPdfThumbnailable } from '../domain/ThumbnableExtension';
+import { generateImageThumbnail } from './generate-image-thumbnail';
+import { generatePDFThumbnail } from './generate-pdf-thumbnail';
 
 function getExtension(pathLike: string) {
   const { ext } = path.parse(pathLike);
@@ -15,20 +11,22 @@ function getExtension(pathLike: string) {
   return ext.replace('.', '');
 }
 
-export async function obtainImageToThumbnailIt(
-  name: string
-): Promise<Readable | undefined> {
-  const ext = getExtension(name);
+type Props = {
+  absolutePath: string;
+};
+
+export async function obtainImageToThumbnailIt({ absolutePath }: Props) {
+  const ext = getExtension(absolutePath);
 
   const root = configStore.get('syncRoot');
-  const filePath = path.join(root, name);
+  const filePath = path.join(root, absolutePath);
 
   if (isPdfThumbnailable(ext)) {
-    return extractFirstPageAsReadablePNG(filePath);
+    return generatePDFThumbnail({ absolutePath: filePath });
   }
 
   if (isImageThumbnailable(ext)) {
-    return createReadStream(filePath);
+    return generateImageThumbnail({ absolutePath: filePath });
   }
 
   return undefined;

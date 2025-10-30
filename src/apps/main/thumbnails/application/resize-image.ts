@@ -1,13 +1,13 @@
 import gm from 'gm';
 import { Readable } from 'stream';
-import { ThumbnailProperties } from '../domain/ThumbnailProperties';
+import { ThumbnailConfig } from '../domain/ThumbnailProperties';
 
-export async function reziseImage(file: Readable): Promise<Buffer> {
+export async function resizeImage(file: Readable): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     gm(file)
-      .resize(ThumbnailProperties.dimensions, ThumbnailProperties.dimensions)
+      .resize(ThumbnailConfig.MaxWidth, ThumbnailConfig.MaxHeight)
       .toBuffer(
-        ThumbnailProperties.type,
+        ThumbnailConfig.Type,
         (err: Error | null, buffer: Buffer) => {
           if (err) reject(err);
           resolve(buffer);

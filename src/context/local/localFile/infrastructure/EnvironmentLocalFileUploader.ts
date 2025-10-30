@@ -40,6 +40,7 @@ export class EnvironmentLocalFileUploader implements LocalFileHandler {
         source: readable,
         fileSize: size,
         finishedCallback: (err: Error | null, contentsId: string) => {
+          readable.close();
           stopwatch.finish();
 
           if (err) {

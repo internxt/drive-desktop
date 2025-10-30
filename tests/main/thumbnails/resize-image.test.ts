@@ -1,8 +1,8 @@
 import { execSync } from 'child_process';
 import { createReadStream } from 'fs';
 import path from 'path';
-import { reziseImage } from '../../../src/apps/main/thumbnails/application/resize-image';
-import { ThumbnailProperties } from '../../../src/apps/main/thumbnails/domain/ThumbnailProperties';
+import { resizeImage } from '../../../src/apps/main/thumbnails/application/resize-image';
+import { ThumbnailConfig } from '../../../src/apps/main/thumbnails/domain/ThumbnailProperties';
 import { getFileSize } from './helpers';
 
 describe.skip('GM Resize Image', () => {
@@ -17,7 +17,7 @@ describe.skip('GM Resize Image', () => {
       path.join(__dirname, 'fixtures', '1000x1000.jpg')
     );
 
-    const buffer = await reziseImage(image);
+    const buffer = await resizeImage(image);
 
     expect(buffer).not.toBeNull();
     expect(buffer.length).toBeGreaterThan(0);
@@ -27,11 +27,11 @@ describe.skip('GM Resize Image', () => {
     const image = createReadStream(
       path.join(__dirname, 'fixtures', '1000x1000.jpg')
     );
-    const buffer = await reziseImage(image);
+    const buffer = await resizeImage(image);
 
     const { width, height } = await getFileSize(buffer);
 
-    expect(width).toBe(ThumbnailProperties.dimensions);
-    expect(height).toBe(ThumbnailProperties.dimensions);
+    expect(width).toBe(ThumbnailConfig.MaxHeight);
+    expect(height).toBe(ThumbnailConfig.MaxWidth);
   });
 });
