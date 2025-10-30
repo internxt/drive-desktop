@@ -81,6 +81,7 @@ export class VirtualDrive {
   }
 
   static unregisterSyncRoot({ providerId }: { providerId: string }) {
+    logger.debug({ msg: 'Unregistering sync root', providerId });
     return DependencyInjectionAddonProvider.get().unregisterSyncRoot({ providerId });
   }
 

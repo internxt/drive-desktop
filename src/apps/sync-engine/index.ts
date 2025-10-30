@@ -26,21 +26,6 @@ async function setUp({ ctx }: { ctx: ProcessSyncContext }) {
     await BindingsManager.updateAndCheckPlaceholders({ ctx });
   });
 
-  ipcRendererSyncEngine.on('STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (event) => {
-    logger.debug({ msg: '[SYNC ENGINE] Stopping and clearing sync engine' });
-
-    try {
-      BindingsManager.stop({ ctx });
-
-      logger.debug({ msg: '[SYNC ENGINE] sync engine stopped and cleared successfully' });
-
-      event.sender.send('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS');
-    } catch (error: unknown) {
-      logger.error({ msg: '[SYNC ENGINE] Error stopping and cleaning: ', error });
-      event.sender.send('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS');
-    }
-  });
-
   await BindingsManager.start({ ctx, container });
   BindingsManager.watch({ ctx });
   void runDangledFiles({ ctx, container });
@@ -78,9 +63,7 @@ ipcRenderer.once('SET_CONFIG', async (event, config: Config) => {
     await setUp({ ctx });
 
     logger.debug({ msg: '[SYNC ENGINE] Sync engine has successfully started' });
-    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_SUCCESSFUL', config.workspaceId);
   } catch (exc) {
     logger.error({ msg: '[SYNC ENGINE] Error setting up', exc });
-    ipcRenderer.send('SYNC_ENGINE_PROCESS_SETUP_FAILED', config.workspaceId);
   }
 });
