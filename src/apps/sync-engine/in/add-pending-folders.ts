@@ -16,7 +16,7 @@ export async function addPendingFolders({ ctx, createFolders }: TProps) {
         path: absolutePath,
       });
 
-      await createFolder({ ctx, path, absolutePath });
+      await createFolder({ ctx, path });
     }),
   );
 }

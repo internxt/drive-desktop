@@ -9,7 +9,6 @@ import { createRelativePath } from '@/context/local/localFile/infrastructure/Abs
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import * as updateFolderStatus from '@/backend/features/local-sync/placeholders/update-folder-status';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 
@@ -18,7 +17,6 @@ describe('Folder Creator', () => {
   const getFolderUuid = deepMocked(NodeWin.getFolderUuid);
   const invokeMock = partialSpyOn(ipcRendererSqlite, 'invoke');
   const persistMock = partialSpyOn(HttpRemoteFolderSystem, 'persist');
-  const updateFolderStatusMock = partialSpyOn(updateFolderStatus, 'updateFolderStatus');
 
   const path = createRelativePath('folder1', 'folder2');
   const props = mockProps<typeof FolderCreator.run>({
@@ -70,6 +68,5 @@ describe('Folder Creator', () => {
       itemPath: '/folder1/folder2',
       id: 'FOLDER:uuid',
     });
-    expect(updateFolderStatusMock).toBeCalledTimes(1);
   });
 });

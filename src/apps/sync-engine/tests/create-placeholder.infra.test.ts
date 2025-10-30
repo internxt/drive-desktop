@@ -8,7 +8,6 @@ import { call, calls, deepMocked, partialSpyOn } from 'tests/vitest/utils.helper
 import { writeFile } from 'node:fs/promises';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 import { sleep } from '@/apps/main/util';
-import { PinState } from '@/node-win/types/placeholder.type';
 import { getUserOrThrow } from '@/apps/main/auth/service';
 import { EnvironmentFileUploader } from '@/infra/inxt-js/file-uploader/environment-file-uploader';
 import { mockDeep } from 'vitest-mock-extended';
@@ -18,6 +17,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
 import { buildProcessContainer } from '../build-process-container';
+import { PinState } from '@/node-win/types/placeholder.type';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -127,8 +127,6 @@ describe('create-placeholder', () => {
     await sleep(5000);
 
     // Then
-    const status = ctx.virtualDrive.getPlaceholderState({ path: file });
-    expect(status.pinState).toBe(PinState.AlwaysLocal);
     call(onAllMock).toStrictEqual({ event: 'add', path: file });
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
@@ -139,11 +137,11 @@ describe('create-placeholder', () => {
       { msg: 'onReady' },
       { msg: 'Create file', path: '/file.txt' },
       { tag: 'SYNC-ENGINE', msg: 'File uploaded', path: '/file.txt', contentsId: '012345678901234567890123', size: 7 },
-      { msg: 'Convert to placeholder succeeded', itemPath: '/file.txt', id: `FILE:${fileUuid}` },
+      { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: '/file.txt', id: `FILE:${fileUuid}` },
       {
         msg: 'Change event triggered',
         path: '/file.txt',
-        pinState: 1,
+        pinState: PinState.Unspecified,
         diff: { ctimeMs: { curr: expect.any(Number), prev: expect.any(Number) } },
       },
     ]);

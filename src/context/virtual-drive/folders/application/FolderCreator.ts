@@ -4,17 +4,15 @@ import { FolderNotFoundError } from '../domain/errors/FolderNotFoundError';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
-import { AbsolutePath, pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { updateFolderStatus } from '@/backend/features/local-sync/placeholders/update-folder-status';
+import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 type TProps = {
   ctx: ProcessSyncContext;
   path: RelativePath;
-  absolutePath: AbsolutePath;
 };
 
 export class FolderCreator {
-  static async run({ ctx, path, absolutePath }: TProps) {
+  static async run({ ctx, path }: TProps) {
     const posixDir = pathUtils.dirname(path);
     const { data: parentUuid } = NodeWin.getFolderUuid({ ctx, path: posixDir });
 
@@ -40,6 +38,5 @@ export class FolderCreator {
     if (error) throw error;
 
     ctx.virtualDrive.convertToPlaceholder({ itemPath: path, id: `FOLDER:${folderDto.uuid}` });
-    await updateFolderStatus({ ctx, path, absolutePath });
   }
 }
