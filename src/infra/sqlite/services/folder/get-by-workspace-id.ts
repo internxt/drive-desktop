@@ -4,12 +4,16 @@ import { SqliteError } from '../common/sqlite-error';
 import { folderRepository } from '../drive-folder';
 
 type Props = {
+  userUuid: string;
   workspaceId: string;
 };
 
-export async function getByWorkspaceId({ workspaceId }: Props) {
+export async function getByWorkspaceId({ userUuid, workspaceId }: Props) {
   try {
-    const items = await folderRepository.findBy({ workspaceId });
+    const items = await folderRepository.findBy({
+      userUuid,
+      workspaceId,
+    });
 
     return { data: items.map((item) => parseData({ data: item })) };
   } catch (exc) {

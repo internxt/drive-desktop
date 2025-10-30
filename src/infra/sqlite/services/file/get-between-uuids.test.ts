@@ -10,6 +10,7 @@ describe('get-between-uuids', () => {
   const findMock = partialSpyOn(fileRepository, 'find');
 
   const props = mockProps<typeof getBetweenUuids>({
+    userUuid: 'userUuid',
     workspaceId: 'workspaceId',
     firstUuid: 'uuid1' as FileUuid,
     lastUuid: 'uuid2' as FileUuid,
@@ -34,6 +35,7 @@ describe('get-between-uuids', () => {
     call(findMock).toMatchObject({
       order: { uuid: 'ASC' },
       where: {
+        userUuid: 'userUuid',
         workspaceId: 'workspaceId',
         status: 'EXISTS',
         uuid: Between('uuid1', 'uuid2'),
