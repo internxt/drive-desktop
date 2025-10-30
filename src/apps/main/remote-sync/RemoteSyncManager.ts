@@ -1,7 +1,6 @@
 import { RemoteSyncStatus } from './helpers';
 import { logger } from '../../shared/logger/logger';
 import { broadcastSyncStatus } from './services/broadcast-sync-status';
-import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { syncRemoteFiles } from './files/sync-remote-files';
 import { syncRemoteFolders } from './folders/sync-remote-folders';
 import { RemoteSyncModule } from '@/backend/features/remote-sync/remote-sync.module';
@@ -12,7 +11,6 @@ export class RemoteSyncManager {
 
   constructor(
     public readonly context: Config,
-    public readonly worker: TWorkerConfig,
     public readonly workspaceId: string,
   ) {}
 

@@ -2,43 +2,18 @@ import { SyncContext } from '@/apps/sync-engine/config';
 import { BrowserWindow } from 'electron';
 import path from 'node:path';
 import { cwd } from 'node:process';
-import { workers } from '../store';
-import { stopAndClearSyncEngineWorker } from './stop-and-clear-sync-engine-worker';
+import { WorkerConfig, workers } from '@/apps/main/remote-sync/store';
 import { monitorHealth } from './monitor-health';
 import { scheduleSync } from './schedule-sync';
 import { addRemoteSyncManager } from '@/apps/main/remote-sync/handlers';
 import { RecoverySyncModule } from '@/backend/features/sync/recovery-sync/recovery-sync.module';
+import { stopSyncEngineWorker } from './stop-sync-engine-worker';
 
 type TProps = {
   ctx: SyncContext;
 };
 
-let hasPrinted = false;
-
 export async function spawnSyncEngineWorker({ ctx }: TProps) {
-  const workspaceId = ctx.workspaceId;
-
-  if (!workers[workspaceId]) {
-    workers[workspaceId] = {
-      worker: null,
-      workerIsRunning: false,
-      startingWorker: false,
-      syncSchedule: null,
-    };
-  }
-
-  const worker = workers[workspaceId];
-
-  if (worker.startingWorker) {
-    ctx.logger.debug({ msg: 'Sync engine worker is already starting' });
-    return;
-  }
-
-  if (worker.workerIsRunning) {
-    ctx.logger.debug({ msg: 'Sync engine worker is already running' });
-    return;
-  }
-
   ctx.logger.debug({ msg: 'Spawn sync engine worker' });
 
   /**
@@ -66,6 +41,8 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
      * not have any way of knowing what went wrong. Usually the error is printed in the
      * first message.
      */
+    let hasPrinted = false;
+
     browserWindow.webContents.on('console-message', (event, level, message, line, sourceId) => {
       if (!hasPrinted) {
         ctx.logger.debug({
@@ -80,8 +57,23 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
       }
     });
 
-    worker.startingWorker = true;
-    worker.worker = browserWindow;
+    addRemoteSyncManager({ context: ctx });
+
+    const worker: WorkerConfig = {
+      ctx,
+      browserWindow,
+      syncSchedule: scheduleSync({ workspaceId: ctx.workspaceId }),
+    };
+
+    workers.set(ctx.workspaceId, worker);
+
+    monitorHealth({
+      browserWindow,
+      stopAndSpawn: async () => {
+        stopSyncEngineWorker({ worker });
+        await spawnSyncEngineWorker({ ctx });
+      },
+    });
 
     await browserWindow.loadFile(
       process.env.NODE_ENV === 'development'
@@ -94,18 +86,6 @@ export async function spawnSyncEngineWorker({ ctx }: TProps) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { logger, ...config } = ctx;
     browserWindow.webContents.send('SET_CONFIG', config);
-
-    monitorHealth({
-      browserWindow,
-      stopAndSpawn: async () => {
-        await stopAndClearSyncEngineWorker({ workspaceId });
-        await spawnSyncEngineWorker({ ctx });
-      },
-    });
-
-    scheduleSync({ worker });
-
-    addRemoteSyncManager({ context: ctx, worker });
   } catch (exc) {
     ctx.logger.error({ msg: 'Error loading sync engine worker', exc });
   }
