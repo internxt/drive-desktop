@@ -31,7 +31,7 @@ describe('get-workspaces', () => {
           {
             workspace: { id: 'workspaceId' },
             workspaceUser: {
-              id: 'provider_id',
+              id: 'uuid',
               key: 'mnemonic',
               rootFolderId: 'rootFolderId',
             },
@@ -48,10 +48,10 @@ describe('get-workspaces', () => {
     expect(workspaces).toStrictEqual([
       {
         id: 'workspaceId',
-        providerId: '{PROVIDER_ID}',
+        providerId: '{UUID}',
         key: 'mnemonic',
         rootFolderId: 'rootFolderId',
-        rootPath: 'C:\\Users\\user\\InternxtDrive - provider_id',
+        rootPath: 'C:/Users/user/InternxtDrive - uuid',
       },
     ]);
   });
