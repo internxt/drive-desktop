@@ -8,7 +8,6 @@ import { PATHS } from '@/core/electron/paths';
 import { join } from 'node:path';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
   context: AuthContext;
@@ -17,7 +16,7 @@ type TProps = {
     key: string;
     providerId: string;
     rootFolderId: string;
-    rootPath: AbsolutePath;
+    rootPath: string;
   };
 };
 

@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { v4 } from 'uuid';
 import { getFileInfo, GetFileInfoError } from './get-file-info';
 import { mockProps } from '@/tests/vitest/utils.helper.test';
-import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createAbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { PinState } from '@/node-win/types/placeholder.type';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
@@ -33,7 +33,7 @@ describe('get-file-info', () => {
 
   it('should return file info when read a file placeholder', () => {
     // Given
-    const itemPath = createAbsolutePath(rootPath, v4());
+    const itemPath = createRelativePath('/file.txt');
     const uuid = v4();
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
     props.path = itemPath;
@@ -48,7 +48,7 @@ describe('get-file-info', () => {
 
   it('should return error NOT_A_FILE when read a folder placeholder', () => {
     // Given
-    const itemPath = createAbsolutePath(rootPath, v4());
+    const itemPath = createRelativePath('/folder');
     const uuid = v4();
     const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
     props.path = itemPath;

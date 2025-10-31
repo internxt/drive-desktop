@@ -22,7 +22,7 @@ type TProps = {
 export async function detectContextMenuAction({ ctx, self, details, absolutePath, path }: TProps) {
   const { prev, curr } = details;
 
-  const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path: absolutePath });
+  const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path });
   const isInDevice = self.fileInDevice.has(absolutePath);
 
   const diff = getStatsDiff({ prev, curr });
