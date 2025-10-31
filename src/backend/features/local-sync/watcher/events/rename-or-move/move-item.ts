@@ -4,8 +4,6 @@ import { FileUuid, SimpleDriveFile } from '@/apps/main/database/entities/DriveFi
 import { FolderUuid, SimpleDriveFolder } from '@/apps/main/database/entities/DriveFolder';
 import { ipcRendererDriveServerWip } from '@/infra/drive-server-wip/out/ipc-renderer';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
-import { updateFolderStatus } from '../../../placeholders/update-folder-status';
-import { updateFileStatus } from '../../../placeholders/update-file-status';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 
 type TProps = {
@@ -19,9 +17,11 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
   const parentPath = pathUtils.dirname(path);
   const name = basename(path);
 
-  const { data: parentUuid, error } = NodeWin.getFolderUuid({ ctx, path: parentPath });
+  const { data: parentInfo, error } = NodeWin.getFolderInfo({ ctx, path: parentPath });
 
   if (error) throw error;
+
+  const { uuid: parentUuid } = parentInfo;
 
   // Neither move nor renamed
   if (item.parentUuid === parentUuid && itemName === name) return;
@@ -30,9 +30,9 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
 
   if (type === 'file') {
     await ipcRendererDriveServerWip.invoke('moveFileByUuid', { uuid, parentUuid, nameWithExtension: name, workspaceToken });
-    updateFileStatus({ ctx, path });
   } else {
     await ipcRendererDriveServerWip.invoke('moveFolderByUuid', { uuid, parentUuid, name, workspaceToken });
-    updateFolderStatus({ ctx, path });
   }
+
+  ctx.virtualDrive.updateSyncStatus({ itemPath: path });
 }

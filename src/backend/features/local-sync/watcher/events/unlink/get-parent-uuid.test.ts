@@ -6,24 +6,24 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 describe('get-parent-uuid', () => {
-  const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const statMock = partialSpyOn(fileSystem, 'stat');
 
   const absolutePath = 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2\\file' as AbsolutePath;
   const props = mockProps<typeof getParentUuid>({ absolutePath });
 
   beforeEach(() => {
-    getFolderUuidMock.mockReturnValue({ data: 'parentUuid' as FolderUuid });
+    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parentUuid' as FolderUuid } });
     statMock.mockResolvedValue({ data: { size: 1024 } });
   });
 
   it('should skip if no parentUuid', async () => {
     // Given
-    getFolderUuidMock.mockReturnValue({});
+    getFolderInfoMock.mockReturnValue({});
     // When
     const res = await getParentUuid(props);
     // Then
-    expect(getFolderUuidMock).toBeCalledWith(expect.objectContaining({ path: 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2' }));
+    expect(getFolderInfoMock).toBeCalledWith(expect.objectContaining({ path: 'C:\\Users\\user\\InternxtDrive\\folder1\\folder2' }));
     expect(res).toBeNull();
   });
 

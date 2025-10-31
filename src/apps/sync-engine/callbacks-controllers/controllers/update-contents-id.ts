@@ -1,5 +1,4 @@
 import { logger } from '@/apps/shared/logger/logger';
-import { updateFileStatus } from '@/backend/features/local-sync/placeholders/update-file-status';
 import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsUploader } from '@/context/virtual-drive/contents/application/ContentsUploader';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
@@ -51,7 +50,7 @@ export async function updateContentsId({ ctx, stats, path, absolutePath, uuid }:
       absolutePath,
     });
 
-    updateFileStatus({ ctx, path });
+    ctx.virtualDrive.updateSyncStatus({ itemPath: path });
   } catch (exc) {
     logger.error({
       tag: 'SYNC-ENGINE',

@@ -146,8 +146,8 @@ export class VirtualDrive {
     }
   }
 
-  updateSyncStatus({ itemPath, isDirectory }: { itemPath: string; isDirectory: boolean }) {
-    return this.addon.updateSyncStatus({ path: this.fixPath(itemPath), isDirectory });
+  updateSyncStatus({ itemPath }: { itemPath: string }) {
+    return this.addon.updateSyncStatus({ path: this.fixPath(itemPath) });
   }
 
   convertToPlaceholder({ itemPath, id }: { itemPath: string; id: FilePlaceholderId | FolderPlaceholderId }) {
