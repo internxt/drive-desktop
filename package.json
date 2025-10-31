@@ -16,6 +16,8 @@
     "reinstall:nautilus-extension": "NODE_ENV=development ts-node src/apps/nautilus-extension/reload.ts",
     "lint": "cross-env NODE_ENV=development eslint . --ext .ts,.tsx",
     "lint:fix": "yarn run lint --fix",
+    "format": "prettier src tests --check",
+    "format:fix": "prettier src tests --write",
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
     "publish": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish always",
     "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts && opencollective-postinstall",
@@ -188,6 +190,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^12.1.2",
     "@testing-library/react-hooks": "^8.0.1",
+    "@trivago/prettier-plugin-sort-imports": "^5.2.2",
     "@types/async": "^3.2.16",
     "@types/better-sqlite3": "^7.6.4",
     "@types/bytes": "^3.1.1",
@@ -261,7 +264,7 @@
     "playwright": "1.26.1",
     "postcss": "^8.4.5",
     "postcss-loader": "^6.2.1",
-    "prettier": "^2.5.1",
+    "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.1.4",
     "react-refresh": "^0.11.0",
     "react-refresh-typescript": "^2.0.3",
@@ -344,20 +347,5 @@
   },
   "engines": {
     "node": ">=18.0.0 <19.0.0"
-  },
-  "browserslist": [],
-  "prettier": {
-    "overrides": [
-      {
-        "files": [
-          ".prettierrc",
-          ".eslintrc"
-        ],
-        "options": {
-          "parser": "json"
-        }
-      }
-    ],
-    "singleQuote": true
   }
 }
