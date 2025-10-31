@@ -8,8 +8,8 @@ export const addonZod = {
   convertToPlaceholder: z.undefined(),
   createFolderPlaceholder: z.undefined(),
   createFilePlaceholder: z.undefined(),
-  getFileIdentity: z.union([z.literal(''), z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
   dehydrateFile: z.undefined(),
+  getFileIdentity: z.union([z.literal(''), z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
   disconnectSyncRoot: z.undefined(),
   getPlaceholderState: z.object({
     placeholderId: z.union([z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
