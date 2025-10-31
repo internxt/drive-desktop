@@ -12,9 +12,7 @@ export function clearCleanerReportCache(): void {
   storedCleanerReport = null;
 }
 
-function getCleanerSectionOrFallback(
-  result: PromiseSettledResult<CleanerSection>
-): CleanerSection {
+function getCleanerSectionOrFallback(result: PromiseSettledResult<CleanerSection>): CleanerSection {
   if (result.status === 'fulfilled') {
     return result.value;
   } else {
@@ -26,22 +24,19 @@ function getCleanerSectionOrFallback(
   }
 }
 
-export async function generateCleanerReport(
-  refreshReport = false
-): Promise<CleanerReport> {
+export async function generateCleanerReport(refreshReport = false): Promise<CleanerReport> {
   if (!refreshReport && storedCleanerReport) return storedCleanerReport;
 
   try {
     logger.debug({ msg: 'Starting cleaner report generation...' });
 
-    const [appCache, logfiles, trash, webStorage, webCache] =
-      await Promise.allSettled([
-        generateAppCacheReport(),
-        generateLogsFilesReport(),
-        generateTrashFilesReport(),
-        generateWebStorageFilesReport(),
-        generateWebCacheReport(),
-      ]);
+    const [appCache, logfiles, trash, webStorage, webCache] = await Promise.allSettled([
+      generateAppCacheReport(),
+      generateLogsFilesReport(),
+      generateTrashFilesReport(),
+      generateWebStorageFilesReport(),
+      generateWebCacheReport(),
+    ]);
     const cleanerReport = {
       appCache: getCleanerSectionOrFallback(appCache),
       logFiles: getCleanerSectionOrFallback(logfiles),

@@ -6,7 +6,7 @@ import isDev from '../../../../../core/isDev/isDev';
 export class BackupWorker {
   private constructor(
     public readonly id: number, // <- This id is never used
-    private readonly worker: BrowserWindow
+    private readonly worker: BrowserWindow,
   ) {}
 
   send(message: string, ...args: any[]) {
@@ -49,14 +49,7 @@ export class BackupWorker {
 
   private static getPath(): string {
     return isDev()
-      ? path.resolve(
-          process.cwd(),
-          'release',
-          'app',
-          'dist',
-          'backups',
-          'index.html'
-        )
+      ? path.resolve(process.cwd(), 'release', 'app', 'dist', 'backups', 'index.html')
       : `${path.join(__dirname, '..', 'backups')}/index.html`;
   }
 }

@@ -6,20 +6,17 @@ import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
 
 export async function updateBackupFolderName(
   folderUuid: string,
-  newFolderName: string
+  newFolderName: string,
 ): Promise<Result<components['schemas']['FolderDto'], Error>> {
   try {
     const headers = await getNewApiHeadersIPC();
-    const response = await fetch(
-      `${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/meta`,
-      {
-        method: 'PUT',
-        headers,
-        body: JSON.stringify({
-          plainName: newFolderName,
-        }),
-      }
-    );
+    const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/meta`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({
+        plainName: newFolderName,
+      }),
+    });
     if (!response.ok) {
       return {
         error: logger.error({

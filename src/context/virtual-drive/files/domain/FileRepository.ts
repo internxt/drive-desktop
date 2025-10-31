@@ -7,13 +7,9 @@ export abstract class FileRepository {
 
   abstract searchByUuid(uuid: File['uuid']): Promise<File | undefined>;
 
-  abstract searchByContentsId(
-    id: File['contentsId']
-  ): Promise<File | undefined>;
+  abstract searchByContentsId(id: File['contentsId']): Promise<File | undefined>;
 
-  abstract searchByArrayOfContentsId(
-    contentsIds: Array<File['contentsId']>
-  ): Promise<Array<File>>
+  abstract searchByArrayOfContentsId(contentsIds: Array<File['contentsId']>): Promise<Array<File>>;
 
   abstract upsert(file: File): Promise<boolean>;
 

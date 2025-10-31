@@ -1,6 +1,6 @@
 import { components } from '../../../../infra/schemas';
 
-export type RefreshTokenResponse =  components['schemas']['RefreshTokenResponseDto'];
+export type RefreshTokenResponse = components['schemas']['RefreshTokenResponseDto'];
 
 export interface LoginResponse {
   hasKeys: boolean;
@@ -10,9 +10,7 @@ export interface LoginResponse {
   hasEccKeys: boolean;
 }
 
-export type AuthLoginResponseViewModel =
-  | { success: true; data: LoginResponse }
-  | { success: false; error: string };
+export type AuthLoginResponseViewModel = { success: true; data: LoginResponse } | { success: false; error: string };
 
 export interface LoginAccessRequest {
   email: string;
@@ -27,6 +25,4 @@ export interface LoginAccessResponse {
   newToken: string;
 }
 
-export type AuthAccessResponseViewModel =
-  | { success: true; data: LoginAccessResponse }
-  | { success: false; error: string };
+export type AuthAccessResponseViewModel = { success: true; data: LoginAccessResponse } | { success: false; error: string };

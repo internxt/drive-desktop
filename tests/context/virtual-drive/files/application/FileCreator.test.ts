@@ -30,14 +30,7 @@ describe('File Creator', () => {
     eventBus = new EventBusMock();
     notifier = new FileSyncNotifierMock();
 
-    SUT = new FileCreator(
-      remoteFileSystemMock,
-      fileRepository,
-      parentFolderFinder,
-      fileDeleter,
-      eventBus,
-      notifier
-    );
+    SUT = new FileCreator(remoteFileSystemMock, fileRepository, parentFolderFinder, fileDeleter, eventBus, notifier);
   });
 
   it('creates the file on the drive server', async () => {
@@ -52,16 +45,14 @@ describe('File Creator', () => {
 
     fileRepository.addMock.mockImplementationOnce(() => Promise.resolve());
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(
-      right(fileAttributes)
-    );
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(right(fileAttributes));
 
     await SUT.run(path.value, contentsId.value, size.value);
 
     expect(fileRepository.addMock).toBeCalledWith(
       expect.objectContaining({
         _contentsId: new FileContentsId(fileAttributes.contentsId),
-      })
+      }),
     );
   });
 
@@ -76,18 +67,12 @@ describe('File Creator', () => {
 
     fileRepository.addMock.mockImplementationOnce(() => Promise.resolve());
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(
-      right(fileAttributes)
-    );
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(right(fileAttributes));
 
     await SUT.run(path.value, contentsId.value, size.value);
 
-    expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe(
-      'file.created'
-    );
-    expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(
-      fileAttributes.uuid
-    );
+    expect(eventBus.publishMock.mock.calls[0][0][0].eventName).toBe('file.created');
+    expect(eventBus.publishMock.mock.calls[0][0][0].aggregateId).toBe(fileAttributes.uuid);
   });
 
   it('deletes the file on remote if it already exists on the path', async () => {
@@ -100,17 +85,11 @@ describe('File Creator', () => {
       contentsId: contentsId.value,
     }).attributes();
 
-    fileRepository.matchingPartialMock
-      .mockReturnValueOnce([existingFile])
-      .mockReturnValueOnce([existingFile]);
+    fileRepository.matchingPartialMock.mockReturnValueOnce([existingFile]).mockReturnValueOnce([existingFile]);
 
-    const deleterSpy = jest
-      .spyOn(fileDeleter, 'run')
-      .mockResolvedValueOnce(Promise.resolve());
+    const deleterSpy = jest.spyOn(fileDeleter, 'run').mockResolvedValueOnce(Promise.resolve());
 
-    remoteFileSystemMock.persistMock.mockResolvedValueOnce(
-      right(fileAttributes)
-    );
+    remoteFileSystemMock.persistMock.mockResolvedValueOnce(right(fileAttributes));
 
     fileRepository.addMock.mockImplementationOnce(() => Promise.resolve());
 
@@ -121,12 +100,12 @@ describe('File Creator', () => {
     expect(remoteFileSystemMock.persistMock).toBeCalledWith(
       expect.objectContaining({
         contentsId: contentsId,
-      })
+      }),
     );
     expect(fileRepository.addMock).toBeCalledWith(
       expect.objectContaining({
         _contentsId: new FileContentsId(fileAttributes.contentsId),
-      })
+      }),
     );
   });
 });

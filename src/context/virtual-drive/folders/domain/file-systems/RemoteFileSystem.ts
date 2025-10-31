@@ -12,28 +12,16 @@ export type FolderPersistedDto = {
   createdAt: string;
 };
 
-export type RemoteFileSystemErrors =
-  | 'ALREADY_EXISTS'
-  | 'WRONG_DATA'
-  | 'UNHANDLED';
+export type RemoteFileSystemErrors = 'ALREADY_EXISTS' | 'WRONG_DATA' | 'UNHANDLED';
 
 export abstract class RemoteFileSystem {
-  abstract persist(
-    plainName: string,
-    parentFolderUuid: string
-  ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>>;
+  abstract persist(plainName: string, parentFolderUuid: string): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>>;
 
   abstract trash(id: Folder['id']): Promise<void>;
 
-  abstract move(
-    folderUuid: string,
-    destinationFolderUuid: string
-  ): Promise<void>;
+  abstract move(folderUuid: string, destinationFolderUuid: string): Promise<void>;
 
   abstract rename(folder: Folder): Promise<void>;
 
-  abstract searchWith(
-    parentId: FolderId,
-    folderPath: FolderPath
-  ): Promise<Folder | undefined>;
+  abstract searchWith(parentId: FolderId, folderPath: FolderPath): Promise<Folder | undefined>;
 }

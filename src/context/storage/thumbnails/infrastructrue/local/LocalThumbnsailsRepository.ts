@@ -12,15 +12,14 @@ import { ThumbnailsRepository } from '../../domain/ThumbnailsRepository';
 import { SystemThumbnailNameCalculator } from './SystemThumbnailNameCalculator';
 import { ensureFolderExists } from '../../../../../apps/shared/fs/ensure-folder-exists';
 
-const isNodeError = (error: unknown): error is NodeJS.ErrnoException =>
-  error instanceof Error;
+const isNodeError = (error: unknown): error is NodeJS.ErrnoException => error instanceof Error;
 
 @Service()
 export class LocalThumbnailRepository implements ThumbnailsRepository {
   constructor(
     private readonly absolutePathConverter: RelativePathToAbsoluteConverter,
     private readonly systemThumbnailNameCalculator: SystemThumbnailNameCalculator,
-    private readonly systemThumbnailsFolder: string
+    private readonly systemThumbnailsFolder: string,
   ) {}
 
   private obtainName(file: File): string {
@@ -31,14 +30,8 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
   }
 
   init(): void {
-    const normalSizeThumbnailsPath = path.join(
-      this.systemThumbnailsFolder,
-      'normal'
-    );
-    const largeSizeThumbnailsPath = path.join(
-      this.systemThumbnailsFolder,
-      'normal'
-    );
+    const normalSizeThumbnailsPath = path.join(this.systemThumbnailsFolder, 'normal');
+    const largeSizeThumbnailsPath = path.join(this.systemThumbnailsFolder, 'normal');
 
     ensureFolderExists(normalSizeThumbnailsPath);
     ensureFolderExists(largeSizeThumbnailsPath);
@@ -60,9 +53,7 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
     const name = this.obtainName(file);
 
     try {
-      const stat = fs.statSync(
-        path.join(this.systemThumbnailsFolder, 'normal', name)
-      );
+      const stat = fs.statSync(path.join(this.systemThumbnailsFolder, 'normal', name));
 
       const thumbnail = Thumbnail.from({
         id: undefined,
@@ -86,10 +77,7 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
   async push(file: File, stream: Readable): Promise<void> {
     const name = this.obtainName(file);
 
-    const where = [
-      path.join(this.systemThumbnailsFolder, 'normal', name),
-      path.join(this.systemThumbnailsFolder, 'large', name),
-    ];
+    const where = [path.join(this.systemThumbnailsFolder, 'normal', name), path.join(this.systemThumbnailsFolder, 'large', name)];
 
     await Promise.all(where.map((p) => WriteReadableToFile.write(stream, p)));
 
@@ -158,10 +146,7 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
 
     const name = this.obtainName(file);
 
-    const where = [
-      path.join(this.systemThumbnailsFolder, 'normal', name),
-      path.join(this.systemThumbnailsFolder, 'large', name),
-    ];
+    const where = [path.join(this.systemThumbnailsFolder, 'normal', name), path.join(this.systemThumbnailsFolder, 'large', name)];
 
     const iconPath = this.defaultThumbnailsPath(icon);
 

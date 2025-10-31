@@ -1,9 +1,6 @@
 import { FolderStatuses } from '../../../../../src/context/virtual-drive/folders/domain/FolderStatus';
 import { FolderUuid } from '../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
-import {
-  OfflineFolder,
-  OfflineFolderAttributes,
-} from '../../../../../src/context/virtual-drive/folders/domain/OfflineFolder';
+import { OfflineFolder, OfflineFolderAttributes } from '../../../../../src/context/virtual-drive/folders/domain/OfflineFolder';
 
 import Chance from 'chance';
 const chance = new Chance();

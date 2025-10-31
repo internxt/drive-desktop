@@ -19,13 +19,9 @@ export class FolderRepositorySynchronizer {
       return !folder.isRoot() && !remoteFoldersIds.has(folder.id);
     });
 
-    const addPromises = remoteFolders.map((folder: Folder) =>
-      this.repository.add(folder)
-    );
+    const addPromises = remoteFolders.map((folder: Folder) => this.repository.add(folder));
 
-    const deletePromises = foldersToDelete.map((folder: Folder) =>
-      this.repository.delete(folder.id)
-    );
+    const deletePromises = foldersToDelete.map((folder: Folder) => this.repository.delete(folder.id));
 
     await Promise.all([...addPromises, ...deletePromises]);
   }

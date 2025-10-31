@@ -12,24 +12,17 @@ export class FileOverrider {
   constructor(
     private readonly rfs: RemoteFileSystem,
     private readonly repository: FileRepository,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
   ) {}
 
-  async run(
-    oldContentsId: File['contentsId'],
-    newContentsId: File['contentsId'],
-    newSize: File['size']
-  ): Promise<void> {
+  async run(oldContentsId: File['contentsId'], newContentsId: File['contentsId'], newSize: File['size']): Promise<void> {
     const file = await this.repository.searchByContentsId(oldContentsId);
 
     if (!file) {
       throw new FileNotFoundError(oldContentsId);
     }
 
-    file.changeContents(
-      new FileContentsId(newContentsId),
-      new FileSize(newSize)
-    );
+    file.changeContents(new FileContentsId(newContentsId), new FileSize(newSize));
 
     await this.rfs.override(file);
 

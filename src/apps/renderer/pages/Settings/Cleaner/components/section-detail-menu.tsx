@@ -16,14 +16,7 @@ type Props = {
   onToggleItem: (sectionKey: string, itemPath: string) => void;
 };
 
-export default function SectionDetailMenu({
-  sectionName,
-  report,
-  viewModel,
-  onClose,
-  onToggleSection,
-  onToggleItem,
-}: Props) {
+export default function SectionDetailMenu({ sectionName, report, viewModel, onClose, onToggleSection, onToggleItem }: Props) {
   if (!sectionName) return <></>;
 
   const sectionData = report[sectionName as keyof CleanerReport];
@@ -54,8 +47,7 @@ export default function SectionDetailMenu({
       className={
         'absolute right-0 top-0 z-10 h-full transform border-l border-gray-10 bg-surface shadow-sm transition-transform duration-300 ease-in-out dark:bg-gray-5'
       }
-      style={{ width: '75%' }}
-    >
+      style={{ width: '75%' }}>
       <SectionDetailHeader
         sectionName={sectionName}
         onClose={onClose}
@@ -66,24 +58,16 @@ export default function SectionDetailMenu({
       />
       <Separator classname="mx-2" />
       <div className="flex h-full flex-1 flex-col p-4">
-        <div
-          ref={parentRef}
-          className="bg-space flex-1 overflow-auto rounded-lg dark:bg-gray-5"
-          style={{ height: '100%' }}
-        >
+        <div ref={parentRef} className="bg-space flex-1 overflow-auto rounded-lg dark:bg-gray-5" style={{ height: '100%' }}>
           <div
             style={{
               height: `${virtualizer.getTotalSize()}px`,
               width: '100%',
               position: 'relative',
-            }}
-          >
+            }}>
             {virtualizer.getVirtualItems().map((virtualItem) => {
               const item = items[virtualItem.index];
-              const isSelected = isItemSelected(
-                sectionViewModel,
-                item.fullPath
-              );
+              const isSelected = isItemSelected(sectionViewModel, item.fullPath);
 
               return (
                 <div
@@ -95,8 +79,7 @@ export default function SectionDetailMenu({
                     width: '100%',
                     height: `${virtualItem.size}px`,
                     transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                >
+                  }}>
                   <SectionDetailMenuItem
                     item={item}
                     sectionName={sectionName}

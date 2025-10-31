@@ -7,11 +7,7 @@ import { TemporalFileRepository } from '../../domain/TemporalFileRepository';
 export class TemporalFileChunkReader {
   constructor(private readonly repository: TemporalFileRepository) {}
 
-  async run(
-    path: string,
-    length: number,
-    position: number
-  ): Promise<Optional<Buffer>> {
+  async run(path: string, length: number, position: number): Promise<Optional<Buffer>> {
     const documentPath = new TemporalFilePath(path);
 
     const from = position;

@@ -1,11 +1,6 @@
 import { ipcMain } from 'electron';
 import eventBus from '../event-bus';
-import {
-  sendFeedback,
-  userLogout,
-  userSigning,
-  userSigningFailed,
-} from './service';
+import { sendFeedback, userLogout, userSigning, userSigningFailed } from './service';
 import { clearTempFolder } from '../app-info/helpers';
 
 eventBus.on('USER_LOGGED_IN', () => {

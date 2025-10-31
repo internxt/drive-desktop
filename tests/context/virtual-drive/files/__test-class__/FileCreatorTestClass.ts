@@ -17,7 +17,7 @@ export class FileCreatorTestClass extends FileCreator {
       {} as ParentFolderFinder,
       {} as FileTrasher,
       {} as EventBus,
-      {} as SyncFileMessenger
+      {} as SyncFileMessenger,
     );
   }
 

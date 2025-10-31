@@ -7,12 +7,10 @@ import { FileCreator } from './FileCreator';
 import { FileOverrider } from '../override/FileOverrider';
 
 @Service()
-export class CreateFileOnTemporalFileUploaded
-  implements DomainEventSubscriber<TemporalFileUploadedDomainEvent>
-{
+export class CreateFileOnTemporalFileUploaded implements DomainEventSubscriber<TemporalFileUploadedDomainEvent> {
   constructor(
     private readonly creator: FileCreator,
-    private readonly fileOverrider: FileOverrider
+    private readonly fileOverrider: FileOverrider,
   ) {}
 
   subscribedTo(): DomainEventClass[] {
@@ -21,11 +19,7 @@ export class CreateFileOnTemporalFileUploaded
 
   private async create(event: TemporalFileUploadedDomainEvent): Promise<void> {
     if (event.replaces) {
-      await this.fileOverrider.run(
-        event.replaces,
-        event.aggregateId,
-        event.size
-      );
+      await this.fileOverrider.run(event.replaces, event.aggregateId, event.size);
       return;
     }
 

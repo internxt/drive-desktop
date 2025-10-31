@@ -15,10 +15,7 @@ export class FsLocalFileRepository implements LocalFileRepository {
     const conversion = dirents
       .filter((dirent) => dirent.isFile())
       .map(async (file) => {
-        const fileAbsolutePath = path.join(
-          absolutePath,
-          file.name
-        ) as AbsolutePath;
+        const fileAbsolutePath = path.join(absolutePath, file.name) as AbsolutePath;
 
         const { mtime, size } = await fs.stat(fileAbsolutePath);
 
@@ -37,8 +34,6 @@ export class FsLocalFileRepository implements LocalFileRepository {
   async folders(absolutePath: AbsolutePath): Promise<AbsolutePath[]> {
     const dirents = await fs.readdir(absolutePath, { withFileTypes: true });
 
-    return dirents
-      .filter((dirent) => dirent.isDirectory())
-      .map((folder) => path.join(absolutePath, folder.name) as AbsolutePath);
+    return dirents.filter((dirent) => dirent.isDirectory()).map((folder) => path.join(absolutePath, folder.name) as AbsolutePath);
   }
 }

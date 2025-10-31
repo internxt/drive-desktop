@@ -33,12 +33,7 @@ export class AntivirusError extends Error {
    * @param originalError - Original error that caused this error (optional)
    * @param details - Additional details about the error (optional)
    */
-  constructor(
-    code: AntivirusErrorCode,
-    message: string,
-    originalError?: Error | unknown,
-    details?: Record<string, unknown>
-  ) {
+  constructor(code: AntivirusErrorCode, message: string, originalError?: Error | unknown, details?: Record<string, unknown>) {
     super(message);
     this.name = 'AntivirusError';
     this.code = code;
@@ -59,63 +54,36 @@ export class AntivirusError extends Error {
   /**
    * Create an initialization error
    */
-  static initializationFailed(
-    message: string,
-    originalError?: Error | unknown
-  ): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.INITIALIZATION_FAILED,
-      message || 'Initialization failed',
-      originalError
-    );
+  static initializationFailed(message: string, originalError?: Error | unknown): AntivirusError {
+    return new AntivirusError(AntivirusErrorCode.INITIALIZATION_FAILED, message || 'Initialization failed', originalError);
   }
 
   /**
    * Create a not initialized error
    */
   static notInitialized(): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.NOT_INITIALIZED,
-      'ClamAV is not initialized'
-    );
+    return new AntivirusError(AntivirusErrorCode.NOT_INITIALIZED, 'ClamAV is not initialized');
   }
 
   /**
    * Create a not initialized error specifically for stopClamAv
    */
   static clamAvNotInitialized(): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.NOT_INITIALIZED,
-      'ClamAv instance is not initialized'
-    );
+    return new AntivirusError(AntivirusErrorCode.NOT_INITIALIZED, 'ClamAv instance is not initialized');
   }
 
   /**
    * Create a ClamAV daemon start failed error
    */
-  static clamdStartFailed(
-    message: string,
-    originalError?: Error | unknown
-  ): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.CLAMD_START_FAILED,
-      message || 'Failed to start ClamAV daemon',
-      originalError
-    );
+  static clamdStartFailed(message: string, originalError?: Error | unknown): AntivirusError {
+    return new AntivirusError(AntivirusErrorCode.CLAMD_START_FAILED, message || 'Failed to start ClamAV daemon', originalError);
   }
 
   /**
    * Create a ClamAV daemon not available error
    */
-  static clamdNotAvailable(
-    message?: string,
-    originalError?: Error | unknown
-  ): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.CLAMD_NOT_AVAILABLE,
-      message || 'ClamAV daemon is not available',
-      originalError
-    );
+  static clamdNotAvailable(message?: string, originalError?: Error | unknown): AntivirusError {
+    return new AntivirusError(AntivirusErrorCode.CLAMD_NOT_AVAILABLE, message || 'ClamAV daemon is not available', originalError);
   }
 
   /**
@@ -126,79 +94,42 @@ export class AntivirusError extends Error {
       AntivirusErrorCode.CLAMD_TIMEOUT,
       `Timeout waiting for ClamAV daemon after ${attempts} attempts (${timeout}ms)`,
       undefined,
-      { attempts, timeout }
+      { attempts, timeout },
     );
   }
 
   /**
    * Create a ClamAV configuration error
    */
-  static clamdConfigError(
-    message: string,
-    originalError?: Error | unknown
-  ): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.CLAMD_CONFIG_ERROR,
-      message || 'Error in ClamAV configuration',
-      originalError
-    );
+  static clamdConfigError(message: string, originalError?: Error | unknown): AntivirusError {
+    return new AntivirusError(AntivirusErrorCode.CLAMD_CONFIG_ERROR, message || 'Error in ClamAV configuration', originalError);
   }
 
   /**
    * Create a scan failed error
    */
-  static scanFailed(
-    filePath: string,
-    originalError?: Error | unknown
-  ): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.SCAN_FAILED,
-      `Failed to scan file: ${filePath}`,
-      originalError,
-      { filePath }
-    );
+  static scanFailed(filePath: string, originalError?: Error | unknown): AntivirusError {
+    return new AntivirusError(AntivirusErrorCode.SCAN_FAILED, `Failed to scan file: ${filePath}`, originalError, { filePath });
   }
 
   /**
    * Create a file access error
    */
-  static fileAccessError(
-    filePath: string,
-    originalError?: Error | unknown
-  ): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.FILE_ACCESS_ERROR,
-      `Failed to access file: ${filePath}`,
-      originalError,
-      { filePath }
-    );
+  static fileAccessError(filePath: string, originalError?: Error | unknown): AntivirusError {
+    return new AntivirusError(AntivirusErrorCode.FILE_ACCESS_ERROR, `Failed to access file: ${filePath}`, originalError, { filePath });
   }
 
   /**
    * Create a database error
    */
-  static databaseError(
-    message: string,
-    originalError?: Error | unknown
-  ): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.DATABASE_ERROR,
-      message || 'Database error',
-      originalError
-    );
+  static databaseError(message: string, originalError?: Error | unknown): AntivirusError {
+    return new AntivirusError(AntivirusErrorCode.DATABASE_ERROR, message || 'Database error', originalError);
   }
 
   /**
    * Create an unknown error
    */
-  static unknown(
-    message?: string,
-    originalError?: Error | unknown
-  ): AntivirusError {
-    return new AntivirusError(
-      AntivirusErrorCode.UNKNOWN_ERROR,
-      message || 'Unknown antivirus error',
-      originalError
-    );
+  static unknown(message?: string, originalError?: Error | unknown): AntivirusError {
+    return new AntivirusError(AntivirusErrorCode.UNKNOWN_ERROR, message || 'Unknown antivirus error', originalError);
   }
 }

@@ -34,9 +34,7 @@ interface Events {
 
   APP_DATA_SOURCE_INITIALIZED: () => void;
 
-  ANTIVIRUS_SCAN_PROGRESS: (
-    progress: ProgressData & { done?: boolean }
-  ) => void;
+  ANTIVIRUS_SCAN_PROGRESS: (progress: ProgressData & { done?: boolean }) => void;
 
   GET_USER_AVAILABLE_PRODUCTS: () => void;
 
@@ -46,10 +44,7 @@ interface Events {
 declare interface EventBus {
   on<U extends keyof Events>(event: U, listener: Events[U]): this;
 
-  emit<U extends keyof Events>(
-    event: U,
-    ...args: Parameters<Events[U]>
-  ): boolean;
+  emit<U extends keyof Events>(event: U, ...args: Parameters<Events[U]>): boolean;
 }
 
 const eventBus = new EventBus();

@@ -5,8 +5,7 @@ import { setUpCommonWindowHandlers } from '.';
 import isDev from '../../../core/isDev/isDev';
 
 let feedbackWindow: BrowserWindow | null = null;
-export const getFeedbackWindow = () =>
-  feedbackWindow?.isDestroyed() ? null : feedbackWindow;
+export const getFeedbackWindow = () => (feedbackWindow?.isDestroyed() ? null : feedbackWindow);
 
 export const openFeedbackWindow = () => {
   if (feedbackWindow) {

@@ -1,7 +1,4 @@
-import {
-  File,
-  FileAttributes,
-} from '../../../../../src/context/virtual-drive/files/domain/File';
+import { File, FileAttributes } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileRepository } from '../../../../../src/context/virtual-drive/files/domain/FileRepository';
 
 export class FileRepositoryMock implements FileRepository {

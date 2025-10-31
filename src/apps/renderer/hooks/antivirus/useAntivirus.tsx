@@ -29,8 +29,7 @@ export const useAntivirus = (): AntivirusContext => {
   const [progressRatio, setProgressRatio] = useState<number>(0);
   const [isScanCompleted, setIsScanCompleted] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [isAntivirusAvailable, setIsAntivirusAvailable] =
-    useState<boolean>(false);
+  const [isAntivirusAvailable, setIsAntivirusAvailable] = useState<boolean>(false);
   const [showErrorState, setShowErrorState] = useState<boolean>(false);
   const [view, setView] = useState<Views>('loading');
 
@@ -87,10 +86,7 @@ export const useAntivirus = (): AntivirusContext => {
       setProgressRatio(progress.progress);
     }
 
-    if (
-      Array.isArray(progress.infectedFiles) &&
-      progress.infectedFiles.length > 0
-    ) {
+    if (Array.isArray(progress.infectedFiles) && progress.infectedFiles.length > 0) {
       setInfectedFiles(progress.infectedFiles);
     }
 
@@ -153,8 +149,7 @@ export const useAntivirus = (): AntivirusContext => {
         if (typeof item === 'string') {
           const path = item;
           const cleanPath = path.replace(/\/+$/, '');
-          const seemsLikeFile =
-            cleanPath.includes('.') && !cleanPath.endsWith('.');
+          const seemsLikeFile = cleanPath.includes('.') && !cleanPath.endsWith('.');
           const isDirectory = scanType === 'folders' || !seemsLikeFile;
 
           return {
@@ -197,11 +192,7 @@ export const useAntivirus = (): AntivirusContext => {
   };
 
   const onRemoveInfectedItems = async (filesToRemove: string[]) => {
-    if (
-      !filesToRemove ||
-      !Array.isArray(filesToRemove) ||
-      filesToRemove.length === 0
-    ) {
+    if (!filesToRemove || !Array.isArray(filesToRemove) || filesToRemove.length === 0) {
       return Promise.resolve();
     }
 

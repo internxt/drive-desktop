@@ -27,9 +27,7 @@ export class InMemoryFileRepository implements FileRepository {
     return File.from(attributes);
   }
 
-  async searchByContentsId(
-    contentsId: File['contentsId']
-  ): Promise<File | undefined> {
+  async searchByContentsId(contentsId: File['contentsId']): Promise<File | undefined> {
     const attributes = this.filesByContentsId.get(contentsId);
 
     if (!attributes) {
@@ -39,9 +37,7 @@ export class InMemoryFileRepository implements FileRepository {
     return File.from(attributes);
   }
 
-  async searchByArrayOfContentsId(
-    contentsIds: Array<File['contentsId']>
-  ): Promise<Array<File>> {
+  async searchByArrayOfContentsId(contentsIds: Array<File['contentsId']>): Promise<Array<File>> {
     const files = contentsIds
       .map((contentsId) => {
         const file = this.filesByContentsId.get(contentsId);
@@ -57,9 +53,7 @@ export class InMemoryFileRepository implements FileRepository {
   }
 
   public all(): Promise<Array<File>> {
-    const files = [...this.filesByUuid.values()].map((attributes) =>
-      File.from(attributes)
-    );
+    const files = [...this.filesByUuid.values()].map((attributes) => File.from(attributes));
     return Promise.resolve(files);
   }
 
@@ -69,9 +63,7 @@ export class InMemoryFileRepository implements FileRepository {
     const filesAttributes = this.values.filter((attributes) => {
       return keys.every((key: keyof FileAttributes) => {
         if (key === 'contentsId') {
-          return (
-            attributes[key].normalize() == (partial[key] as string).normalize()
-          );
+          return attributes[key].normalize() == (partial[key] as string).normalize();
         }
 
         return attributes[key] == partial[key];
@@ -88,9 +80,7 @@ export class InMemoryFileRepository implements FileRepository {
   async upsert(file: File): Promise<boolean> {
     const attributes = file.attributes();
 
-    const isAlreadyStored =
-      this.filesByUuid.has(file.uuid) ||
-      this.filesByContentsId.has(file.contentsId);
+    const isAlreadyStored = this.filesByUuid.has(file.uuid) || this.filesByContentsId.has(file.contentsId);
 
     if (isAlreadyStored) {
       this.filesByUuid.delete(file.uuid);

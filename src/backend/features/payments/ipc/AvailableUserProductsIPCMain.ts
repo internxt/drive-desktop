@@ -6,9 +6,5 @@ import { RendererProcessAvailableUserProductsMessages } from './messages/Rendere
 /**
  * Typed IPC for the user's products availability communication in the main process
  */
-export type AvailableUserProductsIPCMain = TypedIPC<
-  RendererProcessAvailableUserProductsMessages,
-  MainProcessAvailableUserProductsMessages
->;
-export const AvailableUserProductsIPCMain =
-  ipcMain as unknown as AvailableUserProductsIPCMain;
+export type AvailableUserProductsIPCMain = TypedIPC<RendererProcessAvailableUserProductsMessages, MainProcessAvailableUserProductsMessages>;
+export const AvailableUserProductsIPCMain = ipcMain as unknown as AvailableUserProductsIPCMain;

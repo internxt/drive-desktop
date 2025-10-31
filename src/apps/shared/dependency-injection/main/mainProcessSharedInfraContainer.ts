@@ -12,28 +12,13 @@ import { SQLiteRemoteItemsGenerator } from '../../../../context/virtual-drive/re
 export async function mainProcessSharedInfraBuilder(): Promise<ContainerBuilder> {
   const builder = baseInfra();
 
-  builder
-    .register(AuthorizedClients)
-    .useClass(MainProcessAuthorizedClients)
-    .asSingleton()
-    .private()
-    .addTag('shared');
+  builder.register(AuthorizedClients).useClass(MainProcessAuthorizedClients).asSingleton().private().addTag('shared');
 
-  builder
-    .register(DownloadProgressTracker)
-    .use(MainProcessDownloadProgressTracker)
-    .private()
-    .addTag('shared');
+  builder.register(DownloadProgressTracker).use(MainProcessDownloadProgressTracker).private().addTag('shared');
 
-  builder
-    .register(UploadProgressTracker)
-    .use(MainProcessUploadProgressTracker)
-    .private();
+  builder.register(UploadProgressTracker).use(MainProcessUploadProgressTracker).private();
 
-  builder
-    .register(RemoteItemsGenerator)
-    .use(SQLiteRemoteItemsGenerator)
-    .private();
+  builder.register(RemoteItemsGenerator).use(SQLiteRemoteItemsGenerator).private();
 
   return builder;
 }

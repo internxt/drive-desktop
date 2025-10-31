@@ -7,13 +7,8 @@ type ViewBackupsProps = React.HTMLAttributes<HTMLBaseElement>;
 
 export function DownloadBackups({ className }: ViewBackupsProps) {
   const { selected } = useContext(DeviceContext);
-  const {
-    backups,
-    downloadBackups,
-    abortDownloadBackups,
-    thereIsDownloadProgress,
-    clearBackupDownloadProgress,
-  } = useContext(BackupContext);
+  const { backups, downloadBackups, abortDownloadBackups, thereIsDownloadProgress, clearBackupDownloadProgress } =
+    useContext(BackupContext);
 
   const handleDownloadBackup = async () => {
     if (!thereIsDownloadProgress) {
@@ -37,8 +32,7 @@ export function DownloadBackups({ className }: ViewBackupsProps) {
         className={`${className} hover:cursor-pointer`}
         variant="secondary"
         onClick={handleDownloadBackup}
-        disabled={backups.length === 0}
-      >
+        disabled={backups.length === 0}>
         {thereIsDownloadProgress ? 'Stop download' : 'Download'}
       </Button>
     </>

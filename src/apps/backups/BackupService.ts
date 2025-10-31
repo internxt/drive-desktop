@@ -14,21 +14,15 @@ import { BackupInfo } from './BackupInfo';
 import { BackupsIPCRenderer } from './BackupsIPCRenderer';
 import { AddedFilesBatchCreator } from './batches/AddedFilesBatchCreator';
 import { ModifiedFilesBatchCreator } from './batches/ModifiedFilesBatchCreator';
-import {
-  DiffFilesCalculatorService,
-  FilesDiff,
-} from './diff/DiffFilesCalculatorService';
-import {
-  FoldersDiff,
-  FoldersDiffCalculator,
-} from './diff/FoldersDiffCalculator';
+import { DiffFilesCalculatorService, FilesDiff } from './diff/DiffFilesCalculatorService';
+import { FoldersDiff, FoldersDiffCalculator } from './diff/FoldersDiffCalculator';
 import { relative } from './utils/relative';
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { Either, left, right } from '../../context/shared/domain/Either';
 import { RetryOptions } from '../shared/retry/types';
 import { RetryHandler } from '../shared/retry/RetryHandler';
 import { BackupsDanglingFilesService } from './BackupsDanglingFilesService';
-import { UsageModule } from  '../../backend/features/usage/usage.module';
+import { UsageModule } from '../../backend/features/usage/usage.module';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 @Service()
@@ -40,23 +34,18 @@ export class BackupService {
     private readonly fileBatchUpdater: FileBatchUpdater,
     private readonly remoteFileDeleter: FileDeleter,
     private readonly simpleFolderCreator: SimpleFolderCreator,
-    private readonly backupsDanglingFilesService: BackupsDanglingFilesService
+    private readonly backupsDanglingFilesService: BackupsDanglingFilesService,
   ) {}
 
   private backed = 0;
 
   // TODO: PB-3897 - Change Signature of this method for a better error handling
-  async run(
-    info: BackupInfo,
-    abortController: AbortController
-  ): Promise<DriveDesktopError | undefined> {
+  async run(info: BackupInfo, abortController: AbortController): Promise<DriveDesktopError | undefined> {
     logger.debug({ tag: 'BACKUPS', msg: 'Starting backup for:', pathname: info.pathname });
 
     try {
       logger.debug({ tag: 'BACKUPS', msg: 'Generating local tree' });
-      const localTreeEither = await this.localTreeBuilder.run(
-        info.pathname as AbsolutePath
-      );
+      const localTreeEither = await this.localTreeBuilder.run(info.pathname as AbsolutePath);
 
       if (localTreeEither.isLeft()) {
         const error = localTreeEither.getLeft();
@@ -80,10 +69,7 @@ export class BackupService {
 
       if (filesDiff.dangling.size > 0) {
         logger.debug({ tag: 'BACKUPS', msg: 'Dangling files found, handling them' });
-        const filesToResync =
-          await this.backupsDanglingFilesService.handleDanglingFilesOnBackup(
-            filesDiff.dangling
-          );
+        const filesToResync = await this.backupsDanglingFilesService.handleDanglingFilesOnBackup(filesDiff.dangling);
         for (const [localFile, remoteFile] of filesToResync) {
           filesDiff.modified.set(localFile, remoteFile);
         }
@@ -96,15 +82,10 @@ export class BackupService {
       await this.isThereEnoughSpace(filesDiff);
       logger.debug({ tag: 'BACKUPS', msg: 'Space check completed' });
 
-      const itemsAlreadyBacked =
-        filesDiff.unmodified.length + foldersDiff.unmodified.length;
+      const itemsAlreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;
       this.backed = itemsAlreadyBacked;
 
-      BackupsIPCRenderer.send(
-        'backups.total-items-calculated',
-        filesDiff.total + foldersDiff.total,
-        itemsAlreadyBacked
-      );
+      BackupsIPCRenderer.send('backups.total-items-calculated', filesDiff.total + foldersDiff.total, itemsAlreadyBacked);
 
       logger.debug({ tag: 'BACKUPS', msg: 'Starting folder backup' });
       await this.backupFolders(foldersDiff, local, remote);
@@ -147,11 +128,7 @@ export class BackupService {
       return right(backupInfo);
     } catch (error: unknown) {
       this.logAndReportError(error);
-      return left(
-        error instanceof Error
-          ? error
-          : new Error('Uncontrolled error while getting backup info')
-      );
+      return left(error instanceof Error ? error : new Error('Uncontrolled error while getting backup info'));
     }
   }
 
@@ -162,37 +139,24 @@ export class BackupService {
       return acc;
     }, 0);
 
-    const bytesToUpdate = Array.from(filesDiff.modified.entries()).reduce(
-      (acc, [local, remote]) => {
-        acc += local.size - remote.size;
+    const bytesToUpdate = Array.from(filesDiff.modified.entries()).reduce((acc, [local, remote]) => {
+      acc += local.size - remote.size;
 
-        return acc;
-      },
-      0
-    );
+      return acc;
+    }, 0);
 
     const total = bytesToUpdate + bytesToUpload;
 
     const validateSpaceResult = await UsageModule.validateSpace(total);
     if (validateSpaceResult.error) {
-      throw new DriveDesktopError(
-        'BAD_RESPONSE',
-        validateSpaceResult.error.message
-      );
+      throw new DriveDesktopError('BAD_RESPONSE', validateSpaceResult.error.message);
     }
     if (validateSpaceResult.data.hasSpace === false) {
-      throw new DriveDesktopError(
-        'NOT_ENOUGH_SPACE',
-        'The size of the files to upload is greater than the available space'
-      );
+      throw new DriveDesktopError('NOT_ENOUGH_SPACE', 'The size of the files to upload is greater than the available space');
     }
   }
 
-  private async backupFolders(
-    diff: FoldersDiff,
-    local: LocalTree,
-    remote: RemoteTree
-  ) {
+  private async backupFolders(diff: FoldersDiff, local: LocalTree, remote: RemoteTree) {
     logger.debug({ tag: 'BACKUPS', msg: 'Backing folders' });
 
     logger.debug({ tag: 'BACKUPS', msg: 'Folders added', count: diff.added.length });
@@ -206,16 +170,10 @@ export class BackupService {
         continue;
       }
 
-      const parent = remote.getParent(
-        relative(local.root.path, localFolder.path)
-      );
+      const parent = remote.getParent(relative(local.root.path, localFolder.path));
 
       // eslint-disable-next-line no-await-in-loop
-      const folder = await this.simpleFolderCreator.run(
-        relative(local.root.path, localFolder.path),
-        parent.id,
-        parent.uuid
-      );
+      const folder = await this.simpleFolderCreator.run(relative(local.root.path, localFolder.path), parent.id, parent.uuid);
 
       remote.addFolder(parent, folder);
 
@@ -224,12 +182,7 @@ export class BackupService {
     }
   }
 
-  private async backupFiles(
-    filesDiff: FilesDiff,
-    local: LocalTree,
-    remote: RemoteTree,
-    abortController: AbortController
-  ) {
+  private async backupFiles(filesDiff: FilesDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
     logger.debug({ tag: 'BACKUPS', msg: 'Backing files' });
 
     const { added, modified, deleted } = filesDiff;
@@ -248,7 +201,7 @@ export class BackupService {
     localRootPath: string,
     added: Array<LocalFile>,
     tree: RemoteTree,
-    abortController: AbortController
+    abortController: AbortController,
   ): Promise<void> {
     const batches = AddedFilesBatchCreator.run(added);
 
@@ -257,12 +210,7 @@ export class BackupService {
         return;
       }
       // eslint-disable-next-line no-await-in-loop
-      await this.fileBatchUploader.run(
-        localRootPath,
-        tree,
-        batch,
-        abortController.signal
-      );
+      await this.fileBatchUploader.run(localRootPath, tree, batch, abortController.signal);
 
       this.backed += batch.length;
       BackupsIPCRenderer.send('backups.progress-update', this.backed);
@@ -273,7 +221,7 @@ export class BackupService {
     modified: Map<LocalFile, File>,
     localTree: LocalTree,
     remoteTree: RemoteTree,
-    abortController: AbortController
+    abortController: AbortController,
   ): Promise<void> {
     const batches = ModifiedFilesBatchCreator.run(modified);
 
@@ -283,22 +231,14 @@ export class BackupService {
         return;
       }
       // eslint-disable-next-line no-await-in-loop
-      await this.fileBatchUpdater.run(
-        localTree.root,
-        remoteTree,
-        Array.from(batch.keys()),
-        abortController.signal
-      );
+      await this.fileBatchUpdater.run(localTree.root, remoteTree, Array.from(batch.keys()), abortController.signal);
 
       this.backed += batch.size;
       BackupsIPCRenderer.send('backups.progress-update', this.backed);
     }
   }
 
-  private async deleteRemoteFiles(
-    deleted: Array<File>,
-    abortController: AbortController
-  ) {
+  private async deleteRemoteFiles(deleted: Array<File>, abortController: AbortController) {
     for (const file of deleted) {
       if (abortController.signal.aborted) {
         return;

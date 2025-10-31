@@ -15,34 +15,20 @@ export default function AppInfo() {
   return (
     <div className="mt-auto flex flex-col space-y-4">
       <div className="relative flex h-2 before:absolute before:inset-x-0 before:top-1/2 before:h-px before:-translate-y-1/2 before:bg-gray-10" />
-      <p className="text-sm leading-4 text-gray-100">
-        Internxt v{packageJson.version}
-      </p>
+      <p className="text-sm leading-4 text-gray-100">Internxt v{packageJson.version}</p>
 
       <div className="flex flex-col items-start space-y-1 text-base leading-5">
         {process.env.NODE_ENV !== 'production' && (
-          <button
-            type="button"
-            className="text-primary active:text-primary-dark"
-            onClick={window.electron.startMigration}
-          >
+          <button type="button" className="text-primary active:text-primary-dark" onClick={window.electron.startMigration}>
             {translate('settings.general.app-info.open-migration')}
           </button>
         )}
 
-        <button
-          type="button"
-          className="text-primary active:text-primary-dark"
-          onClick={window.electron.openLogs}
-        >
+        <button type="button" className="text-primary active:text-primary-dark" onClick={window.electron.openLogs}>
           {translate('settings.general.app-info.open-logs')}
         </button>
 
-        <button
-          type="button"
-          className="text-primary active:text-primary-dark"
-          onClick={() => handleOpenURL('https://internxt.com/drive')}
-        >
+        <button type="button" className="text-primary active:text-primary-dark" onClick={() => handleOpenURL('https://internxt.com/drive')}>
           {translate('settings.general.app-info.more')}
         </button>
       </div>

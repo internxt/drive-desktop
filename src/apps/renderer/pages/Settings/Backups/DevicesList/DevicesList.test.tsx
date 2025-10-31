@@ -6,25 +6,22 @@ import { jest } from '@jest/globals';
 import '@testing-library/jest-dom';
 import { mockElectron } from '../../../../../__mocks__/mockElectron';
 
-
 jest.mock('../../../../hooks/devices/useDevices');
 
 jest.mock('../../../../context/LocalContext', () => ({
   useTranslationContext: () => ({
-    translate: (key: string) => key
-  })
+    translate: (key: string) => key,
+  }),
 }));
 
 jest.mock('../../../../components/ScrollableContent', () => ({
-  ScrollableContent: ({ children }: { children: React.ReactNode }) => <div data-testid="scrollable-content">{children}</div>
+  ScrollableContent: ({ children }: { children: React.ReactNode }) => <div data-testid="scrollable-content">{children}</div>,
 }));
 
 jest.mock('./Help', () => ({
   __esModule: true,
-  default: () => <div data-testid="help-component">Help Component</div>
+  default: () => <div data-testid="help-component">Help Component</div>,
 }));
-
-
 
 const mockDevices: Array<Device> = [
   {
@@ -49,7 +46,6 @@ const mockDeviceRename = jest.fn(async (): Promise<void> => {});
 const mockgetDevices = jest.fn(async (): Promise<void> => {});
 
 const renderComponent = (contextOverrides = {}) => {
-
   const contextValue = {
     deviceState: { status: 'SUCCESS', device: mockDevices[0] } as DeviceState,
     devices: mockDevices,
@@ -66,14 +62,13 @@ const renderComponent = (contextOverrides = {}) => {
     ...render(
       <DeviceContext.Provider value={contextValue}>
         <DevicesList />
-      </DeviceContext.Provider>
+      </DeviceContext.Provider>,
     ),
     contextValue,
   };
 };
 
 describe('DevicesList', () => {
-
   beforeAll(() => {
     window.electron = mockElectron;
   });
@@ -112,10 +107,12 @@ describe('DevicesList', () => {
     const pill = getByTestId('device-pill-2');
     fireEvent.click(pill);
 
-    expect(setSelectedMock).toHaveBeenCalledWith(expect.objectContaining({
-      id: 2,
-      name: 'Device 2',
-    }));
+    expect(setSelectedMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 2,
+        name: 'Device 2',
+      }),
+    );
   });
 
   it('should mark the selected device', () => {

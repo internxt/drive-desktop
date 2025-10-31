@@ -19,22 +19,15 @@ export class UploadOnRename {
   private static readonly SUCCESS: Result = 'success';
   constructor(private readonly container: Container) {}
 
-  private async differs(
-    virtual: File,
-    document: TemporalFile
-  ): Promise<boolean> {
+  private async differs(virtual: File, document: TemporalFile): Promise<boolean> {
     if (virtual.size !== document.size.value) {
       return true;
     }
 
     try {
-      const filePath = this.container
-        .get(RelativePathToAbsoluteConverter)
-        .run(virtual.contentsId);
+      const filePath = this.container.get(RelativePathToAbsoluteConverter).run(virtual.contentsId);
 
-      const areEqual = await this.container
-        .get(TemporalFileByteByByteComparator)
-        .run(new TemporalFilePath(filePath), document.path);
+      const areEqual = await this.container.get(TemporalFileByteByByteComparator).run(new TemporalFilePath(filePath), document.path);
 
       logger.debug({ msg: `Contents of <${virtual.path}> did not change` });
 
@@ -57,9 +50,7 @@ export class UploadOnRename {
       return right(UploadOnRename.NO_OP);
     }
 
-    const document = await this.container
-      .get(TemporalFileByPathFinder)
-      .run(src);
+    const document = await this.container.get(TemporalFileByPathFinder).run(src);
 
     if (!document) {
       logger.debug({ msg: '[UPLOAD ON RENAME] offline file not found', src });

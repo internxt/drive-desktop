@@ -13,24 +13,15 @@ export class FileBatchUploader {
   constructor(
     private readonly localHandler: LocalFileHandler,
     private readonly creator: SimpleFileCreator,
-    protected readonly messenger: LocalFileMessenger
+    protected readonly messenger: LocalFileMessenger,
   ) {}
 
-  async run(
-    localRootPath: string,
-    remoteTree: RemoteTree,
-    batch: Array<LocalFile>,
-    signal: AbortSignal
-  ): Promise<void> {
+  async run(localRootPath: string, remoteTree: RemoteTree, batch: Array<LocalFile>, signal: AbortSignal): Promise<void> {
     for (const localFile of batch) {
       let uploadEither;
       try {
         // eslint-disable-next-line no-await-in-loop
-        uploadEither = await this.localHandler.upload(
-          localFile.path,
-          localFile.size,
-          signal
-        );
+        uploadEither = await this.localHandler.upload(localFile.path, localFile.size, signal);
       } catch (error) {
         logger.error({ msg: '[UPLOAD ERROR]', error });
         continue;
@@ -56,13 +47,7 @@ export class FileBatchUploader {
       const parent = remoteTree.getParent(remotePath);
 
       // eslint-disable-next-line no-await-in-loop
-      const either = await this.creator.run(
-        contentsId,
-        localFile.path,
-        localFile.size,
-        parent.id,
-        parent.uuid
-      );
+      const either = await this.creator.run(contentsId, localFile.path, localFile.size, parent.id, parent.uuid);
 
       if (either.isLeft()) {
         logger.debug({ msg: '[FILE CREATION FAILED]', error: either.getLeft() });
@@ -72,8 +57,8 @@ export class FileBatchUploader {
 
         if (error.cause === 'FILE_ALREADY_EXISTS') {
           logger.debug({
-            msg: `[FILE ALREADY EXISTS] Skipping file ${localFile.path} - already exists remotely`
-        });
+            msg: `[FILE ALREADY EXISTS] Skipping file ${localFile.path} - already exists remotely`,
+          });
           continue;
         }
 

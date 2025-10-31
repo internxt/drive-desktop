@@ -9,15 +9,7 @@ export class FileDeletedDomainEvent extends DomainEvent {
 
   readonly size: number;
 
-  constructor({
-    aggregateId,
-    eventId,
-    size,
-  }: {
-    aggregateId: string;
-    eventId?: string;
-    size: number;
-  }) {
+  constructor({ aggregateId, eventId, size }: { aggregateId: string; eventId?: string; size: number }) {
     super({
       eventName: FileDeletedDomainEvent.EVENT_NAME,
       aggregateId,

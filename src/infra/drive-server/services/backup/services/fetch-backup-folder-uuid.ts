@@ -11,13 +11,10 @@ export async function getBackupFolderUuid(backup: {
 }): Promise<Result<string, Error>> {
   if (backup.folderUuid) return { data: backup.folderUuid };
   try {
-    const response = await fetch(
-      `${process.env.NEW_DRIVE_URL}/folders/${backup.folderId}/metadata`,
-      {
-        method: 'GET',
-        headers: getNewApiHeaders(),
-      }
-    );
+    const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${backup.folderId}/metadata`, {
+      method: 'GET',
+      headers: getNewApiHeaders(),
+    });
     if (!response.ok) {
       return {
         error: logger.error({

@@ -19,11 +19,7 @@ async function healthCheck() {
     const millisecondsToWait = 2_000;
 
     setTimeout(() => {
-      reject(
-        new Error(
-          `Health check failed after ${millisecondsToWait} milliseconds`
-        )
-      );
+      reject(new Error(`Health check failed after ${millisecondsToWait} milliseconds`));
     }, millisecondsToWait);
   });
 
@@ -79,7 +75,7 @@ function spawnSyncEngineWorker() {
     .loadFile(
       process.env.NODE_ENV === 'development'
         ? '../../../release/app/dist/sync-engine/index.html'
-        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`
+        : `${path.join(__dirname, '..', 'sync-engine')}/index.html`,
     )
     .then(() => {
       logger.debug({ msg: '[MAIN] Sync engine worker loaded' });
@@ -147,11 +143,7 @@ export async function stopSyncEngineWatcher() {
     const millisecondsToWait = 10_000;
 
     setTimeout(() => {
-      reject(
-        new Error(
-          `Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`
-        )
-      );
+      reject(new Error(`Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`));
     }, millisecondsToWait);
   });
 
@@ -189,17 +181,14 @@ async function stopAndClearSyncEngineWatcher() {
   }
 
   const response = new Promise<void>((resolve, reject) => {
-    ipcMain.once(
-      'ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS',
-      (_, error: Error) => {
-        logger.error({
-          tag: 'SYNC-ENGINE',
-          msg: '[MAIN] Error stopping sync engine worker',
-          error,
-        });
-        reject(error);
-      }
-    );
+    ipcMain.once('ERROR_ON_STOP_AND_CLEAR_SYNC_ENGINE_PROCESS', (_, error: Error) => {
+      logger.error({
+        tag: 'SYNC-ENGINE',
+        msg: '[MAIN] Error stopping sync engine worker',
+        error,
+      });
+      reject(error);
+    });
 
     ipcMain.once('SYNC_ENGINE_STOP_AND_CLEAR_SUCCESS', () => {
       resolve();
@@ -212,11 +201,7 @@ async function stopAndClearSyncEngineWatcher() {
     const millisecondsToWait = 10_000;
 
     setTimeout(() => {
-      reject(
-        new Error(
-          `Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`
-        )
-      );
+      reject(new Error(`Timeout waiting for sync engine to stop after ${millisecondsToWait} milliseconds`));
     }, millisecondsToWait);
   });
 

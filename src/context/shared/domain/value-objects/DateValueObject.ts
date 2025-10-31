@@ -26,10 +26,7 @@ export class DateValueObject extends ValueObject<Date> {
   }
 
   equals(other: DateValueObject): boolean {
-    return (
-      other.constructor.name === this.constructor.name &&
-      other.value.getTime() === this.value.getTime()
-    );
+    return other.constructor.name === this.constructor.name && other.value.getTime() === this.value.getTime();
   }
 
   toISOString(): string {

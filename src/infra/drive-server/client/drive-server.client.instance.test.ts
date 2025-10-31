@@ -4,17 +4,16 @@ import eventBus from '../../../apps/main/event-bus';
 import { logout } from '../../../apps/main/auth/service';
 
 jest.mock('../drive-server.client', () => ({
-  createClient: jest.fn(() => ({}))
+  createClient: jest.fn(() => ({})),
 }));
 
 jest.mock('../../../apps/main/auth/service', () => ({
-  logout: jest.fn()
+  logout: jest.fn(),
 }));
 
 jest.mock('../../../apps/main/event-bus', () => ({
-  emit: jest.fn()
+  emit: jest.fn(),
 }));
-
 
 describe('driveServerClient instance', () => {
   let originalEnv: string | undefined;
@@ -37,8 +36,8 @@ describe('driveServerClient instance', () => {
       expect.objectContaining({
         baseUrl: expect.any(String),
         limiter: expect.any(Bottleneck),
-        onUnauthorized: expect.any(Function)
-      })
+        onUnauthorized: expect.any(Function),
+      }),
     );
   });
 

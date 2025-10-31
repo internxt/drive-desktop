@@ -4,23 +4,17 @@ import { components } from '../../../../../infra/schemas';
 import fetch from 'electron-fetch';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
 
-export async function moveFolder(
-  uuid: string,
-  destinationFolderUuid: string
-): Promise<Result<components['schemas']['FolderDto'], Error>> {
+export async function moveFolder(uuid: string, destinationFolderUuid: string): Promise<Result<components['schemas']['FolderDto'], Error>> {
   try {
     const headers = await getNewApiHeadersIPC();
 
-    const response = await fetch(
-      `${process.env.NEW_DRIVE_URL}/folders/${uuid}`,
-      {
-        method: 'PATCH',
-        headers,
-        body: JSON.stringify({
-          destinationFolder: destinationFolderUuid,
-        }),
-      }
-    );
+    const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${uuid}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({
+        destinationFolder: destinationFolderUuid,
+      }),
+    });
     if (!response.ok) {
       return {
         error: logger.error({

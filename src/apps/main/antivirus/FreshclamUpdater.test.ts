@@ -57,25 +57,21 @@ describe('FreshclamUpdater', () => {
   describe('runFreshclam', () => {
     it('should update the database successfully', async () => {
       if (mockChildProcess.stdout) {
-        (mockChildProcess.stdout.on as any) = jest.fn(
-          (eventName: string, callback: (data: Buffer) => void) => {
-            if (eventName === 'data') {
-              callback(Buffer.from('Database updated'));
-            }
-            return mockChildProcess.stdout;
+        (mockChildProcess.stdout.on as any) = jest.fn((eventName: string, callback: (data: Buffer) => void) => {
+          if (eventName === 'data') {
+            callback(Buffer.from('Database updated'));
           }
-        );
+          return mockChildProcess.stdout;
+        });
       }
 
       if (mockChildProcess.on) {
-        (mockChildProcess.on as any) = jest.fn(
-          (eventName: string, callback: any) => {
-            if (eventName === 'close') {
-              callback(0); // Exit code 0 means success
-            }
-            return mockChildProcess;
+        (mockChildProcess.on as any) = jest.fn((eventName: string, callback: any) => {
+          if (eventName === 'close') {
+            callback(0); // Exit code 0 means success
           }
-        );
+          return mockChildProcess;
+        });
       }
 
       const result = FreshclamUpdater.runFreshclam();
@@ -83,35 +79,27 @@ describe('FreshclamUpdater', () => {
       await expect(result).resolves.toBeUndefined();
       expect(jest.requireMock('child_process').spawn).toHaveBeenCalledWith(
         expect.stringContaining('/bin/freshclam'),
-        expect.arrayContaining([
-          '--config-file',
-          expect.any(String),
-          '--foreground',
-        ])
+        expect.arrayContaining(['--config-file', expect.any(String), '--foreground']),
       );
     });
 
     it('should handle update failure', async () => {
       if (mockChildProcess.stderr) {
-        (mockChildProcess.stderr.on as any) = jest.fn(
-          (eventName: string, callback: (data: Buffer) => void) => {
-            if (eventName === 'data') {
-              callback(Buffer.from('ERROR: Update failed'));
-            }
-            return mockChildProcess.stderr;
+        (mockChildProcess.stderr.on as any) = jest.fn((eventName: string, callback: (data: Buffer) => void) => {
+          if (eventName === 'data') {
+            callback(Buffer.from('ERROR: Update failed'));
           }
-        );
+          return mockChildProcess.stderr;
+        });
       }
 
       if (mockChildProcess.on) {
-        (mockChildProcess.on as any) = jest.fn(
-          (eventName: string, callback: any) => {
-            if (eventName === 'close') {
-              callback(1);
-            }
-            return mockChildProcess;
+        (mockChildProcess.on as any) = jest.fn((eventName: string, callback: any) => {
+          if (eventName === 'close') {
+            callback(1);
           }
-        );
+          return mockChildProcess;
+        });
       }
 
       const result = FreshclamUpdater.runFreshclam();
@@ -121,14 +109,12 @@ describe('FreshclamUpdater', () => {
 
     it('should handle process errors', async () => {
       if (mockChildProcess.on) {
-        (mockChildProcess.on as any) = jest.fn(
-          (eventName: string, callback: any) => {
-            if (eventName === 'error') {
-              callback(new Error('Process error'));
-            }
-            return mockChildProcess;
+        (mockChildProcess.on as any) = jest.fn((eventName: string, callback: any) => {
+          if (eventName === 'error') {
+            callback(new Error('Process error'));
           }
-        );
+          return mockChildProcess;
+        });
       }
 
       const result = FreshclamUpdater.runFreshclam();

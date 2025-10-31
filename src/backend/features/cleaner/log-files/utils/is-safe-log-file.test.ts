@@ -12,64 +12,42 @@ describe('is-safe-log-file', () => {
         'debug.debug',
         'info.info',
         'warn.warn',
-        'error.error'
+        'error.error',
       ];
 
-      safeLogFiles.forEach(fileName => {
+      safeLogFiles.forEach((fileName) => {
         expect(isSafeLogFile(fileName)).toBe(true);
       });
     });
 
     it('should return true for compressed log files', () => {
-      const compressedLogs = [
-        'application.log.gz',
-        'system.log.bz2',
-        'debug.log.xz',
-        'backup.log.zip'
-      ];
+      const compressedLogs = ['application.log.gz', 'system.log.bz2', 'debug.log.xz', 'backup.log.zip'];
 
-      compressedLogs.forEach(fileName => {
+      compressedLogs.forEach((fileName) => {
         expect(isSafeLogFile(fileName)).toBe(true);
       });
     });
 
     it('should return true for case insensitive extensions', () => {
-      const caseVariations = [
-        'app.LOG',
-        'debug.TXT',
-        'error.GZ',
-        'trace.BZ2'
-      ];
+      const caseVariations = ['app.LOG', 'debug.TXT', 'error.GZ', 'trace.BZ2'];
 
-      caseVariations.forEach(fileName => {
+      caseVariations.forEach((fileName) => {
         expect(isSafeLogFile(fileName)).toBe(true);
       });
     });
 
     it('should return false for unsafe file extensions', () => {
-      const unsafeFiles = [
-        'config.db',
-        'process.pid',
-        'app.lock',
-        'session.sqlite',
-        'socket.sock',
-        'binary.exe',
-        'script.sh'
-      ];
+      const unsafeFiles = ['config.db', 'process.pid', 'app.lock', 'session.sqlite', 'socket.sock', 'binary.exe', 'script.sh'];
 
-      unsafeFiles.forEach(fileName => {
+      unsafeFiles.forEach((fileName) => {
         expect(isSafeLogFile(fileName)).toBe(false);
       });
     });
 
     it('should return false for files without extensions', () => {
-      const noExtensionFiles = [
-        'logfile',
-        'debug',
-        'output'
-      ];
+      const noExtensionFiles = ['logfile', 'debug', 'output'];
 
-      noExtensionFiles.forEach(fileName => {
+      noExtensionFiles.forEach((fileName) => {
         expect(isSafeLogFile(fileName)).toBe(false);
       });
     });

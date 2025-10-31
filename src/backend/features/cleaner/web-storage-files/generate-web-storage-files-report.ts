@@ -32,10 +32,10 @@ export async function generateWebStorageFilesReport(): Promise<CleanerSection> {
       dirPath: paths.chromeWebStorage,
       customFileFilter: webBrowserFileFilter,
     }),
-    
+
     // Firefox storage files (requires profile scanning)
     scanFirefoxProfiles(paths.firefoxProfile),
-    
+
     // Brave storage files
     scanSingleFile(paths.braveCookies),
     scanDirectory({
@@ -64,10 +64,7 @@ export async function generateWebStorageFilesReport(): Promise<CleanerSection> {
     }
   });
 
-  const totalSizeInBytes = allItems.reduce(
-    (sum, item) => sum + item.sizeInBytes,
-    0
-  );
+  const totalSizeInBytes = allItems.reduce((sum, item) => sum + item.sizeInBytes, 0);
 
   const result = {
     totalSizeInBytes,

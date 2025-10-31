@@ -15,9 +15,7 @@ export function LoadingFolders({ state }: LoadingFoldersProps) {
       ) : state === 'ERROR' ? (
         <p className="text-red-50 text-sm">We could not load your backups</p>
       ) : (
-        <p className="text-l-neutral-50 text-sm">
-          {translate('settings.backups.folders.no-folders')}
-        </p>
+        <p className="text-l-neutral-50 text-sm">{translate('settings.backups.folders.no-folders')}</p>
       )}
     </div>
   );

@@ -7,19 +7,14 @@ import { ThumbnailCollection } from '../../domain/ThumbnailCollection';
 export class ThumbnailSynchronizer {
   constructor(
     private readonly remote: ThumbnailsRepository,
-    private readonly local: ThumbnailsRepository
+    private readonly local: ThumbnailsRepository,
   ) {}
 
-  private async sync(
-    remoteCollections: Array<ThumbnailCollection>,
-    localCollections: Array<ThumbnailCollection>
-  ) {
+  private async sync(remoteCollections: Array<ThumbnailCollection>, localCollections: Array<ThumbnailCollection>) {
     const collectionToUpdate = remoteCollections.filter((remoteCollection) => {
-      const localCollection = localCollections.find(
-        (remoteCollection: ThumbnailCollection) => {
-          return remoteCollection.file === remoteCollection.file;
-        }
-      );
+      const localCollection = localCollections.find((remoteCollection: ThumbnailCollection) => {
+        return remoteCollection.file === remoteCollection.file;
+      });
 
       if (!localCollection) {
         return true;
@@ -32,14 +27,12 @@ export class ThumbnailSynchronizer {
       return latestRemote.isNewer(latestLocal);
     });
 
-    const thumbnailsSyncPromise = collectionToUpdate.map(
-      async (remoteCollection) => {
-        const thumbnail = remoteCollection.getLatestThumbnail();
+    const thumbnailsSyncPromise = collectionToUpdate.map(async (remoteCollection) => {
+      const thumbnail = remoteCollection.getLatestThumbnail();
 
-        const stream = await this.remote.pull(thumbnail);
-        await this.local.push(remoteCollection.file, stream);
-      }
-    );
+      const stream = await this.remote.pull(thumbnail);
+      await this.local.push(remoteCollection.file, stream);
+    });
 
     await Promise.all(thumbnailsSyncPromise);
   }
@@ -58,24 +51,18 @@ export class ThumbnailSynchronizer {
       {
         thumbnable: [] as Array<File>,
         noThumbnable: [] as Array<File>,
-      }
+      },
     );
 
     const remoteThumbnailsPromises = grouped.thumbnable.map((file) => {
       return this.remote.retrieve(file);
     });
 
-    const localThumbnailsPromises = files.map((file) =>
-      this.local.retrieve(file)
-    );
+    const localThumbnailsPromises = files.map((file) => this.local.retrieve(file));
 
-    const remoteCollections = (
-      await Promise.all(remoteThumbnailsPromises)
-    ).filter((c) => c !== undefined) as Array<ThumbnailCollection>;
+    const remoteCollections = (await Promise.all(remoteThumbnailsPromises)).filter((c) => c !== undefined) as Array<ThumbnailCollection>;
 
-    const localCollections = (
-      await Promise.all(localThumbnailsPromises)
-    ).filter((c) => c !== undefined) as Array<ThumbnailCollection>;
+    const localCollections = (await Promise.all(localThumbnailsPromises)).filter((c) => c !== undefined) as Array<ThumbnailCollection>;
 
     await this.sync(remoteCollections, localCollections);
 

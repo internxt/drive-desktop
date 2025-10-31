@@ -86,25 +86,19 @@ describe('ClamAVDaemon', () => {
 
       expect(result).toBe(true);
       expect(net.Socket).toHaveBeenCalled();
-      expect(mockSocket.connect).toHaveBeenCalledWith(
-        3310,
-        '127.0.0.1',
-        expect.any(Function)
-      );
+      expect(mockSocket.connect).toHaveBeenCalledWith(3310, '127.0.0.1', expect.any(Function));
     });
 
     it('should resolve false when connection fails', async () => {
       mockSocket.connect = jest.fn(
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         (_port: number, _host: string, _callback: () => void) => {
-          mockSocket.on.mockImplementation(
-            (eventName: string, handler: (err: Error) => void) => {
-              if (eventName === 'error') {
-                handler(new Error('Connection refused'));
-              }
+          mockSocket.on.mockImplementation((eventName: string, handler: (err: Error) => void) => {
+            if (eventName === 'error') {
+              handler(new Error('Connection refused'));
             }
-          );
-        }
+          });
+        },
       );
 
       const result = await clamAVServer.checkClamdAvailability();
@@ -117,14 +111,12 @@ describe('ClamAVDaemon', () => {
   describe('startClamdServer', () => {
     it('should start the clamd server successfully', async () => {
       if (mockChildProcess.stdout) {
-        (mockChildProcess.stdout.on as any) = jest.fn(
-          (eventName: string, callback: (data: Buffer) => void) => {
-            if (eventName === 'data') {
-              callback(Buffer.from('Listening daemon'));
-            }
-            return mockChildProcess.stdout;
+        (mockChildProcess.stdout.on as any) = jest.fn((eventName: string, callback: (data: Buffer) => void) => {
+          if (eventName === 'data') {
+            callback(Buffer.from('Listening daemon'));
           }
-        );
+          return mockChildProcess.stdout;
+        });
       }
 
       const startPromise = clamAVServer.startClamdServer();
@@ -134,32 +126,21 @@ describe('ClamAVDaemon', () => {
       const childProcess = jest.requireMock('child_process');
       expect(childProcess.spawn).toHaveBeenCalledWith(
         expect.stringContaining('/bin/clamd'),
-        expect.arrayContaining([
-          '--config-file',
-          expect.any(String),
-          '--foreground',
-          '--debug',
-        ])
+        expect.arrayContaining(['--config-file', expect.any(String), '--foreground', '--debug']),
       );
     });
 
     it('should handle server startup errors', async () => {
       if (mockChildProcess.stderr) {
-        (mockChildProcess.stderr.on as any) = jest.fn(
-          (eventName: string, callback: (data: Buffer) => void) => {
-            if (eventName === 'data') {
-              callback(
-                Buffer.from('ERROR: Can not open/parse the config file')
-              );
-            }
-            return mockChildProcess.stderr;
+        (mockChildProcess.stderr.on as any) = jest.fn((eventName: string, callback: (data: Buffer) => void) => {
+          if (eventName === 'data') {
+            callback(Buffer.from('ERROR: Can not open/parse the config file'));
           }
-        );
+          return mockChildProcess.stderr;
+        });
       }
 
-      await expect(clamAVServer.startClamdServer()).rejects.toThrow(
-        'ERROR: Can not open/parse the config file'
-      );
+      await expect(clamAVServer.startClamdServer()).rejects.toThrow('ERROR: Can not open/parse the config file');
     });
   });
 });

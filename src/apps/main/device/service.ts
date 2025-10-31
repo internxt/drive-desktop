@@ -38,9 +38,7 @@ export async function getDevices(): Promise<Array<Device>> {
     return [];
   } else {
     const devices = response.getRight();
-    return devices
-      .filter(({ removed, hasBackups }) => !removed && hasBackups)
-      .map((device) => decryptDeviceName(device));
+    return devices.filter(({ removed, hasBackups }) => !removed && hasBackups).map((device) => decryptDeviceName(device));
   }
 }
 
@@ -122,10 +120,7 @@ export async function addBackup(): Promise<void> {
   if (!existingBackup) {
     return createBackup(chosenPath);
   }
-  const migratedBackup = await migrateBackupEntryIfNeeded(
-    chosenPath,
-    existingBackup
-  );
+  const migratedBackup = await migrateBackupEntryIfNeeded(chosenPath, existingBackup);
 
   let folderStillExists;
   try {
@@ -150,13 +145,10 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
   fileDecryptedNames: Record<number, string>;
   size: number;
 }> {
-  const res = await fetch(
-    `${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/tree`,
-    {
-      method: 'GET',
-      headers: getNewApiHeaders(),
-    }
-  );
+  const res = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/tree`, {
+    method: 'GET',
+    headers: getNewApiHeaders(),
+  });
 
   if (res.ok) {
     const { tree } = (await res.json()) as unknown as { tree: FolderTree };
@@ -177,10 +169,7 @@ export async function fetchFolderTree(folderUuid: string): Promise<{
       folderDecryptedNames[currentTree.id] = currentTree.plainName;
 
       for (const file of files) {
-        fileDecryptedNames[file.id] = aes.decrypt(
-          file.name,
-          `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`
-        );
+        fileDecryptedNames[file.id] = aes.decrypt(file.name, `${process.env.NEW_CRYPTO_KEY}-${file.folderId}`);
         size += Number(file.size);
       }
 
@@ -207,7 +196,7 @@ export async function downloadBackup(device: Device): Promise<void> {
     tag: 'BACKUPS',
     msg: '[BACKUPS] Downloading Device',
     deviceName: device.name,
-    chosenPath
+    chosenPath,
   });
 
   const date = new Date();
@@ -264,7 +253,7 @@ async function downloadDeviceBackupZip(
   }: {
     updateProgress: (progress: number) => void;
     abortController?: AbortController;
-  }
+  },
 ): Promise<void> {
   if (!device.id) {
     throw new Error('This backup has not been uploaded yet');
@@ -298,14 +287,11 @@ async function downloadDeviceBackupZip(
     {
       abortController,
       updateProgress,
-    }
+    },
   );
 }
 
-export async function deleteBackup(
-  backup: BackupInfo,
-  isCurrent?: boolean
-): Promise<void> {
+export async function deleteBackup(backup: BackupInfo, isCurrent?: boolean): Promise<void> {
   const res = await deleteFolder(backup.folderId);
   if (!res.ok) {
     throw new Error('Request to delete backup wasnt succesful');
@@ -314,9 +300,7 @@ export async function deleteBackup(
   if (isCurrent) {
     const backupsList = configStore.get('backupList');
 
-    const entriesFiltered = Object.entries(backupsList).filter(
-      ([, b]) => b.folderId !== backup.folderId
-    );
+    const entriesFiltered = Object.entries(backupsList).filter(([, b]) => b.folderId !== backup.folderId);
 
     const backupListFiltered = Object.fromEntries(entriesFiltered);
 
@@ -324,24 +308,17 @@ export async function deleteBackup(
   }
 }
 
-export async function deleteBackupsFromDevice(
-  device: Device,
-  isCurrent?: boolean
-): Promise<void> {
+export async function deleteBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<void> {
   const backups = await DeviceModule.getBackupsFromDevice(device, isCurrent);
   logger.debug({ tag: 'BACKUPS', msg: '[BACKUPS] Deleting backups from device', count: backups.length });
   logger.debug({ tag: 'BACKUPS', msg: '[BACKUPS] Backups details', backups });
 
-  let deletionPromises: Promise<any>[] = backups.map((backup) =>
-    deleteBackup(backup, isCurrent)
-  );
+  let deletionPromises: Promise<any>[] = backups.map((backup) => deleteBackup(backup, isCurrent));
   await Promise.all(deletionPromises);
 
   // delete backups that are not in the backup list
   const { tree } = await fetchFolderTree(device.uuid);
-  const foldersToDelete = tree.children.filter(
-    (folder) => !backups.some((backup) => backup.folderId === folder.id)
-  );
+  const foldersToDelete = tree.children.filter((folder) => !backups.some((backup) => backup.folderId === folder.id));
   deletionPromises = foldersToDelete.map((folder) => deleteFolder(folder.id));
   await Promise.all(deletionPromises);
 }
@@ -400,10 +377,7 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
 
     delete backupsList[currentPath];
 
-    const migratedExistingBackup = await migrateBackupEntryIfNeeded(
-      chosenPath,
-      existingBackup
-    );
+    const migratedExistingBackup = await migrateBackupEntryIfNeeded(chosenPath, existingBackup);
     backupsList[chosenPath] = migratedExistingBackup;
 
     configStore.set('backupList', backupsList);
@@ -415,9 +389,7 @@ export async function changeBackupPath(currentPath: string): Promise<boolean> {
 
 export function findBackupPathnameFromId(id: number): string | undefined {
   const backupsList = configStore.get('backupList');
-  const entryfound = Object.entries(backupsList).find(
-    ([, b]) => b.folderId === id
-  );
+  const entryfound = Object.entries(backupsList).find(([, b]) => b.folderId === id);
 
   return entryfound?.[0];
 }
@@ -454,9 +426,7 @@ export async function getPathFromDialog(): Promise<{
 
   const chosenPath = result.filePaths[0];
 
-  const itemPath =
-    chosenPath +
-    (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep);
+  const itemPath = chosenPath + (chosenPath[chosenPath.length - 1] === path.sep ? '' : path.sep);
 
   const itemName = path.basename(itemPath);
 
@@ -466,14 +436,9 @@ export async function getPathFromDialog(): Promise<{
   };
 }
 
-export async function getMultiplePathsFromDialog(
-  allowFiles = false
-): Promise<PathInfo[] | null> {
+export async function getMultiplePathsFromDialog(allowFiles = false): Promise<PathInfo[] | null> {
   const result = await dialog.showOpenDialog({
-    properties: [
-      'multiSelections' as const,
-      ...(allowFiles ? (['openFile'] as const) : ['openDirectory' as const]),
-    ],
+    properties: ['multiSelections' as const, ...(allowFiles ? (['openFile'] as const) : ['openDirectory' as const])],
   });
 
   if (result.canceled || result.filePaths.length === 0) {
@@ -489,7 +454,7 @@ export async function getMultiplePathsFromDialog(
         itemName,
         isDirectory: isFolder,
       };
-    })
+    }),
   );
 
   return paths;

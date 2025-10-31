@@ -44,9 +44,7 @@ describe('useUserAvailableProducts', () => {
     };
     mockGet.mockResolvedValue(mockProducts);
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useUserAvailableProducts()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useUserAvailableProducts());
 
     await waitForNextUpdate();
 
@@ -68,9 +66,7 @@ describe('useUserAvailableProducts', () => {
   });
 
   it('should update products when listener is triggered', async () => {
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useUserAvailableProducts()
-    );
+    const { result, waitForNextUpdate } = renderHook(() => useUserAvailableProducts());
 
     await waitForNextUpdate();
 

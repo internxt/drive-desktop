@@ -14,7 +14,7 @@ export class AllFilesInFolderAreAvailableOffline {
     private readonly singleFolderFinder: SingleFolderMatchingFinder,
     private readonly filesByPartialSearcher: FilesByPartialSearcher,
     private readonly repository: StorageFilesRepository,
-    private readonly foldersSearcherByPartial: FoldersSearcherByPartial
+    private readonly foldersSearcherByPartial: FoldersSearcherByPartial,
   ) {}
 
   private async subfoldersExists(folder: Folder): Promise<boolean> {
@@ -56,10 +56,7 @@ export class AllFilesInFolderAreAvailableOffline {
   }
 
   private async folderIsAvaliableOffline(folder: Folder): Promise<boolean> {
-    const [subfoldersExists, filesExists] = await Promise.all([
-      this.subfoldersExists(folder),
-      this.filesExists(folder),
-    ]);
+    const [subfoldersExists, filesExists] = await Promise.all([this.subfoldersExists(folder), this.filesExists(folder)]);
 
     return filesExists && subfoldersExists;
   }

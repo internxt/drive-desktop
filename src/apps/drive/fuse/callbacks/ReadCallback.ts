@@ -12,15 +12,8 @@ const fuse = require('@gcas/fuse');
 export class ReadCallback {
   constructor(private readonly container: Container) {}
 
-  private async read(
-    contentsId: string,
-    buffer: Buffer,
-    length: number,
-    position: number
-  ): Promise<number> {
-    const readResult = await this.container
-      .get(StorageFileChunkReader)
-      .run(contentsId, length, position);
+  private async read(contentsId: string, buffer: Buffer, length: number, position: number): Promise<number> {
+    const readResult = await this.container.get(StorageFileChunkReader).run(contentsId, length, position);
 
     if (!readResult.isPresent()) {
       return 0;
@@ -43,23 +36,14 @@ export class ReadCallback {
     return chunk.length; // number of bytes read
   }
 
-  async execute(
-    path: string,
-    _fd: any,
-    buf: Buffer,
-    len: number,
-    pos: number,
-    cb: (code: number, params?: any) => void
-  ) {
+  async execute(path: string, _fd: any, buf: Buffer, len: number, pos: number, cb: (code: number, params?: any) => void) {
     try {
       const virtualFile = await this.container.get(FirstsFileSearcher).run({
         path,
       });
 
       if (!virtualFile) {
-        const document = await this.container
-          .get(TemporalFileByPathFinder)
-          .run(path);
+        const document = await this.container.get(TemporalFileByPathFinder).run(path);
 
         if (!document) {
           logger.error({ msg: 'READ FILE NOT FOUND', path });
@@ -67,9 +51,7 @@ export class ReadCallback {
           return;
         }
 
-        const chunk = await this.container
-          .get(TemporalFileChunkReader)
-          .run(document.path.value, len, pos);
+        const chunk = await this.container.get(TemporalFileChunkReader).run(document.path.value, len, pos);
 
         const result = await this.copyToBuffer(buf, chunk);
 

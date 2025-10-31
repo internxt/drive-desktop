@@ -41,7 +41,7 @@ const backupInfo = {
   folderUuid: 'uuid',
   tmpPath: 'tmpPath',
   backupsBucket: 'backupsBucket',
-  pathname: 'pathname'
+  pathname: 'pathname',
 };
 
 function createMockBackupService(): jest.Mocked<BackupService> {
@@ -52,22 +52,19 @@ function createMockBackupService(): jest.Mocked<BackupService> {
   } as unknown as jest.Mocked<BackupService>;
 }
 
-jest.mock(
-  '../../../src/apps/backups/dependency-injection/BackupsDependencyContainerFactory',
-  () => ({
-    BackupsDependencyContainerFactory: {
-      build: jest.fn<Promise<unknown>, []>().mockResolvedValue({
-        get: jest.fn().mockImplementation((service) => {
-          if (service === BackupService) {
-            return createMockBackupService();
-          }
-          return undefined;
-        }),
+jest.mock('../../../src/apps/backups/dependency-injection/BackupsDependencyContainerFactory', () => ({
+  BackupsDependencyContainerFactory: {
+    build: jest.fn<Promise<unknown>, []>().mockResolvedValue({
+      get: jest.fn().mockImplementation((service) => {
+        if (service === BackupService) {
+          return createMockBackupService();
+        }
+        return undefined;
       }),
-      reinitialize: jest.fn(),
-    },
-  })
-);
+    }),
+    reinitialize: jest.fn(),
+  },
+}));
 
 describe('Backup Functionality', () => {
   let backupService: jest.Mocked<BackupService>;
@@ -79,10 +76,7 @@ describe('Backup Functionality', () => {
       get: jest.fn().mockReturnValue(backupService),
     });
 
-    backupService.getBackupInfo.mockResolvedValue(
-      Promise.resolve(right(backupInfo))
-    );
-
+    backupService.getBackupInfo.mockResolvedValue(Promise.resolve(right(backupInfo)));
 
     global.window = Object.create(window);
     Object.defineProperty(window, 'dispatchEvent', {
@@ -104,20 +98,14 @@ describe('Backup Functionality', () => {
 
     await backupFolder();
 
-    expect(BackupsIPCRenderer.send).toHaveBeenCalledWith(
-      'backups.backup-completed',
-      123
-    );
+    expect(BackupsIPCRenderer.send).toHaveBeenCalledWith('backups.backup-completed', 123);
   });
 
   it('should handle failure when fetching backup info', async () => {
     backupService.getBackupInfo.mockResolvedValueOnce(Promise.resolve(left(new Error('Uncontrolled error while getting backup info'))));
     await backupFolder();
 
-    expect(BackupsIPCRenderer.send).not.toHaveBeenCalledWith(
-      'backups.backup-completed',
-      expect.anything()
-    );
+    expect(BackupsIPCRenderer.send).not.toHaveBeenCalledWith('backups.backup-completed', expect.anything());
   });
 
   it('should handle offline event', async () => {
@@ -133,11 +121,7 @@ describe('Backup Functionality', () => {
 
     window.dispatchEvent(new Event('offline'));
 
-    expect(BackupsIPCRenderer.send).toHaveBeenCalledWith(
-      'backups.backup-failed',
-      123,
-      BackUpErrorCauseEnum.NO_INTERNET
-    );
+    expect(BackupsIPCRenderer.send).toHaveBeenCalledWith('backups.backup-failed', 123, BackUpErrorCauseEnum.NO_INTERNET);
   });
 
   it('should handle abort event', async () => {

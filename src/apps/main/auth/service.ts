@@ -41,12 +41,7 @@ function ecnryptToken(token: string): string {
   return buffer.toString(TOKEN_ENCODING);
 }
 
-export async function setCredentials(
-  mnemonic: string,
-  bearerToken: string,
-  newToken: string,
-  userData?: User
-) {
+export async function setCredentials(mnemonic: string, bearerToken: string, newToken: string, userData?: User) {
   ConfigStore.set('mnemonic', mnemonic);
   if (userData) ConfigStore.set('userData', userData);
 
@@ -57,30 +52,21 @@ export async function setCredentials(
 
   const isSafeStorageAvailable = safeStorage.isEncryptionAvailable();
 
-  const token = isSafeStorageAvailable
-    ? ecnryptToken(bearerToken)
-    : bearerToken;
+  const token = isSafeStorageAvailable ? ecnryptToken(bearerToken) : bearerToken;
 
   ConfigStore.set('bearerToken', token);
   ConfigStore.set('bearerTokenEncrypted', isSafeStorageAvailable);
 
-  const secondToken = isSafeStorageAvailable
-    ? ecnryptToken(newToken)
-    : newToken;
+  const secondToken = isSafeStorageAvailable ? ecnryptToken(newToken) : newToken;
 
   ConfigStore.set('newToken', secondToken);
   ConfigStore.set('newTokenEncrypted', isSafeStorageAvailable);
 }
 
-export function updateCredentials(
-  bearerToken: string,
-  newBearerToken?: string
-) {
+export function updateCredentials(bearerToken: string, newBearerToken?: string) {
   const isSafeStorageAvailable = safeStorage.isEncryptionAvailable();
 
-  const token = isSafeStorageAvailable
-    ? ecnryptToken(bearerToken)
-    : bearerToken;
+  const token = isSafeStorageAvailable ? ecnryptToken(bearerToken) : bearerToken;
 
   ConfigStore.set('bearerToken', token);
   ConfigStore.set('bearerTokenEncrypted', isSafeStorageAvailable);
@@ -89,9 +75,7 @@ export function updateCredentials(
     return;
   }
 
-  const secondToken = isSafeStorageAvailable
-    ? ecnryptToken(newBearerToken)
-    : newBearerToken;
+  const secondToken = isSafeStorageAvailable ? ecnryptToken(newBearerToken) : newBearerToken;
 
   ConfigStore.set('newToken', secondToken);
   ConfigStore.set('newTokenEncrypted', isSafeStorageAvailable);
@@ -142,18 +126,14 @@ export function getUser(): User | null {
 
 export function obtainToken(tokenName: TokenKey): string {
   const token = ConfigStore.get(tokenName);
-  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(
-    `${tokenName}Encrypted`
-  );
+  const isEncrypted = ConfigStore.get<EncryptedTokenKey>(`${tokenName}Encrypted`);
 
   if (!isEncrypted) {
     return token;
   }
 
   if (!safeStorage.isEncryptionAvailable()) {
-    throw new Error(
-      '[AUTH] Safe Storage was not available when decrypting encrypted token'
-    );
+    throw new Error('[AUTH] Safe Storage was not available when decrypting encrypted token');
   }
 
   const buffer = Buffer.from(token, TOKEN_ENCODING);
@@ -162,9 +142,7 @@ export function obtainToken(tokenName: TokenKey): string {
 }
 
 export function tokensArePresent(): boolean {
-  const tokens = tokensKeys
-    .map((token) => ConfigStore.get(token))
-    .filter((token) => token && token.length !== 0);
+  const tokens = tokensKeys.map((token) => ConfigStore.get(token)).filter((token) => token && token.length !== 0);
 
   return tokens.length === tokensKeys.length;
 }
@@ -174,13 +152,7 @@ export function obtainTokens(): Array<string> {
 }
 
 function resetCredentials() {
-  for (const field of [
-    'mnemonic',
-    'userData',
-    'bearerToken',
-    'bearerTokenEncrypted',
-    'newToken',
-  ] as const) {
+  for (const field of ['mnemonic', 'userData', 'bearerToken', 'bearerTokenEncrypted', 'newToken'] as const) {
     ConfigStore.set(field, defaults[field]);
   }
 }
@@ -235,10 +207,7 @@ function saveConfig() {
   });
 }
 
-const keepFields: Array<keyof typeof defaults> = [
-  'preferedLanguage',
-  'lastOnboardingShown',
-];
+const keepFields: Array<keyof typeof defaults> = ['preferedLanguage', 'lastOnboardingShown'];
 
 function resetConfig() {
   for (const field of fieldsToSave) {

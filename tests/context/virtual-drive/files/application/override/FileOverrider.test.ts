@@ -23,11 +23,7 @@ describe('File Overrider', () => {
     repository.searchByContentsIdMock.mockReturnValueOnce(undefined);
 
     try {
-      await overrider.run(
-        file.path,
-        updatedContentsId.value,
-        updatedSize.value
-      );
+      await overrider.run(file.path, updatedContentsId.value, updatedSize.value);
       fail('it should have thrown an error');
     } catch (err: unknown) {
       expect(err).toBeInstanceOf(FileNotFoundError);
@@ -54,7 +50,7 @@ describe('File Overrider', () => {
         _id: file.id,
         _contentsId: updatedContentsId,
         _size: updatedSize,
-      })
+      }),
     );
   });
 
@@ -70,11 +66,7 @@ describe('File Overrider', () => {
 
     repository.searchByContentsIdMock.mockReturnValueOnce(file);
 
-    await overrider.run(
-      file.path,
-      updatedContentsId,
-      FileSizeMother.primitive()
-    );
+    await overrider.run(file.path, updatedContentsId, FileSizeMother.primitive());
 
     expect(eventBus.publishMock).toBeCalledWith(
       expect.arrayContaining([
@@ -82,7 +74,7 @@ describe('File Overrider', () => {
           eventName: FileOverriddenDomainEvent.EVENT_NAME,
           aggregateId: file.uuid,
         }),
-      ])
+      ]),
     );
   });
 });

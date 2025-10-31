@@ -12,7 +12,7 @@ export class TemporalFileUploader {
   constructor(
     private readonly repository: TemporalFileRepository,
     private readonly uploaderFactory: TemporalFileUploaderFactory,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
   ) {}
 
   async run(path: string, replaces?: Replaces): Promise<string> {
@@ -30,16 +30,9 @@ export class TemporalFileUploader {
 
     const controller = new AbortController();
 
-    const stopWatching = this.repository.watchFile(documentPath, () =>
-      controller.abort()
-    );
+    const stopWatching = this.repository.watchFile(documentPath, () => controller.abort());
 
-    const uploader = this.uploaderFactory
-      .read(stream)
-      .document(document)
-      .replaces(replaces)
-      .abort(controller)
-      .build();
+    const uploader = this.uploaderFactory.read(stream).document(document).replaces(replaces).abort(controller).build();
 
     const contentsId = await uploader();
 

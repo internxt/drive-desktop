@@ -79,18 +79,10 @@ export const prepareConfigFiles = (): {
   const tempFreshclamConfigPath = path.join(configDir, 'freshclam.conf');
 
   // Read the original config files from resources
-  const originalClamdConfig = fs.readFileSync(
-    path.join(RESOURCES_PATH, '/etc/clamd.conf'),
-    'utf8'
-  );
-  const originalFreshclamConfig = fs.readFileSync(
-    path.join(RESOURCES_PATH, '/etc/freshclam.conf'),
-    'utf8'
-  );
+  const originalClamdConfig = fs.readFileSync(path.join(RESOURCES_PATH, '/etc/clamd.conf'), 'utf8');
+  const originalFreshclamConfig = fs.readFileSync(path.join(RESOURCES_PATH, '/etc/freshclam.conf'), 'utf8');
 
-  const modifiedClamdConfig = originalClamdConfig
-    .replace('LOGFILE_PATH', logFilePath)
-    .replace('DATABASE_DIRECTORY', dbDir);
+  const modifiedClamdConfig = originalClamdConfig.replace('LOGFILE_PATH', logFilePath).replace('DATABASE_DIRECTORY', dbDir);
 
   const modifiedFreshclamConfig = originalFreshclamConfig
     .replace('DATABASE_DIRECTORY', dbDir)
@@ -157,11 +149,7 @@ const restartClamdServerIfNeeded = async (): Promise<boolean> => {
   }
 };
 
-const checkClamdAvailability = (
-  host = SERVER_HOST,
-  port = SERVER_PORT,
-  retries = 3
-): Promise<boolean> => {
+const checkClamdAvailability = (host = SERVER_HOST, port = SERVER_PORT, retries = 3): Promise<boolean> => {
   return new Promise((resolve) => {
     let retryCount = 0;
 
@@ -272,11 +260,7 @@ const startClamdServer = async (): Promise<void> => {
     const env = getEnvWithLibraryPath();
 
     return new Promise((resolve, reject) => {
-      clamdProcess = spawn(
-        clamdPath,
-        ['--config-file', clamdConfigPath, '--foreground', '--debug'],
-        { env }
-      );
+      clamdProcess = spawn(clamdPath, ['--config-file', clamdConfigPath, '--foreground', '--debug'], { env });
 
       const setupProcessMonitoring = () => {
         clamdProcess?.on('close', async (code) => {
@@ -336,9 +320,7 @@ const startClamdServer = async (): Promise<void> => {
           msg: '[CLAM_AVD] Failed to start clamd server:',
           error,
         });
-        reject(
-          AntivirusError.clamdStartFailed('Failed to start clamd server', error)
-        );
+        reject(AntivirusError.clamdStartFailed('Failed to start clamd server', error));
       });
 
       setTimeout(() => {
@@ -361,11 +343,7 @@ const startClamdServer = async (): Promise<void> => {
                       });
                       resolve();
                     } else {
-                      reject(
-                        AntivirusError.clamdNotAvailable(
-                          'clamd server failed to start after multiple attempts'
-                        )
-                      );
+                      reject(AntivirusError.clamdNotAvailable('clamd server failed to start after multiple attempts'));
                     }
                   })
                   .catch(reject);
@@ -381,10 +359,7 @@ const startClamdServer = async (): Promise<void> => {
       msg: '[CLAM_AVD] Error during clamd server startup:',
       error,
     });
-    throw AntivirusError.clamdStartFailed(
-      'Error during clamd server startup',
-      error
-    );
+    throw AntivirusError.clamdStartFailed('Error during clamd server startup', error);
   }
 };
 
@@ -404,10 +379,7 @@ const stopClamdServer = (): void => {
   }
 };
 
-const waitForClamd = async (
-  timeout = DEFAULT_CLAMD_WAIT_TIMEOUT,
-  interval = DEFAULT_CLAMD_CHECK_INTERVAL
-): Promise<void> => {
+const waitForClamd = async (timeout = DEFAULT_CLAMD_WAIT_TIMEOUT, interval = DEFAULT_CLAMD_CHECK_INTERVAL): Promise<void> => {
   const startTime = Date.now();
   let attempts = 0;
   let available = false;
@@ -425,9 +397,7 @@ const waitForClamd = async (
       if (available) {
         logger.debug({
           tag: 'ANTIVIRUS',
-          msg: `[CLAM_AVD] clamd server is available after ${attempts} attempts (${
-            Date.now() - startTime
-          }ms)`,
+          msg: `[CLAM_AVD] clamd server is available after ${attempts} attempts (${Date.now() - startTime}ms)`,
         });
         return;
       }
@@ -457,9 +427,7 @@ const waitForClamd = async (
   }
 
   if (!available) {
-    const message = `clamd server not available after ${attempts} attempts (${
-      Date.now() - startTime
-    }ms)`;
+    const message = `clamd server not available after ${attempts} attempts (${Date.now() - startTime}ms)`;
     logger.error({
       tag: 'ANTIVIRUS',
       msg: `[CLAM_AVD] ${message}`,

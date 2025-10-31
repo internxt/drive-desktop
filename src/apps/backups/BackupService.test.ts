@@ -84,11 +84,9 @@ describe('BackupService', () => {
     } as unknown as jest.Mocked<BackupsDanglingFilesService>;
 
     simpleFolderCreator = {
-      run: jest
-        .fn<Promise<Folder>, [string, number]>()
-        .mockImplementation((_path: string, _parentId: number) => {
-          return Promise.resolve(FolderMother.any() as Folder);
-        }),
+      run: jest.fn<Promise<Folder>, [string, number]>().mockImplementation((_path: string, _parentId: number) => {
+        return Promise.resolve(FolderMother.any() as Folder);
+      }),
     } as unknown as jest.Mocked<SimpleFolderCreator>;
 
     backupService = new BackupService(
@@ -98,7 +96,7 @@ describe('BackupService', () => {
       fileBatchUpdater,
       remoteFileDeleter,
       simpleFolderCreator,
-      backupsDanglingFilesService
+      backupsDanglingFilesService,
     );
 
     // Clear the mocks before each test
@@ -141,10 +139,7 @@ describe('BackupService', () => {
       name: 'backup-name',
     };
     const abortController = new AbortController();
-    const error = new DriveDesktopError(
-      'NOT_EXISTS',
-      'Failed to generate local tree'
-    );
+    const error = new DriveDesktopError('NOT_EXISTS', 'Failed to generate local tree');
 
     localTreeBuilder.run.mockResolvedValueOnce(left(error));
 
@@ -164,24 +159,15 @@ describe('BackupService', () => {
       name: 'backup-name',
     };
     const abortController = new AbortController();
-    const error = new DriveDesktopError(
-      'NOT_EXISTS',
-      'Failed to generate remote tree'
-    );
+    const error = new DriveDesktopError('NOT_EXISTS', 'Failed to generate remote tree');
 
     // Mock the behavior of dependencies
-    localTreeBuilder.run.mockResolvedValueOnce(
-      right(LocalTreeMother.oneLevel(10))
-    );
-    remoteTreeBuilder.run.mockResolvedValueOnce(
-      left(error) as unknown as Promise<RemoteTree>
-    );
+    localTreeBuilder.run.mockResolvedValueOnce(right(LocalTreeMother.oneLevel(10)));
+    remoteTreeBuilder.run.mockResolvedValueOnce(left(error) as unknown as Promise<RemoteTree>);
 
     const result = await backupService.run(info, abortController);
 
-    expect(result).toStrictEqual(
-      new DriveDesktopError('UNKNOWN', 'An unknown error occurred')
-    );
+    expect(result).toStrictEqual(new DriveDesktopError('UNKNOWN', 'An unknown error occurred'));
     expect(remoteTreeBuilder.run).toHaveBeenCalledWith(info.folderId);
   });
 
@@ -196,9 +182,7 @@ describe('BackupService', () => {
     };
     const abortController = new AbortController();
 
-    localTreeBuilder.run.mockResolvedValueOnce(
-      right(LocalTreeMother.oneLevel(10))
-    );
+    localTreeBuilder.run.mockResolvedValueOnce(right(LocalTreeMother.oneLevel(10)));
     remoteTreeBuilder.run.mockResolvedValueOnce(RemoteTreeMother.oneLevel(10));
     mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: false } });
 
@@ -257,9 +241,7 @@ describe('BackupService', () => {
     localTreeBuilder.run.mockResolvedValueOnce(right(localTree));
     remoteTreeBuilder.run.mockResolvedValueOnce(remoteTree);
     mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: true } });
-    backupsDanglingFilesService.handleDanglingFilesOnBackup.mockResolvedValueOnce(
-      new Map([[danglingFile, remoteFile]])
-    );
+    backupsDanglingFilesService.handleDanglingFilesOnBackup.mockResolvedValueOnce(new Map([[danglingFile, remoteFile]]));
 
     const originalCalculate = DiffFilesCalculatorService.calculate;
     DiffFilesCalculatorService.calculate = jest.fn(() => fakeDiff);
@@ -269,14 +251,7 @@ describe('BackupService', () => {
     DiffFilesCalculatorService.calculate = originalCalculate;
 
     expect(result).toBeUndefined();
-    expect(
-      backupsDanglingFilesService.handleDanglingFilesOnBackup
-    ).toHaveBeenCalledWith(fakeDiff.dangling);
-    expect(fileBatchUpdater.run).toHaveBeenCalledWith(
-      localTree.root,
-      remoteTree,
-      [danglingFile],
-      abortController.signal
-    );
+    expect(backupsDanglingFilesService.handleDanglingFilesOnBackup).toHaveBeenCalledWith(fakeDiff.dangling);
+    expect(fileBatchUpdater.run).toHaveBeenCalledWith(localTree.root, remoteTree, [danglingFile], abortController.signal);
   });
 });

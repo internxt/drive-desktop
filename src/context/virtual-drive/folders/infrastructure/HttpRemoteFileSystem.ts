@@ -6,18 +6,10 @@ import { ServerFolder } from '../../../shared/domain/ServerFolder';
 import { Folder } from '../domain/Folder';
 import { FolderId } from '../domain/FolderId';
 import { FolderPath } from '../domain/FolderPath';
-import {
-  FolderPersistedDto,
-  RemoteFileSystem,
-  RemoteFileSystemErrors,
-} from '../domain/file-systems/RemoteFileSystem';
+import { FolderPersistedDto, RemoteFileSystem, RemoteFileSystemErrors } from '../domain/file-systems/RemoteFileSystem';
 import { mapToFolderPersistedDto } from '../../utils/map-to-folder-persisted-dto';
 import { FolderError } from '../../../../infra/drive-server/services/folder/folder.error';
-import {
-  createFolderIPC,
-  moveFolderIPC,
-  renameFolderIPC,
-} from '../../../../infra/ipc/folders-ipc';
+import { createFolderIPC, moveFolderIPC, renameFolderIPC } from '../../../../infra/ipc/folders-ipc';
 
 type NewServerFolder = Omit<ServerFolder, 'plain_name'> & { plainName: string };
 
@@ -28,13 +20,10 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
 
   constructor(
     private readonly trashClient: Axios,
-    private readonly maxRetries: number = 3
+    private readonly maxRetries: number = 3,
   ) {}
 
-  async searchWith(
-    parentId: FolderId,
-    folderPath: FolderPath
-  ): Promise<Folder | undefined> {
+  async searchWith(parentId: FolderId, folderPath: FolderPath): Promise<Folder | undefined> {
     let page = 0;
     const folders: Array<NewServerFolder> = [];
     let lastNumberOfFolders = 0;
@@ -44,7 +33,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
 
       // eslint-disable-next-line no-await-in-loop
       const result = await this.trashClient.get(
-        `${process.env.NEW_DRIVE_URL}/folders/${parentId.value}/folders?offset=${offset}&limit=${HttpRemoteFileSystem.PAGE_SIZE}`
+        `${process.env.NEW_DRIVE_URL}/folders/${parentId.value}/folders?offset=${offset}&limit=${HttpRemoteFileSystem.PAGE_SIZE}`,
       );
 
       const founded = result.data.result as Array<NewServerFolder>;
@@ -52,10 +41,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
       lastNumberOfFolders = founded.length;
 
       page++;
-    } while (
-      folders.length % HttpRemoteFileSystem.PAGE_SIZE === 0 &&
-      lastNumberOfFolders > 0
-    );
+    } while (folders.length % HttpRemoteFileSystem.PAGE_SIZE === 0 && lastNumberOfFolders > 0);
 
     const name = folderPath.name();
 
@@ -69,11 +55,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     });
   }
 
-  async persist(
-    plainName: string,
-    parentFolderUuid: string,
-    attempt = 0
-  ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
+  async persist(plainName: string, parentFolderUuid: string, attempt = 0): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
     const { data, error } = await createFolderIPC(parentFolderUuid, plainName);
     if (data) {
       return right(mapToFolderPersistedDto(data));
@@ -85,7 +67,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
         await new Promise((resolve) => {
           setTimeout(resolve, 1_000);
         });
-        logger.debug({ msg: 'Retrying'});
+        logger.debug({ msg: 'Retrying' });
         return this.persist(plainName, parentFolderUuid, attempt + 1);
       }
       if (errorCause === 'BAD_REQUEST') {
@@ -99,18 +81,15 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
   }
 
   async trash(id: Folder['id']): Promise<void> {
-    const result = await this.trashClient.post(
-      `${process.env.NEW_DRIVE_URL}/storage/trash/add`,
-      {
-        items: [{ type: 'folder', id }],
-      }
-    );
+    const result = await this.trashClient.post(`${process.env.NEW_DRIVE_URL}/storage/trash/add`, {
+      items: [{ type: 'folder', id }],
+    });
 
     if (result.status !== 200) {
       logger.error({
         msg: '[FOLDER FILE SYSTEM] Folder deletion failed with status:',
         status: result.status,
-        statusText: result.statusText
+        statusText: result.statusText,
       });
 
       throw new Error('Error when deleting folder');
@@ -121,9 +100,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     const response = await renameFolderIPC(folder.uuid, folder.name);
 
     if (response.error) {
-      throw new Error(
-        `[FOLDER FILE SYSTEM] Error updating item metadata: ${response.error.message}`
-      );
+      throw new Error(`[FOLDER FILE SYSTEM] Error updating item metadata: ${response.error.message}`);
     }
   }
 
@@ -131,9 +108,7 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     const response = await moveFolderIPC(folderUuid, destinationFolderUuid);
 
     if (response.error) {
-      throw new Error(
-        `[FOLDER FILE SYSTEM] Error moving item: ${response.error.message}`
-      );
+      throw new Error(`[FOLDER FILE SYSTEM] Error moving item: ${response.error.message}`);
     }
   }
 }

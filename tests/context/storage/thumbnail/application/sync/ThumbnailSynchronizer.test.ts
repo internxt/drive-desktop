@@ -100,12 +100,7 @@ describe('Thumbnail Synchronizer', () => {
   });
 
   it('creates a default thumbnail if does not exits', async () => {
-    const files = [
-      FileMother.noThumbnable(),
-      FileMother.noThumbnable(),
-      FileMother.noThumbnable(),
-      FileMother.noThumbnable(),
-    ];
+    const files = [FileMother.noThumbnable(), FileMother.noThumbnable(), FileMother.noThumbnable(), FileMother.noThumbnable()];
 
     local.hasWillReturn(false);
 

@@ -25,31 +25,16 @@ import { FilesByPartialSearcher } from '../../../../context/virtual-drive/files/
 import { StorageFileService } from '../../../../context/storage/StorageFiles/StorageFileService';
 import { Environment } from '@internxt/inxt-js';
 
-export async function registerFilesServices(
-  builder: ContainerBuilder
-): Promise<void> {
+export async function registerFilesServices(builder: ContainerBuilder): Promise<void> {
   // Infra
 
-  builder
-    .register(FileRepository)
-    .use(InMemoryFileRepository)
-    .asSingleton()
-    .private();
+  builder.register(FileRepository).use(InMemoryFileRepository).asSingleton().private();
 
   const user = DependencyInjectionUserProvider.get();
 
   builder.register(SyncFileMessenger).use(MainProcessSyncFileMessenger);
 
-  builder
-    .register(RemoteFileSystem)
-    .useFactory(
-      (c) =>
-        new SDKRemoteFileSystem(
-          c.get(AuthorizedClients),
-          crypt,
-          user.bucket
-        )
-    );
+  builder.register(RemoteFileSystem).useFactory((c) => new SDKRemoteFileSystem(c.get(AuthorizedClients), crypt, user.bucket));
 
   // Services
   builder.register(StorageFileService).useFactory((c) => {
@@ -84,7 +69,5 @@ export async function registerFilesServices(
   builder.registerAndUse(FilesByPartialSearcher);
 
   // Event Handlers
-  builder
-    .registerAndUse(CreateFileOnTemporalFileUploaded)
-    .addTag('event-handler');
+  builder.registerAndUse(CreateFileOnTemporalFileUploaded).addTag('event-handler');
 }

@@ -6,12 +6,12 @@ jest.mock('electron-log', () => ({
   debug: jest.fn(),
   info: jest.fn(),
   warn: jest.fn(),
-  error: jest.fn()
+  error: jest.fn(),
 }));
 
 jest.mock('../isDev/isDev', () => ({
   __esModule: true,
-  default: jest.fn()
+  default: jest.fn(),
 }));
 
 describe('LoggerService', () => {
@@ -32,7 +32,7 @@ describe('LoggerService', () => {
 
       const body = {
         msg: 'Prod debug message',
-        tag: 'AUTH'
+        tag: 'AUTH',
       };
 
       sut.debug(body as LoggerBody);
@@ -45,7 +45,7 @@ describe('LoggerService', () => {
 
       const body = {
         msg: 'Dev debug message',
-        tag: 'AUTH'
+        tag: 'AUTH',
       };
 
       sut.debug(body as LoggerBody);
@@ -58,7 +58,7 @@ describe('LoggerService', () => {
     it('should log info messages with message and tag', () => {
       const body = {
         msg: 'User authenticated',
-        tag: 'AUTH'
+        tag: 'AUTH',
       };
 
       sut.info(body as LoggerBody);
@@ -76,8 +76,8 @@ describe('LoggerService', () => {
         attributes: {
           userId: 'user-123',
           method: 'POST',
-          endpoint: 'auth/login'
-        }
+          endpoint: 'auth/login',
+        },
       };
 
       sut.info(body as LoggerBody);
@@ -99,7 +99,7 @@ describe('LoggerService', () => {
     it('should log a warn message with tag and msg', () => {
       const body = {
         msg: 'Token about to expire',
-        tag: 'AUTH'
+        tag: 'AUTH',
       };
 
       sut.warn(body as LoggerBody);
@@ -115,8 +115,8 @@ describe('LoggerService', () => {
         context: { idleFor: 270 },
         attributes: {
           userId: 'u-777',
-          endpoint: 'auth/session'
-        }
+          endpoint: 'auth/session',
+        },
       };
 
       sut.warn(body as LoggerBody);
@@ -134,7 +134,7 @@ describe('LoggerService', () => {
     it('should log an error message with tag and msg', () => {
       const body = {
         msg: 'An unexpected error occurred',
-        tag: 'AUTH'
+        tag: 'AUTH',
       };
 
       sut.error(body as LoggerBody);
@@ -152,8 +152,8 @@ describe('LoggerService', () => {
         attributes: {
           userId: 'db-user-42',
           method: 'GET',
-          endpoint: 'auth/status'
-        }
+          endpoint: 'auth/status',
+        },
       };
 
       sut.error(body as LoggerBody);
@@ -171,7 +171,7 @@ describe('LoggerService', () => {
     it('should log a fatal message with tag and msg', () => {
       const body = {
         msg: 'System shutdown initiated',
-        tag: 'AUTH'
+        tag: 'AUTH',
       };
 
       sut.fatal(body as LoggerBody);
@@ -189,8 +189,8 @@ describe('LoggerService', () => {
         attributes: {
           userId: 'fatal-user',
           method: 'PATCH',
-          endpoint: 'auth/reset'
-        }
+          endpoint: 'auth/reset',
+        },
       };
 
       sut.fatal(body as LoggerBody);

@@ -1,7 +1,4 @@
-import {
-  trackError,
-  trackEvent,
-} from '../../../../apps/main/analytics/service';
+import { trackError, trackEvent } from '../../../../apps/main/analytics/service';
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 import { DownloadProgressTracker } from '../../domain/DownloadProgressTracker';
@@ -9,15 +6,8 @@ import { SyncMessenger } from '../../domain/SyncMessenger';
 import { Service } from 'diod';
 
 @Service()
-export class MainProcessDownloadProgressTracker
-  extends SyncMessenger
-  implements DownloadProgressTracker
-{
-  async downloadStarted(
-    name: string,
-    extension: string,
-    size: number
-  ): Promise<void> {
+export class MainProcessDownloadProgressTracker extends SyncMessenger implements DownloadProgressTracker {
+  async downloadStarted(name: string, extension: string, size: number): Promise<void> {
     setTrayStatus('SYNCING');
 
     trackEvent('Download Started', {
@@ -34,11 +24,7 @@ export class MainProcessDownloadProgressTracker
     });
   }
 
-  async downloadUpdate(
-    name: string,
-    extension: string,
-    progress: { elapsedTime: number; percentage: number }
-  ): Promise<void> {
+  async downloadUpdate(name: string, extension: string, progress: { elapsedTime: number; percentage: number }): Promise<void> {
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADING',
       name: this.nameWithExtension(name, extension),
@@ -52,7 +38,7 @@ export class MainProcessDownloadProgressTracker
     size: number,
     progress: {
       elapsedTime: number;
-    }
+    },
   ): Promise<void> {
     const nameWithExtension = this.nameWithExtension(name, extension);
 

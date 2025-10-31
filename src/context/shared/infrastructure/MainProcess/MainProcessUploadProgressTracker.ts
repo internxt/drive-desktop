@@ -1,18 +1,12 @@
 import { Service } from 'diod';
-import {
-  trackError,
-  trackEvent,
-} from '../../../../apps/main/analytics/service';
+import { trackError, trackEvent } from '../../../../apps/main/analytics/service';
 import { setTrayStatus } from '../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../apps/main/windows';
 import { SyncMessenger } from '../../domain/SyncMessenger';
 import { UploadProgressTracker } from '../../domain/UploadProgressTracker';
 
 @Service()
-export class MainProcessUploadProgressTracker
-  extends SyncMessenger
-  implements UploadProgressTracker
-{
+export class MainProcessUploadProgressTracker extends SyncMessenger implements UploadProgressTracker {
   uploadStarted(name: string, extension: string, size: number): void {
     trackEvent('Upload Started', {
       file_name: name,
@@ -30,12 +24,7 @@ export class MainProcessUploadProgressTracker
     });
   }
 
-  uploadProgress(
-    name: string,
-    extension: string,
-    size: number,
-    progress: { elapsedTime: number; percentage: number }
-  ): void {
+  uploadProgress(name: string, extension: string, size: number, progress: { elapsedTime: number; percentage: number }): void {
     const nameWithExtension = this.nameWithExtension(name, extension);
 
     trackEvent('Upload Started', {
@@ -68,12 +57,7 @@ export class MainProcessUploadProgressTracker
     });
   }
 
-  uploadCompleted(
-    name: string,
-    extension: string,
-    size: number,
-    processInfo: { elapsedTime: number }
-  ): void {
+  uploadCompleted(name: string, extension: string, size: number, processInfo: { elapsedTime: number }): void {
     const nameWithExtension = this.nameWithExtension(name, extension);
 
     setTrayStatus('IDLE');

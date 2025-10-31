@@ -3,19 +3,9 @@ import { SyncError } from '../../../shared/issues/SyncErrorCause';
 export abstract class UploadProgressTracker {
   abstract uploadStarted(name: string, extension: string, size: number): void;
 
-  abstract uploadProgress(
-    name: string,
-    extension: string,
-    size: number,
-    progress: { elapsedTime: number; percentage: number }
-  ): void;
+  abstract uploadProgress(name: string, extension: string, size: number, progress: { elapsedTime: number; percentage: number }): void;
 
   abstract uploadError(name: string, extension: string, cause: SyncError): void;
 
-  abstract uploadCompleted(
-    name: string,
-    extension: string,
-    size: number,
-    progress: { elapsedTime: number }
-  ): void;
+  abstract uploadCompleted(name: string, extension: string, size: number, progress: { elapsedTime: number }): void;
 }

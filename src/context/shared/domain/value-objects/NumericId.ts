@@ -9,9 +9,7 @@ export class NumericId extends ValueObject<number> {
 
   private ensureIsValid(value: number) {
     if (value <= 0) {
-      throw new InvalidArgumentError(
-        `A numeric id cannot be negative, value: ${value}`
-      );
+      throw new InvalidArgumentError(`A numeric id cannot be negative, value: ${value}`);
     }
   }
 }

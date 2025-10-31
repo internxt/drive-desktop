@@ -7,7 +7,7 @@ import { Traverser } from './Traverser';
 export class RemoteTreeBuilder {
   constructor(
     private readonly remoteItemsGenerator: RemoteItemsGenerator,
-    private readonly traverser: Traverser
+    private readonly traverser: Traverser,
   ) {}
 
   async run(rootFolderId: number, rootFolderUuid: string, refresh = false): Promise<RemoteTree> {

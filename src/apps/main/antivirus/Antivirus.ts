@@ -172,9 +172,7 @@ export class Antivirus {
 
       if (
         error instanceof Error &&
-        (error.message.includes('ECONNREFUSED') ||
-          error.message.includes('connect') ||
-          error.message.includes('socket'))
+        (error.message.includes('ECONNREFUSED') || error.message.includes('connect') || error.message.includes('socket'))
       ) {
         logger.warn({
           tag: 'ANTIVIRUS',
@@ -187,10 +185,7 @@ export class Antivirus {
           await clamAVServer.startClamdServer();
           await clamAVServer.waitForClamd(60000); // Extended timeout
 
-          throw AntivirusError.initializationFailed(
-            'Connection failed, daemon restarted. Please try again.',
-            error
-          );
+          throw AntivirusError.initializationFailed('Connection failed, daemon restarted. Please try again.', error);
         } catch (restartError) {
           logger.error({
             tag: 'ANTIVIRUS',
@@ -273,10 +268,7 @@ export class Antivirus {
    * @param maxRetries Maximum number of retries on connection failures (default 2)
    * @returns Scan result with infection status
    */
-  async scanFileWithRetry(
-    filePath: string,
-    maxRetries = 2
-  ): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
+  async scanFileWithRetry(filePath: string, maxRetries = 2): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
     let retryCount = 0;
 
     const attemptScan = async (): Promise<{
@@ -316,15 +308,10 @@ export class Antivirus {
     return attemptScan();
   }
 
-  async scanFile(
-    filePath: string
-  ): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
+  async scanFile(filePath: string): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
     const isAccessible = await this.checkFileAccessible(filePath);
     if (!isAccessible) {
-      throw AntivirusError.scanFailed(
-        filePath,
-        new Error('File not accessible or not found')
-      );
+      throw AntivirusError.scanFailed(filePath, new Error('File not accessible or not found'));
     }
 
     let isConnected = await this.ensureConnection();

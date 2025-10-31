@@ -8,7 +8,7 @@ import { processDeeplink } from './proccess-deeplink';
 import { initializeCurrentUser } from './initialize_current_user';
 
 type Props = {
-    url: string;
+  url: string;
 };
 
 export async function handleDeeplink({ url }: Props) {
@@ -21,11 +21,7 @@ export async function handleDeeplink({ url }: Props) {
       return false;
     }
 
-    await setCredentials(
-      deeplinkParams.mnemonic,
-      deeplinkParams.token,
-      deeplinkParams.newToken,
-    );
+    await setCredentials(deeplinkParams.mnemonic, deeplinkParams.token, deeplinkParams.newToken);
 
     logger.debug({ tag: 'AUTH', msg: 'Auth details stored successfully from deeplink' });
 

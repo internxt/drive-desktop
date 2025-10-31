@@ -6,13 +6,9 @@ import { BackgroundProcessAntivirusMessages } from './messages/BackgroundProcess
 /**
  * Typed IPC for antivirus-related communication in the renderer process
  */
-export type AntivirusIPCRenderer = TypedIPC<
-  MainProcessAntivirusMessages,
-  BackgroundProcessAntivirusMessages
->;
+export type AntivirusIPCRenderer = TypedIPC<MainProcessAntivirusMessages, BackgroundProcessAntivirusMessages>;
 
 /**
  * Singleton instance of the typed IPC for antivirus in the renderer process
  */
-export const AntivirusIPCRenderer =
-  ipcRenderer as unknown as AntivirusIPCRenderer;
+export const AntivirusIPCRenderer = ipcRenderer as unknown as AntivirusIPCRenderer;

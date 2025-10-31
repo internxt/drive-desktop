@@ -50,20 +50,13 @@ const scanInBackground = async (): Promise<void> => {
   const scan = async (filePath: string) => {
     try {
       const scannedItem = await transformItem(filePath);
-      const previousScannedItem = await database.getItemFromDatabase(
-        scannedItem.pathName
-      );
+      const previousScannedItem = await database.getItemFromDatabase(scannedItem.pathName);
       if (previousScannedItem) {
-        if (
-          scannedItem.updatedAtW === previousScannedItem.updatedAtW ||
-          scannedItem.hash === previousScannedItem.hash
-        ) {
+        if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
           return;
         }
 
-        const currentScannedFile = await antivirus.scanFile(
-          scannedItem.pathName
-        );
+        const currentScannedFile = await antivirus.scanFile(scannedItem.pathName);
         if (currentScannedFile) {
           await database.updateItemToDatabase(previousScannedItem.id, {
             ...scannedItem,
@@ -89,14 +82,9 @@ const scanInBackground = async (): Promise<void> => {
   };
 
   try {
-    let backgroundQueue: QueueObject<string> | null = queue(
-      scan,
-      BACKGROUND_MAX_CONCURRENCY
-    );
+    let backgroundQueue: QueueObject<string> | null = queue(scan, BACKGROUND_MAX_CONCURRENCY);
 
-    await getFilesFromDirectory(userSystemPath.path, (file: string) =>
-      backgroundQueue!.pushAsync(file)
-    );
+    await getFilesFromDirectory(userSystemPath.path, (file: string) => backgroundQueue!.pushAsync(file));
 
     await backgroundQueue.drain();
 

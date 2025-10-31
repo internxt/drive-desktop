@@ -1,9 +1,4 @@
-import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
-} from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 export type HeadersProvider = () => Promise<Record<string, string>>;
 export type UnauthorizedNotifier = () => void;
@@ -15,7 +10,7 @@ export class AuthorizedHttpClient {
   constructor(
     private readonly headersProvider: HeadersProvider,
     private readonly unauthorizedNotifier: UnauthorizedNotifier,
-    private readonly syncBlockedTracker: SyncBlockedTracker
+    private readonly syncBlockedTracker: SyncBlockedTracker,
   ) {
     this.client = axios.create();
 
@@ -32,10 +27,7 @@ export class AuthorizedHttpClient {
       if (this.unauthorizedNotifier) this.unauthorizedNotifier();
     }
 
-    if (
-      error?.response?.status !== undefined &&
-      error?.response?.status >= 500
-    ) {
+    if (error?.response?.status !== undefined && error?.response?.status >= 500) {
       this.syncBlockedTracker();
     }
 

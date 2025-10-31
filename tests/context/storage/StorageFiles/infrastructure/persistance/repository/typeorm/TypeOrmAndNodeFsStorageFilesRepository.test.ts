@@ -66,11 +66,7 @@ describe('TypeOrmAndNodeFsStorageFilesRepository', () => {
   });
 
   it('returns all files', async () => {
-    const files = await Promise.all([
-      createFile(repository),
-      createFile(repository),
-      createFile(repository),
-    ]);
+    const files = await Promise.all([createFile(repository), createFile(repository), createFile(repository)]);
 
     const allFilesRetrieved = await repository.all();
 

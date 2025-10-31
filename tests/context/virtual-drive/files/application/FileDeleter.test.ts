@@ -19,27 +19,18 @@ describe('File Deleter', () => {
   beforeEach(() => {
     repository = new FileRepositoryMock();
     const folderRepository = new FolderRepositoryMock();
-    allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(
-      folderRepository
-    );
+    allParentFoldersStatusIsExists = new AllParentFoldersStatusIsExists(folderRepository);
     remoteFileSystemMock = new RemoteFileSystemMock();
     notifier = new FileSyncNotifierMock();
 
-    SUT = new FileTrasher(
-      remoteFileSystemMock,
-      repository,
-      allParentFoldersStatusIsExists,
-      notifier
-    );
+    SUT = new FileTrasher(remoteFileSystemMock, repository, allParentFoldersStatusIsExists, notifier);
   });
 
   it('does not nothing if the file its not found', async () => {
     const contentsId = BucketEntryIdMother.primitive();
 
     repository.matchingPartialMock.mockReturnValueOnce([]);
-    jest
-      .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockResolvedValueOnce(false);
+    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(false);
 
     await SUT.run(contentsId);
 
@@ -50,9 +41,7 @@ describe('File Deleter', () => {
     const file = FileMother.any();
 
     repository.matchingPartialMock.mockReturnValueOnce([file]);
-    jest
-      .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockResolvedValueOnce(false);
+    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(false);
 
     await SUT.run(file.contentsId);
 
@@ -63,9 +52,7 @@ describe('File Deleter', () => {
     const file = FileMother.any();
 
     repository.matchingPartialMock.mockReturnValueOnce([file]);
-    jest
-      .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockResolvedValueOnce(true);
+    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(true);
 
     await SUT.run(file.contentsId);
 
@@ -76,15 +63,11 @@ describe('File Deleter', () => {
     const file = FileMother.any();
 
     repository.matchingPartialMock.mockReturnValueOnce([file]);
-    jest
-      .spyOn(allParentFoldersStatusIsExists, 'run')
-      .mockResolvedValueOnce(true);
+    jest.spyOn(allParentFoldersStatusIsExists, 'run').mockResolvedValueOnce(true);
 
     await SUT.run(file.contentsId);
 
     expect(remoteFileSystemMock.trashMock).toBeCalledWith(file.contentsId);
-    expect(repository.updateMock).toBeCalledWith(
-      expect.objectContaining({ status: FileStatus.Trashed })
-    );
+    expect(repository.updateMock).toBeCalledWith(expect.objectContaining({ status: FileStatus.Trashed }));
   });
 });

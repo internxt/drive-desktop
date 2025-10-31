@@ -13,9 +13,7 @@ describe.skip('GM Resize Image', () => {
   });
 
   it('The reszise of  an image returns a buffer with contents', async () => {
-    const image = createReadStream(
-      path.join(__dirname, 'fixtures', '1000x1000.jpg')
-    );
+    const image = createReadStream(path.join(__dirname, 'fixtures', '1000x1000.jpg'));
 
     const buffer = await reziseImage(image);
 
@@ -24,9 +22,7 @@ describe.skip('GM Resize Image', () => {
   });
 
   it('After the resize the file has the thumbnails dimensions', async () => {
-    const image = createReadStream(
-      path.join(__dirname, 'fixtures', '1000x1000.jpg')
-    );
+    const image = createReadStream(path.join(__dirname, 'fixtures', '1000x1000.jpg'));
     const buffer = await reziseImage(image);
 
     const { width, height } = await getFileSize(buffer);

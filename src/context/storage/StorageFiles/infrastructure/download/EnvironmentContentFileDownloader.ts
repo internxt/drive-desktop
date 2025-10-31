@@ -4,10 +4,7 @@ import { DownloadStrategyFunction } from '@internxt/inxt-js/build/lib/core/downl
 import { EventEmitter, Readable } from 'stream';
 import { Stopwatch } from '../../../../../apps/shared/types/Stopwatch';
 import { StorageFile } from '../../domain/StorageFile';
-import {
-  DownloadEvents,
-  DownloaderHandler,
-} from '../../domain/download/DownloaderHandler';
+import { DownloadEvents, DownloaderHandler } from '../../domain/download/DownloaderHandler';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class EnvironmentContentFileDownloader implements DownloaderHandler {
@@ -18,7 +15,7 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
 
   constructor(
     private readonly fn: DownloadStrategyFunction<DownloadOneShardStrategy>,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
@@ -72,7 +69,7 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
               useProxy: false,
               chunkSize: 4096 * 1024,
             },
-          }
+          },
         );
       } catch (err) {
         logger.error({ msg: 'Error in downloader:', err });
@@ -82,10 +79,7 @@ export class EnvironmentContentFileDownloader implements DownloaderHandler {
     });
   }
 
-  on(
-    event: keyof DownloadEvents,
-    handler: DownloadEvents[keyof DownloadEvents]
-  ): void {
+  on(event: keyof DownloadEvents, handler: DownloadEvents[keyof DownloadEvents]): void {
     this.eventEmitter.on(event, handler);
     this.eventEmitter.on('finish', () => {
       this.eventEmitter.removeAllListeners();

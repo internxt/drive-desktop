@@ -3,12 +3,7 @@ import CleaningFinished from '../components/cleaning-finished';
 import CleaningProcess from '../components/cleaning-process';
 
 export default function CleaningView() {
-  const {
-    cleaningState,
-    generateReport,
-    stopCleanup,
-    setInitialCleaningState,
-  } = useCleaner();
+  const { cleaningState, generateReport, stopCleanup, setInitialCleaningState } = useCleaner();
   function handleStopCleaning() {
     stopCleanup();
   }

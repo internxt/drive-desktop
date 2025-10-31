@@ -9,11 +9,5 @@ export function Separator({ classname, size = 'normal' }: SeparatorProps) {
     small: 'ml-10',
   };
 
-  return (
-    <div
-      className={`${
-        classname ? classname : ''
-      } border-t border-gray-10 dark:bg-gray-5 ${sizeClasses[size]}`}
-    />
-  );
+  return <div className={`${classname ? classname : ''} border-t border-gray-10 dark:bg-gray-5 ${sizeClasses[size]}`} />;
 }

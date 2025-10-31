@@ -2,15 +2,15 @@ import { validateMnemonic } from 'bip39';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 type Props = {
-    url: string;
-}
+  url: string;
+};
 
 type DeeplinkParams = {
-    mnemonic: string;
-    token: string;
-    newToken: string;
-    privateKey: string;
-}
+  mnemonic: string;
+  token: string;
+  newToken: string;
+  privateKey: string;
+};
 
 export async function processDeeplink({ url }: Props) {
   logger.debug({ tag: 'AUTH', msg: 'Processing deeplink URL', url });
@@ -58,7 +58,7 @@ export async function processDeeplink({ url }: Props) {
         mnemonicWordsCount: decodedMnemonic.split(' ').length,
         decodedMnemonicPreview: decodedMnemonic.substring(0, 50) + '...',
         tokenStartsWith: decodedLegacyToken.substring(0, 20) + '...',
-        newTokenStartsWith: decodedToken.substring(0, 20) + '...'
+        newTokenStartsWith: decodedToken.substring(0, 20) + '...',
       });
     } catch (error) {
       logger.error({ tag: 'AUTH', msg: 'Failed to decode base64 parameters', error });

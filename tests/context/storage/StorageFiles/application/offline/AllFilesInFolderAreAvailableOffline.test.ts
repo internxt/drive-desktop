@@ -21,12 +21,7 @@ describe('All Files In Folder Are Available Offline', () => {
     repository = new StorageFilesRepositoryMock();
     foldersSearcherByPartial = new FoldersSearcherByPartialTestClass();
 
-    SUT = new AllFilesInFolderAreAvailableOffline(
-      singleFolderFinder,
-      filesByPartialSearcher,
-      repository,
-      foldersSearcherByPartial
-    );
+    SUT = new AllFilesInFolderAreAvailableOffline(singleFolderFinder, filesByPartialSearcher, repository, foldersSearcherByPartial);
   });
 
   beforeEach(() => {
@@ -104,10 +99,7 @@ describe('All Files In Folder Are Available Offline', () => {
     singleFolderFinder.finds([folderFound]);
 
     // firsts level
-    foldersSearcherByPartial.findsOnce([
-      FolderMother.any(),
-      FolderMother.any(),
-    ]);
+    foldersSearcherByPartial.findsOnce([FolderMother.any(), FolderMother.any()]);
     // second level
     foldersSearcherByPartial.findsOnce([]);
     foldersSearcherByPartial.findsOnce([]);
@@ -119,26 +111,23 @@ describe('All Files In Folder Are Available Offline', () => {
     foldersSearcherByPartial.assertHasBeenCalledTimes(3);
   });
 
-  it.each([0, 1, 20, 50, 100])(
-    'searches for subfolders files in a %s level',
-    async (level: number) => {
-      const folderFound = FolderMother.any();
+  it.each([0, 1, 20, 50, 100])('searches for subfolders files in a %s level', async (level: number) => {
+    const folderFound = FolderMother.any();
 
-      singleFolderFinder.finds([folderFound]);
+    singleFolderFinder.finds([folderFound]);
 
-      for (let i = 0; i < level; i++) {
-        foldersSearcherByPartial.findsOnce([FolderMother.any()]);
-      }
-
-      foldersSearcherByPartial.findsOnce([]);
-
-      filesByPartialSearcher.finds([]);
-
-      await SUT.run(folderFound.path);
-
-      foldersSearcherByPartial.assertHasBeenCalledTimes(level + 1);
+    for (let i = 0; i < level; i++) {
+      foldersSearcherByPartial.findsOnce([FolderMother.any()]);
     }
-  );
+
+    foldersSearcherByPartial.findsOnce([]);
+
+    filesByPartialSearcher.finds([]);
+
+    await SUT.run(folderFound.path);
+
+    foldersSearcherByPartial.assertHasBeenCalledTimes(level + 1);
+  });
 
   // skipped due performance
   it.skip('searches for subfolders files in a deep level', async () => {

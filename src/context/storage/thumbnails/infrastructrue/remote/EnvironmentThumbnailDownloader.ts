@@ -4,10 +4,7 @@ import { EnvironmentDownloader } from '../../../../virtual-drive/shared/infrastr
 import { Service } from 'diod';
 
 @Service()
-export class EnvironmentThumbnailDownloader
-  extends EnvironmentDownloader
-  implements ThumbnailDownloader
-{
+export class EnvironmentThumbnailDownloader extends EnvironmentDownloader implements ThumbnailDownloader {
   download(thumbnailContentsId: string): Promise<Readable> {
     return super.download(thumbnailContentsId);
   }

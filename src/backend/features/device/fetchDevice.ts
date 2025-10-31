@@ -5,14 +5,9 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { BackupError } from '../../../infra/drive-server/services/backup/backup.error';
 import { addUnknownDeviceIssue } from './addUnknownDeviceIssue';
 import { DeviceIdentifierDTO } from './device.types';
-export type FetchDeviceProps =
-  | { deviceIdentifier: DeviceIdentifierDTO }
-  | { uuid: string }
-  | { legacyId: string };
+export type FetchDeviceProps = { deviceIdentifier: DeviceIdentifierDTO } | { uuid: string } | { legacyId: string };
 
-async function getDeviceByProps(
-  props: FetchDeviceProps
-): Promise<Either<Error, Device | null>> {
+async function getDeviceByProps(props: FetchDeviceProps): Promise<Either<Error, Device | null>> {
   if ('deviceIdentifier' in props) {
     const query = {
       key: props.deviceIdentifier.key,
@@ -25,15 +20,12 @@ async function getDeviceByProps(
 
     const devices = result.getRight();
     if (devices.length === 0) return right(null);
-    if (devices.length > 1)
-      return left(new Error('Multiple devices found for the same identifier'));
+    if (devices.length > 1) return left(new Error('Multiple devices found for the same identifier'));
 
     return right(devices[0]);
   } else {
     const deviceResult =
-      'uuid' in props
-        ? await driveServerModule.backup.getDevice(props.uuid)
-        : await driveServerModule.backup.getDeviceById(props.legacyId);
+      'uuid' in props ? await driveServerModule.backup.getDevice(props.uuid) : await driveServerModule.backup.getDeviceById(props.legacyId);
 
     if (deviceResult.isLeft()) return left(deviceResult.getLeft());
 
@@ -52,9 +44,7 @@ async function getDeviceByProps(
  *
  * @returns Either<Error, Device | null> - Right(Device) if found, Right(null) if not found, Left(Error) if error
  */
-export async function fetchDevice(
-  props: FetchDeviceProps
-): Promise<Either<Error, Device | null>> {
+export async function fetchDevice(props: FetchDeviceProps): Promise<Either<Error, Device | null>> {
   const getDeviceEither = await getDeviceByProps(props);
 
   if (getDeviceEither.isRight()) {

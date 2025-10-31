@@ -9,6 +9,6 @@ export abstract class TemporalFileUploader {
       name: string;
       extension: string;
     },
-    abortSignal?: AbortSignal
+    abortSignal?: AbortSignal,
   ): () => Promise<string>;
 }

@@ -5,13 +5,7 @@ export class FileRenamedDomainEvent extends DomainEvent {
 
   private oldName: string;
 
-  constructor({
-    aggregateId,
-    oldName,
-  }: {
-    aggregateId: string;
-    oldName: string;
-  }) {
+  constructor({ aggregateId, oldName }: { aggregateId: string; oldName: string }) {
     super({
       eventName: FileRenamedDomainEvent.EVENT_NAME,
       aggregateId,

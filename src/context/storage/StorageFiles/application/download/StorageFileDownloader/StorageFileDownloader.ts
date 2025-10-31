@@ -10,13 +10,10 @@ import { StorageFile } from '../../../domain/StorageFile';
 export class StorageFileDownloader {
   constructor(
     private readonly managerFactory: DownloaderHandlerFactory,
-    private readonly tracker: DownloadProgressTracker
+    private readonly tracker: DownloadProgressTracker,
   ) {}
 
-  private async registerEvents(
-    handler: DownloaderHandler,
-    { name, type, size }: { name: string; type: string; size: number }
-  ) {
+  private async registerEvents(handler: DownloaderHandler, { name, type, size }: { name: string; type: string; size: number }) {
     handler.on('start', () => {
       this.tracker.downloadStarted(name, type, size);
     });
@@ -45,7 +42,7 @@ export class StorageFileDownloader {
       name: string;
       type: string;
       size: number;
-    }
+    },
   ): Promise<Readable> {
     const downloader = this.managerFactory.downloader();
 

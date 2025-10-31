@@ -1,33 +1,19 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import {
-  RemoteSyncStatus,
-  RemoteSyncedFolder,
-  RemoteSyncedFile,
-  SyncConfig,
-  rewind,
-  SIX_HOURS_IN_MILLISECONDS,
-} from './helpers';
+import { RemoteSyncStatus, RemoteSyncedFolder, RemoteSyncedFile, SyncConfig, rewind, SIX_HOURS_IN_MILLISECONDS } from './helpers';
 import { reportError } from '../bug-report/service';
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import axios, { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
 import { Nullable } from '../../shared/types/Nullable';
-import {
-  RemoteSyncError,
-  RemoteSyncInvalidResponseError,
-  RemoteSyncNetworkError,
-  RemoteSyncServerError,
-} from './errors';
+import { RemoteSyncError, RemoteSyncInvalidResponseError, RemoteSyncNetworkError, RemoteSyncServerError } from './errors';
 import { RemoteSyncErrorHandler } from './RemoteSyncErrorHandler/RemoteSyncErrorHandler';
 
 export class RemoteSyncManager {
   private foldersSyncStatus: RemoteSyncStatus = 'IDLE';
   private filesSyncStatus: RemoteSyncStatus = 'IDLE';
   private status: RemoteSyncStatus = 'IDLE';
-  private onStatusChangeCallbacks: Array<
-    (newStatus: RemoteSyncStatus) => void
-  > = [];
+  private onStatusChangeCallbacks: Array<(newStatus: RemoteSyncStatus) => void> = [];
   private totalFilesSynced = 0;
   private totalFoldersSynced = 0;
 
@@ -43,7 +29,7 @@ export class RemoteSyncManager {
       syncFiles: boolean;
       syncFolders: boolean;
     },
-    private errorHandler: RemoteSyncErrorHandler
+    private errorHandler: RemoteSyncErrorHandler,
   ) {}
 
   getTotalFilesSynced() {
@@ -156,38 +142,24 @@ export class RemoteSyncManager {
 
   private checkRemoteSyncStatus() {
     // We only syncing files
-    if (
-      this.config.syncFiles &&
-      !this.config.syncFolders &&
-      this.filesSyncStatus === 'SYNCED'
-    ) {
+    if (this.config.syncFiles && !this.config.syncFolders && this.filesSyncStatus === 'SYNCED') {
       this.changeStatus('SYNCED');
       return;
     }
 
     // We only syncing folders
-    if (
-      !this.config.syncFiles &&
-      this.config.syncFolders &&
-      this.foldersSyncStatus === 'SYNCED'
-    ) {
+    if (!this.config.syncFiles && this.config.syncFolders && this.foldersSyncStatus === 'SYNCED') {
       this.changeStatus('SYNCED');
       return;
     }
     // Files and folders are synced, RemoteSync is Synced
-    if (
-      this.foldersSyncStatus === 'SYNCED' &&
-      this.filesSyncStatus === 'SYNCED'
-    ) {
+    if (this.foldersSyncStatus === 'SYNCED' && this.filesSyncStatus === 'SYNCED') {
       this.changeStatus('SYNCED');
       return;
     }
 
     // Files OR Folders sync failed, RemoteSync Failed
-    if (
-      this.foldersSyncStatus === 'SYNC_FAILED' ||
-      this.filesSyncStatus === 'SYNC_FAILED'
-    ) {
+    if (this.foldersSyncStatus === 'SYNC_FAILED' || this.filesSyncStatus === 'SYNC_FAILED') {
       this.changeStatus('SYNC_FAILED');
       return;
     }
@@ -215,9 +187,7 @@ export class RemoteSyncManager {
     let lastFileSynced = null;
 
     try {
-      const { hasMore, result } = await this.fetchFilesFromRemote(
-        fileCheckPoint
-      );
+      const { hasMore, result } = await this.fetchFilesFromRemote(fileCheckPoint);
 
       for (const remoteFile of result) {
         // eslint-disable-next-line no-await-in-loop
@@ -241,16 +211,11 @@ export class RemoteSyncManager {
           retry: 1,
           maxRetries: syncConfig.maxRetries,
         },
-        lastFileSynced ? new Date(lastFileSynced.updatedAt) : undefined
+        lastFileSynced ? new Date(lastFileSynced.updatedAt) : undefined,
       );
     } catch (error) {
       if (error instanceof RemoteSyncError) {
-        this.errorHandler.handleSyncError(
-          error,
-          'files',
-          lastFileSynced?.name ?? 'unknown',
-          fileCheckPoint
-        );
+        this.errorHandler.handleSyncError(error, 'files', lastFileSynced?.name ?? 'unknown', fileCheckPoint);
       } else {
         logger.error({
           tag: 'SYNC-ENGINE',
@@ -293,9 +258,7 @@ export class RemoteSyncManager {
     let lastFolderSynced = null;
 
     try {
-      const { hasMore, result } = await this.fetchFoldersFromRemote(
-        folderCheckPoint
-      );
+      const { hasMore, result } = await this.fetchFoldersFromRemote(folderCheckPoint);
 
       for (const remoteFolder of result) {
         // eslint-disable-next-line no-await-in-loop
@@ -316,16 +279,11 @@ export class RemoteSyncManager {
           retry: 1,
           maxRetries: syncConfig.maxRetries,
         },
-        lastFolderSynced ? new Date(lastFolderSynced.updatedAt) : undefined
+        lastFolderSynced ? new Date(lastFolderSynced.updatedAt) : undefined,
       );
     } catch (error) {
       if (error instanceof RemoteSyncError) {
-        this.errorHandler.handleSyncError(
-          error,
-          'folders',
-          lastFolderSynced?.name ?? 'unknown',
-          folderCheckPoint
-        );
+        this.errorHandler.handleSyncError(error, 'folders', lastFolderSynced?.name ?? 'unknown', folderCheckPoint);
       } else {
         logger.error({
           tag: 'SYNC-ENGINE',
@@ -361,18 +319,13 @@ export class RemoteSyncManager {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
       status: 'ALL',
-      updatedAt: updatedAtCheckpoint
-        ? updatedAtCheckpoint.toISOString()
-        : undefined,
+      updatedAt: updatedAtCheckpoint ? updatedAtCheckpoint.toISOString() : undefined,
     };
 
     try {
-      const response = await this.config.httpClient.get(
-        `${process.env.NEW_DRIVE_URL}/files`,
-        {
-          params,
-        }
-      );
+      const response = await this.config.httpClient.get(`${process.env.NEW_DRIVE_URL}/files`, {
+        params,
+      });
 
       if (response.status > 299) {
         throw new RemoteSyncServerError(response.status, response.data);
@@ -381,24 +334,16 @@ export class RemoteSyncManager {
       if (!Array.isArray(response.data)) {
         logger.debug({
           tag: 'SYNC-ENGINE',
-          msg: `Expected to receive an array of files, but received: ${JSON.stringify(
-            response,
-            null,
-            2
-          )}`,
+          msg: `Expected to receive an array of files, but received: ${JSON.stringify(response, null, 2)}`,
         });
         throw new RemoteSyncInvalidResponseError(response);
       }
 
-      const hasMore =
-        response.data.length === this.config.fetchFilesLimitPerRequest;
+      const hasMore = response.data.length === this.config.fetchFilesLimitPerRequest;
 
       return {
         hasMore,
-        result:
-          response.data && Array.isArray(response.data)
-            ? response.data.map(this.patchDriveFileResponseItem)
-            : [],
+        result: response.data && Array.isArray(response.data) ? response.data.map(this.patchDriveFileResponseItem) : [],
       };
     } catch (error) {
       if (error instanceof RemoteSyncError) {
@@ -409,11 +354,7 @@ export class RemoteSyncManager {
         throw new RemoteSyncNetworkError(error);
       }
 
-      throw new RemoteSyncError(
-        'Uncontrolled Error in fetchFilesFromRemote',
-        undefined,
-        { originalError: error }
-      );
+      throw new RemoteSyncError('Uncontrolled Error in fetchFilesFromRemote', undefined, { originalError: error });
     }
   }
 
@@ -430,17 +371,12 @@ export class RemoteSyncManager {
       limit: this.config.fetchFilesLimitPerRequest,
       offset: 0,
       status: 'ALL',
-      updatedAt: updatedAtCheckpoint
-        ? updatedAtCheckpoint.toISOString()
-        : undefined,
+      updatedAt: updatedAtCheckpoint ? updatedAtCheckpoint.toISOString() : undefined,
     };
     try {
-      const response = await this.config.httpClient.get(
-        `${process.env.NEW_DRIVE_URL}/folders`,
-        {
-          params,
-        }
-      );
+      const response = await this.config.httpClient.get(`${process.env.NEW_DRIVE_URL}/folders`, {
+        params,
+      });
       if (response.status > 299) {
         throw new RemoteSyncServerError(response.status, response.data);
       }
@@ -448,24 +384,16 @@ export class RemoteSyncManager {
       if (!Array.isArray(response.data)) {
         logger.debug({
           tag: 'SYNC-ENGINE',
-          msg: `Expected to receive an array of folders, but instead received: ${JSON.stringify(
-            response,
-            null,
-            2
-          )}`,
+          msg: `Expected to receive an array of folders, but instead received: ${JSON.stringify(response, null, 2)}`,
         });
         throw new RemoteSyncInvalidResponseError(response);
       }
 
-      const hasMore =
-        response.data.length === this.config.fetchFilesLimitPerRequest;
+      const hasMore = response.data.length === this.config.fetchFilesLimitPerRequest;
 
       return {
         hasMore,
-        result:
-          response.data && Array.isArray(response.data)
-            ? response.data.map(this.patchDriveFolderResponseItem)
-            : [],
+        result: response.data && Array.isArray(response.data) ? response.data.map(this.patchDriveFolderResponseItem) : [],
       };
     } catch (error) {
       if (error instanceof RemoteSyncError) {
@@ -476,11 +404,7 @@ export class RemoteSyncManager {
         throw new RemoteSyncNetworkError(error);
       }
 
-      throw new RemoteSyncError(
-        'Uncontrolled Error in fetchFilesFromRemote',
-        undefined,
-        { originalError: error }
-      );
+      throw new RemoteSyncError('Uncontrolled Error in fetchFilesFromRemote', undefined, { originalError: error });
     }
   }
 
@@ -509,10 +433,7 @@ export class RemoteSyncManager {
   private patchDriveFileResponseItem = (payload: any): RemoteSyncedFile => {
     return {
       ...payload,
-      size:
-        typeof payload.size === 'string'
-          ? parseInt(payload.size)
-          : payload.size,
+      size: typeof payload.size === 'string' ? parseInt(payload.size) : payload.size,
     };
   };
 
@@ -523,9 +444,7 @@ export class RemoteSyncManager {
     await this.db.files.create(remoteFile);
   }
 
-  private async createOrUpdateSyncedFolderEntry(
-    remoteFolder: RemoteSyncedFolder
-  ) {
+  private async createOrUpdateSyncedFolderEntry(remoteFolder: RemoteSyncedFolder) {
     if (!remoteFolder.id) {
       return;
     }

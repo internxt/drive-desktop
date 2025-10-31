@@ -40,14 +40,13 @@ export class FuseApp extends EventEmitter {
     private readonly container: Container,
     private readonly localRoot: string,
     private readonly remoteRoot: number,
-    private readonly remoteRootUuid: string
+    private readonly remoteRootUuid: string,
   ) {
     super();
   }
 
-
   async fixDanglingFiles(startDate: Date, endDate: Date): Promise<void> {
-   const shouldFixDanglingFiles = configStore.get('shouldFixDanglingFiles');
+    const shouldFixDanglingFiles = configStore.get('shouldFixDanglingFiles');
     if (!shouldFixDanglingFiles) {
       return;
     }
@@ -56,11 +55,7 @@ export class FuseApp extends EventEmitter {
       const existingFiles = await getExistingFiles();
 
       const affectedFilesIds = existingFiles
-        .filter(
-          (file) =>
-            new Date(file.createdAt) >= startDate &&
-            new Date(file.createdAt) < endDate
-        )
+        .filter((file) => new Date(file.createdAt) >= startDate && new Date(file.createdAt) < endDate)
         .map((file) => file.fileId);
 
       if (affectedFilesIds.length > 0) {
@@ -76,7 +71,6 @@ export class FuseApp extends EventEmitter {
       logger.error({ msg: '[FUSE] Error fixing dangling files:', error: err });
     }
   }
-
 
   private getOpt() {
     const readdir = new ReaddirCallback(this.container);
@@ -156,9 +150,7 @@ export class FuseApp extends EventEmitter {
 
   async update(): Promise<void> {
     try {
-      const tree = await this.container
-        .get(RemoteTreeBuilder)
-        .run(this.remoteRoot, this.remoteRootUuid);
+      const tree = await this.container.get(RemoteTreeBuilder).run(this.remoteRoot, this.remoteRootUuid);
 
       await this.container.get(FileRepositorySynchronizer).run(tree.files);
       await this.container.get(ThumbnailSynchronizer).run(tree.files);

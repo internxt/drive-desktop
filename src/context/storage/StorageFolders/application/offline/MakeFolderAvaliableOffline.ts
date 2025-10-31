@@ -13,7 +13,7 @@ export class MakeFolderAvaliableOffline {
     private readonly makeStorageFileAvaliableOffline: MakeStorageFileAvaliableOffline,
     private readonly singleFolderFinder: SingleFolderMatchingFinder,
     private readonly filesByPartialSearcher: FilesByPartialSearcher,
-    private readonly foldersSearcherByPartial: FoldersSearcherByPartial
+    private readonly foldersSearcherByPartial: FoldersSearcherByPartial,
   ) {}
 
   private async makeFolderAvaliableOffline(folder: Folder): Promise<void> {
@@ -22,18 +22,14 @@ export class MakeFolderAvaliableOffline {
       status: FileStatuses.EXISTS,
     });
 
-    const filesMadeAvaliable = files.map((file) =>
-      this.makeStorageFileAvaliableOffline.run(file.path)
-    );
+    const filesMadeAvaliable = files.map((file) => this.makeStorageFileAvaliableOffline.run(file.path));
 
     const subfolders = await this.foldersSearcherByPartial.run({
       parentId: folder.id,
       status: FolderStatuses.EXISTS,
     });
 
-    const subfoldersMadeAvaliable = subfolders.map((subfolder) =>
-      this.makeFolderAvaliableOffline(subfolder)
-    );
+    const subfoldersMadeAvaliable = subfolders.map((subfolder) => this.makeFolderAvaliableOffline(subfolder));
 
     await Promise.all([...subfoldersMadeAvaliable, ...filesMadeAvaliable]);
   }

@@ -24,11 +24,7 @@ export interface ClamAVError extends Error {
  * @returns A type predicate indicating if the error is a ClamAV error
  */
 export function isClamAVError(error: Error): error is ClamAVError {
-  return (
-    error.message.includes('ClamAV') ||
-    error instanceof NodeClamError ||
-    'isClamAVError' in error
-  );
+  return error.message.includes('ClamAV') || error instanceof NodeClamError || 'isClamAVError' in error;
 }
 
 /**
@@ -80,9 +76,7 @@ export function getErrorMessage(error: unknown): string {
     try {
       const jsonStr = JSON.stringify(error);
       if (jsonStr && jsonStr !== '{}') {
-        return `Error object: ${jsonStr.substring(0, 200)}${
-          jsonStr.length > 200 ? '...' : ''
-        }`;
+        return `Error object: ${jsonStr.substring(0, 200)}${jsonStr.length > 200 ? '...' : ''}`;
       }
     } catch (_) {
       return String(error);

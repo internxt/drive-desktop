@@ -21,11 +21,7 @@ export default function AccountSection({ active }: { active: boolean }) {
   }, [active]);
 
   return (
-    <div
-      className={`flex w-full flex-col space-y-8 ${
-        active ? 'block' : 'hidden'
-      }`}
-    >
+    <div className={`flex w-full flex-col space-y-8 ${active ? 'block' : 'hidden'}`}>
       {user !== null && <UserInfo user={user} />}
 
       <div className="flex items-center justify-center rounded-lg border border-gray-10 bg-surface p-4 shadow-sm dark:bg-gray-5">
@@ -33,9 +29,7 @@ export default function AccountSection({ active }: { active: boolean }) {
           <Spinner className="my-[57px] h-5 w-5 animate-spin" />
         ) : status === 'error' ? (
           <div className="my-4 flex flex-col items-center space-y-2.5">
-            <p className="font-medium">
-              {translate('settings.account.usage.loadError.title')}
-            </p>
+            <p className="font-medium">{translate('settings.account.usage.loadError.title')}</p>
 
             <Button variant="secondary" onClick={() => refreshUsage()}>
               {translate('settings.account.usage.loadError.action')}

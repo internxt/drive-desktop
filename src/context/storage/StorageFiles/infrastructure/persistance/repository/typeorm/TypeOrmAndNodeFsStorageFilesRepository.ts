@@ -2,10 +2,7 @@ import { Service } from 'diod';
 import { Readable } from 'form-data';
 import { readFile, unlink } from 'fs/promises';
 import path from 'path';
-import {
-  DataSource,
-  Repository,
-} from '../../../../../../../apps/node_modules/typeorm';
+import { DataSource, Repository } from '../../../../../../../apps/node_modules/typeorm';
 import { ensureFolderExists } from '../../../../../../../apps/shared/fs/ensure-folder-exists';
 import { WriteReadableToFile } from '../../../../../../../apps/shared/fs/write-readable-to-file';
 import { StorageFile } from '../../../../domain/StorageFile';
@@ -14,12 +11,13 @@ import { StorageFilesRepository } from '../../../../domain/StorageFilesRepositor
 import { TypeOrmStorageFile } from './entities/TypeOrmStorageFile';
 
 @Service()
-export class TypeOrmAndNodeFsStorageFilesRepository
-  implements StorageFilesRepository
-{
+export class TypeOrmAndNodeFsStorageFilesRepository implements StorageFilesRepository {
   private readonly db: Repository<TypeOrmStorageFile>;
 
-  constructor(private readonly baseFolder: string, dataSource: DataSource) {
+  constructor(
+    private readonly baseFolder: string,
+    dataSource: DataSource,
+  ) {
     this.db = dataSource.getRepository('storage_file');
   }
 
@@ -78,9 +76,7 @@ export class TypeOrmAndNodeFsStorageFilesRepository
   async deleteAll(): Promise<void> {
     const all = await this.db.find();
 
-    const deleted = all
-      .map((att: { id: string }) => new StorageFileId(att.id))
-      .map((id: StorageFileId) => this.delete(id));
+    const deleted = all.map((att: { id: string }) => new StorageFileId(att.id)).map((id: StorageFileId) => this.delete(id));
 
     await Promise.all(deleted);
   }

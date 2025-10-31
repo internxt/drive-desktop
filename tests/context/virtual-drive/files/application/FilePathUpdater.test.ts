@@ -29,7 +29,7 @@ describe('File path updater', () => {
       repository,
       singleFileMatchingTestClass,
       folderFinder as unknown as ParentFolderFinder,
-      eventBus
+      eventBus,
     );
   });
 
@@ -39,31 +39,21 @@ describe('File path updater', () => {
     singleFileMatchingTestClass.mock.mockReturnValueOnce(fileToRename);
     repository.matchingPartialMock.mockReturnValueOnce([]);
 
-    const destination = new FilePath(
-      `${fileToRename.dirname}/_${fileToRename.nameWithExtension}`
-    );
+    const destination = new FilePath(`${fileToRename.dirname}/_${fileToRename.nameWithExtension}`);
 
     await SUT.run(fileToRename.contentsId, destination.value);
 
-    expect(repository.updateMock).toBeCalledWith(
-      expect.objectContaining({ path: destination.value })
-    );
-    expect(remoteFileSystemMock.renameMock).toBeCalledWith(
-      expect.objectContaining({ path: destination.value })
-    );
+    expect(repository.updateMock).toBeCalledWith(expect.objectContaining({ path: destination.value }));
+    expect(remoteFileSystemMock.renameMock).toBeCalledWith(expect.objectContaining({ path: destination.value }));
   });
 
   it('does not rename or moves a file when the extension changes', async () => {
     const fileToRename = FileMother.any();
     const fileWithDestinationPath = undefined;
 
-    singleFileMatchingTestClass.mock
-      .mockReturnValueOnce(fileToRename)
-      .mockReturnValueOnce(fileWithDestinationPath);
+    singleFileMatchingTestClass.mock.mockReturnValueOnce(fileToRename).mockReturnValueOnce(fileWithDestinationPath);
 
-    const destination = new FilePath(
-      `${fileToRename.dirname}/_${fileToRename.nameWithExtension}n`
-    );
+    const destination = new FilePath(`${fileToRename.dirname}/_${fileToRename.nameWithExtension}n`);
 
     expect(async () => {
       await SUT.run(fileToRename.contentsId, destination.value);
@@ -74,13 +64,9 @@ describe('File path updater', () => {
     const fileToMove = FileMother.any();
     const fileInDestination = undefined;
 
-    singleFileMatchingTestClass.mock
-      .mockReturnValueOnce(fileToMove)
-      .mockReturnValueOnce(fileInDestination);
+    singleFileMatchingTestClass.mock.mockReturnValueOnce(fileToMove).mockReturnValueOnce(fileInDestination);
 
-    const destination = new FilePath(
-      `${fileToMove.dirname}_/${fileToMove.nameWithExtension}`
-    );
+    const destination = new FilePath(`${fileToMove.dirname}_/${fileToMove.nameWithExtension}`);
 
     const destinationFolder = FolderMother.fromPartial({
       id: fileToMove.folderId + 1,
@@ -95,13 +81,13 @@ describe('File path updater', () => {
       expect.objectContaining({
         folderId: destinationFolder.id,
         path: destination.value,
-      })
+      }),
     );
     expect(remoteFileSystemMock.moveMock).toBeCalledWith(
       expect.objectContaining({
         folderId: destinationFolder.id,
         path: destination.value,
-      })
+      }),
     );
   });
 });

@@ -1,5 +1,3 @@
 describe('DeviceBackupsDetailsView', () => {
-  it('should render properly', () => {
-    
-  });
+  it('should render properly', () => {});
 });

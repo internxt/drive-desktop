@@ -12,14 +12,7 @@ type SectionDetailMenuItemProps = {
   onToggleItem: (sectionKey: string, itemPath: string) => void;
 };
 
-export function SectionDetailMenuItem({
-  item,
-  sectionName,
-  showSeparatorOnTop,
-  isSelected,
-  onToggleItem,
-}: SectionDetailMenuItemProps) {
-
+export function SectionDetailMenuItem({ item, sectionName, showSeparatorOnTop, isSelected, onToggleItem }: SectionDetailMenuItemProps) {
   return (
     <div key={item.fullPath}>
       {showSeparatorOnTop && <Separator size="small" />}
@@ -33,9 +26,7 @@ export function SectionDetailMenuItem({
         />
 
         <div className="flex flex-1 items-end justify-end">
-          <span className="text-sm text-gray-50">
-            {formatFileSize(item.sizeInBytes)}
-          </span>
+          <span className="text-sm text-gray-50">{formatFileSize(item.sizeInBytes)}</span>
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ export function registerFolderServices(builder: ContainerBuilder) {
       const clients = c.get(AuthorizedClients);
       return new HttpRemoteFileSystem(
         // @ts-ignore
-        clients.newDrive
+        clients.newDrive,
       );
     })
     .private();

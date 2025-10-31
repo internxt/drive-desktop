@@ -4,9 +4,7 @@ import Chance from '../../../../../../shared/infrastructure/Chance';
 import { StorageFileMother } from '../../../../domain/StorageFileMother';
 import { createReadable } from '../typeorm/createReadable';
 
-export async function createFile(
-  repo: StorageFilesRepository
-): Promise<StorageFile> {
+export async function createFile(repo: StorageFilesRepository): Promise<StorageFile> {
   const content = Chance.tld();
   const file = StorageFileMother.random();
 

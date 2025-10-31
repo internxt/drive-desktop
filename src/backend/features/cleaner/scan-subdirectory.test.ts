@@ -28,17 +28,12 @@ describe('scanSubDirectory', () => {
       name,
       isDirectory: () => isDirectory,
       isFile: () => !isDirectory,
-    } as Dirent);
+    }) as Dirent;
 
   const mockBaseDir = '/home/user/.cache';
   const mockSubDir = 'cache';
 
-  const createCleanableItemMock = (
-    appName: string,
-    fileName: string,
-    size: number,
-    basePath = mockBaseDir
-  ) => ({
+  const createCleanableItemMock = (appName: string, fileName: string, size: number, basePath = mockBaseDir) => ({
     fullPath: `${basePath}/${appName}/${fileName}`,
     fileName,
     sizeInBytes: size,
@@ -71,9 +66,7 @@ describe('scanSubDirectory', () => {
 
     mockedFs.readdir.mockResolvedValue(mockDirents);
 
-    mockedScanDirectory
-      .mockResolvedValueOnce(mockApp1Items)
-      .mockResolvedValueOnce(mockApp2Items);
+    mockedScanDirectory.mockResolvedValueOnce(mockApp1Items).mockResolvedValueOnce(mockApp2Items);
 
     const result = await scanSubDirectory({
       baseDir: mockBaseDir,
@@ -81,12 +74,8 @@ describe('scanSubDirectory', () => {
     });
 
     expect(result).toStrictEqual([...mockApp1Items, ...mockApp2Items]);
-    expect(mockedScanDirectory).toHaveBeenCalledWith(
-      expect.objectContaining({ dirPath: `${mockBaseDir}/app1/${mockSubDir}` })
-    );
-    expect(mockedScanDirectory).toHaveBeenCalledWith(
-      expect.objectContaining({ dirPath: `${mockBaseDir}/app2/${mockSubDir}` })
-    );
+    expect(mockedScanDirectory).toHaveBeenCalledWith(expect.objectContaining({ dirPath: `${mockBaseDir}/app1/${mockSubDir}` }));
+    expect(mockedScanDirectory).toHaveBeenCalledWith(expect.objectContaining({ dirPath: `${mockBaseDir}/app2/${mockSubDir}` }));
   });
 
   it('should handle scanDirectory errors gracefully', async () => {
@@ -94,9 +83,7 @@ describe('scanSubDirectory', () => {
     const app2Items = [createCleanableItemMock('app2', 'cache.tmp', 1024)];
 
     mockedFs.readdir.mockResolvedValue(mockDirents);
-    mockedScanDirectory
-      .mockRejectedValueOnce(new Error('Permission denied'))
-      .mockResolvedValueOnce(app2Items);
+    mockedScanDirectory.mockRejectedValueOnce(new Error('Permission denied')).mockResolvedValueOnce(app2Items);
 
     const result = await scanSubDirectory({
       baseDir: mockBaseDir,

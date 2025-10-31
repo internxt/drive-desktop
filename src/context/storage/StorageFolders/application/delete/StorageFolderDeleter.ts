@@ -12,7 +12,7 @@ export class StorageFolderDeleter {
     private readonly storageFileDeleter: StorageFileDeleter,
     private readonly singleFolderFinder: SingleFolderMatchingFinder,
     private readonly filesByPartialSearcher: FilesByPartialSearcher,
-    private readonly foldersSearcherByPartial: FoldersSearcherByPartial
+    private readonly foldersSearcherByPartial: FoldersSearcherByPartial,
   ) {}
 
   private async deleteFilesOn(folder: Folder): Promise<void> {
@@ -20,9 +20,7 @@ export class StorageFolderDeleter {
       folderId: folder.id,
     });
 
-    const filesDeletion = files.map(({ path }) =>
-      this.storageFileDeleter.run(path)
-    );
+    const filesDeletion = files.map(({ path }) => this.storageFileDeleter.run(path));
 
     await Promise.all(filesDeletion);
   }
@@ -32,9 +30,7 @@ export class StorageFolderDeleter {
       parentId: folder.id,
     });
 
-    const subfoldersDeleted = subfolders.map((subfolder) =>
-      this.deleteFolder(subfolder)
-    );
+    const subfoldersDeleted = subfolders.map((subfolder) => this.deleteFolder(subfolder));
 
     await Promise.all(subfoldersDeleted);
   }

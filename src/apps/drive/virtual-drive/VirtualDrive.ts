@@ -23,9 +23,7 @@ export class VirtualDrive {
 
   private async isFolderLocallyAvailable(path: string): Promise<boolean> {
     try {
-      return await this.container
-        .get(AllFilesInFolderAreAvailableOffline)
-        .run(path);
+      return await this.container.get(AllFilesInFolderAreAvailableOffline).run(path);
     } catch (error) {
       logger.error({ msg: 'Error checking if folder is locally available:', error, path });
       // If the path is from a file it will not find it as a folder
@@ -46,9 +44,7 @@ export class VirtualDrive {
       return this.isFolderLocallyAvailable(path);
     }
 
-    const allFilesInFolderAreAvaliable = await this.isFolderLocallyAvailable(
-      path
-    );
+    const allFilesInFolderAreAvaliable = await this.isFolderLocallyAvailable(path);
     if (allFilesInFolderAreAvaliable) return true;
 
     return await this.isFileLocallyAvailable(path);
@@ -58,9 +54,7 @@ export class VirtualDrive {
     await this.container.get(CacheStorageFile).run(path);
   }
 
-  async temporalFileExists(
-    path: string
-  ): Promise<Either<VirtualDriveError, boolean>> {
+  async temporalFileExists(path: string): Promise<Either<VirtualDriveError, boolean>> {
     const file = await this.container.get(TemporalFileByPathFinder).run(path);
 
     if (!file) {

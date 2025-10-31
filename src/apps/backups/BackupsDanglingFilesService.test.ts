@@ -55,9 +55,7 @@ describe('BackupsDanglingFilesService', () => {
     const remoteFile = FileMother.fromPartial({});
     const dangling = new Map([[localFile, remoteFile]]);
 
-    storageFileService.isFileDownloadable.mockResolvedValueOnce(
-      left(new Error('Something went wrong'))
-    );
+    storageFileService.isFileDownloadable.mockResolvedValueOnce(left(new Error('Something went wrong')));
 
     const result = await sut.handleDanglingFilesOnBackup(dangling);
 
@@ -69,9 +67,7 @@ describe('BackupsDanglingFilesService', () => {
     const remoteFile = FileMother.fromPartial({});
     const dangling = new Map([[localFile, remoteFile]]);
 
-    storageFileService.isFileDownloadable.mockRejectedValueOnce(
-      new Error('Unexpected crash')
-    );
+    storageFileService.isFileDownloadable.mockRejectedValueOnce(new Error('Unexpected crash'));
 
     const result = await sut.handleDanglingFilesOnBackup(dangling);
 

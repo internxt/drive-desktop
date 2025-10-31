@@ -15,9 +15,7 @@ export class EventRepositoryMock implements EventRepository {
     return this.searchMock(aggregateId);
   }
 
-  last<Event extends DomainEvent>(
-    event: Event['eventName']
-  ): Promise<Optional<Event>> {
+  last<Event extends DomainEvent>(event: Event['eventName']): Promise<Optional<Event>> {
     return this.lastMock(event);
   }
 }

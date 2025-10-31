@@ -2,11 +2,7 @@ import { app, Menu, nativeImage, Tray } from 'electron';
 import path from 'path';
 import PackageJson from '../../../../package.json';
 import eventBus from '../event-bus';
-import {
-  getOrCreateWidged,
-  setBoundsOfWidgetByPath,
-  toggleWidgetVisibility,
-} from '../windows/widget';
+import { getOrCreateWidged, setBoundsOfWidgetByPath, toggleWidgetVisibility } from '../windows/widget';
 import { getIsLoggedIn } from '../auth/handlers';
 import { getAuthWindow } from '../windows/auth';
 import { quitApp } from '../quit';
@@ -25,7 +21,7 @@ export class TrayMenu {
   constructor(
     private readonly iconsPath: string,
     private readonly onClick: () => Promise<void>,
-    private readonly onQuit: () => void
+    private readonly onQuit: () => void,
   ) {
     const trayIcon = this.getIconPath('LOADING');
 
@@ -51,10 +47,7 @@ export class TrayMenu {
     const isDarwin = process.platform === 'darwin';
     const templatePart = isDarwin ? 'Template' : '';
 
-    return path.join(
-      this.iconsPath,
-      `${state.toLowerCase()}${templatePart}.png`
-    );
+    return path.join(this.iconsPath, `${state.toLowerCase()}${templatePart}.png`);
   }
 
   generateContextMenu() {
@@ -69,7 +62,7 @@ export class TrayMenu {
       {
         label: 'Quit',
         click: this.onQuit,
-      }
+      },
     );
 
     return Menu.buildFromTemplate(contextMenuTemplate);
@@ -119,9 +112,7 @@ export const setTrayStatus = (status: TrayMenuState) => {
 };
 
 export function setupTrayIcon() {
-  const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../../../assets');
+  const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'assets') : path.join(__dirname, '../../../../assets');
 
   const iconsPath = path.join(RESOURCES_PATH, 'tray');
 

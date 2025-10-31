@@ -7,9 +7,7 @@ jest.mock('../../../context/LocalContext', () => ({
     translate: (key: string) => key,
     language: 'en',
   }),
-  LocalizationProvider: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
+  LocalizationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 describe('AntivirusSlide', () => {
@@ -29,9 +27,7 @@ describe('AntivirusSlide', () => {
 
     // Check if title and description are rendered with correct translation keys
     const title = screen.getByText('onboarding.slides.antivirus.title');
-    const description = screen.getByText(
-      'onboarding.slides.antivirus.description'
-    );
+    const description = screen.getByText('onboarding.slides.antivirus.description');
 
     expect(title).toBeInTheDocument();
     expect(title).toHaveClass('text-3xl', 'font-semibold', 'text-gray-100');

@@ -28,13 +28,13 @@ export class RemoteTreeMother {
         tree.root,
         FileMother.fromPartial({
           path: path.join(tree.root.path, FileNameMother.any()),
-        })
+        }),
       );
       tree.addFolder(
         tree.root,
         FolderMother.fromPartial({
           path: path.join(tree.root.path, FolderNameMother.any()),
-        })
+        }),
       );
     }
 
@@ -48,12 +48,9 @@ export class RemoteTreeMother {
       remote.addFile(
         remote.root,
         FileMother.fromPartial({
-          path: path.join(
-            remote.root.path,
-            relative(local.root.path, file.path)
-          ),
-        })
-      )
+          path: path.join(remote.root.path, relative(local.root.path, file.path)),
+        }),
+      ),
     );
 
     local.folders.forEach((folder) => {
@@ -64,11 +61,8 @@ export class RemoteTreeMother {
       remote.addFolder(
         remote.root,
         FolderMother.fromPartial({
-          path: path.join(
-            remote.root.path,
-            relative(local.root.path, folder.path)
-          ),
-        })
+          path: path.join(remote.root.path, relative(local.root.path, folder.path)),
+        }),
       );
     });
 

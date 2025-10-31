@@ -15,21 +15,11 @@ export const LockedState = () => {
   };
 
   return (
-    <div
-      className="flex flex-col items-center p-5"
-      data-testid="locked-state-container"
-    >
-      <div
-        className="flex flex-col items-center gap-4 text-center"
-        data-testid="locked-state-content"
-      >
+    <div className="flex flex-col items-center p-5" data-testid="locked-state-container">
+      <div className="flex flex-col items-center gap-4 text-center" data-testid="locked-state-content">
         <div className="flex flex-col">
-          <p className="font-medium text-gray-100">
-            {translate('settings.antivirus.featureLocked.title')}
-          </p>
-          <p className="text-sm text-gray-80">
-            {translate('settings.antivirus.featureLocked.subtitle')}
-          </p>
+          <p className="font-medium text-gray-100">{translate('settings.antivirus.featureLocked.title')}</p>
+          <p className="text-sm text-gray-80">{translate('settings.antivirus.featureLocked.subtitle')}</p>
         </div>
         <Button onClick={handleOpenPricingPage} className="w-max">
           {translate('settings.antivirus.featureLocked.action')}

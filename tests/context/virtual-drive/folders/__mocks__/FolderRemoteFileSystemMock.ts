@@ -16,17 +16,14 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
   private readonly renameMock = jest.fn();
   private readonly searchWithMock = jest.fn();
 
-  searchWith(
-    parentId: FolderId,
-    folderPath: FolderPath
-  ): Promise<Folder | undefined> {
+  searchWith(parentId: FolderId, folderPath: FolderPath): Promise<Folder | undefined> {
     return this.searchWithMock(parentId, folderPath);
   }
 
   persist(
     path: FolderPath,
     parentId: FolderId,
-    uuid?: FolderUuid | undefined
+    uuid?: FolderUuid | undefined,
   ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
     expect(this.persistMock).toHaveBeenCalledWith(path, parentId, uuid);
 
@@ -45,16 +42,14 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
         _path: new FolderPath(folder.path),
         _id: new FolderId(folder.id as number),
         _parentId: new FolderId(folder.parentId as number),
-      })
+      }),
     );
 
     return this.moveMock();
   }
 
   rename(folder: Folder): Promise<void> {
-    expect(this.renameMock).toBeCalledWith(
-      expect.objectContaining({ _path: new FolderPath(folder.path) })
-    );
+    expect(this.renameMock).toBeCalledWith(expect.objectContaining({ _path: new FolderPath(folder.path) }));
 
     return this.renameMock();
   }
@@ -63,7 +58,7 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
     this.persistMock(
       new FolderPath(folder.path),
       new FolderId(folder.parentId as number),
-      includeUuid ? new FolderUuid(folder.uuid) : undefined
+      includeUuid ? new FolderUuid(folder.uuid) : undefined,
     );
 
     this.persistMock.mockResolvedValueOnce(
@@ -73,7 +68,7 @@ export class FolderRemoteFileSystemMock implements RemoteFileSystem {
         createdAt: folder.createdAt.toISOString(),
         updatedAt: folder.updatedAt.toISOString(),
         parentId: folder.parentId as number,
-      } satisfies FolderPersistedDto)
+      } satisfies FolderPersistedDto),
     );
   }
 

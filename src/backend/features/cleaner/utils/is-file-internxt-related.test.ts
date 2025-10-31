@@ -19,7 +19,7 @@ describe('isInternxtRelated', () => {
       '/home/user/.config/internxt/logs',
     ];
 
-    internxtNames.forEach(name => {
+    internxtNames.forEach((name) => {
       expect(isInternxtRelated(name)).toBe(true);
     });
   });
@@ -34,22 +34,15 @@ describe('isInternxtRelated', () => {
       '/var/log/drive-desktop.log',
     ];
 
-    driveDesktopNames.forEach(name => {
+    driveDesktopNames.forEach((name) => {
       expect(isInternxtRelated(name)).toBe(true);
     });
   });
 
   it('should return false for non-internxt related names', () => {
-    const nonInternxtNames = [
-      'google-chrome',
-      'firefox',
-      'application.log',
-      'temp-file.txt',
-      'system-cache',
-      '/tmp/random-file'
-    ];
+    const nonInternxtNames = ['google-chrome', 'firefox', 'application.log', 'temp-file.txt', 'system-cache', '/tmp/random-file'];
 
-    nonInternxtNames.forEach(name => {
+    nonInternxtNames.forEach((name) => {
       expect(isInternxtRelated(name)).toBe(false);
     });
   });

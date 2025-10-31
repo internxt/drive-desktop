@@ -21,9 +21,7 @@ describe('generateAppCacheReport', () => {
   const mockedGetAppCachePaths = jest.mocked(getAppCachePaths);
   const mockedScanSubDirectory = jest.mocked(scanSubDirectory);
   const mockedAppCacheFileFilter = jest.mocked(appCacheFileFilter);
-  const mockedIsDirectoryWebBrowserRelated = jest.mocked(
-    isDirectoryWebBrowserRelated
-  );
+  const mockedIsDirectoryWebBrowserRelated = jest.mocked(isDirectoryWebBrowserRelated);
 
   const mockPaths = {
     userCache: '/home/user/.cache',
@@ -32,11 +30,7 @@ describe('generateAppCacheReport', () => {
     localShareCache: '/home/user/.local/share',
   };
 
-  const createMockItem = (
-    fileName: string,
-    size: number,
-    basePath: string
-  ) => ({
+  const createMockItem = (fileName: string, size: number, basePath: string) => ({
     fullPath: `${basePath}/${fileName}`,
     fileName,
     sizeInBytes: size,
@@ -50,33 +44,19 @@ describe('generateAppCacheReport', () => {
   });
 
   it('should generate app cache report with all scan results and the total size in bytes', async () => {
-    const userCacheItems = [
-      createMockItem('cache1.tmp', 1, mockPaths.userCache),
-    ];
+    const userCacheItems = [createMockItem('cache1.tmp', 1, mockPaths.userCache)];
     const tmpDirItems = [createMockItem('temp1.log', 1, mockPaths.tmpDir)];
-    const varTmpItems = [
-      createMockItem('var-temp1.cache', 1, mockPaths.varTmpDir),
-    ];
-    const localShareItems = [
-      createMockItem('app-cache.dat', 1, mockPaths.localShareCache),
-    ];
+    const varTmpItems = [createMockItem('var-temp1.cache', 1, mockPaths.varTmpDir)];
+    const localShareItems = [createMockItem('app-cache.dat', 1, mockPaths.localShareCache)];
 
-    mockedScanDirectory
-      .mockResolvedValueOnce(userCacheItems)
-      .mockResolvedValueOnce(tmpDirItems)
-      .mockResolvedValueOnce(varTmpItems);
+    mockedScanDirectory.mockResolvedValueOnce(userCacheItems).mockResolvedValueOnce(tmpDirItems).mockResolvedValueOnce(varTmpItems);
 
     mockedScanSubDirectory.mockResolvedValue(localShareItems);
 
     const result = await generateAppCacheReport();
 
     expect(result.totalSizeInBytes).toBe(4);
-    expect(result.items).toEqual([
-      ...userCacheItems,
-      ...tmpDirItems,
-      ...varTmpItems,
-      ...localShareItems,
-    ]);
+    expect(result.items).toEqual([...userCacheItems, ...tmpDirItems, ...varTmpItems, ...localShareItems]);
   });
 
   it('should call scanDirectory with correct parameters', async () => {
@@ -87,19 +67,19 @@ describe('generateAppCacheReport', () => {
       expect.objectContaining({
         dirPath: mockPaths.userCache,
         customFileFilter: mockedAppCacheFileFilter,
-      })
+      }),
     );
     expect(mockedScanDirectory).toHaveBeenCalledWith(
       expect.objectContaining({
         dirPath: mockPaths.tmpDir,
         customFileFilter: mockedAppCacheFileFilter,
-      })
+      }),
     );
     expect(mockedScanDirectory).toHaveBeenCalledWith(
       expect.objectContaining({
         dirPath: mockPaths.varTmpDir,
         customFileFilter: mockedAppCacheFileFilter,
-      })
+      }),
     );
   });
 
@@ -113,7 +93,7 @@ describe('generateAppCacheReport', () => {
         subPath: 'cache',
         customDirectoryFilter: mockedIsDirectoryWebBrowserRelated,
         customFileFilter: mockedAppCacheFileFilter,
-      })
+      }),
     );
   });
 

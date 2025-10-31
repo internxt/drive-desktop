@@ -6,10 +6,7 @@ import { BackupsStopController } from '../BackupsStopController/BackupsStopContr
 import { BackupsIPCMain } from '../BackupsIpc';
 import { WorkerExitCause } from '../BackupsProcessTracker/BackupsProcessTracker';
 
-function addMessagesHandlers(
-  info: BackupInfo,
-  stopController: BackupsStopController
-) {
+function addMessagesHandlers(info: BackupInfo, stopController: BackupsStopController) {
   BackupsIPCMain.handleOnce('backups.get-backup', () => info);
 
   BackupsIPCMain.on('backups.backup-completed', (_, folderId) => {
@@ -46,10 +43,7 @@ function listenForBackupFinalization(): Promise<WorkerExitCause> {
   return finished;
 }
 
-export async function executeBackupWorker(
-  info: BackupInfo,
-  stopController: BackupsStopController
-): Promise<WorkerExitCause> {
+export async function executeBackupWorker(info: BackupInfo, stopController: BackupsStopController): Promise<WorkerExitCause> {
   addMessagesHandlers(info, stopController);
 
   const finished = listenForBackupFinalization();

@@ -1,7 +1,4 @@
-import {
-  LocalFolder,
-  LocalFolderAttributes,
-} from '../../../../../src/context/local/localFolder/domain/LocalFolder';
+import { LocalFolder, LocalFolderAttributes } from '../../../../../src/context/local/localFolder/domain/LocalFolder';
 import { AbsolutePathMother } from '../../../shared/infrastructure/AbsolutePathMother';
 
 import Chance from '../../../shared/infrastructure/Chance';

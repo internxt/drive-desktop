@@ -4,7 +4,6 @@ import { getMachineId } from '../../../infra/device/getMachineId';
 import os from 'os';
 import { DeviceIdentifierDTO, isAllowedPlatform } from './device.types';
 
-
 export function getDeviceIdentifier(): Either<Error, DeviceIdentifierDTO> {
   const hostname = os.hostname().trim();
   const platform = os.platform();

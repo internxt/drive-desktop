@@ -12,9 +12,7 @@ type HTTPMethod = 'get' | 'post' | 'put' | 'delete' | 'patch';
  * Extracts the shape (request + responses) of a particular method `M` from
  * an endpoint schema `T` (i.e. one value of the `paths` record).
  */
-type MethodShape<T, M extends HTTPMethod> = T extends Record<M, infer R>
-  ? R
-  : never;
+type MethodShape<T, M extends HTTPMethod> = T extends Record<M, infer R> ? R : never;
 
 /**
  * Produces a union of endpoint paths (string literals) that implement the
@@ -32,32 +30,26 @@ type PathsWithMethod<T, M extends HTTPMethod> = {
  * Infers the JSON request body for an endpoint. If the operation does not
  * define a request body the result is `never` (body becomes optional).
  */
-type OperationRequestBody<
-  T,
-  P extends keyof T,
-  M extends HTTPMethod
-> = MethodShape<T[P], M> extends {
-  requestBody?: { content: { 'application/json': infer Req } };
-}
-  ? Req
-  : never;
+type OperationRequestBody<T, P extends keyof T, M extends HTTPMethod> =
+  MethodShape<T[P], M> extends {
+    requestBody?: { content: { 'application/json': infer Req } };
+  }
+    ? Req
+    : never;
 
 /**
  * Infers the JSON response payload for status 200 or 201.
  * Extend here if your API uses 202/204 etc. for success responses.
  */
-type OperationResponse<
-  T,
-  P extends keyof T,
-  M extends HTTPMethod
-> = MethodShape<T[P], M> extends {
-  responses: {
-    200?: { content: { 'application/json': infer Res } };
-    201?: { content: { 'application/json': infer Res } };
-  };
-}
-  ? Res
-  : never;
+type OperationResponse<T, P extends keyof T, M extends HTTPMethod> =
+  MethodShape<T[P], M> extends {
+    responses: {
+      200?: { content: { 'application/json': infer Res } };
+      201?: { content: { 'application/json': infer Res } };
+    };
+  }
+    ? Res
+    : never;
 
 export interface ClientOptions {
   baseUrl: string;
@@ -81,23 +73,20 @@ export function createClient<T>(opts: ClientOptions) {
   });
 
   if (opts.limiter) {
-    http.interceptors.request.use(
-      opts.limiter.wrap(async (config: any) => config)
-    );
+    http.interceptors.request.use(opts.limiter.wrap(async (config: any) => config));
   }
 
   if (opts.onUnauthorized) {
     http.interceptors.response.use(
-      response => response,
-      error => {
+      (response) => response,
+      (error) => {
         if (axios.isAxiosError(error) && error.response?.status === 401) {
           opts.onUnauthorized!();
         }
         return Promise.reject(error);
-      }
+      },
     );
   }
-
 
   /**
    * Low‑level helper that performs the actual Axios call.
@@ -111,7 +100,7 @@ export function createClient<T>(opts: ClientOptions) {
       headers?: Record<string, string>;
       query?: Record<string, any>;
       body?: OperationRequestBody<T, P, M>;
-    }
+    },
   ): Promise<{ data: OperationResponse<T, P, M> }> {
     let url = path as string;
 
@@ -139,15 +128,10 @@ export function createClient<T>(opts: ClientOptions) {
   }
 
   return {
-    GET: <P extends PathsWithMethod<T, 'get'>>(p: P, o?: any) =>
-      request('get', p, o),
-    POST: <P extends PathsWithMethod<T, 'post'>>(p: P, o?: any) =>
-      request('post', p, o),
-    PUT: <P extends PathsWithMethod<T, 'put'>>(p: P, o?: any) =>
-      request('put', p, o),
-    PATCH: <P extends PathsWithMethod<T, 'patch'>>(p: P, o?: any) =>
-      request('patch', p, o),
-    DELETE: <P extends PathsWithMethod<T, 'delete'>>(p: P, o?: any) =>
-      request('delete', p, o),
+    GET: <P extends PathsWithMethod<T, 'get'>>(p: P, o?: any) => request('get', p, o),
+    POST: <P extends PathsWithMethod<T, 'post'>>(p: P, o?: any) => request('post', p, o),
+    PUT: <P extends PathsWithMethod<T, 'put'>>(p: P, o?: any) => request('put', p, o),
+    PATCH: <P extends PathsWithMethod<T, 'patch'>>(p: P, o?: any) => request('patch', p, o),
+    DELETE: <P extends PathsWithMethod<T, 'delete'>>(p: P, o?: any) => request('delete', p, o),
   };
 }

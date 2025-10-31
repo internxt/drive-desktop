@@ -5,12 +5,8 @@ const formatDate = (date: Date) => {
   const pad = (n: number) => n.toString().padStart(2, '0');
   const padMs = (n: number) => n.toString().padStart(3, '0');
   return (
-    `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(
-      date.getUTCDate()
-    )} ` +
-    `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(
-      date.getUTCSeconds()
-    )}.` +
+    `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())} ` +
+    `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}:${pad(date.getUTCSeconds())}.` +
     `${padMs(date.getUTCMilliseconds())}`
   );
 };

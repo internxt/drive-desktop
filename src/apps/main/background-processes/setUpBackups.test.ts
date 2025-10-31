@@ -115,23 +115,23 @@ describe('setUpBackups', () => {
     isScheduled: jest.fn().mockReturnValue(true),
   };
 
-  beforeEach(() => {{
-    jest.clearAllMocks();
+  beforeEach(() => {
+    {
+      jest.clearAllMocks();
 
-    // Reset mock implementations
-    (setupBackupConfig as jest.Mock).mockReturnValue(mockBackupConfig);
-    (initiateBackupsProcessTracker as jest.Mock).mockReturnValue(mockTracker);
-    (listenForBackupsErrors as jest.Mock).mockReturnValue(mockErrors);
-    (handleBackupsStatusMessages as jest.Mock).mockReturnValue(mockStatus);
+      // Reset mock implementations
+      (setupBackupConfig as jest.Mock).mockReturnValue(mockBackupConfig);
+      (initiateBackupsProcessTracker as jest.Mock).mockReturnValue(mockTracker);
+      (listenForBackupsErrors as jest.Mock).mockReturnValue(mockErrors);
+      (handleBackupsStatusMessages as jest.Mock).mockReturnValue(mockStatus);
 
-    // Mock BackupScheduler constructor
-    (BackupScheduler as unknown as jest.Mock).mockImplementation(
-      () => mockScheduler
-    );
+      // Mock BackupScheduler constructor
+      (BackupScheduler as unknown as jest.Mock).mockImplementation(() => mockScheduler);
 
-    // Mock BackupsStopController constructor
-    (BackupsStopController as jest.Mock).mockImplementation(() => mockStopController);
-  }});
+      // Mock BackupsStopController constructor
+      (BackupsStopController as jest.Mock).mockImplementation(() => mockStopController);
+    }
+  });
 
   it('should set up backups when user has backups feature', async () => {
     (configStore.get as jest.Mock).mockReturnValue({ backups: true });
@@ -146,11 +146,7 @@ describe('setUpBackups', () => {
     expect(BackupsStopController).toHaveBeenCalled();
 
     // Verify BackupScheduler was initialized properly
-    expect(BackupScheduler).toHaveBeenCalledWith(
-      expect.any(Function),
-      expect.any(Function),
-      expect.any(Function)
-    );
+    expect(BackupScheduler).toHaveBeenCalledWith(expect.any(Function), expect.any(Function), expect.any(Function));
 
     // Verify scheduler was started
     expect(mockScheduler.start).toHaveBeenCalled();
@@ -180,12 +176,7 @@ describe('setUpBackups', () => {
     expect(handleBackupsStatusMessages).toHaveBeenCalled();
 
     // Verify BackupScheduler was initialized properly
-    expect(BackupScheduler).toHaveBeenCalledWith(
-      expect.any(Function),
-      expect.any(Function),
-      expect.any(Function)
-    );
-
+    expect(BackupScheduler).toHaveBeenCalledWith(expect.any(Function), expect.any(Function), expect.any(Function));
 
     // Verify scheduler was NOT started
     expect(mockScheduler.start).not.toHaveBeenCalled();
@@ -232,9 +223,7 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the USER_LOGGED_OUT handler
-    const userLoggedOutHandler = (eventBus.on as jest.Mock).mock.calls.find(
-      ([event]) => event === 'USER_LOGGED_OUT'
-    )[1];
+    const userLoggedOutHandler = (eventBus.on as jest.Mock).mock.calls.find(([event]) => event === 'USER_LOGGED_OUT')[1];
 
     // Call the handler
     userLoggedOutHandler();
@@ -250,15 +239,11 @@ describe('setUpBackups', () => {
 
     await setUpBackups();
 
-    const productsUpdatedHandler = (eventBus.on as jest.Mock).mock.calls.find(
-      ([event]) => event === 'USER_AVAILABLE_PRODUCTS_UPDATED'
-    )[1];
+    const productsUpdatedHandler = (eventBus.on as jest.Mock).mock.calls.find(([event]) => event === 'USER_AVAILABLE_PRODUCTS_UPDATED')[1];
 
     productsUpdatedHandler({ backups: true });
 
-    expect(logger.debug).toHaveBeenCalledWith(
-      '[BACKUPS] User now has the backup feature available, setting up backups'
-    );
+    expect(logger.debug).toHaveBeenCalledWith('[BACKUPS] User now has the backup feature available, setting up backups');
   });
 
   it('should handle USER_AVAILABLE_PRODUCTS_UPDATED event with removed backups access', async () => {
@@ -267,9 +252,7 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the USER_AVAILABLE_PRODUCTS_UPDATED handler
-    const productsUpdatedHandler = (eventBus.on as jest.Mock).mock.calls.find(
-      ([event]) => event === 'USER_AVAILABLE_PRODUCTS_UPDATED'
-    )[1];
+    const productsUpdatedHandler = (eventBus.on as jest.Mock).mock.calls.find(([event]) => event === 'USER_AVAILABLE_PRODUCTS_UPDATED')[1];
 
     // Call the handler with products that don't include backups
     productsUpdatedHandler({ backups: false });
@@ -279,9 +262,7 @@ describe('setUpBackups', () => {
     expect(mockScheduler.stop).toHaveBeenCalled();
     expect(mockErrors.clear).toHaveBeenCalled();
     expect(mockTracker.reset).toHaveBeenCalled();
-    expect(logger.debug).toHaveBeenCalledWith(
-      '[BACKUPS] User no longer has the backup feature available'
-    );
+    expect(logger.debug).toHaveBeenCalledWith('[BACKUPS] User no longer has the backup feature available');
   });
 
   it('should handle start-backups-process event when user has backups feature', async () => {
@@ -290,20 +271,12 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the start-backups-process handler
-    const startBackupsHandler = (ipcMain.on as jest.Mock).mock.calls.find(
-      ([event]) => event === 'start-backups-process'
-    )[1];
+    const startBackupsHandler = (ipcMain.on as jest.Mock).mock.calls.find(([event]) => event === 'start-backups-process')[1];
 
     await startBackupsHandler();
 
     // Verify launchBackupProcesses was called with the right parameters
-    expect(launchBackupProcesses).toHaveBeenCalledWith(
-      false,
-      mockTracker,
-      mockStatus,
-      mockErrors,
-      mockStopController
-    );
+    expect(launchBackupProcesses).toHaveBeenCalledWith(false, mockTracker, mockStatus, mockErrors, mockStopController);
     expect(logger.debug).toHaveBeenCalledWith('Backups started manually');
   });
 
@@ -313,10 +286,7 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the start-backups-process handler
-    const startBackupsHandler = (ipcMain.on as jest.Mock).mock.calls.find(
-      ([event]) => event === 'start-backups-process'
-    )[1];
-
+    const startBackupsHandler = (ipcMain.on as jest.Mock).mock.calls.find(([event]) => event === 'start-backups-process')[1];
 
     await startBackupsHandler();
 

@@ -3,12 +3,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { reportError } from '../bug-report/service';
 import eventBus from '../event-bus';
 import { setInitialSyncState } from './InitialSyncReady';
-import {
-  getUpdatedRemoteItems,
-  remoteSyncManager,
-  resyncRemoteSync,
-  startRemoteSync,
-} from './service';
+import { getUpdatedRemoteItems, remoteSyncManager, resyncRemoteSync, startRemoteSync } from './service';
 import { MainProcessSyncEngineIPC } from '../MainProcessSyncEngineIPC';
 
 MainProcessSyncEngineIPC.handle('remote-sync-manager.refresh', async () => {
@@ -27,9 +22,7 @@ ipcMain.handle('START_REMOTE_SYNC', async () => {
   await startRemoteSync();
 });
 
-ipcMain.handle('get-remote-sync-status', () =>
-  remoteSyncManager.getSyncStatus()
-);
+ipcMain.handle('get-remote-sync-status', () => remoteSyncManager.getSyncStatus());
 
 eventBus.on('RECEIVED_REMOTE_CHANGES', async () => {
   // Wait before checking for updates, could be possible

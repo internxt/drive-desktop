@@ -25,8 +25,7 @@ export class RenameMoveOrTrashFile {
       await this.container.get(FileTrasher).run(file.contentsId);
       return undefined;
     } catch (trowed: unknown) {
-      const cause: SyncError =
-        trowed instanceof DriveDesktopError ? trowed.cause : 'UNKNOWN';
+      const cause: SyncError = trowed instanceof DriveDesktopError ? trowed.cause : 'UNKNOWN';
 
       await this.container.get(SyncFileMessenger).issues({
         error: 'DELETE_ERROR',
@@ -42,10 +41,7 @@ export class RenameMoveOrTrashFile {
     }
   }
 
-  async execute(
-    src: string,
-    dest: string
-  ): Promise<Either<FuseError, RenameOrMoveRight>> {
+  async execute(src: string, dest: string): Promise<Either<FuseError, RenameOrMoveRight>> {
     const file = await this.container.get(FirstsFileSearcher).run({
       path: src,
       status: FileStatuses.EXISTS,
@@ -68,20 +64,15 @@ export class RenameMoveOrTrashFile {
     try {
       const desiredPath = new FilePath(dest);
 
-      await this.container
-        .get(SyncFileMessenger)
-        .renaming(file.nameWithExtension, desiredPath.nameWithExtension());
+      await this.container.get(SyncFileMessenger).renaming(file.nameWithExtension, desiredPath.nameWithExtension());
 
       await this.container.get(FilePathUpdater).run(file.contentsId, dest);
 
-      await this.container
-        .get(SyncFileMessenger)
-        .renamed(file.nameWithExtension, desiredPath.nameWithExtension());
+      await this.container.get(SyncFileMessenger).renamed(file.nameWithExtension, desiredPath.nameWithExtension());
 
       return right(RenameMoveOrTrashFile.SUCCESS);
     } catch (trowed: unknown) {
-      const cause: SyncError =
-        trowed instanceof DriveDesktopError ? trowed.cause : 'UNKNOWN';
+      const cause: SyncError = trowed instanceof DriveDesktopError ? trowed.cause : 'UNKNOWN';
 
       await this.container.get(SyncFileMessenger).issues({
         error: 'RENAME_ERROR',

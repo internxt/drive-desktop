@@ -32,16 +32,9 @@ function DownloadingBackup() {
 
 export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const { usage } = useUsage();
-  const { thereIsProgress, percentualProgress, clearProgress } =
-    useBackupProgress();
+  const { thereIsProgress, percentualProgress, clearProgress } = useBackupProgress();
   const { current, selected } = useContext(DeviceContext);
-  const {
-    lastBackupHadIssues,
-    backups,
-    backupStatus,
-    downloadProgress,
-    thereIsDownloadProgress,
-  } = useContext(BackupContext);
+  const { lastBackupHadIssues, backups, backupStatus, downloadProgress, thereIsDownloadProgress } = useContext(BackupContext);
 
   useEffect(() => {
     if (backupStatus === 'STANDBY') {
@@ -52,16 +45,12 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const displayIssues = backups.length !== 0 && lastBackupHadIssues;
 
   return (
-    <div className="rounded-lg  border border-gray-10 bg-surface px-6 py-4 shadow-sm dark:bg-gray-5">
+    <div className="rounded-lg border border-gray-10 bg-surface px-6 py-4 shadow-sm dark:bg-gray-5">
       <div className="flex w-full items-center">
         <div className="grow">
           {selected?.name}
           <br />
-          {selected === current && thereIsProgress ? (
-            <BackingUp />
-          ) : (
-            <LastBackupMade />
-          )}
+          {selected === current && thereIsProgress ? <BackingUp /> : <LastBackupMade />}
         </div>
         {selected === current && thereIsProgress ? (
           <BackupsProgressPercentage progress={percentualProgress} />
@@ -69,12 +58,8 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
           <SizePill size={usage?.limitInBytes ?? 0} />
         )}
       </div>
-      {selected === current && thereIsProgress && (
-        <BackupsProgressBar progress={percentualProgress} />
-      )}
-      {selected === current && displayIssues && (
-        <ShowBackupsIssues show={showIssues} />
-      )}
+      {selected === current && thereIsProgress && <BackupsProgressBar progress={percentualProgress} />}
+      {selected === current && displayIssues && <ShowBackupsIssues show={showIssues} />}
 
       {thereIsDownloadProgress && (
         <>

@@ -1,12 +1,7 @@
 import { itemIsInFolder } from '../file-is-on-folder';
 
 describe('file is on folder', () => {
-  const deletedfolders = [
-    'folder',
-    'folder/subfolder',
-    'two/level/subfolder',
-    'windows\\subfolder',
-  ];
+  const deletedfolders = ['folder', 'folder/subfolder', 'two/level/subfolder', 'windows\\subfolder'];
   let SUT: (fileName: string) => boolean;
 
   beforeAll(() => {
@@ -22,14 +17,11 @@ describe('file is on folder', () => {
     'windows\\subfolder\\test.png',
   ];
 
-  it.each(filesInFoldersPaths)(
-    'file on any level should be found',
-    (fileName: string) => {
-      const result = SUT(fileName);
+  it.each(filesInFoldersPaths)('file on any level should be found', (fileName: string) => {
+    const result = SUT(fileName);
 
-      expect(result).toBe(true);
-    }
-  );
+    expect(result).toBe(true);
+  });
 
   it('file not in any path should not be found', () => {
     const fileName = 'another/path/file.txt';
@@ -47,20 +39,13 @@ describe('file is on folder', () => {
     expect(result).toBe(false);
   });
 
-  const filesNames = [
-    'two/image.png',
-    'two/another-folder/file.txt',
-    'two/level/another-folder/file.txt',
-  ];
+  const filesNames = ['two/image.png', 'two/another-folder/file.txt', 'two/level/another-folder/file.txt'];
 
-  it.each(filesNames)(
-    'file with some part of the path in common with deleted folder should not be found',
-    (fileName: string) => {
-      const result = SUT(fileName);
+  it.each(filesNames)('file with some part of the path in common with deleted folder should not be found', (fileName: string) => {
+    const result = SUT(fileName);
 
-      expect(result).toBe(false);
-    }
-  );
+    expect(result).toBe(false);
+  });
 
   it('file in a subfolder of a deleted folder should not be found', () => {
     const fileName = 'two/level/subfolder/anotherSubfolder/file.txt';

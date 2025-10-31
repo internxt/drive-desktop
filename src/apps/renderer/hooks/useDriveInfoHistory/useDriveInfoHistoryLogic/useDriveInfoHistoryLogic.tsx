@@ -6,11 +6,9 @@ export function useDriveInfoHistoryLogic(MAX_ITEMS = 50) {
 
   function addItemToHistory(item: DriveOperationInfo) {
     setDriveHistory((prevList) => {
-      const prevListWithoutItem = prevList.filter(
-        ({ name }) => name !== item.name
-      );
+      const prevListWithoutItem = prevList.filter(({ name }) => name !== item.name);
 
-      return [item, ...prevListWithoutItem.slice(0, MAX_ITEMS -1)];
+      return [item, ...prevListWithoutItem.slice(0, MAX_ITEMS - 1)];
     });
   }
 
@@ -21,11 +19,7 @@ export function useDriveInfoHistoryLogic(MAX_ITEMS = 50) {
   function removeDriveOperationsInProgress() {
     setDriveHistory((currentItems) => {
       return currentItems.filter(
-        (item) =>
-          item.action !== 'UPLOADING' &&
-          item.action !== 'DOWNLOADING' &&
-          item.action !== 'RENAMING' &&
-          item.action !== 'DELETING'
+        (item) => item.action !== 'UPLOADING' && item.action !== 'DOWNLOADING' && item.action !== 'RENAMING' && item.action !== 'DELETING',
       );
     });
   }
