@@ -11,7 +11,7 @@ import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { ContentsId } from '@/apps/main/database/entities/DriveFile';
-import { GetFolderInfoError } from '@/infra/node-win/services/get-folder-info';
+import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 
 vi.mock(import('@/infra/node-win/node-win.module'));
 vi.mock(import('@/apps/sync-engine/ipcRendererSyncEngine'));

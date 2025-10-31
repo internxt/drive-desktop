@@ -10,7 +10,7 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { PinState } from '@/node-win/types/placeholder.type';
 import * as isModified from './is-modified';
 import * as isHydrationPending from './is-hydration-pending';
-import { GetFolderInfoError } from '@/infra/node-win/services/get-folder-info';
+import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 
 describe('process-item', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
