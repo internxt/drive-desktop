@@ -3,7 +3,12 @@ import fileExtensionGroups, { FileExtensionGroup } from '../../../shared/FileTyp
 const imageExtensions = fileExtensionGroups[FileExtensionGroup.Image];
 const pdfExtensions = fileExtensionGroups[FileExtensionGroup.Pdf];
 
-const thumbnableImageExtension = [...imageExtensions.jpg, ...imageExtensions.png, ...imageExtensions.bmp, ...imageExtensions.gif] as const;
+const thumbnableImageExtension = [
+  ...imageExtensions.jpg,
+  ...imageExtensions.png,
+  ...imageExtensions.bmp,
+  ...imageExtensions.gif,
+] as const;
 
 const thumbnablePdfExtension = [...pdfExtensions.pdf] as const;
 

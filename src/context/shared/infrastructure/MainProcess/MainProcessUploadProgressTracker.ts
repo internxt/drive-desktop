@@ -24,7 +24,12 @@ export class MainProcessUploadProgressTracker extends SyncMessenger implements U
     });
   }
 
-  uploadProgress(name: string, extension: string, size: number, progress: { elapsedTime: number; percentage: number }): void {
+  uploadProgress(
+    name: string,
+    extension: string,
+    size: number,
+    progress: { elapsedTime: number; percentage: number },
+  ): void {
     const nameWithExtension = this.nameWithExtension(name, extension);
 
     trackEvent('Upload Started', {

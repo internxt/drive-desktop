@@ -16,7 +16,12 @@ export class FileBatchUploader {
     protected readonly messenger: LocalFileMessenger,
   ) {}
 
-  async run(localRootPath: string, remoteTree: RemoteTree, batch: Array<LocalFile>, signal: AbortSignal): Promise<void> {
+  async run(
+    localRootPath: string,
+    remoteTree: RemoteTree,
+    batch: Array<LocalFile>,
+    signal: AbortSignal,
+  ): Promise<void> {
     for (const localFile of batch) {
       let uploadEither;
       try {

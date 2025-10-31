@@ -177,11 +177,35 @@ export const BackupsSVG = () => {
       </defs>
       <g filter="url(#eDsPAmXJYBu2-filter)">
         <g id="eDsPAmXJYBu3_to" transform="translate(112,112)">
-          <rect width="96" height="128" rx="16" ry="16" transform="translate(-48,-64)" filter="url(#eDsPAmXJYBu3-filter)" fill="#e5e5eb" />
+          <rect
+            width="96"
+            height="128"
+            rx="16"
+            ry="16"
+            transform="translate(-48,-64)"
+            filter="url(#eDsPAmXJYBu3-filter)"
+            fill="#e5e5eb"
+          />
         </g>
-        <rect width="112" height="128" rx="16" ry="16" transform="translate(56 48)" filter="url(#eDsPAmXJYBu4-filter)" fill="#f3f3f8" />
+        <rect
+          width="112"
+          height="128"
+          rx="16"
+          ry="16"
+          transform="translate(56 48)"
+          filter="url(#eDsPAmXJYBu4-filter)"
+          fill="#f3f3f8"
+        />
         <g id="eDsPAmXJYBu5_to" transform="translate(112,112)">
-          <rect width="128" height="128" rx="16" ry="16" transform="translate(-64,-64)" filter="url(#eDsPAmXJYBu5-filter)" fill="#fff" />
+          <rect
+            width="128"
+            height="128"
+            rx="16"
+            ry="16"
+            transform="translate(-64,-64)"
+            filter="url(#eDsPAmXJYBu5-filter)"
+            fill="#fff"
+          />
         </g>
       </g>
       <g id="eDsPAmXJYBu6_tr" transform="translate(110.500683,123.000042) rotate(120)">

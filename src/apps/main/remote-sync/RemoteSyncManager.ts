@@ -1,12 +1,24 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import { RemoteSyncStatus, RemoteSyncedFolder, RemoteSyncedFile, SyncConfig, rewind, SIX_HOURS_IN_MILLISECONDS } from './helpers';
+import {
+  RemoteSyncStatus,
+  RemoteSyncedFolder,
+  RemoteSyncedFile,
+  SyncConfig,
+  rewind,
+  SIX_HOURS_IN_MILLISECONDS,
+} from './helpers';
 import { reportError } from '../bug-report/service';
 import { DatabaseCollectionAdapter } from '../database/adapters/base';
 import axios, { Axios } from 'axios';
 import { DriveFolder } from '../database/entities/DriveFolder';
 import { DriveFile } from '../database/entities/DriveFile';
 import { Nullable } from '../../shared/types/Nullable';
-import { RemoteSyncError, RemoteSyncInvalidResponseError, RemoteSyncNetworkError, RemoteSyncServerError } from './errors';
+import {
+  RemoteSyncError,
+  RemoteSyncInvalidResponseError,
+  RemoteSyncNetworkError,
+  RemoteSyncServerError,
+} from './errors';
 import { RemoteSyncErrorHandler } from './RemoteSyncErrorHandler/RemoteSyncErrorHandler';
 
 export class RemoteSyncManager {
@@ -393,7 +405,8 @@ export class RemoteSyncManager {
 
       return {
         hasMore,
-        result: response.data && Array.isArray(response.data) ? response.data.map(this.patchDriveFolderResponseItem) : [],
+        result:
+          response.data && Array.isArray(response.data) ? response.data.map(this.patchDriveFolderResponseItem) : [],
       };
     } catch (error) {
       if (error instanceof RemoteSyncError) {

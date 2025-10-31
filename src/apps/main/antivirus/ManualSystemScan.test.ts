@@ -700,7 +700,11 @@ describe('ManualSystemScan', () => {
         /* mock implementation */
       });
 
-      await manualSystemScan['handlePreviousScannedItem'](currentSession, mockScannedItem as ScannedItem, mockPreviousItem as ScannedItem);
+      await manualSystemScan['handlePreviousScannedItem'](
+        currentSession,
+        mockScannedItem as ScannedItem,
+        mockPreviousItem as ScannedItem,
+      );
 
       expect(trackProgressSpy).toHaveBeenCalledWith(currentSession, {
         file: '/test/file.txt',
@@ -759,7 +763,11 @@ describe('ManualSystemScan', () => {
         /* mock implementation */
       });
 
-      await manualSystemScan['handlePreviousScannedItem'](currentSession, mockScannedItem as ScannedItem, mockPreviousItem as ScannedItem);
+      await manualSystemScan['handlePreviousScannedItem'](
+        currentSession,
+        mockScannedItem as ScannedItem,
+        mockPreviousItem as ScannedItem,
+      );
 
       expect(trackProgressSpy).not.toHaveBeenCalled();
 

@@ -19,7 +19,10 @@ export class LocalFileMother {
     });
   }
 
-  static array(numberOfElements: number, generator?: (position: number) => Partial<LocalFileAttributes>): Array<LocalFile> {
+  static array(
+    numberOfElements: number,
+    generator?: (position: number) => Partial<LocalFileAttributes>,
+  ): Array<LocalFile> {
     const array = [];
 
     for (let i = 0; i < numberOfElements; i++) {

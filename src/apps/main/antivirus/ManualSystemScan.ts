@@ -265,9 +265,10 @@ export class ManualSystemScan {
       if (this.isNearlyScanComplete()) {
         logger.debug({
           tag: 'ANTIVIRUS',
-          msg: `[SYSTEM_SCAN] Processed ${(((this.totalScannedFiles + this.errorCount) / this.totalItemsToScan) * 100).toFixed(
-            2,
-          )}% of files, continuing despite ${activeScans} active scans`,
+          msg: `[SYSTEM_SCAN] Processed ${(
+            ((this.totalScannedFiles + this.errorCount) / this.totalItemsToScan) *
+            100
+          ).toFixed(2)}% of files, continuing despite ${activeScans} active scans`,
         });
         break;
       }
@@ -413,7 +414,11 @@ export class ManualSystemScan {
     }
   }
 
-  private handlePreviousScannedItem = async (currentSession: number, scannedItem: ScannedItem, previousScannedItem: ScannedItem) => {
+  private handlePreviousScannedItem = async (
+    currentSession: number,
+    scannedItem: ScannedItem,
+    previousScannedItem: ScannedItem,
+  ) => {
     if (currentSession !== this.scanSessionId) return;
 
     if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
@@ -427,7 +432,11 @@ export class ManualSystemScan {
     return false;
   };
 
-  private async performCustomScan(currentSession: number, pathNames: string[], scan: (filePath: string) => Promise<void>): Promise<void> {
+  private async performCustomScan(
+    currentSession: number,
+    pathNames: string[],
+    scan: (filePath: string) => Promise<void>,
+  ): Promise<void> {
     logger.debug({
       tag: 'ANTIVIRUS',
       msg: '[SYSTEM_SCAN] Starting custom scan with selected paths',
@@ -469,7 +478,10 @@ export class ManualSystemScan {
     }
   }
 
-  private async performFullSystemScan(currentSession: number, scan: (filePath: string) => Promise<void>): Promise<void> {
+  private async performFullSystemScan(
+    currentSession: number,
+    scan: (filePath: string) => Promise<void>,
+  ): Promise<void> {
     logger.debug({
       tag: 'ANTIVIRUS',
       msg: '[SYSTEM_SCAN] Starting full system scan',
@@ -549,7 +561,11 @@ export class ManualSystemScan {
         const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
 
         if (previousScannedItem) {
-          const isFileUnchanged = await this.handlePreviousScannedItem(currentSession, scannedItem, previousScannedItem);
+          const isFileUnchanged = await this.handlePreviousScannedItem(
+            currentSession,
+            scannedItem,
+            previousScannedItem,
+          );
 
           if (isFileUnchanged) {
             activeScans.count--;
@@ -581,7 +597,10 @@ export class ManualSystemScan {
 
           if (this.errorCount > maxToleratedErrors && !hasReportedError.value) {
             hasReportedError.value = true;
-            this.emitErrorEvent(`Error: Too many scan failures (${this.errorCount} files failed)`, `scan-error-${currentSession}`);
+            this.emitErrorEvent(
+              `Error: Too many scan failures (${this.errorCount} files failed)`,
+              `scan-error-${currentSession}`,
+            );
           } else {
             this.trackProgress(currentSession, {
               file: `${scannedItem.pathName} (scan error)`,
@@ -660,7 +679,10 @@ export class ManualSystemScan {
                 });
                 this.cancelled = true;
 
-                this.emitErrorEvent('Scan appears stuck - no progress detected for 20 minutes', `scan-stalled-${Date.now()}`);
+                this.emitErrorEvent(
+                  'Scan appears stuck - no progress detected for 20 minutes',
+                  `scan-stalled-${Date.now()}`,
+                );
                 scanState.hasReportedError = true;
               }
 
@@ -688,7 +710,11 @@ export class ManualSystemScan {
             });
 
             if (!scanState.scanCompleted && !scanState.hasReportedError) {
-              this.emitCompletionEvent(`Scan completed with ${this.errorCount} errors`, 0, `scan-complete-${Date.now()}`);
+              this.emitCompletionEvent(
+                `Scan completed with ${this.errorCount} errors`,
+                0,
+                `scan-complete-${Date.now()}`,
+              );
 
               scanState.scanCompleted = true;
               this.clearInterval(heartbeatInterval);
@@ -833,7 +859,13 @@ export class ManualSystemScan {
       });
 
       const hasReportedErrorRef = { value: scanState.hasReportedError };
-      const scan = this.createScanHandler(antivirus, currentSession, scanState.activeScans, MAX_TOLERATED_ERRORS, hasReportedErrorRef);
+      const scan = this.createScanHandler(
+        antivirus,
+        currentSession,
+        scanState.activeScans,
+        MAX_TOLERATED_ERRORS,
+        hasReportedErrorRef,
+      );
 
       scanState.hasReportedError = hasReportedErrorRef.value;
 

@@ -68,7 +68,9 @@ describe('ScanStatistics', () => {
     expect(innerContainer).toHaveClass('flex w-full flex-row justify-center gap-5');
 
     const scannedContainer = screen.getByText('100').closest('div.flex.w-full.max-w-\\[124px\\]');
-    expect(scannedContainer).toHaveClass('flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center');
+    expect(scannedContainer).toHaveClass(
+      'flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center',
+    );
 
     const rowContainer = screen.getByText('100').closest('div.flex.w-full.flex-row');
     const divider = rowContainer && rowContainer.querySelector('div.flex.flex-col.border');
@@ -76,6 +78,8 @@ describe('ScanStatistics', () => {
     expect(divider).toHaveClass('flex flex-col border border-gray-10');
 
     const corruptedContainer = screen.getByText('5').closest('div.flex.w-full.max-w-\\[124px\\]');
-    expect(corruptedContainer).toHaveClass('flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center');
+    expect(corruptedContainer).toHaveClass(
+      'flex w-full max-w-[124px] flex-col items-center justify-center gap-1 text-center',
+    );
   });
 });

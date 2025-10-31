@@ -34,6 +34,8 @@ export class FsLocalFileRepository implements LocalFileRepository {
   async folders(absolutePath: AbsolutePath): Promise<AbsolutePath[]> {
     const dirents = await fs.readdir(absolutePath, { withFileTypes: true });
 
-    return dirents.filter((dirent) => dirent.isDirectory()).map((folder) => path.join(absolutePath, folder.name) as AbsolutePath);
+    return dirents
+      .filter((dirent) => dirent.isDirectory())
+      .map((folder) => path.join(absolutePath, folder.name) as AbsolutePath);
   }
 }

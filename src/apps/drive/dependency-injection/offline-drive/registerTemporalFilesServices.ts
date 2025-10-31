@@ -40,7 +40,9 @@ export async function registerTemporalFilesServices(builder: ContainerBuilder) {
 
   builder
     .register(TemporalFileUploaderFactory)
-    .useFactory((c) => new EnvironmentTemporalFileUploaderFactory(c.get(Environment), user.bucket, c.get(UploadProgressTracker)))
+    .useFactory(
+      (c) => new EnvironmentTemporalFileUploaderFactory(c.get(Environment), user.bucket, c.get(UploadProgressTracker)),
+    )
     .asSingleton()
     .private();
 

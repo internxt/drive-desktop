@@ -112,7 +112,9 @@ export const setTrayStatus = (status: TrayMenuState) => {
 };
 
 export function setupTrayIcon() {
-  const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'assets') : path.join(__dirname, '../../../../assets');
+  const RESOURCES_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(__dirname, '../../../../assets');
 
   const iconsPath = path.join(RESOURCES_PATH, 'tray');
 

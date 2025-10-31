@@ -250,7 +250,9 @@ export class BackupService {
     }
   }
 
-  async addDeviceIdentifier(body: components['schemas']['CreateDeviceAndAttachFolderDto']): Promise<Either<Error, Device>> {
+  async addDeviceIdentifier(
+    body: components['schemas']['CreateDeviceAndAttachFolderDto'],
+  ): Promise<Either<Error, Device>> {
     try {
       const response = await driveServerClient.POST('/backup/v2/devices/migrate', {
         headers: getNewApiHeaders(),
@@ -287,7 +289,9 @@ export class BackupService {
     }
   }
 
-  async createDeviceWithIdentifier(body: components['schemas']['CreateDeviceAndFolderDto']): Promise<Either<Error, Device>> {
+  async createDeviceWithIdentifier(
+    body: components['schemas']['CreateDeviceAndFolderDto'],
+  ): Promise<Either<Error, Device>> {
     try {
       const response = await driveServerClient.POST('/backup/v2/devices', {
         headers: getNewApiHeaders(),

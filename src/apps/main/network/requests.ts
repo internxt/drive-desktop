@@ -35,7 +35,12 @@ function getAuthFromCredentials(creds: NetworkCredentials): AxiosBasicCredential
   };
 }
 
-function getFileInfo(networkApiUrl: string, bucketId: string, fileId: string, opts?: AxiosRequestConfig): Promise<FileInfo> {
+function getFileInfo(
+  networkApiUrl: string,
+  bucketId: string,
+  fileId: string,
+  opts?: AxiosRequestConfig,
+): Promise<FileInfo> {
   const defaultOpts: AxiosRequestConfig = {
     method: 'GET',
     url: `${networkApiUrl}/buckets/${bucketId}/files/${fileId}/info`,
@@ -52,13 +57,23 @@ function getFileInfo(networkApiUrl: string, bucketId: string, fileId: string, op
     });
 }
 
-export function getFileInfoWithToken(networkApiUrl: string, bucketId: string, fileId: string, token: string): Promise<FileInfo> {
+export function getFileInfoWithToken(
+  networkApiUrl: string,
+  bucketId: string,
+  fileId: string,
+  token: string,
+): Promise<FileInfo> {
   return getFileInfo(networkApiUrl, bucketId, fileId, {
     headers: { 'x-token': token },
   });
 }
 
-export function getFileInfoWithAuth(networkApiUrl: string, bucketId: string, fileId: string, creds: NetworkCredentials): Promise<FileInfo> {
+export function getFileInfoWithAuth(
+  networkApiUrl: string,
+  bucketId: string,
+  fileId: string,
+  creds: NetworkCredentials,
+): Promise<FileInfo> {
   return getFileInfo(networkApiUrl, bucketId, fileId, {
     auth: getAuthFromCredentials(creds),
   });
@@ -146,7 +161,8 @@ async function replaceMirror(
     const [newMirror] = await getFileMirrors(networkApiUrl, bucketId, fileId, 1, pointerIndex, excludeNodes, opts);
 
     mirror = newMirror;
-    mirrorIsOk = newMirror.farmer && newMirror.farmer.nodeID && newMirror.farmer.port && newMirror.farmer.address ? true : false;
+    mirrorIsOk =
+      newMirror.farmer && newMirror.farmer.nodeID && newMirror.farmer.port && newMirror.farmer.address ? true : false;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

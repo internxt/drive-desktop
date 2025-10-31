@@ -7,7 +7,17 @@ export class TemporalFileUploadedDomainEvent extends DomainEvent {
   readonly path: string;
   readonly replaces: string | undefined;
 
-  constructor({ aggregateId, size, path, replaces }: { aggregateId: string; size: number; path: string; replaces?: string }) {
+  constructor({
+    aggregateId,
+    size,
+    path,
+    replaces,
+  }: {
+    aggregateId: string;
+    size: number;
+    path: string;
+    replaces?: string;
+  }) {
     super({
       aggregateId,
       eventName: TemporalFileUploadedDomainEvent.EVENT_NAME,

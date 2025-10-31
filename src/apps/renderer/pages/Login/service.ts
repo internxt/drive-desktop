@@ -25,7 +25,12 @@ export type AccessResponse = {
   user: User;
 };
 
-export async function accessRequest(email: string, password: string, hashedPassword: string, tfa?: string): Promise<AccessResponse> {
+export async function accessRequest(
+  email: string,
+  password: string,
+  hashedPassword: string,
+  tfa?: string,
+): Promise<AccessResponse> {
   const fallbackErrorMessage = 'Error while logging in';
 
   const response = await window.electron.access({ email, password: hashedPassword, tfa });
@@ -34,9 +39,10 @@ export async function accessRequest(email: string, password: string, hashedPassw
     throw new Error(errorMessage);
   } else {
     const { data } = response;
-    data.user.mnemonic = CryptoJS.AES.decrypt(CryptoJS.enc.Hex.parse(data.user.mnemonic).toString(CryptoJS.enc.Base64), password).toString(
-      CryptoJS.enc.Utf8,
-    );
+    data.user.mnemonic = CryptoJS.AES.decrypt(
+      CryptoJS.enc.Hex.parse(data.user.mnemonic).toString(CryptoJS.enc.Base64),
+      password,
+    ).toString(CryptoJS.enc.Utf8);
     return data;
   }
 }

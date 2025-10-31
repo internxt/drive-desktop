@@ -116,6 +116,8 @@ describe('Folder Creator', () => {
 
     await SUT.run(path.value);
 
-    expect(eventBus.publishMock).toBeCalledWith(expect.arrayContaining([expect.objectContaining({ aggregateId: createdFolder.uuid })]));
+    expect(eventBus.publishMock).toBeCalledWith(
+      expect.arrayContaining([expect.objectContaining({ aggregateId: createdFolder.uuid })]),
+    );
   });
 });

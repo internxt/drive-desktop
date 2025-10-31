@@ -13,7 +13,12 @@ export class FileBatchUpdater {
     private readonly simpleFileOverrider: SimpleFileOverrider,
   ) {}
 
-  async run(localRoot: LocalFolder, remoteTree: RemoteTree, batch: Array<LocalFile>, signal: AbortSignal): Promise<void> {
+  async run(
+    localRoot: LocalFolder,
+    remoteTree: RemoteTree,
+    batch: Array<LocalFile>,
+    signal: AbortSignal,
+  ): Promise<void> {
     for (const localFile of batch) {
       // eslint-disable-next-line no-await-in-loop
       const upload = await this.uploader.upload(localFile.path, localFile.size, signal);

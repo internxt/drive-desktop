@@ -60,9 +60,13 @@ export class ThumbnailSynchronizer {
 
     const localThumbnailsPromises = files.map((file) => this.local.retrieve(file));
 
-    const remoteCollections = (await Promise.all(remoteThumbnailsPromises)).filter((c) => c !== undefined) as Array<ThumbnailCollection>;
+    const remoteCollections = (await Promise.all(remoteThumbnailsPromises)).filter(
+      (c) => c !== undefined,
+    ) as Array<ThumbnailCollection>;
 
-    const localCollections = (await Promise.all(localThumbnailsPromises)).filter((c) => c !== undefined) as Array<ThumbnailCollection>;
+    const localCollections = (await Promise.all(localThumbnailsPromises)).filter(
+      (c) => c !== undefined,
+    ) as Array<ThumbnailCollection>;
 
     await this.sync(remoteCollections, localCollections);
 

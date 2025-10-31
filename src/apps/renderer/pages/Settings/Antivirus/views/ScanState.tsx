@@ -50,7 +50,9 @@ export const ScanState = ({ showItemsWithMalware }: ScanStateProps) => {
           <ErrorWhileScanningItems translate={translate} onScanAgainButtonClicked={onScanAgainButtonClicked} />
         )}
 
-        {!showErrorState && <ScanStatistics scannedFilesCount={scannedFilesCount} corruptedFilesCount={corruptedFiles.length} />}
+        {!showErrorState && (
+          <ScanStatistics scannedFilesCount={scannedFilesCount} corruptedFilesCount={corruptedFiles.length} />
+        )}
       </div>
     </section>
   );

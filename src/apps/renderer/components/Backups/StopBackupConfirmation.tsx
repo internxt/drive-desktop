@@ -11,7 +11,14 @@ interface StopBackupConfirmationProps extends React.ButtonHTMLAttributes<HTMLBas
   cancel: () => void;
 }
 
-export function BackupActionConfirmation({ show, confirm, confirmMessage, cancel, title, children }: StopBackupConfirmationProps) {
+export function BackupActionConfirmation({
+  show,
+  confirm,
+  confirmMessage,
+  cancel,
+  title,
+  children,
+}: StopBackupConfirmationProps) {
   const { translate } = useTranslationContext();
 
   return (

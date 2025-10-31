@@ -23,7 +23,10 @@ describe('FsLocalFileRepository', () => {
       const folders = await SUT.folders(path.join(TEST_FOLDER, 'folder') as AbsolutePath);
 
       expect(folders).toStrictEqual(
-        expect.arrayContaining([path.join(TEST_FOLDER, 'folder', 'subfolder'), path.join(TEST_FOLDER, 'folder', 'empty_folder')]),
+        expect.arrayContaining([
+          path.join(TEST_FOLDER, 'folder', 'subfolder'),
+          path.join(TEST_FOLDER, 'folder', 'empty_folder'),
+        ]),
       );
     });
 

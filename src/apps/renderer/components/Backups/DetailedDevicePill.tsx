@@ -34,7 +34,8 @@ export function DetailedDevicePill({ showIssues }: DetailedDevicePillProps) {
   const { usage } = useUsage();
   const { thereIsProgress, percentualProgress, clearProgress } = useBackupProgress();
   const { current, selected } = useContext(DeviceContext);
-  const { lastBackupHadIssues, backups, backupStatus, downloadProgress, thereIsDownloadProgress } = useContext(BackupContext);
+  const { lastBackupHadIssues, backups, backupStatus, downloadProgress, thereIsDownloadProgress } =
+    useContext(BackupContext);
 
   useEffect(() => {
     if (backupStatus === 'STANDBY') {

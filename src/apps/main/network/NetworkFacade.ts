@@ -34,7 +34,12 @@ export class NetworkFacade {
     };
   }
 
-  async download(bucketId: string, fileId: string, mnemonic: string, options?: DownloadOptions): Promise<ReadableStream<Uint8Array>> {
+  async download(
+    bucketId: string,
+    fileId: string,
+    mnemonic: string,
+    options?: DownloadOptions,
+  ): Promise<ReadableStream<Uint8Array>> {
     const encryptedContentStreams: ReadableStream<Uint8Array>[] = [];
     let fileStream: ReadableStream<Uint8Array>;
 

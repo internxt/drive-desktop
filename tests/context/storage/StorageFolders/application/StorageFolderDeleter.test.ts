@@ -23,7 +23,12 @@ describe('Storage Folder Deleter', () => {
     filesByPartialSearcher = new FilesByPartialSearcherTestClass();
     foldersSearcherByPartial = new FoldersSearcherByPartialTestClass();
 
-    SUT = new StorageFolderDeleter(storageFileDeleter, singleFolderMatchingFinder, filesByPartialSearcher, foldersSearcherByPartial);
+    SUT = new StorageFolderDeleter(
+      storageFileDeleter,
+      singleFolderMatchingFinder,
+      filesByPartialSearcher,
+      foldersSearcherByPartial,
+    );
   });
 
   beforeEach(() => {
@@ -59,7 +64,10 @@ describe('Storage Folder Deleter', () => {
 
     await SUT.run(folderFound.path);
 
-    storageFileDeleter.assertHasBeenCalledWith([...filesOnFolder.map((f) => f.path), ...filesOnSubfolder.map((f) => f.path)]);
+    storageFileDeleter.assertHasBeenCalledWith([
+      ...filesOnFolder.map((f) => f.path),
+      ...filesOnSubfolder.map((f) => f.path),
+    ]);
   });
 
   it('searches for all the first level subfolders', async () => {

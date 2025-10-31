@@ -30,5 +30,10 @@ export abstract class DomainEvent {
 
 export type DomainEventClass = {
   EVENT_NAME: string;
-  fromPrimitives(params: { aggregateId: string; eventId: string; occurredOn: Date; attributes: DomainEventAttributes }): DomainEvent;
+  fromPrimitives(params: {
+    aggregateId: string;
+    eventId: string;
+    occurredOn: Date;
+    attributes: DomainEventAttributes;
+  }): DomainEvent;
 };

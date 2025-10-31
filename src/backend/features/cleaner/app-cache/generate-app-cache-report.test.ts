@@ -49,7 +49,10 @@ describe('generateAppCacheReport', () => {
     const varTmpItems = [createMockItem('var-temp1.cache', 1, mockPaths.varTmpDir)];
     const localShareItems = [createMockItem('app-cache.dat', 1, mockPaths.localShareCache)];
 
-    mockedScanDirectory.mockResolvedValueOnce(userCacheItems).mockResolvedValueOnce(tmpDirItems).mockResolvedValueOnce(varTmpItems);
+    mockedScanDirectory
+      .mockResolvedValueOnce(userCacheItems)
+      .mockResolvedValueOnce(tmpDirItems)
+      .mockResolvedValueOnce(varTmpItems);
 
     mockedScanSubDirectory.mockResolvedValue(localShareItems);
 

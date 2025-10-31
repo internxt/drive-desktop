@@ -9,7 +9,9 @@ import useConfig from '../../../hooks/useConfig';
 
 export default function LanguagePicker(): JSX.Element {
   const { translate } = useTranslationContext();
-  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>((useConfig('preferedLanguage') as Language) || null);
+  const [selectedLanguage, setSelectedLanguage] = useState<Language | null>(
+    (useConfig('preferedLanguage') as Language) || null,
+  );
 
   const languages: SelectOptionsType[] = [
     {
@@ -50,7 +52,9 @@ export default function LanguagePicker(): JSX.Element {
     <div id="language-picker" className="flex flex-1 flex-col items-start space-y-2">
       <p className="text-sm font-medium leading-4 text-gray-80">{translate('settings.general.language.label')}</p>
 
-      {selectedLanguage && <Select options={languages} value={selectedLanguage} onValueChange={updatePreferedLanguage} />}
+      {selectedLanguage && (
+        <Select options={languages} value={selectedLanguage} onValueChange={updatePreferedLanguage} />
+      )}
     </div>
   );
 }

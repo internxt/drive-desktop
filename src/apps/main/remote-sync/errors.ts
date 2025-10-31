@@ -18,7 +18,9 @@ export class RemoteSyncError extends Error {
  */
 export class RemoteSyncInvalidResponseError extends RemoteSyncError {
   constructor(response: any) {
-    super(`Expected an array of files, but received: ${JSON.stringify(response, null, 2)}`, 'INVALID_RESPONSE', { response });
+    super(`Expected an array of files, but received: ${JSON.stringify(response, null, 2)}`, 'INVALID_RESPONSE', {
+      response,
+    });
     this.name = 'RemoteSyncInvalidResponseError';
   }
 }

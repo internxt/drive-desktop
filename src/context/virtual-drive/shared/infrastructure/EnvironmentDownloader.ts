@@ -56,7 +56,10 @@ export abstract class EnvironmentDownloader {
     });
   }
 
-  on(event: keyof EnvironmentDownloaderEvents, handler: EnvironmentDownloaderEvents[keyof EnvironmentDownloaderEvents]): void {
+  on(
+    event: keyof EnvironmentDownloaderEvents,
+    handler: EnvironmentDownloaderEvents[keyof EnvironmentDownloaderEvents],
+  ): void {
     this.eventEmitter.on(event, handler);
   }
 

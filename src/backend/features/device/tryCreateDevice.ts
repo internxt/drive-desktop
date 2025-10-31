@@ -6,7 +6,10 @@ import { BackupError } from '../../../infra/drive-server/services/backup/backup.
 import { Either } from './../../../context/shared/domain/Either';
 import { DeviceIdentifierDTO } from './device.types';
 
-export async function tryCreateDevice(deviceName: string, deviceIdentifier: DeviceIdentifierDTO): Promise<Either<Error, Device>> {
+export async function tryCreateDevice(
+  deviceName: string,
+  deviceIdentifier: DeviceIdentifierDTO,
+): Promise<Either<Error, Device>> {
   const createDeviceEither = await driveServerModule.backup.createDeviceWithIdentifier({
     name: deviceName,
     key: deviceIdentifier.key,

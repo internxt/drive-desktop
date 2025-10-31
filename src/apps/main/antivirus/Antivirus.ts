@@ -172,7 +172,9 @@ export class Antivirus {
 
       if (
         error instanceof Error &&
-        (error.message.includes('ECONNREFUSED') || error.message.includes('connect') || error.message.includes('socket'))
+        (error.message.includes('ECONNREFUSED') ||
+          error.message.includes('connect') ||
+          error.message.includes('socket'))
       ) {
         logger.warn({
           tag: 'ANTIVIRUS',
@@ -268,7 +270,10 @@ export class Antivirus {
    * @param maxRetries Maximum number of retries on connection failures (default 2)
    * @returns Scan result with infection status
    */
-  async scanFileWithRetry(filePath: string, maxRetries = 2): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
+  async scanFileWithRetry(
+    filePath: string,
+    maxRetries = 2,
+  ): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
     let retryCount = 0;
 
     const attemptScan = async (): Promise<{

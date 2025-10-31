@@ -10,7 +10,13 @@ type Props = {
   onStopCleaning: () => void;
 };
 
-export default function CleaningProcess({ currentCleaningPath, cleanedProgress, deletedFiles, freeSpaceGained, onStopCleaning }: Props) {
+export default function CleaningProcess({
+  currentCleaningPath,
+  cleanedProgress,
+  deletedFiles,
+  freeSpaceGained,
+  onStopCleaning,
+}: Props) {
   const { translate } = useTranslationContext();
   return (
     <div className="flex w-full flex-col items-center gap-4" data-testid="clean-process-container">

@@ -55,7 +55,11 @@ export class HttpRemoteFileSystem implements RemoteFileSystem {
     });
   }
 
-  async persist(plainName: string, parentFolderUuid: string, attempt = 0): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
+  async persist(
+    plainName: string,
+    parentFolderUuid: string,
+    attempt = 0,
+  ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>> {
     const { data, error } = await createFolderIPC(parentFolderUuid, plainName);
     if (data) {
       return right(mapToFolderPersistedDto(data));

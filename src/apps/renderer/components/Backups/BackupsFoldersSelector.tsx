@@ -64,7 +64,9 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (pr
 
     setBackupFolders(
       backupFolders.filter((backupFolder) => {
-        const match = selectedBackupFolders.find((selectedBackupFolder) => selectedBackupFolder.path === backupFolder.path);
+        const match = selectedBackupFolders.find(
+          (selectedBackupFolder) => selectedBackupFolder.path === backupFolder.path,
+        );
 
         return match ? false : true;
       }),
@@ -80,7 +82,9 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (pr
 
   const renderBackupFolders = () => {
     return backupFolders.map((backupFolder, index) => {
-      const isSelected = !!selectedBackupFolders.find((selectedBackupFolder) => selectedBackupFolder.path === backupFolder.path);
+      const isSelected = !!selectedBackupFolders.find(
+        (selectedBackupFolder) => selectedBackupFolder.path === backupFolder.path,
+      );
       return (
         <div
           onClick={(e) => {
@@ -92,7 +96,11 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (pr
           tabIndex={0}
           key={backupFolder.path}
           className={`non-draggable flex h-9 w-full shrink-0 items-center px-2.5 transition-colors duration-75 ${
-            isSelected ? 'bg-primary text-white' : index % 2 !== 0 ? 'bg-white text-gray-100' : 'bg-gray-10 text-gray-100'
+            isSelected
+              ? 'bg-primary text-white'
+              : index % 2 !== 0
+                ? 'bg-white text-gray-100'
+                : 'bg-gray-10 text-gray-100'
           }`}>
           <FolderIcon className="mr-2 h-[19px] w-[22px]" />
           <p className="select-none truncate text-lg" style={{ top: '1px' }}>
@@ -116,7 +124,9 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (pr
         <div className="my-3 flex w-full flex-1 overflow-hidden rounded-lg border border-gray-30">
           {backupFolders.length === 0 ? (
             <div className="flex flex-1 items-center justify-center px-10">
-              <h3 className="font-regular text-center text-base text-gray-50">{translate('settings.backups.add-folders')}</h3>
+              <h3 className="font-regular text-center text-base text-gray-50">
+                {translate('settings.backups.add-folders')}
+              </h3>
             </div>
           ) : (
             <div
@@ -131,7 +141,10 @@ export const BackupsFoldersSelector: React.FC<BackupsFoldersSelectorProps> = (pr
             <Button onClick={handleAddBackup} disabled={isLoading}>
               <UilPlus size="17" />
             </Button>
-            <Button className="ml-1" disabled={selectedBackupFolders.length ? false : true} onClick={handleRemoveSelectedBackupFolder}>
+            <Button
+              className="ml-1"
+              disabled={selectedBackupFolders.length ? false : true}
+              onClick={handleRemoveSelectedBackupFolder}>
               <UilMinus size="17" />
             </Button>
           </div>

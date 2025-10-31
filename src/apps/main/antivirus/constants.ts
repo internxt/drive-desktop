@@ -3,7 +3,9 @@ import { app } from 'electron';
 import os from 'os';
 
 // ClamAV resources path
-export const RESOURCES_PATH = app.isPackaged ? path.join(process.resourcesPath, 'clamAV') : path.join(__dirname, '../../../../clamAV');
+export const RESOURCES_PATH = app.isPackaged
+  ? path.join(process.resourcesPath, 'clamAV')
+  : path.join(__dirname, '../../../../clamAV');
 
 // ClamAV daemon configuration
 export const SERVER_HOST = '127.0.0.1';

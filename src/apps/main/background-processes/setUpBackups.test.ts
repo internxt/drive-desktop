@@ -223,7 +223,9 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the USER_LOGGED_OUT handler
-    const userLoggedOutHandler = (eventBus.on as jest.Mock).mock.calls.find(([event]) => event === 'USER_LOGGED_OUT')[1];
+    const userLoggedOutHandler = (eventBus.on as jest.Mock).mock.calls.find(
+      ([event]) => event === 'USER_LOGGED_OUT',
+    )[1];
 
     // Call the handler
     userLoggedOutHandler();
@@ -239,11 +241,15 @@ describe('setUpBackups', () => {
 
     await setUpBackups();
 
-    const productsUpdatedHandler = (eventBus.on as jest.Mock).mock.calls.find(([event]) => event === 'USER_AVAILABLE_PRODUCTS_UPDATED')[1];
+    const productsUpdatedHandler = (eventBus.on as jest.Mock).mock.calls.find(
+      ([event]) => event === 'USER_AVAILABLE_PRODUCTS_UPDATED',
+    )[1];
 
     productsUpdatedHandler({ backups: true });
 
-    expect(logger.debug).toHaveBeenCalledWith('[BACKUPS] User now has the backup feature available, setting up backups');
+    expect(logger.debug).toHaveBeenCalledWith(
+      '[BACKUPS] User now has the backup feature available, setting up backups',
+    );
   });
 
   it('should handle USER_AVAILABLE_PRODUCTS_UPDATED event with removed backups access', async () => {
@@ -252,7 +258,9 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the USER_AVAILABLE_PRODUCTS_UPDATED handler
-    const productsUpdatedHandler = (eventBus.on as jest.Mock).mock.calls.find(([event]) => event === 'USER_AVAILABLE_PRODUCTS_UPDATED')[1];
+    const productsUpdatedHandler = (eventBus.on as jest.Mock).mock.calls.find(
+      ([event]) => event === 'USER_AVAILABLE_PRODUCTS_UPDATED',
+    )[1];
 
     // Call the handler with products that don't include backups
     productsUpdatedHandler({ backups: false });
@@ -271,7 +279,9 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the start-backups-process handler
-    const startBackupsHandler = (ipcMain.on as jest.Mock).mock.calls.find(([event]) => event === 'start-backups-process')[1];
+    const startBackupsHandler = (ipcMain.on as jest.Mock).mock.calls.find(
+      ([event]) => event === 'start-backups-process',
+    )[1];
 
     await startBackupsHandler();
 
@@ -286,7 +296,9 @@ describe('setUpBackups', () => {
     await setUpBackups();
 
     // Get the start-backups-process handler
-    const startBackupsHandler = (ipcMain.on as jest.Mock).mock.calls.find(([event]) => event === 'start-backups-process')[1];
+    const startBackupsHandler = (ipcMain.on as jest.Mock).mock.calls.find(
+      ([event]) => event === 'start-backups-process',
+    )[1];
 
     await startBackupsHandler();
 

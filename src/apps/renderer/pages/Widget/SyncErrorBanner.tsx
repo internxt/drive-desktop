@@ -66,7 +66,8 @@ export default function SyncErrorBanner() {
   }
 
   return show ? (
-    <div className={`flex items-center px-3 py-2 text-xs ${severity === 'WARN' ? 'bg-yellow/10 text-yellow' : 'bg-red/10 text-red'}`}>
+    <div
+      className={`flex items-center px-3 py-2 text-xs ${severity === 'WARN' ? 'bg-yellow/10 text-yellow' : 'bg-red/10 text-red'}`}>
       <Icon className="h-5 w-5" />
       <p className="mb-0 ml-2">{translate(message)}</p>
       {action && (

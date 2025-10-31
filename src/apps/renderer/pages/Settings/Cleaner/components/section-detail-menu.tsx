@@ -16,7 +16,14 @@ type Props = {
   onToggleItem: (sectionKey: string, itemPath: string) => void;
 };
 
-export default function SectionDetailMenu({ sectionName, report, viewModel, onClose, onToggleSection, onToggleItem }: Props) {
+export default function SectionDetailMenu({
+  sectionName,
+  report,
+  viewModel,
+  onClose,
+  onToggleSection,
+  onToggleItem,
+}: Props) {
   if (!sectionName) return <></>;
 
   const sectionData = report[sectionName as keyof CleanerReport];
@@ -58,7 +65,10 @@ export default function SectionDetailMenu({ sectionName, report, viewModel, onCl
       />
       <Separator classname="mx-2" />
       <div className="flex h-full flex-1 flex-col p-4">
-        <div ref={parentRef} className="bg-space flex-1 overflow-auto rounded-lg dark:bg-gray-5" style={{ height: '100%' }}>
+        <div
+          ref={parentRef}
+          className="bg-space flex-1 overflow-auto rounded-lg dark:bg-gray-5"
+          style={{ height: '100%' }}>
           <div
             style={{
               height: `${virtualizer.getTotalSize()}px`,

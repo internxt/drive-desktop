@@ -85,7 +85,11 @@ export class BackupService {
       const itemsAlreadyBacked = filesDiff.unmodified.length + foldersDiff.unmodified.length;
       this.backed = itemsAlreadyBacked;
 
-      BackupsIPCRenderer.send('backups.total-items-calculated', filesDiff.total + foldersDiff.total, itemsAlreadyBacked);
+      BackupsIPCRenderer.send(
+        'backups.total-items-calculated',
+        filesDiff.total + foldersDiff.total,
+        itemsAlreadyBacked,
+      );
 
       logger.debug({ tag: 'BACKUPS', msg: 'Starting folder backup' });
       await this.backupFolders(foldersDiff, local, remote);
@@ -152,7 +156,10 @@ export class BackupService {
       throw new DriveDesktopError('BAD_RESPONSE', validateSpaceResult.error.message);
     }
     if (validateSpaceResult.data.hasSpace === false) {
-      throw new DriveDesktopError('NOT_ENOUGH_SPACE', 'The size of the files to upload is greater than the available space');
+      throw new DriveDesktopError(
+        'NOT_ENOUGH_SPACE',
+        'The size of the files to upload is greater than the available space',
+      );
     }
   }
 
@@ -173,7 +180,11 @@ export class BackupService {
       const parent = remote.getParent(relative(local.root.path, localFolder.path));
 
       // eslint-disable-next-line no-await-in-loop
-      const folder = await this.simpleFolderCreator.run(relative(local.root.path, localFolder.path), parent.id, parent.uuid);
+      const folder = await this.simpleFolderCreator.run(
+        relative(local.root.path, localFolder.path),
+        parent.id,
+        parent.uuid,
+      );
 
       remote.addFolder(parent, folder);
 
@@ -182,7 +193,12 @@ export class BackupService {
     }
   }
 
-  private async backupFiles(filesDiff: FilesDiff, local: LocalTree, remote: RemoteTree, abortController: AbortController) {
+  private async backupFiles(
+    filesDiff: FilesDiff,
+    local: LocalTree,
+    remote: RemoteTree,
+    abortController: AbortController,
+  ) {
     logger.debug({ tag: 'BACKUPS', msg: 'Backing files' });
 
     const { added, modified, deleted } = filesDiff;

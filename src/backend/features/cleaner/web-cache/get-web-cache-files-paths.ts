@@ -11,6 +11,16 @@ export function getWebCacheFilesPaths(): WebCacheFilesPaths {
   return {
     chromeCacheDir: path.join(homeDir, '.cache', 'google-chrome', 'Default', 'Cache'),
     firefoxCacheDir: path.join(homeDir, 'snap', 'firefox', 'common', '.cache', 'mozilla', 'firefox'),
-    braveCacheDir: path.join(homeDir, 'snap', 'brave', 'common', '.cache', 'BraveSoftware', 'Brave-Browser', 'Default', 'Cache'),
+    braveCacheDir: path.join(
+      homeDir,
+      'snap',
+      'brave',
+      'common',
+      '.cache',
+      'BraveSoftware',
+      'Brave-Browser',
+      'Default',
+      'Cache',
+    ),
   };
 }

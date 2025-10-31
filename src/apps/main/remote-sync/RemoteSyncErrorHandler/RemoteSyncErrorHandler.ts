@@ -1,4 +1,9 @@
-import { RemoteSyncError, RemoteSyncInvalidResponseError, RemoteSyncNetworkError, RemoteSyncServerError } from '../errors';
+import {
+  RemoteSyncError,
+  RemoteSyncInvalidResponseError,
+  RemoteSyncNetworkError,
+  RemoteSyncServerError,
+} from '../errors';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { addVirtualDriveIssue } from '../../issues/virtual-drive';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
@@ -12,7 +17,12 @@ export interface VirtualDriveIssueByType {
 }
 
 export class RemoteSyncErrorHandler {
-  public handleSyncError(error: RemoteSyncError, syncItemType: syncItemType, itemName: string, itemCheckpoint?: Date): void {
+  public handleSyncError(
+    error: RemoteSyncError,
+    syncItemType: syncItemType,
+    itemName: string,
+    itemCheckpoint?: Date,
+  ): void {
     switch (true) {
       case error instanceof RemoteSyncNetworkError:
         this.handleNetworkError(error, syncItemType, itemName);

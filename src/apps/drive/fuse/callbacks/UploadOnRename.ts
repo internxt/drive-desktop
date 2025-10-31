@@ -27,7 +27,9 @@ export class UploadOnRename {
     try {
       const filePath = this.container.get(RelativePathToAbsoluteConverter).run(virtual.contentsId);
 
-      const areEqual = await this.container.get(TemporalFileByteByByteComparator).run(new TemporalFilePath(filePath), document.path);
+      const areEqual = await this.container
+        .get(TemporalFileByteByByteComparator)
+        .run(new TemporalFilePath(filePath), document.path);
 
       logger.debug({ msg: `Contents of <${virtual.path}> did not change` });
 

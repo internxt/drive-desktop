@@ -29,7 +29,9 @@ describe('Folder Mover', () => {
     });
     const destination = new FolderPath('/folderC/folderB');
 
-    repository.matchingPartialMock.mockImplementation(() => FolderMother.fromPartial({ parentId: 2, path: destination.value }));
+    repository.matchingPartialMock.mockImplementation(() =>
+      FolderMother.fromPartial({ parentId: 2, path: destination.value }),
+    );
 
     try {
       const hasBeenOverwritten = await SUT.run(folder, destination);

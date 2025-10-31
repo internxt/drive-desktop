@@ -10,7 +10,10 @@ import { DeviceIdentifierDTO } from './device.types';
  * @returns Either containing the created device or an error if device creation fails after multiple attempts
  * @param attempts The number of attempts to create a device with a unique name, defaults to 1000
  */
-export async function createUniqueDevice(deviceIdentifier: DeviceIdentifierDTO, attempts = 1000): Promise<Either<Error, Device>> {
+export async function createUniqueDevice(
+  deviceIdentifier: DeviceIdentifierDTO,
+  attempts = 1000,
+): Promise<Either<Error, Device>> {
   const baseName = os.hostname();
   const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
 

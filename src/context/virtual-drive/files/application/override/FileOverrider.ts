@@ -15,7 +15,11 @@ export class FileOverrider {
     private readonly eventBus: EventBus,
   ) {}
 
-  async run(oldContentsId: File['contentsId'], newContentsId: File['contentsId'], newSize: File['size']): Promise<void> {
+  async run(
+    oldContentsId: File['contentsId'],
+    newContentsId: File['contentsId'],
+    newSize: File['size'],
+  ): Promise<void> {
     const file = await this.repository.searchByContentsId(oldContentsId);
 
     if (!file) {

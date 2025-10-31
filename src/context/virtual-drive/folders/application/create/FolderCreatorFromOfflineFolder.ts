@@ -23,7 +23,10 @@ export class FolderCreatorFromOfflineFolder {
   async run(offlineFolder: OfflineFolder): Promise<Folder> {
     this.syncFolderMessenger.creating(offlineFolder.name);
 
-    const either = await this.remote.persist(new FolderPath(offlineFolder.path).name(), new FolderUuid(offlineFolder.uuid).value);
+    const either = await this.remote.persist(
+      new FolderPath(offlineFolder.path).name(),
+      new FolderUuid(offlineFolder.uuid).value,
+    );
 
     if (either.isLeft()) {
       return Promise.reject(either.getLeft());

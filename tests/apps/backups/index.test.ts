@@ -102,7 +102,9 @@ describe('Backup Functionality', () => {
   });
 
   it('should handle failure when fetching backup info', async () => {
-    backupService.getBackupInfo.mockResolvedValueOnce(Promise.resolve(left(new Error('Uncontrolled error while getting backup info'))));
+    backupService.getBackupInfo.mockResolvedValueOnce(
+      Promise.resolve(left(new Error('Uncontrolled error while getting backup info'))),
+    );
     await backupFolder();
 
     expect(BackupsIPCRenderer.send).not.toHaveBeenCalledWith('backups.backup-completed', expect.anything());
@@ -121,7 +123,11 @@ describe('Backup Functionality', () => {
 
     window.dispatchEvent(new Event('offline'));
 
-    expect(BackupsIPCRenderer.send).toHaveBeenCalledWith('backups.backup-failed', 123, BackUpErrorCauseEnum.NO_INTERNET);
+    expect(BackupsIPCRenderer.send).toHaveBeenCalledWith(
+      'backups.backup-failed',
+      123,
+      BackUpErrorCauseEnum.NO_INTERNET,
+    );
   });
 
   it('should handle abort event', async () => {

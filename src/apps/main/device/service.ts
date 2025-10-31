@@ -38,7 +38,9 @@ export async function getDevices(): Promise<Array<Device>> {
     return [];
   } else {
     const devices = response.getRight();
-    return devices.filter(({ removed, hasBackups }) => !removed && hasBackups).map((device) => decryptDeviceName(device));
+    return devices
+      .filter(({ removed, hasBackups }) => !removed && hasBackups)
+      .map((device) => decryptDeviceName(device));
   }
 }
 

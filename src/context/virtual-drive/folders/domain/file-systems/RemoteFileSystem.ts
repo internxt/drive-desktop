@@ -15,7 +15,10 @@ export type FolderPersistedDto = {
 export type RemoteFileSystemErrors = 'ALREADY_EXISTS' | 'WRONG_DATA' | 'UNHANDLED';
 
 export abstract class RemoteFileSystem {
-  abstract persist(plainName: string, parentFolderUuid: string): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>>;
+  abstract persist(
+    plainName: string,
+    parentFolderUuid: string,
+  ): Promise<Either<RemoteFileSystemErrors, FolderPersistedDto>>;
 
   abstract trash(id: Folder['id']): Promise<void>;
 

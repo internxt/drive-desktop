@@ -20,7 +20,10 @@ describe('Path', () => {
       expect(() => new PathTestClass(win32Path)).toThrowError();
     });
   });
-  it.each(['/folder/file.........something', '/f..a.txt', '/f...text'])('path with dots after the first position are valid', (path) => {
-    expect(() => new PathTestClass(path)).not.toThrowError();
-  });
+  it.each(['/folder/file.........something', '/f..a.txt', '/f...text'])(
+    'path with dots after the first position are valid',
+    (path) => {
+      expect(() => new PathTestClass(path)).not.toThrowError();
+    },
+  );
 });

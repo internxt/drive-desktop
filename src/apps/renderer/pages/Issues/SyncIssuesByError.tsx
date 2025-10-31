@@ -29,7 +29,15 @@ function groupAppIssuesByErrorName(issues: VirtualDriveIssue[]) {
   return Object.entries(appIssuesGroupedByErrorName) as Array<[SyncError, Array<VirtualDriveIssue>]>;
 }
 
-function VirtualDriveIssue({ errorName, issues, extend }: { errorName: SyncError; issues: VirtualDriveIssue[]; extend: boolean }) {
+function VirtualDriveIssue({
+  errorName,
+  issues,
+  extend,
+}: {
+  errorName: SyncError;
+  issues: VirtualDriveIssue[];
+  extend: boolean;
+}) {
   const { translate } = useTranslationContext();
 
   return (
@@ -38,7 +46,9 @@ function VirtualDriveIssue({ errorName, issues, extend }: { errorName: SyncError
         <WarnIcon className="h-5 w-5" />
 
         <div className="flex flex-col space-y-1">
-          <h1 className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100" data-test="sync-issue-name">
+          <h1
+            className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100"
+            data-test="sync-issue-name">
             {translate(shortMessages[errorName])}
           </h1>
 
@@ -48,7 +58,10 @@ function VirtualDriveIssue({ errorName, issues, extend }: { errorName: SyncError
         </div>
 
         <div className="flex items-center space-x-2">
-          <CaretDown className={`transform transition-all duration-200 ${extend ? 'rotate-180' : 'rotate-0'}`} size={20} />
+          <CaretDown
+            className={`transform transition-all duration-200 ${extend ? 'rotate-180' : 'rotate-0'}`}
+            size={20}
+          />
         </div>
       </div>
 

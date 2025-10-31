@@ -25,4 +25,6 @@ export interface LoginAccessResponse {
   newToken: string;
 }
 
-export type AuthAccessResponseViewModel = { success: true; data: LoginAccessResponse } | { success: false; error: string };
+export type AuthAccessResponseViewModel =
+  | { success: true; data: LoginAccessResponse }
+  | { success: false; error: string };

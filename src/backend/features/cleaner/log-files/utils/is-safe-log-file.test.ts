@@ -37,7 +37,15 @@ describe('is-safe-log-file', () => {
     });
 
     it('should return false for unsafe file extensions', () => {
-      const unsafeFiles = ['config.db', 'process.pid', 'app.lock', 'session.sqlite', 'socket.sock', 'binary.exe', 'script.sh'];
+      const unsafeFiles = [
+        'config.db',
+        'process.pid',
+        'app.lock',
+        'session.sqlite',
+        'socket.sock',
+        'binary.exe',
+        'script.sh',
+      ];
 
       unsafeFiles.forEach((fileName) => {
         expect(isSafeLogFile(fileName)).toBe(false);

@@ -17,11 +17,13 @@ export function useBackupDownloadProgress(): BackupDownloadContextProps {
   const [backupDownloadProgress, setBackupDownloadProgress] = useState<DownloadBackupProgress>({});
 
   useEffect(() => {
-    const removeListener = window.electron.onBackupDownloadProgress(({ id, progress }: { id: string; progress: number }) => {
-      setBackupDownloadProgress((prevState) => {
-        return { ...prevState, [id]: Math.round(progress * 100) };
-      });
-    });
+    const removeListener = window.electron.onBackupDownloadProgress(
+      ({ id, progress }: { id: string; progress: number }) => {
+        setBackupDownloadProgress((prevState) => {
+          return { ...prevState, [id]: Math.round(progress * 100) };
+        });
+      },
+    );
     return removeListener;
   }, []);
 

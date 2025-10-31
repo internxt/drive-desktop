@@ -56,7 +56,10 @@ export class AllFilesInFolderAreAvailableOffline {
   }
 
   private async folderIsAvaliableOffline(folder: Folder): Promise<boolean> {
-    const [subfoldersExists, filesExists] = await Promise.all([this.subfoldersExists(folder), this.filesExists(folder)]);
+    const [subfoldersExists, filesExists] = await Promise.all([
+      this.subfoldersExists(folder),
+      this.filesExists(folder),
+    ]);
 
     return filesExists && subfoldersExists;
   }

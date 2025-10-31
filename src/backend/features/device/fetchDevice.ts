@@ -25,7 +25,9 @@ async function getDeviceByProps(props: FetchDeviceProps): Promise<Either<Error, 
     return right(devices[0]);
   } else {
     const deviceResult =
-      'uuid' in props ? await driveServerModule.backup.getDevice(props.uuid) : await driveServerModule.backup.getDeviceById(props.legacyId);
+      'uuid' in props
+        ? await driveServerModule.backup.getDevice(props.uuid)
+        : await driveServerModule.backup.getDeviceById(props.legacyId);
 
     if (deviceResult.isLeft()) return left(deviceResult.getLeft());
 

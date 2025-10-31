@@ -23,7 +23,9 @@ export function DiscoverBackups() {
       <div className="flex flex-col">
         <div className="flex flex-row">
           <div>
-            <div className="text-neutral-500 text-sm font-semibold">{translate('widget.banners.discover-backups.title')}</div>
+            <div className="text-neutral-500 text-sm font-semibold">
+              {translate('widget.banners.discover-backups.title')}
+            </div>
             <div className="mb-4 mt-1 text-xs">{translate('widget.banners.discover-backups.body')}</div>
           </div>
           <X size={50} className="-mt-3 hover:cursor-pointer" onClick={discover} />

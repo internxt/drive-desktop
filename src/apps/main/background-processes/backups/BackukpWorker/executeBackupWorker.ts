@@ -43,7 +43,10 @@ function listenForBackupFinalization(): Promise<WorkerExitCause> {
   return finished;
 }
 
-export async function executeBackupWorker(info: BackupInfo, stopController: BackupsStopController): Promise<WorkerExitCause> {
+export async function executeBackupWorker(
+  info: BackupInfo,
+  stopController: BackupsStopController,
+): Promise<WorkerExitCause> {
   addMessagesHandlers(info, stopController);
 
   const finished = listenForBackupFinalization();

@@ -82,7 +82,9 @@ export const prepareConfigFiles = (): {
   const originalClamdConfig = fs.readFileSync(path.join(RESOURCES_PATH, '/etc/clamd.conf'), 'utf8');
   const originalFreshclamConfig = fs.readFileSync(path.join(RESOURCES_PATH, '/etc/freshclam.conf'), 'utf8');
 
-  const modifiedClamdConfig = originalClamdConfig.replace('LOGFILE_PATH', logFilePath).replace('DATABASE_DIRECTORY', dbDir);
+  const modifiedClamdConfig = originalClamdConfig
+    .replace('LOGFILE_PATH', logFilePath)
+    .replace('DATABASE_DIRECTORY', dbDir);
 
   const modifiedFreshclamConfig = originalFreshclamConfig
     .replace('DATABASE_DIRECTORY', dbDir)
@@ -379,7 +381,10 @@ const stopClamdServer = (): void => {
   }
 };
 
-const waitForClamd = async (timeout = DEFAULT_CLAMD_WAIT_TIMEOUT, interval = DEFAULT_CLAMD_CHECK_INTERVAL): Promise<void> => {
+const waitForClamd = async (
+  timeout = DEFAULT_CLAMD_WAIT_TIMEOUT,
+  interval = DEFAULT_CLAMD_CHECK_INTERVAL,
+): Promise<void> => {
   const startTime = Date.now();
   let attempts = 0;
   let available = false;

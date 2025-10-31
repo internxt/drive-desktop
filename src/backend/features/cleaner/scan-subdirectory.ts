@@ -11,7 +11,9 @@ async function getFilteredDirectories(baseDir: string, customDirectoryFiler?: (d
     .then((dirents) =>
       dirents.filter(
         (dirent) =>
-          dirent.isDirectory() && !isInternxtRelated(dirent.name) && (!customDirectoryFiler || !customDirectoryFiler(dirent.name)),
+          dirent.isDirectory() &&
+          !isInternxtRelated(dirent.name) &&
+          (!customDirectoryFiler || !customDirectoryFiler(dirent.name)),
       ),
     );
 }

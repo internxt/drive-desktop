@@ -32,7 +32,10 @@ export default function DeviceName({ onChangeView }: { onChangeView: boolean }) 
   const currentDeviceName = deviceState.status === 'SUCCESS' ? deviceState.device.name : '';
 
   return (
-    <form onSubmitCapture={setDeviceName} className="flex flex-col items-center space-y-1.5 truncate" data-automation-id="deviceNameForm">
+    <form
+      onSubmitCapture={setDeviceName}
+      className="flex flex-col items-center space-y-1.5 truncate"
+      data-automation-id="deviceNameForm">
       <p className="truncate text-sm font-medium leading-4 text-gray-80" data-automation-id="deviceNameSectionTitle">
         {translate('settings.general.device.section')}
       </p>

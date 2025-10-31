@@ -19,7 +19,11 @@ type ScanDirectoryProps = {
  *  @param customDirectoryFilter Optional custom filter function to apply to directories.
  *  Return true to skip the directory, false to include it.
  */
-export async function scanDirectory({ dirPath, customFileFilter, customDirectoryFilter }: ScanDirectoryProps): Promise<CleanableItem[]> {
+export async function scanDirectory({
+  dirPath,
+  customFileFilter,
+  customDirectoryFilter,
+}: ScanDirectoryProps): Promise<CleanableItem[]> {
   try {
     const stat = await fs.stat(dirPath);
     if (!stat.isDirectory()) {

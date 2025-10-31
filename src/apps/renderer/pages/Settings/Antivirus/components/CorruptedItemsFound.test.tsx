@@ -10,7 +10,9 @@ describe('CorruptedItemsFound', () => {
   });
 
   it('renders the component with correct content', () => {
-    render(<CorruptedItemsFound translate={mockTranslate} onRemoveMalwareButtonClicked={mockOnRemoveMalwareButtonClicked} />);
+    render(
+      <CorruptedItemsFound translate={mockTranslate} onRemoveMalwareButtonClicked={mockOnRemoveMalwareButtonClicked} />,
+    );
 
     expect(screen.getByText('settings.antivirus.scanProcess.malwareFound.title')).toBeInTheDocument();
     expect(screen.getByText('settings.antivirus.scanProcess.malwareFound.subtitle')).toBeInTheDocument();
@@ -23,7 +25,9 @@ describe('CorruptedItemsFound', () => {
   });
 
   it('calls onRemoveMalwareButtonClicked when button is clicked', () => {
-    render(<CorruptedItemsFound translate={mockTranslate} onRemoveMalwareButtonClicked={mockOnRemoveMalwareButtonClicked} />);
+    render(
+      <CorruptedItemsFound translate={mockTranslate} onRemoveMalwareButtonClicked={mockOnRemoveMalwareButtonClicked} />,
+    );
 
     const button = screen.getByTestId('remove-malware-button');
     fireEvent.click(button);
@@ -32,7 +36,9 @@ describe('CorruptedItemsFound', () => {
   });
 
   it('renders the shield warning icon', () => {
-    render(<CorruptedItemsFound translate={mockTranslate} onRemoveMalwareButtonClicked={mockOnRemoveMalwareButtonClicked} />);
+    render(
+      <CorruptedItemsFound translate={mockTranslate} onRemoveMalwareButtonClicked={mockOnRemoveMalwareButtonClicked} />,
+    );
 
     const iconElement = screen.getByTestId('shield-warning-icon');
     expect(iconElement).toBeInTheDocument();
@@ -40,7 +46,9 @@ describe('CorruptedItemsFound', () => {
   });
 
   it('applies the correct styling', () => {
-    render(<CorruptedItemsFound translate={mockTranslate} onRemoveMalwareButtonClicked={mockOnRemoveMalwareButtonClicked} />);
+    render(
+      <CorruptedItemsFound translate={mockTranslate} onRemoveMalwareButtonClicked={mockOnRemoveMalwareButtonClicked} />,
+    );
 
     const container = screen.getByTestId('corrupted-items-text-container');
     expect(container).toHaveClass('flex flex-col gap-1 text-center');

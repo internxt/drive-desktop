@@ -15,7 +15,10 @@ describe('File Batch Updater', () => {
 
   let uploader: LocalFileUploaderMock;
   let simpleFileOverrider: SimpleFileOverrider;
-  let simpleFileOverriderSpy: jest.SpyInstance<Either<Error, Promise<void>>, [file: File, contentsId: string, size: number]>;
+  let simpleFileOverriderSpy: jest.SpyInstance<
+    Either<Error, Promise<void>>,
+    [file: File, contentsId: string, size: number]
+  >;
 
   let abortController: AbortController;
   const localRoot = LocalFolderMother.fromPartial({

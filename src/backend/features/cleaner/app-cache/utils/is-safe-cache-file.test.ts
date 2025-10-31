@@ -2,10 +2,13 @@ import { isSafeCacheFileType } from './is-safe-cache-file';
 
 describe('isSafeCacheFileType', () => {
   describe('should return false for critical file extensions', () => {
-    test.each(['.lock', '.pid', '.db', '.sqlite', '.sqlite3', '.sock', '.socket'])('should return false for %s files', (extension) => {
-      const fileName = `test${extension}`;
-      expect(isSafeCacheFileType(fileName)).toBe(false);
-    });
+    test.each(['.lock', '.pid', '.db', '.sqlite', '.sqlite3', '.sock', '.socket'])(
+      'should return false for %s files',
+      (extension) => {
+        const fileName = `test${extension}`;
+        expect(isSafeCacheFileType(fileName)).toBe(false);
+      },
+    );
 
     it('should handle uppercase extensions', () => {
       expect(isSafeCacheFileType('test.LOCK')).toBe(false);

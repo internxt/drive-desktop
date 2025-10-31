@@ -47,7 +47,9 @@ describe('Local Thumbnail Repository', () => {
       await SUT.retrieve(file);
 
       expect(thumbnailNameCalculator).toBeCalledWith(uri);
-      expect(mockedFS.statSync).toBeCalledWith(path.join(thumbnailFolder, 'normal', 'c6ee772d9e49320e97ec29a7eb5b1697.png'));
+      expect(mockedFS.statSync).toBeCalledWith(
+        path.join(thumbnailFolder, 'normal', 'c6ee772d9e49320e97ec29a7eb5b1697.png'),
+      );
     });
 
     it('obtains a thumbnail collection', async () => {
@@ -64,7 +66,9 @@ describe('Local Thumbnail Repository', () => {
 
       expect(collection).toBeDefined();
       expect(collection?.file).toBe(file);
-      expect(collection?.thumbnails).toEqual(expect.arrayContaining([expect.objectContaining({ _updatedAt: updatedAt })]));
+      expect(collection?.thumbnails).toEqual(
+        expect.arrayContaining([expect.objectContaining({ _updatedAt: updatedAt })]),
+      );
     });
   });
 
@@ -92,7 +96,10 @@ describe('Local Thumbnail Repository', () => {
 
       await SUT.push(file, readableStream);
 
-      expect(writeSpy).toBeCalledWith(expect.any(Readable), path.join(thumbnailFolder, 'normal', 'c6ee772d9e49320e97ec29a7eb5b1697.png'));
+      expect(writeSpy).toBeCalledWith(
+        expect.any(Readable),
+        path.join(thumbnailFolder, 'normal', 'c6ee772d9e49320e97ec29a7eb5b1697.png'),
+      );
     });
   });
 

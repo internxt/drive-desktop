@@ -16,7 +16,9 @@ export function Item({ name, action, progress }: DriveOperationInfo) {
       ? translate('widget.body.activity.operation.downloading')
       : translate('widget.body.activity.operation.decrypting');
   } else if (action === 'UPLOADING') {
-    description = progress ? translate('widget.body.activity.operation.uploading') : translate('widget.body.activity.operation.encrypting');
+    description = progress
+      ? translate('widget.body.activity.operation.uploading')
+      : translate('widget.body.activity.operation.encrypting');
   } else if (action === 'DOWNLOADED') {
     description = translate('widget.body.activity.operation.downloaded');
   } else if (action === 'UPLOADED') {
@@ -45,25 +47,27 @@ export function Item({ name, action, progress }: DriveOperationInfo) {
 
         <div className="flex w-7 items-center justify-center">
           {/* PROGRESS */}
-          {action && (action === 'UPLOADING' || action === 'DOWNLOADING' || action === 'RENAMING' || action === 'DELETING') && (
-            <CircularProgressbar
-              value={progress ?? 0}
-              minValue={0}
-              maxValue={1}
-              strokeWidth={16}
-              styles={buildStyles({
-                pathTransitionDuration: 0.25,
-                pathColor: 'rgb(var(--color-primary) / 1)',
-                strokeLinecap: 'round',
-              })}
-              className="aspect-square w-6 rounded-full ring-4 ring-inset ring-primary/15 dark:ring-gray-10"
-            />
-          )}
+          {action &&
+            (action === 'UPLOADING' || action === 'DOWNLOADING' || action === 'RENAMING' || action === 'DELETING') && (
+              <CircularProgressbar
+                value={progress ?? 0}
+                minValue={0}
+                maxValue={1}
+                strokeWidth={16}
+                styles={buildStyles({
+                  pathTransitionDuration: 0.25,
+                  pathColor: 'rgb(var(--color-primary) / 1)',
+                  strokeLinecap: 'round',
+                })}
+                className="aspect-square w-6 rounded-full ring-4 ring-inset ring-primary/15 dark:ring-gray-10"
+              />
+            )}
 
           {/* DONE */}
-          {action && (action === 'DELETED' || action === 'DOWNLOADED' || action === 'UPLOADED' || action === 'RENAMED') && (
-            <Check size={24} className="text-green" weight="bold" />
-          )}
+          {action &&
+            (action === 'DELETED' || action === 'DOWNLOADED' || action === 'UPLOADED' || action === 'RENAMED') && (
+              <Check size={24} className="text-green" weight="bold" />
+            )}
         </div>
       </div>
     </div>

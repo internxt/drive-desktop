@@ -21,7 +21,8 @@ jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
 }));
 const createMockStats = (isDirectory = true, size = 0): Stats => ({ isDirectory: () => isDirectory, size }) as Stats;
 
-const createMockDirent = (name: string, isFile = true): Dirent => ({ name, isFile: () => isFile, isDirectory: () => !isFile }) as Dirent;
+const createMockDirent = (name: string, isFile = true): Dirent =>
+  ({ name, isFile: () => isFile, isDirectory: () => !isFile }) as Dirent;
 
 describe('scanDirectory', () => {
   const mockedFs = jest.mocked(fs);
@@ -79,7 +80,10 @@ describe('scanDirectory', () => {
   });
 
   it('should skip Internxt-related files and directories', async () => {
-    mockedFs.readdir.mockResolvedValue([createMockDirent('internxt-app', false), createMockDirent('regular-file.txt', true)]);
+    mockedFs.readdir.mockResolvedValue([
+      createMockDirent('internxt-app', false),
+      createMockDirent('regular-file.txt', true),
+    ]);
 
     mockedIsInternxtRelated.mockReturnValueOnce(true).mockReturnValueOnce(false);
 
@@ -133,7 +137,10 @@ describe('scanDirectory', () => {
     const file1Item = createCleanableItemMock('file1.txt', 100);
     const file2Item = createCleanableItemMock('file2.log', 300);
     const subdirItem = createCleanableItemMock('nested.txt', 200, '/test/path/subdir');
-    mockedProcessDirent.mockResolvedValueOnce([file1Item]).mockResolvedValueOnce([subdirItem]).mockResolvedValueOnce([file2Item]);
+    mockedProcessDirent
+      .mockResolvedValueOnce([file1Item])
+      .mockResolvedValueOnce([subdirItem])
+      .mockResolvedValueOnce([file2Item]);
 
     const result = await scanDirectory({ dirPath: mockBasePath });
 
@@ -142,7 +149,10 @@ describe('scanDirectory', () => {
   });
 
   it('should skip files that cannot be accessed due to permissions', async () => {
-    mockedFs.readdir.mockResolvedValue([createMockDirent('accessible-file.txt', true), createMockDirent('restricted-file.txt', true)]);
+    mockedFs.readdir.mockResolvedValue([
+      createMockDirent('accessible-file.txt', true),
+      createMockDirent('restricted-file.txt', true),
+    ]);
 
     const accessibleItem = [createCleanableItemMock('accessible-file.txt', 1024)];
     mockedProcessDirent.mockResolvedValueOnce(accessibleItem).mockResolvedValueOnce([]);

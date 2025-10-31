@@ -71,7 +71,10 @@ describe('Folder Path Updater', () => {
     await folderPathUpdater.run(folder.uuid, folderPathWithNewName.value);
 
     expect(renamer.mock).toBeCalledTimes(1);
-    expect(renamer.mock).toBeCalledWith(expect.objectContaining({ _uuid: new FolderUuid(folder.uuid) }), folderPathWithNewName);
+    expect(renamer.mock).toBeCalledWith(
+      expect.objectContaining({ _uuid: new FolderUuid(folder.uuid) }),
+      folderPathWithNewName,
+    );
   });
 
   it('calls folder mover when only the parent name changes', async () => {

@@ -21,7 +21,12 @@ describe('All Files In Folder Are Available Offline', () => {
     repository = new StorageFilesRepositoryMock();
     foldersSearcherByPartial = new FoldersSearcherByPartialTestClass();
 
-    SUT = new AllFilesInFolderAreAvailableOffline(singleFolderFinder, filesByPartialSearcher, repository, foldersSearcherByPartial);
+    SUT = new AllFilesInFolderAreAvailableOffline(
+      singleFolderFinder,
+      filesByPartialSearcher,
+      repository,
+      foldersSearcherByPartial,
+    );
   });
 
   beforeEach(() => {

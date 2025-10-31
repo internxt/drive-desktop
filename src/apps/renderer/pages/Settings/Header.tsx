@@ -5,7 +5,17 @@ import { useTranslationContext } from '../../context/LocalContext';
 import { UilHistory } from '@iconscout/react-unicons';
 import { Section, sectionValues } from './Utils/section.types';
 
-function Item({ Icon, title, onClick, isActive }: { Icon: Icon; title: string; onClick: () => void; isActive: boolean }) {
+function Item({
+  Icon,
+  title,
+  onClick,
+  isActive,
+}: {
+  Icon: Icon;
+  title: string;
+  onClick: () => void;
+  isActive: boolean;
+}) {
   return (
     <button
       onClick={onClick}

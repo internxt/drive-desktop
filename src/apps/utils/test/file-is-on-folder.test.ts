@@ -41,11 +41,14 @@ describe('file is on folder', () => {
 
   const filesNames = ['two/image.png', 'two/another-folder/file.txt', 'two/level/another-folder/file.txt'];
 
-  it.each(filesNames)('file with some part of the path in common with deleted folder should not be found', (fileName: string) => {
-    const result = SUT(fileName);
+  it.each(filesNames)(
+    'file with some part of the path in common with deleted folder should not be found',
+    (fileName: string) => {
+      const result = SUT(fileName);
 
-    expect(result).toBe(false);
-  });
+      expect(result).toBe(false);
+    },
+  );
 
   it('file in a subfolder of a deleted folder should not be found', () => {
     const fileName = 'two/level/subfolder/anotherSubfolder/file.txt';

@@ -3,7 +3,17 @@ import { useState, useEffect } from 'react';
 import { useTranslationContext } from '../../context/LocalContext';
 import { Section } from './Section';
 
-function TabPill({ value, name, active, setAsActive }: { value: Section; name: string; active: boolean; setAsActive: () => void }) {
+function TabPill({
+  value,
+  name,
+  active,
+  setAsActive,
+}: {
+  value: Section;
+  name: string;
+  active: boolean;
+  setAsActive: () => void;
+}) {
   return (
     <li
       id={`tab-${value}`}

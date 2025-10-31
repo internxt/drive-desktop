@@ -36,7 +36,14 @@ export class ReadCallback {
     return chunk.length; // number of bytes read
   }
 
-  async execute(path: string, _fd: any, buf: Buffer, len: number, pos: number, cb: (code: number, params?: any) => void) {
+  async execute(
+    path: string,
+    _fd: any,
+    buf: Buffer,
+    len: number,
+    pos: number,
+    cb: (code: number, params?: any) => void,
+  ) {
     try {
       const virtualFile = await this.container.get(FirstsFileSearcher).run({
         path,

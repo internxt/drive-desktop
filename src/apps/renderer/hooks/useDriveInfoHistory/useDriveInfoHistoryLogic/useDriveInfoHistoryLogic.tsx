@@ -19,7 +19,11 @@ export function useDriveInfoHistoryLogic(MAX_ITEMS = 50) {
   function removeDriveOperationsInProgress() {
     setDriveHistory((currentItems) => {
       return currentItems.filter(
-        (item) => item.action !== 'UPLOADING' && item.action !== 'DOWNLOADING' && item.action !== 'RENAMING' && item.action !== 'DELETING',
+        (item) =>
+          item.action !== 'UPLOADING' &&
+          item.action !== 'DOWNLOADING' &&
+          item.action !== 'RENAMING' &&
+          item.action !== 'DELETING',
       );
     });
   }

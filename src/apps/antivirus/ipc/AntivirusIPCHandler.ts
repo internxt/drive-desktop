@@ -69,7 +69,10 @@ export class AntivirusScanService {
   /**
    * Executes a scan on specified items
    */
-  public static async performScan(itemsArray: any[], progressCallback: (progress: ScanProgress) => void): Promise<void> {
+  public static async performScan(
+    itemsArray: any[],
+    progressCallback: (progress: ScanProgress) => void,
+  ): Promise<void> {
     const isSystemScan = itemsArray.length === 0;
     let fileSystemMonitor = null;
     let progressInterval: NodeJS.Timeout | null = null;

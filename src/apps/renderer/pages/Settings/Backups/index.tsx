@@ -18,7 +18,11 @@ export default function BackupsSection({ active, showBackedFolders, showIssues }
 
   return (
     <div className={`${active ? 'block' : 'hidden'} w-full`}>
-      {userCanAccessBackups ? <BackupsPageContainer showBackedFolders={showBackedFolders} showIssues={showIssues} /> : <LockedState />}
+      {userCanAccessBackups ? (
+        <BackupsPageContainer showBackedFolders={showBackedFolders} showIssues={showIssues} />
+      ) : (
+        <LockedState />
+      )}
     </div>
   );
 }

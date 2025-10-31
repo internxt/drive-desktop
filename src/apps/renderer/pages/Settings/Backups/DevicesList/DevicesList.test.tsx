@@ -15,7 +15,9 @@ jest.mock('../../../../context/LocalContext', () => ({
 }));
 
 jest.mock('../../../../components/ScrollableContent', () => ({
-  ScrollableContent: ({ children }: { children: React.ReactNode }) => <div data-testid="scrollable-content">{children}</div>,
+  ScrollableContent: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="scrollable-content">{children}</div>
+  ),
 }));
 
 jest.mock('./Help', () => ({

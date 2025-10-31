@@ -11,7 +11,9 @@ export function DevicesList({ className }: DevicesSideBarProps) {
   const { translate } = useTranslationContext();
   const { devices, deviceState, current, selected, setSelected } = useContext(DeviceContext);
 
-  const devicesWithoutCurrent = devices.filter((device) => deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id);
+  const devicesWithoutCurrent = devices.filter(
+    (device) => deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id,
+  );
 
   return (
     <aside className={className}>

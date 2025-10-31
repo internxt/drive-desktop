@@ -26,14 +26,18 @@ export function CleanupConfirmDialog({ isVisible, onConfirm, onCancel }: Cleanup
               {translate('settings.cleaner.cleanupConfirmDialogView.title')}
             </h3>
           </div>
-          <button onClick={onCancel} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+          <button
+            onClick={onCancel}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
             <X />
           </button>
         </div>
 
         {/* Content */}
         <div className="mb-6">
-          <p className="text-gray-600 dark:text-gray-300">{translate('settings.cleaner.cleanupConfirmDialogView.description')}</p>
+          <p className="text-gray-600 dark:text-gray-300">
+            {translate('settings.cleaner.cleanupConfirmDialogView.description')}
+          </p>
         </div>
 
         {/* Actions */}

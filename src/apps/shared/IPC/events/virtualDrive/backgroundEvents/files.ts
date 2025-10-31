@@ -14,13 +14,33 @@ type FileUpdatePayload = {
 };
 
 export type FileErrorEvents = {
-  FILE_DOWNLOAD_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; cause: SyncError }) => void;
+  FILE_DOWNLOAD_ERROR: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    cause: SyncError;
+  }) => void;
 
-  FILE_UPLOAD_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; cause: SyncError }) => void;
+  FILE_UPLOAD_ERROR: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    cause: SyncError;
+  }) => void;
 
-  FILE_DELETION_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; cause: SyncError }) => void;
+  FILE_DELETION_ERROR: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    cause: SyncError;
+  }) => void;
 
-  FILE_RENAME_ERROR: (payload: { name: string; extension: string; nameWithExtension: string; cause: SyncError }) => void;
+  FILE_RENAME_ERROR: (payload: {
+    name: string;
+    extension: string;
+    nameWithExtension: string;
+    cause: SyncError;
+  }) => void;
 };
 
 export type FilesEvents = {

@@ -93,7 +93,10 @@ export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile
     result: DriveFile | null;
   }> {
     try {
-      const queryResult = await this.repository.createQueryBuilder('drive_file').orderBy('datetime(drive_file.updatedAt)', 'DESC').getOne();
+      const queryResult = await this.repository
+        .createQueryBuilder('drive_file')
+        .orderBy('datetime(drive_file.updatedAt)', 'DESC')
+        .getOne();
 
       return {
         success: true,

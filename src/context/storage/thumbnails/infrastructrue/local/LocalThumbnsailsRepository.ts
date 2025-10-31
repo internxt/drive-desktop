@@ -77,7 +77,10 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
   async push(file: File, stream: Readable): Promise<void> {
     const name = this.obtainName(file);
 
-    const where = [path.join(this.systemThumbnailsFolder, 'normal', name), path.join(this.systemThumbnailsFolder, 'large', name)];
+    const where = [
+      path.join(this.systemThumbnailsFolder, 'normal', name),
+      path.join(this.systemThumbnailsFolder, 'large', name),
+    ];
 
     await Promise.all(where.map((p) => WriteReadableToFile.write(stream, p)));
 
@@ -146,7 +149,10 @@ export class LocalThumbnailRepository implements ThumbnailsRepository {
 
     const name = this.obtainName(file);
 
-    const where = [path.join(this.systemThumbnailsFolder, 'normal', name), path.join(this.systemThumbnailsFolder, 'large', name)];
+    const where = [
+      path.join(this.systemThumbnailsFolder, 'normal', name),
+      path.join(this.systemThumbnailsFolder, 'large', name),
+    ];
 
     const iconPath = this.defaultThumbnailsPath(icon);
 

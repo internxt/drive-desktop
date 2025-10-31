@@ -16,7 +16,9 @@ export function Accordion({ title, collapsed, elements }: AccordionProps) {
       <div className="flex space-x-2.5">
         <WarnIcon className="h-5 w-5" />
         <div className="flex grow flex-col space-y-1">
-          <h1 className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100" data-test="sync-issue-name">
+          <h1
+            className="flex flex-1 flex-col text-base font-medium leading-5 text-gray-100"
+            data-test="sync-issue-name">
             {title}
           </h1>
 
@@ -25,7 +27,10 @@ export function Accordion({ title, collapsed, elements }: AccordionProps) {
           </p>
         </div>
         <div className="flex items-center">
-          <CaretDown className={`transform transition-all duration-200 ${collapsed ? 'rotate-0' : 'rotate-180'}`} size={20} />
+          <CaretDown
+            className={`transform transition-all duration-200 ${collapsed ? 'rotate-0' : 'rotate-180'}`}
+            size={20}
+          />
         </div>
       </div>
 

@@ -9,11 +9,17 @@ describe('name verifiaction test', () => {
   const VALID = true;
 
   describe.skip('sensible files', () => {
-    it.each(sensibleFiles.unix)('sensible unix files are not valid', (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID));
+    it.each(sensibleFiles.unix)('sensible unix files are not valid', (fileName) =>
+      expect(fileNameIsValid(fileName)).toBe(INVALID),
+    );
 
-    it.each(sensibleFiles.windows)('sensible windows files are not valid', (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID));
+    it.each(sensibleFiles.windows)('sensible windows files are not valid', (fileName) =>
+      expect(fileNameIsValid(fileName)).toBe(INVALID),
+    );
 
-    it.each(sensibleFiles['logs-linux'])('linux logs are not valid', (fileName) => expect(fileNameIsValid(fileName)).toBe(INVALID));
+    it.each(sensibleFiles['logs-linux'])('linux logs are not valid', (fileName) =>
+      expect(fileNameIsValid(fileName)).toBe(INVALID),
+    );
   });
 
   describe('firts level files', () => {

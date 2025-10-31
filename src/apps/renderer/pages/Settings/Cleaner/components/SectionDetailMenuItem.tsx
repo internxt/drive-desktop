@@ -12,7 +12,13 @@ type SectionDetailMenuItemProps = {
   onToggleItem: (sectionKey: string, itemPath: string) => void;
 };
 
-export function SectionDetailMenuItem({ item, sectionName, showSeparatorOnTop, isSelected, onToggleItem }: SectionDetailMenuItemProps) {
+export function SectionDetailMenuItem({
+  item,
+  sectionName,
+  showSeparatorOnTop,
+  isSelected,
+  onToggleItem,
+}: SectionDetailMenuItemProps) {
   return (
     <div key={item.fullPath}>
       {showSeparatorOnTop && <Separator size="small" />}

@@ -58,7 +58,8 @@ export class Traverser {
       }
 
       const decryptedName =
-        serverFile.plainName ?? this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
+        serverFile.plainName ??
+        this.decrypt.decryptName(serverFile.name, serverFile.folderId.toString(), serverFile.encrypt_version);
       const extensionToAdd = serverFile.type ? `.${serverFile.type}` : '';
 
       const relativeFilePath = `${currentFolder.path}/${decryptedName}${extensionToAdd}`.replaceAll('//', '/');

@@ -64,7 +64,12 @@ export class RetryHandler {
     return left(new RetryError('Max retries Reached'));
   }
 
-  private static shouldKeepTrying(attempt: number, maxRetries: number, shouldRetry: (error: unknown) => boolean, error: unknown): boolean {
+  private static shouldKeepTrying(
+    attempt: number,
+    maxRetries: number,
+    shouldRetry: (error: unknown) => boolean,
+    error: unknown,
+  ): boolean {
     return attempt <= maxRetries && (!shouldRetry || shouldRetry(error));
   }
 
@@ -73,7 +78,13 @@ export class RetryHandler {
     return Math.min(delay * jitterFactor, maxDelay);
   }
 
-  private static async waitBeforeRetry(delay: number, maxDelay: number, jitter: boolean, attempt: number, error: unknown): Promise<void> {
+  private static async waitBeforeRetry(
+    delay: number,
+    maxDelay: number,
+    jitter: boolean,
+    attempt: number,
+    error: unknown,
+  ): Promise<void> {
     const waitTime = this.getWaitingTime(delay, maxDelay, jitter);
     logger.warn({
       msg: `[Retry] Attempt ${attempt} failed, retrying in ${Math.round(waitTime)}ms...`,

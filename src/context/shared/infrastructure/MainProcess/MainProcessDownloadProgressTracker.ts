@@ -24,7 +24,11 @@ export class MainProcessDownloadProgressTracker extends SyncMessenger implements
     });
   }
 
-  async downloadUpdate(name: string, extension: string, progress: { elapsedTime: number; percentage: number }): Promise<void> {
+  async downloadUpdate(
+    name: string,
+    extension: string,
+    progress: { elapsedTime: number; percentage: number },
+  ): Promise<void> {
     broadcastToWindows('sync-info-update', {
       action: 'DOWNLOADING',
       name: this.nameWithExtension(name, extension),

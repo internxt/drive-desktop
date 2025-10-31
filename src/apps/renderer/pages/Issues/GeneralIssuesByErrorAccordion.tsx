@@ -26,17 +26,30 @@ function groupAppIssuesByErrorName(issues: GeneralIssue[]) {
   return Object.entries(appIssuesGroupedByErrorName) as Array<[AppError, Array<GeneralIssue>]>;
 }
 
-function GeneralIssueAccordion({ extend, errorName, issues }: { errorName: AppError; extend: boolean; issues: Array<GeneralIssue> }) {
+function GeneralIssueAccordion({
+  extend,
+  errorName,
+  issues,
+}: {
+  errorName: AppError;
+  extend: boolean;
+  issues: Array<GeneralIssue>;
+}) {
   return (
     <>
       <div className="flex space-x-2.5" key={errorName}>
         <WarnIcon className="h-5 w-5" />
 
-        <h1 className="flex flex-1 flex-col truncate text-base font-medium leading-5 text-gray-100" data-test="sync-issue-name">
+        <h1
+          className="flex flex-1 flex-col truncate text-base font-medium leading-5 text-gray-100"
+          data-test="sync-issue-name">
           {generalErrors.shortMessages[errorName]}
         </h1>
 
-        <CaretDown className={`transform transition-all duration-200 ${extend ? 'rotate-180' : 'rotate-0'}`} size={20} />
+        <CaretDown
+          className={`transform transition-all duration-200 ${extend ? 'rotate-180' : 'rotate-0'}`}
+          size={20}
+        />
       </div>
 
       <AnimatePresence>
@@ -89,7 +102,10 @@ export function GeneralIssuesByErrorAccordion({ issues }: AppIssueElementProps) 
   return (
     <ul>
       {issuesByErrorNameArray.map(([errorName, issues]) => (
-        <li className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5" onClick={toggleOrSelectError(errorName)} key={errorName}>
+        <li
+          className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
+          onClick={toggleOrSelectError(errorName)}
+          key={errorName}>
           <GeneralIssueAccordion extend={isSelected(errorName)} errorName={errorName} issues={issues} />
         </li>
       ))}

@@ -4,7 +4,10 @@ import { components } from '../../../../../infra/schemas';
 import fetch from 'electron-fetch';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
 
-export async function renameFolder(folderUuid: string, newFolderName: string): Promise<Result<components['schemas']['FolderDto'], Error>> {
+export async function renameFolder(
+  folderUuid: string,
+  newFolderName: string,
+): Promise<Result<components['schemas']['FolderDto'], Error>> {
   try {
     const headers = await getNewApiHeadersIPC();
     const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders/${folderUuid}/meta`, {

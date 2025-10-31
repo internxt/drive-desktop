@@ -65,7 +65,11 @@ export const ActionDialog = ({
                 <Button className="w-full" variant="secondary" onClick={onCancel}>
                   {cancelText}
                 </Button>
-                <Button className="w-full" variant={confirmButtonVariant ?? 'danger'} onClick={onConfirm} data-testid={confirmButtonTestId}>
+                <Button
+                  className="w-full"
+                  variant={confirmButtonVariant ?? 'danger'}
+                  onClick={onConfirm}
+                  data-testid={confirmButtonTestId}>
                   {confirmText}
                 </Button>
               </div>

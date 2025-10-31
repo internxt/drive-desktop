@@ -11,8 +11,12 @@ export function CleanupSizeIndicator({ selectedSize, totalSize, segmentDetails }
   return (
     <div className="flex w-1/2 flex-col items-center justify-center bg-surface p-6 dark:bg-gray-5">
       <div className="mb-8 text-center">
-        <p className="text-gray-500 dark:text-gray-400 mb-1 text-sm">{translate('settings.cleaner.sizeIndicatorView.selectCategory')}</p>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">{translate('settings.cleaner.sizeIndicatorView.previewContent')}</p>
+        <p className="text-gray-500 dark:text-gray-400 mb-1 text-sm">
+          {translate('settings.cleaner.sizeIndicatorView.selectCategory')}
+        </p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">
+          {translate('settings.cleaner.sizeIndicatorView.previewContent')}
+        </p>
       </div>
 
       <div className="relative mb-8 h-36 w-64">

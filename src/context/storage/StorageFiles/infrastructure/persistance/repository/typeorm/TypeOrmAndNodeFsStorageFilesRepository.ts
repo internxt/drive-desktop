@@ -76,7 +76,9 @@ export class TypeOrmAndNodeFsStorageFilesRepository implements StorageFilesRepos
   async deleteAll(): Promise<void> {
     const all = await this.db.find();
 
-    const deleted = all.map((att: { id: string }) => new StorageFileId(att.id)).map((id: StorageFileId) => this.delete(id));
+    const deleted = all
+      .map((att: { id: string }) => new StorageFileId(att.id))
+      .map((id: StorageFileId) => this.delete(id));
 
     await Promise.all(deleted);
   }

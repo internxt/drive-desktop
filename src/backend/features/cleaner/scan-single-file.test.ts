@@ -30,7 +30,8 @@ describe('scanSingleFile', () => {
     sizeInBytes: 2048,
   };
 
-  const createMockStats = (isFile = true, size = 0): Stats => ({ isDirectory: () => !isFile, isFile: () => isFile, size }) as Stats;
+  const createMockStats = (isFile = true, size = 0): Stats =>
+    ({ isDirectory: () => !isFile, isFile: () => isFile, size }) as Stats;
 
   beforeEach(() => {
     jest.clearAllMocks();

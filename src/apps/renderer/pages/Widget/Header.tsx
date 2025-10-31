@@ -114,7 +114,15 @@ export default function Header() {
     );
   };
 
-  const DropdownItem = ({ children, active, onClick }: { children: JSX.Element; active?: boolean; onClick?: () => void }) => {
+  const DropdownItem = ({
+    children,
+    active,
+    onClick,
+  }: {
+    children: JSX.Element;
+    active?: boolean;
+    onClick?: () => void;
+  }) => {
     return (
       <button
         className={`w-full cursor-pointer px-4 py-1.5 text-left text-sm text-gray-80 active:bg-gray-10 ${
@@ -134,7 +142,9 @@ export default function Header() {
       <HeaderItemWrapper onClick={() => handleOpenURL('https://drive.internxt.com')}>
         <Globe size={22} />
       </HeaderItemWrapper>
-      <HeaderItemWrapper onClick={() => window.electron.openVirtualDriveFolder()} data-automation-id="openVirtualDriveFolder">
+      <HeaderItemWrapper
+        onClick={() => window.electron.openVirtualDriveFolder()}
+        data-automation-id="openVirtualDriveFolder">
         <FolderSimple size={22} />
       </HeaderItemWrapper>
 
@@ -182,10 +192,15 @@ export default function Header() {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem active={active} onClick={window.electron.openProcessIssuesWindow} data-automation-id="menuItemIssues">
+                      <DropdownItem
+                        active={active}
+                        onClick={window.electron.openProcessIssuesWindow}
+                        data-automation-id="menuItemIssues">
                         <div className="flex items-center justify-between">
                           <p>{translate('widget.header.dropdown.issues')}</p>
-                          {numberOfIssues > 0 && <p className="text-sm font-medium text-red">{numberOfIssuesDisplay}</p>}
+                          {numberOfIssues > 0 && (
+                            <p className="text-sm font-medium text-red">{numberOfIssuesDisplay}</p>
+                          )}
                         </div>
                       </DropdownItem>
                     </div>
@@ -225,7 +240,10 @@ export default function Header() {
                 <Menu.Item>
                   {({ active }) => (
                     <div>
-                      <DropdownItem active={active} onClick={window.electron.logout} data-automation-id="menuItemLogout">
+                      <DropdownItem
+                        active={active}
+                        onClick={window.electron.logout}
+                        data-automation-id="menuItemLogout">
                         <span>{translate('widget.header.dropdown.logout')}</span>
                       </DropdownItem>
                     </div>

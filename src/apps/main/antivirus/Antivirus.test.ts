@@ -125,7 +125,9 @@ describe('Antivirus', () => {
       (antivirus as any).clamAv = mockNodeClam;
       (antivirus as any).isInitialized = true;
 
-      mockNodeClam.isInfected.mockRejectedValueOnce(new Error('connection error')).mockResolvedValueOnce(mockScanResult);
+      mockNodeClam.isInfected
+        .mockRejectedValueOnce(new Error('connection error'))
+        .mockResolvedValueOnce(mockScanResult);
 
       const result = await antivirus.scanFileWithRetry('/path/to/file.txt');
 

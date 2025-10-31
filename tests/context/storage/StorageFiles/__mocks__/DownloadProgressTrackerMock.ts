@@ -10,7 +10,11 @@ export class DownloadProgressTrackerMock implements DownloadProgressTracker {
     return this.downloadStartedMock(name, extension, size);
   }
 
-  downloadUpdate(name: string, extension: string, progress: { elapsedTime: number; percentage: number }): Promise<void> {
+  downloadUpdate(
+    name: string,
+    extension: string,
+    progress: { elapsedTime: number; percentage: number },
+  ): Promise<void> {
     return this.downloadUpdateMock(name, extension, progress);
   }
 

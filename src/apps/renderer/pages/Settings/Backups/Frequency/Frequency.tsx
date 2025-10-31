@@ -40,7 +40,12 @@ export function Frequency() {
   return (
     <section>
       <SectionHeader>{translate('settings.backups.frequency.title')}</SectionHeader>
-      <Select options={intervals} value={backupsInterval.toString()} onValueChange={onStringValueChange} disabled={!userCanBackup} />
+      <Select
+        options={intervals}
+        value={backupsInterval.toString()}
+        onValueChange={onStringValueChange}
+        disabled={!userCanBackup}
+      />
       {backupsInterval === BACKUP_MANUAL_INTERVAL && (
         <p className="mt-1 text-xs text-gray-50">{translate('settings.backups.frequency.manual-warning')}</p>
       )}

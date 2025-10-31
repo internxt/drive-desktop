@@ -36,6 +36,8 @@ describe('Help', () => {
 
     fireEvent.click(screen.getByText('settings.backups.backups-help'));
 
-    expect(mockOpenUrl).toHaveBeenCalledWith('https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive');
+    expect(mockOpenUrl).toHaveBeenCalledWith(
+      'https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive',
+    );
   });
 });

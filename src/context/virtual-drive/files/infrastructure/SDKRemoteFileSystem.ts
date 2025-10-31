@@ -55,11 +55,16 @@ export class SDKRemoteFileSystem implements RemoteFileSystem {
       }
       if (errorCause === 'FILE_ALREADY_EXISTS') {
         return left(
-          new DriveDesktopError('FILE_ALREADY_EXISTS', `File with name ${plainName} on ${dataToPersists.folderId.value} already exists`),
+          new DriveDesktopError(
+            'FILE_ALREADY_EXISTS',
+            `File with name ${plainName} on ${dataToPersists.folderId.value} already exists`,
+          ),
         );
       }
       if (errorCause === 'SERVER_ERROR') {
-        return left(new DriveDesktopError('BAD_RESPONSE', `The server could not handle the creation of ${plainName}: ${body}`));
+        return left(
+          new DriveDesktopError('BAD_RESPONSE', `The server could not handle the creation of ${plainName}: ${body}`),
+        );
       }
     }
     return left(new DriveDesktopError('UNKNOWN', `Creating file ${plainName}: ${response.error}`));

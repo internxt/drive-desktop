@@ -2,7 +2,14 @@ import { FileVersionOneError } from '@internxt/sdk/dist/network/download';
 import { FlatFolderZip } from './zip.service';
 import { items } from '@internxt/lib';
 import fs, { PathLike } from 'fs';
-import { FileInfo, getFileInfoWithAuth, getFileInfoWithToken, getMirrors, Mirror, NetworkCredentials } from './requests';
+import {
+  FileInfo,
+  getFileInfoWithAuth,
+  getFileInfoWithToken,
+  getMirrors,
+  Mirror,
+  NetworkCredentials,
+} from './requests';
 import { GenerateFileKey } from '@internxt/inxt-js/build/lib/utils/crypto';
 import { createDecipheriv, Decipher } from 'crypto';
 import downloadFileV2 from './downloadv2';
@@ -49,7 +56,8 @@ export async function downloadFolderAsZip(
       path: string;
       data: FolderTree;
     };
-    const folderPath = currentFolder.path + (currentFolder.path === '' ? '' : '/') + folderDecryptedNames[currentFolder.data.id];
+    const folderPath =
+      currentFolder.path + (currentFolder.path === '' ? '' : '/') + folderDecryptedNames[currentFolder.data.id];
 
     zip.addFolder(folderPath);
 
@@ -242,7 +250,10 @@ async function getFileDownloadStream(
   return getDecryptedStream(encryptedContentParts, decipher);
 }
 
-export function buildProgressStream(source: ReadableStream<Uint8Array>, onRead: (readBytes: number) => void): ReadableStream<Uint8Array> {
+export function buildProgressStream(
+  source: ReadableStream<Uint8Array>,
+  onRead: (readBytes: number) => void,
+): ReadableStream<Uint8Array> {
   const reader = source.getReader();
   let readBytes = 0;
 
@@ -304,7 +315,10 @@ function joinReadableBinaryStreams(streams: ReadableStream<Uint8Array>[]): Reada
   return stream;
 }
 
-export function getDecryptedStream(encryptedContentSlices: ReadableStream<Uint8Array>[], decipher: Decipher): ReadableStream<Uint8Array> {
+export function getDecryptedStream(
+  encryptedContentSlices: ReadableStream<Uint8Array>[],
+  decipher: Decipher,
+): ReadableStream<Uint8Array> {
   const encryptedStream = joinReadableBinaryStreams(encryptedContentSlices);
 
   let keepReading = true;

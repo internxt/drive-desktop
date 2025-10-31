@@ -241,7 +241,9 @@ describe('BackupService', () => {
     localTreeBuilder.run.mockResolvedValueOnce(right(localTree));
     remoteTreeBuilder.run.mockResolvedValueOnce(remoteTree);
     mockValidateSpace.mockResolvedValueOnce({ data: { hasSpace: true } });
-    backupsDanglingFilesService.handleDanglingFilesOnBackup.mockResolvedValueOnce(new Map([[danglingFile, remoteFile]]));
+    backupsDanglingFilesService.handleDanglingFilesOnBackup.mockResolvedValueOnce(
+      new Map([[danglingFile, remoteFile]]),
+    );
 
     const originalCalculate = DiffFilesCalculatorService.calculate;
     DiffFilesCalculatorService.calculate = jest.fn(() => fakeDiff);
@@ -252,6 +254,11 @@ describe('BackupService', () => {
 
     expect(result).toBeUndefined();
     expect(backupsDanglingFilesService.handleDanglingFilesOnBackup).toHaveBeenCalledWith(fakeDiff.dangling);
-    expect(fileBatchUpdater.run).toHaveBeenCalledWith(localTree.root, remoteTree, [danglingFile], abortController.signal);
+    expect(fileBatchUpdater.run).toHaveBeenCalledWith(
+      localTree.root,
+      remoteTree,
+      [danglingFile],
+      abortController.signal,
+    );
   });
 });

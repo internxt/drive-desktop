@@ -58,7 +58,9 @@ export default function Settings() {
                 minWidth: 600,
                 minHeight: subsection === 'list' ? 0 : 420,
               }}>
-              {subsection === 'list' && activeSection === 'BACKUPS' && <BackupFolderSelector onClose={() => setSubsection('panel')} />}
+              {subsection === 'list' && activeSection === 'BACKUPS' && (
+                <BackupFolderSelector onClose={() => setSubsection('panel')} />
+              )}
               {SHOW_ANTIVIRUS_TOOL && subsection === 'list' && activeSection === 'ANTIVIRUS' && (
                 <RemoveMalwareState onCancel={() => setSubsection('panel')} />
               )}

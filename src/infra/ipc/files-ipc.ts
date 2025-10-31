@@ -26,7 +26,10 @@ export async function createFileIPC(
  * @param params - The file UUID and destination folder UUID
  * @returns Promise resolving to the operation result
  */
-export async function moveFileIPC(params: { uuid: string; destinationFolder: string }): Promise<Result<boolean, FileError>> {
+export async function moveFileIPC(params: {
+  uuid: string;
+  destinationFolder: string;
+}): Promise<Result<boolean, FileError>> {
   if (isMainProcess) {
     const { moveFile } = await import('../drive-server/services/files/services/move-file');
     return await moveFile(params);
@@ -60,9 +63,14 @@ export async function renameFileIPC(params: {
  * @param params - The bucket ID and file ID to delete
  * @returns Promise resolving to true if deletion was successful
  */
-export async function deleteFileContentIPC(params: { bucketId: string; fileId: string }): Promise<Result<boolean, Error>> {
+export async function deleteFileContentIPC(params: {
+  bucketId: string;
+  fileId: string;
+}): Promise<Result<boolean, Error>> {
   if (isMainProcess) {
-    const { deleteFileFromStorageByFileId } = await import('../drive-server/services/files/services/delete-file-content-from-bucket');
+    const { deleteFileFromStorageByFileId } = await import(
+      '../drive-server/services/files/services/delete-file-content-from-bucket'
+    );
     return await deleteFileFromStorageByFileId(params);
   } else {
     const { ipcRenderer } = await import('electron');

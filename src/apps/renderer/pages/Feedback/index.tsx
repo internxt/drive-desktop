@@ -81,7 +81,10 @@ export default function Feedback() {
                   })}
                 </span>
 
-                <Button onClick={handleSubmit} disabled={feedbackText.length === 0 || tooMuchCharacters || loading} variant="primary">
+                <Button
+                  onClick={handleSubmit}
+                  disabled={feedbackText.length === 0 || tooMuchCharacters || loading}
+                  variant="primary">
                   {translate('feedback.send-feedback')}
                 </Button>
               </div>

@@ -6,7 +6,15 @@ export class FileRenameStartedDomainEvent extends DomainEvent {
   private oldName: string;
   private nameWithExtension: string;
 
-  constructor({ aggregateId, oldName, nameWithExtension }: { aggregateId: string; oldName: string; nameWithExtension: string }) {
+  constructor({
+    aggregateId,
+    oldName,
+    nameWithExtension,
+  }: {
+    aggregateId: string;
+    oldName: string;
+    nameWithExtension: string;
+  }) {
     super({
       eventName: FileRenameStartedDomainEvent.EVENT_NAME,
       aggregateId,
