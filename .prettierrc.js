@@ -3,7 +3,7 @@ module.exports = {
   bracketSameLine: true,
   bracketSpacing: true,
   endOfLine: 'lf',
-  plugins: [require.resolve('prettier-plugin-tailwindcss')],
+  plugins: ['prettier-plugin-tailwindcss'],
   printWidth: 140,
   proseWrap: 'never',
   semi: true,
