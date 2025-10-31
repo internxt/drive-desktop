@@ -30,7 +30,7 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   }
 
   if (stats.isFile()) {
-    const { data: fileInfo, error } = NodeWin.getFileInfo({ ctx, path });
+    const { data: fileInfo, error } = NodeWin.getFileInfo({ ctx, path: absolutePath });
 
     if (fileInfo) {
       const { uuid, pinState } = fileInfo;

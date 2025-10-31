@@ -1,4 +1,4 @@
-import { join } from 'node:path';
+import { join, posix, win32 } from 'node:path';
 import { BindingsManager } from '../BindingManager';
 import { loggerMock, TEST_FILES } from 'tests/vitest/mocks.helper.test';
 import { v4 } from 'uuid';
@@ -18,6 +18,7 @@ import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
 import { buildProcessContainer } from '../build-process-container';
 import { PinState } from '@/node-win/types/placeholder.type';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -34,7 +35,8 @@ describe('create-placeholder', () => {
 
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
-  const rootPath = join(testFolder, 'root');
+  const rootPath = createAbsolutePath(testFolder, 'root');
+  const syncRootPath = rootPath.replaceAll(posix.sep, win32.sep);
   const file = join(rootPath, 'file.txt');
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 
@@ -130,10 +132,10 @@ describe('create-placeholder', () => {
     call(onAllMock).toStrictEqual({ event: 'add', path: file });
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
-      { msg: 'Registering sync root', syncRootPath: rootPath },
+      { msg: 'Registering sync root', syncRootPath },
       { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },
       { tag: 'SYNC-ENGINE', msg: 'Tree built', workspaceId: '', files: 0, folders: 1, trashedFiles: 0, trashedFolders: 0 },
-      { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath },
+      { tag: 'SYNC-ENGINE', msg: 'Load in memory paths', rootPath: syncRootPath },
       { msg: 'onReady' },
       { msg: 'Create file', path: '/file.txt' },
       { tag: 'SYNC-ENGINE', msg: 'File uploaded', path: '/file.txt', contentsId: '012345678901234567890123', size: 7 },
