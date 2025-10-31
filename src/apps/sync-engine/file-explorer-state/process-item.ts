@@ -30,10 +30,10 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   }
 
   if (stats.isFile()) {
-    const { data: uuid, error } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path });
+    const { data: fileInfo, error } = NodeWin.getFileInfo({ ctx, path: absolutePath });
 
-    if (uuid) {
-      const { pinState } = ctx.virtualDrive.getPlaceholderState({ path });
+    if (fileInfo) {
+      const { uuid, pinState } = fileInfo;
       const localFile = { ...pendingFileExplorerItem, uuid };
 
       if (isHydrationPending({ stats, pinState })) {

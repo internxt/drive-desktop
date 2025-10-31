@@ -33,6 +33,7 @@
     "test": "vitest",
     "test:one": "vitest --watch related x",
     "test:infra": "vitest --config vitest.config.infra.mts",
+    "test:infra:one": "vitest --config vitest.config.infra.mts --watch related x",
     "test:renderer": "vitest --config vitest.config.renderer.mts",
     "test:renderer:one": "vitest --config vitest.config.renderer.mts --watch related x",
     "coverage:merge": "lcov-result-merger 'coverage/*/lcov.info' 'coverage/lcov.info'",

@@ -18,6 +18,7 @@ import * as onAll from '@/node-win/watcher/events/on-all.service';
 import * as addPendingItems from '../in/add-pending-items';
 import { buildProcessContainer } from '../build-process-container';
 import { PinState } from '@/node-win/types/placeholder.type';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 
 vi.mock(import('@/apps/main/auth/service'));
 vi.mock(import('@/infra/inxt-js/file-uploader/environment-file-uploader'));
@@ -34,7 +35,7 @@ describe('create-placeholder', () => {
 
   const rootFolderUuid = v4();
   const testFolder = join(TEST_FILES, v4());
-  const rootPath = join(testFolder, 'root');
+  const rootPath = createAbsolutePath(testFolder, 'root');
   const file = join(rootPath, 'file.txt');
   const providerId = `{${rootFolderUuid.toUpperCase()}}`;
 

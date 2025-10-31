@@ -12,7 +12,7 @@ import * as throttleHydrate from '@/apps/sync-engine/callbacks/handle-hydrate';
 import { detectContextMenuAction } from './detect-context-menu-action.service';
 
 describe('detect-context-menu-action', () => {
-  const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
+  const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const handleDehydrateMock = partialSpyOn(handleDehydrate, 'handleDehydrate');
   const updateContentsIdMock = partialSpyOn(updateContentsId, 'updateContentsId');
   const throttleHydrateMock = partialSpyOn(throttleHydrate, 'throttleHydrate');
@@ -21,7 +21,6 @@ describe('detect-context-menu-action', () => {
   let props: Parameters<typeof detectContextMenuAction>[0];
 
   beforeEach(() => {
-    getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
     props = mockProps<typeof detectContextMenuAction>({
       ctx: { virtualDrive },
       absolutePath: 'absolutePath' as AbsolutePath,
@@ -41,7 +40,7 @@ describe('detect-context-menu-action', () => {
 
   it('should update contents id when file modification time changes', async () => {
     // Given
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
+    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     props.details.curr.mtimeMs = 2;
     // When
     await detectContextMenuAction(props);
@@ -60,7 +59,7 @@ describe('detect-context-menu-action', () => {
   it('should dehydrate when pin state is online only', async () => {
     // Given
     props.self.fileInDevice.add(props.absolutePath);
-    virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.OnlineOnly });
+    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
     // When
     await detectContextMenuAction(props);
     // Then
@@ -71,7 +70,7 @@ describe('detect-context-menu-action', () => {
 
   describe('what happens when hydrate event', () => {
     beforeEach(() => {
-      virtualDrive.getPlaceholderState.mockReturnValue({ pinState: PinState.AlwaysLocal });
+      getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     });
 
     it('should enqueue file for hydrate', async () => {

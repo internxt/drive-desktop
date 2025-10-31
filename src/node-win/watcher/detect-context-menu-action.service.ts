@@ -22,23 +22,22 @@ type TProps = {
 export async function detectContextMenuAction({ ctx, self, details, absolutePath, path }: TProps) {
   const { prev, curr } = details;
 
-  const { data: uuid } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path });
-  const { pinState } = ctx.virtualDrive.getPlaceholderState({ path });
+  const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path: absolutePath });
   const isInDevice = self.fileInDevice.has(absolutePath);
 
   const diff = getStatsDiff({ prev, curr });
 
-  self.logger.debug({ msg: 'Change event triggered', path, pinState, diff });
+  self.logger.debug({ msg: 'Change event triggered', path, pinState: fileInfo?.pinState, diff });
 
-  if (!uuid) return;
+  if (!fileInfo) return;
 
-  if (prev.mtimeMs !== curr.mtimeMs && pinState === PinState.AlwaysLocal) {
+  if (prev.mtimeMs !== curr.mtimeMs && fileInfo.pinState === PinState.AlwaysLocal) {
     self.fileInDevice.add(absolutePath);
-    await updateContentsId({ ctx, stats: curr, path, absolutePath, uuid });
+    await updateContentsId({ ctx, stats: curr, path, absolutePath, uuid: fileInfo.uuid });
     return;
   }
 
-  if (prev.ctimeMs !== curr.ctimeMs && pinState === PinState.AlwaysLocal && !isInDevice) {
+  if (prev.ctimeMs !== curr.ctimeMs && fileInfo.pinState === PinState.AlwaysLocal && !isInDevice) {
     self.fileInDevice.add(absolutePath);
 
     if (curr.blocks === 0) {
@@ -48,7 +47,7 @@ export async function detectContextMenuAction({ ctx, self, details, absolutePath
     }
   }
 
-  if (prev.ctimeMs !== curr.ctimeMs && pinState === PinState.OnlineOnly) {
+  if (prev.ctimeMs !== curr.ctimeMs && fileInfo.pinState === PinState.OnlineOnly) {
     self.fileInDevice.delete(absolutePath);
     handleDehydrate({ drive: ctx.virtualDrive, path });
   }

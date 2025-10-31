@@ -4,7 +4,7 @@ import { Addon, DependencyInjectionAddonProvider } from './addon-wrapper';
 import { Callbacks } from './types/callbacks.type';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
-import { AbsolutePath, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
@@ -92,7 +92,7 @@ export class VirtualDrive {
     creationTime,
     lastWriteTime,
   }: {
-    itemPath: RelativePath;
+    itemPath: string;
     placeholderId: FilePlaceholderId;
     size: number;
     creationTime: number;
@@ -123,7 +123,7 @@ export class VirtualDrive {
     creationTime,
     lastWriteTime,
   }: {
-    itemPath: RelativePath;
+    itemPath: string;
     placeholderId: FolderPlaceholderId;
     creationTime: number;
     lastWriteTime: number;
