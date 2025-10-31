@@ -4,7 +4,7 @@ import { addon } from '@/node-win/addon';
 
 import { VirtualDrive } from './virtual-drive';
 import { iconPath } from '@/apps/utils/icon';
-import { createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
+import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { call } from '@/tests/vitest/utils.helper.test';
 
@@ -14,7 +14,7 @@ vi.mock(import('@/node-win/addon'));
 describe('VirtualDrive', () => {
   const addonMock = vi.mocked(addon);
 
-  const rootPath = 'C:/Users/user/InternxtDrive';
+  const rootPath = createAbsolutePath('C:/Users/user/InternxtDrive');
   const loggerPath = 'C:/Users/user/InternxtDrive/logs';
   const providerId = v4();
 
@@ -85,7 +85,7 @@ describe('VirtualDrive', () => {
       // When
       drive.createFileByPath({
         placeholderId: 'FILE:uuid',
-        itemPath: createRelativePath('folder1', 'folder2', 'file.txt'),
+        path: createAbsolutePath(rootPath, 'folder1', 'folder2', 'file.txt'),
         creationTime,
         lastWriteTime,
         size: 1024,
@@ -99,7 +99,7 @@ describe('VirtualDrive', () => {
         946684800000,
         946771200000,
         expect.any(Number),
-        'C:\\Users\\user\\InternxtDrive\\folder1\\folder2',
+        'C:/Users/user/InternxtDrive/folder1/folder2',
       ]);
     });
   });
@@ -114,7 +114,7 @@ describe('VirtualDrive', () => {
       // When
       drive.createFolderByPath({
         placeholderId: 'FOLDER:uuid',
-        itemPath: createRelativePath('folder1', 'folder2'),
+        path: createAbsolutePath(rootPath, 'folder1', 'folder2'),
         creationTime,
         lastWriteTime,
       });

@@ -33,12 +33,12 @@ describe('get-file-info', () => {
 
   it('should return file info when read a file placeholder', () => {
     // Given
-    const itemPath = createAbsolutePath(rootPath, v4());
+    const path = createAbsolutePath(rootPath, v4());
     const uuid = v4();
     const placeholderId: FilePlaceholderId = `FILE:${uuid}`;
-    props.path = itemPath;
+    props.path = path;
 
-    virtualDrive.createFileByPath({ itemPath, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
+    virtualDrive.createFileByPath({ path, placeholderId, size: 10, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFileInfo(props);
     // Then
@@ -48,12 +48,12 @@ describe('get-file-info', () => {
 
   it('should return error NOT_A_FILE when read a folder placeholder', () => {
     // Given
-    const itemPath = createAbsolutePath(rootPath, v4());
+    const path = createAbsolutePath(rootPath, v4());
     const uuid = v4();
     const placeholderId: FolderPlaceholderId = `FOLDER:${uuid}`;
-    props.path = itemPath;
+    props.path = path;
 
-    virtualDrive.createFolderByPath({ itemPath, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
+    virtualDrive.createFolderByPath({ path, placeholderId, creationTime: Date.now(), lastWriteTime: Date.now() });
     // When
     const { data, error } = getFileInfo(props);
     // Then
