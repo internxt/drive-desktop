@@ -443,7 +443,8 @@
           "title": "Nettoyage...",
           "stopCleanButton": "Arrêter le nettoyage",
           "deletedFiles": "Fichiers supprimés",
-          "freeSpaceGained": "Espace libre gagné"
+          "freeSpaceGained": "Espace libre gagné",
+          "skippedFiles": "Fichiers ignorés"
         },
         "cleaningFinished": {
           "title": "Votre appareil est propre",

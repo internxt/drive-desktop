@@ -6,6 +6,7 @@ type Props = {
   currentCleaningPath: string;
   cleanedProgress: number;
   deletedFiles: number;
+  skippedFiles: number;
   freeSpaceGained: string;
   onStopCleaning: () => void;
 };
@@ -14,6 +15,7 @@ export default function CleaningProcess({
   currentCleaningPath,
   cleanedProgress,
   deletedFiles,
+  skippedFiles,
   freeSpaceGained,
   onStopCleaning,
 }: Props) {
@@ -32,6 +34,7 @@ export default function CleaningProcess({
       <ProgresBar progress={cleanedProgress} />
       <CleanedFilesContainer
         deletedFiles={deletedFiles}
+        skippedFiles={skippedFiles}
         freeSpaceGained={freeSpaceGained}
       />
       <Button

@@ -89,6 +89,7 @@ export type CleanupProgress = {
   currentCleaningPath: string;
   progress: number;
   deletedFiles: number;
+  skippedFiles: number;
   spaceGained: number;
   cleaning: boolean;
   cleaningCompleted: boolean;

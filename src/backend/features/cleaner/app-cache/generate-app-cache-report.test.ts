@@ -3,7 +3,7 @@ import { scanDirectory } from '../scan-directory';
 import { getAppCachePaths } from './get-app-cache-paths';
 import { scanSubDirectory } from '../scan-subdirectory';
 import { appCacheFileFilter } from './utils/is-safe-cache-file';
-import { isDirectoryWebBrowserRelated } from '../utils/is-directory-web-browser-related';
+import { isDirectoryWebBrowserRelated } from './utils/is-directory-web-browser-related';
 
 jest.mock('../scan-directory');
 jest.mock('./get-app-cache-paths');

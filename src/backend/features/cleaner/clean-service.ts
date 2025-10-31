@@ -10,6 +10,7 @@ let currentAbortController: AbortController | null = null;
 let totalFilesToDelete = 0;
 let deletedFilesCount = 0;
 let totalSpaceGained = 0;
+let skippedFilesCount = 0;
 
 /**
  * Send progress update to renderer
@@ -79,6 +80,7 @@ export async function startCleanup(viewModel: CleanerViewModel): Promise<void> {
     currentCleaningPath: '',
     progress: 0,
     deletedFiles: 0,
+    skippedFiles: 0,
     spaceGained: 0,
     cleaning: true,
     cleaningCompleted: false,
@@ -98,6 +100,8 @@ export async function startCleanup(viewModel: CleanerViewModel): Promise<void> {
     if (result.success) {
       deletedFilesCount++;
       totalSpaceGained += result.size;
+    } else {
+      skippedFilesCount++;
     }
 
     // 2. Emit progress after each deletion attempt
@@ -106,6 +110,7 @@ export async function startCleanup(viewModel: CleanerViewModel): Promise<void> {
       currentCleaningPath: item.fileName,
       progress,
       deletedFiles: deletedFilesCount,
+      skippedFiles: skippedFilesCount,
       spaceGained: totalSpaceGained,
       cleaning: true,
       cleaningCompleted: false,
@@ -118,6 +123,7 @@ export async function startCleanup(viewModel: CleanerViewModel): Promise<void> {
     progress: 100,
     deletedFiles: deletedFilesCount,
     spaceGained: totalSpaceGained,
+    skippedFiles: skippedFilesCount,
     cleaning: false,
     cleaningCompleted: true,
   });
@@ -125,6 +131,7 @@ export async function startCleanup(viewModel: CleanerViewModel): Promise<void> {
   logger.debug({
     msg: 'Cleanup process finished',
     deletedFiles: deletedFilesCount,
+    skippedFiles: skippedFilesCount,
     totalFiles: totalFilesToDelete,
   });
 

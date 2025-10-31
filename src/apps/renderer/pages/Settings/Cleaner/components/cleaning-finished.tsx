@@ -5,11 +5,13 @@ import CleanedFilesContainer from './cleaned-files-containter';
 
 type Props = {
   deletedFiles: number;
+  skippedFiles: number;
   freeSpaceGained: string;
   onFinish: () => void;
 };
 export default function CleaningFinished({
   deletedFiles,
+  skippedFiles,
   freeSpaceGained,
   onFinish,
 }: Props) {
@@ -32,6 +34,7 @@ export default function CleaningFinished({
       </div>
       <CleanedFilesContainer
         deletedFiles={deletedFiles}
+        skippedFiles={skippedFiles}
         freeSpaceGained={freeSpaceGained}
       />
       <Button

@@ -449,7 +449,8 @@
           "title": "Cleaning...",
           "stopCleanButton": "Stop clean",
           "deletedFiles": "Deleted files",
-          "freeSpaceGained": "Free space gained"
+          "freeSpaceGained": "Free space gained",
+          "skippedFiles": "Skipped files"
         },
         "cleaningFinished": {
           "title": "Your device is clean",

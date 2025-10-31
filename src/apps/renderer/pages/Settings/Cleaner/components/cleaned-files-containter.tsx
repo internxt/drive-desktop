@@ -1,10 +1,12 @@
 import { useTranslationContext } from '../../../../context/LocalContext';
 type Props = {
   deletedFiles: number;
+  skippedFiles: number;
   freeSpaceGained: string;
 };
 export default function CleanedFilesContainer({
   deletedFiles,
+  skippedFiles,
   freeSpaceGained,
 }: Props) {
   const { translate } = useTranslationContext();
@@ -16,6 +18,15 @@ export default function CleanedFilesContainer({
           <p>
             {translate(
               'settings.cleaner.cleaningView.cleaningProcess.deletedFiles'
+            )}
+          </p>
+        </div>
+        <div className="flex flex-col border border-gray-10" />
+        <div className="flex w-full max-w-[248px] flex-col items-center justify-center gap-1 text-center">
+          <p>{skippedFiles}</p>
+          <p>
+            {translate(
+              'settings.cleaner.cleaningView.cleaningProcess.skippedFiles'
             )}
           </p>
         </div>
