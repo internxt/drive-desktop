@@ -15,14 +15,14 @@ export async function restoreParentFolder({ ctx, offline }: TProps) {
   const targetFolderName = path.posix.basename(posixDir);
   const grandParentFolder = pathUtils.dirname(posixDir);
 
-  const { data: parentFolderInfo } = NodeWin.getFolderInfo({ ctx, path: grandParentFolder });
+  const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: grandParentFolder });
 
-  if (!parentFolderInfo) {
+  if (!parentInfo) {
     throw logger.error({ msg: 'Could not restore parent folder, parentUuid not found', path: offline.path });
   }
 
   const { error } = await driveServerWip.folders.move({
-    parentUuid: parentFolderInfo.uuid,
+    parentUuid: parentInfo.uuid,
     name: targetFolderName,
     workspaceToken: ctx.workspaceToken,
     uuid: offline.folderUuid,

@@ -17,11 +17,11 @@ export async function moveItem({ ctx, path, itemName, uuid, item, type }: TProps
   const parentPath = pathUtils.dirname(path);
   const name = basename(path);
 
-  const { data: parentFolderInfo, error } = NodeWin.getFolderInfo({ ctx, path: parentPath });
+  const { data: parentInfo, error } = NodeWin.getFolderInfo({ ctx, path: parentPath });
 
   if (error) throw error;
 
-  const { uuid: parentUuid } = parentFolderInfo;
+  const { uuid: parentUuid } = parentInfo;
 
   // Neither move nor renamed
   if (item.parentUuid === parentUuid && itemName === name) return;

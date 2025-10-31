@@ -14,15 +14,15 @@ type TProps = {
 export class FolderCreator {
   static async run({ ctx, path }: TProps) {
     const posixDir = pathUtils.dirname(path);
-    const { data: parentFolderInfo } = NodeWin.getFolderInfo({ ctx, path: posixDir });
+    const { data: parentInfo } = NodeWin.getFolderInfo({ ctx, path: posixDir });
 
-    if (!parentFolderInfo) {
+    if (!parentInfo) {
       throw new FolderNotFoundError(posixDir);
     }
 
     const folderDto = await HttpRemoteFolderSystem.persist({
       ctx,
-      parentUuid: parentFolderInfo.uuid,
+      parentUuid: parentInfo.uuid,
       plainName: posix.basename(path),
       path,
     });
