@@ -14,7 +14,7 @@ type TProps = {
 };
 
 export function getFileIdentity({ drive, path }: TProps) {
-  const identity = 'FILE:tmp';
+  const identity = drive.getFileIdentity({ path });
   const isFile = isFilePlaceholderId(identity);
 
   if (!identity) {

@@ -14,7 +14,7 @@ type TProps = {
 };
 
 export function getFolderIdentity({ drive, path }: TProps) {
-  const identity = 'FOLDER:tmp';
+  const identity = drive.getFileIdentity({ path });
   const isFolder = isFolderPlaceholderId(identity);
 
   if (!identity) {

@@ -30,6 +30,7 @@ type TAddon = {
   connectSyncRoot(path: string, callbacks: Callbacks): z.infer<typeof addonZod.connectSyncRoot>;
   convertToPlaceholder(path: string, id: string): z.infer<typeof addonZod.convertToPlaceholder>;
   disconnectSyncRoot(path: string): z.infer<typeof addonZod.disconnectSyncRoot>;
+  getFileIdentity(path: string): z.infer<typeof addonZod.getFileIdentity>;
   getPlaceholderState(path: string): z.infer<typeof addonZod.getPlaceholderState>;
   registerSyncRoot(
     syncRootPath: string,

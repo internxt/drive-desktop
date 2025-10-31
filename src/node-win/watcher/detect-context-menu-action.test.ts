@@ -58,8 +58,8 @@ describe('detect-context-menu-action', () => {
 
   it('should dehydrate when pin state is online only', async () => {
     // Given
-    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
     props.self.fileInDevice.add(props.absolutePath);
+    getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
     // When
     await detectContextMenuAction(props);
     // Then

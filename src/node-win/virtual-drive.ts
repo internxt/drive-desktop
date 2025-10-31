@@ -51,6 +51,10 @@ export class VirtualDrive {
     }
   }
 
+  getFileIdentity({ path }: { path: string }) {
+    return this.addon.getFileIdentity({ path: this.fixPath(path) });
+  }
+
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
     const connectionKey = this.addon.connectSyncRoot({ callbacks });
 
