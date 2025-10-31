@@ -35,7 +35,7 @@ export async function syncRemoteChangesToLocal({ remote, local, virtualDrive }: 
       }
 
       virtualDrive.createFileByPath({
-        path: remote.absolutePath,
+        itemPath: remote.path,
         placeholderId: `FILE:${remote.uuid}`,
         size: remote.size,
         creationTime: new Date(remote.createdAt).getTime(),

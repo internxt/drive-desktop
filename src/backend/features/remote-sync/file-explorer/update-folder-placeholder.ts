@@ -8,7 +8,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FolderPlaceholderUpdater {
   static async update({ ctx, remote, folders }: { ctx: ProcessSyncContext; remote: ExtendedDriveFolder; folders: InMemoryFolders }) {
-    const { path, absolutePath } = remote;
+    const { path } = remote;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
@@ -19,7 +19,7 @@ export class FolderPlaceholderUpdater {
 
       if (!localPath) {
         ctx.virtualDrive.createFolderByPath({
-          path: absolutePath,
+          itemPath: path,
           placeholderId: `FOLDER:${remote.uuid}`,
           creationTime: new Date(remote.createdAt).getTime(),
           lastWriteTime: new Date(remote.updatedAt).getTime(),

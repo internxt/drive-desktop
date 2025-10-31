@@ -86,19 +86,21 @@ export class VirtualDrive {
   }
 
   createFileByPath({
-    path,
+    itemPath,
     placeholderId,
     size,
     creationTime,
     lastWriteTime,
   }: {
-    path: AbsolutePath;
+    itemPath: string;
     placeholderId: FilePlaceholderId;
     size: number;
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Creating file placeholder', path });
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Creating file placeholder', itemPath });
+
+    const path = this.fixPath(itemPath);
 
     try {
       return this.addon.createFilePlaceholder({
@@ -116,17 +118,19 @@ export class VirtualDrive {
   }
 
   createFolderByPath({
-    path,
+    itemPath,
     placeholderId,
     creationTime,
     lastWriteTime,
   }: {
-    path: AbsolutePath;
+    itemPath: string;
     placeholderId: FolderPlaceholderId;
     creationTime: number;
     lastWriteTime: number;
   }) {
-    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Creating folder placeholder', path });
+    logger.debug({ tag: 'SYNC-ENGINE', msg: 'Creating folder placeholder', itemPath });
+
+    const path = this.fixPath(itemPath);
 
     try {
       return this.addon.createFolderPlaceholder({
@@ -138,7 +142,7 @@ export class VirtualDrive {
         parentPath: dirname(path),
       });
     } catch (error) {
-      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error creating folder placeholder', path, error });
+      logger.error({ tag: 'SYNC-ENGINE', msg: 'Error creating folder placeholder', itemPath, error });
     }
   }
 

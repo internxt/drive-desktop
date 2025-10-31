@@ -9,7 +9,7 @@ import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
 export class FilePlaceholderUpdater {
   static async update({ ctx, remote, files }: { ctx: ProcessSyncContext; remote: ExtendedDriveFile; files: InMemoryFiles }) {
-    const { path, absolutePath } = remote;
+    const { path } = remote;
 
     try {
       const { isValid } = validateWindowsName({ path, name: remote.name });
@@ -20,7 +20,7 @@ export class FilePlaceholderUpdater {
 
       if (!localPath) {
         ctx.virtualDrive.createFileByPath({
-          path: absolutePath,
+          itemPath: path,
           placeholderId: `FILE:${remote.uuid}`,
           size: remote.size,
           creationTime: new Date(remote.createdAt).getTime(),
