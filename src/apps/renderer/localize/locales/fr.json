@@ -444,7 +444,8 @@
           "stopCleanButton": "Arrêter le nettoyage",
           "deletedFiles": "Fichiers supprimés",
           "freeSpaceGained": "Espace libre gagné",
-          "skippedFiles": "Fichiers ignorés"
+          "skippedFiles": "Fichiers ignorés",
+          "skippedFilesTooltip": "Fichiers qui n'ont pas pu être supprimés car ils sont en cours d'utilisation ou sont des fichiers système protégés"
         },
         "cleaningFinished": {
           "title": "Votre appareil est propre",

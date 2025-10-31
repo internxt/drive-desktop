@@ -449,7 +449,8 @@
           "stopCleanButton": "Detener limpieza",
           "deletedFiles": "Archivos eliminados",
           "freeSpaceGained": "Espacio libre ganado",
-          "skippedFiles": "Archivos omitidos"
+          "skippedFiles": "Archivos omitidos",
+          "skippedFilesTooltip": "Archivos que no se pudieron eliminar porque están en uso o son archivos del sistema protegidos"
         },
         "cleaningFinished": {
           "title": "Tu dispositivo está limpio",

@@ -450,7 +450,8 @@
           "stopCleanButton": "Stop clean",
           "deletedFiles": "Deleted files",
           "freeSpaceGained": "Free space gained",
-          "skippedFiles": "Skipped files"
+          "skippedFiles": "Skipped files",
+          "skippedFilesTooltip": "Files that couldn't be deleted because they are in use or are protected system files"
         },
         "cleaningFinished": {
           "title": "Your device is clean",
