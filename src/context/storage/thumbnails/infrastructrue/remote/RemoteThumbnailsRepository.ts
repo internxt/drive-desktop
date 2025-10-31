@@ -7,6 +7,7 @@ import { ThumbnailCollection } from '../../domain/ThumbnailCollection';
 import { ThumbnailsRepository } from '../../domain/ThumbnailsRepository';
 import { EnvironmentThumbnailDownloader } from './EnvironmentThumbnailDownloader';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
+import Bottleneck from 'bottleneck';
 
 type FileMetaDataResponse = {
   thumbnails: [
@@ -28,6 +29,11 @@ type FileMetaDataResponse = {
   ];
 };
 
+const limiter = new Bottleneck({
+  maxConcurrent: 4,
+  minTime: 100
+});
+
 @Service()
 export class RemoteThumbnailsRepository implements ThumbnailsRepository {
   constructor(
@@ -41,6 +47,7 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
         `${process.env.NEW_DRIVE_URL}/folders/${file.folderId}/file`,
         {
           params: { name: file.name, type: file.type },
+          timeout: 30000,
         }
       );
 
@@ -73,13 +80,13 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
   }
 
   async has(file: File): Promise<boolean> {
-    const thumbnails = await this.obtainThumbnails(file);
+    const thumbnails = await limiter.schedule(() => this.obtainThumbnails(file));
 
     return thumbnails.length > 0;
   }
 
   async retrieve(file: File): Promise<ThumbnailCollection | undefined> {
-    const thumbnails = await this.obtainThumbnails(file);
+    const thumbnails = await limiter.schedule(() => this.obtainThumbnails(file));
 
     if (thumbnails.length === 0) {
       return undefined;
