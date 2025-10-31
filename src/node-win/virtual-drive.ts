@@ -5,7 +5,7 @@ import { Callbacks } from './types/callbacks.type';
 import { FilePlaceholderId } from '@/context/virtual-drive/files/domain/PlaceholderId';
 import { FolderPlaceholderId } from '@/context/virtual-drive/folders/domain/FolderPlaceholderId';
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { logger } from '@internxt/drive-desktop-core/build/backend';
+import { logger, RelativePath } from '@internxt/drive-desktop-core/build/backend';
 import { iconPath } from '@/apps/utils/icon';
 import { INTERNXT_VERSION } from '@/core/utils/utils';
 import { fileSystem } from '@/infra/file-system/file-system.module';
@@ -92,7 +92,7 @@ export class VirtualDrive {
     creationTime,
     lastWriteTime,
   }: {
-    itemPath: string;
+    itemPath: RelativePath;
     placeholderId: FilePlaceholderId;
     size: number;
     creationTime: number;
@@ -123,7 +123,7 @@ export class VirtualDrive {
     creationTime,
     lastWriteTime,
   }: {
-    itemPath: string;
+    itemPath: RelativePath;
     placeholderId: FolderPlaceholderId;
     creationTime: number;
     lastWriteTime: number;
