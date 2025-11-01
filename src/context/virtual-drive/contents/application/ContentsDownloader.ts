@@ -64,8 +64,6 @@ export class ContentsDownloader {
   }
 
   stop({ path }: { path: AbsolutePath }) {
-    logger.debug({ msg: 'Stop download file' });
-
     if (!this.downloader) return;
 
     try {
