@@ -10,6 +10,7 @@ import { LoggerModule } from '@/apps/shared/logger/logger.module';
 import { setConfigKey } from '../config/service';
 import { getLanguage } from '../config/language';
 import { getTheme } from '../config/theme';
+import { chooseSyncRootWithDialog, getRootVirtualDrive, openVirtualDriveRootFolder } from '../virtual-root-folder/service';
 
 const ipcPreloadMain = ipcMain as unknown as CustomIpc<FromMain, FromProcess>;
 
@@ -27,4 +28,7 @@ export function setupPreloadIpc() {
   ipcPreloadMain.handle('getTheme', () => Promise.resolve(getTheme()));
   ipcPreloadMain.handle('getLanguage', () => Promise.resolve(getLanguage()));
   ipcPreloadMain.handle('setConfigKey', (_, props) => Promise.resolve(setConfigKey(props)));
+  ipcPreloadMain.handle('driveGetSyncRoot', () => Promise.resolve(getRootVirtualDrive()));
+  ipcPreloadMain.handle('driveChooseSyncRootWithDialog', () => chooseSyncRootWithDialog());
+  ipcPreloadMain.handle('driveOpenSyncRootFolder', () => openVirtualDriveRootFolder());
 }
