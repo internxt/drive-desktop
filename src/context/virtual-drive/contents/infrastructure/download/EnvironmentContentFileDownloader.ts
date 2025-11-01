@@ -46,7 +46,7 @@ export class EnvironmentContentFileDownloader {
           label: 'Dynamic',
           params: {
             useProxy: false,
-            chunkSize: 4096 * 1024,
+            chunkSize: 4 * 1024 * 1024,
           },
         },
       );

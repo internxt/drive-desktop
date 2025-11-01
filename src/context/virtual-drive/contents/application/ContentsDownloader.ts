@@ -12,51 +12,54 @@ import { WriteReadableToFile } from '@/apps/shared/fs/write-readable-to-file';
 export class ContentsDownloader {
   constructor(private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory) {}
 
-  private downloaderIntance: EnvironmentContentFileDownloader | null = null;
-  private downloaderIntanceCB: CallbackDownload | null = null;
-  private downloaderFile: SimpleDriveFile | null = null;
+  private downloader: EnvironmentContentFileDownloader | null = null;
+  private callback: CallbackDownload | null = null;
+  private file: SimpleDriveFile | null = null;
 
-  async run({ file, callback }: { file: SimpleDriveFile; callback: CallbackDownload }): Promise<string> {
+  async run({ file, callback }: { file: SimpleDriveFile; callback: CallbackDownload }) {
     const downloader = this.managerFactory.downloader();
 
     const location = await temporalFolderProvider();
     await mkdir(location, { recursive: true });
     const path = join(location, file.nameWithExtension);
 
-    this.downloaderIntance = downloader;
-    this.downloaderIntanceCB = callback;
-    this.downloaderFile = file;
+    this.downloader = downloader;
+    this.callback = callback;
+    this.file = file;
 
     const { data: readable, error } = await downloader.download({
       file,
-      onProgress: async (progress) => {
+      onProgress: (progress) => {
         ipcRendererSyncEngine.send('FILE_DOWNLOADING', { key: file.uuid, nameWithExtension: file.nameWithExtension, progress });
-        await callback(true, path);
       },
     });
+
+    logger.debug({ msg: 'READABLEEEEEEEEEEEEEEEEEEEEEEEEEEEE' });
 
     if (!readable) throw error;
 
     await WriteReadableToFile.write(readable, path, file.size);
+
+    logger.debug({ msg: 'BLOCKEDDDDDDDDDDDDDDDDDD' });
 
     return path;
   }
 
   stop() {
     logger.debug({ msg: '[Server] Stopping download 1' });
-    if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
+    if (!this.downloader || !this.callback || !this.file) return;
 
     logger.debug({ msg: '[Server] Stopping download 2' });
-    this.downloaderIntance.forceStop();
-    void this.downloaderIntanceCB(false, '');
+    this.downloader.forceStop();
+    this.callback(false, '');
 
     ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', {
-      key: this.downloaderFile.uuid,
-      nameWithExtension: this.downloaderFile.nameWithExtension,
+      key: this.file.uuid,
+      nameWithExtension: this.file.nameWithExtension,
     });
 
-    this.downloaderIntanceCB = null;
-    this.downloaderIntance = null;
-    this.downloaderFile = null;
+    this.callback = null;
+    this.downloader = null;
+    this.file = null;
   }
 }
