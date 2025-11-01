@@ -1,10 +1,9 @@
 import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { logger } from '@/apps/shared/logger/logger';
-import { unlink } from 'node:fs/promises';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { ProcessContainer } from '../build-process-container';
-import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
+import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
 
 type TProps = {
   container: ProcessContainer;
@@ -14,32 +13,16 @@ type TProps = {
 
 export async function fetchData({ container, placeholderId, callback }: TProps) {
   try {
-    logger.debug({ msg: '[Fetch Data Callback] Donwloading begins', placeholderId });
+    logger.debug({ msg: 'Download file', placeholderId });
 
     const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId });
-    const file = await container.downloadFile.fileFinderByUuid({ uuid });
-    const tmpPath = await container.downloadFile.execute(file, callback);
 
-    logger.debug({ msg: '[Fetch Data Callback] Preparing begins', tmpPath });
+    const { data: file, error } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
 
-    let finished = false;
+    if (error) throw error;
 
-    try {
-      while (!finished) {
-        const result = callback(true, tmpPath);
-        logger.debug({ msg: 'HEREEEEEEEEEEEEEEEEEEEEEEEEEE', result });
-        finished = result;
-      }
-
-      ipcRendererSyncEngine.send('FILE_DOWNLOADED', { key: file.uuid, nameWithExtension: file.nameWithExtension });
-      logger.debug({ msg: '[Fetch Data Callback] Finish', tmpPath });
-    } catch (error) {
-      logger.error({ msg: '[Fetch Data Callback] Error', tmpPath, error });
-    }
-
-    await unlink(tmpPath);
+    await container.downloadFile.execute(file, callback);
   } catch (error) {
-    logger.error({ msg: '[Fetch Data Callback] Error', placeholderId, error });
-    callback(false, '');
+    logger.error({ msg: 'Error downloading file', placeholderId, error });
   }
 }
