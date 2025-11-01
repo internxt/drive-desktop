@@ -1,5 +1,4 @@
 import { AbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
-import { Watcher } from '../watcher';
 import { onRaw } from './on-raw.service';
 import { ProcessSyncContext } from '@/apps/sync-engine/config';
 
@@ -7,7 +6,6 @@ export const timeouts = new Map<string, NodeJS.Timeout>();
 
 type TProps = {
   ctx: ProcessSyncContext;
-  self: Watcher;
   event: string;
   absolutePath: AbsolutePath;
   details: unknown;

@@ -1,6 +1,5 @@
 import { Stats } from 'node:fs';
 
-import { Watcher } from '../watcher';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { AbsolutePath, pathUtils } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { moveFile } from '@/backend/features/local-sync/watcher/events/rename-or-move/move-file';
@@ -10,12 +9,11 @@ import { AddController } from '@/apps/sync-engine/callbacks-controllers/controll
 
 type TProps = {
   ctx: ProcessSyncContext;
-  self: Watcher;
   absolutePath: AbsolutePath;
   stats: Stats;
 };
 
-export async function onAdd({ ctx, self, absolutePath, stats }: TProps) {
+export async function onAdd({ ctx, absolutePath, stats }: TProps) {
   const path = pathUtils.absoluteToRelative({
     base: ctx.virtualDrive.syncRootPath,
     path: absolutePath,
@@ -25,7 +23,6 @@ export async function onAdd({ ctx, self, absolutePath, stats }: TProps) {
     const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path });
 
     if (!fileInfo) {
-      self.fileInDevice.add(absolutePath);
       await AddController.createFile({
         ctx,
         absolutePath,
