@@ -10,7 +10,6 @@ export class ContentsDownloader {
   constructor(private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory) {}
 
   private downloader: EnvironmentContentFileDownloader | null = null;
-  private path: AbsolutePath | null = null;
 
   async run({
     ctx,
@@ -26,7 +25,6 @@ export class ContentsDownloader {
     const downloader = this.managerFactory.downloader();
 
     this.downloader = downloader;
-    this.path = path;
 
     const { data: readable, error } = await downloader.download({
       file,
@@ -65,20 +63,19 @@ export class ContentsDownloader {
     }
   }
 
-  stop() {
+  stop({ path }: { path: AbsolutePath }) {
     logger.debug({ msg: 'Stop download file' });
 
-    if (!this.downloader || !this.path) return;
+    if (!this.downloader) return;
 
     try {
-      ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path: this.path });
+      ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
 
       this.downloader.forceStop();
     } catch (error) {
-      logger.error({ msg: 'Error stopping file download', path: this.path, error });
+      logger.error({ msg: 'Error stopping file download', path, error });
     }
 
     this.downloader = null;
-    this.path = null;
   }
 }

@@ -13,6 +13,6 @@ export class DownloadFileController {
 
   cancel({ ctx, path }: { ctx: ProcessSyncContext; path: AbsolutePath }) {
     ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
-    this.downloader.stop();
+    this.downloader.stop({ path });
   }
 }
