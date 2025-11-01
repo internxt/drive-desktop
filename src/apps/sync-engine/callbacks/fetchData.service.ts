@@ -4,6 +4,7 @@ import { logger } from '@/apps/shared/logger/logger';
 import { unlink } from 'node:fs/promises';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { ProcessContainer } from '../build-process-container';
+import { ipcRendererSyncEngine } from '../ipcRendererSyncEngine';
 
 type TProps = {
   container: ProcessContainer;
@@ -30,6 +31,7 @@ export async function fetchData({ container, placeholderId, callback }: TProps) 
         finished = result.finished;
       }
 
+      ipcRendererSyncEngine.send('FILE_DOWNLOADED', { key: file.uuid, nameWithExtension: file.nameWithExtension });
       logger.debug({ msg: '[Fetch Data Callback] Finish', tmpPath });
     } catch (error) {
       logger.error({ msg: '[Fetch Data Callback] Error', tmpPath, error });

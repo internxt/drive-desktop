@@ -34,11 +34,6 @@ export class EnvironmentContentFileDownloader {
           progressCallback: (progress) => onProgress(progress),
           finishedCallback: (error, stream) => {
             if (stream) {
-              stream.on('close', () => {
-                logger.debug({ msg: '[FinishedCallback] Stream closed' });
-                ipcRendererSyncEngine.send('FILE_DOWNLOADED', { key: file.uuid, nameWithExtension: file.nameWithExtension });
-              });
-
               return resolve({ data: stream });
             }
 
