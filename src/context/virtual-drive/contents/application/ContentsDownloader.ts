@@ -47,13 +47,6 @@ export class ContentsDownloader {
         callback(false, buffer, offset);
 
         offset += buffer.length;
-
-        ctx.logger.debug({
-          msg: 'Streamed bytes',
-          path,
-          size: file.size,
-          offset,
-        });
       }
 
       ctx.logger.debug({ msg: 'File downloaded', path });

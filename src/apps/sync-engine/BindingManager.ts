@@ -20,9 +20,8 @@ export class BindingsManager {
           callback,
         });
       },
-      cancelFetchDataCallback: () => {
-        logger.debug({ msg: 'cancelFetchDataCallback' });
-        container.downloadFile.cancel();
+      cancelFetchDataCallback: (path) => {
+        container.downloadFile.cancel({ ctx, path: createAbsolutePath(path) });
       },
     };
 

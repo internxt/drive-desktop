@@ -11,7 +11,8 @@ export class DownloadFileController {
     return await this.downloader.run({ ctx, file, path, callback });
   }
 
-  cancel() {
+  cancel({ ctx, path }: { ctx: ProcessSyncContext; path: AbsolutePath }) {
+    ctx.logger.debug({ msg: 'Cencel fetch data callback', path });
     this.downloader.stop();
   }
 }
