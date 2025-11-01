@@ -1,28 +1,31 @@
-import { FilePlaceholderId } from '../../../context/virtual-drive/files/domain/PlaceholderId';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { logger } from '@/apps/shared/logger/logger';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
 import { ProcessContainer } from '../build-process-container';
 import { ipcRendererSqlite } from '@/infra/sqlite/ipc/ipc-renderer';
+import { ProcessSyncContext } from '../config';
+import { AbsolutePath } from '@internxt/drive-desktop-core/build/backend';
 
 type TProps = {
+  ctx: ProcessSyncContext;
   container: ProcessContainer;
-  placeholderId: FilePlaceholderId;
+  path: AbsolutePath;
   callback: CallbackDownload;
 };
 
-export async function fetchData({ container, placeholderId, callback }: TProps) {
+export async function fetchData({ ctx, container, path, callback }: TProps) {
   try {
-    logger.debug({ msg: 'Download file', placeholderId });
+    ctx.logger.debug({ msg: 'Download file', path });
 
-    const uuid = NodeWin.getFileUuidFromPlaceholder({ placeholderId });
+    const { data: fileInfo, error: error1 } = NodeWin.getFileInfo({ ctx, path });
 
-    const { data: file, error } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid });
+    if (error1) throw error1;
 
-    if (error) throw error;
+    const { data: file, error: error2 } = await ipcRendererSqlite.invoke('fileGetByUuid', { uuid: fileInfo.uuid });
 
-    await container.downloadFile.execute(file, callback);
+    if (error2) throw error2;
+
+    await container.downloadFile.execute(ctx, file, path, callback);
   } catch (error) {
-    logger.error({ msg: 'Error downloading file', placeholderId, error });
+    ctx.logger.error({ msg: 'Error downloading file', path, error });
   }
 }

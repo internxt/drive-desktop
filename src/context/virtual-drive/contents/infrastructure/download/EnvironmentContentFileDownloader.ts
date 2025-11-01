@@ -22,8 +22,8 @@ export class EnvironmentContentFileDownloader {
     }
   }
 
-  download({ file, onProgress }: { file: SimpleDriveFile; onProgress: (progress: number) => void }) {
-    ipcRendererSyncEngine.send('FILE_DOWNLOADING', { key: file.uuid, nameWithExtension: file.nameWithExtension, progress: 0 });
+  download({ file, path, onProgress }: { file: SimpleDriveFile; path: string; onProgress: (progress: number) => void }) {
+    ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
 
     return new Promise((resolve: Resolve) => {
       this.state = this.environment.download(

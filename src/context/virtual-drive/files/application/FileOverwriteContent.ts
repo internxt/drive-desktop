@@ -78,6 +78,7 @@ export class FileOverwriteContent {
         logger.debug({ msg: 'Trying to download file ', uuid: file.uuid, name: file.name });
         const { error } = await downloader.download({
           onProgress: () => downloader.forceStop(),
+          path: file.path,
           file,
         });
 
