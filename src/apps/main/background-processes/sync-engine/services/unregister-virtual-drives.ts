@@ -20,7 +20,6 @@ export function unregisterVirtualDrives({ currentProviderIds = [] }: TProps) {
 
   internxtSyncRoots.forEach((syncRoot) => {
     if (!currentProviderIds.includes(syncRoot.id)) {
-      logger.debug({ msg: 'Unregistering sync root', syncRoot });
       /**
        * v2.5.1 Daniel Jiménez
        * Just unregister the root folder. Do not delete the folder itself (maybe there were some files that were not synced,

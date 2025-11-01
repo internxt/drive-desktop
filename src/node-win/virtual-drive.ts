@@ -51,6 +51,10 @@ export class VirtualDrive {
     }
   }
 
+  getFileIdentity({ path }: { path: string }) {
+    return this.addon.getFileIdentity({ path: this.fixPath(path) });
+  }
+
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
     const connectionKey = this.addon.connectSyncRoot({ callbacks });
 
@@ -77,6 +81,7 @@ export class VirtualDrive {
   }
 
   static unregisterSyncRoot({ providerId }: { providerId: string }) {
+    logger.debug({ msg: 'Unregistering sync root', providerId });
     return DependencyInjectionAddonProvider.get().unregisterSyncRoot({ providerId });
   }
 

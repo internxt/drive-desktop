@@ -4,13 +4,13 @@ import { getWidget } from '../windows/widget';
 import { createTokenSchedule, RefreshTokenError } from './refresh-token';
 import { getUser, restoreSavedConfig, setCredentials } from './service';
 import { logger } from '@/apps/shared/logger/logger';
-import { initSyncEngine } from '../remote-sync/handlers';
 import { cleanAndStartRemoteNotifications } from '../realtime';
 import { getAuthHeaders } from './headers';
 import { AccessResponse } from '@/apps/renderer/pages/Login/types';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { AuthContext } from '@/backend/features/auth/utils/context';
 import { createAuthWindow } from '../windows/auth';
+import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
 
 let isLoggedIn: boolean;
 
@@ -90,5 +90,5 @@ async function emitUserLoggedIn() {
 
   eventBus.emit('USER_LOGGED_IN');
   cleanAndStartRemoteNotifications();
-  await initSyncEngine({ context });
+  await spawnSyncEngineWorkers({ context });
 }

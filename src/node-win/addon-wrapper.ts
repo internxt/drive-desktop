@@ -67,6 +67,11 @@ export class Addon {
     return this.parseAddonZod('getPlaceholderState', result);
   }
 
+  getFileIdentity({ path }: { path: string }) {
+    const result = addon.getFileIdentity(path);
+    return this.parseAddonZod('getFileIdentity', result);
+  }
+
   createFilePlaceholder({
     name,
     placeholderId,

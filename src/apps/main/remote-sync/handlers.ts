@@ -3,23 +3,21 @@ import { In } from 'typeorm';
 import eventBus from '../event-bus';
 import { RemoteSyncManager } from './RemoteSyncManager';
 import { ipcMain } from 'electron';
-import { spawnSyncEngineWorkers, updateSyncEngine } from '../background-processes/sync-engine';
+import { updateSyncEngine } from '../background-processes/sync-engine';
 import lodashDebounce from 'lodash.debounce';
 import { DriveFile } from '../database/entities/DriveFile';
 import { ItemBackup } from '../../shared/types/items';
 import { logger } from '../../shared/logger/logger';
 import Queue from '@/apps/shared/Queue/Queue';
 import { driveFilesCollection, FETCH_LIMIT_50, getRemoteSyncManager, remoteSyncManagers } from './store';
-import { TWorkerConfig } from '../background-processes/sync-engine/store';
 import { getSyncStatus } from './services/broadcast-sync-status';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { SyncContext } from '@/apps/sync-engine/config';
-import { AuthContext } from '@/backend/features/auth/utils/context';
 import { SqliteModule } from '@/infra/sqlite/sqlite.module';
 import { driveServerWip } from '@/infra/drive-server-wip/drive-server-wip.module';
 
-export function addRemoteSyncManager({ context, worker }: { context: SyncContext; worker: TWorkerConfig }) {
-  remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, worker, context.workspaceId));
+export function addRemoteSyncManager({ context }: { context: SyncContext }) {
+  remoteSyncManagers.set(context.workspaceId, new RemoteSyncManager(context, context.workspaceId));
 }
 
 type UpdateFileInBatchInput = {
@@ -85,12 +83,12 @@ ipcMain.handle('UPDATE_FIXED_FILES', async (_, inputData) => {
   await deleteFileInBatch(inputData.toDelete);
 });
 
-async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
+export async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
   const manager = getRemoteSyncManager({ workspaceId });
   if (!manager) return;
 
   try {
-    const isSyncing = checkSyncInProgress({ workspaceId });
+    const isSyncing = manager.status === 'SYNCING';
 
     if (isSyncing) {
       logger.debug({ msg: 'Remote sync is already running', workspaceId });
@@ -98,7 +96,7 @@ async function updateRemoteSync({ workspaceId }: { workspaceId: string }) {
     }
 
     manager.changeStatus('SYNCING');
-    await startRemoteSync({ workspaceId });
+    await manager.startRemoteSync();
     updateSyncEngine(workspaceId);
   } catch (exc) {
     manager.changeStatus('SYNC_FAILED');
@@ -119,25 +117,6 @@ async function updateAllRemoteSync() {
 
 export const debouncedSynchronization = lodashDebounce(updateAllRemoteSync, 5000);
 
-async function startRemoteSync({ workspaceId }: { workspaceId: string }): Promise<void> {
-  const manager = remoteSyncManagers.get(workspaceId);
-  if (!manager) throw new Error('RemoteSyncManager not found');
-
-  try {
-    await manager.startRemoteSync();
-
-    logger.debug({
-      msg: 'Remote sync finished',
-      workspaceId,
-    });
-  } catch (error) {
-    throw logger.error({
-      msg: 'Error starting remote sync',
-      exc: error,
-    });
-  }
-}
-
 ipcMain.handle('get-remote-sync-status', () => {
   return getSyncStatus();
 });
@@ -147,32 +126,8 @@ ipcMain.handle('SYNC_MANUALLY', async () => {
   await updateAllRemoteSync();
 });
 
-export async function initSyncEngine({ context }: { context: AuthContext }) {
-  try {
-    void spawnSyncEngineWorkers({ context });
-    await debouncedSynchronization();
-  } catch (error) {
-    throw logger.error({
-      msg: 'Error initializing remote sync managers',
-      exc: error,
-    });
-  }
-}
-
 eventBus.on('USER_LOGGED_OUT', () => {
   remoteSyncManagers.clear();
-});
-
-function checkSyncInProgress({ workspaceId }: { workspaceId: string }) {
-  const manager = getRemoteSyncManager({ workspaceId });
-  if (!manager) throw new Error('RemoteSyncManager not found');
-
-  const isSyncing = manager.status === 'SYNCING';
-  return isSyncing;
-}
-
-ipcMain.handle('CHECK_SYNC_IN_PROGRESS', (_, workspaceId = '') => {
-  return checkSyncInProgress({ workspaceId });
 });
 
 ipcMain.handle('get-item-by-folder-uuid', async (_, folderUuid): Promise<ItemBackup[]> => {

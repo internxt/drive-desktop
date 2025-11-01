@@ -5,12 +5,12 @@ import { processItem } from './process-item';
 import { NodeWin } from '@/infra/node-win/node-win.module';
 import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
-import { GetFileIdentityError } from '@/infra/node-win/services/item-identity/get-file-identity';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { PinState } from '@/node-win/types/placeholder.type';
 import * as isModified from './is-modified';
 import * as isHydrationPending from './is-hydration-pending';
-import { GetFolderInfoError } from '@/infra/node-win/services/get-folder-info';
+import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
+import { GetFileInfoError } from '@/infra/node-win/services/item-identity/get-file-info';
 
 describe('process-item', () => {
   const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
@@ -73,7 +73,7 @@ describe('process-item', () => {
 
     it('should be added to create files if not exists', () => {
       // Given
-      getFileInfoMock.mockReturnValue({ error: new GetFileIdentityError('NON_EXISTS') });
+      getFileInfoMock.mockReturnValue({ error: new GetFileInfoError('NON_EXISTS') });
       // When
       processItem(props);
       // Then
