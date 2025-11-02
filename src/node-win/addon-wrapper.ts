@@ -57,19 +57,9 @@ export class Addon {
     return addon.disconnectSyncRoot(syncRootPath);
   }
 
-  addLogger({ path }: { path: string }) {
-    const result = addon.addLoggerPath(path);
-    return this.parseAddonZod('addLoggerPath', result);
-  }
-
   getPlaceholderState({ path }: { path: string }) {
     const result = addon.getPlaceholderState(path);
     return this.parseAddonZod('getPlaceholderState', result);
-  }
-
-  getFileIdentity({ path }: { path: string }) {
-    const result = addon.getFileIdentity(path);
-    return this.parseAddonZod('getFileIdentity', result);
   }
 
   createFilePlaceholder({

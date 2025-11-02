@@ -5,7 +5,7 @@ import { fileIcon } from '../../assets/icons/getIcon';
 import { useI18n } from '../../localize/use-i18n';
 import { SyncStateItem } from '@/backend/features/local-sync/sync-state/defs';
 
-export function Item({ name, action, progress }: Readonly<SyncStateItem>) {
+export function Item({ path, action, progress }: Readonly<SyncStateItem>) {
   const { translate } = useI18n();
   const progressDisplay = progress ? `${Math.ceil(progress * 100)}%` : '';
 
@@ -30,11 +30,11 @@ export function Item({ name, action, progress }: Readonly<SyncStateItem>) {
   return (
     <div className="flex h-14 w-full px-3">
       <div className="flex h-full flex-1 items-center space-x-3 truncate border-b border-gray-5">
-        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">{fileIcon(getExtension(name))}</div>
+        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">{fileIcon(getExtension(path))}</div>
 
         <div className="flex flex-1 flex-col justify-center space-y-px truncate pr-[14px]">
-          <p className="truncate text-sm text-gray-100" title={getBaseName(name)}>
-            {getBaseName(name)}
+          <p className="truncate text-sm text-gray-100" title={getBaseName(path)}>
+            {getBaseName(path)}
           </p>
           <p
             className={`truncate text-xs text-gray-50 ${

@@ -1,96 +1,79 @@
-import path from 'node:path';
-import { ensureFolderExists } from '../../../../apps/shared/fs/ensure-folder-exists';
+import { ProcessSyncContext } from '@/apps/sync-engine/config';
 import { ipcRendererSyncEngine } from '../../../../apps/sync-engine/ipcRendererSyncEngine';
 import { EnvironmentRemoteFileContentsManagersFactory } from '../infrastructure/EnvironmentRemoteFileContentsManagersFactory';
 import { EnvironmentContentFileDownloader } from '../infrastructure/download/EnvironmentContentFileDownloader';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
-import { temporalFolderProvider } from './temporalFolderProvider';
-import { logger } from '@/apps/shared/logger/logger';
 import { CallbackDownload } from '@/node-win/types/callbacks.type';
-import { FSLocalFileWriter } from '../infrastructure/FSLocalFileWriter';
+import { AbsolutePath, logger } from '@internxt/drive-desktop-core/build/backend';
 
 export class ContentsDownloader {
   constructor(private readonly managerFactory: EnvironmentRemoteFileContentsManagersFactory) {}
 
-  private downloaderIntance: EnvironmentContentFileDownloader | null = null;
-  private downloaderIntanceCB: CallbackDownload | null = null;
-  private downloaderFile: SimpleDriveFile | null = null;
+  private downloader: EnvironmentContentFileDownloader | null = null;
 
-  private async registerEvents(downloader: EnvironmentContentFileDownloader, file: SimpleDriveFile, callback: CallbackDownload) {
-    const location = await temporalFolderProvider();
-    ensureFolderExists(location);
-
-    const filePath = path.join(location, file.nameWithExtension);
-
-    downloader.on('start', () => {
-      ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-        progress: 0,
-      });
-    });
-
-    downloader.on('progress', async () => {
-      const { finished, progress } = await callback(true, filePath);
-
-      if (progress > 1 || progress < 0) {
-        throw new Error('Result progress is not between 0 and 1');
-      } else if (finished && progress === 0) {
-        throw new Error('Result progress is 0');
-      }
-
-      ipcRendererSyncEngine.send('FILE_DOWNLOADING', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-        progress,
-      });
-    });
-
-    downloader.on('error', (error: Error) => {
-      logger.error({ msg: '[Server] Error downloading file', error });
-      ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', {
-        key: file.uuid,
-        nameWithExtension: file.nameWithExtension,
-      });
-    });
-
-    downloader.on('finish', () => {
-      // cb(true, filePath);
-      // The file download being finished does not mean it has been hidratated
-      // TODO: We might want to track this time instead of the whole completion time
-    });
-  }
-
-  async run({ file, callback }: { file: SimpleDriveFile; callback: CallbackDownload }): Promise<string> {
+  async run({
+    ctx,
+    file,
+    path,
+    callback,
+  }: {
+    ctx: ProcessSyncContext;
+    file: SimpleDriveFile;
+    path: AbsolutePath;
+    callback: CallbackDownload;
+  }) {
     const downloader = this.managerFactory.downloader();
 
-    this.downloaderIntance = downloader;
-    this.downloaderIntanceCB = callback;
-    this.downloaderFile = file;
-    await this.registerEvents(downloader, file, callback);
+    this.downloader = downloader;
 
-    const readable = await downloader.download({ contentsId: file.contentsId });
-
-    const write = await FSLocalFileWriter.write({ file, readable });
-
-    return write;
-  }
-
-  stop() {
-    logger.debug({ msg: '[Server] Stopping download 1' });
-    if (!this.downloaderIntance || !this.downloaderIntanceCB || !this.downloaderFile) return;
-
-    logger.debug({ msg: '[Server] Stopping download 2' });
-    this.downloaderIntance.forceStop();
-    void this.downloaderIntanceCB(false, '');
-
-    ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', {
-      key: this.downloaderFile.uuid,
-      nameWithExtension: this.downloaderFile.nameWithExtension,
+    const { data: readable, error } = await downloader.download({
+      file,
+      path,
+      onProgress: (progress) => {
+        ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress });
+      },
     });
 
-    this.downloaderIntanceCB = null;
-    this.downloaderIntance = null;
-    this.downloaderFile = null;
+    try {
+      if (!readable) throw error;
+
+      let offset = 0;
+
+      for await (const chunk of readable) {
+        const buffer = Buffer.from(chunk);
+
+        callback(false, buffer, offset);
+
+        offset += buffer.length;
+      }
+
+      ctx.logger.debug({ msg: 'File downloaded', path });
+
+      ipcRendererSyncEngine.send('FILE_DOWNLOADED', { path });
+
+      callback(true);
+    } catch (error) {
+      if (error instanceof Error && error.message !== 'The operation was aborted') {
+        ctx.logger.error({ msg: 'Error downloading file', error });
+
+        ipcRendererSyncEngine.send('FILE_DOWNLOAD_ERROR', { path });
+
+        downloader.forceStop();
+      }
+    }
+  }
+
+  stop({ path }: { path: AbsolutePath }) {
+    if (!this.downloader) return;
+
+    try {
+      ipcRendererSyncEngine.send('FILE_DOWNLOAD_CANCEL', { path });
+
+      this.downloader.forceStop();
+    } catch (error) {
+      logger.error({ msg: 'Error stopping file download', path, error });
+    }
+
+    this.downloader = null;
   }
 }

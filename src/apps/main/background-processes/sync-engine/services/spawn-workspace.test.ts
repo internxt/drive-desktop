@@ -70,7 +70,6 @@ describe('spawn-workspace.service', () => {
         bridgePass: 'pass',
         bridgeUser: 'user',
         bucket: undefined,
-        loggerPath: '\\mock\\logs\\internxt-drive\\logs\\node-win-workspace-workspaceId.log',
         mnemonic: 'decryptedMnemonic',
         providerId: '{PROVIDER_ID}',
         providerName: 'Internxt Drive for Business',

@@ -1,85 +1,52 @@
-import { EventEmitter, Readable } from 'node:stream';
+import { Readable } from 'node:stream';
 import { ActionState } from '@internxt/inxt-js/build/api';
-import { logger } from '@/apps/shared/logger/logger';
 import { Environment } from '@internxt/inxt-js';
+import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
+import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
-export type FileDownloadEvents = {
-  start: () => void;
-  progress: (progress: number) => void;
-  finish: (contentsId: string) => void;
-  error: (error: Error) => void;
-};
+type Resolve = (_: { data: Readable; error?: undefined } | { data?: undefined; error: Error | null }) => void;
 
 export class EnvironmentContentFileDownloader {
-  private eventEmitter: EventEmitter;
   private state: ActionState | null;
 
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
   ) {
-    this.eventEmitter = new EventEmitter();
     this.state = null;
   }
 
-  forceStop(): void {
-    // Logger.debug('Finish emitter type', this.state?.type);
-    // Logger.debug('Finish emitter stop method', this.state?.stop);
-    this.state?.stop();
-    // this.eventEmitter.emit('error');
-    // this.eventEmitter.emit('finish');
-  }
-
-  download({ contentsId }: { contentsId: string }): Promise<Readable> {
-    try {
-      this.eventEmitter.emit('start');
-
-      return new Promise((resolve, reject) => {
-        this.state = this.environment.download(
-          this.bucket,
-          contentsId,
-          {
-            progressCallback: (progress) => {
-              this.eventEmitter.emit('progress', progress);
-            },
-            finishedCallback: (err, stream) => {
-              logger.debug({ msg: '[FinishedCallback] Stream is ready' });
-
-              if (stream) {
-                stream.on('close', () => {
-                  logger.debug({ msg: '[FinishedCallback] Stream closed' });
-                  this.removeListeners();
-                });
-
-                this.eventEmitter.emit('finish');
-                return resolve(stream);
-              }
-
-              logger.debug({ msg: '[FinishedCallback] Stream has error', err });
-              this.eventEmitter.emit('error', err);
-              return reject(err);
-            },
-          },
-          {
-            label: 'Dynamic',
-            params: {
-              useProxy: false,
-              chunkSize: 4096 * 1024,
-            },
-          },
-        );
-      });
-    } catch (exc) {
-      logger.error({ msg: 'Error downloading file', exc });
-      return Promise.reject(exc);
+  forceStop() {
+    if (this.state) {
+      this.environment.downloadCancel(this.state);
     }
   }
 
-  on(event: keyof FileDownloadEvents, handler: FileDownloadEvents[keyof FileDownloadEvents]): void {
-    this.eventEmitter.on(event, handler);
-  }
+  download({ file, path, onProgress }: { file: SimpleDriveFile; path: string; onProgress: (progress: number) => void }) {
+    ipcRendererSyncEngine.send('FILE_DOWNLOADING', { path, progress: 0 });
 
-  removeListeners(): void {
-    this.eventEmitter.removeAllListeners();
+    return new Promise((resolve: Resolve) => {
+      this.state = this.environment.download(
+        this.bucket,
+        file.contentsId,
+        {
+          progressCallback: (progress) => onProgress(progress),
+          finishedCallback: (error, stream) => {
+            if (stream) {
+              return resolve({ data: stream });
+            }
+
+            return resolve({ error });
+          },
+        },
+        {
+          label: 'Dynamic',
+          params: {
+            useProxy: false,
+            chunkSize: 4 * 1024 * 1024,
+          },
+        },
+      );
+    });
   }
 }

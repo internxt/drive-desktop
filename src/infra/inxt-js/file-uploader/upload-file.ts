@@ -24,6 +24,8 @@ export function uploadFile({ fn, bucket, readable, size, absolutePath, abortSign
     // eslint-disable-next-line prefer-const
     let interval: NodeJS.Timeout | undefined;
 
+    callbacks.onProgress({ progress: 0 });
+
     const state = fn(bucket, {
       source: readable,
       fileSize: size,

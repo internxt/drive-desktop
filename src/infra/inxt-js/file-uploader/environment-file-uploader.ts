@@ -42,8 +42,6 @@ export class EnvironmentFileUploader {
     const readable = createReadStream(absolutePath);
     const fn = useMultipartUpload ? this.environment.uploadMultipartFile.bind(this.environment) : this.environment.upload;
 
-    callbacks.onProgress({ progress: 0 });
-
     return uploadFile({
       fn,
       bucket: this.bucket,

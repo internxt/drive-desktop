@@ -3,13 +3,11 @@ import { z } from 'zod';
 import { PinState } from '@/node-win/types/placeholder.type';
 
 export const addonZod = {
-  addLoggerPath: z.boolean(),
   connectSyncRoot: z.object({ hr: z.literal(0), connectionKey: z.string() }),
   convertToPlaceholder: z.undefined(),
   createFolderPlaceholder: z.undefined(),
   createFilePlaceholder: z.undefined(),
   dehydrateFile: z.undefined(),
-  getFileIdentity: z.union([z.literal(''), z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),
   disconnectSyncRoot: z.undefined(),
   getPlaceholderState: z.object({
     placeholderId: z.union([z.string().startsWith('FILE:'), z.string().startsWith('FOLDER:')]),

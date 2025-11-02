@@ -1,11 +1,11 @@
 import { basename, extname } from 'node:path';
 
 type Props = {
-  nameWithExtension: string;
+  path: string;
 };
 
-export function getNameAndExtension({ nameWithExtension }: Props) {
-  const extension = extname(nameWithExtension);
-  const name = basename(nameWithExtension, extension);
+export function getNameAndExtension({ path }: Props) {
+  const extension = extname(path);
+  const name = basename(path, extension);
   return { name, extension: extension.slice(1) };
 }
