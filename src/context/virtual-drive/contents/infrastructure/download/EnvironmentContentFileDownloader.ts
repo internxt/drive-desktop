@@ -4,7 +4,7 @@ import { Environment } from '@internxt/inxt-js';
 import { SimpleDriveFile } from '@/apps/main/database/entities/DriveFile';
 import { ipcRendererSyncEngine } from '@/apps/sync-engine/ipcRendererSyncEngine';
 
-export type Resolve = (_: { data: Readable; error?: undefined } | { data?: undefined; error: Error | null }) => void;
+type Resolve = (_: { data: Readable; error?: undefined } | { data?: undefined; error: Error | null }) => void;
 
 export class EnvironmentContentFileDownloader {
   private state: ActionState | null;

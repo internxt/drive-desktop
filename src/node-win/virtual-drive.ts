@@ -16,13 +16,12 @@ export class VirtualDrive {
   syncRootPath: AbsolutePath;
   providerId: string;
 
-  constructor({ rootPath, providerId, loggerPath }: { rootPath: string; providerId: string; loggerPath: string }) {
+  constructor({ rootPath, providerId }: { rootPath: string; providerId: string }) {
     this.syncRootPath = this.convertToWindowsPath({ path: rootPath }) as AbsolutePath;
     this.providerId = providerId;
 
     this.addon = new Addon();
     this.addon.syncRootPath = this.syncRootPath;
-    this.addon.addLogger({ path: this.convertToWindowsPath({ path: loggerPath }) });
   }
 
   convertToWindowsPath({ path }: { path: string }) {
@@ -49,10 +48,6 @@ export class VirtualDrive {
       logger.debug({ tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: error.code });
       await mkdir(this.syncRootPath, { recursive: true });
     }
-  }
-
-  getFileIdentity({ path }: { path: string }) {
-    return this.addon.getFileIdentity({ path: this.fixPath(path) });
   }
 
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {

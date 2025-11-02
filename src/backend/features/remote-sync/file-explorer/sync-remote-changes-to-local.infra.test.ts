@@ -24,7 +24,7 @@ describe('sync-remote-changes-to-local', () => {
   const filePath = join(rootPath, 'file.txt');
   const rootUuid = v4();
   const providerId = `{${rootUuid.toUpperCase()}}`;
-  const virtualDrive = new VirtualDrive({ loggerPath: '', providerId, rootPath });
+  const virtualDrive = new VirtualDrive({ providerId, rootPath });
 
   beforeEach(async () => {
     await virtualDrive.createSyncRootFolder();

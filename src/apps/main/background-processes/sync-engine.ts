@@ -32,7 +32,6 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
     rootPath: getRootVirtualDrive(),
     providerName: 'Internxt Drive',
     workspaceId: '',
-    loggerPath: join(PATHS.LOGS, 'node-win.log'),
     rootUuid: user.rootFolderId as FolderUuid,
     mnemonic: user.mnemonic,
     bucket: user.bucket,

@@ -42,7 +42,6 @@ export async function spawnWorkspace({ context, workspace }: TProps) {
       providerId: workspace.providerId,
       rootPath: workspace.rootPath,
       providerName: 'Internxt Drive for Business',
-      loggerPath: join(PATHS.LOGS, `node-win-workspace-${workspace.id}.log`),
       workspaceId: workspace.id,
       workspaceToken: credentials.tokenHeader,
       rootUuid: workspace.rootFolderId as FolderUuid,
