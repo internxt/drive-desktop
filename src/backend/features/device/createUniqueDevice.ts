@@ -12,13 +12,10 @@ import { DeviceIdentifierDTO } from './device.types';
  */
 export async function createUniqueDevice(
   deviceIdentifier: DeviceIdentifierDTO,
-  attempts = 1000
+  attempts = 1000,
 ): Promise<Either<Error, Device>> {
   const baseName = os.hostname();
-  const nameVariants = [
-    baseName,
-    ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`),
-  ];
+  const nameVariants = [baseName, ...Array.from({ length: attempts }, (_, i) => `${baseName} (${i + 1})`)];
 
   for (const name of nameVariants) {
     logger.debug({

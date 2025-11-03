@@ -12,20 +12,15 @@ export async function deleteFileFromStorageByFileId({
 }): Promise<Result<boolean, Error>> {
   try {
     const headers = await getNewApiHeadersIPC();
-    const response = await fetch(
-      `${process.env.NEW_DRIVE_URL}/files/${bucketId}/${fileId}`,
-      {
-        method: 'DELETE',
-        headers,
-      }
-    );
+    const response = await fetch(`${process.env.NEW_DRIVE_URL}/files/${bucketId}/${fileId}`, {
+      method: 'DELETE',
+      headers,
+    });
     if (response.ok) {
       return { data: true };
     }
     return {
-      error: new Error(
-        'Response delete file content from storage contained unexpected data'
-      ),
+      error: new Error('Response delete file content from storage contained unexpected data'),
     };
   } catch (error) {
     return {

@@ -32,11 +32,7 @@ export function baseInfra(): ContainerBuilder {
 
   builder.register(Environment).useInstance(environment).private();
 
-  builder
-    .register(EventRepository)
-    .use(InMemoryEventRepository)
-    .asSingleton()
-    .private();
+  builder.register(EventRepository).use(InMemoryEventRepository).asSingleton().private();
 
   builder
     .register(EventBus)

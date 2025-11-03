@@ -10,10 +10,6 @@ export function Separator({ classname, size = 'normal' }: SeparatorProps) {
   };
 
   return (
-    <div
-      className={`${
-        classname ? classname : ''
-      } border-t border-gray-10 dark:bg-gray-5 ${sizeClasses[size]}`}
-    />
+    <div className={`${classname ? classname : ''} border-t border-gray-10 dark:bg-gray-5 ${sizeClasses[size]}`} />
   );
 }

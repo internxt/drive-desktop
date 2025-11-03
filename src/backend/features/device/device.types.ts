@@ -1,11 +1,6 @@
 import { components } from './../../../infra/schemas.d';
 
-export const allowedPlatforms = [
-  'win32',
-  'darwin',
-  'linux',
-  'android',
-] as const;
+export const allowedPlatforms = ['win32', 'darwin', 'linux', 'android'] as const;
 export type AllowedPlatform = (typeof allowedPlatforms)[number];
 
 export type DeviceIdentifierDTO = {
@@ -18,9 +13,7 @@ export type ExistingDeviceIdentifierDTO = DeviceIdentifierDTO & {
   uuid: string;
 };
 
-export function isAllowedPlatform(
-  platform: string
-): platform is AllowedPlatform {
+export function isAllowedPlatform(platform: string): platform is AllowedPlatform {
   return (allowedPlatforms as readonly string[]).includes(platform);
 }
 

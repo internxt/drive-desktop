@@ -5,7 +5,6 @@ import { FileError } from '../file.error';
 import { errorHandler } from './file-error-handler';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
 
-
 export async function moveFile({
   destinationFolder,
   uuid,

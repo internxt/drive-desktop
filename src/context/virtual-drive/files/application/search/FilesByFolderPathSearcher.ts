@@ -8,7 +8,7 @@ import { FileStatuses } from '../../domain/FileStatus';
 export class FilesByFolderPathSearcher {
   constructor(
     private readonly repository: FileRepository,
-    private readonly singleFolderMatchingFinder: SingleFolderMatchingFinder
+    private readonly singleFolderMatchingFinder: SingleFolderMatchingFinder,
   ) {}
 
   async run(path: string): Promise<Array<File['nameWithExtension']>> {

@@ -12,7 +12,7 @@ export class MakeStorageFileAvaliableOffline {
   constructor(
     private readonly repository: StorageFilesRepository,
     private readonly virtualFileFinder: SingleFileMatchingFinder,
-    private readonly downloader: StorageFileDownloader
+    private readonly downloader: StorageFileDownloader,
   ) {}
 
   async run(path: string) {

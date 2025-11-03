@@ -38,7 +38,7 @@ export class HydrationApi {
     if (options.debug) {
       this.app.use((req, _res, next) => {
         logger.debug({
-          msg: `[HYDRATION API] [${new Date().toLocaleString()}] ${req.method} ${req.url}`
+          msg: `[HYDRATION API] [${new Date().toLocaleString()}] ${req.method} ${req.url}`,
         });
         next();
       });
@@ -55,7 +55,7 @@ export class HydrationApi {
           const path = decodedBuffer.toString('utf-8').replaceAll('%20', ' ');
 
           logger.debug({
-            msg: `[HYDRATION API] ${req.method} ${req.originalUrl} ${path} took ${duration} ms`
+            msg: `[HYDRATION API] ${req.method} ${req.originalUrl} ${path} took ${duration} ms`,
           });
         });
 
@@ -71,7 +71,7 @@ export class HydrationApi {
     return new Promise((resolve) => {
       this.server = this.app.listen(HydrationApi.PORT, () => {
         logger.debug({
-          msg: `[HYDRATION API] running on port ${HydrationApi.PORT}`
+          msg: `[HYDRATION API] running on port ${HydrationApi.PORT}`,
         });
         resolve();
       });

@@ -1,8 +1,4 @@
-import {
-  Column,
-  Entity,
-  PrimaryColumn,
-} from '../../../../../../../../apps/node_modules/typeorm';
+import { Column, Entity, PrimaryColumn } from '../../../../../../../../apps/node_modules/typeorm';
 import { StorageFileAttributes } from '../../../../../domain/StorageFile';
 
 @Entity('storage_file')

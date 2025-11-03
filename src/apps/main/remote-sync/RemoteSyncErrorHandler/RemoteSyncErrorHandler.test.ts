@@ -1,9 +1,5 @@
 import { RemoteSyncErrorHandler, syncItemType } from './RemoteSyncErrorHandler';
-import {
-  RemoteSyncError,
-  RemoteSyncNetworkError,
-  RemoteSyncServerError,
-} from '../errors';
+import { RemoteSyncError, RemoteSyncNetworkError, RemoteSyncServerError } from '../errors';
 import { addVirtualDriveIssue } from '../../issues/virtual-drive';
 import { reportError } from '../../bug-report/service';
 import { VirtualDriveIssue } from '../../../../shared/issues/VirtualDriveIssue';
@@ -37,16 +33,8 @@ describe('RemoteSyncErrorHandler', () => {
 
       sut.handleSyncError(networkError, syncType, itemName, checkpoint);
 
-      expect(handleNetworkErrorSpy).toHaveBeenCalledWith(
-        networkError,
-        syncType,
-        itemName
-      );
-      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(
-        networkError,
-        syncType,
-        checkpoint
-      );
+      expect(handleNetworkErrorSpy).toHaveBeenCalledWith(networkError, syncType, itemName);
+      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(networkError, syncType, checkpoint);
       expect(addVirtualDriveIssue).toHaveBeenCalled();
     });
 
@@ -62,16 +50,8 @@ describe('RemoteSyncErrorHandler', () => {
 
       sut.handleSyncError(serverError, syncType, itemName, checkpoint);
 
-      expect(handleServerErrorSpy).toHaveBeenCalledWith(
-        serverError,
-        syncType,
-        itemName
-      );
-      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(
-        serverError,
-        syncType,
-        checkpoint
-      );
+      expect(handleServerErrorSpy).toHaveBeenCalledWith(serverError, syncType, itemName);
+      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(serverError, syncType, checkpoint);
       expect(addVirtualDriveIssue).toHaveBeenCalled();
     });
 
@@ -85,16 +65,8 @@ describe('RemoteSyncErrorHandler', () => {
 
       sut.handleSyncError(genericError, syncType, itemName, checkpoint);
 
-      expect(handleRemoteSyncErrorSpy).toHaveBeenCalledWith(
-        genericError,
-        syncType,
-        itemName
-      );
-      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(
-        genericError,
-        syncType,
-        checkpoint
-      );
+      expect(handleRemoteSyncErrorSpy).toHaveBeenCalledWith(genericError, syncType, itemName);
+      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(genericError, syncType, checkpoint);
       expect(addVirtualDriveIssue).toHaveBeenCalled();
     });
 
@@ -107,11 +79,7 @@ describe('RemoteSyncErrorHandler', () => {
 
       sut.handleSyncError(genericError, syncType, itemName, checkpoint);
 
-      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(
-        genericError,
-        syncType,
-        checkpoint
-      );
+      expect(reportErrorToSentrySpy).toHaveBeenCalledWith(genericError, syncType, checkpoint);
     });
   });
 

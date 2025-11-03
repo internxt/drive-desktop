@@ -2,9 +2,7 @@ import { SyncEngineIpc } from '../../../../../apps/sync-engine/SyncEngineIpc';
 import { VirtualDriveFolderIssue } from '../../../../../shared/issues/VirtualDriveIssue';
 import { SyncFolderMessenger } from '../../domain/SyncFolderMessenger';
 
-export class BackgroundProcessSyncFolderMessenger
-  implements SyncFolderMessenger
-{
+export class BackgroundProcessSyncFolderMessenger implements SyncFolderMessenger {
   constructor(private readonly ipc: SyncEngineIpc) {}
 
   async creating(currentName: string): Promise<void> {

@@ -14,14 +14,7 @@ export function registerFilesServices(builder: ContainerBuilder) {
 
   builder
     .register(RemoteFileSystem)
-    .useFactory(
-      (c) =>
-        new SDKRemoteFileSystem(
-          c.get(AuthorizedClients),
-          crypt,
-          user.backupsBucket
-        )
-    )
+    .useFactory((c) => new SDKRemoteFileSystem(c.get(AuthorizedClients), crypt, user.backupsBucket))
     .private();
 
   builder.registerAndUse(SimpleFileCreator);

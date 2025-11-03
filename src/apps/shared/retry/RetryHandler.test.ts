@@ -12,8 +12,7 @@ describe('RetryHandler', () => {
     jest.useRealTimers();
   });
 
-  const waitForPromises = () =>
-    new Promise((resolve) => process.nextTick(resolve));
+  const waitForPromises = () => new Promise((resolve) => process.nextTick(resolve));
 
   const runAndWaitForPromises = async () => {
     jest.runOnlyPendingTimers();
@@ -21,10 +20,7 @@ describe('RetryHandler', () => {
   };
 
   it('should retry the function until it succeeds', async () => {
-    const mockFn = jest
-      .fn()
-      .mockRejectedValueOnce(new Error('First attempt failed'))
-      .mockResolvedValueOnce('Success');
+    const mockFn = jest.fn().mockRejectedValueOnce(new Error('First attempt failed')).mockResolvedValueOnce('Success');
 
     const options: RetryOptions = {
       maxRetries: 3,
@@ -100,9 +96,7 @@ describe('RetryHandler', () => {
   it('should not retry if shouldRetry returns false', async () => {
     jest.useFakeTimers('legacy');
 
-    const mockFn = jest
-      .fn()
-      .mockRejectedValue(new Error('Non-retriable error'));
+    const mockFn = jest.fn().mockRejectedValue(new Error('Non-retriable error'));
 
     const resultPromise = RetryHandler.execute(mockFn, {
       maxRetries: 3,

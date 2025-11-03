@@ -28,12 +28,10 @@ export abstract class FuseCallback<T> {
       debug: false,
       elapsedTime: false,
       detectSlowCallbacks: true,
-    }
+    },
   ) {}
 
-  protected async executeAndCatch(
-    params: any[]
-  ): Promise<Either<FuseError, T>> {
+  protected async executeAndCatch(params: any[]): Promise<Either<FuseError, T>> {
     // Ensure that an Either is always returned
 
     const stopwatch = new Stopwatch();
@@ -66,7 +64,7 @@ export abstract class FuseCallback<T> {
       if (this.debug.elapsedTime) {
         logger.debug({
           msg: `Elapsed time for ${this.name}: ${params[0]}`,
-          elapsedTime: stopwatch.elapsedTime()
+          elapsedTime: stopwatch.elapsedTime(),
         });
       }
 
@@ -79,7 +77,7 @@ export abstract class FuseCallback<T> {
   protected right(value: T): Either<FuseError, T> {
     if (this.debug.output) {
       logger.debug({
-        msg: `${this.name} Result: ${JSON.stringify({ value }, null, 2)}`
+        msg: `${this.name} Result: ${JSON.stringify({ value }, null, 2)}`,
       });
     }
 

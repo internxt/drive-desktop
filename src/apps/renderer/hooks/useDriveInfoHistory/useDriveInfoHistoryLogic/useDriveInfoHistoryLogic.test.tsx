@@ -2,7 +2,6 @@ import { renderHook, act } from '@testing-library/react-hooks';
 import { DriveOperationInfo } from '../../../../shared/types';
 import { useDriveInfoHistoryLogic } from './useDriveInfoHistoryLogic';
 
-
 describe('useDriveInfoHistoryLogic', () => {
   const mockItem: DriveOperationInfo = { name: 'file1', action: 'DOWNLOADING', progress: 0, oldName: 'file1' };
   const mockItem2: DriveOperationInfo = { name: 'file2', action: 'DOWNLOADING', progress: 0, oldName: 'file2' };
@@ -56,8 +55,8 @@ describe('useDriveInfoHistoryLogic', () => {
   });
 
   it('should not exceed the maximum limit of items in the history', () => {
-   const MAX_ITEMS = 2;
-   const { result } = renderHook(() => useDriveInfoHistoryLogic(MAX_ITEMS));
+    const MAX_ITEMS = 2;
+    const { result } = renderHook(() => useDriveInfoHistoryLogic(MAX_ITEMS));
 
     act(() => {
       result.current.addItemToHistory(mockItem);

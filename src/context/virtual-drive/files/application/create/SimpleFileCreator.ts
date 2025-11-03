@@ -16,7 +16,7 @@ export class SimpleFileCreator {
     path: string,
     size: number,
     folderId: number,
-    folderUuid: string
+    folderUuid: string,
   ): Promise<Either<DriveDesktopError, File>> {
     const fileSize = new FileSize(size);
     const fileContentsId = new FileContentsId(contentsId);

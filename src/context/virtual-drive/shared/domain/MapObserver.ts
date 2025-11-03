@@ -2,7 +2,7 @@ export class MapObserver {
   constructor(
     private readonly mapToObserve: Map<any, any>,
     private readonly callback: () => void,
-    private intervalId: NodeJS.Timeout | null = null
+    private intervalId: NodeJS.Timeout | null = null,
   ) {}
 
   startObserving() {

@@ -1,10 +1,4 @@
-const FileErrorCauses = [
-  'NO_PERMISSION',
-  'BAD_REQUEST',
-  'SERVER_ERROR',
-  'UNKNOWN',
-  'FILE_ALREADY_EXISTS',
-] as const;
+const FileErrorCauses = ['NO_PERMISSION', 'BAD_REQUEST', 'SERVER_ERROR', 'UNKNOWN', 'FILE_ALREADY_EXISTS'] as const;
 
 export type FileErrorCause = (typeof FileErrorCauses)[number];
 

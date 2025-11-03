@@ -4,10 +4,7 @@ import { getUserSystemPath } from '../device/service';
 import { queue, QueueObject } from 'async';
 import eventBus from '../event-bus';
 import { Antivirus } from './Antivirus';
-import {
-  countSystemFiles,
-  getFilesFromDirectory,
-} from './utils/getFilesFromDirectory';
+import { countSystemFiles, getFilesFromDirectory } from './utils/getFilesFromDirectory';
 import { transformItem } from './utils/transformItem';
 import { isPermissionError } from './utils/isPermissionError';
 import { DBScannerConnection } from './db/DBScannerConnection';
@@ -72,23 +69,13 @@ export class ManualSystemScan {
   /**
    * Create and emit a progress event to update scan status
    */
-  private emitProgressEvent(
-    data: Partial<ProgressData>,
-    sessionId?: number,
-    emitNow = true
-  ): ProgressData {
+  private emitProgressEvent(data: Partial<ProgressData>, sessionId?: number, emitNow = true): ProgressData {
     const progressEvent: ProgressData = {
       currentScanPath: data.currentScanPath || 'Scanning...',
       infectedFiles: data.infectedFiles || this.infectedFiles,
-      progress:
-        data.progress !== undefined ? data.progress : this.calculateProgress(),
-      totalScannedFiles:
-        data.totalScannedFiles !== undefined
-          ? data.totalScannedFiles
-          : this.totalScannedFiles,
-      scanId:
-        data.scanId ||
-        (sessionId ? `scan-${sessionId}` : `scan-${this.scanSessionId}`),
+      progress: data.progress !== undefined ? data.progress : this.calculateProgress(),
+      totalScannedFiles: data.totalScannedFiles !== undefined ? data.totalScannedFiles : this.totalScannedFiles,
+      scanId: data.scanId || (sessionId ? `scan-${sessionId}` : `scan-${this.scanSessionId}`),
       done: data.done || false,
     };
 
@@ -113,20 +100,13 @@ export class ManualSystemScan {
       return 100;
     }
 
-    return Math.min(
-      Math.floor((this.totalScannedFiles / this.totalItemsToScan) * 99),
-      99
-    );
+    return Math.min(Math.floor((this.totalScannedFiles / this.totalItemsToScan) * 99), 99);
   }
 
   /**
    * Emit a final completion event, with optional delay
    */
-  private emitCompletionEvent(
-    message = 'Scan completed',
-    delay = 0,
-    sessionId?: string
-  ): void {
+  private emitCompletionEvent(message = 'Scan completed', delay = 0, sessionId?: string): void {
     const finalEvent: ProgressData = {
       currentScanPath: message,
       infectedFiles: this.infectedFiles,
@@ -164,11 +144,7 @@ export class ManualSystemScan {
   /**
    * Set up an interval and track it for cleanup
    */
-  private createInterval(
-    callback: () => void,
-    delay: number,
-    name: string
-  ): IntervalHandle {
+  private createInterval(callback: () => void, delay: number, name: string): IntervalHandle {
     const interval = setInterval(callback, delay);
     const handle = { interval, name };
     this.intervals.push(handle);
@@ -182,9 +158,7 @@ export class ManualSystemScan {
     if (!intervalHandle) return;
 
     clearInterval(intervalHandle.interval);
-    this.intervals = this.intervals.filter(
-      (h) => h.interval !== intervalHandle.interval
-    );
+    this.intervals = this.intervals.filter((h) => h.interval !== intervalHandle.interval);
   }
 
   /**
@@ -201,10 +175,7 @@ export class ManualSystemScan {
    * Check if scan appears to be completed based on processed files
    */
   private isScanComplete(): boolean {
-    return (
-      this.totalItemsToScan > 0 &&
-      this.totalScannedFiles >= this.totalItemsToScan
-    );
+    return this.totalItemsToScan > 0 && this.totalScannedFiles >= this.totalItemsToScan;
   }
 
   /**
@@ -216,9 +187,7 @@ export class ManualSystemScan {
     const totalProcessed = this.totalScannedFiles + this.errorCount;
     const percentComplete = (totalProcessed / this.totalItemsToScan) * 100;
 
-    return (
-      percentComplete >= 99.5 || this.totalItemsToScan - totalProcessed <= 5
-    );
+    return percentComplete >= 99.5 || this.totalItemsToScan - totalProcessed <= 5;
   }
 
   /**
@@ -230,7 +199,7 @@ export class ManualSystemScan {
     stuckCheckCount: number,
     hasReportedError: boolean,
     scanCompleted: boolean,
-    isCustomScan: boolean
+    isCustomScan: boolean,
   ): {
     stuckCount: number;
     hasError: boolean;
@@ -251,21 +220,13 @@ export class ManualSystemScan {
         if (isNearlyScanComplete) {
           logger.warn({
             tag: 'ANTIVIRUS',
-            msg: `[SYSTEM_SCAN] Scan appears stuck at ${
-              this.totalScannedFiles
-            }/${this.totalItemsToScan} files. With ${
+            msg: `[SYSTEM_SCAN] Scan appears stuck at ${this.totalScannedFiles}/${this.totalItemsToScan} files. With ${
               this.errorCount
-            } errors, total processed: ${
-              this.totalScannedFiles + this.errorCount
-            }/${this.totalItemsToScan}. Forcing completion.`,
+            } errors, total processed: ${this.totalScannedFiles + this.errorCount}/${this.totalItemsToScan}. Forcing completion.`,
           });
 
           if (!scanCompleted && !hasReportedError) {
-            this.emitCompletionEvent(
-              `Scan completed with ${this.errorCount} errors`,
-              0,
-              `scan-complete-${Date.now()}`
-            );
+            this.emitCompletionEvent(`Scan completed with ${this.errorCount} errors`, 0, `scan-complete-${Date.now()}`);
 
             newIsComplete = true;
             shouldContinue = false;
@@ -277,10 +238,7 @@ export class ManualSystemScan {
           });
           this.cancelled = true;
 
-          this.emitErrorEvent(
-            'Scan appears stuck - no progress detected for 30 minutes',
-            `scan-stalled-${Date.now()}`
-          );
+          this.emitErrorEvent('Scan appears stuck - no progress detected for 30 minutes', `scan-stalled-${Date.now()}`);
           newHasError = true;
         }
       }
@@ -308,12 +266,9 @@ export class ManualSystemScan {
         logger.debug({
           tag: 'ANTIVIRUS',
           msg: `[SYSTEM_SCAN] Processed ${(
-            ((this.totalScannedFiles + this.errorCount) /
-              this.totalItemsToScan) *
+            ((this.totalScannedFiles + this.errorCount) / this.totalItemsToScan) *
             100
-          ).toFixed(
-            2
-          )}% of files, continuing despite ${activeScans} active scans`,
+          ).toFixed(2)}% of files, continuing despite ${activeScans} active scans`,
         });
         break;
       }
@@ -334,10 +289,7 @@ export class ManualSystemScan {
     }
   }
 
-  trackProgress = (
-    currentSession: number,
-    data: { file: string; isInfected: boolean }
-  ) => {
+  trackProgress = (currentSession: number, data: { file: string; isInfected: boolean }) => {
     if (currentSession !== this.scanSessionId) return;
     const { file, isInfected } = data;
 
@@ -365,13 +317,10 @@ export class ManualSystemScan {
         scanId: `scan-${currentSession}`,
       },
       currentSession,
-      shouldEmitNow
+      shouldEmitNow,
     );
 
-    if (
-      this.calculateProgress() === 100 &&
-      this.totalScannedFiles >= this.totalItemsToScan
-    ) {
+    if (this.calculateProgress() === 100 && this.totalScannedFiles >= this.totalItemsToScan) {
       progressEvent.done = true;
 
       setTimeout(() => {
@@ -468,14 +417,11 @@ export class ManualSystemScan {
   private handlePreviousScannedItem = async (
     currentSession: number,
     scannedItem: ScannedItem,
-    previousScannedItem: ScannedItem
+    previousScannedItem: ScannedItem,
   ) => {
     if (currentSession !== this.scanSessionId) return;
 
-    if (
-      scannedItem.updatedAtW === previousScannedItem.updatedAtW ||
-      scannedItem.hash === previousScannedItem.hash
-    ) {
+    if (scannedItem.updatedAtW === previousScannedItem.updatedAtW || scannedItem.hash === previousScannedItem.hash) {
       this.trackProgress(currentSession, {
         file: previousScannedItem.pathName,
         isInfected: previousScannedItem.isInfected,
@@ -489,7 +435,7 @@ export class ManualSystemScan {
   private async performCustomScan(
     currentSession: number,
     pathNames: string[],
-    scan: (filePath: string) => Promise<void>
+    scan: (filePath: string) => Promise<void>,
   ): Promise<void> {
     logger.debug({
       tag: 'ANTIVIRUS',
@@ -527,14 +473,14 @@ export class ManualSystemScan {
       await getFilesFromDirectory(
         p,
         (filePath: string) => this.manualQueue!.pushAsync(filePath),
-        () => this.cancelled
+        () => this.cancelled,
       );
     }
   }
 
   private async performFullSystemScan(
     currentSession: number,
-    scan: (filePath: string) => Promise<void>
+    scan: (filePath: string) => Promise<void>,
   ): Promise<void> {
     logger.debug({
       tag: 'ANTIVIRUS',
@@ -572,7 +518,7 @@ export class ManualSystemScan {
           progress: 0,
           scanId: `scan-${currentSession}`,
         },
-        currentSession
+        currentSession,
       );
 
       if (total === 0) {
@@ -583,7 +529,7 @@ export class ManualSystemScan {
       await getFilesFromDirectory(
         userSystemPath.path,
         (filePath: string) => this.manualQueue!.pushAsync(filePath),
-        () => this.cancelled
+        () => this.cancelled,
       );
     } catch (error) {
       logger.error({
@@ -603,7 +549,7 @@ export class ManualSystemScan {
     currentSession: number,
     activeScans: { count: number },
     maxToleratedErrors: number,
-    hasReportedError: { value: boolean }
+    hasReportedError: { value: boolean },
   ): (filePath: string) => Promise<void> {
     return async (filePath: string) => {
       if (this.cancelled) return;
@@ -612,15 +558,13 @@ export class ManualSystemScan {
 
       try {
         const scannedItem = await transformItem(filePath);
-        const previousScannedItem = await this.dbConnection.getItemFromDatabase(
-          scannedItem.pathName
-        );
+        const previousScannedItem = await this.dbConnection.getItemFromDatabase(scannedItem.pathName);
 
         if (previousScannedItem) {
           const isFileUnchanged = await this.handlePreviousScannedItem(
             currentSession,
             scannedItem,
-            previousScannedItem
+            previousScannedItem,
           );
 
           if (isFileUnchanged) {
@@ -630,9 +574,7 @@ export class ManualSystemScan {
         }
 
         try {
-          const currentScannedFile = await antivirus.scanFileWithRetry(
-            scannedItem.pathName
-          );
+          const currentScannedFile = await antivirus.scanFileWithRetry(scannedItem.pathName);
 
           if (currentScannedFile) {
             await this.dbConnection.addItemToDatabase({
@@ -657,7 +599,7 @@ export class ManualSystemScan {
             hasReportedError.value = true;
             this.emitErrorEvent(
               `Error: Too many scan failures (${this.errorCount} files failed)`,
-              `scan-error-${currentSession}`
+              `scan-error-${currentSession}`,
             );
           } else {
             this.trackProgress(currentSession, {
@@ -703,7 +645,7 @@ export class ManualSystemScan {
       allFilesScanned: boolean;
       activeScans: { count: number };
     },
-    isCustomScan: boolean
+    isCustomScan: boolean,
   ): {
     progressCheck: IntervalHandle;
     heartbeat: IntervalHandle;
@@ -724,9 +666,8 @@ export class ManualSystemScan {
             if (scanState.noProgressIntervals >= 40) {
               logger.warn({
                 tag: 'ANTIVIRUS',
-                msg: `[SYSTEM_SCAN] No progress detected for ~${
-                  scanState.noProgressIntervals / 2
-                } minutes: ` +
+                msg:
+                  `[SYSTEM_SCAN] No progress detected for ~${scanState.noProgressIntervals / 2} minutes: ` +
                   `${this.totalScannedFiles}/${this.totalItemsToScan} files scanned. ` +
                   'Scan appears stalled but will continue.',
               });
@@ -740,7 +681,7 @@ export class ManualSystemScan {
 
                 this.emitErrorEvent(
                   'Scan appears stuck - no progress detected for 20 minutes',
-                  `scan-stalled-${Date.now()}`
+                  `scan-stalled-${Date.now()}`,
                 );
                 scanState.hasReportedError = true;
               }
@@ -756,7 +697,7 @@ export class ManualSystemScan {
         }
       },
       30000,
-      'progressCheck'
+      'progressCheck',
     );
 
     const heartbeatInterval = this.createInterval(
@@ -772,7 +713,7 @@ export class ManualSystemScan {
               this.emitCompletionEvent(
                 `Scan completed with ${this.errorCount} errors`,
                 0,
-                `scan-complete-${Date.now()}`
+                `scan-complete-${Date.now()}`,
               );
 
               scanState.scanCompleted = true;
@@ -787,7 +728,7 @@ export class ManualSystemScan {
             scanState.stuckScanCheckCount,
             scanState.hasReportedError,
             scanState.scanCompleted,
-            isCustomScan
+            isCustomScan,
           );
 
           scanState.stuckScanCheckCount = stuckResult.stuckCount;
@@ -803,13 +744,11 @@ export class ManualSystemScan {
 
           this.emitProgressEvent(
             {
-              currentScanPath: `Scanning in progress... (${
-                this.totalScannedFiles
-              }/${this.totalItemsToScan || 'calculating'})`,
+              currentScanPath: `Scanning in progress... (${this.totalScannedFiles}/${this.totalItemsToScan || 'calculating'})`,
               progress: this.calculateProgress(),
               scanId: `scan-${currentSession}-heartbeat`,
             },
-            currentSession
+            currentSession,
           );
 
           logger.debug({
@@ -821,20 +760,19 @@ export class ManualSystemScan {
         }
       },
       3000,
-      'heartbeat'
+      'heartbeat',
     );
 
     const reportProgressInterval = this.createInterval(
       () => {
         if (this.progressEvents.length > 0) {
-          const latestEvent =
-            this.progressEvents[this.progressEvents.length - 1];
+          const latestEvent = this.progressEvents[this.progressEvents.length - 1];
           eventBus.emit('ANTIVIRUS_SCAN_PROGRESS', { ...latestEvent });
           this.progressEvents = [];
         }
       },
       500,
-      'reportProgress'
+      'reportProgress',
     );
 
     return {
@@ -847,9 +785,7 @@ export class ManualSystemScan {
   public async scanItems(pathNames?: string[]): Promise<void> {
     logger.debug({
       tag: 'ANTIVIRUS',
-      msg: `[SYSTEM_SCAN] Starting new scan with ${
-        pathNames ? pathNames.length : 'all'
-      } paths`,
+      msg: `[SYSTEM_SCAN] Starting new scan with ${pathNames ? pathNames.length : 'all'} paths`,
     });
 
     try {
@@ -928,7 +864,7 @@ export class ManualSystemScan {
         currentSession,
         scanState.activeScans,
         MAX_TOLERATED_ERRORS,
-        hasReportedErrorRef
+        hasReportedErrorRef,
       );
 
       scanState.hasReportedError = hasReportedErrorRef.value;
@@ -946,21 +882,16 @@ export class ManualSystemScan {
       await this.waitForActiveScans(scanState.activeScans.count);
 
       if (!scanState.hasReportedError) {
-        scanState.allFilesScanned =
-          this.totalScannedFiles >= this.totalItemsToScan;
+        scanState.allFilesScanned = this.totalScannedFiles >= this.totalItemsToScan;
 
         this.emitProgressEvent(
           {
-            currentScanPath: scanState.allFilesScanned
-              ? 'Scan complete'
-              : 'Scan in progress...',
-            progress: scanState.allFilesScanned
-              ? 100
-              : this.calculateProgress(),
+            currentScanPath: scanState.allFilesScanned ? 'Scan complete' : 'Scan in progress...',
+            progress: scanState.allFilesScanned ? 100 : this.calculateProgress(),
             done: scanState.allFilesScanned,
             scanId: `scan-${Date.now()}`,
           },
-          currentSession
+          currentSession,
         );
 
         this.progressEvents = [];
@@ -992,21 +923,16 @@ export class ManualSystemScan {
       }
     } finally {
       if (!scanState.scanCompleted && !scanState.hasReportedError) {
-        scanState.allFilesScanned =
-          this.totalScannedFiles >= this.totalItemsToScan;
+        scanState.allFilesScanned = this.totalScannedFiles >= this.totalItemsToScan;
 
         this.emitProgressEvent(
           {
-            currentScanPath: scanState.allFilesScanned
-              ? 'Scan completed'
-              : 'Scan interrupted',
-            progress: scanState.allFilesScanned
-              ? 100
-              : this.calculateProgress(),
+            currentScanPath: scanState.allFilesScanned ? 'Scan completed' : 'Scan interrupted',
+            progress: scanState.allFilesScanned ? 100 : this.calculateProgress(),
             done: scanState.allFilesScanned,
             scanId: `scan-final-${Date.now()}`,
           },
-          this.scanSessionId
+          this.scanSessionId,
         );
       }
 
@@ -1016,7 +942,7 @@ export class ManualSystemScan {
       logger.debug({
         tag: 'ANTIVIRUS',
         msg: `[SYSTEM_SCAN] Scan finished in ${scanDuration.toFixed(
-          2
+          2,
         )}s with state: completed=${scanState.scanCompleted}, filesScanned=${this.totalScannedFiles}, infected=${this.totalInfectedFiles}, errors=${this.errorCount}, cancelled=${this.cancelled}`,
       });
 
@@ -1032,10 +958,7 @@ export class ManualSystemScan {
     }
   }
 
-  private emitEmptyDirProgressEvent(
-    currentScanPath: string,
-    currentSession: number
-  ) {
+  private emitEmptyDirProgressEvent(currentScanPath: string, currentSession: number) {
     this.emitProgressEvent(
       {
         currentScanPath,
@@ -1044,7 +967,7 @@ export class ManualSystemScan {
         done: true,
         scanId: `scan-empty-${currentSession}`,
       },
-      currentSession
+      currentSession,
     );
   }
 }

@@ -36,29 +36,19 @@ export function Item({ name, action, progress }: DriveOperationInfo) {
   return (
     <div className="flex h-14 w-full px-3">
       <div className="flex h-full flex-1 items-center space-x-3 truncate border-b border-gray-5">
-        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">
-          {fileIcon(getExtension(name))}
-        </div>
+        <div className="flex h-8 w-8 items-center justify-center drop-shadow-sm">{fileIcon(getExtension(name))}</div>
 
         <div className="flex flex-1 flex-col justify-center space-y-px truncate pr-[14px]">
-          <p
-            className="truncate text-sm text-gray-100"
-            title={getBaseName(name)}
-          >
+          <p className="truncate text-sm text-gray-100" title={getBaseName(name)}>
             {getBaseName(name)}
           </p>
-          <p className={'truncate text-xs text-gray-50'}>
-            {`${description} ${progressDisplay}`}
-          </p>
+          <p className={'truncate text-xs text-gray-50'}>{`${description} ${progressDisplay}`}</p>
         </div>
 
         <div className="flex w-7 items-center justify-center">
           {/* PROGRESS */}
           {action &&
-            (action === 'UPLOADING' ||
-              action === 'DOWNLOADING' ||
-              action === 'RENAMING' ||
-              action === 'DELETING') && (
+            (action === 'UPLOADING' || action === 'DOWNLOADING' || action === 'RENAMING' || action === 'DELETING') && (
               <CircularProgressbar
                 value={progress ?? 0}
                 minValue={0}
@@ -75,10 +65,7 @@ export function Item({ name, action, progress }: DriveOperationInfo) {
 
           {/* DONE */}
           {action &&
-            (action === 'DELETED' ||
-              action === 'DOWNLOADED' ||
-              action === 'UPLOADED' ||
-              action === 'RENAMED') && (
+            (action === 'DELETED' || action === 'DOWNLOADED' || action === 'UPLOADED' || action === 'RENAMED') && (
               <Check size={24} className="text-green" weight="bold" />
             )}
         </div>

@@ -1,16 +1,7 @@
 import { Service } from 'diod';
-import {
-  getUpdatedRemoteItems,
-  startRemoteSync,
-} from '../../../../apps/main/remote-sync/service';
-import {
-  ServerFile,
-  ServerFileStatus,
-} from '../../../shared/domain/ServerFile';
-import {
-  ServerFolder,
-  ServerFolderStatus,
-} from '../../../shared/domain/ServerFolder';
+import { getUpdatedRemoteItems, startRemoteSync } from '../../../../apps/main/remote-sync/service';
+import { ServerFile, ServerFileStatus } from '../../../shared/domain/ServerFile';
+import { ServerFolder, ServerFolderStatus } from '../../../shared/domain/ServerFolder';
 import { RemoteItemsGenerator } from '../domain/RemoteItemsGenerator';
 
 @Service()

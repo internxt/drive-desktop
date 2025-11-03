@@ -1,7 +1,5 @@
 import { promises as fs, Stats } from 'fs';
-import {
-  wasAccessedWithinLastHour,
-} from './was-accessed-within-last-hour';
+import { wasAccessedWithinLastHour } from './was-accessed-within-last-hour';
 
 jest.mock('fs', () => ({
   promises: {

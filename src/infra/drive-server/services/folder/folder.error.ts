@@ -1,10 +1,4 @@
-const FolderErrorCauses = [
-  'NO_PERMISSION',
-  'BAD_REQUEST',
-  'SERVER_ERROR',
-  'UNKNOWN',
-  'FOLDER_ALREADY_EXISTS',
-] as const;
+const FolderErrorCauses = ['NO_PERMISSION', 'BAD_REQUEST', 'SERVER_ERROR', 'UNKNOWN', 'FOLDER_ALREADY_EXISTS'] as const;
 
 export type FolderErrorCause = (typeof FolderErrorCauses)[number];
 

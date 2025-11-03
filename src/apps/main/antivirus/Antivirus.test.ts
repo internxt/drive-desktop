@@ -71,22 +71,16 @@ describe('Antivirus', () => {
           debugMode: true,
           scanRecursively: true,
           preference: 'clamdscan',
-        })
+        }),
       );
       expect(antivirus).toBeInstanceOf(Antivirus);
     });
 
     it('should throw an error if initialization fails', async () => {
-      (clamAVServer.checkClamdAvailability as jest.Mock).mockResolvedValue(
-        false
-      );
-      (clamAVServer.startClamdServer as jest.Mock).mockRejectedValue(
-        new Error('Failed to start ClamAV daemon')
-      );
+      (clamAVServer.checkClamdAvailability as jest.Mock).mockResolvedValue(false);
+      (clamAVServer.startClamdServer as jest.Mock).mockRejectedValue(new Error('Failed to start ClamAV daemon'));
 
-      await expect(Antivirus.createInstance()).rejects.toThrow(
-        'Failed to start ClamAV daemon'
-      );
+      await expect(Antivirus.createInstance()).rejects.toThrow('Failed to start ClamAV daemon');
     });
   });
 
@@ -117,9 +111,7 @@ describe('Antivirus', () => {
       (antivirus as any).connectionRetries = 3;
       (antivirus as any).ensureConnection = jest.fn().mockResolvedValue(false);
 
-      await expect(antivirus.scanFile('/path/to/file.txt')).rejects.toThrow(
-        'ClamAV is not initialized'
-      );
+      await expect(antivirus.scanFile('/path/to/file.txt')).rejects.toThrow('ClamAV is not initialized');
     });
 
     it('should retry scan if connection issues are encountered', async () => {
@@ -158,9 +150,7 @@ describe('Antivirus', () => {
       const antivirus = await Antivirus.createInstance();
       (antivirus as any).clamAv = null;
 
-      await expect(antivirus.stopClamAv()).rejects.toThrow(
-        'ClamAv instance is not initialized'
-      );
+      await expect(antivirus.stopClamAv()).rejects.toThrow('ClamAv instance is not initialized');
     });
   });
 

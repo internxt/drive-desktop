@@ -7,16 +7,14 @@ export interface DatabaseCollectionAdapter<DatabaseItemType> {
   /**
    * Gets an item from the database
    */
-  get(
-    itemId: string
-  ): Promise<{ success: boolean; result: DatabaseItemType | null }>;
+  get(itemId: string): Promise<{ success: boolean; result: DatabaseItemType | null }>;
 
   /**
    * Updates an item in the database
    */
   update(
     itemId: string,
-    updatePayload: Partial<DatabaseItemType>
+    updatePayload: Partial<DatabaseItemType>,
   ): Promise<{
     success: boolean;
     result: DatabaseItemType | null;

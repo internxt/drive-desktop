@@ -16,9 +16,7 @@ import { createAndSetupNewDevice } from './createAndSetupNewDevice';
  * @param deviceResult - The Either<Error, Device | null> result from a device fetch operation.
  * @returns The Device if found or created, or an Error if an error occurred.
  */
-async function handleFetchDeviceResult(
-  deviceResult: Either<Error, Device | null>
-) {
+async function handleFetchDeviceResult(deviceResult: Either<Error, Device | null>) {
   if (deviceResult.isRight()) {
     const device = deviceResult.getRight();
     if (device) {
@@ -57,12 +55,10 @@ export async function getOrCreateDevice(): Promise<Device | Error> {
     return handleFetchDeviceResult(result);
   }
 
-    /* eventually, this whole if section is going to be replaced
+  /* eventually, this whole if section is going to be replaced
     when all the users naturaly migrated to the new identification mechanism */
-    const prop = hasUuid
-      ? { uuid: savedUUID }
-      : { legacyId: legacyId.toString() };
+  const prop = hasUuid ? { uuid: savedUUID } : { legacyId: legacyId.toString() };
 
-    const deviceResult = await fetchDeviceLegacyAndMigrate(prop);
-    return handleFetchDeviceResult(deviceResult);
+  const deviceResult = await fetchDeviceLegacyAndMigrate(prop);
+  return handleFetchDeviceResult(deviceResult);
 }

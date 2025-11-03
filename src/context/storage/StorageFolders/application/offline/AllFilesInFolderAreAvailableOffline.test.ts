@@ -15,7 +15,7 @@ describe('AllFilesInFolderAreAvailableOffline', () => {
   const mockFolder = (id: number): Folder =>
     ({
       id,
-    } as unknown as Folder);
+    }) as unknown as Folder;
 
   const mockFile = (contentsId: string): File => {
     return Object.create({
@@ -45,7 +45,7 @@ describe('AllFilesInFolderAreAvailableOffline', () => {
       singleFolderFinderMock,
       filesByPartialSearcherMock,
       repositoryMock,
-      foldersSearcherByPartialMock
+      foldersSearcherByPartialMock,
     );
   });
 

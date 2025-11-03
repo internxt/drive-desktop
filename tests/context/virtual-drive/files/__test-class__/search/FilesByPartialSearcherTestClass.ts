@@ -1,8 +1,5 @@
 import { FilesByPartialSearcher } from '../../../../../../src/context/virtual-drive/files/application/search/FilesByPartialSearcher';
-import {
-  FileAttributes,
-  File,
-} from '../../../../../../src/context/virtual-drive/files/domain/File';
+import { FileAttributes, File } from '../../../../../../src/context/virtual-drive/files/domain/File';
 import { FileRepository } from '../../../../../../src/context/virtual-drive/files/domain/FileRepository';
 
 export class FilesByPartialSearcherTestClass extends FilesByPartialSearcher {

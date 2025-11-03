@@ -3,10 +3,7 @@ import path from 'path';
 import { Readable } from 'stream';
 
 import configStore from '../../config';
-import {
-  isImageThumbnailable,
-  isPdfThumbnailable,
-} from '../domain/ThumbnableExtension';
+import { isImageThumbnailable, isPdfThumbnailable } from '../domain/ThumbnableExtension';
 import { extractFirstPageAsReadablePNG } from './extract-pdf-page';
 
 function getExtension(pathLike: string) {
@@ -15,9 +12,7 @@ function getExtension(pathLike: string) {
   return ext.replace('.', '');
 }
 
-export async function obtainImageToThumbnailIt(
-  name: string
-): Promise<Readable | undefined> {
+export async function obtainImageToThumbnailIt(name: string): Promise<Readable | undefined> {
   const ext = getExtension(name);
 
   const root = configStore.get('syncRoot');

@@ -6,7 +6,7 @@ import { StorageFilesRepository } from '../../domain/StorageFilesRepository';
 export class StorageClearer {
   constructor(
     private readonly cache: StorageFileCache,
-    private readonly repo: StorageFilesRepository
+    private readonly repo: StorageFilesRepository,
   ) {}
 
   async run(): Promise<void> {

@@ -4,8692 +4,8692 @@
  */
 
 export interface paths {
-    '/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FileController_getFiles'];
-        put?: never;
-        /** Create File */
-        post: operations['FileController_createFile'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/files/count': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FileController_getFileCount'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/files/{uuid}/meta': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FileController_getFileMetadata'];
-        /** Update File data */
-        put: operations['FileController_updateFileMetadata'];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/files/{uuid}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations['FileController_replaceFile'];
-        post?: never;
-        /** Delete file from storage and database */
-        delete: operations['FileController_deleteFileByUuid'];
-        options?: never;
-        head?: never;
-        patch: operations['FileController_moveFile'];
-        trace?: never;
-    };
-    '/files/recents': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FileController_getRecentFiles'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/files/meta': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FileController_getFileMetaByPath'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/files/thumbnail': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create Thumbnail */
-        post: operations['FileController_createThumbnail'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/files/{bucketId}/{fileId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete file from storage by fileId */
-        delete: operations['FileController_deleteFileByFileId'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolders'];
-        put?: never;
-        /** Create Folder */
-        post: operations['FolderController_createFolder'];
-        delete: operations['FolderController_deleteFolders'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/count': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderCount'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/content/{uuid}/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderContentFiles'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{id}/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderFiles'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{id}/file': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_checkFileExistence'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/content/{uuid}/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderContentFolders'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/content/{uuid}/folders/existence': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Checks folders existence in folder (use POST request over this)
-         * @deprecated
-         */
-        get: operations['FolderController_checkFoldersExistenceInFolderOld'];
-        put?: never;
-        /** Checks folders existence in folder */
-        post: operations['FolderController_checkFoldersExistenceInFolder'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/content/{uuid}/files/existence': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations['FolderController_checkFilesExistenceInFolder'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/content/{uuid}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Gets folder content */
-        get: operations['FolderController_getFolderContent'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{id}/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderFolders'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{uuid}/meta': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolder'];
-        put: operations['FolderController_updateFolderMetadata'];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{uuid}/ancestors': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderAncestors'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{uuid}/tree': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderTree'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{id}/metadata': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderById'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{uuid}/size': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderSize'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/folders/{uuid}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete Folder */
-        delete: operations['FolderController_deleteFolder'];
-        options?: never;
-        head?: never;
-        patch: operations['FolderController_moveFolder'];
-        trace?: never;
-    };
-    '/folders/meta': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['FolderController_getFolderMetaByPath'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/{sharingId}/meta': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get sharing metadata */
-        get: operations['SharingController_getPublicSharing'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/public/{sharingId}/item': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get sharing item info */
-        get: operations['SharingController_getPublicSharingItemInfo'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/{sharingId}/password': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Remove password from public sharing */
-        delete: operations['SharingController_removePublicSharingPassword'];
-        options?: never;
-        head?: never;
-        /** Set password for public sharing */
-        patch: operations['SharingController_setPublicSharingPassword'];
-        trace?: never;
-    };
-    '/sharings/{itemType}/{itemId}/invites': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['SharingController_getInvites'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/{itemType}/{itemId}/type': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * @deprecated
-         * @description Get sharing (private or public) type, deprecated in favor of :itemType/:itemId/info
-         */
-        get: operations['SharingController_getSharingType'];
-        put: operations['SharingController_changeSharingType'];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/{itemType}/{itemId}/info': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get info related to item sharing */
-        get: operations['SharingController_getItemSharingStatus'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/invites': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all the invites that a user has received */
-        get: operations['SharingController_getInvitesByUser'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/invites/send': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations['SharingController_createInvite'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/invites/{id}/validate': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['SharingController_validateInvite'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/invites/{id}/accept': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations['SharingController_acceptInvite'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/invites/{id}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations['SharingController_removeInvite'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/items/{sharedFolderId}/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all items shared by a user */
-        get: operations['SharingController_getSharedFoldersInsideSharedFolder'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/items/{sharedFolderId}/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all items shared by a user */
-        get: operations['SharingController_getPrivateShareFiles'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/public/items/{sharedFolderId}/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all items shared by a user inside a sharing */
-        get: operations['SharingController_getPublicShareFiles'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/public/items/{sharedFolderId}/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all items shared by a user inside a sharing */
-        get: operations['SharingController_getPublicSharedFolders'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations['SharingController_createSharing'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/{itemType}/{itemId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Stop sharing an item */
-        delete: operations['SharingController_removeSharing'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/roles': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['SharingController_getRoles'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/{sharingId}/role': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['SharingController_getUserRole'];
-        put: operations['SharingController_updateSharingRole'];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/{sharingId}/roles/{sharingRoleId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations['SharingController_removeSharingRole'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/shared-with-me/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all folders shared with a user */
-        get: operations['SharingController_getSharedFoldersWithAUser'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/shared-by-me/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all folders shared by a user */
-        get: operations['SharingController_getSharedFolders'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all folders shared by/with a user */
-        get: operations['SharingController_getAllSharedFolders'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all files shared by/with a user */
-        get: operations['SharingController_getAllSharedFiles'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/shared-with/{itemType}/{itemId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all users that have access to a file or folder */
-        get: operations['SharingController_getItemsSharedsWith'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/shared-with/{folderId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all users that have access to a folder */
-        get: operations['SharingController_getSharedWithByFolderId'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/{itemType}/{itemId}/users/{userId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Remove a user from a shared item */
-        delete: operations['SharingController_removeUserFromSharedItem'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/public/{id}/folder/size': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['SharingController_getPublicSharingFolderSize'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/sharings/public/domains': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['SharingController_getPublicSharingDomains'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get available workspaces for the user */
-        get: operations['WorkspacesController_getAvailableWorkspaces'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/pending-setup': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get owner workspaces ready to be setup */
-        get: operations['WorkspacesController_getUserWorkspacesToBeSetup'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/invitations': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get current user pending invitations */
-        get: operations['WorkspacesController_getUserInvitations'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/invitations/accept': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Accepts invitation to workspace */
-        post: operations['WorkspacesController_acceptWorkspaceInvitation'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/invitations/{inviteId}/validate': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Validates if invitation is valid */
-        get: operations['WorkspacesController_validateWorkspaceInvitation'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/invitations/{inviteId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Declines invitation to workspace */
-        delete: operations['WorkspacesController_removeWorkspaceInvite'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/teams/{teamId}/members': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Gets team members */
-        get: operations['WorkspacesController_getTeamMembers'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/teams/{teamId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Edits team data */
-        patch: operations['WorkspacesController_editTeam'];
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/teams/{teamId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Deletes a team in a workspace */
-        delete: operations['WorkspacesController_deleteTeam'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/teams/{teamId}/user/{userUuid}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add a user to a team */
-        post: operations['WorkspacesController_addUserToTeam'];
-        /** Remove user from team */
-        delete: operations['WorkspacesController_removeUserFromTeam'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['WorkspacesController_getFiles'];
-        put?: never;
-        /** Create File */
-        post: operations['WorkspacesController_createFile'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['WorkspacesController_getFolders'];
-        put?: never;
-        /** Create folder */
-        post: operations['WorkspacesController_createFolder'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/teams/{teamId}/manager': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Changes the manager of a team */
-        patch: operations['WorkspacesController_changeTeamManager'];
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/invitations': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get workspace pending invitations */
-        get: operations['WorkspacesController_getWorkspacePendingInvitations'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/setup': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Set up workspace that has been initialized */
-        patch: operations['WorkspacesController_setupWorkspace'];
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/avatar': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations['WorkspacesController_uploadAvatar'];
-        delete: operations['WorkspacesController_deleteAvatar'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/credentials': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Gets workspace credentials */
-        get: operations['WorkspacesController_getWorkspaceUser'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/usage': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Gets workspace usage */
-        get: operations['WorkspacesController_getWorkspaceStorageUsage'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/members/{memberId}/usage': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Change workspace member assigned space */
-        patch: operations['WorkspacesController_changeMemberAssignedSpace'];
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/members': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Gets workspace members */
-        get: operations['WorkspacesController_getWorkspaceMembers'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/members/invite': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Invite user to a workspace */
-        post: operations['WorkspacesController_inviteUsersToWorkspace'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/teams': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Gets workspace teams */
-        get: operations['WorkspacesController_getWorkspaceTeams'];
-        put?: never;
-        /** Creates a team in a workspace */
-        post: operations['WorkspacesController_createTeam'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/usage/member': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** User usage in drive */
-        get: operations['WorkspacesController_calculateUserUsage'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/shared': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Share file or folder to workspace */
-        post: operations['WorkspacesController_shareItemWithMember'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/teams/{teamId}/shared/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get shared files in teams */
-        get: operations['WorkspacesController_getSharedFilesInWorkspace[0]'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/shared/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get shared files in teams */
-        get: operations['WorkspacesController_getSharedFilesInWorkspace[1]'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/teams/{teamId}/shared/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get shared folders in teams */
-        get: operations['WorkspacesController_getSharedFoldersInWorkspace[0]'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/shared/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get shared folders in teams */
-        get: operations['WorkspacesController_getSharedFoldersInWorkspace[1]'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/teams/{teamId}/shared/{sharedFolderId}/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get folders inside a shared folder */
-        get: operations['WorkspacesController_getFoldersInSharingFolder[0]'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/shared/{sharedFolderId}/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get folders inside a shared folder */
-        get: operations['WorkspacesController_getFoldersInSharingFolder[1]'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/teams/{teamId}/shared/{sharedFolderId}/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get files inside a shared folder */
-        get: operations['WorkspacesController_getFilesInSharingFolder[0]'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/shared/{sharedFolderId}/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get files inside a shared folder */
-        get: operations['WorkspacesController_getFilesInSharingFolder[1]'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/shared/{itemType}/{itemId}/shared-with': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get users and teams an item is shared with */
-        get: operations['WorkspacesController_getItemSharedWith'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/trash': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get current workspace user trash */
-        get: operations['WorkspacesController_getUserTrashedItems'];
-        put?: never;
-        post?: never;
-        /** Empty current member trash */
-        delete: operations['WorkspacesController_emptyTrash'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/folders/{folderUuid}/folders': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get folders in folder */
-        get: operations['WorkspacesController_getFoldersInFolder'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/folders/{folderUuid}/files': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get files in folder */
-        get: operations['WorkspacesController_getFilesInFolder'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/teams/{teamId}/members/{memberId}/role': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Changes the role of a member in the workspace */
-        patch: operations['WorkspacesController_changeMemberRole'];
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get workspace details */
-        get: operations['WorkspacesController_getWorkspaceDetails'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Edit workspace details */
-        patch: operations['WorkspacesController_editWorkspaceDetails'];
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/members/leave': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Leave a workspace */
-        delete: operations['WorkspacesController_leaveWorkspace'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/members/{memberId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Gets workspace member details */
-        get: operations['WorkspacesController_getWorkspaceMemberDetails'];
-        put?: never;
-        post?: never;
-        /** Remove member from workspace */
-        delete: operations['WorkspacesController_removeWorkspaceMember'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/members/{memberId}/deactivate': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Deactivate user from workspace */
-        patch: operations['WorkspacesController_deactivateWorkspaceMember'];
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/members/{memberId}/activate': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Activate workspace user */
-        patch: operations['WorkspacesController_activateWorkspaceMember'];
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/fuzzy/{search}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search by name inside workspace */
-        get: operations['WorkspacesController_searchWorkspace'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/access/logs': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Access Logs */
-        get: operations['WorkspacesController_accessLogs'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/workspaces/{workspaceId}/{itemType}/{uuid}/ancestors': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** See item ancestors */
-        get: operations['WorkspacesController_getWorkspaceItemAncestors'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create a user */
-        post: operations['UserController_createUser'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/user/{email}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the user data by email and check if the user has subscription */
-        get: operations['UserController_getUserByEmail'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/pre-created-users/register': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Register Pre Created User */
-        post: operations['UserController_registerPreCreatedUser'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/pre-create': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Pre create a user */
-        post: operations['UserController_preCreateUser'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/c/{uuid}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get user credentials */
-        get: operations['UserController_getUserCredentials'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/refresh': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Refresh session token */
-        get: operations['UserController_refreshToken'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/avatar/refresh': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Refresh avatar token */
-        get: operations['UserController_refreshAvatarUser'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/password': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch: operations['UserController_updatePassword'];
-        trace?: never;
-    };
-    '/users/recover-account': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Recover account
-         * @deprecated
-         */
-        put: operations['UserController_recoverAccount'];
-        /** Request account recovery */
-        post: operations['UserController_requestAccountRecovery'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/unblock-account': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Resets user error login counter to unblock account */
-        put: operations['UserController_accountUnblock'];
-        /** Request account unblock */
-        post: operations['UserController_requestAccountUnblock'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/recover-account-v2': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Recover account */
-        put: operations['UserController_recoverAccountV2'];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/legacy-recover-account': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Recover accocunt with legacy backup file
-         * @description Recover account with legacy backup file, mnemonic only files should be used
-         */
-        put: operations['UserController_requestLegacyAccountRecovery'];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/public-key/{email}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get public key by email */
-        get: operations['UserController_getPublicKeyByEmail'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/attempt-change-email': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations['UserController_createAttemptChangeEmail'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/accept': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations['UserController_acceptAttemptChangeEmail'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/verify-expiration': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['UserController_verifyAttemptChangeEmail'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/meet-token/beta': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get the user Meet token */
-        get: operations['UserController_getMeetTokenBeta'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/meet-token/anon': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get an anonymous user Meet token */
-        get: operations['UserController_getMeetTokenAnon'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/notification-token': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add a notification token */
-        post: operations['UserController_addNotificationToken'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/email-verification/send': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Send account verification email */
-        post: operations['UserController_sendAccountVerifyEmail'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/email-verification': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Verify user email */
-        post: operations['UserController_verifyAccountEmail'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/profile': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update user profile */
-        patch: operations['UserController_updateProfile'];
-        trace?: never;
-    };
-    '/users/avatar': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put: operations['UserController_uploadAvatar'];
-        post?: never;
-        delete: operations['UserController_deleteAvatar'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/deactivation/send': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Send email to deactivate current user account */
-        post: operations['UserController_sendUserDeactivationEmail'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/deactivation/confirm': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Confirm user deactivation */
-        post: operations['UserController_confirmUserDeactivation'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/usage': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get User used storage space */
-        get: operations['UserController_getUserUsage'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/limit': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['UserController_limit'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/me/upload-status': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Check if user has uploaded any files */
-        get: operations['UserController_getUploadStatus'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/users/generate-mnemonic': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations['UserController_generateMnemonic'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/storage/share/domains': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get the domains for the sharing links
-         * @deprecated
-         */
-        get: operations['ShareController_getDomains'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/fuzzy/{search}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Search for items from a part of the name */
-        get: operations['FuzzySearchController_fuzzySearch'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/activate': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Activate user backup */
-        post: operations['BackupController_activateBackup'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/v2/devices': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * List user backup devices
-         * @description Retrieve all backup devices associated with the current user, along with their linked backup folders.
-         */
-        get: operations['BackupController_getDevicesAndFolders'];
-        put?: never;
-        /**
-         * Create new device with backup folder
-         * @description Register a new backup device and create a new backup folder for it.
-         */
-        post: operations['BackupController_createDeviceAndFolder'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/v2/devices/migrate': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /**
-         * Register device for existing backup folder
-         * @description Register a new device and link it to an existing backup folder. Primarily used for migrating existing backup folders to the new device-folder model.
-         */
-        post: operations['BackupController_createDeviceForExistingFolder'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/v2/devices/{key}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete device and its linked folder by key */
-        delete: operations['BackupController_deleteDeviceAndFolder'];
-        options?: never;
-        head?: never;
-        /** Update device by key */
-        patch: operations['BackupController_updateDevice'];
-        trace?: never;
-    };
-    '/backup/deviceAsFolder': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all devices as folder */
-        get: operations['BackupController_getDevicesAsFolder'];
-        put?: never;
-        /** Create a folder using device name */
-        post: operations['BackupController_createDeviceAsFolder'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/deviceAsFolder/{uuid}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get device as folder by uuid */
-        get: operations['BackupController_getDeviceAsFolder'];
-        put?: never;
-        post?: never;
-        /** Delete device as folder by uuid */
-        delete: operations['BackupController_deleteDeviceAsFolder'];
-        options?: never;
-        head?: never;
-        /** Update device as folder by uuid */
-        patch: operations['BackupController_updateDeviceAsFolder'];
-        trace?: never;
-    };
-    '/backup/deviceAsFolderById/{id}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get device as folder by id (deprecated in favor of uuid)
-         * @deprecated
-         */
-        get: operations['BackupController_getDeviceAsFolderById'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/devices': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get all user devices. Will not retrieve any device linked to a folder
-         * @deprecated
-         */
-        get: operations['BackupController_getAllDevices'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/devices/{deviceId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /**
-         * Delete user device
-         * @deprecated
-         */
-        delete: operations['BackupController_deleteDevice'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/{mac}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * Get backups by mac
-         * @deprecated
-         */
-        get: operations['BackupController_getBackupsByMac'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/backup/{backupId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete backup */
-        delete: operations['BackupController_deleteBackup'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/storage/trash/paginated': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Gets trash content */
-        get: operations['TrashController_getTrashedFilesPaginated'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/storage/trash/add': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Add items of files and folders to trash */
-        post: operations['TrashController_moveItemsToTrash'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/storage/trash/all': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Deletes all items from user's trash */
-        delete: operations['TrashController_clearTrash'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/storage/trash/all/request': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete: operations['TrashController_requestEmptyTrash'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/storage/trash': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Deletes items from user's trash */
-        delete: operations['TrashController_deleteItems'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/storage/trash/file/{fileId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Deletes a single file from user's trash */
-        delete: operations['TrashController_deleteFile'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/storage/trash/folder/{folderId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Deletes a single file form user's trash */
-        delete: operations['TrashController_deleteFolder'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/auth/login': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get security details to log in */
-        post: operations['AuthController_login'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/auth/login/access': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Access user account */
-        post: operations['AuthController_loginAccess'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/auth/logout': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Log out of the account */
-        get: operations['AuthController_logout'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/auth/tfa': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get two-factor authentication */
-        get: operations['AuthController_getTfa'];
-        /** Update two-factor authentication */
-        put: operations['AuthController_putTfa'];
-        post?: never;
-        /** Delete two-factor authentication */
-        delete: operations['AuthController_deleteTfa'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/auth/are-credentials-correct': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Check if current user credentials are correct */
-        get: operations['AuthController_areCredentialsCorrect'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/links': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Create send link */
-        post: operations['SendController_createLinks'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/links/{linkId}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** get Send Link by id and return files */
-        get: operations['SendController_getSendLink'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/device/context': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get Device Context */
-        post: operations['DeviceController_getDevice'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/device/geolocation': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get Geolocation by ip */
-        post: operations['DeviceController_getLocation'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/gateway/workspaces': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Initiates a workspace */
-        post: operations['GatewayController_initializeWorkspace'];
-        /** Destroy a workspace */
-        delete: operations['GatewayController_destroyWorkspace'];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/gateway/workspaces/storage': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update a workspace */
-        put: operations['GatewayController_updateWorkspaceStorage'];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/gateway/workspaces/{workspaceId}/storage/upgrade-check': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Precheck for updating a workspace */
-        post: operations['GatewayController_validateStorageForPlanChange'];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/gateway/users': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get user details */
-        get: operations['GatewayController_getUserByEmail'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/gateway/users/storage/stackability': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Check if user can expand storage space */
-        get: operations['GatewayController_checkUserStorageExpansion'];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    '/gateway/users/{uuid}': {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Update user plan and storage */
-        patch: operations['GatewayController_updateUser'];
-        trace?: never;
-    };
+  '/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getFiles'];
+    put?: never;
+    /** Create File */
+    post: operations['FileController_createFile'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/count': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getFileCount'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}/meta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getFileMetadata'];
+    /** Update File data */
+    put: operations['FileController_updateFileMetadata'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: operations['FileController_replaceFile'];
+    post?: never;
+    /** Delete file from storage and database */
+    delete: operations['FileController_deleteFileByUuid'];
+    options?: never;
+    head?: never;
+    patch: operations['FileController_moveFile'];
+    trace?: never;
+  };
+  '/files/recents': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getRecentFiles'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/meta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FileController_getFileMetaByPath'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/thumbnail': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create Thumbnail */
+    post: operations['FileController_createThumbnail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/files/{bucketId}/{fileId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete file from storage by fileId */
+    delete: operations['FileController_deleteFileByFileId'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolders'];
+    put?: never;
+    /** Create Folder */
+    post: operations['FolderController_createFolder'];
+    delete: operations['FolderController_deleteFolders'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/count': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderCount'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/content/{uuid}/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderContentFiles'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{id}/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderFiles'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{id}/file': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_checkFileExistence'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/content/{uuid}/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderContentFolders'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/content/{uuid}/folders/existence': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Checks folders existence in folder (use POST request over this)
+     * @deprecated
+     */
+    get: operations['FolderController_checkFoldersExistenceInFolderOld'];
+    put?: never;
+    /** Checks folders existence in folder */
+    post: operations['FolderController_checkFoldersExistenceInFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/content/{uuid}/files/existence': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['FolderController_checkFilesExistenceInFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/content/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets folder content */
+    get: operations['FolderController_getFolderContent'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{id}/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderFolders'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{uuid}/meta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolder'];
+    put: operations['FolderController_updateFolderMetadata'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{uuid}/ancestors': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderAncestors'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{uuid}/tree': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderTree'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{id}/metadata': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderById'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{uuid}/size': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderSize'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/folders/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete Folder */
+    delete: operations['FolderController_deleteFolder'];
+    options?: never;
+    head?: never;
+    patch: operations['FolderController_moveFolder'];
+    trace?: never;
+  };
+  '/folders/meta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['FolderController_getFolderMetaByPath'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/{sharingId}/meta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get sharing metadata */
+    get: operations['SharingController_getPublicSharing'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/public/{sharingId}/item': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get sharing item info */
+    get: operations['SharingController_getPublicSharingItemInfo'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/{sharingId}/password': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Remove password from public sharing */
+    delete: operations['SharingController_removePublicSharingPassword'];
+    options?: never;
+    head?: never;
+    /** Set password for public sharing */
+    patch: operations['SharingController_setPublicSharingPassword'];
+    trace?: never;
+  };
+  '/sharings/{itemType}/{itemId}/invites': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['SharingController_getInvites'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/{itemType}/{itemId}/type': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * @deprecated
+     * @description Get sharing (private or public) type, deprecated in favor of :itemType/:itemId/info
+     */
+    get: operations['SharingController_getSharingType'];
+    put: operations['SharingController_changeSharingType'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/{itemType}/{itemId}/info': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get info related to item sharing */
+    get: operations['SharingController_getItemSharingStatus'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/invites': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all the invites that a user has received */
+    get: operations['SharingController_getInvitesByUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/invites/send': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['SharingController_createInvite'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/invites/{id}/validate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['SharingController_validateInvite'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/invites/{id}/accept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['SharingController_acceptInvite'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/invites/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations['SharingController_removeInvite'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/items/{sharedFolderId}/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all items shared by a user */
+    get: operations['SharingController_getSharedFoldersInsideSharedFolder'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/items/{sharedFolderId}/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all items shared by a user */
+    get: operations['SharingController_getPrivateShareFiles'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/public/items/{sharedFolderId}/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all items shared by a user inside a sharing */
+    get: operations['SharingController_getPublicShareFiles'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/public/items/{sharedFolderId}/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all items shared by a user inside a sharing */
+    get: operations['SharingController_getPublicSharedFolders'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['SharingController_createSharing'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/{itemType}/{itemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Stop sharing an item */
+    delete: operations['SharingController_removeSharing'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/roles': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['SharingController_getRoles'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/{sharingId}/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['SharingController_getUserRole'];
+    put: operations['SharingController_updateSharingRole'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/{sharingId}/roles/{sharingRoleId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations['SharingController_removeSharingRole'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/shared-with-me/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all folders shared with a user */
+    get: operations['SharingController_getSharedFoldersWithAUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/shared-by-me/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all folders shared by a user */
+    get: operations['SharingController_getSharedFolders'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all folders shared by/with a user */
+    get: operations['SharingController_getAllSharedFolders'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all files shared by/with a user */
+    get: operations['SharingController_getAllSharedFiles'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/shared-with/{itemType}/{itemId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all users that have access to a file or folder */
+    get: operations['SharingController_getItemsSharedsWith'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/shared-with/{folderId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all users that have access to a folder */
+    get: operations['SharingController_getSharedWithByFolderId'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/{itemType}/{itemId}/users/{userId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Remove a user from a shared item */
+    delete: operations['SharingController_removeUserFromSharedItem'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/public/{id}/folder/size': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['SharingController_getPublicSharingFolderSize'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/sharings/public/domains': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['SharingController_getPublicSharingDomains'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get available workspaces for the user */
+    get: operations['WorkspacesController_getAvailableWorkspaces'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/pending-setup': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get owner workspaces ready to be setup */
+    get: operations['WorkspacesController_getUserWorkspacesToBeSetup'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/invitations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get current user pending invitations */
+    get: operations['WorkspacesController_getUserInvitations'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/invitations/accept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Accepts invitation to workspace */
+    post: operations['WorkspacesController_acceptWorkspaceInvitation'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/invitations/{inviteId}/validate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Validates if invitation is valid */
+    get: operations['WorkspacesController_validateWorkspaceInvitation'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/invitations/{inviteId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Declines invitation to workspace */
+    delete: operations['WorkspacesController_removeWorkspaceInvite'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/teams/{teamId}/members': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets team members */
+    get: operations['WorkspacesController_getTeamMembers'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/teams/{teamId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Edits team data */
+    patch: operations['WorkspacesController_editTeam'];
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/teams/{teamId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Deletes a team in a workspace */
+    delete: operations['WorkspacesController_deleteTeam'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/teams/{teamId}/user/{userUuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Add a user to a team */
+    post: operations['WorkspacesController_addUserToTeam'];
+    /** Remove user from team */
+    delete: operations['WorkspacesController_removeUserFromTeam'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['WorkspacesController_getFiles'];
+    put?: never;
+    /** Create File */
+    post: operations['WorkspacesController_createFile'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['WorkspacesController_getFolders'];
+    put?: never;
+    /** Create folder */
+    post: operations['WorkspacesController_createFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/teams/{teamId}/manager': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Changes the manager of a team */
+    patch: operations['WorkspacesController_changeTeamManager'];
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/invitations': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get workspace pending invitations */
+    get: operations['WorkspacesController_getWorkspacePendingInvitations'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/setup': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Set up workspace that has been initialized */
+    patch: operations['WorkspacesController_setupWorkspace'];
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/avatar': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['WorkspacesController_uploadAvatar'];
+    delete: operations['WorkspacesController_deleteAvatar'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/credentials': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets workspace credentials */
+    get: operations['WorkspacesController_getWorkspaceUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/usage': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets workspace usage */
+    get: operations['WorkspacesController_getWorkspaceStorageUsage'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/members/{memberId}/usage': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Change workspace member assigned space */
+    patch: operations['WorkspacesController_changeMemberAssignedSpace'];
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/members': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets workspace members */
+    get: operations['WorkspacesController_getWorkspaceMembers'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/members/invite': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Invite user to a workspace */
+    post: operations['WorkspacesController_inviteUsersToWorkspace'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/teams': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets workspace teams */
+    get: operations['WorkspacesController_getWorkspaceTeams'];
+    put?: never;
+    /** Creates a team in a workspace */
+    post: operations['WorkspacesController_createTeam'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/usage/member': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** User usage in drive */
+    get: operations['WorkspacesController_calculateUserUsage'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/shared': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Share file or folder to workspace */
+    post: operations['WorkspacesController_shareItemWithMember'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/teams/{teamId}/shared/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get shared files in teams */
+    get: operations['WorkspacesController_getSharedFilesInWorkspace[0]'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/shared/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get shared files in teams */
+    get: operations['WorkspacesController_getSharedFilesInWorkspace[1]'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/teams/{teamId}/shared/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get shared folders in teams */
+    get: operations['WorkspacesController_getSharedFoldersInWorkspace[0]'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/shared/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get shared folders in teams */
+    get: operations['WorkspacesController_getSharedFoldersInWorkspace[1]'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/teams/{teamId}/shared/{sharedFolderId}/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get folders inside a shared folder */
+    get: operations['WorkspacesController_getFoldersInSharingFolder[0]'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/shared/{sharedFolderId}/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get folders inside a shared folder */
+    get: operations['WorkspacesController_getFoldersInSharingFolder[1]'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/teams/{teamId}/shared/{sharedFolderId}/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get files inside a shared folder */
+    get: operations['WorkspacesController_getFilesInSharingFolder[0]'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/shared/{sharedFolderId}/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get files inside a shared folder */
+    get: operations['WorkspacesController_getFilesInSharingFolder[1]'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/shared/{itemType}/{itemId}/shared-with': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get users and teams an item is shared with */
+    get: operations['WorkspacesController_getItemSharedWith'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/trash': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get current workspace user trash */
+    get: operations['WorkspacesController_getUserTrashedItems'];
+    put?: never;
+    post?: never;
+    /** Empty current member trash */
+    delete: operations['WorkspacesController_emptyTrash'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/folders/{folderUuid}/folders': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get folders in folder */
+    get: operations['WorkspacesController_getFoldersInFolder'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/folders/{folderUuid}/files': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get files in folder */
+    get: operations['WorkspacesController_getFilesInFolder'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/teams/{teamId}/members/{memberId}/role': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Changes the role of a member in the workspace */
+    patch: operations['WorkspacesController_changeMemberRole'];
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get workspace details */
+    get: operations['WorkspacesController_getWorkspaceDetails'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Edit workspace details */
+    patch: operations['WorkspacesController_editWorkspaceDetails'];
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/members/leave': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Leave a workspace */
+    delete: operations['WorkspacesController_leaveWorkspace'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/members/{memberId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets workspace member details */
+    get: operations['WorkspacesController_getWorkspaceMemberDetails'];
+    put?: never;
+    post?: never;
+    /** Remove member from workspace */
+    delete: operations['WorkspacesController_removeWorkspaceMember'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/members/{memberId}/deactivate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Deactivate user from workspace */
+    patch: operations['WorkspacesController_deactivateWorkspaceMember'];
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/members/{memberId}/activate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Activate workspace user */
+    patch: operations['WorkspacesController_activateWorkspaceMember'];
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/fuzzy/{search}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Search by name inside workspace */
+    get: operations['WorkspacesController_searchWorkspace'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/access/logs': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Access Logs */
+    get: operations['WorkspacesController_accessLogs'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/workspaces/{workspaceId}/{itemType}/{uuid}/ancestors': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** See item ancestors */
+    get: operations['WorkspacesController_getWorkspaceItemAncestors'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create a user */
+    post: operations['UserController_createUser'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/user/{email}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get the user data by email and check if the user has subscription */
+    get: operations['UserController_getUserByEmail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/pre-created-users/register': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Register Pre Created User */
+    post: operations['UserController_registerPreCreatedUser'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/pre-create': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Pre create a user */
+    post: operations['UserController_preCreateUser'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/c/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get user credentials */
+    get: operations['UserController_getUserCredentials'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Refresh session token */
+    get: operations['UserController_refreshToken'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/avatar/refresh': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Refresh avatar token */
+    get: operations['UserController_refreshAvatarUser'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/password': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch: operations['UserController_updatePassword'];
+    trace?: never;
+  };
+  '/users/recover-account': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Recover account
+     * @deprecated
+     */
+    put: operations['UserController_recoverAccount'];
+    /** Request account recovery */
+    post: operations['UserController_requestAccountRecovery'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/unblock-account': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Resets user error login counter to unblock account */
+    put: operations['UserController_accountUnblock'];
+    /** Request account unblock */
+    post: operations['UserController_requestAccountUnblock'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/recover-account-v2': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Recover account */
+    put: operations['UserController_recoverAccountV2'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/legacy-recover-account': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /**
+     * Recover accocunt with legacy backup file
+     * @description Recover account with legacy backup file, mnemonic only files should be used
+     */
+    put: operations['UserController_requestLegacyAccountRecovery'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/public-key/{email}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get public key by email */
+    get: operations['UserController_getPublicKeyByEmail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/attempt-change-email': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['UserController_createAttemptChangeEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/accept': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations['UserController_acceptAttemptChangeEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/attempt-change-email/{encryptedAttemptChangeEmailId}/verify-expiration': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['UserController_verifyAttemptChangeEmail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/meet-token/beta': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get the user Meet token */
+    get: operations['UserController_getMeetTokenBeta'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/meet-token/anon': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get an anonymous user Meet token */
+    get: operations['UserController_getMeetTokenAnon'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/notification-token': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Add a notification token */
+    post: operations['UserController_addNotificationToken'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/email-verification/send': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Send account verification email */
+    post: operations['UserController_sendAccountVerifyEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/email-verification': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Verify user email */
+    post: operations['UserController_verifyAccountEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/profile': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update user profile */
+    patch: operations['UserController_updateProfile'];
+    trace?: never;
+  };
+  '/users/avatar': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put: operations['UserController_uploadAvatar'];
+    post?: never;
+    delete: operations['UserController_deleteAvatar'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/deactivation/send': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Send email to deactivate current user account */
+    post: operations['UserController_sendUserDeactivationEmail'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/deactivation/confirm': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Confirm user deactivation */
+    post: operations['UserController_confirmUserDeactivation'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/usage': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get User used storage space */
+    get: operations['UserController_getUserUsage'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/limit': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['UserController_limit'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/me/upload-status': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Check if user has uploaded any files */
+    get: operations['UserController_getUploadStatus'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/users/generate-mnemonic': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations['UserController_generateMnemonic'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/storage/share/domains': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get the domains for the sharing links
+     * @deprecated
+     */
+    get: operations['ShareController_getDomains'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/fuzzy/{search}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Search for items from a part of the name */
+    get: operations['FuzzySearchController_fuzzySearch'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/activate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Activate user backup */
+    post: operations['BackupController_activateBackup'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/v2/devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * List user backup devices
+     * @description Retrieve all backup devices associated with the current user, along with their linked backup folders.
+     */
+    get: operations['BackupController_getDevicesAndFolders'];
+    put?: never;
+    /**
+     * Create new device with backup folder
+     * @description Register a new backup device and create a new backup folder for it.
+     */
+    post: operations['BackupController_createDeviceAndFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/v2/devices/migrate': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /**
+     * Register device for existing backup folder
+     * @description Register a new device and link it to an existing backup folder. Primarily used for migrating existing backup folders to the new device-folder model.
+     */
+    post: operations['BackupController_createDeviceForExistingFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/v2/devices/{key}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete device and its linked folder by key */
+    delete: operations['BackupController_deleteDeviceAndFolder'];
+    options?: never;
+    head?: never;
+    /** Update device by key */
+    patch: operations['BackupController_updateDevice'];
+    trace?: never;
+  };
+  '/backup/deviceAsFolder': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get all devices as folder */
+    get: operations['BackupController_getDevicesAsFolder'];
+    put?: never;
+    /** Create a folder using device name */
+    post: operations['BackupController_createDeviceAsFolder'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/deviceAsFolder/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get device as folder by uuid */
+    get: operations['BackupController_getDeviceAsFolder'];
+    put?: never;
+    post?: never;
+    /** Delete device as folder by uuid */
+    delete: operations['BackupController_deleteDeviceAsFolder'];
+    options?: never;
+    head?: never;
+    /** Update device as folder by uuid */
+    patch: operations['BackupController_updateDeviceAsFolder'];
+    trace?: never;
+  };
+  '/backup/deviceAsFolderById/{id}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get device as folder by id (deprecated in favor of uuid)
+     * @deprecated
+     */
+    get: operations['BackupController_getDeviceAsFolderById'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/devices': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get all user devices. Will not retrieve any device linked to a folder
+     * @deprecated
+     */
+    get: operations['BackupController_getAllDevices'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/devices/{deviceId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /**
+     * Delete user device
+     * @deprecated
+     */
+    delete: operations['BackupController_deleteDevice'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/{mac}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /**
+     * Get backups by mac
+     * @deprecated
+     */
+    get: operations['BackupController_getBackupsByMac'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/backup/{backupId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Delete backup */
+    delete: operations['BackupController_deleteBackup'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/storage/trash/paginated': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Gets trash content */
+    get: operations['TrashController_getTrashedFilesPaginated'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/storage/trash/add': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Add items of files and folders to trash */
+    post: operations['TrashController_moveItemsToTrash'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/storage/trash/all': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Deletes all items from user's trash */
+    delete: operations['TrashController_clearTrash'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/storage/trash/all/request': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete: operations['TrashController_requestEmptyTrash'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/storage/trash': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Deletes items from user's trash */
+    delete: operations['TrashController_deleteItems'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/storage/trash/file/{fileId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Deletes a single file from user's trash */
+    delete: operations['TrashController_deleteFile'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/storage/trash/folder/{folderId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    /** Deletes a single file form user's trash */
+    delete: operations['TrashController_deleteFolder'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/login': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get security details to log in */
+    post: operations['AuthController_login'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/login/access': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Access user account */
+    post: operations['AuthController_loginAccess'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/logout': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Log out of the account */
+    get: operations['AuthController_logout'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/tfa': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get two-factor authentication */
+    get: operations['AuthController_getTfa'];
+    /** Update two-factor authentication */
+    put: operations['AuthController_putTfa'];
+    post?: never;
+    /** Delete two-factor authentication */
+    delete: operations['AuthController_deleteTfa'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/auth/are-credentials-correct': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Check if current user credentials are correct */
+    get: operations['AuthController_areCredentialsCorrect'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/links': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Create send link */
+    post: operations['SendController_createLinks'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/links/{linkId}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** get Send Link by id and return files */
+    get: operations['SendController_getSendLink'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/device/context': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get Device Context */
+    post: operations['DeviceController_getDevice'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/device/geolocation': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Get Geolocation by ip */
+    post: operations['DeviceController_getLocation'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/gateway/workspaces': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Initiates a workspace */
+    post: operations['GatewayController_initializeWorkspace'];
+    /** Destroy a workspace */
+    delete: operations['GatewayController_destroyWorkspace'];
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/gateway/workspaces/storage': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    /** Update a workspace */
+    put: operations['GatewayController_updateWorkspaceStorage'];
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/gateway/workspaces/{workspaceId}/storage/upgrade-check': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    /** Precheck for updating a workspace */
+    post: operations['GatewayController_validateStorageForPlanChange'];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/gateway/users': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Get user details */
+    get: operations['GatewayController_getUserByEmail'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/gateway/users/storage/stackability': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    /** Check if user can expand storage space */
+    get: operations['GatewayController_checkUserStorageExpansion'];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  '/gateway/users/{uuid}': {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    /** Update user plan and storage */
+    patch: operations['GatewayController_updateUser'];
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
-    schemas: {
-        CreateFileDto: {
-            /**
-             * @description The bucket where the file is stored
-             * @example my-bucket
-             */
-            bucket: string;
-            /**
-             * @description The ID of the file
-             * @example file12345
-             */
-            fileId: string;
-            /**
-             * @description The encryption version used for the file
-             * @example 03-aes
-             */
-            encryptVersion: string;
-            /**
-             * Format: uuid
-             * @description The UUID of the folder containing the file
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            folderUuid: string;
-            /**
-             * Format: bigint
-             * @description The size of the file in bytes
-             * @example 123456789
-             */
-            size: number;
-            /**
-             * @description The plain text name of the file
-             * @example example
-             */
-            plainName: string;
-            /**
-             * @description The type of the file (optional)
-             * @example text
-             */
-            type?: string;
-            /**
-             * Format: date-time
-             * @description The last modification time of the file (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            modificationTime?: string;
-            /**
-             * Format: date-time
-             * @description The date associated with the file (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            date?: string;
-            /**
-             * Format: date-time
-             * @description The creation time of the file (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            creationTime?: string;
-        };
-        FileDto: {
-            id: number;
-            uuid: string;
-            fileId: string;
-            name: string;
-            type: string;
-            size: string;
-            bucket: string;
-            folderId: number;
-            folderUuid: string;
-            encryptVersion: string;
-            userId: number;
-            /** Format: date-time */
-            creationTime: string;
-            /** Format: date-time */
-            modificationTime: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            plainName: string;
-            /** @enum {string} */
-            status: 'EXISTS' | 'TRASHED' | 'DELETED';
-        };
-        ReplaceFileDto: {
-            /**
-             * @description File id
-             * @example 651300a2da9b27001f63f384
-             */
-            fileId: string;
-            /**
-             * Format: int64
-             * @description New file size
-             * @example 3005
-             */
-            size: number;
-            /**
-             * Format: date-time
-             * @description The last modification time of the file (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            modificationTime?: string;
-        };
-        UpdateFileMetaDto: {
-            /**
-             * @description The name the file is going to be updated to
-             * @example New name
-             */
-            plainName: string;
-            /**
-             * @description The new type that the file is going to have
-             * @example New type
-             */
-            type: string;
-        };
-        MoveFileDto: {
-            /**
-             * @description New Destination Folder UUID
-             * @example 366be646-6d67-436e-8cb6-4b275dfe1729
-             */
-            destinationFolder: string;
-        };
-        CreateThumbnailDto: {
-            /**
-             * @deprecated
-             * @description The ID of the file. Deprecated in favor of fileUuid
-             * @example 12345
-             */
-            fileId: number;
-            /**
-             * @description The UUID of the file
-             * @example ebe586db-eb56-429f-a037-6ba712b40c3c
-             */
-            fileUuid?: string;
-            /**
-             * @description The type of the file
-             * @example text
-             */
-            type: string;
-            /**
-             * @description The size of the file in bytes
-             * @example 123456789
-             */
-            size: number;
-            /**
-             * @description The max width of the file
-             * @example 123456789
-             */
-            maxWidth: number;
-            /**
-             * @description The max height of the file
-             * @example 123456789
-             */
-            maxHeight: number;
-            /**
-             * @description The bucket id where the file is stored
-             * @example my-bucket
-             */
-            bucketId: string;
-            /**
-             * @description The id of file in the bucket
-             * @example my-bucket
-             */
-            bucketFile: string;
-            /**
-             * @description The encryption version used for the file
-             * @example 03-aes
-             */
-            encryptVersion: string;
-        };
-        ThumbnailDto: {
-            id: number;
-            fileId: number;
-            fileUuid: string;
-            maxWidth: number;
-            maxHeight: number;
-            type: string;
-            size: number;
-            bucketId: string;
-            bucketFile: string;
-            encryptVersion: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        CreateFolderDto: {
-            /**
-             * @description Folder name
-             * @example Untitled Folder
-             */
-            plainName: string;
-            /**
-             * @description Uuid of the parent folder
-             * @example 79a88429-b45a-4ae7-90f1-c351b6882670
-             */
-            parentFolderUuid: string;
-            /**
-             * Format: date-time
-             * @description The last modification time of the folder (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            modificationTime?: string;
-            /**
-             * Format: date-time
-             * @description The creation time of the folder (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            creationTime?: string;
-        };
-        Folder: Record<string, never>;
-        FolderDto: {
-            type: string;
-            id: number;
-            parentId: number;
-            parentUuid: string;
-            name: string;
-            parent: components['schemas']['Folder'];
-            bucket: string;
-            userId: number;
-            encryptVersion: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            uuid: string;
-            plainName: string;
-            size: number;
-            /** Format: date-time */
-            creationTime: string;
-            /** Format: date-time */
-            modificationTime: string;
-            /** @enum {string} */
-            status: 'EXISTS' | 'TRASHED' | 'DELETED';
-            removed: boolean;
-            deleted: boolean;
-        };
-        FilesDto: {
-            files: components['schemas']['FileDto'][];
-        };
-        ResultFilesDto: {
-            result: components['schemas']['FileDto'][];
-        };
-        FoldersDto: {
-            folders: components['schemas']['FolderDto'][];
-        };
-        CheckFoldersExistenceDto: {
-            /**
-             * @description Plain name of folder or array of plain names
-             * @example [
-             *       "My folder"
-             *     ]
-             */
-            plainNames: string[];
-        };
-        ExistingFoldersDto: {
-            existentFolders: components['schemas']['FolderDto'][];
-        };
-        CheckFileExistenceInFolderDto: {
-            /** @description Array of files with names and types */
-            files: string[];
-        };
-        GetFolderContentDto: {
-            type: string;
-            id: number;
-            parentId: number;
-            parentUuid: string;
-            name: string;
-            parent: components['schemas']['Folder'];
-            bucket: string;
-            userId: number;
-            encryptVersion: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            uuid: string;
-            plainName: string;
-            size: number;
-            /** Format: date-time */
-            creationTime: string;
-            /** Format: date-time */
-            modificationTime: string;
-            /** @enum {string} */
-            status: 'EXISTS' | 'TRASHED' | 'DELETED';
-            removed: boolean;
-            deleted: boolean;
-            children: components['schemas']['FolderDto'][];
-            files: components['schemas']['FileDto'][];
-        };
-        ResultFoldersDto: {
-            result: components['schemas']['FolderDto'][];
-        };
-        UpdateFolderMetaDto: {
-            /**
-             * @description New name
-             * @example Untitled Folder
-             */
-            plainName: string;
-        };
-        MoveFolderDto: {
-            /**
-             * @description New Destination Folder UUID
-             * @example 366be646-6d67-436e-8cb6-4b275dfe1729
-             */
-            destinationFolder: string;
-        };
-        SetSharingPasswordDto: {
-            /**
-             * @description password encrypted with code generated client side
-             * @example thisIsAPassword
-             */
-            encryptedPassword: string;
-        };
-        ChangeSharingType: {
-            /**
-             * @description New type you want to set for the sharing
-             * @example public
-             */
-            sharingType: string;
-        };
-        PublicSharingInfoDto: {
-            /** @description Unique identifier of the public sharing record */
-            id: string;
-            /** @description Indicates if the public sharing requires a password to access */
-            isPasswordProtected: boolean;
-            /** @description Encrypted public sharing password */
-            encryptedCode: string;
-        };
-        ItemSharingInfoDto: {
-            /**
-             * @description Effective sharing type (PUBLIC or PRIVATE). If there are only pending invitations without an accepted sharing, it is considered PRIVATE
-             * @enum {string}
-             */
-            type: 'public' | 'private';
-            /** @description Information about public sharing if it exists, otherwise null */
-            publicSharing: components['schemas']['PublicSharingInfoDto'] | null;
-            /** @description Number of pending invitations for this item */
-            invitationsCount: number;
-        };
-        CreateInviteDto: {
-            /**
-             * @description Id of the item to share
-             * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
-             */
-            itemId: Record<string, never>;
-            /**
-             * @description Type of the item being shared
-             * @example file | folder
-             */
-            itemType: Record<string, never>;
-            /**
-             * @description The email of the user you want to invite
-             * @example invited_user@internxt.com
-             */
-            sharedWith: Record<string, never>;
-            /**
-             * @description Owner's encryption key encrypted with the invited user's public key. This field should not be empty if the invitation type is "OWNER"
-             * @example encrypted encryption key
-             */
-            encryptionKey: Record<string, never>;
-            /**
-             * @description Encryption algorithm used to encrypt the encryption key. This field should not be empty if the invitation type is "OWNER"
-             * @example aes-256-gcm
-             */
-            encryptionAlgorithm: Record<string, never>;
-            /**
-             * @description Owner's encryption key encrypted with the invited user's public key
-             * @example encrypted encryption key
-             */
-            type: Record<string, never>;
-            /**
-             * @description Invited user role regarding the item
-             * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
-             */
-            roleId: Record<string, never>;
-            /**
-             * @description Request to send a notification to the invited user
-             * @example true | false
-             */
-            notifyUser: boolean;
-            /**
-             * @description Message to send into the notification for the invited user
-             * @example I want to share this file with you
-             */
-            notificationMessage: string;
-            /**
-             * @description Maintain previous sharings
-             * @example false
-             */
-            persistPreviousSharing: boolean;
-        };
-        AcceptInviteDto: {
-            /**
-             * @description Encryption key (just in case the invitation is a request)
-             * @example encryption_key
-             */
-            encryptionKey: Record<string, never>;
-            /**
-             * @description Encryption algorithm (just in case the invitation is a request)
-             * @example encryption_algorithm
-             */
-            encryptionAlgorithm: Record<string, never>;
-        };
-        CreateSharingDto: {
-            /**
-             * @description The uuid of the item to share
-             * @example uuid
-             */
-            itemId: Record<string, never>;
-            /**
-             * @description The type of the resource to share
-             * @example file | folder
-             */
-            itemType: Record<string, never>;
-            /**
-             * @description Encryption key
-             * @example encryption_key
-             */
-            encryptionKey: Record<string, never>;
-            /**
-             * @description Encryption algorithm
-             * @example encryption_algorithm
-             */
-            encryptionAlgorithm: Record<string, never>;
-            /**
-             * @description Encrypted code
-             * @example encrypted_code
-             */
-            encryptedCode: Record<string, never>;
-            /**
-             * @description Encrypted password
-             * @example encrypted_password
-             */
-            encryptedPassword: Record<string, never>;
-            /**
-             * @description Maintain previous sharings
-             * @example false
-             */
-            persistPreviousSharing: boolean;
-        };
-        UpdateSharingRoleDto: {
-            /**
-             * @description New role id
-             * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
-             */
-            roleId: Record<string, never>;
-        };
-        WorkspaceUserToJSONDTO: {
-            id: string;
-            memberId: string;
-            key: string;
-            workspaceId: string;
-            rootFolderId: string;
-            spaceLimit: number;
-            driveUsage: number;
-            backupsUsage: number;
-            deactivated: boolean;
-            member: Record<string, never>;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        WorkspaceAttributesDto: {
-            id: string;
-            ownerId: string;
-            address?: string;
-            name: string;
-            description?: string;
-            avatar: string | null;
-            defaultTeamId: string;
-            workspaceUserId: string;
-            setupCompleted: boolean;
-            numberOfSeats: number;
-            phoneNumber?: string;
-            rootFolderId?: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        WorkspaceDto: {
-            workspaceUser: components['schemas']['WorkspaceUserToJSONDTO'];
-            workspace: components['schemas']['WorkspaceAttributesDto'];
-        };
-        Workspace: Record<string, never>;
-        GetAvailableWorkspacesResponseDto: {
-            availableWorkspaces: components['schemas']['WorkspaceDto'][];
-            pendingWorkspaces: components['schemas']['Workspace'][];
-        };
-        AcceptWorkspaceInviteDto: {
-            /**
-             * @description id of the invitation
-             * @example 0f8fad5b-d9cb-469f-a165-70867728950e
-             */
-            inviteId: Record<string, never>;
-        };
-        EditTeamDto: {
-            /**
-             * @description New name of the team
-             * @example Designers team
-             */
-            name: Record<string, never>;
-        };
-        SetupWorkspaceDto: {
-            /**
-             * @description Name of the workspace to be created
-             * @example My workspace
-             */
-            name: Record<string, never>;
-            /**
-             * @description Address of the workspace
-             * @example Address
-             */
-            address: Record<string, never>;
-            /**
-             * @description Workspace description
-             * @example My workspae
-             */
-            description: Record<string, never>;
-            /**
-             * @description Owner mnemnonic encrypted with their public key in base64
-             * @example Encrypted key in base64
-             */
-            encryptedMnemonic: Record<string, never>;
-        };
-        WorkspaceCredentialsDetailsDto: {
-            networkPass: string;
-            networkUser: string;
-        };
-        WorkspaceCredentialsDto: {
-            workspaceId: string;
-            bucket: string;
-            workspaceUserId: string;
-            email: string;
-            credentials: components['schemas']['WorkspaceCredentialsDetailsDto'];
-            tokenHeader: string;
-        };
-        ChangeUserAssignedSpaceDto: {
-            /**
-             * @description New Space assigned to user in bytes
-             * @example 1073741824
-             */
-            spaceLimit: Record<string, never>;
-        };
-        CreateWorkspaceInviteDto: {
-            /**
-             * @description The email of the user you want to invite
-             * @example invited_user@internxt.com
-             */
-            invitedUser: Record<string, never>;
-            /**
-             * @description Space assigned to user in bytes
-             * @example 1073741824
-             */
-            spaceLimit?: Record<string, never>;
-            /**
-             * @description Owner's encryption key encrypted with the invited user's public key.
-             * @example encrypted encryption key
-             */
-            encryptionKey: Record<string, never>;
-            /**
-             * @description Message to include in the invitation.
-             * @example Hello, join to my workspace
-             */
-            message: string;
-            /**
-             * @description Encryption algorithm used to encrypt the encryption key.
-             * @example aes-256-gcm
-             */
-            encryptionAlgorithm: Record<string, never>;
-        };
-        CreateTeamDto: {
-            /**
-             * @description Name of the team to be created
-             * @example Designers team
-             */
-            name: Record<string, never>;
-            /**
-             * @description Uuid of the user to assign as manager
-             * @example e54c5cc0-3a12-4537-9646-251ec0f0dbe4
-             */
-            managerId: Record<string, never>;
-        };
-        CreateWorkspaceFileDto: {
-            /**
-             * @description The bucket where the file is stored
-             * @example my-bucket
-             */
-            bucket: string;
-            /**
-             * @description The ID of the file
-             * @example file12345
-             */
-            fileId: string;
-            /**
-             * @description The encryption version used for the file
-             * @example 03-aes
-             */
-            encryptVersion: string;
-            /**
-             * Format: uuid
-             * @description The UUID of the folder containing the file
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            folderUuid: string;
-            /**
-             * Format: bigint
-             * @description The size of the file in bytes
-             * @example 123456789
-             */
-            size: number;
-            /**
-             * @description The plain text name of the file
-             * @example example
-             */
-            plainName: string;
-            /**
-             * @description The type of the file (optional)
-             * @example text
-             */
-            type?: string;
-            /**
-             * Format: date-time
-             * @description The last modification time of the file (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            modificationTime?: string;
-            /**
-             * Format: date-time
-             * @description The date associated with the file (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            date?: string;
-            /**
-             * Format: date-time
-             * @description The creation time of the file (optional)
-             * @example 2023-05-30T12:34:56.789Z
-             */
-            creationTime?: string;
-        };
-        ShareItemWithTeamDto: {
-            /**
-             * @description The uuid of the item to share
-             * @example uuid
-             */
-            itemId: Record<string, never>;
-            /**
-             * @description The type of the resource to share
-             * @example file | folder
-             */
-            itemType: Record<string, never>;
-            /**
-             * @description Workspace's team id you want to share this file with
-             * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
-             */
-            sharedWith: Record<string, never>;
-            /**
-             * @description Role of the team regarding the item.
-             * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
-             */
-            roleId: string;
-        };
-        CreateWorkspaceFolderDto: {
-            /**
-             * @description Folder name
-             * @example Untitled Folder
-             */
-            name: string;
-            /**
-             * @description Uuid of the parent folder
-             * @example 79a88429-b45a-4ae7-90f1-c351b6882670
-             */
-            parentFolderUuid: string;
-        };
-        ChangeUserRoleDto: {
-            /**
-             * @description Role to be assigned to user in the team
-             * @example MANAGER
-             * @enum {string}
-             */
-            role: 'manager' | 'member';
-        };
-        EditWorkspaceDetailsDto: {
-            /**
-             * @description Name of the workspace
-             * @example Internxt
-             */
-            name: Record<string, never>;
-            /**
-             * @description Description of the workspace
-             * @example Our goal is to create a cloud storage ecosystem that gives users total control, security, and privacy of the files and information online.
-             */
-            description: Record<string, never>;
-            /**
-             * @description Phone number
-             * @example +34 622 111 333
-             */
-            phoneNumber: Record<string, never>;
-        };
-        EccKeysDto: {
-            /**
-             * @description Public key
-             * @example publicKeyExample
-             */
-            publicKey: string;
-            /**
-             * @description Private key
-             * @example privateKeyExample
-             */
-            privateKey: string;
-            /**
-             * @description Revocation key
-             * @example revocationKeyExample
-             */
-            revocationKey: string;
-        };
-        KyberKeysDto: {
-            /**
-             * @description Public key
-             * @example publicKeyExample
-             */
-            publicKey: string;
-            /**
-             * @description Private key
-             * @example privateKeyExample
-             */
-            privateKey: string;
-        };
-        KeysDto: {
-            /** @description ECC keys */
-            ecc: components['schemas']['EccKeysDto'];
-            /** @description Kyber keys */
-            kyber: components['schemas']['KyberKeysDto'];
-        };
-        CreateUserDto: {
-            /**
-             * @description Name of the new user
-             * @example Internxt
-             */
-            name: Record<string, never>;
-            /**
-             * @description Last name of the new user
-             * @example Lastname
-             */
-            lastname: Record<string, never>;
-            /**
-             * @description Email of the new account
-             * @example myaccount@internxt.com
-             */
-            email: Record<string, never>;
-            /**
-             * @description Hashed password
-             * @example $2a$08$4SN2l.8dM0fSUTzni3i61u047Sr/R3ocJYxbxmKdEmGJcVOj1sHIi
-             */
-            password: Record<string, never>;
-            /**
-             * @description The mnemonic used to derive encryption keys
-             * @example test test test test test test test test test test test test test test test test test test test test test test test test
-             */
-            mnemonic: Record<string, never>;
-            /**
-             * @description Salt
-             * @example salt
-             */
-            salt: string;
-            /**
-             * @deprecated
-             * @example
-             */
-            privateKey: string;
-            /**
-             * @deprecated
-             * @example
-             */
-            publicKey: string;
-            /**
-             * @deprecated
-             * @example
-             */
-            revocationKey: string;
-            /** @example  */
-            referrer: Record<string, never>;
-            /** @example  */
-            registerCompleted: Record<string, never>;
-            /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
-            keys: components['schemas']['KeysDto'];
-        };
-        RegisterPreCreatedUserDto: {
-            /**
-             * @description Name of the new user
-             * @example Internxt
-             */
-            name: Record<string, never>;
-            /**
-             * @description Last name of the new user
-             * @example Lastname
-             */
-            lastname: Record<string, never>;
-            /**
-             * @description Email of the new account
-             * @example myaccount@internxt.com
-             */
-            email: Record<string, never>;
-            /**
-             * @description Hashed password
-             * @example $2a$08$4SN2l.8dM0fSUTzni3i61u047Sr/R3ocJYxbxmKdEmGJcVOj1sHIi
-             */
-            password: Record<string, never>;
-            /**
-             * @description The mnemonic used to derive encryption keys
-             * @example test test test test test test test test test test test test test test test test test test test test test test test test
-             */
-            mnemonic: Record<string, never>;
-            /**
-             * @description Salt
-             * @example salt
-             */
-            salt: string;
-            /**
-             * @deprecated
-             * @example
-             */
-            privateKey: string;
-            /**
-             * @deprecated
-             * @example
-             */
-            publicKey: string;
-            /**
-             * @deprecated
-             * @example
-             */
-            revocationKey: string;
-            /** @example  */
-            referrer: Record<string, never>;
-            /** @example  */
-            registerCompleted: Record<string, never>;
-            /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
-            keys: components['schemas']['KeysDto'];
-            /**
-             * @description id of the invitation
-             * @example 0f8fad5b-d9cb-469f-a165-70867728950e
-             */
-            invitationId: Record<string, never>;
-        };
-        PreCreateUserDto: {
-            /**
-             * @description Email of the new account
-             * @example myaccount@internxt.com
-             */
-            email: Record<string, never>;
-        };
-        RefreshTokenUserResponseDto: {
-            email: string;
-            userId: string;
-            mnemonic: string;
-            root_folder_id: number;
-            rootFolderId: string;
-            name: string;
-            lastname: string;
-            uuid: string;
-            credit: number;
-            /** Format: date-time */
-            createdAt: string;
-            registerCompleted: boolean;
-            username: string;
-            bridgeUser: string;
-            backupsBucket: string;
-            avatar: string;
-            emailVerified: boolean;
-            /** Format: date-time */
-            lastPasswordChangedAt: string;
-        };
-        RefreshTokenResponseDto: {
-            /**
-             * @description The old token that has been replaced
-             * @example newToken1234567890
-             */
-            token: string;
-            /**
-             * @description The new token to be used for authentication
-             * @example oldToken1234567890
-             */
-            newToken: string;
-            /** @description User information */
-            user: components['schemas']['RefreshTokenUserResponseDto'];
-        };
-        RefreshUserAvatarDto: {
-            /** @description A new avatar URL for the given user */
-            avatar: string;
-        };
-        UpdatePasswordDto: {
-            /**
-             * @description Current password
-             * @example currentPassword
-             */
-            currentPassword: string;
-            /**
-             * @description New password
-             * @example newPassword
-             */
-            newPassword: string;
-            /**
-             * @description New salt
-             * @example newSalt
-             */
-            newSalt: string;
-            /**
-             * @description New mnemonic
-             * @example newMnemonic
-             */
-            mnemonic: string;
-            /**
-             * @description Ecc private key encrypted with new password
-             * @example encryptedPrivateKey
-             */
-            privateKey: string;
-            /**
-             * @description Kyber private key encrypted with new password
-             * @example encryptedPrivateKey
-             */
-            privateKyberKey: string;
-            /**
-             * @deprecated
-             * @description Encrypt version
-             * @example encryptVersion
-             */
-            encryptVersion: string;
-        };
-        RequestRecoverAccountDto: {
-            /**
-             * @description User email
-             * @example hello@internxt.com
-             */
-            email: string;
-        };
-        RequestAccountUnblock: {
-            /**
-             * @description User email
-             * @example hello@internxt.com
-             */
-            email: string;
-        };
-        DeprecatedRecoverAccountDto: {
-            /**
-             * @description New user pass hashed
-             * @example some_hashed_pass
-             */
-            password: string;
-            /**
-             * @description Hashed password salt
-             * @example some_salt
-             */
-            salt: string;
-            /**
-             * @description User mnemonic encrypted with the new pass
-             * @example some_encrypted_mnemonic
-             */
-            mnemonic: string;
-            /**
-             * @description User's private key encrypted with the user's plain password
-             * @example encrypted private key
-             */
-            privateKey: string;
-        };
-        PrivateKeysDto: {
-            ecc: string;
-            kyber: string;
-        };
-        RecoverAccountDto: {
-            /**
-             * @description New user pass hashed
-             * @example some_hashed_pass
-             */
-            password: string;
-            /**
-             * @description Hashed password salt
-             * @example some_salt
-             */
-            salt: string;
-            /**
-             * @description User mnemonic encrypted with the new pass
-             * @example some_encrypted_mnemonic
-             */
-            mnemonic: string;
-            /**
-             * @description User's private keys encrypted with the user's plain password
-             * @example {
-             *       "ecc": "encrypted private key",
-             *       "kyber": "encrypted kyber private key"
-             *     }
-             */
-            privateKeys: components['schemas']['PrivateKeysDto'];
-        };
-        EncryptedMnemonicDto: {
-            /**
-             * @description Mnemonic encrypted with ECC method
-             * @example mnemonic_encrypted_with_ecc_method
-             */
-            ecc: string;
-            /**
-             * @description Mnemonic encrypted with hybrid method
-             * @example mnemonic_encrypted_with_hybrid_method
-             */
-            hybrid: string;
-        };
-        RecoverAccountEccKeysDto: {
-            /**
-             * @description public key
-             * @example public_key
-             */
-            public: string;
-            /**
-             * @description private key encrypted with password
-             * @example private_key
-             */
-            private: string;
-            /**
-             * @description Key used for revocation
-             * @example revocation_key
-             */
-            revocationKey: string;
-        };
-        RecoverAccountKeysPairDto: {
-            /**
-             * @description public key
-             * @example public_key
-             */
-            public: string;
-            /**
-             * @description private key encrypted with password
-             * @example private_key
-             */
-            private: string;
-        };
-        NewGeneratedKeysDto: {
-            /** @description ECC keys (public and private) */
-            ecc: components['schemas']['RecoverAccountEccKeysDto'];
-            /** @description Kyber keys (public and private) */
-            kyber: components['schemas']['RecoverAccountKeysPairDto'];
-        };
-        LegacyRecoverAccountDto: {
-            /**
-             * @description Base64 encoded temporary auth token
-             * @example temporary_auth_token
-             */
-            token: string;
-            /**
-             * @description New user pass hashed
-             * @example hashed_password
-             */
-            password: string;
-            /**
-             * @description Hashed password salt
-             * @example password_salt
-             */
-            salt: string;
-            /**
-             * @description User mnemonic encrypted with the new pass
-             * @example password_encrypted_mnemonic
-             */
-            mnemonic: string;
-            /** @description Mnemonic encrypted with asymmetric encryption algorithms */
-            asymmetricEncryptedMnemonic: components['schemas']['EncryptedMnemonicDto'];
-            /** @description User ecc and kyber keys */
-            keys: components['schemas']['NewGeneratedKeysDto'];
-        };
-        GetOrCreatePublicKeysDto: {
-            /**
-             * @description Public ecc key
-             * @example
-             */
-            publicKey: string;
-            /**
-             * @description Public kyber key
-             * @example
-             */
-            publicKyberKey: string;
-        };
-        CreateAttemptChangeEmailDto: {
-            /**
-             * @description The new email of the user
-             * @example my_new_email@internxt.com
-             */
-            newEmail: string;
-        };
-        RegisterNotificationTokenDto: {
-            /**
-             * @description device token
-             * @example 0f8fad5b-d9cb-469f-a165-70867728950e
-             */
-            token: string;
-            /**
-             * @description device type
-             * @example macos
-             */
-            type: string;
-        };
-        VerifyEmailDto: {
-            /**
-             * @description Token received in verification email
-             * @example token received
-             */
-            verificationToken: string;
-        };
-        UpdateProfileDto: {
-            /**
-             * @description Name of the new user
-             * @example Internxt
-             */
-            name: Record<string, never>;
-            /**
-             * @description Name of the new user
-             * @example Internxt
-             */
-            nameNullCheck: string;
-            /**
-             * @description Last name of the new user
-             * @example Lastname
-             */
-            lastname: Record<string, never>;
-            /**
-             * @description Last name of the new user
-             * @example Lastname
-             */
-            lastnameNullCheck: string;
-        };
-        ConfirmAccountDeactivationDto: {
-            /**
-             * @description Token sent to user email
-             * @example token
-             */
-            token: string;
-        };
-        GetUserUsageDto: {
-            drive: number;
-            backup: number;
-            total: number;
-        };
-        GetUserLimitDto: {
-            maxSpaceBytes: number;
-        };
-        GetUploadStatusDto: {
-            /**
-             * @description Indicates whether the user has uploaded any files
-             * @example true
-             */
-            hasUploadedFiles: boolean;
-        };
-        GenerateMnemonicResponseDto: {
-            /**
-             * @description A plain mnemonic
-             * @example abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
-             */
-            mnemonic: string;
-        };
-        FuzzySearchResult: {
-            id: string;
-            itemId: string;
-            /** @enum {string} */
-            itemType: 'file' | 'folder';
-            name: string;
-            rank: number | null;
-            similarity: number;
-        };
-        FuzzySearchResults: {
-            data: components['schemas']['FuzzySearchResult'][];
-        };
-        /** @enum {string} */
-        DevicePlatform: 'win32' | 'darwin' | 'linux' | 'android';
-        DeviceAsFolder: {
-            type: string;
-            id: number;
-            parentId: number;
-            parentUuid: string;
-            name: string;
-            parent: components['schemas']['Folder'];
-            bucket: string;
-            userId: number;
-            encryptVersion: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            uuid: string;
-            plainName: string;
-            size: number;
-            /** Format: date-time */
-            creationTime: string;
-            /** Format: date-time */
-            modificationTime: string;
-            /** @enum {string} */
-            status: 'EXISTS' | 'TRASHED' | 'DELETED';
-            removed: boolean;
-            deleted: boolean;
-            hasBackups: boolean;
-            /** Format: date-time */
-            lastBackupAt: string;
-        };
-        DeviceDto: {
-            /** @example 7 */
-            id: number;
-            /**
-             * @description MAC address of the device
-             * @example null
-             */
-            mac: string | null;
-            /** @example 1 */
-            userId: number;
-            /**
-             * @description Device platform
-             * @example linux
-             */
-            platform: components['schemas']['DevicePlatform'];
-            /**
-             * @description Unique installation identifier
-             * @example DESKTOP-ABC123ddd3
-             */
-            key: string;
-            /**
-             * @description Device hostname
-             * @example UNKNOWN_HOSTNAME
-             */
-            hostname: string;
-            /** @example 077e1ec6-9272-4719-ae1a-2ae35883a09e */
-            folderUuid: string;
-            /**
-             * Format: date-time
-             * @example 2025-07-10T20:14:04.784Z
-             */
-            createdAt: string;
-            /**
-             * Format: date-time
-             * @example 2025-07-10T20:14:04.784Z
-             */
-            updatedAt: string;
-            folder: components['schemas']['DeviceAsFolder'] | null;
-        };
-        CreateDeviceAndFolderDto: {
-            /**
-             * @description OS Installation unique identifier
-             * @example 81CBB42C-73A0-9660-6C7D-2FE94627F3A3
-             */
-            key?: string;
-            /**
-             * @description Device hostname
-             * @example DESKTOP-ABC123
-             */
-            hostname?: string;
-            /**
-             * @description Device platform
-             * @example linux
-             */
-            platform: components['schemas']['DevicePlatform'];
-            /**
-             * @description Name of the device and folder to be created, this should be a readable name
-             * @example Johns mac
-             */
-            name: string;
-        };
-        CreateDeviceAndAttachFolderDto: {
-            /**
-             * @description OS Installation unique identifier
-             * @example 81CBB42C-73A0-9660-6C7D-2FE94627F3A3
-             */
-            key?: string;
-            /**
-             * @description Device hostname
-             * @example DESKTOP-ABC123
-             */
-            hostname?: string;
-            /**
-             * @description Device platform
-             * @example linux
-             */
-            platform: components['schemas']['DevicePlatform'];
-            /**
-             * @description Name of the device to be created, this should be a readable name. Use the already existent folder name if you are attaching a folder
-             * @example Johns mac
-             */
-            name: string;
-            /**
-             * @description Uuuid of the folder to attach to the device
-             * @example 0c303e45-3f5f-4224-9886-9c5afdea0e7e
-             */
-            folderUuid: string;
-        };
-        UpdateDeviceAndFolderDto: {
-            name: string;
-        };
-        CreateDeviceAsFolderDto: {
-            deviceName: string;
-        };
-        ItemToTrashDto: {
-            /**
-             * @deprecated
-             * @description Id of file or folder (deprecated in favor of uuid)
-             * @example 4
-             */
-            id: string | null;
-            /**
-             * @description Uuid of file or folder
-             * @example 4
-             */
-            uuid: string;
-            /**
-             * @description Type of item: file or folder
-             * @example file
-             * @enum {string}
-             */
-            type: 'file' | 'folder';
-        };
-        MoveItemsToTrashDto: {
-            /** @description Array of items with files and folders ids */
-            items: components['schemas']['ItemToTrashDto'][];
-        };
-        DeleteItemDto: {
-            /**
-             * @deprecated
-             * @description Id of file or folder (deprecated in favor of uuid)
-             * @example 4
-             */
-            id: string | null;
-            /**
-             * @description Uuid of file or folder
-             * @example 79a88429-b45a-4ae7-90f1-c351b6882670
-             */
-            uuid: string;
-            /**
-             * @description Type of item: file or folder
-             * @example file
-             * @enum {string}
-             */
-            type: 'file' | 'folder';
-        };
-        DeleteItemsDto: {
-            /** @description Array of items with files and folders ids */
-            items: components['schemas']['DeleteItemDto'][];
-        };
-        LoginDto: {
-            /**
-             * @description The email of the user
-             * @example user@internxt.com
-             */
-            email: string;
-        };
-        LoginResponseDto: {
-            hasKeys: boolean;
-            sKey: string;
-            tfa: boolean;
-            hasKyberKeys: boolean;
-            hasEccKeys: boolean;
-        };
-        OptionalKeyGroup: {
-            /** @description ECC keys */
-            ecc?: components['schemas']['EccKeysDto'];
-            /** @description Kyber keys */
-            kyber?: components['schemas']['KyberKeysDto'];
-        };
-        LoginAccessDto: {
-            /**
-             * @description The email of the user
-             * @example user@internxt.com
-             */
-            email: string;
-            /**
-             * @description User password
-             * @example some_hashed_pass
-             */
-            password: string;
-            /**
-             * @description TFA
-             * @example two_factor_authentication_code
-             */
-            tfa?: string;
-            /**
-             * @deprecated
-             * @description Public Key
-             * @example public_key
-             */
-            publicKey?: string;
-            /**
-             * @deprecated
-             * @description Private Key
-             * @example private_key
-             */
-            privateKey?: string;
-            /**
-             * @deprecated
-             * @description Revocate Key
-             * @example revocate_key
-             */
-            revocateKey?: string;
-            /**
-             * @description keys
-             * @example newKeys
-             */
-            keys?: components['schemas']['OptionalKeyGroup'];
-        };
-        PublicAndPrivateKeyDto: {
-            publicKey: string;
-            privateKey: string;
-        };
-        UserKeysDto: {
-            ecc: components['schemas']['PublicAndPrivateKeyDto'];
-            kyber: components['schemas']['PublicAndPrivateKeyDto'];
-        };
-        UserDto: {
-            email: string;
-            userId: string;
-            mnemonic: string;
-            root_folder_id: number;
-            rootFolderId: string;
-            name: string;
-            lastname: string;
-            uuid: string;
-            credit: number;
-            /** Format: date-time */
-            createdAt: string;
-            privateKey: string;
-            publicKey: string;
-            revocateKey: string;
-            keys: components['schemas']['UserKeysDto'];
-            bucket: string;
-            registerCompleted: boolean;
-            teams: boolean;
-            username: string;
-            bridgeUser: string;
-            sharedWorkspace: boolean;
-            hasReferralsProgram: boolean;
-            backupsBucket: string;
-            avatar: string;
-            emailVerified: boolean;
-            /** Format: date-time */
-            lastPasswordChangedAt: string;
-        };
-        LoginAccessResponseDto: {
-            user: components['schemas']['UserDto'];
-            token: string;
-            userTeam: Record<string, never>;
-            newToken: string;
-        };
-        UpdateTfaDto: {
-            /**
-             * @description Key value
-             * @example key_example
-             */
-            key: string;
-            /**
-             * @description Code tfa
-             * @example 123456
-             */
-            code: string;
-        };
-        DeleteTfaDto: {
-            /**
-             * @description User password
-             * @example password_example
-             */
-            pass: string;
-            /**
-             * @description Code tfa
-             * @example 123456
-             */
-            code: string;
-        };
-        CreateSendLinkDto: {
-            /**
-             * @description Emails of destinatary
-             * @example [fake@mail.com]
-             */
-            receivers: string[];
-            /**
-             * @description Email of sender
-             * @example sender@mail.com
-             */
-            sender: string;
-            /**
-             * @description Encrypted code used before in plain, to encrypt the mnemonic
-             * @example code
-             */
-            code: string;
-            /**
-             * @description Code in plain, which is required to share this link with anyone
-             * @example 03849067907409723908abcdef
-             */
-            plainCode: string;
-            /**
-             * @description Title to send link
-             * @example Test title
-             */
-            title: string;
-            /**
-             * @description Subject to send link
-             * @example Subject
-             */
-            subject: string;
-            /** @description List of items of files and folders */
-            items: string[];
-            /**
-             * @description Password to unlock the link
-             * @example Super secret password
-             */
-            plainPassword: string;
-        };
-        InitializeWorkspaceDto: {
-            /**
-             * @description Uuid of the owner of the space
-             * @example Id of the owner
-             */
-            ownerId: string;
-            /**
-             * @description Address of the workspace
-             * @example Address from billing
-             */
-            address: string;
-            /**
-             * @description Phone number
-             * @example +34 622 111 333
-             */
-            phoneNumber: string;
-            /**
-             * @description Workspace max space in bytes
-             * @example 312321312
-             */
-            maxSpaceBytes: number;
-            /**
-             * @description Workspace max number of users
-             * @example 20
-             */
-            numberOfSeats: number;
-        };
-        UpdateWorkspaceStorageDto: {
-            /**
-             * @description Uuid of the owner of the space
-             * @example Id of the owner
-             */
-            ownerId: string;
-            /**
-             * @description Workspace max space in bytes
-             * @example 312321312
-             */
-            maxSpaceBytes: number;
-            /**
-             * @description Number of seats in the workspace
-             * @example 5
-             */
-            numberOfSeats: number;
-        };
-        DeleteWorkspaceDto: {
-            /**
-             * @description Uuid of the owner of the space
-             * @example Id of the owner
-             */
-            ownerId: string;
-        };
-        UpdateUserDto: {
-            /**
-             * @description New max storage space in bytes
-             * @example 123456
-             */
-            maxSpaceBytes: number;
-        };
+  schemas: {
+    CreateFileDto: {
+      /**
+       * @description The bucket where the file is stored
+       * @example my-bucket
+       */
+      bucket: string;
+      /**
+       * @description The ID of the file
+       * @example file12345
+       */
+      fileId: string;
+      /**
+       * @description The encryption version used for the file
+       * @example 03-aes
+       */
+      encryptVersion: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the folder containing the file
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      folderUuid: string;
+      /**
+       * Format: bigint
+       * @description The size of the file in bytes
+       * @example 123456789
+       */
+      size: number;
+      /**
+       * @description The plain text name of the file
+       * @example example
+       */
+      plainName: string;
+      /**
+       * @description The type of the file (optional)
+       * @example text
+       */
+      type?: string;
+      /**
+       * Format: date-time
+       * @description The last modification time of the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      modificationTime?: string;
+      /**
+       * Format: date-time
+       * @description The date associated with the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      date?: string;
+      /**
+       * Format: date-time
+       * @description The creation time of the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      creationTime?: string;
     };
-    responses: never;
-    parameters: never;
-    requestBodies: never;
-    headers: never;
-    pathItems: never;
+    FileDto: {
+      id: number;
+      uuid: string;
+      fileId: string;
+      name: string;
+      type: string;
+      size: string;
+      bucket: string;
+      folderId: number;
+      folderUuid: string;
+      encryptVersion: string;
+      userId: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      plainName: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
+    };
+    ReplaceFileDto: {
+      /**
+       * @description File id
+       * @example 651300a2da9b27001f63f384
+       */
+      fileId: string;
+      /**
+       * Format: int64
+       * @description New file size
+       * @example 3005
+       */
+      size: number;
+      /**
+       * Format: date-time
+       * @description The last modification time of the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      modificationTime?: string;
+    };
+    UpdateFileMetaDto: {
+      /**
+       * @description The name the file is going to be updated to
+       * @example New name
+       */
+      plainName: string;
+      /**
+       * @description The new type that the file is going to have
+       * @example New type
+       */
+      type: string;
+    };
+    MoveFileDto: {
+      /**
+       * @description New Destination Folder UUID
+       * @example 366be646-6d67-436e-8cb6-4b275dfe1729
+       */
+      destinationFolder: string;
+    };
+    CreateThumbnailDto: {
+      /**
+       * @deprecated
+       * @description The ID of the file. Deprecated in favor of fileUuid
+       * @example 12345
+       */
+      fileId: number;
+      /**
+       * @description The UUID of the file
+       * @example ebe586db-eb56-429f-a037-6ba712b40c3c
+       */
+      fileUuid?: string;
+      /**
+       * @description The type of the file
+       * @example text
+       */
+      type: string;
+      /**
+       * @description The size of the file in bytes
+       * @example 123456789
+       */
+      size: number;
+      /**
+       * @description The max width of the file
+       * @example 123456789
+       */
+      maxWidth: number;
+      /**
+       * @description The max height of the file
+       * @example 123456789
+       */
+      maxHeight: number;
+      /**
+       * @description The bucket id where the file is stored
+       * @example my-bucket
+       */
+      bucketId: string;
+      /**
+       * @description The id of file in the bucket
+       * @example my-bucket
+       */
+      bucketFile: string;
+      /**
+       * @description The encryption version used for the file
+       * @example 03-aes
+       */
+      encryptVersion: string;
+    };
+    ThumbnailDto: {
+      id: number;
+      fileId: number;
+      fileUuid: string;
+      maxWidth: number;
+      maxHeight: number;
+      type: string;
+      size: number;
+      bucketId: string;
+      bucketFile: string;
+      encryptVersion: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    CreateFolderDto: {
+      /**
+       * @description Folder name
+       * @example Untitled Folder
+       */
+      plainName: string;
+      /**
+       * @description Uuid of the parent folder
+       * @example 79a88429-b45a-4ae7-90f1-c351b6882670
+       */
+      parentFolderUuid: string;
+      /**
+       * Format: date-time
+       * @description The last modification time of the folder (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      modificationTime?: string;
+      /**
+       * Format: date-time
+       * @description The creation time of the folder (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      creationTime?: string;
+    };
+    Folder: Record<string, never>;
+    FolderDto: {
+      type: string;
+      id: number;
+      parentId: number;
+      parentUuid: string;
+      name: string;
+      parent: components['schemas']['Folder'];
+      bucket: string;
+      userId: number;
+      encryptVersion: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      uuid: string;
+      plainName: string;
+      size: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
+      removed: boolean;
+      deleted: boolean;
+    };
+    FilesDto: {
+      files: components['schemas']['FileDto'][];
+    };
+    ResultFilesDto: {
+      result: components['schemas']['FileDto'][];
+    };
+    FoldersDto: {
+      folders: components['schemas']['FolderDto'][];
+    };
+    CheckFoldersExistenceDto: {
+      /**
+       * @description Plain name of folder or array of plain names
+       * @example [
+       *       "My folder"
+       *     ]
+       */
+      plainNames: string[];
+    };
+    ExistingFoldersDto: {
+      existentFolders: components['schemas']['FolderDto'][];
+    };
+    CheckFileExistenceInFolderDto: {
+      /** @description Array of files with names and types */
+      files: string[];
+    };
+    GetFolderContentDto: {
+      type: string;
+      id: number;
+      parentId: number;
+      parentUuid: string;
+      name: string;
+      parent: components['schemas']['Folder'];
+      bucket: string;
+      userId: number;
+      encryptVersion: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      uuid: string;
+      plainName: string;
+      size: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
+      removed: boolean;
+      deleted: boolean;
+      children: components['schemas']['FolderDto'][];
+      files: components['schemas']['FileDto'][];
+    };
+    ResultFoldersDto: {
+      result: components['schemas']['FolderDto'][];
+    };
+    UpdateFolderMetaDto: {
+      /**
+       * @description New name
+       * @example Untitled Folder
+       */
+      plainName: string;
+    };
+    MoveFolderDto: {
+      /**
+       * @description New Destination Folder UUID
+       * @example 366be646-6d67-436e-8cb6-4b275dfe1729
+       */
+      destinationFolder: string;
+    };
+    SetSharingPasswordDto: {
+      /**
+       * @description password encrypted with code generated client side
+       * @example thisIsAPassword
+       */
+      encryptedPassword: string;
+    };
+    ChangeSharingType: {
+      /**
+       * @description New type you want to set for the sharing
+       * @example public
+       */
+      sharingType: string;
+    };
+    PublicSharingInfoDto: {
+      /** @description Unique identifier of the public sharing record */
+      id: string;
+      /** @description Indicates if the public sharing requires a password to access */
+      isPasswordProtected: boolean;
+      /** @description Encrypted public sharing password */
+      encryptedCode: string;
+    };
+    ItemSharingInfoDto: {
+      /**
+       * @description Effective sharing type (PUBLIC or PRIVATE). If there are only pending invitations without an accepted sharing, it is considered PRIVATE
+       * @enum {string}
+       */
+      type: 'public' | 'private';
+      /** @description Information about public sharing if it exists, otherwise null */
+      publicSharing: components['schemas']['PublicSharingInfoDto'] | null;
+      /** @description Number of pending invitations for this item */
+      invitationsCount: number;
+    };
+    CreateInviteDto: {
+      /**
+       * @description Id of the item to share
+       * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
+       */
+      itemId: Record<string, never>;
+      /**
+       * @description Type of the item being shared
+       * @example file | folder
+       */
+      itemType: Record<string, never>;
+      /**
+       * @description The email of the user you want to invite
+       * @example invited_user@internxt.com
+       */
+      sharedWith: Record<string, never>;
+      /**
+       * @description Owner's encryption key encrypted with the invited user's public key. This field should not be empty if the invitation type is "OWNER"
+       * @example encrypted encryption key
+       */
+      encryptionKey: Record<string, never>;
+      /**
+       * @description Encryption algorithm used to encrypt the encryption key. This field should not be empty if the invitation type is "OWNER"
+       * @example aes-256-gcm
+       */
+      encryptionAlgorithm: Record<string, never>;
+      /**
+       * @description Owner's encryption key encrypted with the invited user's public key
+       * @example encrypted encryption key
+       */
+      type: Record<string, never>;
+      /**
+       * @description Invited user role regarding the item
+       * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
+       */
+      roleId: Record<string, never>;
+      /**
+       * @description Request to send a notification to the invited user
+       * @example true | false
+       */
+      notifyUser: boolean;
+      /**
+       * @description Message to send into the notification for the invited user
+       * @example I want to share this file with you
+       */
+      notificationMessage: string;
+      /**
+       * @description Maintain previous sharings
+       * @example false
+       */
+      persistPreviousSharing: boolean;
+    };
+    AcceptInviteDto: {
+      /**
+       * @description Encryption key (just in case the invitation is a request)
+       * @example encryption_key
+       */
+      encryptionKey: Record<string, never>;
+      /**
+       * @description Encryption algorithm (just in case the invitation is a request)
+       * @example encryption_algorithm
+       */
+      encryptionAlgorithm: Record<string, never>;
+    };
+    CreateSharingDto: {
+      /**
+       * @description The uuid of the item to share
+       * @example uuid
+       */
+      itemId: Record<string, never>;
+      /**
+       * @description The type of the resource to share
+       * @example file | folder
+       */
+      itemType: Record<string, never>;
+      /**
+       * @description Encryption key
+       * @example encryption_key
+       */
+      encryptionKey: Record<string, never>;
+      /**
+       * @description Encryption algorithm
+       * @example encryption_algorithm
+       */
+      encryptionAlgorithm: Record<string, never>;
+      /**
+       * @description Encrypted code
+       * @example encrypted_code
+       */
+      encryptedCode: Record<string, never>;
+      /**
+       * @description Encrypted password
+       * @example encrypted_password
+       */
+      encryptedPassword: Record<string, never>;
+      /**
+       * @description Maintain previous sharings
+       * @example false
+       */
+      persistPreviousSharing: boolean;
+    };
+    UpdateSharingRoleDto: {
+      /**
+       * @description New role id
+       * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
+       */
+      roleId: Record<string, never>;
+    };
+    WorkspaceUserToJSONDTO: {
+      id: string;
+      memberId: string;
+      key: string;
+      workspaceId: string;
+      rootFolderId: string;
+      spaceLimit: number;
+      driveUsage: number;
+      backupsUsage: number;
+      deactivated: boolean;
+      member: Record<string, never>;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    WorkspaceAttributesDto: {
+      id: string;
+      ownerId: string;
+      address?: string;
+      name: string;
+      description?: string;
+      avatar: string | null;
+      defaultTeamId: string;
+      workspaceUserId: string;
+      setupCompleted: boolean;
+      numberOfSeats: number;
+      phoneNumber?: string;
+      rootFolderId?: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+    };
+    WorkspaceDto: {
+      workspaceUser: components['schemas']['WorkspaceUserToJSONDTO'];
+      workspace: components['schemas']['WorkspaceAttributesDto'];
+    };
+    Workspace: Record<string, never>;
+    GetAvailableWorkspacesResponseDto: {
+      availableWorkspaces: components['schemas']['WorkspaceDto'][];
+      pendingWorkspaces: components['schemas']['Workspace'][];
+    };
+    AcceptWorkspaceInviteDto: {
+      /**
+       * @description id of the invitation
+       * @example 0f8fad5b-d9cb-469f-a165-70867728950e
+       */
+      inviteId: Record<string, never>;
+    };
+    EditTeamDto: {
+      /**
+       * @description New name of the team
+       * @example Designers team
+       */
+      name: Record<string, never>;
+    };
+    SetupWorkspaceDto: {
+      /**
+       * @description Name of the workspace to be created
+       * @example My workspace
+       */
+      name: Record<string, never>;
+      /**
+       * @description Address of the workspace
+       * @example Address
+       */
+      address: Record<string, never>;
+      /**
+       * @description Workspace description
+       * @example My workspae
+       */
+      description: Record<string, never>;
+      /**
+       * @description Owner mnemnonic encrypted with their public key in base64
+       * @example Encrypted key in base64
+       */
+      encryptedMnemonic: Record<string, never>;
+    };
+    WorkspaceCredentialsDetailsDto: {
+      networkPass: string;
+      networkUser: string;
+    };
+    WorkspaceCredentialsDto: {
+      workspaceId: string;
+      bucket: string;
+      workspaceUserId: string;
+      email: string;
+      credentials: components['schemas']['WorkspaceCredentialsDetailsDto'];
+      tokenHeader: string;
+    };
+    ChangeUserAssignedSpaceDto: {
+      /**
+       * @description New Space assigned to user in bytes
+       * @example 1073741824
+       */
+      spaceLimit: Record<string, never>;
+    };
+    CreateWorkspaceInviteDto: {
+      /**
+       * @description The email of the user you want to invite
+       * @example invited_user@internxt.com
+       */
+      invitedUser: Record<string, never>;
+      /**
+       * @description Space assigned to user in bytes
+       * @example 1073741824
+       */
+      spaceLimit?: Record<string, never>;
+      /**
+       * @description Owner's encryption key encrypted with the invited user's public key.
+       * @example encrypted encryption key
+       */
+      encryptionKey: Record<string, never>;
+      /**
+       * @description Message to include in the invitation.
+       * @example Hello, join to my workspace
+       */
+      message: string;
+      /**
+       * @description Encryption algorithm used to encrypt the encryption key.
+       * @example aes-256-gcm
+       */
+      encryptionAlgorithm: Record<string, never>;
+    };
+    CreateTeamDto: {
+      /**
+       * @description Name of the team to be created
+       * @example Designers team
+       */
+      name: Record<string, never>;
+      /**
+       * @description Uuid of the user to assign as manager
+       * @example e54c5cc0-3a12-4537-9646-251ec0f0dbe4
+       */
+      managerId: Record<string, never>;
+    };
+    CreateWorkspaceFileDto: {
+      /**
+       * @description The bucket where the file is stored
+       * @example my-bucket
+       */
+      bucket: string;
+      /**
+       * @description The ID of the file
+       * @example file12345
+       */
+      fileId: string;
+      /**
+       * @description The encryption version used for the file
+       * @example 03-aes
+       */
+      encryptVersion: string;
+      /**
+       * Format: uuid
+       * @description The UUID of the folder containing the file
+       * @example 550e8400-e29b-41d4-a716-446655440000
+       */
+      folderUuid: string;
+      /**
+       * Format: bigint
+       * @description The size of the file in bytes
+       * @example 123456789
+       */
+      size: number;
+      /**
+       * @description The plain text name of the file
+       * @example example
+       */
+      plainName: string;
+      /**
+       * @description The type of the file (optional)
+       * @example text
+       */
+      type?: string;
+      /**
+       * Format: date-time
+       * @description The last modification time of the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      modificationTime?: string;
+      /**
+       * Format: date-time
+       * @description The date associated with the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      date?: string;
+      /**
+       * Format: date-time
+       * @description The creation time of the file (optional)
+       * @example 2023-05-30T12:34:56.789Z
+       */
+      creationTime?: string;
+    };
+    ShareItemWithTeamDto: {
+      /**
+       * @description The uuid of the item to share
+       * @example uuid
+       */
+      itemId: Record<string, never>;
+      /**
+       * @description The type of the resource to share
+       * @example file | folder
+       */
+      itemType: Record<string, never>;
+      /**
+       * @description Workspace's team id you want to share this file with
+       * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
+       */
+      sharedWith: Record<string, never>;
+      /**
+       * @description Role of the team regarding the item.
+       * @example 84f47d08-dc7c-43dc-b27c-bec4edaa9598
+       */
+      roleId: string;
+    };
+    CreateWorkspaceFolderDto: {
+      /**
+       * @description Folder name
+       * @example Untitled Folder
+       */
+      name: string;
+      /**
+       * @description Uuid of the parent folder
+       * @example 79a88429-b45a-4ae7-90f1-c351b6882670
+       */
+      parentFolderUuid: string;
+    };
+    ChangeUserRoleDto: {
+      /**
+       * @description Role to be assigned to user in the team
+       * @example MANAGER
+       * @enum {string}
+       */
+      role: 'manager' | 'member';
+    };
+    EditWorkspaceDetailsDto: {
+      /**
+       * @description Name of the workspace
+       * @example Internxt
+       */
+      name: Record<string, never>;
+      /**
+       * @description Description of the workspace
+       * @example Our goal is to create a cloud storage ecosystem that gives users total control, security, and privacy of the files and information online.
+       */
+      description: Record<string, never>;
+      /**
+       * @description Phone number
+       * @example +34 622 111 333
+       */
+      phoneNumber: Record<string, never>;
+    };
+    EccKeysDto: {
+      /**
+       * @description Public key
+       * @example publicKeyExample
+       */
+      publicKey: string;
+      /**
+       * @description Private key
+       * @example privateKeyExample
+       */
+      privateKey: string;
+      /**
+       * @description Revocation key
+       * @example revocationKeyExample
+       */
+      revocationKey: string;
+    };
+    KyberKeysDto: {
+      /**
+       * @description Public key
+       * @example publicKeyExample
+       */
+      publicKey: string;
+      /**
+       * @description Private key
+       * @example privateKeyExample
+       */
+      privateKey: string;
+    };
+    KeysDto: {
+      /** @description ECC keys */
+      ecc: components['schemas']['EccKeysDto'];
+      /** @description Kyber keys */
+      kyber: components['schemas']['KyberKeysDto'];
+    };
+    CreateUserDto: {
+      /**
+       * @description Name of the new user
+       * @example Internxt
+       */
+      name: Record<string, never>;
+      /**
+       * @description Last name of the new user
+       * @example Lastname
+       */
+      lastname: Record<string, never>;
+      /**
+       * @description Email of the new account
+       * @example myaccount@internxt.com
+       */
+      email: Record<string, never>;
+      /**
+       * @description Hashed password
+       * @example $2a$08$4SN2l.8dM0fSUTzni3i61u047Sr/R3ocJYxbxmKdEmGJcVOj1sHIi
+       */
+      password: Record<string, never>;
+      /**
+       * @description The mnemonic used to derive encryption keys
+       * @example test test test test test test test test test test test test test test test test test test test test test test test test
+       */
+      mnemonic: Record<string, never>;
+      /**
+       * @description Salt
+       * @example salt
+       */
+      salt: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      privateKey: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      publicKey: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      revocationKey: string;
+      /** @example  */
+      referrer: Record<string, never>;
+      /** @example  */
+      registerCompleted: Record<string, never>;
+      /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
+      keys: components['schemas']['KeysDto'];
+    };
+    RegisterPreCreatedUserDto: {
+      /**
+       * @description Name of the new user
+       * @example Internxt
+       */
+      name: Record<string, never>;
+      /**
+       * @description Last name of the new user
+       * @example Lastname
+       */
+      lastname: Record<string, never>;
+      /**
+       * @description Email of the new account
+       * @example myaccount@internxt.com
+       */
+      email: Record<string, never>;
+      /**
+       * @description Hashed password
+       * @example $2a$08$4SN2l.8dM0fSUTzni3i61u047Sr/R3ocJYxbxmKdEmGJcVOj1sHIi
+       */
+      password: Record<string, never>;
+      /**
+       * @description The mnemonic used to derive encryption keys
+       * @example test test test test test test test test test test test test test test test test test test test test test test test test
+       */
+      mnemonic: Record<string, never>;
+      /**
+       * @description Salt
+       * @example salt
+       */
+      salt: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      privateKey: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      publicKey: string;
+      /**
+       * @deprecated
+       * @example
+       */
+      revocationKey: string;
+      /** @example  */
+      referrer: Record<string, never>;
+      /** @example  */
+      registerCompleted: Record<string, never>;
+      /** @description Keys, if provided, will update the user keys. This object replaces the need for privateKey and encryptVersion. */
+      keys: components['schemas']['KeysDto'];
+      /**
+       * @description id of the invitation
+       * @example 0f8fad5b-d9cb-469f-a165-70867728950e
+       */
+      invitationId: Record<string, never>;
+    };
+    PreCreateUserDto: {
+      /**
+       * @description Email of the new account
+       * @example myaccount@internxt.com
+       */
+      email: Record<string, never>;
+    };
+    RefreshTokenUserResponseDto: {
+      email: string;
+      userId: string;
+      mnemonic: string;
+      root_folder_id: number;
+      rootFolderId: string;
+      name: string;
+      lastname: string;
+      uuid: string;
+      credit: number;
+      /** Format: date-time */
+      createdAt: string;
+      registerCompleted: boolean;
+      username: string;
+      bridgeUser: string;
+      backupsBucket: string;
+      avatar: string;
+      emailVerified: boolean;
+      /** Format: date-time */
+      lastPasswordChangedAt: string;
+    };
+    RefreshTokenResponseDto: {
+      /**
+       * @description The old token that has been replaced
+       * @example newToken1234567890
+       */
+      token: string;
+      /**
+       * @description The new token to be used for authentication
+       * @example oldToken1234567890
+       */
+      newToken: string;
+      /** @description User information */
+      user: components['schemas']['RefreshTokenUserResponseDto'];
+    };
+    RefreshUserAvatarDto: {
+      /** @description A new avatar URL for the given user */
+      avatar: string;
+    };
+    UpdatePasswordDto: {
+      /**
+       * @description Current password
+       * @example currentPassword
+       */
+      currentPassword: string;
+      /**
+       * @description New password
+       * @example newPassword
+       */
+      newPassword: string;
+      /**
+       * @description New salt
+       * @example newSalt
+       */
+      newSalt: string;
+      /**
+       * @description New mnemonic
+       * @example newMnemonic
+       */
+      mnemonic: string;
+      /**
+       * @description Ecc private key encrypted with new password
+       * @example encryptedPrivateKey
+       */
+      privateKey: string;
+      /**
+       * @description Kyber private key encrypted with new password
+       * @example encryptedPrivateKey
+       */
+      privateKyberKey: string;
+      /**
+       * @deprecated
+       * @description Encrypt version
+       * @example encryptVersion
+       */
+      encryptVersion: string;
+    };
+    RequestRecoverAccountDto: {
+      /**
+       * @description User email
+       * @example hello@internxt.com
+       */
+      email: string;
+    };
+    RequestAccountUnblock: {
+      /**
+       * @description User email
+       * @example hello@internxt.com
+       */
+      email: string;
+    };
+    DeprecatedRecoverAccountDto: {
+      /**
+       * @description New user pass hashed
+       * @example some_hashed_pass
+       */
+      password: string;
+      /**
+       * @description Hashed password salt
+       * @example some_salt
+       */
+      salt: string;
+      /**
+       * @description User mnemonic encrypted with the new pass
+       * @example some_encrypted_mnemonic
+       */
+      mnemonic: string;
+      /**
+       * @description User's private key encrypted with the user's plain password
+       * @example encrypted private key
+       */
+      privateKey: string;
+    };
+    PrivateKeysDto: {
+      ecc: string;
+      kyber: string;
+    };
+    RecoverAccountDto: {
+      /**
+       * @description New user pass hashed
+       * @example some_hashed_pass
+       */
+      password: string;
+      /**
+       * @description Hashed password salt
+       * @example some_salt
+       */
+      salt: string;
+      /**
+       * @description User mnemonic encrypted with the new pass
+       * @example some_encrypted_mnemonic
+       */
+      mnemonic: string;
+      /**
+       * @description User's private keys encrypted with the user's plain password
+       * @example {
+       *       "ecc": "encrypted private key",
+       *       "kyber": "encrypted kyber private key"
+       *     }
+       */
+      privateKeys: components['schemas']['PrivateKeysDto'];
+    };
+    EncryptedMnemonicDto: {
+      /**
+       * @description Mnemonic encrypted with ECC method
+       * @example mnemonic_encrypted_with_ecc_method
+       */
+      ecc: string;
+      /**
+       * @description Mnemonic encrypted with hybrid method
+       * @example mnemonic_encrypted_with_hybrid_method
+       */
+      hybrid: string;
+    };
+    RecoverAccountEccKeysDto: {
+      /**
+       * @description public key
+       * @example public_key
+       */
+      public: string;
+      /**
+       * @description private key encrypted with password
+       * @example private_key
+       */
+      private: string;
+      /**
+       * @description Key used for revocation
+       * @example revocation_key
+       */
+      revocationKey: string;
+    };
+    RecoverAccountKeysPairDto: {
+      /**
+       * @description public key
+       * @example public_key
+       */
+      public: string;
+      /**
+       * @description private key encrypted with password
+       * @example private_key
+       */
+      private: string;
+    };
+    NewGeneratedKeysDto: {
+      /** @description ECC keys (public and private) */
+      ecc: components['schemas']['RecoverAccountEccKeysDto'];
+      /** @description Kyber keys (public and private) */
+      kyber: components['schemas']['RecoverAccountKeysPairDto'];
+    };
+    LegacyRecoverAccountDto: {
+      /**
+       * @description Base64 encoded temporary auth token
+       * @example temporary_auth_token
+       */
+      token: string;
+      /**
+       * @description New user pass hashed
+       * @example hashed_password
+       */
+      password: string;
+      /**
+       * @description Hashed password salt
+       * @example password_salt
+       */
+      salt: string;
+      /**
+       * @description User mnemonic encrypted with the new pass
+       * @example password_encrypted_mnemonic
+       */
+      mnemonic: string;
+      /** @description Mnemonic encrypted with asymmetric encryption algorithms */
+      asymmetricEncryptedMnemonic: components['schemas']['EncryptedMnemonicDto'];
+      /** @description User ecc and kyber keys */
+      keys: components['schemas']['NewGeneratedKeysDto'];
+    };
+    GetOrCreatePublicKeysDto: {
+      /**
+       * @description Public ecc key
+       * @example
+       */
+      publicKey: string;
+      /**
+       * @description Public kyber key
+       * @example
+       */
+      publicKyberKey: string;
+    };
+    CreateAttemptChangeEmailDto: {
+      /**
+       * @description The new email of the user
+       * @example my_new_email@internxt.com
+       */
+      newEmail: string;
+    };
+    RegisterNotificationTokenDto: {
+      /**
+       * @description device token
+       * @example 0f8fad5b-d9cb-469f-a165-70867728950e
+       */
+      token: string;
+      /**
+       * @description device type
+       * @example macos
+       */
+      type: string;
+    };
+    VerifyEmailDto: {
+      /**
+       * @description Token received in verification email
+       * @example token received
+       */
+      verificationToken: string;
+    };
+    UpdateProfileDto: {
+      /**
+       * @description Name of the new user
+       * @example Internxt
+       */
+      name: Record<string, never>;
+      /**
+       * @description Name of the new user
+       * @example Internxt
+       */
+      nameNullCheck: string;
+      /**
+       * @description Last name of the new user
+       * @example Lastname
+       */
+      lastname: Record<string, never>;
+      /**
+       * @description Last name of the new user
+       * @example Lastname
+       */
+      lastnameNullCheck: string;
+    };
+    ConfirmAccountDeactivationDto: {
+      /**
+       * @description Token sent to user email
+       * @example token
+       */
+      token: string;
+    };
+    GetUserUsageDto: {
+      drive: number;
+      backup: number;
+      total: number;
+    };
+    GetUserLimitDto: {
+      maxSpaceBytes: number;
+    };
+    GetUploadStatusDto: {
+      /**
+       * @description Indicates whether the user has uploaded any files
+       * @example true
+       */
+      hasUploadedFiles: boolean;
+    };
+    GenerateMnemonicResponseDto: {
+      /**
+       * @description A plain mnemonic
+       * @example abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about
+       */
+      mnemonic: string;
+    };
+    FuzzySearchResult: {
+      id: string;
+      itemId: string;
+      /** @enum {string} */
+      itemType: 'file' | 'folder';
+      name: string;
+      rank: number | null;
+      similarity: number;
+    };
+    FuzzySearchResults: {
+      data: components['schemas']['FuzzySearchResult'][];
+    };
+    /** @enum {string} */
+    DevicePlatform: 'win32' | 'darwin' | 'linux' | 'android';
+    DeviceAsFolder: {
+      type: string;
+      id: number;
+      parentId: number;
+      parentUuid: string;
+      name: string;
+      parent: components['schemas']['Folder'];
+      bucket: string;
+      userId: number;
+      encryptVersion: string;
+      /** Format: date-time */
+      createdAt: string;
+      /** Format: date-time */
+      updatedAt: string;
+      uuid: string;
+      plainName: string;
+      size: number;
+      /** Format: date-time */
+      creationTime: string;
+      /** Format: date-time */
+      modificationTime: string;
+      /** @enum {string} */
+      status: 'EXISTS' | 'TRASHED' | 'DELETED';
+      removed: boolean;
+      deleted: boolean;
+      hasBackups: boolean;
+      /** Format: date-time */
+      lastBackupAt: string;
+    };
+    DeviceDto: {
+      /** @example 7 */
+      id: number;
+      /**
+       * @description MAC address of the device
+       * @example null
+       */
+      mac: string | null;
+      /** @example 1 */
+      userId: number;
+      /**
+       * @description Device platform
+       * @example linux
+       */
+      platform: components['schemas']['DevicePlatform'];
+      /**
+       * @description Unique installation identifier
+       * @example DESKTOP-ABC123ddd3
+       */
+      key: string;
+      /**
+       * @description Device hostname
+       * @example UNKNOWN_HOSTNAME
+       */
+      hostname: string;
+      /** @example 077e1ec6-9272-4719-ae1a-2ae35883a09e */
+      folderUuid: string;
+      /**
+       * Format: date-time
+       * @example 2025-07-10T20:14:04.784Z
+       */
+      createdAt: string;
+      /**
+       * Format: date-time
+       * @example 2025-07-10T20:14:04.784Z
+       */
+      updatedAt: string;
+      folder: components['schemas']['DeviceAsFolder'] | null;
+    };
+    CreateDeviceAndFolderDto: {
+      /**
+       * @description OS Installation unique identifier
+       * @example 81CBB42C-73A0-9660-6C7D-2FE94627F3A3
+       */
+      key?: string;
+      /**
+       * @description Device hostname
+       * @example DESKTOP-ABC123
+       */
+      hostname?: string;
+      /**
+       * @description Device platform
+       * @example linux
+       */
+      platform: components['schemas']['DevicePlatform'];
+      /**
+       * @description Name of the device and folder to be created, this should be a readable name
+       * @example Johns mac
+       */
+      name: string;
+    };
+    CreateDeviceAndAttachFolderDto: {
+      /**
+       * @description OS Installation unique identifier
+       * @example 81CBB42C-73A0-9660-6C7D-2FE94627F3A3
+       */
+      key?: string;
+      /**
+       * @description Device hostname
+       * @example DESKTOP-ABC123
+       */
+      hostname?: string;
+      /**
+       * @description Device platform
+       * @example linux
+       */
+      platform: components['schemas']['DevicePlatform'];
+      /**
+       * @description Name of the device to be created, this should be a readable name. Use the already existent folder name if you are attaching a folder
+       * @example Johns mac
+       */
+      name: string;
+      /**
+       * @description Uuuid of the folder to attach to the device
+       * @example 0c303e45-3f5f-4224-9886-9c5afdea0e7e
+       */
+      folderUuid: string;
+    };
+    UpdateDeviceAndFolderDto: {
+      name: string;
+    };
+    CreateDeviceAsFolderDto: {
+      deviceName: string;
+    };
+    ItemToTrashDto: {
+      /**
+       * @deprecated
+       * @description Id of file or folder (deprecated in favor of uuid)
+       * @example 4
+       */
+      id: string | null;
+      /**
+       * @description Uuid of file or folder
+       * @example 4
+       */
+      uuid: string;
+      /**
+       * @description Type of item: file or folder
+       * @example file
+       * @enum {string}
+       */
+      type: 'file' | 'folder';
+    };
+    MoveItemsToTrashDto: {
+      /** @description Array of items with files and folders ids */
+      items: components['schemas']['ItemToTrashDto'][];
+    };
+    DeleteItemDto: {
+      /**
+       * @deprecated
+       * @description Id of file or folder (deprecated in favor of uuid)
+       * @example 4
+       */
+      id: string | null;
+      /**
+       * @description Uuid of file or folder
+       * @example 79a88429-b45a-4ae7-90f1-c351b6882670
+       */
+      uuid: string;
+      /**
+       * @description Type of item: file or folder
+       * @example file
+       * @enum {string}
+       */
+      type: 'file' | 'folder';
+    };
+    DeleteItemsDto: {
+      /** @description Array of items with files and folders ids */
+      items: components['schemas']['DeleteItemDto'][];
+    };
+    LoginDto: {
+      /**
+       * @description The email of the user
+       * @example user@internxt.com
+       */
+      email: string;
+    };
+    LoginResponseDto: {
+      hasKeys: boolean;
+      sKey: string;
+      tfa: boolean;
+      hasKyberKeys: boolean;
+      hasEccKeys: boolean;
+    };
+    OptionalKeyGroup: {
+      /** @description ECC keys */
+      ecc?: components['schemas']['EccKeysDto'];
+      /** @description Kyber keys */
+      kyber?: components['schemas']['KyberKeysDto'];
+    };
+    LoginAccessDto: {
+      /**
+       * @description The email of the user
+       * @example user@internxt.com
+       */
+      email: string;
+      /**
+       * @description User password
+       * @example some_hashed_pass
+       */
+      password: string;
+      /**
+       * @description TFA
+       * @example two_factor_authentication_code
+       */
+      tfa?: string;
+      /**
+       * @deprecated
+       * @description Public Key
+       * @example public_key
+       */
+      publicKey?: string;
+      /**
+       * @deprecated
+       * @description Private Key
+       * @example private_key
+       */
+      privateKey?: string;
+      /**
+       * @deprecated
+       * @description Revocate Key
+       * @example revocate_key
+       */
+      revocateKey?: string;
+      /**
+       * @description keys
+       * @example newKeys
+       */
+      keys?: components['schemas']['OptionalKeyGroup'];
+    };
+    PublicAndPrivateKeyDto: {
+      publicKey: string;
+      privateKey: string;
+    };
+    UserKeysDto: {
+      ecc: components['schemas']['PublicAndPrivateKeyDto'];
+      kyber: components['schemas']['PublicAndPrivateKeyDto'];
+    };
+    UserDto: {
+      email: string;
+      userId: string;
+      mnemonic: string;
+      root_folder_id: number;
+      rootFolderId: string;
+      name: string;
+      lastname: string;
+      uuid: string;
+      credit: number;
+      /** Format: date-time */
+      createdAt: string;
+      privateKey: string;
+      publicKey: string;
+      revocateKey: string;
+      keys: components['schemas']['UserKeysDto'];
+      bucket: string;
+      registerCompleted: boolean;
+      teams: boolean;
+      username: string;
+      bridgeUser: string;
+      sharedWorkspace: boolean;
+      hasReferralsProgram: boolean;
+      backupsBucket: string;
+      avatar: string;
+      emailVerified: boolean;
+      /** Format: date-time */
+      lastPasswordChangedAt: string;
+    };
+    LoginAccessResponseDto: {
+      user: components['schemas']['UserDto'];
+      token: string;
+      userTeam: Record<string, never>;
+      newToken: string;
+    };
+    UpdateTfaDto: {
+      /**
+       * @description Key value
+       * @example key_example
+       */
+      key: string;
+      /**
+       * @description Code tfa
+       * @example 123456
+       */
+      code: string;
+    };
+    DeleteTfaDto: {
+      /**
+       * @description User password
+       * @example password_example
+       */
+      pass: string;
+      /**
+       * @description Code tfa
+       * @example 123456
+       */
+      code: string;
+    };
+    CreateSendLinkDto: {
+      /**
+       * @description Emails of destinatary
+       * @example [fake@mail.com]
+       */
+      receivers: string[];
+      /**
+       * @description Email of sender
+       * @example sender@mail.com
+       */
+      sender: string;
+      /**
+       * @description Encrypted code used before in plain, to encrypt the mnemonic
+       * @example code
+       */
+      code: string;
+      /**
+       * @description Code in plain, which is required to share this link with anyone
+       * @example 03849067907409723908abcdef
+       */
+      plainCode: string;
+      /**
+       * @description Title to send link
+       * @example Test title
+       */
+      title: string;
+      /**
+       * @description Subject to send link
+       * @example Subject
+       */
+      subject: string;
+      /** @description List of items of files and folders */
+      items: string[];
+      /**
+       * @description Password to unlock the link
+       * @example Super secret password
+       */
+      plainPassword: string;
+    };
+    InitializeWorkspaceDto: {
+      /**
+       * @description Uuid of the owner of the space
+       * @example Id of the owner
+       */
+      ownerId: string;
+      /**
+       * @description Address of the workspace
+       * @example Address from billing
+       */
+      address: string;
+      /**
+       * @description Phone number
+       * @example +34 622 111 333
+       */
+      phoneNumber: string;
+      /**
+       * @description Workspace max space in bytes
+       * @example 312321312
+       */
+      maxSpaceBytes: number;
+      /**
+       * @description Workspace max number of users
+       * @example 20
+       */
+      numberOfSeats: number;
+    };
+    UpdateWorkspaceStorageDto: {
+      /**
+       * @description Uuid of the owner of the space
+       * @example Id of the owner
+       */
+      ownerId: string;
+      /**
+       * @description Workspace max space in bytes
+       * @example 312321312
+       */
+      maxSpaceBytes: number;
+      /**
+       * @description Number of seats in the workspace
+       * @example 5
+       */
+      numberOfSeats: number;
+    };
+    DeleteWorkspaceDto: {
+      /**
+       * @description Uuid of the owner of the space
+       * @example Id of the owner
+       */
+      ownerId: string;
+    };
+    UpdateUserDto: {
+      /**
+       * @description New max storage space in bytes
+       * @example 123456
+       */
+      maxSpaceBytes: number;
+    };
+  };
+  responses: never;
+  parameters: never;
+  requestBodies: never;
+  headers: never;
+  pathItems: never;
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    FileController_getFiles: {
-        parameters: {
-            query: {
-                limit: number;
-                offset: number;
-                status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
-                bucket?: string;
-                sort?: string;
-                order?: string;
-                updatedAt?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'][];
-                };
-            };
-        };
-    };
-    FileController_createFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateFileDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'];
-                };
-            };
-        };
-    };
-    FileController_getFileCount: {
-        parameters: {
-            query: {
-                status: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FileController_getFileMetadata: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'];
-                };
-            };
-        };
-    };
-    FileController_updateFileMetadata: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description file uuid */
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateFileMetaDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'];
-                };
-            };
-        };
-    };
-    FileController_replaceFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['ReplaceFileDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'];
-                };
-            };
-        };
-    };
-    FileController_deleteFileByUuid: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FileController_moveFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['MoveFileDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'];
-                };
-            };
-        };
-    };
-    FileController_getRecentFiles: {
-        parameters: {
-            query: {
-                limit: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FileController_getFileMetaByPath: {
-        parameters: {
-            query: {
-                path: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'];
-                };
-            };
-        };
-    };
-    FileController_createThumbnail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateThumbnailDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['ThumbnailDto'];
-                };
-            };
-        };
-    };
-    FileController_deleteFileByFileId: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                bucketId: string;
-                fileId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_getFolders: {
-        parameters: {
-            query: {
-                limit: number;
-                offset: number;
-                status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
-                updatedAt?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FolderDto'][];
-                };
-            };
-        };
-    };
-    FolderController_createFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateFolderDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FolderDto'];
-                };
-            };
-        };
-    };
-    FolderController_deleteFolders: {
-        parameters: {
-            query: {
-                status: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_getFolderCount: {
-        parameters: {
-            query: {
-                status: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_getFolderContentFiles: {
-        parameters: {
-            query: {
-                limit: number;
-                offset: number;
-                sort: string;
-                order: string;
-            };
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FilesDto'];
-                };
-            };
-        };
-    };
-    FolderController_getFolderFiles: {
-        parameters: {
-            query: {
-                limit: number;
-                offset: number;
-                sort?: string;
-                order?: string;
-            };
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['ResultFilesDto'];
-                };
-            };
-        };
-    };
-    FolderController_checkFileExistence: {
-        parameters: {
-            query: {
-                name: string;
-                type: string;
-            };
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_getFolderContentFolders: {
-        parameters: {
-            query: {
-                limit: number;
-                offset: number;
-                sort: string;
-                order: string;
-            };
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FoldersDto'];
-                };
-            };
-        };
-    };
-    FolderController_checkFoldersExistenceInFolderOld: {
-        parameters: {
-            query: {
-                /** @description Plain name of folder or array of plain names */
-                plainName: string[];
-            };
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_checkFoldersExistenceInFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CheckFoldersExistenceDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['ExistingFoldersDto'];
-                };
-            };
-        };
-    };
-    FolderController_checkFilesExistenceInFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CheckFileExistenceInFolderDto'];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_getFolderContent: {
-        parameters: {
-            query?: {
-                /** @description Items per page */
-                limit?: number;
-                /** @description Offset for pagination */
-                offset?: number;
-            };
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Current folder with children folders and files */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['GetFolderContentDto'];
-                };
-            };
-        };
-    };
-    FolderController_getFolderFolders: {
-        parameters: {
-            query: {
-                limit: number;
-                offset: number;
-                sort?: string;
-                order?: string;
-            };
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['ResultFoldersDto'];
-                };
-            };
-        };
-    };
-    FolderController_getFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FolderDto'];
-                };
-            };
-        };
-    };
-    FolderController_updateFolderMetadata: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateFolderMetaDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FolderDto'];
-                };
-            };
-        };
-    };
-    FolderController_getFolderAncestors: {
-        parameters: {
-            query: {
-                /** @description If true, will return ancestors in workspace */
-                workspace: boolean;
-            };
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_getFolderTree: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_getFolderById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FolderDto'];
-                };
-            };
-        };
-    };
-    FolderController_getFolderSize: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_deleteFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FolderController_moveFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['MoveFolderDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FolderDto'];
-                };
-            };
-        };
-    };
-    FolderController_getFolderMetaByPath: {
-        parameters: {
-            query: {
-                path: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getPublicSharing: {
-        parameters: {
-            query: {
-                code: string;
-            };
-            header: {
-                /** @description URI Encoded password to get access to the sharing */
-                'x-share-password': string;
-            };
-            path: {
-                /** @description Id of the sharing */
-                sharingId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get sharing metadata */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getPublicSharingItemInfo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the sharing */
-                sharingId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get sharing item info */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_removePublicSharingPassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the sharing */
-                sharingId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Remove  */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_setPublicSharingPassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the sharing */
-                sharingId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['SetSharingPasswordDto'];
-            };
-        };
-        responses: {
-            /** @description Sets/edit password for public sharings */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getInvites: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                itemType: string;
-                itemId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getSharingType: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_changeSharingType: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['ChangeSharingType'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getItemSharingStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Item has no active sharings or invitations */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['ItemSharingInfoDto'];
-                };
-            };
-        };
-    };
-    SharingController_getInvitesByUser: {
-        parameters: {
-            query?: {
-                /** @description Number of items to request */
-                limit?: number;
-                /** @description Offset from to start requesting items */
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all the invites that a user has received */
-            default: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_createInvite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateInviteDto'];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_validateInvite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the invite to validate */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_acceptInvite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['AcceptInviteDto'];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_removeInvite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the invitation to delete */
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getSharedFoldersInsideSharedFolder: {
-        parameters: {
-            query: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Token that authorizes the access to the shared content */
-                token: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path: {
-                /** @description Folder id of the shared folder */
-                sharedFolderId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getPrivateShareFiles: {
-        parameters: {
-            query: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Token that authorizes the access to the shared content */
-                token: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path: {
-                /** @description Folder id of the shared folder */
-                sharedFolderId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all items inside a shared folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getPublicShareFiles: {
-        parameters: {
-            query: {
-                /** @description Token that authorizes the access to the shared content */
-                token: string;
-                code: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path: {
-                /** @description Folder id of the shared folder */
-                sharedFolderId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all items inside a shared folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getPublicSharedFolders: {
-        parameters: {
-            query: {
-                /** @description Token that authorizes the access to the shared content */
-                token: string;
-                code: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path: {
-                /** @description Folder id of the shared folder */
-                sharedFolderId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all items inside a shared folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_createSharing: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateSharingDto'];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_removeSharing: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description UUID of the item to remove from any sharing */
-                itemId: string;
-                /** @description file | folder */
-                itemType: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Item removed from sharing */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getRoles: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getUserRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_updateSharingRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the sharing whose role is going to be updated */
-                sharingId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateSharingRoleDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_removeSharingRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description Id of the sharing role to be deleted */
-                sharingRoleId: string;
-                /** @description Id of the sharing whose sharing role is going to be deleted */
-                sharingId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getSharedFoldersWithAUser: {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all folders shared with a user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getSharedFolders: {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all folders shared by a user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getAllSharedFolders: {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all folders shared by/with a user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getAllSharedFiles: {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all files shared by/with a user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getItemsSharedsWith: {
-        parameters: {
-            query?: {
-                /** @description Number of items to request */
-                limit?: number;
-                /** @description Items offset */
-                offset?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all users that have access to a file or folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getSharedWithByFolderId: {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Number of items per page ( default 50 ) */
-                perPage?: number;
-                /** @description Number of page to take by ( default 0 ) */
-                page?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all users that have access to a folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_removeUserFromSharedItem: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description UUID of the item to remove the user from */
-                itemId: string;
-                /** @description file | folder */
-                itemType: string;
-                /** @description UUID of the user to remove from the shared item */
-                userId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User removed from shared item */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getPublicSharingFolderSize: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SharingController_getPublicSharingDomains: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getAvailableWorkspaces: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Available workspaces and workspaceUser */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['GetAvailableWorkspacesResponseDto'];
-                };
-            };
-        };
-    };
-    WorkspacesController_getUserWorkspacesToBeSetup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Workspaces pending to be setup */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getUserInvitations: {
-        parameters: {
-            query: {
-                /** @description Number of items to request */
-                limit: number;
-                /** @description Number of items to skip */
-                offset: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User Pending invitations */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_acceptWorkspaceInvitation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['AcceptWorkspaceInviteDto'];
-            };
-        };
-        responses: {
-            /** @description Workspace invitation accepted */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_validateWorkspaceInvitation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Workspace invitation is valid */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_removeWorkspaceInvite: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                inviteId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Workspace invitation declined */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getTeamMembers: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Members of the team */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_editTeam: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['EditTeamDto'];
-            };
-        };
-        responses: {
-            /** @description Team has been edited */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_deleteTeam: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Deleted team */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_addUserToTeam: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userUuid: string;
-                teamId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User added to team */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_removeUserFromTeam: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                userUuid: string;
-                teamId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User removed from team */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getFiles: {
-        parameters: {
-            query: {
-                /** @description Items per page */
-                limit?: number;
-                /** @description Offset for pagination */
-                offset?: number;
-                status: string;
-                bucket?: string;
-                sort?: string;
-                order?: string;
-                updatedAt?: string;
-            };
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'][];
-                };
-            };
-        };
-    };
-    WorkspacesController_createFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateWorkspaceFileDto'];
-            };
-        };
-        responses: {
-            /** @description Created File */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FileDto'];
-                };
-            };
-        };
-    };
-    WorkspacesController_getFolders: {
-        parameters: {
-            query?: {
-                /** @description Items per page */
-                limit?: number;
-                /** @description Offset for pagination */
-                offset?: number;
-            };
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FolderDto'][];
-                };
-            };
-        };
-    };
-    WorkspacesController_createFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateWorkspaceFolderDto'];
-            };
-        };
-        responses: {
-            /** @description Created Folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FolderDto'];
-                };
-            };
-        };
-    };
-    WorkspacesController_changeTeamManager: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                teamId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Team manager changed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getWorkspacePendingInvitations: {
-        parameters: {
-            query: {
-                /** @description Number of items to request */
-                limit: number;
-                /** @description Number of items to skip */
-                offset: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Workspace pending invitations */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_setupWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['SetupWorkspaceDto'];
-            };
-        };
-        responses: {
-            /** @description Workspace setup */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_uploadAvatar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Avatar added to the workspace */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_deleteAvatar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Avatar deleted from the workspace */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getWorkspaceUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Workspace credentials */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['WorkspaceCredentialsDto'];
-                };
-            };
-        };
-    };
-    WorkspacesController_getWorkspaceStorageUsage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns workspace usage */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_changeMemberAssignedSpace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['ChangeUserAssignedSpaceDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getWorkspaceMembers: {
-        parameters: {
-            query?: {
-                /** @description Search users by name, lastname or email */
-                search?: string;
-            };
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Members in the workspace along with members quantity */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_inviteUsersToWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateWorkspaceInviteDto'];
-            };
-        };
-        responses: {
-            /** @description User has been invited successfully */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getWorkspaceTeams: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Teams in the workspace along with its members quantity */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_createTeam: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateTeamDto'];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_calculateUserUsage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User usage in drive */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_shareItemWithMember: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['ShareItemWithTeamDto'];
-            };
-        };
-        responses: {
-            /** @description Shared Item */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    'WorkspacesController_getSharedFilesInWorkspace[0]': {
-        parameters: {
-            query: {
-                orderBy: string;
-                /** @description Token */
-                token?: string;
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                perPage?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    'WorkspacesController_getSharedFilesInWorkspace[1]': {
-        parameters: {
-            query: {
-                orderBy: string;
-                /** @description Token */
-                token?: string;
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                perPage?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    'WorkspacesController_getSharedFoldersInWorkspace[0]': {
-        parameters: {
-            query: {
-                orderBy: string;
-                /** @description Token */
-                token?: string;
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                perPage?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    'WorkspacesController_getSharedFoldersInWorkspace[1]': {
-        parameters: {
-            query: {
-                orderBy: string;
-                /** @description Token */
-                token?: string;
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                perPage?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    'WorkspacesController_getFoldersInSharingFolder[0]': {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Token */
-                token?: string;
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                perPage?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    'WorkspacesController_getFoldersInSharingFolder[1]': {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Token */
-                token?: string;
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                perPage?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    'WorkspacesController_getFilesInSharingFolder[0]': {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Token */
-                token?: string;
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                perPage?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    'WorkspacesController_getFilesInSharingFolder[1]': {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-                /** @description Token */
-                token?: string;
-                /** @description Page number */
-                page?: number;
-                /** @description Items per page */
-                perPage?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getItemSharedWith: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The uuid of the item to share */
-                itemId: string;
-                /** @description The type of the resource to share */
-                itemType: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getUserTrashedItems: {
-        parameters: {
-            query: {
-                /** @description Items per page */
-                limit?: number;
-                /** @description Offset for pagination */
-                offset?: number;
-                type: string;
-                sort: string;
-                order: string;
-            };
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description user's trashed items in workspace */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_emptyTrash: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Member's trashed items in workspace have been successfully removed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getFoldersInFolder: {
-        parameters: {
-            query: {
-                /** @description Items per page */
-                limit?: number;
-                /** @description Offset for pagination */
-                offset?: number;
-                sort: string;
-                order: string;
-            };
-            header?: never;
-            path: {
-                workspaceId: string;
-                folderUuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Folders in folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['ResultFoldersDto'];
-                };
-            };
-        };
-    };
-    WorkspacesController_getFilesInFolder: {
-        parameters: {
-            query: {
-                /** @description Items per page */
-                limit?: number;
-                /** @description Offset for pagination */
-                offset?: number;
-                sort: string;
-                order: string;
-            };
-            header?: never;
-            path: {
-                folderUuid: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Files in folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['ResultFilesDto'];
-                };
-            };
-        };
-    };
-    WorkspacesController_changeMemberRole: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                memberId: string;
-                teamId: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['ChangeUserRoleDto'];
-            };
-        };
-        responses: {
-            /** @description Role changed */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getWorkspaceDetails: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Workspace details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_editWorkspaceDetails: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['EditWorkspaceDetailsDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_leaveWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User left workspace */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getWorkspaceMemberDetails: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                memberId: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Details of the workspace members */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_removeWorkspaceMember: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                memberId: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Member removed from workspace */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_deactivateWorkspaceMember: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                memberId: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User successfully deactivated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_activateWorkspaceMember: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                memberId: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description User successfully activated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_searchWorkspace: {
-        parameters: {
-            query: {
-                offset: number;
-            };
-            header?: never;
-            path: {
-                search: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Search results */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_accessLogs: {
-        parameters: {
-            query?: {
-                /** @description Order by */
-                orderBy?: string;
-            };
-            header?: never;
-            path: {
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Access Logs */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    WorkspacesController_getWorkspaceItemAncestors: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                itemType: string;
-                uuid: string;
-                workspaceId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Item ancestors details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_createUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateUserDto'];
-            };
-        };
-        responses: {
-            /** @description Creates a user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing required fields */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_getUserByEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                email: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get the user data by email */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing required fields */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_registerPreCreatedUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['RegisterPreCreatedUserDto'];
-            };
-        };
-        responses: {
-            /** @description Creates Pre Created User */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing required fields */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_preCreateUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['PreCreateUserDto'];
-            };
-        };
-        responses: {
-            /** @description Pre creates a user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing required fields */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_getUserCredentials: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns the user metadata and the authentication tokens */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_refreshToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns a new token */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['RefreshTokenResponseDto'];
-                };
-            };
-        };
-    };
-    UserController_refreshAvatarUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns a new avatar URL */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['RefreshUserAvatarDto'];
-                };
-            };
-        };
-    };
-    UserController_updatePassword: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdatePasswordDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_recoverAccount: {
-        parameters: {
-            query: {
-                token: string;
-                reset: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['DeprecatedRecoverAccountDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_requestAccountRecovery: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['RequestRecoverAccountDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_accountUnblock: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_requestAccountUnblock: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['RequestAccountUnblock'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_recoverAccountV2: {
-        parameters: {
-            query: {
-                token: string;
-                reset: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['RecoverAccountDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_requestLegacyAccountRecovery: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['LegacyRecoverAccountDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_getPublicKeyByEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                email: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_getOrPreCreatePublicKeyByEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                email: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns a public key */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["GetOrCreatePublicKeysDto"];
-                };
-            };
-        };
-    };
-    UserController_createAttemptChangeEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateAttemptChangeEmailDto'];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_acceptAttemptChangeEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                encryptedAttemptChangeEmailId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_verifyAttemptChangeEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                encryptedAttemptChangeEmailId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_getMeetTokenBeta: {
-        parameters: {
-            query: {
-                room: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns a new meet token related to the beta user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_getMeetTokenAnon: {
-        parameters: {
-            query: {
-                room: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns a new meet anonymous token */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_addNotificationToken: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['RegisterNotificationTokenDto'];
-            };
-        };
-        responses: {
-            /** @description Creates a notification token */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_sendAccountVerifyEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Email sent successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_verifyAccountEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['VerifyEmailDto'];
-            };
-        };
-        responses: {
-            /** @description Email verified successfully */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_updateProfile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateProfileDto'];
-            };
-        };
-        responses: {
-            /** @description Updated user profile */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_uploadAvatar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Avatar added to the user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_deleteAvatar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Avatar deleted from the workspace */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_sendUserDeactivationEmail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_confirmUserDeactivation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['ConfirmAccountDeactivationDto'];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    UserController_getUserUsage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['GetUserUsageDto'];
-                };
-            };
-        };
-    };
-    UserController_limit: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get user space limit */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['GetUserLimitDto'];
-                };
-            };
-        };
-    };
-    UserController_getUploadStatus: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns whether the user has uploaded any files */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['GetUploadStatusDto'];
-                };
-            };
-        };
-    };
-    UserController_generateMnemonic: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Returns a mnemonic, it is not saved anywhere */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['GenerateMnemonicResponseDto'];
-                };
-            };
-        };
-    };
-    ShareController_getDomains: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get the domains for the sharing links */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    FuzzySearchController_fuzzySearch: {
-        parameters: {
-            query: {
-                offset: number;
-            };
-            header?: never;
-            path: {
-                search: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Elements found */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['FuzzySearchResults'];
-                };
-            };
-        };
-    };
-    BackupController_activateBackup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupController_getDevicesAndFolders: {
-        parameters: {
-            query: {
-                /** @description Device platform */
-                platform?: components['schemas']['DevicePlatform'];
-                /** @description OS Installation unique identifier */
-                key?: string;
-                /** @description Device hostname */
-                hostname?: string;
-                limit: number;
-                offset: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description List of devices. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceDto'][];
-                };
-            };
-        };
-    };
-    BackupController_createDeviceAndFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateDeviceAndFolderDto'];
-            };
-        };
-        responses: {
-            /** @description The newly created device */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceDto'];
-                };
-            };
-        };
-    };
-    BackupController_createDeviceForExistingFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateDeviceAndAttachFolderDto'];
-            };
-        };
-        responses: {
-            /** @description The created device */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceDto'];
-                };
-            };
-        };
-    };
-    BackupController_deleteDeviceAndFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successfully deleted the device and its linked folder. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupController_updateDevice: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                key: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateDeviceAndFolderDto'];
-            };
-        };
-        responses: {
-            /** @description The updated device */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceDto'];
-                };
-            };
-        };
-    };
-    BackupController_getDevicesAsFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceAsFolder'][];
-                };
-            };
-        };
-    };
-    BackupController_createDeviceAsFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateDeviceAsFolderDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceAsFolder'];
-                };
-            };
-        };
-    };
-    BackupController_getDeviceAsFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceAsFolder'];
-                };
-            };
-        };
-    };
-    BackupController_deleteDeviceAsFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupController_updateDeviceAsFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateDeviceAsFolderDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceAsFolder'];
-                };
-            };
-        };
-    };
-    BackupController_getDeviceAsFolderById: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['DeviceAsFolder'];
-                };
-            };
-        };
-    };
-    BackupController_getAllDevices: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupController_deleteDevice: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                deviceId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupController_getBackupsByMac: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                mac: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    BackupController_deleteBackup: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                backupId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TrashController_getTrashedFilesPaginated: {
-        parameters: {
-            query: {
-                /** @description Items per page */
-                limit?: number;
-                /** @description Offset for pagination */
-                offset?: number;
-                type: string;
-                sort: string;
-                order: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Files on trash for a given folder */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TrashController_moveItemsToTrash: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['MoveItemsToTrashDto'];
-            };
-        };
-        responses: {
-            /** @description All items moved to trash */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Any item id is invalid */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TrashController_clearTrash: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TrashController_requestEmptyTrash: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TrashController_deleteItems: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['DeleteItemsDto'];
-            };
-        };
-        responses: {
-            202: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TrashController_deleteFile: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                fileId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    TrashController_deleteFolder: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                folderId: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_login: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['LoginDto'];
-            };
-        };
-        responses: {
-            /** @description Retrieve details */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['LoginResponseDto'];
-                };
-            };
-        };
-    };
-    AuthController_loginAccess: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['LoginAccessDto'];
-            };
-        };
-        responses: {
-            /** @description User  successfully accessed their account */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    'application/json': components['schemas']['LoginAccessResponseDto'];
-                };
-            };
-        };
-    };
-    AuthController_logout: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successfully logged out */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_getTfa: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description two-factor authentication */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_putTfa: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateTfaDto'];
-            };
-        };
-        responses: {
-            /** @description two-factor authentication */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_deleteTfa: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['DeleteTfaDto'];
-            };
-        };
-        responses: {
-            /** @description two-factor authentication */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AuthController_areCredentialsCorrect: {
-        parameters: {
-            query: {
-                /** @description User hashed password */
-                hashedPassword: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Credentials are correct */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SendController_createLinks: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['CreateSendLinkDto'];
-            };
-        };
-        responses: {
-            /** @description Get all shares in a list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SendController_getSendLink: {
-        parameters: {
-            query?: never;
-            header: {
-                'x-send-password': string;
-            };
-            path: {
-                linkId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get all shares in a list */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DeviceController_getDevice: {
-        parameters: {
-            query?: never;
-            header: {
-                'user-agent': string;
-            };
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get Device Context by user agent */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DeviceController_getLocation: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Get geolocation by ip */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GatewayController_initializeWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['InitializeWorkspaceDto'];
-            };
-        };
-        responses: {
-            /** @description Returns the workspace created */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GatewayController_destroyWorkspace: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['DeleteWorkspaceDto'];
-            };
-        };
-        responses: {
-            /** @description Delete workspace by owner id */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GatewayController_updateWorkspaceStorage: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateWorkspaceStorageDto'];
-            };
-        };
-        responses: {
-            /** @description Returns the workspace updated */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GatewayController_validateStorageForPlanChange: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateWorkspaceStorageDto'];
-            };
-        };
-        responses: {
-            /** @description Returns whether the update is possible */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GatewayController_getUserByEmail: {
-        parameters: {
-            query: {
-                email: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Details of the user */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GatewayController_checkUserStorageExpansion: {
-        parameters: {
-            query: {
-                /** @description UUID of the user */
-                userUuid: string;
-                /** @description Extra space to add to user in bytes */
-                additionalBytes: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    GatewayController_updateUser: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description User UUID */
-                uuid: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                'application/json': components['schemas']['UpdateUserDto'];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
+  FileController_getFiles: {
+    parameters: {
+      query: {
+        limit: number;
+        offset: number;
+        status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
+        bucket?: string;
+        sort?: string;
+        order?: string;
+        updatedAt?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'][];
+        };
+      };
+    };
+  };
+  FileController_createFile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateFileDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_getFileCount: {
+    parameters: {
+      query: {
+        status: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_getFileMetadata: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_updateFileMetadata: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description file uuid */
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateFileMetaDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_replaceFile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ReplaceFileDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_deleteFileByUuid: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_moveFile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MoveFileDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_getRecentFiles: {
+    parameters: {
+      query: {
+        limit: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FileController_getFileMetaByPath: {
+    parameters: {
+      query: {
+        path: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  FileController_createThumbnail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateThumbnailDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ThumbnailDto'];
+        };
+      };
+    };
+  };
+  FileController_deleteFileByFileId: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        bucketId: string;
+        fileId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_getFolders: {
+    parameters: {
+      query: {
+        limit: number;
+        offset: number;
+        status: 'EXISTS' | 'TRASHED' | 'DELETED' | 'ALL';
+        updatedAt?: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FolderDto'][];
+        };
+      };
+    };
+  };
+  FolderController_createFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateFolderDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
+      };
+    };
+  };
+  FolderController_deleteFolders: {
+    parameters: {
+      query: {
+        status: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_getFolderCount: {
+    parameters: {
+      query: {
+        status: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_getFolderContentFiles: {
+    parameters: {
+      query: {
+        limit: number;
+        offset: number;
+        sort: string;
+        order: string;
+      };
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FilesDto'];
+        };
+      };
+    };
+  };
+  FolderController_getFolderFiles: {
+    parameters: {
+      query: {
+        limit: number;
+        offset: number;
+        sort?: string;
+        order?: string;
+      };
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResultFilesDto'];
+        };
+      };
+    };
+  };
+  FolderController_checkFileExistence: {
+    parameters: {
+      query: {
+        name: string;
+        type: string;
+      };
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_getFolderContentFolders: {
+    parameters: {
+      query: {
+        limit: number;
+        offset: number;
+        sort: string;
+        order: string;
+      };
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FoldersDto'];
+        };
+      };
+    };
+  };
+  FolderController_checkFoldersExistenceInFolderOld: {
+    parameters: {
+      query: {
+        /** @description Plain name of folder or array of plain names */
+        plainName: string[];
+      };
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_checkFoldersExistenceInFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CheckFoldersExistenceDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ExistingFoldersDto'];
+        };
+      };
+    };
+  };
+  FolderController_checkFilesExistenceInFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CheckFileExistenceInFolderDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_getFolderContent: {
+    parameters: {
+      query?: {
+        /** @description Items per page */
+        limit?: number;
+        /** @description Offset for pagination */
+        offset?: number;
+      };
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Current folder with children folders and files */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetFolderContentDto'];
+        };
+      };
+    };
+  };
+  FolderController_getFolderFolders: {
+    parameters: {
+      query: {
+        limit: number;
+        offset: number;
+        sort?: string;
+        order?: string;
+      };
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResultFoldersDto'];
+        };
+      };
+    };
+  };
+  FolderController_getFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
+      };
+    };
+  };
+  FolderController_updateFolderMetadata: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateFolderMetaDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
+      };
+    };
+  };
+  FolderController_getFolderAncestors: {
+    parameters: {
+      query: {
+        /** @description If true, will return ancestors in workspace */
+        workspace: boolean;
+      };
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_getFolderTree: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_getFolderById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
+      };
+    };
+  };
+  FolderController_getFolderSize: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_deleteFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FolderController_moveFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MoveFolderDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
+      };
+    };
+  };
+  FolderController_getFolderMetaByPath: {
+    parameters: {
+      query: {
+        path: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getPublicSharing: {
+    parameters: {
+      query: {
+        code: string;
+      };
+      header: {
+        /** @description URI Encoded password to get access to the sharing */
+        'x-share-password': string;
+      };
+      path: {
+        /** @description Id of the sharing */
+        sharingId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get sharing metadata */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getPublicSharingItemInfo: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Id of the sharing */
+        sharingId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get sharing item info */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_removePublicSharingPassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Id of the sharing */
+        sharingId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Remove  */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_setPublicSharingPassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Id of the sharing */
+        sharingId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetSharingPasswordDto'];
+      };
+    };
+    responses: {
+      /** @description Sets/edit password for public sharings */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getInvites: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        itemType: string;
+        itemId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getSharingType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_changeSharingType: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangeSharingType'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getItemSharingStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Item has no active sharings or invitations */
+      404: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ItemSharingInfoDto'];
+        };
+      };
+    };
+  };
+  SharingController_getInvitesByUser: {
+    parameters: {
+      query?: {
+        /** @description Number of items to request */
+        limit?: number;
+        /** @description Offset from to start requesting items */
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all the invites that a user has received */
+      default: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_createInvite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateInviteDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_validateInvite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Id of the invite to validate */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_acceptInvite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AcceptInviteDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_removeInvite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Id of the invitation to delete */
+        id: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getSharedFoldersInsideSharedFolder: {
+    parameters: {
+      query: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Token that authorizes the access to the shared content */
+        token: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path: {
+        /** @description Folder id of the shared folder */
+        sharedFolderId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getPrivateShareFiles: {
+    parameters: {
+      query: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Token that authorizes the access to the shared content */
+        token: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path: {
+        /** @description Folder id of the shared folder */
+        sharedFolderId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all items inside a shared folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getPublicShareFiles: {
+    parameters: {
+      query: {
+        /** @description Token that authorizes the access to the shared content */
+        token: string;
+        code: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path: {
+        /** @description Folder id of the shared folder */
+        sharedFolderId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all items inside a shared folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getPublicSharedFolders: {
+    parameters: {
+      query: {
+        /** @description Token that authorizes the access to the shared content */
+        token: string;
+        code: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path: {
+        /** @description Folder id of the shared folder */
+        sharedFolderId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all items inside a shared folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_createSharing: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateSharingDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_removeSharing: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the item to remove from any sharing */
+        itemId: string;
+        /** @description file | folder */
+        itemType: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Item removed from sharing */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getRoles: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getUserRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_updateSharingRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Id of the sharing whose role is going to be updated */
+        sharingId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateSharingRoleDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_removeSharingRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description Id of the sharing role to be deleted */
+        sharingRoleId: string;
+        /** @description Id of the sharing whose sharing role is going to be deleted */
+        sharingId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getSharedFoldersWithAUser: {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all folders shared with a user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getSharedFolders: {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all folders shared by a user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getAllSharedFolders: {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all folders shared by/with a user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getAllSharedFiles: {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all files shared by/with a user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getItemsSharedsWith: {
+    parameters: {
+      query?: {
+        /** @description Number of items to request */
+        limit?: number;
+        /** @description Items offset */
+        offset?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all users that have access to a file or folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getSharedWithByFolderId: {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Number of items per page ( default 50 ) */
+        perPage?: number;
+        /** @description Number of page to take by ( default 0 ) */
+        page?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all users that have access to a folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_removeUserFromSharedItem: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description UUID of the item to remove the user from */
+        itemId: string;
+        /** @description file | folder */
+        itemType: string;
+        /** @description UUID of the user to remove from the shared item */
+        userId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User removed from shared item */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getPublicSharingFolderSize: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SharingController_getPublicSharingDomains: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getAvailableWorkspaces: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Available workspaces and workspaceUser */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetAvailableWorkspacesResponseDto'];
+        };
+      };
+    };
+  };
+  WorkspacesController_getUserWorkspacesToBeSetup: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Workspaces pending to be setup */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getUserInvitations: {
+    parameters: {
+      query: {
+        /** @description Number of items to request */
+        limit: number;
+        /** @description Number of items to skip */
+        offset: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User Pending invitations */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_acceptWorkspaceInvitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['AcceptWorkspaceInviteDto'];
+      };
+    };
+    responses: {
+      /** @description Workspace invitation accepted */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_validateWorkspaceInvitation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Workspace invitation is valid */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_removeWorkspaceInvite: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        inviteId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Workspace invitation declined */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getTeamMembers: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Members of the team */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_editTeam: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EditTeamDto'];
+      };
+    };
+    responses: {
+      /** @description Team has been edited */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_deleteTeam: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Deleted team */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_addUserToTeam: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        userUuid: string;
+        teamId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User added to team */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_removeUserFromTeam: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        userUuid: string;
+        teamId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User removed from team */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getFiles: {
+    parameters: {
+      query: {
+        /** @description Items per page */
+        limit?: number;
+        /** @description Offset for pagination */
+        offset?: number;
+        status: string;
+        bucket?: string;
+        sort?: string;
+        order?: string;
+        updatedAt?: string;
+      };
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'][];
+        };
+      };
+    };
+  };
+  WorkspacesController_createFile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateWorkspaceFileDto'];
+      };
+    };
+    responses: {
+      /** @description Created File */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FileDto'];
+        };
+      };
+    };
+  };
+  WorkspacesController_getFolders: {
+    parameters: {
+      query?: {
+        /** @description Items per page */
+        limit?: number;
+        /** @description Offset for pagination */
+        offset?: number;
+      };
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FolderDto'][];
+        };
+      };
+    };
+  };
+  WorkspacesController_createFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateWorkspaceFolderDto'];
+      };
+    };
+    responses: {
+      /** @description Created Folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FolderDto'];
+        };
+      };
+    };
+  };
+  WorkspacesController_changeTeamManager: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        teamId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Team manager changed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getWorkspacePendingInvitations: {
+    parameters: {
+      query: {
+        /** @description Number of items to request */
+        limit: number;
+        /** @description Number of items to skip */
+        offset: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Workspace pending invitations */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_setupWorkspace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['SetupWorkspaceDto'];
+      };
+    };
+    responses: {
+      /** @description Workspace setup */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_uploadAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Avatar added to the workspace */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_deleteAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Avatar deleted from the workspace */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getWorkspaceUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Workspace credentials */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['WorkspaceCredentialsDto'];
+        };
+      };
+    };
+  };
+  WorkspacesController_getWorkspaceStorageUsage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns workspace usage */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_changeMemberAssignedSpace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangeUserAssignedSpaceDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getWorkspaceMembers: {
+    parameters: {
+      query?: {
+        /** @description Search users by name, lastname or email */
+        search?: string;
+      };
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Members in the workspace along with members quantity */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_inviteUsersToWorkspace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateWorkspaceInviteDto'];
+      };
+    };
+    responses: {
+      /** @description User has been invited successfully */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getWorkspaceTeams: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Teams in the workspace along with its members quantity */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_createTeam: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateTeamDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_calculateUserUsage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User usage in drive */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_shareItemWithMember: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ShareItemWithTeamDto'];
+      };
+    };
+    responses: {
+      /** @description Shared Item */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'WorkspacesController_getSharedFilesInWorkspace[0]': {
+    parameters: {
+      query: {
+        orderBy: string;
+        /** @description Token */
+        token?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        perPage?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'WorkspacesController_getSharedFilesInWorkspace[1]': {
+    parameters: {
+      query: {
+        orderBy: string;
+        /** @description Token */
+        token?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        perPage?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'WorkspacesController_getSharedFoldersInWorkspace[0]': {
+    parameters: {
+      query: {
+        orderBy: string;
+        /** @description Token */
+        token?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        perPage?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'WorkspacesController_getSharedFoldersInWorkspace[1]': {
+    parameters: {
+      query: {
+        orderBy: string;
+        /** @description Token */
+        token?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        perPage?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'WorkspacesController_getFoldersInSharingFolder[0]': {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Token */
+        token?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        perPage?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'WorkspacesController_getFoldersInSharingFolder[1]': {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Token */
+        token?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        perPage?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'WorkspacesController_getFilesInSharingFolder[0]': {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Token */
+        token?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        perPage?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  'WorkspacesController_getFilesInSharingFolder[1]': {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+        /** @description Token */
+        token?: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        perPage?: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getItemSharedWith: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description The uuid of the item to share */
+        itemId: string;
+        /** @description The type of the resource to share */
+        itemType: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getUserTrashedItems: {
+    parameters: {
+      query: {
+        /** @description Items per page */
+        limit?: number;
+        /** @description Offset for pagination */
+        offset?: number;
+        type: string;
+        sort: string;
+        order: string;
+      };
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description user's trashed items in workspace */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_emptyTrash: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Member's trashed items in workspace have been successfully removed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getFoldersInFolder: {
+    parameters: {
+      query: {
+        /** @description Items per page */
+        limit?: number;
+        /** @description Offset for pagination */
+        offset?: number;
+        sort: string;
+        order: string;
+      };
+      header?: never;
+      path: {
+        workspaceId: string;
+        folderUuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Folders in folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResultFoldersDto'];
+        };
+      };
+    };
+  };
+  WorkspacesController_getFilesInFolder: {
+    parameters: {
+      query: {
+        /** @description Items per page */
+        limit?: number;
+        /** @description Offset for pagination */
+        offset?: number;
+        sort: string;
+        order: string;
+      };
+      header?: never;
+      path: {
+        folderUuid: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Files in folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['ResultFilesDto'];
+        };
+      };
+    };
+  };
+  WorkspacesController_changeMemberRole: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        memberId: string;
+        teamId: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ChangeUserRoleDto'];
+      };
+    };
+    responses: {
+      /** @description Role changed */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getWorkspaceDetails: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Workspace details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_editWorkspaceDetails: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['EditWorkspaceDetailsDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_leaveWorkspace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User left workspace */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getWorkspaceMemberDetails: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        memberId: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Details of the workspace members */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_removeWorkspaceMember: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        memberId: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Member removed from workspace */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_deactivateWorkspaceMember: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        memberId: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User successfully deactivated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_activateWorkspaceMember: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        memberId: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description User successfully activated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_searchWorkspace: {
+    parameters: {
+      query: {
+        offset: number;
+      };
+      header?: never;
+      path: {
+        search: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Search results */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_accessLogs: {
+    parameters: {
+      query?: {
+        /** @description Order by */
+        orderBy?: string;
+      };
+      header?: never;
+      path: {
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Access Logs */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  WorkspacesController_getWorkspaceItemAncestors: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        itemType: string;
+        uuid: string;
+        workspaceId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Item ancestors details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_createUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateUserDto'];
+      };
+    };
+    responses: {
+      /** @description Creates a user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing required fields */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getUserByEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        email: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get the user data by email */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing required fields */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_registerPreCreatedUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RegisterPreCreatedUserDto'];
+      };
+    };
+    responses: {
+      /** @description Creates Pre Created User */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing required fields */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_preCreateUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['PreCreateUserDto'];
+      };
+    };
+    responses: {
+      /** @description Pre creates a user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Missing required fields */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getUserCredentials: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns the user metadata and the authentication tokens */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_refreshToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a new token */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RefreshTokenResponseDto'];
+        };
+      };
+    };
+  };
+  UserController_refreshAvatarUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a new avatar URL */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['RefreshUserAvatarDto'];
+        };
+      };
+    };
+  };
+  UserController_updatePassword: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdatePasswordDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_recoverAccount: {
+    parameters: {
+      query: {
+        token: string;
+        reset: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeprecatedRecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_requestAccountRecovery: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RequestRecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_accountUnblock: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_requestAccountUnblock: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RequestAccountUnblock'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_recoverAccountV2: {
+    parameters: {
+      query: {
+        token: string;
+        reset: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_requestLegacyAccountRecovery: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LegacyRecoverAccountDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getPublicKeyByEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        email: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getOrPreCreatePublicKeyByEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        email: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a public key */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetOrCreatePublicKeysDto'];
+        };
+      };
+    };
+  };
+  UserController_createAttemptChangeEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateAttemptChangeEmailDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_acceptAttemptChangeEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        encryptedAttemptChangeEmailId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_verifyAttemptChangeEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        encryptedAttemptChangeEmailId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getMeetTokenBeta: {
+    parameters: {
+      query: {
+        room: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a new meet token related to the beta user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getMeetTokenAnon: {
+    parameters: {
+      query: {
+        room: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a new meet anonymous token */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_addNotificationToken: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['RegisterNotificationTokenDto'];
+      };
+    };
+    responses: {
+      /** @description Creates a notification token */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_sendAccountVerifyEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Email sent successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_verifyAccountEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['VerifyEmailDto'];
+      };
+    };
+    responses: {
+      /** @description Email verified successfully */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_updateProfile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateProfileDto'];
+      };
+    };
+    responses: {
+      /** @description Updated user profile */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_uploadAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Avatar added to the user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_deleteAvatar: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Avatar deleted from the workspace */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_sendUserDeactivationEmail: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_confirmUserDeactivation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['ConfirmAccountDeactivationDto'];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  UserController_getUserUsage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetUserUsageDto'];
+        };
+      };
+    };
+  };
+  UserController_limit: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get user space limit */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetUserLimitDto'];
+        };
+      };
+    };
+  };
+  UserController_getUploadStatus: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns whether the user has uploaded any files */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GetUploadStatusDto'];
+        };
+      };
+    };
+  };
+  UserController_generateMnemonic: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Returns a mnemonic, it is not saved anywhere */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['GenerateMnemonicResponseDto'];
+        };
+      };
+    };
+  };
+  ShareController_getDomains: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get the domains for the sharing links */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  FuzzySearchController_fuzzySearch: {
+    parameters: {
+      query: {
+        offset: number;
+      };
+      header?: never;
+      path: {
+        search: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Elements found */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['FuzzySearchResults'];
+        };
+      };
+    };
+  };
+  BackupController_activateBackup: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_getDevicesAndFolders: {
+    parameters: {
+      query: {
+        /** @description Device platform */
+        platform?: components['schemas']['DevicePlatform'];
+        /** @description OS Installation unique identifier */
+        key?: string;
+        /** @description Device hostname */
+        hostname?: string;
+        limit: number;
+        offset: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description List of devices. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'][];
+        };
+      };
+    };
+  };
+  BackupController_createDeviceAndFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAndFolderDto'];
+      };
+    };
+    responses: {
+      /** @description The newly created device */
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
+  BackupController_createDeviceForExistingFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAndAttachFolderDto'];
+      };
+    };
+    responses: {
+      /** @description The created device */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
+  BackupController_deleteDeviceAndFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        key: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successfully deleted the device and its linked folder. */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_updateDevice: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        key: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateDeviceAndFolderDto'];
+      };
+    };
+    responses: {
+      /** @description The updated device */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceDto'];
+        };
+      };
+    };
+  };
+  BackupController_getDevicesAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'][];
+        };
+      };
+    };
+  };
+  BackupController_createDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAsFolderDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'];
+        };
+      };
+    };
+  };
+  BackupController_getDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'];
+        };
+      };
+    };
+  };
+  BackupController_deleteDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_updateDeviceAsFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateDeviceAsFolderDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'];
+        };
+      };
+    };
+  };
+  BackupController_getDeviceAsFolderById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['DeviceAsFolder'];
+        };
+      };
+    };
+  };
+  BackupController_getAllDevices: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_deleteDevice: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        deviceId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_getBackupsByMac: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        mac: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  BackupController_deleteBackup: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        backupId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TrashController_getTrashedFilesPaginated: {
+    parameters: {
+      query: {
+        /** @description Items per page */
+        limit?: number;
+        /** @description Offset for pagination */
+        offset?: number;
+        type: string;
+        sort: string;
+        order: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Files on trash for a given folder */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TrashController_moveItemsToTrash: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['MoveItemsToTrashDto'];
+      };
+    };
+    responses: {
+      /** @description All items moved to trash */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+      /** @description Any item id is invalid */
+      400: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TrashController_clearTrash: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TrashController_requestEmptyTrash: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TrashController_deleteItems: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeleteItemsDto'];
+      };
+    };
+    responses: {
+      202: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TrashController_deleteFile: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        fileId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  TrashController_deleteFolder: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        folderId: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      204: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_login: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LoginDto'];
+      };
+    };
+    responses: {
+      /** @description Retrieve details */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LoginResponseDto'];
+        };
+      };
+    };
+  };
+  AuthController_loginAccess: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['LoginAccessDto'];
+      };
+    };
+    responses: {
+      /** @description User  successfully accessed their account */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          'application/json': components['schemas']['LoginAccessResponseDto'];
+        };
+      };
+    };
+  };
+  AuthController_logout: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Successfully logged out */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_getTfa: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description two-factor authentication */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_putTfa: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateTfaDto'];
+      };
+    };
+    responses: {
+      /** @description two-factor authentication */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_deleteTfa: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeleteTfaDto'];
+      };
+    };
+    responses: {
+      /** @description two-factor authentication */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  AuthController_areCredentialsCorrect: {
+    parameters: {
+      query: {
+        /** @description User hashed password */
+        hashedPassword: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Credentials are correct */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SendController_createLinks: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['CreateSendLinkDto'];
+      };
+    };
+    responses: {
+      /** @description Get all shares in a list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  SendController_getSendLink: {
+    parameters: {
+      query?: never;
+      header: {
+        'x-send-password': string;
+      };
+      path: {
+        linkId: string;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get all shares in a list */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DeviceController_getDevice: {
+    parameters: {
+      query?: never;
+      header: {
+        'user-agent': string;
+      };
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get Device Context by user agent */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  DeviceController_getLocation: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Get geolocation by ip */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_initializeWorkspace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['InitializeWorkspaceDto'];
+      };
+    };
+    responses: {
+      /** @description Returns the workspace created */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_destroyWorkspace: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['DeleteWorkspaceDto'];
+      };
+    };
+    responses: {
+      /** @description Delete workspace by owner id */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_updateWorkspaceStorage: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateWorkspaceStorageDto'];
+      };
+    };
+    responses: {
+      /** @description Returns the workspace updated */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_validateStorageForPlanChange: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateWorkspaceStorageDto'];
+      };
+    };
+    responses: {
+      /** @description Returns whether the update is possible */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_getUserByEmail: {
+    parameters: {
+      query: {
+        email: string;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      /** @description Details of the user */
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_checkUserStorageExpansion: {
+    parameters: {
+      query: {
+        /** @description UUID of the user */
+        userUuid: string;
+        /** @description Extra space to add to user in bytes */
+        additionalBytes: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
+  GatewayController_updateUser: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        /** @description User UUID */
+        uuid: string;
+      };
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['UpdateUserDto'];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content?: never;
+      };
+    };
+  };
 }

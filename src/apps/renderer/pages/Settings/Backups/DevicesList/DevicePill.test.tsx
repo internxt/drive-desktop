@@ -38,19 +38,13 @@ describe('DevicePill', () => {
   });
 
   it('should show the "this device" label if current is true', () => {
-    render(
-      <DevicePill device={mockDevice} current={true} setSelected={jest.fn()} />
-    );
+    render(<DevicePill device={mockDevice} current={true} setSelected={jest.fn()} />);
 
-    expect(
-      screen.getByText('settings.backups.this-device')
-    ).toBeInTheDocument();
+    expect(screen.getByText('settings.backups.this-device')).toBeInTheDocument();
   });
 
   it('should have selected styling when selected is true', () => {
-    render(
-      <DevicePill device={mockDevice} selected={true} setSelected={jest.fn()} />
-    );
+    render(<DevicePill device={mockDevice} selected={true} setSelected={jest.fn()} />);
 
     const pill = screen.getByTestId('device-pill-1');
     expect(pill).toHaveClass('border-gray-10');

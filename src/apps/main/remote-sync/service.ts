@@ -27,7 +27,7 @@ export const remoteSyncManager = new RemoteSyncManager(
     syncFiles: true,
     syncFolders: true,
   },
-  errorHandler
+  errorHandler,
 );
 
 remoteSyncManager.onStatusChange(async (newStatus) => {
@@ -45,19 +45,16 @@ export async function getUpdatedRemoteItems() {
       driveFoldersCollection.getAll(),
     ]);
 
-    if (!allDriveFiles.success)
-      throw new Error('Failed to retrieve all the drive files from local db');
+    if (!allDriveFiles.success) throw new Error('Failed to retrieve all the drive files from local db');
 
-    if (!allDriveFolders.success)
-      throw new Error('Failed to retrieve all the drive folders from local db');
+    if (!allDriveFolders.success) throw new Error('Failed to retrieve all the drive folders from local db');
     return {
       files: allDriveFiles.result,
       folders: allDriveFolders.result,
     };
   } catch (error) {
     reportError(error as Error, {
-      description:
-        'Something failed when updating the local db pulling the new changes from remote',
+      description: 'Something failed when updating the local db pulling the new changes from remote',
     });
     throw error;
   }

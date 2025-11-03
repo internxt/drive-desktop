@@ -12,6 +12,4 @@ export type AvailableUserProductsIPCRenderer = TypedIPC<
   RendererProcessAvailableUserProductsMessages
 >;
 
-
 export const AvailableUserProductsIPCRenderer = ipcRenderer as unknown as AvailableUserProductsIPCRenderer;
-

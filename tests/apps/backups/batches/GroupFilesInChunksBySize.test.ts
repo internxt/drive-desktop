@@ -4,9 +4,7 @@ import { LocalFileMother } from '../../../context/local/localFile/domain/LocalFi
 
 describe('GroupFilesInChunksBySize', () => {
   const generateFiles = (count: number): Array<LocalFile> => {
-    return Array.from({ length: count }, (_, i) =>
-      LocalFileMother.fromPartial({ size: i })
-    );
+    return Array.from({ length: count }, (_, i) => LocalFileMother.fromPartial({ size: i }));
   };
 
   test('should group small files into 16 chunks', () => {

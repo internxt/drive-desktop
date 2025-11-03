@@ -6,12 +6,10 @@ import { ThumbnailProperties } from '../domain/ThumbnailProperties';
 import { ThumbnailUploader } from '../domain/ThumbnailUploader';
 import { createThumbnail } from '../../../../infra/drive-server/services/files/services/create-thumbnail';
 
-export class EnvironmentAndStorageThumbnailUploader
-  implements ThumbnailUploader
-{
+export class EnvironmentAndStorageThumbnailUploader implements ThumbnailUploader {
   constructor(
     private readonly environment: Environment,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {}
 
   private uploadThumbnailToEnvironment(thumbnail: Buffer) {
@@ -40,16 +38,12 @@ export class EnvironmentAndStorageThumbnailUploader
     });
   }
 
-  private async uploadThumbnailToStorage(
-    thumbnail: components['schemas']['CreateThumbnailDto']
-  ) {
+  private async uploadThumbnailToStorage(thumbnail: components['schemas']['CreateThumbnailDto']) {
     return await createThumbnail(thumbnail);
   }
 
   async upload(fileId: number, thumbnailFile: Buffer): Promise<void> {
-    const fileIdOnEnvironment = await this.uploadThumbnailToEnvironment(
-      thumbnailFile
-    );
+    const fileIdOnEnvironment = await this.uploadThumbnailToEnvironment(thumbnailFile);
     await this.uploadThumbnailToStorage({
       fileId,
       type: ThumbnailProperties.type as string,

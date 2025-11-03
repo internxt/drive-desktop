@@ -19,7 +19,7 @@ export class FolderCreator {
     private readonly repository: FolderRepository,
     private readonly parentFolderFinder: ParentFolderFinder,
     private readonly remote: RemoteFileSystem,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
   ) {}
 
   private async ensureItDoesNotExists(path: FolderPath): Promise<void> {
@@ -63,7 +63,7 @@ export class FolderCreator {
       folderPath,
       parentId,
       FolderCreatedAt.fromString(dto.createdAt),
-      FolderUpdatedAt.fromString(dto.updatedAt)
+      FolderUpdatedAt.fromString(dto.updatedAt),
     );
 
     await this.repository.add(folder);

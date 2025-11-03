@@ -5,11 +5,8 @@ import { Repository } from 'typeorm';
 import * as Sentry from '@sentry/electron/main';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-export class DriveFilesCollection
-  implements DatabaseCollectionAdapter<DriveFile>
-{
-  private repository: Repository<DriveFile> =
-    AppDataSource.getRepository('drive_file');
+export class DriveFilesCollection implements DatabaseCollectionAdapter<DriveFile> {
+  private repository: Repository<DriveFile> = AppDataSource.getRepository('drive_file');
 
   async connect(): Promise<{ success: boolean }> {
     return {
@@ -65,7 +62,7 @@ export class DriveFilesCollection
       {
         uuid,
       },
-      updatePayload
+      updatePayload,
     );
 
     return {

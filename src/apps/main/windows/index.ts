@@ -41,7 +41,7 @@ export function virtualDriveUpdate(info: DriveOperationInfo) {
       action: info.action,
       name: info.name,
       oldName: info.oldName,
-    })
+    }),
   );
 }
 

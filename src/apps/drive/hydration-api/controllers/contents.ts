@@ -11,13 +11,9 @@ import { MakeFolderAvaliableOffline } from '../../../../context/storage/StorageF
 import { StorageFolderDeleter } from '../../../../context/storage/StorageFolders/application/delete/StorageFolderDeleter';
 
 export function buildContentsController(container: Container) {
-  async function isFileLocallyAvailable(
-    path: string
-  ): Promise<Optional<boolean>> {
+  async function isFileLocallyAvailable(path: string): Promise<Optional<boolean>> {
     try {
-      const fileIsAvaliable = await container
-        .get(StorageFileIsAvailableOffline)
-        .run(path);
+      const fileIsAvaliable = await container.get(StorageFileIsAvailableOffline).run(path);
 
       return Optional.of(fileIsAvaliable);
     } catch (error) {
@@ -27,13 +23,9 @@ export function buildContentsController(container: Container) {
     }
   }
 
-  async function isFolderLocallyAvailable(
-    path: string
-  ): Promise<Optional<boolean>> {
+  async function isFolderLocallyAvailable(path: string): Promise<Optional<boolean>> {
     try {
-      const folderIsAvaliable = await container
-        .get(AllFilesInFolderAreAvailableOffline)
-        .run(path);
+      const folderIsAvaliable = await container.get(AllFilesInFolderAreAvailableOffline).run(path);
       return Optional.of(folderIsAvaliable);
     } catch (error) {
       logger.debug({ msg: '[HYDRATION API] Error checking if folder is locally available:', error, path });
@@ -85,8 +77,7 @@ export function buildContentsController(container: Container) {
 
     const fileIsAvaliable = await isFileLocallyAvailable(path);
 
-    const locallyAvaliable =
-      fileIsAvaliable.isPresent() && fileIsAvaliable.get();
+    const locallyAvaliable = fileIsAvaliable.isPresent() && fileIsAvaliable.get();
 
     res.json({ locallyAvaliable });
   };
@@ -101,11 +92,7 @@ export function buildContentsController(container: Container) {
     res.status(201).send();
   };
 
-  const downloadFile = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  const downloadFile = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const decodedBuffer = Buffer.from(req.params.path, 'base64');
 
@@ -127,8 +114,7 @@ export function buildContentsController(container: Container) {
 
     const folderIsAvaliable = await isFolderLocallyAvailable(path);
 
-    const locallyAvaliable =
-      folderIsAvaliable.isPresent() && folderIsAvaliable.get();
+    const locallyAvaliable = folderIsAvaliable.isPresent() && folderIsAvaliable.get();
 
     res.json({ locallyAvaliable });
   };
@@ -143,11 +129,7 @@ export function buildContentsController(container: Container) {
     res.status(201).send();
   };
 
-  const downloadFolder = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  const downloadFolder = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const decodedBuffer = Buffer.from(req.params.path, 'base64');
 

@@ -15,11 +15,7 @@ describe.skip('Authorized Http Client', () => {
   let mock: MockAdapter;
 
   beforeEach(() => {
-    client = new AuthorizedHttpClient(
-      headerProvider,
-      unauthorizedNotifier,
-      syncBlockedTracker
-    ).client;
+    client = new AuthorizedHttpClient(headerProvider, unauthorizedNotifier, syncBlockedTracker).client;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mock = new MockAdapter(client as any);
 

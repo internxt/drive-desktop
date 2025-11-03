@@ -7,7 +7,7 @@ import { SingleFolderMatchingFinder } from './SingleFolderMatchingFinder';
 export class FoldersByParentPathLister {
   constructor(
     private readonly singleFolderMatchingFinder: SingleFolderMatchingFinder,
-    private readonly repository: FolderRepository
+    private readonly repository: FolderRepository,
   ) {}
 
   async run(path: string): Promise<Array<Folder['name']>> {

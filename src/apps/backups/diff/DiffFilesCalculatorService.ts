@@ -43,16 +43,14 @@ export class DiffFilesCalculatorService {
         return;
       }
 
-      const remoteModificationTime = Math.trunc(
-        remoteNode.updatedAt.getTime() / 1000
-      );
+      const remoteModificationTime = Math.trunc(remoteNode.updatedAt.getTime() / 1000);
       const localModificationTime = Math.trunc(local.modificationTime / 1000);
 
       if (this.isDangledFile(remoteNode.createdAt)) {
         logger.debug({
           tag: 'BACKUPS',
           msg: 'Possible Dangled File Found while backing up',
-          fileName: remoteNode.name
+          fileName: remoteNode.name,
         });
         dangling.set(local, remoteNode);
         return;
@@ -66,12 +64,9 @@ export class DiffFilesCalculatorService {
       unmodified.push(local);
     });
 
-    const deleted = remote.files.filter(
-      (file) => !local.has(path.join(rootPath, file.path) as AbsolutePath)
-    );
+    const deleted = remote.files.filter((file) => !local.has(path.join(rootPath, file.path) as AbsolutePath));
 
-    const total =
-      added.length + modified.size + deleted.length + unmodified.length;
+    const total = added.length + modified.size + deleted.length + unmodified.length;
 
     return {
       added,

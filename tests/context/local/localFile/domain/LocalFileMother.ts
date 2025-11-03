@@ -1,7 +1,4 @@
-import {
-  LocalFile,
-  LocalFileAttributes,
-} from '../../../../../src/context/local/localFile/domain/LocalFile';
+import { LocalFile, LocalFileAttributes } from '../../../../../src/context/local/localFile/domain/LocalFile';
 import { DateMother } from '../../../shared/domain/DateMother';
 import { AbsolutePathMother } from '../../../shared/infrastructure/AbsolutePathMother';
 import Chance from '../../../shared/infrastructure/Chance';
@@ -24,7 +21,7 @@ export class LocalFileMother {
 
   static array(
     numberOfElements: number,
-    generator?: (position: number) => Partial<LocalFileAttributes>
+    generator?: (position: number) => Partial<LocalFileAttributes>,
   ): Array<LocalFile> {
     const array = [];
 

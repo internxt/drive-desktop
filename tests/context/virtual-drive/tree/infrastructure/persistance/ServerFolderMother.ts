@@ -1,7 +1,4 @@
-import {
-  ServerFolder,
-  ServerFolderStatus,
-} from '../../../../../../src/context/shared/domain/ServerFolder';
+import { ServerFolder, ServerFolderStatus } from '../../../../../../src/context/shared/domain/ServerFolder';
 import { FolderUuid } from '../../../../../../src/context/virtual-drive/folders/domain/FolderUuid';
 
 export class ServerFolderMother {

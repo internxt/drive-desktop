@@ -6,18 +6,11 @@ import { BackupsDependencyContainerFactory } from './dependency-injection/Backup
 import { DriveDesktopError } from '../../context/shared/domain/errors/DriveDesktopError';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-function handleAbortAndOfflineEvents(
-  abortController: AbortController,
-  backupInfo: BackupInfo
-) {
+function handleAbortAndOfflineEvents(abortController: AbortController, backupInfo: BackupInfo) {
   window.addEventListener('offline', () => {
     logger.debug({ tag: 'BACKUPS', msg: 'Internet connection lost' });
     abortController.abort('CONNECTION_LOST');
-    BackupsIPCRenderer.send(
-      'backups.backup-failed',
-      backupInfo.folderId,
-      'NO_INTERNET'
-    );
+    BackupsIPCRenderer.send('backups.backup-failed', backupInfo.folderId, 'NO_INTERNET');
   });
 
   BackupsIPCRenderer.on('backups.abort', () => {
@@ -27,10 +20,7 @@ function handleAbortAndOfflineEvents(
   });
 }
 
-function handleBackupFailed(
-  folderId: number,
-  cause: DriveDesktopError['cause']
-) {
+function handleBackupFailed(folderId: number, cause: DriveDesktopError['cause']) {
   BackupsIPCRenderer.send('backups.backup-failed', folderId, cause);
 }
 
@@ -47,13 +37,10 @@ export async function backupFolder(): Promise<void> {
     logger.error({
       tag: 'BACKUPS',
       msg: 'Error getting backup info:',
-      error: backupInfoResult.getLeft().cause
+      error: backupInfoResult.getLeft().cause,
     });
     const error = backupInfoResult.getLeft();
-    handleBackupFailed(
-      0,
-      error instanceof DriveDesktopError ? error.cause : 'UNKNOWN'
-    );
+    handleBackupFailed(0, error instanceof DriveDesktopError ? error.cause : 'UNKNOWN');
     return;
   }
 
@@ -66,10 +53,7 @@ export async function backupFolder(): Promise<void> {
   if (result.isLeft()) {
     logger.debug({ tag: 'BACKUPS', msg: 'failed', error: result.getLeft().cause });
     const error = result.getLeft();
-    handleBackupFailed(
-      backupInfo.folderId,
-      error instanceof DriveDesktopError ? error.cause : 'UNKNOWN'
-    );
+    handleBackupFailed(backupInfo.folderId, error instanceof DriveDesktopError ? error.cause : 'UNKNOWN');
   } else {
     logger.debug({ tag: 'BACKUPS', msg: 'Backup completed successfully' });
     BackupsIPCRenderer.send('backups.backup-completed', backupInfo.folderId);

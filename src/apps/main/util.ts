@@ -16,9 +16,7 @@ if (process.env.NODE_ENV === 'development') {
   };
 } else {
   resolveHtmlPath = (pathname: string, query = '') => {
-    return `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}${
-      query ? `?${query}` : ''
-    }#/${pathname}`;
+    return `file://${path.resolve(__dirname, '../renderer/', htmlFileName)}${query ? `?${query}` : ''}#/${pathname}`;
   };
 }
 
@@ -28,6 +26,6 @@ export const sleep = (ms: number) => {
   return new Promise<boolean>((resolve) =>
     setTimeout(() => {
       resolve(true);
-    }, ms)
+    }, ms),
   );
 };

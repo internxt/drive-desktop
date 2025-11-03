@@ -16,14 +16,11 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
   const { virtualDriveStatus } = useVirtualDriveStatus();
   const { syncStatus } = useSyncStatus();
 
-  const isSyncStopped =
-    virtualDriveStatus && syncStatus && syncStatus === 'FAILED';
+  const isSyncStopped = virtualDriveStatus && syncStatus && syncStatus === 'FAILED';
 
   const handleOpenUpgrade = async () => {
     try {
-      await window.electron.openUrl(
-        'https://drive.internxt.com/preferences?tab=plans'
-      );
+      await window.electron.openUrl('https://drive.internxt.com/preferences?tab=plans');
     } catch (error) {
       reportError(error);
     }
@@ -51,9 +48,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   <div className="relative z-0 flex w-5 items-center justify-center text-red before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
                     <XCircle className="shrink-0" size={22} weight="fill" />
                   </div>
-                  <span className="truncate">
-                    {translate('widget.footer.action-description.failed')}
-                  </span>
+                  <span className="truncate">{translate('widget.footer.action-description.failed')}</span>
                 </>
               )}
               {isOnLine && props.syncStatus === 'RUNNING' && (
@@ -62,9 +57,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   <div className="flex w-5 justify-center text-primary">
                     <Spinner className="h-5 w-5 shrink-0 animate-spin" />
                   </div>
-                  <span className="truncate">
-                    {translate('widget.footer.action-description.syncing')}
-                  </span>
+                  <span className="truncate">{translate('widget.footer.action-description.syncing')}</span>
                 </>
               )}
               {isOnLine && props.syncStatus === 'STANDBY' && (
@@ -73,9 +66,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
                   <div className="relative z-0 flex w-5 items-center justify-center text-primary before:absolute before:-z-1 before:h-3 before:w-3 before:bg-white">
                     <CheckCircle className="shrink-0" size={22} weight="fill" />
                   </div>
-                  <span className="truncate">
-                    {translate('widget.footer.action-description.updated')}
-                  </span>
+                  <span className="truncate">{translate('widget.footer.action-description.updated')}</span>
                 </>
               )}
             </>
@@ -83,9 +74,7 @@ export default function SyncAction(props: { syncStatus: SyncStatus }) {
         ) : (
           <>
             {/* OFFLINE */}
-            <span className="truncate">
-              {translate('widget.footer.errors.offline')}
-            </span>
+            <span className="truncate">{translate('widget.footer.errors.offline')}</span>
           </>
         )}
       </div>

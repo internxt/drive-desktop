@@ -15,10 +15,7 @@ export async function registerThumbnailsServices(builder: ContainerBuilder) {
   const user = DependencyInjectionUserProvider.get();
 
   builder.register(EnvironmentThumbnailDownloader).useFactory((c) => {
-    return new EnvironmentThumbnailDownloader(
-      c.get(Environment).download,
-      user.bucket
-    );
+    return new EnvironmentThumbnailDownloader(c.get(Environment).download, user.bucket);
   });
 
   builder.registerAndUse(SystemThumbnailNameCalculator);
@@ -29,7 +26,7 @@ export async function registerThumbnailsServices(builder: ContainerBuilder) {
     const remote = new RemoteThumbnailsRepository(
       //@ts-ignore
       clients.newDrive,
-      c.get(EnvironmentThumbnailDownloader)
+      c.get(EnvironmentThumbnailDownloader),
     );
 
     const pathConverter = c.get(RelativePathToAbsoluteConverter);
@@ -37,7 +34,7 @@ export async function registerThumbnailsServices(builder: ContainerBuilder) {
     const local = new LocalThumbnailRepository(
       pathConverter,
       c.get(SystemThumbnailNameCalculator),
-      path.join(os.homedir(), '.cache', 'thumbnails')
+      path.join(os.homedir(), '.cache', 'thumbnails'),
     );
 
     local.init();

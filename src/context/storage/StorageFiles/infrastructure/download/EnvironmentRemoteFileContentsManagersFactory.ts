@@ -5,18 +5,13 @@ import { DownloaderHandlerFactory } from '../../domain/download/DownloaderHandle
 import { EnvironmentContentFileDownloader } from './EnvironmentContentFileDownloader';
 
 @Service()
-export class EnvironmentFileDownloaderHandlerFactory
-  implements DownloaderHandlerFactory
-{
+export class EnvironmentFileDownloaderHandlerFactory implements DownloaderHandlerFactory {
   constructor(
     private readonly environment: Environment,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {}
 
   downloader(): DownloaderHandler {
-    return new EnvironmentContentFileDownloader(
-      this.environment.download,
-      this.bucket
-    );
+    return new EnvironmentContentFileDownloader(this.environment.download, this.bucket);
   }
 }

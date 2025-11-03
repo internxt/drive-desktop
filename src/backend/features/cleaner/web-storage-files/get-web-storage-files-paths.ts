@@ -12,7 +12,16 @@ export function getWebStorageFilesPaths(): WebStorageFilesPaths {
   const chromeDefaultProfile = path.join(homeDir, '.config', 'google-chrome', 'Default');
 
   // Brave paths (snap installation)
-  const braveDefaultProfile = path.join(homeDir, 'snap', 'brave', 'current', '.config', 'BraveSoftware', 'Brave-Browser', 'Default');
+  const braveDefaultProfile = path.join(
+    homeDir,
+    'snap',
+    'brave',
+    'current',
+    '.config',
+    'BraveSoftware',
+    'Brave-Browser',
+    'Default',
+  );
 
   return {
     // Chrome paths

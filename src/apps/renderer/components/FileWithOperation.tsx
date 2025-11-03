@@ -25,12 +25,7 @@ export default function FileWithOperation({
   return (
     <div className={`relative ${className}`} style={{ width: `${width}px` }}>
       <FileIcon />
-      {operation && (
-        <AuxIcon
-          size={width * 0.65}
-          className="absolute right-0 top-1/2 text-primary"
-        />
-      )}
+      {operation && <AuxIcon size={width * 0.65} className="absolute right-0 top-1/2 text-primary" />}
     </div>
   );
 }

@@ -27,7 +27,7 @@ describe('Storage Folder Deleter', () => {
       storageFileDeleter,
       singleFolderMatchingFinder,
       filesByPartialSearcher,
-      foldersSearcherByPartial
+      foldersSearcherByPartial,
     );
   });
 
@@ -48,9 +48,7 @@ describe('Storage Folder Deleter', () => {
 
     await SUT.run(folderFound.path);
 
-    storageFileDeleter.assertHasBeenCalledWith(
-      filesOnFolder.map((f) => f.path)
-    );
+    storageFileDeleter.assertHasBeenCalledWith(filesOnFolder.map((f) => f.path));
   });
 
   it('deletes all files on the subfolder', async () => {

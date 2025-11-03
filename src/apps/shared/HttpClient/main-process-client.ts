@@ -17,11 +17,7 @@ let newClient: AuthorizedHttpClient | null = null;
 
 export function getClient(): Axios {
   if (!client) {
-    client = new AuthorizedHttpClient(
-      headersProvider,
-      onUserUnauthorized,
-      syncBlockedTracker
-    );
+    client = new AuthorizedHttpClient(headersProvider, onUserUnauthorized, syncBlockedTracker);
   }
 
   return client.client;
@@ -29,11 +25,7 @@ export function getClient(): Axios {
 
 export function getNewTokenClient(): Axios {
   if (!newClient) {
-    newClient = new AuthorizedHttpClient(
-      newHeadersProvider,
-      onUserUnauthorized,
-      syncBlockedTracker
-    );
+    newClient = new AuthorizedHttpClient(newHeadersProvider, onUserUnauthorized, syncBlockedTracker);
   }
 
   return newClient.client;

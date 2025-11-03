@@ -12,7 +12,7 @@ export class FolderMover {
   constructor(
     private readonly repository: FolderRepository,
     private readonly remote: RemoteFileSystem,
-    private readonly fileParentFolderFinder: ParentFolderFinder
+    private readonly fileParentFolderFinder: ParentFolderFinder,
   ) {}
 
   private async move(folder: Folder, parentFolder: Folder) {
@@ -34,9 +34,7 @@ export class FolderMover {
       throw new ActionNotPermittedError('overwrite');
     }
 
-    const destinationFolder = await this.fileParentFolderFinder.run(
-      destination
-    );
+    const destinationFolder = await this.fileParentFolderFinder.run(destination);
 
     await this.move(folder, destinationFolder);
   }

@@ -37,10 +37,10 @@ export class SimpleFolderCreator {
             folderPath,
             folderParentId,
             FolderCreatedAt.fromString(dto.createdAt),
-            FolderUpdatedAt.fromString(dto.updatedAt)
-          )
+            FolderUpdatedAt.fromString(dto.updatedAt),
+          ),
         );
-      }
+      },
     );
 
     if (!folder) {

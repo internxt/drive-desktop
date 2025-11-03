@@ -21,7 +21,7 @@ export class FilePathUpdater {
     private readonly repository: FileRepository,
     private readonly singleFileMatching: SingleFileMatchingSearcher,
     private readonly parentFolderFinder: ParentFolderFinder,
-    private readonly eventBus: EventBus
+    private readonly eventBus: EventBus,
   ) {}
 
   private async rename(file: File, path: FilePath) {

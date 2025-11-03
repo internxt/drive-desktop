@@ -10,8 +10,7 @@ export function getAppCachePaths(): AppCachePaths {
   const defaultUserCache = path.join(homeDir, '.cache');
   const xdgCache = process.env.XDG_CACHE_HOME;
   return {
-    userCache:
-      xdgCache && xdgCache !== defaultUserCache ? xdgCache : defaultUserCache,
+    userCache: xdgCache && xdgCache !== defaultUserCache ? xdgCache : defaultUserCache,
     tmpDir: '/tmp',
     varTmpDir: '/var/tmp',
     localShareCache: path.join(homeDir, '.local', 'share'),

@@ -41,12 +41,7 @@ export async function registerTemporalFilesServices(builder: ContainerBuilder) {
   builder
     .register(TemporalFileUploaderFactory)
     .useFactory(
-      (c) =>
-        new EnvironmentTemporalFileUploaderFactory(
-          c.get(Environment),
-          user.bucket,
-          c.get(UploadProgressTracker)
-        )
+      (c) => new EnvironmentTemporalFileUploaderFactory(c.get(Environment), user.bucket, c.get(UploadProgressTracker)),
     )
     .asSingleton()
     .private();
@@ -64,7 +59,5 @@ export async function registerTemporalFilesServices(builder: ContainerBuilder) {
   builder.registerAndUse(TemporalFileByFolderFinder);
 
   // Event handlers
-  builder
-    .registerAndUse(DeleteTemporalFileOnFileCreated)
-    .addTag('event-handler');
+  builder.registerAndUse(DeleteTemporalFileOnFileCreated).addTag('event-handler');
 }

@@ -1,12 +1,8 @@
 import { VirtualDrive } from './VirtualDrive';
 
 import { ContainerMock } from '../__mocks__/ContainerMock';
-import {
-  StorageFileIsAvailableOffline
-} from '../../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
-import {
-  AllFilesInFolderAreAvailableOffline
-} from '../../../context/storage/StorageFolders/application/offline/AllFilesInFolderAreAvailableOffline';
+import { StorageFileIsAvailableOffline } from '../../../context/storage/StorageFiles/application/offline/StorageFileIsAvailableOffline';
+import { AllFilesInFolderAreAvailableOffline } from '../../../context/storage/StorageFolders/application/offline/AllFilesInFolderAreAvailableOffline';
 import { TemporalFileByPathFinder } from '../../../context/storage/TemporalFiles/application/find/TemporalFileByPathFinder';
 import { CacheStorageFile } from '../../../context/storage/StorageFiles/application/offline/CacheStorageFile';
 
@@ -46,7 +42,6 @@ describe('VirtualDrive', () => {
       expect(storageFileIsAvailableOfflineMock.run).toHaveBeenCalledWith(path);
       expect(result).toBe(true);
     });
-
 
     it('Should verify if a folder is available locally', async () => {
       path = '/path/to/folder';

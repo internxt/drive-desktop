@@ -59,14 +59,10 @@ export class FileMother {
   }
 
   static array(generator?: () => Partial<FileAttributes>): Array<File> {
-    return new Array(
-      chance.integer({ min: 1, max: FileMother.MAX_ARRAY_GENERATION })
-    )
-      .fill(0)
-      .map(() => {
-        const partial = generator ? generator() : undefined;
+    return new Array(chance.integer({ min: 1, max: FileMother.MAX_ARRAY_GENERATION })).fill(0).map(() => {
+      const partial = generator ? generator() : undefined;
 
-        return FileMother.fromPartial(partial ?? {});
-      });
+      return FileMother.fromPartial(partial ?? {});
+    });
   }
 }

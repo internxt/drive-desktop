@@ -7,11 +7,7 @@ export class StorageFileDeleterTestClass extends StorageFileDeleter {
   private readonly mock = jest.fn();
 
   constructor() {
-    super(
-      {} as StorageFilesRepository,
-      {} as SingleFileMatchingFinder,
-      {} as StorageFileCache
-    );
+    super({} as StorageFilesRepository, {} as SingleFileMatchingFinder, {} as StorageFileCache);
   }
 
   run(path: string): Promise<void> {

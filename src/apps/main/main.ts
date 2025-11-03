@@ -47,11 +47,7 @@ import eventBus from './event-bus';
 import * as Sentry from '@sentry/electron/main';
 import { AppDataSource } from './database/data-source';
 import { getIsLoggedIn } from './auth/handlers';
-import {
-  getOrCreateWidged,
-  getWidget,
-  setBoundsOfWidgetByPath,
-} from './windows/widget';
+import { getOrCreateWidged, getWidget, setBoundsOfWidgetByPath } from './windows/widget';
 import { createAuthWindow, getAuthWindow } from './windows/auth';
 import configStore from './config';
 import { getTray, setTrayStatus } from './tray/tray';
@@ -148,13 +144,13 @@ app
 
 app.on('second-instance', async (_, argv) => {
   logger.warn({ tag: 'AUTH', msg: 'Received internxt deeplink', argv });
-  const deeplinkArg = argv.find(arg => arg.startsWith('internxt://'));
+  const deeplinkArg = argv.find((arg) => arg.startsWith('internxt://'));
   if (!deeplinkArg) return;
 
   logger.debug({ tag: 'AUTH', msg: 'Deeplink found in arguments:', deeplinkArg });
 
   try {
-    await handleDeeplink({url: deeplinkArg });
+    await handleDeeplink({ url: deeplinkArg });
   } catch (error) {
     logger.error({ tag: 'AUTH', msg: 'Error handling deeplink', error });
   }
@@ -173,8 +169,7 @@ eventBus.on('USER_LOGGED_IN', async () => {
 
     getAuthWindow()?.hide();
 
-    nativeTheme.themeSource = (configStore.get('preferedTheme') ||
-      'system') as Theme;
+    nativeTheme.themeSource = (configStore.get('preferedTheme') || 'system') as Theme;
 
     setTrayStatus('IDLE');
     const widget = await getOrCreateWidged();

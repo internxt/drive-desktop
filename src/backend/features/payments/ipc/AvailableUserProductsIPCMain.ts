@@ -10,5 +10,4 @@ export type AvailableUserProductsIPCMain = TypedIPC<
   RendererProcessAvailableUserProductsMessages,
   MainProcessAvailableUserProductsMessages
 >;
-export const AvailableUserProductsIPCMain =
-  ipcMain as unknown as AvailableUserProductsIPCMain;
+export const AvailableUserProductsIPCMain = ipcMain as unknown as AvailableUserProductsIPCMain;

@@ -22,18 +22,12 @@ import { FolderRepository } from '../../../../context/virtual-drive/folders/doma
 import { InMemoryFolderRepository } from '../../../../context/virtual-drive/folders/infrastructure/InMemoryFolderRepository';
 import { FoldersSearcherByPartial } from '../../../../context/virtual-drive/folders/application/search/FoldersSearcherByPartial';
 
-export async function registerFolderServices(
-  builder: ContainerBuilder
-): Promise<void> {
+export async function registerFolderServices(builder: ContainerBuilder): Promise<void> {
   // Infra
   builder.register(SyncFolderMessenger).use(MainProcessSyncFolderMessenger);
   // TODO: can be private?
 
-  builder
-    .register(FolderRepository)
-    .use(InMemoryFolderRepository)
-    .asSingleton()
-    .private();
+  builder.register(FolderRepository).use(InMemoryFolderRepository).asSingleton().private();
 
   builder
     .register(RemoteFileSystem)
@@ -41,7 +35,7 @@ export async function registerFolderServices(
       const clients = c.get(AuthorizedClients);
       return new HttpRemoteFileSystem(
         // @ts-ignore
-        clients.newDrive
+        clients.newDrive,
       );
     })
     .private();

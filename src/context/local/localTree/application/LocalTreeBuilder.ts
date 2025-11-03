@@ -11,10 +11,7 @@ import { Either, left, right } from '../../../shared/domain/Either';
 export default class LocalTreeBuilder {
   constructor(private readonly generator: LocalItemsGenerator) {}
 
-  private async traverse(
-    tree: LocalTree,
-    currentFolder: LocalFolder
-  ): Promise<LocalTree> {
+  private async traverse(tree: LocalTree, currentFolder: LocalFolder): Promise<LocalTree> {
     const { files, folders } = await this.generator.getAll(currentFolder.path);
 
     files.forEach((fileAttributes) => {
@@ -34,9 +31,7 @@ export default class LocalTreeBuilder {
     return tree;
   }
 
-  async run(
-    folder: AbsolutePath
-  ): Promise<Either<DriveDesktopError, LocalTree>> {
+  async run(folder: AbsolutePath): Promise<Either<DriveDesktopError, LocalTree>> {
     const rootEither = await this.generator.root(folder);
 
     if (rootEither.isLeft()) {

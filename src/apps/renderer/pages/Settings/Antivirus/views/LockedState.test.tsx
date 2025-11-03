@@ -22,29 +22,21 @@ describe('LockedState', () => {
   it('renders locked state with correct text', () => {
     render(<LockedState />);
 
-    expect(
-      screen.getByText('settings.antivirus.featureLocked.title')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('settings.antivirus.featureLocked.subtitle')
-    ).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.featureLocked.title')).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.featureLocked.subtitle')).toBeInTheDocument();
   });
 
   it('shows upgrade button', () => {
     render(<LockedState />);
 
-    const upgradeButton = screen.getByText(
-      'settings.antivirus.featureLocked.action'
-    );
+    const upgradeButton = screen.getByText('settings.antivirus.featureLocked.action');
     expect(upgradeButton).toBeInTheDocument();
   });
 
   it('opens pricing page when upgrade button is clicked', async () => {
     render(<LockedState />);
 
-    const upgradeButton = screen.getByText(
-      'settings.antivirus.featureLocked.action'
-    );
+    const upgradeButton = screen.getByText('settings.antivirus.featureLocked.action');
     await fireEvent.click(upgradeButton);
 
     expect(mockOpenUrl).toHaveBeenCalledWith('https://internxt.com/pricing');
@@ -57,8 +49,6 @@ describe('LockedState', () => {
     expect(container).toHaveClass('flex flex-col items-center p-5');
 
     const contentContainer = screen.getByTestId('locked-state-content');
-    expect(contentContainer).toHaveClass(
-      'flex flex-col items-center gap-4 text-center'
-    );
+    expect(contentContainer).toHaveClass('flex flex-col items-center gap-4 text-center');
   });
 });

@@ -19,9 +19,7 @@ export class TrashFileCallback extends NotifyFuseCallback {
     });
 
     if (!file) {
-      const document = await this.container
-        .get(TemporalFileByPathFinder)
-        .run(path);
+      const document = await this.container.get(TemporalFileByPathFinder).run(path);
 
       if (!document) {
         return this.left(new FuseNoSuchFileOrDirectoryError(path));

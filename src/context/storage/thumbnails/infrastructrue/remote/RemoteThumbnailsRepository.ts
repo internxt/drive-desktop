@@ -24,7 +24,7 @@ type FileMetaDataResponse = {
       updatedAt: string;
       maxWidth: number;
       maxHeight: number;
-    }
+    },
   ];
 };
 
@@ -32,17 +32,14 @@ type FileMetaDataResponse = {
 export class RemoteThumbnailsRepository implements ThumbnailsRepository {
   constructor(
     private readonly axios: Axios,
-    private readonly downloader: EnvironmentThumbnailDownloader
+    private readonly downloader: EnvironmentThumbnailDownloader,
   ) {}
 
   private async obtainThumbnails(file: File): Promise<Array<Thumbnail>> {
     try {
-      const response = await this.axios.get(
-        `${process.env.NEW_DRIVE_URL}/folders/${file.folderId}/file`,
-        {
-          params: { name: file.name, type: file.type },
-        }
-      );
+      const response = await this.axios.get(`${process.env.NEW_DRIVE_URL}/folders/${file.folderId}/file`, {
+        params: { name: file.name, type: file.type },
+      });
 
       if (response.status !== 200) {
         return [];
@@ -62,7 +59,7 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
           type: raw.type,
           bucket: raw.bucketId,
           updatedAt: new Date(raw.updatedAt),
-        })
+        }),
       );
 
       return thumbnails;

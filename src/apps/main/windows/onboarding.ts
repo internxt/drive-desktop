@@ -6,8 +6,7 @@ import { setUpCommonWindowHandlers } from '.';
 import isDev from '../../../core/isDev/isDev';
 
 let onboardingWindow: BrowserWindow | null = null;
-export const getOnboardingWindow = () =>
-  onboardingWindow?.isDestroyed() ? null : onboardingWindow;
+export const getOnboardingWindow = () => (onboardingWindow?.isDestroyed() ? null : onboardingWindow);
 
 ipcMain.on('open-onboarding-window', () => openOnboardingWindow());
 

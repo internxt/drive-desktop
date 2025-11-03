@@ -33,10 +33,7 @@ ipcMain.on('log-message', (_event, logData) => {
     if (typeof param === 'string') {
       try {
         // Try to parse as JSON, but only if it looks like an object or array
-        if (
-          (param.startsWith('{') && param.endsWith('}')) ||
-          (param.startsWith('[') && param.endsWith(']'))
-        ) {
+        if ((param.startsWith('{') && param.endsWith('}')) || (param.startsWith('[') && param.endsWith(']'))) {
           return JSON.parse(param);
         }
       } catch (e) {

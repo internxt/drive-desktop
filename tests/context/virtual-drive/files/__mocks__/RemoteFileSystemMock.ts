@@ -16,9 +16,7 @@ export class RemoteFileSystemMock implements RemoteFileSystem {
   public readonly overrideMock = jest.fn();
   public readonly hardDeleteMock = jest.fn();
 
-  persist(
-    offline: FileDataToPersist
-  ): Promise<Either<DriveDesktopError, PersistedFileData>> {
+  persist(offline: FileDataToPersist): Promise<Either<DriveDesktopError, PersistedFileData>> {
     return this.persistMock(offline);
   }
 

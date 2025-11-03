@@ -73,26 +73,20 @@ describe('Folder Path Updater', () => {
     expect(renamer.mock).toBeCalledTimes(1);
     expect(renamer.mock).toBeCalledWith(
       expect.objectContaining({ _uuid: new FolderUuid(folder.uuid) }),
-      folderPathWithNewName
+      folderPathWithNewName,
     );
   });
 
   it('calls folder mover when only the parent name changes', async () => {
     const folder = FolderMother.any();
-    const desiredPath = FolderPathMother.withDifferentParent(
-      new FolderPath(folder.path),
-      folder.name + '(1)'
-    );
+    const desiredPath = FolderPathMother.withDifferentParent(new FolderPath(folder.path), folder.name + '(1)');
 
     repository.matchingPartialMock.mockReturnValueOnce([folder]);
 
     await folderPathUpdater.run(folder.uuid, desiredPath.value);
 
     expect(mover.mock).toBeCalledTimes(1);
-    expect(mover.mock).toBeCalledWith(
-      expect.objectContaining({ _uuid: new FolderUuid(folder.uuid) }),
-      desiredPath
-    );
+    expect(mover.mock).toBeCalledWith(expect.objectContaining({ _uuid: new FolderUuid(folder.uuid) }), desiredPath);
   });
 
   it('throws a Path Has Not Changed Error if the path desired path is the same as the current', async () => {

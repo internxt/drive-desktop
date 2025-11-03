@@ -5,9 +5,7 @@ import { DomainEventClass } from '../../domain/DomainEvent';
 import { resyncRemoteSync } from '../../../../apps/main/remote-sync/service';
 
 @Service()
-export class TriggerRemoteSyncOnFileOverridden
-  implements DomainEventSubscriber<FileOverriddenDomainEvent>
-{
+export class TriggerRemoteSyncOnFileOverridden implements DomainEventSubscriber<FileOverriddenDomainEvent> {
   subscribedTo(): DomainEventClass[] {
     return [FileOverriddenDomainEvent];
   }

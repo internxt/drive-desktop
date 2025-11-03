@@ -21,21 +21,11 @@ export async function startVirtualDrive() {
 
   hydrationApi = new HydrationApi(container);
 
-  fuseApp = new FuseApp(
-    virtualDrive,
-    container,
-    localRoot,
-    user.root_folder_id,
-    user.rootFolderId
-  );
+  fuseApp = new FuseApp(virtualDrive, container, localRoot, user.root_folder_id, user.rootFolderId);
 
-  fuseApp.on('mounted', () =>
-    broadcastToWindows('virtual-drive-status-change', 'MOUNTED')
-  );
+  fuseApp.on('mounted', () => broadcastToWindows('virtual-drive-status-change', 'MOUNTED'));
 
-  fuseApp.on('mount-error', () =>
-    broadcastToWindows('virtual-drive-status-change', 'ERROR')
-  );
+  fuseApp.on('mount-error', () => broadcastToWindows('virtual-drive-status-change', 'ERROR'));
 
   await hydrationApi.start({ debug: false, timeElapsed: false });
 

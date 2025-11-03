@@ -31,7 +31,7 @@ function errorHandler(response: Response): { error: FolderError } {
 
 export async function createFolder(
   deviceUuid: string,
-  plainName: string
+  plainName: string,
 ): Promise<Result<components['schemas']['FolderDto'], FolderError>> {
   try {
     const headers = await getNewApiHeadersIPC();

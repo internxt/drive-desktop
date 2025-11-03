@@ -2,10 +2,7 @@ import packageJson from '../../../../package.json';
 import ConfigStore from '../config';
 import { client } from './rudderstack-client';
 import os from 'os';
-import {
-  TrackedActions,
-  ErrorContext,
-} from '../../shared/IPC/events/sync-engine';
+import { TrackedActions, ErrorContext } from '../../shared/IPC/events/sync-engine';
 import { isVirtualDriveFolderError } from '../../../shared/issues/VirtualDriveError';
 import { VirtualDriveIssue } from '../../../shared/issues/VirtualDriveIssue';
 import { virtualDriveErrorToTrackedActionsMap } from './helpers/virtualDriveErrorToTrackedActionsMap';
@@ -49,7 +46,7 @@ export function applicationOpened() {
         event: 'Application Opened',
         context: deviceContext,
       });
-    }
+    },
   );
 }
 
@@ -71,7 +68,7 @@ export function userSigning() {
         properties: { email },
         context: deviceContext,
       });
-    }
+    },
   );
 }
 
@@ -92,7 +89,7 @@ export function userSigningFailed(email?: string) {
         properties: { email },
         context: deviceContext,
       });
-    }
+    },
   );
 }
 
@@ -147,10 +144,7 @@ export function folderBackupStarted(scheduled: boolean, numberOfItems: number) {
   });
 }
 
-export function folderBackupCompleted(
-  scheduled: boolean,
-  numberOfItems: number
-) {
+export function folderBackupCompleted(scheduled: boolean, numberOfItems: number) {
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -164,11 +158,7 @@ export function folderBackupCompleted(
   });
 }
 
-export function backupError(
-  scheduled: boolean,
-  numberOfItems: number,
-  issues: Array<string>
-) {
+export function backupError(scheduled: boolean, numberOfItems: number, issues: Array<string>) {
   const { uuid: userId } = ConfigStore.get('userData');
 
   client.track({
@@ -183,10 +173,7 @@ export function backupError(
   });
 }
 
-export function trackEvent(
-  event: TrackedActions,
-  properties: Record<string, any>
-) {
+export function trackEvent(event: TrackedActions, properties: Record<string, any>) {
   const userData = ConfigStore.get('userData');
   const clientId = ConfigStore.get('clientId');
 
@@ -219,11 +206,7 @@ export function syncBlocked(numberOfItems = 0) {
   });
 }
 
-export function trackError(
-  event: TrackedActions,
-  error: Error,
-  context?: ErrorContext
-) {
+export function trackError(event: TrackedActions, error: Error, context?: ErrorContext) {
   const userData = ConfigStore.get('userData');
   const clientId = ConfigStore.get('clientId');
 

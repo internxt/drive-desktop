@@ -46,8 +46,7 @@ export default function Button(props: ButtonProps) {
       type={props.type ?? 'button'}
       disabled={props.disabled ?? false}
       className={styles}
-      {...propsWithOutClassName}
-    >
+      {...propsWithOutClassName}>
       {props.children}
     </button>
   );

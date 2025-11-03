@@ -13,7 +13,7 @@ export class StorageFile extends AggregateRoot {
   private constructor(
     private _id: StorageFileId,
     private _virtualId: StorageVirtualId,
-    private _size: StorageFileSize
+    private _size: StorageFileSize,
   ) {
     super();
   }
@@ -34,7 +34,7 @@ export class StorageFile extends AggregateRoot {
     return new StorageFile(
       new StorageFileId(attributes.id),
       new StorageVirtualId(attributes.virtualId),
-      new StorageFileSize(attributes.size)
+      new StorageFileSize(attributes.size),
     );
   }
 

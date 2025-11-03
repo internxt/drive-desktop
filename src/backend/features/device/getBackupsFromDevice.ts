@@ -2,17 +2,11 @@ import { FolderDtoWithPathname } from './device.types';
 import { fetchFolder } from '../../../infra/drive-server/services/backup/services/fetch-folder';
 import configStore from '../../../apps/main/config';
 import { BackupInfo } from './../../../apps/backups/BackupInfo';
-import {
-  Device,
-  findBackupPathnameFromId,
-} from './../../../apps/main/device/service';
+import { Device, findBackupPathnameFromId } from './../../../apps/main/device/service';
 import { components } from '../../../infra/schemas';
 import { mapFolderDtoToBackupInfo } from './utils/mapFolderDtoToBackupInfo';
 
-export async function getBackupsFromDevice(
-  device: Device,
-  isCurrent?: boolean
-): Promise<Array<BackupInfo>> {
+export async function getBackupsFromDevice(device: Device, isCurrent?: boolean): Promise<Array<BackupInfo>> {
   const folder = await fetchFolder(device.uuid);
   if (isCurrent) {
     const backupsList = configStore.get('backupList');

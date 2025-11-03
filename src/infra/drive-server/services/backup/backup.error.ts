@@ -3,7 +3,7 @@ export type BackupErrorCode = 'NOT_FOUND' | 'ALREADY_EXISTS' | 'ERROR' | 'FORBID
 export class BackupError extends Error {
   public readonly code: BackupErrorCode;
 
-  constructor(message: string, code: BackupErrorCode = 'ERROR' ) {
+  constructor(message: string, code: BackupErrorCode = 'ERROR') {
     super(message);
     this.name = 'BackupError';
     this.code = code;

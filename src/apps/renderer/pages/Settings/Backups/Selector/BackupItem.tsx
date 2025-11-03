@@ -16,10 +16,7 @@ export function BackupListItem({ backup, selected }: BackupListItemProps) {
     <div className="flex w-full justify-between">
       <span className="flex-grow">
         <FolderIcon className="inline h-4 w-4 flex-shrink-0" />
-        <p
-          className="relative ml-1 inline select-none truncate leading-none"
-          style={{ top: '1px' }}
-        >
+        <p className="relative ml-1 inline select-none truncate leading-none" style={{ top: '1px' }}>
           {backup.name}
         </p>
       </span>

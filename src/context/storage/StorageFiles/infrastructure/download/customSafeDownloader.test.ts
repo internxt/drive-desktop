@@ -28,10 +28,7 @@ describe('customSafeDownloader', () => {
 
   it('should return a PassThrough stream', () => {
     const sourceStream = new PassThrough(); // ✅ válido y seguro
-    (downloadFileV2 as jest.Mock).mockReturnValue([
-      Promise.resolve(),
-      sourceStream,
-    ]);
+    (downloadFileV2 as jest.Mock).mockReturnValue([Promise.resolve(), sourceStream]);
 
     const stream = customSafeDownloader(env)(bucketId, fileId);
 
@@ -41,9 +38,7 @@ describe('customSafeDownloader', () => {
   it('should throw error if encryptionKey or bridgeUrl is missing', () => {
     env.config.encryptionKey = undefined;
 
-    expect(() => customSafeDownloader(env)(bucketId, fileId)).toThrow(
-      'Missing required environment configuration'
-    );
+    expect(() => customSafeDownloader(env)(bucketId, fileId)).toThrow('Missing required environment configuration');
   });
 
   it('should pipe data from source stream to passThrough', (done) => {
@@ -56,10 +51,7 @@ describe('customSafeDownloader', () => {
       },
     });
 
-    (downloadFileV2 as jest.Mock).mockReturnValue([
-      Promise.resolve(),
-      sourceStream,
-    ]);
+    (downloadFileV2 as jest.Mock).mockReturnValue([Promise.resolve(), sourceStream]);
 
     const stream = customSafeDownloader(env)(bucketId, fileId);
 
@@ -78,10 +70,7 @@ describe('customSafeDownloader', () => {
     const sourceStream = new PassThrough();
     const error = new Error('Download failed');
 
-    (downloadFileV2 as jest.Mock).mockReturnValue([
-      Promise.reject(error),
-      sourceStream,
-    ]);
+    (downloadFileV2 as jest.Mock).mockReturnValue([Promise.reject(error), sourceStream]);
 
     const stream = customSafeDownloader(env)(bucketId, fileId);
 

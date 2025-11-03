@@ -15,9 +15,7 @@ export class InMemoryFolderRepository implements FolderRepository {
   }
 
   all(): Promise<Folder[]> {
-    const folders = [...this.folders.values()].map((attributes) =>
-      Folder.from(attributes)
-    );
+    const folders = [...this.folders.values()].map((attributes) => Folder.from(attributes));
 
     return Promise.resolve(folders);
   }
@@ -46,9 +44,7 @@ export class InMemoryFolderRepository implements FolderRepository {
     const keys = Object.keys(partial) as Array<keyof Partial<FolderAttributes>>;
 
     const foldersAttributes = this.values.filter((attributes) => {
-      return keys.every(
-        (key: keyof FolderAttributes) => attributes[key] === partial[key]
-      );
+      return keys.every((key: keyof FolderAttributes) => attributes[key] === partial[key]);
     });
 
     return foldersAttributes.map((attributes) => Folder.from(attributes));

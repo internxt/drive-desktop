@@ -4,9 +4,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 
 type UsageAndLimit = { usageInBytes: number; limitInBytes: number };
 
-export async function getUsageAndLimit(): Promise<
-  Result<UsageAndLimit, Error>
-> {
+export async function getUsageAndLimit(): Promise<Result<UsageAndLimit, Error>> {
   const [getUsageResult, getLimitResult] = await Promise.all([
     driveServerModule.user.getUsage(),
     driveServerModule.user.getLimit(),

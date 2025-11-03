@@ -29,7 +29,7 @@ export class Folder extends AggregateRoot {
     private _parentId: null | FolderId,
     public _createdAt: FolderCreatedAt,
     public _updatedAt: FolderUpdatedAt,
-    private _status: FolderStatus
+    private _status: FolderStatus,
   ) {
     super();
   }
@@ -115,7 +115,7 @@ export class Folder extends AggregateRoot {
       attributes.parentId ? new FolderId(attributes.parentId) : null,
       FolderUpdatedAt.fromString(attributes.updatedAt),
       FolderCreatedAt.fromString(attributes.createdAt),
-      FolderStatus.fromValue(attributes.status)
+      FolderStatus.fromValue(attributes.status),
     );
   }
 
@@ -125,17 +125,9 @@ export class Folder extends AggregateRoot {
     path: FolderPath,
     parentId: FolderId,
     createdAt: FolderCreatedAt,
-    updatedAt: FolderUpdatedAt
+    updatedAt: FolderUpdatedAt,
   ): Folder {
-    const folder = new Folder(
-      id,
-      uuid,
-      path,
-      parentId,
-      createdAt,
-      updatedAt,
-      FolderStatus.Exists
-    );
+    const folder = new Folder(id, uuid, path, parentId, createdAt, updatedAt, FolderStatus.Exists);
 
     const folderCreatedEvent = new FolderCreatedDomainEvent({
       aggregateId: folder.uuid,
@@ -164,7 +156,7 @@ export class Folder extends AggregateRoot {
         aggregateId: this.uuid,
         from: before,
         to: this.path,
-      })
+      }),
     );
   }
 
