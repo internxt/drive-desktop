@@ -40,7 +40,7 @@ type TAddon = {
     logoPath: string,
   ): z.infer<typeof addonZod.registerSyncRoot>;
   unregisterSyncRoot(path: string): z.infer<typeof addonZod.unregisterSyncRoot>;
-  updateSyncStatus(path: string, isDirectory: boolean): z.infer<typeof addonZod.updateSyncStatus>;
+  updateSyncStatus(path: string): z.infer<typeof addonZod.updateSyncStatus>;
   getRegisteredSyncRoots(): z.infer<typeof addonZod.getRegisteredSyncRoots>;
 };
 

@@ -22,9 +22,9 @@ export async function onAdd({ ctx, self, absolutePath, stats }: TProps) {
   });
 
   try {
-    const { data: uuid } = NodeWin.getFileUuid({ drive: ctx.virtualDrive, path });
+    const { data: fileInfo } = NodeWin.getFileInfo({ ctx, path });
 
-    if (!uuid) {
+    if (!fileInfo) {
       self.fileInDevice.add(absolutePath);
       await AddController.createFile({
         ctx,
@@ -35,8 +35,8 @@ export async function onAdd({ ctx, self, absolutePath, stats }: TProps) {
       return;
     }
 
-    trackAddFileEvent({ uuid });
-    await moveFile({ ctx, path, uuid });
+    trackAddFileEvent({ uuid: fileInfo.uuid });
+    await moveFile({ ctx, path, uuid: fileInfo.uuid });
   } catch (error) {
     ctx.logger.error({ msg: 'Error on event "add"', path, error });
   }

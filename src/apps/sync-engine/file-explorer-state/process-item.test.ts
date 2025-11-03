@@ -3,7 +3,6 @@
 import { mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { processItem } from './process-item';
 import { NodeWin } from '@/infra/node-win/node-win.module';
-import { GetFolderIdentityError } from '@/infra/node-win/services/item-identity/get-folder-identity';
 import { pathUtils, RelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 import { GetFileIdentityError } from '@/infra/node-win/services/item-identity/get-file-identity';
@@ -11,9 +10,10 @@ import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import { PinState } from '@/node-win/types/placeholder.type';
 import * as isModified from './is-modified';
 import * as isHydrationPending from './is-hydration-pending';
+import { GetFolderInfoError } from '@/infra/node-win/services/item-identity/get-folder-info';
 
 describe('process-item', () => {
-  const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const absoluteToRelativeMock = partialSpyOn(pathUtils, 'absoluteToRelative');
   const isModifiedMock = partialSpyOn(isModified, 'isModified');
@@ -38,7 +38,7 @@ describe('process-item', () => {
 
     it('should be added to create folders if not exists', () => {
       // Given
-      getFolderUuidMock.mockReturnValue({ error: new GetFolderIdentityError('NON_EXISTS') });
+      getFolderInfoMock.mockReturnValue({ error: new GetFolderInfoError('NON_EXISTS') });
       // When
       processItem(props);
       // Then
@@ -52,7 +52,7 @@ describe('process-item', () => {
 
     it('should not be added to create folders if exists', () => {
       // Given
-      getFolderUuidMock.mockReturnValue({ data: 'uuid' as FolderUuid });
+      getFolderInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FolderUuid } });
       // When
       processItem(props);
       // Then

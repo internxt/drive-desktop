@@ -9,7 +9,7 @@ import { FolderUuid } from '@/apps/main/database/entities/DriveFolder';
 
 describe('restoreParentFolder', () => {
   const dirnameSpy = partialSpyOn(pathUtils, 'dirname');
-  const getFolderUuidSpy = partialSpyOn(NodeWin, 'getFolderUuid');
+  const getFolderInfoMock = partialSpyOn(NodeWin, 'getFolderInfo');
   const moveSpy = partialSpyOn(driveServerWip.folders, 'move');
 
   const props = mockProps<typeof restoreParentFolder>({
@@ -19,7 +19,7 @@ describe('restoreParentFolder', () => {
 
   beforeEach(() => {
     dirnameSpy.mockReturnValueOnce('/gp/child' as RelativePath).mockReturnValueOnce('/gp' as RelativePath);
-    getFolderUuidSpy.mockReturnValue({ data: 'parent-uuid' as FolderUuid });
+    getFolderInfoMock.mockReturnValue({ data: { uuid: 'parent-uuid' as FolderUuid } });
     moveSpy.mockResolvedValue({ error: undefined });
   });
 
@@ -44,7 +44,7 @@ describe('restoreParentFolder', () => {
   });
 
   it('should throw and log if parentUuid is missing', async () => {
-    getFolderUuidSpy.mockReturnValue({ data: undefined });
+    getFolderInfoMock.mockReturnValue({ data: undefined });
 
     await expect(restoreParentFolder(props)).rejects.toThrow();
 

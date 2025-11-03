@@ -22,7 +22,7 @@ export function processItem({ ctx, localItem, state, remoteFilesMap }: Props) {
   const pendingFileExplorerItem = { path, absolutePath, stats };
 
   if (stats.isDirectory()) {
-    const { error } = NodeWin.getFolderUuid({ ctx, path });
+    const { error } = NodeWin.getFolderInfo({ ctx, path });
 
     if (error && error.code === 'NON_EXISTS') {
       state.createFolders.push(pendingFileExplorerItem);
