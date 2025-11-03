@@ -9,12 +9,12 @@ import { getAuthHeaders } from './headers';
 import { AccessResponse } from '@/apps/renderer/pages/Login/types';
 import { ipcMainSyncEngine } from '@/apps/sync-engine/ipcMainSyncEngine';
 import { AuthContext } from '@/backend/features/auth/utils/context';
-import { createAuthWindow } from '../windows/auth';
 import { spawnSyncEngineWorkers } from '../background-processes/sync-engine';
+import { logout } from './logout';
 
 let isLoggedIn: boolean;
 
-function setIsLoggedIn(value: boolean) {
+export function setIsLoggedIn(value: boolean) {
   isLoggedIn = value;
 
   getWidget()?.webContents?.send('user-logged-in-changed', value);
@@ -29,7 +29,6 @@ export function getIsLoggedIn() {
 export function onUserUnauthorized() {
   logger.debug({ tag: 'AUTH', msg: 'User has been logged out because it was unauthorized' });
   eventBus.emit('USER_LOGGED_OUT');
-  setIsLoggedIn(false);
 }
 
 export async function checkIfUserIsLoggedIn() {
@@ -38,7 +37,6 @@ export async function checkIfUserIsLoggedIn() {
   if (user && user.needLogout === undefined) {
     logger.debug({ tag: 'AUTH', msg: 'User need logout is undefined' });
     eventBus.emit('USER_LOGGED_OUT');
-    setIsLoggedIn(false);
   }
 
   if (!isLoggedIn) return;
@@ -73,7 +71,6 @@ export function setupAuthIpcHandlers() {
 
   ipcMainSyncEngine.on('USER_LOGGED_OUT', () => {
     eventBus.emit('USER_LOGGED_OUT');
-    setIsLoggedIn(false);
   });
 }
 
@@ -83,9 +80,7 @@ async function emitUserLoggedIn() {
   };
 
   eventBus.once('USER_LOGGED_OUT', async () => {
-    context.abortController.abort();
-    setIsLoggedIn(false);
-    await createAuthWindow();
+    await logout({ ctx: context });
   });
 
   eventBus.emit('USER_LOGGED_IN');

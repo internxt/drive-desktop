@@ -1,9 +1,7 @@
-import eventBus from '../event-bus';
 import { workers } from '../remote-sync/store';
 import { getUserOrThrow } from '../auth/service';
 import { SyncContext } from '@/apps/sync-engine/config';
 import { getRootVirtualDrive } from '../virtual-root-folder/service';
-import { stopSyncEngineWorkers } from './sync-engine/services/stop-sync-engine-worker';
 import { spawnSyncEngineWorker } from './sync-engine/services/spawn-sync-engine-worker';
 import { unregisterVirtualDrives } from './sync-engine/services/unregister-virtual-drives';
 import { spawnWorkspace } from './sync-engine/services/spawn-workspace';
@@ -48,5 +46,3 @@ export async function spawnSyncEngineWorkers({ context }: { context: AuthContext
   const promises = workspaces.map((workspace) => spawnWorkspace({ context, workspace }));
   await Promise.all([spawnSyncEngineWorker({ ctx: syncContext }), promises]);
 }
-
-eventBus.on('USER_LOGGED_OUT', stopSyncEngineWorkers);

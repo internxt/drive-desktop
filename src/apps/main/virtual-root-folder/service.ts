@@ -6,6 +6,8 @@ import { getUserOrThrow } from '../auth/service';
 import { logger } from '@/apps/shared/logger/logger';
 import { createAbsolutePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { migrateOldSyncRoot, OLD_SYNC_ROOT } from './migrate-old-sync-root';
+import { PATHS } from '@/core/electron/paths';
+import { join } from 'node:path/posix';
 
 function setSyncRoot(pathname: string): void {
   const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
@@ -15,7 +17,9 @@ function setSyncRoot(pathname: string): void {
 
 export function getRootVirtualDrive() {
   const user = getUserOrThrow();
-  const syncRoot = createAbsolutePath(configStore.get('syncRoot'));
+
+  const defaultSyncRoot = join(PATHS.HOME_FOLDER_PATH, `InternxtDrive - ${user.uuid}`);
+  const syncRoot = createAbsolutePath(configStore.get('syncRoot') || defaultSyncRoot);
 
   logger.debug({ msg: 'Current root virtual drive', syncRoot });
 

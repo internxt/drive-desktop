@@ -73,10 +73,7 @@ export function setConfig(newConfig: Config) {
 export function setDefaultConfig(newConfig: Partial<Config>) {
   config = { ...defaultValues(), ...newConfig };
 }
+
 export function getConfig(): Config {
   return config;
-}
-
-export function clearConfig() {
-  config = emptyValues();
 }
