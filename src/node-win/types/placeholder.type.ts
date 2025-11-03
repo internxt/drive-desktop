@@ -4,5 +4,5 @@ export enum PinState {
   AlwaysLocal = 1,
   OnlineOnly = 2,
   Excluded = 3,
-  Inherit = 3,
+  Inherit = 4,
 }
