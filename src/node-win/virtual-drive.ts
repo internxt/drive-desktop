@@ -51,10 +51,7 @@ export class VirtualDrive {
   }
 
   connectSyncRoot({ callbacks }: { callbacks: Callbacks }) {
-    const connectionKey = this.addon.connectSyncRoot({ callbacks });
-
-    logger.debug({ msg: 'connectSyncRoot', connectionKey });
-    return connectionKey;
+    this.addon.connectSyncRoot({ callbacks });
   }
 
   disconnectSyncRoot() {

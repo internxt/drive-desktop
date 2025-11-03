@@ -25,8 +25,6 @@ export class BindingsManager {
       },
     };
 
-    this.stop({ ctx });
-
     ctx.virtualDrive.registerSyncRoot({ providerName: ctx.providerName });
     ctx.virtualDrive.connectSyncRoot({ callbacks });
 
@@ -52,10 +50,6 @@ export class BindingsManager {
     const { watcher } = createWatcher({ ctx });
 
     watcher.watchAndWait({ ctx });
-  }
-
-  static stop({ ctx }: { ctx: ProcessSyncContext }) {
-    ctx.virtualDrive.disconnectSyncRoot();
   }
 
   static async updateAndCheckPlaceholders({ ctx }: { ctx: ProcessSyncContext }): Promise<void> {

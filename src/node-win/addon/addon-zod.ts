@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { PinState } from '@/node-win/types/placeholder.type';
 
 export const addonZod = {
-  connectSyncRoot: z.object({ hr: z.literal(0), connectionKey: z.string() }),
+  connectSyncRoot: z.undefined(),
   convertToPlaceholder: z.undefined(),
   createFolderPlaceholder: z.undefined(),
   createFilePlaceholder: z.undefined(),
