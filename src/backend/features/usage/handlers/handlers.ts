@@ -1,6 +1,6 @@
 import { AccountIpcMain } from './../../../../apps/shared/IPC/events/account/AccountIpcMain';
 import { ipcMain } from 'electron';
-import eventBus from  '../../../../apps/main/event-bus';
+import eventBus from '../../../../apps/main/event-bus';
 import { UsageModule } from '../usage.module';
 
 function registerUsageHandlers() {

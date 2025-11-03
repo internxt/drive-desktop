@@ -19,10 +19,7 @@ import { ErrorDetails } from './ErrorDetails';
  * @param error The error to be reported
  * @param context The context to attach to the error such the userId, tags, boolean values...
  */
-export const reportError = (
-  error: Error,
-  context: Record<string, string> = {}
-) => {
+export const reportError = (error: Error, context: Record<string, string> = {}) => {
   Logger.error('[SENTRY_CAPTURED]: ', error);
   Sentry.captureException(error, context);
 };
@@ -82,9 +79,7 @@ export async function sendReport({
     return { state: 'TOO_MANY_REPORTS' };
   }
 
-  log.error(
-    `[BUG-REPORT] Request to report bug failed with status: ${res.status}`
-  );
+  log.error(`[BUG-REPORT] Request to report bug failed with status: ${res.status}`);
 
   return { state: 'ERROR' };
 }

@@ -21,7 +21,7 @@ function generateLocalFiles(count: number) {
     LocalFileMother.fromPartial({
       path: AbsolutePathMother.anyFile(),
       modificationTime: DateMother.today().getTime(),
-    })
+    }),
   );
 }
 
@@ -59,11 +59,9 @@ describe('DiffFilesCalculatorService', () => {
         local.root,
         LocalFileMother.fromPartial({
           path: path.join(local.root.path, file.path) as AbsolutePath,
-          modificationTime: DateMother.nextDay(
-            new Date(file.updatedAt)
-          ).getTime(),
-        })
-      )
+          modificationTime: DateMother.nextDay(new Date(file.updatedAt)).getTime(),
+        }),
+      ),
     );
 
     const { modified } = DiffFilesCalculatorService.calculate(local, remote);
@@ -76,8 +74,7 @@ describe('DiffFilesCalculatorService', () => {
     const local = LocalTreeMother.oneLevel(expectedNumberOfUnmodifiedFiles);
     const remote = RemoteTreeMother.cloneFromLocal(local);
 
-    const { unmodified, added, deleted, modified } =
-      DiffFilesCalculatorService.calculate(local, remote);
+    const { unmodified, added, deleted, modified } = DiffFilesCalculatorService.calculate(local, remote);
 
     expect(unmodified.length).toBe(expectedNumberOfUnmodifiedFiles);
     expect(added.length).toBe(0);
@@ -102,30 +99,21 @@ describe('DiffFilesCalculatorService', () => {
         modifiedRemote.addFile(
           modifiedRemote.root,
           FileMother.fromPartial({
-            path: path.join(
-              modifiedRemote.root.path,
-              relative(local.root.path, file.path)
-            ),
-            modificationTime: DateMother.previousDay(
-              new Date(file.modificationTime)
-            ).toISOString(),
-          })
+            path: path.join(modifiedRemote.root.path, relative(local.root.path, file.path)),
+            modificationTime: DateMother.previousDay(new Date(file.modificationTime)).toISOString(),
+          }),
         );
       } else {
         modifiedRemote.addFile(
           modifiedRemote.root,
           FileMother.fromPartial({
-            path: path.join(
-              remote.root.path,
-              relative(local.root.path, file.path)
-            ),
-          })
+            path: path.join(remote.root.path, relative(local.root.path, file.path)),
+          }),
         );
       }
     });
 
-    const { added, deleted, modified, unmodified } =
-      DiffFilesCalculatorService.calculate(local, modifiedRemote);
+    const { added, deleted, modified, unmodified } = DiffFilesCalculatorService.calculate(local, modifiedRemote);
 
     expect(added.length).toBe(expectedNumberOfFilesToAdd);
     expect(deleted.length).toBe(expectedNumberOfFilesToDelete);
@@ -146,17 +134,14 @@ describe('DiffFilesCalculatorService', () => {
         tree.root,
         FileMother.fromPartial({
           path: path.join(tree.root.path, FileNameMother.any()),
-          createdAt:
-            i === 0
-              ? new Date('2025-02-20T00:00:00Z').toISOString()
-              : new Date().toISOString(),
-        })
+          createdAt: i === 0 ? new Date('2025-02-20T00:00:00Z').toISOString() : new Date().toISOString(),
+        }),
       );
       tree.addFolder(
         tree.root,
         FolderMother.fromPartial({
           path: path.join(tree.root.path, FolderNameMother.any()),
-        })
+        }),
       );
     }
 
@@ -167,9 +152,7 @@ describe('DiffFilesCalculatorService', () => {
     remote.files.forEach((file) => {
       const localFile = LocalFileMother.fromPartial({
         path: path.join(local.root.path, file.path) as AbsolutePath,
-        modificationTime: DateMother.nextDay(
-          new Date(file.updatedAt)
-        ).getTime(),
+        modificationTime: DateMother.nextDay(new Date(file.updatedAt)).getTime(),
       });
       local.addFile(local.root, localFile);
     });

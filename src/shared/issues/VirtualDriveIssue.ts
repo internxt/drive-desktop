@@ -1,9 +1,5 @@
 import { SyncError } from './SyncErrorCause';
-import {
-  VirtualDriveError,
-  VirtualDriveFileError,
-  VirtualDriveFolderError,
-} from './VirtualDriveError';
+import { VirtualDriveError, VirtualDriveFileError, VirtualDriveFolderError } from './VirtualDriveError';
 
 export type VirtualDriveFolderIssue = {
   error: VirtualDriveFolderError;

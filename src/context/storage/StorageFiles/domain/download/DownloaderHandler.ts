@@ -15,10 +15,7 @@ export interface DownloaderHandler {
 
   forceStop(): void;
 
-  on(
-    event: keyof DownloadEvents,
-    handler: DownloadEvents[keyof DownloadEvents]
-  ): void;
+  on(event: keyof DownloadEvents, handler: DownloadEvents[keyof DownloadEvents]): void;
 
   elapsedTime(): number;
 }

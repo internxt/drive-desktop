@@ -15,9 +15,7 @@ import { isFirefoxProfileDirectory } from '../../utils/is-firefox-profile-direct
  *
  * This function discovers all Firefox profiles and scans their cache directories.
  */
-export async function scanFirefoxCacheProfiles(
-  firefoxCacheDir: string
-): Promise<CleanableItem[]> {
+export async function scanFirefoxCacheProfiles(firefoxCacheDir: string): Promise<CleanableItem[]> {
   const items: CleanableItem[] = [];
 
   try {
@@ -26,22 +24,19 @@ export async function scanFirefoxCacheProfiles(
     // Filter for actual profile directories (contain a dot, exclude system folders)
     const profileDirsChecks = await Promise.allSettled(
       entries.map(async (entry) => {
-        const isProfileDir = await isFirefoxProfileDirectory(
-          entry,
-          firefoxCacheDir
-        );
+        const isProfileDir = await isFirefoxProfileDirectory(entry, firefoxCacheDir);
         return { entry: entry, isProfileDir };
-      })
+      }),
     );
 
     const profileDirs = profileDirsChecks
       .filter(
         (
-          result
+          result,
         ): result is PromiseFulfilledResult<{
           entry: string;
           isProfileDir: boolean;
-        }> => result.status === 'fulfilled' && result.value.isProfileDir
+        }> => result.status === 'fulfilled' && result.value.isProfileDir,
       )
       .map((result) => result.value.entry);
 
@@ -56,7 +51,7 @@ export async function scanFirefoxCacheProfiles(
         scanDirectory({
           dirPath: cache2Path,
           customFileFilter: webBrowserFileFilter,
-        })
+        }),
       );
 
       // Scan thumbnails cache
@@ -65,7 +60,7 @@ export async function scanFirefoxCacheProfiles(
         scanDirectory({
           dirPath: thumbnailsPath,
           customFileFilter: webBrowserFileFilter,
-        })
+        }),
       );
 
       // Scan startup cache
@@ -74,7 +69,7 @@ export async function scanFirefoxCacheProfiles(
         scanDirectory({
           dirPath: startupCachePath,
           customFileFilter: webBrowserFileFilter,
-        })
+        }),
       );
     }
 

@@ -26,8 +26,7 @@ export class RenameMoveOrTrashFolder {
       await this.container.get(FolderDeleter).run(folder.uuid);
       return undefined;
     } catch (trowed: unknown) {
-      const cause: SyncError =
-        trowed instanceof DriveDesktopError ? trowed.cause : 'UNKNOWN';
+      const cause: SyncError = trowed instanceof DriveDesktopError ? trowed.cause : 'UNKNOWN';
 
       await this.container.get(SyncFileMessenger).issues({
         error: 'DELETE_ERROR',
@@ -43,10 +42,7 @@ export class RenameMoveOrTrashFolder {
     }
   }
 
-  async execute(
-    src: string,
-    dest: string
-  ): Promise<Either<FuseError, RenameOrMoveRight>> {
+  async execute(src: string, dest: string): Promise<Either<FuseError, RenameOrMoveRight>> {
     const folder = await this.container.get(SingleFolderMatchingSearcher).run({
       path: src,
       status: FolderStatuses.EXISTS,
@@ -69,15 +65,11 @@ export class RenameMoveOrTrashFolder {
     try {
       const desiredPath = new FolderPath(dest);
 
-      await this.container
-        .get(SyncFolderMessenger)
-        .rename(folder.name, desiredPath.name());
+      await this.container.get(SyncFolderMessenger).rename(folder.name, desiredPath.name());
 
       await this.container.get(FolderPathUpdater).run(folder.uuid, dest);
 
-      await this.container
-        .get(SyncFolderMessenger)
-        .renamed(folder.name, desiredPath.name());
+      await this.container.get(SyncFolderMessenger).renamed(folder.name, desiredPath.name());
 
       return right(RenameMoveOrTrashFolder.SUCCESS);
     } catch (throwed: unknown) {

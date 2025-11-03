@@ -18,7 +18,7 @@ export class TemporalFile extends AggregateRoot {
     private _createdAt: Date,
     private _path: TemporalFilePath,
     private _size: TemporalFileSize,
-    private readonly _modifiedTime: Date
+    private readonly _modifiedTime: Date,
   ) {
     super();
   }
@@ -58,7 +58,7 @@ export class TemporalFile extends AggregateRoot {
       attributes.createdAt,
       new TemporalFilePath(attributes.path),
       new TemporalFileSize(attributes.size),
-      attributes.modifiedAt
+      attributes.modifiedAt,
     );
   }
 

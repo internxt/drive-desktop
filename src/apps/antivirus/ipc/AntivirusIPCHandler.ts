@@ -71,7 +71,7 @@ export class AntivirusScanService {
    */
   public static async performScan(
     itemsArray: any[],
-    progressCallback: (progress: ScanProgress) => void
+    progressCallback: (progress: ScanProgress) => void,
   ): Promise<void> {
     const isSystemScan = itemsArray.length === 0;
     let fileSystemMonitor = null;
@@ -113,10 +113,7 @@ export class AntivirusScanService {
 
       try {
         if (!isSystemScan) {
-          progressInterval = this.setupItemScanProgress(
-            pathNames,
-            progressCallback
-          );
+          progressInterval = this.setupItemScanProgress(pathNames, progressCallback);
         } else {
           this.initializeSystemScanProgress(progressCallback);
         }
@@ -128,13 +125,14 @@ export class AntivirusScanService {
         });
       }
 
-      const scanPromise = fileSystemMonitor.scanItems(
-        isSystemScan ? undefined : pathNames
-      );
+      const scanPromise = fileSystemMonitor.scanItems(isSystemScan ? undefined : pathNames);
       const timeoutPromise = new Promise<void>((_, reject) => {
-        setTimeout(() => {
-          reject(new Error('Scan timeout after 10 minutes'));
-        }, 10 * 60 * 1000);
+        setTimeout(
+          () => {
+            reject(new Error('Scan timeout after 10 minutes'));
+          },
+          10 * 60 * 1000,
+        );
       });
 
       try {
@@ -205,7 +203,7 @@ export class AntivirusScanService {
    */
   private static setupItemScanProgress(
     pathNames: string[] | undefined,
-    progressCallback: (progress: ScanProgress) => void
+    progressCallback: (progress: ScanProgress) => void,
   ): NodeJS.Timeout {
     let totalScanned = 0;
     const totalItems = pathNames?.length || 0;
@@ -235,9 +233,7 @@ export class AntivirusScanService {
   /**
    * Initialize progress tracking for system scan
    */
-  private static initializeSystemScanProgress(
-    progressCallback: (progress: ScanProgress) => void
-  ): void {
+  private static initializeSystemScanProgress(progressCallback: (progress: ScanProgress) => void): void {
     progressCallback({
       currentPath: 'Initializing system scan...',
       scannedFiles: 0,
@@ -250,9 +246,7 @@ export class AntivirusScanService {
   /**
    * Removes infected files by moving them to trash
    */
-  public static async removeInfectedFiles(
-    infectedFiles: string[]
-  ): Promise<boolean> {
+  public static async removeInfectedFiles(infectedFiles: string[]): Promise<boolean> {
     try {
       const filesToRemove = Array.isArray(infectedFiles) ? infectedFiles : [];
 
@@ -292,7 +286,7 @@ export class AntivirusScanService {
               error: fileError,
             });
           }
-        })
+        }),
       );
 
       return true;
@@ -311,7 +305,6 @@ export class AntivirusScanService {
  * Handles antivirus IPC messaging between main and renderer processes
  */
 export class AntivirusIPCHandler {
-
   /**
    * Broadcast scan progress to all open windows
    */
@@ -366,7 +359,6 @@ export class AntivirusIPCHandler {
    */
   private setupAvailabilityHandler(): void {
     AntivirusIPCMain.handle('antivirus:is-available', async () => {
-
       try {
         const availableProducts = getStoredUserProducts();
         return !!availableProducts?.antivirus;
@@ -410,9 +402,7 @@ export class AntivirusIPCHandler {
 
         logger.debug({
           tag: 'ANTIVIRUS',
-          msg: `Request for ${
-            isSystemScan ? 'system' : 'custom'
-          } scan received`,
+          msg: `Request for ${isSystemScan ? 'system' : 'custom'} scan received`,
         });
 
         try {
@@ -438,10 +428,7 @@ export class AntivirusIPCHandler {
             isCompleted: false,
           });
 
-          AntivirusScanService.performScan(
-            itemsArray,
-            this.broadcastScanProgress.bind(this)
-          ).catch((error) => {
+          AntivirusScanService.performScan(itemsArray, this.broadcastScanProgress.bind(this)).catch((error) => {
             logger.error({
               tag: 'ANTIVIRUS',
               msg: 'Error in background system scan:',
@@ -459,10 +446,7 @@ export class AntivirusIPCHandler {
         return await Promise.race([
           (async () => {
             try {
-              await AntivirusScanService.performScan(
-                itemsArray,
-                this.broadcastScanProgress.bind(this)
-              );
+              await AntivirusScanService.performScan(itemsArray, this.broadcastScanProgress.bind(this));
               logger.debug({
                 tag: 'ANTIVIRUS',
                 msg: 'Scan completed, sending response to renderer',
@@ -481,12 +465,10 @@ export class AntivirusIPCHandler {
             setTimeout(() => {
               logger.warn({
                 tag: 'ANTIVIRUS',
-                msg: `Scan operation timed out after ${
-                  timeoutDuration / 60000
-                } minutes, forcing response`,
+                msg: `Scan operation timed out after ${timeoutDuration / 60000} minutes, forcing response`,
               });
               resolve(false);
-            }, timeoutDuration)
+            }, timeoutDuration),
           ),
         ]);
       } catch (error) {
@@ -552,25 +534,22 @@ export class AntivirusIPCHandler {
       tag: 'ANTIVIRUS',
       msg: 'Registering handler for antivirus:remove-infected-files',
     });
-    AntivirusIPCMain.handle(
-      'antivirus:remove-infected-files',
-      async (_, infectedFiles) => {
-        try {
-          logger.debug({
-            tag: 'ANTIVIRUS',
-            msg: 'Handler called: antivirus:remove-infected-files',
-          });
-          return await AntivirusScanService.removeInfectedFiles(infectedFiles);
-        } catch (error) {
-          logger.error({
-            tag: 'ANTIVIRUS',
-            msg: 'Error removing infected files:',
-            error,
-          });
-          return false;
-        }
+    AntivirusIPCMain.handle('antivirus:remove-infected-files', async (_, infectedFiles) => {
+      try {
+        logger.debug({
+          tag: 'ANTIVIRUS',
+          msg: 'Handler called: antivirus:remove-infected-files',
+        });
+        return await AntivirusScanService.removeInfectedFiles(infectedFiles);
+      } catch (error) {
+        logger.error({
+          tag: 'ANTIVIRUS',
+          msg: 'Error removing infected files:',
+          error,
+        });
+        return false;
       }
-    );
+    });
   }
 
   /**

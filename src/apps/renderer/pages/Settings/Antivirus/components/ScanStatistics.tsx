@@ -5,10 +5,7 @@ interface ScanStatisticsProps {
   corruptedFilesCount: number;
 }
 
-export const ScanStatistics = ({
-  scannedFilesCount,
-  corruptedFilesCount,
-}: ScanStatisticsProps) => {
+export const ScanStatistics = ({ scannedFilesCount, corruptedFilesCount }: ScanStatisticsProps) => {
   const { translate } = useTranslationContext();
 
   return (

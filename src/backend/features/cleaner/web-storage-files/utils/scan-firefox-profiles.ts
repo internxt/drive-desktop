@@ -13,15 +13,11 @@ function firefoxStorageFileFilter(fileName: string): boolean {
 
   // Only include SQLite database files used for storage
   const storageExtensions = ['.sqlite', '.sqlite3', '.db'];
-  const isStorageFile = storageExtensions.some((ext) =>
-    lowerName.endsWith(ext)
-  );
+  const isStorageFile = storageExtensions.some((ext) => lowerName.endsWith(ext));
 
   // Also include specific Firefox storage files without extensions (rare but possible)
   const storageFileNames = ['cookies', 'webappsstore', 'chromeappsstore'];
-  const isStorageFileName = storageFileNames.some((name) =>
-    lowerName.includes(name)
-  );
+  const isStorageFileName = storageFileNames.some((name) => lowerName.includes(name));
 
   // Skip files that are not storage-related
   return !(isStorageFile || isStorageFileName);
@@ -38,9 +34,7 @@ function firefoxStorageFileFilter(fileName: string): boolean {
  *
  * This function discovers all Firefox profiles and scans their storage files.
  */
-export async function scanFirefoxProfiles(
-  firefoxProfilesDir: string
-): Promise<CleanableItem[]> {
+export async function scanFirefoxProfiles(firefoxProfilesDir: string): Promise<CleanableItem[]> {
   const items: CleanableItem[] = [];
 
   try {
@@ -49,22 +43,19 @@ export async function scanFirefoxProfiles(
     // Filter for actual profile directories
     const profileDirsChecks = await Promise.allSettled(
       entries.map(async (entry) => {
-        const isProfileDir = await isFirefoxProfileDirectory(
-          entry,
-          firefoxProfilesDir
-        );
+        const isProfileDir = await isFirefoxProfileDirectory(entry, firefoxProfilesDir);
         return { entry, isProfileDir };
-      })
+      }),
     );
 
     const profileDirs = profileDirsChecks
       .filter(
         (
-          result
+          result,
         ): result is PromiseFulfilledResult<{
           entry: string;
           isProfileDir: boolean;
-        }> => result.status === 'fulfilled' && result.value.isProfileDir
+        }> => result.status === 'fulfilled' && result.value.isProfileDir,
       )
       .map((result) => result.value.entry);
 
@@ -78,7 +69,7 @@ export async function scanFirefoxProfiles(
         scanDirectory({
           dirPath: profilePath,
           customFileFilter: firefoxStorageFileFilter,
-        })
+        }),
       );
     }
 

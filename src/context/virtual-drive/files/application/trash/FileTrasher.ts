@@ -14,7 +14,7 @@ export class FileTrasher {
     private readonly remote: RemoteFileSystem,
     private readonly repository: FileRepository,
     private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
-    private readonly notifier: SyncFileMessenger
+    private readonly notifier: SyncFileMessenger,
   ) {}
 
   async run(contentsId: File['contentsId']): Promise<void> {
@@ -34,13 +34,11 @@ export class FileTrasher {
       return;
     }
 
-    const allParentsExists = await this.allParentFoldersStatusIsExists.run(
-      file.folderId
-    );
+    const allParentsExists = await this.allParentFoldersStatusIsExists.run(file.folderId);
 
     if (!allParentsExists) {
       logger.warn({
-        msg: `Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`
+        msg: `Skipped file deletion for ${file.path}. A folder in a higher level is already marked as trashed`,
       });
       return;
     }
@@ -57,8 +55,7 @@ export class FileTrasher {
 
       logger.error({ msg: '[File Deleter]', error: message });
 
-      const cause =
-        error instanceof DriveDesktopError ? error.cause : 'UNKNOWN';
+      const cause = error instanceof DriveDesktopError ? error.cause : 'UNKNOWN';
 
       await this.notifier.issues({
         error: 'DELETE_ERROR',

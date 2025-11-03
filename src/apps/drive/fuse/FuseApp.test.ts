@@ -1,7 +1,5 @@
 import { FuseApp } from './FuseApp';
-import {
-  FileRepositorySynchronizer
-} from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
+import { FileRepositorySynchronizer } from '../../../context/virtual-drive/files/application/FileRepositorySynchronizer';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { Container } from 'diod';
 import { VirtualDrive } from '../virtual-drive/VirtualDrive';
@@ -11,7 +9,6 @@ import { getExistingFiles } from '../../main/remote-sync/service';
 jest.mock('../../main/remote-sync/service', () => ({
   getExistingFiles: jest.fn(),
 }));
-
 
 // Mock the electron-store
 jest.mock('../../main/config', () => ({

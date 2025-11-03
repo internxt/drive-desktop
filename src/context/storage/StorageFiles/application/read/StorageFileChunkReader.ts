@@ -8,7 +8,7 @@ import { StorageFileCache } from '../../domain/StorageFileCache';
 export class StorageFileChunkReader {
   constructor(
     private readonly cache: StorageFileCache,
-    private readonly repository: StorageFilesRepository
+    private readonly repository: StorageFilesRepository,
   ) {}
 
   private async obtainData(id: StorageFileId): Promise<Buffer> {
@@ -25,11 +25,7 @@ export class StorageFileChunkReader {
     return buffer;
   }
 
-  async run(
-    id: string,
-    length: number,
-    position: number
-  ): Promise<Optional<Buffer>> {
+  async run(id: string, length: number, position: number): Promise<Optional<Buffer>> {
     const storageId = new StorageFileId(id);
 
     const data = await this.obtainData(storageId);

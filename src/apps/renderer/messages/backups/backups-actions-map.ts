@@ -9,9 +9,7 @@ const map: Partial<Record<FatalError, FaltalErrorAction>> = {
   },
 } as const;
 
-function obtainErrorAction(
-  errorName: FatalError
-): FaltalErrorAction | undefined {
+function obtainErrorAction(errorName: FatalError): FaltalErrorAction | undefined {
   return map[errorName];
 }
 

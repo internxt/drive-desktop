@@ -29,9 +29,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
       return this.right();
     } catch (err: unknown) {
       logger.error({ msg: 'Error in ReleaseCallback', error: err });
-      return this.left(
-        new FuseIOError('An unexpected error occurred during file release.')
-      );
+      return this.left(new FuseIOError('An unexpected error occurred during file release.'));
     }
   }
 
@@ -56,11 +54,7 @@ export class ReleaseCallback extends NotifyFuseCallback {
     } catch (uploadError) {
       logger.error({ msg: 'Upload failed:', error: uploadError });
       await this.container.get(TemporalFileDeleter).run(path);
-      return this.left(
-        new FuseIOError(
-          'Upload failed due to insufficient storage or network issues.'
-        )
-      );
+      return this.left(new FuseIOError('Upload failed due to insufficient storage or network issues.'));
     }
   }
 

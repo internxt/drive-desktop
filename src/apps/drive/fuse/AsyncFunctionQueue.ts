@@ -1,9 +1,7 @@
 export class AsyncFunctionQueue {
   private readonly queue = new Map<string, Promise<void>>();
 
-  constructor(
-    private readonly asyncFunction: (...params: any[]) => Promise<void>
-  ) {}
+  constructor(private readonly asyncFunction: (...params: any[]) => Promise<void>) {}
 
   async enqueue(...params: any[]): Promise<void> {
     const key = params[0];

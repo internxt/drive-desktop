@@ -39,14 +39,8 @@ async function isEmptyFolder(pathname: string): Promise<boolean> {
 }
 
 function setSyncRoot(pathname: string): void {
-  const pathNameWithSepInTheEnd =
-    pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
-  const logEnginePath = path.join(
-    app.getPath('appData'),
-    'internxt-drive',
-    'logs',
-    'node-win.txt'
-  );
+  const pathNameWithSepInTheEnd = pathname[pathname.length - 1] === path.sep ? pathname : pathname + path.sep;
+  const logEnginePath = path.join(app.getPath('appData'), 'internxt-drive', 'logs', 'node-win.txt');
   configStore.set('logEnginePath', logEnginePath);
   configStore.set('syncRoot', pathNameWithSepInTheEnd);
   configStore.set('lastSavedListing', '');
@@ -71,9 +65,7 @@ export async function setupRootFolder(n = 0): Promise<void> {
   const rootFolderName = folderName + (n ? ` (${n})` : '');
   const rootFolderPath = path.join(HOME_FOLDER_PATH, rootFolderName);
 
-  const notExistsOrIsEmpty =
-    !(await existsFolder(rootFolderPath)) ||
-    (await isEmptyFolder(rootFolderPath));
+  const notExistsOrIsEmpty = !(await existsFolder(rootFolderPath)) || (await isEmptyFolder(rootFolderPath));
 
   if (notExistsOrIsEmpty) {
     await fs.mkdir(rootFolderPath, { recursive: true });

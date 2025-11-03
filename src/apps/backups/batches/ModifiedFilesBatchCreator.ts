@@ -22,7 +22,7 @@ export class ModifiedFilesBatchCreator {
         map.set(local, file);
 
         return map;
-      }, new Map())
+      }, new Map()),
     );
   }
 }

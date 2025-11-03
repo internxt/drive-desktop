@@ -9,7 +9,7 @@ export class OfflineFolderCreator {
   constructor(
     private readonly parentFolderFinder: ParentFolderFinder,
     private readonly offlineRepository: OfflineFolderRepository,
-    private readonly repository: FolderRepository
+    private readonly repository: FolderRepository,
   ) {}
 
   async run(posixRelativePath: string): Promise<OfflineFolder> {

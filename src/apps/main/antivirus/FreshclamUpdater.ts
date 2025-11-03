@@ -1,10 +1,6 @@
 import { spawn } from 'child_process';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import {
-  prepareConfigFiles,
-  ensureDirectories,
-  getEnvWithLibraryPath,
-} from './ClamAVDaemon';
+import { prepareConfigFiles, ensureDirectories, getEnvWithLibraryPath } from './ClamAVDaemon';
 import { freshclamPath } from './constants';
 import { AntivirusError } from './AntivirusError';
 
@@ -19,13 +15,9 @@ export const runFreshclam = (): Promise<void> => {
 
     const { freshclamConfigPath } = prepareConfigFiles();
 
-    const freshclamProcess = spawn(
-      freshclamPath,
-      ['--config-file', freshclamConfigPath, '--foreground'],
-      {
-        env: getEnvWithLibraryPath(),
-      }
-    );
+    const freshclamProcess = spawn(freshclamPath, ['--config-file', freshclamConfigPath, '--foreground'], {
+      env: getEnvWithLibraryPath(),
+    });
 
     freshclamProcess.stdout.on('data', (data) => {
       logger.debug({
@@ -64,9 +56,7 @@ export const runFreshclam = (): Promise<void> => {
         msg: '[freshclam] Failed to start update process:',
         error,
       });
-      reject(
-        AntivirusError.databaseError('Failed to start update process', error)
-      );
+      reject(AntivirusError.databaseError('Failed to start update process', error));
     });
   });
 };

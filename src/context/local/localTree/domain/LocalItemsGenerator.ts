@@ -8,7 +8,5 @@ export abstract class LocalItemsGenerator {
     files: Array<LocalFileDTO>;
     folders: Array<LocalFolderDTO>;
   }>;
-  abstract root(
-    dir: string
-  ): Promise<Either<DriveDesktopError, LocalFolderDTO>>;
+  abstract root(dir: string): Promise<Either<DriveDesktopError, LocalFolderDTO>>;
 }

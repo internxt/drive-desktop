@@ -33,20 +33,11 @@ export class BackupsDependencyContainerFactory {
 
     builder
       .register(DownloaderHandlerFactory)
-      .useFactory(
-        (c) =>
-          new EnvironmentFileDownloaderHandlerFactory(
-            c.get(Environment),
-            user.backupsBucket
-          )
-      );
+      .useFactory((c) => new EnvironmentFileDownloaderHandlerFactory(c.get(Environment), user.backupsBucket));
 
     builder.register(StorageFileService).useFactory((c) => {
       const env = c.get(Environment);
-      return new StorageFileService(
-        env,
-        user.backupsBucket
-      );
+      return new StorageFileService(env, user.backupsBucket);
     });
 
     builder.registerAndUse(BackupsDanglingFilesService);

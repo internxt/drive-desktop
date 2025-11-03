@@ -32,7 +32,7 @@ export async function setUpBackups() {
   const scheduler = new BackupScheduler(
     () => backupConfiguration.lastBackup,
     () => backupConfiguration.backupInterval,
-    () => launchBackupProcesses(true, tracker, status, errors, stopController)
+    () => launchBackupProcesses(true, tracker, status, errors, stopController),
   );
 
   backupConfiguration.onBackupIntervalChanged = (interval: number) => {
@@ -65,7 +65,7 @@ export async function setUpBackups() {
     if (userHasBackupFeatureNow && !userHasBackupFeatureAvailable) {
       logger.debug({
         tag: 'BACKUPS',
-        msg: 'User now has the backup feature available, setting up backups'
+        msg: 'User now has the backup feature available, setting up backups',
       });
       setUpBackups();
     } else if (!userHasBackupFeatureNow && userHasBackupFeatureAvailable) {
@@ -78,18 +78,11 @@ export async function setUpBackups() {
     if (userHasBackupFeatureAvailable) {
       logger.debug({ tag: 'BACKUPS', msg: 'Backups started manually' });
 
-      await launchBackupProcesses(
-        false,
-        tracker,
-        status,
-        errors,
-        stopController
-      );
+      await launchBackupProcesses(false, tracker, status, errors, stopController);
     }
   });
 
   ipcMain.on('BACKUP_PROCESS_FINISHED', (event) => {
-
     if (event?.lastExitReason === 'FORCED_BY_USER') {
       logger.debug({ tag: 'BACKUPS', msg: 'Backups process finished by user' });
     } else {

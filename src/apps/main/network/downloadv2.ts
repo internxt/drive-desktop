@@ -86,8 +86,8 @@ const downloadOwnFile: DownloadOwnFileFunction = (params) => {
       {
         bridgeUser: auth.username,
         userId: auth.password,
-      }
-    )
+      },
+    ),
   ).download(bucketId, fileId, mnemonic, {
     downloadingCallback: options?.notifyProgress,
     abortController: options?.abortController,

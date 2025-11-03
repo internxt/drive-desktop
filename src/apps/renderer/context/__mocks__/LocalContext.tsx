@@ -1,10 +1,7 @@
 import React from 'react';
 
 export interface LocalContextProps {
-  translate: (
-    key: string,
-    keysToReplace?: Record<string, string | number>
-  ) => string;
+  translate: (key: string, keysToReplace?: Record<string, string | number>) => string;
   language: string;
 }
 
@@ -13,6 +10,4 @@ export const useTranslationContext = (): LocalContextProps => ({
   language: 'en',
 });
 
-export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
-}) => <>{children}</>;
+export const TranslationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => <>{children}</>;

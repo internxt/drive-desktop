@@ -32,7 +32,7 @@ export class FoldersDiffCalculator {
     });
 
     const deleted = remote.foldersWithOutRoot.filter(
-      (folder) => !local.has(path.join(rootPath, folder.path) as AbsolutePath)
+      (folder) => !local.has(path.join(rootPath, folder.path) as AbsolutePath),
     );
 
     const total = added.length + unmodified.length;

@@ -6,28 +6,19 @@ export class DownloadProgressTrackerMock implements DownloadProgressTracker {
   readonly downloadFinishedMock = jest.fn();
   readonly errorMock = jest.fn();
 
-  downloadStarted(
-    name: string,
-    extension: string,
-    size: number
-  ): Promise<void> {
+  downloadStarted(name: string, extension: string, size: number): Promise<void> {
     return this.downloadStartedMock(name, extension, size);
   }
 
   downloadUpdate(
     name: string,
     extension: string,
-    progress: { elapsedTime: number; percentage: number }
+    progress: { elapsedTime: number; percentage: number },
   ): Promise<void> {
     return this.downloadUpdateMock(name, extension, progress);
   }
 
-  downloadFinished(
-    name: string,
-    extension: string,
-    size: number,
-    progress: { elapsedTime: number }
-  ): Promise<void> {
+  downloadFinished(name: string, extension: string, size: number, progress: { elapsedTime: number }): Promise<void> {
     return this.downloadFinishedMock(name, extension, size, progress);
   }
 

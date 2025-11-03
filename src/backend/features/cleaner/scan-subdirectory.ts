@@ -5,10 +5,7 @@ import { isInternxtRelated } from './utils/is-file-internxt-related';
 import { scanDirectory } from './scan-directory';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 
-async function getFilteredDirectories(
-  baseDir: string,
-  customDirectoryFiler?: (directoryName: string) => boolean
-) {
+async function getFilteredDirectories(baseDir: string, customDirectoryFiler?: (directoryName: string) => boolean) {
   return await fs
     .readdir(baseDir, { withFileTypes: true })
     .then((dirents) =>
@@ -16,8 +13,8 @@ async function getFilteredDirectories(
         (dirent) =>
           dirent.isDirectory() &&
           !isInternxtRelated(dirent.name) &&
-          (!customDirectoryFiler || !customDirectoryFiler(dirent.name))
-      )
+          (!customDirectoryFiler || !customDirectoryFiler(dirent.name)),
+      ),
     );
 }
 
@@ -45,10 +42,7 @@ export async function scanSubDirectory({
 }: ScanSubDirectoryProps): Promise<CleanableItem[]> {
   const cleanableItems: CleanableItem[] = [];
   try {
-    const directories = await getFilteredDirectories(
-      baseDir,
-      customDirectoryFilter
-    );
+    const directories = await getFilteredDirectories(baseDir, customDirectoryFilter);
 
     const scanPromises = directories.map((directory) => {
       const dirPath = path.join(baseDir, directory.name, subPath);

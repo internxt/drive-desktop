@@ -2,15 +2,7 @@ import path from 'path';
 /**
  * Critical file extensions that should never be deleted from cache
  */
-const CRITICAL_CACHE_EXTENSIONS = [
-  '.lock',
-  '.pid',
-  '.db',
-  '.sqlite',
-  '.sqlite3',
-  '.sock',
-  '.socket',
-];
+const CRITICAL_CACHE_EXTENSIONS = ['.lock', '.pid', '.db', '.sqlite', '.sqlite3', '.sock', '.socket'];
 
 /**
  * Critical filename keywords that should never be deleted from cache

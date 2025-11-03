@@ -10,7 +10,7 @@ export class TokenScheduler {
   constructor(
     private daysBefore: number,
     private tokens: Array<string>,
-    private unauthorized: () => void
+    private unauthorized: () => void,
   ) {}
 
   private getExpiration(token: string): number {
@@ -73,8 +73,6 @@ export class TokenScheduler {
   }
 
   public cancelAll(): void {
-    Object.keys(nodeSchedule.scheduledJobs).forEach((jobName: string) =>
-      nodeSchedule.cancelJob(jobName)
-    );
+    Object.keys(nodeSchedule.scheduledJobs).forEach((jobName: string) => nodeSchedule.cancelJob(jobName));
   }
 }

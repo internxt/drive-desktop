@@ -21,10 +21,7 @@ export class RetryHandler {
    *          - `right(T)`: The function succeeds within the retry limit.
    *          - `left(RetryError)`: Retries exhausted or aborted.
    */
-  static async execute<T>(
-    fn: () => Promise<T>,
-    options: RetryOptions
-  ): Promise<Either<RetryError, T>> {
+  static async execute<T>(fn: () => Promise<T>, options: RetryOptions): Promise<Either<RetryError, T>> {
     const {
       maxRetries,
       initialDelay,
@@ -71,16 +68,12 @@ export class RetryHandler {
     attempt: number,
     maxRetries: number,
     shouldRetry: (error: unknown) => boolean,
-    error: unknown
+    error: unknown,
   ): boolean {
     return attempt <= maxRetries && (!shouldRetry || shouldRetry(error));
   }
 
-  private static getWaitingTime(
-    delay: number,
-    maxDelay: number,
-    jitter: boolean
-  ): number {
+  private static getWaitingTime(delay: number, maxDelay: number, jitter: boolean): number {
     const jitterFactor = jitter ? Math.random() + 0.5 : 1;
     return Math.min(delay * jitterFactor, maxDelay);
   }
@@ -90,13 +83,11 @@ export class RetryHandler {
     maxDelay: number,
     jitter: boolean,
     attempt: number,
-    error: unknown
+    error: unknown,
   ): Promise<void> {
     const waitTime = this.getWaitingTime(delay, maxDelay, jitter);
     logger.warn({
-      msg: `[Retry] Attempt ${attempt} failed, retrying in ${Math.round(
-        waitTime
-      )}ms...`,
+      msg: `[Retry] Attempt ${attempt} failed, retrying in ${Math.round(waitTime)}ms...`,
       error,
     });
 

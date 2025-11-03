@@ -13,7 +13,7 @@ export class Thumbnail extends AggregateRoot {
     private _id: number,
     private _contentsId: ThumbnailContentId,
     private _type: string,
-    private _bucket: string
+    private _bucket: string,
   ) {
     super();
   }

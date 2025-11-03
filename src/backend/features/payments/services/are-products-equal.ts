@@ -1,6 +1,5 @@
 import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 
-
 type Props = {
   stored: UserAvailableProducts | undefined;
   fetched: UserAvailableProducts;

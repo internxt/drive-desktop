@@ -8,26 +8,20 @@ describe('Create File On Offline File Uploaded', () => {
     const creator = new FileCreatorTestClass();
     const overrider = new FileOverriderTestClass();
 
-    const uploadedEvent =
-      OfflineContentsUploadedDomainEventMother.doesNotReplace();
+    const uploadedEvent = OfflineContentsUploadedDomainEventMother.doesNotReplace();
 
     const sut = new CreateFileOnTemporalFileUploaded(creator, overrider);
 
     await sut.on(uploadedEvent);
 
-    expect(creator.mock).toBeCalledWith(
-      uploadedEvent.path,
-      uploadedEvent.aggregateId,
-      uploadedEvent.size
-    );
+    expect(creator.mock).toBeCalledWith(uploadedEvent.path, uploadedEvent.aggregateId, uploadedEvent.size);
   });
 
   it('does not create a new file when the replaces files is defined', async () => {
     const creator = new FileCreatorTestClass();
     const overrider = new FileOverriderTestClass();
 
-    const uploadedEvent =
-      OfflineContentsUploadedDomainEventMother.replacesContents();
+    const uploadedEvent = OfflineContentsUploadedDomainEventMother.replacesContents();
 
     const sut = new CreateFileOnTemporalFileUploaded(creator, overrider);
 
@@ -40,17 +34,12 @@ describe('Create File On Offline File Uploaded', () => {
     const creator = new FileCreatorTestClass();
     const overrider = new FileOverriderTestClass();
 
-    const uploadedEvent =
-      OfflineContentsUploadedDomainEventMother.replacesContents();
+    const uploadedEvent = OfflineContentsUploadedDomainEventMother.replacesContents();
 
     const sut = new CreateFileOnTemporalFileUploaded(creator, overrider);
 
     await sut.on(uploadedEvent);
 
-    expect(overrider.mock).toBeCalledWith(
-      uploadedEvent.replaces,
-      uploadedEvent.aggregateId,
-      uploadedEvent.size
-    );
+    expect(overrider.mock).toBeCalledWith(uploadedEvent.replaces, uploadedEvent.aggregateId, uploadedEvent.size);
   });
 });

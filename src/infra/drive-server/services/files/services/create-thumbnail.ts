@@ -7,18 +7,15 @@ import { errorHandler } from './file-error-handler';
 import { getNewApiHeadersIPC } from '../../../../ipc/get-new-api-headers-ipc';
 
 export async function createThumbnail(
-  body: components['schemas']['CreateThumbnailDto']
+  body: components['schemas']['CreateThumbnailDto'],
 ): Promise<Result<components['schemas']['ThumbnailDto'], FileError>> {
   try {
     const headers = await getNewApiHeadersIPC();
-    const response = await fetch(
-      `${process.env.NEW_DRIVE_URL}/files/thumbnail`,
-      {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-      }
-    );
+    const response = await fetch(`${process.env.NEW_DRIVE_URL}/files/thumbnail`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body),
+    });
     if (response.ok) {
       const data: components['schemas']['ThumbnailDto'] = await response.json();
       return { data };

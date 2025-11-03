@@ -13,8 +13,7 @@ const validations = [
   (name: string) => containsNullCharacter.test(name),
 ];
 
-const sanitizeRelativePath = (relativePath: string) =>
-  relativePath.replaceAll(path.sep, '/');
+const sanitizeRelativePath = (relativePath: string) => relativePath.replaceAll(path.sep, '/');
 
 export const fileNameIsValid = (fileName: string): boolean => {
   const sanitatedPath = sanitizeRelativePath(fileName);

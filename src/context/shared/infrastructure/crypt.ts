@@ -43,7 +43,7 @@ function decryptName(cipherText: string, salt: string, encryptVersion: string) {
       salt: salt,
       message: (e as Error).message,
       encryptVersion: encryptVersion,
-      stack: (e as Error).stack
+      stack: (e as Error).stack,
     });
   }
   const decrypted = deterministicDecryption(cipherText, salt);

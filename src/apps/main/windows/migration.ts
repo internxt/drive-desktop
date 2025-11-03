@@ -5,8 +5,7 @@ import { setUpCommonWindowHandlers } from '.';
 import isDev from '../../../core/isDev/isDev';
 
 let migrationWindow: BrowserWindow | null = null;
-export const getMigrationWindow = () =>
-  migrationWindow?.isDestroyed() ? null : migrationWindow;
+export const getMigrationWindow = () => (migrationWindow?.isDestroyed() ? null : migrationWindow);
 
 export const openMigrationWindow = () => {
   if (migrationWindow) {

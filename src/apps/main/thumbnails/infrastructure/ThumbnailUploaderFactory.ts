@@ -16,9 +16,7 @@ export class ThumbnailUploaderFactory {
     const user = getUser();
 
     if (!user) {
-      throw new Error(
-        '[THUMBNAIL] Thumbnail uploader could not be created: user missing'
-      );
+      throw new Error('[THUMBNAIL] Thumbnail uploader could not be created: user missing');
     }
 
     const environment = new Environment({
@@ -30,14 +28,10 @@ export class ThumbnailUploaderFactory {
         clientName: INTERNXT_CLIENT,
         clientVersion: INTERNXT_VERSION,
         desktopHeader: process.env.DESKTOP_HEADER,
-      }
+      },
     });
 
-    ThumbnailUploaderFactory.instance =
-      new EnvironmentAndStorageThumbnailUploader(
-        environment,
-        user.bucket
-      );
+    ThumbnailUploaderFactory.instance = new EnvironmentAndStorageThumbnailUploader(environment, user.bucket);
 
     return ThumbnailUploaderFactory.instance;
   }

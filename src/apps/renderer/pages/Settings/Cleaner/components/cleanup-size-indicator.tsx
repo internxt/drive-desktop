@@ -6,11 +6,7 @@ type Props = {
   totalSize: number;
   segmentDetails: Array<{ color: string; percentage: number; size: number }>;
 };
-export function CleanupSizeIndicator({
-  selectedSize,
-  totalSize,
-  segmentDetails,
-}: Props) {
+export function CleanupSizeIndicator({ selectedSize, totalSize, segmentDetails }: Props) {
   const { translate } = useTranslationContext();
   return (
     <div className="flex w-1/2 flex-col items-center justify-center bg-surface p-6 dark:bg-gray-5">
@@ -41,8 +37,7 @@ export function CleanupSizeIndicator({
                   (acc, segment, index) => {
                     const radius = 80;
                     const circumference = Math.PI * radius;
-                    const strokeLength =
-                      (segment.percentage / 100) * circumference;
+                    const strokeLength = (segment.percentage / 100) * circumference;
                     const strokeDasharray = `${strokeLength} ${circumference}`;
                     const strokeDashoffset = -acc.offset;
 
@@ -57,13 +52,13 @@ export function CleanupSizeIndicator({
                         strokeDasharray={strokeDasharray}
                         strokeDashoffset={strokeDashoffset}
                         className="transition-all duration-500 ease-in-out"
-                      />
+                      />,
                     );
 
                     acc.offset += strokeLength;
                     return acc;
                   },
-                  { elements: [] as React.ReactNode[], offset: 0 }
+                  { elements: [] as React.ReactNode[], offset: 0 },
                 ).elements
               }
             </>
@@ -71,34 +66,21 @@ export function CleanupSizeIndicator({
         </svg>
 
         <div className="absolute inset-0 flex flex-col items-center justify-center pt-6">
-          <div className="text-gray-900 text-3xl font-bold dark:text-gray-100">
-            {formatFileSize(selectedSize)}
-          </div>
-          <SavedSpaceIndicator
-            totalSize={totalSize}
-            selectedSize={selectedSize}
-          />
+          <div className="text-gray-900 text-3xl font-bold dark:text-gray-100">{formatFileSize(selectedSize)}</div>
+          <SavedSpaceIndicator totalSize={totalSize} selectedSize={selectedSize} />
         </div>
       </div>
     </div>
   );
 }
 
-function SavedSpaceIndicator({
-  totalSize,
-  selectedSize,
-}: {
-  totalSize: number;
-  selectedSize: number;
-}) {
+function SavedSpaceIndicator({ totalSize, selectedSize }: { totalSize: number; selectedSize: number }) {
   const { translate } = useTranslationContext();
-  const savedSpacePercentage =
-    totalSize > 0 ? ((selectedSize / totalSize) * 100).toFixed(2) : '0.00';
-    
+  const savedSpacePercentage = totalSize > 0 ? ((selectedSize / totalSize) * 100).toFixed(2) : '0.00';
+
   return (
     <div className="text-gray-500 dark:text-gray-400 mt-1 text-center text-sm">
-      {translate('settings.cleaner.sizeIndicatorView.saveUpTo')}{' '}
-      {savedSpacePercentage}%
+      {translate('settings.cleaner.sizeIndicatorView.saveUpTo')} {savedSpacePercentage}%
       <br />
       {translate('settings.cleaner.sizeIndicatorView.ofYourSpace')}
     </div>

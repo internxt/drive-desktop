@@ -18,11 +18,7 @@ describe('Storage File Deleter', () => {
     virtualFileFinder = new SingleFileMatchingFinderTestClass();
     storageFileCache = new StorageFileCacheMock();
 
-    SUT = new StorageFileDeleter(
-      repository,
-      virtualFileFinder,
-      storageFileCache
-    );
+    SUT = new StorageFileDeleter(repository, virtualFileFinder, storageFileCache);
   });
 
   beforeEach(() => {
@@ -43,9 +39,7 @@ describe('Storage File Deleter', () => {
     const file = FileMother.any();
     const storageFile = StorageFileMother.random();
     virtualFileFinder.finds(file);
-    repository.shouldExists([
-      { id: StorageFileIdMother.random(), value: true },
-    ]);
+    repository.shouldExists([{ id: StorageFileIdMother.random(), value: true }]);
 
     repository.shouldRetrieve(storageFile);
 
@@ -58,9 +52,7 @@ describe('Storage File Deleter', () => {
     const file = FileMother.any();
     const storageFile = StorageFileMother.random();
     virtualFileFinder.finds(file);
-    repository.shouldExists([
-      { id: StorageFileIdMother.random(), value: true },
-    ]);
+    repository.shouldExists([{ id: StorageFileIdMother.random(), value: true }]);
 
     repository.shouldRetrieve(storageFile);
     storageFileCache.doesHave(storageFile.id);

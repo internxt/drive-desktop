@@ -24,6 +24,6 @@ describe('Path', () => {
     'path with dots after the first position are valid',
     (path) => {
       expect(() => new PathTestClass(path)).not.toThrowError();
-    }
+    },
   );
 });

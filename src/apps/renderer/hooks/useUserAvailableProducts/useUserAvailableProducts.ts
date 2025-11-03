@@ -2,9 +2,7 @@ import { UserAvailableProducts } from '@internxt/drive-desktop-core/build/backen
 import { useEffect, useState } from 'react';
 
 export function useUserAvailableProducts() {
-  const [products, setProducts] = useState<UserAvailableProducts | undefined>(
-    undefined
-  );
+  const [products, setProducts] = useState<UserAvailableProducts | undefined>(undefined);
 
   const handleSetProducts = (products: UserAvailableProducts | undefined) => {
     setProducts(products);

@@ -17,11 +17,11 @@ export function StartBackup({ className }: StartBackupProps) {
 
   const userCanBackup = products?.backups;
 
-  function handleSetShowFeatureLockedModal(show: boolean): void  {
+  function handleSetShowFeatureLockedModal(show: boolean): void {
     setShowFeatureLockedModal(show);
   }
 
-  function handleStartBackup(): void{
+  function handleStartBackup(): void {
     if (!userCanBackup) {
       handleSetShowFeatureLockedModal(true);
       return;
@@ -34,7 +34,7 @@ export function StartBackup({ className }: StartBackupProps) {
     }
   }
 
-  async function handleOpenInternxtPricingUrl (): Promise<void> {
+  async function handleOpenInternxtPricingUrl(): Promise<void> {
     await window.electron.openUrl('https://internxt.com/pricing');
     handleSetShowFeatureLockedModal(false);
   }
@@ -46,13 +46,8 @@ export function StartBackup({ className }: StartBackupProps) {
         variant={backupStatus === 'STANDBY' ? 'primary' : 'danger'}
         size="md"
         onClick={handleStartBackup}
-        disabled={backups.length === 0}
-      >
-        {translate(
-          `settings.backups.action.${
-            backupStatus === 'STANDBY' ? 'start' : 'stop'
-          }`
-        )}
+        disabled={backups.length === 0}>
+        {translate(`settings.backups.action.${backupStatus === 'STANDBY' ? 'start' : 'stop'}`)}
       </Button>
       {!userCanBackup && (
         <ConfirmationModal

@@ -33,7 +33,7 @@ export const CLEANER_SECTION_KEYS: readonly CleanerSectionKey[] = [
   'logFiles',
   'trash',
   'webStorage',
-  'webCache'
+  'webCache',
 ] as const;
 
 export type AppCachePaths = {

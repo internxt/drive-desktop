@@ -25,7 +25,7 @@ type FileMetaDataResponse = {
       updatedAt: string;
       maxWidth: number;
       maxHeight: number;
-    }
+    },
   ];
 };
 
@@ -38,7 +38,7 @@ const limiter = new Bottleneck({
 export class RemoteThumbnailsRepository implements ThumbnailsRepository {
   constructor(
     private readonly axios: Axios,
-    private readonly downloader: EnvironmentThumbnailDownloader
+    private readonly downloader: EnvironmentThumbnailDownloader,
   ) {}
 
   private async obtainThumbnails(file: File): Promise<Array<Thumbnail>> {
@@ -69,7 +69,7 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
           type: raw.type,
           bucket: raw.bucketId,
           updatedAt: new Date(raw.updatedAt),
-        })
+        }),
       );
 
       return thumbnails;

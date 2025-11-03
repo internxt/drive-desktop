@@ -19,9 +19,7 @@ jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
 
 describe('scanSingleFile', () => {
   const mockedFs = jest.mocked(fs);
-  const mockedWasAccessedWithinLastHour = jest.mocked(
-    wasAccessedWithinLastHour
-  );
+  const mockedWasAccessedWithinLastHour = jest.mocked(wasAccessedWithinLastHour);
   const mockedCreateCleanableItem = jest.mocked(createCleanableItem);
   const mockedLogger = jest.mocked(logger);
 
@@ -33,7 +31,7 @@ describe('scanSingleFile', () => {
   };
 
   const createMockStats = (isFile = true, size = 0): Stats =>
-    ({ isDirectory: () => !isFile, isFile: () => isFile, size } as Stats);
+    ({ isDirectory: () => !isFile, isFile: () => isFile, size }) as Stats;
 
   beforeEach(() => {
     jest.clearAllMocks();

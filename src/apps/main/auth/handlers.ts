@@ -39,9 +39,7 @@ ipcMain.handle('is-user-logged-in', getIsLoggedIn);
 
 ipcMain.handle('get-user', getUser);
 
-ipcMain.handle('get-headers', (_, includeMnemonic) =>
-  getHeaders(includeMnemonic)
-);
+ipcMain.handle('get-headers', (_, includeMnemonic) => getHeaders(includeMnemonic));
 
 ipcMain.handle('get-headers-for-new-api', () => getNewApiHeaders());
 
@@ -62,28 +60,6 @@ export function onUserUnauthorized() {
 }
 
 ipcMain.on('user-is-unauthorized', onUserUnauthorized);
-
-ipcMain.on('user-logged-in', async (_, data: AccessResponse) => {
-  try {
-    await setCredentials(
-      data.user.mnemonic,
-      data.token,
-      data.newToken,
-      data.user,
-    );
-    if (!canHisConfigBeRestored(data.user.uuid)) {
-      await setupRootFolder();
-    }
-
-    setIsLoggedIn(true);
-    eventBus.emit('USER_LOGGED_IN');
-  } catch (error) {
-    logger.error({
-      msg: 'Error while handling ipc event user-logged-in',
-      error,
-    });
-  }
-});
 
 ipcMain.on('user-logged-out', () => {
   eventBus.emit('USER_LOGGED_OUT');

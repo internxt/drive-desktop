@@ -11,7 +11,7 @@ export class StorageRemoteChangesSyncher {
   constructor(
     private readonly repository: StorageFilesRepository,
     private readonly fileSearcher: SingleFileMatchingSearcher,
-    private readonly downloader: StorageFileDownloader
+    private readonly downloader: StorageFileDownloader,
   ) {}
 
   private async sync(storage: StorageFile): Promise<void> {

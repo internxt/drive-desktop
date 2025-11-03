@@ -8,12 +8,7 @@ import { FolderPath } from '../../../../../src/context/virtual-drive/folders/dom
 
 export class FolderRenamerMock extends FolderRenamer {
   constructor() {
-    super(
-      {} as FolderRepository,
-      {} as RemoteFileSystem,
-      {} as EventBus,
-      {} as SyncFolderMessenger
-    );
+    super({} as FolderRepository, {} as RemoteFileSystem, {} as EventBus, {} as SyncFolderMessenger);
   }
 
   public readonly mock = jest.fn();

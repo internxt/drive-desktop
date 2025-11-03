@@ -29,16 +29,8 @@ export function BackupsIssues({ errors }: BackupsErrorsProps) {
   return (
     <ul>
       {errors.map(({ name, error }) => (
-        <li
-          className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
-          key={name}
-          onClick={toggleOrSelectCause(error)}
-        >
-          <Accordion
-            title={translate(shortMessages[error])}
-            collapsed={!isSelected(error)}
-            elements={[name]}
-          />
+        <li className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5" key={name} onClick={toggleOrSelectCause(error)}>
+          <Accordion title={translate(shortMessages[error])} collapsed={!isSelected(error)} elements={[name]} />
         </li>
       ))}
     </ul>

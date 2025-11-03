@@ -6,48 +6,29 @@ declare interface Window {
   electron: {
     getConfigKey(key: import('./config/service').StoredValues): Promise<any>;
 
-    listenToConfigKeyChange<T>(
-      key: import('./config/service').StoredValues,
-      fn: (value: T) => void
-    ): () => void;
+    listenToConfigKeyChange<T>(key: import('./config/service').StoredValues, fn: (value: T) => void): () => void;
 
     setConfigKey: typeof import('./config/service').setConfigKey;
 
     pathChanged(path: string): void;
 
-    getGeneralIssues: () => Promise<
-      import('../../shared/issues/AppIssue').AppIssue[]
-    >;
+    getGeneralIssues: () => Promise<import('../../shared/issues/AppIssue').AppIssue[]>;
 
-    onGeneralIssuesChanged: (
-      func: (value: import('../../shared/issues/AppIssue').AppIssue[]) => void
-    ) => () => void;
+    onGeneralIssuesChanged: (func: (value: import('../../shared/issues/AppIssue').AppIssue[]) => void) => () => void;
 
     onSyncStopped: (
-      func: (
-        value: import('../../context/desktop/sync/domain/SyncStoppedPayload').SyncStoppedPayload
-      ) => void
+      func: (value: import('../../context/desktop/sync/domain/SyncStoppedPayload').SyncStoppedPayload) => void,
     ) => () => void;
 
-    getVirtualDriveIssues(): Promise<
-      import('../../shared/issues/VirtualDriveIssue').VirtualDriveIssue[]
-    >;
+    getVirtualDriveIssues(): Promise<import('../../shared/issues/VirtualDriveIssue').VirtualDriveIssue[]>;
 
     onProcessIssuesChanged(
-      func: (
-        value: import('../../shared/issues/VirtualDriveIssue').VirtualDriveIssue[]
-      ) => void
+      func: (value: import('../../shared/issues/VirtualDriveIssue').VirtualDriveIssue[]) => void,
     ): () => void;
 
-    onSyncInfoUpdate(
-      func: (value: import('../shared/types').DriveOperationInfo) => void
-    ): () => void;
+    onSyncInfoUpdate(func: (value: import('../shared/types').DriveOperationInfo) => void): () => void;
 
     userIsUnauthorized(): void;
-
-    userLoggedIn(
-      data: import('../renderer/pages/Login/service').AccessResponse
-    ): void;
 
     isUserLoggedIn(): Promise<boolean>;
 
@@ -73,17 +54,13 @@ declare interface Window {
 
     getUser(): Promise<ReturnType<typeof import('./auth/service').getUser>>;
 
-    getHeaders(
-      includeMnemonic?: boolean
-    ): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
+    getHeaders(includeMnemonic?: boolean): Promise<ReturnType<typeof import('./auth/service').getHeaders>>;
 
     startSyncProcess(): void;
 
     stopSyncProcess(): void;
 
-    moveSyncFolderToDesktop(): Promise<
-      typeof import('../main/migration/service').moveSyncFolderToDesktop
-    >;
+    moveSyncFolderToDesktop(): Promise<typeof import('../main/migration/service').moveSyncFolderToDesktop>;
 
     openProcessIssuesWindow(): void;
 
@@ -91,9 +68,7 @@ declare interface Window {
 
     sendReport: typeof import('./bug-report/service').sendReport;
 
-    openSettingsWindow(
-      section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS'
-    ): void;
+    openSettingsWindow(section?: 'BACKUPS' | 'GENERAL' | 'ACCOUNT' | 'ANTIVIRUS'): void;
 
     settingsWindowResized(payload: { width: number; height: number }): void;
 
@@ -115,25 +90,17 @@ declare interface Window {
       import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
     >;
 
-    getBackupFatalIssue(
-      id: number
-    ): Promise<import('../../shared/issues/SyncErrorCause').SyncError>;
+    getBackupFatalIssue(id: number): Promise<import('../../shared/issues/SyncErrorCause').SyncError>;
 
     onBackupsStatusChanged(
-      func: (
-        value: import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus
-      ) => void
+      func: (value: import('./background-processes/backups/BackupsProcessStatus/BackupsStatus').BackupsStatus) => void,
     ): () => void;
 
     onBackupProgress(
-      func: (
-        value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress
-      ) => void
+      func: (value: import('./background-processes/backups/types/BackupsProgress').BackupsProgress) => void,
     ): () => void;
 
-    onBackupDownloadProgress(
-      func: (value: { id: string; progress: number }) => void
-    ): () => void;
+    onBackupDownloadProgress(func: (value: { id: string; progress: number }) => void): () => void;
 
     getBackupFatalErrors(): Promise<
       import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
@@ -153,9 +120,7 @@ declare interface Window {
       getDevices: () => Promise<Array<import('../main/device/service').Device>>;
     };
 
-    onDeviceCreated(
-      func: (value: import('../main/device/service').Device) => void
-    ): () => void;
+    onDeviceCreated(func: (value: import('../main/device/service').Device) => void): () => void;
 
     getBackupsFromDevice: typeof import('../../backend/features/device/device.module').DeviceModule.getBackupsFromDevice;
 
@@ -187,25 +152,19 @@ declare interface Window {
 
     onBackupFatalErrorsChanged(
       fn: (
-        value: import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection
-      ) => void
+        value: import('../main/background-processes/backups/BackupFatalErrors/BackupFatalErrors').BackupErrorsCollection,
+      ) => void,
     ): () => void;
 
     changeBackupPath: typeof import('../main/device/service').changeBackupPath;
 
     getFolderPath: typeof import('../main/device/service').getPathFromDialog;
 
-    onRemoteChanges(
-      func: (value: import('../main/realtime').EventPayload) => void
-    ): () => void;
+    onRemoteChanges(func: (value: import('../main/realtime').EventPayload) => void): () => void;
 
-    getUsage: () => Promise<
-      import('../../backend/features/usage/usage.types').Usage
-    >;
+    getUsage: () => Promise<import('../../backend/features/usage/usage.types').Usage>;
 
-    getPlatform: () => Promise<
-      import('../main/platform/DesktopPlatform').DesktopPlatform
-    >;
+    getPlatform: () => Promise<import('../main/platform/DesktopPlatform').DesktopPlatform>;
 
     userLogginFailed: (email: string) => void;
 
@@ -213,21 +172,11 @@ declare interface Window {
     openMigrationFailedFolder: () => Promise<void>;
     sendFeedback: (feedback: string) => Promise<void>;
     openFeedbackWindow(): void;
-    onRemoteSyncStatusChange(
-      callback: (
-        status: import('./remote-sync/helpers').RemoteSyncStatus
-      ) => void
-    ): () => void;
-    getRemoteSyncStatus(): Promise<
-      import('./remote-sync/helpers').RemoteSyncStatus
-    >;
-    getVirtualDriveStatus(): Promise<
-      import('../drive/fuse/FuseDriveStatus').FuseDriveStatus
-    >;
+    onRemoteSyncStatusChange(callback: (status: import('./remote-sync/helpers').RemoteSyncStatus) => void): () => void;
+    getRemoteSyncStatus(): Promise<import('./remote-sync/helpers').RemoteSyncStatus>;
+    getVirtualDriveStatus(): Promise<import('../drive/fuse/FuseDriveStatus').FuseDriveStatus>;
     onVirtualDriveStatusChange(
-      callback: (event: {
-        status: import('../drive/fuse/FuseDriveStatus').FuseDriveStatus;
-      }) => void
+      callback: (event: { status: import('../drive/fuse/FuseDriveStatus').FuseDriveStatus }) => void,
     ): () => void;
     retryVirtualDriveMount(): Promise<void>;
     startRemoteSync: () => Promise<void>;
@@ -237,16 +186,12 @@ declare interface Window {
       hasDiscoveredBackups: () => Promise<boolean>;
       discoveredBackups: () => Promise<void>;
     };
-    onBackupFailed: (
-      callback: (error: { message: string; cause: string }) => void
-    ) => () => void;
+    onBackupFailed: (callback: (error: { message: string; cause: string }) => void) => () => void;
 
     antivirus: {
       isAvailable: () => Promise<boolean>;
       isDefenderActive: () => Promise<boolean>;
-      scanItems: (
-        folderPaths?: { path: string; itemName: string; isDirectory: boolean }[]
-      ) => Promise<void>;
+      scanItems: (folderPaths?: { path: string; itemName: string; isDirectory: boolean }[]) => Promise<void>;
 
       scanSystem: () => Promise<void>;
 
@@ -259,7 +204,7 @@ declare interface Window {
           totalInfectedFiles: number;
           totalScannedFiles: number;
           done?: boolean;
-        }) => void
+        }) => void,
       ) => Promise<void>;
 
       removeScanProgressListener: () => void;
@@ -285,9 +230,13 @@ declare interface Window {
     login(email: string): Promise<AuthLoginResponseViewModel>;
     cleaner: {
       generateReport: (force?: boolean) => Promise<CleanerReport>;
-      startCleanup: (viewModel: import('../../backend/features/cleaner/cleaner.types').CleanerViewModel) => Promise<void>;
+      startCleanup: (
+        viewModel: import('../../backend/features/cleaner/cleaner.types').CleanerViewModel,
+      ) => Promise<void>;
       stopCleanup: () => Promise<void>;
-      onCleanupProgress: (callback: (progressData: import('../../backend/features/cleaner/cleaner.types').CleanupProgress) => void) => () => void;
+      onCleanupProgress: (
+        callback: (progressData: import('../../backend/features/cleaner/cleaner.types').CleanupProgress) => void,
+      ) => () => void;
       getDiskSpace: () => Promise<number>;
     };
   };

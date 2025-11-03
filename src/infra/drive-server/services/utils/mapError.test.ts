@@ -21,7 +21,7 @@ describe('mapError', () => {
   it('should fall back to Axios error message if response.data.message is missing', () => {
     const axiosError = {
       isAxiosError: true,
-      response:  { data: {} },
+      response: { data: {} },
       message: 'Fallback message',
       config: {},
       toJSON: () => ({}),
@@ -35,7 +35,7 @@ describe('mapError', () => {
   it('should fall back to "Unexpected error" if no message available', () => {
     const axiosError = {
       isAxiosError: true,
-      response:  { data: {} },
+      response: { data: {} },
       config: {},
       toJSON: () => ({}),
       name: 'AxiosError',

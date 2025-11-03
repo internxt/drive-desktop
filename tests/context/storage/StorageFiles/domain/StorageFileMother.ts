@@ -1,7 +1,4 @@
-import {
-  StorageFile,
-  StorageFileAttributes,
-} from '../../../../../src/context/storage/StorageFiles/domain/StorageFile';
+import { StorageFile, StorageFileAttributes } from '../../../../../src/context/storage/StorageFiles/domain/StorageFile';
 import { StorageFileSizeMother } from './StorageFileSizeMother';
 import { StorageFileIdMother } from './StorageFileIdMother';
 import { StorageFileVirtualIdMother } from './StorageFileVirtualIdMother';

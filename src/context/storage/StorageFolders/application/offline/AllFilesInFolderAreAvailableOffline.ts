@@ -14,7 +14,7 @@ export class AllFilesInFolderAreAvailableOffline {
     private readonly singleFolderFinder: SingleFolderMatchingFinder,
     private readonly filesByPartialSearcher: FilesByPartialSearcher,
     private readonly repository: StorageFilesRepository,
-    private readonly foldersSearcherByPartial: FoldersSearcherByPartial
+    private readonly foldersSearcherByPartial: FoldersSearcherByPartial,
   ) {}
 
   private async subfoldersExists(folder: Folder): Promise<boolean> {

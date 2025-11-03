@@ -1,8 +1,5 @@
 import { SingleFileMatchingSearcher } from '../../../../../src/context/virtual-drive/files/application/search/SingleFileMatchingSearcher';
-import {
-  FileAttributes,
-  File,
-} from '../../../../../src/context/virtual-drive/files/domain/File';
+import { FileAttributes, File } from '../../../../../src/context/virtual-drive/files/domain/File';
 import { FileRepositoryMock } from '../__mocks__/FileRepositoryMock';
 
 export class SingleFileMatchingSearcherTestClass extends SingleFileMatchingSearcher {

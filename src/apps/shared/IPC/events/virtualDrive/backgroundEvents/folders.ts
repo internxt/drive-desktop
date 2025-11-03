@@ -5,9 +5,5 @@ export type FolderEvents = {
 
   FOLDER_RENAMING: (payload: { oldName: string; newName: string }) => void;
   FOLDER_RENAMED: (payload: { oldName: string; newName: string }) => void;
-  FOLDER_RENAME_ERROR: (payload: {
-    oldName: string;
-    newName: string;
-    error: string;
-  }) => void;
+  FOLDER_RENAME_ERROR: (payload: { oldName: string; newName: string; error: string }) => void;
 };

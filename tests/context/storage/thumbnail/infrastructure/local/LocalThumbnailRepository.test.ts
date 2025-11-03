@@ -24,11 +24,7 @@ describe('Local Thumbnail Repository', () => {
     pathConverter = new RelativePathToAbsoluteConverterTestClass();
     nameCalculator = new SystemThumbnailNameCalculator();
 
-    SUT = new LocalThumbnailRepository(
-      pathConverter,
-      nameCalculator,
-      thumbnailFolder
-    );
+    SUT = new LocalThumbnailRepository(pathConverter, nameCalculator, thumbnailFolder);
   });
 
   beforeEach(() => {
@@ -46,20 +42,13 @@ describe('Local Thumbnail Repository', () => {
       mockedFS.statSync.mockReturnValueOnce({ mtime: new Date() } as fs.Stats);
       pathConverter.convertTo(absolutePath);
 
-      const thumbnailNameCalculator = jest.spyOn(
-        nameCalculator,
-        'thumbnailName'
-      );
+      const thumbnailNameCalculator = jest.spyOn(nameCalculator, 'thumbnailName');
 
       await SUT.retrieve(file);
 
       expect(thumbnailNameCalculator).toBeCalledWith(uri);
       expect(mockedFS.statSync).toBeCalledWith(
-        path.join(
-          thumbnailFolder,
-          'normal',
-          'c6ee772d9e49320e97ec29a7eb5b1697.png'
-        )
+        path.join(thumbnailFolder, 'normal', 'c6ee772d9e49320e97ec29a7eb5b1697.png'),
       );
     });
 
@@ -78,9 +67,7 @@ describe('Local Thumbnail Repository', () => {
       expect(collection).toBeDefined();
       expect(collection?.file).toBe(file);
       expect(collection?.thumbnails).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ _updatedAt: updatedAt }),
-        ])
+        expect.arrayContaining([expect.objectContaining({ _updatedAt: updatedAt })]),
       );
     });
   });
@@ -111,11 +98,7 @@ describe('Local Thumbnail Repository', () => {
 
       expect(writeSpy).toBeCalledWith(
         expect.any(Readable),
-        path.join(
-          thumbnailFolder,
-          'normal',
-          'c6ee772d9e49320e97ec29a7eb5b1697.png'
-        )
+        path.join(thumbnailFolder, 'normal', 'c6ee772d9e49320e97ec29a7eb5b1697.png'),
       );
     });
   });

@@ -1,24 +1,14 @@
 import { Service } from 'diod';
-import {
-  trackError,
-  trackEvent,
-  trackVirtualDriveError,
-} from '../../../../../apps/main/analytics/service';
+import { trackError, trackEvent, trackVirtualDriveError } from '../../../../../apps/main/analytics/service';
 import { addVirtualDriveIssue } from '../../../../../apps/main/issues/virtual-drive';
 import { setTrayStatus } from '../../../../../apps/main/tray/tray';
 import { broadcastToWindows } from '../../../../../apps/main/windows';
-import {
-  VirtualDriveFileIssue,
-  VirtualDriveIssue,
-} from '../../../../../shared/issues/VirtualDriveIssue';
+import { VirtualDriveFileIssue, VirtualDriveIssue } from '../../../../../shared/issues/VirtualDriveIssue';
 import { SyncMessenger } from '../../../../shared/domain/SyncMessenger';
 import { SyncFileMessenger } from '../../domain/SyncFileMessenger';
 
 @Service()
-export class MainProcessSyncFileMessenger
-  extends SyncMessenger
-  implements SyncFileMessenger
-{
+export class MainProcessSyncFileMessenger extends SyncMessenger implements SyncFileMessenger {
   async created(name: string, extension: string): Promise<void> {
     const nameWithExtension = this.nameWithExtension(name, extension);
 
@@ -28,11 +18,7 @@ export class MainProcessSyncFileMessenger
     });
   }
 
-  async errorWhileCreating(
-    name: string,
-    extension: string,
-    message: string
-  ): Promise<void> {
+  async errorWhileCreating(name: string, extension: string, message: string): Promise<void> {
     const nameWithExtension = this.nameWithExtension(name, extension);
 
     setTrayStatus('ALERT');
@@ -71,11 +57,7 @@ export class MainProcessSyncFileMessenger
     setTrayStatus('IDLE');
   }
 
-  async errorWhileTrashing(
-    name: string,
-    type: string,
-    message: string
-  ): Promise<void> {
+  async errorWhileTrashing(name: string, type: string, message: string): Promise<void> {
     const nameWithExtension = this.nameWithExtension(name, type);
     broadcastToWindows('sync-info-update', {
       action: 'DELETE_ERROR',

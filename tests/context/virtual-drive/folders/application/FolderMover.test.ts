@@ -30,7 +30,7 @@ describe('Folder Mover', () => {
     const destination = new FolderPath('/folderC/folderB');
 
     repository.matchingPartialMock.mockImplementation(() =>
-      FolderMother.fromPartial({ parentId: 2, path: destination.value })
+      FolderMother.fromPartial({ parentId: 2, path: destination.value }),
     );
 
     try {
@@ -50,9 +50,7 @@ describe('Folder Mover', () => {
 
       const original = FolderMother.createChildForm(originalParent);
 
-      const destinationPath = new FolderPath(
-        path.join(parentDestination.path, original.name)
-      );
+      const destinationPath = new FolderPath(path.join(parentDestination.path, original.name));
 
       const expectedFolder = FolderMother.fromPartial({
         path: destinationPath.value,
@@ -62,9 +60,7 @@ describe('Folder Mover', () => {
 
       remote.shouldMove(expectedFolder);
 
-      repository.matchingPartialMock
-        .mockReturnValueOnce([])
-        .mockReturnValueOnce([parentDestination]);
+      repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parentDestination]);
 
       await SUT.run(original, destinationPath);
 
@@ -77,9 +73,7 @@ describe('Folder Mover', () => {
 
       const original = FolderMother.createChildForm(originalParent);
 
-      const destinationPath = new FolderPath(
-        path.join(parentDestination.path, original.name)
-      );
+      const destinationPath = new FolderPath(path.join(parentDestination.path, original.name));
 
       const expectedFolder = FolderMother.fromPartial({
         path: destinationPath.value,
@@ -89,9 +83,7 @@ describe('Folder Mover', () => {
 
       remote.shouldMove(expectedFolder);
 
-      repository.matchingPartialMock
-        .mockReturnValueOnce([])
-        .mockReturnValueOnce([parentDestination]);
+      repository.matchingPartialMock.mockReturnValueOnce([]).mockReturnValueOnce([parentDestination]);
 
       await SUT.run(original, destinationPath);
     });

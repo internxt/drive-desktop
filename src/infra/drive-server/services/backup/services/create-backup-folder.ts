@@ -31,7 +31,7 @@ function errorHandler(response: Response): { error: BackupError } {
 
 export async function createBackupFolder(
   deviceUuid: string,
-  plainName: string
+  plainName: string,
 ): Promise<Result<components['schemas']['FolderDto'], BackupError>> {
   try {
     const response = await fetch(`${process.env.NEW_DRIVE_URL}/folders`, {

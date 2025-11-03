@@ -25,9 +25,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
     super('Get Attributes');
   }
 
-  protected left(
-    error: FuseNoSuchFileOrDirectoryError
-  ): Either<FuseError, GetAttributesCallbackData> {
+  protected left(error: FuseNoSuchFileOrDirectoryError): Either<FuseError, GetAttributesCallbackData> {
     // When the OS wants to check if a node exists will try to get the attributes of it
     // so not founding them is not an error
     return left(error);
@@ -79,9 +77,7 @@ export class GetAttributesCallback extends FuseCallback<GetAttributesCallbackDat
       });
     }
 
-    const document = await this.container
-      .get(TemporalFileByPathFinder)
-      .run(path);
+    const document = await this.container.get(TemporalFileByPathFinder).run(path);
 
     if (document) {
       return this.right({

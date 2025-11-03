@@ -5,9 +5,7 @@ import { FileCreatedDomainEvent } from '../../../../virtual-drive/files/domain/e
 import { TemporalFileDeleter } from './TemporalFileDeleter';
 
 @Service()
-export class DeleteTemporalFileOnFileCreated
-  implements DomainEventSubscriber<FileCreatedDomainEvent>
-{
+export class DeleteTemporalFileOnFileCreated implements DomainEventSubscriber<FileCreatedDomainEvent> {
   constructor(private readonly deleter: TemporalFileDeleter) {}
 
   subscribedTo(): DomainEventClass[] {

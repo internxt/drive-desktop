@@ -32,9 +32,7 @@ describe('Onboarding', () => {
 
   it('renders the first slide (Welcome) by default', () => {
     render(<Onboarding />);
-    expect(
-      screen.getByText('onboarding.slides.welcome.take-tour')
-    ).toBeInTheDocument();
+    expect(screen.getByText('onboarding.slides.welcome.take-tour')).toBeInTheDocument();
   });
 
   it('navigates to next slide when clicking continue', () => {
@@ -44,9 +42,7 @@ describe('Onboarding', () => {
     fireEvent.click(screen.getByText('onboarding.slides.welcome.take-tour'));
 
     // Should show the Files Organization slide
-    expect(
-      screen.getByText('onboarding.slides.files-organization.title')
-    ).toBeInTheDocument();
+    expect(screen.getByText('onboarding.slides.files-organization.title')).toBeInTheDocument();
   });
 
   it('finishes onboarding when clicking skip', () => {
@@ -61,14 +57,10 @@ describe('Onboarding', () => {
     render(<Onboarding />);
 
     // Navigate to the backups slide (if it exists)
-    const setupBackupsButton = screen.queryByText(
-      'onboarding.slides.backups.setup-backups'
-    );
+    const setupBackupsButton = screen.queryByText('onboarding.slides.backups.setup-backups');
     if (setupBackupsButton) {
       fireEvent.click(setupBackupsButton);
-      expect(screen.getByTestId('backups-modal-overlay')).toHaveClass(
-        'opacity-100'
-      );
+      expect(screen.getByTestId('backups-modal-overlay')).toHaveClass('opacity-100');
     }
   });
 });

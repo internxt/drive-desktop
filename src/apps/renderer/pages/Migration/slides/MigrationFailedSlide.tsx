@@ -6,9 +6,7 @@ import Button from '../../../components/Button';
 
 export type MigrationFailedSlideProps = MigrationSlideProps;
 
-export const MigrationFailedSlide: React.FC<MigrationFailedSlideProps> = (
-  props
-) => {
+export const MigrationFailedSlide: React.FC<MigrationFailedSlideProps> = (props) => {
   return (
     <div className="flex h-full w-full">
       <SideTextAnimation display>
@@ -25,18 +23,10 @@ export const MigrationFailedSlide: React.FC<MigrationFailedSlideProps> = (
                 {props.translate('migration.slides.migration-failed.message')}
               </h3>
               <h4 className="font-regular mt-0.5 text-base text-gray-50">
-                {props.translate(
-                  'migration.slides.migration-failed.description'
-                )}
+                {props.translate('migration.slides.migration-failed.description')}
               </h4>
-              <Button
-                variant="secondary"
-                onClick={props.onShowFailedItems}
-                className="mt-3 h-10"
-              >
-                {props.translate(
-                  'migration.slides.migration-failed.show-files'
-                )}
+              <Button variant="secondary" onClick={props.onShowFailedItems} className="mt-3 h-10">
+                {props.translate('migration.slides.migration-failed.show-files')}
               </Button>
             </div>
           </div>

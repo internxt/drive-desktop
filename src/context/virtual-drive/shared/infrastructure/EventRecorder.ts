@@ -6,7 +6,7 @@ import { EventRepository } from '../domain/EventRepository';
 export class EventRecorder implements EventBus {
   constructor(
     private readonly history: EventRepository,
-    private readonly bus: EventBus
+    private readonly bus: EventBus,
   ) {}
 
   async publish(events: Array<DomainEvent>): Promise<void> {

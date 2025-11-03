@@ -33,20 +33,17 @@ export async function downloadFolderAsZip(
   opts: {
     abortController?: AbortController;
     updateProgress?: (progress: number) => void;
-  }
+  },
 ) {
   const writeStream = fs.createWriteStream(fullPath);
   const destination = convertToWritableStream(writeStream);
 
   const { abortController, updateProgress } = opts;
   const { bridgeUser, bridgePass, encryptionKey } = environment;
-  const { tree, folderDecryptedNames, fileDecryptedNames, size } =
-    await fetchFolderTree(folderUuid);
+  const { tree, folderDecryptedNames, fileDecryptedNames, size } = await fetchFolderTree(folderUuid);
   tree.plainName = deviceName;
   folderDecryptedNames[tree.id] = deviceName;
-  const pendingFolders: { path: string; data: FolderTree }[] = [
-    { path: '', data: tree },
-  ];
+  const pendingFolders: { path: string; data: FolderTree }[] = [{ path: '', data: tree }];
 
   const zip = new FlatFolderZip(destination, {
     abortController: opts.abortController,
@@ -60,9 +57,7 @@ export async function downloadFolderAsZip(
       data: FolderTree;
     };
     const folderPath =
-      currentFolder.path +
-      (currentFolder.path === '' ? '' : '/') +
-      folderDecryptedNames[currentFolder.data.id];
+      currentFolder.path + (currentFolder.path === '' ? '' : '/') + folderDecryptedNames[currentFolder.data.id];
 
     zip.addFolder(folderPath);
 
@@ -96,9 +91,7 @@ export async function downloadFolderAsZip(
       zip.addFile(folderPath + '/' + displayFilename, await fileStreamPromise);
     }
 
-    pendingFolders.push(
-      ...folders.map((tree) => ({ path: folderPath, data: tree }))
-    );
+    pendingFolders.push(...folders.map((tree) => ({ path: folderPath, data: tree })));
   }
 
   if (abortController?.signal.aborted) {
@@ -108,9 +101,7 @@ export async function downloadFolderAsZip(
   return zip.close();
 }
 
-function convertToWritableStream(
-  writeStream: fs.WriteStream
-): WritableStream<Uint8Array> {
+function convertToWritableStream(writeStream: fs.WriteStream): WritableStream<Uint8Array> {
   return new WritableStream<Uint8Array>({
     async write(chunk) {
       const buffer = Buffer.from(chunk);
@@ -141,10 +132,7 @@ function convertToWritableStream(
   });
 }
 
-export type DownloadProgressCallback = (
-  totalBytes: number,
-  downloadedBytes: number
-) => void;
+export type DownloadProgressCallback = (totalBytes: number, downloadedBytes: number) => void;
 export interface IDownloadParams {
   networkApiUrl: string;
   bucketId: string;
@@ -168,21 +156,10 @@ async function getRequiredFileMetadataWithToken(
   networkApiUrl: string,
   bucketId: string,
   fileId: string,
-  token: string
+  token: string,
 ): Promise<MetadataRequiredForDownload> {
-  const fileMeta: FileInfo = await getFileInfoWithToken(
-    networkApiUrl,
-    bucketId,
-    fileId,
-    token
-  );
-  const mirrors: Mirror[] = await getMirrors(
-    networkApiUrl,
-    bucketId,
-    fileId,
-    null,
-    token
-  );
+  const fileMeta: FileInfo = await getFileInfoWithToken(networkApiUrl, bucketId, fileId, token);
+  const mirrors: Mirror[] = await getMirrors(networkApiUrl, bucketId, fileId, null, token);
 
   return { fileMeta, mirrors };
 }
@@ -191,27 +168,15 @@ async function getRequiredFileMetadataWithAuth(
   networkApiUrl: string,
   bucketId: string,
   fileId: string,
-  creds: NetworkCredentials
+  creds: NetworkCredentials,
 ): Promise<MetadataRequiredForDownload> {
-  const fileMeta: FileInfo = await getFileInfoWithAuth(
-    networkApiUrl,
-    bucketId,
-    fileId,
-    creds
-  );
-  const mirrors: Mirror[] = await getMirrors(
-    networkApiUrl,
-    bucketId,
-    fileId,
-    creds
-  );
+  const fileMeta: FileInfo = await getFileInfoWithAuth(networkApiUrl, bucketId, fileId, creds);
+  const mirrors: Mirror[] = await getMirrors(networkApiUrl, bucketId, fileId, creds);
 
   return { fileMeta, mirrors };
 }
 
-async function downloadFile(
-  params: IDownloadParams
-): Promise<ReadableStream<Uint8Array>> {
+async function downloadFile(params: IDownloadParams): Promise<ReadableStream<Uint8Array>> {
   const downloadFileV2Promise = downloadFileV2(params as any);
 
   return downloadFileV2Promise.catch((err: Error) => {
@@ -223,27 +188,15 @@ async function downloadFile(
   });
 }
 
-async function _downloadFile(
-  params: IDownloadParams
-): Promise<ReadableStream<Uint8Array>> {
+async function _downloadFile(params: IDownloadParams): Promise<ReadableStream<Uint8Array>> {
   const { networkApiUrl, bucketId, fileId, token, creds } = params;
 
   let metadata: MetadataRequiredForDownload;
 
   if (creds) {
-    metadata = await getRequiredFileMetadataWithAuth(
-      networkApiUrl,
-      bucketId,
-      fileId,
-      creds
-    );
+    metadata = await getRequiredFileMetadataWithAuth(networkApiUrl, bucketId, fileId, creds);
   } else if (token) {
-    metadata = await getRequiredFileMetadataWithToken(
-      networkApiUrl,
-      bucketId,
-      fileId,
-      token
-    );
+    metadata = await getRequiredFileMetadataWithToken(networkApiUrl, bucketId, fileId, token);
   } else {
     throw new Error('Download error 1');
   }
@@ -266,7 +219,7 @@ async function _downloadFile(
   const downloadStream = await getFileDownloadStream(
     downloadUrls,
     createDecipheriv('aes-256-ctr', key, iv),
-    params.options?.abortController
+    params.options?.abortController,
   );
 
   return buildProgressStream(downloadStream, (readBytes) => {
@@ -277,7 +230,7 @@ async function _downloadFile(
 async function getFileDownloadStream(
   downloadUrls: string[],
   decipher: Decipher,
-  abortController?: AbortController
+  abortController?: AbortController,
 ): Promise<ReadableStream> {
   const encryptedContentParts: ReadableStream<Uint8Array>[] = [];
 
@@ -291,9 +244,7 @@ async function getFileDownloadStream(
     if (!encryptedStream.body) {
       throw new Error('No content received');
     }
-    encryptedContentParts.push(
-      convertToReadableStream(encryptedStream.body as Readable)
-    );
+    encryptedContentParts.push(convertToReadableStream(encryptedStream.body as Readable));
   }
 
   return getDecryptedStream(encryptedContentParts, decipher);
@@ -301,7 +252,7 @@ async function getFileDownloadStream(
 
 export function buildProgressStream(
   source: ReadableStream<Uint8Array>,
-  onRead: (readBytes: number) => void
+  onRead: (readBytes: number) => void,
 ): ReadableStream<Uint8Array> {
   const reader = source.getReader();
   let readBytes = 0;
@@ -325,9 +276,7 @@ export function buildProgressStream(
   });
 }
 
-function joinReadableBinaryStreams(
-  streams: ReadableStream<Uint8Array>[]
-): ReadableStream {
+function joinReadableBinaryStreams(streams: ReadableStream<Uint8Array>[]): ReadableStream {
   const streamsCopy = streams.map((s) => s);
   let keepReading = true;
 
@@ -368,7 +317,7 @@ function joinReadableBinaryStreams(
 
 export function getDecryptedStream(
   encryptedContentSlices: ReadableStream<Uint8Array>[],
-  decipher: Decipher
+  decipher: Decipher,
 ): ReadableStream<Uint8Array> {
   const encryptedStream = joinReadableBinaryStreams(encryptedContentSlices);
 

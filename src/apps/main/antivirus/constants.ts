@@ -15,12 +15,7 @@ export const FILE_MODE = 0o644;
 
 // User-specific directories and files
 export const userHomeDir = os.homedir();
-export const configDir = path.join(
-  userHomeDir,
-  '.config',
-  'internxt',
-  'clamav'
-);
+export const configDir = path.join(userHomeDir, '.config', 'internxt', 'clamav');
 export const logDir = path.join(configDir, 'logs');
 export const dbDir = path.join(configDir, 'db');
 export const logFilePath = path.join(logDir, 'clamd.log');
@@ -29,14 +24,8 @@ export const freshclamLogPath = path.join(logDir, 'freshclam.log');
 // ClamAV binary paths
 export const clamdPath = path.join(RESOURCES_PATH, '/bin/clamd');
 export const freshclamPath = path.join(RESOURCES_PATH, '/bin/freshclam');
-export const clamdConfigTemplatePath = path.join(
-  RESOURCES_PATH,
-  '/etc/clamd.conf'
-);
-export const freshclamConfigTemplatePath = path.join(
-  RESOURCES_PATH,
-  '/etc/freshclam.conf'
-);
+export const clamdConfigTemplatePath = path.join(RESOURCES_PATH, '/etc/clamd.conf');
+export const freshclamConfigTemplatePath = path.join(RESOURCES_PATH, '/etc/freshclam.conf');
 
 // Timeouts and intervals
 export const DEFAULT_CLAMD_WAIT_TIMEOUT = 180000; // 3 minutes

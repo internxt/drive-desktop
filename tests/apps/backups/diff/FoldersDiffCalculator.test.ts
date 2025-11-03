@@ -13,9 +13,7 @@ describe('FoldersDiffCalculator', () => {
 
     const { added } = FoldersDiffCalculator.calculate(local, remote);
 
-    const localFoldersWithoutRoot = local.folders.filter(
-      (folder) => folder.path !== local.root.path
-    );
+    const localFoldersWithoutRoot = local.folders.filter((folder) => folder.path !== local.root.path);
 
     expect(added.length).toBe(expectedNumberOfFoldersToAdd);
     expect(added).toStrictEqual(localFoldersWithoutRoot);
@@ -28,9 +26,7 @@ describe('FoldersDiffCalculator', () => {
 
     const { deleted } = FoldersDiffCalculator.calculate(local, remote);
 
-    const remoteFoldersWithoutRoot = remote.folders.filter(
-      (folder) => folder.path !== remote.root.path
-    );
+    const remoteFoldersWithoutRoot = remote.folders.filter((folder) => folder.path !== remote.root.path);
 
     expect(deleted.length).toBe(expectedNumberOfFoldersToDelete);
     expect(deleted).toStrictEqual(remoteFoldersWithoutRoot);
@@ -79,10 +75,7 @@ describe('FoldersDiffCalculator', () => {
 
     newFolders.forEach((folder) => local.addFolder(local.root, folder));
 
-    const { added, deleted, unmodified } = FoldersDiffCalculator.calculate(
-      local,
-      originalRemote
-    );
+    const { added, deleted, unmodified } = FoldersDiffCalculator.calculate(local, originalRemote);
 
     expect(added.length).toBe(expectedNumberOfAddedFolders);
     expect(deleted.length).toBe(0);

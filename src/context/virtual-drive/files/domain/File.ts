@@ -39,7 +39,7 @@ export class File extends AggregateRoot {
     private _size: FileSize,
     public createdAt: Date,
     public updatedAt: Date,
-    private _status: FileStatus
+    private _status: FileStatus,
   ) {
     super();
   }
@@ -98,7 +98,7 @@ export class File extends AggregateRoot {
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
-      FileStatus.fromValue(attributes.status)
+      FileStatus.fromValue(attributes.status),
     );
   }
 
@@ -112,7 +112,7 @@ export class File extends AggregateRoot {
       new FileSize(attributes.size),
       new Date(attributes.createdAt),
       new Date(attributes.updatedAt),
-      FileStatus.Exists
+      FileStatus.Exists,
     );
 
     file.record(
@@ -121,7 +121,7 @@ export class File extends AggregateRoot {
         size: file.size,
         type: file.type,
         path: file.path,
-      })
+      }),
     );
 
     return file;
@@ -135,7 +135,7 @@ export class File extends AggregateRoot {
       new FileDeletedDomainEvent({
         aggregateId: this.uuid,
         size: this._size.value,
-      })
+      }),
     );
   }
 
@@ -150,7 +150,7 @@ export class File extends AggregateRoot {
     this.record(
       new FileMovedDomainEvent({
         aggregateId: this.uuid,
-      })
+      }),
     );
   }
 
@@ -175,7 +175,7 @@ export class File extends AggregateRoot {
       new FileRenamedDomainEvent({
         aggregateId: this.uuid,
         oldName: currentName,
-      })
+      }),
     );
   }
 
@@ -193,7 +193,7 @@ export class File extends AggregateRoot {
         previousSize,
         currentContentsId: contentsId.value,
         currentSize: contentsSize.value,
-      })
+      }),
     );
   }
 

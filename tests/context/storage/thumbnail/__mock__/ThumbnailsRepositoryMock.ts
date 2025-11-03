@@ -40,9 +40,7 @@ export class ThumbnailsRepositoryMock implements ThumbnailsRepository {
   }
 
   assertRetrieveHasBeenCalledWith(files: Array<File>) {
-    files.forEach((file) =>
-      expect(this.retrieveMock).toHaveBeenCalledWith(file)
-    );
+    files.forEach((file) => expect(this.retrieveMock).toHaveBeenCalledWith(file));
   }
 
   pull(thumbnail: Thumbnail): Promise<Readable> {
