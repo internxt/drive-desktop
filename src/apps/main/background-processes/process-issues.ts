@@ -1,8 +1,6 @@
 import { Notification } from 'electron';
 
-import eventBus from '../event-bus';
 import path from 'node:path';
-import { clearIssues } from './issues';
 import { logger } from '@/apps/shared/logger/logger';
 
 let lastDialogTime = 0;
@@ -32,7 +30,3 @@ export function showNotEnoughSpaceNotification() {
    */
   notification.show();
 }
-
-eventBus.on('USER_LOGGED_OUT', () => {
-  clearIssues();
-});
