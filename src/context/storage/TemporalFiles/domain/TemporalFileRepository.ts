@@ -10,28 +10,15 @@ export abstract class TemporalFileRepository {
 
   abstract matchingDirectory(path: string): Promise<Array<TemporalFilePath>>;
 
-  abstract write(
-    path: TemporalFilePath,
-    buffer: Buffer,
-    length: number,
-    position: number
-  ): Promise<void>;
+  abstract write(path: TemporalFilePath, buffer: Buffer, length: number, position: number): Promise<void>;
 
   abstract read(path: TemporalFilePath): Promise<Buffer>;
 
   abstract stream(path: TemporalFilePath): Promise<Readable>;
 
-  abstract find(
-    documentPath: TemporalFilePath
-  ): Promise<Optional<TemporalFile>>;
+  abstract find(documentPath: TemporalFilePath): Promise<Optional<TemporalFile>>;
 
-  abstract watchFile(
-    documentPath: TemporalFilePath,
-    callback: () => void
-  ): () => void;
+  abstract watchFile(documentPath: TemporalFilePath, callback: () => void): () => void;
 
-  abstract areEqual(
-    doc1: TemporalFilePath,
-    doc2: TemporalFilePath
-  ): Promise<boolean>;
+  abstract areEqual(doc1: TemporalFilePath, doc2: TemporalFilePath): Promise<boolean>;
 }

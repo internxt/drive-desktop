@@ -14,8 +14,7 @@ export interface BackupDownloadContextProps {
 export function useBackupDownloadProgress(): BackupDownloadContextProps {
   const { selected } = useContext(DeviceContext);
 
-  const [backupDownloadProgress, setBackupDownloadProgress] =
-    useState<DownloadBackupProgress>({});
+  const [backupDownloadProgress, setBackupDownloadProgress] = useState<DownloadBackupProgress>({});
 
   useEffect(() => {
     const removeListener = window.electron.onBackupDownloadProgress(
@@ -23,13 +22,12 @@ export function useBackupDownloadProgress(): BackupDownloadContextProps {
         setBackupDownloadProgress((prevState) => {
           return { ...prevState, [id]: Math.round(progress * 100) };
         });
-      }
+      },
     );
     return removeListener;
   }, []);
 
-  const [thereIsDownloadProgress, setThereIsDownloadProgress] =
-    useState<boolean>(false);
+  const [thereIsDownloadProgress, setThereIsDownloadProgress] = useState<boolean>(false);
   const [downloadProgress, setDownloadProgress] = useState<number>(0);
 
   useEffect(() => {

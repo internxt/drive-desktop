@@ -11,10 +11,7 @@ export type ThumbnailDownloadEvents = {
 export interface ThumbnailDownloader {
   downloadThumbnail(thumbnailContentsId: string): Promise<Readable>;
 
-  on(
-    event: keyof ThumbnailDownloadEvents,
-    handler: ThumbnailDownloadEvents[keyof ThumbnailDownloadEvents]
-  ): void;
+  on(event: keyof ThumbnailDownloadEvents, handler: ThumbnailDownloadEvents[keyof ThumbnailDownloadEvents]): void;
 
   elapsedTime(): number;
 }

@@ -1,11 +1,5 @@
 import { ipcMain } from 'electron';
-import {
-  getFuseDriveState,
-  startVirtualDrive,
-  stopAndClearFuseApp,
-  stopFuse,
-  updateFuseApp,
-} from '../drive';
+import { getFuseDriveState, startVirtualDrive, stopAndClearFuseApp, stopFuse, updateFuseApp } from '../drive';
 import eventBus from './event-bus';
 
 eventBus.on('USER_LOGGED_OUT', stopAndClearFuseApp);

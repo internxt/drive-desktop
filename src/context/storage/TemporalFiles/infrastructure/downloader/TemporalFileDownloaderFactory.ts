@@ -9,9 +9,7 @@ import { Replaces } from '../../domain/upload/Replaces';
 import { TemporalFile } from '../../domain/TemporalFile';
 
 @Service()
-export class TemporalFileDownloaderFactory
-  implements TemporalFileUploaderFactory
-{
+export class TemporalFileDownloaderFactory implements TemporalFileUploaderFactory {
   private _readable: Readable | undefined = undefined;
   private _file: TemporalFile | undefined = undefined;
   private _replaces: Replaces | undefined = undefined;
@@ -22,7 +20,7 @@ export class TemporalFileDownloaderFactory
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
-    private readonly progressTracker: UploadProgressTracker
+    private readonly progressTracker: UploadProgressTracker,
   ) {}
 
   private registerEvents(uploader: EnvironmentTemporalFileUploader) {
@@ -31,9 +29,7 @@ export class TemporalFileDownloaderFactory
     }
 
     const name = this._replaces ? this._replaces.name : this._file.path.name();
-    const extension = this._replaces
-      ? this._replaces.extension
-      : this._file.path.extension();
+    const extension = this._replaces ? this._replaces.extension : this._file.path.extension();
 
     const size = this._file.size.value;
 
@@ -98,16 +94,11 @@ export class TemporalFileDownloaderFactory
     }
 
     const fn =
-      document.size.value >
-      TemporalFileDownloaderFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
+      document.size.value > TemporalFileDownloaderFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile
         : this.environment.upload;
 
-    const uploader = new EnvironmentTemporalFileUploader(
-      fn,
-      this.bucket,
-      this._abortController?.signal
-    );
+    const uploader = new EnvironmentTemporalFileUploader(fn, this.bucket, this._abortController?.signal);
 
     this.registerEvents(uploader);
 

@@ -3,9 +3,7 @@ import { Usage } from '../../../backend/features/usage/usage.types';
 
 export default function useUsage() {
   const [usage, setUsage] = useState<Usage>();
-  const [status, setStatus] = useState<'loading' | 'error' | 'ready'>(
-    'loading'
-  );
+  const [status, setStatus] = useState<'loading' | 'error' | 'ready'>('loading');
   async function updateUsage() {
     try {
       const userIsLoggedIn = await window.electron.isUserLoggedIn();

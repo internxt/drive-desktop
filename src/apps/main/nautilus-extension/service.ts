@@ -20,7 +20,7 @@ function extensionFile() {
       process.resourcesPath,
       'assets',
       'python-nautilus',
-      name
+      name,
     );
   }
 }

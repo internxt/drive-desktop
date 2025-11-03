@@ -4,11 +4,7 @@ interface DropdownItemProps {
   onClick?: () => void;
 }
 
-export const DropdownItem = ({
-  children,
-  active,
-  onClick,
-}: DropdownItemProps) => {
+export const DropdownItem = ({ children, active, onClick }: DropdownItemProps) => {
   return (
     <button
       className={`w-full cursor-pointer px-4 py-1.5 text-left text-sm text-gray-80 active:bg-gray-10 ${
@@ -16,8 +12,7 @@ export const DropdownItem = ({
       }`}
       tabIndex={0}
       onKeyDown={onClick}
-      onClick={onClick}
-    >
+      onClick={onClick}>
       {children}
     </button>
   );

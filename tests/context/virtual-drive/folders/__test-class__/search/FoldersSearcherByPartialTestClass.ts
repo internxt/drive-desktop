@@ -1,8 +1,5 @@
 import { FoldersSearcherByPartial } from '../../../../../../src/context/virtual-drive/folders/application/search/FoldersSearcherByPartial';
-import {
-  FolderAttributes,
-  Folder,
-} from '../../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { FolderAttributes, Folder } from '../../../../../../src/context/virtual-drive/folders/domain/Folder';
 import { FolderRepository } from '../../../../../../src/context/virtual-drive/folders/domain/FolderRepository';
 
 export class FoldersSearcherByPartialTestClass extends FoldersSearcherByPartial {

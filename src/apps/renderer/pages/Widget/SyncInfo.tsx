@@ -7,8 +7,7 @@ import { Item } from './Item';
 import { NoInfoToShow } from './NoInfoToShow';
 
 export default function SyncInfo() {
-  const { driveHistory, clearHistory, removeDriveOperationsInProgress } =
-    useDriveInfoHistory();
+  const { driveHistory, clearHistory, removeDriveOperationsInProgress } = useDriveInfoHistory();
 
   useOnSyncStopped(removeDriveOperationsInProgress);
   useOnSyncRunning(clearHistory);

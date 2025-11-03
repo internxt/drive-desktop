@@ -1,19 +1,7 @@
-const trackedEvents = [
-  'delete',
-  'upload',
-  'download',
-  'preview',
-  'move',
-  'rename',
-] as const;
+const trackedEvents = ['delete', 'upload', 'download', 'preview', 'move', 'rename'] as const;
 export type TrackedEvents = Capitalize<(typeof trackedEvents)[number]>;
 
-const trackedEventsActions = [
-  'started',
-  'completed',
-  'aborted',
-  'error',
-] as const;
+const trackedEventsActions = ['started', 'completed', 'aborted', 'error'] as const;
 type TrackedProviderActions = Capitalize<(typeof trackedEventsActions)[number]>;
 
 export type TrackedActions = `${TrackedEvents} ${TrackedProviderActions}`;

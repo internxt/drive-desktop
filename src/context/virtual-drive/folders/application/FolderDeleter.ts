@@ -14,7 +14,7 @@ export class FolderDeleter {
     private readonly repository: FolderRepository,
     private readonly remote: RemoteFileSystem,
     private readonly local: LocalFileSystem,
-    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists
+    private readonly allParentFoldersStatusIsExists: AllParentFoldersStatusIsExists,
   ) {}
 
   async run(uuid: Folder['uuid']): Promise<void> {
@@ -31,7 +31,7 @@ export class FolderDeleter {
 
       const allParentsExists = await this.allParentFoldersStatusIsExists.run(
         // TODO: Create a new aggregate root for root folder so the rest have the parent Id as number
-        folder.parentId as number
+        folder.parentId as number,
       );
 
       if (!allParentsExists) {

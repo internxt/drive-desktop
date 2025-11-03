@@ -9,9 +9,7 @@ import { Replaces } from '../../domain/upload/Replaces';
 import { TemporalFile } from '../../domain/TemporalFile';
 
 @Service()
-export class EnvironmentTemporalFileUploaderFactory
-  implements TemporalFileUploaderFactory
-{
+export class EnvironmentTemporalFileUploaderFactory implements TemporalFileUploaderFactory {
   private _readable: Readable | undefined = undefined;
   private _document: TemporalFile | undefined = undefined;
   private _replaces: Replaces | undefined = undefined;
@@ -22,7 +20,7 @@ export class EnvironmentTemporalFileUploaderFactory
   constructor(
     private readonly environment: Environment,
     private readonly bucket: string,
-    private readonly progressTracker: UploadProgressTracker
+    private readonly progressTracker: UploadProgressTracker,
   ) {}
 
   private registerEvents(uploader: EnvironmentTemporalFileUploader) {
@@ -30,12 +28,8 @@ export class EnvironmentTemporalFileUploaderFactory
       return;
     }
 
-    const name = this._replaces
-      ? this._replaces.name
-      : this._document.path.name();
-    const extension = this._replaces
-      ? this._replaces.extension
-      : this._document.path.extension();
+    const name = this._replaces ? this._replaces.name : this._document.path.name();
+    const extension = this._replaces ? this._replaces.extension : this._document.path.extension();
 
     const size = this._document.size.value;
 
@@ -52,7 +46,7 @@ export class EnvironmentTemporalFileUploaderFactory
 
     uploader.on('error', (error: Error) => {
       // TODO: use error to determine the cause
-      logger.error({msg: '[ETFUF ERROR]', error });
+      logger.error({ msg: '[ETFUF ERROR]', error });
       this.progressTracker.uploadError(name, extension, 'UNKNOWN');
     });
 
@@ -100,16 +94,11 @@ export class EnvironmentTemporalFileUploaderFactory
     }
 
     const fn =
-      document.size.value >
-      EnvironmentTemporalFileUploaderFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
+      document.size.value > EnvironmentTemporalFileUploaderFactory.MULTIPART_UPLOAD_SIZE_THRESHOLD
         ? this.environment.uploadMultipartFile.bind(this.environment)
         : this.environment.upload.bind(this.environment);
 
-    const uploader = new EnvironmentTemporalFileUploader(
-      fn,
-      this.bucket,
-      this._abortController?.signal
-    );
+    const uploader = new EnvironmentTemporalFileUploader(fn, this.bucket, this._abortController?.signal);
 
     this.registerEvents(uploader);
 

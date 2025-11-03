@@ -9,12 +9,10 @@ type DevicesSideBarProps = HTMLAttributes<HTMLBaseElement>;
 
 export function DevicesList({ className }: DevicesSideBarProps) {
   const { translate } = useTranslationContext();
-  const { devices, deviceState, current, selected, setSelected } =
-    useContext(DeviceContext);
+  const { devices, deviceState, current, selected, setSelected } = useContext(DeviceContext);
 
   const devicesWithoutCurrent = devices.filter(
-    (device) =>
-      deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id
+    (device) => deviceState.status === 'SUCCESS' && device.id !== deviceState.device.id,
   );
 
   return (
@@ -25,21 +23,12 @@ export function DevicesList({ className }: DevicesSideBarProps) {
           <ul>
             {current && (
               <li>
-                <DevicePill
-                  current
-                  device={current}
-                  selected={current === selected}
-                  setSelected={setSelected}
-                />
+                <DevicePill current device={current} selected={current === selected} setSelected={setSelected} />
               </li>
             )}
             {devicesWithoutCurrent.map((device) => (
               <li className="my-1" key={device.id}>
-                <DevicePill
-                  device={device}
-                  selected={device === selected}
-                  setSelected={setSelected}
-                />
+                <DevicePill device={device} selected={device === selected} setSelected={setSelected} />
               </li>
             ))}
           </ul>

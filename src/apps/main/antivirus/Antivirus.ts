@@ -187,10 +187,7 @@ export class Antivirus {
           await clamAVServer.startClamdServer();
           await clamAVServer.waitForClamd(60000); // Extended timeout
 
-          throw AntivirusError.initializationFailed(
-            'Connection failed, daemon restarted. Please try again.',
-            error
-          );
+          throw AntivirusError.initializationFailed('Connection failed, daemon restarted. Please try again.', error);
         } catch (restartError) {
           logger.error({
             tag: 'ANTIVIRUS',
@@ -275,7 +272,7 @@ export class Antivirus {
    */
   async scanFileWithRetry(
     filePath: string,
-    maxRetries = 2
+    maxRetries = 2,
   ): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
     let retryCount = 0;
 
@@ -316,15 +313,10 @@ export class Antivirus {
     return attemptScan();
   }
 
-  async scanFile(
-    filePath: string
-  ): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
+  async scanFile(filePath: string): Promise<{ file: string; isInfected: boolean; viruses: [] }> {
     const isAccessible = await this.checkFileAccessible(filePath);
     if (!isAccessible) {
-      throw AntivirusError.scanFailed(
-        filePath,
-        new Error('File not accessible or not found')
-      );
+      throw AntivirusError.scanFailed(filePath, new Error('File not accessible or not found'));
     }
 
     let isConnected = await this.ensureConnection();

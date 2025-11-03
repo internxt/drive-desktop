@@ -5,11 +5,7 @@ import { useTranslationContext } from '../../../context/LocalContext';
 import Button from '../../../components/Button';
 import TextInput from '../../../components/TextInput';
 
-export default function DeviceName({
-  onChangeView,
-}: {
-  onChangeView: boolean;
-}) {
+export default function DeviceName({ onChangeView }: { onChangeView: boolean }) {
   const { translate } = useTranslationContext();
   const { deviceState, deviceRename } = useContext(DeviceContext);
   const [showEdit, setShowEdit] = useState(false);
@@ -22,9 +18,7 @@ export default function DeviceName({
   }, [onChangeView]);
 
   const validateName = (name: string) =>
-    deviceState.status === 'SUCCESS' &&
-    deviceState.device.name !== newName &&
-    name.replace(/\s/g, '').length > 0;
+    deviceState.status === 'SUCCESS' && deviceState.device.name !== newName && name.replace(/\s/g, '').length > 0;
 
   const setDeviceName = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,40 +29,26 @@ export default function DeviceName({
     setNewName(undefined);
   };
 
-  const currentDeviceName =
-    deviceState.status === 'SUCCESS' ? deviceState.device.name : '';
+  const currentDeviceName = deviceState.status === 'SUCCESS' ? deviceState.device.name : '';
 
   return (
     <form
       onSubmitCapture={setDeviceName}
       className="flex flex-col items-center space-y-1.5 truncate"
-      data-automation-id="deviceNameForm"
-    >
-      <p
-        className="truncate text-sm font-medium leading-4 text-gray-80"
-        data-automation-id="deviceNameSectionTitle"
-      >
+      data-automation-id="deviceNameForm">
+      <p className="truncate text-sm font-medium leading-4 text-gray-80" data-automation-id="deviceNameSectionTitle">
         {translate('settings.general.device.section')}
       </p>
 
       <div
-        className={`flex h-9 items-center justify-center ${
-          !showEdit ? 'truncate' : undefined
-        }`}
-        data-automation-id="deviceNameContainer"
-      >
+        className={`flex h-9 items-center justify-center ${!showEdit ? 'truncate' : undefined}`}
+        data-automation-id="deviceNameContainer">
         {deviceState.status === 'ERROR' ? (
-          <p
-            className="truncate text-lg font-medium text-gray-100"
-            data-automation-id="deviceNameDefault"
-          >
+          <p className="truncate text-lg font-medium text-gray-100" data-automation-id="deviceNameDefault">
             {DEFAULT_DEVICE_NAME}
           </p>
         ) : deviceState.status === 'LOADING' ? (
-          <Spinner
-            className="h-5 w-5 animate-spin"
-            data-automation-id="deviceNameLoading"
-          />
+          <Spinner className="h-5 w-5 animate-spin" data-automation-id="deviceNameLoading" />
         ) : showEdit ? (
           <TextInput
             autoFocus={showEdit}
@@ -91,19 +71,13 @@ export default function DeviceName({
             data-automation-id="deviceNameEditInput"
           />
         ) : (
-          <p
-            className="truncate text-lg font-medium text-gray-100"
-            data-automation-id="deviceNameDisplay"
-          >
+          <p className="truncate text-lg font-medium text-gray-100" data-automation-id="deviceNameDisplay">
             {currentDeviceName}
           </p>
         )}
       </div>
 
-      <div
-        className="flex items-center space-x-2"
-        data-automation-id="deviceNameActions"
-      >
+      <div className="flex items-center space-x-2" data-automation-id="deviceNameActions">
         {showEdit ? (
           <>
             <Button
@@ -113,8 +87,7 @@ export default function DeviceName({
                 setShowEdit(false);
                 setNewName(undefined);
               }}
-              data-automation-id="deviceNameCancelButton"
-            >
+              data-automation-id="deviceNameCancelButton">
               {translate('settings.general.device.action.cancel')}
             </Button>
 
@@ -123,8 +96,7 @@ export default function DeviceName({
               variant="primary"
               size="md"
               disabled={!validateName(newName ?? '')}
-              data-automation-id="deviceNameSaveButton"
-            >
+              data-automation-id="deviceNameSaveButton">
               {translate('settings.general.device.action.save')}
             </Button>
           </>
@@ -132,12 +104,9 @@ export default function DeviceName({
           <Button
             variant="secondary"
             size="md"
-            disabled={
-              deviceState.status === 'ERROR' || deviceState.status === 'LOADING'
-            }
+            disabled={deviceState.status === 'ERROR' || deviceState.status === 'LOADING'}
             onClick={() => setShowEdit(true)}
-            data-automation-id="deviceNameEditButton"
-          >
+            data-automation-id="deviceNameEditButton">
             {translate('settings.general.device.action.edit')}
           </Button>
         )}

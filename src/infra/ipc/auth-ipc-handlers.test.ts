@@ -27,10 +27,7 @@ describe('registerAuthIPCHandlers', () => {
     it('should register the auth:login handler', () => {
       registerAuthIPCHandlers();
 
-      expect(AuthIPCMain.handle).toHaveBeenCalledWith(
-        'auth:login',
-        expect.any(Function)
-      );
+      expect(AuthIPCMain.handle).toHaveBeenCalledWith('auth:login', expect.any(Function));
     });
 
     it('should return a successful response for auth:login', async () => {
@@ -47,9 +44,7 @@ describe('registerAuthIPCHandlers', () => {
         fold: (_onLeft: any, onRight: any) => onRight(response),
       });
 
-      const handler = (AuthIPCMain.handle as jest.Mock).mock.calls.find(
-        ([eventName]) => eventName === 'auth:login'
-      )[1];
+      const handler = (AuthIPCMain.handle as jest.Mock).mock.calls.find(([eventName]) => eventName === 'auth:login')[1];
 
       const result = await handler({}, 'test@example.com');
 
@@ -66,9 +61,7 @@ describe('registerAuthIPCHandlers', () => {
         fold: (onLeft: any, _onRight: any) => onLeft(new Error('Login failed')),
       });
 
-      const handler = (AuthIPCMain.handle as jest.Mock).mock.calls.find(
-        ([eventName]) => eventName === 'auth:login'
-      )[1];
+      const handler = (AuthIPCMain.handle as jest.Mock).mock.calls.find(([eventName]) => eventName === 'auth:login')[1];
 
       const result = await handler({}, 'test@example.com');
 
@@ -82,10 +75,7 @@ describe('registerAuthIPCHandlers', () => {
   describe('auth:access', () => {
     it('should register the auth:access handler', () => {
       registerAuthIPCHandlers();
-      expect(AuthIPCMain.handle).toHaveBeenCalledWith(
-        'auth:access',
-        expect.any(Function)
-      );
+      expect(AuthIPCMain.handle).toHaveBeenCalledWith('auth:access', expect.any(Function));
     });
 
     it('should return a successful response for auth:access', async () => {
@@ -97,13 +87,10 @@ describe('registerAuthIPCHandlers', () => {
       });
 
       const handler = (AuthIPCMain.handle as jest.Mock).mock.calls.find(
-        ([eventName]) => eventName === 'auth:access'
+        ([eventName]) => eventName === 'auth:access',
       )[1];
 
-      const result = await handler(
-        {},
-        { email: 'test@example.com', code: '123456' }
-      );
+      const result = await handler({}, { email: 'test@example.com', code: '123456' });
 
       expect(result).toEqual({
         success: true,
@@ -115,18 +102,14 @@ describe('registerAuthIPCHandlers', () => {
       registerAuthIPCHandlers();
       const accessMock = driveServerModule.auth.access as jest.Mock;
       accessMock.mockResolvedValueOnce({
-        fold: (onLeft: any, _onRight: any) =>
-          onLeft(new Error('Access denied')),
+        fold: (onLeft: any, _onRight: any) => onLeft(new Error('Access denied')),
       });
 
       const handler = (AuthIPCMain.handle as jest.Mock).mock.calls.find(
-        ([eventName]) => eventName === 'auth:access'
+        ([eventName]) => eventName === 'auth:access',
       )[1];
 
-      const result = await handler(
-        {},
-        { email: 'test@example.com', code: '123456' }
-      );
+      const result = await handler({}, { email: 'test@example.com', code: '123456' });
 
       expect(result).toEqual({
         success: false,

@@ -28,9 +28,7 @@ describe('ScanState', () => {
   it('renders scanning state correctly', () => {
     render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
-    expect(
-      screen.getByText('settings.antivirus.scanProcess.scanning')
-    ).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.scanProcess.scanning')).toBeInTheDocument();
     expect(screen.getByText('/test/path/file.txt')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
     expect(screen.getByText('50%')).toBeInTheDocument();
@@ -39,9 +37,7 @@ describe('ScanState', () => {
   it('shows stop scan button during scan', () => {
     render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
-    const stopButton = screen.getByText(
-      'settings.antivirus.scanOptions.stopScan'
-    );
+    const stopButton = screen.getByText('settings.antivirus.scanOptions.stopScan');
     expect(stopButton).toBeInTheDocument();
 
     fireEvent.click(stopButton);
@@ -58,20 +54,14 @@ describe('ScanState', () => {
 
     render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
-    expect(
-      screen.getByText('settings.antivirus.scanProcess.noFilesFound.title')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('settings.antivirus.scanProcess.noFilesFound.subtitle')
-    ).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.scanProcess.noFilesFound.title')).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.scanProcess.noFilesFound.subtitle')).toBeInTheDocument();
 
     const scanAgainButton = screen.getByTestId('scan-again-button');
     expect(scanAgainButton).toBeInTheDocument();
 
     fireEvent.click(scanAgainButton);
-    expect(mockAntivirusContext.onScanAgainButtonClicked).toHaveBeenCalledTimes(
-      1
-    );
+    expect(mockAntivirusContext.onScanAgainButtonClicked).toHaveBeenCalledTimes(1);
   });
 
   it('shows scan completed state with corrupted files', () => {
@@ -87,16 +77,10 @@ describe('ScanState', () => {
 
     render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
-    expect(
-      screen.getByText('settings.antivirus.scanProcess.malwareFound.title')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('settings.antivirus.scanProcess.malwareFound.subtitle')
-    ).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.scanProcess.malwareFound.title')).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.scanProcess.malwareFound.subtitle')).toBeInTheDocument();
 
-    const removeMalwareButton = screen.getByText(
-      'settings.antivirus.scanProcess.malwareFound.action'
-    );
+    const removeMalwareButton = screen.getByText('settings.antivirus.scanProcess.malwareFound.action');
     expect(removeMalwareButton).toBeInTheDocument();
 
     fireEvent.click(removeMalwareButton);
@@ -113,19 +97,13 @@ describe('ScanState', () => {
 
     render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
-    expect(
-      screen.getByText('settings.antivirus.errorState.title')
-    ).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.errorState.title')).toBeInTheDocument();
 
-    const tryAgainButton = screen.getByText(
-      'settings.antivirus.errorState.button'
-    );
+    const tryAgainButton = screen.getByText('settings.antivirus.errorState.button');
     expect(tryAgainButton).toBeInTheDocument();
 
     fireEvent.click(tryAgainButton);
-    expect(mockAntivirusContext.onScanAgainButtonClicked).toHaveBeenCalledTimes(
-      1
-    );
+    expect(mockAntivirusContext.onScanAgainButtonClicked).toHaveBeenCalledTimes(1);
   });
 
   it('shows scan statistics', () => {
@@ -138,12 +116,8 @@ describe('ScanState', () => {
 
     render(<ScanState showItemsWithMalware={mockShowItemsWithMalware} />);
 
-    expect(
-      screen.getByText('settings.antivirus.scanProcess.scannedFiles')
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('settings.antivirus.scanProcess.detectedFiles')
-    ).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.scanProcess.scannedFiles')).toBeInTheDocument();
+    expect(screen.getByText('settings.antivirus.scanProcess.detectedFiles')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument(); // countScannedFiles
     expect(screen.getByText('2')).toBeInTheDocument(); // infectedFiles.length
   });

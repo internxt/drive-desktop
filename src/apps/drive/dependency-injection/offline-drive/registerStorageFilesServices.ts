@@ -19,9 +19,7 @@ import { TypeOrmStorageFilesDataSourceFactory } from '../../../../context/storag
 import { DependencyInjectionUserProvider } from '../../../shared/dependency-injection/DependencyInjectionUserProvider';
 import { CacheStorageFile } from '../../../../context/storage/StorageFiles/application/offline/CacheStorageFile';
 
-export async function registerStorageFilesServices(
-  builder: ContainerBuilder
-): Promise<void> {
+export async function registerStorageFilesServices(builder: ContainerBuilder): Promise<void> {
   // Infra
 
   const appData = app.getPath('appData');
@@ -38,19 +36,9 @@ export async function registerStorageFilesServices(
 
   builder
     .register(DownloaderHandlerFactory)
-    .useFactory(
-      (c) =>
-        new EnvironmentFileDownloaderHandlerFactory(
-          c.get(Environment),
-          user.bucket
-        )
-    );
+    .useFactory((c) => new EnvironmentFileDownloaderHandlerFactory(c.get(Environment), user.bucket));
 
-  builder
-    .register(StorageFileCache)
-    .use(InMemoryStorageFileCache)
-    .asSingleton()
-    .private();
+  builder.register(StorageFileCache).use(InMemoryStorageFileCache).asSingleton().private();
 
   // Services
 

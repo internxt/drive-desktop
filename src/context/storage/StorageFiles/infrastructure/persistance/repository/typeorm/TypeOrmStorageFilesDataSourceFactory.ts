@@ -4,8 +4,7 @@ import { app } from 'electron';
 
 export class TypeOrmStorageFilesDataSourceFactory {
   static async create(): Promise<DataSource> {
-    const dbPath =
-      app.getPath('appData') + '/internxt-drive/internxt_desktop.db';
+    const dbPath = app.getPath('appData') + '/internxt-drive/internxt_desktop.db';
 
     const s = new DataSource({
       type: 'better-sqlite3',

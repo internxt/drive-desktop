@@ -24,13 +24,10 @@ describe('FolderRepositorySynchronizer', () => {
       id,
       path,
       isRoot: () => isRoot,
-    } as unknown as Folder);
+    }) as unknown as Folder;
 
   it('should add the remote folders', async () => {
-    const remoteFolders = [
-      mockFolder('1', '/documents'),
-      mockFolder('2', '/projects'),
-    ];
+    const remoteFolders = [mockFolder('1', '/documents'), mockFolder('2', '/projects')];
 
     folderRepositoryMock.all.mockResolvedValue([]);
 
@@ -43,17 +40,9 @@ describe('FolderRepositorySynchronizer', () => {
   });
 
   it('should delete the folders that are not in the remote folders, except root', async () => {
-    const remoteFolders = [
-      mockFolder('root', '/', true),
-      mockFolder('1', '/documents'),
-      mockFolder('2', '/projects'),
-    ];
+    const remoteFolders = [mockFolder('root', '/', true), mockFolder('1', '/documents'), mockFolder('2', '/projects')];
 
-    const localFolders = [
-      mockFolder('root', '/', true),
-      mockFolder('1', '/documents'),
-      mockFolder('3', '/old-folder'),
-    ];
+    const localFolders = [mockFolder('root', '/', true), mockFolder('1', '/documents'), mockFolder('3', '/old-folder')];
 
     folderRepositoryMock.all.mockResolvedValue(localFolders);
 
@@ -66,10 +55,7 @@ describe('FolderRepositorySynchronizer', () => {
   });
 
   it('should delete multiple folders not present in remote, but never delete root', async () => {
-    const remoteFolders = [
-      mockFolder('root', '/', true),
-      mockFolder('1', '/documents'),
-    ];
+    const remoteFolders = [mockFolder('root', '/', true), mockFolder('1', '/documents')];
 
     const localFolders = [
       mockFolder('root', '/', true),

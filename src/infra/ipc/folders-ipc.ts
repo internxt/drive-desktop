@@ -12,12 +12,10 @@ const isMainProcess = process.type === 'browser';
  */
 export async function createFolderIPC(
   deviceUuid: string,
-  plainName: string
+  plainName: string,
 ): Promise<Result<components['schemas']['FolderDto'], FolderError>> {
   if (isMainProcess) {
-    const { createFolder } = await import(
-      '../drive-server/services/folder/services/create-folder'
-    );
+    const { createFolder } = await import('../drive-server/services/folder/services/create-folder');
     return await createFolder(deviceUuid, plainName);
   } else {
     const { ipcRenderer } = await import('electron');
@@ -33,12 +31,10 @@ export async function createFolderIPC(
  */
 export async function moveFolderIPC(
   uuid: string,
-  destinationFolderUuid: string
+  destinationFolderUuid: string,
 ): Promise<Result<components['schemas']['FolderDto'], Error>> {
   if (isMainProcess) {
-    const { moveFolder } = await import(
-      '../drive-server/services/folder/services/move-folder'
-    );
+    const { moveFolder } = await import('../drive-server/services/folder/services/move-folder');
     return await moveFolder(uuid, destinationFolderUuid);
   } else {
     const { ipcRenderer } = await import('electron');
@@ -54,12 +50,10 @@ export async function moveFolderIPC(
  */
 export async function renameFolderIPC(
   folderUuid: string,
-  newFolderName: string
+  newFolderName: string,
 ): Promise<Result<components['schemas']['FolderDto'], Error>> {
   if (isMainProcess) {
-    const { renameFolder } = await import(
-      '../drive-server/services/folder/services/rename-folder'
-    );
+    const { renameFolder } = await import('../drive-server/services/folder/services/rename-folder');
     return await renameFolder(folderUuid, newFolderName);
   } else {
     const { ipcRenderer } = await import('electron');

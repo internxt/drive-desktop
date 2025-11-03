@@ -10,28 +10,11 @@ declare module 'fuse-native' {
   }
 
   export interface FuseHandlers {
-    readdir(
-      readPath: string,
-      cb: (status: number, entries: string[]) => void
-    ): void;
-    getattr(
-      readPath: string,
-      cb: (status: number, stat?: FuseStat) => void
-    ): void;
-    open(
-      readPath: string,
-      flags: number,
-      cb: (status: number, fd: number) => void
-    ): void;
+    readdir(readPath: string, cb: (status: number, entries: string[]) => void): void;
+    getattr(readPath: string, cb: (status: number, stat?: FuseStat) => void): void;
+    open(readPath: string, flags: number, cb: (status: number, fd: number) => void): void;
     release(readPath: string, fd: number, cb: (status: number) => void): void;
-    read(
-      readPath: string,
-      fd: number,
-      buf: Buffer,
-      len: number,
-      pos: number,
-      cb: (bytesRead: number) => void
-    ): void;
+    read(readPath: string, fd: number, buf: Buffer, len: number, pos: number, cb: (bytesRead: number) => void): void;
   }
 
   interface FuseOptions {

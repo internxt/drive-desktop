@@ -7,11 +7,7 @@ export class LocalFileUploaderMock implements LocalFileHandler {
   private readonly uploadMock = jest.fn();
   private readonly deleteMock = jest.fn();
 
-  upload(
-    path: AbsolutePath,
-    size: number,
-    abortSignal: AbortSignal
-  ): Promise<Either<DriveDesktopError, string>> {
+  upload(path: AbsolutePath, size: number, abortSignal: AbortSignal): Promise<Either<DriveDesktopError, string>> {
     return this.uploadMock(path, size, abortSignal);
   }
 

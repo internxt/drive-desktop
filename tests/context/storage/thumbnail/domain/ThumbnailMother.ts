@@ -1,7 +1,4 @@
-import {
-  Thumbnail,
-  ThumbnailAttributes,
-} from '../../../../../src/context/storage/thumbnails/domain/Thumbnail';
+import { Thumbnail, ThumbnailAttributes } from '../../../../../src/context/storage/thumbnails/domain/Thumbnail';
 import Chance from '../../../shared/infrastructure/Chance';
 import { BucketEntryIdMother } from '../../../virtual-drive/shared/domain/BucketEntryIdMother';
 

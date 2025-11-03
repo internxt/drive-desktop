@@ -6,7 +6,7 @@ export abstract class LocalFileHandler {
   abstract upload(
     path: AbsolutePath,
     size: number,
-    abortSignal: AbortSignal
+    abortSignal: AbortSignal,
   ): Promise<Either<DriveDesktopError, string>>;
 
   abstract delete(contentsId: string): Promise<void>;

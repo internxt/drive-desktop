@@ -12,10 +12,7 @@ export default function useLanguage() {
   };
 
   useEffect(() => {
-    return window.electron.listenToConfigKeyChange<Language>(
-      'preferedLanguage',
-      updated
-    );
+    return window.electron.listenToConfigKeyChange<Language>('preferedLanguage', updated);
   }, []);
 
   return lang;

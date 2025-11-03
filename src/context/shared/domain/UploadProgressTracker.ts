@@ -7,15 +7,10 @@ export abstract class UploadProgressTracker {
     name: string,
     extension: string,
     size: number,
-    progress: { elapsedTime: number; percentage: number }
+    progress: { elapsedTime: number; percentage: number },
   ): void;
 
   abstract uploadError(name: string, extension: string, cause: SyncError): void;
 
-  abstract uploadCompleted(
-    name: string,
-    extension: string,
-    size: number,
-    progress: { elapsedTime: number }
-  ): void;
+  abstract uploadCompleted(name: string, extension: string, size: number, progress: { elapsedTime: number }): void;
 }

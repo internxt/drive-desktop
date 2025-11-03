@@ -25,8 +25,7 @@ export default function SectionDetailHeader({
       <div className="flex items-center gap-3">
         <div
           className="text-blue-600 dark:text-blue-400 flex items-center gap-1 hover:cursor-pointer"
-          onClick={onClose}
-        >
+          onClick={onClose}>
           <CaretDoubleRight color="#0066ff" weight="bold" />
         </div>
         <h3 className="text-gray-900 text-lg font-semibold dark:text-gray-100">

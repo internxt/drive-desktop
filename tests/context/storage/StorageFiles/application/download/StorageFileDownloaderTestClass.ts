@@ -13,10 +13,7 @@ export class StorageFileDownloaderTestClass extends StorageFileDownloader {
     super(factory, tracker);
   }
 
-  run(
-    file: StorageFile,
-    metadata: { name: string; type: string; size: number }
-  ): Promise<Readable> {
+  run(file: StorageFile, metadata: { name: string; type: string; size: number }): Promise<Readable> {
     return this.mock(file, metadata);
   }
 

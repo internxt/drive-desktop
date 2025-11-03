@@ -12,7 +12,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 export function setupAntivirusIpc() {
   logger.debug({
     tag: 'ANTIVIRUS',
-    msg: 'Setting up IPC handlers for window.electron.antivirus interface'
+    msg: 'Setting up IPC handlers for window.electron.antivirus interface',
   });
 
   try {

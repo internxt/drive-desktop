@@ -10,31 +10,25 @@ export class FileRepositorySynchronizer {
   constructor(
     private readonly repository: FileRepository,
     private readonly storageFileService: StorageFileService,
-    private readonly remoteFileSystem: RemoteFileSystem
+    private readonly remoteFileSystem: RemoteFileSystem,
   ) {}
 
-  async fixDanglingFiles(
-    contentsIds: Array<File['contentsId']>
-  ): Promise<boolean> {
+  async fixDanglingFiles(contentsIds: Array<File['contentsId']>): Promise<boolean> {
     let allDanglingFilesFixed = true;
     try {
-      const files = await this.repository.searchByArrayOfContentsId(
-        contentsIds
-      );
+      const files = await this.repository.searchByArrayOfContentsId(contentsIds);
       if (files.length === 0) {
         logger.debug({ msg: '[DANGLING FILE] No files found to check.' });
         return allDanglingFilesFixed;
       }
 
       logger.debug({
-        msg: `[DANGLING FILE] Checking ${files.length} files for corruption.`
+        msg: `[DANGLING FILE] Checking ${files.length} files for corruption.`,
       });
 
       for (const file of files) {
         try {
-          const resultEither = await this.storageFileService.isFileDownloadable(
-            file.contentsId
-          );
+          const resultEither = await this.storageFileService.isFileDownloadable(file.contentsId);
           if (resultEither.isRight()) {
             const isFileDownloadable = resultEither.getRight();
             if (!isFileDownloadable) {
@@ -47,14 +41,14 @@ export class FileRepositorySynchronizer {
             const error = resultEither.getLeft();
             logger.error({
               msg: `[DANGLING FILE] Error checking file ${file.contentsId}:`,
-              error
+              error,
             });
             allDanglingFilesFixed = false;
           }
         } catch (error) {
           logger.error({
             msg: `[DANGLING FILE] Unexpected error processing file ${file.contentsId}:`,
-            error
+            error,
           });
           allDanglingFilesFixed = false;
         }

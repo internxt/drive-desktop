@@ -1,7 +1,4 @@
-import {
-  Folder,
-  FolderAttributes,
-} from '../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { Folder, FolderAttributes } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
 import { FolderRepository } from '../../../../../src/context/virtual-drive/folders/domain/FolderRepository';
 
 export class FolderRepositoryMock implements FolderRepository {

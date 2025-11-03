@@ -1,8 +1,5 @@
 import { SingleFolderMatchingFinder } from '../../../../../src/context/virtual-drive/folders/application/SingleFolderMatchingFinder';
-import {
-  Folder,
-  FolderAttributes,
-} from '../../../../../src/context/virtual-drive/folders/domain/Folder';
+import { Folder, FolderAttributes } from '../../../../../src/context/virtual-drive/folders/domain/Folder';
 import { FolderRepository } from '../../../../../src/context/virtual-drive/folders/domain/FolderRepository';
 
 export class SingleFolderMatchingFinderTestClass extends SingleFolderMatchingFinder {

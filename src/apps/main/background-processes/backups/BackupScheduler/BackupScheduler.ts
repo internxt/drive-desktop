@@ -8,7 +8,7 @@ export class BackupScheduler {
   constructor(
     private readonly lastBackup: () => number,
     private readonly interval: () => number,
-    private readonly task: () => Promise<void>
+    private readonly task: () => Promise<void>,
   ) {}
 
   async start(): Promise<void> {
@@ -16,10 +16,7 @@ export class BackupScheduler {
       if (this.shouldDoBackup()) {
         await this.runAndScheduleNext();
       } else {
-        BackupScheduler.schedule = setTimeout(
-          () => this.runAndScheduleNext(),
-          this.millisecondsToNextBackup()
-        );
+        BackupScheduler.schedule = setTimeout(() => this.runAndScheduleNext(), this.millisecondsToNextBackup());
       }
     }
   }

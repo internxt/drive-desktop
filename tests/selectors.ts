@@ -9,12 +9,8 @@ export const screenshot = async (page: Page, name: string): Promise<void> => {
   await page.screenshot(opts);
 };
 
-export const getWindowTopBarTitle = async (
-  page: Page
-): Promise<string | null> => {
-  const content = await page
-    .locator('[data-test=window-top-bar-title]')
-    .textContent();
+export const getWindowTopBarTitle = async (page: Page): Promise<string | null> => {
+  const content = await page.locator('[data-test=window-top-bar-title]').textContent();
 
   if (!content) {
     await screenshot(page, 'window-top-bar-title');

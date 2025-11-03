@@ -4,7 +4,7 @@ import { Result } from '../../context/shared/domain/Result';
 export class MachineIdError extends Error {
   constructor(
     public readonly code: 'NON_EXISTS' | 'NO_ACCESS' | 'UNKNOWN',
-    cause?: unknown
+    cause?: unknown,
   ) {
     super(code, { cause });
   }

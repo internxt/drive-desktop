@@ -1,9 +1,6 @@
 import { AuthService } from './auth.service';
 import { authClient } from './auth.client';
-import {
-  getBaseApiHeaders,
-  getNewApiHeaders,
-} from '../../../../apps/main/auth/service';
+import { getBaseApiHeaders, getNewApiHeaders } from '../../../../apps/main/auth/service';
 import { logger } from '../../../../core/LoggerService/LoggerService';
 import { LoginAccessRequest, LoginAccessResponse, LoginResponse } from './auth.types';
 
@@ -72,7 +69,7 @@ describe('AuthService', () => {
           attributes: expect.objectContaining({
             endpoint: '/users/refresh',
           }),
-        })
+        }),
       );
     });
 
@@ -93,7 +90,7 @@ describe('AuthService', () => {
           attributes: expect.objectContaining({
             endpoint: '/auth/login',
           }),
-        })
+        }),
       );
     });
   });
@@ -147,7 +144,7 @@ describe('AuthService', () => {
           attributes: {
             endpoint: '/auth/login',
           },
-        })
+        }),
       );
     });
 
@@ -170,7 +167,7 @@ describe('AuthService', () => {
           attributes: {
             endpoint: '/auth/login',
           },
-        })
+        }),
       );
     });
   });
@@ -271,5 +268,4 @@ describe('AuthService', () => {
       );
     });
   });
-
 });

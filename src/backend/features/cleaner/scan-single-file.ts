@@ -9,9 +9,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
  * @param filePath Path to the single file to check
  * @returns Promise<CleanableItem[]> Array with single item if file is safe to delete, empty array otherwise
  */
-export async function scanSingleFile(
-  filePath: string
-): Promise<CleanableItem[]> {
+export async function scanSingleFile(filePath: string): Promise<CleanableItem[]> {
   try {
     const stat = await fs.stat(filePath);
 

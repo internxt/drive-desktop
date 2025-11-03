@@ -1,21 +1,12 @@
-import {
-  CleanerReport,
-  CLEANER_SECTION_KEYS,
-} from '../../../../../backend/features/cleaner/cleaner.types';
-import {
-  CleanerViewModel,
-  CleanerSectionViewModel,
-} from './types/cleaner-viewmodel';
-
+import { CleanerReport, CLEANER_SECTION_KEYS } from '../../../../../backend/features/cleaner/cleaner.types';
+import { CleanerViewModel, CleanerSectionViewModel } from './types/cleaner-viewmodel';
 
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 B';
   const k = 1024;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return (
-    Number.parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i]
-  );
+  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
 }
 
 export const sectionConfig = {
@@ -39,18 +30,12 @@ export function createInitialViewModel(): CleanerViewModel {
   return viewModel;
 }
 
-export function isItemSelected(
-  viewModel: CleanerSectionViewModel,
-  itemPath: string
-): boolean {
+export function isItemSelected(viewModel: CleanerSectionViewModel, itemPath: string): boolean {
   const isException = viewModel.exceptions.includes(itemPath);
   return viewModel.selectedAll ? !isException : isException;
 }
 
-export function toggleItem(
-  viewModel: CleanerSectionViewModel,
-  itemPath: string
-): CleanerSectionViewModel {
+export function toggleItem(viewModel: CleanerSectionViewModel, itemPath: string): CleanerSectionViewModel {
   const exceptions = [...viewModel.exceptions];
   const exceptionIndex = exceptions.indexOf(itemPath);
 
@@ -66,34 +51,22 @@ export function toggleItem(
   };
 }
 
-export function toggleSelectAll(
-  viewModel: CleanerSectionViewModel
-): CleanerSectionViewModel {
+export function toggleSelectAll(viewModel: CleanerSectionViewModel): CleanerSectionViewModel {
   return {
     selectedAll: !viewModel.selectedAll,
     exceptions: [],
   };
 }
 
-export function getSelectedItems(
-  viewModel: CleanerSectionViewModel,
-  allItems: Array<{ fullPath: string }>
-): string[] {
+export function getSelectedItems(viewModel: CleanerSectionViewModel, allItems: Array<{ fullPath: string }>): string[] {
   if (viewModel.selectedAll) {
-    return allItems
-      .map((item) => item.fullPath)
-      .filter((path) => !viewModel.exceptions.includes(path));
+    return allItems.map((item) => item.fullPath).filter((path) => !viewModel.exceptions.includes(path));
   } else {
-    return viewModel.exceptions.filter((path) =>
-      allItems.some((item) => item.fullPath === path)
-    );
+    return viewModel.exceptions.filter((path) => allItems.some((item) => item.fullPath === path));
   }
 }
 
-export function getSectionStats(
-  viewModel: CleanerSectionViewModel,
-  allItems: Array<{ fullPath: string }>
-) {
+export function getSectionStats(viewModel: CleanerSectionViewModel, allItems: Array<{ fullPath: string }>) {
   const selectedItems = getSelectedItems(viewModel, allItems);
   const selectedCount = selectedItems.length;
   const totalCount = allItems.length;
@@ -118,10 +91,7 @@ export function getSectionStats(
   };
 }
 
-export function calculateSelectedSize(
-  viewModel: CleanerViewModel,
-  report: CleanerReport
-): number {
+export function calculateSelectedSize(viewModel: CleanerViewModel, report: CleanerReport): number {
   let totalSize = 0;
 
   Object.entries(viewModel).forEach(([sectionKey, sectionViewModel]) => {
@@ -131,9 +101,7 @@ export function calculateSelectedSize(
         // All selected except exceptions - use total minus exceptions
         totalSize += section.totalSizeInBytes;
         sectionViewModel.exceptions.forEach((exceptionPath) => {
-          const item = section.items.find(
-            (item) => item.fullPath === exceptionPath
-          );
+          const item = section.items.find((item) => item.fullPath === exceptionPath);
           if (item) {
             totalSize -= item.sizeInBytes;
           }
@@ -141,9 +109,7 @@ export function calculateSelectedSize(
       } else {
         // Only exceptions selected - add only exception sizes
         sectionViewModel.exceptions.forEach((exceptionPath) => {
-          const item = section.items.find(
-            (item) => item.fullPath === exceptionPath
-          );
+          const item = section.items.find((item) => item.fullPath === exceptionPath);
           if (item) {
             totalSize += item.sizeInBytes;
           }
@@ -180,13 +146,9 @@ export function calculateChartSegments(
   viewModel: CleanerViewModel,
   report: CleanerReport,
   totalSize: number,
-  getSectionSelectionStats: (
-    sectionKey: string,
-    report: CleanerReport
-  ) => ReturnType<typeof getSectionStats>
+  getSectionSelectionStats: (sectionKey: string, report: CleanerReport) => ReturnType<typeof getSectionStats>,
 ): Array<{ color: string; percentage: number; size: number }> {
-  const segments: Array<{ color: string; percentage: number; size: number }> =
-    [];
+  const segments: Array<{ color: string; percentage: number; size: number }> = [];
 
   Object.entries(report).forEach(([sectionKey, section]) => {
     const sectionStats = getSectionSelectionStats(sectionKey, report);
@@ -199,9 +161,7 @@ export function calculateChartSegments(
         // All selected except exceptions -> calculate total minus exceptions
         sectionSelectedSize = section.totalSizeInBytes;
         sectionViewModel.exceptions.forEach((exceptionPath) => {
-          const item = section.items.find(
-            (item) => item.fullPath === exceptionPath
-          );
+          const item = section.items.find((item) => item.fullPath === exceptionPath);
           if (item) {
             sectionSelectedSize -= item.sizeInBytes;
           }
@@ -209,9 +169,7 @@ export function calculateChartSegments(
       } else {
         // Only exceptions selected -> calculate only exception sizes
         sectionViewModel.exceptions.forEach((exceptionPath) => {
-          const item = section.items.find(
-            (item) => item.fullPath === exceptionPath
-          );
+          const item = section.items.find((item) => item.fullPath === exceptionPath);
           if (item) {
             sectionSelectedSize += item.sizeInBytes;
           }
@@ -222,8 +180,7 @@ export function calculateChartSegments(
       if (sectionSelectedSize > 0) {
         segments.push({
           color: sectionConfig[sectionKey as keyof typeof sectionConfig].color,
-          percentage:
-            totalSize > 0 ? (sectionSelectedSize / totalSize) * 100 : 0,
+          percentage: totalSize > 0 ? (sectionSelectedSize / totalSize) * 100 : 0,
           size: sectionSelectedSize,
         });
       }

@@ -24,13 +24,9 @@ export class DriveDependencyContainerFactory {
     return builder.build();
   }
 
-  private static async addEventSubscribers(
-    container: Container
-  ): Promise<void> {
+  private static async addEventSubscribers(container: Container): Promise<void> {
     const subscribers = container
-      .findTaggedServiceIdentifiers<DomainEventSubscriber<DomainEvent>>(
-        'event-handler'
-      )
+      .findTaggedServiceIdentifiers<DomainEventSubscriber<DomainEvent>>('event-handler')
       .map((identifier) => container.get(identifier));
 
     const subscribe = container.get(SubscribeDomainEventsHandlerToTheirEvents);
@@ -43,12 +39,9 @@ export class DriveDependencyContainerFactory {
     await DriveDependencyContainerFactory.addEventSubscribers(container);
 
     // init
-    const { root_folder_id, rootFolderId } =
-      DependencyInjectionUserProvider.get();
+    const { root_folder_id, rootFolderId } = DependencyInjectionUserProvider.get();
 
-    const tree = await container
-      .get(RemoteTreeBuilder)
-      .run(root_folder_id, rootFolderId);
+    const tree = await container.get(RemoteTreeBuilder).run(root_folder_id, rootFolderId);
 
     await container.get(FolderRepositorySynchronizer).run(tree.folders);
 

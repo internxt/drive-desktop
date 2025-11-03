@@ -6,9 +6,7 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { mapError } from '../utils/mapError';
 
 export class UserService {
-  async getUsage(): Promise<
-    Either<Error, components['schemas']['GetUserUsageDto']>
-  > {
+  async getUsage(): Promise<Either<Error, components['schemas']['GetUserUsageDto']>> {
     try {
       const response = await driveServerClient.GET('/users/usage', {
         headers: getNewApiHeaders(),
@@ -31,9 +29,7 @@ export class UserService {
       return left(loggerError);
     }
   }
-  async getLimit(): Promise<
-    Either<Error, components['schemas']['GetUserLimitDto']>
-  > {
+  async getLimit(): Promise<Either<Error, components['schemas']['GetUserLimitDto']>> {
     try {
       const response = await driveServerClient.GET('/users/limit', {
         headers: getNewApiHeaders(),
@@ -57,4 +53,3 @@ export class UserService {
     }
   }
 }
-

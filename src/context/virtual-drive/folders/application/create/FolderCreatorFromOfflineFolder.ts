@@ -17,7 +17,7 @@ export class FolderCreatorFromOfflineFolder {
     private readonly repository: FolderRepository,
     private readonly remote: RemoteFileSystem,
     private readonly eventBus: EventBus,
-    private readonly syncFolderMessenger: SyncFolderMessenger
+    private readonly syncFolderMessenger: SyncFolderMessenger,
   ) {}
 
   async run(offlineFolder: OfflineFolder): Promise<Folder> {
@@ -25,7 +25,7 @@ export class FolderCreatorFromOfflineFolder {
 
     const either = await this.remote.persist(
       new FolderPath(offlineFolder.path).name(),
-      new FolderUuid(offlineFolder.uuid).value
+      new FolderUuid(offlineFolder.uuid).value,
     );
 
     if (either.isLeft()) {
@@ -40,7 +40,7 @@ export class FolderCreatorFromOfflineFolder {
       new FolderPath(offlineFolder.path),
       new FolderId(dto.parentId),
       FolderCreatedAt.fromString(dto.createdAt),
-      FolderUpdatedAt.fromString(dto.updatedAt)
+      FolderUpdatedAt.fromString(dto.updatedAt),
     );
 
     await this.repository.add(folder);

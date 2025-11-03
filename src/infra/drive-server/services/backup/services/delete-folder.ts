@@ -6,7 +6,7 @@ export async function deleteFolder(folderId: number) {
   return fetch(`${process.env.NEW_DRIVE_URL}/storage/trash/add`, {
     method: 'POST',
     headers,
-    body:  JSON.stringify({
+    body: JSON.stringify({
       items: [{ type: 'folder', id: folderId }],
     }),
   });

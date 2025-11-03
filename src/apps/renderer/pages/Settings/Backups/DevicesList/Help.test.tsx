@@ -6,8 +6,8 @@ import { screen, render, fireEvent } from '@testing-library/react';
 
 jest.mock('../../../../context/LocalContext', () => ({
   useTranslationContext: () => ({
-    translate: (key: string) => key
-  })
+    translate: (key: string) => key,
+  }),
 }));
 
 describe('Help', () => {
@@ -24,7 +24,7 @@ describe('Help', () => {
   });
 
   it('should render the component properly', () => {
-    render(<Help/>);
+    render(<Help />);
 
     const component = screen.getByTestId('help-component');
     expect(component).toBeInTheDocument();
@@ -37,7 +37,7 @@ describe('Help', () => {
     fireEvent.click(screen.getByText('settings.backups.backups-help'));
 
     expect(mockOpenUrl).toHaveBeenCalledWith(
-      'https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive'
+      'https://help.internxt.com/en/articles/6583477-how-do-backups-work-on-internxt-drive',
     );
   });
 });

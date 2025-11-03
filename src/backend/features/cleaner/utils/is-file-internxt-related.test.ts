@@ -19,7 +19,7 @@ describe('isInternxtRelated', () => {
       '/home/user/.config/internxt/logs',
     ];
 
-    internxtNames.forEach(name => {
+    internxtNames.forEach((name) => {
       expect(isInternxtRelated(name)).toBe(true);
     });
   });
@@ -34,7 +34,7 @@ describe('isInternxtRelated', () => {
       '/var/log/drive-desktop.log',
     ];
 
-    driveDesktopNames.forEach(name => {
+    driveDesktopNames.forEach((name) => {
       expect(isInternxtRelated(name)).toBe(true);
     });
   });
@@ -46,10 +46,10 @@ describe('isInternxtRelated', () => {
       'application.log',
       'temp-file.txt',
       'system-cache',
-      '/tmp/random-file'
+      '/tmp/random-file',
     ];
 
-    nonInternxtNames.forEach(name => {
+    nonInternxtNames.forEach((name) => {
       expect(isInternxtRelated(name)).toBe(false);
     });
   });

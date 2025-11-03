@@ -5,12 +5,8 @@ import { FolderCreatedDomainEvent } from '../domain/events/FolderCreatedDomainEv
 import { SynchronizeOfflineModifications } from './SynchronizeOfflineModifications';
 
 @Service()
-export class SynchronizeOfflineModificationsOnFolderCreated
-  implements DomainEventSubscriber<FolderCreatedDomainEvent>
-{
-  constructor(
-    private readonly synchronizeOfflineModifications: SynchronizeOfflineModifications
-  ) {}
+export class SynchronizeOfflineModificationsOnFolderCreated implements DomainEventSubscriber<FolderCreatedDomainEvent> {
+  constructor(private readonly synchronizeOfflineModifications: SynchronizeOfflineModifications) {}
 
   subscribedTo(): DomainEventClass[] {
     return [FolderCreatedDomainEvent];

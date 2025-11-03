@@ -72,40 +72,34 @@ export function registerAvailableUserProductsHandlers() {
     }
   });
 
-  AvailableUserProductsIPCMain.on(
-    'subscribe-available-user-products',
-    (event) => {
-      try {
-        logger.debug({
-          tag: 'PRODUCTS',
-          msg: '[IPC] Received subscribe-available-user-products request',
-        });
+  AvailableUserProductsIPCMain.on('subscribe-available-user-products', (event) => {
+    try {
+      logger.debug({
+        tag: 'PRODUCTS',
+        msg: '[IPC] Received subscribe-available-user-products request',
+      });
 
-        if (!subscribedRenderers.has(event.sender)) {
-          subscribedRenderers.add(event.sender);
+      if (!subscribedRenderers.has(event.sender)) {
+        subscribedRenderers.add(event.sender);
 
-          event.sender.once('destroyed', () => {
-            subscribedRenderers.delete(event.sender);
-            logger.debug({
-              tag: 'PRODUCTS',
-              msg: '[IPC] Renderer destroyed, removed from subscribers',
-            });
+        event.sender.once('destroyed', () => {
+          subscribedRenderers.delete(event.sender);
+          logger.debug({
+            tag: 'PRODUCTS',
+            msg: '[IPC] Renderer destroyed, removed from subscribers',
           });
-        }
-
-        const currentUserProducts = configStore.get('availableUserProducts');
-        event.sender.send(
-          'available-user-products-updated',
-          currentUserProducts
-        );
-      } catch (error) {
-        logger.error({
-          tag: 'PRODUCTS',
-          msg: '[IPC] Error in subscribe-available-user-products handler:',
-          error,
         });
-        throw error;
       }
+
+      const currentUserProducts = configStore.get('availableUserProducts');
+      event.sender.send('available-user-products-updated', currentUserProducts);
+    } catch (error) {
+      logger.error({
+        tag: 'PRODUCTS',
+        msg: '[IPC] Error in subscribe-available-user-products handler:',
+        error,
+      });
+      throw error;
     }
-  );
+  });
 }

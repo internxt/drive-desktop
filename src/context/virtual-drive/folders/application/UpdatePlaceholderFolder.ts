@@ -13,13 +13,10 @@ export class FolderPlaceholderUpdater {
   constructor(
     private readonly repository: FolderRepository,
     private readonly local: LocalFileSystem,
-    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter
+    private readonly relativePathToAbsoluteConverter: RelativePathToAbsoluteConverter,
   ) {}
 
-  private async renameFolderRecursive(
-    currentWin32AbsolutePath: string,
-    newWin32AbsolutePath: string
-  ) {
+  private async renameFolderRecursive(currentWin32AbsolutePath: string, newWin32AbsolutePath: string) {
     //Ensure it exists
     await fs.stat(currentWin32AbsolutePath);
 
@@ -28,22 +25,13 @@ export class FolderPlaceholderUpdater {
     const children = await fs.readdir(newWin32AbsolutePath);
 
     for (const child of children) {
-      const childWin32AbsolutePath = path.win32.join(
-        newWin32AbsolutePath,
-        child
-      );
-      const newChildWin32AbsolutePath = path.win32.join(
-        newWin32AbsolutePath,
-        child
-      );
+      const childWin32AbsolutePath = path.win32.join(newWin32AbsolutePath, child);
+      const newChildWin32AbsolutePath = path.win32.join(newWin32AbsolutePath, child);
 
       const stat = await fs.stat(childWin32AbsolutePath);
 
       if (stat.isDirectory()) {
-        await this.renameFolderRecursive(
-          childWin32AbsolutePath,
-          newChildWin32AbsolutePath
-        );
+        await this.renameFolderRecursive(childWin32AbsolutePath, newChildWin32AbsolutePath);
       } else {
         await fs.rename(childWin32AbsolutePath, newChildWin32AbsolutePath);
       }
@@ -102,9 +90,7 @@ export class FolderPlaceholderUpdater {
         logger.debug({ msg: 'Placeholder already exists:', stat });
         // Do nothing
       } catch {
-        const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-          local.path
-        );
+        const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
 
         const canBeWritten = this.canWrite(win32AbsolutePath);
 
@@ -116,12 +102,8 @@ export class FolderPlaceholderUpdater {
         try {
           const exists = await this.folderExists(win32AbsolutePath);
           if (exists) {
-            const newWin32AbsolutePath =
-              this.relativePathToAbsoluteConverter.run(remote.path);
-            await this.renameFolderRecursive(
-              win32AbsolutePath,
-              newWin32AbsolutePath
-            );
+            const newWin32AbsolutePath = this.relativePathToAbsoluteConverter.run(remote.path);
+            await this.renameFolderRecursive(win32AbsolutePath, newWin32AbsolutePath);
           }
         } catch (error) {
           logger.error({ msg: 'Error renaming folder placeholder:', error });
@@ -130,9 +112,7 @@ export class FolderPlaceholderUpdater {
     }
 
     if (this.hasToBeDeleted(local, remote)) {
-      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(
-        local.path
-      );
+      const win32AbsolutePath = this.relativePathToAbsoluteConverter.run(local.path);
       await fs.rm(win32AbsolutePath, { recursive: true });
       return;
     }

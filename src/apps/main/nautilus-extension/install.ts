@@ -1,19 +1,12 @@
 import * as Sentry from '@sentry/electron/main';
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import {
-  copyNautilusExtensionFile,
-  deleteNautilusExtensionFile,
-  isInstalled,
-  reloadNautilus,
-} from './service';
+import { copyNautilusExtensionFile, deleteNautilusExtensionFile, isInstalled, reloadNautilus } from './service';
 
 import configStore from '../config';
 import { LATEST_NAUTILUS_EXTENSION_VERSION } from './version';
 
 function isUpToDate(): boolean {
-  const nautilusExtensionInstalledAt = configStore.get(
-    'nautilusExtensionVersion'
-  );
+  const nautilusExtensionInstalledAt = configStore.get('nautilusExtensionVersion');
 
   if (process.env.NODE_ENV !== 'production') {
     return false;
@@ -25,10 +18,7 @@ function isUpToDate(): boolean {
 async function install(): Promise<void> {
   await copyNautilusExtensionFile();
 
-  configStore.set(
-    'nautilusExtensionVersion',
-    LATEST_NAUTILUS_EXTENSION_VERSION
-  );
+  configStore.set('nautilusExtensionVersion', LATEST_NAUTILUS_EXTENSION_VERSION);
 
   logger.debug({
     msg: `[NAUTILUS EXTENSION] Extension Installed with version #${LATEST_NAUTILUS_EXTENSION_VERSION}`,

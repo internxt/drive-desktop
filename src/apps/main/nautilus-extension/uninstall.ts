@@ -8,10 +8,7 @@ export async function uninstallNautilusExtension() {
   try {
     await deleteNautilusExtensionFile();
 
-    configStore.set(
-      'nautilusExtensionVersion',
-      defaults['nautilusExtensionVersion']
-    );
+    configStore.set('nautilusExtensionVersion', defaults['nautilusExtensionVersion']);
 
     logger.debug({ msg: '[NAUTILUS EXTENSION] Extension uninstalled' });
   } catch (error) {

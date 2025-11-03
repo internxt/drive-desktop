@@ -16,14 +16,14 @@ describe('authClient', () => {
 
     jest.mock('openapi-fetch', () => ({
       __esModule: true,
-      default: createClientMock
+      default: createClientMock,
     }));
 
     const { authClient } = await import('./auth.client');
 
     expect(authClient).toBeDefined();
     expect(createClientMock).toHaveBeenCalledWith({
-      baseUrl: 'https://api.example.com'
+      baseUrl: 'https://api.example.com',
     });
   });
 });

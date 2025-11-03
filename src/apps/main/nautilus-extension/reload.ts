@@ -1,9 +1,5 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
-import {
-  copyNautilusExtensionFile,
-  reloadNautilus,
-  deleteNautilusExtensionFile,
-} from './service';
+import { copyNautilusExtensionFile, reloadNautilus, deleteNautilusExtensionFile } from './service';
 
 // This file is meant to be used to manually reload the extension
 // in development by package json script reinstall:nautilus-extension

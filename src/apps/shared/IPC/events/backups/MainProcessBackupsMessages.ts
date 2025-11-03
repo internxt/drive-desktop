@@ -7,10 +7,7 @@ export type MainProcessBackupsMessages = {
 
   'backups.backup-completed': (folderId: number) => void;
 
-  'backups.backup-failed': (
-    folderId: number,
-    error: ProcessFatalErrorName
-  ) => void;
+  'backups.backup-failed': (folderId: number, error: ProcessFatalErrorName) => void;
 
   'backups.process-error': (message: string) => void;
 

@@ -20,14 +20,7 @@ describe('isPermissionError', () => {
   });
 
   it('should return true for errors with permission error codes', () => {
-    const permissionCodes = [
-      'EACCES',
-      'EPERM',
-      'EBUSY',
-      'ENOENT',
-      'ENOFILE',
-      'EISDIR',
-    ];
+    const permissionCodes = ['EACCES', 'EPERM', 'EBUSY', 'ENOENT', 'ENOFILE', 'EISDIR'];
 
     permissionCodes.forEach((code) => {
       const error = new Error('Some error') as NodeJS.ErrnoException;
@@ -37,11 +30,7 @@ describe('isPermissionError', () => {
   });
 
   it('should return true for errors with permission error messages', () => {
-    const permissionMessages = [
-      'Operation not permitted',
-      'Access denied',
-      'Access is denied',
-    ];
+    const permissionMessages = ['Operation not permitted', 'Access denied', 'Access is denied'];
 
     permissionMessages.forEach((message) => {
       const error = new Error(message);

@@ -1,10 +1,7 @@
 import { logger } from '@internxt/drive-desktop-core/build/backend';
 import { VirtualDrive } from '../../virtual-drive/VirtualDrive';
 import { FuseCallback } from './FuseCallback';
-import {
-  FuseFileOrDirectoryAlreadyExistsError,
-  FuseIOError,
-} from './FuseErrors';
+import { FuseFileOrDirectoryAlreadyExistsError, FuseIOError } from './FuseErrors';
 
 export class OpenCallback extends FuseCallback<number> {
   constructor(private readonly virtualDrive: VirtualDrive) {
@@ -19,9 +16,7 @@ export class OpenCallback extends FuseCallback<number> {
         return this.right(0);
       }
 
-      const temporalFileExists = await this.virtualDrive.temporalFileExists(
-        path
-      );
+      const temporalFileExists = await this.virtualDrive.temporalFileExists(path);
 
       if (temporalFileExists.isRight() && temporalFileExists.getRight()) {
         return this.right(0);

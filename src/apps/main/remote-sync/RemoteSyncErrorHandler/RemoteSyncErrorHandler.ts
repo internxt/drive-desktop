@@ -21,7 +21,7 @@ export class RemoteSyncErrorHandler {
     error: RemoteSyncError,
     syncItemType: syncItemType,
     itemName: string,
-    itemCheckpoint?: Date
+    itemCheckpoint?: Date,
   ): void {
     switch (true) {
       case error instanceof RemoteSyncNetworkError:
@@ -45,7 +45,7 @@ export class RemoteSyncErrorHandler {
     errorDetail: {
       errorLabel: string;
       issue: VirtualDriveIssue;
-    }
+    },
   ): void {
     logger.error({
       tag: 'SYNC-ENGINE',
@@ -55,11 +55,7 @@ export class RemoteSyncErrorHandler {
     addVirtualDriveIssue(errorDetail.issue);
   }
 
-  handleNetworkError(
-    error: RemoteSyncNetworkError,
-    syncItemType: syncItemType,
-    itemName: string
-  ): void {
+  handleNetworkError(error: RemoteSyncNetworkError, syncItemType: syncItemType, itemName: string): void {
     const issues: VirtualDriveIssueByType = {
       files: {
         error: 'DOWNLOAD_ERROR',
@@ -78,11 +74,7 @@ export class RemoteSyncErrorHandler {
     });
   }
 
-  handleServerError(
-    error: RemoteSyncServerError,
-    syncItemType: syncItemType,
-    itemName: string
-  ): void {
+  handleServerError(error: RemoteSyncServerError, syncItemType: syncItemType, itemName: string): void {
     const issues: VirtualDriveIssueByType = {
       files: {
         error: 'DOWNLOAD_ERROR',
@@ -101,11 +93,7 @@ export class RemoteSyncErrorHandler {
     });
   }
 
-  handleRemoteSyncError(
-    error: RemoteSyncError,
-    syncItemType: syncItemType,
-    itemName: string
-  ): void {
+  handleRemoteSyncError(error: RemoteSyncError, syncItemType: syncItemType, itemName: string): void {
     const issues: VirtualDriveIssueByType = {
       files: {
         error: 'DOWNLOAD_ERROR',
@@ -125,22 +113,16 @@ export class RemoteSyncErrorHandler {
     });
   }
 
-  reportErrorToSentry(
-    error: RemoteSyncError,
-    syncItemType: syncItemType,
-    itemCheckpoint?: Date
-  ): void {
+  reportErrorToSentry(error: RemoteSyncError, syncItemType: syncItemType, itemCheckpoint?: Date): void {
     switch (syncItemType) {
       case 'files':
         reportError(error, {
-          lastFilesSyncAt:
-            itemCheckpoint?.toISOString() ?? 'INITIAL_FILES_SYNC',
+          lastFilesSyncAt: itemCheckpoint?.toISOString() ?? 'INITIAL_FILES_SYNC',
         });
         break;
       case 'folders':
         reportError(error, {
-          lastFoldersSyncAt:
-            itemCheckpoint?.toISOString() ?? 'INITIAL_FOLDERS_SYNC',
+          lastFoldersSyncAt: itemCheckpoint?.toISOString() ?? 'INITIAL_FOLDERS_SYNC',
         });
         break;
     }

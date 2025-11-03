@@ -15,9 +15,7 @@ jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
 }));
 
 describe('processDirent', () => {
-  const mockedWasAccessedWithinLastHour = jest.mocked(
-    wasAccessedWithinLastHour
-  );
+  const mockedWasAccessedWithinLastHour = jest.mocked(wasAccessedWithinLastHour);
   const mockedCreateCleanableItem = jest.mocked(createCleanableItem);
   const mockedScanDirectory = jest.mocked(scanDirectory);
   const mockedLogger = jest.mocked(logger);
@@ -29,7 +27,7 @@ describe('processDirent', () => {
       name,
       isFile: () => isFile,
       isDirectory: () => !isFile,
-    } as Dirent);
+    }) as Dirent;
 
   const mockFileDirent = createMockDirent(mockFileName);
   const mockCleanableItem = {
@@ -121,14 +119,12 @@ describe('processDirent', () => {
         dirPath: mockPath,
         customFileFilter,
         customDirectoryFilter,
-      })
+      }),
     );
   });
 
   it('should handle errors gracefully and log warning', async () => {
-    mockedWasAccessedWithinLastHour.mockRejectedValue(
-      new Error('Permission denied')
-    );
+    mockedWasAccessedWithinLastHour.mockRejectedValue(new Error('Permission denied'));
 
     const result = await processDirent({
       entry: mockFileDirent,

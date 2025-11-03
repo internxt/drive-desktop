@@ -8,7 +8,7 @@ import { StorageFileId } from '../../domain/StorageFileId';
 export class StorageFileIsAvailableOffline {
   constructor(
     private readonly virtualFileFinder: SingleFileMatchingFinder,
-    private readonly repository: StorageFilesRepository
+    private readonly repository: StorageFilesRepository,
   ) {}
 
   async run(path: string) {

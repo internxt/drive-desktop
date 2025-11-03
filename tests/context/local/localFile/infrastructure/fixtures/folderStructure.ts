@@ -8,9 +8,7 @@ export const tree = {
   'folder/empty_folder': [],
 };
 
-export async function createFolderStructure(
-  basePath: AbsolutePath
-): Promise<void> {
+export async function createFolderStructure(basePath: AbsolutePath): Promise<void> {
   const foldersFilesTuple = Object.entries(tree);
 
   await fs.mkdir(basePath);
@@ -18,9 +16,7 @@ export async function createFolderStructure(
   const treeCreation = foldersFilesTuple.map(async ([folder, files]) => {
     await fs.mkdir(path.join(basePath, folder), { recursive: true });
 
-    const write = files.map((file) =>
-      fs.writeFile(path.join(basePath, file), 'test file content')
-    );
+    const write = files.map((file) => fs.writeFile(path.join(basePath, file), 'test file content'));
 
     await Promise.all(write);
   });

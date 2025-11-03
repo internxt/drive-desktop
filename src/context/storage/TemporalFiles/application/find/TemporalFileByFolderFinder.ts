@@ -10,9 +10,7 @@ export class TemporalFileByFolderFinder {
   async run(path: string): Promise<Array<TemporalFile>> {
     const paths = await this.repository.matchingDirectory(dirname(path));
 
-    const result = await Promise.all(
-      paths.map((path) => this.repository.find(path))
-    );
+    const result = await Promise.all(paths.map((path) => this.repository.find(path)));
 
     const documents = result.reduce((acc, opt) => {
       if (opt.isPresent()) {

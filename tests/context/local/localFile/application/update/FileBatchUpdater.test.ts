@@ -1,9 +1,6 @@
 import { FileBatchUpdater } from '../../../../../../src/context/local/localFile/application/update/FileBatchUpdater';
 import { AbsolutePath } from '../../../../../../src/context/local/localFile/infrastructure/AbsolutePath';
-import {
-  Either,
-  right,
-} from '../../../../../../src/context/shared/domain/Either';
+import { Either, right } from '../../../../../../src/context/shared/domain/Either';
 import { SimpleFileOverrider } from '../../../../../../src/context/virtual-drive/files/application/override/SimpleFileOverrider';
 import { File } from '../../../../../../src/context/virtual-drive/files/domain/File';
 import { RemoteFileSystem } from '../../../../../../src/context/virtual-drive/files/domain/file-systems/RemoteFileSystem';
@@ -32,10 +29,7 @@ describe('File Batch Updater', () => {
     uploader = new LocalFileUploaderMock();
     simpleFileOverrider = new SimpleFileOverrider({} as RemoteFileSystem);
 
-    simpleFileOverriderSpy = jest.spyOn(
-      simpleFileOverrider,
-      'run'
-    ) as unknown as jest.SpyInstance<
+    simpleFileOverriderSpy = jest.spyOn(simpleFileOverrider, 'run') as unknown as jest.SpyInstance<
       Either<Error, Promise<void>>,
       [file: File, contentsId: string, size: number]
     >;
@@ -63,9 +57,7 @@ describe('File Batch Updater', () => {
     });
 
     const mockContentsId = 'mock-contents-id';
-    jest
-      .spyOn(uploader, 'upload')
-      .mockReturnValue(Promise.resolve(right(mockContentsId)));
+    jest.spyOn(uploader, 'upload').mockReturnValue(Promise.resolve(right(mockContentsId)));
     simpleFileOverriderSpy.mockReturnValue(right(Promise.resolve()));
 
     await SUT.run(localRoot, tree, localFiles, abortController.signal);

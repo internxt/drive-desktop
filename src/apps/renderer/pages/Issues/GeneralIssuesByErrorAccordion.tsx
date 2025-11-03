@@ -8,21 +8,22 @@ import { AppIssue as GeneralIssue } from '../../../../shared/issues/AppIssue';
 import { useState } from 'react';
 
 function groupAppIssuesByErrorName(issues: GeneralIssue[]) {
-  const appIssuesGroupedByErrorName = issues.reduce((acc, current) => {
-    const key = current.errorName;
+  const appIssuesGroupedByErrorName = issues.reduce(
+    (acc, current) => {
+      const key = current.errorName;
 
-    if (!acc[key]) {
-      acc[key] = [];
-    }
+      if (!acc[key]) {
+        acc[key] = [];
+      }
 
-    acc[key].push(current);
+      acc[key].push(current);
 
-    return acc;
-  }, {} as Record<AppError, GeneralIssue[]>);
+      return acc;
+    },
+    {} as Record<AppError, GeneralIssue[]>,
+  );
 
-  return Object.entries(appIssuesGroupedByErrorName) as Array<
-    [AppError, Array<GeneralIssue>]
-  >;
+  return Object.entries(appIssuesGroupedByErrorName) as Array<[AppError, Array<GeneralIssue>]>;
 }
 
 function GeneralIssueAccordion({
@@ -41,15 +42,12 @@ function GeneralIssueAccordion({
 
         <h1
           className="flex flex-1 flex-col truncate text-base font-medium leading-5 text-gray-100"
-          data-test="sync-issue-name"
-        >
+          data-test="sync-issue-name">
           {generalErrors.shortMessages[errorName]}
         </h1>
 
         <CaretDown
-          className={`transform transition-all duration-200 ${
-            extend ? 'rotate-180' : 'rotate-0'
-          }`}
+          className={`transform transition-all duration-200 ${extend ? 'rotate-180' : 'rotate-0'}`}
           size={20}
         />
       </div>
@@ -65,17 +63,11 @@ function GeneralIssueAccordion({
               collapsed: { height: 0 },
             }}
             transition={{ ease: 'easeInOut' }}
-            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3"
-          >
+            className="space-y-2 overflow-hidden rounded-lg border-gray-20 bg-surface p-3">
             {issues.map((issue, index) => (
-              <div
-                className="flex min-w-0 items-center space-x-2.5 overflow-hidden"
-                key={issue.errorName + index}
-              >
+              <div className="flex min-w-0 items-center space-x-2.5 overflow-hidden" key={issue.errorName + index}>
                 <FileIcon className="h-5 w-5 shrink-0" />
-                <p className="flex flex-1 text-gray-60">
-                  {generalErrors.longMessages[issue.errorName]}
-                </p>
+                <p className="flex flex-1 text-gray-60">{generalErrors.longMessages[issue.errorName]}</p>
               </div>
             ))}
           </motion.div>
@@ -89,9 +81,7 @@ type AppIssueElementProps = {
   issues: Array<GeneralIssue>;
 };
 
-export function GeneralIssuesByErrorAccordion({
-  issues,
-}: AppIssueElementProps) {
+export function GeneralIssuesByErrorAccordion({ issues }: AppIssueElementProps) {
   const [selected, setSelected] = useState<AppError | null>(null);
 
   const issuesByErrorNameArray = groupAppIssuesByErrorName(issues);
@@ -115,13 +105,8 @@ export function GeneralIssuesByErrorAccordion({
         <li
           className="flex flex-col space-y-2.5 p-3 hover:bg-gray-5"
           onClick={toggleOrSelectError(errorName)}
-          key={errorName}
-        >
-          <GeneralIssueAccordion
-            extend={isSelected(errorName)}
-            errorName={errorName}
-            issues={issues}
-          />
+          key={errorName}>
+          <GeneralIssueAccordion extend={isSelected(errorName)} errorName={errorName} issues={issues} />
         </li>
       ))}
     </ul>

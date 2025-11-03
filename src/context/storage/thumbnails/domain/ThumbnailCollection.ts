@@ -4,11 +4,12 @@ import { Thumbnail } from './Thumbnail';
 export class ThumbnailCollection {
   readonly thumbnails: Array<Thumbnail>;
 
-  constructor(readonly file: File, thumbnails: Array<Thumbnail>) {
+  constructor(
+    readonly file: File,
+    thumbnails: Array<Thumbnail>,
+  ) {
     this.validate(thumbnails);
-    this.thumbnails = thumbnails.sort(
-      (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
-    );
+    this.thumbnails = thumbnails.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
   }
 
   private validate(thumbnails: Thumbnail[]) {
@@ -16,9 +17,7 @@ export class ThumbnailCollection {
       return;
     }
 
-    throw new Error(
-      'A Thumbnail Collection has to have at least one thumbnail'
-    );
+    throw new Error('A Thumbnail Collection has to have at least one thumbnail');
   }
 
   getLatestThumbnail(): Thumbnail {

@@ -25,9 +25,7 @@ jest.mock('@internxt/drive-desktop-core/build/backend', () => ({
 jest.mock('../service', () => {
   return {
     updateCredentials: jest.fn(),
-    obtainTokens: jest
-      .fn()
-      .mockReturnValue(['stored-token-1', 'stored-token-2']),
+    obtainTokens: jest.fn().mockReturnValue(['stored-token-1', 'stored-token-2']),
     getUser: jest.fn().mockReturnValue({
       /* mock user object */
     }),
@@ -72,11 +70,9 @@ describe('refresh-token', () => {
           avatar: 'avatar-url',
           emailVerified: true,
           lastPasswordChangedAt: new Date().toISOString(),
-        }
+        },
       });
-      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(
-        refreshResult
-      );
+      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(refreshResult);
 
       const result = await obtainTokens();
 
@@ -87,9 +83,7 @@ describe('refresh-token', () => {
     it('should return an error if the token is not obtained', async () => {
       const mockError = new Error('Refresh request was not successful');
       const leftResult: Either<Error, RefreshTokenResponse> = left(mockError);
-      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(
-        leftResult
-      );
+      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(leftResult);
 
       const result = await obtainTokens();
 
@@ -99,9 +93,7 @@ describe('refresh-token', () => {
 
     it('should return an error if an error is thrown during the refresh process', async () => {
       const thrownError = new Error('Unexpected failure');
-      (driveServerModule.auth.refresh as jest.Mock).mockRejectedValue(
-        thrownError
-      );
+      (driveServerModule.auth.refresh as jest.Mock).mockRejectedValue(thrownError);
 
       const result = await obtainTokens();
 
@@ -112,7 +104,7 @@ describe('refresh-token', () => {
           msg: '[TOKEN] Could not obtain tokens',
           tag: 'AUTH',
           error: thrownError,
-        })
+        }),
       );
     });
   });
@@ -120,9 +112,7 @@ describe('refresh-token', () => {
   describe('refreshToken', () => {
     it('should return an error if the refresh token is not obtained', async () => {
       const mockError = new Error('Refresh request was not successful');
-      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(
-        left(mockError)
-      );
+      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(left(mockError));
 
       const result = await refreshToken();
 
@@ -132,9 +122,7 @@ describe('refresh-token', () => {
 
     it('should updateCredentials if the refresh was successful', async () => {
       const mockData = { token: 'abc', newToken: 'xyz' };
-      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(
-        right(mockData)
-      );
+      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(right(mockData));
 
       await refreshToken();
 
@@ -143,9 +131,7 @@ describe('refresh-token', () => {
 
     it('should return the token and the new token as an array if the refresh was successfull', async () => {
       const mockData = { token: 'abc', newToken: 'xyz' };
-      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(
-        right(mockData)
-      );
+      (driveServerModule.auth.refresh as jest.Mock).mockResolvedValue(right(mockData));
 
       const result = await refreshToken();
 
@@ -172,9 +158,7 @@ describe('refresh-token', () => {
         TokenScheduler: TokenSchedulerMock,
       }));
 
-      refreshTokenMock = jest
-        .fn()
-        .mockResolvedValue(right(['new-token', 'new-token-2']));
+      refreshTokenMock = jest.fn().mockResolvedValue(right(['new-token', 'new-token-2']));
       jest.doMock('./refresh-token', () => {
         const actualModule = jest.requireActual('./refresh-token');
         return {
@@ -192,11 +176,7 @@ describe('refresh-token', () => {
 
       await createTokenSchedule(refreshedTokens);
 
-      expect(TokenSchedulerMock).toHaveBeenCalledWith(
-        5,
-        refreshedTokens,
-        onUserUnauthorized
-      );
+      expect(TokenSchedulerMock).toHaveBeenCalledWith(5, refreshedTokens, onUserUnauthorized);
 
       expect(scheduleMock).toHaveBeenCalled();
       expect(refreshTokenMock).not.toHaveBeenCalled();
@@ -213,11 +193,7 @@ describe('refresh-token', () => {
       await createTokenSchedule();
 
       expect(obtainTokensMock).toHaveBeenCalled();
-      expect(TokenSchedulerMock).toHaveBeenCalledWith(
-        5,
-        storedTokens,
-        expect.any(Function)
-      );
+      expect(TokenSchedulerMock).toHaveBeenCalledWith(5, storedTokens, expect.any(Function));
       expect(scheduleMock).toHaveBeenCalled();
       expect(refreshTokenMock).not.toHaveBeenCalled();
     });
@@ -226,9 +202,7 @@ describe('refresh-token', () => {
       scheduleMock.mockReturnValue(false);
 
       const { createTokenSchedule } = await import('./refresh-token');
-      const { logger } = await import(
-        '../../../../core/LoggerService/LoggerService'
-      );
+      const { logger } = await import('../../../../core/LoggerService/LoggerService');
 
       await createTokenSchedule();
 

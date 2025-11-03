@@ -8,12 +8,10 @@ import { logger } from '@internxt/drive-desktop-core/build/backend';
 export class StorageFileService {
   constructor(
     private readonly environment: Environment,
-    private readonly bucket: string
+    private readonly bucket: string,
   ) {}
 
-  async isFileDownloadable(
-    fileContentsId: string
-  ): Promise<Either<Error, boolean>> {
+  async isFileDownloadable(fileContentsId: string): Promise<Either<Error, boolean>> {
     logger.debug({
       msg: `[DOWNLOAD CHECK] Checking if file ${fileContentsId} is downloadable...`,
     });
@@ -45,10 +43,7 @@ export class StorageFileService {
         });
 
         stream.on('error', (err) => {
-          if (
-            err.message?.includes('not found') ||
-            err.message?.includes('404')
-          ) {
+          if (err.message?.includes('not found') || err.message?.includes('404')) {
             logger.warn({
               msg: `[DOWNLOAD] File not found ${fileContentsId}: ${err.message}`,
             });

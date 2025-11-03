@@ -6,9 +6,7 @@ import { Device } from '../../../../apps/main/device/service';
  * @param deviceAsFolder - The device-as-folder object from the API
  * @returns Device - The mapped device object
  */
-export function mapDeviceAsFolderToDevice(
-  deviceAsFolder: components['schemas']['DeviceAsFolder']
-): Device {
+export function mapDeviceAsFolderToDevice(deviceAsFolder: components['schemas']['DeviceAsFolder']): Device {
   return {
     id: deviceAsFolder.id,
     uuid: deviceAsFolder.uuid,

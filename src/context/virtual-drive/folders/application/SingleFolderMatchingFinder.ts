@@ -17,8 +17,7 @@ export class SingleFolderMatchingFinder {
   async run(partial: Partial<FolderAttributes>): Promise<Folder> {
     const folders = this.repository.matchingPartial(partial);
 
-    if (folders.length === 0)
-      throw new FolderNotFoundError(JSON.stringify(partial));
+    if (folders.length === 0) throw new FolderNotFoundError(JSON.stringify(partial));
 
     if (folders.length > 1) throw new OnlyOneFolderExpectedError();
 

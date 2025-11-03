@@ -12,14 +12,14 @@ jest.mock('../../../../context/LocalContext', () => ({
 }));
 
 jest.mock('../../../../hooks/backups/useBackupsInterval/useBackupsInterval', () => ({
-  useBackupsInterval: jest.fn()
+  useBackupsInterval: jest.fn(),
 }));
 
 jest.mock('../../../../hooks/useUserAvailableProducts/useUserAvailableProducts', () => ({
   useUserAvailableProducts: jest.fn(),
 }));
 
-const renderFrequencyComponent = (customProps = {}, backups= true) => {
+const renderFrequencyComponent = (customProps = {}, backups = true) => {
   (useBackupsInterval as jest.Mock).mockReturnValue({
     backupsInterval: -1,
     updateBackupsInterval: jest.fn(),
@@ -78,7 +78,6 @@ describe('Frequency', () => {
   });
 
   it('should enable one the user has the backup product availabitly', async () => {
-
     // Step 1: User has no backups
     const { rerender } = renderFrequencyComponent({}, false);
     const selectBefore = screen.getByRole('combobox');

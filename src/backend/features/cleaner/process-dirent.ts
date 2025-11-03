@@ -21,10 +21,7 @@ export async function processDirent({
 }: ProcessDirentProps): Promise<CleanableItem[]> {
   try {
     if (entry.isFile()) {
-      if (
-        (await wasAccessedWithinLastHour(fullPath)) ||
-        (customFileFilter && customFileFilter(entry.name))
-      ) {
+      if ((await wasAccessedWithinLastHour(fullPath)) || (customFileFilter && customFileFilter(entry.name))) {
         return [];
       }
 

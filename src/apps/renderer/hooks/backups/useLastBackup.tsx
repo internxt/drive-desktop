@@ -15,13 +15,10 @@ export interface LastBackupContextProps {
 }
 
 export function useLastBackup(): LastBackupContextProps {
-  const [lastBackupTimestamp, setLastBackupTimestamp] = useState<
-    number | undefined
-  >(undefined);
+  const [lastBackupTimestamp, setLastBackupTimestamp] = useState<number | undefined>(undefined);
 
   const [lastExistReason, setLastExistReason] = useState<WorkerExitCause>();
-  const [lastBackupHadIssues, setLastBackupHadIssues] =
-    useState<boolean>(false);
+  const [lastBackupHadIssues, setLastBackupHadIssues] = useState<boolean>(false);
 
   function refreshLastBackupTimestamp() {
     window.electron.getLastBackupTimestamp().then(setLastBackupTimestamp);

@@ -24,7 +24,7 @@ export class FileCreator {
     private readonly parentFolderFinder: ParentFolderFinder,
     private readonly fileDeleter: FileTrasher,
     private readonly eventBus: EventBus,
-    private readonly notifier: SyncFileMessenger
+    private readonly notifier: SyncFileMessenger,
   ) {}
 
   async run(path: string, contentsId: string, size: number): Promise<File> {
@@ -35,11 +35,7 @@ export class FileCreator {
       });
 
       if (existingFiles) {
-        await Promise.all(
-          existingFiles.map((existingFile) =>
-            this.fileDeleter.run(existingFile.contentsId)
-          )
-        );
+        await Promise.all(existingFiles.map((existingFile) => this.fileDeleter.run(existingFile.contentsId)));
       }
 
       const fileSize = new FileSize(size);
@@ -83,8 +79,7 @@ export class FileCreator {
     } catch (error: unknown) {
       logger.error({ msg: `[File Creator] Error creating file: ${path}`, error });
 
-      const cause =
-        error instanceof DriveDesktopError ? error.cause : 'UNKNOWN';
+      const cause = error instanceof DriveDesktopError ? error.cause : 'UNKNOWN';
 
       await this.notifier.issues({
         error: 'UPLOAD_ERROR',

@@ -23,12 +23,7 @@ describe('Folder Renamer', () => {
 
     syncFolderMessenger = new SyncFolderMessengerMock();
 
-    renamer = new FolderRenamer(
-      repository,
-      remote,
-      eventBus,
-      syncFolderMessenger
-    );
+    renamer = new FolderRenamer(repository, remote, eventBus, syncFolderMessenger);
   });
 
   const setUpHappyPath = (): {
@@ -67,9 +62,7 @@ describe('Folder Renamer', () => {
       await renamer.run(folder, destination);
 
       expect(repository.updateMock).toBeCalledTimes(1);
-      expect(repository.updateMock).toBeCalledWith(
-        expect.objectContaining({ _path: destination })
-      );
+      expect(repository.updateMock).toBeCalledWith(expect.objectContaining({ _path: destination }));
     });
   });
 
@@ -81,10 +74,7 @@ describe('Folder Renamer', () => {
       await renamer.run(folder, destination);
 
       expect(syncFolderMessenger.renameMock).toBeCalledTimes(1);
-      expect(syncFolderMessenger.renameMock).toBeCalledWith(
-        original,
-        destination.name()
-      );
+      expect(syncFolderMessenger.renameMock).toBeCalledWith(original, destination.name());
     });
 
     it('sends a message when the rename has been completed', async () => {
@@ -94,10 +84,7 @@ describe('Folder Renamer', () => {
       await renamer.run(folder, destination);
 
       expect(syncFolderMessenger.renamedMock).toBeCalledTimes(1);
-      expect(syncFolderMessenger.renamedMock).toBeCalledWith(
-        original,
-        destination.name()
-      );
+      expect(syncFolderMessenger.renamedMock).toBeCalledWith(original, destination.name());
     });
   });
 });

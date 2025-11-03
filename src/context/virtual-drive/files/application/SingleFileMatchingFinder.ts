@@ -17,8 +17,7 @@ export class SingleFileMatchingFinder {
   async run(partial: Partial<FileAttributes>): Promise<File> {
     const files = this.repository.matchingPartial(partial);
 
-    if (files.length === 0)
-      throw new FileNotFoundError(JSON.stringify(partial));
+    if (files.length === 0) throw new FileNotFoundError(JSON.stringify(partial));
 
     if (files.length > 1) throw new OnlyOneFileExpectedError();
 

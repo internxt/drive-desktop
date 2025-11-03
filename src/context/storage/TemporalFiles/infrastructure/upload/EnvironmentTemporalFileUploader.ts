@@ -16,7 +16,7 @@ export class EnvironmentTemporalFileUploader {
   constructor(
     private readonly fn: UploadStrategyFunction,
     private readonly bucket: string,
-    private readonly abortSignal?: AbortSignal
+    private readonly abortSignal?: AbortSignal,
   ) {
     this.eventEmitter = new EventEmitter();
     this.stopwatch = new Stopwatch();
@@ -54,10 +54,7 @@ export class EnvironmentTemporalFileUploader {
     });
   }
 
-  on(
-    event: keyof UploadEvents,
-    handler: UploadEvents[keyof UploadEvents]
-  ): void {
+  on(event: keyof UploadEvents, handler: UploadEvents[keyof UploadEvents]): void {
     this.eventEmitter.on(event, handler);
   }
 

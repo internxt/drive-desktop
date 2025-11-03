@@ -23,12 +23,7 @@ describe('Folder Creator from Offline Folder', () => {
 
     eventBus = new EventBusMock();
 
-    SUT = new FolderCreatorFromOfflineFolder(
-      repository,
-      remote,
-      eventBus,
-      messenger
-    );
+    SUT = new FolderCreatorFromOfflineFolder(repository, remote, eventBus, messenger);
   });
 
   it('creates on a folder from a offline folder', async () => {
@@ -48,9 +43,7 @@ describe('Folder Creator from Offline Folder', () => {
     it('sends the message FOLDER_CREATING', async () => {
       const offlineFolder = OfflineFolderMother.random();
 
-      const expectedFolder = FolderMother.fromPartial(
-        offlineFolder.attributes()
-      );
+      const expectedFolder = FolderMother.fromPartial(offlineFolder.attributes());
 
       remote.shouldPersists(expectedFolder, WITH_UUID);
       // remote.persistMock.mockResolvedValueOnce(resultFolderAttributes);
@@ -67,9 +60,7 @@ describe('Folder Creator from Offline Folder', () => {
     it('sends the message FOLDER_CREATED', async () => {
       const offlineFolder = OfflineFolderMother.random();
 
-      const expectedFolder = FolderMother.fromPartial(
-        offlineFolder.attributes()
-      );
+      const expectedFolder = FolderMother.fromPartial(offlineFolder.attributes());
 
       repository.addMock.mockImplementationOnce(() => {
         // no-op
