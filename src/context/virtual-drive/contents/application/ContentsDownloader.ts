@@ -42,7 +42,7 @@ export class ContentsDownloader {
       for await (const chunk of readable) {
         const buffer = Buffer.from(chunk);
 
-        callback(false, buffer, offset);
+        callback(buffer, offset);
 
         offset += buffer.length;
       }
@@ -50,8 +50,6 @@ export class ContentsDownloader {
       ctx.logger.debug({ msg: 'File downloaded', path });
 
       ipcRendererSyncEngine.send('FILE_DOWNLOADED', { path });
-
-      callback(true);
     } catch (error) {
       if (error instanceof Error && error.message !== 'The operation was aborted') {
         ctx.logger.error({ msg: 'Error downloading file', error });
