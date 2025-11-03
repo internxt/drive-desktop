@@ -31,7 +31,7 @@ type FileMetaDataResponse = {
 
 const limiter = new Bottleneck({
   maxConcurrent: 4,
-  minTime: 100
+  minTime: 100,
 });
 
 @Service()
@@ -43,13 +43,10 @@ export class RemoteThumbnailsRepository implements ThumbnailsRepository {
 
   private async obtainThumbnails(file: File): Promise<Array<Thumbnail>> {
     try {
-      const response = await this.axios.get(
-        `${process.env.NEW_DRIVE_URL}/folders/${file.folderId}/file`,
-        {
-          params: { name: file.name, type: file.type },
-          timeout: 30000,
-        }
-      );
+      const response = await this.axios.get(`${process.env.NEW_DRIVE_URL}/folders/${file.folderId}/file`, {
+        params: { name: file.name, type: file.type },
+        timeout: 30000,
+      });
 
       if (response.status !== 200) {
         return [];

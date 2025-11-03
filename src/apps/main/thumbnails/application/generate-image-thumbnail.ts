@@ -11,7 +11,7 @@ export function generateImageThumbnail({ absolutePath }: Props) {
   if (!image.isEmpty()) {
     const resizedImage = image.resize({
       width: ThumbnailConfig.MaxWidth,
-      height: ThumbnailConfig.MaxHeight
+      height: ThumbnailConfig.MaxHeight,
     });
 
     const buffer = resizedImage.toPNG();

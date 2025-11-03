@@ -8,8 +8,8 @@ type Props = {
   absolutePath: string;
 };
 
-export async function createAndUploadThumbnail({id, absolutePath}: Props) {
-    try {
+export async function createAndUploadThumbnail({ id, absolutePath }: Props) {
+  try {
     const uploader = ThumbnailUploaderFactory.build();
 
     const image = await obtainImageToThumbnailIt({ absolutePath });

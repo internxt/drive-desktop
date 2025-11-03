@@ -1,8 +1,5 @@
 import { onUserUnauthorized } from '../../../../apps/shared/HttpClient/background-process-clients';
-import {
-  PaymentsModule,
-  UserAvailableProducts,
-} from '@internxt/drive-desktop-core/build/backend';
+import { PaymentsModule, UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
 
 import { appInfo } from '../../../../apps/main/app-info/app-info';
 import { obtainToken } from '../../../../apps/main/auth/service';
