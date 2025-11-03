@@ -25,17 +25,11 @@ describe('detect-context-menu-action', () => {
       ctx: { virtualDrive },
       absolutePath: 'absolutePath' as AbsolutePath,
       path: createRelativePath('file.txt'),
-      self: {
-        fileInDevice: new Set(),
-        logger: loggerMock,
-      },
       details: {
         prev: { ctimeMs: 1, mtimeMs: 1 },
         curr: { ctimeMs: 2, mtimeMs: 1 },
       },
     });
-
-    props.self.fileInDevice.clear();
   });
 
   it('should update contents id when file modification time changes', async () => {
@@ -45,7 +39,6 @@ describe('detect-context-menu-action', () => {
     // When
     await detectContextMenuAction(props);
     // Then
-    expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
     expect(updateContentsIdMock).toBeCalledWith(
       expect.objectContaining({
         stats: props.details.curr,
@@ -58,12 +51,10 @@ describe('detect-context-menu-action', () => {
 
   it('should dehydrate when pin state is online only', async () => {
     // Given
-    props.self.fileInDevice.add(props.absolutePath);
     getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.OnlineOnly } });
     // When
     await detectContextMenuAction(props);
     // Then
-    expect(props.self.fileInDevice.has(props.absolutePath)).toBe(false);
     expect(throttleHydrateMock).toBeCalledTimes(0);
     expect(handleDehydrateMock).toBeCalledWith({ drive: virtualDrive, path: props.path });
   });
@@ -79,7 +70,6 @@ describe('detect-context-menu-action', () => {
       // When
       await detectContextMenuAction(props);
       // Then
-      expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
       expect(throttleHydrateMock).toBeCalledWith(expect.objectContaining({ path: props.path }));
     });
 
@@ -89,19 +79,8 @@ describe('detect-context-menu-action', () => {
       // When
       await detectContextMenuAction(props);
       // Then
-      expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
       expect(throttleHydrateMock).toBeCalledTimes(0);
       expect(loggerMock.debug).toBeCalledWith({ msg: 'Double click on file', path: props.path });
-    });
-
-    it('should not enqueue file for hydrate if file is the device', async () => {
-      // Given
-      props.self.fileInDevice.add(props.absolutePath);
-      // When
-      await detectContextMenuAction(props);
-      // Then
-      expect(props.self.fileInDevice.has(props.absolutePath)).toBe(true);
-      expect(throttleHydrateMock).toBeCalledTimes(0);
     });
   });
 });
