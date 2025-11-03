@@ -1,5 +1,8 @@
 import { onUserUnauthorized } from '../../../../apps/shared/HttpClient/background-process-clients';
-import { getUserAvailableProducts, UserAvailableProducts } from '@internxt/drive-desktop-core/build/backend';
+import {
+  PaymentsModule,
+  UserAvailableProducts,
+} from '@internxt/drive-desktop-core/build/backend';
 
 import { appInfo } from '../../../../apps/main/app-info/app-info';
 import { obtainToken } from '../../../../apps/main/auth/service';
@@ -13,7 +16,11 @@ function storeProductsAndEmitEvent(fetchedProducts: UserAvailableProducts) {
   eventBus.emit('USER_AVAILABLE_PRODUCTS_UPDATED', fetchedProducts);
 }
 
-export async function getUserAvailableProductsAndStore({ forceStorage = false }: { forceStorage: boolean }) {
+type Props = {
+  forceStorage?: boolean;
+};
+
+export async function getUserAvailableProductsAndStore({ forceStorage = false }: Props = {}) {
   const storedProducts = getStoredUserProducts();
   const paymentsClientConfig = {
     paymentsUrl: process.env.PAYMENTS_URL!,
@@ -23,10 +30,14 @@ export async function getUserAvailableProductsAndStore({ forceStorage = false }:
     token: obtainToken('newToken'),
     unauthorizedCallback: onUserUnauthorized,
   };
-  const userProducts = await getUserAvailableProducts({
+  const userProducts = await PaymentsModule.getUserAvailableProducts({
     paymentsClientConfig,
   });
-  if (userProducts && (areProductsEqual({ stored: storedProducts, fetched: userProducts }) || forceStorage)) {
+
+  if (!userProducts) return;
+
+  const areStoredProductsEqual = areProductsEqual({ stored: storedProducts, fetched: userProducts });
+  if (areStoredProductsEqual || forceStorage) {
     storeProductsAndEmitEvent(userProducts);
   }
 }
