@@ -6,10 +6,8 @@ import { loggerMock, TEST_FILES } from '@/tests/vitest/mocks.helper.test';
 import { join } from 'node:path';
 import { calls, mockProps, partialSpyOn } from '@/tests/vitest/utils.helper.test';
 import { writeFile } from 'node:fs/promises';
-import { mockDeep } from 'vitest-mock-extended';
 import { sleep } from '@/apps/main/util';
 import * as onAll from '@/node-win/watcher/events/on-all.service';
-import { Callbacks } from '@/node-win/types/callbacks.type';
 import { AbsolutePath, createRelativePath } from '@/context/local/localFile/infrastructure/AbsolutePath';
 import { FileUuid } from '@/apps/main/database/entities/DriveFile';
 import * as onAdd from '@/node-win/watcher/events/on-add.service';
@@ -27,16 +25,13 @@ describe('sync-remote-changes-to-local', () => {
   const rootUuid = v4();
   const providerId = `{${rootUuid.toUpperCase()}}`;
   const virtualDrive = new VirtualDrive({ loggerPath: '', providerId, rootPath });
-  const callbacks = mockDeep<Callbacks>();
 
   beforeEach(async () => {
     await virtualDrive.createSyncRootFolder();
     virtualDrive.registerSyncRoot({ providerName });
-    virtualDrive.connectSyncRoot({ callbacks });
   });
 
   afterAll(() => {
-    virtualDrive.disconnectSyncRoot();
     VirtualDrive.unregisterSyncRoot({ providerId });
   });
 
@@ -80,7 +75,6 @@ describe('sync-remote-changes-to-local', () => {
     calls(loggerMock.debug).toStrictEqual([
       { tag: 'SYNC-ENGINE', msg: 'Create sync root folder', code: 'NON_EXISTS' },
       { msg: 'Registering sync root', syncRootPath: rootPath },
-      { msg: 'connectSyncRoot', connectionKey: { hr: 0, connectionKey: expect.any(String) } },
       { msg: 'onReady' },
       { tag: 'SYNC-ENGINE', msg: 'Convert to placeholder succeeded', itemPath: filePath, id: 'FILE:uuid' },
       {

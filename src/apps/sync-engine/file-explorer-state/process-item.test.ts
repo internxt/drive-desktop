@@ -14,7 +14,7 @@ import * as isHydrationPending from './is-hydration-pending';
 
 describe('process-item', () => {
   const getFolderUuidMock = partialSpyOn(NodeWin, 'getFolderUuid');
-  const getFileUuidMock = partialSpyOn(NodeWin, 'getFileUuid');
+  const getFileInfoMock = partialSpyOn(NodeWin, 'getFileInfo');
   const absoluteToRelativeMock = partialSpyOn(pathUtils, 'absoluteToRelative');
   const isModifiedMock = partialSpyOn(isModified, 'isModified');
   const isHydrationPendingMock = partialSpyOn(isHydrationPending, 'isHydrationPending');
@@ -68,13 +68,12 @@ describe('process-item', () => {
   describe('for files', () => {
     beforeEach(() => {
       props.localItem.stats!.isFile = () => true;
-      props.ctx.virtualDrive.getPlaceholderState = () => ({ pinState: PinState.AlwaysLocal });
-      getFileUuidMock.mockReturnValue({ data: 'uuid' as FileUuid });
+      getFileInfoMock.mockReturnValue({ data: { uuid: 'uuid' as FileUuid, pinState: PinState.AlwaysLocal } });
     });
 
     it('should be added to create files if not exists', () => {
       // Given
-      getFileUuidMock.mockReturnValue({ error: new GetFileIdentityError('NON_EXISTS') });
+      getFileInfoMock.mockReturnValue({ error: new GetFileIdentityError('NON_EXISTS') });
       // When
       processItem(props);
       // Then
