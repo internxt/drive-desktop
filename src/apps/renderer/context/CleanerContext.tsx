@@ -30,7 +30,7 @@ export function CleanerProvider({ children }: { children: ReactNode }) {
 
   const { products } = useUserAvailableProducts();
   const isCleanerAvailable = useMemo(() => {
-    return Boolean(products?.cleaner);
+    return Boolean(true);
   }, [products]);
   const initialCleaningState = {
     cleaning: false,

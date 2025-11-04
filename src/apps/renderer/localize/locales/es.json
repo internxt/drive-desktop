@@ -420,7 +420,8 @@
     "cleaner": {
       "selectAllCheckbox": "Seleccionar todo",
       "mainView": {
-        "cleanup": "Limpiar"
+        "cleanup": "Limpiar",
+        "cleanupTooltip": "Es posible que algunos archivos en uso o que requieren permiso no se limpien automáticamente. Intenta limpiarlos después de cerrar las aplicaciones activas y de conceder los permisos."
       },
       "generateReportView": {
         "title": "No se ha encontrado ningún informe.",
@@ -449,12 +450,12 @@
           "stopCleanButton": "Detener limpieza",
           "deletedFiles": "Archivos eliminados",
           "freeSpaceGained": "Espacio libre ganado",
-          "skippedFiles": "Archivos omitidos",
-          "skippedFilesTooltip": "Archivos que no se pudieron eliminar porque están en uso o son archivos del sistema protegidos"
+          "skippedFiles": "Archivos omitidos"
         },
         "cleaningFinished": {
           "title": "Tu dispositivo está limpio",
-          "subtitle": "No es necesario realizar ninguna otra acción",
+          "noActionsRequired": "No es necesario realizar ninguna otra acción",
+          "actionsRequired": "Algunos archivos no se pudieron eliminar. Cierra las aplicaciones abiertas o concede acceso para eliminarlos.",
           "finish": "Finalizar"
         }
       }

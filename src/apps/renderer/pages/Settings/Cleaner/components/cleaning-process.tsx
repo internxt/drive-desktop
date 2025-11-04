@@ -31,6 +31,7 @@ export default function CleaningProcess({
         deletedFiles={deletedFiles}
         skippedFiles={skippedFiles}
         freeSpaceGained={freeSpaceGained}
+        hideSkippedFiles={true}
       />
       <Button className={'hover:cursor-pointer'} variant={'dangerLight'} size="lg" onClick={onStopCleaning}>
         {translate('settings.cleaner.cleaningView.cleaningProcess.stopCleanButton')}

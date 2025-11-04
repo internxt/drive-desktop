@@ -415,7 +415,8 @@
     "cleaner": {
       "selectAllCheckbox": "Tout sélectionner",
       "mainView": {
-        "cleanup": "Nettoyer"
+        "cleanup": "Nettoyer",
+        "cleanupTooltip": "Certains fichiers en cours d'utilisation ou nécessitant une autorisation peuvent ne pas être nettoyés automatiquement. Essayez de les nettoyer après avoir fermé les applications actives et accordé les autorisations."
       },
       "generateReportView": {
         "title": "Aucun rapport trouvé",
@@ -444,12 +445,12 @@
           "stopCleanButton": "Arrêter le nettoyage",
           "deletedFiles": "Fichiers supprimés",
           "freeSpaceGained": "Espace libre gagné",
-          "skippedFiles": "Fichiers ignorés",
-          "skippedFilesTooltip": "Fichiers qui n'ont pas pu être supprimés car ils sont en cours d'utilisation ou sont des fichiers système protégés"
+          "skippedFiles": "Fichiers ignorés"
         },
         "cleaningFinished": {
           "title": "Votre appareil est propre",
-          "subtitle": "Aucune autre action n'est nécessaire",
+          "noActionsRequired": "Aucune autre action n'est nécessaire",
+          "actionsRequired": "Certains fichiers n'ont pas pu être supprimés. Fermez les applications ouvertes ou accordez l'accès pour les supprimer.",
           "finish": "Terminer"
         }
       }
