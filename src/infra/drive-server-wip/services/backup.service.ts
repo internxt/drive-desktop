@@ -4,12 +4,18 @@ import { createDevice } from './backup/create-device';
 import { getDevice } from './backup/get-device';
 import { getRequestKey } from '../in/get-in-flight-request';
 import { fetchFolder } from './backup/fetch-folder';
+import { getDeviceByIdentifier } from './backup/get-device-by-identifier';
+import { addIdentifierToDevice } from './backup/add-identifier-to-device';
+import { createDeviceWithIdentifier } from './backup/create-device-with-identifier';
 
 export const backup = {
   getDevices,
   updateDevice,
   getDevice,
   createDevice,
+  addIdentifierToDevice,
+  createDeviceWithIdentifier,
+  getDeviceByIdentifier,
   fetchFolder,
 };
 
